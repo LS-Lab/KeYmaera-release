@@ -32,6 +32,8 @@ import de.uka.ilkd.key.logic.sort.oclsort.OclSort;
 import de.uka.ilkd.key.proof.init.InitConfig;
 import de.uka.ilkd.key.proof.init.OCLInvSimplPO;
 import de.uka.ilkd.key.rule.TacletForTests;
+import de.uka.ilkd.key.gui.Main;
+import de.uka.ilkd.key.proof.init.Profile;
 
 /** class tests the parser for Taclets
 */
@@ -110,10 +112,11 @@ public class TestTacletParserOCL extends TestCase {
     // Utility Methods for test cases.
     //
     private KeYParser stringTacletParser(String s) {
-	return new KeYParser
-	    (ParserMode.TACLET,new KeYLexer(new StringReader(s),null), 
-	     "No file. parser/TestTacletParser.stringTacletParser("+s+")",  
-	     tf, services, nss);
+		Profile p = Main.getInstance().mediator().getProfile();
+		return new KeYParser
+		    (ParserMode.TACLET,new KeYLexer(new StringReader(s),null), 
+	    	 "No file. parser/TestTacletParser.stringTacletParser("+s+")",  
+	 	    tf, services, nss, p.getProgramBlockProvider());
     }
 
     public Term parseTerm(String s) {

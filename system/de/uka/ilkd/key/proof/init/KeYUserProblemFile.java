@@ -45,30 +45,33 @@ import de.uka.ilkd.key.proof.ProofAggregate;
 import de.uka.ilkd.key.proof.mgt.*;
 import de.uka.ilkd.key.util.ProgressMonitor;
 
-/** represents an input from a .key user problem file producing environment
- *  as well as a proof obligation.
+/**
+ * represents an input from a .key user problem file producing environment as
+ * well as a proof obligation.
  */
-public class KeYUserProblemFile extends KeYFile implements ProofOblInput{
+public class KeYUserProblemFile extends KeYFile implements ProofOblInput {
 
     private Term problemTerm = null;
+
     private String problemHeader = "";
 
     // if false only the specifications of Object and Datagroup are read.
     // The parsing of javacode and specifications of nonlibrary classes
     // is not affected by this flag.
     public static boolean parseLibSpecs = false;
-    // for disabling the parsing of java classes and their 
+
+    // for disabling the parsing of java classes and their
     // jmlspecs when running tests
     private boolean parseJMLSpecs;
-
 
     private boolean chooseDLContract = false;
     protected boolean tacletFile = false;
 
-    /** creates a new representation of a KeYUserFile with the given name,
-     * a rule source representing the physical source of the input, and
-     * a graphical representation to call back in order to report the progress
-     * while reading.
+    /**
+     * creates a new representation of a KeYUserFile with the given name, a rule
+     * source representing the physical source of the input, and a graphical
+     * representation to call back in order to report the progress while
+     * reading.
      */
     public KeYUserProblemFile(String name, File file, 
 			      ProgressMonitor monitor) {
@@ -104,13 +107,15 @@ public class KeYUserProblemFile extends KeYFile implements ProofOblInput{
 
 	    final ParserConfig schemaConfig 
 		= new ParserConfig(initConfig.getServices(), schema);
-	    problemParser = new KeYParser(ParserMode.PROBLEM, lexer, 
-					      file.toString(), 
-					      schemaConfig, 
-					      normalConfig,
-					      initConfig.getTaclet2Builder(),
-					      initConfig.getTaclets(), 
-                                              initConfig.getActivatedChoices()); 
+
+            Profile profile = Main.getInstance().mediator().getProfile();
+            ProgramBlockProvider provider = profile.getProgramBlockProvider();
+            problemParser = new KeYParser(ParserMode.PROBLEM, lexer, file
+                    .toString(), schemaConfig, normalConfig, initConfig
+                    .getTaclet2Builder(), initConfig.getTaclets(), initConfig
+                    .getActivatedChoices(), provider);
+
+
 	    if (problemOnly) {
 		problemTerm = problemParser.parseProblem();
 	    } else {
@@ -129,210 +134,213 @@ public class KeYUserProblemFile extends KeYFile implements ProofOblInput{
 	       }
 	    }
             problemHeader = lexer.getText();
-            if(problemHeader != null && 
-	       problemHeader.lastIndexOf(searchS) != -1){
-		problemHeader = problemHeader.substring(
-		    0, problemHeader.lastIndexOf(searchS));
-	    }
-	    initConfig.setTaclets(problemParser.getTaclets());
-	    initConfig.add(normalConfig.namespaces(), mod);
-	    
-	    if(!problemOnly) {
-		initConfig.getProofEnv().addMethodContracts(
-			problemParser.getContracts(), problemHeader);
-	    }
-	} catch (antlr.ANTLRException e) {
-	    throw new ProofInputException(e);
+            if (problemHeader != null
+                    && problemHeader.lastIndexOf(searchS) != -1) {
+                problemHeader = problemHeader.substring(0, problemHeader
+                        .lastIndexOf(searchS));
+            }
+            initConfig.setTaclets(problemParser.getTaclets());
+            initConfig.add(normalConfig.namespaces(), mod);
+
+            if (!problemOnly) {
+                initConfig.getProofEnv().addMethodContracts(
+                        problemParser.getContracts(), problemHeader);
+            }
+        } catch (antlr.ANTLRException e) {
+            throw new ProofInputException(e);
         } catch (FileNotFoundException fnfe) {
             throw new ProofInputException(fnfe);
         }
     }
 
-    /** reads the whole .key file and modifies the initial configuration
-     * assigned to this object according to the given modification strategy. 
-     * Throws an exception if no initial configuration has been set yet.
+    /**
+     * reads the whole .key file and modifies the initial configuration assigned
+     * to this object according to the given modification strategy. Throws an
+     * exception if no initial configuration has been set yet.
      */
     public void read(ModStrategy mod) throws ProofInputException {
-	readHelp(mod, false);
+        readHelp(mod, false);
     }
 
-    /** reads the the problem section of the .key file and modifies
-     * the initial configuration assigned to this object according to
-     * the given modification strategy.  Throws an exception if no
-     * initial configuration has been set yet.
+    /**
+     * reads the the problem section of the .key file and modifies the initial
+     * configuration assigned to this object according to the given modification
+     * strategy. Throws an exception if no initial configuration has been set
+     * yet.
      */
     public void readProblem(ModStrategy mod) throws ProofInputException {
-	readHelp(mod, true);
+        readHelp(mod, true);
     }
 
     public ProofAggregate getPO() {
 
-	String name = name();
+        String name = name();
 
-        if(problemTerm == null && chooseDLContract) {
-	  Iterator it = initConfig.getProofEnv().getSpecificationRepository().getSpecs();
-	  ContractSet contracts = new ContractSet();
-	  while (it.hasNext()) {
-	    ContractSet c = (ContractSet)it.next();
-	      contracts.addAll(c);
-	  }
-	  final ContractSet res = new ContractSet();
-	  it = contracts.iterator();
-	  while (it.hasNext()) {
-	    Contract c = (Contract)it.next();
-	    if(c instanceof DLMethodContract)
-	      res.add(c);
-	  }	
+        if (problemTerm == null && chooseDLContract) {
+            Iterator it = initConfig.getProofEnv().getSpecificationRepository()
+                    .getSpecs();
+            ContractSet contracts = new ContractSet();
+            while (it.hasNext()) {
+                ContractSet c = (ContractSet) it.next();
+                contracts.addAll(c);
+            }
+            final ContractSet res = new ContractSet();
+            it = contracts.iterator();
+            while (it.hasNext()) {
+                Contract c = (Contract) it.next();
+                if (c instanceof DLMethodContract)
+                    res.add(c);
+            }
 
-	  UsedMethodContractsList fr = UsedMethodContractsList.
-              getInstance(Main.getInstance(false).mediator(), res);
-	  fr.setVisible(true);
-	  DLMethodContract c = (DLMethodContract)fr.getContract();
-	  if(c == null) return null;
-	  // Transform the header
-	  c.setHeader(problemHeader);
-	  problemHeader = c.getHeader();
-	  DLHoareTriplePO poi = (DLHoareTriplePO)c.getProofOblInput(null);
-	  initConfig.getServices().getNamespaces().
-	     programVariables().add(c.getProgramVariables());
-	  if(poi != null) {
-	    problemTerm = poi.getTerm();
-	    name = poi.name();
-	    ProofAggregate po = ProofAggregate.createProofAggregate(
-             new Proof(name, problemTerm, problemHeader,
-                        initConfig.createTacletIndex(), 
-                        initConfig.createBuiltInRuleIndex(),
-                        initConfig.getServices(), settings), name);
-	    poi.setPO(po);
-	    poi.initContract(c);
-    	    return po;
-	  }
-	  return null;
-	}else{
-          return ProofAggregate.createProofAggregate(
-           new Proof(name, problemTerm, problemHeader,
-                        initConfig.createTacletIndex(), 
-                        initConfig.createBuiltInRuleIndex(),
-                        initConfig.getServices(), settings), name);
-	}
+            UsedMethodContractsList fr = UsedMethodContractsList.getInstance(
+                    Main.getInstance(false).mediator(), res);
+            fr.setVisible(true);
+            DLMethodContract c = (DLMethodContract) fr.getContract();
+            if (c == null)
+                return null;
+            // Transform the header
+            c.setHeader(problemHeader);
+            problemHeader = c.getHeader();
+            DLHoareTriplePO poi = (DLHoareTriplePO) c.getProofOblInput(null);
+            initConfig.getServices().getNamespaces().programVariables().add(
+                    c.getProgramVariables());
+            if (poi != null) {
+                problemTerm = poi.getTerm();
+                name = poi.name();
+                ProofAggregate po = ProofAggregate.createProofAggregate(
+                        new Proof(name, problemTerm, problemHeader, initConfig
+                                .createTacletIndex(), initConfig
+                                .createBuiltInRuleIndex(), initConfig
+                                .getServices(), settings), name);
+                poi.setPO(po);
+                poi.initContract(c);
+                return po;
+            }
+            return null;
+        } else {
+            return ProofAggregate.createProofAggregate(new Proof(name,
+                    problemTerm, problemHeader, initConfig.createTacletIndex(),
+                    initConfig.createBuiltInRuleIndex(), initConfig
+                            .getServices(), settings), name);
+        }
     }
 
-    /** returns the <code>java.io.file</code> file encapsulated by
-     * the <code>KeYUserProblemFile</code>.
+    /**
+     * returns the <code>java.io.file</code> file encapsulated by the
+     * <code>KeYUserProblemFile</code>.
      */
-    public File getFile(){
-	return file.file();
+    public File getFile() {
+        return file.file();
     }
-    
+
     /**
      * @return Returns the problemHeader.
      */
-    protected String getProblemHeader () {
+    protected String getProblemHeader() {
         return problemHeader;
     }
 
-    /** returns true, that is the input asks the user which
-     * environment he prefers if there are multiple possibilities
+    /**
+     * returns true, that is the input asks the user which environment he
+     * prefers if there are multiple possibilities
      */
     public boolean askUserForEnvironment() {
-	return true;
+        return true;
     }
 
-    public void readSpecs(){
-	    Services serv = initConfig.getServices();
-	    ProgramMethod meth;
-	    Iterator it;
-	    if(method2jmlspecs != null && !method2jmlspecs.isEmpty()){
-		it = method2jmlspecs.keySet().iterator();
-		while(it.hasNext()){
-		    meth = (ProgramMethod) it.next();
-		    if(method2jmlspecs.get(meth) != null){
-			IteratorOfJMLMethodSpec sit = 
-			    ((SetOfJMLMethodSpec) 
-			     method2jmlspecs.get(meth)).
-			    iterator();
-			while(sit.hasNext()){
-			    JMLMethodSpec jmlspec = sit.next();
-			    createJMLMethodContract(meth, jmlspec);
-			}
-		    }
-		}
-	    }
-	    if(parseJMLSpecs){
-	        final Set kjts = serv.getJavaInfo().getAllKeYJavaTypes();
-	        it = kjts.iterator();
-	        while(it.hasNext()){
-	            final KeYJavaType kjt = (KeYJavaType) it.next();
-	            if(!(kjt.getJavaType() instanceof InterfaceDeclaration
-	                    || kjt.getJavaType() instanceof ClassDeclaration)){
-	                continue;
-	            }
-	            ListOfProgramMethod ml = serv.getJavaInfo().getAllProgramMethodsLocallyDeclared(kjt);
-	            IteratorOfProgramMethod mit = ml.iterator();
-	            IteratorOfJMLMethodSpec sit;
-	            JMLMethodSpec jmlspec;
-	            while(mit.hasNext()){
-	                meth = mit.next();
-	                SetOfJMLMethodSpec specs = 
-	                    serv.getImplementation2SpecMap().
-	                    getSpecsForMethod(meth);
-	                if(specs != null){
-	                    sit = specs.iterator();
-	                    while(sit.hasNext()){
-	                        jmlspec = sit.next();
-	                        createJMLMethodContract(meth, jmlspec);
-	                    }
-	                }
-	                sit = serv.getImplementation2SpecMap().
-	                getInheritedMethodSpecs(meth, kjt).iterator();
-	                while(sit.hasNext()){
-	                    jmlspec = sit.next();
-	                    createJMLMethodContract(meth, jmlspec);
-	                }
-	            }
-	        }
-	    }
+    public void readSpecs() {
+        Services serv = initConfig.getServices();
+        ProgramMethod meth;
+        Iterator it;
+        if (method2jmlspecs != null && !method2jmlspecs.isEmpty()) {
+            it = method2jmlspecs.keySet().iterator();
+            while (it.hasNext()) {
+                meth = (ProgramMethod) it.next();
+                if (method2jmlspecs.get(meth) != null) {
+                    IteratorOfJMLMethodSpec sit = ((SetOfJMLMethodSpec) method2jmlspecs
+                            .get(meth)).iterator();
+                    while (sit.hasNext()) {
+                        JMLMethodSpec jmlspec = sit.next();
+                        createJMLMethodContract(meth, jmlspec);
+                    }
+                }
+            }
+        }
+        if (parseJMLSpecs) {
+            final Set kjts = serv.getJavaInfo().getAllKeYJavaTypes();
+            it = kjts.iterator();
+            while (it.hasNext()) {
+                final KeYJavaType kjt = (KeYJavaType) it.next();
+                if (!(kjt.getJavaType() instanceof InterfaceDeclaration || kjt
+                        .getJavaType() instanceof ClassDeclaration)) {
+                    continue;
+                }
+                ListOfProgramMethod ml = serv.getJavaInfo()
+                        .getAllProgramMethodsLocallyDeclared(kjt);
+                IteratorOfProgramMethod mit = ml.iterator();
+                IteratorOfJMLMethodSpec sit;
+                JMLMethodSpec jmlspec;
+                while (mit.hasNext()) {
+                    meth = mit.next();
+                    SetOfJMLMethodSpec specs = serv.getImplementation2SpecMap()
+                            .getSpecsForMethod(meth);
+                    if (specs != null) {
+                        sit = specs.iterator();
+                        while (sit.hasNext()) {
+                            jmlspec = sit.next();
+                            createJMLMethodContract(meth, jmlspec);
+                        }
+                    }
+                    sit = serv.getImplementation2SpecMap()
+                            .getInheritedMethodSpecs(meth, kjt).iterator();
+                    while (sit.hasNext()) {
+                        jmlspec = sit.next();
+                        createJMLMethodContract(meth, jmlspec);
+                    }
+                }
+            }
+        }
     }
 
-    private void createJMLMethodContract(Object meth, JMLMethodSpec jmlspec){
-    	Modality[] allMod = new Modality[]{Op.DIA, Op.BOX};
-    	String jp = null;
-	if(!jmlspec.isValid()) return;
-    	try{
-	    jp = readJavaPath();
-    	}catch(ProofInputException e){
-	    e.printStackTrace();
-    	}
-    	for (int i=0; i<allMod.length; i++) {	  	    
-    	    OldOperationContract mct = null;
-    	    if(meth instanceof ProgramMethod){
-    	        KeYJavaType returnType = 
-    	            ((ProgramMethod) meth).getKeYJavaType();
-    	        if(returnType == null){
-    	            returnType = initConfig.getServices().
-    	            getJavaInfo().getKeYJavaType("void");
-    	        }                
-    	        mct = new JMLMethodContract(new JavaModelMethod(
-    	                (ProgramMethod) meth, jp, 
-    	                initConfig.getServices()), 
-    	                jmlspec, allMod[i]);
-    	        initConfig.getProofEnv().addMethodContract(mct);
-    	    }
-    	}
+    private void createJMLMethodContract(Object meth, JMLMethodSpec jmlspec) {
+        Modality[] allMod = new Modality[] { Op.DIA, Op.BOX };
+        String jp = null;
+        if (!jmlspec.isValid())
+            return;
+        try {
+            jp = readJavaPath();
+        } catch (ProofInputException e) {
+            e.printStackTrace();
+        }
+        for (int i = 0; i < allMod.length; i++) {
+            OldOperationContract mct = null;
+            if (meth instanceof ProgramMethod) {
+                KeYJavaType returnType = ((ProgramMethod) meth)
+                        .getKeYJavaType();
+                if (returnType == null) {
+                    returnType = initConfig.getServices().getJavaInfo()
+                            .getKeYJavaType("void");
+                }
+                mct = new JMLMethodContract(new JavaModelMethod(
+                        (ProgramMethod) meth, jp, initConfig.getServices()),
+                        jmlspec, allMod[i]);
+                initConfig.getProofEnv().addMethodContract(mct);
+            }
+        }
     }
-    
-    public boolean equals(Object o){
+
+    public boolean equals(Object o) {
         if (o instanceof KeYUserProblemFile) {
             final KeYUserProblemFile kf = (KeYUserProblemFile) o;
 
-            if(file != null && kf.file != null){
-                return kf.file.file().getAbsolutePath().
-                equals(file.file().getAbsolutePath());
+            if (file != null && kf.file != null) {
+                return kf.file.file().getAbsolutePath().equals(
+                        file.file().getAbsolutePath());
             }
-            if (file == null && kf.file == null){
-                try{
+            if (file == null && kf.file == null) {
+                try {
                     return readJavaPath().equals(kf.readJavaPath());
-                }catch(ProofInputException e){
+                } catch (ProofInputException e) {
                     return kf == this;
                 }
             }
@@ -387,85 +395,83 @@ public class KeYUserProblemFile extends KeYFile implements ProofOblInput{
         return result;
     }
 
-    protected void parseJMLSpecs(ListOfType types) 
-	throws ProofInputException {
-	method2jmlspecs = new LinkedHashMap();
-	Set builders = new LinkedHashSet();
-	initConfig.createNamespacesForActivatedChoices();
-	
+    protected void parseJMLSpecs(ListOfType types) throws ProofInputException {
+        method2jmlspecs = new LinkedHashMap();
+        Set builders = new LinkedHashSet();
+        initConfig.createNamespacesForActivatedChoices();
+
         final IteratorOfType itt = types.iterator();
-	while(itt.hasNext()){
-	    TypeDeclaration t = (TypeDeclaration) itt.next();            
-	    JMLSpecBuilder builder = 
-		new JMLSpecBuilder(t, initConfig.getServices(), initConfig.namespaces(),
-		    TermBuilder.DF, readJavaPath(), 
-                    initConfig.getActivatedChoices().
-                    contains(new Choice("javaSemantics", "intRules")));
-	    builders.add(builder);
-	}
-	
+        while (itt.hasNext()) {
+            TypeDeclaration t = (TypeDeclaration) itt.next();
+            JMLSpecBuilder builder = new JMLSpecBuilder(t, initConfig
+                    .getServices(), initConfig.namespaces(), TermBuilder.DF,
+                    readJavaPath(), initConfig.getActivatedChoices().contains(
+                            new Choice("javaSemantics", "intRules")));
+            builders.add(builder);
+        }
+
         Iterator it = builders.iterator();
-	while(it.hasNext()){
-	    JMLSpecBuilder b = (JMLSpecBuilder) it.next();
-	    b.parseModelMethodDecls();
-	}
-	it = builders.iterator();
-	while(it.hasNext()){
-	    JMLSpecBuilder b = (JMLSpecBuilder) it.next();
-	    b.parseModelFieldDecls();
-	}
-	it = builders.iterator();
-	while(it.hasNext()){
-	    JMLSpecBuilder b = (JMLSpecBuilder) it.next();
-	    b.parseJMLClassSpec();
-	}
-	it = builders.iterator();
-	while(it.hasNext()){
-	    JMLSpecBuilder b = (JMLSpecBuilder) it.next();
-	    b.parseJMLMethodSpecs();
-	    method2jmlspecs.putAll(b.getModelMethod2Specs());
-	}
-	initConfig.getServices().getImplementation2SpecMap().
-	    createLoopAnnotations();
+        while (it.hasNext()) {
+            JMLSpecBuilder b = (JMLSpecBuilder) it.next();
+            b.parseModelMethodDecls();
+        }
+        it = builders.iterator();
+        while (it.hasNext()) {
+            JMLSpecBuilder b = (JMLSpecBuilder) it.next();
+            b.parseModelFieldDecls();
+        }
+        it = builders.iterator();
+        while (it.hasNext()) {
+            JMLSpecBuilder b = (JMLSpecBuilder) it.next();
+            b.parseJMLClassSpec();
+        }
+        it = builders.iterator();
+        while (it.hasNext()) {
+            JMLSpecBuilder b = (JMLSpecBuilder) it.next();
+            b.parseJMLMethodSpecs();
+            method2jmlspecs.putAll(b.getModelMethod2Specs());
+        }
+        initConfig.getServices().getImplementation2SpecMap()
+                .createLoopAnnotations();
     }
-    
+
     /**
      * @deprecated temporary hack
      */
-    public void readJML(CompilationUnit[] compUnits)  throws ProofInputException {
-	if(parseJMLSpecs){
-	    parseJMLSpecs(getTypesWithJMLSpecs(compUnits));
-	}
+    public void readJML(CompilationUnit[] compUnits) throws ProofInputException {
+        if (parseJMLSpecs) {
+            parseJMLSpecs(getTypesWithJMLSpecs(compUnits));
+        }
     }
-    
-    public void readActivatedChoices() throws ProofInputException{
-	if (initConfig==null) {
-	    throw new IllegalStateException("KeYFile: InitConfig not set.");
-	}
-	try {
-            if (settings==null) getPreferences();
-	    
-            ParserConfig pc = new ParserConfig
-		(initConfig.getServices(), 
-		 initConfig.namespaces());
-	    problemParser = new KeYParser
-		(ParserMode.PROBLEM, new KeYLexer(getNewStream(),
-		        initConfig.getServices().getExceptionHandler()), 
-		        file.toString(), pc, pc, null, null, null);    
-            problemParser.parseWith();            
 
-            settings.getChoiceSettings().
-             updateWith(problemParser.getActivatedChoices());           
-            
-            initConfig.setActivatedChoices(settings.getChoiceSettings().
-                    getDefaultChoicesAsSet());
+    public void readActivatedChoices() throws ProofInputException {
+        if (initConfig == null) {
+            throw new IllegalStateException("KeYFile: InitConfig not set.");
+        }
+        try {
+            if (settings == null)
+                getPreferences();
+
+            ParserConfig pc = new ParserConfig(initConfig.getServices(),
+                    initConfig.namespaces());
+            Profile profile = Main.getInstance().mediator().getProfile();
+            ProgramBlockProvider provider = profile.getProgramBlockProvider();
+            problemParser = new KeYParser(ParserMode.PROBLEM, new KeYLexer(
+                    getNewStream(), initConfig.getServices()
+                            .getExceptionHandler()), file.toString(), pc, pc,
+                    null, null, null, provider);
+            problemParser.parseWith();
+
+            settings.getChoiceSettings().updateWith(
+                    problemParser.getActivatedChoices());
+
+            initConfig.setActivatedChoices(settings.getChoiceSettings()
+                    .getDefaultChoicesAsSet());
 
         } catch (antlr.ANTLRException e) {
-	    throw new ProofInputException(e);	   
-	} catch (FileNotFoundException fnfe) {
+            throw new ProofInputException(e);
+        } catch (FileNotFoundException fnfe) {
             throw new ProofInputException(fnfe);
         }
     }
-    
-
 }

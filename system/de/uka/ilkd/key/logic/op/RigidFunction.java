@@ -14,6 +14,13 @@ import de.uka.ilkd.key.logic.sort.Sort;
 
 
 public class RigidFunction extends Function {
+	
+	public static enum FunctionType {
+		UNDEFINED, SKOLEM, MATHFUNCTION;
+	}
+	
+	private FunctionType type = FunctionType.UNDEFINED;
+	
 	/**
 	 * Creates a rigid function with given signature.
 	 * @param name
@@ -23,7 +30,20 @@ public class RigidFunction extends Function {
 	public RigidFunction(Name name, Sort sort, Sort[] argSorts) {
 	    super(name, sort, argSorts);
 	}
+	
+	/**
+	 * Creates a rigid function with given signature.
+	 * @param name
+	 * @param sort
+	 * @param argSorts
+	 */
+	public RigidFunction(Name name, Sort sort, Sort[] argSorts, FunctionType type) {
+	    this(name, sort, argSorts);
+	    this.type = type;
+	}
 
+
+	
 	/**
 	 * Creates a rigid function with given signature.
 	 * @param name
@@ -33,4 +53,30 @@ public class RigidFunction extends Function {
 	public RigidFunction(Name name, Sort sort, ArrayOfSort argSorts) {
 	    super(name, sort, argSorts);
 	}
+	
+	/**
+	 * Creates a rigid function with given signature.
+	 * @param name
+	 * @param sort
+	 * @param argSorts
+	 */
+	public RigidFunction(Name name, Sort sort, ArrayOfSort argSorts, FunctionType type) {
+	    this(name, sort, argSorts);
+	    this.type = type;
+	}
+	
+	/**
+	 * @return the isSkolem
+	 */
+	public boolean isSkolem() {
+		return type == FunctionType.SKOLEM;
+	}
+	
+	/**
+	 * @return the isMathFunction
+	 */
+	public boolean isMathFunction() {
+		return type == FunctionType.MATHFUNCTION;
+	}
+	
 }

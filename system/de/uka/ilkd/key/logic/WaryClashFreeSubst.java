@@ -27,7 +27,7 @@ public class WaryClashFreeSubst extends ClashFreeSubst {
 
     /** variables occurring within the original term and within the
      * term to be substituted */
-    private SetOfQuantifiableVariable warysvars            = null;
+    protected SetOfQuantifiableVariable warysvars            = null;
    
     public WaryClashFreeSubst ( QuantifiableVariable v, Term s ) {
 	super ( v, s );
@@ -62,7 +62,7 @@ public class WaryClashFreeSubst extends ClashFreeSubst {
      * <code>t</code> or the substituted term, and whose names should
      * not be used for free variables
      */
-    private void findUsedVariables ( Term t ) {
+    protected void findUsedVariables ( Term t ) {
 	VariableCollectVisitor vcv;
 
 	vcv   = new VariableCollectVisitor ();
@@ -175,7 +175,7 @@ public class WaryClashFreeSubst extends ClashFreeSubst {
      * Prepend the given term with a wary substitution (substituting
      * <code>newVar</code> with <code>getSubstitutedTerm()</code>)
      */
-    private Term addWarySubst (Term t) {
+    protected Term addWarySubst (Term t) {
         createVariable ();
         return tf.createSubstitutionTerm ( Op.SUBST,
                                            newVar,

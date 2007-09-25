@@ -12,6 +12,7 @@ package de.uka.ilkd.key.logic.sort;
 import java.util.HashMap;
 import java.util.Iterator;
 
+import de.uka.ilkd.key.dl.model.DLProgram;
 import de.uka.ilkd.key.java.*;
 import de.uka.ilkd.key.java.abstraction.*;
 import de.uka.ilkd.key.java.declaration.*;
@@ -342,7 +343,20 @@ public abstract class ProgramSVSort extends PrimitiveSort {
     //---------------REFERENCE SORTS ------------------------
     public static final ProgramSVSort EXECUTIONCONTEXT = new ExecutionContextSort();
 
-    
+    // ---------------DL SORTS -------------------------------
+    private static final DLProgramSort DL_PROGRAM_SORT_INSTANCE = new DLProgramSort();
+
+    private static final DLExpressionSort DL_EXPRESSION_SORT_INSTANCE = new DLExpressionSort();
+
+    private static final DLFormulaSort DL_FORMULA_SORT_INSTANCE = new DLFormulaSort();
+
+    private static final DLVariableSort DL_VARIABLE_SORT_INSTANCE = new DLVariableSort();
+
+    private static final DLDiffSystemSort DL_DIFF_SYSTEM_SORT_INSTANCE = new DLDiffSystemSort();
+
+    private static final DLRandomAssignSort DL_RANDOM_ASSIGN = new DLRandomAssignSort();    
+
+    private static final DLVariableDeclarationSort DL_VARIABLE_DECLARATION = new DLVariableDeclarationSort();    
 
     //---------------UNNECESSARY ONES------------------------
 
@@ -1572,4 +1586,185 @@ public abstract class ProgramSVSort extends PrimitiveSort {
         return name2sort;
     }
    
+    // *******************************************************************//
+    // * DL ProgramSVTypes *//
+    // *******************************************************************//
+
+
+    
+    /**
+     * ProgramSVSort that can stand for a DLProgram
+     * 
+     * @author jdq
+     */
+    private static class DLProgramSort extends ProgramSVSort {
+        public DLProgramSort() {
+            super(new Name("DLProgram"));
+        }
+
+        /**
+         * @see de.uka.ilkd.key.logic.sort.ProgramSVSort#canStandFor(de.uka.ilkd.key.java.ProgramElement,
+         *      de.uka.ilkd.key.java.Services) canStandFor
+         */
+        public boolean canStandFor(ProgramElement pe, Services services) {
+            return (pe instanceof DLProgram);
+        }
+    }
+
+    /**
+     * ProgramSVSort that can stand for a DL Expression
+     * 
+     * @author jdq
+     */
+    private static class DLExpressionSort extends ProgramSVSort {
+        public DLExpressionSort() {
+            super(new Name("DLExpression"));
+        }
+
+        /**
+         * @see de.uka.ilkd.key.logic.sort.ProgramSVSort#canStandFor(de.uka.ilkd.key.java.ProgramElement,
+         *      de.uka.ilkd.key.java.Services) canStandFor
+         */
+        public boolean canStandFor(ProgramElement pe, Services services) {
+            return (pe instanceof de.uka.ilkd.key.dl.model.Expression);
+        }
+    }
+
+    /**
+     * ProgramSVSort that can stand for a DL Formula
+     * 
+     * @author jdq
+     */
+    private static class DLFormulaSort extends ProgramSVSort implements
+            PlaceHolderSort {
+
+        public DLFormulaSort() {
+            super(new Name("DLFormula"));
+        }
+
+        /**
+         * @see de.uka.ilkd.key.logic.sort.ProgramSVSort#canStandFor(de.uka.ilkd.key.java.ProgramElement,
+         *      de.uka.ilkd.key.java.Services) canStandFor
+         */
+        public boolean canStandFor(ProgramElement pe, Services services) {
+            return (pe instanceof de.uka.ilkd.key.dl.model.Formula);
+        }
+
+        /**
+         * @see de.uka.ilkd.key.logic.sort.ProgramSVSort#canStandFor(de.uka.ilkd.key.logic.Term)
+         *      canStandFor
+         */
+        public boolean canStandFor(Term arg0) {
+            return true;
+        }
+
+        /*
+         * (non-Javadoc)
+         * 
+         * @see de.uka.ilkd.key.logic.sort.PlaceHolderSort#getRealSort()
+         */
+        public Sort getRealSort() {
+            return Sort.FORMULA;
+        }
+
+        /*
+         * (non-Javadoc)
+         * 
+         * @see de.uka.ilkd.key.logic.sort.PlaceHolderSort#getRealSort(de.uka.ilkd.key.logic.Term[])
+         */
+        public Sort getRealSort(Term[] term) {
+            if (term.length == 0) {
+                return Sort.FORMULA;
+            } else {
+                return this;
+            }
+        }
+
+    }
+
+    /**
+     * ProgramSVSort that can stand for a DL Variable
+     * 
+     * @author jdq
+     */
+    private static class DLVariableSort extends ProgramSVSort {
+        public DLVariableSort() {
+            super(new Name("DLVariable"));
+        }
+
+        /**
+         * @see de.uka.ilkd.key.logic.sort.ProgramSVSort#canStandFor(de.uka.ilkd.key.java.ProgramElement,
+         *      de.uka.ilkd.key.java.Services) canStandFor
+         */
+        public boolean canStandFor(ProgramElement pe, Services services) {
+            return (pe instanceof de.uka.ilkd.key.dl.model.Variable);
+        }
+
+        /**
+         * @see de.uka.ilkd.key.logic.sort.ProgramSVSort#canStandFor(de.uka.ilkd.key.logic.Term)
+         *      canStandFor
+         */
+        public boolean canStandFor(Term arg0) {
+            return true;
+        }
+    }
+
+
+    /**
+     * ProgramSVSort that can stand for a differential system
+     * 
+     * @author jdq
+     */
+    private static class DLDiffSystemSort extends ProgramSVSort {
+        public DLDiffSystemSort() {
+            super(new Name("DiffSystem"));
+        }
+
+        /**
+         * @see de.uka.ilkd.key.logic.sort.ProgramSVSort#canStandFor(de.uka.ilkd.key.java.ProgramElement,
+         *      de.uka.ilkd.key.java.Services) canStandFor
+         */
+        public boolean canStandFor(ProgramElement pe, Services services) {
+            return (pe instanceof de.uka.ilkd.key.dl.model.DiffSystem);
+        }
+    }
+
+    /**
+     * ProgramSVSort that can stand for a random assignment
+     * 
+     * @author jdq
+     */
+    private static class DLRandomAssignSort extends ProgramSVSort {
+        public DLRandomAssignSort() {
+            super(new Name("RandomAssign"));
+        }
+
+        /**
+         * @see de.uka.ilkd.key.logic.sort.ProgramSVSort#canStandFor(de.uka.ilkd.key.java.ProgramElement,
+         *      de.uka.ilkd.key.java.Services) canStandFor
+         */
+        public boolean canStandFor(ProgramElement pe, Services services) {
+            return (pe instanceof de.uka.ilkd.key.dl.model.RandomAssign);
+        }
+    }
+    
+    /**
+     * ProgramSVSort that can stand for a variable declaration
+     * 
+     * @author jdq
+     */
+    private static class DLVariableDeclarationSort extends ProgramSVSort {
+        public DLVariableDeclarationSort() {
+            super(new Name("DLVariableDeclaration"));
+        }
+
+        /**
+         * @see de.uka.ilkd.key.logic.sort.ProgramSVSort#canStandFor(de.uka.ilkd.key.java.ProgramElement,
+         *      de.uka.ilkd.key.java.Services) canStandFor
+         */
+        public boolean canStandFor(ProgramElement pe, Services services) {
+            return (pe instanceof de.uka.ilkd.key.dl.formulatools.VariableDeclaration);
+        }
+    }
+    
 }

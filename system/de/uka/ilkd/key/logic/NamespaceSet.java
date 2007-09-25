@@ -10,7 +10,9 @@
 
 package de.uka.ilkd.key.logic;
 
-public class NamespaceSet {
+import java.io.Serializable;
+
+public class NamespaceSet implements Serializable {
 
     private Namespace varNS=new Namespace();
     private Namespace progVarNS=new Namespace();

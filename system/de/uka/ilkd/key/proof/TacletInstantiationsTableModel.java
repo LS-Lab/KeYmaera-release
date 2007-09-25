@@ -33,6 +33,9 @@ import de.uka.ilkd.key.rule.inst.ContextInstantiationEntry;
 import de.uka.ilkd.key.rule.inst.IllegalInstantiationException;
 import de.uka.ilkd.key.rule.inst.RigidnessException;
 import de.uka.ilkd.key.rule.inst.SortException;
+import de.uka.ilkd.key.proof.init.Profile;
+import de.uka.ilkd.key.gui.Main;
+import de.uka.ilkd.key.proof.init.ProgramBlockProvider;
 
 
 public class TacletInstantiationsTableModel extends AbstractTableModel {
@@ -198,11 +201,13 @@ public class TacletInstantiationsTableModel extends AbstractTableModel {
     public IdDeclaration parseIdDeclaration ( String s )
         throws ParserException {
         try {
+			Profile profile = Main.getInstance().mediator().getProfile();
+			ProgramBlockProvider provider = profile.getProgramBlockProvider();
             KeYParser parser =
                 new KeYParser (ParserMode.DECLARATION, new KeYLexer ( new StringReader ( s ),
                                  services.getExceptionHandler() ), "",
                                  services,   // should not be needed
-                                 nss );
+                                 nss, provider );
             return parser.id_declaration ();
         } catch (antlr.RecognitionException re) {
             throw new ParserException(re.getMessage(),
@@ -253,9 +258,11 @@ public class TacletInstantiationsTableModel extends AbstractTableModel {
         }
         SetOfLocationDescriptor result = null;
         try{
+			Profile profile = Main.getInstance().mediator().getProfile();
+			ProgramBlockProvider provider = profile.getProgramBlockProvider();
             result = (new KeYParser(ParserMode.TERM, new KeYLexer(new StringReader(instantiation),
                                              services.getExceptionHandler()),
-                                null, TermFactory.DEFAULT, null, services, nss, scm)).
+                                null, TermFactory.DEFAULT, null, services, nss, scm, provider)).
                 location_list();
         } catch (antlr.RecognitionException re) {
             throw new ParserException(re.getMessage(),

@@ -9,8 +9,10 @@
 //
 package de.uka.ilkd.key.proof.init;
 
+import de.uka.ilkd.key.dl.DLProfile;
 import de.uka.ilkd.key.gui.LibrariesSettings;
 import de.uka.ilkd.key.gui.Main;
+import de.uka.ilkd.key.gui.ProofSettings;
 import de.uka.ilkd.key.logic.Choice;
 import de.uka.ilkd.key.logic.IteratorOfNamed;
 import de.uka.ilkd.key.logic.Name;
@@ -127,7 +129,11 @@ public class LDTInput implements EnvInput {
             Choice c = (Choice) it.next();
             functions.add(c.funcNS());
         }
-        ListOfLDT ldts = SLListOfLDT.EMPTY_LIST
+        ListOfLDT ldts = SLListOfLDT.EMPTY_LIST;
+        if(ProofSettings.DEFAULT_SETTINGS.getProfile() instanceof DLProfile) {
+            ldts = ldts.prepend(new de.uka.ilkd.key.dl.logic.ldt.RealLDT(sorts, functions));
+        } else {
+            ldts = ldts
                         	.prepend(new ByteLDT(sorts, functions))
                         	.prepend(new ShortLDT(sorts, functions))
                         	.prepend(new IntLDT(sorts, functions))
@@ -136,6 +142,7 @@ public class LDTInput implements EnvInput {
                         	.prepend(new IntegerLDT(sorts, functions))
                         	.prepend(new IntegerDomainLDT(sorts, functions))
                         	.prepend(new BooleanLDT(sorts, functions));
+        }
         initConfig.getServices().getTypeConverter().init(ldts);
     }
   

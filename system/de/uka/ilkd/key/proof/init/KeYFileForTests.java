@@ -18,6 +18,7 @@ import de.uka.ilkd.key.parser.ParserConfig;
 import de.uka.ilkd.key.parser.ParserMode;
 import de.uka.ilkd.key.proof.CountingBufferedInputStream;
 import de.uka.ilkd.key.proof.RuleSource;
+import de.uka.ilkd.key.gui.Main;
 
 /**
  * Used for TESTS ONLY as we allow there to declare program variables global 
@@ -47,9 +48,11 @@ public class KeYFileForTests extends KeYFile {
 	    final ParserConfig pc = 
 		new ParserConfig(initConfig.getServices().copy(), 
 				 initConfig.namespaces().copy());
+		Profile profile = Main.getInstance().mediator().getProfile();
+		ProgramBlockProvider provider = profile.getProgramBlockProvider();
 	    problemParser = new KeYParser
 		(ParserMode.PROBLEM,new KeYLexer(cinp,null), file.toString(), pc, pc,initConfig.
-		 getTaclet2Builder(), initConfig.getTaclets(),initConfig.getActivatedChoices()); 
+		 getTaclet2Builder(), initConfig.getTaclets(),initConfig.getActivatedChoices(), provider); 
             problemParser.problem(); 
 	    initConfig.setTaclets(problemParser.getTaclets()); 
 	    initConfig.add(problemParser.namespaces(), ModStrategy.MOD_ALL);

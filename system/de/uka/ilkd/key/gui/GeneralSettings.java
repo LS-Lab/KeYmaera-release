@@ -71,14 +71,14 @@ public class GeneralSettings implements Settings {
     public boolean soundNotification() {
         return soundNotification;
     }
-
+    
     /**
      * returns true if drag and drop shall be direction sensitive   
      */
     public boolean isDndDirectionSensitive() {        
         return dndDirectionSensitive;
     }
-
+    
     // setter
     public void setStupidMode(boolean b) {
         if (stupidMode != b) {
@@ -194,6 +194,5 @@ public class GeneralSettings implements Settings {
     public void addSettingsListener(SettingsListener l) {
 	listenerList.add(l);
     }
-
 
 }

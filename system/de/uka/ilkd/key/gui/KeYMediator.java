@@ -19,6 +19,8 @@ import java.awt.event.ActionListener;
 import javax.swing.*;
 import javax.swing.event.EventListenerList;
 
+import de.uka.ilkd.key.dl.gui.TimeStatisticGenerator;
+import de.uka.ilkd.key.dl.rules.ReduceRuleApp;
 import de.uka.ilkd.key.gui.notification.events.NotificationEvent;
 import de.uka.ilkd.key.gui.notification.events.ProofClosedNotificationEvent;
 import de.uka.ilkd.key.java.JavaInfo;
@@ -313,6 +315,9 @@ public class KeYMediator {
 	    proof.mgt().setMediator(this);
 	    proof.setSimplifier(upd_simplifier);
 	}
+        //TODO: refactor statistic generator
+        // add the timestatistic generator
+        this.addAutoModeListener(TimeStatisticGenerator.INSTANCE);
         keySelectionModel.setSelectedProof(proof);
     }
     
@@ -486,7 +491,19 @@ public class KeYMediator {
 
 	SetOfRuleApp set = interactiveProver.
 	    getBuiltInRuleApp(rule, pos, getUserConstraint().getConstraint());
-	if (set.size() > 1) {
+        
+	
+    if (set.size() > 1) {
+            System.out.println(set.size());//XXX
+            IteratorOfRuleApp iterator = set.iterator();
+                while(iterator.hasNext()) {
+                    RuleApp next = iterator.next();
+                    System.out.println("Ruleapp: " + next);//XXX
+                    System.out.println(next.hashCode());//XXX 
+                    System.out.println(next.posInOccurrence());//XXX 
+                    System.out.println(next.constraint());//XXX 
+                    System.out.println(next.posInOccurrence().constrainedFormula());//XXX
+                }
 	    System.err.println("keymediator:: Expected a single app. If " +
 		      "it is OK that there are more than one " +
 		      "built-in rule apps. You have to add a " +
@@ -494,7 +511,7 @@ public class KeYMediator {
 	    System.err.println("keymediator:: Ambigous applications, " +
 		      "taking the first in list.");
 	}
-
+        
 	RuleApp app = set.iterator().next();
 	if (app != null && app.rule() == rule) {
 	    goal.apply(app);
@@ -1139,6 +1156,20 @@ public class KeYMediator {
         }
         return profile;
     }
+
+	/**
+	 * @param ruleApp
+	 */
+	public boolean selectedReduceRule(ReduceRuleApp app) {
+        Goal goal = keySelectionModel.getSelectedGoal();
+        Debug.assertTrue(goal != null);        
+        if (!getProof().mgt().ruleApplicable(app, goal)) {
+            barfRuleNotApplicable(app);
+            return false;
+        }
+        applyInteractive(app, goal); 
+        return true;
+	}        
 
     /** 
      * besides the number of rule applications it is possible to define a timeout after which rule application

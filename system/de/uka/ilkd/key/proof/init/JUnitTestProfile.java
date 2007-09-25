@@ -1,5 +1,7 @@
 package de.uka.ilkd.key.proof.init;
 
+import de.uka.ilkd.key.java.Services;
+import de.uka.ilkd.key.logic.NamespaceSet;
 import de.uka.ilkd.key.proof.mgt.ComplexRuleJustification;
 import de.uka.ilkd.key.proof.mgt.ComplexRuleJustificationBySpec;
 import de.uka.ilkd.key.proof.mgt.RuleJustification;
@@ -12,22 +14,19 @@ import de.uka.ilkd.key.strategy.JavaCardDLStrategy;
 import de.uka.ilkd.key.strategy.SetOfStrategyFactory;
 import de.uka.ilkd.key.strategy.StrategyFactory;
 
-
 /**
  * This profile is only used by test cases written for and to test KeY.
+ * 
  * @author bubel
  */
 public class JUnitTestProfile extends AbstractProfile {
 
-    private final static StrategyFactory DEFAULT = 
-        new JavaCardDLStrategy.Factory();
+    private final static StrategyFactory DEFAULT = new JavaCardDLStrategy.Factory();
 
-    
     public JUnitTestProfile() {
         super("standardRules-junit.key", null);
     }
- 
-    
+
     protected SetOfStrategyFactory getStrategyFactories() {
         SetOfStrategyFactory set = super.getStrategyFactories();
         set = set.add(DEFAULT);
@@ -38,18 +37,18 @@ public class JUnitTestProfile extends AbstractProfile {
     protected UseMethodContractRule getContractRule() {
         return UseMethodContractRule.INSTANCE;
     }
-    
+
     protected UpdateSimplificationRule getUpdateSimplificationRule() {
         return UpdateSimplificationRule.INSTANCE;
     }
-    
-    protected ListOfBuiltInRule initBuiltInRules() {       
-       
+
+    protected ListOfBuiltInRule initBuiltInRules() {
+
         // update simplifier
-        ListOfBuiltInRule builtInRules = super.initBuiltInRules().
-            prepend(getUpdateSimplificationRule());
-  
-        //contract insertion rule, ATTENTION: ProofMgt relies on the fact 
+        ListOfBuiltInRule builtInRules = super.initBuiltInRules().prepend(
+                getUpdateSimplificationRule());
+
+        // contract insertion rule, ATTENTION: ProofMgt relies on the fact
         // that Contract insertion rule is the FIRST element of this list!
         builtInRules = builtInRules.prepend(getContractRule());
 
@@ -57,15 +56,16 @@ public class JUnitTestProfile extends AbstractProfile {
     }
 
     /**
-     * determines the justification of rule <code>r</code>. For a method contract rule it
-     * returns a new instance of a {@link ComplexRuleJustification} otherwise the rule 
-     * justification determined by the super class is returned
+     * determines the justification of rule <code>r</code>. For a method
+     * contract rule it returns a new instance of a
+     * {@link ComplexRuleJustification} otherwise the rule justification
+     * determined by the super class is returned
      * 
      * @return justification for the given rule
      */
     public RuleJustification getJustification(Rule r) {
-        return r == getContractRule() ? new ComplexRuleJustificationBySpec() : 
-            super.getJustification(r);
+        return r == getContractRule() ? new ComplexRuleJustificationBySpec()
+                : super.getJustification(r);
     }
 
     /**
@@ -78,10 +78,17 @@ public class JUnitTestProfile extends AbstractProfile {
     /**
      * the default strategy factory to be used
      */
-    public StrategyFactory getDefaultStrategyFactory() {        
+    public StrategyFactory getDefaultStrategyFactory() {
         return DEFAULT;
     }
 
- 
+    public ProgramBlockProvider getProgramBlockProvider() {
+        return new de.uka.ilkd.key.parser.java.ProgramBlockProvider();
+    }
+
+    public ProgramBlockProvider getProgramBlockProvider(Services services,
+            NamespaceSet namespaces) {
+        return new de.uka.ilkd.key.parser.java.ProgramBlockProvider();
+    }
 
 }

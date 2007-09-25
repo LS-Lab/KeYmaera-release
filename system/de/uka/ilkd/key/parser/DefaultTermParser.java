@@ -22,6 +22,9 @@ import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.TermFactory;
 import de.uka.ilkd.key.logic.sort.Sort;
 import de.uka.ilkd.key.pp.AbbrevMap;
+import de.uka.ilkd.key.proof.init.Profile;
+import de.uka.ilkd.key.gui.Main;
+import de.uka.ilkd.key.proof.init.ProgramBlockProvider;
 
 
 /** Defaut implementation of SimpleTermParser. This class wraps the
@@ -55,12 +58,14 @@ public final class DefaultTermParser implements SimpleTermParser {
         throws ParserException
     {
         try{
+			Profile profile = Main.getInstance().mediator().getProfile();
+			ProgramBlockProvider provider = profile.getProgramBlockProvider();
             KeYParser parser
                 = new KeYParser(ParserMode.TERM, new KeYLexer(
 		                in,services.getExceptionHandler()), "",
 				TermFactory.DEFAULT,
 				new Recoder2KeY (services, nss),
-                                services, nss, scm);
+                services, nss, scm, provider);
 
 	    return parser.term();
         } catch (RecognitionException re) {

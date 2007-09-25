@@ -28,6 +28,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.uka.ilkd.key.dl.gui.AutomodeListener;
 import de.uka.ilkd.key.gui.notification.events.GeneralFailureEvent;
 import de.uka.ilkd.key.proof.*;
 import de.uka.ilkd.key.proof.proofevent.IteratorOfNodeReplacement;
@@ -65,9 +66,11 @@ public class ApplyStrategy {
     
     private boolean startedAsInteractive;
     
-    private List proverTaskObservers = new ArrayList ();
+    private List<ProverTaskListener> proverTaskObservers = new ArrayList<ProverTaskListener>();
 
     private ReusePoint reusePoint;
+
+    private boolean abortAutomode = false;
 
     /** time in ms after which rule application shall be aborted, -1 disables timeout */
     private long timeout = -1;
@@ -104,15 +107,15 @@ public class ApplyStrategy {
             rl.addRPNewMarkersAllGoals(reusePoint.source());
         } else {
             while ( ( g = goalChooser.getNextGoal () ) != null ) {
-
                 app = g.getRuleAppManager().next();
-
+                 
                 if ( app == null )
                     goalChooser.removeGoal ( g );
                 else
                     break;
             }
             if (app == null) return false;            
+            AutomodeListener.currentGoal = g;
             rl.removeRPConsumedGoal(g);                
             rl.addRPOldMarkersNewGoals(g.apply(app));
         }
@@ -129,6 +132,7 @@ public class ApplyStrategy {
      * possible or the thread is interrupted.
      */
     Object doWork() {
+        abortAutomode = false;
         time = System.currentTimeMillis();
         try{
 	   Debug.out("Strategy started.");
@@ -139,9 +143,11 @@ public class ApplyStrategy {
                }
                countApplied++;
                fireTaskProgress ();
-               if (Thread.interrupted()) throw new InterruptedException();
+               if (abortAutomode || Thread.interrupted()) throw new InterruptedException();
 	   }
         } catch (InterruptedException e) {
+            abortAutomode = false;
+            
             return "Interrupted";  // SwingWorker.get() returns this
         } catch (Throwable t) { // treated later in finished()
             System.err.println(t);
@@ -171,22 +177,20 @@ public class ApplyStrategy {
 
 
     private synchronized void fireTaskStarted () {
-        for (int i = 0, sz = proverTaskObservers.size(); i<sz; i++) {
-            ((ProverTaskListener)proverTaskObservers.get(i))
-                .taskStarted(PROCESSING_STRATEGY, maxApplications);
+        for(ProverTaskListener listener: proverTaskObservers) {
+            listener.taskStarted(PROCESSING_STRATEGY, maxApplications);
         }
     }
 
     private synchronized void fireTaskProgress () {
-        for (int i = 0, sz = proverTaskObservers.size(); i<sz; i++) {
-            ((ProverTaskListener)proverTaskObservers.get(i))
-                .taskProgress(countApplied);
+        for(ProverTaskListener listener: proverTaskObservers) {
+            listener.taskProgress(countApplied);
         }
     }
 
     private synchronized void fireTaskFinished () {
-        for (int i = 0, sz = proverTaskObservers.size(); i<sz; i++) {
-            ((ProverTaskListener)proverTaskObservers.get(i)).taskFinished();
+        for(ProverTaskListener listener: proverTaskObservers) {
+            listener.taskFinished();
         }
     }
 
@@ -226,7 +230,9 @@ public class ApplyStrategy {
      * method handles InterruptedExceptions cleanly.
      */
     public void stop () {
+        abortAutomode = true;
         worker.interrupt();
+        AutomodeListener.aborted = true;
     }
     
     
@@ -341,7 +347,7 @@ public class ApplyStrategy {
 	    String timeString = "" + (time/1000)+"."+((time%1000)/100);
 
 	    final Object result = get ();
-        
+            
 	    if (Main.batchMode) {
                 // This method does not return.
                 finishedBatchMode (result);

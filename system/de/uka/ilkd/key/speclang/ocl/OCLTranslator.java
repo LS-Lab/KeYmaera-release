@@ -15,6 +15,7 @@ import java.util.Map;
 
 import antlr.ANTLRException;
 
+import de.uka.ilkd.key.gui.Main;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.logic.EverythingLocationDescriptor;
 import de.uka.ilkd.key.logic.ListOfInteger;
@@ -154,7 +155,10 @@ public class OCLTranslator {
                                              "", 
                                              TermFactory.DEFAULT, 
                                              services,
-                                             nss);
+                                             nss,
+                                             Main.getInstance().mediator().
+                                             getProfile().
+                                             getProgramBlockProvider());
             return parser.location_list();
         } catch(Exception e) {
             throw new SLTranslationError(e.getMessage(), 0, 0);

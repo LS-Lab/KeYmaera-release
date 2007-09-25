@@ -22,6 +22,9 @@ import de.uka.ilkd.key.logic.op.Function;
 import de.uka.ilkd.key.logic.op.SchemaVariable;
 import de.uka.ilkd.key.logic.op.SortedSchemaVariable;
 import de.uka.ilkd.key.logic.sort.*;
+import de.uka.ilkd.key.proof.init.Profile;
+import de.uka.ilkd.key.proof.init.ProgramBlockProvider;
+import de.uka.ilkd.key.gui.Main;
 
 
 public class TestDeclParser extends TestCase {
@@ -41,9 +44,11 @@ public class TestDeclParser extends TestCase {
     }
 
     private KeYParser stringParser(String s) {
+		Profile profile = Main.getInstance().mediator().getProfile();
+		ProgramBlockProvider provider = profile.getProgramBlockProvider();
 	return new KeYParser(ParserMode.DECLARATION, new KeYLexer(new StringReader(s),null),
 			      "No file. Call of parser from parser/TestDeclParser.java",
-			      serv, nss);
+			      serv, nss, provider);
     }
 
     public void parseDecls(String s) {

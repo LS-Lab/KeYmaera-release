@@ -26,6 +26,18 @@ import de.uka.ilkd.key.rule.inst.SVInstantiations;
 import de.uka.ilkd.key.rule.metaconstruct.*;
 import de.uka.ilkd.key.rule.metaconstruct.arith.*;
 import de.uka.ilkd.key.util.Debug;
+import de.uka.ilkd.key.dl.formulatools.Prog2LogicConverter;
+import de.uka.ilkd.key.dl.rules.metaconstruct.DLDiffAdjoin;
+import de.uka.ilkd.key.dl.rules.metaconstruct.DLIntroNewAnonUpdateOp;
+import de.uka.ilkd.key.dl.rules.metaconstruct.DLInvariantPart;
+import de.uka.ilkd.key.dl.rules.metaconstruct.DLRandomAssign;
+import de.uka.ilkd.key.dl.rules.metaconstruct.DLUniversalClosureOp;
+import de.uka.ilkd.key.dl.rules.metaconstruct.DLUnwindLoop;
+import de.uka.ilkd.key.dl.rules.metaconstruct.FullSimplify;
+import de.uka.ilkd.key.dl.rules.metaconstruct.ODESolve;
+import de.uka.ilkd.key.dl.rules.metaconstruct.DiffInd;
+import de.uka.ilkd.key.dl.rules.metaconstruct.Reduce;
+import de.uka.ilkd.key.dl.rules.metaconstruct.Simplify;
 
 /** 
  * this class implements the interface for
@@ -134,6 +146,22 @@ public abstract class AbstractMetaOperator extends Op implements MetaOperator {
     public static final AbstractMetaOperator METAEQUALUPDATES = new MetaEquivalentUpdates();
 
     public static final Sort METASORT = new PrimitiveSort(new Name("Meta"));
+
+	/** metaconstructs for DL */
+	public static final AbstractMetaOperator PROG_2_LOGIC_CONVERTER = new Prog2LogicConverter();
+	
+        public static final AbstractMetaOperator ODE_SOLVE = new ODESolve();
+        public static final AbstractMetaOperator DIFFIND = new DiffInd();
+        public static final AbstractMetaOperator DIFFADJOIN= new DLDiffAdjoin();
+        public static final AbstractMetaOperator INVARIANTPART = new DLInvariantPart();
+	public static final AbstractMetaOperator SIMPLIFY = new Simplify();
+	public static final AbstractMetaOperator FULL_SIMPLIFY = new FullSimplify();
+	public static final AbstractMetaOperator REDUCE = new Reduce();
+	public static final AbstractMetaOperator UNWIND_LOOP = new DLUnwindLoop();
+	public static final AbstractMetaOperator DL_INV_LOOP = new DLIntroNewAnonUpdateOp();
+	public static final AbstractMetaOperator DL_UNIVERSAL_CLOSURE = new DLUniversalClosureOp();
+
+	public static final AbstractMetaOperator DL_INT_FORALL = new DLRandomAssign();
 
     
     protected TermFactory termFactory = TermFactory.DEFAULT;

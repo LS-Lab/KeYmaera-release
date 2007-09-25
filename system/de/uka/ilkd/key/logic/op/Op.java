@@ -116,7 +116,7 @@ public abstract class Op implements Operator {
     /** the wary substitution operator {var<-term}'. {x<-d}'A(x) means
      * replace all free occurrences of variable x in A with d, however
      * without replacing x with a non-rigid A below modalities */
-    public static final SubstOp SUBST = new WarySubstOp(new Name("subst"));
+    public static SubstOp SUBST = new WarySubstOp(new Name("subst"));
 
     /** the true constant */
     public static final Junctor TRUE = new Junctor(new Name("true"),0);

@@ -211,7 +211,6 @@ public abstract class AbstractFeatureStrategy implements Strategy {
         
         final Namespace ns = nss.ruleSets ();
         final Named h = ns.lookup ( new Name ( p_name ) );
-    
         assert h != null : "Did not find the rule set " + p_name;
     
         return (RuleSet)h;

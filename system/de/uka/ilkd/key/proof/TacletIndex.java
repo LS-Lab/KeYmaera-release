@@ -97,7 +97,7 @@ public class TacletIndex  {
 	Object indexObj;
 	final Term indexTerm = tac.find();	
 	if (!indexTerm.javaBlock().isEmpty()) {
-	    final JavaProgramElement prg = indexTerm.javaBlock().program();
+	    final ReuseableProgramElement prg = indexTerm.javaBlock().program();
 	    indexObj = ((StatementBlock)prg).getStatementAt(0);                
             if (!(indexObj instanceof SchemaVariable)) {
 		indexObj=indexObj.getClass();       

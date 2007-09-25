@@ -11,19 +11,44 @@
 
 package de.uka.ilkd.key.gui;
 
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComponent;
+import javax.swing.JFormattedTextField;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
+import javax.swing.JSpinner;
+import javax.swing.JTextField;
+import javax.swing.SpinnerNumberModel;
 import javax.swing.border.Border;
-import javax.swing.border.EtchedBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import de.uka.ilkd.key.proof.Proof;
-import de.uka.ilkd.key.strategy.*;
+import de.uka.ilkd.key.strategy.IteratorOfStrategyFactory;
+import de.uka.ilkd.key.strategy.Strategy;
+import de.uka.ilkd.key.strategy.StrategyFactory;
+import de.uka.ilkd.key.strategy.StrategyProperties;
 
 public class StrategySelectionView extends JPanel {
 
@@ -37,6 +62,8 @@ public class StrategySelectionView extends JPanel {
         "Specification extraction", "ComputeSpecificationStrategy", false, false);
     final JRadioButtonHashMap bVBTStrategy = new JRadioButtonHashMap(
 	"VBT Strategy", "VBTStrategy", false, false);
+    final JRadioButtonHashMap dlStrategy = new JRadioButtonHashMap(
+    		"DL Strategy", "DLStrategy", false, false);
     final JRadioButtonHashMap bDebuggerStrategy = new JRadioButtonHashMap(
         "Debugger Strategy", "DebuggerStrategy", false, false);
 
@@ -426,6 +453,7 @@ public class StrategySelectionView extends JPanel {
         stratGroup.add(bSimpleJavaCardDLStrategy);
         stratGroup.add(bSimplificationOfOCLStrategy);
         stratGroup.add(bVBTStrategy);
+        stratGroup.add(dlStrategy);
         stratGroup.add(bComputeSpecificationStrategy);
         javaDLOptionsPanel.setEnabled(bSimpleJavaCardDLStrategy.isSelected());
         bSimpleJavaCardDLStrategy.addChangeListener(new ChangeListener() {
@@ -500,6 +528,7 @@ public class StrategySelectionView extends JPanel {
         javaDLOptionsScrollPane.setAlignmentX(Component.LEFT_ALIGNMENT);
         box.add(javaDLOptionsScrollPane);       
         box.add(bVBTStrategy);
+        box.add(dlStrategy);
 	
         bSimplificationOfOCLStrategy.setAlignmentX(Component.LEFT_ALIGNMENT);
         box.add(bSimplificationOfOCLStrategy);
@@ -519,6 +548,7 @@ public class StrategySelectionView extends JPanel {
         bSimpleJavaCardDLStrategy.addActionListener(stratListener);
         bSimplificationOfOCLStrategy.addActionListener(stratListener);
         bVBTStrategy.addActionListener(stratListener);
+        dlStrategy.addActionListener(stratListener);
         bComputeSpecificationStrategy.addActionListener(stratListener);
         rdBut9.addActionListener(optListener);	
         rdBut10.addActionListener(optListener);       

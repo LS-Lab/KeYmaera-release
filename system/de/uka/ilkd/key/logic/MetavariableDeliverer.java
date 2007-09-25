@@ -15,6 +15,8 @@
 
 package de.uka.ilkd.key.logic;
 
+import de.uka.ilkd.key.dl.DLProfile;
+import de.uka.ilkd.key.gui.Main;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.logic.op.Metavariable;
 import de.uka.ilkd.key.logic.sort.Sort;
@@ -40,10 +42,14 @@ public class MetavariableDeliverer {
      * @return true iff p_sort allows metavariables
      */
     private static boolean checkSort ( Sort p_sort, Services services ) {
-	return services.getTypeConverter()
+        if(Main.getInstance().mediator().getProfile() instanceof DLProfile) {
+            return true;
+        } else {
+            return services.getTypeConverter()
 		       .getIntegerLDT()
 		       .getNumberSymbol()
 		       .argSort ( 0 ) != p_sort;
+        }
     }
 
 

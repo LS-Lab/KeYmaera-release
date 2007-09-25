@@ -28,6 +28,8 @@ import de.uka.ilkd.key.logic.sort.Sort;
 import de.uka.ilkd.key.logic.sort.SortDefiningSymbols;
 import de.uka.ilkd.key.util.Debug;
 import de.uka.ilkd.key.util.ExtList;
+import de.uka.ilkd.key.dl.formulatools.Prog2LogicConverter;
+import de.uka.ilkd.key.dl.model.DLProgramElement;
 
 
 public class TypeConverter extends TermBuilder {
@@ -357,7 +359,9 @@ public class TypeConverter extends TermBuilder {
 					       +" this primitive type");
 	} else if (pe instanceof MetaClassReference) {
             return translateMetaClassReference((MetaClassReference)pe);
-        }  
+    } else if (pe instanceof DLProgramElement) {
+		return Prog2LogicConverter.convert((DLProgramElement)pe, services);
+	}
 	throw new IllegalArgumentException
 	    ("TypeConverter: Unknown or not convertable ProgramElement " + pe+
              " of type "+pe.getClass());

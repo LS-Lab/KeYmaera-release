@@ -23,6 +23,9 @@ import de.uka.ilkd.key.logic.sort.Sort;
 import de.uka.ilkd.key.parser.KeYLexer;
 import de.uka.ilkd.key.parser.KeYParser;
 import de.uka.ilkd.key.parser.ParserMode;
+import de.uka.ilkd.key.proof.init.Profile;
+import de.uka.ilkd.key.gui.Main;
+import de.uka.ilkd.key.proof.init.ProgramBlockProvider;
 
 public class TestClashFreeSubst extends TestCase {
  
@@ -102,9 +105,11 @@ public class TestClashFreeSubst extends TestCase {
 	Services serv = new Services ();
 	Recoder2KeY r2k = new Recoder2KeY(serv, nss);
 	r2k.parseSpecialClasses();
+	Profile profile = Main.getInstance().mediator().getProfile();
+	ProgramBlockProvider provider = profile.getProgramBlockProvider();
 	return new KeYParser(ParserMode.DECLARATION, new KeYLexer(new StringReader(s),null),
 			      "No file. Call of parser from logic/TestClashFreeSubst.java",
-			      serv, nss);
+			      serv, nss, provider);
     }
 
     public void parseDecls(String s) {
@@ -120,9 +125,11 @@ public class TestClashFreeSubst extends TestCase {
     }
 
     private KeYParser stringTermParser(String s) {
+	Profile profile = Main.getInstance().mediator().getProfile();
+	ProgramBlockProvider provider = profile.getProgramBlockProvider();
 	return new KeYParser(ParserMode.GLOBALDECL,
 				   new KeYLexer(new StringReader(s),null),
-				   tf, new Services (), nss);
+				   tf, new Services (), nss, provider);
     }
 
     public Term parseTerm(String s) {

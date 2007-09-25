@@ -144,6 +144,16 @@
      </antlr>
   </target>
 
+  <target name="dlparser">
+     <antlr
+		 target="de/uka/ilkd/key/parser/dl/dlantlr.g"
+		 outputdirectory="${gen.dir}/de/uka/ilkd/key/parser/dl">
+        <classpath>
+			<pathelement location="/home/stud/jdq/doc/da/src/key-ext-jars/antlr-3.0b5/lib/antlr-2.7.7.jar:/home/stud/jdq/doc/da/src/key-ext-jars/antlr-3.0b5/lib/stringtemplate-3.0.jar:/home/stud/jdq/doc/da/src/key-ext-jars/antlr-3.0b5/lib/antlr-3.0b5.jar" />
+        </classpath>
+     </antlr>
+  </target>
+
 
   <target name="schemajava"> 
      <javacc

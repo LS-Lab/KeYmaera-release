@@ -432,7 +432,7 @@ public class Goal  {
     }
 
     public void addProgramVariables(Namespace ns) {
-	final IteratorOfNamed it=ns.elements().iterator();
+	final IteratorOfNamed it=ns.allElements().iterator();
 	while (it.hasNext()) {
 	    addProgramVariable((ProgramVariable)it.next());
 	}

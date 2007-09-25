@@ -15,6 +15,7 @@ import java.util.*;
 
 import javax.swing.JMenuItem;
 
+import de.uka.ilkd.key.dl.options.DLOptionBean;
 import de.uka.ilkd.key.proof.init.JavaProfile;
 import de.uka.ilkd.key.proof.init.Profile;
 import de.uka.ilkd.key.util.Debug;
@@ -82,7 +83,8 @@ public class ProofSettings {
 	    new ChoiceSettings(),
 	    new DecisionProcedureSettings(),
 	    new ViewSettings(),
-            new LibrariesSettings()
+            new LibrariesSettings(),
+            DLOptionBean.INSTANCE
 	};
 	for (int i = 0; i < settings.length; i++) { 
 	    settings[i].addSettingsListener(listener);

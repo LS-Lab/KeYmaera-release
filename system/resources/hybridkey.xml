@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<MathSolvers> 
+  <MathSolver> 
+	<class>de.uka.ilkd.key.dl.arithmetics.impl.mathematica.Mathematica</class>
+	<mathkernel>
+		-linkmode launch -linkname '/space/users/syspect/jdq/Wolfram/Mathematica/6.0/Executables/math -mathlink'
+	</mathkernel>
+	<server>
+		<ip>localhost</ip>
+		<port>23420</port>
+	</server>
+        <optionbean>de.uka.ilkd.key.dl.arithmetics.impl.mathematica.Options</optionbean>
+  </MathSolver>
+  <MathSolver> 
+	<class>de.uka.ilkd.key.dl.arithmetics.impl.orbital.Orbital</class>
+        <optionbean>de.uka.ilkd.key.dl.arithmetics.impl.orbital.Options</optionbean>
+  </MathSolver>
+</MathSolvers>

@@ -3,6 +3,8 @@ package de.uka.ilkd.key.proof.init;
 import de.uka.ilkd.key.strategy.FOLStrategy;
 import de.uka.ilkd.key.strategy.SetOfStrategyFactory;
 import de.uka.ilkd.key.strategy.StrategyFactory;
+import de.uka.ilkd.key.java.Services;
+import de.uka.ilkd.key.logic.NamespaceSet;
 
 public class PureFOLProfile extends AbstractProfile {
    
@@ -24,4 +26,20 @@ public class PureFOLProfile extends AbstractProfile {
     public StrategyFactory getDefaultStrategyFactory() {        
         return DEFAULT;
     }
+
+	/**
+	 * As there are no programs in FOL this method returns null
+	 * @return null
+	 */
+	public ProgramBlockProvider getProgramBlockProvider() {
+		return null;
+	}
+
+	/**
+	 * As there are no programs in FOL this method returns null
+	 * @return null
+	 */
+	public ProgramBlockProvider getProgramBlockProvider(Services services, NamespaceSet namespaces) {
+		return null;
+	}
 }

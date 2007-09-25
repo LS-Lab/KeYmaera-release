@@ -34,14 +34,14 @@ import de.uka.ilkd.key.util.Debug;
 public class ApplyOnModality extends AbstractUpdateRule {
 
     /** marker that all program variables have to be protected */
-    private final static Object PROTECT_ALL = new Object(); 
+    protected final static Object PROTECT_ALL = new Object(); 
 
     /** marker that all heap locations have to be protected */
     private final static Object PROTECT_HEAP = new Object(); 
     
     private boolean deletionEnabled;
 
-    private static HashMap protectedVarsCache = new HashMap();
+    protected static HashMap protectedVarsCache = new HashMap();
     
     /**
      * @param updateSimplifier
@@ -103,7 +103,7 @@ public class ApplyOnModality extends AbstractUpdateRule {
      * @param protectedProgVars
      * @return
      */
-    private boolean protectedLocation(Location loc, HashSet protectedProgVars) {
+    protected boolean protectedLocation(Location loc, HashSet protectedProgVars) {
         // currently it would be safe to comment the PROTECTED_HEAP part out as 
         // heap locations are generally not thrown away. But in principle one can think
         // of a more finegrained control
@@ -129,7 +129,7 @@ public class ApplyOnModality extends AbstractUpdateRule {
      * @param target
      * @return
      */
-    private HashSet collectProgramVariables(Term target) {
+    protected HashSet collectProgramVariables(Term target) {
         if (protectedVarsCache.containsKey(target)) {           
             return (HashSet) protectedVarsCache.get(target); 
         }

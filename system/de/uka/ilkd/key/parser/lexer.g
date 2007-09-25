@@ -85,8 +85,8 @@ tokens {
 	HASSORT = "\\hasSort";
 	ISLOCALVARIABLE = "\\isLocalVariable";
 	NOTISLOCALVARIABLE = "\\notIsLocalVariable";
+	ISFIRSTORDERFORMULA = "\\isFirstOrderFormula";
 	ISUPDATED = "\\isUpdated";
-
 
 	// Quantifiers, binding, substitution
 	BIND   = "\\bind";
@@ -488,9 +488,9 @@ options {
 
 COMPUTE_SPEC_OP
 options { 
-  paraphrase = "'^'";
+  paraphrase = "'^^'";
 }
-	:	'^'
+	:	"^^"
 	;
 
 TILDE
@@ -526,6 +526,13 @@ options {
   paraphrase = "`+'";
 }
       :   '+'
+      ;
+
+EXP
+options {
+  paraphrase = "`^'";
+}
+      :   '^'
       ;
 
 GREATER
@@ -702,7 +709,13 @@ DIGIT_DISPATCH
 :
     (DIGIT (' ' | '\t' | '\r' | '\n')* LPAREN) => DIGIT {$setType(IDENT);}
   | ('0' 'x') => HEX_LITERAL {$setType(NUM_LITERAL);}
+  | (NUM_LITERAL '.') => REAL_NUMBER {$setType(REAL_NUMBER);}
   | NUM_LITERAL {$setType(NUM_LITERAL);}
+;
+
+protected
+REAL_NUMBER
+: NUM_LITERAL '.' NUM_LITERAL
 ;
 
 protected

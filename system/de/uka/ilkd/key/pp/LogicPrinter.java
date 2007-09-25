@@ -580,10 +580,11 @@ public class LogicPrinter {
         if (pe instanceof ProgramVariable) {
             printProgramVariable((ProgramVariable) pe);
         } else {
-            StringWriter w = new StringWriter();
+            /*StringWriter w = new StringWriter();
             PrettyPrinter pp = new PrettyPrinter(w, true, instantiations);
             pe.prettyPrint(pp);
-            layouter.pre(w.toString());
+            layouter.pre(w.toString());*/
+			layouter.pre(pe.toString());
         }
     }
 

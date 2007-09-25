@@ -23,18 +23,22 @@ import recoder.io.ProjectSettings;
 
 import org.apache.log4j.Logger;
 
+import de.uka.ilkd.key.dl.DLProfile;
+import de.uka.ilkd.key.dl.formulatools.ProgramVariableDeclaratorVisitor;
 import de.uka.ilkd.key.gui.LibrariesSettings;
 import de.uka.ilkd.key.gui.Main;
 import de.uka.ilkd.key.gui.ProofSettings;
 import de.uka.ilkd.key.java.CompilationUnit;
 import de.uka.ilkd.key.java.Recoder2KeY;
 import de.uka.ilkd.key.java.Services;
+import de.uka.ilkd.key.java.StatementBlock;
 import de.uka.ilkd.key.logic.ConstrainedFormula;
 import de.uka.ilkd.key.logic.IteratorOfConstrainedFormula;
 import de.uka.ilkd.key.logic.IteratorOfNamed;
 import de.uka.ilkd.key.logic.NamespaceSet;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.op.Function;
+import de.uka.ilkd.key.logic.op.Modality;
 import de.uka.ilkd.key.logic.op.ProgramVariable;
 import de.uka.ilkd.key.logic.sort.Sort;
 import de.uka.ilkd.key.logic.sort.SortDefiningSymbols;
@@ -76,8 +80,7 @@ public class ProblemInitializer {
         this.main       = main;
         this.profile    = main.mediator().getProfile();
         this.services   = new Services(main.mediator().getExceptionHandler());
-        this.simplifier = ProofSettings.DEFAULT_SETTINGS
-                .getSimultaneousUpdateSimplifierSettings().getSimplifier();
+        this.simplifier = profile.getDefaultUpdateSimplifier();
     }
   
     
@@ -88,8 +91,7 @@ public class ProblemInitializer {
 	this.main       = null;
         this.profile    = profile;
         this.services   = new Services();
-        this.simplifier = ProofSettings.DEFAULT_SETTINGS
-                .getSimultaneousUpdateSimplifierSettings().getSimplifier();
+        this.simplifier = profile.getDefaultUpdateSimplifier();
     }
     
         
@@ -403,7 +405,7 @@ public class ProblemInitializer {
     
     
     private void populateNamespaces(Term term, NamespaceSet namespaces) {
-	for(int i = 0; i < term.arity(); i++) {
+        for(int i = 0; i < term.arity(); i++) {
 	    populateNamespaces(term.sub(i), namespaces);
 	}
 	
@@ -412,9 +414,17 @@ public class ProblemInitializer {
 	} else if(term.op() instanceof ProgramVariable) {
 	    namespaces.programVariables().add(term.op());
 	}
-	
+	 
 	//TODO: consider Java blocks (should not be strictly necessary 
 	//for the moment, though)
+	if(Main.getInstance().mediator().getProfile() instanceof DLProfile) {
+	    System.out.println("DL Profile");//XXX 
+	    if(term.op() instanceof Modality) {
+	        System.out.println("Modality");//XXX 
+	        ProgramVariableDeclaratorVisitor.declareVariables(((StatementBlock) term.
+	                javaBlock().program()).getChildAt(0), namespaces);
+	    }
+	}
     }
     
     

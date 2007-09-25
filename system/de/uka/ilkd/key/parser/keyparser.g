@@ -24,6 +24,7 @@ header {
   import java.util.HashSet;
   import java.util.Vector;
   import java.math.BigInteger;
+  import java.math.BigDecimal;
 
   import de.uka.ilkd.key.collection.ListOfString;
   import de.uka.ilkd.key.collection.IteratorOfString;
@@ -33,6 +34,9 @@ header {
   import de.uka.ilkd.key.logic.op.*;
   import de.uka.ilkd.key.logic.sort.*;
   import de.uka.ilkd.key.logic.sort.oclsort.OclSort;
+
+  import de.uka.ilkd.key.parser.dl.NumberCache;
+  import de.uka.ilkd.key.dl.logic.ldt.RealLDT;
 
   import de.uka.ilkd.key.proof.*;
   import de.uka.ilkd.key.proof.init.*;
@@ -44,6 +48,7 @@ header {
   import de.uka.ilkd.key.rule.metaconstruct.*;
 
   import de.uka.ilkd.key.util.*;
+  import de.uka.ilkd.key.gui.Main;
 
   import de.uka.ilkd.key.jml.*;
   import de.uka.ilkd.key.java.JavaInfo;
@@ -77,7 +82,7 @@ options {
     private final static int LOCATION_MODIFIER = 1;
     private final static int HEAP_DEPENDENT = 2;
 
-    static HashMap prooflabel2tag = new HashMap(15);
+    static HashMap prooflabel2tag = new HashMap(16);
     static {
       prooflabel2tag.put("branch", new Character('b'));
       prooflabel2tag.put("rule", new Character('r'));
@@ -92,6 +97,7 @@ options {
       prooflabel2tag.put("keyVersion", new Character('v'));
       prooflabel2tag.put("keySettings", new Character('s'));
       prooflabel2tag.put("contract", new Character('c'));	
+      prooflabel2tag.put("reduceVariables", new Character('m'));
       prooflabel2tag.put("userinteraction", new Character('a'));
    }
 
@@ -131,6 +137,7 @@ options {
     private Services services;
     private TermFactory tf;
     private JavaReader javaReader;
+	private ProgramBlockProvider programBlockProvider;
 
     // if this is used then we can capture parts of the input for later use
     private DeclPicker capturer = null;
@@ -156,14 +163,15 @@ options {
      * used we still require the caller to provide the parser mode explicitly, 
      * so that the code is readable.
      */
-    public KeYParser(ParserMode mode, TokenStream lexer) {
+    public KeYParser(ParserMode mode, TokenStream lexer, ProgramBlockProvider pbp) {
 	this((lexer instanceof KeYLexer)? ((KeYLexer)lexer).getSelector() : ((DeclPicker)lexer).getSelector(), 2);
         this.selector = (lexer instanceof KeYLexer)? ((KeYLexer)lexer).getSelector() : ((DeclPicker)lexer).getSelector();
 	this.parserMode = mode;
+	this.programBlockProvider = pbp;
     }
 
-    public KeYParser(ParserMode mode, TokenStream lexer, Services services) {
-        this(mode, lexer);
+    public KeYParser(ParserMode mode, TokenStream lexer, Services services, ProgramBlockProvider pbp) {
+        this(mode, lexer, pbp);
         this.keh = services.getExceptionHandler();
     }
 
@@ -173,8 +181,8 @@ options {
                      Services services,
 		     NamespaceSet nss,
 		     TermFactory tf,
-		     ParserMode mode) {
-        this(mode, lexer);
+		     ParserMode mode, ProgramBlockProvider pbp) {
+        this(mode, lexer, pbp);
         setFilename(filename);
  	this.services = services;
 	if(services != null)
@@ -196,8 +204,8 @@ options {
      */  
     public KeYParser(ParserMode mode, TokenStream lexer,
                      String filename, Services services,
-                     NamespaceSet nss) {
-        this(lexer, filename, services, nss, null, mode);
+                     NamespaceSet nss, ProgramBlockProvider pbp) {
+        this(lexer, filename, services, nss, null, mode, pbp);
 	resetSkips();
     }
 
@@ -209,8 +217,8 @@ options {
     public KeYParser(ParserMode mode, TokenStream lexer,                   
                      String filename, TermFactory  tf,
                      JavaReader jr, Services services,
-                     NamespaceSet nss, AbbrevMap scm) {
-        this(lexer, filename, services, nss, tf, mode);
+                     NamespaceSet nss, AbbrevMap scm, ProgramBlockProvider pbp) {
+        this(lexer, filename, services, nss, tf, mode, pbp);
         this.javaReader = jr;
         this.scm = scm;
     }
@@ -225,33 +233,33 @@ options {
      */  
     public KeYParser(ParserMode mode, TokenStream lexer,
 		     TermFactory tf, JavaReader jr,
-		     NamespaceSet nss) {
-        this(lexer, null, new Services(), nss, tf, mode);
+		     NamespaceSet nss, ProgramBlockProvider pbp) {
+        this(lexer, null, new Services(), nss, tf, mode, pbp);
         this.scm = new AbbrevMap();
         this.javaReader = jr;
     }
 
     public KeYParser(ParserMode mode, TokenStream lexer,
 		     TermFactory tf, Services services,
-		     NamespaceSet nss) {
+		     NamespaceSet nss, ProgramBlockProvider pbp) {
 	this(mode, lexer, tf, 
 	     new Recoder2KeY(
 		new KeYCrossReferenceServiceConfiguration(
 		   services.getExceptionHandler()), 
 		services.getJavaInfo().rec2key(), new NamespaceSet(), 
 		services.getTypeConverter()),
-   	     nss);
+   	     nss, pbp);
     }
 
     public KeYParser(ParserMode mode, TokenStream lexer,
-		     Services services, NamespaceSet nss) {
+		     Services services, NamespaceSet nss, ProgramBlockProvider pbp) {
 	this(mode, lexer, TermFactory.DEFAULT,
 	     new Recoder2KeY(
 	       new KeYCrossReferenceServiceConfiguration(
 	         services.getExceptionHandler()),
 	       services.getJavaInfo().rec2key(), new NamespaceSet(),
 	       services.getTypeConverter()),
-	     nss);
+	     nss, pbp);
     }
 
 
@@ -261,8 +269,8 @@ options {
     public KeYParser(ParserMode mode, TokenStream lexer,
                      String filename, TermFactory tf,
                      SchemaJavaReader jr, Services services,  
-                     NamespaceSet nss, HashMap taclet2Builder) {
-        this(lexer, filename, services, nss, tf, mode);
+                     NamespaceSet nss, HashMap taclet2Builder, ProgramBlockProvider pbp) {
+        this(lexer, filename, services, nss, tf, mode, pbp);
         switchToSchemaMode();
         this.scm = new AbbrevMap();
         this.javaReader = jr;
@@ -271,10 +279,10 @@ options {
 
     public KeYParser(ParserMode mode, TokenStream lexer,
                      String filename, TermFactory tf,
-                     Services services, NamespaceSet nss) {
+                     Services services, NamespaceSet nss, ProgramBlockProvider pbp) {
         this(mode, lexer, filename, tf,
              new SchemaRecoder2KeY(services, nss),
-	     services, nss, new HashMap());
+	     services, nss, new HashMap(), pbp);
     }
 
 
@@ -284,8 +292,8 @@ options {
     public KeYParser(ParserMode mode, TokenStream lexer, 
                      String filename, ParserConfig schemaConfig,
                      ParserConfig normalConfig, HashMap taclet2Builder,
-                     SetOfTaclet taclets, SetOfChoice selectedChoices) { 
-        this(lexer, filename, null, null, null, mode);
+                     SetOfTaclet taclets, SetOfChoice selectedChoices, ProgramBlockProvider pbp) { 
+        this(lexer, filename, null, null, null, mode, pbp);
         if (lexer instanceof DeclPicker) {
             this.capturer = (DeclPicker) lexer;
         }
@@ -307,8 +315,8 @@ options {
         }
     }
 
-    public KeYParser(ParserMode mode, TokenStream lexer, String filename) { 
-        this(lexer, filename, null, null, null, mode);
+    public KeYParser(ParserMode mode, TokenStream lexer, String filename, ProgramBlockProvider pbp) { 
+        this(lexer, filename, null, null, null, mode, pbp);
         if (lexer instanceof DeclPicker) {
             this.capturer = (DeclPicker) lexer;
         }
@@ -701,6 +709,39 @@ options {
             ((Function) functions.lookup(new Name("Z")), result); 
     }
 
+	public static Term toRealFunction(String number, String neg, NamespaceSet
+	nss, TermFactory tf) {
+	    BigDecimal b = new BigDecimal(number);
+		Namespace funcs = nss.functions();
+		if(Main.getInstance().mediator().getProof() != null) {
+			if(Main.getInstance().mediator().getServices() != null) {
+				funcs =
+				Main.getInstance().mediator().getServices().getNamespaces().functions();
+			}
+		}
+		try {
+			b = new BigDecimal(b.intValueExact());
+		} catch(Exception e) {
+			// b is a double... so its value is preserved... see doc of
+			// BigDecimal.intValueExact()
+		}
+		Name n = new Name("" + b);
+        Function f = (Function)funcs.lookup(n);
+		if(f == null) {
+			Sort r = RealLDT.getRealSort();
+			f = NumberCache.getNumber(b,r);
+			funcs.add(f);
+		}
+		Term result = tf.createFunctionTerm(f);
+		if(!neg.equals("")) {
+            return tf.createFunctionTerm((Function) nss.functions().lookup(new
+			Name("neg")), result);
+		}
+		return result;
+
+	}
+
+
     private String getTypeList(ListOfProgramVariable vars) {
 	StringBuffer result = new StringBuffer("");
 	final IteratorOfProgramVariable it = vars.iterator();
@@ -948,7 +989,10 @@ options {
     }
 
     private HashSet progVars(JavaBlock jb) {
-	if(isGlobalDeclTermParser()) {
+		return programBlockProvider.getProgramVariables(jb, namespaces(), 
+			isGlobalDeclTermParser(), isDeclParser(), (isTermParser() ||
+			isProblemParser()));
+	/*if(isGlobalDeclTermParser()) {
   	  ProgramVariableCollector pvc
 	      = new ProgramVariableCollector(jb.program());
           pvc.start();
@@ -964,7 +1008,7 @@ options {
             return pvc.result();
           }
 	Debug.fail("KeYParser.progVars(): this statement should not be reachable.");
-	return null;
+	return null;*/
     }
 
     private Term termForParsedVariable(ParsableVariable v) 
@@ -1006,25 +1050,11 @@ options {
 	Debug.out("Modal operator name passed to getJavaBlock: ",sjb.opName);
 	Debug.out("Java block passed to getJavaBlock: ", s);
 
-        JavaReader jr = javaReader;
 
 	try {
-            if (inSchemaMode()) {
-                if(isProblemParser()) // Alt jr==null;
-                jr = new SchemaRecoder2KeY(parserConfig.services(), 
-                    parserConfig.namespaces());
-                ((SchemaJavaReader)jr).setSVNamespace(variables());
-            } else{
-                if(isProblemParser()) // Alt jr==null;
-                jr = new Recoder2KeY(parserConfig.services(), 
-                    parserConfig.namespaces());
-            }
-
-            if (inSchemaMode() || isGlobalDeclTermParser()) {
-                sjb.javaBlock = jr.readBlockWithEmptyContext(s);
-            }else{
-                sjb.javaBlock = jr.readBlockWithProgramVariables(programVariables(), s);
-            }
+		Debug.out("Using ProgramBlockProvider: " + programBlockProvider);
+           sjb.javaBlock = programBlockProvider.getProgramBlock(parserConfig,
+		   s, inSchemaMode(), isProblemParser(), isGlobalDeclTermParser());
         } catch (de.uka.ilkd.key.java.PosConvertException e) {
             lineOffset=e.getLine()-1;
             colOffset=e.getColumn()+1;
@@ -2656,6 +2686,22 @@ strong_arith_op returns [Function op = null]
    }
 ;
 
+very_strong_arith_op returns [Function op = null]
+{
+  String op_name = null;
+}
+:
+ (
+ EXP      	 { op_name = "exp"; }
+ ) {
+     op = (Function) functions().lookup(new Name(op_name)); 
+     if(op == null) {
+       semanticError("Function symbol '"+op_name+"' not found.");
+     }
+   }
+;
+
+
 // term80
 logicTermReEntry returns [Term a = null]
 {
@@ -2696,7 +2742,7 @@ term100 returns [Term a = null]
   Function op = null;
 }
 :
-   a = term110 ( op = strong_arith_op a1=term110 {
+   a = term101 ( op = strong_arith_op a1=term101 {
                   a = tf.createFunctionTerm(op, a, a1);
                 })*
 ; exception
@@ -2706,6 +2752,21 @@ term100 returns [Term a = null]
 			(ex.getMessage(), getFilename(), getLine(), getColumn()));
         }
 
+term101 returns [Term a = null]
+{
+  Term a1 = null;
+  Function op = null;
+}
+:
+   a = term110 ( op = very_strong_arith_op a1=term110 {
+                  a = tf.createFunctionTerm(op, a, a1);
+                })*
+; exception
+        catch [TermCreationException ex] {
+              keh.reportException
+		(new KeYSemanticException
+			(ex.getMessage(), getFilename(), getLine(), getColumn()));
+        }
 
 /**
  * helps to better distinguish if formulas are allowed or only term are
@@ -3598,7 +3659,17 @@ funcpredvarterm returns [Term a = null]
         }
     | 
         ((MINUS)? NUM_LITERAL) => (MINUS {neg = "-";})? number:NUM_LITERAL
-        { a = toZNotation(neg+number.getText(), functions(), tf);}    
+        { try {
+		a = toZNotation(neg+number.getText(), functions(), tf);
+		if(a == null) {
+			a = toRealFunction(number.getText(), neg, namespaces(), tf);
+		}
+		} catch(Exception e) {
+			a = toRealFunction(number.getText(), neg, namespaces(), tf);
+		}
+		}    
+	| ((MINUS)? REAL_NUMBER) => (MINUS {neg = "-";})? real:REAL_NUMBER
+		{ a = toRealFunction(real.getText(), neg, namespaces(), tf); }    
     | AT a = abbreviation
     | varfuncid = funcpred_name 
         (   (LBRACKET dependency_list_list RBRACKET) =>
@@ -3888,6 +3959,7 @@ varexp[TacletBuilder b]
       | varcond_abstractOrInterface[b, negated]
       | varcond_static[b,negated] 
       | varcond_typecheck[b, negated]
+	  | varcond_firstorderformula[b, negated]
       | varcond_localvariable[b, negated]
 	  | varcond_isupdated[b, negated]
       | varcond_freeLabelIn[b,negated] )
@@ -4163,6 +4235,18 @@ varcond_localvariable [TacletBuilder b, boolean negated]
      	   b.addVariableCondition(new LocalVariableCondition((SchemaVariable) x, negated));
         } 
 ;
+
+varcond_firstorderformula [TacletBuilder b, boolean negated]
+{
+  ParsableVariable x = null;
+}
+:
+   ISFIRSTORDERFORMULA 
+	LPAREN x=varId RPAREN {
+     	   b.addVariableCondition(new FirstOrderCondition((SchemaVariable) x, negated));
+        } 
+;
+
 
 varcond_isupdated [TacletBuilder b, boolean negated]
 {

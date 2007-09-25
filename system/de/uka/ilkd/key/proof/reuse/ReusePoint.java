@@ -638,7 +638,7 @@ public class ReusePoint implements Comparable {
          if (node instanceof Statement) {
             final ExecutionContext ec = (ExecutionContext) (executionContext.size() > 0 ? 
                     executionContext.getFirst() : null); 
-            result.add(((JavaProgramElement)node).
+            result.add(((ReuseableProgramElement)node).
                     reuseSignature(proof.getServices(), ec));
          }
       }

@@ -43,6 +43,8 @@ import de.uka.ilkd.key.logic.op.SortedSchemaVariable;
 import de.uka.ilkd.key.logic.sort.Sort;
 import de.uka.ilkd.key.logic.sort.ProgramSVSort;
 
+import de.uka.ilkd.key.dl.rules.metaconstruct.DLDiffAdjoin;
+
 /**
    JavaCC AST generation specification based on the original Java1.1   
    grammar that comes with javacc, and includes the modification of D. Williams
@@ -513,6 +515,10 @@ TOKEN :
 		    | < TYPEOF: "#typeof" >
 		    | < SWITCHTOIF: "#switch-to-if" >
 		    | < UNPACK: "#unpack" >
+		    | < ODESOLVE: "#ODESolve" >
+		    | < DIFFIND: "#DiffInd" >
+		    | < INVARIANTPART: "#invariantOf" >
+		    | < DIFFADJOIN: "#diffAdjoin" >
 		    }
 
 /* LITERALS */
@@ -3681,6 +3687,42 @@ RKeYMetaConstruct KeYMetaConstructStatement() :
 		  return result;
 	      }
 	   )
+		|
+      <ODESOLVE> "(" stat = Statement() ")"
+	  {  
+      result = factory.createRKeYMetaConstruct();
+      setPrefixInfo(result);
+      result.setChild(stat);
+      result.setName("#ODESolve");
+      return result;
+  	   }
+		|
+      <DIFFIND> "(" stat = Statement() ")"
+	  {  
+      result = factory.createRKeYMetaConstruct();
+      setPrefixInfo(result);
+      result.setChild(stat);
+      result.setName("#DiffInd");
+      return result;
+  	   }
+		|
+      <INVARIANTPART> "(" stat = Statement() ")"
+	  {  
+      result = factory.createRKeYMetaConstruct();
+      setPrefixInfo(result);
+      result.setChild(stat);
+      result.setName("#invariantOf");
+      return result;
+  	   }
+		|
+      <DIFFADJOIN> "(" stat = Statement() ")"
+	  {  
+      result = factory.createRKeYMetaConstruct();
+      setPrefixInfo(result);
+      result.setChild(stat);
+      result.setName(DLDiffAdjoin.NAME.toString());
+      return result;
+  	   }
 	  }
 
 

@@ -7,7 +7,7 @@
 # See LICENSE.TXT for details.
 
 #$Format: "PRCSVERSION = \"$ProjectVersion$\""$ 
-PRCSVERSION = "0.2655"
+PRCSVERSION = "queselHybrid.232"
 
 SHELL=/bin/sh
 #comon prefix
@@ -54,8 +54,14 @@ ifeq "$(JAVAC)" ""
 JAVAC=jikes
 endif
 
+ANTLR_2_7_2=../key-ext-jars/antlr-2.7.2.jar
+
 ifeq "$(ANTLR)" ""
-ANTLR=$(JAVA) -cp $(GENERATED_SRC_PATH):$(CLASSPATH) antlr.Tool
+ANTLR=$(JAVA) -cp $(GENERATED_SRC_PATH):$(ANTLR_2_7_2):$(CLASSPATH) antlr.Tool
+endif
+
+ifeq "$(ANTLR3)" ""
+ANTLR3=$(JAVA) -cp $(GENERATED_SRC_PATH):$(CLASSPATH) org.antlr.Tool
 endif
 
 
@@ -74,9 +80,9 @@ else
     OPTIONS=$(COMMON_OPTIONS) -nowarn -classpath $(ASPECTJRTPATH):$(CLASSPATH):$(GENERATED_SRC_PATH):$(BINARYPATH):.
   else
     ifeq ($(JAVAC),ejc)      
-       OPTIONS=$(COMMON_OPTIONS) -warn:uselessTypeCheck,localHiding,fieldHiding,tasks\(TODO\|HACK\|%%%\)  -source 1.4 -classpath $(JAVA_HOME)/jre/lib/rt.jar:$(CLASSPATH):$(GENERATED_SRC_PATH):$(BINARYPATH):.
+       OPTIONS=$(COMMON_OPTIONS) -warn:uselessTypeCheck,localHiding,fieldHiding,tasks\(TODO\|HACK\|%%%\)  -classpath $(JAVA_HOME)/jre/lib/rt.jar:$(CLASSPATH):$(GENERATED_SRC_PATH):$(BINARYPATH):.
     else 
-      OPTIONS=$(COMMON_OPTIONS) -J-Xmx512m -nowarn -source 1.4 -classpath $(CLASSPATH):$(GENERATED_SRC_PATH):$(BINARYPATH):.
+      OPTIONS=$(COMMON_OPTIONS) -J-Xmx512m -nowarn -classpath $(CLASSPATH):$(GENERATED_SRC_PATH):$(BINARYPATH):.
     endif
   endif
 endif
@@ -332,7 +338,10 @@ ANTLR_PARSER= \
 	$(GENERATED_SRC_PATH)$(PFX)parser/ocl/KeYOclParser.java \
 	$(GENERATED_SRC_PATH)$(PFX)util/keydoc/parser/KeYDocLexer.java \
 	$(GENERATED_SRC_PATH)$(PFX)util/keydoc/parser/KeYDocParser.java \
-	$(GENERATED_SRC_PATH)$(PFX)util/keydoc/parser/KeYDocTreeWalker.java 
+	$(GENERATED_SRC_PATH)$(PFX)util/keydoc/parser/KeYDocTreeWalker.java \
+	$(GENERATED_SRC_PATH)$(PFX)parser/dl/DLParser.java \
+	$(GENERATED_SRC_PATH)$(PFX)parser/dl/DLStage2.java 
+
 
 
 JAVACC_PARSER= \
@@ -387,7 +396,7 @@ doc: $(BINARYPATH)$(PFX)util/make/ListJavaFiles.class $(JAVAFILES)
 ## didn't want to use perl ;)
 	@find de/ -name '*.java' | xargs grep -h "^package\|^overview" |\
 	cut -d" " -f2 | cut -d";" -f1 | sort | uniq | grep "^de.uka" | \
-	xargs $(JAVADOC) $(JAVADOC_OPTIONS) -source 1.4 -classpath $(CLASSPATH):$(GENERATED_SRC_PATH):$(BINARYPATH) \
+	xargs $(JAVADOC) $(JAVADOC_OPTIONS) -source 1.5 -classpath $(CLASSPATH):$(GENERATED_SRC_PATH):$(BINARYPATH) \
 	-sourcepath $(GENERATED_SRC_PATH):. -d doc \
 	-link http://recoder.sourceforge.net/doc/api \
 	-link http://java.sun.com/j2se/1.3/docs/api \
@@ -423,6 +432,7 @@ dist:	all
 	@jar cfm setup.jar resources/de/uka/ilkd/key/util/install/MANIFEST.MF -C dist/setup/ .
 	@tar -czvf ../dist/KeY-$(KEYVERS).tgz key.jar setup.jar -C ../ LICENSE.TXT
 	@cp ../README.install.bytecode ../dist/README-$(KEYVERS).txt
+	@cp ../README.hykey ../dist
 	@echo "[deleting distribution directory structure]"
 	@rm -rf dist
 
@@ -440,8 +450,9 @@ dist_src: distclean
 	@tar -C/tmp/keydist-$(USER) --dereference  \
         -cvzf /tmp/keydist-$(USER)/KeY-$(KEYVERS)-src.tgz \
         --exclude=key-$(KEYVERS)/key-ext-jars/'*' --exclude=key-$(KEYVERS)/eclipse/'*'     key-$(KEYVERS)
-	@mv /tmp/keydist-$(USER)/KeY-$(KEYVERS)-src.tgz ..
-	@cp /tmp/keydist-$(USER)/key-$(KEYVERS)/README.install.source ../README-$(KEYVERS)-src.txt
+	@mv /tmp/keydist-$(USER)/KeY-$(KEYVERS)-src.tgz ../dist
+	@cp /tmp/keydist-$(USER)/key-$(KEYVERS)/README.install.source ../dist/README-$(KEYVERS)-src.txt
+	@cp ../README.hykey ../dist
 	@echo "[done]"
 
 
@@ -587,6 +598,19 @@ $(GENERATED_SRC_PATH)$(PFX)parser/KeYParser.java \
 	@mkdir -p $(GENERATED_SRC_PATH)$(PFX)parser
 	@$(ANTLR) -glib $(PFX)parser/lexer.g \
 			 -o $(GENERATED_SRC_PATH)$(PFX)parser $<
+
+DL_PFX=$(PFX)parser/dl/
+DL_GEN_PFX=$(GENERATED_SRC_PATH)$(DL_PFX)
+
+$(DL_GEN_PFX)DLParser.java $(DL_GEN_PFX)DL.tokens: $(DL_PFX)DL.g
+	@echo [creating DLParser Stage 1]
+	@mkdir -p $(DL_GEN_PFX)
+	@$(ANTLR3) -lib $(DL_GEN_PFX) -o $(GENERATED_SRC_PATH) $<
+
+$(DL_GEN_PFX)DLStage2.java: $(DL_PFX)DLStage2.g $(DL_GEN_PFX)DL.tokens
+	@echo [creating DLParser Stage 2]
+	@mkdir -p $(DL_GEN_PFX)
+	@$(ANTLR3) -lib $(DL_GEN_PFX) -o $(GENERATED_SRC_PATH) $<
 
 $(GENERATED_SRC_PATH)$(PFX)parser/jml/KeYJMLLexer.java \
 $(GENERATED_SRC_PATH)$(PFX)parser/jml/KeYJMLLexerTokenTypes.txt \

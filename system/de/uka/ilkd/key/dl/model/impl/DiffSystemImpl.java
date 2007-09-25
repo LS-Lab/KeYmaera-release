@@ -1,0 +1,124 @@
+/*
+ * DiffSystemImpl.java 1.00 Mo Jan 15 09:44:56 CET 2007
+ */
+
+package de.uka.ilkd.key.dl.model.impl;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
+import com.wolfram.jlink.Expr;
+
+import de.uka.ilkd.key.dl.arithmetics.impl.mathematica.DL2ExprConverter;
+import de.uka.ilkd.key.dl.formulatools.Prog2LogicConverter;
+import de.uka.ilkd.key.dl.model.DLNonTerminalProgramElement;
+import de.uka.ilkd.key.dl.model.DLProgramElement;
+import de.uka.ilkd.key.dl.model.DiffSystem;
+import de.uka.ilkd.key.dl.model.Dot;
+import de.uka.ilkd.key.dl.model.Formula;
+import de.uka.ilkd.key.gui.Main;
+import de.uka.ilkd.key.java.PrettyPrinter;
+import de.uka.ilkd.key.java.ProgramElement;
+import de.uka.ilkd.key.java.Services;
+import de.uka.ilkd.key.java.reference.ExecutionContext;
+import de.uka.ilkd.key.logic.Term;
+import de.uka.ilkd.key.logic.TermBuilder;
+
+/**
+ * Implementation of {@link DiffSystem}
+ * 
+ * @version 1.00
+ * @author jdq
+ * @author ap
+ */
+public class DiffSystemImpl extends DLNonTerminalProgramElementImpl implements
+        DiffSystem {
+
+    /**
+     * Creates a new DiffSystem with the given content
+     * 
+     * @param content
+     *                the content of the system
+     */
+    public DiffSystemImpl(List<Formula> content) {
+        for (Formula f : content) {
+            addChild(f);
+        }
+    }
+
+    /**
+     * @see de.uka.ilkd.key.dl.model.impl.DLNonTerminalProgramElementImpl#prettyPrint(de.uka.ilkd.key.java.PrettyPrinter)
+     *      prettyPrint
+     */
+    public void prettyPrint(PrettyPrinter arg0) throws IOException {
+        arg0.printDiffSystem(this);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see de.uka.ilkd.key.java.ReuseableProgramElement#reuseSignature(de.uka.ilkd.key.java.Services,
+     *      de.uka.ilkd.key.java.reference.ExecutionContext)
+     */
+    public String reuseSignature(Services services, ExecutionContext ec) {
+        StringBuilder result = new StringBuilder();
+        result.append("{");
+        for (ProgramElement p : this) {
+            result.append(((DLProgramElement) p).reuseSignature(services, ec));
+        }
+        result.append("}");
+        return result.toString();
+    }
+
+    /**
+     * Test whether there is a Dot in the program or not
+     * 
+     * @param el
+     *                the current root element
+     * @return true if an element is found that is instance of Dot
+     */
+    public static final boolean isDifferentialEquation(ProgramElement el) {
+        if (el instanceof Dot) {
+            return true;
+        } else if (el instanceof DLNonTerminalProgramElement) {
+            boolean result = false;
+            for (ProgramElement p : (DLNonTerminalProgramElement) el) {
+                result |= isDifferentialEquation(p);
+            }
+            return result;
+        }
+        return false;
+    }
+
+    /**
+     * Get the (accumulated) invariant of this DiffSystem, i.e., the non-differential part.
+     */
+    public static final Term getInvariant(DiffSystem system) {
+        Term invariant = TermBuilder.DF.tt();
+        for (ProgramElement el : system) {
+            if (!isDifferentialEquation(el)) {
+                invariant = TermBuilder.DF.and(invariant, Prog2LogicConverter
+                        .convert((DLProgramElement) el, Main.getInstance()
+                                .mediator().getServices()));
+            }
+        }
+        return invariant;
+    }
+
+    /**
+     * Get the set of differential equations occurring in this DiffSystem.
+     * @param system TODO
+     */
+    public static final List<ProgramElement> getDifferentialEquations(DiffSystem system) {
+        List<ProgramElement> equations = new ArrayList<ProgramElement>();
+        for (ProgramElement el : system) {
+            if (isDifferentialEquation(el)) {
+                equations.add(el);
+            }
+        }
+        return equations;
+    }
+
+}

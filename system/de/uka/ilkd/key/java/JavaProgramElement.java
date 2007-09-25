@@ -24,7 +24,7 @@ import de.uka.ilkd.key.util.ExtList;
  * taken from COMPOST and changed to achieve an immutable structure
  */
 public abstract class JavaProgramElement extends JavaSourceElement
-                                         implements ProgramElement {
+                                         implements ProgramElement, ReuseableProgramElement {
 
     private final static Comment[] NO_COMMENTS = new Comment[0];
     /**
@@ -159,9 +159,8 @@ public abstract class JavaProgramElement extends JavaSourceElement
                                  NameAbstractionTableDisabled.INSTANCE);
     }
 
-    /** this is the default implementation of the signature, which is
-     *  used to determine program similarity.
-     * @param ec TODO
+    /* (non-Javadoc)
+     * @see de.uka.ilkd.key.java.ReuseableProgramElement#reuseSignature(de.uka.ilkd.key.java.Services, de.uka.ilkd.key.java.reference.ExecutionContext)
      */
     public String reuseSignature(Services services, ExecutionContext ec) {
        final String s = getClass().toString();

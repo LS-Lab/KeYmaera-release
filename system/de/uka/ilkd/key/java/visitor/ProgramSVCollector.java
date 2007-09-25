@@ -8,8 +8,8 @@
 //
 //
 package de.uka.ilkd.key.java.visitor;
-import de.uka.ilkd.key.java.JavaProgramElement;
 import de.uka.ilkd.key.java.ProgramElement;
+import de.uka.ilkd.key.java.ReuseableProgramElement;
 import de.uka.ilkd.key.java.annotation.Annotation;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.op.ListOfSchemaVariable;
@@ -81,7 +81,7 @@ public class ProgramSVCollector extends JavaASTWalker {
         } else if (node instanceof WhileInvRuleWrapper) {	    	    
 	    Term t = ((WhileInvRuleWrapper)node).unwrap();
 	    WhileInvRule wir = (WhileInvRule)t.op();	    
-	    JavaProgramElement jpe = t.sub(0).javaBlock().program();
+	    ReuseableProgramElement jpe = t.sub(0).javaBlock().program();
 	    result = 
 		result.prepend(wir.neededInstantiations
 			       ((ProgramElement)jpe, instantiations));

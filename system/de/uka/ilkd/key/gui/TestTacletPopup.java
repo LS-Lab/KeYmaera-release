@@ -20,6 +20,8 @@ import de.uka.ilkd.key.parser.KeYParser;
 import de.uka.ilkd.key.parser.ParserMode;
 import de.uka.ilkd.key.proof.TacletIndex;
 import de.uka.ilkd.key.rule.*;
+import de.uka.ilkd.key.proof.init.ProgramBlockProvider;
+import de.uka.ilkd.key.proof.init.Profile;
 
 public class TestTacletPopup {
 
@@ -469,8 +471,10 @@ public class TestTacletPopup {
 	Term t_test1=null;
 	try{
 	    StringReader fr = new StringReader(test1);
+		Profile profile = Main.getInstance().mediator().getProfile();
+		ProgramBlockProvider provider = profile.getProgramBlockProvider();
 	    KeYParser parser=
-		new KeYParser(ParserMode.PROBLEM, new KeYLexer(fr,null));
+		new KeYParser(ParserMode.PROBLEM, new KeYLexer(fr,null), provider);
 	    t_test1=parser.problem();
 	} catch (Exception e) {
 	    System.err.println("Parser Error or Input Error");

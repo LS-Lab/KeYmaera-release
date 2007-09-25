@@ -116,7 +116,7 @@ public class JavaBlock {
     /** toString */
     public String toString() {
 	if (this==EMPTY_JAVABLOCK) return "";
-	StringWriter sw=new StringWriter();
+	/*StringWriter sw=new StringWriter();
 	try {
 	    PrettyPrinter pp=new PrettyPrinter(sw, true);
 	    pp.setIndentationLevel(0);
@@ -125,7 +125,8 @@ public class JavaBlock {
 	    System.err.println("toString of JavaBlock failed due to :"+e);
 	    e.printStackTrace();
 	}
-	return sw.toString();
+	return sw.toString();*/
+	return prg.toString();
     }
 
 }
