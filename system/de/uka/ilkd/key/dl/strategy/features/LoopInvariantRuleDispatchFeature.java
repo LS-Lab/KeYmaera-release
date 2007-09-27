@@ -31,7 +31,6 @@ public class LoopInvariantRuleDispatchFeature implements Feature {
      * @see de.uka.ilkd.key.strategy.feature.Feature#compute(de.uka.ilkd.key.rule.RuleApp,
      *      de.uka.ilkd.key.logic.PosInOccurrence, de.uka.ilkd.key.proof.Goal)
      */
-    @Override
     public RuleAppCost compute(RuleApp app, PosInOccurrence pos, Goal goal) {
 
         assert ruleKnown(app.rule().name());
