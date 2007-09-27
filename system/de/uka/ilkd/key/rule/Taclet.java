@@ -10,9 +10,23 @@
 
 package de.uka.ilkd.key.rule;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+
+import de.uka.ilkd.key.dl.DLProfile;
+import de.uka.ilkd.key.dl.model.DLNonTerminalProgramElement;
+import de.uka.ilkd.key.dl.model.DLProgram;
+import de.uka.ilkd.key.dl.model.DLProgramElement;
+import de.uka.ilkd.key.dl.model.LogicalVariable;
+import de.uka.ilkd.key.gui.Main;
+import de.uka.ilkd.key.gui.ProofSettings;
 import de.uka.ilkd.key.java.ContextStatementBlock;
+import de.uka.ilkd.key.java.ProgramElement;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.java.SourceData;
+import de.uka.ilkd.key.java.StatementBlock;
 import de.uka.ilkd.key.logic.*;
 import de.uka.ilkd.key.logic.op.*;
 import de.uka.ilkd.key.proof.Goal;
@@ -257,6 +271,42 @@ public abstract class Taclet implements Rule, Named {
             result = result.union(bvv.getBoundVariables());
 
             result = result.union(getBoundVariablesHelper());
+            if(ProofSettings.DEFAULT_SETTINGS.getProfile() instanceof DLProfile) {
+                final Collection<QuantifiableVariable> vars = new HashSet<QuantifiableVariable>();
+                Visitor visitor = new Visitor() {
+
+                    @Override
+                    public void visit(Term visited) {
+                        if(visited.op() instanceof Modality) {
+                            ProgramElement program = ((StatementBlock) visited.javaBlock().program()).getChildAt(0);
+                            bindVariables(program);
+                        }
+                    }
+                    
+                    private void bindVariables(ProgramElement program) {
+                        if(program instanceof DLNonTerminalProgramElement) {
+                            DLNonTerminalProgramElement dlntpe = (DLNonTerminalProgramElement) program;
+                            for(ProgramElement p: dlntpe) {
+                                bindVariables(p);
+                            }
+                        } else if(program instanceof LogicalVariable) {
+                            vars.add((QuantifiableVariable) Main.getInstance()
+                                    .mediator().namespaces().variables()
+                                    .lookup(
+                                            ((LogicalVariable) program)
+                                                    .getElementName()));
+                        }
+                    }
+                    
+                };
+                final IteratorOfConstrainedFormula iter = ifSequent.iterator();
+                while (iter.hasNext()) {
+                    visitor.visit(iter.next().formula());            
+                }
+                for(QuantifiableVariable var: vars) {
+                    result = result.add(var);
+                }
+            }
 
             boundVariables = result;
         }
