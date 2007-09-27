@@ -89,17 +89,17 @@ public class ContainsMetaVariableVisitor extends Visitor {
             }
         } else if (variables.contains(visited.op())) {
             foundMetavariable = true;
-        } else if (visited.op() instanceof RigidFunction) {
-            RigidFunction f = (RigidFunction) visited.op();
-            if (f.isSkolem()) {
-                for(Metavariable var: variables) {
-                    if(visited.metaVars().contains(var)) {
-                        insideSkolem = true;
-                        break;
-                    }
-                }
-                
-            }
+//        } else if (visited.op() instanceof RigidFunction) {
+//            RigidFunction f = (RigidFunction) visited.op();
+//            if (f.isSkolem()) {
+//                for(Metavariable var: variables) {
+//                    if(visited.metaVars().contains(var)) {
+//                        insideSkolem = true;
+//                        break;
+//                    }
+//                }
+//                
+//            }
         }
     }
 

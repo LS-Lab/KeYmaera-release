@@ -4,6 +4,8 @@
 package de.uka.ilkd.key.dl.rules;
 
 import java.rmi.RemoteException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -13,6 +15,9 @@ import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
 import de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator.PairOfTermAndQuantifierType;
 import de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator.QuantifierType;
 import de.uka.ilkd.key.dl.formulatools.SkolemfunctionTracker;
+import de.uka.ilkd.key.dl.formulatools.TermRewriter;
+import de.uka.ilkd.key.dl.formulatools.TermRewriter.Match;
+import de.uka.ilkd.key.dl.logic.ldt.RealLDT;
 import de.uka.ilkd.key.dl.options.DLOptionBean;
 import de.uka.ilkd.key.dl.strategy.features.FOSequence;
 import de.uka.ilkd.key.java.Services;
@@ -20,7 +25,10 @@ import de.uka.ilkd.key.logic.Constraint;
 import de.uka.ilkd.key.logic.Name;
 import de.uka.ilkd.key.logic.PosInOccurrence;
 import de.uka.ilkd.key.logic.Term;
+import de.uka.ilkd.key.logic.TermBuilder;
 import de.uka.ilkd.key.logic.op.ArrayOfQuantifiableVariable;
+import de.uka.ilkd.key.logic.op.LogicVariable;
+import de.uka.ilkd.key.logic.op.QuantifiableVariable;
 import de.uka.ilkd.key.logic.op.Quantifier;
 import de.uka.ilkd.key.logic.op.RigidFunction;
 import de.uka.ilkd.key.proof.Goal;
@@ -165,17 +173,37 @@ public class ReduceRule extends RuleOperatingOnWholeSequence implements
             // variables.addAll(skolem);
         }
 
+
+
         if (DLOptionBean.INSTANCE.isReaddQuantifiers()) {
             // To reduce the formula we should really reintroduce the
             // quantifier,
             // as it leads to a tremendous performance gain
-            List<PairOfTermAndQuantifierType> quantifiers = new LinkedList<PairOfTermAndQuantifierType>();
-            for (Term t : skolem) {
-                quantifiers.add(new PairOfTermAndQuantifierType(t,
-                        QuantifierType.FORALL));
+//            List<PairOfTermAndQuantifierType> quantifiers = new LinkedList<PairOfTermAndQuantifierType>();
+//            for (Term t : skolem) {
+//                quantifiers.add(new PairOfTermAndQuantifierType(t,
+//                        QuantifierType.FORALL));
+//            }
+//            term = MathSolverManager.getCurrentQuantifierEliminator().reduce(
+//                    term, variables, quantifiers);
+            
+            Set<Match> matches = new HashSet<Match>();
+            List<LogicVariable> vars = new ArrayList<LogicVariable>();
+            for (Term sk : skolem) {
+                LogicVariable logicVariable = new LogicVariable(
+                        new Name(sk.op().name() + "$skolem"), sk.op().sort(
+                                new Term[0]));
+                vars.add(logicVariable);
+                matches.add(new Match((RigidFunction) sk.op(), TermBuilder.DF
+                        .var(logicVariable)));
+            }
+            term = TermRewriter.replace(term, matches);
+            for(QuantifiableVariable v: vars) {
+                term = TermBuilder.DF.all(v, term);
             }
             term = MathSolverManager.getCurrentQuantifierEliminator().reduce(
-                    term, variables, quantifiers);
+                    term, new ArrayList<String>(),
+                    new LinkedList<PairOfTermAndQuantifierType>());
         } else {
             term = MathSolverManager.getCurrentQuantifierEliminator().reduce(
                     term, variables,

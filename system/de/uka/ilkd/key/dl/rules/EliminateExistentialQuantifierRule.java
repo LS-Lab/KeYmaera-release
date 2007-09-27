@@ -20,7 +20,9 @@ import de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator.PairOfTermAndQuantif
 import de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator.QuantifierType;
 import de.uka.ilkd.key.dl.formulatools.ContainsMetaVariableVisitor;
 import de.uka.ilkd.key.dl.formulatools.SkolemfunctionTracker;
+import de.uka.ilkd.key.dl.formulatools.TermRewriter;
 import de.uka.ilkd.key.dl.formulatools.ContainsMetaVariableVisitor.Result;
+import de.uka.ilkd.key.dl.formulatools.TermRewriter.Match;
 import de.uka.ilkd.key.dl.model.MetaVariable;
 import de.uka.ilkd.key.dl.options.DLOptionBean;
 import de.uka.ilkd.key.gui.Main;
@@ -38,9 +40,11 @@ import de.uka.ilkd.key.logic.TermBuilder;
 import de.uka.ilkd.key.logic.TermFactory;
 import de.uka.ilkd.key.logic.Visitor;
 import de.uka.ilkd.key.logic.op.Junctor;
+import de.uka.ilkd.key.logic.op.LogicVariable;
 import de.uka.ilkd.key.logic.op.Metavariable;
 import de.uka.ilkd.key.logic.op.Op;
 import de.uka.ilkd.key.logic.op.Operator;
+import de.uka.ilkd.key.logic.op.QuantifiableVariable;
 import de.uka.ilkd.key.logic.op.RigidFunction;
 import de.uka.ilkd.key.proof.Goal;
 import de.uka.ilkd.key.proof.IteratorOfGoal;
@@ -184,13 +188,38 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule {
         Set<Term> skolemSymbols = new HashSet<Term>();
         for (Goal g : goals) {
             System.out.println("Found on " + g);// XXX
-            skolemSymbols.addAll(findSkolemSymbols(g.sequent().iterator()));
+            Set<Term> findSkolemSymbols = findSkolemSymbols(g.sequent().iterator());
+            
             Term antecendent = createJunctorTermNAry(TermBuilder.DF.tt(),
                     Op.AND, g.sequent().antecedent().iterator());
             Term succendent = createJunctorTermNAry(TermBuilder.DF.ff(), Op.OR,
                     g.sequent().succedent().iterator());
-            query = TermBuilder.DF.and(query, TermBuilder.DF.imp(antecendent,
-                    succendent));
+            Set<Match> matches = new HashSet<Match>();
+            List<LogicVariable> vars = new ArrayList<LogicVariable>();
+            Term imp = TermBuilder.DF.imp(antecendent,
+                    succendent);
+            List<Term> orderedList = SkolemfunctionTracker.INSTANCE
+                .getOrderedList(findSkolemSymbols);
+            for(Term sk: orderedList) {
+                if(sk.arity() > 0) {
+                    LogicVariable logicVariable = new LogicVariable(
+                            new Name(sk.op().name() + "$skolem"), sk.op().sort(
+                                    new Term[0]));
+                    vars.add(logicVariable);
+                    matches.add(new Match((RigidFunction) sk.op(), TermBuilder.DF
+                            .var(logicVariable)));
+                    findSkolemSymbols.remove(sk);
+                }
+            }
+            if(!matches.isEmpty()) {
+                imp = TermRewriter.replace(imp, matches);
+                for (QuantifiableVariable v : vars) {
+                    imp = TermBuilder.DF.all(v, imp);
+                }
+            }
+            
+            skolemSymbols.addAll(findSkolemSymbols);
+            query = TermBuilder.DF.and(query, imp);
         }
         System.out.println("Querying with " + query);// XXX
 
@@ -252,7 +281,7 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule {
      * @param iterator
      * @return
      */
-    private Collection<? extends Term> findSkolemSymbols(
+    private Set<Term> findSkolemSymbols(
             IteratorOfConstrainedFormula iterator) {
         final Set<Term> result = new HashSet<Term>();
         while (iterator.hasNext()) {
