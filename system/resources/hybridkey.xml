@@ -3,7 +3,7 @@
   <MathSolver> 
 	<class>de.uka.ilkd.key.dl.arithmetics.impl.mathematica.Mathematica</class>
 	<mathkernel>
-		-linkmode launch -linkname '/space/users/syspect/jdq/Wolfram/Mathematica/6.0/Executables/math -mathlink'
+		-linkmode launch -linkname '/space/users/andre/program/Mathematica/6.0/Executables/math -mathlink'
 	</mathkernel>
 	<server>
 		<ip>localhost</ip>
