@@ -84,20 +84,20 @@ my %erroneous;
   }
 
 
-  foreach my $dotkey (@interactive) {
-    $dotkey = &fileline($dotkey);
-
-    if ($dotkey) {
-      my $success = runAuto ($dotkey, "interactive");
-     if ( $success == 0) {
-       &processReturn (0, "indeed provable with interaction", $dotkey);
-     } elsif ($success == 1) {
-       &processReturn (1, "proof failed", $dotkey);
-     } else {
-       &processReturn (2, "error in proof", $dotkey);
-     }
-   }
-  }
+#  foreach my $dotkey (@interactive) {
+#    $dotkey = &fileline($dotkey);
+  #
+  #  if ($dotkey) {
+  #    my $success = runAuto ($dotkey, "interactive");
+  #   if ( $success == 0) {
+  #     &processReturn (0, "indeed provable with interaction", $dotkey);
+  #   } elsif ($success == 1) {
+  #     &processReturn (1, "proof failed", $dotkey);
+  #   } else {
+  #     &processReturn (2, "error in proof", $dotkey);
+  #   }
+  # }
+  #}
 
 # foreach my $dotkey (@quit_with_error) {
 #   $dotkey = &fileline($dotkey);
@@ -176,7 +176,7 @@ sub handlefile {
 	   close HANDLE;
 
 	   if ($tmpfile) {
-		 my $success = runAuto ($tmpfile, $headerfile, $timeout, $resultscheme);
+		 my $success = runAuto ($tmpfile, $dotkey, $headerfile, $timeout, $resultscheme);
 		 if ( $success == 0) {
 			 if($resultscheme == 0) {
 			   &processReturn (0, "indeed provable with $headerfile", $dotkey);
@@ -217,11 +217,7 @@ sub produceResultText {
 }
 
 sub runAuto {
-  my ($dk, $headerfile, $timeout, $expectedresult) = @_;
-  #  system "ls -l $_[0]";
-  #  system $bin_path . "/runProver $_[0] auto";
-  #my $dk = &getcwd . "/$filename";
-  #  print "$dk .-. ";
+  my ($dk, $realfilename, $headerfile, $timeout, $expectedresult) = @_;
   my $name = "/../examples/statistics.csv";
   my $statfile = $absolute_bin_path . $name;
   my $tmp = "/tmp/statistics.tmp.$$";
@@ -229,32 +225,37 @@ sub runAuto {
   my $pid;
   eval {
 	  $pid = open(STATUS, "$absolute_bin_path/runProver $dk auto dl print_statistics $tmp 2>&1 |");
-	  print $pid;
-	  #$pid = open(STATUS, "cat 2>&1 |");
-	  local $SIG{ALRM} = sub { my @pids = ($pid); print "killing $pid"; kill 9, @pids; die "alarm\n"; };
+	  local $SIG{ALRM} = sub { my @pids = ($pid); print "killing $pid\n"; kill 9, @pids; die "alarm\n"; };
 	  if ($timeout > 0) {
 		  print "timeout is $timeout\n"; 
 		  alarm $timeout;
 	  }
+	  print "now trying to proof $realfilename\n";
 	  print "output follows\n";
 	  while(<STATUS>) {
 		  print;
 	  }
 	  close(STATUS);
+	  print "\n";
 	  $result = $? / 256;#exit code from system is multiplied by 256
-	  print "Result is $result";
+	  print "Result is $result\n";
 	  alarm 0;
   };
   if($@) {
 	die "unexpected error" unless $@ eq "alarm\n";
 	alarm 0;
+    open (STS, ">>$statfile");
+	print STS "$realfilename, NA, $timeout, $headerfile, $expectedresult, TIMEOUT ";
+	close(STS);
 	return 2;
   } else {
 	  open (TMPF, $tmp);
 	  my @test = <TMPF>;
 	  my $line = $test[-1];
 	  if($line) {
-		  $line =~ s/\n$/, $headerfile, $expectedresult, $result\n/;
+		  $line =~ s/^.*?, (.*)\n$/$realfilename, $1, $headerfile, $expectedresult, $result\n/;
+		  #$line =~ s/\n$/, $headerfile, $expectedresult, $result\n/;
+		  #$line =~ s/^(.*?),/$realfilename,/;
 		  open (STS, ">>$statfile");
 		  print STS $line;
 		  close(STS);
@@ -262,9 +263,6 @@ sub runAuto {
 	  close(TMPF);
 	  unlink($tmp);
   }
-  #chdir "/home/daniels/programme/kruscht/";
-  #my $result = system 'java RetVal';
-  #print "\n Return value if: $result\n";
   $result; 
 }
 
