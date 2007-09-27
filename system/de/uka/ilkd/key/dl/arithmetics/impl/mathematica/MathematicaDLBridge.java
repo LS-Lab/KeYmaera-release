@@ -228,6 +228,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
                 de.uka.ilkd.key.logic.TermFactory.DEFAULT.createUpdateTerm(
                         locations.toArray(new Term[0]), values
                                 .toArray(new Term[0]), invariant));
+        invariant = ((SubstOp)invariant.op()).apply(invariant);
         // insert 0 <= ts <= t
         Term tsRange = convert(new Expr(INEQUALITY, new Expr[] { new Expr(0),
                 LESS_EQUALS, new Expr(Expr.SYMBOL, ts.name().toString()),

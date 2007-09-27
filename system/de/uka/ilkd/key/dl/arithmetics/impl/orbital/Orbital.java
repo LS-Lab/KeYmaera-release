@@ -178,7 +178,7 @@ public class Orbital implements IODESolver {
                 de.uka.ilkd.key.logic.TermFactory.DEFAULT.createUpdateTerm(
                         locations.toArray(new Term[0]), values
                                 .toArray(new Term[0]), invariant));
-
+        invariant = ((SubstOp)invariant.op()).apply(invariant);
         // insert 0 <= ts <= t
         de.uka.ilkd.key.logic.op.Function leq = (de.uka.ilkd.key.logic.op.Function) nss
                 .functions().lookup(new Name("leq"));
