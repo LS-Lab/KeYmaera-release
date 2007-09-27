@@ -25,6 +25,7 @@ import de.uka.ilkd.key.dl.strategy.features.FOFormula;
 import de.uka.ilkd.key.dl.strategy.features.FOSequence;
 import de.uka.ilkd.key.dl.strategy.features.FindInstanceTest;
 import de.uka.ilkd.key.dl.strategy.features.KeYBeyondFO;
+import de.uka.ilkd.key.dl.strategy.features.LoopInvariantRuleDispatchFeature;
 import de.uka.ilkd.key.dl.strategy.features.OnlyOncePerBranchFeature;
 import de.uka.ilkd.key.dl.strategy.features.ReduceFeature;
 import de.uka.ilkd.key.dl.strategy.features.SimplifyFeature;
@@ -207,6 +208,9 @@ public class DLStrategy extends AbstractFeatureStrategy {
         bindRuleSet(d, "system_invariant", inftyConst());
         bindRuleSet(d, "query_normalize", inftyConst());
 
+        
+        bindRuleSet(d, "loop_invariant", LoopInvariantRuleDispatchFeature.INSTANCE);
+        
         bindRuleSet(d, "mathematica_reduce", add(ifZero(ReduceFeature.INSTANCE,
                 longConst(4999), inftyConst()), (MathSolverManager
                 .isSimplifierSet()) ? longConst(0) : inftyConst()));
@@ -367,7 +371,7 @@ public class DLStrategy extends AbstractFeatureStrategy {
         if (cache.containsKey(node)) {
             return cache.get(node);
         }
-        if (node.parent().root() || node.parent().childrenCount() > 1) {
+        if (node.root() || node.parent().root() || node.parent().childrenCount() > 1) {
             return null;
         }
         return getFirstInCacheUntilBranch(node.parent(), cache);

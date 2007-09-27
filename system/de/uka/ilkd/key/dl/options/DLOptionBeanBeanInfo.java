@@ -13,6 +13,7 @@ import java.util.Set;
 import orbital.awt.TaggedPropertyEditorSupport;
 import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
 import de.uka.ilkd.key.dl.options.DLOptionBean.ApplyRules;
+import de.uka.ilkd.key.dl.options.DLOptionBean.InvariantRule;
 
 /**
  * @author jdq
@@ -116,7 +117,10 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
                             true, false, SimplifierPropertyEditor.class),
                     createDescriptor("applyGammaRules", "apply gamma rules",
                             "choose if and when gamma rules should be applied",
-                            true, false, ApplyRulesPropertyEditor.class)
+                            true, false, ApplyRulesPropertyEditor.class),
+                    createDescriptor("invariantRule", "invariant rule",
+                            "choose which invariant rule should be used", true,
+                            false, InvariantRulePropertyEditor.class),
 
             };
             return pds;
@@ -280,6 +284,22 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
 
         public ApplyRulesPropertyEditor() {
             super(getNames(), ApplyRules.values());
+        }
+    }
+
+    public static class InvariantRulePropertyEditor extends
+            TaggedPropertyEditorSupport {
+
+        private static String[] getNames() {
+            java.util.List<String> names = new ArrayList<String>();
+            for (InvariantRule r : InvariantRule.values()) {
+                names.add(r.toString());
+            }
+            return names.toArray(new String[0]);
+        }
+
+        public InvariantRulePropertyEditor() {
+            super(getNames(), InvariantRule.values());
         }
     }
 }

@@ -43,6 +43,26 @@ public class DLOptionBean implements Settings {
         }
     }
 
+    public static enum InvariantRule {
+        QUANTIFIERS("loop_inv_box_quan"), ANONYMOUS_UPDATES("loop_inv_box");
+
+        private String name;
+
+        private InvariantRule(String name) {
+            this.name = name;
+        }
+
+        /*
+         * (non-Javadoc)
+         * 
+         * @see java.lang.Enum#toString()
+         */
+        @Override
+        public String toString() {
+            return name;
+        }
+    }
+
     /**
      * 
      */
@@ -100,6 +120,8 @@ public class DLOptionBean implements Settings {
 
     private static final String DLOPTIONS_STOP_AT_FO = "[DLOptions]stopAtFO";
 
+    private static final String DLOPTIONS_INVARIANT_RULE = "[DLOptions]invariantRule";
+
     private Set<Settings> subOptions;
 
     private boolean callReduce;
@@ -141,6 +163,8 @@ public class DLOptionBean implements Settings {
     private String simplifier;
 
     private ApplyRules applyGammaRules;
+    
+    private InvariantRule invariantRule;
 
     private DLOptionBean() {
         subOptions = new HashSet<Settings>();
@@ -162,6 +186,7 @@ public class DLOptionBean implements Settings {
         simplifier = "";
         applyGammaRules = ApplyRules.NEVER;
         useFindInstanceTest = true;
+        invariantRule = InvariantRule.QUANTIFIERS;
 
         listeners = new HashSet<SettingsListener>();
     }
@@ -362,6 +387,10 @@ public class DLOptionBean implements Settings {
         if (property != null) {
             applyGammaRules = ApplyRules.valueOf(property);
         }
+        property = props.getProperty(DLOPTIONS_INVARIANT_RULE);
+        if (property != null) {
+            invariantRule = InvariantRule.valueOf(property);
+        }
     }
 
     /*
@@ -416,6 +445,7 @@ public class DLOptionBean implements Settings {
         }
 
         props.setProperty(DLOPTIONS_APPLY_GAMMA_RULES, applyGammaRules.name());
+        props.setProperty(DLOPTIONS_INVARIANT_RULE, invariantRule.name());
     }
 
     public void addSubOptionBean(Settings sub) {
@@ -678,6 +708,21 @@ public class DLOptionBean implements Settings {
      */
     public void setStopAtFO(boolean stopAtFO) {
         this.stopAtFO = stopAtFO;
+        firePropertyChanged();
+    }
+
+    /**
+     * @return the invariantRule
+     */
+    public InvariantRule getInvariantRule() {
+        return invariantRule;
+    }
+
+    /**
+     * @param invariantRule the invariantRule to set
+     */
+    public void setInvariantRule(InvariantRule invariantRule) {
+        this.invariantRule = invariantRule;
         firePropertyChanged();
     }
 
