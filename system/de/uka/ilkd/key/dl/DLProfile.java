@@ -39,7 +39,7 @@ public class DLProfile extends AbstractProfile {
      */
     private static final Factory DEFAULT = new DLStrategy.Factory();
 
-    private static final String DLRULES = "dlStandardRules.key";
+    private static final String DLRULES = "standardRules-dL.key";
 
     /**
      * @param standardRuleFilename
