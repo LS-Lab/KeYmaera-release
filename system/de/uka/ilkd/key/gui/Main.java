@@ -949,41 +949,20 @@ public class Main extends JFrame {
             frozen = false;
         }
     }
-
-    /** saves settings */
-    private void saveSettings() {
-        ProofSettings.DEFAULT_SETTINGS.saveSettings();
-        recentFiles.store(RECENT_FILES_STORAGE);
-    }
-
     /** exit */
     protected void exitMain() {
-        boolean quit = false;
-        if (ProofSettings.DEFAULT_SETTINGS.changed()) {
-            final int option = JOptionPane.showOptionDialog(Main.this,
-                    "Settings have changed. "
-                            + "Should they be saved before quitting?", "Exit",
-                    JOptionPane.YES_NO_CANCEL_OPTION,
-                    JOptionPane.QUESTION_MESSAGE, null, new String[] {
-                            "Save and Quit", "Just Quit", "Cancel" }, null);
-            if (option == 0) {
-                saveSettings();
-                quit = true;
-            } else if (option == 1) {
-                // do not save but quit
-                quit = true;
-            }
-        } else {
-            final int option = JOptionPane.showConfirmDialog(Main.this,
-                    "Really Quit?", "Exit", JOptionPane.YES_NO_OPTION);
-            if (option == JOptionPane.YES_OPTION) {
-                quit = true;
-            }
-        }
+        boolean quit = false;       
+        final int option = JOptionPane.showConfirmDialog
+        (Main.this, "Really Quit?", "Exit", 
+                JOptionPane.YES_NO_OPTION);		   	    
+        if (option == JOptionPane.YES_OPTION) {
+            quit = true;
+        } 
+
 
         recentFiles.store(RECENT_FILES_STORAGE);
 
-        if (quit) {
+        if (quit) {            
             mediator.fireShutDown(new GUIEvent(this));
 
             if (standalone) {
@@ -1592,58 +1571,50 @@ public class Main extends JFrame {
         if (notificationManager != null) {
             notificationManager.setDefaultNotification(soundNotification);
         }
-        soundNotificationOption.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                boolean b = ((JCheckBoxMenuItem) e.getSource()).isSelected();
-                if (notificationManager != null) {
-                    notificationManager.setDefaultNotification(b);
-                }
-                ProofSettings.DEFAULT_SETTINGS.getGeneralSettings()
-                        .setSoundNotification(b);
-            }
-        });
+	soundNotificationOption.addActionListener(new ActionListener() {
+	    public void actionPerformed(ActionEvent e) {
+	        boolean b = ((JCheckBoxMenuItem)e.getSource()).isSelected();	       
+	        if (notificationManager!=null) {
+                    notificationManager.setDefaultNotification(b);                
+	        }
+	        ProofSettings.DEFAULT_SETTINGS.
+	        getGeneralSettings().setSoundNotification(b);	        
+        }});
+	
+	registerAtMenu(options, soundNotificationOption);
 
-        registerAtMenu(options, soundNotificationOption);
 
-        // proof assistant
-        final JMenuItem assistantOption = new JCheckBoxMenuItem(
-                "Proof Assistant", ProofSettings.DEFAULT_SETTINGS
-                        .getGeneralSettings().proofAssistantMode());
+	// proof assistant
+	final JMenuItem assistantOption = new JCheckBoxMenuItem
+	    ("Proof Assistant", 
+	     ProofSettings.DEFAULT_SETTINGS.
+	     getGeneralSettings().proofAssistantMode());
 
-        final ProofAssistantController assistant = new ProofAssistantController(
-                mediator, ProofSettings.DEFAULT_SETTINGS.getGeneralSettings(),
-                new ProofAssistantAI(), new ProofAssistant());
+	final ProofAssistantController assistant = new ProofAssistantController
+	    (mediator, 
+	     ProofSettings.DEFAULT_SETTINGS.getGeneralSettings(),
+	     new ProofAssistantAI(), new ProofAssistant());
 
-        // listen to the state of the assistant in order to hold the
-        // item and state consistent
-        assistant.addChangeListener(new ChangeListener() {
-            public void stateChanged(ChangeEvent e) {
-                assistantOption.setSelected(((ProofAssistantController) e
-                        .getSource()).getState());
-            }
-        });
+ 	// listen to the state of the assistant in order to hold the
+ 	// item and state consistent
+ 	assistant.addChangeListener(new ChangeListener() {
+ 		public void stateChanged(ChangeEvent e) {
+ 		    assistantOption.setSelected
+ 			(((ProofAssistantController)e.getSource()).getState());
+ 		}
+ 	    });
 
-        assistantOption.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                ProofSettings.DEFAULT_SETTINGS.getGeneralSettings()
-                        .setProofAssistantMode(
-                                ((JCheckBoxMenuItem) e.getSource())
-                                        .isSelected());
-            }
-        });
+	assistantOption.addActionListener(new ActionListener() {
+	    public void actionPerformed(ActionEvent e) {
+		ProofSettings.DEFAULT_SETTINGS.getGeneralSettings().
+		    setProofAssistantMode
+		    (((JCheckBoxMenuItem)e.getSource()).isSelected());
+	    }});
 
-        registerAtMenu(options, assistantOption);
-
-        addSeparator(options);
-
-        ProofSettings.DEFAULT_SETTINGS.item().addActionListener(
-                new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        ProofSettings.DEFAULT_SETTINGS.saveSettings();
-                    }
-                });
-
-        registerAtMenu(options, ProofSettings.DEFAULT_SETTINGS.item());
+	registerAtMenu(options, assistantOption);
+	
+	addSeparator(options);
+        
         return options;
     }
 
@@ -3246,15 +3217,7 @@ public class Main extends JFrame {
                     + "\nopens after "
                     + "termination of the symbolic execution.</pre>");
             options.add(methodSelectionButton);
-
-            ProofSettings.DEFAULT_SETTINGS.item().addActionListener(
-                    new ActionListener() {
-                        public void actionPerformed(ActionEvent e) {
-                            ProofSettings.DEFAULT_SETTINGS.saveSettings();
-                        }
-                    });
-
-            // options.add(ProofSettings.DEFAULT_SETTINGS.item());
+            
             return options;
         }
 
