@@ -10,6 +10,11 @@ system/key.jar
 system/setup.jar
 system/GenMakefile
 system/Makefile.mk
+system/resources/de/uka/ilkd/key/util/version
+system/resources/de/uka/ilkd/key/util/sha1
+eclipse/KeYPlugin/bin
+eclipse/VisualDebugger/.settings
+eclipse/VisualDebugger/bin
 key-ext-jars
 system/argfile
 system/argfile.aspects
@@ -21,4 +26,4 @@ system/error.msg
 system/gf.msg
 system/javaFiles.tmp
 system/warning.msg
-
+.DS_Store
