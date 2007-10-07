@@ -1,3 +1,5 @@
+keybase: TOGETHER_ENABLED=
+keybase: COMPILE_GF=
 # This file is part of KeY - Integrated Deductive Software Design 
 # Copyright (C) 2001-2004 Universitaet Karlsruhe, Germany
 #                         Universitaet Koblenz-Landau, Germany
@@ -530,6 +532,8 @@ endif
 	@./success
 
 .PHONY: copyResources
+copyResources: TOGETHER_ENABLED=
+copyResources: COMPILE_GF=
 copyResources: javahomeset
 	@echo "[copying resources]"
 	@cp -r $(RESOURCEPATH)/* $(BINARYPATH)
