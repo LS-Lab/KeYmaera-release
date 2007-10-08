@@ -5,14 +5,15 @@ package de.uka.ilkd.key.dl.formulatools;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.TreeSet;
 
 import de.uka.ilkd.key.dl.model.Assign;
 import de.uka.ilkd.key.dl.model.DLNonTerminalProgramElement;
 import de.uka.ilkd.key.dl.model.DLProgramElement;
 import de.uka.ilkd.key.dl.model.Dot;
 import de.uka.ilkd.key.dl.model.RandomAssign;
-import de.uka.ilkd.key.dl.model.Star;
 import de.uka.ilkd.key.java.ProgramElement;
 import de.uka.ilkd.key.java.StatementBlock;
 import de.uka.ilkd.key.logic.Term;
@@ -40,10 +41,12 @@ public class ProgramVariableCollector extends Visitor {
      * the given term
      * 
      * @param term
-     * @return
+     * @return an ordered set containing the names of the variables is returned.
+     *         the set has to be ordered thus its robust against load/save of
+     *         proofs
      */
     public synchronized Set<String> getProgramVariables(Term term) {
-        names = new HashSet<String>();
+        names = new LinkedHashSet<String>();
         found = false;
         term.execPreOrder(this);
         return names;
@@ -68,7 +71,7 @@ public class ProgramVariableCollector extends Visitor {
      * @return
      */
     private Collection<String> getProgramVariables(ProgramElement form) {
-        HashSet<String> result = new HashSet<String>();
+        LinkedHashSet<String> result = new LinkedHashSet<String>();
         if (form instanceof Dot) {
             Dot dot = (Dot) form;
             if (dot.getChildAt(0) instanceof de.uka.ilkd.key.dl.model.ProgramVariable) {
