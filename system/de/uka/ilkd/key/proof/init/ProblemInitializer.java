@@ -416,9 +416,7 @@ public class ProblemInitializer {
 	//TODO: consider Java blocks (should not be strictly necessary 
 	//for the moment, though)
 	if(Main.getInstance().mediator().getProfile() instanceof DLProfile) {
-	    System.out.println("DL Profile");//XXX 
 	    if(term.op() instanceof Modality) {
-	        System.out.println("Modality");//XXX 
 	        ProgramVariableDeclaratorVisitor.declareVariables(((StatementBlock) term.
 	                javaBlock().program()).getChildAt(0), namespaces);
 	    }

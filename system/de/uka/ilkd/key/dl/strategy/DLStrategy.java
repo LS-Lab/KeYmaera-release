@@ -310,7 +310,6 @@ public class DLStrategy extends AbstractFeatureStrategy {
             RuleAppCost compute = completeF.compute(app, pio, goal);
             return compute;
         } else {
-            System.out.println("veto");//XXX 
             return TopRuleAppCost.INSTANCE;
         }
     }
@@ -325,7 +324,6 @@ public class DLStrategy extends AbstractFeatureStrategy {
         if (veto(app, pio, goal)) {
             return !(approvalF.compute(app, pio, goal) instanceof TopRuleAppCost);
         } else {
-            System.out.println("veto");//XXX
             return false;
         }
     }

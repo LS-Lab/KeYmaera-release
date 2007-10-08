@@ -60,7 +60,6 @@ public class DLRandomAssign extends AbstractDLMetaOperator {
                 break;
             }
         }
-        System.out.println(services.getNamespaces().programVariables());//XXX
         if (result.op() == Modality.BOX || result.op() == Modality.TOUT) {
             return TermBuilder.DF
                     .all(

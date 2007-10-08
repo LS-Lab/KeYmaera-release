@@ -63,7 +63,6 @@ public class ProgramVariableDeclaratorVisitor extends Visitor {
                     kv = new LocationVariable(new ProgramElementName(v
                             .getElementName().toString()), (Sort) namespaces
                             .sorts().lookup(decl.getType().getElementName()));
-                    System.out.println("Adding " + kv + " to " + nss.programVariables());//XXX 
                     namespaces.programVariables().add(kv);
                 }
             }

@@ -159,9 +159,7 @@ public class ReduceRule extends RuleOperatingOnWholeSequence implements
      */
     @Override
     protected Term performQuery(Term term) throws RemoteException {
-        if (DLOptionBean.INSTANCE.isSimplifyBeforeReduce()) {
-            term = MathSolverManager.getCurrentSimplifier().simplify(term);
-        }
+
         List<String> variables = getVariables();
         List<Term> skolem = new LinkedList<Term>();
 
@@ -196,15 +194,22 @@ public class ReduceRule extends RuleOperatingOnWholeSequence implements
                 vars.add(logicVariable);
                 matches.add(new Match((RigidFunction) sk.op(), TermBuilder.DF
                         .var(logicVariable)));
+                variables.add(logicVariable.name().toString());
             }
             term = TermRewriter.replace(term, matches);
             for(QuantifiableVariable v: vars) {
                 term = TermBuilder.DF.all(v, term);
             }
+            if (DLOptionBean.INSTANCE.isSimplifyBeforeReduce()) {
+                term = MathSolverManager.getCurrentSimplifier().simplify(term);
+            }
             term = MathSolverManager.getCurrentQuantifierEliminator().reduce(
-                    term, new ArrayList<String>(),
+                    term, variables,
                     new LinkedList<PairOfTermAndQuantifierType>());
         } else {
+            if (DLOptionBean.INSTANCE.isSimplifyBeforeReduce()) {
+                term = MathSolverManager.getCurrentSimplifier().simplify(term);
+            }
             term = MathSolverManager.getCurrentQuantifierEliminator().reduce(
                     term, variables,
                     new LinkedList<PairOfTermAndQuantifierType>());
