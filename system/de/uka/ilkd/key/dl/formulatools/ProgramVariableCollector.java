@@ -3,11 +3,11 @@
  */
 package de.uka.ilkd.key.dl.formulatools;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
-import java.util.TreeSet;
 
 import de.uka.ilkd.key.dl.model.Assign;
 import de.uka.ilkd.key.dl.model.DLNonTerminalProgramElement;
@@ -33,7 +33,7 @@ public class ProgramVariableCollector extends Visitor {
     public static final ProgramVariableCollector INSTANCE = new ProgramVariableCollector();
 
     private Set<String> names;
-
+    
     private boolean found;
 
     /**
@@ -49,6 +49,12 @@ public class ProgramVariableCollector extends Visitor {
         names = new LinkedHashSet<String>();
         found = false;
         term.execPreOrder(this);
+        ArrayList<String> inv = new ArrayList<String>(names);
+        names.clear();
+        for(int i = inv.size() - 1; i >= 0; i--) {
+            names.add(inv.get(i));
+        }
+        assert names.size() == inv.size();
         return names;
     }
 
