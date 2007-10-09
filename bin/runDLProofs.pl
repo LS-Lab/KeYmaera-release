@@ -250,7 +250,7 @@ sub runAuto {
 	die "unexpected error" unless $@ eq "alarm\n";
 	alarm 0;
     open (STS, ">>$statfile");
-	print STS "$realfilename, NA, $timeout, $headerfile, $expectedresult, TIMEOUT ";
+	print STS "$realfilename, NA, $timeout, $headerfile, $expectedresult, TIMEOUT\n";
 	close(STS);
 	return 2;
   } else {
