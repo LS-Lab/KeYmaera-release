@@ -171,49 +171,50 @@ public class ReduceRule extends RuleOperatingOnWholeSequence implements
             // variables.addAll(skolem);
         }
 
-
-
         if (DLOptionBean.INSTANCE.isReaddQuantifiers()) {
             // To reduce the formula we should really reintroduce the
             // quantifier,
             // as it leads to a tremendous performance gain
-//            List<PairOfTermAndQuantifierType> quantifiers = new LinkedList<PairOfTermAndQuantifierType>();
-//            for (Term t : skolem) {
-//                quantifiers.add(new PairOfTermAndQuantifierType(t,
-//                        QuantifierType.FORALL));
-//            }
-//            term = MathSolverManager.getCurrentQuantifierEliminator().reduce(
-//                    term, variables, quantifiers);
-            
+            // List<PairOfTermAndQuantifierType> quantifiers = new
+            // LinkedList<PairOfTermAndQuantifierType>();
+            // for (Term t : skolem) {
+            // quantifiers.add(new PairOfTermAndQuantifierType(t,
+            // QuantifierType.FORALL));
+            // }
+            // term = MathSolverManager.getCurrentQuantifierEliminator().reduce(
+            // term, variables, quantifiers);
             Set<Match> matches = new HashSet<Match>();
             List<LogicVariable> vars = new ArrayList<LogicVariable>();
             for (Term sk : skolem) {
-                LogicVariable logicVariable = new LogicVariable(
-                        new Name(sk.op().name() + "$skolem"), sk.op().sort(
-                                new Term[0]));
+                LogicVariable logicVariable = new LogicVariable(new Name(sk
+                        .op().name()
+                        + "$skolem"), sk.op().sort(new Term[0]));
                 vars.add(logicVariable);
                 matches.add(new Match((RigidFunction) sk.op(), TermBuilder.DF
                         .var(logicVariable)));
                 variables.add(logicVariable.name().toString());
             }
             term = TermRewriter.replace(term, matches);
-            for(QuantifiableVariable v: vars) {
+            for (QuantifiableVariable v : vars) {
                 term = TermBuilder.DF.all(v, term);
             }
-            if (DLOptionBean.INSTANCE.isSimplifyBeforeReduce()) {
-                term = MathSolverManager.getCurrentSimplifier().simplify(term);
-            }
-            term = MathSolverManager.getCurrentQuantifierEliminator().reduce(
-                    term, variables,
-                    new LinkedList<PairOfTermAndQuantifierType>());
         } else {
-            if (DLOptionBean.INSTANCE.isSimplifyBeforeReduce()) {
-                term = MathSolverManager.getCurrentSimplifier().simplify(term);
+            for (Term sk : skolem) {
+                if (sk.arity() == 0) {
+                    variables.add(sk.op().name().toString());
+                } else {
+                    throw new IllegalStateException(
+                            "Dont know what to do if not readding quantifiers and "
+                                    + "trying to a skolem symbol with parameters to "
+                                    + "the variable list");
+                }
             }
-            term = MathSolverManager.getCurrentQuantifierEliminator().reduce(
-                    term, variables,
-                    new LinkedList<PairOfTermAndQuantifierType>());
         }
+        if (DLOptionBean.INSTANCE.isSimplifyBeforeReduce()) {
+            term = MathSolverManager.getCurrentSimplifier().simplify(term);
+        }
+        term = MathSolverManager.getCurrentQuantifierEliminator().reduce(term,
+                variables, new LinkedList<PairOfTermAndQuantifierType>());
         if (DLOptionBean.INSTANCE.isSimplifyAfterReduce()) {
             term = MathSolverManager.getCurrentSimplifier().simplify(term);
         }
