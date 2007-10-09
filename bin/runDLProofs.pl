@@ -150,7 +150,6 @@ sub handlefile {
    my @old = <HANDLE>;
    close HANDLE;
 
-   my $tmpfile = "/tmp/autoRunDLProof.$$.key";
 
    foreach my $headerfile (@headerDL) {
 	   $headerfile =~ s/\n$//;
@@ -163,6 +162,12 @@ sub handlefile {
 	   binmode(CURHEAD);
 	   my @curhead = <CURHEAD>;
 	   close CURHEAD;
+	   my $tmpfile = $dotkey;
+	   $tmpfile =~ s#^.*/.*/(.*).key#$1#;
+	   my $headertmp = $headerfile;
+	   $headertmp =~ s#^.*/.*/(.*).txt#$1#;
+   	   $tmpfile = "/tmp/$tmpfile-autoRun-$headertmp.$$.key";
+	   print $tmpfile;
 
 	   open (HANDLE, ">$tmpfile");
 	   if (!$cnt) {
@@ -177,6 +182,7 @@ sub handlefile {
 
 	   if ($tmpfile) {
 		 my $success = runAuto ($tmpfile, $dotkey, $headerfile, $timeout, $resultscheme);
+   		 unlink($tmpfile);
 		 if ( $success == 0) {
 			 if($resultscheme == 0) {
 			   &processReturn (0, "indeed provable with $headerfile", $dotkey);
@@ -195,7 +201,6 @@ sub handlefile {
 	   }
    }
    }
-   unlink($tmpfile);
 
 }
 
