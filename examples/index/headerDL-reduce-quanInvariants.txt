@@ -9,7 +9,7 @@
 [DLOptions]constantTimeoutIncreaseFactor=0
 [DLOptions]counterExampleGenerator=Mathematica
 [DLOptions]initialTimeout=2000
-[DLOptions]invariantRule=ANONYMOUS_UPDATES
+[DLOptions]invariantRule=QUANTIFIERS
 [DLOptions]linearTimeoutIncreaseFactor=2
 [DLOptions]normalizeEquations=true
 [DLOptions]odeSolver=Mathematica

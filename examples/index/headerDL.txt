@@ -1,5 +1,2 @@
 headerDL-reduce.txt
-headerDL-resolve.txt
-headerDL-reduce-noset.txt
-headerDL-reduce-noquan.txt
-
+headerDL-reduce-quanInvariants.txt
