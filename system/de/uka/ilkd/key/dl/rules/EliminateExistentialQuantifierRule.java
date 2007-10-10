@@ -6,8 +6,6 @@ package de.uka.ilkd.key.dl.rules;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -23,7 +21,6 @@ import de.uka.ilkd.key.dl.formulatools.SkolemfunctionTracker;
 import de.uka.ilkd.key.dl.formulatools.TermRewriter;
 import de.uka.ilkd.key.dl.formulatools.ContainsMetaVariableVisitor.Result;
 import de.uka.ilkd.key.dl.formulatools.TermRewriter.Match;
-import de.uka.ilkd.key.dl.model.MetaVariable;
 import de.uka.ilkd.key.dl.options.DLOptionBean;
 import de.uka.ilkd.key.gui.Main;
 import de.uka.ilkd.key.java.Services;
@@ -60,7 +57,7 @@ import de.uka.ilkd.key.rule.RuleApp;
  * @since 27.08.2007
  * 
  */
-public class EliminateExistentialQuantifierRule implements BuiltInRule {
+public class EliminateExistentialQuantifierRule implements BuiltInRule, UnknownProgressRule {
 
     /**
      * TODO jdq documentation since Aug 27, 2007

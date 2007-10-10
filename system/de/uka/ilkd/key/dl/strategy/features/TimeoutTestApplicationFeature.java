@@ -10,6 +10,7 @@ import java.util.WeakHashMap;
 import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
 import de.uka.ilkd.key.dl.options.DLOptionBean;
 import de.uka.ilkd.key.dl.rules.TestableBuiltInRule;
+import de.uka.ilkd.key.dl.rules.UnknownProgressRule;
 import de.uka.ilkd.key.gui.Main;
 import de.uka.ilkd.key.logic.PosInOccurrence;
 import de.uka.ilkd.key.logic.Term;
@@ -30,6 +31,7 @@ import de.uka.ilkd.key.strategy.feature.Feature;
 public class TimeoutTestApplicationFeature implements Feature {
 
     private Map<Node, Long> branchingNodesAlreadyTested = new WeakHashMap<Node, Long>();
+
     private Map<Node, RuleAppCost> resultCache = new WeakHashMap<Node, RuleAppCost>();
 
     public static final TimeoutTestApplicationFeature INSTANCE = new TimeoutTestApplicationFeature();
@@ -43,7 +45,7 @@ public class TimeoutTestApplicationFeature implements Feature {
     public RuleAppCost compute(RuleApp app, PosInOccurrence pos, Goal goal) {
         Node firstNodeAfterBranch = getFirstNodeAfterBranch(goal.node());
         if (branchingNodesAlreadyTested.containsKey(firstNodeAfterBranch)) {
-            if(resultCache.containsKey(firstNodeAfterBranch)) {
+            if (resultCache.containsKey(firstNodeAfterBranch)) {
                 return resultCache.get(firstNodeAfterBranch);
             }
             return TopRuleAppCost.INSTANCE;
@@ -89,7 +91,8 @@ public class TimeoutTestApplicationFeature implements Feature {
                                 return LongRuleAppCost.ZERO_COST;
                             }
                         }
-                        resultCache.put(firstNodeAfterBranch, TopRuleAppCost.INSTANCE);
+                        resultCache.put(firstNodeAfterBranch,
+                                TopRuleAppCost.INSTANCE);
                         return TopRuleAppCost.INSTANCE;
                     }
                 } catch (InterruptedException e) {
@@ -139,7 +142,10 @@ public class TimeoutTestApplicationFeature implements Feature {
      * @return
      */
     public static Node getFirstNodeAfterBranch(Node node) {
-        if (node.root() || node.parent().root() || node.parent().childrenCount() > 1) {
+        if (node.root()
+                || node.parent().root()
+                || node.parent().childrenCount() > 1
+                || node.parent().getAppliedRuleApp().rule() instanceof UnknownProgressRule) {
             return node;
         }
         return getFirstNodeAfterBranch(node.parent());

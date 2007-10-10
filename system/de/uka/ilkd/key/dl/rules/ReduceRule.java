@@ -5,7 +5,6 @@ package de.uka.ilkd.key.dl.rules;
 
 import java.rmi.RemoteException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -13,11 +12,9 @@ import java.util.Set;
 
 import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
 import de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator.PairOfTermAndQuantifierType;
-import de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator.QuantifierType;
 import de.uka.ilkd.key.dl.formulatools.SkolemfunctionTracker;
 import de.uka.ilkd.key.dl.formulatools.TermRewriter;
 import de.uka.ilkd.key.dl.formulatools.TermRewriter.Match;
-import de.uka.ilkd.key.dl.logic.ldt.RealLDT;
 import de.uka.ilkd.key.dl.options.DLOptionBean;
 import de.uka.ilkd.key.dl.strategy.features.FOSequence;
 import de.uka.ilkd.key.java.Services;
@@ -47,7 +44,7 @@ import de.uka.ilkd.key.rule.RuleApp;
  * @see de.uka.ilkd.key.proof.DLProfile
  */
 public class ReduceRule extends RuleOperatingOnWholeSequence implements
-        BuiltInRule, RuleFilter {
+        BuiltInRule, RuleFilter, UnknownProgressRule {
 
     private Set<Term> skolemSymbols;
 

@@ -35,7 +35,7 @@ import de.uka.ilkd.key.rule.RuleApp;
  * 
  */
 public class EliminateQuantifierRule extends RuleOperatingOnWholeSequence
-        implements BuiltInRule, RuleFilter {
+        implements BuiltInRule, RuleFilter, UnknownProgressRule {
 
     /**
      * @param formulaContainsSearchSymbolDefault
