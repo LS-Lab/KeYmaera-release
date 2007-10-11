@@ -42,8 +42,6 @@ import de.uka.ilkd.key.strategy.termgenerator.*;
  */
 public class JavaCardDLStrategy extends AbstractFeatureStrategy {
 
-    private static final int IN_EQ_SIMP_NON_LIN_COST = 1000;
-    
     private final RuleSetDispatchFeature costComputationDispatcher;
     private final Feature costComputationF;
     private final RuleSetDispatchFeature approvalDispatcher;
@@ -805,6 +803,9 @@ public class JavaCardDLStrategy extends AbstractFeatureStrategy {
     ////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////
 
+    private static final int IN_EQ_SIMP_NON_LIN_COST = 1000;
+    private static final int POLY_DIVISION_COST = -2250;
+    
     private void setupArithPrimaryCategories(RuleSetDispatchFeature d) {
         // Gaussian elimination + Euclidian algorithm for linear equations;
         // Buchberger's algorithmus for handling polynomial equations over
@@ -814,7 +815,7 @@ public class JavaCardDLStrategy extends AbstractFeatureStrategy {
         bindRuleSet ( d, "polySimp_directEquations", -3000 );
         bindRuleSet ( d, "polySimp_pullOutGcd", -2250 );
         bindRuleSet ( d, "polySimp_leftNonUnit", -2000 );
-        bindRuleSet ( d, "polySimp_saturate", -1500 );
+        bindRuleSet ( d, "polySimp_saturate", 0 );
 
         // Omega test for handling linear arithmetic and inequalities over the
         // integers; cross-multiplication + case distinctions for nonlinear
@@ -834,7 +835,7 @@ public class JavaCardDLStrategy extends AbstractFeatureStrategy {
             bindRuleSet ( d, "inEqSimp_nonLin", inftyConst () );
 
         // polynomial division, simplification of fractions and mods
-        bindRuleSet ( d, "polyDivision", -4100 );
+        bindRuleSet ( d, "polyDivision", POLY_DIVISION_COST );
 
     }
 
@@ -937,8 +938,8 @@ public class JavaCardDLStrategy extends AbstractFeatureStrategy {
                  ifZero ( MatchedIfFeature.INSTANCE,
                     add ( validEqApplication,
                           ReducibleMonomialsFeature
-                          .create ( instOf ( "applyEqDividend" ),
-                                    instOf ( "applyEqDivisor" ) ) ) ),
+                          .createReducible ( instOf ( "applyEqDividend" ),
+                                             instOf ( "applyEqDivisor" ) ) ) ),
                  longConst ( 1 ) ) );
 
         bindRuleSet ( d, "polySimp_applyEqRigid",
@@ -946,8 +947,8 @@ public class JavaCardDLStrategy extends AbstractFeatureStrategy {
                  ifZero ( MatchedIfFeature.INSTANCE,
                     add ( validEqApplication,
                           ReducibleMonomialsFeature
-                          	.create ( instOf ( "applyEqDividend" ),
-                          	          instOf ( "applyEqDivisorr" ) ) ) ),
+                          	.createReducible ( instOf ( "applyEqDividend" ),
+                          	                   instOf ( "applyEqDivisorr" ) ) ) ),
                  longConst ( 2 ) ) );
 
         // category "saturate"
@@ -1015,9 +1016,9 @@ public class JavaCardDLStrategy extends AbstractFeatureStrategy {
                                                        numbers ),
                   let ( divisor, instOf ( "aePseudoLeft" ),
                   let ( dividend, instOf ( "aePseudoTargetLeft" ),
-                  add ( ReducibleMonomialsFeature.create ( dividend, divisor ),
+                  add ( ReducibleMonomialsFeature.createReducible ( dividend, divisor ),
                         instantiate ( "aePseudoTargetFactor",
-                                      DivideMonomialsProjection
+                                      ReduceMonomialsProjection
                                       .create ( dividend, divisor ) ) ) ) ) } ) ) ) );
     }
 
@@ -1408,8 +1409,8 @@ public class JavaCardDLStrategy extends AbstractFeatureStrategy {
                 not ( eq ( dividend, divisor ) ),
                 applyTFNonStrict ( "divXBoundPos", tf.posLiteral ),
                 applyTFNonStrict ( "divXBoundNeg", tf.negLiteral ),
-                ReducibleMonomialsFeature.create ( dividend, divisor ),
-                instantiate ( "divY", DivideMonomialsProjection
+                ReducibleMonomialsFeature.createReducible ( dividend, divisor ),
+                instantiate ( "divY", ReduceMonomialsProjection
                                       .create ( dividend, divisor ) )
               } ) ) ) )
           } ) );
@@ -1439,9 +1440,9 @@ public class JavaCardDLStrategy extends AbstractFeatureStrategy {
                 not ( applyTF ( dividend, eq ( divisor ) ) ),
                 applyTFNonStrict ( "divXBoundNonPos", tf.nonPosLiteral ),
                 applyTFNonStrict ( "divXBoundNonNeg", tf.nonNegLiteral ),
-                ReducibleMonomialsFeature.create ( dividend, divisor ),
+                ReducibleMonomialsFeature.createReducible ( dividend, divisor ),
                 let ( quotient,
-                      DivideMonomialsProjection.create ( dividend, divisor ),
+                      ReduceMonomialsProjection.create ( dividend, divisor ),
                       add ( sum ( antecFor,
                                   SequentFormulasGenerator.antecedent (),
                                   not ( applyTF ( antecFor,
@@ -1716,20 +1717,42 @@ public class JavaCardDLStrategy extends AbstractFeatureStrategy {
         
         final TermBuffer denomLC = new TermBuffer ();
         final TermBuffer numTerm = new TermBuffer ();
+        final TermBuffer divCoeff = new TermBuffer ();
+        
+        // exact polynomial division
         
         final Feature checkNumTerm =
             ifZero ( add ( not ( applyTF ( numTerm, tf.addF ) ),
-                           ReducibleMonomialsFeature.create ( numTerm, denomLC ) ),
+                           ReducibleMonomialsFeature
+                                       .createReducible ( numTerm, denomLC ) ),
                      add ( instantiate ( "polyDivCoeff",
-                                         DivideMonomialsProjection
-                                                  .create ( numTerm, denomLC ) ),
+                                         ReduceMonomialsProjection
+                                                .create ( numTerm, denomLC )),
                            inftyConst () ) );
 
         final Feature isReduciblePoly =
-            not ( sum ( numTerm,
-                        SubtermGenerator.rightTraverse ( instOf ( "divNum" ),
-                                                         tf.addF ),
-                        checkNumTerm ) );
+            sum ( numTerm,
+                  SubtermGenerator.rightTraverse ( instOf ( "divNum" ), tf.addF ),
+                  checkNumTerm );
+        
+        // polynomial division modulo equations of the antecedent
+        
+        final Feature checkCoeffE =
+            ifZero ( contains ( divCoeff, FocusProjection.create ( 0 ) ),
+                     // do not apply if the result contains the original term
+                     longConst ( 0 ),
+                     add ( instantiate ( "polyDivCoeff", divCoeff ),
+                           inftyConst () ) );
+
+        final Feature isReduciblePolyE =
+            sum ( numTerm,
+                  SubtermGenerator.rightTraverse ( instOf ( "divNum" ), tf.addF ),
+                  ifZero ( applyTF ( numTerm, tf.addF ),
+                           longConst ( 0 ),
+                           sum ( divCoeff,
+                                 MultiplesModEquationsGenerator
+                                                .create ( numTerm, denomLC ),
+                                 checkCoeffE ) ) );
         
         bindRuleSet ( d, "defOps_divModPullOut",
            SumFeature.createSum ( new Feature[] {
@@ -1738,10 +1761,16 @@ public class JavaCardDLStrategy extends AbstractFeatureStrategy {
              applyTF ( "divNum", tf.polynomial ),
              applyTF ( "divDenom", tf.polynomial ),
              ifZero ( applyTF ( "divDenom", tf.addF ),
-                      let ( denomLC, sub ( instOf ( "divDenom" ), 1 ),
-                            isReduciblePoly ),
-                      let ( denomLC, instOf ( "divDenom" ),
-                            isReduciblePoly ) ),
+                let ( denomLC, sub ( instOf ( "divDenom" ), 1 ),
+                      not ( isReduciblePoly ) ),
+                let ( denomLC, instOf ( "divDenom" ),
+                      ifZero ( isReduciblePoly,
+                               // no possible division has been found so far
+                               add ( NotInScopeOfModalityFeature.INSTANCE,
+                                     ifZero ( isReduciblePolyE,
+                                              // try again later
+                                              longConst ( -POLY_DIVISION_COST )
+                      ) ) ) ) ),
              longConst ( 100 ) } ) );
         
     }
@@ -1987,6 +2016,8 @@ public class JavaCardDLStrategy extends AbstractFeatureStrategy {
                                   add ( intF, polynomial ) );
             linearEquation = opSub ( eq, linearMonomial,
                                      add ( intF, polynomial ) );
+            monomialEquation = opSub ( eq, add ( intF, nonNegMonomial ),
+                                       add ( intF, monomial ) );
             intInEquation = add ( or ( leqF, geqF ),
                                   sub ( nonNegMonomial, polynomial ) );
             linearInEquation = add ( or ( leqF, geqF ),
@@ -2055,6 +2086,7 @@ public class JavaCardDLStrategy extends AbstractFeatureStrategy {
         
         final TermFeature intEquation;
         final TermFeature linearEquation;
+        final TermFeature monomialEquation;
         final TermFeature intInEquation;
         final TermFeature linearInEquation;
         final TermFeature intRelation;
