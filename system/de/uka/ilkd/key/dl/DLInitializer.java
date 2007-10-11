@@ -19,7 +19,7 @@ import de.uka.ilkd.key.dl.arithmetics.impl.mathematica.KernelLinkWrapper;
 import de.uka.ilkd.key.dl.options.DLOptionBean;
 import de.uka.ilkd.key.gui.AutoModeListener;
 import de.uka.ilkd.key.gui.Main;
-import de.uka.ilkd.key.gui.ProofSettings;
+import de.uka.ilkd.key.gui.configuration.ProofSettings;
 import de.uka.ilkd.key.proof.init.Profile;
 
 /**

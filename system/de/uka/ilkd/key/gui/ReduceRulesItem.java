@@ -3,14 +3,9 @@ package de.uka.ilkd.key.gui;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
-import java.util.StringTokenizer;
 
 import javax.swing.JFrame;
 import javax.swing.JMenuItem;
@@ -19,11 +14,11 @@ import javax.swing.JOptionPane;
 import de.uka.ilkd.key.dl.formulatools.SkolemSymbolWithMostParametersVisitor;
 import de.uka.ilkd.key.dl.rules.EliminateQuantifierRule;
 import de.uka.ilkd.key.dl.rules.ReduceRuleApp;
+import de.uka.ilkd.key.gui.nodeviews.BuiltInRuleMenuItem;
 import de.uka.ilkd.key.logic.Constraint;
 import de.uka.ilkd.key.logic.PosInOccurrence;
 import de.uka.ilkd.key.proof.Proof;
 import de.uka.ilkd.key.rule.BuiltInRule;
-import de.uka.ilkd.key.rule.BuiltInRuleApp;
 import de.uka.ilkd.key.rule.RuleApp;
 
 /**

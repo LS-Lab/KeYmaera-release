@@ -8,8 +8,8 @@ import java.util.List;
 import java.util.Properties;
 
 import de.uka.ilkd.key.gui.GUIEvent;
-import de.uka.ilkd.key.gui.Settings;
-import de.uka.ilkd.key.gui.SettingsListener;
+import de.uka.ilkd.key.gui.configuration.Settings;
+import de.uka.ilkd.key.gui.configuration.SettingsListener;
 
 /**
  * TODO jdq documentation since Aug 31, 2007

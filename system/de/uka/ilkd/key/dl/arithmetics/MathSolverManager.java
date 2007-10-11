@@ -24,7 +24,7 @@ import org.xml.sax.SAXException;
 
 import de.uka.ilkd.key.dl.options.DLOptionBean;
 import de.uka.ilkd.key.dl.utils.XMLReader;
-import de.uka.ilkd.key.gui.Settings;
+import de.uka.ilkd.key.gui.configuration.Settings;
 
 /**
  * Manager class for the arithemtic solvers. It reads the initialization data

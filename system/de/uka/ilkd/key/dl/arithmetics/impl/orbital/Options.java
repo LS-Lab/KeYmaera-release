@@ -7,12 +7,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 
-import de.uka.ilkd.key.gui.GUIEvent;
-import de.uka.ilkd.key.gui.Settings;
-import de.uka.ilkd.key.gui.SettingsListener;
-
 import orbital.math.Values;
 import orbital.moon.math.ArithmeticValuesImpl;
+import de.uka.ilkd.key.gui.GUIEvent;
+import de.uka.ilkd.key.gui.configuration.Settings;
+import de.uka.ilkd.key.gui.configuration.SettingsListener;
 
 /**
  * 

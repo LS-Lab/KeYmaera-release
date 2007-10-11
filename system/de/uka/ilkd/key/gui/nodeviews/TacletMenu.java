@@ -12,9 +12,18 @@ package de.uka.ilkd.key.gui.nodeviews;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
-import javax.swing.*;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 
 import org.apache.log4j.Logger;
 
@@ -24,10 +33,15 @@ import de.uka.ilkd.key.dl.rules.ReduceRule;
 import de.uka.ilkd.key.dl.rules.ReduceRuleApp;
 import de.uka.ilkd.key.gui.KeYMediator;
 import de.uka.ilkd.key.gui.Main;
+import de.uka.ilkd.key.gui.ReduceRulesItem;
 import de.uka.ilkd.key.gui.UseMethodContractRuleItem;
-import de.uka.ilkd.key.gui.nodeviews.*;
 import de.uka.ilkd.key.java.ProgramElement;
-import de.uka.ilkd.key.logic.*;
+import de.uka.ilkd.key.logic.JavaBlock;
+import de.uka.ilkd.key.logic.NameCreationInfo;
+import de.uka.ilkd.key.logic.PosInOccurrence;
+import de.uka.ilkd.key.logic.ProgramElementName;
+import de.uka.ilkd.key.logic.Sequent;
+import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.op.IteratorOfSchemaVariable;
 import de.uka.ilkd.key.logic.op.ProgramVariable;
 import de.uka.ilkd.key.logic.op.SchemaVariable;
@@ -36,9 +50,23 @@ import de.uka.ilkd.key.logic.sort.Sort;
 import de.uka.ilkd.key.pp.AbbrevException;
 import de.uka.ilkd.key.pp.AbbrevMap;
 import de.uka.ilkd.key.pp.PosInSequent;
-import de.uka.ilkd.key.proof.Goal;
-import de.uka.ilkd.key.rule.*;
-import de.uka.ilkd.key.util.Debug;
+import de.uka.ilkd.key.rule.BuiltInRule;
+import de.uka.ilkd.key.rule.FindTaclet;
+import de.uka.ilkd.key.rule.IteratorOfBuiltInRule;
+import de.uka.ilkd.key.rule.IteratorOfTacletApp;
+import de.uka.ilkd.key.rule.IteratorOfTacletGoalTemplate;
+import de.uka.ilkd.key.rule.ListOfBuiltInRule;
+import de.uka.ilkd.key.rule.ListOfTacletApp;
+import de.uka.ilkd.key.rule.ListOfTacletGoalTemplate;
+import de.uka.ilkd.key.rule.RewriteTaclet;
+import de.uka.ilkd.key.rule.RewriteTacletGoalTemplate;
+import de.uka.ilkd.key.rule.SLListOfBuiltInRule;
+import de.uka.ilkd.key.rule.SLListOfTacletApp;
+import de.uka.ilkd.key.rule.Taclet;
+import de.uka.ilkd.key.rule.TacletApp;
+import de.uka.ilkd.key.rule.TacletGoalTemplate;
+import de.uka.ilkd.key.rule.TacletSchemaVariableCollector;
+import de.uka.ilkd.key.rule.UseMethodContractRule;
 
 /**
  * This class creates a menu with Taclets as entries. The invoker has to be of
