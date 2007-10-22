@@ -566,15 +566,19 @@ public class JavaCardDLStrategy extends AbstractFeatureStrategy {
                    add (
                    CheckApplyEqFeature.INSTANCE,
                    let ( equation, AssumptionProjection.create ( 0 ),
+                         add ( not ( applyTF ( equation, ff.update ) ),
+                         // there might be updates in front of the assumption
+                         // formula; in this case we wait until the updates have
+                         // been applied
                    let ( left, sub ( equation, 0 ),
                    let ( right, sub ( equation, 1 ),
                          ifZero ( applyTF ( left, tf.intF ),
-                                  add ( applyTF ( left, tf.monomial ),
+                                  add ( applyTF ( left, tf.nonNegOrNonCoeffMonomial ),
                                         applyTF ( right, tf.polynomial ),
                                         MonomialsSmallerThanFeature
                                         .create ( right, left, numbers ) ),
                                   TermSmallerThanFeature.create ( right, left ) )
-                            ) ) ) ) ),
+                            ) ) ) ) ) ),
                  longConst ( -4000 ) } ) );
     }
 
@@ -618,7 +622,7 @@ public class JavaCardDLStrategy extends AbstractFeatureStrategy {
            add ( let ( left, instOf ( "applyEqLeft" ),
                  let ( right, instOf ( "applyEqRight" ),
                  ifZero ( applyTF ( left, tf.intF ),
-                          add ( applyTF ( left, tf.monomial ),
+                          add ( applyTF ( left, tf.nonNegOrNonCoeffMonomial ),
                                 applyTF ( right, tf.polynomial ),
                                 MonomialsSmallerThanFeature
                                 .create ( right, left, numbers ) ),
@@ -922,34 +926,38 @@ public class JavaCardDLStrategy extends AbstractFeatureStrategy {
         
         // application of equations: some specialised rules that handle
         // monomials and their coefficients properly
-        
+
+        final TermBuffer eqLeft = new TermBuffer ();
+        final TermBuffer focus = new TermBuffer ();
+
         final TermFeature atLeastTwoLCEquation =
             opSub ( Op.EQUALS,
                     opSub ( tf.mul, tf.atom, tf.atLeastTwoLiteral ),
                     tf.intF );
+        
         final Feature validEqApplication =
-            ifZero ( applyTF ( AssumptionProjection.create ( 0 ),
-                               atLeastTwoLCEquation ),
-                     add ( FocusInAntecFeature.INSTANCE,
-                           applyTF ( FocusFormulaProjection.INSTANCE,
-                                     atLeastTwoLCEquation ) ) );
+            add ( not ( eq ( eqLeft, focus ) ),
+                  // otherwise, the normal equation rules can and should be used
+                  ifZero ( applyTF ( AssumptionProjection.create ( 0 ),
+                                     atLeastTwoLCEquation ),
+                           add ( FocusInAntecFeature.INSTANCE,
+                                 applyTF ( FocusFormulaProjection.INSTANCE,
+                                           atLeastTwoLCEquation ) ) ),
+                  ReducibleMonomialsFeature.createReducible ( focus, eqLeft ) );
+        
+        final Feature eq_monomial_feature =
+            add ( not ( DirectlyBelowSymbolFeature.create ( tf.mul ) ),
+                  ifZero ( MatchedIfFeature.INSTANCE,
+                           let ( focus, FocusProjection.create ( 0 ),
+                           let ( eqLeft,
+                                 sub ( AssumptionProjection.create ( 0 ), 0 ), 
+                                 validEqApplication ) ) ) );
+        
         bindRuleSet ( d, "polySimp_applyEq",
-           add ( not ( DirectlyBelowSymbolFeature.create ( tf.mul ) ),
-                 ifZero ( MatchedIfFeature.INSTANCE,
-                    add ( validEqApplication,
-                          ReducibleMonomialsFeature
-                          .createReducible ( instOf ( "applyEqDividend" ),
-                                             instOf ( "applyEqDivisor" ) ) ) ),
-                 longConst ( 1 ) ) );
+                      add ( eq_monomial_feature, longConst ( 1 ) ) );
 
         bindRuleSet ( d, "polySimp_applyEqRigid",
-           add ( not ( DirectlyBelowSymbolFeature.create ( tf.mul ) ),
-                 ifZero ( MatchedIfFeature.INSTANCE,
-                    add ( validEqApplication,
-                          ReducibleMonomialsFeature
-                          	.createReducible ( instOf ( "applyEqDividend" ),
-                          	                   instOf ( "applyEqDivisorr" ) ) ) ),
-                 longConst ( 2 ) ) );
+                      add ( eq_monomial_feature, longConst ( 2 ) ) );
 
         // category "saturate"
         
@@ -2010,6 +2018,10 @@ public class JavaCardDLStrategy extends AbstractFeatureStrategy {
             nonCoeffMonomial = add ( monomial,
                                      or ( not ( mulF ),
                                           sub ( any (), not ( literal ) ) ) );
+            nonNegOrNonCoeffMonomial =
+                add ( monomial,
+                      or ( not ( mulF ),
+                           sub ( any (), not ( negLiteral ) ) ) );
             atLeastTwoCoeffMonomial = opSub ( mul, monomial, atLeastTwoLiteral );
             
             intEquation = opSub ( eq, add ( intF, nonNegMonomial ),
@@ -2082,6 +2094,7 @@ public class JavaCardDLStrategy extends AbstractFeatureStrategy {
         final TermFeature posMonomial;
         final TermFeature negMonomial;
         final TermFeature nonCoeffMonomial;
+        final TermFeature nonNegOrNonCoeffMonomial;
         final TermFeature atLeastTwoCoeffMonomial;
         
         final TermFeature intEquation;
