@@ -5,8 +5,8 @@ andRight = "Splitting goals is fun."
 orLeft   =  "Here could stand your slogan. Edit <tt>assistantDictionary.dct</tt>"
 orRight  =  "Alpha rules are boring, am I right?"
 
-all_left  =  "You applied rule all_left. Most definitely, you will not need to enter an instantiation. Just press Apply. If you really want to provide an instantiation, uou can also apply this rule via drag and drop, just drag the quantified formula on the term you want it to instantiate with."
-ex_right  =  "You applied rule ex_right. Most definitely, you will not need to enter an instantiation. Just press Apply. If you really want to provide an instantiation, uou can also apply this rule via drag and drop, just drag the quantified formula on the term you want it to instantiate with."
+all_left  =  "You applied rule all_left. Most definitely, you will not need to enter an instantiation. Just press Apply. If you really want to provide an instantiation, you can also apply this rule via drag and drop, just drag the quantified formula on the term you want it to instantiate with."
+ex_right  =  "You applied rule ex_right. Most definitely, you will not need to enter an instantiation. Just press Apply. If you really want to provide an instantiation, you can also apply this rule via drag and drop, just drag the quantified formula on the term you want it to instantiate with."
 
 allLeftHide = "The quantified formula has been hidden. Add it to the sequent again by applying rule 'insertHidden'. You can also apply this rule via drag and drop, just drag the quantified formula on the term you want it to instantiate with."
 exRightHide = "The quantified formula has been hidden. Add it to the sequent again by applying rule 'insertHidden'. You can also apply this rule via drag and drop, just drag the quantified formula on the term you want it to instantiate with."

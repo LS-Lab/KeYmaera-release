@@ -377,7 +377,7 @@ public class Main extends JFrame {
     public static Main getInstance(boolean visible) {
         if (instance == null) {
             if (ProofSettings.DEFAULT_SETTINGS.getProfile() instanceof DLProfile) {
-                instance = new Main("HyKeY -- Prover");
+                instance = new Main("KeYmaera -- Prover");
                 orbital.awt.UIUtilities.setCenter(instance);
             } else {
                 instance = new Main("KeY -- Prover");
@@ -1502,7 +1502,7 @@ public class Main extends JFrame {
         registerAtMenu(options, stupidModeOption);
 
         if (ProofSettings.DEFAULT_SETTINGS.getProfile() instanceof DLProfile) {
-            final JMenuItem hyKeYOptions = new JMenuItem("HyKeY Options");
+            final JMenuItem hyKeYOptions = new JMenuItem("KeYmaera Options");
 
             hyKeYOptions.addActionListener(new ActionListener() {
 
@@ -1517,7 +1517,7 @@ public class Main extends JFrame {
                         beans[i++] = s;
                     }
                     controller.showCustomizer(beans,
-                            "HyKeY Configuration");
+                            "KeYmaera Configuration");
                     DLInitializer.getCustomizer().setObject(DLOptionBean.INSTANCE);
                 }
 
