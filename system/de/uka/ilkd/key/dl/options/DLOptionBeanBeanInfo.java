@@ -6,6 +6,7 @@ package de.uka.ilkd.key.dl.options;
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
 import java.beans.SimpleBeanInfo;
+import java.beans.BeanDescriptor;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
@@ -25,7 +26,13 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
     public DLOptionBeanBeanInfo() {
     }
 
-    @Override
+    public BeanDescriptor getBeanDescriptor() {
+	BeanDescriptor d = new BeanDescriptor(beanClass);
+	d.setDisplayName("KeYmaera");
+	d.setShortDescription("Adjusts KeYmaera proof strategy options");
+	return d;
+    }
+
     public PropertyDescriptor[] getPropertyDescriptors() {
         try {
             // PropertyDescriptor _usage = new PropertyDescriptor("usage",

@@ -11,7 +11,7 @@ public class OptionsBeanInfo extends SimpleBeanInfo {
     public BeanDescriptor getBeanDescriptor() {
 	BeanDescriptor d = new BeanDescriptor(beanClass);
 	d.setDisplayName("Orbital Options");
-	d.setShortDescription("Adjusts values for the computer algebra parts of the Orbital engine");
+	d.setShortDescription("Adjusts options for the computer algebra system engine of the Orbital library");
 	return d;
     }
 
