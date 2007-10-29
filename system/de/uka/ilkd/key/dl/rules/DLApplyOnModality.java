@@ -236,7 +236,7 @@ public class DLApplyOnModality extends ApplyOnModality {
         } else if (childAt instanceof Star) {
             Star p = (Star) childAt;
             return tf.createStar((DLProgram) convert(p.getChildAt(0), update,
-                    protectedVars), p.getInvariant());
+                    protectedVars), (Formula) convert(p.getInvariant(), update, protectedVars));
         } else if (childAt instanceof IfStatement) {
             IfStatement ifS = (IfStatement) childAt;
             return tf.createIf((Formula) convert(ifS.getExpression(), update,

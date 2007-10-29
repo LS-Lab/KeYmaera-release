@@ -98,7 +98,7 @@ public class ReplaceVisitor {
         } else if (childAt instanceof Star) {
             Star p = (Star) childAt;
             return tf.createStar((DLProgram) convert(p.getChildAt(0),
-                    substitutionMap, tf), p.getInvariant());
+                    substitutionMap, tf), (Formula) convert(p.getInvariant(), substitutionMap, tf));
         } else if (childAt instanceof Parallel) {
             Parallel parallel = (Parallel) childAt;
             return tf.createParallel((DLProgram) convert(
