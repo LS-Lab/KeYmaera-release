@@ -29,7 +29,7 @@ my $jlink;
 
 if(not -f "JLink/Jink.jar") {
 	do {
-		print "Please enter the path to JLink: ";
+		print "Please enter the path to JLink (e.g. /usr/local/Mathematica/SystemFiles/Links/JLink): ";
 		$jlink = <>;
 		chomp($jlink);
 		print "Path not found: $jlink\n" if not -d $jlink;
@@ -53,6 +53,6 @@ foreach (@files) {
 chdir("..");
 
 print "You can now start the prover using with: \n";
-print "bin/runProver dL";
+print "bin/runProver dL\n";
 
 exit 0
