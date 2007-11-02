@@ -11,13 +11,18 @@ foreach (@files) {
 	system("wget http://i12www.ira.uka.de/~bubel/nightly/webstart/lib/$_") if not -f $_;
 }
 
-@files = ("keymaera.jar", "orbital-ext.jar", "orbital-core.jar");
+@files = ("keymaera.jar");
 
 foreach (@files) {
 	system("wget http://www.informatik.uni-oldenburg.de/~jdq/keymaera/$_") if not -f $_;
 }
-#system(qw(wget http://www.informatik.uni-oldenburg.de/~jdq/keymaera/keymaera.jar)) if not -f "keymaera.jar";
 
+@files = ("orbital-ext.jar", "orbital-core.jar");
+
+foreach (@files) {
+	system("wget http://www.functologic.com/orbital/$_") if not -f $_;
+}
+ 
 system(qw(wget http://www.antlr.org/download/antlr-3.0.1.jar)) if not -f "antlr-3.0.1.jar";
 
 my $jlink;
