@@ -42,6 +42,7 @@ chdir("bin");
 
 foreach (@files) {
 	system("wget http://www.informatik.uni-oldenburg.de/~jdq/keymaera/bin/$_") if not -f $_;
+	chmod 0755, $_;
 }
 
 chdir("..");
