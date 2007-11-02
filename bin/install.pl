@@ -14,7 +14,7 @@ foreach (@files) {
 @files = ("keymaera.jar");
 
 foreach (@files) {
-	system("wget http://www.informatik.uni-oldenburg.de/~jdq/keymaera/$_") if not -f $_;
+	system("wget http://csd.informatik.uni-oldenburg.de/keymaera/$_") if not -f $_;
 }
 
 @files = ("orbital-ext.jar", "orbital-core.jar");
