@@ -76,7 +76,7 @@ import de.uka.ilkd.key.rule.RuleApp;
  * @since 27.08.2007
  * 
  */
-public class EliminateExistentialQuantifierRule implements BuiltInRule, UnknownProgressRule {
+public class EliminateExistentialQuantifierRule implements BuiltInRule, UnknownProgressRule, UnbackableRule {
 
     /**
      * TODO jdq documentation since Aug 27, 2007

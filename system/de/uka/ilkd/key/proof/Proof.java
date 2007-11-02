@@ -15,6 +15,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Vector;
 
+import de.uka.ilkd.key.dl.rules.UnbackableRule;
 import de.uka.ilkd.key.gui.GUIEvent;
 import de.uka.ilkd.key.gui.configuration.ProofSettings;
 import de.uka.ilkd.key.gui.configuration.SettingsListener;
@@ -554,7 +555,7 @@ public class Proof implements Named {
     public boolean setBack(Goal goal) {		
 	if (goal != null) {
 	    Node parent = goal.node().parent();
-	    if (parent != null) {
+	    if (parent != null && !(parent.getAppliedRuleApp().rule() instanceof UnbackableRule)) {
                 getServices().setBackCounters(goal.node());
 		openGoals = goal.setBack(openGoals);
 		fireProofGoalsChanged();
@@ -588,8 +589,12 @@ public class Proof implements Named {
 		while (goalIt.hasNext()) {
 		    final Goal nextGoal = goalIt.next();
 		    if (!parentSet.contains(nextGoal.node().parent())) {
-			removeList = removeList.prepend(nextGoal);
-			parentSet.add(nextGoal.node().parent());
+		        if(nextGoal.node().parent().getAppliedRuleApp().rule() instanceof UnbackableRule) {
+		            return false;
+		        } else {
+		            removeList = removeList.prepend(nextGoal);
+		            parentSet.add(nextGoal.node().parent());
+		        }
 		    }
 		}
 		//call setBack(Goal) on each element in the remove
