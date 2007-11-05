@@ -43,7 +43,7 @@ mkdir("bin") if not -d "bin";
 
 chdir("bin");
 
-@files = ("runProver", "runAbortProgram");
+@files = ("runKeYmaera", "runAbortProgram");
 
 foreach (@files) {
 	system("wget http://www.informatik.uni-oldenburg.de/~jdq/keymaera/bin/$_") if not -f $_;
@@ -67,11 +67,11 @@ unless($result == 0) {
         print "Path not found!\n" unless -d $path;
         print "math binary not found in given path!\n" unless -f "$path/math";
     } while(not -d $path or not -f "$path/math");
-    open(HANDLE, "<runProver");
-    my @runProver = <HANDLE>;
+    open(HANDLE, "<runKeYmaera");
+    my @runKeYmaera = <HANDLE>;
     close(HANDLE);
-    open(HANDLE, ">runProver");
-    foreach(@runProver) {
+    open(HANDLE, ">runKeYmaera");
+    foreach(@runKeYmaera) {
         if($_ =~ m/^PATH=.*/) {
             my $p = $_;
             $p =~ s/PATH=(.*)/PATH=$path:$1/;
@@ -86,6 +86,6 @@ unless($result == 0) {
 chdir("..");
 
 print "You can now start the prover using with: \n";
-print "bin/runProver dL\n";
+print "bin/runKeYmaera\n";
 
 exit 0
