@@ -27,13 +27,13 @@ system(qw(wget http://www.antlr.org/download/antlr-3.0.1.jar)) if not -f "antlr-
 
 my $jlink;
 
-if(not -f "JLink/Jink.jar") {
+if(not -f "JLink/JLink.jar") {
 	do {
 		print "Please enter the path to JLink (e.g. /usr/local/Mathematica/SystemFiles/Links/JLink): ";
 		$jlink = <>;
 		chomp($jlink);
 		print "Path not found: $jlink\n" if not -d $jlink;
-	} while(not -d $jlink);
+	} while(not -d $jlink or not -f "$jlink/JLink.jar");
 	system("ln -s " . $jlink . " JLink"); 
 }
 
@@ -48,6 +48,39 @@ chdir("bin");
 foreach (@files) {
 	system("wget http://www.informatik.uni-oldenburg.de/~jdq/keymaera/bin/$_") if not -f $_;
 	chmod 0755, $_;
+}
+
+system("which math 2&>1 > /dev/null");
+
+my $result=$?/256;
+
+# We need user interaction to locate the mathkernel
+unless($result == 0) {
+    print "Mathematica was not found in the system path.\n";
+    print "Please enter the correct location of the Mathematica executables e.g.\n";
+    print "(/usr/local/Mathematica/Executables).\n";
+    my $path = "";
+    do {
+        print "Location: ";
+        $path = <>;
+		chomp($path);
+        print "Path not found!\n" unless -d $path;
+        print "math binary not found in given path!\n" unless -f "$path/math";
+    } while(not -d $path or not -f "$path/math");
+    open(HANDLE, "<runProver");
+    my @runProver = <HANDLE>;
+    close(HANDLE);
+    open(HANDLE, ">runProver");
+    foreach(@runProver) {
+        if($_ =~ m/^PATH=.*/) {
+            my $p = $_;
+            $p =~ s/PATH=(.*)/PATH=$path:$1/;
+            print HANDLE $p;
+        } else {
+            print HANDLE;
+        }
+    }
+    close HANDLE;
 }
 
 chdir("..");
