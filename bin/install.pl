@@ -46,7 +46,7 @@ chdir("bin");
 @files = ("runKeYmaera", "runAbortProgram");
 
 foreach (@files) {
-	system("wget http://www.informatik.uni-oldenburg.de/~jdq/keymaera/bin/$_") if not -f $_;
+	system("wget http://csd.informatik.uni-oldenburg.de/keymaera/bin/$_") if not -f $_;
 	chmod 0755, $_;
 }
 
@@ -85,6 +85,7 @@ unless($result == 0) {
 
 chdir("..");
 
+print "\n";
 print "You can now start the prover using with: \n";
 print "bin/runKeYmaera\n";
 
