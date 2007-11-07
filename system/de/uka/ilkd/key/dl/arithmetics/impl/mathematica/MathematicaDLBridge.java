@@ -204,7 +204,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 
         if (!varNames.isEmpty()) {
             StringBuilder builder = new StringBuilder();
-            builder.append("No solutions for some variables: ");
+            builder.append("No solutions for some variables of the differential equations: ");
             String comma = "";
             for (String v : varNames) {
                 builder.append(comma + v);
@@ -223,7 +223,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
                             + updateExpressions);
         } else if (!multipleSolutions.isEmpty()) {
             StringBuilder builder = new StringBuilder();
-            builder.append("Multiple solutions found: ");
+            builder.append("Found multiple solutions of differential equations: ");
             for (String v : multipleSolutions.keySet()) {
                 builder.append("\n" + multipleSolutions.get(v)
                         + " solutions for " + v);
