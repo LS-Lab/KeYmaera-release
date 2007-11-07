@@ -17,6 +17,25 @@ options {
 	void setSchemaMode(boolean schemaMode) {
 		this.schemaMode = schemaMode;
 	}
+
+    // ensure the lexer does not silently skip over unrecognized tokens
+    protected void mismatch(IntStream input, int ttype, BitSet follow)
+    throws RecognitionException {
+        throw new MismatchedTokenException(ttype, input);
+    }
+
+    // ensure the lexer does not silently skip over unrecognized tokens
+    public void recoverFromMismatchedSet(IntStream input, RecognitionException e, BitSet follow)
+    throws RecognitionException {
+        throw e;
+    }
+}
+
+@rulecatch {
+    // ensure the lexer does not silently skip over unrecognized tokens
+    catch (RecognitionException e) {
+        throw e;
+    }
 }
 
 @lexer::header {
@@ -24,7 +43,7 @@ options {
 }
 
 prog:  stat { 
-		if(Debug.ENABLE_DEBUG) {
+		if (Debug.ENABLE_DEBUG) {
 			System.out.println($stat.tree.toStringTree());
 		}
 	} (CHOP!)? EOF!; 
