@@ -144,9 +144,9 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
                     createDescriptor("applyGammaRules", "apply gamma rules",
                             "choose if and when gamma rules should be applied",
                             true, false, ApplyRulesPropertyEditor.class),
-                    createDescriptor("invariantRule", "invariant rule",
-                            "choose which invariant rule should be used", true,
-                            false, InvariantRulePropertyEditor.class),
+//                    createDescriptor("invariantRule", "invariant rule",
+//                            "choose which invariant rule should be used", true,
+//                            false, InvariantRulePropertyEditor.class),
 
             };
             return pds;
