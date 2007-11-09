@@ -145,6 +145,7 @@ public class TransitionSystemGenerator {
 
     }
 
+    //public <S, A> TransitionSystem<S, A> getTransitionModel(DLProgram program) {
     public TransitionSystem<Object, Object> getTransitionModel(DLProgram program) {
         TransitionSystem<Object, Object> sys = new TransitionSystem<Object, Object>(
                 new Object());
@@ -176,6 +177,7 @@ public class TransitionSystemGenerator {
                     }
                     for (Object s : transitionModel.getStates()) {
                         if (noTwoLoop) {
+                            // initial state can be merged later
                             if (s != transitionModel.getInitialState()) {
                                 sys.addState(s);
                             }
@@ -190,11 +192,11 @@ public class TransitionSystemGenerator {
                                 if (noTwoLoop
                                         && s == transitionModel
                                                 .getInitialState()) {
+                                   // merge initial state
                                     for (Object fin : sys.getFinalStates()) {
                                         if (postState == transitionModel
                                                 .getInitialState()) {
-                                            sys.addTransition(fin, a, sys
-                                                    .getInitialState());
+                                            throw new AssertionError("Self loops are not hybrid programs");
                                         } else {
                                             sys
                                                     .addTransition(fin, a,
@@ -205,8 +207,9 @@ public class TransitionSystemGenerator {
                                     if (noTwoLoop
                                             && postState == transitionModel
                                                     .getInitialState()) {
-                                        sys.addTransition(s, a, sys
-                                                .getInitialState());
+                                        for (Object fin : sys.getFinalStates()) {
+                                            sys.addTransition(s, a, fin);
+                                        }
                                     } else {
                                         sys.addTransition(s, a, postState);
                                     }
