@@ -236,7 +236,9 @@ public class DLApplyOnModality extends ApplyOnModality {
         } else if (childAt instanceof Star) {
             Star p = (Star) childAt;
             return tf.createStar((DLProgram) convert(p.getChildAt(0), update,
-                    protectedVars), (Formula) convert(p.getInvariant(), update, protectedVars));
+                    protectedVars),
+                    (p.getInvariant() != null) ? (Formula) convert(p
+                            .getInvariant(), update, protectedVars) : null);
         } else if (childAt instanceof IfStatement) {
             IfStatement ifS = (IfStatement) childAt;
             return tf.createIf((Formula) convert(ifS.getExpression(), update,
@@ -336,8 +338,8 @@ public class DLApplyOnModality extends ApplyOnModality {
                             }
                         }
                         if (!found) {
-                            return ReplaceVisitor.convertToProgram(update.getAssignmentPair(i)
-                                    .value(), tf);
+                            return ReplaceVisitor.convertToProgram(update
+                                    .getAssignmentPair(i).value(), tf);
                         }
                     }
                 }
@@ -354,7 +356,7 @@ public class DLApplyOnModality extends ApplyOnModality {
         throw new IllegalArgumentException("Dont now how to convert: "
                 + childAt);
     }
-    
+
     /**
      * collects all local program variables
      * 
