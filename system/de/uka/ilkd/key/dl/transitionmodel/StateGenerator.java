@@ -14,9 +14,9 @@ import de.uka.ilkd.key.dl.model.DLProgram;
 public interface StateGenerator<S, A> {
     public S getPostState(S pre, A action);
 
-    public A getSpecialSymbolStar();
+    public A getSpecialSymbolStar(S pre, S post);
 
-    public A getSpecialSymbolNoop();
+    public A getSpecialSymbolNoop(S pre, S post);
 
     /**
      * TODO jdq documentation since Nov 9, 2007

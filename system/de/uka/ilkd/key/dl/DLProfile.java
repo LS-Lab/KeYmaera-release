@@ -22,11 +22,13 @@
  */
 package de.uka.ilkd.key.dl;
 
+import sun.awt.X11.Visual;
 import de.uka.ilkd.key.dl.rules.DLUpdateSimplifier;
 import de.uka.ilkd.key.dl.rules.DebugRule;
 import de.uka.ilkd.key.dl.rules.EliminateExistentialQuantifierRule;
 import de.uka.ilkd.key.dl.rules.FindInstanceRule;
 import de.uka.ilkd.key.dl.rules.ReduceRule;
+import de.uka.ilkd.key.dl.rules.VisualizationRule;
 import de.uka.ilkd.key.dl.strategy.DLStrategy;
 import de.uka.ilkd.key.dl.strategy.DLStrategy.Factory;
 import de.uka.ilkd.key.java.Services;
@@ -128,6 +130,7 @@ public class DLProfile extends AbstractProfile {
         ListOfBuiltInRule rule = super.initBuiltInRules().prepend(
                 ReduceRule.INSTANCE).prepend(getUpdateSimplificationRule())
                 .prepend(FindInstanceRule.INSTANCE).prepend(EliminateExistentialQuantifierRule.INSTANCE);
+        rule = rule.prepend(VisualizationRule.INSTANCE);
         if (Debug.ENABLE_DEBUG) {
             rule = rule.prepend(DebugRule.INSTANCE);
         }

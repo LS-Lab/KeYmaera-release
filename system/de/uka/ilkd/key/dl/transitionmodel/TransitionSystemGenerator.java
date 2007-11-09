@@ -43,13 +43,15 @@ public class TransitionSystemGenerator {
         CHOICE, STAR, NOOP;
     }
 
-    public TransitionSystem<Object, Object> getTransitionModel(DLProgram program) {
+    public static TransitionSystem<Object, Object> getTransitionModel(
+            DLProgram program) {
         return getTransitionModel(program, new StateGeneratorAdapter(),
                 new Object());
     }
 
-    public <S, A> TransitionSystem<S, A> getTransitionModel(DLProgram program,
-            StateGenerator<S, A> stateGenerator, S currentState) {
+    public static <S, A> TransitionSystem<S, A> getTransitionModel(
+            DLProgram program, StateGenerator<S, A> stateGenerator,
+            S currentState) {
         TransitionSystem<S, A> sys = new TransitionSystem<S, A>(currentState);
         if (program instanceof CompoundDLProgram) {
             if (program instanceof Chop) {
@@ -60,8 +62,10 @@ public class TransitionSystemGenerator {
                                     .getFinalState());
                     boolean noTwoLoop = transitionModel
                             .getReverseTransitionRelation().get(
-                                    transitionModel.getInitialState()).get(
-                                    SpecialSymbols.STAR) == null
+                                    transitionModel.getInitialState()) == null
+                            || transitionModel.getReverseTransitionRelation()
+                                    .get(transitionModel.getInitialState())
+                                    .get(SpecialSymbols.STAR) == null
                             || transitionModel.getReverseTransitionRelation()
                                     .get(transitionModel.getInitialState())
                                     .get(SpecialSymbols.STAR).isEmpty();
@@ -70,7 +74,9 @@ public class TransitionSystemGenerator {
                         // check if there is a loop in one of the final
                         // states
                         if (sys.getTransitionRelation()
-                                .get(sys.getFinalState()).get(
+                                .get(sys.getFinalState()) != null
+                                && sys.getTransitionRelation().get(
+                                        sys.getFinalState()).get(
                                         SpecialSymbols.STAR) != null
                                 && !sys.getTransitionRelation().get(
                                         sys.getFinalState()).get(
@@ -88,31 +94,37 @@ public class TransitionSystemGenerator {
                         } else {
                             sys.addState(s);
                         }
-                        for (A a : transitionModel.getTransitionRelation().get(
-                                s).keySet()) {
-                            Set<S> postStates = transitionModel
-                                    .getTransitionRelation().get(s).get(a);
-                            for (S postState : postStates) {
-                                if (noTwoLoop
-                                        && s == transitionModel
-                                                .getInitialState()) {
-                                    // merge initial state
-                                    S fin = sys.getFinalState();
-                                    if (postState == transitionModel
-                                            .getInitialState()) {
-                                        throw new AssertionError(
-                                                "Self loops are not hybrid programs");
-                                    } else {
-                                        sys.addTransition(fin, a, postState);
-                                    }
-                                } else {
+                        if (transitionModel.getTransitionRelation().get(s) != null) {
+                            for (A a : transitionModel.getTransitionRelation()
+                                    .get(s).keySet()) {
+                                Set<S> postStates = transitionModel
+                                        .getTransitionRelation().get(s).get(a);
+                                for (S postState : postStates) {
                                     if (noTwoLoop
-                                            && postState == transitionModel
+                                            && s == transitionModel
                                                     .getInitialState()) {
-                                        sys.addTransition(s, a, sys
-                                                .getFinalState());
+                                        // merge initial state
+                                        S fin = sys.getFinalState();
+                                        if (postState == transitionModel
+                                                .getInitialState()) {
+                                            sys.addTransition(fin, a, fin);
+                                            // throw new AssertionError(
+                                            // "Self loops are not hybrid
+                                            // programs");
+                                        } else {
+                                            sys
+                                                    .addTransition(fin, a,
+                                                            postState);
+                                        }
                                     } else {
-                                        sys.addTransition(s, a, postState);
+                                        if (noTwoLoop
+                                                && postState == transitionModel
+                                                        .getInitialState()) {
+                                            sys.addTransition(s, a, sys
+                                                    .getFinalState());
+                                        } else {
+                                            sys.addTransition(s, a, postState);
+                                        }
                                     }
                                 }
                             }
@@ -125,7 +137,8 @@ public class TransitionSystemGenerator {
                         // otherwise we could jump back to a state from which we
                         // could jump further back
                         sys.addTransition(finalState, stateGenerator
-                                .getSpecialSymbolNoop(), transitionModel
+                                .getSpecialSymbolNoop(finalState, transitionModel
+                                        .getInitialState()), transitionModel
                                 .getInitialState());
                     }
                 }
@@ -157,13 +170,18 @@ public class TransitionSystemGenerator {
                 TransitionSystem<S, A> transitionModel = getTransitionModel(
                         (DLProgram) ((CompoundDLProgram) program).getChildAt(0),
                         stateGenerator, sys.getInitialState());
-                for(S s: transitionModel.getTransitionRelation().keySet()) {
-                    sys.addAllTransitions(s, transitionModel.getTransitionRelation().get(s));
+                for (S s : transitionModel.getTransitionRelation().keySet()) {
+                    sys.addAllTransitions(s, transitionModel
+                            .getTransitionRelation().get(s));
                 }
                 sys.addTransition(sys.getFinalState(), stateGenerator
-                        .getSpecialSymbolStar(), transitionModel.getInitialState());
-                sys.addTransition(transitionModel.getFinalState(), stateGenerator
-                        .getSpecialSymbolStar(), sys.getFinalState());
+                        .getSpecialSymbolStar(sys.getFinalState(), transitionModel.getInitialState()), transitionModel
+                        .getInitialState());
+                if(transitionModel.getFinalState() != sys.getFinalState()) {
+                    sys.addTransition(transitionModel.getFinalState(),
+                            stateGenerator.getSpecialSymbolStar(transitionModel.getFinalState(), sys.getFinalState()), sys
+                                .getFinalState());
+                }
             } else {
                 throw new IllegalArgumentException(
                         "Unknown composition operator "

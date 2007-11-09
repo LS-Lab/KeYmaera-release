@@ -13,6 +13,8 @@ package de.uka.ilkd.key.dl.strategy;
 import java.util.Map;
 import java.util.WeakHashMap;
 
+import sun.awt.X11.Visual;
+
 import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
 import de.uka.ilkd.key.dl.options.DLOptionBean;
 import de.uka.ilkd.key.dl.options.DLOptionBean.ApplyRules;
@@ -21,6 +23,7 @@ import de.uka.ilkd.key.dl.rules.EliminateQuantifierRule;
 import de.uka.ilkd.key.dl.rules.EliminateQuantifierRuleWithContext;
 import de.uka.ilkd.key.dl.rules.FindInstanceRule;
 import de.uka.ilkd.key.dl.rules.ReduceRule;
+import de.uka.ilkd.key.dl.rules.VisualizationRule;
 import de.uka.ilkd.key.dl.strategy.features.FOFormula;
 import de.uka.ilkd.key.dl.strategy.features.FOSequence;
 import de.uka.ilkd.key.dl.strategy.features.FindInstanceTest;
@@ -271,6 +274,8 @@ public class DLStrategy extends AbstractFeatureStrategy {
 
         final Feature debugRule = ConditionalFeature.createConditional(
                 DebugRule.INSTANCE, inftyConst());
+        final Feature visualRule = ConditionalFeature.createConditional(
+                VisualizationRule.INSTANCE, inftyConst());
         final Feature contextElimRule = ConditionalFeature.createConditional(
                 EliminateQuantifierRuleWithContext.INSTANCE, inftyConst());
 
@@ -287,7 +292,7 @@ public class DLStrategy extends AbstractFeatureStrategy {
                 .createSum(new Feature[] { AutomatedRuleFeature.INSTANCE,
                         NotWithinMVFeature.INSTANCE, simplifierF, duplicateF,
                         ifMatchedF, d, AgeFeature.INSTANCE, reduceSequence,
-                        debugRule, contextElimRule, eliminateQuantifier,
+                        debugRule, visualRule, contextElimRule, eliminateQuantifier,
                         findInstanceRule, noQuantifierInstantition });
 
         approvalF = duplicateF;

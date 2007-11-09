@@ -40,12 +40,12 @@ public class StateGeneratorAdapter implements
     }
 
     @Override
-    public Object getSpecialSymbolNoop() {
+    public Object getSpecialSymbolNoop(Object o, Object ob) {
         return SpecialSymbols.NOOP;
     }
 
     @Override
-    public Object getSpecialSymbolStar() {
+    public Object getSpecialSymbolStar(Object pre, Object post) {
         return SpecialSymbols.STAR;
     }
 }

@@ -38,9 +38,11 @@ public class TransitionSystem<S, A> {
     }
 
     public void addAllTransitions(S pre, Map<A, Set<S>> transitions) {
-        for (A action : transitions.keySet()) {
-            for (S post : transitions.get(action)) {
-                addTransition(pre, action, post);
+        if (transitions != null) {
+            for (A action : transitions.keySet()) {
+                for (S post : transitions.get(action)) {
+                    addTransition(pre, action, post);
+                }
             }
         }
     }
@@ -55,8 +57,10 @@ public class TransitionSystem<S, A> {
         Map<A, Set<S>> map = tr.get(pre);
         if (map == null) {
             map = new HashMap<A, Set<S>>();
-            map.put(action, new HashSet<S>());
             transitionRelation.put(pre, map);
+        }
+        if (map.get(action) == null) {
+            map.put(action, new HashSet<S>());
         }
         map.get(action).add(post);
     }
