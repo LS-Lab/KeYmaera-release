@@ -205,6 +205,7 @@ public class TransitionSystemGenerator {
                     }
                     for (S s : transitionModel.getStates()) {
                         if (noTwoLoop) {
+                            // initial state can be merged later
                             if (s != transitionModel.getInitialState()) {
                                 sys.addState(s);
                             }
@@ -219,11 +220,11 @@ public class TransitionSystemGenerator {
                                 if (noTwoLoop
                                         && s == transitionModel
                                                 .getInitialState()) {
+                                    //merge initial state
                                     for (S fin : sys.getFinalStates()) {
                                         if (postState == transitionModel
                                                 .getInitialState()) {
-                                            sys.addTransition(fin, a, sys
-                                                    .getInitialState());
+                                            throw new AssertionError("Self loops are not hybrid programs");
                                         } else {
                                             sys
                                                     .addTransition(fin, a,
@@ -234,8 +235,9 @@ public class TransitionSystemGenerator {
                                     if (noTwoLoop
                                             && postState == transitionModel
                                                     .getInitialState()) {
-                                        sys.addTransition(s, a, sys
-                                                .getInitialState());
+                                        for (S fin : sys.getFinalStates()) {
+                                            sys.addTransition(s, a, fin);
+                                        }
                                     } else {
                                         sys.addTransition(s, a, postState);
                                     }
