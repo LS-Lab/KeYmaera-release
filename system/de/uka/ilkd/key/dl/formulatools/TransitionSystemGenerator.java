@@ -41,7 +41,7 @@ import de.uka.ilkd.key.java.ProgramElement;
 public class TransitionSystemGenerator {
 
     public static enum SpecialSymbols {
-        Choice, Star;
+        CHOICE, STAR, NOOP;
     }
 
     /**
@@ -55,7 +55,7 @@ public class TransitionSystemGenerator {
 
         private Set<S> states;
 
-        private Map<S, Map<A, S>> transitionRelation;
+        private Map<S, Map<A, Set<S>>> transitionRelation;
 
         private S initialState;
 
@@ -63,7 +63,7 @@ public class TransitionSystemGenerator {
 
         public TransitionSystem(S initialState) {
             states = new HashSet<S>();
-            transitionRelation = new HashMap<S, Map<A, S>>();
+            transitionRelation = new HashMap<S, Map<A, Set<S>>>();
             finalStates = new HashSet<S>();
             this.initialState = initialState;
             finalStates.add(initialState);
@@ -75,19 +75,20 @@ public class TransitionSystemGenerator {
         }
 
         public void addTransition(S pre, A action, S post) {
-            Map<A, S> map = transitionRelation.get(pre);
+            Map<A, Set<S>> map = transitionRelation.get(pre);
             if (map == null) {
-                map = new HashMap<A, S>();
+                map = new HashMap<A, Set<S>>();
+                map.put(action, new HashSet<S>());
                 transitionRelation.put(pre, map);
             }
-            map.put(action, post);
+            map.get(action).add(post);
         }
 
         public Set<S> getStates() {
             return states;
         }
 
-        public Map<S, Map<A, S>> getTransitionRelation() {
+        public Map<S, Map<A, Set<S>>> getTransitionRelation() {
             return transitionRelation;
         }
 
@@ -131,27 +132,68 @@ public class TransitionSystemGenerator {
                 Chop chop = (Chop) program;
                 for (ProgramElement elem : chop) {
                     TransitionSystem<Object, Object> transitionModel = getTransitionModel((DLProgram) elem);
+                    boolean noTwoLoop = transitionModel.getTransitionRelation()
+                            .get(transitionModel.getInitialState()).get(
+                                    SpecialSymbols.STAR) == null
+                            || transitionModel.getTransitionRelation().get(
+                                    transitionModel.getInitialState()).get(
+                                    SpecialSymbols.STAR).isEmpty();
+                    for (Object fin : transitionModel.getFinalStates()) {
+                        // check if there is a loop in one of the final states
+                        noTwoLoop |= sys.getTransitionRelation().get(fin).get(
+                                SpecialSymbols.STAR) == null
+                                || sys.getTransitionRelation().get(fin).get(
+                                        SpecialSymbols.STAR).isEmpty();
+                    }
                     for (Object s : transitionModel.getStates()) {
-                        if (s != transitionModel.getInitialState()) {
+
+                        if (noTwoLoop) {
+                            if (s != transitionModel.getInitialState()) {
+                                sys.addState(s);
+                            }
+                        } else {
                             sys.addState(s);
                         }
                         for (Object a : transitionModel.getTransitionRelation()
                                 .get(s).keySet()) {
-                            if (s == transitionModel.getInitialState()) {
+                            Object postState = transitionModel
+                                    .getTransitionRelation().get(s).get(a);
+                            if (noTwoLoop
+                                    && s == transitionModel.getInitialState()) {
                                 for (Object fin : sys.getFinalStates()) {
-                                    sys.addTransition(fin, a, transitionModel
-                                            .getTransitionRelation().get(s)
-                                            .get(a));
+                                    if (postState == transitionModel
+                                            .getInitialState()) {
+                                        sys.addTransition(fin, a, sys
+                                                .getInitialState());
+                                    } else {
+                                        sys.addTransition(fin, a, postState);
+                                    }
                                 }
                             } else {
-                                sys.addTransition(s, a, transitionModel
-                                        .getTransitionRelation().get(s).get(a));
+                                if (noTwoLoop
+                                        && postState == transitionModel
+                                                .getInitialState()) {
+                                    sys.addTransition(s, a, sys
+                                            .getInitialState());
+                                } else {
+                                    sys.addTransition(s, a, postState);
+                                }
                             }
                         }
-                        sys.getFinalStates().clear();
-                        sys.getFinalStates().addAll(
-                                transitionModel.getFinalStates());
                     }
+                    if (!noTwoLoop) {
+                        // if there is a loop we need a new "label", i.e. a
+                        // state, where we can jump to when repeating, as
+                        // otherwise we could jump back to a state from which we
+                        // could jump further back
+                        for (Object fin : sys.getFinalStates()) {
+                            sys.addTransition(fin, SpecialSymbols.NOOP,
+                                    transitionModel.getInitialState());
+                        }
+                    }
+                    sys.getFinalStates().clear();
+                    sys.getFinalStates().addAll(
+                            transitionModel.getFinalStates());
                 }
             } else if (program instanceof Choice) {
                 Choice choice = (Choice) program;
@@ -166,7 +208,7 @@ public class TransitionSystemGenerator {
                         }
                     }
                     sys.addTransition(sys.getInitialState(),
-                            SpecialSymbols.Choice, transitionModel
+                            SpecialSymbols.CHOICE, transitionModel
                                     .getInitialState());
                     sys.removeFinalState(sys.getInitialState());
                     sys.getFinalStates().addAll(
@@ -176,7 +218,7 @@ public class TransitionSystemGenerator {
                 sys = getTransitionModel((DLProgram) ((CompoundDLProgram) program)
                         .getChildAt(0));
                 for (Object fin : sys.getFinalStates()) {
-                    sys.addTransition(fin, SpecialSymbols.Star, sys
+                    sys.addTransition(fin, SpecialSymbols.STAR, sys
                             .getInitialState());
                 }
             }
