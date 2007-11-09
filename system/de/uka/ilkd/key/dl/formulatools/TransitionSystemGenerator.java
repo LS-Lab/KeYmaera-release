@@ -57,6 +57,8 @@ public class TransitionSystemGenerator {
 
         private Map<S, Map<A, Set<S>>> transitionRelation;
 
+        private Map<S, Map<A, Set<S>>> reverseTransitionRelation;
+
         private S initialState;
 
         private Set<S> finalStates;
@@ -64,6 +66,7 @@ public class TransitionSystemGenerator {
         public TransitionSystem(S initialState) {
             states = new HashSet<S>();
             transitionRelation = new HashMap<S, Map<A, Set<S>>>();
+            reverseTransitionRelation = new HashMap<S, Map<A, Set<S>>>();
             finalStates = new HashSet<S>();
             this.initialState = initialState;
             finalStates.add(initialState);
@@ -75,7 +78,13 @@ public class TransitionSystemGenerator {
         }
 
         public void addTransition(S pre, A action, S post) {
-            Map<A, Set<S>> map = transitionRelation.get(pre);
+            addTransition(transitionRelation, pre, action, post);
+            addTransition(reverseTransitionRelation, post, action, pre);
+        }
+
+        private void addTransition(Map<S, Map<A, Set<S>>> tr, S pre, A action,
+                S post) {
+            Map<A, Set<S>> map = tr.get(pre);
             if (map == null) {
                 map = new HashMap<A, Set<S>>();
                 map.put(action, new HashSet<S>());
@@ -90,6 +99,10 @@ public class TransitionSystemGenerator {
 
         public Map<S, Map<A, Set<S>>> getTransitionRelation() {
             return transitionRelation;
+        }
+
+        public Map<S, Map<A, Set<S>>> getReverseTransitionRelation() {
+            return reverseTransitionRelation;
         }
 
         /**
@@ -132,21 +145,28 @@ public class TransitionSystemGenerator {
                 Chop chop = (Chop) program;
                 for (ProgramElement elem : chop) {
                     TransitionSystem<Object, Object> transitionModel = getTransitionModel((DLProgram) elem);
-                    boolean noTwoLoop = transitionModel.getTransitionRelation()
-                            .get(transitionModel.getInitialState()).get(
-                                    SpecialSymbols.STAR) == null
-                            || transitionModel.getTransitionRelation().get(
+                    boolean noTwoLoop = transitionModel
+                            .getReverseTransitionRelation().get(
                                     transitionModel.getInitialState()).get(
-                                    SpecialSymbols.STAR).isEmpty();
-                    for (Object fin : transitionModel.getFinalStates()) {
-                        // check if there is a loop in one of the final states
-                        noTwoLoop |= sys.getTransitionRelation().get(fin).get(
-                                SpecialSymbols.STAR) == null
-                                || sys.getTransitionRelation().get(fin).get(
-                                        SpecialSymbols.STAR).isEmpty();
+                                    SpecialSymbols.STAR) == null
+                            || transitionModel.getReverseTransitionRelation()
+                                    .get(transitionModel.getInitialState())
+                                    .get(SpecialSymbols.STAR).isEmpty();
+                    if (!noTwoLoop) {
+                        noTwoLoop = true;
+                        for (Object fin : sys.getFinalStates()) {
+                            // check if there is a loop in one of the final
+                            // states
+                            if (sys.getTransitionRelation().get(fin).get(
+                                    SpecialSymbols.STAR) != null
+                                    && !sys.getTransitionRelation().get(fin)
+                                            .get(SpecialSymbols.STAR).isEmpty()) {
+                                noTwoLoop = false;
+                                break;
+                            }
+                        }
                     }
                     for (Object s : transitionModel.getStates()) {
-
                         if (noTwoLoop) {
                             if (s != transitionModel.getInitialState()) {
                                 sys.addState(s);
