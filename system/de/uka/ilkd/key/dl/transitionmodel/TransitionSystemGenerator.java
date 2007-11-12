@@ -175,11 +175,11 @@ public class TransitionSystemGenerator {
                             .getTransitionRelation().get(s));
                 }
                 sys.addTransition(sys.getFinalState(), stateGenerator
-                        .getSpecialSymbolStar(sys.getFinalState(), transitionModel.getInitialState()), transitionModel
+                        .getSymbolForBackloop(sys.getFinalState(), transitionModel.getInitialState()), transitionModel
                         .getInitialState());
                 if(transitionModel.getFinalState() != sys.getFinalState()) {
                     sys.addTransition(transitionModel.getFinalState(),
-                            stateGenerator.getSpecialSymbolStar(transitionModel.getFinalState(), sys.getFinalState()), sys
+                            stateGenerator.getSymbolForBackloop(transitionModel.getFinalState(), sys.getFinalState()), sys
                                 .getFinalState());
                 }
             } else {

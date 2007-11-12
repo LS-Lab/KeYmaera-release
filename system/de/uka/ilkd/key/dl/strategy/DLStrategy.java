@@ -13,8 +13,6 @@ package de.uka.ilkd.key.dl.strategy;
 import java.util.Map;
 import java.util.WeakHashMap;
 
-import sun.awt.X11.Visual;
-
 import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
 import de.uka.ilkd.key.dl.options.DLOptionBean;
 import de.uka.ilkd.key.dl.options.DLOptionBean.ApplyRules;

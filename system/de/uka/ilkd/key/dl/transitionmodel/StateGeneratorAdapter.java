@@ -45,7 +45,7 @@ public class StateGeneratorAdapter implements
     }
 
     @Override
-    public Object getSpecialSymbolStar(Object pre, Object post) {
+    public Object getSymbolForBackloop(Object pre, Object post) {
         return SpecialSymbols.STAR;
     }
 }

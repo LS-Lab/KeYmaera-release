@@ -14,7 +14,7 @@ import de.uka.ilkd.key.dl.model.DLProgram;
 public interface StateGenerator<S, A> {
     public S getPostState(S pre, A action);
 
-    public A getSpecialSymbolStar(S pre, S post);
+    public A getSymbolForBackloop(S pre, S post);
 
     public A getSpecialSymbolNoop(S pre, S post);
 

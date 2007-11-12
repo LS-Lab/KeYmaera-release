@@ -22,7 +22,6 @@
  */
 package de.uka.ilkd.key.dl;
 
-import sun.awt.X11.Visual;
 import de.uka.ilkd.key.dl.rules.DLUpdateSimplifier;
 import de.uka.ilkd.key.dl.rules.DebugRule;
 import de.uka.ilkd.key.dl.rules.EliminateExistentialQuantifierRule;
