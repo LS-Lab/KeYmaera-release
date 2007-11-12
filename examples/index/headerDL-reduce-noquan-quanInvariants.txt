@@ -1,0 +1,62 @@
+\settings {
+"#Proof-Settings-Config-File
+#Tue Sep 18 14:39:41 CEST 2007
+[Choice]Choices=transactions-transactions\:transactionsOff-transactions\:transactionsOn , programRules-programRules\:ODL-programRules\:Java-programRules\:dL , throughout-throughout\:toutOff-throughout\:toutOn , transactionAbort-transactionAbort\:abortOff-transactionAbort\:abortOn , intRules-intRules\:arithmeticSemanticsCheckingOF-intRules\:javaSemantics-intRules\:arithmeticSemanticsIgnoringOF , nullPointerPolicy-nullPointerPolicy\:noNullCheck-nullPointerPolicy\:nullCheck
+[Choice]DefaultChoices=transactions-transactions\:transactionsOn , programRules-programRules\:Java , transactionAbort-transactionAbort\:abortOn , throughout-throughout\:toutOn , intRules-intRules\:arithmeticSemanticsIgnoringOF , nullPointerPolicy-nullPointerPolicy\:nullCheck
+[DLOptions]applyGammaRules=ONLY_TO_MODALITIES
+[DLOptions]applyToModality=false
+[DLOptions]callReduce=true
+[DLOptions]constantTimeoutIncreaseFactor=0
+[DLOptions]counterExampleGenerator=Mathematica
+[DLOptions]initialTimeout=2000
+[DLOptions]invariantRule=QUANTIFIERS
+[DLOptions]linearTimeoutIncreaseFactor=2
+[DLOptions]normalizeEquations=true
+[DLOptions]odeSolver=Mathematica
+[DLOptions]quadricTimeoutIncreaseFactor=0
+[DLOptions]quantifierEliminator=Mathematica
+[DLOptions]readdQuantifiers=false
+[DLOptions]simplfier=Mathematica
+[DLOptions]simplifyAfterReduce=true
+[DLOptions]simplifyBeforeReduce=true
+[DLOptions]splitBeyondFO=false
+[DLOptions]stopAtFO=false
+[DLOptions]useFindInstanceTest=false
+[DLOptions]useTimeoutStrategy=true
+[DecisionProcedureForTest]=Cogent
+[DecisionProcedure]=SIMPLIFY
+[DecisionProcedure]SmtBenchmarkArchiving=false
+[DecisionProcedure]SmtUseQuantifiers=true
+[DecisionProcedure]SmtZipProblemDir=false
+[General]DnDDirectionSensitive=true
+[General]OuterRenaming=false
+[General]ProofAssistant=false
+[General]SoundNotification=false
+[General]StupidMode=true
+[General]SuggestiveVarNames=false
+[Libraries]Default=acc.key-false, stringRules.key-false, deprecatedRules.key-false
+[MathematicaOptions]quantifierEliminationMethod=REDUCE
+[MathematicaOptions]useEliminateList=true
+[Model]Source=1
+[OrbitalOptions]precision=34
+[OrbitalOptions]representation=big
+[SimultaneousUpdateSimplifier]DeleteEffectLessLocations=true
+[SimultaneousUpdateSimplifier]EagerSimplification=false
+[StrategyProperty]LOOP_OPTIONS_KEY=LOOP_EXPAND
+[StrategyProperty]METHOD_OPTIONS_KEY=METHOD_EXPAND
+[StrategyProperty]NON_LIN_ARITH_OPTIONS_KEY=NON_LIN_ARITH_NONE
+[StrategyProperty]QUANTIFIERS_OPTIONS_KEY=QUANTIFIERS_NONE
+[StrategyProperty]QUERY_OPTIONS_KEY=QUERY_NONE
+[StrategyProperty]SPLITTING_OPTIONS_KEY=SPLITTING_NORMAL
+[StrategyProperty]USER_TACLETS_OPTIONS_KEY1=USER_TACLETS_OFF
+[StrategyProperty]USER_TACLETS_OPTIONS_KEY2=USER_TACLETS_OFF
+[StrategyProperty]USER_TACLETS_OPTIONS_KEY3=USER_TACLETS_OFF
+[Strategy]ActiveStrategy=Simple JavaCardDL
+[Strategy]MaximumNumberOfAutomaticApplications=1000
+[Strategy]Timeout=-1
+[View]FontIndex=2
+[View]HideIntermediateProofsteps=false
+[View]MaxTooltipLines=40
+[View]ShowWholeTaclet=false
+"
+}

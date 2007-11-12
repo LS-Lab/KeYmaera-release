@@ -1,8 +1,9 @@
-#Wed Sep 19 15:31:54 CEST 2007
+#Thu Nov 08 15:11:36 CET 2007
 =\=\=\=\=\=\=
 <<<<<<<=queselHybrid.75(w)/eclipse/.settings/org.eclipse.jdt.core.prefs Thu, 25 Jan 2007 14\:07\:17 +0100 quesel (key/v/d/9_org.eclips 1.1.1.1.1.7.1.6.3.2 644)
 >>>>>>>=queselMerge.2/eclipse/.settings/org.eclipse.jdt.core.prefs Fri, 16 Feb 2007 23\:18\:28 +0100 bubel (key/v/d/9_org.eclips 1.1.1.1.1.7.1.6.5.2 644)
 eclipse.preferences.version=1
+instance/org.eclipse.core.net/org.eclipse.core.net.hasMigrated=true
 org.eclipse.jdt.core.codeComplete.argumentPrefixes=
 org.eclipse.jdt.core.codeComplete.argumentSuffixes=
 org.eclipse.jdt.core.codeComplete.fieldPrefixes=

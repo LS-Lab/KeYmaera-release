@@ -29,3 +29,6 @@ system/javaFiles
 system/warning.msg
 .DS_Store
 tags
+dist
+examples/statistics.csv
+eclipse/.settings/org.eclipse.jdt.ui.prefs
