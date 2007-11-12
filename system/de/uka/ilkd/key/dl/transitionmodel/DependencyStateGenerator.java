@@ -1,6 +1,5 @@
 package de.uka.ilkd.key.dl.transitionmodel;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -10,6 +9,7 @@ import de.uka.ilkd.key.dl.model.Assign;
 import de.uka.ilkd.key.dl.model.DLNonTerminalProgramElement;
 import de.uka.ilkd.key.dl.model.DLProgram;
 import de.uka.ilkd.key.dl.model.DiffSystem;
+import de.uka.ilkd.key.dl.model.Dot;
 import de.uka.ilkd.key.dl.model.ProgramVariable;
 import de.uka.ilkd.key.java.ProgramElement;
 
@@ -49,15 +49,29 @@ public class DependencyStateGenerator
             if(childAt instanceof ProgramVariable) {
                 LinkedHashSet<ProgramVariable> set = result.get(childAt);
                 if(set == null) {
+                    set = new LinkedHashSet<ProgramVariable>();
                     result.put((ProgramVariable) childAt, vars);
-                } else {
-                    set.addAll(vars);
-                }
+                } 
+                set.addAll(vars);
+                set.remove(childAt); //variables should not depend on themselves
             } else {
                 throw new IllegalArgumentException("Dont know how to assign something to " + childAt);
             }
         } else if(action instanceof DiffSystem){
             // handle differential equation system
+            DiffSystem system = (DiffSystem) action;
+            for(ProgramElement elem: system) {
+                LinkedHashSet<ProgramVariable> allVariables = getAllVariables(elem);
+                for(ProgramVariable pv: getDottedVariables(elem)) {
+                    LinkedHashSet<ProgramVariable> set = result.get(pv);
+                    if(set == null) {
+                        set = new LinkedHashSet<ProgramVariable>();
+                        result.put(pv, set);
+                    }
+                    set.addAll(allVariables);
+                    set.remove(pv); //variables should not depend on themselves
+                }
+            }
         }
         
         return result;
@@ -65,13 +79,38 @@ public class DependencyStateGenerator
 
     /**
      * TODO jdq documentation since Nov 12, 2007 
+     * @param elem
+     */
+    private static LinkedHashSet<ProgramVariable> getDottedVariables(ProgramElement childAt) {
+        LinkedHashSet<ProgramVariable> vars = new LinkedHashSet<ProgramVariable>();
+        if(childAt instanceof Dot) {
+            vars.add((ProgramVariable) ((Dot) childAt).getChildAt(0));
+        } else if(childAt instanceof DLNonTerminalProgramElement){
+            DLNonTerminalProgramElement dlnpe = (DLNonTerminalProgramElement) childAt;
+            for(ProgramElement elem: dlnpe) {
+                vars.addAll(getDottedVariables(elem));
+            }
+        }
+        return vars;
+    }
+
+    /**
+     * TODO jdq documentation since Nov 12, 2007 
      * @param childAt
      * @return
      */
-    private static Collection<? extends ProgramVariable> getAllVariables(
+    private static LinkedHashSet<ProgramVariable> getAllVariables(
             ProgramElement childAt) {
         LinkedHashSet<ProgramVariable> vars = new LinkedHashSet<ProgramVariable>();
-        return null;
+        if(childAt instanceof ProgramVariable) {
+            vars.add((ProgramVariable) childAt);
+        } else if(childAt instanceof DLNonTerminalProgramElement){
+            DLNonTerminalProgramElement dlnpe = (DLNonTerminalProgramElement) childAt;
+            for(ProgramElement elem: dlnpe) {
+                vars.addAll(getAllVariables(elem));
+            }
+        }
+        return vars;
     }
 
     /*
