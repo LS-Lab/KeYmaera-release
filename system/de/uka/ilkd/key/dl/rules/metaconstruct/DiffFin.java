@@ -74,8 +74,7 @@ public class DiffFin extends AbstractDLMetaOperator {
         Term post = term.sub(0).sub(0);
         final NamespaceSet nss = services.getNamespaces();
         try {
-            if (term.sub(0).op() == Modality.BOX
-                    || term.sub(0).op() == Modality.TOUT) {
+            if (term.sub(0).op() == Modality.DIA) {
                 return MathSolverManager.getCurrentODESolver()
                 .diffFin(system, post, nss);
             } else {

@@ -10,3 +10,4 @@
 ./hybrid/dev/zero-unique.key
 ./hybrid/dev/random-zero.key
 ./hybrid/dev/random-zero-unique.key
+./hybrid/dev/diff-update.key
