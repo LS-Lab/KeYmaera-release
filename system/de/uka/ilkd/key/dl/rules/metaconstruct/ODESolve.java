@@ -94,9 +94,9 @@ public class ODESolve extends AbstractDLMetaOperator {
         nss.variables().add(ts);
         Term post = term.sub(0).sub(0);
         Term odeSolve;
-        if (DiffSystemImpl.getDifferentialEquations(system).isEmpty()) {
+        if (system.getDifferentialEquations().isEmpty()) {
             // optimize no differential equations
-            Term invariant = DiffSystemImpl.getInvariant(system);
+            Term invariant = system.getInvariant();
             if (term.sub(0).op() == Modality.BOX
                     || term.sub(0).op() == Modality.TOUT) {
                 return TermBuilder.DF.imp(invariant, post);

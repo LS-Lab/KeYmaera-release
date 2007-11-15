@@ -517,6 +517,7 @@ TOKEN :
 		    | < UNPACK: "#unpack" >
 		    | < ODESOLVE: "#ODESolve" >
 		    | < DIFFIND: "#DiffInd" >
+		    | < DIFFFIN: "#DiffFin" >
 		    | < INVARIANTPART: "#invariantOf" >
 		    | < DIFFADJOIN: "#diffAdjoin" >
 		    }
@@ -3703,6 +3704,15 @@ RKeYMetaConstruct KeYMetaConstructStatement() :
       setPrefixInfo(result);
       result.setChild(stat);
       result.setName("#DiffInd");
+      return result;
+  	   }
+		|
+      <DIFFFIN> "(" stat = Statement() ")"
+	  {  
+      result = factory.createRKeYMetaConstruct();
+      setPrefixInfo(result);
+      result.setChild(stat);
+      result.setName("#DiffFin");
       return result;
   	   }
 		|

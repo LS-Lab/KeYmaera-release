@@ -43,11 +43,11 @@ import de.uka.ilkd.key.rule.inst.SVInstantiations;
 /**
  * @author ap
  */
-public class DiffInd extends AbstractDLMetaOperator {
+public class DiffFin extends AbstractDLMetaOperator {
 
-    public static final Name NAME = new Name("#DiffInd");
+    public static final Name NAME = new Name("#DiffFin");
 
-    public DiffInd() {
+    public DiffFin() {
         super(NAME, 1);
     }
 
@@ -77,7 +77,7 @@ public class DiffInd extends AbstractDLMetaOperator {
             if (term.sub(0).op() == Modality.BOX
                     || term.sub(0).op() == Modality.TOUT) {
                 return MathSolverManager.getCurrentODESolver()
-                .diffInd(system, post, nss);
+                .diffFin(system, post, nss);
             } else {
                 throw new IllegalStateException("Unknown modality "
                         + term.sub(0).op());

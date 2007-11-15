@@ -36,6 +36,7 @@ import de.uka.ilkd.key.dl.rules.metaconstruct.DLUnwindLoop;
 import de.uka.ilkd.key.dl.rules.metaconstruct.FullSimplify;
 import de.uka.ilkd.key.dl.rules.metaconstruct.ODESolve;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DiffInd;
+import de.uka.ilkd.key.dl.rules.metaconstruct.DiffFin;
 import de.uka.ilkd.key.dl.rules.metaconstruct.Reduce;
 import de.uka.ilkd.key.dl.rules.metaconstruct.Simplify;
 
@@ -152,6 +153,7 @@ public abstract class AbstractMetaOperator extends Op implements MetaOperator {
 	
         public static final AbstractMetaOperator ODE_SOLVE = new ODESolve();
         public static final AbstractMetaOperator DIFFIND = new DiffInd();
+        public static final AbstractMetaOperator DIFFFIN = new DiffFin();
         public static final AbstractMetaOperator DIFFADJOIN= new DLDiffAdjoin();
         public static final AbstractMetaOperator INVARIANTPART = new DLInvariantPart();
 	public static final AbstractMetaOperator SIMPLIFY = new Simplify();

@@ -33,6 +33,7 @@ import de.uka.ilkd.key.logic.op.LogicVariable;
  * TODO jdq documentation since Aug 17, 2007
  * 
  * @author jdq
+ * @author ap
  * @since Aug 17, 2007
  * 
  */
@@ -107,5 +108,20 @@ public interface IODESolver extends IMathSolver {
      *                 if there is any problem
      */
     public abstract Term diffInd(DiffSystem form, Term post, NamespaceSet nss)
+            throws RemoteException;
+
+    /**
+     * DiffFin for the given differential equation system.
+     * 
+     * @param form
+     *                the differential equation system
+     * @param post
+     *                the formula to be attained.
+     * @param nss
+     *                the current namespace sets
+     * @throws RemoteException
+     *                 if there is any problem
+     */
+    public abstract Term diffFin(DiffSystem form, Term post, NamespaceSet nss)
             throws RemoteException;
 }

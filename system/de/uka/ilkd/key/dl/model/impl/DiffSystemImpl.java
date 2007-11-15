@@ -98,7 +98,7 @@ public class DiffSystemImpl extends DLNonTerminalProgramElementImpl implements
      *                the current root element
      * @return true if an element is found that is instance of Dot
      */
-    public static final boolean isDifferentialEquation(ProgramElement el) {
+    public boolean isDifferentialEquation(ProgramElement el) {
         if (el instanceof Dot) {
             return true;
         } else if (el instanceof DLNonTerminalProgramElement) {
@@ -114,9 +114,9 @@ public class DiffSystemImpl extends DLNonTerminalProgramElementImpl implements
     /**
      * Get the (accumulated) invariant of this DiffSystem, i.e., the non-differential part.
      */
-    public static final Term getInvariant(DiffSystem system) {
+    public Term getInvariant() {
         Term invariant = TermBuilder.DF.tt();
-        for (ProgramElement el : system) {
+        for (ProgramElement el : this) {
             if (!isDifferentialEquation(el)) {
                 invariant = TermBuilder.DF.and(invariant, Prog2LogicConverter
                         .convert((DLProgramElement) el, Main.getInstance()
@@ -130,9 +130,9 @@ public class DiffSystemImpl extends DLNonTerminalProgramElementImpl implements
      * Get the set of differential equations occurring in this DiffSystem.
      * @param system TODO
      */
-    public static final List<ProgramElement> getDifferentialEquations(DiffSystem system) {
+    public List<ProgramElement> getDifferentialEquations() {
         List<ProgramElement> equations = new ArrayList<ProgramElement>();
-        for (ProgramElement el : system) {
+        for (ProgramElement el : this) {
             if (isDifferentialEquation(el)) {
                 equations.add(el);
             }

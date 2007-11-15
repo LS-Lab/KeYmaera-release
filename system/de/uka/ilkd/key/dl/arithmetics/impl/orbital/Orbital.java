@@ -118,8 +118,8 @@ public class Orbital implements IODESolver {
         List<String> vars = new ArrayList<String>();
 
         collectDottedProgramVariables(form, vars, t);
-        Term invariant = DiffSystemImpl.getInvariant(form);
-        List<ProgramElement> equations = DiffSystemImpl.getDifferentialEquations(form);
+        Term invariant = form.getInvariant();
+        List<ProgramElement> equations = form.getDifferentialEquations();
 
         // create matrix
         MatrixForm matrixForm = DL2MatrixFormConverter.INSTANCE
@@ -214,8 +214,13 @@ public class Orbital implements IODESolver {
 
     public Term diffInd(DiffSystem form, Term post, NamespaceSet nss)
     throws RemoteException {
-        throw new UnsupportedOperationException("Not yet implemented");
+        throw new UnsupportedOperationException("Not yet implemented for this solver");
     }
+    public Term diffFin(DiffSystem form, Term post, NamespaceSet nss)
+    throws RemoteException {
+        throw new UnsupportedOperationException("Not yet implemented for this solver");
+    }
+
     /**
      * TODO jdq documentation since Aug 20, 2007
      * 

@@ -186,6 +186,10 @@ public class Mathematica implements ICounterExampleGenerator, IODESolver,
             throws RemoteException {
         return bridge.diffInd(form, post, nss);
     }
+    public Term diffFin(DiffSystem form, Term post, NamespaceSet nss)
+    throws RemoteException {
+        return bridge.diffFin(form, post, nss);
+    }
 
     /*
      * (non-Javadoc)

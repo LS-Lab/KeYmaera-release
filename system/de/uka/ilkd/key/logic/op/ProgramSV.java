@@ -12,6 +12,7 @@ package de.uka.ilkd.key.logic.op;
 
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.List;
 
 import de.uka.ilkd.key.java.*;
 import de.uka.ilkd.key.java.abstraction.KeYJavaType;
@@ -672,5 +673,20 @@ public class ProgramSV extends SortedSchemaVariable implements
      */
     public String reuseSignature(Services services, ExecutionContext ec) {
         return getClass().getName();
+    }
+
+    @Override
+    public List<ProgramElement> getDifferentialEquations() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Term getInvariant() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean isDifferentialEquation(ProgramElement el) {
+        throw new UnsupportedOperationException();
     }
 }

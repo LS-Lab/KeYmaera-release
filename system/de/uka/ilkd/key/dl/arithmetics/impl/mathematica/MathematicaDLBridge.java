@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2007 by Jan David Quesel                                *
+ *   Copyright (C) 2007 by Jan David Quesel and Andre Platzer              *
  *   quesel@informatik.uni-oldenburg.de                                    *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -69,6 +69,7 @@ import de.uka.ilkd.key.logic.op.SubstOp;
  * Mathematica bindings.
  * 
  * @author jdq
+ * @author ap
  * @since 25.01.2007
  * 
  */
@@ -158,9 +159,9 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
         Map<String, Expr> vars = new HashMap<String, Expr>();
 
         collectDottedProgramVariables(form, vars, t);
-        Term invariant = DiffSystemImpl.getInvariant(form);
+        Term invariant = form.getInvariant();
         final Map<String, Expr> EMPTY = new HashMap<String, Expr>();
-        for (ProgramElement el : DiffSystemImpl.getDifferentialEquations(form)) {
+        for (ProgramElement el : form.getDifferentialEquations()) {
             args.add(DL2ExprConverter.convertDiffEquation(el, t, vars));
         }
         for (String name : vars.keySet()) {
@@ -264,14 +265,30 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
     }
 
     public Term diffInd(DiffSystem form, Term post, NamespaceSet nss)
+    throws RemoteException {
+        return differentialCall(form, post, nss, "IDiffInd");
+    }
+    public Term diffFin(DiffSystem form, Term post, NamespaceSet nss)
+    throws RemoteException {
+        Term invariant = form.getInvariant();
+        if (!invariant.equals(TermBuilder.DF.tt()))
+            throw new UnsupportedOperationException("not yet implemented for invariant!=true");
+        return differentialCall(form, post, nss, "IDiffFin");
+    }
+    /**
+     *
+     * @author ap
+     * @param diffOperator the diff operator to apply in Mathematica package
+     */
+    private Term differentialCall(DiffSystem form, Term post, NamespaceSet nss, String diffOperator)
             throws RemoteException {
         List<Expr> args = new ArrayList<Expr>();
 
         // use implicit differential symbols
         final LogicVariable t = null;
-        Term invariant = DiffSystemImpl.getInvariant(form);
+        Term invariant = form.getInvariant();
         final Map<String, Expr> EMPTY = new HashMap<String, Expr>();
-        for (ProgramElement el : DiffSystemImpl.getDifferentialEquations(form)) {
+        for (ProgramElement el : form.getDifferentialEquations()) {
             args.add(DL2ExprConverter.convertDiffEquation(el, t, EMPTY));
         }
         Expr loading = new Expr(new Expr(Expr.SYMBOL, "Needs"), new Expr[] {
@@ -280,12 +297,12 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
         }
                 );
         evaluate(loading);
-        System.out.println("DiffInd: " + evaluate(
-                new Expr(new Expr(Expr.SYMBOL, "IDiffInd"), new Expr[] {
+        System.out.println(diffOperator + ": " + evaluate(
+                new Expr(new Expr(Expr.SYMBOL, diffOperator), new Expr[] {
                     Term2ExprConverter.convert2Expr(post)
                     //new Expr(Expr.SYMBOL, t.name().toString())
                     })).expression);
-        Expr query = new Expr(new Expr(Expr.SYMBOL, "IDiffInd"), new Expr[] {
+        Expr query = new Expr(new Expr(Expr.SYMBOL, diffOperator), new Expr[] {
                 Term2ExprConverter.convert2Expr(post),
                 //new Expr(Expr.SYMBOL, t.name().toString()),
                 new Expr(new Expr(Expr.SYMBOL, "List"), args

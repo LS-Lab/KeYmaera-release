@@ -22,9 +22,12 @@
 package de.uka.ilkd.key.dl.model;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import de.uka.ilkd.key.dl.formulatools.Prog2LogicConverter;
 import de.uka.ilkd.key.gui.Main;
+import de.uka.ilkd.key.java.ProgramElement;
+import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.TermBuilder;
 
 /**
@@ -32,6 +35,7 @@ import de.uka.ilkd.key.logic.TermBuilder;
  * differential equations and invariants.
  * 
  * @author jdq
+ * @author ap
  * @since 13.02.2007
  */
 public interface DiffSystem extends ElementaryDLProgram {
@@ -39,5 +43,25 @@ public interface DiffSystem extends ElementaryDLProgram {
      * @link aggregation
      */
     /* # Formula lnkFormula; */
-    
+
+    /**
+     * Test whether the given program element is a differential equation, 
+     * i.e., contains a Dot.
+     * 
+     * @param el the element to check for being a differential constraint
+     * @return true if el contains an element that is an instance of Dot
+     */
+    public boolean isDifferentialEquation(ProgramElement el);
+
+    /**
+     * Get the (accumulated) invariant of this DiffSystem, i.e., the non-differential part.
+     */
+    public Term getInvariant();
+
+    /**
+     * Get the set of differential equations occurring in this DiffSystem.
+     * @param system TODO
+     */
+    public List<ProgramElement> getDifferentialEquations();
+
 }
