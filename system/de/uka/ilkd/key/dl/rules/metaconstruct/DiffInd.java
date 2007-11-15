@@ -83,6 +83,7 @@ public class DiffInd extends AbstractDLMetaOperator {
                         + term.sub(0).op());
             }
         } catch (RemoteException e) {
+            if (true) throw (InternalError) new InternalError(e.getMessage()).initCause(e);
             e.printStackTrace(); // XXX
             return term.sub(0);
         }
