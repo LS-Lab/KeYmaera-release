@@ -68,7 +68,7 @@ public class Expr2TermConverter implements ExprConstants {
 
     private static final String[] BLACKLIST_ARRAY = { "Reduce", "Simplify",
             "FullSimplify", "FindInstance", "Hold", "List", "Resolve",
-            "ODESolve", "D", "Dt" };
+            "DSolve", "D", "Dt", "Indeterminate" };
 
     private static final Set<String> BLACKLIST = new HashSet<String>(Arrays
             .asList(BLACKLIST_ARRAY));
