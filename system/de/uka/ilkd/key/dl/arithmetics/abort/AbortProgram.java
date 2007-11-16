@@ -138,8 +138,6 @@ public class AbortProgram extends JFrame {
         keyWriter = new BufferedWriter(new OutputStreamWriter(keySocket
                 .getOutputStream()));
 
-        System.out.println(keyHost + " " + keyPort);// XXX
-
         JFrame frame = this;
 
         frame.setLayout(new BorderLayout());

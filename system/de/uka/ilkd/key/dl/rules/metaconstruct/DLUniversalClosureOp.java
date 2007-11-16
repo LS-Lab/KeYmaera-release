@@ -71,32 +71,35 @@ public class DLUniversalClosureOp extends AbstractMetaOperator {
         Map<de.uka.ilkd.key.dl.model.ProgramVariable, LinkedHashSet<de.uka.ilkd.key.dl.model.ProgramVariable>> generateDependencyMap = DependencyStateGenerator
                 .generateDependencyMap((DLProgram) ((StatementBlock) term
                         .sub(0).javaBlock().program()).getChildAt(0));
-        FileWriter writer;
-        try {
-            writer = new FileWriter("/tmp/depgraph.dot");
-
-            writer.write("digraph program\n");
-            writer.write("{\n");
-            for (de.uka.ilkd.key.dl.model.ProgramVariable var : generateDependencyMap
-                    .keySet()) {
-                writer.write(var.getElementName().toString() + ";\n");
-            }
-            for (de.uka.ilkd.key.dl.model.ProgramVariable var : generateDependencyMap
-                    .keySet()) {
-                LinkedHashSet<de.uka.ilkd.key.dl.model.ProgramVariable> deps = generateDependencyMap
-                        .get(var);
-                for (de.uka.ilkd.key.dl.model.ProgramVariable dvar : deps) {
-                    writer.write(dvar.getElementName().toString() + " -> "
-                            + var.getElementName().toString() + ";\n");
-                }
-            }
-
-            writer.write("}\n");
-            writer.flush();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+        // FileWriter writer;
+        // try {
+        // writer = new FileWriter("/tmp/depgraph.dot");
+        //
+        // writer.write("digraph program\n");
+        // writer.write("{\n");
+        // for (de.uka.ilkd.key.dl.model.ProgramVariable var :
+        // generateDependencyMap
+        // .keySet()) {
+        // writer.write(var.getElementName().toString() + ";\n");
+        // }
+        // for (de.uka.ilkd.key.dl.model.ProgramVariable var :
+        // generateDependencyMap
+        // .keySet()) {
+        // LinkedHashSet<de.uka.ilkd.key.dl.model.ProgramVariable> deps =
+        // generateDependencyMap
+        // .get(var);
+        // for (de.uka.ilkd.key.dl.model.ProgramVariable dvar : deps) {
+        // writer.write(dvar.getElementName().toString() + " -> "
+        // + var.getElementName().toString() + ";\n");
+        // }
+        // }
+        //
+        // writer.write("}\n");
+        // writer.flush();
+        // } catch (IOException e) {
+        // // TODO Auto-generated catch block
+        // e.printStackTrace();
+        // }
 
         final Map<de.uka.ilkd.key.dl.model.ProgramVariable, LinkedHashSet<de.uka.ilkd.key.dl.model.ProgramVariable>> transitiveClosure = createTransitiveClosure(generateDependencyMap);
 
@@ -144,8 +147,8 @@ public class DLUniversalClosureOp extends AbstractMetaOperator {
             int i = 0;
             for (i = 0; i < programVariables.size(); i++) {
                 if (transitiveClosure.get(programVariables.get(i)) != null
-                        && transitiveClosure
-                                .get(programVariables.get(i)).contains(max)) {
+                        && transitiveClosure.get(programVariables.get(i))
+                                .contains(max)) {
                     break;
                 }
             }
@@ -157,8 +160,6 @@ public class DLUniversalClosureOp extends AbstractMetaOperator {
                         public int compare(
                                 de.uka.ilkd.key.dl.model.ProgramVariable o1,
                                 de.uka.ilkd.key.dl.model.ProgramVariable o2) {
-                            System.out
-                                    .println("Comparing " + o1 + " and " + o2);// XXX
                             LinkedHashSet<de.uka.ilkd.key.dl.model.ProgramVariable> linkedHashSet = transitiveClosure
                                     .get(o1);
                             LinkedHashSet<de.uka.ilkd.key.dl.model.ProgramVariable> linkedHashSet2 = transitiveClosure
@@ -169,10 +170,6 @@ public class DLUniversalClosureOp extends AbstractMetaOperator {
                             } else if (linkedHashSet2.contains(o1)) {
                                 return -1;
                             }
-                            System.out.println(linkedHashSet
-                                    + " does not contain " + o2);// XXX
-                            System.out.println(linkedHashSet2
-                                    + " does not contain " + o1);// XXX
                             // this could cause interleaving
                             return o1.getElementName().toString().compareTo(
                                     o2.getElementName().toString());
@@ -185,37 +182,48 @@ public class DLUniversalClosureOp extends AbstractMetaOperator {
             Set<de.uka.ilkd.key.dl.model.ProgramVariable> backwardDeps = inverseTransitiveClosure
                     .get(max);
             orderedDeps.addAll(backwardDeps);
-            System.out.println("Max: " + max + " Deps: " + orderedDeps);// XXX
 
             for (de.uka.ilkd.key.dl.model.ProgramVariable var : orderedDeps) {
                 if (!programVariables.contains(var)) {
-                    programVariables.add(var);
+                    for (i = 0; i < programVariables.size(); i++) {
+                        if ((transitiveClosure.get(programVariables.get(i)) != null && transitiveClosure
+                                .get(programVariables.get(i)).contains(var))
+                                || (inverseTransitiveClosure.get(var) != null && inverseTransitiveClosure
+                                        .get(var).contains(
+                                                programVariables.get(i)))) {
+                            break;
+                        }
+                    }
+                    programVariables.add(i, var);
                     variableOrder.remove(var);
                 }
             }
             // find out if need to recreate variableOrder due to isReferencedBy
         }
-        
-        // add variables without dependencies
-        Set<de.uka.ilkd.key.dl.model.ProgramVariable> freeVars = new TreeSet<de.uka.ilkd.key.dl.model.ProgramVariable>(new Comparator<de.uka.ilkd.key.dl.model.ProgramVariable>() {
 
-            @Override
-            public int compare(de.uka.ilkd.key.dl.model.ProgramVariable o1,
-                    de.uka.ilkd.key.dl.model.ProgramVariable o2) {
-                return o1.getElementName().toString().compareTo(o2.getElementName().toString());
+        // add variables without dependencies
+        Set<de.uka.ilkd.key.dl.model.ProgramVariable> freeVars = new TreeSet<de.uka.ilkd.key.dl.model.ProgramVariable>(
+                new Comparator<de.uka.ilkd.key.dl.model.ProgramVariable>() {
+
+                    @Override
+                    public int compare(
+                            de.uka.ilkd.key.dl.model.ProgramVariable o1,
+                            de.uka.ilkd.key.dl.model.ProgramVariable o2) {
+                        return o1.getElementName().toString().compareTo(
+                                o2.getElementName().toString());
+                    }
+
+                });
+
+        for (de.uka.ilkd.key.dl.model.ProgramVariable var : transitiveClosure
+                .keySet()) {
+            if (!programVariables.contains(var)) {
+                freeVars.add(var);
             }
-            
-        });
-        
-        for(de.uka.ilkd.key.dl.model.ProgramVariable var: transitiveClosure.keySet()) {
-           if(!programVariables.contains(var)) {
-               freeVars.add(var);
-           }
         }
         programVariables.addAll(freeVars);
 
         Collections.reverse(programVariables);
-        System.out.println(programVariables);// XXX
 
         // Set<String> programVariables = ProgramVariableCollector.INSTANCE
         // .getProgramVariables(term.sub(0));
