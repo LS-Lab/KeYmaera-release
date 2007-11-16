@@ -115,9 +115,13 @@ public class ODESolve extends AbstractDLMetaOperator {
 
                 if (term.sub(0).op() == Modality.BOX
                         || term.sub(0).op() == Modality.TOUT) {
-                    odeSolve = TermBuilder.DF.imp(odeResult
-                            .getInvariantExpression(), odeResult
-                            .getPostCondition());
+                    if (system.getInvariant().equals(TermBuilder.DF.tt())) {
+                        odeSolve = odeResult.getPostCondition();
+                    } else {
+                        odeSolve = TermBuilder.DF.imp(odeResult
+                                .getInvariantExpression(), odeResult
+                                .getPostCondition());
+                    }
                     odeSolve = TermBuilder.DF.imp(TermBuilder.DF.func(
                             (Function) nss.functions().lookup(new Name("geq")),
                             new Term[] { TermBuilder.DF.var(t),
@@ -125,9 +129,13 @@ public class ODESolve extends AbstractDLMetaOperator {
                             odeSolve);
                     return TermBuilder.DF.all(t, odeSolve);
                 } else if (term.sub(0).op() == Modality.DIA) {
-                    odeSolve = TermBuilder.DF.and(odeResult
-                            .getInvariantExpression(), odeResult
-                            .getPostCondition());
+                    if (system.getInvariant().equals(TermBuilder.DF.tt())) {
+                        odeSolve = odeResult.getPostCondition();
+                    } else {
+                        odeSolve = TermBuilder.DF.and(odeResult
+                                .getInvariantExpression(), odeResult
+                                .getPostCondition());
+                    }
                     odeSolve = TermBuilder.DF.and(TermBuilder.DF.func(
                             (Function) nss.functions().lookup(new Name("geq")),
                             new Term[] { TermBuilder.DF.var(t),
