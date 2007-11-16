@@ -9,6 +9,9 @@ import java.util.LinkedHashSet;
 import java.util.List;
 
 import de.uka.ilkd.key.dl.model.DLProgram;
+import de.uka.ilkd.key.dl.model.Formula;
+import de.uka.ilkd.key.dl.model.impl.NotImpl;
+import de.uka.ilkd.key.dl.model.impl.QuestImpl;
 import de.uka.ilkd.key.dl.transitionmodel.TransitionSystemGenerator.SpecialSymbols;
 import de.uka.ilkd.key.java.PrettyPrinter;
 
@@ -51,7 +54,8 @@ public class DottyStateGenerator implements
         public HashSet<String> states = new LinkedHashSet<String>();
 
         /**
-         * TODO jdq documentation since Nov 12, 2007 
+         * TODO jdq documentation since Nov 12, 2007
+         * 
          * @param i
          */
         public static void setLabelNumber(long i) {
@@ -69,12 +73,13 @@ public class DottyStateGenerator implements
 
     public static void generateDottyFile(Writer writer, DLProgram program)
             throws IOException {
-        
+
         NumberedState.setLabelNumber(0);
         writer.write("digraph program\n");
         writer.write("{\n");
         NumberedState numberedState = new NumberedState();
-        numberedState.states.add(numberedState.getNumber() + " [label=\"" + numberedState.getLabel() +"\", color=blue, style=fill];");
+        numberedState.states.add(numberedState.getNumber() + " [label=\""
+                + numberedState.getLabel() + "\", color=blue, style=fill];");
         TransitionSystem<NumberedState, List<String>> transitionModel = TransitionSystemGenerator
                 .getTransitionModel(program, new DottyStateGenerator(),
                         numberedState);
@@ -117,7 +122,8 @@ public class DottyStateGenerator implements
         for (NumberedState s : states) {
             numberedState.transitions.addAll(s.transitions);
             numberedState.states.addAll(s.states);
-            String string = s.getNumber() + " -> " + numberedState.getNumber() + ";";
+            String string = s.getNumber() + " -> " + numberedState.getNumber()
+                    + ";";
             numberedState.transitions.add(string);
         }
         return numberedState;
@@ -127,7 +133,8 @@ public class DottyStateGenerator implements
     public DottyStateGenerator.NumberedState getPostState(
             DottyStateGenerator.NumberedState pre, List<String> action) {
         NumberedState numberedState = new NumberedState();
-        numberedState.states.add(numberedState.getNumber() + " [label=\""+ numberedState.getLabel() + "\"];");
+        numberedState.states.add(numberedState.getNumber() + " [label=\""
+                + numberedState.getLabel() + "\"];");
         numberedState.transitions.addAll(pre.transitions);
         numberedState.states.addAll(pre.states);
         String string = pre.getNumber() + " -> " + numberedState.getNumber()
@@ -154,5 +161,42 @@ public class DottyStateGenerator implements
         post.transitions.addAll(pre.transitions);
         post.states.addAll(pre.states);
         return Collections.singletonList(SpecialSymbols.STAR.toString());
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see de.uka.ilkd.key.dl.transitionmodel.StateGenerator#generateElseAction(de.uka.ilkd.key.dl.model.Formula,
+     *      java.lang.Object, java.lang.Object)
+     */
+    @Override
+    public List<String> generateElseAction(Formula f, NumberedState pre,
+            NumberedState post) {
+        post.transitions.addAll(pre.transitions);
+        post.states.addAll(pre.states);
+        List<String> action = this.generateAction(new QuestImpl(f));
+        String string = pre.getNumber() + " -> " + post.getNumber()
+                + " [ label=\"" + action + "\" ];";
+        post.transitions.add(string);
+        return action;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see de.uka.ilkd.key.dl.transitionmodel.StateGenerator#generateThenAction(de.uka.ilkd.key.dl.model.Formula,
+     *      java.lang.Object, java.lang.Object)
+     */
+    @Override
+    public List<String> generateThenAction(Formula f, NumberedState pre,
+            NumberedState post) {
+        post.transitions.addAll(pre.transitions);
+        post.states.addAll(pre.states);
+        List<String> action = this
+                .generateAction(new QuestImpl(new NotImpl(f)));
+        String string = pre.getNumber() + " -> " + post.getNumber()
+                + " [ label=\"" + action + "\" ];";
+        post.transitions.add(string);
+        return action;
     }
 }

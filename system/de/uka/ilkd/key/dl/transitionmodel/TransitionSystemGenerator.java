@@ -27,7 +27,10 @@ import de.uka.ilkd.key.dl.model.Choice;
 import de.uka.ilkd.key.dl.model.Chop;
 import de.uka.ilkd.key.dl.model.CompoundDLProgram;
 import de.uka.ilkd.key.dl.model.DLProgram;
+import de.uka.ilkd.key.dl.model.IfStatement;
 import de.uka.ilkd.key.dl.model.Star;
+import de.uka.ilkd.key.dl.model.impl.NotImpl;
+import de.uka.ilkd.key.dl.model.impl.QuestImpl;
 import de.uka.ilkd.key.java.ProgramElement;
 
 /**
@@ -137,9 +140,9 @@ public class TransitionSystemGenerator {
                         // otherwise we could jump back to a state from which we
                         // could jump further back
                         sys.addTransition(finalState, stateGenerator
-                                .getSpecialSymbolNoop(finalState, transitionModel
-                                        .getInitialState()), transitionModel
-                                .getInitialState());
+                                .getSpecialSymbolNoop(finalState,
+                                        transitionModel.getInitialState()),
+                                transitionModel.getInitialState());
                     }
                 }
             } else if (program instanceof Choice) {
@@ -175,12 +178,48 @@ public class TransitionSystemGenerator {
                             .getTransitionRelation().get(s));
                 }
                 sys.addTransition(sys.getFinalState(), stateGenerator
-                        .getSymbolForBackloop(sys.getFinalState(), transitionModel.getInitialState()), transitionModel
-                        .getInitialState());
-                if(transitionModel.getFinalState() != sys.getFinalState()) {
+                        .getSymbolForBackloop(sys.getFinalState(),
+                                transitionModel.getInitialState()),
+                        transitionModel.getInitialState());
+                if (transitionModel.getFinalState() != sys.getFinalState()) {
                     sys.addTransition(transitionModel.getFinalState(),
-                            stateGenerator.getSymbolForBackloop(transitionModel.getFinalState(), sys.getFinalState()), sys
-                                .getFinalState());
+                            stateGenerator.getSymbolForBackloop(transitionModel
+                                    .getFinalState(), sys.getFinalState()), sys
+                                    .getFinalState());
+                }
+            } else if (program instanceof IfStatement) {
+                IfStatement ifS = (IfStatement) program;
+                TransitionSystem<S, A> transitionModel = getTransitionModel(ifS
+                        .getThen(), stateGenerator, sys.getInitialState());
+                for (S s : transitionModel.getTransitionRelation().keySet()) {
+                    sys.addAllTransitions(s, transitionModel
+                            .getTransitionRelation().get(s));
+                }
+                sys.addTransition(sys.getFinalState(), stateGenerator
+                        .generateAction(new QuestImpl(ifS.getExpression())),
+                        transitionModel.getInitialState());
+                sys.setFinalState(transitionModel.getFinalState());
+                if (ifS.getElse() != null) {
+                    transitionModel = getTransitionModel(ifS
+                            .getElse(), stateGenerator, sys.getInitialState());
+                    for (S s : transitionModel.getTransitionRelation().keySet()) {
+                        sys.addAllTransitions(s, transitionModel
+                                .getTransitionRelation().get(s));
+                    }
+                    sys.addTransition(sys.getFinalState(), stateGenerator
+                            .generateAction(new QuestImpl(new NotImpl(ifS.getExpression()))),
+                            transitionModel.getInitialState());
+                    List<S> states = new ArrayList<S>();
+                    states.add(sys.getFinalState());
+                    states.add(transitionModel.getFinalState());
+                    S generateMergeState = stateGenerator.generateMergeState(ifS, states);
+                    sys.addState(generateMergeState);
+                    sys.addTransition(sys.getFinalState(), stateGenerator.generateMerge(ifS, 1), generateMergeState);
+                    sys.addTransition(transitionModel.getFinalState(), stateGenerator.generateMerge(ifS, 2), generateMergeState);
+                    sys.setFinalState(generateMergeState);
+                } else {
+                    sys.addTransition(sys.getInitialState(), stateGenerator
+                            .generateAction(new QuestImpl(new NotImpl(ifS.getExpression()))), sys.getFinalState());
                 }
             } else {
                 throw new IllegalArgumentException(

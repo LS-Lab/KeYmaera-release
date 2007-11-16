@@ -10,9 +10,9 @@ import de.uka.ilkd.key.dl.model.DLNonTerminalProgramElement;
 import de.uka.ilkd.key.dl.model.DLProgram;
 import de.uka.ilkd.key.dl.model.DiffSystem;
 import de.uka.ilkd.key.dl.model.Dot;
+import de.uka.ilkd.key.dl.model.Formula;
 import de.uka.ilkd.key.dl.model.ProgramVariable;
 import de.uka.ilkd.key.dl.model.RandomAssign;
-import de.uka.ilkd.key.java.NonTerminalProgramElement;
 import de.uka.ilkd.key.java.ProgramElement;
 
 /**
@@ -238,5 +238,27 @@ public class DependencyStateGenerator
         throw new IllegalArgumentException(
                 "Dont know why a terminal program element like " + program
                         + " cause a branch!");
+    }
+
+    /* (non-Javadoc)
+     * @see de.uka.ilkd.key.dl.transitionmodel.StateGenerator#generateElseAction(de.uka.ilkd.key.dl.model.Formula, java.lang.Object, java.lang.Object)
+     */
+    @Override
+    public DLProgram generateElseAction(Formula f,
+            Map<ProgramVariable, LinkedHashSet<ProgramVariable>> pre,
+            Map<ProgramVariable, LinkedHashSet<ProgramVariable>> post) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    /* (non-Javadoc)
+     * @see de.uka.ilkd.key.dl.transitionmodel.StateGenerator#generateThenAction(de.uka.ilkd.key.dl.model.Formula, java.lang.Object, java.lang.Object)
+     */
+    @Override
+    public DLProgram generateThenAction(Formula f,
+            Map<ProgramVariable, LinkedHashSet<ProgramVariable>> pre,
+            Map<ProgramVariable, LinkedHashSet<ProgramVariable>> post) {
+        // TODO Auto-generated method stub
+        return null;
     }
 }

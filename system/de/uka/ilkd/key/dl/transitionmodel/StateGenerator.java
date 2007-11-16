@@ -3,6 +3,7 @@ package de.uka.ilkd.key.dl.transitionmodel;
 import java.util.List;
 
 import de.uka.ilkd.key.dl.model.DLProgram;
+import de.uka.ilkd.key.dl.model.Formula;
 
 /**
  * TODO jdq documentation since Nov 9, 2007
@@ -31,4 +32,7 @@ public interface StateGenerator<S, A> {
     public A generateMerge(DLProgram program, int pos);
 
     public S generateMergeState(DLProgram program, List<S> states);
+    
+    public A generateThenAction(Formula f, S pre, S post);
+    public A generateElseAction(Formula f, S pre, S post);
 }
