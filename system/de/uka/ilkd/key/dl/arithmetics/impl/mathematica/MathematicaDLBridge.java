@@ -62,6 +62,7 @@ import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.TermBuilder;
 import de.uka.ilkd.key.logic.op.LogicVariable;
 import de.uka.ilkd.key.logic.op.SubstOp;
+import de.uka.ilkd.key.util.Debug;
 
 /**
  * The MathematicaDLBridge is the implementation of the interface between KeY
@@ -296,18 +297,24 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
             new Expr(Expr.STRING, "~/AMC.m")
         }
                 );
-        evaluate(loading);
-        System.out.println(diffOperator + ": " + evaluate(
-                new Expr(new Expr(Expr.SYMBOL, diffOperator), new Expr[] {
+        //evaluate(loading);
+        if (Debug.ENABLE_DEBUG) {
+            System.out.println(diffOperator + ": " + evaluate(
+                new Expr(new Expr(Expr.SYMBOL, "AMC`" + diffOperator), new Expr[] {
                     Term2ExprConverter.convert2Expr(post)
                     //new Expr(Expr.SYMBOL, t.name().toString())
                     })).expression);
-        Expr query = new Expr(new Expr(Expr.SYMBOL, diffOperator), new Expr[] {
+        }
+        Expr diffCall = new Expr(new Expr(Expr.SYMBOL, "AMC`" + diffOperator), new Expr[] {
                 Term2ExprConverter.convert2Expr(post),
                 //new Expr(Expr.SYMBOL, t.name().toString()),
                 new Expr(new Expr(Expr.SYMBOL, "List"), args
                         .toArray(new Expr[1])),
                 });
+        Expr query = new Expr(new Expr(Expr.SYMBOL, "CompoundExpression"), new Expr[] {
+           loading,
+           diffCall
+        });
         Expr diffIndExpression = evaluate(query).expression;
 
         return TermBuilder.DF.imp(invariant, convert(diffIndExpression,nss));
