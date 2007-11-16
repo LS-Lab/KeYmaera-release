@@ -45,15 +45,11 @@ import de.uka.ilkd.key.dl.arithmetics.IODESolver.ODESolverResult;
 import de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator.PairOfTermAndQuantifierType;
 import de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator.QuantifierType;
 import de.uka.ilkd.key.dl.arithmetics.impl.mathematica.IKernelLinkWrapper.ExprAndMessages;
-import de.uka.ilkd.key.dl.formulatools.Prog2LogicConverter;
 import de.uka.ilkd.key.dl.formulatools.VariableCollector;
-import de.uka.ilkd.key.dl.logic.ldt.RealLDT;
 import de.uka.ilkd.key.dl.model.DLNonTerminalProgramElement;
-import de.uka.ilkd.key.dl.model.DLProgramElement;
 import de.uka.ilkd.key.dl.model.DiffSystem;
 import de.uka.ilkd.key.dl.model.Dot;
 import de.uka.ilkd.key.dl.model.ProgramVariable;
-import de.uka.ilkd.key.dl.model.impl.DiffSystemImpl;
 import de.uka.ilkd.key.gui.Main;
 import de.uka.ilkd.key.java.ProgramElement;
 import de.uka.ilkd.key.logic.Name;
@@ -76,6 +72,18 @@ import de.uka.ilkd.key.util.Debug;
  */
 public class MathematicaDLBridge extends UnicastRemoteObject implements
         IMathematicaDLBridge, ExprConstants {
+
+    public static final String[] messageBlacklist = new String[] { "nsmet" };
+
+    public static String mBlistString;
+
+    static {
+        String or = "";
+        for (String str : messageBlacklist) {
+            mBlistString = or + str;
+            or = "|";
+        }
+    }
 
     private class Update {
         Term location;
@@ -132,16 +140,16 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
         this.port = port;
 
     }
-    
+
     private IKernelLinkWrapper getKernelWrapper() throws RemoteException {
-        if(kernelWrapper == null) {
+        if (kernelWrapper == null) {
             Registry reg = LocateRegistry.getRegistry(serverIP, port);
             try {
                 kernelWrapper = (IKernelLinkWrapper) reg
                         .lookup(KernelLinkWrapper.IDENTITY);
             } catch (NotBoundException e) {
                 throw new RemoteException("Problem with KernelLink", e);
-            }            
+            }
         }
         return kernelWrapper;
     }
@@ -206,7 +214,8 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 
         if (!varNames.isEmpty()) {
             StringBuilder builder = new StringBuilder();
-            builder.append("No solutions for some variables of the differential equations: ");
+            builder
+                    .append("No solutions for some variables of the differential equations: ");
             String comma = "";
             for (String v : varNames) {
                 builder.append(comma + v);
@@ -225,7 +234,8 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
                             + updateExpressions);
         } else if (!multipleSolutions.isEmpty()) {
             StringBuilder builder = new StringBuilder();
-            builder.append("Found multiple solutions of differential equations: ");
+            builder
+                    .append("Found multiple solutions of differential equations: ");
             for (String v : multipleSolutions.keySet()) {
                 builder.append("\n" + multipleSolutions.get(v)
                         + " solutions for " + v);
@@ -249,7 +259,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
                 de.uka.ilkd.key.logic.TermFactory.DEFAULT.createUpdateTerm(
                         locations.toArray(new Term[0]), values
                                 .toArray(new Term[0]), invariant));
-        invariant = ((SubstOp)invariant.op()).apply(invariant);
+        invariant = ((SubstOp) invariant.op()).apply(invariant);
         // insert 0 <= ts <= t
         Term tsRange = convert(new Expr(INEQUALITY, new Expr[] { new Expr(0),
                 LESS_EQUALS, new Expr(Expr.SYMBOL, ts.name().toString()),
@@ -266,23 +276,27 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
     }
 
     public Term diffInd(DiffSystem form, Term post, NamespaceSet nss)
-    throws RemoteException {
+            throws RemoteException {
         return differentialCall(form, post, nss, "IDiffInd");
     }
+
     public Term diffFin(DiffSystem form, Term post, NamespaceSet nss)
-    throws RemoteException {
+            throws RemoteException {
         Term invariant = form.getInvariant();
         if (!invariant.equals(TermBuilder.DF.tt()))
-            throw new UnsupportedOperationException("not yet implemented for invariant!=true");
+            throw new UnsupportedOperationException(
+                    "not yet implemented for invariant!=true");
         return differentialCall(form, post, nss, "IDiffFin");
     }
+
     /**
-     *
+     * 
      * @author ap
-     * @param diffOperator the diff operator to apply in Mathematica package
+     * @param diffOperator
+     *                the diff operator to apply in Mathematica package
      */
-    private Term differentialCall(DiffSystem form, Term post, NamespaceSet nss, String diffOperator)
-            throws RemoteException {
+    private Term differentialCall(DiffSystem form, Term post, NamespaceSet nss,
+            String diffOperator) throws RemoteException {
         List<Expr> args = new ArrayList<Expr>();
 
         // use implicit differential symbols
@@ -292,32 +306,30 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
         for (ProgramElement el : form.getDifferentialEquations()) {
             args.add(DL2ExprConverter.convertDiffEquation(el, t, EMPTY));
         }
-        Expr loading = new Expr(new Expr(Expr.SYMBOL, "Needs"), new Expr[] {
-            new Expr(Expr.STRING, "AMC`"),
-            new Expr(Expr.STRING, "~/AMC.m")
-        }
-                );
-        //evaluate(loading);
+        Expr loading = new Expr(new Expr(Expr.SYMBOL, "Needs"),
+                new Expr[] { new Expr(Expr.STRING, "AMC`"),
+                        new Expr(Expr.STRING, "~/AMC.m") });
+        // evaluate(loading);
         if (Debug.ENABLE_DEBUG) {
-            System.out.println(diffOperator + ": " + evaluate(
-                new Expr(new Expr(Expr.SYMBOL, "AMC`" + diffOperator), new Expr[] {
-                    Term2ExprConverter.convert2Expr(post)
-                    //new Expr(Expr.SYMBOL, t.name().toString())
-                    })).expression);
+            System.out.println(diffOperator
+                    + ": "
+                    + evaluate(new Expr(new Expr(Expr.SYMBOL, "AMC`"
+                            + diffOperator), new Expr[] { Term2ExprConverter
+                            .convert2Expr(post)
+                    // new Expr(Expr.SYMBOL, t.name().toString())
+                            })).expression);
         }
-        Expr diffCall = new Expr(new Expr(Expr.SYMBOL, "AMC`" + diffOperator), new Expr[] {
-                Term2ExprConverter.convert2Expr(post),
-                //new Expr(Expr.SYMBOL, t.name().toString()),
-                new Expr(new Expr(Expr.SYMBOL, "List"), args
-                        .toArray(new Expr[1])),
-                });
-        Expr query = new Expr(new Expr(Expr.SYMBOL, "CompoundExpression"), new Expr[] {
-           loading,
-           diffCall
-        });
+        Expr diffCall = new Expr(new Expr(Expr.SYMBOL, "AMC`" + diffOperator),
+                new Expr[] {
+                        Term2ExprConverter.convert2Expr(post),
+                        // new Expr(Expr.SYMBOL, t.name().toString()),
+                        new Expr(new Expr(Expr.SYMBOL, "List"), args
+                                .toArray(new Expr[1])), });
+        Expr query = new Expr(new Expr(Expr.SYMBOL, "CompoundExpression"),
+                new Expr[] { loading, diffCall });
         Expr diffIndExpression = evaluate(query).expression;
 
-        return TermBuilder.DF.imp(invariant, convert(diffIndExpression,nss));
+        return TermBuilder.DF.imp(invariant, convert(diffIndExpression, nss));
     }
 
     public List<Update> createUpdates(Expr expr, NamespaceSet nss)
@@ -452,6 +464,11 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
             System.err.println("Message while evaluating: " + expr
                     + "\n Message was: " + evaluate.messages); // XXX
         }
+        if (evaluate.messages.toString().matches(".*" + mBlistString + ".*")) {
+            throw new RemoteException(
+                    "Mathematica could not solve the given expression: " + expr
+                            + ". Reason: " + evaluate.messages.toString());
+        }
         return evaluate;
     }
 
@@ -554,10 +571,10 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
     public void resetAbortState() throws RemoteException {
         try {
             getKernelWrapper().resetAbortState();
-        } catch(Exception e) {
-            System.err.println("Exception occerred in resetAbortState");//XXX
+        } catch (Exception e) {
+            System.err.println("Exception occerred in resetAbortState");// XXX
             e.printStackTrace();
-            System.err.println("In most cases this can safely be ignored"); //XXX 
+            System.err.println("In most cases this can safely be ignored"); // XXX
         }
     }
 
