@@ -11,9 +11,31 @@
  */
 package de.uka.ilkd.key.dl.rules.metaconstruct;
 
-import de.uka.ilkd.key.dl.formulatools.ProgramVariableCollector;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.PriorityQueue;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
+
 import de.uka.ilkd.key.dl.logic.ldt.RealLDT;
+import de.uka.ilkd.key.dl.model.DLProgram;
+import de.uka.ilkd.key.dl.transitionmodel.DependencyStateGenerator;
+import de.uka.ilkd.key.dl.transitionmodel.DottyStateGenerator;
+import de.uka.ilkd.key.dl.transitionmodel.TransitionSystem;
+import de.uka.ilkd.key.dl.transitionmodel.TransitionSystemGenerator;
+import de.uka.ilkd.key.dl.transitionmodel.DottyStateGenerator.NumberedState;
 import de.uka.ilkd.key.java.Services;
+import de.uka.ilkd.key.java.StatementBlock;
 import de.uka.ilkd.key.logic.Name;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.TermBuilder;
@@ -42,19 +64,209 @@ public class DLUniversalClosureOp extends AbstractMetaOperator {
      *      de.uka.ilkd.key.rule.inst.SVInstantiations,
      *      de.uka.ilkd.key.java.Services)
      */
+    @SuppressWarnings("unchecked")
     public Term calculate(Term term, SVInstantiations svInst, Services services) {
         Term post = term.sub(1);
 
-        for (String name : ProgramVariableCollector.INSTANCE
-                .getProgramVariables(term.sub(0))) {
+        Map<de.uka.ilkd.key.dl.model.ProgramVariable, LinkedHashSet<de.uka.ilkd.key.dl.model.ProgramVariable>> generateDependencyMap = DependencyStateGenerator
+                .generateDependencyMap((DLProgram) ((StatementBlock) term
+                        .sub(0).javaBlock().program()).getChildAt(0));
+        FileWriter writer;
+        try {
+            writer = new FileWriter("/tmp/depgraph.dot");
+
+            writer.write("digraph program\n");
+            writer.write("{\n");
+            for (de.uka.ilkd.key.dl.model.ProgramVariable var : generateDependencyMap
+                    .keySet()) {
+                writer.write(var.getElementName().toString() + ";\n");
+            }
+            for (de.uka.ilkd.key.dl.model.ProgramVariable var : generateDependencyMap
+                    .keySet()) {
+                LinkedHashSet<de.uka.ilkd.key.dl.model.ProgramVariable> deps = generateDependencyMap
+                        .get(var);
+                for (de.uka.ilkd.key.dl.model.ProgramVariable dvar : deps) {
+                    writer.write(dvar.getElementName().toString() + " -> "
+                            + var.getElementName().toString() + ";\n");
+                }
+            }
+
+            writer.write("}\n");
+            writer.flush();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        final Map<de.uka.ilkd.key.dl.model.ProgramVariable, LinkedHashSet<de.uka.ilkd.key.dl.model.ProgramVariable>> transitiveClosure = createTransitiveClosure(generateDependencyMap);
+
+        final Map<de.uka.ilkd.key.dl.model.ProgramVariable, Set<de.uka.ilkd.key.dl.model.ProgramVariable>> inverseTransitiveClosure = new HashMap<de.uka.ilkd.key.dl.model.ProgramVariable, Set<de.uka.ilkd.key.dl.model.ProgramVariable>>();
+        for (de.uka.ilkd.key.dl.model.ProgramVariable var : generateDependencyMap
+                .keySet()) {
+            LinkedHashSet<de.uka.ilkd.key.dl.model.ProgramVariable> deps = transitiveClosure
+                    .get(var);
+            for (de.uka.ilkd.key.dl.model.ProgramVariable v : deps) {
+                Set<de.uka.ilkd.key.dl.model.ProgramVariable> set = inverseTransitiveClosure
+                        .get(v);
+                if (set == null) {
+                    inverseTransitiveClosure
+                            .put(
+                                    v,
+                                    new HashSet<de.uka.ilkd.key.dl.model.ProgramVariable>());
+                }
+                inverseTransitiveClosure.get(v).add(var);
+            }
+        }
+        Comparator<de.uka.ilkd.key.dl.model.ProgramVariable> comparator = new Comparator<de.uka.ilkd.key.dl.model.ProgramVariable>() {
+
+            @Override
+            public int compare(de.uka.ilkd.key.dl.model.ProgramVariable o1,
+                    de.uka.ilkd.key.dl.model.ProgramVariable o2) {
+                int size = inverseTransitiveClosure.get(o1).size();
+                int size2 = inverseTransitiveClosure.get(o2).size();
+                if (size == size2) {
+                    return o1.getElementName().toString().compareTo(
+                            o2.getElementName().toString());
+                } else {
+                    return size2 - size;
+                }
+            }
+
+        };
+        PriorityQueue<de.uka.ilkd.key.dl.model.ProgramVariable> variableOrder = new PriorityQueue<de.uka.ilkd.key.dl.model.ProgramVariable>(
+                inverseTransitiveClosure.size(), comparator);
+        variableOrder.addAll(inverseTransitiveClosure.keySet());
+        ArrayList<de.uka.ilkd.key.dl.model.ProgramVariable> programVariables = new ArrayList<de.uka.ilkd.key.dl.model.ProgramVariable>();
+        while (!variableOrder.isEmpty()) {
+            // max is the maximal element, i.e. the element on which most
+            // variables depend
+            de.uka.ilkd.key.dl.model.ProgramVariable max = variableOrder.poll();
+            int i = 0;
+            for (i = 0; i < programVariables.size(); i++) {
+                if (transitiveClosure.get(programVariables.get(i)) != null
+                        && transitiveClosure
+                                .get(programVariables.get(i)).contains(max)) {
+                    break;
+                }
+            }
+            programVariables.add(i, max);
+            TreeSet<de.uka.ilkd.key.dl.model.ProgramVariable> orderedDeps = new TreeSet<de.uka.ilkd.key.dl.model.ProgramVariable>(
+                    new Comparator<de.uka.ilkd.key.dl.model.ProgramVariable>() {
+
+                        @Override
+                        public int compare(
+                                de.uka.ilkd.key.dl.model.ProgramVariable o1,
+                                de.uka.ilkd.key.dl.model.ProgramVariable o2) {
+                            System.out
+                                    .println("Comparing " + o1 + " and " + o2);// XXX
+                            LinkedHashSet<de.uka.ilkd.key.dl.model.ProgramVariable> linkedHashSet = transitiveClosure
+                                    .get(o1);
+                            LinkedHashSet<de.uka.ilkd.key.dl.model.ProgramVariable> linkedHashSet2 = transitiveClosure
+                                    .get(o2);
+
+                            if (linkedHashSet.contains(o2)) {
+                                return 1;
+                            } else if (linkedHashSet2.contains(o1)) {
+                                return -1;
+                            }
+                            System.out.println(linkedHashSet
+                                    + " does not contain " + o2);// XXX
+                            System.out.println(linkedHashSet2
+                                    + " does not contain " + o1);// XXX
+                            // this could cause interleaving
+                            return o1.getElementName().toString().compareTo(
+                                    o2.getElementName().toString());
+
+                        }
+
+                    });
+            // the elements that reference "max" also include those elements
+            // referencing an element that references "max"
+            Set<de.uka.ilkd.key.dl.model.ProgramVariable> backwardDeps = inverseTransitiveClosure
+                    .get(max);
+            orderedDeps.addAll(backwardDeps);
+            System.out.println("Max: " + max + " Deps: " + orderedDeps);// XXX
+
+            for (de.uka.ilkd.key.dl.model.ProgramVariable var : orderedDeps) {
+                if (!programVariables.contains(var)) {
+                    programVariables.add(var);
+                    variableOrder.remove(var);
+                }
+            }
+            // find out if need to recreate variableOrder due to isReferencedBy
+        }
+        
+        // add variables without dependencies
+        Set<de.uka.ilkd.key.dl.model.ProgramVariable> freeVars = new TreeSet<de.uka.ilkd.key.dl.model.ProgramVariable>(new Comparator<de.uka.ilkd.key.dl.model.ProgramVariable>() {
+
+            @Override
+            public int compare(de.uka.ilkd.key.dl.model.ProgramVariable o1,
+                    de.uka.ilkd.key.dl.model.ProgramVariable o2) {
+                return o1.getElementName().toString().compareTo(o2.getElementName().toString());
+            }
+            
+        });
+        
+        for(de.uka.ilkd.key.dl.model.ProgramVariable var: transitiveClosure.keySet()) {
+           if(!programVariables.contains(var)) {
+               freeVars.add(var);
+           }
+        }
+        programVariables.addAll(freeVars);
+
+        Collections.reverse(programVariables);
+        System.out.println(programVariables);// XXX
+
+        // Set<String> programVariables = ProgramVariableCollector.INSTANCE
+        // .getProgramVariables(term.sub(0));
+        for (de.uka.ilkd.key.dl.model.ProgramVariable pvar : programVariables) {
+            String name = pvar.getElementName().toString();
             LogicVariable var = searchFreeVar(services, name);
             post = TermBuilder.DF.all(var, TermFactory.DEFAULT
-                    .createUpdateTerm(TermBuilder.DF.var((ProgramVariable) services.getNamespaces().lookup(
-                                    new Name(name))), TermBuilder.DF.var(var),
-                            post));
+                    .createUpdateTerm(TermBuilder.DF
+                            .var((ProgramVariable) services.getNamespaces()
+                                    .lookup(new Name(name))), TermBuilder.DF
+                            .var(var), post));
         }
         return post;
 
+    }
+
+    /**
+     * TODO jdq documentation since Nov 16, 2007
+     * 
+     * @param generateDependencyMap
+     * @param transitiveClosure
+     */
+    private Map<de.uka.ilkd.key.dl.model.ProgramVariable, LinkedHashSet<de.uka.ilkd.key.dl.model.ProgramVariable>> createTransitiveClosure(
+            Map<de.uka.ilkd.key.dl.model.ProgramVariable, LinkedHashSet<de.uka.ilkd.key.dl.model.ProgramVariable>> generateDependencyMap) {
+        final Map<de.uka.ilkd.key.dl.model.ProgramVariable, LinkedHashSet<de.uka.ilkd.key.dl.model.ProgramVariable>> transitiveClosure = new LinkedHashMap<de.uka.ilkd.key.dl.model.ProgramVariable, LinkedHashSet<de.uka.ilkd.key.dl.model.ProgramVariable>>();
+        boolean changed = true;
+        while (changed) {
+            changed = false;
+            for (de.uka.ilkd.key.dl.model.ProgramVariable var : generateDependencyMap
+                    .keySet()) {
+                LinkedHashSet<de.uka.ilkd.key.dl.model.ProgramVariable> clone = transitiveClosure
+                        .get(var);
+                LinkedHashSet<de.uka.ilkd.key.dl.model.ProgramVariable> deps = transitiveClosure
+                        .get(var);
+                if (clone == null) {
+                    deps = generateDependencyMap.get(var);
+                    clone = new LinkedHashSet<de.uka.ilkd.key.dl.model.ProgramVariable>();
+                    clone.addAll(deps);
+
+                    transitiveClosure.put(var, clone);
+                }
+                for (de.uka.ilkd.key.dl.model.ProgramVariable dvar : deps) {
+                    LinkedHashSet<de.uka.ilkd.key.dl.model.ProgramVariable> otherDeps = generateDependencyMap
+                            .get(dvar);
+                    if (otherDeps != null) {
+                        changed |= transitiveClosure.get(var).addAll(otherDeps);
+                    }
+                }
+            }
+        }
+        return transitiveClosure;
     }
 
     /**
@@ -69,7 +281,9 @@ public class DLUniversalClosureOp extends AbstractMetaOperator {
         String newName = null;
         do {
             newName = loc + "_" + i++;
-        } while (services.getNamespaces().variables().lookup(new Name(newName)) != null || services.getNamespaces().programVariables().lookup(new Name(newName)) != null);
+        } while (services.getNamespaces().variables().lookup(new Name(newName)) != null
+                || services.getNamespaces().programVariables().lookup(
+                        new Name(newName)) != null);
         return new LogicVariable(new Name(newName), RealLDT.getRealSort());
     }
 
