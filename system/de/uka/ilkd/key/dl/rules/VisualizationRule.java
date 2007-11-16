@@ -29,9 +29,7 @@ import de.uka.ilkd.key.dl.model.DLProgram;
 import de.uka.ilkd.key.dl.transitionmodel.DottyStateGenerator;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.java.StatementBlock;
-import de.uka.ilkd.key.logic.ConstrainedFormula;
 import de.uka.ilkd.key.logic.Constraint;
-import de.uka.ilkd.key.logic.IteratorOfConstrainedFormula;
 import de.uka.ilkd.key.logic.Name;
 import de.uka.ilkd.key.logic.PosInOccurrence;
 import de.uka.ilkd.key.logic.Term;
@@ -39,7 +37,6 @@ import de.uka.ilkd.key.logic.Visitor;
 import de.uka.ilkd.key.proof.Goal;
 import de.uka.ilkd.key.proof.ListOfGoal;
 import de.uka.ilkd.key.proof.RuleFilter;
-import de.uka.ilkd.key.proof.SLListOfGoal;
 import de.uka.ilkd.key.rule.BuiltInRule;
 import de.uka.ilkd.key.rule.Rule;
 import de.uka.ilkd.key.rule.RuleApp;
@@ -79,7 +76,13 @@ public class VisualizationRule extends Visitor implements BuiltInRule,
             RuleApp ruleApp) {
 //        IteratorOfConstrainedFormula it = goal.sequent().iterator();
         ruleApp.posInOccurrence().subTerm().execPostOrder(this);
-        System.out.println(ruleApp.posInOccurrence().subTerm());//XXX 
+        System.out.println(ruleApp.posInOccurrence().subTerm());//XXX
+        try {
+            Runtime.getRuntime().exec("dotty /tmp/dottyfile.dot");
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
 //        while (it.hasNext()) {
 //            ConstrainedFormula f = it.next();
 //            f.formula().execPostOrder(this);
