@@ -84,7 +84,9 @@ public class ProgramBlockProvider implements
             JavaBlock result = JavaBlock.createJavaBlock(statBlock);
             return result;
         } catch (RecognitionException e) {
-            throw new IllegalStateException("Parse error while parsing: "
+            String message = parser.getErrorMessage(e, parser.getTokenNames());
+            message += "\nin line " + e.line + " at position " + e.charPositionInLine;
+            throw new IllegalStateException("Parse error: " + message + "\nwhile parsing: "
                     + programBlock, e);
         }
 
