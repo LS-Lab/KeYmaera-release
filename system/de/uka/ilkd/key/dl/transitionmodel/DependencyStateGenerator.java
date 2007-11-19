@@ -13,6 +13,8 @@ import de.uka.ilkd.key.dl.model.Dot;
 import de.uka.ilkd.key.dl.model.Formula;
 import de.uka.ilkd.key.dl.model.ProgramVariable;
 import de.uka.ilkd.key.dl.model.RandomAssign;
+import de.uka.ilkd.key.dl.model.impl.NotImpl;
+import de.uka.ilkd.key.dl.model.impl.QuestImpl;
 import de.uka.ilkd.key.java.ProgramElement;
 
 /**
@@ -240,25 +242,25 @@ public class DependencyStateGenerator
                         + " cause a branch!");
     }
 
-    /* (non-Javadoc)
-     * @see de.uka.ilkd.key.dl.transitionmodel.StateGenerator#generateElseAction(de.uka.ilkd.key.dl.model.Formula, java.lang.Object, java.lang.Object)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see de.uka.ilkd.key.dl.transitionmodel.StateGenerator#generateElseAction(de.uka.ilkd.key.dl.model.Formula)
      */
     @Override
-    public DLProgram generateElseAction(Formula f,
-            Map<ProgramVariable, LinkedHashSet<ProgramVariable>> pre,
-            Map<ProgramVariable, LinkedHashSet<ProgramVariable>> post) {
-        // TODO Auto-generated method stub
-        return null;
+    public DLProgram generateElseAction(Formula f) {
+        DLProgram action = this.generateAction(new QuestImpl(new NotImpl(f)));
+        return action;
     }
 
-    /* (non-Javadoc)
-     * @see de.uka.ilkd.key.dl.transitionmodel.StateGenerator#generateThenAction(de.uka.ilkd.key.dl.model.Formula, java.lang.Object, java.lang.Object)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see de.uka.ilkd.key.dl.transitionmodel.StateGenerator#generateThenAction(de.uka.ilkd.key.dl.model.Formula)
      */
     @Override
-    public DLProgram generateThenAction(Formula f,
-            Map<ProgramVariable, LinkedHashSet<ProgramVariable>> pre,
-            Map<ProgramVariable, LinkedHashSet<ProgramVariable>> post) {
-        // TODO Auto-generated method stub
-        return null;
+    public DLProgram generateThenAction(Formula f) {
+        DLProgram action = this.generateAction(new QuestImpl(f));
+        return action;
     }
 }

@@ -171,6 +171,11 @@ public class DLUniversalClosureOp extends AbstractMetaOperator {
                                 return -1;
                             }
                             // this could cause interleaving
+                            int size = inverseTransitiveClosure.get(o1).size();
+                            int size2 = inverseTransitiveClosure.get(o2).size();
+                            if(size != size2) {
+                                return size - size2;
+                            }
                             return o1.getElementName().toString().compareTo(
                                     o2.getElementName().toString());
 

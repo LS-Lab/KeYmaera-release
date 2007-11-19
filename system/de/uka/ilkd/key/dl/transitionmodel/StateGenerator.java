@@ -33,6 +33,7 @@ public interface StateGenerator<S, A> {
 
     public S generateMergeState(DLProgram program, List<S> states);
     
-    public A generateThenAction(Formula f, S pre, S post);
-    public A generateElseAction(Formula f, S pre, S post);
+    public A generateThenAction(Formula f);
+    public A generateElseAction(Formula f);
+    
 }

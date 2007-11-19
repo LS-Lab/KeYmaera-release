@@ -166,37 +166,24 @@ public class DottyStateGenerator implements
     /*
      * (non-Javadoc)
      * 
-     * @see de.uka.ilkd.key.dl.transitionmodel.StateGenerator#generateElseAction(de.uka.ilkd.key.dl.model.Formula,
-     *      java.lang.Object, java.lang.Object)
+     * @see de.uka.ilkd.key.dl.transitionmodel.StateGenerator#generateElseAction(de.uka.ilkd.key.dl.model.Formula)
      */
     @Override
-    public List<String> generateElseAction(Formula f, NumberedState pre,
-            NumberedState post) {
-        post.transitions.addAll(pre.transitions);
-        post.states.addAll(pre.states);
-        List<String> action = this.generateAction(new QuestImpl(f));
-        String string = pre.getNumber() + " -> " + post.getNumber()
-                + " [ label=\"" + action + "\" ];";
-        post.transitions.add(string);
+    public List<String> generateElseAction(Formula f) {
+        List<String> action = this
+                .generateAction(new QuestImpl(new NotImpl(f)));
         return action;
     }
 
     /*
      * (non-Javadoc)
      * 
-     * @see de.uka.ilkd.key.dl.transitionmodel.StateGenerator#generateThenAction(de.uka.ilkd.key.dl.model.Formula,
-     *      java.lang.Object, java.lang.Object)
+     * @see de.uka.ilkd.key.dl.transitionmodel.StateGenerator#generateThenAction(de.uka.ilkd.key.dl.model.Formula)
      */
     @Override
-    public List<String> generateThenAction(Formula f, NumberedState pre,
-            NumberedState post) {
-        post.transitions.addAll(pre.transitions);
-        post.states.addAll(pre.states);
-        List<String> action = this
-                .generateAction(new QuestImpl(new NotImpl(f)));
-        String string = pre.getNumber() + " -> " + post.getNumber()
-                + " [ label=\"" + action + "\" ];";
-        post.transitions.add(string);
+    public List<String> generateThenAction(Formula f) {
+        List<String> action = this.generateAction(new QuestImpl(f));
         return action;
     }
+
 }

@@ -29,8 +29,6 @@ import de.uka.ilkd.key.dl.model.CompoundDLProgram;
 import de.uka.ilkd.key.dl.model.DLProgram;
 import de.uka.ilkd.key.dl.model.IfStatement;
 import de.uka.ilkd.key.dl.model.Star;
-import de.uka.ilkd.key.dl.model.impl.NotImpl;
-import de.uka.ilkd.key.dl.model.impl.QuestImpl;
 import de.uka.ilkd.key.java.ProgramElement;
 
 /**
@@ -190,37 +188,51 @@ public class TransitionSystemGenerator {
             } else if (program instanceof IfStatement) {
                 IfStatement ifS = (IfStatement) program;
                 TransitionSystem<S, A> transitionModel = getTransitionModel(ifS
-                        .getThen(), stateGenerator, sys.getInitialState());
+                        .getThen(), stateGenerator, stateGenerator.getPostState(sys.getInitialState(), stateGenerator
+                                .generateThenAction(ifS.getExpression())));
                 for (S s : transitionModel.getTransitionRelation().keySet()) {
+                    sys.addState(s);
                     sys.addAllTransitions(s, transitionModel
                             .getTransitionRelation().get(s));
                 }
                 sys.addTransition(sys.getFinalState(), stateGenerator
-                        .generateAction(new QuestImpl(ifS.getExpression())),
-                        transitionModel.getInitialState());
+                        .generateThenAction(ifS.getExpression()), transitionModel
+                        .getInitialState());
+                S finalState = sys.getFinalState();
                 sys.setFinalState(transitionModel.getFinalState());
+                List<S> states = new ArrayList<S>();
                 if (ifS.getElse() != null) {
-                    transitionModel = getTransitionModel(ifS
-                            .getElse(), stateGenerator, sys.getInitialState());
+                    transitionModel = getTransitionModel(ifS.getElse(),
+                            stateGenerator, stateGenerator.getPostState(sys.getInitialState(), stateGenerator
+                                    .generateElseAction(ifS.getExpression())));
                     for (S s : transitionModel.getTransitionRelation().keySet()) {
+                        sys.addState(s);
                         sys.addAllTransitions(s, transitionModel
                                 .getTransitionRelation().get(s));
                     }
-                    sys.addTransition(sys.getFinalState(), stateGenerator
-                            .generateAction(new QuestImpl(new NotImpl(ifS.getExpression()))),
+                    sys.addTransition(finalState, stateGenerator
+                            .generateElseAction(ifS.getExpression()),
                             transitionModel.getInitialState());
-                    List<S> states = new ArrayList<S>();
                     states.add(sys.getFinalState());
                     states.add(transitionModel.getFinalState());
-                    S generateMergeState = stateGenerator.generateMergeState(ifS, states);
-                    sys.addState(generateMergeState);
-                    sys.addTransition(sys.getFinalState(), stateGenerator.generateMerge(ifS, 1), generateMergeState);
-                    sys.addTransition(transitionModel.getFinalState(), stateGenerator.generateMerge(ifS, 2), generateMergeState);
-                    sys.setFinalState(generateMergeState);
+                    
                 } else {
+                    S postState = stateGenerator.getPostState(sys.getInitialState(), stateGenerator.generateElseAction(ifS.getExpression()));
+                    sys.addState(postState);
                     sys.addTransition(sys.getInitialState(), stateGenerator
-                            .generateAction(new QuestImpl(new NotImpl(ifS.getExpression()))), sys.getFinalState());
+                            .generateElseAction(ifS.getExpression()), postState);
+                    states.add(postState);
+                    states.add(sys.getFinalState());
                 }
+                S generateMergeState = stateGenerator.generateMergeState(
+                        ifS, states);
+                sys.addState(generateMergeState);
+                sys.addTransition(sys.getFinalState(), stateGenerator
+                        .generateMerge(ifS, 1), generateMergeState);
+                sys.addTransition(transitionModel.getFinalState(),
+                        stateGenerator.generateMerge(ifS, 2),
+                        generateMergeState);
+                sys.setFinalState(generateMergeState);
             } else {
                 throw new IllegalArgumentException(
                         "Unknown composition operator "
