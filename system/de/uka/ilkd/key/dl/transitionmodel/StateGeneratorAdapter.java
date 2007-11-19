@@ -58,7 +58,7 @@ public class StateGeneratorAdapter implements StateGenerator<Object, Object> {
      *      java.lang.Object, java.lang.Object)
      */
     @Override
-    public Object generateElseAction(Formula f, Object pre, Object post) {
+    public Object generateElseAction(Formula f) {
         return this.generateAction(new QuestImpl(f));
     }
 
@@ -69,7 +69,7 @@ public class StateGeneratorAdapter implements StateGenerator<Object, Object> {
      *      java.lang.Object, java.lang.Object)
      */
     @Override
-    public Object generateThenAction(Formula f, Object pre, Object post) {
+    public Object generateThenAction(Formula f) {
         return this.generateAction(new QuestImpl(new NotImpl(f)));
     }
 }
