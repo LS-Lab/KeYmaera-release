@@ -229,9 +229,15 @@ public class TransitionSystemGenerator {
                 sys.addState(generateMergeState);
                 sys.addTransition(sys.getFinalState(), stateGenerator
                         .generateMerge(ifS, 1), generateMergeState);
-                sys.addTransition(transitionModel.getFinalState(),
-                        stateGenerator.generateMerge(ifS, 2),
-                        generateMergeState);
+                if(ifS.getElse() != null) {
+                    sys.addTransition(transitionModel.getFinalState(),
+                            stateGenerator.generateMerge(ifS, 2),
+                            generateMergeState);
+                } else {
+                    sys.addTransition(transitionModel.getFinalState(),
+                            stateGenerator.getSpecialSymbolNoop(transitionModel.getFinalState(), generateMergeState),
+                            generateMergeState);
+                }
                 sys.setFinalState(generateMergeState);
             } else {
                 throw new IllegalArgumentException(
