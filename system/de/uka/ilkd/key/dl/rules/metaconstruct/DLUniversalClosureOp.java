@@ -11,8 +11,6 @@
  */
 package de.uka.ilkd.key.dl.rules.metaconstruct;
 
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -20,20 +18,14 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.TreeSet;
 
 import de.uka.ilkd.key.dl.logic.ldt.RealLDT;
 import de.uka.ilkd.key.dl.model.DLProgram;
 import de.uka.ilkd.key.dl.transitionmodel.DependencyStateGenerator;
-import de.uka.ilkd.key.dl.transitionmodel.DottyStateGenerator;
-import de.uka.ilkd.key.dl.transitionmodel.TransitionSystem;
-import de.uka.ilkd.key.dl.transitionmodel.TransitionSystemGenerator;
-import de.uka.ilkd.key.dl.transitionmodel.DottyStateGenerator.NumberedState;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.java.StatementBlock;
 import de.uka.ilkd.key.logic.Name;
@@ -171,10 +163,16 @@ public class DLUniversalClosureOp extends AbstractMetaOperator {
                                 return -1;
                             }
                             // this could cause interleaving
-                            int size = inverseTransitiveClosure.get(o1).size();
-                            int size2 = inverseTransitiveClosure.get(o2).size();
-                            if(size != size2) {
-                                return size - size2;
+                            Set<de.uka.ilkd.key.dl.model.ProgramVariable> set = inverseTransitiveClosure
+                                    .get(o1);
+                            Set<de.uka.ilkd.key.dl.model.ProgramVariable> set2 = inverseTransitiveClosure
+                                    .get(o2);
+                            if (set != null && set2 != null) {
+                                int size = set.size();
+                                int size2 = set2.size();
+                                if (size != size2) {
+                                    return size - size2;
+                                }
                             }
                             return o1.getElementName().toString().compareTo(
                                     o2.getElementName().toString());
