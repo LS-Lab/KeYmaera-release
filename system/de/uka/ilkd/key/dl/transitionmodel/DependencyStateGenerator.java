@@ -1,9 +1,12 @@
 package de.uka.ilkd.key.dl.transitionmodel;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import de.uka.ilkd.key.dl.model.Assign;
 import de.uka.ilkd.key.dl.model.DLNonTerminalProgramElement;
@@ -12,6 +15,7 @@ import de.uka.ilkd.key.dl.model.DiffSystem;
 import de.uka.ilkd.key.dl.model.Dot;
 import de.uka.ilkd.key.dl.model.Formula;
 import de.uka.ilkd.key.dl.model.ProgramVariable;
+import de.uka.ilkd.key.dl.model.Quest;
 import de.uka.ilkd.key.dl.model.RandomAssign;
 import de.uka.ilkd.key.dl.model.impl.NotImpl;
 import de.uka.ilkd.key.dl.model.impl.QuestImpl;
@@ -24,17 +28,26 @@ import de.uka.ilkd.key.java.ProgramElement;
  * @since Nov 9, 2007
  * 
  */
-public class DependencyStateGenerator
-        implements
-        StateGenerator<Map<ProgramVariable, LinkedHashSet<ProgramVariable>>, DLProgram> {
+public class DependencyStateGenerator implements
+        StateGenerator<DependencyState, DLProgram> {
 
-    public static Map<ProgramVariable, LinkedHashSet<ProgramVariable>> generateDependencyMap(
-            DLProgram program) {
-        TransitionSystem<Map<ProgramVariable, LinkedHashSet<ProgramVariable>>, DLProgram> transitionModel = TransitionSystemGenerator
-                .getTransitionModel(
-                        program,
-                        new DependencyStateGenerator(),
-                        new HashMap<ProgramVariable, LinkedHashSet<ProgramVariable>>());
+    /**
+     * TODO jdq documentation since Nov 21, 2007
+     * 
+     * @author jdq
+     * @since Nov 21, 2007
+     * 
+     */
+    public class WriteAndReadSets {
+        Set<ProgramVariable> reads = new HashSet<ProgramVariable>();
+        Set<ProgramVariable> writes = new HashSet<ProgramVariable>();
+
+    }
+
+    public static DependencyState generateDependencyMap(DLProgram program) {
+        TransitionSystem<DependencyState, DLProgram> transitionModel = TransitionSystemGenerator
+                .getTransitionModel(program, new DependencyStateGenerator(),
+                        new DependencyState());
         return transitionModel.getFinalState();
     }
 
@@ -44,7 +57,7 @@ public class DependencyStateGenerator
      * @param action
      * @return
      */
-    private static Map<? extends ProgramVariable, ? extends LinkedHashSet<ProgramVariable>> getDependencies(
+    private static Map<ProgramVariable, LinkedHashSet<ProgramVariable>> getDependencies(
             DLProgram action) {
         HashMap<ProgramVariable, LinkedHashSet<ProgramVariable>> result = new HashMap<ProgramVariable, LinkedHashSet<ProgramVariable>>();
 
@@ -137,6 +150,33 @@ public class DependencyStateGenerator
         return vars;
     }
 
+    /**
+     * TODO jdq documentation since Nov 21, 2007
+     * 
+     * @param action
+     * @return
+     */
+    private WriteAndReadSets getWriteAndReadSets(ProgramElement childAt) {
+        WriteAndReadSets sets = new WriteAndReadSets();
+        if (childAt instanceof Assign) {
+            Assign ass = (Assign) childAt;
+            ProgramVariable var = (ProgramVariable) ass.getChildAt(0);
+            LinkedHashSet<ProgramVariable> readVariables = getAllVariables(ass
+                    .getChildAt(1));
+            sets.writes.add(var);
+            sets.reads.addAll(readVariables);
+        } else if(childAt instanceof DiffSystem) {
+            DiffSystem sys = (DiffSystem) childAt;
+            sets.writes.addAll(getDottedVariables(sys));
+            sets.reads.addAll(getAllVariables(sys));
+        } else if(childAt instanceof Quest) {
+            sets.reads.addAll(getAllVariables(childAt));
+        } else if(childAt instanceof RandomAssign) {
+            sets.writes.addAll(getAllVariables(childAt));
+        }
+        return sets;
+    }
+
     /*
      * (non-Javadoc)
      * 
@@ -144,13 +184,10 @@ public class DependencyStateGenerator
      *      java.util.List)
      */
     @Override
-    public Map<ProgramVariable, LinkedHashSet<ProgramVariable>> generateMergeState(
-            DLProgram program,
-            List<Map<ProgramVariable, LinkedHashSet<ProgramVariable>>> states) {
-        Map<ProgramVariable, LinkedHashSet<ProgramVariable>> post = new HashMap<ProgramVariable, LinkedHashSet<ProgramVariable>>();
-        for (Map<ProgramVariable, LinkedHashSet<ProgramVariable>> state : states) {
-            post.putAll(state);
-        }
+    public DependencyState generateMergeState(DLProgram program,
+            List<DependencyState> states) {
+        DependencyState post = new DependencyState();
+        post.mergeWith(states);
         return post;
     }
 
@@ -161,12 +198,25 @@ public class DependencyStateGenerator
      *      java.lang.Object)
      */
     @Override
-    public Map<ProgramVariable, LinkedHashSet<ProgramVariable>> getPostState(
-            Map<ProgramVariable, LinkedHashSet<ProgramVariable>> pre,
-            DLProgram action) {
-        Map<ProgramVariable, LinkedHashSet<ProgramVariable>> post = new HashMap<ProgramVariable, LinkedHashSet<ProgramVariable>>();
-        post.putAll(pre);
-        post.putAll(getDependencies(action));
+    public DependencyState getPostState(DependencyState pre, DLProgram action) {
+        DependencyState post = new DependencyState(pre);
+        post.addDependencies(getDependencies(action));
+        WriteAndReadSets sets = getWriteAndReadSets(action);
+        System.out.println("Action is " + action);//XXX
+        System.out.println("Reads are " + sets.reads);//XXX 
+        System.out.println("Writes are " + sets.writes);//XXX 
+        System.out.println("WriteBeforeReads are " + pre.getWriteBeforeReadList());//XXX 
+        for(ProgramVariable r: sets.reads) {
+            if(post.getWriteBeforeReadList().get(r) == null) {
+                post.getWriteBeforeReadList().put(r, false);
+            }
+        }
+        for(ProgramVariable r: sets.writes) {
+            if(post.getWriteBeforeReadList().get(r) == null) {
+                post.getWriteBeforeReadList().put(r, true);
+            }
+        }
+        System.out.println("New WriteBeforeReads are " + post.getWriteBeforeReadList());//XXX
         return post;
     }
 
@@ -177,10 +227,9 @@ public class DependencyStateGenerator
      *      java.lang.Object)
      */
     @Override
-    public DLProgram getSpecialSymbolNoop(
-            Map<ProgramVariable, LinkedHashSet<ProgramVariable>> pre,
-            Map<ProgramVariable, LinkedHashSet<ProgramVariable>> post) {
-        post.putAll(pre);
+    public DLProgram getSpecialSymbolNoop(DependencyState pre,
+            DependencyState post) {
+        post.mergeWith(Collections.singleton(pre));
         return null;
     }
 
@@ -191,10 +240,9 @@ public class DependencyStateGenerator
      *      java.lang.Object)
      */
     @Override
-    public DLProgram getSymbolForBackloop(
-            Map<ProgramVariable, LinkedHashSet<ProgramVariable>> pre,
-            Map<ProgramVariable, LinkedHashSet<ProgramVariable>> post) {
-        post.putAll(pre);
+    public DLProgram getSymbolForBackloop(DependencyState pre,
+            DependencyState post) {
+        post.mergeWith(Collections.singleton(pre));
         return null;
     }
 

@@ -25,6 +25,7 @@ import java.util.TreeSet;
 
 import de.uka.ilkd.key.dl.logic.ldt.RealLDT;
 import de.uka.ilkd.key.dl.model.DLProgram;
+import de.uka.ilkd.key.dl.transitionmodel.DependencyState;
 import de.uka.ilkd.key.dl.transitionmodel.DependencyStateGenerator;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.java.StatementBlock;
@@ -60,9 +61,11 @@ public class DLUniversalClosureOp extends AbstractMetaOperator {
     public Term calculate(Term term, SVInstantiations svInst, Services services) {
         Term post = term.sub(1);
 
-        Map<de.uka.ilkd.key.dl.model.ProgramVariable, LinkedHashSet<de.uka.ilkd.key.dl.model.ProgramVariable>> generateDependencyMap = DependencyStateGenerator
+        DependencyState depState = DependencyStateGenerator
                 .generateDependencyMap((DLProgram) ((StatementBlock) term
                         .sub(0).javaBlock().program()).getChildAt(0));
+        Map<de.uka.ilkd.key.dl.model.ProgramVariable, LinkedHashSet<de.uka.ilkd.key.dl.model.ProgramVariable>> generateDependencyMap = depState
+                .getDependencies();
         // FileWriter writer;
         // try {
         // writer = new FileWriter("/tmp/depgraph.dot");
@@ -231,7 +234,9 @@ public class DLUniversalClosureOp extends AbstractMetaOperator {
         // Set<String> programVariables = ProgramVariableCollector.INSTANCE
         // .getProgramVariables(term.sub(0));
         for (de.uka.ilkd.key.dl.model.ProgramVariable pvar : programVariables) {
-            if (transitiveClosure.keySet().contains(pvar)) {
+            if (transitiveClosure.keySet().contains(pvar)
+                    && !(depState.getWriteBeforeReadList().get(pvar) != null && depState
+                            .getWriteBeforeReadList().get(pvar))) {
                 String name = pvar.getElementName().toString();
                 LogicVariable var = searchFreeVar(services, name);
                 post = TermBuilder.DF.all(var, TermFactory.DEFAULT
