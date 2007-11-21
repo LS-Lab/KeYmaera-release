@@ -87,12 +87,10 @@ public class TimeoutTestApplicationFeature implements Feature {
             if (rule instanceof TestableBuiltInRule) {
                 TestableBuiltInRule tbr = (TestableBuiltInRule) rule;
                 TestThread testThread = new TestThread(goal, tbr, app);
-                System.out.println("Trying to execute for: " + timeout + " ms");// XXX
                 testThread.start();
                 try {
                     testThread.join(timeout);
                     if (testThread.getResult() == TestResult.SUCCESS) {
-                        System.out.println("finished returning zero cost");// XXX
 
                         // only accept formulas that are really better than the
                         // input formula, i.e. contain less variables
@@ -122,7 +120,6 @@ public class TimeoutTestApplicationFeature implements Feature {
                         testThread.interrupt();
 
                     }
-                    System.out.println("Interrupting after " + timeout + " ms");// XXX
                 }
                 if (testThread.isAlive()) {
                     try {
@@ -132,11 +129,9 @@ public class TimeoutTestApplicationFeature implements Feature {
                         testThread.interrupt();
 
                     }
-                    System.out.println("Interrupting after " + timeout + " ms");// XXX
                 }
             }
 
-            System.out.println("returning max cost for: " + app.rule());// XXX
             resultCache.put(firstNodeAfterBranch, LongRuleAppCost.create(1));
             return LongRuleAppCost.create(1);
         }

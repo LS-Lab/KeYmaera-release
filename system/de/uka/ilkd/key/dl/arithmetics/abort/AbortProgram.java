@@ -29,6 +29,7 @@ import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
@@ -226,7 +227,9 @@ public class AbortProgram extends JFrame {
         frame.getContentPane().add(meta, BorderLayout.CENTER);
         frame.pack();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        new BlockedThread().start();
+//        new BlockedThread().start();
+        Socket socket = new Socket(server, port+1);
+        new SocketReceiver(socket).start();
     }
 
     public static void main(final String[] args) {
@@ -447,42 +450,49 @@ public class AbortProgram extends JFrame {
         }
     }
 
-    private class BlockedThread extends Thread {
+    private class SocketReceiver extends Thread {
+
+        private Socket socket;
+
+        /**
+         * 
+         */
+        public SocketReceiver(Socket socket) {
+            this.socket = socket;
+        }
+
+        /*
+         * (non-Javadoc)
+         * 
+         * @see java.lang.Thread#run()
+         */
         @Override
         public void run() {
-            while (true) {
-                try {
-                    Registry reg = LocateRegistry.getRegistry(server, port);
+            try {
+                InputStreamReader reader = new InputStreamReader(socket
+                        .getInputStream());
+                BufferedReader str = new BufferedReader(reader);
+                while (socket.isConnected()) {
+                    final String s = str.readLine();
+                    try {
+                        SwingUtilities.invokeAndWait(new Runnable() {
 
-                    IKernelLinkWrapper kernelWrapper = (IKernelLinkWrapper) reg
-                            .lookup(KernelLinkWrapper.IDENTITY);
-                    for (final String s : kernelWrapper.getLogList()) {
-                        try {
-                            SwingUtilities.invokeAndWait(new Runnable() {
+                            public void run() {
+                                console.append(s + "\n");
+                            }
 
-                                public void run() {
-                                    console.append(s + "\n");
-                                }
-
-                            });
-                        } catch (InterruptedException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
-                        } catch (InvocationTargetException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
-                        }
-
+                        });
+                    } catch (InterruptedException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    } catch (InvocationTargetException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
                     }
-                } catch (NotBoundException e) {
-                } catch (RemoteException e1) {
                 }
-                try {
-                    sleep(100);
-                } catch (InterruptedException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
             }
         }
     }

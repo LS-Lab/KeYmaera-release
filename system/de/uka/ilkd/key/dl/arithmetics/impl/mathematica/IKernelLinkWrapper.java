@@ -90,11 +90,6 @@ public interface IKernelLinkWrapper extends Remote, Serializable {
      */
     public int getStatus() throws RemoteException;
 
-    /**
-     * Returns a list of log messages
-     */
-    public List<String> getLogList() throws RemoteException;
-
     public Map<Expr, ExprAndMessages> getCache() throws RemoteException;
 
     /**
