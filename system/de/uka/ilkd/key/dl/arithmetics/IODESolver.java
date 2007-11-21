@@ -24,6 +24,10 @@ package de.uka.ilkd.key.dl.arithmetics;
 
 import java.rmi.RemoteException;
 
+import de.uka.ilkd.key.dl.arithmetics.exceptions.ConnectionProblemException;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.ServerStatusProblemException;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.UnableToConvertInputException;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.UnsolveableException;
 import de.uka.ilkd.key.dl.model.DiffSystem;
 import de.uka.ilkd.key.logic.NamespaceSet;
 import de.uka.ilkd.key.logic.Term;
@@ -38,41 +42,48 @@ import de.uka.ilkd.key.logic.op.LogicVariable;
  * 
  */
 public interface IODESolver extends IMathSolver {
-    
+
     public static class ODESolverResult {
         private Term invariantExpression;
+
         private Term postCondition;
-        
+
         public ODESolverResult(Term invariant, Term post) {
             this.invariantExpression = invariant;
             this.postCondition = post;
         }
+
         /**
          * @return the invariantExpression
          */
         public Term getInvariantExpression() {
             return invariantExpression;
         }
+
         /**
-         * @param invariantExpression the invariantExpression to set
+         * @param invariantExpression
+         *                the invariantExpression to set
          */
         public void setInvariantExpression(Term invariantExpression) {
             this.invariantExpression = invariantExpression;
         }
+
         /**
          * @return the postCondition
          */
         public Term getPostCondition() {
             return postCondition;
         }
+
         /**
-         * @param postCondition the postCondition to set
+         * @param postCondition
+         *                the postCondition to set
          */
         public void setPostCondition(Term postCondition) {
             this.postCondition = postCondition;
         }
     }
-    
+
     /**
      * Solves the given differential equation system
      * 
@@ -93,7 +104,9 @@ public interface IODESolver extends IMathSolver {
      */
     public abstract ODESolverResult odeSolve(DiffSystem form, LogicVariable t,
             LogicVariable ts, Term phi, NamespaceSet nss)
-            throws RemoteException;
+            throws RemoteException, UnableToConvertInputException,
+            ServerStatusProblemException, ConnectionProblemException,
+            UnsolveableException;
 
     /**
      * DiffInd for the given differential equation system.
@@ -108,7 +121,9 @@ public interface IODESolver extends IMathSolver {
      *                 if there is any problem
      */
     public abstract Term diffInd(DiffSystem form, Term post, NamespaceSet nss)
-            throws RemoteException;
+            throws RemoteException, UnableToConvertInputException,
+            ServerStatusProblemException, ConnectionProblemException,
+            UnsolveableException;
 
     /**
      * DiffFin for the given differential equation system.
@@ -121,7 +136,13 @@ public interface IODESolver extends IMathSolver {
      *                the current namespace sets
      * @throws RemoteException
      *                 if there is any problem
+     * @throws UnsolveableException
+     * @throws ConnectionProblemException
+     * @throws ServerStatusProblemException
+     * @throws UnableToConvertInputException
      */
     public abstract Term diffFin(DiffSystem form, Term post, NamespaceSet nss)
-            throws RemoteException;
+            throws RemoteException, UnableToConvertInputException,
+            ServerStatusProblemException, ConnectionProblemException,
+            UnsolveableException;
 }

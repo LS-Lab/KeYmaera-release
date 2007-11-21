@@ -22,7 +22,6 @@
  */
 package de.uka.ilkd.key.dl.rules.metaconstruct;
 
-import java.rmi.RemoteException;
 import java.util.ArrayList;
 
 import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
@@ -62,11 +61,16 @@ public class Reduce extends AbstractDLMetaOperator {
         try {
             return MathSolverManager.getCurrentQuantifierEliminator().reduce(
                     term.sub(0), new ArrayList<PairOfTermAndQuantifierType>());
-        } catch (RemoteException e) {
+        } catch (Exception e) {
+            if (e instanceof RuntimeException) {
+                throw (RuntimeException) e;
+            }
             e.printStackTrace();// XXX
-            throw new IllegalArgumentException("Exception occurred while trying to eliminate a quantifier", e);
+            throw new IllegalArgumentException(
+                    "Exception occurred while trying to eliminate a quantifier",
+                    e);
         }
-//        return term.sub(0);
+        // return term.sub(0);
     }
 
     /*

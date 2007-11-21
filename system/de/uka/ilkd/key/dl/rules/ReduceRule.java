@@ -31,6 +31,10 @@ import java.util.Set;
 
 import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
 import de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator.PairOfTermAndQuantifierType;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.ConnectionProblemException;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.ServerStatusProblemException;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.UnableToConvertInputException;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.UnsolveableException;
 import de.uka.ilkd.key.dl.formulatools.SkolemfunctionTracker;
 import de.uka.ilkd.key.dl.formulatools.TermRewriter;
 import de.uka.ilkd.key.dl.formulatools.TermRewriter.Match;
@@ -174,7 +178,9 @@ public class ReduceRule extends RuleOperatingOnWholeSequence implements
      *      de.uka.ilkd.key.dl.IMathSolver)
      */
     @Override
-    protected Term performQuery(Term term) throws RemoteException {
+    protected Term performQuery(Term term) throws RemoteException,
+            UnableToConvertInputException, ServerStatusProblemException,
+            ConnectionProblemException, UnsolveableException {
 
         List<String> variables = getVariables();
         List<Term> skolem = new LinkedList<Term>();

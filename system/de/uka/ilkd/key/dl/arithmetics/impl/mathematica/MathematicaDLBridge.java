@@ -44,6 +44,10 @@ import com.wolfram.jlink.ExprFormatException;
 import de.uka.ilkd.key.dl.arithmetics.IODESolver.ODESolverResult;
 import de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator.PairOfTermAndQuantifierType;
 import de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator.QuantifierType;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.ConnectionProblemException;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.ServerStatusProblemException;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.UnableToConvertInputException;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.UnsolveableException;
 import de.uka.ilkd.key.dl.arithmetics.impl.mathematica.IKernelLinkWrapper.ExprAndMessages;
 import de.uka.ilkd.key.dl.formulatools.VariableCollector;
 import de.uka.ilkd.key.dl.model.DLNonTerminalProgramElement;
@@ -163,7 +167,9 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
      */
     public ODESolverResult odeSolve(DiffSystem form, LogicVariable t,
             LogicVariable ts, Term phi, NamespaceSet nss)
-            throws RemoteException {
+            throws RemoteException, UnableToConvertInputException,
+            ServerStatusProblemException, ConnectionProblemException,
+            UnsolveableException {
         List<Expr> args = new ArrayList<Expr>();
         Map<String, Expr> vars = new HashMap<String, Expr>();
 
@@ -229,9 +235,8 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
                 }
 
             });
-            throw new IllegalStateException(
-                    "No solution for variables " + varNames + " in: "
-                            + updateExpressions);
+            throw new IllegalStateException("No solution for variables "
+                    + varNames + " in: " + updateExpressions);
         } else if (!multipleSolutions.isEmpty()) {
             StringBuilder builder = new StringBuilder();
             builder
@@ -276,12 +281,16 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
     }
 
     public Term diffInd(DiffSystem form, Term post, NamespaceSet nss)
-            throws RemoteException {
+            throws RemoteException, UnableToConvertInputException,
+            ServerStatusProblemException, ConnectionProblemException,
+            UnsolveableException {
         return differentialCall(form, post, nss, "IDiffInd");
     }
 
     public Term diffFin(DiffSystem form, Term post, NamespaceSet nss)
-            throws RemoteException {
+            throws RemoteException, UnableToConvertInputException,
+            ServerStatusProblemException, ConnectionProblemException,
+            UnsolveableException {
         Term invariant = form.getInvariant();
         if (!invariant.equals(TermBuilder.DF.tt()))
             throw new UnsupportedOperationException(
@@ -294,9 +303,14 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
      * @author ap
      * @param diffOperator
      *                the diff operator to apply in Mathematica package
+     * @throws UnsolveableException
+     * @throws ConnectionProblemException
+     * @throws ServerStatusProblemException
      */
     private Term differentialCall(DiffSystem form, Term post, NamespaceSet nss,
-            String diffOperator) throws RemoteException {
+            String diffOperator) throws RemoteException,
+            UnableToConvertInputException, ServerStatusProblemException,
+            ConnectionProblemException, UnsolveableException {
         List<Expr> args = new ArrayList<Expr>();
 
         // use implicit differential symbols
@@ -333,7 +347,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
     }
 
     public List<Update> createUpdates(Expr expr, NamespaceSet nss)
-            throws RemoteException {
+            throws RemoteException, UnableToConvertInputException {
         List<Update> result = new ArrayList<Update>();
         if (expr.head().equals(LIST)) {
             for (int i = 0; i < expr.args().length; i++) {
@@ -370,7 +384,8 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
      * 
      * @see de.uka.ilkd.key.dl.IMathematicaDLBridge#convert(com.wolfram.jlink.Expr)
      */
-    public Term convert(Expr expr, NamespaceSet nss) throws RemoteException {
+    public Term convert(Expr expr, NamespaceSet nss) throws RemoteException,
+            UnableToConvertInputException {
         return Expr2TermConverter.convert(expr, nss,
                 new HashMap<Name, LogicVariable>());
     }
@@ -410,7 +425,9 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
      *      java.util.Set)
      */
     public Term simplify(Term form, Set<Term> assumptions)
-            throws RemoteException {
+            throws RemoteException, UnableToConvertInputException,
+            ServerStatusProblemException, ConnectionProblemException,
+            UnsolveableException {
         Expr query = Term2ExprConverter.convert2Expr(form);
         Set<Expr> ass = new HashSet<Expr>();
         for (Term t : assumptions) {
@@ -432,7 +449,9 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
      * 
      * @see de.uka.ilkd.key.dl.IMathematicaDLBridge#fullSimplify(de.uka.ilkd.key.logic.Term)
      */
-    public Term fullSimplify(Term form) throws RemoteException {
+    public Term fullSimplify(Term form) throws RemoteException,
+            UnableToConvertInputException, ServerStatusProblemException,
+            ConnectionProblemException, UnsolveableException {
         Expr query = Term2ExprConverter.convert2Expr(form);
         query = new Expr(new Expr(Expr.SYMBOL, "FullSimplify"),
                 new Expr[] { query });
@@ -445,7 +464,9 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
         return form;
     }
 
-    private ExprAndMessages evaluate(final Expr expr) throws RemoteException {
+    private ExprAndMessages evaluate(final Expr expr) throws RemoteException,
+            ServerStatusProblemException, ConnectionProblemException,
+            UnsolveableException {
         ExprAndMessages evaluate;
         IKernelLinkWrapper wrapper = getKernelWrapper();
         try {
@@ -456,7 +477,8 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
                 wrapper = (IKernelLinkWrapper) reg
                         .lookup(KernelLinkWrapper.IDENTITY);
             } catch (NotBoundException f) {
-                throw new RemoteException("Problem with KernelLink", f);
+                throw new ConnectionProblemException("Problem with KernelLink",
+                        f);
             }
             evaluate = wrapper.evaluate(expr);
         }
@@ -465,7 +487,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
                     + "\n Message was: " + evaluate.messages); // XXX
         }
         if (evaluate.messages.toString().matches(".*" + mBlistString + ".*")) {
-            throw new RemoteException(
+            throw new UnsolveableException(
                     "Mathematica could not solve the given expression: " + expr
                             + ". Reason: " + evaluate.messages.toString());
         }
@@ -477,7 +499,9 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
      * 
      * @see de.uka.ilkd.key.dl.IMathematicaDLBridge#findInstance(de.uka.ilkd.key.logic.Term)
      */
-    public String findInstance(Term form) throws RemoteException {
+    public String findInstance(Term form) throws RemoteException,
+            ServerStatusProblemException, ConnectionProblemException,
+            UnsolveableException {
         Expr query = Term2ExprConverter.convert2Expr(form);
         List<Expr> vars = new ArrayList<Expr>();
         for (String var : VariableCollector.getVariables(form)) {
@@ -580,7 +604,9 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 
     public Term reduce(Term form, List<String> additionalReduce,
             List<PairOfTermAndQuantifierType> quantifiers)
-            throws RemoteException {
+            throws RemoteException, ServerStatusProblemException,
+            ConnectionProblemException, UnsolveableException,
+            UnableToConvertInputException {
         Expr query = Term2ExprConverter.convert2Expr(form);
         List<Expr> vars = new ArrayList<Expr>();
         for (PairOfTermAndQuantifierType pair : quantifiers) {

@@ -30,6 +30,10 @@ import java.util.Map;
 
 import com.wolfram.jlink.Expr;
 
+import de.uka.ilkd.key.dl.arithmetics.exceptions.ConnectionProblemException;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.ServerStatusProblemException;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.UnsolveableException;
+
 /**
  * The IKernelLinkWrapper is the interface specification for the remote
  * Mathematica server.
@@ -71,8 +75,11 @@ public interface IKernelLinkWrapper extends Remote, Serializable {
      * @throws RemoteException
      *                 if there was any problem, this exception may have nested
      *                 ones.
+     * @throws ConnectionProblemException 
+     * @throws ServerStatusProblemException 
+     * @throws UnsolveableException 
      */
-    public ExprAndMessages evaluate(Expr expr) throws RemoteException;
+    public ExprAndMessages evaluate(Expr expr) throws RemoteException, ServerStatusProblemException, ConnectionProblemException, UnsolveableException;
 
     /**
      * Interrupts the current calculation

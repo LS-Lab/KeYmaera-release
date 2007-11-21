@@ -35,6 +35,10 @@ import javax.swing.JOptionPane;
 import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
 import de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator.PairOfTermAndQuantifierType;
 import de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator.QuantifierType;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.ConnectionProblemException;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.ServerStatusProblemException;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.UnableToConvertInputException;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.UnsolveableException;
 import de.uka.ilkd.key.dl.formulatools.ContainsMetaVariableVisitor;
 import de.uka.ilkd.key.dl.formulatools.SkolemfunctionTracker;
 import de.uka.ilkd.key.dl.formulatools.TermRewriter;
@@ -128,6 +132,7 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule, UnknownP
     }
 
     public static final BuiltInRule INSTANCE = new EliminateExistentialQuantifierRule();
+    private boolean unsolvable;
 
     /**
      * 
@@ -237,7 +242,6 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule, UnknownP
             skolemSymbols.addAll(findSkolemSymbols);
             query = TermBuilder.DF.and(query, imp);
         }
-        System.out.println("Querying with " + query);// XXX
 
         List<PairOfTermAndQuantifierType> quantifiers = new LinkedList<PairOfTermAndQuantifierType>();
         for (Metavariable var : variables) {
@@ -278,14 +282,24 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule, UnknownP
                     false);
             removeAllFormulas(result, goal.sequent().antecedent().iterator(),
                     true);
-            System.out.println("Old sequent: " + result.head().sequent());// XXX
             SequentChangeInfo info = result.head().sequent().addFormula(
                     new ConstrainedFormula(resultTerm), false, true);
-            System.out.println("Change: " + info);// XXX
             result.head().setSequent(info);
-            System.out.println("New sequent: " + result.head().sequent());// XXX
             return result;
         } catch (RemoteException e) {
+            throw new IllegalStateException("Cannot eliminate variable "
+                    + Arrays.toString(variables.toArray()), e);
+        } catch (UnableToConvertInputException e) {
+            throw new IllegalStateException("Cannot eliminate variable "
+            + Arrays.toString(variables.toArray()), e);
+        } catch (ServerStatusProblemException e) {
+            throw new IllegalStateException("Cannot eliminate variable "
+                    + Arrays.toString(variables.toArray()), e);
+        } catch (ConnectionProblemException e) {
+            throw new IllegalStateException("Cannot eliminate variable "
+                    + Arrays.toString(variables.toArray()), e);
+        } catch (UnsolveableException e) {
+            unsolvable = true;
             throw new IllegalStateException("Cannot eliminate variable "
                     + Arrays.toString(variables.toArray()), e);
         }
@@ -416,6 +430,13 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule, UnknownP
                     construct, t);
         }
         return construct;
+    }
+
+    /**
+     * @return the unsolvable
+     */
+    public boolean isUnsolvable() {
+        return unsolvable;
     }
 
 }

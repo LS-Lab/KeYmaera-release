@@ -28,6 +28,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import de.uka.ilkd.key.dl.arithmetics.exceptions.ConnectionProblemException;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.ServerStatusProblemException;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.UnableToConvertInputException;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.UnsolveableException;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.logic.ConstrainedFormula;
 import de.uka.ilkd.key.logic.IteratorOfConstrainedFormula;
@@ -65,6 +69,8 @@ public abstract class RuleOperatingOnWholeSequence extends Visitor implements
 
     private Term resultFormula;
 
+    private boolean unsolvable;
+
     /**
      * 
      */
@@ -83,6 +89,7 @@ public abstract class RuleOperatingOnWholeSequence extends Visitor implements
         // reset the testmode instantaniously to ensure that it cannot be
         // enabled accidently
         boolean testModeActive = testMode;
+        unsolvable = false;
         testMode = false;
 
         System.out.println("Reduce called in testmode: " + testModeActive);// XXX
@@ -111,6 +118,15 @@ public abstract class RuleOperatingOnWholeSequence extends Visitor implements
         try {
             resultTerm = performQuery(resultTerm);
         } catch (RemoteException e) {
+            return null;
+        } catch (UnableToConvertInputException e) {
+            return null;
+        } catch (ServerStatusProblemException e) {
+            return null;
+        } catch (ConnectionProblemException e) {
+            return null;
+        } catch (UnsolveableException e) {
+            unsolvable = true;
             return null;
         }
         resultFormula = resultTerm;
@@ -143,8 +159,12 @@ public abstract class RuleOperatingOnWholeSequence extends Visitor implements
      * @param solver
      * @return
      * @throws RemoteException
+     * @throws UnsolveableException 
+     * @throws ConnectionProblemException 
+     * @throws ServerStatusProblemException 
+     * @throws UnableToConvertInputException 
      */
-    protected abstract Term performQuery(Term term) throws RemoteException;
+    protected abstract Term performQuery(Term term) throws RemoteException, UnableToConvertInputException, ServerStatusProblemException, ConnectionProblemException, UnsolveableException;
 
     /**
      * Iterates over the given formulas and constructs the conjunction or
@@ -225,6 +245,13 @@ public abstract class RuleOperatingOnWholeSequence extends Visitor implements
 
     public Term getResultFormula() {
         return resultFormula;
+    }
+
+    /**
+     * @return the unsolvable
+     */
+    public boolean isUnsolvable() {
+        return unsolvable;
     }
 
 }

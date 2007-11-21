@@ -24,6 +24,9 @@ package de.uka.ilkd.key.dl.arithmetics;
 
 import java.rmi.RemoteException;
 
+import de.uka.ilkd.key.dl.arithmetics.exceptions.ConnectionProblemException;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.ServerStatusProblemException;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.UnsolveableException;
 import de.uka.ilkd.key.logic.Term;
 
 /**
@@ -40,8 +43,13 @@ public interface ICounterExampleGenerator extends IMathSolver {
      * expression
      * 
      * @throws RemoteException
+     * @throws UnsolveableException
+     * @throws ConnectionProblemException
+     * @throws ServerStatusProblemException
      * 
      */
-    public abstract String findInstance(Term form) throws RemoteException;
+    public abstract String findInstance(Term form) throws RemoteException,
+            ServerStatusProblemException, ConnectionProblemException,
+            UnsolveableException;
 
 }

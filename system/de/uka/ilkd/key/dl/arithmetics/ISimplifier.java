@@ -25,6 +25,10 @@ package de.uka.ilkd.key.dl.arithmetics;
 import java.rmi.RemoteException;
 import java.util.Set;
 
+import de.uka.ilkd.key.dl.arithmetics.exceptions.ConnectionProblemException;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.ServerStatusProblemException;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.UnableToConvertInputException;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.UnsolveableException;
 import de.uka.ilkd.key.logic.Term;
 
 /**
@@ -38,20 +42,31 @@ public interface ISimplifier extends IMathSolver {
     /**
      * Simplifies the given term if its a mathematical expression
      * 
+     * @throws UnsolveableException
+     * @throws ConnectionProblemException
+     * @throws ServerStatusProblemException
+     * @throws UnableToConvertInputException
+     * 
      */
-    public abstract Term simplify(Term form) throws RemoteException;
+    public abstract Term simplify(Term form) throws RemoteException,
+            UnableToConvertInputException, ServerStatusProblemException,
+            ConnectionProblemException, UnsolveableException;
 
     /**
      * Simplifies the given term if its a mathematical expression
      * 
      */
     public abstract Term simplify(Term form, Set<Term> assumptions)
-            throws RemoteException;
+            throws RemoteException, UnableToConvertInputException,
+            ServerStatusProblemException, ConnectionProblemException,
+            UnsolveableException;
 
     /**
      * Fully simplifies the given term if its a mathematical expression
      * 
      */
-    public abstract Term fullSimplify(Term form) throws RemoteException;
+    public abstract Term fullSimplify(Term form) throws RemoteException,
+            UnableToConvertInputException, ServerStatusProblemException,
+            ConnectionProblemException, UnsolveableException;
 
 }

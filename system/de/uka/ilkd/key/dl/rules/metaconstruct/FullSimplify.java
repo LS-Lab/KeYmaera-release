@@ -22,7 +22,6 @@
  */
 package de.uka.ilkd.key.dl.rules.metaconstruct;
 
-import java.rmi.RemoteException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -63,8 +62,11 @@ public class FullSimplify extends AbstractDLMetaOperator {
         try {
             return MathSolverManager.getCurrentSimplifier().fullSimplify(
                     term.sub(0));
-        } catch (RemoteException e) {
-            e.printStackTrace(); // XXX
+        } catch (Exception e) {
+            e.printStackTrace();
+            if(e instanceof RuntimeException) {
+                throw (RuntimeException) e;
+            }
         }
         return term.sub(0);
     }

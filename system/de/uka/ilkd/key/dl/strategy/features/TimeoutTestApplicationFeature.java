@@ -111,6 +111,9 @@ public class TimeoutTestApplicationFeature implements Feature {
                         resultCache.put(firstNodeAfterBranch,
                                 TopRuleAppCost.INSTANCE);
                         return TopRuleAppCost.INSTANCE;
+                    } else if(testThread.getResult() == TestResult.UNSOLVABLE) {
+                        resultCache.put(firstNodeAfterBranch, TopRuleAppCost.INSTANCE);
+                        return TopRuleAppCost.INSTANCE;
                     }
                 } catch (InterruptedException e) {
                     try {
@@ -166,7 +169,7 @@ public class TimeoutTestApplicationFeature implements Feature {
     }
 
     private static enum TestResult {
-        UNKNOWN, SUCCESS, FAILURE;
+        UNKNOWN, SUCCESS, FAILURE, UNSOLVABLE;
     }
 
     private static class TestThread extends Thread {
@@ -197,7 +200,11 @@ public class TimeoutTestApplicationFeature implements Feature {
                     app)) {
                 result = TestResult.SUCCESS;
             } else {
-                result = TestResult.FAILURE;
+                if (rule.isUnsolvable()) {
+                    result = TestResult.UNSOLVABLE;
+                } else {
+                    result = TestResult.FAILURE;
+                }
             }
         }
 

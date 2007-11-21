@@ -57,6 +57,9 @@ import com.wolfram.jlink.KernelLink;
 import com.wolfram.jlink.MathLinkException;
 import com.wolfram.jlink.MathLinkFactory;
 
+import de.uka.ilkd.key.dl.arithmetics.exceptions.ConnectionProblemException;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.ServerStatusProblemException;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.UnsolveableException;
 import de.uka.ilkd.key.dl.utils.XMLReader;
 
 /**
@@ -301,7 +304,7 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
      * @see de.uka.ilkd.key.dl.IKernelLinkWrapper#evaluate(com.wolfram.jlink.Expr)
      */
     public synchronized ExprAndMessages evaluate(Expr expr)
-            throws RemoteException {
+            throws RemoteException, ServerStatusProblemException, ConnectionProblemException, UnsolveableException {
         // if (abort) {
         // throw new IllegalStateException("Abort forced");
         // }
@@ -346,7 +349,7 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
                 link.evaluate("$MessageList");
                 link.waitForAnswer();
                 Expr msg = link.getExpr();
-                throw new RemoteException("Cannot solve " + expr.toString()
+                throw new UnsolveableException("Cannot solve " + expr.toString()
                         + " because message " + msg + " of the messages in " + messageBlacklist
                         + " occured");
             }
@@ -395,7 +398,7 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
             }
             e.printStackTrace();
             link.clearError();
-            throw new RemoteException(
+            throw new ServerStatusProblemException(
                     "MathLinkException: could not evaluate expression: " + expr,
                     e);
         }
@@ -427,7 +430,6 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
                 link.abortEvaluation();
                 // link.newPacket();
             } else {
-                new Exception().printStackTrace();
                 log(Level.WARNING, "Nothing to interrupt");
             }
         }

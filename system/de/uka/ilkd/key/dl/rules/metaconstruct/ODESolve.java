@@ -20,13 +20,11 @@
 package de.uka.ilkd.key.dl.rules.metaconstruct;
 
 import java.math.BigDecimal;
-import java.rmi.RemoteException;
 
 import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
 import de.uka.ilkd.key.dl.arithmetics.IODESolver.ODESolverResult;
 import de.uka.ilkd.key.dl.logic.ldt.RealLDT;
 import de.uka.ilkd.key.dl.model.DiffSystem;
-import de.uka.ilkd.key.dl.model.impl.DiffSystemImpl;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.java.StatementBlock;
 import de.uka.ilkd.key.logic.Name;
@@ -146,7 +144,10 @@ public class ODESolve extends AbstractDLMetaOperator {
                     throw new IllegalStateException("Unknown modality "
                             + term.sub(0).op());
                 }
-            } catch (RemoteException e) {
+            } catch (Exception e) {
+                if(e instanceof RuntimeException) {
+                    throw (RuntimeException) e;
+                }
                 e.printStackTrace(); // XXX
                 return term.sub(0);
             }

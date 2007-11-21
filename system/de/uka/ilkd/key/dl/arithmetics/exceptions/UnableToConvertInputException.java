@@ -17,31 +17,27 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
+package de.uka.ilkd.key.dl.arithmetics.exceptions;
+
 /**
+ * TODO jdq documentation since Nov 21, 2007
  * 
- */
-package de.uka.ilkd.key.dl.rules;
-
-import de.uka.ilkd.key.java.Services;
-import de.uka.ilkd.key.logic.Term;
-import de.uka.ilkd.key.proof.Goal;
-import de.uka.ilkd.key.rule.RuleApp;
-
-/**
  * @author jdq
+ * @since Nov 21, 2007
  * 
  */
-public interface TestableBuiltInRule {
-
-    public boolean test(Goal goal, Services services, RuleApp app);
-
-    public Term getInputFormula();
-
-    public Term getResultFormula();
-
+public class UnableToConvertInputException extends Exception {
     /**
-     * TODO jdq documentation since Nov 21, 2007 
-     * @return
+     * 
      */
-    public boolean isUnsolvable();
+    public UnableToConvertInputException(String message, Throwable t) {
+        super(message, t);
+    }
+    
+    /**
+     * 
+     */
+    public UnableToConvertInputException(String message) {
+        super(message);
+    }
 }

@@ -29,6 +29,10 @@ import java.util.List;
 import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
 import de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator.PairOfTermAndQuantifierType;
 import de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator.QuantifierType;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.ConnectionProblemException;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.ServerStatusProblemException;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.UnableToConvertInputException;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.UnsolveableException;
 import de.uka.ilkd.key.dl.formulatools.ContainsSkolemSymbolVisitor;
 import de.uka.ilkd.key.dl.formulatools.SkolemSymbolWithMostParametersVisitor;
 import de.uka.ilkd.key.java.Services;
@@ -144,7 +148,7 @@ public class EliminateQuantifierRule extends RuleOperatingOnWholeSequence
      *      de.uka.ilkd.key.dl.IMathSolver)
      */
     @Override
-    protected Term performQuery(Term term) throws RemoteException {
+    protected Term performQuery(Term term) throws RemoteException, UnableToConvertInputException, ServerStatusProblemException, ConnectionProblemException, UnsolveableException {
         List<String> variables = getVariables();
         if (variables.isEmpty()) {
             variables.add(search.op().name().toString());

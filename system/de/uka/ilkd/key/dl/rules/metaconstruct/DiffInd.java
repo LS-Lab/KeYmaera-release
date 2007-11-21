@@ -19,25 +19,15 @@
  ***************************************************************************/
 package de.uka.ilkd.key.dl.rules.metaconstruct;
 
-import java.math.BigDecimal;
-import java.rmi.RemoteException;
-
 import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
-import de.uka.ilkd.key.dl.arithmetics.IODESolver.ODESolverResult;
-import de.uka.ilkd.key.dl.logic.ldt.RealLDT;
 import de.uka.ilkd.key.dl.model.DiffSystem;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.java.StatementBlock;
 import de.uka.ilkd.key.logic.Name;
 import de.uka.ilkd.key.logic.NamespaceSet;
 import de.uka.ilkd.key.logic.Term;
-import de.uka.ilkd.key.logic.TermBuilder;
-import de.uka.ilkd.key.logic.op.Function;
-import de.uka.ilkd.key.logic.op.LogicVariable;
 import de.uka.ilkd.key.logic.op.Modality;
-import de.uka.ilkd.key.logic.op.TermSymbol;
 import de.uka.ilkd.key.logic.sort.Sort;
-import de.uka.ilkd.key.parser.dl.NumberCache;
 import de.uka.ilkd.key.rule.inst.SVInstantiations;
 
 /**
@@ -82,7 +72,10 @@ public class DiffInd extends AbstractDLMetaOperator {
                 throw new IllegalStateException("Unknown modality "
                         + term.sub(0).op());
             }
-        } catch (RemoteException e) {
+        } catch (Exception e) {
+            if(e instanceof RuntimeException) {
+                throw (RuntimeException) e;
+            }
             if (true) throw (InternalError) new InternalError(e.getMessage()).initCause(e);
             e.printStackTrace(); // XXX
             return term.sub(0);

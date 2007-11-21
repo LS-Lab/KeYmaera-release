@@ -26,6 +26,9 @@ import java.util.List;
 import java.util.Map;
 
 import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.ConnectionProblemException;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.ServerStatusProblemException;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.UnsolveableException;
 import de.uka.ilkd.key.logic.ConstrainedFormula;
 import de.uka.ilkd.key.logic.IteratorOfConstrainedFormula;
 import de.uka.ilkd.key.logic.PosInOccurrence;
@@ -147,6 +150,13 @@ public class FindInstanceTest implements Feature {
                 }
             } catch (RemoteException e) {
                 result = Result.NO_RESULT_IN_TIME;
+            } catch (ServerStatusProblemException e) {
+                result = Result.NO_RESULT_IN_TIME;
+            } catch (ConnectionProblemException e) {
+                result = Result.NO_RESULT_IN_TIME;
+            } catch (UnsolveableException e) {
+                //TODO: check if this is right
+                result = Result.CE_FOUND;
             }
         }
 

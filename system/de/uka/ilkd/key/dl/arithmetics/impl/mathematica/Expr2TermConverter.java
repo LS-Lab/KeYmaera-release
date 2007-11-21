@@ -34,6 +34,7 @@ import java.util.Set;
 import com.wolfram.jlink.Expr;
 import com.wolfram.jlink.ExprFormatException;
 
+import de.uka.ilkd.key.dl.arithmetics.exceptions.UnableToConvertInputException;
 import de.uka.ilkd.key.dl.logic.ldt.RealLDT;
 import de.uka.ilkd.key.dl.model.Div;
 import de.uka.ilkd.key.dl.model.Exp;
@@ -105,7 +106,7 @@ public class Expr2TermConverter implements ExprConstants {
      */
     public static Term convert(Expr expr, NamespaceSet nss,
             Map<Name, LogicVariable> quantifiedVariables)
-            throws RemoteException {
+            throws RemoteException, UnableToConvertInputException {
         try {
             if (expr.toString().equalsIgnoreCase("$Aborted")) {
                 throw new RemoteException("Calculation aborted!");
@@ -184,8 +185,8 @@ public class Expr2TermConverter implements ExprConstants {
             for (int i = 0; i < ex.length; i++) {
                 ex[i] = convert(expr.args()[i], nss, quantifiedVariables);
                 if (ex[i] == null) {
-                    throw new RemoteException("Fail",
-                            new IllegalArgumentException("Converting "
+                    throw new UnableToConvertInputException("Fail",
+                            new UnableToConvertInputException("Converting "
                                     + expr.args()[i] + " failed!"));
                 }
             }
@@ -379,7 +380,7 @@ public class Expr2TermConverter implements ExprConstants {
                                 // de.uka.ilkd.key.logic.op.LocationVariable(
                                 // new ProgramElementName(name.toString()),
                                 // getSortR(nss));
-                                throw new IllegalStateException(
+                                throw new UnableToConvertInputException(
                                         "ProgramVariable " + name
                                                 + " is not declared");
                             }
@@ -390,8 +391,8 @@ public class Expr2TermConverter implements ExprConstants {
                 }
             }
         } catch (ExprFormatException e) {
-            throw new RemoteException("Error converting Expr " + expr + " to Formula", e);
+            throw new UnableToConvertInputException("Error converting Expr " + expr + " to Formula", e);
         }
-        throw new RemoteException("Dont know how to convert " + expr);
+        throw new UnableToConvertInputException("Dont know how to convert " + expr);
     }
 }

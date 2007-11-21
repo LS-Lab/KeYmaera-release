@@ -17,31 +17,47 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-/**
- * 
- */
-package de.uka.ilkd.key.dl.rules;
-
-import de.uka.ilkd.key.java.Services;
-import de.uka.ilkd.key.logic.Term;
-import de.uka.ilkd.key.proof.Goal;
-import de.uka.ilkd.key.rule.RuleApp;
+package de.uka.ilkd.key.dl.arithmetics.exceptions;
 
 /**
+ * TODO jdq documentation since Nov 21, 2007 
  * @author jdq
+ * @since Nov 21, 2007
  * 
  */
-public interface TestableBuiltInRule {
-
-    public boolean test(Goal goal, Services services, RuleApp app);
-
-    public Term getInputFormula();
-
-    public Term getResultFormula();
+public class ConnectionProblemException extends Exception {
 
     /**
-     * TODO jdq documentation since Nov 21, 2007 
-     * @return
+     * 
      */
-    public boolean isUnsolvable();
+    public ConnectionProblemException() {
+        super();
+        // TODO Auto-generated constructor stub
+    }
+
+    /**
+     * @param message
+     * @param cause
+     */
+    public ConnectionProblemException(String message, Throwable cause) {
+        super(message, cause);
+        // TODO Auto-generated constructor stub
+    }
+
+    /**
+     * @param message
+     */
+    public ConnectionProblemException(String message) {
+        super(message);
+        // TODO Auto-generated constructor stub
+    }
+
+    /**
+     * @param cause
+     */
+    public ConnectionProblemException(Throwable cause) {
+        super(cause);
+        // TODO Auto-generated constructor stub
+    }
+
 }
