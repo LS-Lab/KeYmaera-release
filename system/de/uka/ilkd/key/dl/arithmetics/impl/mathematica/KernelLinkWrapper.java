@@ -22,25 +22,28 @@
  */
 package de.uka.ilkd.key.dl.arithmetics.impl.mathematica;
 
-import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.logging.ConsoleHandler;
+import java.util.logging.ErrorManager;
 import java.util.logging.Formatter;
+import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
@@ -90,8 +93,6 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 
     private Logger logger;
 
-    private BlockingQueue<String> log;
-
     private Object mutex;
 
     private StringBuffer calcTimes;
@@ -109,22 +110,27 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
             throws RemoteException {
         super(port);
         this.cache = cache;
-        log = new LinkedBlockingQueue<String>();
         calcTimes = new StringBuffer();
         mutex = new Object();
         logger = Logger.getLogger("KernelLinkLogger");
-        ConsoleHandler consoleHandler = new ConsoleHandler();
-        consoleHandler.setLevel(Level.SEVERE);
-        consoleHandler.setFormatter(new Formatter() {
+        ServerSocketHandler handler;
+        try {
 
-            @Override
-            public String format(LogRecord record) {
-                return record.getMessage() + "\n";
-            }
+            handler = new ServerSocketHandler(port + 1);
+            handler.setFormatter(new Formatter() {
 
-        });
-        logger.setLevel(Level.SEVERE);
-        logger.addHandler(consoleHandler);
+                @Override
+                public String format(LogRecord record) {
+                    return record.getMessage() + "\n";
+                }
+
+            });
+            logger.setLevel(Level.ALL);
+            logger.addHandler(handler);
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         logger.setUseParentHandlers(false);
         linkCall = readLinkCall();
         createLink();
@@ -248,27 +254,27 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
         final KernelLinkWrapper kernelLinkWrapper = new KernelLinkWrapper(port,
                 cache);
         registry.rebind(IDENTITY, kernelLinkWrapper);
-//        new Thread(new Runnable() {
-//
-//            public void run() {
-//                BufferedReader reader = new BufferedReader(
-//                        new InputStreamReader(System.in));
-//                while (true) {
-//                    String line;
-//                    try {
-//                        line = reader.readLine();
-//
-//                        if (line.toLowerCase().startsWith("abort")) {
-//                            kernelLinkWrapper.interruptCalculation();
-//                        }
-//                    } catch (Exception e) {
-//                        // TODO Auto-generated catch block
-//                        e.printStackTrace();
-//                    }
-//                }
-//            }
-//
-//        }).start();
+        // new Thread(new Runnable() {
+        //
+        // public void run() {
+        // BufferedReader reader = new BufferedReader(
+        // new InputStreamReader(System.in));
+        // while (true) {
+        // String line;
+        // try {
+        // line = reader.readLine();
+        //
+        // if (line.toLowerCase().startsWith("abort")) {
+        // kernelLinkWrapper.interruptCalculation();
+        // }
+        // } catch (Exception e) {
+        // // TODO Auto-generated catch block
+        // e.printStackTrace();
+        // }
+        // }
+        // }
+        //
+        // }).start();
 
     }
 
@@ -330,6 +336,11 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
             log(Level.INFO, msg.toString());
             log(Level.FINEST, "New packet");
             link.newPacket();
+            link.evaluate("$MessageList = {}");
+            link.waitForAnswer();
+            link.getExpr(); // throw away the result
+            log(Level.FINEST, "New packet");
+            link.newPacket();
             log(Level.FINEST, "Returning anwser...");
             long newTime = System.currentTimeMillis();
             long time = (newTime - curTime);
@@ -378,7 +389,6 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
         } else {
             logger.log(level, message);
         }
-        log.offer(message);
     }
 
     /*
@@ -408,26 +418,6 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
      */
     public int getStatus() throws RemoteException {
         return link.error();
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see de.uka.ilkd.key.dl.IKernelLinkWrapper#getLogList()
-     */
-    public List<String> getLogList() throws RemoteException {
-        List<String> result = new ArrayList<String>();
-        try {
-            result.add(log.take());
-            while (!log.isEmpty()) {
-                result.add(log.take());
-            }
-            return result;
-        } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        throw new RemoteException("Log could not be read");
     }
 
     /*
@@ -497,4 +487,111 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
         abort = false;
     }
 
+    public class ServerSocketHandler extends Handler {
+        final ServerSocket socket;
+
+        final protected BlockingQueue<Socket> sockets;
+        final protected BlockingQueue<String> messageQueue;
+
+        private Map<Socket, Writer> writers = new HashMap<Socket, Writer>();
+
+        protected boolean bound;
+
+        public ServerSocketHandler(int port) throws IOException {
+            socket = new ServerSocket(port);
+            sockets = new LinkedBlockingQueue<Socket>();
+            messageQueue = new LinkedBlockingQueue<String>();
+            Thread t = new Thread() {
+                /*
+                 * (non-Javadoc)
+                 * 
+                 * @see java.lang.Thread#run()
+                 */
+                @Override
+                public void run() {
+                    while (!socket.isClosed()) {
+                        try {
+                            Socket sock = socket.accept();
+                            sockets.add(sock);
+                        } catch (IOException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            };
+            t.setDaemon(true);
+            t.start();
+            bound = true;
+            Thread send = new Thread() {
+              /* (non-Javadoc)
+             * @see java.lang.Thread#run()
+             */
+            @Override
+            public void run() {
+                while(bound) {
+                    try {
+                        String take = messageQueue.take();
+                        while (!sockets.isEmpty()) {
+                            Socket socket = sockets.poll();
+                            writers.put(socket,
+                                    new BufferedWriter(new OutputStreamWriter(
+                                            socket.getOutputStream())));
+                        }
+                        for (Socket sock : new HashSet<Socket>(writers.keySet())) {
+                            if (sock.isConnected()) {
+                                Writer writer = writers.get(sock);
+                                writer.write(take);
+                                writer.flush();
+                            } else {
+                                writers.remove(sock);
+                            }
+                        }
+                    } catch (InterruptedException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                }
+            }
+            };
+            send.setDaemon(true);
+            send.start();
+        }
+
+        public void close() {
+            bound = false;
+            try {
+                socket.close();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            for (Socket sock : new HashSet<Socket>(writers.keySet())) {
+                try {
+                    sock.close();
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        public void flush() {
+        }
+
+        public void publish(LogRecord rec) {
+            if (isLoggable(rec)) {
+                try {
+                    Formatter formatter = getFormatter();
+                    String message = formatter.format(rec);
+                    messageQueue.offer(message);
+                } catch (Exception ex) {
+                    reportError(ex.getMessage(), ex, ErrorManager.WRITE_FAILURE);
+                }
+            }
+        }
+    }
 }
