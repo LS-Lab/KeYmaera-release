@@ -231,13 +231,15 @@ public class DLUniversalClosureOp extends AbstractMetaOperator {
         // Set<String> programVariables = ProgramVariableCollector.INSTANCE
         // .getProgramVariables(term.sub(0));
         for (de.uka.ilkd.key.dl.model.ProgramVariable pvar : programVariables) {
-            String name = pvar.getElementName().toString();
-            LogicVariable var = searchFreeVar(services, name);
-            post = TermBuilder.DF.all(var, TermFactory.DEFAULT
-                    .createUpdateTerm(TermBuilder.DF
-                            .var((ProgramVariable) services.getNamespaces()
-                                    .lookup(new Name(name))), TermBuilder.DF
-                            .var(var), post));
+            if (transitiveClosure.keySet().contains(pvar)) {
+                String name = pvar.getElementName().toString();
+                LogicVariable var = searchFreeVar(services, name);
+                post = TermBuilder.DF.all(var, TermFactory.DEFAULT
+                        .createUpdateTerm(TermBuilder.DF
+                                .var((ProgramVariable) services.getNamespaces()
+                                        .lookup(new Name(name))),
+                                TermBuilder.DF.var(var), post));
+            }
         }
         return post;
 
