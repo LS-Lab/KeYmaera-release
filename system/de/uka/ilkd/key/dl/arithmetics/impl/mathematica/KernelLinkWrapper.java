@@ -36,6 +36,7 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -67,6 +68,19 @@ import de.uka.ilkd.key.dl.utils.XMLReader;
  */
 public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
         IKernelLinkWrapper {
+
+    public static final String[] messageBlacklist = new String[] { "Reduce:nsmet" };
+
+    public static Expr mBlist;
+
+    static {
+        String or = "";
+        java.util.List<Expr> exprs = new ArrayList<Expr>();
+        for (String str : messageBlacklist) {
+            exprs.add(new Expr(str));
+        }
+        mBlist = new Expr(Expr.SYM_LIST, exprs.toArray(new Expr[exprs.size()]));
+    }
 
     public static final String IDENTITY = "KernelLink";
 
@@ -306,7 +320,9 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
             log(Level.FINEST, "Clearing link state");
             link.newPacket();
             log(Level.FINEST, "Start evaluation");
-            link.evaluate(expr);
+            Expr check = new Expr(new Expr("Check"), new Expr[] { expr,
+                    new Expr("$Exception"), mBlist });
+            link.evaluate(check);
             testForError(link);
             log(Level.FINEST, "Waiting for anwser.");
             synchronized (mutex) {
@@ -323,6 +339,11 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
             }
             testForError(link);
             Expr result = link.getExpr();
+            if (result.toString() == "$Exception") {
+                throw new RemoteException("Cannot solve " + expr.toString()
+                        + " because one of the messages in " + messageBlacklist
+                        + " occured");
+            }
             testForError(link);
             // System.err.println("Discarding anwser.");
             // link.discardAnswer();
@@ -491,6 +512,7 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
         final ServerSocket socket;
 
         final protected BlockingQueue<Socket> sockets;
+
         final protected BlockingQueue<String> messageQueue;
 
         private Map<Socket, Writer> writers = new HashMap<Socket, Writer>();
@@ -524,38 +546,41 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
             t.start();
             bound = true;
             Thread send = new Thread() {
-              /* (non-Javadoc)
-             * @see java.lang.Thread#run()
-             */
-            @Override
-            public void run() {
-                while(bound) {
-                    try {
-                        String take = messageQueue.take();
-                        while (!sockets.isEmpty()) {
-                            Socket socket = sockets.poll();
-                            writers.put(socket,
-                                    new BufferedWriter(new OutputStreamWriter(
-                                            socket.getOutputStream())));
-                        }
-                        for (Socket sock : new HashSet<Socket>(writers.keySet())) {
-                            if (sock.isConnected()) {
-                                Writer writer = writers.get(sock);
-                                writer.write(take);
-                                writer.flush();
-                            } else {
-                                writers.remove(sock);
+                /*
+                 * (non-Javadoc)
+                 * 
+                 * @see java.lang.Thread#run()
+                 */
+                @Override
+                public void run() {
+                    while (bound) {
+                        try {
+                            String take = messageQueue.take();
+                            while (!sockets.isEmpty()) {
+                                Socket socket = sockets.poll();
+                                writers.put(socket, new BufferedWriter(
+                                        new OutputStreamWriter(socket
+                                                .getOutputStream())));
                             }
+                            for (Socket sock : new HashSet<Socket>(writers
+                                    .keySet())) {
+                                if (sock.isConnected()) {
+                                    Writer writer = writers.get(sock);
+                                    writer.write(take);
+                                    writer.flush();
+                                } else {
+                                    writers.remove(sock);
+                                }
+                            }
+                        } catch (InterruptedException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        } catch (IOException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
                         }
-                    } catch (InterruptedException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    } catch (IOException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
                     }
                 }
-            }
             };
             send.setDaemon(true);
             send.start();
