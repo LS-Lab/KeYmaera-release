@@ -390,7 +390,7 @@ public class Expr2TermConverter implements ExprConstants {
                 }
             }
         } catch (ExprFormatException e) {
-            throw new RemoteException("Error converting Expr to Formula", e);
+            throw new RemoteException("Error converting Expr " + expr + " to Formula", e);
         }
         throw new RemoteException("Dont know how to convert " + expr);
     }
