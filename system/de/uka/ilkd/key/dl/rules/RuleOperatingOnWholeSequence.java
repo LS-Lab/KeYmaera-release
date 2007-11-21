@@ -93,8 +93,6 @@ public abstract class RuleOperatingOnWholeSequence extends Visitor implements
         unsolvable = false;
         testMode = false;
 
-        System.out.println("Reduce called in testmode: " + testModeActive);// XXX
-
         IteratorOfConstrainedFormula it = goal.sequent().antecedent()
                 .iterator();
         Term resultTerm = TermBuilder.DF.tt();

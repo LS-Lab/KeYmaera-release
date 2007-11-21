@@ -76,7 +76,6 @@ public class VisualizationRule extends Visitor implements BuiltInRule,
             RuleApp ruleApp) {
 //        IteratorOfConstrainedFormula it = goal.sequent().iterator();
         ruleApp.posInOccurrence().subTerm().execPostOrder(this);
-        System.out.println(ruleApp.posInOccurrence().subTerm());//XXX
         try {
             Runtime.getRuntime().exec("dotty /tmp/dottyfile.dot");
         } catch (IOException e) {

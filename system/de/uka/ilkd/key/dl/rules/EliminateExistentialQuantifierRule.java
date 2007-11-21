@@ -206,7 +206,6 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule, UnknownP
         Term query = TermBuilder.DF.tt();
         Set<Term> skolemSymbols = new HashSet<Term>();
         for (Goal g : goals) {
-            System.out.println("Found on " + g);// XXX
             Set<Term> findSkolemSymbols = findSkolemSymbols(g.sequent().iterator());
             
             Term antecendent = createJunctorTermNAry(TermBuilder.DF.tt(),
@@ -347,15 +346,12 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule, UnknownP
             IteratorOfConstrainedFormula iterator, boolean ante) {
         while (iterator.hasNext()) {
             ConstrainedFormula next = iterator.next();
-            System.out.println("Old sequent: " + result.head().sequent());// XXX
             SequentChangeInfo removeFormula = result
                     .head()
                     .sequent()
                     .removeFormula(
                             new PosInOccurrence(next, PosInTerm.TOP_LEVEL, ante));
-            System.out.println("Change: " + removeFormula);// XXX
             result.head().setSequent(removeFormula);
-            System.out.println("New sequent: " + result.head().sequent());// XXX
         }
     }
 

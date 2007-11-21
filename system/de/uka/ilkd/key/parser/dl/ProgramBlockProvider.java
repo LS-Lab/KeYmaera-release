@@ -123,8 +123,6 @@ public class ProgramBlockProvider implements
                 de.uka.ilkd.key.logic.op.ProgramVariable kv = (ProgramVariable) namespaces
                         .programVariables().lookup(v.getElementName());
                 if (kv == null) {
-                    System.out.println("Creating new var for "
-                            + v.getElementName());// XXX
                     kv = new LocationVariable(new ProgramElementName(v
                             .getElementName().toString()), (Sort) namespaces
                             .sorts().lookup(decl.getType().getElementName()));

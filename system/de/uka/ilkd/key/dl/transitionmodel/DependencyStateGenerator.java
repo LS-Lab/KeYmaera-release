@@ -202,10 +202,6 @@ public class DependencyStateGenerator implements
         DependencyState post = new DependencyState(pre);
         post.addDependencies(getDependencies(action));
         WriteAndReadSets sets = getWriteAndReadSets(action);
-        System.out.println("Action is " + action);//XXX
-        System.out.println("Reads are " + sets.reads);//XXX 
-        System.out.println("Writes are " + sets.writes);//XXX 
-        System.out.println("WriteBeforeReads are " + pre.getWriteBeforeReadList());//XXX 
         for(ProgramVariable r: sets.reads) {
             if(post.getWriteBeforeReadList().get(r) == null) {
                 post.getWriteBeforeReadList().put(r, false);
@@ -216,7 +212,6 @@ public class DependencyStateGenerator implements
                 post.getWriteBeforeReadList().put(r, true);
             }
         }
-        System.out.println("New WriteBeforeReads are " + post.getWriteBeforeReadList());//XXX
         return post;
     }
 

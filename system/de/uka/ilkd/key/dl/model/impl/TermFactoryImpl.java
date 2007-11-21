@@ -714,7 +714,6 @@ public class TermFactoryImpl extends TermFactory {
             List<CommonTree> decls) {
         List<Variable> variables = new ArrayList<Variable>();
         for (CommonTree var : decls) {
-            System.out.println("Declaration of " + var.getText() + " to " + getNamespaces().programVariables());//XXX 
             assert getNamespaces().variables().lookup(new Name(var.getText())) == null;
 //            && getNamespaces().programVariables().lookup(
 //             new Name(var.getText())) == null;
