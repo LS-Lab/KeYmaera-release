@@ -132,7 +132,7 @@ public class DLUniversalClosureOp extends AbstractMetaOperator {
 
         };
         PriorityQueue<de.uka.ilkd.key.dl.model.ProgramVariable> variableOrder = new PriorityQueue<de.uka.ilkd.key.dl.model.ProgramVariable>(
-                inverseTransitiveClosure.size(), comparator);
+                inverseTransitiveClosure.size()+1, comparator);
         variableOrder.addAll(inverseTransitiveClosure.keySet());
         ArrayList<de.uka.ilkd.key.dl.model.ProgramVariable> programVariables = new ArrayList<de.uka.ilkd.key.dl.model.ProgramVariable>();
         while (!variableOrder.isEmpty()) {
