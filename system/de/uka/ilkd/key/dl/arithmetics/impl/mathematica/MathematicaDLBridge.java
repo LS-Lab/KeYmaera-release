@@ -230,7 +230,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 
             });
             throw new IllegalStateException(
-                    "Some variables are not in the solution: "
+                    "No solution for variables " + varNames + " in: "
                             + updateExpressions);
         } else if (!multipleSolutions.isEmpty()) {
             StringBuilder builder = new StringBuilder();
