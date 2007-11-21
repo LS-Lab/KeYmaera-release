@@ -31,6 +31,7 @@ import de.uka.ilkd.key.dl.arithmetics.IODESolver.ODESolverResult;
 import de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator.PairOfTermAndQuantifierType;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ConnectionProblemException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ServerStatusProblemException;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.UnableToConvertInputException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.UnsolveableException;
 import de.uka.ilkd.key.dl.model.DiffSystem;
@@ -67,20 +68,21 @@ public interface IMathematicaDLBridge extends Remote {
      *         equations on the term phi
      * @throws RemoteException
      *                 if there is any problem
-     * @throws UnableToConvertInputException 
-     * @throws UnsolveableException 
-     * @throws ConnectionProblemException 
-     * @throws ServerStatusProblemException 
+     * @throws UnableToConvertInputException
+     * @throws UnsolveableException
+     * @throws ConnectionProblemException
+     * @throws ServerStatusProblemException
      */
     public ODESolverResult odeSolve(DiffSystem form, LogicVariable t,
             LogicVariable ts, Term phi, NamespaceSet nss)
-            throws RemoteException, UnableToConvertInputException, ServerStatusProblemException, ConnectionProblemException, UnsolveableException;
+            throws RemoteException, SolverException;
 
     public Term diffInd(DiffSystem form, Term post, NamespaceSet nss)
-            throws RemoteException, UnableToConvertInputException, ServerStatusProblemException, ConnectionProblemException, UnsolveableException;
+            throws RemoteException, SolverException;
+
     public Term diffFin(DiffSystem form, Term post, NamespaceSet nss)
-            throws RemoteException, UnableToConvertInputException, ServerStatusProblemException, ConnectionProblemException, UnsolveableException;
-    
+            throws RemoteException, SolverException;
+
     /**
      * Simplifies the given Term if possible
      * 
@@ -89,13 +91,13 @@ public interface IMathematicaDLBridge extends Remote {
      * @param assumptions
      *                the assumptions used for simplification
      * @return the simplifyed term, this may be the same as the input.
-     * @throws UnableToConvertInputException 
-     * @throws UnsolveableException 
-     * @throws ConnectionProblemException 
-     * @throws ServerStatusProblemException 
+     * @throws UnableToConvertInputException
+     * @throws UnsolveableException
+     * @throws ConnectionProblemException
+     * @throws ServerStatusProblemException
      */
     public Term simplify(Term form, Set<Term> assumptions)
-            throws RemoteException, UnableToConvertInputException, ServerStatusProblemException, ConnectionProblemException, UnsolveableException;
+            throws RemoteException, SolverException;
 
     /**
      * Simplifies the given Term if possible (using FullSimplify)
@@ -105,22 +107,23 @@ public interface IMathematicaDLBridge extends Remote {
      * @param assumptions
      *                the assumptions used for simplification
      * @return the simplifyed term, this may be the same as the input.
-     * @throws UnableToConvertInputException 
-     * @throws UnsolveableException 
-     * @throws ConnectionProblemException 
-     * @throws ServerStatusProblemException 
+     * @throws UnableToConvertInputException
+     * @throws UnsolveableException
+     * @throws ConnectionProblemException
+     * @throws ServerStatusProblemException
      */
-    public Term fullSimplify(Term form) throws RemoteException, UnableToConvertInputException, ServerStatusProblemException, ConnectionProblemException, UnsolveableException;
+    public Term fullSimplify(Term form) throws RemoteException, SolverException;
 
     /**
      * @param form
      * @return
      * @throws RemoteException
-     * @throws UnsolveableException 
-     * @throws ConnectionProblemException 
-     * @throws ServerStatusProblemException 
+     * @throws UnsolveableException
+     * @throws ConnectionProblemException
+     * @throws ServerStatusProblemException
      */
-    public String findInstance(Term form) throws RemoteException, ServerStatusProblemException, ConnectionProblemException, UnsolveableException;
+    public String findInstance(Term form) throws RemoteException,
+            SolverException;
 
     /**
      * Abort the current calculation. Or the next one started.
@@ -180,12 +183,12 @@ public interface IMathematicaDLBridge extends Remote {
      *                the type of the quantifier to reintroduce before reduction
      * @return the reduced Term. (may be the same as the input)
      * @throws RemoteException
-     * @throws UnsolveableException 
-     * @throws ConnectionProblemException 
-     * @throws ServerStatusProblemException 
-     * @throws UnableToConvertInputException 
+     * @throws UnsolveableException
+     * @throws ConnectionProblemException
+     * @throws ServerStatusProblemException
+     * @throws UnableToConvertInputException
      */
     public Term reduce(Term form, List<String> additionalReduce,
             List<PairOfTermAndQuantifierType> quantifiers)
-            throws RemoteException, ServerStatusProblemException, ConnectionProblemException, UnsolveableException, UnableToConvertInputException;
+            throws RemoteException, SolverException;
 }

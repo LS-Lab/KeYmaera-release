@@ -27,6 +27,7 @@ import java.util.List;
 
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ConnectionProblemException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ServerStatusProblemException;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.UnableToConvertInputException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.UnsolveableException;
 import de.uka.ilkd.key.logic.Term;
@@ -76,8 +77,7 @@ public interface IQuantifierEliminator extends IMathSolver {
      * 
      */
     public abstract Term reduce(Term form) throws RemoteException,
-            ServerStatusProblemException, ConnectionProblemException,
-            UnsolveableException, UnableToConvertInputException;
+            SolverException;
 
     // /**
     // * Reduces the given term if its a mathematical expression
@@ -99,9 +99,7 @@ public interface IQuantifierEliminator extends IMathSolver {
      */
     public abstract Term reduce(Term form, List<String> names,
             List<PairOfTermAndQuantifierType> quantifiers)
-            throws RemoteException, UnableToConvertInputException,
-            ServerStatusProblemException, ConnectionProblemException,
-            UnsolveableException;
+            throws RemoteException, SolverException;
 
     /**
      * Reduces the given term if its a mathematical expression
@@ -113,7 +111,5 @@ public interface IQuantifierEliminator extends IMathSolver {
      */
     public abstract Term reduce(Term query,
             List<PairOfTermAndQuantifierType> quantifiers)
-            throws RemoteException, UnableToConvertInputException,
-            ServerStatusProblemException, ConnectionProblemException,
-            UnsolveableException;
+            throws RemoteException, SolverException;
 }

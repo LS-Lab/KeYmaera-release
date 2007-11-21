@@ -26,6 +26,7 @@ import java.rmi.RemoteException;
 
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ConnectionProblemException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ServerStatusProblemException;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.UnableToConvertInputException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.UnsolveableException;
 import de.uka.ilkd.key.dl.model.DiffSystem;
@@ -104,9 +105,7 @@ public interface IODESolver extends IMathSolver {
      */
     public abstract ODESolverResult odeSolve(DiffSystem form, LogicVariable t,
             LogicVariable ts, Term phi, NamespaceSet nss)
-            throws RemoteException, UnableToConvertInputException,
-            ServerStatusProblemException, ConnectionProblemException,
-            UnsolveableException;
+            throws RemoteException, SolverException;
 
     /**
      * DiffInd for the given differential equation system.
@@ -121,9 +120,7 @@ public interface IODESolver extends IMathSolver {
      *                 if there is any problem
      */
     public abstract Term diffInd(DiffSystem form, Term post, NamespaceSet nss)
-            throws RemoteException, UnableToConvertInputException,
-            ServerStatusProblemException, ConnectionProblemException,
-            UnsolveableException;
+            throws RemoteException, SolverException;
 
     /**
      * DiffFin for the given differential equation system.
@@ -142,7 +139,5 @@ public interface IODESolver extends IMathSolver {
      * @throws UnableToConvertInputException
      */
     public abstract Term diffFin(DiffSystem form, Term post, NamespaceSet nss)
-            throws RemoteException, UnableToConvertInputException,
-            ServerStatusProblemException, ConnectionProblemException,
-            UnsolveableException;
+            throws RemoteException, SolverException;
 }

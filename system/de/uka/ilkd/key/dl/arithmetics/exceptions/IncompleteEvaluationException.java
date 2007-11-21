@@ -17,39 +17,46 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-/**
- * 
- */
-package de.uka.ilkd.key.dl.arithmetics;
-
-import java.rmi.RemoteException;
-
-import de.uka.ilkd.key.dl.arithmetics.exceptions.ConnectionProblemException;
-import de.uka.ilkd.key.dl.arithmetics.exceptions.ServerStatusProblemException;
-import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
-import de.uka.ilkd.key.dl.arithmetics.exceptions.UnsolveableException;
-import de.uka.ilkd.key.logic.Term;
+package de.uka.ilkd.key.dl.arithmetics.exceptions;
 
 /**
- * TODO jdq documentation since Aug 17, 2007
- * 
+ * TODO jdq documentation since Nov 21, 2007 
  * @author jdq
- * @since Aug 17, 2007
+ * @since Nov 21, 2007
  * 
  */
-public interface ICounterExampleGenerator extends IMathSolver {
+public class IncompleteEvaluationException extends ComputationException {
 
     /**
-     * Tries to find an instantiation for the given term if its a mathematical
-     * expression
-     * 
-     * @throws RemoteException
-     * @throws UnsolveableException
-     * @throws ConnectionProblemException
-     * @throws ServerStatusProblemException
      * 
      */
-    public abstract String findInstance(Term form) throws RemoteException,
-            SolverException;
+    public IncompleteEvaluationException() {
+        // TODO Auto-generated constructor stub
+    }
+
+    /**
+     * @param message
+     */
+    public IncompleteEvaluationException(String message) {
+        super(message);
+        // TODO Auto-generated constructor stub
+    }
+
+    /**
+     * @param cause
+     */
+    public IncompleteEvaluationException(Throwable cause) {
+        super(cause);
+        // TODO Auto-generated constructor stub
+    }
+
+    /**
+     * @param message
+     * @param cause
+     */
+    public IncompleteEvaluationException(String message, Throwable cause) {
+        super(message, cause);
+        // TODO Auto-generated constructor stub
+    }
 
 }

@@ -35,9 +35,7 @@ import javax.swing.JOptionPane;
 import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
 import de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator.PairOfTermAndQuantifierType;
 import de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator.QuantifierType;
-import de.uka.ilkd.key.dl.arithmetics.exceptions.ConnectionProblemException;
-import de.uka.ilkd.key.dl.arithmetics.exceptions.ServerStatusProblemException;
-import de.uka.ilkd.key.dl.arithmetics.exceptions.UnableToConvertInputException;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.UnsolveableException;
 import de.uka.ilkd.key.dl.formulatools.ContainsMetaVariableVisitor;
 import de.uka.ilkd.key.dl.formulatools.SkolemfunctionTracker;
@@ -289,19 +287,13 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule, UnknownP
         } catch (RemoteException e) {
             throw new IllegalStateException("Cannot eliminate variable "
                     + Arrays.toString(variables.toArray()), e);
-        } catch (UnableToConvertInputException e) {
-            throw new IllegalStateException("Cannot eliminate variable "
-            + Arrays.toString(variables.toArray()), e);
-        } catch (ServerStatusProblemException e) {
-            throw new IllegalStateException("Cannot eliminate variable "
-                    + Arrays.toString(variables.toArray()), e);
-        } catch (ConnectionProblemException e) {
-            throw new IllegalStateException("Cannot eliminate variable "
-                    + Arrays.toString(variables.toArray()), e);
         } catch (UnsolveableException e) {
             unsolvable = true;
             throw new IllegalStateException("Cannot eliminate variable "
                     + Arrays.toString(variables.toArray()), e);
+        } catch (SolverException e) {
+            throw new IllegalStateException("Cannot eliminate variable "
+            + Arrays.toString(variables.toArray()), e);
         }
     }
 

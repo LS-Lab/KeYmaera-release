@@ -25,7 +25,7 @@ package de.uka.ilkd.key.dl.arithmetics.exceptions;
  * @since Nov 21, 2007
  * 
  */
-public class ServerStatusProblemException extends Exception {
+public class ServerStatusProblemException extends ConnectionException {
 
     /**
      * 

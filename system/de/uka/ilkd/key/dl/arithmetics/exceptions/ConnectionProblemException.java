@@ -25,7 +25,7 @@ package de.uka.ilkd.key.dl.arithmetics.exceptions;
  * @since Nov 21, 2007
  * 
  */
-public class ConnectionProblemException extends Exception {
+public class ConnectionProblemException extends ConnectionException {
 
     /**
      * 

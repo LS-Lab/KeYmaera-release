@@ -30,6 +30,7 @@ import java.util.Map;
 
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ConnectionProblemException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ServerStatusProblemException;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.UnableToConvertInputException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.UnsolveableException;
 import de.uka.ilkd.key.java.Services;
@@ -119,14 +120,10 @@ public abstract class RuleOperatingOnWholeSequence extends Visitor implements
             resultTerm = performQuery(resultTerm);
         } catch (RemoteException e) {
             return null;
-        } catch (UnableToConvertInputException e) {
-            return null;
-        } catch (ServerStatusProblemException e) {
-            return null;
-        } catch (ConnectionProblemException e) {
-            return null;
         } catch (UnsolveableException e) {
             unsolvable = true;
+            return null;
+        } catch (SolverException e) {
             return null;
         }
         resultFormula = resultTerm;
@@ -163,8 +160,9 @@ public abstract class RuleOperatingOnWholeSequence extends Visitor implements
      * @throws ConnectionProblemException 
      * @throws ServerStatusProblemException 
      * @throws UnableToConvertInputException 
+     * @throws SolverException 
      */
-    protected abstract Term performQuery(Term term) throws RemoteException, UnableToConvertInputException, ServerStatusProblemException, ConnectionProblemException, UnsolveableException;
+    protected abstract Term performQuery(Term term) throws RemoteException, SolverException;
 
     /**
      * Iterates over the given formulas and constructs the conjunction or

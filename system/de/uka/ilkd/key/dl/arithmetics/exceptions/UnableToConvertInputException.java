@@ -26,7 +26,7 @@ package de.uka.ilkd.key.dl.arithmetics.exceptions;
  * @since Nov 21, 2007
  * 
  */
-public class UnableToConvertInputException extends Exception {
+public class UnableToConvertInputException extends ComputationException {
     /**
      * 
      */

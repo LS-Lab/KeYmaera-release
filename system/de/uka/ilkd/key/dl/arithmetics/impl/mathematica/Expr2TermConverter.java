@@ -34,6 +34,7 @@ import java.util.Set;
 import com.wolfram.jlink.Expr;
 import com.wolfram.jlink.ExprFormatException;
 
+import de.uka.ilkd.key.dl.arithmetics.exceptions.IncompleteEvaluationException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.UnableToConvertInputException;
 import de.uka.ilkd.key.dl.logic.ldt.RealLDT;
 import de.uka.ilkd.key.dl.model.Div;
@@ -106,10 +107,10 @@ public class Expr2TermConverter implements ExprConstants {
      */
     public static Term convert(Expr expr, NamespaceSet nss,
             Map<Name, LogicVariable> quantifiedVariables)
-            throws RemoteException, UnableToConvertInputException {
+            throws RemoteException, UnableToConvertInputException, IncompleteEvaluationException {
         try {
             if (expr.toString().equalsIgnoreCase("$Aborted")) {
-                throw new RemoteException("Calculation aborted!");
+                throw new IncompleteEvaluationException("Calculation aborted!");
             } else if (expr.head().equals(FORALL) || expr.head().equals(EXISTS)) {
                 Expr list = expr.args()[0];
                 if (list.head().equals(LIST)) { // LIST

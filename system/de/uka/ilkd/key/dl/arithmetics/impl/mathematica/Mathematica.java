@@ -47,6 +47,7 @@ import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
 import de.uka.ilkd.key.dl.arithmetics.abort.AbortBridge;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ConnectionProblemException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ServerStatusProblemException;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.UnableToConvertInputException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.UnsolveableException;
 import de.uka.ilkd.key.dl.gui.AutomodeListener;
@@ -182,23 +183,17 @@ public class Mathematica implements ICounterExampleGenerator, IODESolver,
      */
     public ODESolverResult odeSolve(DiffSystem form, LogicVariable t,
             LogicVariable ts, Term phi, NamespaceSet nss)
-            throws RemoteException, UnableToConvertInputException,
-            ServerStatusProblemException, ConnectionProblemException,
-            UnsolveableException {
+    throws RemoteException, SolverException{
         return bridge.odeSolve(form, t, ts, phi, nss);
     }
 
     public Term diffInd(DiffSystem form, Term post, NamespaceSet nss)
-            throws RemoteException, UnableToConvertInputException,
-            ServerStatusProblemException, ConnectionProblemException,
-            UnsolveableException {
+    throws RemoteException, SolverException{
         return bridge.diffInd(form, post, nss);
     }
 
     public Term diffFin(DiffSystem form, Term post, NamespaceSet nss)
-            throws RemoteException, UnableToConvertInputException,
-            ServerStatusProblemException, ConnectionProblemException,
-            UnsolveableException {
+    throws RemoteException, SolverException{
         return bridge.diffFin(form, post, nss);
     }
 
@@ -216,9 +211,7 @@ public class Mathematica implements ICounterExampleGenerator, IODESolver,
      * 
      * @see de.uka.ilkd.key.dl.IMathSolver#simplify(de.uka.ilkd.key.logic.Term)
      */
-    public Term simplify(Term form) throws RemoteException,
-            UnableToConvertInputException, ServerStatusProblemException,
-            ConnectionProblemException, UnsolveableException {
+    public Term simplify(Term form) throws RemoteException, SolverException{
         return simplify(form, new HashSet<Term>());
     }
 
@@ -229,9 +222,7 @@ public class Mathematica implements ICounterExampleGenerator, IODESolver,
      *      java.util.Set)
      */
     public Term simplify(Term form, Set<Term> assumptions)
-            throws RemoteException, UnableToConvertInputException,
-            ServerStatusProblemException, ConnectionProblemException,
-            UnsolveableException {
+    throws RemoteException, SolverException{
 
         return bridge.simplify(form, assumptions);
 
@@ -242,9 +233,7 @@ public class Mathematica implements ICounterExampleGenerator, IODESolver,
      * 
      * @see de.uka.ilkd.key.dl.IMathSolver#fullSimplify(de.uka.ilkd.key.logic.Term)
      */
-    public Term fullSimplify(Term form) throws RemoteException,
-            UnableToConvertInputException, ServerStatusProblemException,
-            ConnectionProblemException, UnsolveableException {
+    public Term fullSimplify(Term form) throws RemoteException, SolverException{
 
         return bridge.fullSimplify(form);
 
@@ -255,9 +244,7 @@ public class Mathematica implements ICounterExampleGenerator, IODESolver,
      * 
      * @see de.uka.ilkd.key.dl.IMathSolver#reduce(de.uka.ilkd.key.logic.Term)
      */
-    public Term reduce(Term form) throws RemoteException,
-            ServerStatusProblemException, ConnectionProblemException,
-            UnsolveableException, UnableToConvertInputException {
+    public Term reduce(Term form) throws RemoteException, SolverException {
         return reduce(form, new ArrayList<PairOfTermAndQuantifierType>());
     }
 
@@ -266,9 +253,7 @@ public class Mathematica implements ICounterExampleGenerator, IODESolver,
      * 
      * @see de.uka.ilkd.key.dl.IMathSolver#findInstance(de.uka.ilkd.key.logic.Term)
      */
-    public String findInstance(Term form) throws RemoteException,
-            ServerStatusProblemException, ConnectionProblemException,
-            UnsolveableException {
+    public String findInstance(Term form) throws RemoteException, SolverException {
         return bridge.findInstance(form);
     }
 
@@ -325,9 +310,7 @@ public class Mathematica implements ICounterExampleGenerator, IODESolver,
      */
     public Term reduce(Term query, List<String> additionalReduce,
             List<PairOfTermAndQuantifierType> quantifiers)
-            throws RemoteException, ServerStatusProblemException,
-            ConnectionProblemException, UnsolveableException,
-            UnableToConvertInputException {
+    throws RemoteException, SolverException {
         return bridge.reduce(query, additionalReduce, quantifiers);
     }
 
@@ -338,9 +321,7 @@ public class Mathematica implements ICounterExampleGenerator, IODESolver,
      *      java.util.List)
      */
     public Term reduce(Term form, List<PairOfTermAndQuantifierType> quantifiers)
-            throws RemoteException, ServerStatusProblemException,
-            ConnectionProblemException, UnsolveableException,
-            UnableToConvertInputException {
+    throws RemoteException, SolverException {
         return reduce(form, new LinkedList<String>(), quantifiers);
     }
 }
