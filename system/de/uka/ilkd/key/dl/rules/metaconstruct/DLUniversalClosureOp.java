@@ -275,7 +275,8 @@ public class DLUniversalClosureOp extends AbstractMetaOperator {
 
                     transitiveClosure.put(var, clone);
                 }
-                for (de.uka.ilkd.key.dl.model.ProgramVariable dvar : deps) {
+                for (de.uka.ilkd.key.dl.model.ProgramVariable dvar : new HashSet<de.uka.ilkd.key.dl.model.ProgramVariable>(
+                        deps)) {
                     LinkedHashSet<de.uka.ilkd.key.dl.model.ProgramVariable> otherDeps = generateDependencyMap
                             .get(dvar);
                     if (otherDeps != null) {
