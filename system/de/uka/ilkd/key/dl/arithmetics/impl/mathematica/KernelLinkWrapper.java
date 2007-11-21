@@ -69,15 +69,18 @@ import de.uka.ilkd.key.dl.utils.XMLReader;
 public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
         IKernelLinkWrapper {
 
-    public static final String[] messageBlacklist = new String[] { "Reduce:nsmet" };
+    public static final String[][] messageBlacklist = new String[][] { {"Reduce","nsmet"} };
 
     public static Expr mBlist;
 
     static {
-        String or = "";
         java.util.List<Expr> exprs = new ArrayList<Expr>();
-        for (String str : messageBlacklist) {
-            exprs.add(new Expr(str));
+        for (String[] blacklist : messageBlacklist) {
+            assert blacklist.length==2;
+            exprs.add(new Expr(new Expr(Expr.SYMBOL,"MessageName"), new Expr[] {
+                new Expr(Expr.SYMBOL, blacklist[0]),
+                new Expr(blacklist[1])
+            }));
         }
         mBlist = new Expr(Expr.SYM_LIST, exprs.toArray(new Expr[exprs.size()]));
     }
@@ -320,7 +323,7 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
             log(Level.FINEST, "Clearing link state");
             link.newPacket();
             log(Level.FINEST, "Start evaluation");
-            Expr check = new Expr(new Expr("Check"), new Expr[] { expr,
+            Expr check = new Expr(new Expr(Expr.SYMBOL,"Check"), new Expr[] { expr,
                     new Expr("$Exception"), mBlist });
             link.evaluate(check);
             testForError(link);
@@ -339,9 +342,12 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
             }
             testForError(link);
             Expr result = link.getExpr();
-            if (result.toString() == "$Exception") {
+            if (result.toString().equals("\"$Exception\"")) {
+                link.evaluate("$MessageList");
+                link.waitForAnswer();
+                Expr msg = link.getExpr();
                 throw new RemoteException("Cannot solve " + expr.toString()
-                        + " because one of the messages in " + messageBlacklist
+                        + " because message " + msg + " of the messages in " + messageBlacklist
                         + " occured");
             }
             testForError(link);
@@ -351,15 +357,11 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
             link.newPacket();
             testForError(link);
             log(Level.FINEST, "Checking for messages");
-            link.evaluate("Messages[" + expr.head().toString() + "]");
+//            link.evaluate("Messages[" + expr.head().toString() + "]");
+            link.evaluate("$MessageList");
             link.waitForAnswer();
             Expr msg = link.getExpr();
             log(Level.INFO, msg.toString());
-            log(Level.FINEST, "New packet");
-            link.newPacket();
-            link.evaluate("$MessageList = {}");
-            link.waitForAnswer();
-            link.getExpr(); // throw away the result
             log(Level.FINEST, "New packet");
             link.newPacket();
             log(Level.FINEST, "Returning anwser...");
