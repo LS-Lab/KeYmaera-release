@@ -23,9 +23,15 @@
 package de.uka.ilkd.key.dl.arithmetics.impl.mathematica;
 
 import java.math.BigDecimal;
+import java.rmi.RemoteException;
+import java.util.HashMap;
 
 import com.wolfram.jlink.Expr;
 
+import de.uka.ilkd.key.dl.arithmetics.exceptions.IncompleteEvaluationException;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.UnableToConvertInputException;
+import de.uka.ilkd.key.gui.Main;
+import de.uka.ilkd.key.logic.Name;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.op.Function;
 import de.uka.ilkd.key.logic.op.Junctor;
@@ -51,6 +57,27 @@ public class Term2ExprConverter implements ExprConstants {
      * @return the equivalant Expr
      */
     public static Expr convert2Expr(Term form) {
+
+        Expr convert2ExprImpl = convert2ExprImpl(form);
+        // try {
+        // assert (form.equals(Expr2TermConverter.convertImpl(convert2ExprImpl,
+        // Main
+        // .getInstance().mediator().getServices().getNamespaces(),
+        // new HashMap<Name, LogicVariable>())));
+        // } catch (UnableToConvertInputException e) {
+        // // TODO Auto-generated catch block
+        // e.printStackTrace();
+        // } catch (IncompleteEvaluationException e) {
+        // // TODO Auto-generated catch block
+        // e.printStackTrace();
+        // } catch (RemoteException e) {
+        // // TODO Auto-generated catch block
+        // e.printStackTrace();
+        // }
+        return convert2ExprImpl;
+    }
+
+    static Expr convert2ExprImpl(Term form) {
         Expr[] args = new Expr[form.arity()];
         for (int i = 0; i < args.length; i++) {
             args[i] = convert2Expr(form.sub(i));
@@ -139,42 +166,50 @@ public class Term2ExprConverter implements ExprConstants {
             }
             newArgs[0] = new Expr(LIST, vars);
             if (form.op() == Quantifier.ALL) {
-                assert args.length == 1 : "'Unary' KeY quantifier \\forall x (" + args + ")";
-                if(args[0].head() == FORALL) {
+                assert args.length == 1 : "'Unary' KeY quantifier \\forall x ("
+                        + args + ")";
+                if (args[0].head() == FORALL) {
                     assert args[0].args().length == 2 : "'Binary' quantifier with variables and formula";
                     Expr kernel = args[0].args()[1];
                     assert args[0].args()[0].head() == LIST : "Term2ExprConverter always builds list quantifiers";
-                    System.err.println(args[0]);
-                    System.err.println("kernel " + args[0].args()[1]);
                     Expr[] innerVariables = args[0].args()[0].args();
-                    // allVariables = (outer)vars + innerVariables 
-                    Expr[] allVariables = new Expr[innerVariables.length +vars.length];
+                    // allVariables = (outer)vars + innerVariables
+                    Expr[] allVariables = new Expr[innerVariables.length
+                            + vars.length];
                     System.arraycopy(vars, 0, allVariables, 0, vars.length);
-                    System.arraycopy(innerVariables, 0, allVariables, vars.length, innerVariables.length);
+                    System.arraycopy(innerVariables, 0, allVariables,
+                            vars.length, innerVariables.length);
                     Expr[] mergedQuant = new Expr[args.length + 1];
                     assert mergedQuant.length == 2;
                     mergedQuant[0] = new Expr(LIST, allVariables);
                     mergedQuant[1] = kernel;
-                    return new Expr(FORALL, mergedQuant);
+                    Expr expr = new Expr(FORALL, mergedQuant);
+                    assert equalsTranslateBack(expr, new Expr(FORALL, newArgs));
+                    return expr;
                 } else {
                     return new Expr(FORALL, newArgs);
                 }
             } else if (form.op() == Quantifier.EX) {
-                assert args.length == 1 : "'Unary' KeY quantifier \\exists x (" + args + ")";
-                if(args[0].head() == EXISTS) {
+                assert args.length == 1 : "'Unary' KeY quantifier \\exists x ("
+                        + args + ")";
+                if (args[0].head() == EXISTS) {
                     assert args[0].args().length == 2 : "'Binary' quantifier with variables and formula";
                     Expr kernel = args[0].args()[1];
                     assert args[0].args()[0].head() == LIST : "Term2ExprConverter always builds list quantifiers";
                     Expr[] innerVariables = args[0].args()[0].args();
-                    // allVariables = (outer)vars + innerVariables 
-                    Expr[] allVariables = new Expr[innerVariables.length +vars.length];
+                    // allVariables = (outer)vars + innerVariables
+                    Expr[] allVariables = new Expr[innerVariables.length
+                            + vars.length];
                     System.arraycopy(vars, 0, allVariables, 0, vars.length);
-                    System.arraycopy(innerVariables, 0, allVariables, vars.length, innerVariables.length);
+                    System.arraycopy(innerVariables, 0, allVariables,
+                            vars.length, innerVariables.length);
                     Expr[] mergedQuant = new Expr[args.length + 1];
                     assert mergedQuant.length == 2;
                     mergedQuant[0] = new Expr(LIST, allVariables);
                     mergedQuant[1] = kernel;
-                    return new Expr(EXISTS, mergedQuant);
+                    Expr expr = new Expr(EXISTS, mergedQuant);
+                    assert equalsTranslateBack(expr, new Expr(FORALL, newArgs));
+                    return expr;
                 } else {
                     return new Expr(EXISTS, newArgs);
                 }
@@ -182,5 +217,23 @@ public class Term2ExprConverter implements ExprConstants {
         }
         throw new IllegalArgumentException("Could not convert Term: " + form
                 + "Operator was: " + form.op());
+    }
+
+    /**
+     * TODO jdq documentation since Nov 22, 2007
+     * 
+     * @param expr
+     * @param expr2
+     * @return
+     */
+    private static boolean equalsTranslateBack(Expr expr, Expr expr2) {
+        Expr var = expr.args()[0].args()[0];
+        Expr form = expr.args()[1];
+        Expr[] vars = new Expr[expr.args()[0].args().length - 1];
+        System.arraycopy(expr.args()[0].args(), 1, vars, 0, vars.length);
+        Expr newExpr = new Expr(FORALL, new Expr[] { new Expr(LIST, new Expr[] {var}),
+                new Expr(FORALL, new Expr[] { new Expr(LIST, vars), form }) });
+        return newExpr
+                .equals(expr2);
     }
 }

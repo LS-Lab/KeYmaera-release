@@ -108,6 +108,13 @@ public class Expr2TermConverter implements ExprConstants {
     public static Term convert(Expr expr, NamespaceSet nss,
             Map<Name, LogicVariable> quantifiedVariables)
             throws RemoteException, UnableToConvertInputException, IncompleteEvaluationException {
+        Term convertImpl = convertImpl(expr, nss, quantifiedVariables);
+//        assert expr.equals(Term2ExprConverter.convert2ExprImpl(convertImpl));
+        return convertImpl;
+    }
+    static Term convertImpl(Expr expr, NamespaceSet nss,
+                Map<Name, LogicVariable> quantifiedVariables)
+        throws RemoteException, UnableToConvertInputException, IncompleteEvaluationException {
         try {
             if (expr.toString().equalsIgnoreCase("$Aborted")) {
                 throw new IncompleteEvaluationException("Calculation aborted!");
