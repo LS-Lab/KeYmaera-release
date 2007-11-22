@@ -221,7 +221,7 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule, UnknownP
             for(Term sk: orderedList) {
                 if(sk.arity() > 0) {
                     LogicVariable logicVariable = new LogicVariable(
-                            new Name(sk.op().name() + "$skolem"), sk.op().sort(
+                            new Name(sk.op().name() + "$sk"), sk.op().sort(
                                     new Term[0]));
                     vars.add(logicVariable);
                     matches.add(new Match((RigidFunction) sk.op(), TermBuilder.DF

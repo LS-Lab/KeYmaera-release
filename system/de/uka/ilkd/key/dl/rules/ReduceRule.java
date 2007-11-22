@@ -206,7 +206,7 @@ public class ReduceRule extends RuleOperatingOnWholeSequence implements
             for (Term sk : skolem) {
                 LogicVariable logicVariable = new LogicVariable(new Name(sk
                         .op().name()
-                        + "$skolem"), sk.op().sort(new Term[0]));
+                        + "$sk"), sk.op().sort(new Term[0]));
                 vars.add(logicVariable);
                 matches.add(new Match((RigidFunction) sk.op(), TermBuilder.DF
                         .var(logicVariable)));

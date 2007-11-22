@@ -139,9 +139,31 @@ public class Term2ExprConverter implements ExprConstants {
             }
             newArgs[0] = new Expr(LIST, vars);
             if (form.op() == Quantifier.ALL) {
-                return new Expr(FORALL, newArgs);
+                if(args[0].head() == FORALL) {
+                    Expr formula = args[0].args()[1];
+                    Expr[] oldList = args[0].args()[0].args();
+                    Expr[] newList = new Expr[oldList.length +vars.length];
+                    System.arraycopy(oldList, 0, newList, vars.length, oldList.length);
+                    System.arraycopy(vars, 0, newList, 0, vars.length);
+                    newArgs[0] = new Expr(LIST, newList);
+                    newArgs[1] = formula;
+                    return new Expr(FORALL, newArgs);
+                } else {
+                    return new Expr(FORALL, newArgs);
+                }
             } else if (form.op() == Quantifier.EX) {
-                return new Expr(EXISTS, newArgs);
+                if(args[0].head() == EXISTS) {
+                    Expr formula = args[0].args()[1];
+                    Expr[] oldList = args[0].args()[0].args();
+                    Expr[] newList = new Expr[oldList.length +vars.length];
+                    System.arraycopy(oldList, 0, newList, vars.length, oldList.length);
+                    System.arraycopy(vars, 0, newList, 0, vars.length);
+                    newArgs[0] = new Expr(LIST, newList);
+                    newArgs[1] = formula;
+                    return new Expr(EXISTS, newArgs);
+                } else {
+                    return new Expr(EXISTS, newArgs);
+                }
             }
         }
         throw new IllegalArgumentException("Could not convert Term: " + form
