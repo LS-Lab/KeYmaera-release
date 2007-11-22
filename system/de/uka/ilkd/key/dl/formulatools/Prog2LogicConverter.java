@@ -30,6 +30,8 @@ import de.uka.ilkd.key.dl.model.Biimplies;
 import de.uka.ilkd.key.dl.model.Constant;
 import de.uka.ilkd.key.dl.model.DLNonTerminalProgramElement;
 import de.uka.ilkd.key.dl.model.DLProgramElement;
+import de.uka.ilkd.key.dl.model.Exists;
+import de.uka.ilkd.key.dl.model.Forall;
 import de.uka.ilkd.key.dl.model.FunctionTerm;
 import de.uka.ilkd.key.dl.model.Implies;
 import de.uka.ilkd.key.dl.model.LogicalVariable;
@@ -39,6 +41,7 @@ import de.uka.ilkd.key.dl.model.Not;
 import de.uka.ilkd.key.dl.model.Or;
 import de.uka.ilkd.key.dl.model.PredicateTerm;
 import de.uka.ilkd.key.dl.model.Variable;
+import de.uka.ilkd.key.dl.model.VariableDeclaration;
 import de.uka.ilkd.key.java.ProgramElement;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.logic.Name;
@@ -163,6 +166,26 @@ public class Prog2LogicConverter extends AbstractMetaOperator {
                     .func(getFunction(((NamedElement) p.getChildAt(0))
                             .getElementName(), services.getNamespaces(),
                             subTerms.length, sortR), subTerms);
+        } else if (form instanceof Forall) {
+            Forall f = (Forall) form;
+            VariableDeclaration decl = (VariableDeclaration) f.getChildAt(0);
+            Term formula = convertRecursivly(f.getChildAt(1), services);
+            LogicVariable[] vars = new LogicVariable[decl.getChildCount() - 1];
+            for (int i = 1; i < decl.getChildCount(); i++) {
+                vars[i - 1] = (LogicVariable) convertRecursivly(decl.getChildAt(i),
+                        services).op();
+            }
+            return TermBuilder.DF.all(vars, formula);
+        } else if (form instanceof Exists) {
+            Exists f = (Exists) form;
+            VariableDeclaration decl = (VariableDeclaration) f.getChildAt(0);
+            Term formula = convertRecursivly(f.getChildAt(1), services);
+            LogicVariable[] vars = new LogicVariable[decl.getChildCount() - 1];
+            for (int i = 1; i < decl.getChildCount(); i++) {
+                vars[i - 1] = (LogicVariable) convertRecursivly(decl.getChildAt(i),
+                        services).op();
+            }
+            return TermBuilder.DF.ex(vars, formula);
         } else if (form instanceof DLNonTerminalProgramElement) {
             DLNonTerminalProgramElement p = (DLNonTerminalProgramElement) form;
             Term[] subTerms = new Term[p.getChildCount()];
@@ -199,8 +222,7 @@ public class Prog2LogicConverter extends AbstractMetaOperator {
             if (form instanceof de.uka.ilkd.key.dl.model.ProgramVariable) {
                 de.uka.ilkd.key.logic.op.ProgramVariable var;
                 var = (de.uka.ilkd.key.logic.op.ProgramVariable) services
-                        .getNamespaces().programVariables().lookup(
-                                elementName);
+                        .getNamespaces().programVariables().lookup(elementName);
                 if (var == null) {
                     throw new IllegalStateException("ProgramVariable " + form
                             + " is not declared");
@@ -211,9 +233,9 @@ public class Prog2LogicConverter extends AbstractMetaOperator {
                         .variables().lookup(elementName);
                 if (var == null) { // XXX
                     // TODO: find a way to locate bound variable objects
-                    System.out.println("Could not find logic variable " + elementName);//XXX 
-                    var = new LogicVariable(elementName,
-                            sortR);
+                    System.out.println("Could not find logic variable "
+                            + elementName);// XXX
+                    var = new LogicVariable(elementName, sortR);
                 }
                 return termBuilder.var(var);
             } else if (form instanceof MetaVariable) {

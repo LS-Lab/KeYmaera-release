@@ -32,7 +32,6 @@ import java.util.WeakHashMap;
 
 import org.antlr.runtime.tree.CommonTree;
 
-import de.uka.ilkd.key.dl.formulatools.VariableDeclaration;
 import de.uka.ilkd.key.logic.NamespaceSet;
 
 /**
@@ -363,7 +362,8 @@ public abstract class TermFactory implements Serializable {
      * @return a new representation for a variable declaration
      */
     public abstract VariableDeclaration createVariableDeclaration(
-            CommonTree type, List<CommonTree> var);
+            CommonTree type, List<CommonTree> var, boolean programVariable);
+   
 
     /**
      * Creates a sequential composition of two programs.
@@ -632,5 +632,9 @@ public abstract class TermFactory implements Serializable {
      * @return the new or cached meta variable
      */
     public abstract MetaVariable createMetaVariable(String name);
+    
+    public abstract Forall createForall(VariableDeclaration dec, Formula form);
+    
+    public abstract Exists createExists(VariableDeclaration dec, Formula form);
 
 }

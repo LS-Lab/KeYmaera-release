@@ -29,7 +29,6 @@ import java.util.List;
 
 import org.antlr.runtime.tree.CommonTree;
 
-import de.uka.ilkd.key.dl.formulatools.VariableDeclaration;
 import de.uka.ilkd.key.dl.logic.ldt.RealLDT;
 import de.uka.ilkd.key.dl.model.And;
 import de.uka.ilkd.key.dl.model.Assign;
@@ -43,7 +42,9 @@ import de.uka.ilkd.key.dl.model.DLProgram;
 import de.uka.ilkd.key.dl.model.DiffSystem;
 import de.uka.ilkd.key.dl.model.Dot;
 import de.uka.ilkd.key.dl.model.Equals;
+import de.uka.ilkd.key.dl.model.Exists;
 import de.uka.ilkd.key.dl.model.Expression;
+import de.uka.ilkd.key.dl.model.Forall;
 import de.uka.ilkd.key.dl.model.Formula;
 import de.uka.ilkd.key.dl.model.FreePredicate;
 import de.uka.ilkd.key.dl.model.Function;
@@ -68,6 +69,7 @@ import de.uka.ilkd.key.dl.model.Star;
 import de.uka.ilkd.key.dl.model.TermFactory;
 import de.uka.ilkd.key.dl.model.Unequals;
 import de.uka.ilkd.key.dl.model.Variable;
+import de.uka.ilkd.key.dl.model.VariableDeclaration;
 import de.uka.ilkd.key.logic.Name;
 import de.uka.ilkd.key.logic.Named;
 import de.uka.ilkd.key.logic.NamespaceSet;
@@ -711,20 +713,34 @@ public class TermFactoryImpl extends TermFactory {
      */
     @Override
     public VariableDeclaration createVariableDeclaration(CommonTree type,
-            List<CommonTree> decls) {
+            List<CommonTree> decls, boolean programVariable) {
         List<Variable> variables = new ArrayList<Variable>();
         for (CommonTree var : decls) {
-            assert getNamespaces().variables().lookup(new Name(var.getText())) == null;
-//            && getNamespaces().programVariables().lookup(
-//             new Name(var.getText())) == null;
-            if (getNamespaces().programVariables().lookup(
-                    new Name(var.getText())) == null) {
-                getNamespaces().programVariables().addSafely(
-                        new LocationVariable(new ProgramElementName(var
-                                .getText()), RealLDT.getRealSort()));
+            if (programVariable) {
+                assert getNamespaces().variables().lookup(
+                        new Name(var.getText())) == null;
+                // && getNamespaces().programVariables().lookup(
+                // new Name(var.getText())) == null;
+                if (getNamespaces().programVariables().lookup(
+                        new Name(var.getText())) == null) {
+                    getNamespaces().programVariables().addSafely(
+                            new LocationVariable(new ProgramElementName(var
+                                    .getText()), RealLDT.getRealSort()));
+                }
+                variables.add(ProgramVariableImpl.getProgramVariable(var
+                        .getText(), true));
+            } else {
+                assert getNamespaces().programVariables().lookup(
+                        new Name(var.getText())) == null;
+                if (getNamespaces().variables().lookup(
+                        new Name(var.getText())) == null) {
+                    getNamespaces().variables().addSafely(
+                            new LogicVariable(new Name(var
+                                    .getText()), RealLDT.getRealSort()));
+                }
+                variables.add(LogicalVariableImpl.getLogicalVariable(var
+                        .getText()));
             }
-            variables.add(ProgramVariableImpl.getProgramVariable(var.getText(),
-                    true));
         }
         return new VariableDeclarationImpl(VariableTypeImpl
                 .getVariableType(type.getText()), variables);
@@ -739,6 +755,28 @@ public class TermFactoryImpl extends TermFactory {
     @Override
     public IfStatement createIf(Formula expr, DLProgram then, DLProgram else_) {
         return new IfStatementImpl(expr, then, else_);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see de.uka.ilkd.key.dl.model.TermFactory#createExists(de.uka.ilkd.key.dl.formulatools.VariableDeclaration,
+     *      de.uka.ilkd.key.dl.model.Formula)
+     */
+    @Override
+    public Exists createExists(VariableDeclaration dec, Formula form) {
+        return new ExistsImpl(dec, form);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see de.uka.ilkd.key.dl.model.TermFactory#createForall(de.uka.ilkd.key.dl.formulatools.VariableDeclaration,
+     *      de.uka.ilkd.key.dl.model.Formula)
+     */
+    @Override
+    public Forall createForall(VariableDeclaration dec, Formula form) {
+        return new ForallImpl(dec, form);
     }
 
 }

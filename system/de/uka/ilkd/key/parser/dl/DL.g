@@ -101,6 +101,7 @@ pred:
 | func[false] 
 | LPAREN! form RPAREN!
 | NOT^ pred
+| (FORALL|EXISTS)^ vardec CHOP pred
 | {schemaMode}? sv
 ;
 
@@ -185,6 +186,8 @@ EQUALS	: '=' ;
 UNEQUALS: '!=';
 CHOICE 	: '++';
 PARALLEL: '||';
+FORALL	: 'forall';
+EXISTS	: 'exists';
 IF		: 'if';
 FI		: 'fi';
 THEN	: 'then';

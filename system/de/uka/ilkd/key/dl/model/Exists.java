@@ -17,26 +17,14 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-/**
- * 
- */
-package de.uka.ilkd.key.dl.formulatools;
-
-import de.uka.ilkd.key.dl.model.ElementaryDLProgram;
-import de.uka.ilkd.key.dl.model.VariableType;
+package de.uka.ilkd.key.dl.model;
 
 /**
- * Representation of a variable declaration in an hybrid program
- * 
+ * TODO jdq documentation since Nov 22, 2007 
  * @author jdq
- * @since Jul 16, 2007
+ * @since Nov 22, 2007
  * 
  */
-public interface VariableDeclaration extends ElementaryDLProgram {
-
-    /**
-     * @return
-     */
-    VariableType getType();
+public interface Exists extends CompoundFormula {
 
 }

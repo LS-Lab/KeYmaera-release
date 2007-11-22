@@ -9,12 +9,12 @@ import org.antlr.runtime.RecognitionException;
 import org.antlr.runtime.tree.CommonTree;
 import org.antlr.runtime.tree.CommonTreeNodeStream;
 
-import de.uka.ilkd.key.dl.formulatools.VariableDeclaration;
 import de.uka.ilkd.key.dl.model.DLNonTerminalProgramElement;
 import de.uka.ilkd.key.dl.model.DLProgram;
 import de.uka.ilkd.key.dl.model.DLProgramElement;
 import de.uka.ilkd.key.dl.model.DLStatementBlock;
 import de.uka.ilkd.key.dl.model.TermFactory;
+import de.uka.ilkd.key.dl.model.VariableDeclaration;
 import de.uka.ilkd.key.dl.model.impl.TermFactoryImpl;
 import de.uka.ilkd.key.java.ProgramElement;
 import de.uka.ilkd.key.java.StatementBlock;
@@ -78,16 +78,17 @@ public class ProgramBlockProvider implements
             stage2.setTermFactory(tf);
             DLProgram prog = stage2.prog();
             Debug.out("Stage 2 finished");
-//             ProgramVariableDeclaratorVisitor.declareVariables(prog, config
-//             .namespaces());
+            // ProgramVariableDeclaratorVisitor.declareVariables(prog, config
+            // .namespaces());
             StatementBlock statBlock = new DLStatementBlock(prog);
             JavaBlock result = JavaBlock.createJavaBlock(statBlock);
             return result;
         } catch (RecognitionException e) {
             String message = parser.getErrorMessage(e, parser.getTokenNames());
-            message += "\nin line " + e.line + " at position " + e.charPositionInLine;
-            throw new IllegalStateException("Parse error: " + message + "\nwhile parsing: "
-                    + programBlock, e);
+            message += "\nin line " + e.line + " at position "
+                    + e.charPositionInLine;
+            throw new IllegalStateException("Parse error: " + message
+                    + "\nwhile parsing: " + programBlock, e);
         }
 
     }
@@ -96,8 +97,8 @@ public class ProgramBlockProvider implements
             NamespaceSet nss, boolean globalDeclTermParser, boolean declParser,
             boolean termOrProblemParser) {
         HashSet<ProgramElement> programVariables = getProgramVariables(
-                        (DLProgramElement) ((StatementBlock) programBlock.program())
-                                .getChildAt(0), nss);
+                (DLProgramElement) ((StatementBlock) programBlock.program())
+                        .getChildAt(0), nss);
         return programVariables;
     }
 
@@ -111,24 +112,28 @@ public class ProgramBlockProvider implements
         if (form instanceof ProgramSV) {
             return result;
         }
-        if(form instanceof de.uka.ilkd.key.dl.model.ProgramVariable) {
-            result.add((ProgramVariable) nss
-                    .programVariables().lookup(((de.uka.ilkd.key.dl.model.ProgramVariable) form).getElementName()));
+        if (form instanceof de.uka.ilkd.key.dl.model.ProgramVariable) {
+            result.add((ProgramVariable) nss.programVariables().lookup(
+                    ((de.uka.ilkd.key.dl.model.ProgramVariable) form)
+                            .getElementName()));
         } else if (form instanceof VariableDeclaration) {
             VariableDeclaration decl = (VariableDeclaration) form;
             for (int i = 1; i < decl.getChildCount(); i++) {
-                de.uka.ilkd.key.dl.model.ProgramVariable v = (de.uka.ilkd.key.dl.model.ProgramVariable) decl
-                        .getChildAt(i);
-                NamespaceSet namespaces = nss;
-                de.uka.ilkd.key.logic.op.ProgramVariable kv = (ProgramVariable) namespaces
-                        .programVariables().lookup(v.getElementName());
-                if (kv == null) {
-                    kv = new LocationVariable(new ProgramElementName(v
-                            .getElementName().toString()), (Sort) namespaces
-                            .sorts().lookup(decl.getType().getElementName()));
-                    namespaces.programVariables().add(kv);
+                ProgramElement childAt = decl.getChildAt(i);
+                if (childAt instanceof de.uka.ilkd.key.dl.model.ProgramVariable) {
+                    de.uka.ilkd.key.dl.model.ProgramVariable v = (de.uka.ilkd.key.dl.model.ProgramVariable) childAt;
+                    NamespaceSet namespaces = nss;
+                    de.uka.ilkd.key.logic.op.ProgramVariable kv = (ProgramVariable) namespaces
+                            .programVariables().lookup(v.getElementName());
+                    if (kv == null) {
+                        kv = new LocationVariable(new ProgramElementName(v
+                                .getElementName().toString()),
+                                (Sort) namespaces.sorts().lookup(
+                                        decl.getType().getElementName()));
+                        namespaces.programVariables().add(kv);
+                    }
+                    result.add(kv);
                 }
-                result.add(kv);
             }
 
         } else if (form instanceof DLNonTerminalProgramElement) {

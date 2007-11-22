@@ -23,6 +23,7 @@
 package de.uka.ilkd.key.dl.formulatools;
 
 import de.uka.ilkd.key.dl.model.DLNonTerminalProgramElement;
+import de.uka.ilkd.key.dl.model.VariableDeclaration;
 import de.uka.ilkd.key.gui.Main;
 import de.uka.ilkd.key.java.ProgramElement;
 import de.uka.ilkd.key.java.StatementBlock;
@@ -73,16 +74,19 @@ public class ProgramVariableDeclaratorVisitor extends Visitor {
         if (element instanceof VariableDeclaration) {
             VariableDeclaration decl = (VariableDeclaration) element;
             for (int i = 1; i < decl.getChildCount(); i++) {
-                de.uka.ilkd.key.dl.model.ProgramVariable v = (de.uka.ilkd.key.dl.model.ProgramVariable) decl
-                        .getChildAt(i);
-                NamespaceSet namespaces = nss;
-                de.uka.ilkd.key.logic.op.ProgramVariable kv = (ProgramVariable) namespaces
-                        .programVariables().lookup(v.getElementName());
-                if (kv == null) {
-                    kv = new LocationVariable(new ProgramElementName(v
-                            .getElementName().toString()), (Sort) namespaces
-                            .sorts().lookup(decl.getType().getElementName()));
-                    namespaces.programVariables().add(kv);
+                ProgramElement childAt = decl.getChildAt(i);
+                if (childAt instanceof de.uka.ilkd.key.dl.model.ProgramVariable) {
+                    de.uka.ilkd.key.dl.model.ProgramVariable v = (de.uka.ilkd.key.dl.model.ProgramVariable) childAt;
+                    NamespaceSet namespaces = nss;
+                    de.uka.ilkd.key.logic.op.ProgramVariable kv = (ProgramVariable) namespaces
+                            .programVariables().lookup(v.getElementName());
+                    if (kv == null) {
+                        kv = new LocationVariable(new ProgramElementName(v
+                                .getElementName().toString()),
+                                (Sort) namespaces.sorts().lookup(
+                                        decl.getType().getElementName()));
+                        namespaces.programVariables().add(kv);
+                    }
                 }
             }
         } else if (element instanceof DLNonTerminalProgramElement) {
@@ -90,8 +94,8 @@ public class ProgramVariableDeclaratorVisitor extends Visitor {
             for (int i = 0; i < ntpl.getChildCount(); i++) {
                 declareVariables(ntpl.getChildAt(i), nss);
             }
-        } 
-        
+        }
+
     }
 
 }

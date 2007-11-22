@@ -25,8 +25,8 @@ package de.uka.ilkd.key.dl.model.impl;
 import java.io.IOException;
 import java.util.List;
 
-import de.uka.ilkd.key.dl.formulatools.VariableDeclaration;
 import de.uka.ilkd.key.dl.model.Variable;
+import de.uka.ilkd.key.dl.model.VariableDeclaration;
 import de.uka.ilkd.key.dl.model.VariableType;
 import de.uka.ilkd.key.java.NameAbstractionTable;
 import de.uka.ilkd.key.java.PrettyPrinter;

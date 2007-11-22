@@ -1763,7 +1763,7 @@ public abstract class ProgramSVSort extends PrimitiveSort {
          *      de.uka.ilkd.key.java.Services) canStandFor
          */
         public boolean canStandFor(ProgramElement pe, Services services) {
-            return (pe instanceof de.uka.ilkd.key.dl.formulatools.VariableDeclaration);
+            return (pe instanceof de.uka.ilkd.key.dl.model.VariableDeclaration);
         }
     }
     
