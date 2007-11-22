@@ -139,28 +139,42 @@ public class Term2ExprConverter implements ExprConstants {
             }
             newArgs[0] = new Expr(LIST, vars);
             if (form.op() == Quantifier.ALL) {
+                assert args.length == 1 : "'Unary' KeY quantifier \\forall x (" + args + ")";
                 if(args[0].head() == FORALL) {
-                    Expr formula = args[0].args()[1];
-                    Expr[] oldList = args[0].args()[0].args();
-                    Expr[] newList = new Expr[oldList.length +vars.length];
-                    System.arraycopy(oldList, 0, newList, vars.length, oldList.length);
-                    System.arraycopy(vars, 0, newList, 0, vars.length);
-                    newArgs[0] = new Expr(LIST, newList);
-                    newArgs[1] = formula;
-                    return new Expr(FORALL, newArgs);
+                    assert args[0].args().length == 2 : "'Binary' quantifier with variables and formula";
+                    Expr kernel = args[0].args()[1];
+                    assert args[0].args()[0].head() == LIST : "Term2ExprConverter always builds list quantifiers";
+                    System.err.println(args[0]);
+                    System.err.println("kernel " + args[0].args()[1]);
+                    Expr[] innerVariables = args[0].args()[0].args();
+                    // allVariables = (outer)vars + innerVariables 
+                    Expr[] allVariables = new Expr[innerVariables.length +vars.length];
+                    System.arraycopy(vars, 0, allVariables, 0, vars.length);
+                    System.arraycopy(innerVariables, 0, allVariables, vars.length, innerVariables.length);
+                    Expr[] mergedQuant = new Expr[args.length + 1];
+                    assert mergedQuant.length == 2;
+                    mergedQuant[0] = new Expr(LIST, allVariables);
+                    mergedQuant[1] = kernel;
+                    return new Expr(FORALL, mergedQuant);
                 } else {
                     return new Expr(FORALL, newArgs);
                 }
             } else if (form.op() == Quantifier.EX) {
+                assert args.length == 1 : "'Unary' KeY quantifier \\exists x (" + args + ")";
                 if(args[0].head() == EXISTS) {
-                    Expr formula = args[0].args()[1];
-                    Expr[] oldList = args[0].args()[0].args();
-                    Expr[] newList = new Expr[oldList.length +vars.length];
-                    System.arraycopy(oldList, 0, newList, vars.length, oldList.length);
-                    System.arraycopy(vars, 0, newList, 0, vars.length);
-                    newArgs[0] = new Expr(LIST, newList);
-                    newArgs[1] = formula;
-                    return new Expr(EXISTS, newArgs);
+                    assert args[0].args().length == 2 : "'Binary' quantifier with variables and formula";
+                    Expr kernel = args[0].args()[1];
+                    assert args[0].args()[0].head() == LIST : "Term2ExprConverter always builds list quantifiers";
+                    Expr[] innerVariables = args[0].args()[0].args();
+                    // allVariables = (outer)vars + innerVariables 
+                    Expr[] allVariables = new Expr[innerVariables.length +vars.length];
+                    System.arraycopy(vars, 0, allVariables, 0, vars.length);
+                    System.arraycopy(innerVariables, 0, allVariables, vars.length, innerVariables.length);
+                    Expr[] mergedQuant = new Expr[args.length + 1];
+                    assert mergedQuant.length == 2;
+                    mergedQuant[0] = new Expr(LIST, allVariables);
+                    mergedQuant[1] = kernel;
+                    return new Expr(EXISTS, mergedQuant);
                 } else {
                     return new Expr(EXISTS, newArgs);
                 }
