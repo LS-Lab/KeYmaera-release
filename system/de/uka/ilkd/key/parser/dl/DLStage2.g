@@ -52,7 +52,7 @@ form[boolean diff] returns [ Formula fe ] scope { ArrayList<Expression> params; 
 | ^(NOT frm = form[diff] { fe = tf.createNot(frm); })
 | ^(bop = brel e = expr[diff] e2 = expr[diff]) { fe = tf.createBinaryRelation(bop, e, e2); }
 | ^(FORALL ^(VARDEC decl = vardecl[false]) CHOP frm = form[diff] { fe = tf.createForall(decl, frm); })
-| ^(EXISTS VARDEC decl = vardecl[false] CHOP frm = form[diff] { fe = tf.createExists(decl, frm); })
+| ^(EXISTS ^(VARDEC decl = vardecl[false]) CHOP frm = form[diff] { fe = tf.createExists(decl, frm); })
 | ^(t = WORD (e = expr[diff] { $form::params.add(e); })* { fe = tf.createPredicateTerm(t, $form::params); $form::params.clear(); })
 | t = WORD { fe = tf.createPredicateTerm(t); }
 | {schemaMode}? sv = svar { fe = tf.schemaTermVariable(sv, diff); }
