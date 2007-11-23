@@ -354,7 +354,7 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
                 .keySet())) {
             query = TermBuilder.DF.all(commonVars.get(sk), query);
             //TODO: check if we can avoid adding these variables to the namespace...
-            services.getNamespaces().variables().addSafely(commonVars.get(sk));
+            services.getNamespaces().variables().add(commonVars.get(sk));
         }
         List<PairOfTermAndQuantifierType> quantifiers = new LinkedList<PairOfTermAndQuantifierType>();
         for (Metavariable var : variables) {
