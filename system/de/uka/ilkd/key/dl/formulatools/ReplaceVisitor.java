@@ -99,7 +99,9 @@ public class ReplaceVisitor {
         } else if (childAt instanceof Star) {
             Star p = (Star) childAt;
             return tf.createStar((DLProgram) convert(p.getChildAt(0),
-                    substitutionMap, tf), (Formula) convert(p.getInvariant(), substitutionMap, tf));
+                    substitutionMap, tf),
+                    (p.getInvariant() != null) ? (Formula) convert(p
+                            .getInvariant(), substitutionMap, tf) : null);
         } else if (childAt instanceof Parallel) {
             Parallel parallel = (Parallel) childAt;
             return tf.createParallel((DLProgram) convert(
@@ -196,7 +198,7 @@ public class ReplaceVisitor {
                     substitutionMap, tf), (ifS.getElse() == null) ? null
                     : (DLProgram) convert(ifS.getElse(), substitutionMap, tf));
         }
-        throw new IllegalArgumentException("Dont now how to convert: "
+        throw new IllegalArgumentException("Dont know how to convert: "
                 + childAt);
     }
 
@@ -257,35 +259,37 @@ public class ReplaceVisitor {
      * @return a ProgramElement representation of the formula
      */
     public static Formula convertFormulaToProgram(Term form, TermFactory tf) {
-        if(form.op() == Op.AND) {
+        if (form.op() == Op.AND) {
             return tf.createAnd(convertFormulaToProgram(form.sub(0), tf),
-            convertFormulaToProgram(form.sub(1), tf));
-        } else if(form.op() == Op.OR) {
+                    convertFormulaToProgram(form.sub(1), tf));
+        } else if (form.op() == Op.OR) {
             return tf.createOr(convertFormulaToProgram(form.sub(0), tf),
                     convertFormulaToProgram(form.sub(1), tf));
-        } else if(form.op() == Op.IMP) {
+        } else if (form.op() == Op.IMP) {
             return tf.createImpl(convertFormulaToProgram(form.sub(0), tf),
                     convertFormulaToProgram(form.sub(1), tf));
-        } else if(form.op() == Op.EQV) {
+        } else if (form.op() == Op.EQV) {
             return tf.createBiImpl(convertFormulaToProgram(form.sub(0), tf),
                     convertFormulaToProgram(form.sub(1), tf));
-        } else if(form.op() == Op.NOT) {
+        } else if (form.op() == Op.NOT) {
             return tf.createNot(convertFormulaToProgram(form.sub(0), tf));
-        } else if(form.op() instanceof Function) {
+        } else if (form.op() instanceof Function) {
             List<Expression> argList = new ArrayList<Expression>();
             for (int i = 0; i < form.arity(); i++) {
                 argList.add(convertToProgram(form.sub(i), tf));
             }
-            return tf.createPredicateTerm(RealLDT.getPredicate((Function) form.op()), argList);
-        } else if(form.op() instanceof Equality) {
+            return tf.createPredicateTerm(RealLDT.getPredicate((Function) form
+                    .op()), argList);
+        } else if (form.op() instanceof Equality) {
             List<Expression> argList = new ArrayList<Expression>();
             for (int i = 0; i < form.arity(); i++) {
                 argList.add(convertToProgram(form.sub(i), tf));
             }
             return tf.createPredicateTerm(EqualsImpl.getInstance(), argList);
         }
-        
+
         throw new IllegalArgumentException("Could not convert Term: " + form
-                + "Operator was: " + form.op() + " of class " + form.op().getClass());
+                + "Operator was: " + form.op() + " of class "
+                + form.op().getClass());
     }
 }
