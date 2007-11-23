@@ -78,7 +78,8 @@ import de.uka.ilkd.key.rule.RuleApp;
  * @since 27.08.2007
  * 
  */
-public class EliminateExistentialQuantifierRule implements BuiltInRule, UnknownProgressRule, UnbackableRule {
+public class EliminateExistentialQuantifierRule implements BuiltInRule,
+        UnknownProgressRule, UnbackableRule {
 
     /**
      * TODO jdq documentation since Aug 27, 2007
@@ -130,6 +131,7 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule, UnknownP
     }
 
     public static final BuiltInRule INSTANCE = new EliminateExistentialQuantifierRule();
+
     private boolean unsolvable;
 
     /**
@@ -205,41 +207,87 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule, UnknownP
         // sequents
         Term query = TermBuilder.DF.tt();
         Set<Term> skolemSymbols = new HashSet<Term>();
+        Set<Term> commonAnte = new HashSet<Term>();
+        Set<Term> commonSucc = new HashSet<Term>();
+        List<Goal> goalList = new ArrayList<Goal>(goals);
+        IteratorOfConstrainedFormula iterator = goalList.get(0).sequent()
+                .antecedent().iterator();
+        while (iterator.hasNext()) {
+            commonAnte.add(iterator.next().formula());
+        }
+        iterator = goalList.get(0).sequent().succedent().iterator();
+        while (iterator.hasNext()) {
+            commonSucc.add(iterator.next().formula());
+        }
+        for (int i = 1; i < goals.size(); i++) {
+            if (!commonAnte.isEmpty()) {
+                IteratorOfConstrainedFormula it = goalList.get(i).sequent()
+                        .antecedent().iterator();
+
+                while (it.hasNext()) {
+                    Term formula = it.next().formula();
+                    if (!commonAnte.contains(formula)) {
+                        commonAnte.remove(formula);
+                    }
+                }
+                if (!commonSucc.isEmpty()) {
+                    it = goalList.get(i).sequent().succedent().iterator();
+                    while (it.hasNext()) {
+                        Term formula = it.next().formula();
+                        if (!commonSucc.contains(formula)) {
+                            commonSucc.remove(formula);
+                        }
+                    }
+                }
+            }
+        }
+
         for (Goal g : goals) {
-            Set<Term> findSkolemSymbols = findSkolemSymbols(g.sequent().iterator());
-            
+            Set<Term> findSkolemSymbols = findSkolemSymbols(g.sequent()
+                    .iterator());
+
             Term antecendent = createJunctorTermNAry(TermBuilder.DF.tt(),
-                    Op.AND, g.sequent().antecedent().iterator());
+                    Op.AND, g.sequent().antecedent().iterator(), commonAnte);
             Term succendent = createJunctorTermNAry(TermBuilder.DF.ff(), Op.OR,
-                    g.sequent().succedent().iterator());
+                    g.sequent().succedent().iterator(), commonSucc);
             Set<Match> matches = new HashSet<Match>();
             List<LogicVariable> vars = new ArrayList<LogicVariable>();
-            Term imp = TermBuilder.DF.imp(antecendent,
-                    succendent);
+            Term imp = TermBuilder.DF.imp(antecendent, succendent);
             List<Term> orderedList = SkolemfunctionTracker.INSTANCE
-                .getOrderedList(findSkolemSymbols);
-            for(Term sk: orderedList) {
-                if(sk.arity() > 0) {
-                    LogicVariable logicVariable = new LogicVariable(
-                            new Name(sk.op().name() + "$sk"), sk.op().sort(
-                                    new Term[0]));
+                    .getOrderedList(findSkolemSymbols);
+            for (Term sk : orderedList) {
+                if (sk.arity() > 0) {
+                    LogicVariable logicVariable = new LogicVariable(new Name(sk
+                            .op().name()
+                            + "$sk"), sk.op().sort(new Term[0]));
                     vars.add(logicVariable);
-                    matches.add(new Match((RigidFunction) sk.op(), TermBuilder.DF
-                            .var(logicVariable)));
+                    matches.add(new Match((RigidFunction) sk.op(),
+                            TermBuilder.DF.var(logicVariable)));
                     findSkolemSymbols.remove(sk);
                 }
             }
-            if(!matches.isEmpty()) {
+            if (!matches.isEmpty()) {
                 imp = TermRewriter.replace(imp, matches);
                 for (QuantifiableVariable v : vars) {
                     imp = TermBuilder.DF.all(v, imp);
                 }
             }
-            
+
             skolemSymbols.addAll(findSkolemSymbols);
             query = TermBuilder.DF.and(query, imp);
         }
-
+        Term ante = TermBuilder.DF.tt();
+        for(Term t: commonAnte) {
+            ante = TermFactory.DEFAULT.createJunctorTermAndSimplify(
+                    Op.AND, ante, t);
+        }
+        Term succ = TermBuilder.DF.ff();
+        for(Term t: commonSucc) {
+            succ = TermFactory.DEFAULT.createJunctorTermAndSimplify(
+                    Op.OR, succ, t);
+        }
+        query = TermBuilder.DF.imp(ante, TermBuilder.DF.or(query, succ));
+        
         List<PairOfTermAndQuantifierType> quantifiers = new LinkedList<PairOfTermAndQuantifierType>();
         for (Metavariable var : variables) {
             quantifiers.add(new PairOfTermAndQuantifierType(TermBuilder.DF
@@ -292,7 +340,7 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule, UnknownP
                     + Arrays.toString(variables.toArray()), e);
         } catch (SolverException e) {
             throw new IllegalStateException("Cannot eliminate variable "
-            + Arrays.toString(variables.toArray()), e);
+                    + Arrays.toString(variables.toArray()), e);
         }
     }
 
@@ -302,8 +350,7 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule, UnknownP
      * @param iterator
      * @return
      */
-    private Set<Term> findSkolemSymbols(
-            IteratorOfConstrainedFormula iterator) {
+    private Set<Term> findSkolemSymbols(IteratorOfConstrainedFormula iterator) {
         final Set<Term> result = new HashSet<Term>();
         while (iterator.hasNext()) {
             iterator.next().formula().execPreOrder(new Visitor() {
@@ -402,20 +449,23 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule, UnknownP
      * @see #createJunctorTermNAry(Term,Junctor,IteratorOfTerm)
      */
     private static final Term createJunctorTermNAry(Term c, Junctor op,
-            IteratorOfConstrainedFormula i) {
+            IteratorOfConstrainedFormula i, Set<Term> skip) {
         Term construct = c;
         while (i.hasNext()) {
             ConstrainedFormula f = i.next();
             Term t = f.formula();
-            // ignore tautological constraints, since they do not contribute to
-            // the specification
-            // but report others
-            if (!f.constraint().isBottom())
-                throw new IllegalArgumentException(
-                        "there is a non-tautological constraint on " + f
-                                + ". lower constraints, first");
-            construct = TermFactory.DEFAULT.createJunctorTermAndSimplify(op,
-                    construct, t);
+            if (!skip.contains(t)) {
+                // ignore tautological constraints, since they do not contribute
+                // to
+                // the specification
+                // but report others
+                if (!f.constraint().isBottom())
+                    throw new IllegalArgumentException(
+                            "there is a non-tautological constraint on " + f
+                                    + ". lower constraints, first");
+                construct = TermFactory.DEFAULT.createJunctorTermAndSimplify(
+                        op, construct, t);
+            }
         }
         return construct;
     }
