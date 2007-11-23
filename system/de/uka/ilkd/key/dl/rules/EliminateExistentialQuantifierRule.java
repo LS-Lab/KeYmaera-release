@@ -25,9 +25,11 @@ package de.uka.ilkd.key.dl.rules;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.swing.JOptionPane;
@@ -241,7 +243,74 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
                 }
             }
         }
+        Term ante = TermBuilder.DF.tt();
+        Set<Match> commonMatches = new HashSet<Match>();
+        Map<Term, LogicVariable> commonVars = new HashMap<Term, LogicVariable>();
+        for (Term t : commonAnte) {
+            ante = TermFactory.DEFAULT.createJunctorTermAndSimplify(Op.AND,
+                    ante, t);
+            final Set<Term> sk = new HashSet<Term>();
+            t.execPreOrder(new Visitor() {
 
+                @Override
+                public void visit(Term visited) {
+                    if (visited.op() instanceof RigidFunction) {
+                        RigidFunction f = (RigidFunction) visited.op();
+                        if (f.isSkolem()) {
+                            sk.add(visited);
+                        }
+                    }
+                }
+
+            });
+            List<Term> orderedList = SkolemfunctionTracker.INSTANCE
+                    .getOrderedList(sk);
+            for (Term s : orderedList) {
+                if (s.arity() > 0) {
+                    LogicVariable logicVariable = new LogicVariable(new Name(s
+                            .op().name()
+                            + "$sk"), s.op().sort(new Term[0]));
+                    commonVars.put(s, logicVariable);
+                    commonMatches.add(new Match((RigidFunction) s.op(),
+                            TermBuilder.DF.var(logicVariable)));
+                    sk.remove(s);
+                }
+            }
+            skolemSymbols.addAll(sk);
+        }
+        Term succ = TermBuilder.DF.ff();
+        for (Term t : commonSucc) {
+            succ = TermFactory.DEFAULT.createJunctorTermAndSimplify(Op.OR,
+                    succ, t);
+            final Set<Term> sk = new HashSet<Term>();
+            t.execPreOrder(new Visitor() {
+
+                @Override
+                public void visit(Term visited) {
+                    if (visited.op() instanceof RigidFunction) {
+                        RigidFunction f = (RigidFunction) visited.op();
+                        if (f.isSkolem()) {
+                            sk.add(visited);
+                        }
+                    }
+                }
+
+            });
+            List<Term> orderedList = SkolemfunctionTracker.INSTANCE
+                    .getOrderedList(sk);
+            for (Term s : orderedList) {
+                if (s.arity() > 0) {
+                    LogicVariable logicVariable = new LogicVariable(new Name(s
+                            .op().name()
+                            + "$sk"), s.op().sort(new Term[0]));
+                    commonVars.put(s, logicVariable);
+                    commonMatches.add(new Match((RigidFunction) s.op(),
+                            TermBuilder.DF.var(logicVariable)));
+                    sk.remove(s);
+                }
+            }
+            skolemSymbols.addAll(sk);
+        }
         for (Goal g : goals) {
             Set<Term> findSkolemSymbols = findSkolemSymbols(g.sequent()
                     .iterator());
@@ -276,18 +345,17 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
             skolemSymbols.addAll(findSkolemSymbols);
             query = TermBuilder.DF.and(query, imp);
         }
-        Term ante = TermBuilder.DF.tt();
-        for(Term t: commonAnte) {
-            ante = TermFactory.DEFAULT.createJunctorTermAndSimplify(
-                    Op.AND, ante, t);
-        }
-        Term succ = TermBuilder.DF.ff();
-        for(Term t: commonSucc) {
-            succ = TermFactory.DEFAULT.createJunctorTermAndSimplify(
-                    Op.OR, succ, t);
-        }
+
         query = TermBuilder.DF.imp(ante, TermBuilder.DF.or(query, succ));
-        
+        if(!commonMatches.isEmpty()) {
+            query = TermRewriter.replace(query, commonMatches);
+        }
+        for (Term sk : SkolemfunctionTracker.INSTANCE.getOrderedList(commonVars
+                .keySet())) {
+            query = TermBuilder.DF.all(commonVars.get(sk), query);
+            //TODO: check if we can avoid adding these variables to the namespace...
+            services.getNamespaces().variables().addSafely(commonVars.get(sk));
+        }
         List<PairOfTermAndQuantifierType> quantifiers = new LinkedList<PairOfTermAndQuantifierType>();
         for (Metavariable var : variables) {
             quantifiers.add(new PairOfTermAndQuantifierType(TermBuilder.DF
