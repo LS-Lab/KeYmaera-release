@@ -350,6 +350,7 @@ public class AbortProgram extends JFrame {
         private int oldRes;
 
         private Ticker(JLabel label, String finServer, int port) {
+            super("Ticker");
             this.server = finServer;
             this.port = port;
             this.label = label;
@@ -458,6 +459,7 @@ public class AbortProgram extends JFrame {
          * 
          */
         public SocketReceiver(Socket socket) {
+            super("SocketReceiver");
             this.socket = socket;
         }
 

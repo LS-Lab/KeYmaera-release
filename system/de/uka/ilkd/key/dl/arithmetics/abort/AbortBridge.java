@@ -46,6 +46,7 @@ public class AbortBridge extends Thread {
      * 
      */
     public AbortBridge(ServerSocket socket) {
+        super("AbortBridge");
         this.socket = socket;
     }
 

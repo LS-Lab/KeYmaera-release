@@ -505,6 +505,9 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
             for (String s : createFindInstanceString) {
                 res.append(s + "\n");
             }
+            if (res.toString().contains("FindInstance")) {
+                throw new UnsolveableException("Recursive counterexample " + res);
+            }
             return res.toString();
         }
         return "";

@@ -72,7 +72,10 @@ import de.uka.ilkd.key.dl.utils.XMLReader;
 public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
         IKernelLinkWrapper {
 
-    public static final String[][] messageBlacklist = new String[][] { {"Reduce","nsmet"} };
+    public static final String[][] messageBlacklist = new String[][] {
+        {"Reduce","nsmet"},
+        {"FindInstance","nsmet"} 
+    };
 
     public static Expr mBlist;
 
@@ -527,7 +530,7 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
             socket = new ServerSocket(port);
             sockets = new LinkedBlockingQueue<Socket>();
             messageQueue = new LinkedBlockingQueue<String>();
-            Thread t = new Thread() {
+            Thread t = new Thread("KernelLogAccepter") {
                 /*
                  * (non-Javadoc)
                  * 
@@ -549,7 +552,7 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
             t.setDaemon(true);
             t.start();
             bound = true;
-            Thread send = new Thread() {
+            Thread send = new Thread("KernelLogPromoter") {
                 /*
                  * (non-Javadoc)
                  * 
