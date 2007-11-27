@@ -1,0 +1,576 @@
+/***************************************************************************
+ *   Copyright (C) 2007 by André Platzer                                   *
+ *   @informatik.uni-oldenburg.de                                          *
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ *   This program is distributed in the hope that it will be useful,       *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ *   GNU General Public License for more details.                          *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the                         *
+ *   Free Software Foundation, Inc.,                                       *
+ *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
+ ***************************************************************************/
+/**
+ * 
+ */
+package de.uka.ilkd.key.dl.strategy.features;
+
+import java.rmi.RemoteException;
+import java.util.Map;
+import java.util.WeakHashMap;
+
+import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
+import de.uka.ilkd.key.dl.options.DLOptionBean;
+import de.uka.ilkd.key.dl.rules.UnknownProgressRule;
+import de.uka.ilkd.key.dl.strategy.DLStrategy;
+import de.uka.ilkd.key.gui.Main;
+import de.uka.ilkd.key.logic.Name;
+import de.uka.ilkd.key.logic.PosInOccurrence;
+import de.uka.ilkd.key.pp.PosInSequent;
+import de.uka.ilkd.key.proof.Goal;
+import de.uka.ilkd.key.proof.IGoalChooser;
+import de.uka.ilkd.key.proof.ListOfGoal;
+import de.uka.ilkd.key.proof.Node;
+import de.uka.ilkd.key.proof.Proof;
+import de.uka.ilkd.key.proof.proofevent.NodeChangeJournal;
+import de.uka.ilkd.key.proof.proofevent.RuleAppInfo;
+import de.uka.ilkd.key.rule.RuleApp;
+import de.uka.ilkd.key.rule.TacletApp;
+import de.uka.ilkd.key.strategy.LongRuleAppCost;
+import de.uka.ilkd.key.strategy.RuleAppCost;
+import de.uka.ilkd.key.strategy.Strategy;
+import de.uka.ilkd.key.strategy.TacletAppContainer;
+import de.uka.ilkd.key.strategy.TopRuleAppCost;
+import de.uka.ilkd.key.strategy.feature.Feature;
+import de.uka.ilkd.key.util.Debug;
+
+/**
+ * Or-branching Timeout Strategy for testing provability of subgoals within a
+ * certain timeout. Feature gives 0 if all subgoals are indeed provable,
+ * infinity if some subgoal is definitey not provable because it yields a
+ * counterexample, 1 if a timeout occurs before a provable/nonprovable decision
+ * has been made.
+ * 
+ * @author ap
+ */
+public class HypotheticalProvabilityFeature implements Feature {
+
+    /**
+     * Possible results of a hypothetic proof attempt.
+     * 
+     * @author ap
+     * 
+     */
+    public static enum HypotheticalProvability {
+        UNKNOWN, PROVABLE, DISPROVABLE, TIMEOUT, ERROR;
+    }
+
+
+    private static final RuleAppCost TIMEOUT_COST = LongRuleAppCost.create(1);
+
+    private static final TopRuleAppCost DISPROVABLE_COST = TopRuleAppCost.INSTANCE;
+
+    private static final LongRuleAppCost PROVABLE_COST = LongRuleAppCost.ZERO_COST;
+
+    /**
+     * maximum number of rule applications in hypothetical proofs.
+     */
+    static final int MAX_HYPOTHETICAL_RULE_APPLICATIONS = 1000;
+
+    private Map<Node, Long> branchingNodesAlreadyTested = new WeakHashMap<Node, Long>();
+
+    private Map<Node, RuleAppCost> resultCache = new WeakHashMap<Node, RuleAppCost>();
+
+    public static final HypotheticalProvabilityFeature INSTANCE = new HypotheticalProvabilityFeature();
+
+    /**
+     * the default initial timeout, -1 means use
+     * DLOptionBean.INSTANCE.getInitialTimeout()
+     */
+    private final long initialTimeout;
+
+    /**
+     * @param timeout
+     *                the default overall (initial) timeout for the hypothetic
+     *                proof
+     */
+    public HypotheticalProvabilityFeature(long timeout) {
+        this.initialTimeout = timeout;
+    }
+
+    public HypotheticalProvabilityFeature() {
+        this(-1);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see de.uka.ilkd.key.strategy.feature.Feature#compute(de.uka.ilkd.key.rule.RuleApp,
+     *      de.uka.ilkd.key.logic.PosInOccurrence, de.uka.ilkd.key.proof.Goal)
+     */
+    public RuleAppCost compute(RuleApp app, PosInOccurrence pos, Goal goal) {
+        Node firstNodeAfterBranch = getFirstNodeAfterBranch(goal.node());
+        // if (branchingNodesAlreadyTested.containsKey(firstNodeAfterBranch)) {
+        // if (resultCache.containsKey(firstNodeAfterBranch)) {
+        // return resultCache.get(firstNodeAfterBranch);
+        // }
+        // return TopRuleAppCost.INSTANCE;
+        // } else {
+        Long timeout = getLastTimeout(firstNodeAfterBranch);
+        if (timeout == null) {
+            timeout = initialTimeout >= 0 ? initialTimeout
+                    : DLOptionBean.INSTANCE.getInitialTimeout();
+        } else {
+            final int a = DLOptionBean.INSTANCE
+                    .getQuadraticTimeoutIncreaseFactor();
+            final int b = DLOptionBean.INSTANCE
+                    .getLinearTimeoutIncreaseFactor();
+            final int c = DLOptionBean.INSTANCE
+                    .getConstantTimeoutIncreaseFactor();
+            timeout = a * timeout * timeout + b * timeout + c;
+        }
+        // branchingNodesAlreadyTested.put(firstNodeAfterBranch, timeout);
+
+        System.out.println("HYPO: " + app.rule().name() + " on\n" + goal);
+        HypotheticalProvability result = provable(app, pos, goal,
+                MAX_HYPOTHETICAL_RULE_APPLICATIONS, timeout);
+        System.out.println("HYPO: " + app.rule().name() + " " + result);
+        switch (result) {
+        case PROVABLE:
+            return PROVABLE_COST;
+        case ERROR:
+        case DISPROVABLE:
+            // resultCache.put(firstNodeAfterBranch, TopRuleAppCost.INSTANCE);
+            return DISPROVABLE_COST;
+        case UNKNOWN:
+        case TIMEOUT:
+            // resultCache.put(firstNodeAfterBranch, LongRuleAppCost.create(1));
+            return TIMEOUT_COST;
+        default:
+            throw new AssertionError("enum known");
+        }
+    }
+
+    // caching
+
+    /**
+     * @param node
+     * @return
+     */
+    private Long getLastTimeout(Node node) {
+        Long result = null;
+        if (node != null) {
+            result = branchingNodesAlreadyTested.get(node);
+            if (result == null) {
+                result = getLastTimeout(node.parent());
+            }
+        }
+        return result;
+    }
+
+    /**
+     * @return
+     */
+    public static Node getFirstNodeAfterBranch(Node node) {
+        if (node.root()
+                || node.parent().root()
+                || node.parent().childrenCount() > 1
+                || node.parent().getAppliedRuleApp().rule() instanceof UnknownProgressRule) {
+            return node;
+        }
+        return getFirstNodeAfterBranch(node.parent());
+    }
+
+    // hypothetical rule application engines
+
+    /**
+     * Make a new hypothetical proof with the given goal as its only goal 
+     * @param goal
+     * @return
+     */
+    static Proof newHypotheticalProofFor(Goal goal) {
+        // new proof with settings like goal.proof() but goal as its
+        // only goal
+        Proof hypothetic = new Proof(new Name("hypothetic"), goal.proof(), goal
+                .sequent());
+        Goal hgoal = hypothetic.getGoal(hypothetic.root());
+        assert hgoal != null && hgoal.sequent().equals(goal.sequent());
+        Strategy stopEarly = DLStrategy.Factory.INSTANCE.create(hypothetic,
+                null, true);
+        hgoal.setGoalStrategy(stopEarly);
+        hypothetic.setActiveStrategy(stopEarly);
+        return hypothetic;
+    }
+
+    /**
+     * Determines whether the given goal can finally be proven.
+     * 
+     * @param goal
+     *                the goal to close hypothetically.
+     * @param timeout
+     *                the maximum time how long the proof is attempted to close.
+     * @return Result of proving goal.
+     */
+    public static HypotheticalProvability provable(Goal goal, int maxsteps, long timeout) {
+        Proof hypothetic = newHypotheticalProofFor(goal);
+        // continue hypothetic proof to see if it closes/has
+        // counterexamples
+        return provable(hypothetic, maxsteps, timeout);
+    }
+
+    /**
+     * Determines whether the given goal can finally be proven by applying the
+     * given RuleApp.
+     * 
+     * @param app
+     *                the first rule to apply.
+     * @param goal
+     *                the goal to close hypothetically.
+     * @param timeout
+     *                the maximum time how long the proof is attempted to close.
+     * @return Result of proving goal.
+     */
+    public static HypotheticalProvability provable(RuleApp app, Goal goal,
+            int maxsteps, long timeout) {
+        Proof hypothetic = newHypotheticalProofFor(goal);
+        Goal hgoal = hypothetic.getGoal(hypothetic.root());
+        assert hgoal != null && hgoal.sequent().equals(goal.sequent());
+        // apply app on hypothetic proof
+        apply(hgoal, app);
+        Debug.out("HYPO: after first application");
+        // continue hypothetic proof to see if it closes/has
+        // counterexamples
+        return provable(hypothetic, maxsteps, timeout);
+    }
+    /**
+     * Determines whether the given goal can finally be proven by applying the
+     * given RuleApp, by possibly completing the RuleApp at the specified pos.
+     * 
+     * @param app
+     *                the first rule to apply.
+     * @param goal
+     *                the goal to close hypothetically.
+     * @param timeout
+     *                the maximum time how long the proof is attempted to close.
+     * @return Result of proving goal.
+     */
+    public static HypotheticalProvability provable(RuleApp app, PosInOccurrence pos, Goal goal,
+            int maxsteps, long timeout) {
+        if (!app.complete()) {
+            // completing incomplete rule application
+            app = completeRuleApp(goal, (TacletApp) app, pos, goal.proof()
+                    .getActiveStrategy());
+            if (app == null || !app.complete()) {
+                throw new IllegalArgumentException("incompletable rule application\n" + app);
+            }
+        }
+        Proof hypothetic = newHypotheticalProofFor(goal);
+        Goal hgoal = hypothetic.getGoal(hypothetic.root());
+        assert hgoal != null && hgoal.sequent().equals(goal.sequent());
+        // apply app on hypothetic proof
+        apply(hgoal, app);
+        Debug.out("HYPO: after first application");
+        // continue hypothetic proof to see if it closes/has
+        // counterexamples
+        return provable(hypothetic, maxsteps, timeout);
+    }
+
+    /**
+     * Determines whether the given proof can finally be closed/disproven/times
+     * out.
+     * 
+     * @param hypothesis
+     *                the beginning of the hypothetical proof to continue.
+     * @param timeout
+     *                the maximum time how long the proof is attempted to close.
+     * @return Result of proving hypothesis.
+     */
+    private static HypotheticalProvability provable(Proof hypothesis,
+            int maxsteps, long timeout) {
+        HypothesizeThread hypothesizer = new HypothesizeThread(hypothesis,
+                maxsteps,
+                timeout);
+        try {
+            hypothesizer.start();
+            try {
+                hypothesizer.join(timeout);
+                return hypothesizer.getResult();
+            } catch (InterruptedException e) {
+                try {
+                    MathSolverManager.getCurrentQuantifierEliminator()
+                            .abortCalculation();
+                } catch (RemoteException f) {
+                    hypothesizer.interrupt();
+                }
+            }
+            if (hypothesizer.isAlive()) {
+                try {
+                    hypothesizer.giveUp = true;
+                    hypothesizer.interrupt();
+                    MathSolverManager.getCurrentQuantifierEliminator()
+                            .abortCalculation();
+                } catch (RemoteException f) {
+                    hypothesizer.interrupt();
+                }
+            }
+            return hypothesizer.getResult();
+        } finally {
+            if (hypothesizer != null && hypothesizer.isAlive()) {
+                hypothesizer.giveUp = true;
+                hypothesizer.interrupt();
+            }
+        }
+    }
+
+    // rule application engines
+
+    /**
+     * @see Goal#apply without events, which would cause synchronization
+     *      blocking
+     */
+    private static ListOfGoal apply(Goal goal, RuleApp p_ruleApp) {
+        // System.err.println(Thread.currentThread());
+
+        final Proof proof = goal.proof();
+
+        // TODO: this is maybe not the right place for this check
+        assert proof.mgt().ruleApplicable(p_ruleApp, goal) : "Someone tried to apply the rule "
+                + p_ruleApp + " that is not justified";
+
+        final NodeChangeJournal journal = new NodeChangeJournal(proof, goal);
+        // addGoalListener(journal);
+
+        final RuleApp ruleApp = completeRuleApp(goal, p_ruleApp);
+
+        final ListOfGoal goalList = ruleApp.execute(goal, proof.getServices());
+
+        if (goalList == null) {
+            // this happens for the simplify decision procedure
+            // we do nothing in this case
+        } else if (goalList.isEmpty()) {
+            proof.closeGoal(goal, ruleApp.constraint());
+        } else {
+            proof.replace(goal, goalList);
+            if (ruleApp instanceof TacletApp
+                    && ((TacletApp) ruleApp).taclet().closeGoal())
+                // the first new goal is the one to be closed
+                proof.closeGoal(goalList.head(), ruleApp.constraint());
+        }
+
+        final RuleAppInfo ruleAppInfo = journal.getRuleAppInfo(p_ruleApp);
+
+        /*
+         * disable events if ( goalList != null ) fireRuleApplied( new
+         * ProofEvent ( proof, ruleAppInfo ) );
+         */
+        return goalList;
+    }
+
+    /**
+     * Create a <code>RuleApp</code> that is suitable to be applied or
+     * <code>null</code>.
+     * 
+     * @see TacletAppContainer#completeRuleApp
+     */
+    static RuleApp completeRuleApp(Goal p_goal, TacletApp app,
+            PosInOccurrence pio, Strategy strategy) {
+        // if ( !isStillApplicable ( p_goal ) )
+        // return null;
+        //    
+        // if ( !ifFormulasStillValid ( p_goal ) )
+        // return null;
+
+        if (!strategy.isApprovedApp(app, pio, p_goal))
+            return null;
+
+        if (pio != null) {
+            app = app.setPosInOccurrence(pio);
+            if (app == null)
+                return null;
+        }
+
+        if (!app.complete())
+            app = app.tryToInstantiate(p_goal, p_goal.proof().getServices());
+
+        return app;
+    }
+
+    /**
+     * make Taclet instantions complete with regard to metavariables and skolem
+     * functions
+     * 
+     * @see Goal#completeRuleApp
+     */
+    private static RuleApp completeRuleApp(Goal goal, RuleApp ruleApp) {
+        final Proof proof = goal.proof();
+        if (ruleApp instanceof TacletApp) {
+            TacletApp tacletApp = (TacletApp) ruleApp;
+
+            tacletApp = tacletApp.instantiateWithMV(goal);
+
+            ruleApp = tacletApp.createSkolemFunctions(proof.getNamespaces()
+                    .functions(), proof.getServices());
+        }
+        return ruleApp;
+    }
+
+    /**
+     * Thread performing a hypothetical proof.
+     * 
+     * @author ap
+     * 
+     */
+    private static class HypothesizeThread extends Thread {
+
+        private final long timeout;
+
+        private Proof hypothesis;
+
+        private IGoalChooser goalChooser;
+
+        private HypotheticalProvability result;
+
+        /**
+         * giveUp being set to true notifies that this thread should stop
+         */
+        volatile boolean giveUp = false;
+
+        public HypothesizeThread(Proof hypothesis, int maxsteps, long timeout) {
+            super("hypothetical prover");
+            this.result = HypotheticalProvability.UNKNOWN;
+            this.timeout = timeout;
+            this.hypothesis = hypothesis;
+            this.goalChooser = Main.getInstance().mediator().getProfile()
+                    .getSelectedGoalChooserBuilder().create();
+            this.goalChooser.init(hypothesis, hypothesis.openGoals());
+            this.maxApplications = maxsteps;
+        }
+
+        /*
+         * (non-Javadoc)
+         * 
+         * @see java.lang.Thread#run()
+         */
+        @Override
+        public void run() {
+            try {
+                result = proofEngine();
+                Debug.out("HYPO: regular end " + getResult());
+            } catch (NullPointerException e) {
+                result = HypotheticalProvability.ERROR;
+                System.out.println("Exception during hypothetic proof " + e);
+                e.printStackTrace();
+                throw e;
+            } catch (RuntimeException e) {
+                result = HypotheticalProvability.ERROR;
+                System.out.println("Exception during hypothetic proof " + e);
+                e.printStackTrace();
+                throw e;
+            } finally {
+                Debug.out("HYPO: finished " + getResult());
+            }
+        }
+
+        /**
+         * @return the result
+         */
+        public HypotheticalProvability getResult() {
+            return result;
+        }
+
+        /**
+         * applies rules that are chosen by the active strategy
+         * 
+         * @return true iff a rule has been applied, false otherwise
+         */
+        private boolean applyAutomaticRule() {
+            // Look for the strategy ...
+            RuleApp app = null;
+            Goal g;
+            while ((g = goalChooser.getNextGoal()) != null) {
+                app = g.getRuleAppManager().next();
+
+                if (app == null)
+                    goalChooser.removeGoal(g);
+                else
+                    break;
+            }
+            if (app == null)
+                return false;
+            apply(g, app);
+            return true;
+        }
+
+        private long time;
+
+        private int countApplied;
+
+        private int maxApplications;
+
+        /**
+         * returns if the maximum number of rule applications or the timeout has
+         * been reached
+         * 
+         * @return true if automatic rule application shall be stopped because
+         *         the maximal number of rules have been applied or the time out
+         *         has been reached
+         */
+        private boolean maxRuleApplicationOrTimeoutExceeded() {
+            return giveUp || countApplied >= maxApplications || timeout >= 0 ? System
+                    .currentTimeMillis()
+                    - time >= timeout
+                    : false;
+        }
+
+        /**
+         * applies rules until this is no longer possible or the thread is
+         * interrupted.
+         */
+        HypotheticalProvability proofEngine() {
+            countApplied = 0;
+            time = System.currentTimeMillis();
+            try {
+                Debug.out("Strategy started.");
+                while (!maxRuleApplicationOrTimeoutExceeded()) {
+                    Debug.out("HYPO: goals " + hypothesis.openGoals().size());
+                    if (!applyAutomaticRule()) {
+                        // no more rules applicable
+                        if (hypothesis.openGoals().isEmpty()) {
+                            return HypotheticalProvability.PROVABLE;
+                        } else {
+                            // if counterexample
+                            if (hypothesis.getActiveStrategy() instanceof DLStrategy
+                                    && ((DLStrategy) hypothesis
+                                            .getActiveStrategy())
+                                            .foundCounterexample()) {
+                                return HypotheticalProvability.DISPROVABLE;
+                            } else {
+                                System.out.println("HYPO no more rules on\n"
+                                        + hypothesis.openGoals());
+                                return HypotheticalProvability.UNKNOWN;
+                            }
+                        }
+                    }
+                    countApplied++;
+                    if (Thread.interrupted())
+                        throw new InterruptedException();
+                }
+                return HypotheticalProvability.TIMEOUT;
+            } catch (InterruptedException e) {
+                return HypotheticalProvability.TIMEOUT;
+            } finally {
+                time = System.currentTimeMillis() - time;
+                Debug.out("Strategy stopped.");
+                Debug.out("Applied ", countApplied);
+                Debug.out("Time elapsed: ", time);
+            }
+        }
+    }
+}

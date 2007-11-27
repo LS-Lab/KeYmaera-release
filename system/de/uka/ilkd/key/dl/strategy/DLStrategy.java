@@ -35,7 +35,7 @@ import de.uka.ilkd.key.dl.rules.VisualizationRule;
 import de.uka.ilkd.key.dl.strategy.features.FOFormula;
 import de.uka.ilkd.key.dl.strategy.features.FOSequence;
 import de.uka.ilkd.key.dl.strategy.features.FindInstanceTest;
-import de.uka.ilkd.key.dl.strategy.features.HypotheticProvabilityFeature;
+import de.uka.ilkd.key.dl.strategy.features.HypotheticalProvabilityFeature;
 import de.uka.ilkd.key.dl.strategy.features.KeYBeyondFO;
 import de.uka.ilkd.key.dl.strategy.features.LoopInvariantRuleDispatchFeature;
 import de.uka.ilkd.key.dl.strategy.features.OnlyOncePerBranchFeature;
@@ -241,13 +241,13 @@ public class DLStrategy extends AbstractFeatureStrategy {
                         : inftyConst()));
 
         bindRuleSet(d, "invariant_weaken", new SwitchFeature(
-                HypotheticProvabilityFeature.INSTANCE,
+                HypotheticalProvabilityFeature.INSTANCE,
                 new Case(longConst(0), longConst(-2000)),
                 new Case(longConst(1), longConst(1000000)),
                 new Case(inftyConst(), inftyConst())));
 
         bindRuleSet(d, "invariant_diff", new SwitchFeature(
-                HypotheticProvabilityFeature.INSTANCE,
+                HypotheticalProvabilityFeature.INSTANCE,
                 new Case(longConst(0), longConst(-1000)),
                 new Case(longConst(1), longConst(10000000)),
                 new Case(inftyConst(), inftyConst())));
@@ -428,6 +428,7 @@ public class DLStrategy extends AbstractFeatureStrategy {
     }
 
     public static class Factory extends StrategyFactory {
+        public static final Factory INSTANCE = new Factory();
         public Factory() {
 
         }

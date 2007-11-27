@@ -145,7 +145,7 @@ public class FindInstanceTest implements Feature {
                 } else if(string.trim().equalsIgnoreCase("$Aborted")) {
                     result = Result.NO_RESULT_IN_TIME;
                 } else {
-                    System.out.println("CE: " + string);//XXX 
+                    System.out.println("CEX Counterexample:\n" + string + "\nfor " + term);//XXX 
                     result = Result.CE_FOUND;
                 }
             } catch (RemoteException e) {
