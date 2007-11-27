@@ -1,12 +1,22 @@
-// This file is part of KeY - Integrated Deductive Software Design
-// Copyright (C) 2001-2005 Universitaet Karlsruhe, Germany
-//                         Universitaet Koblenz-Landau, Germany
-//                         Chalmers University of Technology, Sweden
-//
-// The KeY system is protected by the GNU General Public License. 
-// See LICENSE.TXT for details.
-//
-//
+/***************************************************************************
+ *   Copyright (C) 2007 by Jan David Quesel, André Platzer                 *
+ *   quesel@informatik.uni-oldenburg.de                                    *
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ *   This program is distributed in the hope that it will be useful,       *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ *   GNU General Public License for more details.                          *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the                         *
+ *   Free Software Foundation, Inc.,                                       *
+ *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
+ ***************************************************************************/
 
 package de.uka.ilkd.key.dl.strategy;
 
@@ -75,7 +85,8 @@ import de.uka.ilkd.key.strategy.termProjection.AssumptionProjection;
 import de.uka.ilkd.key.strategy.termProjection.TermBuffer;
 
 /**
- * 
+ * @author jdq
+ * @author ap
  */
 public class DLStrategy extends AbstractFeatureStrategy {
 
@@ -231,10 +242,16 @@ public class DLStrategy extends AbstractFeatureStrategy {
 
         bindRuleSet(d, "invariant_weaken", new SwitchFeature(
                 HypotheticProvabilityFeature.INSTANCE,
-                new Case(longConst(0), longConst(-1000)),
+                new Case(longConst(0), longConst(-2000)),
                 new Case(longConst(1), longConst(1000000)),
                 new Case(inftyConst(), inftyConst())));
-        
+
+        bindRuleSet(d, "invariant_diff", new SwitchFeature(
+                HypotheticProvabilityFeature.INSTANCE,
+                new Case(longConst(0), longConst(-1000)),
+                new Case(longConst(1), longConst(10000000)),
+                new Case(inftyConst(), inftyConst())));
+
 
         if (DLOptionBean.INSTANCE.isNormalizeEquations()) {
             bindRuleSet(d, "inequation_normalization", -2000);

@@ -65,6 +65,21 @@ public class HypotheticProvabilityFeature implements Feature {
 
     public static final HypotheticProvabilityFeature INSTANCE = new HypotheticProvabilityFeature();
 
+    /**
+     * the default initial timeout,
+     * -1 means use DLOptionBean.INSTANCE.getInitialTimeout() 
+     */
+    private final long initialTimeout;
+    /**
+     * @param timeout the default overall (initial) timeout for the hypothetic proof 
+     */
+    public HypotheticProvabilityFeature(long timeout) {
+        this.initialTimeout = timeout;
+    }
+    public HypotheticProvabilityFeature() {
+        this(-1);
+    }
+
     /*
      * (non-Javadoc)
      * 
@@ -90,7 +105,7 @@ public class HypotheticProvabilityFeature implements Feature {
         {
             Long timeout = getLastTimeout(firstNodeAfterBranch);
             if (timeout == null) {
-                timeout = DLOptionBean.INSTANCE.getInitialTimeout();
+                timeout = initialTimeout >= 0 ? initialTimeout : DLOptionBean.INSTANCE.getInitialTimeout();
             } else {
                 final int a = DLOptionBean.INSTANCE
                         .getQuadraticTimeoutIncreaseFactor();
@@ -109,7 +124,7 @@ public class HypotheticProvabilityFeature implements Feature {
             try {
                 testThread.join(timeout);
                 System.out.println("HYPO: " + app.rule().name() + " "
-                        + testThread.getResult() + " result");
+                        + testThread.getResult());
                 if (testThread.getResult() == HypotheticProvabilityResult.PROVABLE) {
                     return LongRuleAppCost.ZERO_COST;
                     // resultCache.put(firstNodeAfterBranch,

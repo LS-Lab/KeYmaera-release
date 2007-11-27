@@ -215,18 +215,18 @@ public class Proof implements Named {
     }
     
     /**
-     * new proof like p except that its goal is goal
-     * @param goal
+     * new proof like p except that its only goal and only node is problem
+     * @param problem the only sequent of the new proof
      */
     public Proof(Name name, Proof p, Sequent problem) {
-        this(name, p.env().getInitConfig().getServices(), 
-             new ProofSettings(p.settings));
+        // use identical services rather than initial p.env().getInitConfig().getServices()
+        this(name, p.getServices().copy(), new ProofSettings(p.settings));
 //        activeStrategy = 
 //            StrategyFactory.create(this, 
 //                    p.getActiveStrategy().name().toString(), 
 //                    getSettings().getStrategySettings().getActiveStrategyProperties());
         
-        InitConfig ic = p.env().getInitConfig();
+        InitConfig ic = p.env().getInitConfig().copy();
         Node rootNode = new Node(this, problem);
         setRoot(rootNode);
         Goal firstGoal = new Goal(rootNode, 
@@ -234,7 +234,7 @@ public class Proof implements Named {
             new BuiltInRuleAppIndex(ic.createBuiltInRuleIndex())));
         localMgt = new DefaultProofCorrectnessMgt(this);
         openGoals = openGoals.prepend(firstGoal);
-        setNamespaces(ic.namespaces());
+        setNamespaces(p.getNamespaces().copy());
         
         setProofEnv(p.env());
         setSimplifier(p.simplifier());

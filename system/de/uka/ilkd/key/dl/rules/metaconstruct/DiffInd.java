@@ -72,13 +72,10 @@ public class DiffInd extends AbstractDLMetaOperator {
                 throw new IllegalStateException("Unknown modality "
                         + term.sub(0).op());
             }
+        } catch (RuntimeException e) {
+            throw e;
         } catch (Exception e) {
-            if(e instanceof RuntimeException) {
-                throw (RuntimeException) e;
-            }
-            if (true) throw (InternalError) new InternalError(e.getMessage()).initCause(e);
-            e.printStackTrace(); // XXX
-            return term.sub(0);
+            throw (InternalError) new InternalError(e.getMessage()).initCause(e);
         }
     }
 }
