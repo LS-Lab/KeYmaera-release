@@ -1461,6 +1461,7 @@ public abstract class TacletApp implements RuleApp {
      *         is needed
      */
     public boolean ifInstsComplete() {
+        assert (taclet().ifSequent() == Sequent.EMPTY_SEQUENT) == (taclet().ifSequent().isEmpty()) : "canonical empty sequents " + taclet().ifSequent();
         return ifInstantiations != null
                 || (taclet().ifSequent() == Sequent.EMPTY_SEQUENT);
     }

@@ -20,11 +20,11 @@
 package de.uka.ilkd.key.dl.rules;
 
 /**
- * TODO jdq documentation since Nov 2, 2007 
+ * Tags rules that are irrevocable, i.e., cannot be made undone by goal back.  
  * @author jdq
  * @since Nov 2, 2007
  * 
  */
-public interface UnbackableRule {
+public interface IrrevocableRule {
 
 }

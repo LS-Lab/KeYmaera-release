@@ -44,6 +44,7 @@ import de.uka.ilkd.key.strategy.TopRuleAppCost;
 import de.uka.ilkd.key.strategy.feature.Feature;
 
 /**
+ * Timeout Strategy
  * @author jdq
  * 
  */
@@ -196,6 +197,7 @@ public class TimeoutTestApplicationFeature implements Feature {
          */
         @Override
         public void run() {
+            //@TODO pass goal.proof().getServices() instead?
             if (rule.test(goal, Main.getInstance().mediator().getServices(),
                     app)) {
                 result = TestResult.SUCCESS;

@@ -25,6 +25,7 @@ import de.uka.ilkd.key.dl.rules.VisualizationRule;
 import de.uka.ilkd.key.dl.strategy.features.FOFormula;
 import de.uka.ilkd.key.dl.strategy.features.FOSequence;
 import de.uka.ilkd.key.dl.strategy.features.FindInstanceTest;
+import de.uka.ilkd.key.dl.strategy.features.HypotheticProvabilityFeature;
 import de.uka.ilkd.key.dl.strategy.features.KeYBeyondFO;
 import de.uka.ilkd.key.dl.strategy.features.LoopInvariantRuleDispatchFeature;
 import de.uka.ilkd.key.dl.strategy.features.OnlyOncePerBranchFeature;
@@ -93,9 +94,17 @@ public class DLStrategy extends AbstractFeatureStrategy {
     private Map<Node, FirstOrder> foCache = new WeakHashMap<Node, FirstOrder>();
 
     private Map<Node, CounterExample> ceCache = new WeakHashMap<Node, CounterExample>();
+    
+    private boolean stopOnFirstCE;
+
+    private boolean blockAllRules = false;
 
     protected DLStrategy(Proof p_proof) {
+        this(p_proof, false);
+    }
+    protected DLStrategy(Proof p_proof, boolean stopOnFirstCE) {
         super(p_proof);
+        this.stopOnFirstCE=stopOnFirstCE;
 
         final RuleSetDispatchFeature d = RuleSetDispatchFeature.create();
 
@@ -220,6 +229,13 @@ public class DLStrategy extends AbstractFeatureStrategy {
                 (MathSolverManager.isSimplifierSet()) ? longConst(0)
                         : inftyConst()));
 
+        bindRuleSet(d, "invariant_weaken", new SwitchFeature(
+                HypotheticProvabilityFeature.INSTANCE,
+                new Case(longConst(0), longConst(-1000)),
+                new Case(longConst(1), longConst(1000000)),
+                new Case(inftyConst(), inftyConst())));
+        
+
         if (DLOptionBean.INSTANCE.isNormalizeEquations()) {
             bindRuleSet(d, "inequation_normalization", -2000);
         } else {
@@ -330,6 +346,10 @@ public class DLStrategy extends AbstractFeatureStrategy {
             return false;
         }
     }
+    
+    public boolean foundCounterexample() {
+        return blockAllRules;
+    }
 
     /**
      * TODO jdq documentation since Sep 6, 2007
@@ -339,6 +359,9 @@ public class DLStrategy extends AbstractFeatureStrategy {
      * @param goal
      */
     private boolean veto(RuleApp app, PosInOccurrence pio, Goal goal) {
+        if (blockAllRules) {
+            return false;
+        }
         if (((foCache.containsKey(goal.node()) && foCache.get(goal.node()) == FirstOrder.FO) || FOSequence.INSTANCE
                 .compute(app, pio, goal) == LongRuleAppCost.ZERO_COST)) {
             foCache.put(goal.node(), FirstOrder.FO);
@@ -354,6 +377,9 @@ public class DLStrategy extends AbstractFeatureStrategy {
                 } else if (FindInstanceTest.INSTANCE.compute(app, pio, goal) == TopRuleAppCost.INSTANCE) {
                     System.out.println("Found CE");//XXX 
                     ceCache.put(goal.node(), CounterExample.CE);
+                    if (stopOnFirstCE) {
+                        blockAllRules = true;
+                    }
                     return false;
                 } else {
                     ceCache.put(goal.node(), CounterExample.NO_CE);
@@ -393,6 +419,11 @@ public class DLStrategy extends AbstractFeatureStrategy {
         public Strategy create(Proof p_proof,
                 StrategyProperties strategyProperties) {
             return new DLStrategy(p_proof);
+        }
+        
+        public Strategy create(Proof p_proof,
+                StrategyProperties strategyProperties, boolean stopOnFirstCE) {
+            return new DLStrategy(p_proof, stopOnFirstCE);
         }
 
         public Name name() {

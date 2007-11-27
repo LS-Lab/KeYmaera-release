@@ -541,7 +541,7 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
                             sockets.add(sock);
                         } catch (IOException e) {
                             // TODO Auto-generated catch block
-                            e.printStackTrace();
+                            System.out.println(e);
                         }
                     }
                 }

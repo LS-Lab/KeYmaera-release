@@ -15,7 +15,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Vector;
 
-import de.uka.ilkd.key.dl.rules.UnbackableRule;
+import de.uka.ilkd.key.dl.rules.IrrevocableRule;
 import de.uka.ilkd.key.gui.GUIEvent;
 import de.uka.ilkd.key.gui.configuration.ProofSettings;
 import de.uka.ilkd.key.gui.configuration.SettingsListener;
@@ -115,7 +115,7 @@ public class Proof implements Named {
     /** constructs a new empty proof with name */
     private Proof(Name name, Services services, ProofSettings settings) {
 	this.name = name;
-        assert services != null : "Tried to create proof without valid services.";
+	assert services != null : "Tried to create proof without valid services.";
 	this.services = services.copyProofSpecific();
         this.settings = settings;
         
@@ -214,6 +214,31 @@ public class Proof implements Named {
         setNamespaces(ic.namespaces());       
     }
     
+    /**
+     * new proof like p except that its goal is goal
+     * @param goal
+     */
+    public Proof(Name name, Proof p, Sequent problem) {
+        this(name, p.env().getInitConfig().getServices(), 
+             new ProofSettings(p.settings));
+//        activeStrategy = 
+//            StrategyFactory.create(this, 
+//                    p.getActiveStrategy().name().toString(), 
+//                    getSettings().getStrategySettings().getActiveStrategyProperties());
+        
+        InitConfig ic = p.env().getInitConfig();
+        Node rootNode = new Node(this, problem);
+        setRoot(rootNode);
+        Goal firstGoal = new Goal(rootNode, 
+            new RuleAppIndex(new TacletAppIndex(ic.createTacletIndex()),
+            new BuiltInRuleAppIndex(ic.createBuiltInRuleIndex())));
+        localMgt = new DefaultProofCorrectnessMgt(this);
+        openGoals = openGoals.prepend(firstGoal);
+        setNamespaces(ic.namespaces());
+        
+        setProofEnv(p.env());
+        setSimplifier(p.simplifier());
+    }
 
     public Proof (String name,
                   Term problem,
@@ -555,7 +580,7 @@ public class Proof implements Named {
     public boolean setBack(Goal goal) {		
 	if (goal != null) {
 	    Node parent = goal.node().parent();
-	    if (parent != null && !(parent.getAppliedRuleApp().rule() instanceof UnbackableRule)) {
+	    if (parent != null && !(parent.getAppliedRuleApp().rule() instanceof IrrevocableRule)) {
                 getServices().setBackCounters(goal.node());
 		openGoals = goal.setBack(openGoals);
 		fireProofGoalsChanged();
@@ -589,7 +614,7 @@ public class Proof implements Named {
 		while (goalIt.hasNext()) {
 		    final Goal nextGoal = goalIt.next();
 		    if (!parentSet.contains(nextGoal.node().parent())) {
-		        if(nextGoal.node().parent().getAppliedRuleApp().rule() instanceof UnbackableRule) {
+		        if(nextGoal.node().parent().getAppliedRuleApp().rule() instanceof IrrevocableRule) {
 		            return false;
 		        } else {
 		            removeList = removeList.prepend(nextGoal);
