@@ -1,6 +1,6 @@
 /***************************************************************************
- *   Copyright (C) 2007 by Jan David Quesel                                *
- *   quesel@informatik.uni-oldenburg.de                                    *
+ *   Copyright (C) 2007 by André Platzer                                   *
+ *   @informatik.uni-oldenburg.de                                          *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
