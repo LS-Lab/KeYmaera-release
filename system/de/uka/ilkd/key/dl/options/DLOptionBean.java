@@ -141,6 +141,8 @@ public class DLOptionBean implements Settings {
 
     private static final String DLOPTIONS_INVARIANT_RULE = "[DLOptions]invariantRule";
 
+    private static final String DLOPTIONS_USE_DIFF_SAT = "[DLOptions]useDiffSAT";
+
     private Set<Settings> subOptions;
 
     private boolean callReduce;
@@ -172,6 +174,8 @@ public class DLOptionBean implements Settings {
     private boolean useFindInstanceTest;
 
     private boolean stopAtFO;
+
+    private boolean useDiffSAT;
 
     private String counterExampleGenerator;
 
@@ -206,6 +210,7 @@ public class DLOptionBean implements Settings {
         applyGammaRules = ApplyRules.NEVER;
         useFindInstanceTest = true;
         invariantRule = InvariantRule.QUANTIFIERS;
+        useDiffSAT = false;
 
         listeners = new HashSet<SettingsListener>();
     }
@@ -410,6 +415,10 @@ public class DLOptionBean implements Settings {
         if (property != null) {
             invariantRule = InvariantRule.valueOf(property);
         }
+        property = props.getProperty(DLOPTIONS_USE_DIFF_SAT);
+        if (property != null) {
+            useDiffSAT = Boolean.valueOf(property);
+        }
     }
 
     /*
@@ -465,6 +474,8 @@ public class DLOptionBean implements Settings {
 
         props.setProperty(DLOPTIONS_APPLY_GAMMA_RULES, applyGammaRules.name());
         props.setProperty(DLOPTIONS_INVARIANT_RULE, invariantRule.name());
+
+        props.setProperty(DLOPTIONS_USE_DIFF_SAT, Boolean.toString(useDiffSAT));
     }
 
     public void addSubOptionBean(Settings sub) {
@@ -742,6 +753,21 @@ public class DLOptionBean implements Settings {
      */
     public void setInvariantRule(InvariantRule invariantRule) {
         this.invariantRule = invariantRule;
+        firePropertyChanged();
+    }
+
+    /**
+     * @return the useDiffSAT
+     */
+    public boolean isUseDiffSAT() {
+        return useDiffSAT;
+    }
+
+    /**
+     * @param useDiffSAT the useDiffSAT to set
+     */
+    public void setUseDiffSAT(boolean useDiffSAT) {
+        this.useDiffSAT = useDiffSAT;
         firePropertyChanged();
     }
 
