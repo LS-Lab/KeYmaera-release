@@ -81,9 +81,9 @@ public class DependencyState {
     }
 
     /**
-     * TODO jdq documentation since Nov 21, 2007
+     * Get the variable dependency relation.
      * 
-     * @return
+     * @return a map where get(x) is the set of all variables on which the value of x depends during the execution of the hybrid program.
      */
     public Map<ProgramVariable, LinkedHashSet<ProgramVariable>> getDependencies() {
         return dependencyMap;

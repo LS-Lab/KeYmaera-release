@@ -99,7 +99,6 @@ public class DiffWeakenFeature implements Feature {
      *      de.uka.ilkd.key.logic.PosInOccurrence, de.uka.ilkd.key.proof.Goal)
      */
     public RuleAppCost compute(RuleApp app, PosInOccurrence pos, Goal goal) {
-        System.out.println("costing " + app + "\n at " + pos);
         Node firstNodeAfterBranch = getFirstNodeAfterBranch(goal.node());
         // if (branchingNodesAlreadyTested.containsKey(firstNodeAfterBranch)) {
         // if (resultCache.containsKey(firstNodeAfterBranch)) {

@@ -139,7 +139,7 @@ public class HypotheticalProvabilityFeature implements Feature {
         }
         // branchingNodesAlreadyTested.put(firstNodeAfterBranch, timeout);
 
-        System.out.println("HYPO: " + app.rule().name() + " on\n" + goal);
+        System.out.println("HYPO: " + app.rule().name());
         HypotheticalProvability result = provable(app, pos, goal,
                 MAX_HYPOTHETICAL_RULE_APPLICATIONS, timeout);
         System.out.println("HYPO: " + app.rule().name() + " " + result);

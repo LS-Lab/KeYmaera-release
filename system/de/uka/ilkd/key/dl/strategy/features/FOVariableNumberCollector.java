@@ -21,6 +21,8 @@ package de.uka.ilkd.key.dl.strategy.features;
 
 import java.math.BigDecimal;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import de.uka.ilkd.key.logic.Name;
 import de.uka.ilkd.key.logic.Term;
@@ -34,7 +36,15 @@ import de.uka.ilkd.key.logic.op.QuantifiableVariable;
 public class FOVariableNumberCollector {
 
     public static int getVariableNumber(Term inputFormula) {
-        final HashSet<Name> variablesSeenBefore = new HashSet<Name>();
+        return getVariables(inputFormula).size();
+    }
+    
+    /**
+     * Collects the variable symbols occurring in inputFormula, more precisely collects all
+     * LogicVariable, ProgramVariable, QuantifiableVariable, MetaVariable or (non-builtin) Functions.
+     */
+    public static Set<Operator> getVariables(Term inputFormula) {
+        final HashSet<Operator> variables = new LinkedHashSet<Operator>();
         inputFormula.execPreOrder(new Visitor() {
             @Override
             public void visit(Term visited) {
@@ -75,14 +85,12 @@ public class FOVariableNumberCollector {
                         }
 
                     }
-                    if (!variablesSeenBefore.contains(op.name())) {
-                        variablesSeenBefore.add(op.name());
-                    }
+                    variables.add(op);
                 }
 
             }
         });
-        return variablesSeenBefore.size();
+        return variables;
     }
 
 }

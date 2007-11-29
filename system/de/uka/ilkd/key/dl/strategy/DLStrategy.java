@@ -338,6 +338,12 @@ public class DLStrategy extends AbstractFeatureStrategy {
      * @author ap
      */
     private void setupDiffSatStrategy(final RuleSetDispatchFeature d) {
+        if (!DLOptionBean.INSTANCE.isUseDiffSAT()) {
+            bindRuleSet(d, "invariant_diff", inftyConst());
+            bindRuleSet(d, "invariant_weaken", inftyConst());
+            bindRuleSet(d, "invariant_strengthen", inftyConst());
+            return;
+        }
         bindRuleSet(d, "diff_solve",
                 ifZero(ODESolvableFeature.INSTANCE,
                         longConst(4000),
@@ -351,6 +357,7 @@ public class DLStrategy extends AbstractFeatureStrategy {
         bindRuleSet(d, "invariant_strengthen",
                 ifZero(DiffWeakenFeature.INSTANCE,
                        inftyConst(),
+                       //@todo turn to forSome()
                        forEach(augInst, DiffIndCandidates.INSTANCE,
                                add(instantiate("augment", augInst),
                                    ifZero(DiffSatFeature.INSTANCE,
@@ -358,13 +365,15 @@ public class DLStrategy extends AbstractFeatureStrategy {
                                           inftyConst())))
                 ));
         bindRuleSet(d, "invariant_diff",
-                ifZero(PostDiffStrengthFeature.INSTANCE,
-                        longConst(-2000),
-                        new SwitchFeature(HypotheticalProvabilityFeature.INSTANCE,
-                            new Case(longConst(0), longConst(-4000)),
-                            new Case(longConst(1), longConst(20000)),
-                            new Case(inftyConst(), inftyConst()))
-                        ));
+                ifZero(DiffWeakenFeature.INSTANCE,
+                        inftyConst(),
+                        ifZero(PostDiffStrengthFeature.INSTANCE,
+                            longConst(-2000),
+                            new SwitchFeature(HypotheticalProvabilityFeature.INSTANCE,
+                                new Case(longConst(0), longConst(-4000)),
+                                new Case(longConst(1), longConst(20000)),
+                                new Case(inftyConst(), inftyConst()))
+                        )));
     }
 
     public Name name() {

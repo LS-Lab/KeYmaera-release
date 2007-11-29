@@ -105,7 +105,6 @@ public class DiffSatFeature implements Feature {
      */
     public RuleAppCost compute(RuleApp myapp, PosInOccurrence pos, Goal goal) {
         TacletApp app = (TacletApp) myapp;
-        System.out.println("costing " + app + "\n at " + pos);
         Node firstNodeAfterBranch = getFirstNodeAfterBranch(goal.node());
         // if (branchingNodesAlreadyTested.containsKey(firstNodeAfterBranch)) {
         // if (resultCache.containsKey(firstNodeAfterBranch)) {

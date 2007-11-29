@@ -16,7 +16,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.PriorityQueue;
@@ -105,7 +104,7 @@ public class DLUniversalClosureOp extends AbstractMetaOperator {
         // e.printStackTrace();
         // }
 
-        final Map<de.uka.ilkd.key.dl.model.ProgramVariable, LinkedHashSet<de.uka.ilkd.key.dl.model.ProgramVariable>> transitiveClosure = createTransitiveClosure(generateDependencyMap);
+        final Map<de.uka.ilkd.key.dl.model.ProgramVariable, LinkedHashSet<de.uka.ilkd.key.dl.model.ProgramVariable>> transitiveClosure = DependencyStateGenerator.createTransitiveClosure(generateDependencyMap);
 
         final Map<de.uka.ilkd.key.dl.model.ProgramVariable, Set<de.uka.ilkd.key.dl.model.ProgramVariable>> inverseTransitiveClosure = new HashMap<de.uka.ilkd.key.dl.model.ProgramVariable, Set<de.uka.ilkd.key.dl.model.ProgramVariable>>();
         for (de.uka.ilkd.key.dl.model.ProgramVariable var : generateDependencyMap
@@ -257,44 +256,6 @@ public class DLUniversalClosureOp extends AbstractMetaOperator {
         }
         return post;
 
-    }
-
-    /**
-     * TODO jdq documentation since Nov 16, 2007
-     * 
-     * @param generateDependencyMap
-     * @param transitiveClosure
-     */
-    private Map<de.uka.ilkd.key.dl.model.ProgramVariable, LinkedHashSet<de.uka.ilkd.key.dl.model.ProgramVariable>> createTransitiveClosure(
-            Map<de.uka.ilkd.key.dl.model.ProgramVariable, LinkedHashSet<de.uka.ilkd.key.dl.model.ProgramVariable>> generateDependencyMap) {
-        final Map<de.uka.ilkd.key.dl.model.ProgramVariable, LinkedHashSet<de.uka.ilkd.key.dl.model.ProgramVariable>> transitiveClosure = new LinkedHashMap<de.uka.ilkd.key.dl.model.ProgramVariable, LinkedHashSet<de.uka.ilkd.key.dl.model.ProgramVariable>>();
-        boolean changed = true;
-        while (changed) {
-            changed = false;
-            for (de.uka.ilkd.key.dl.model.ProgramVariable var : generateDependencyMap
-                    .keySet()) {
-                LinkedHashSet<de.uka.ilkd.key.dl.model.ProgramVariable> clone = transitiveClosure
-                        .get(var);
-                LinkedHashSet<de.uka.ilkd.key.dl.model.ProgramVariable> deps = transitiveClosure
-                        .get(var);
-                if (clone == null) {
-                    deps = generateDependencyMap.get(var);
-                    clone = new LinkedHashSet<de.uka.ilkd.key.dl.model.ProgramVariable>();
-                    clone.addAll(deps);
-
-                    transitiveClosure.put(var, clone);
-                }
-                for (de.uka.ilkd.key.dl.model.ProgramVariable dvar : new HashSet<de.uka.ilkd.key.dl.model.ProgramVariable>(
-                        deps)) {
-                    LinkedHashSet<de.uka.ilkd.key.dl.model.ProgramVariable> otherDeps = generateDependencyMap
-                            .get(dvar);
-                    if (otherDeps != null) {
-                        changed |= transitiveClosure.get(var).addAll(otherDeps);
-                    }
-                }
-            }
-        }
-        return transitiveClosure;
     }
 
     /**
