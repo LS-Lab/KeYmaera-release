@@ -35,6 +35,7 @@ import de.uka.ilkd.key.logic.TermBuilder;
 import de.uka.ilkd.key.logic.TermFactory;
 import de.uka.ilkd.key.logic.op.AbstractMetaOperator;
 import de.uka.ilkd.key.logic.op.LogicVariable;
+import de.uka.ilkd.key.logic.op.Modality;
 import de.uka.ilkd.key.logic.op.ProgramVariable;
 import de.uka.ilkd.key.logic.op.SVSubstitute;
 import de.uka.ilkd.key.logic.sort.Sort;
@@ -42,7 +43,9 @@ import de.uka.ilkd.key.rule.MatchConditions;
 import de.uka.ilkd.key.rule.inst.SVInstantiations;
 
 /**
- * Creates an anonymising update for a modifies clause.
+ * Creates a universal closure with respect to the modifies set of a modality.
+ * The first argument contains the modality [a]F determining the modifies set.
+ * The second argument contains the actual formula to wrap inside the universal closure.
  */
 public class DLUniversalClosureOp extends AbstractMetaOperator {
 
@@ -59,11 +62,17 @@ public class DLUniversalClosureOp extends AbstractMetaOperator {
      */
     @SuppressWarnings("unchecked")
     public Term calculate(Term term, SVInstantiations svInst, Services services) {
+        if (!(term.sub(0).op() instanceof Modality))
+            throw new IllegalArgumentException("inapplicable");
         Term post = term.sub(1);
+        DLProgram program = (DLProgram) ((StatementBlock) term
+                .sub(0).javaBlock().program()).getChildAt(0);
+        return universalClosure(program, post, svInst, services);
+    }
 
+   public Term universalClosure(DLProgram program, Term post, SVInstantiations svInst, Services services) {
         DependencyState depState = DependencyStateGenerator
-                .generateDependencyMap((DLProgram) ((StatementBlock) term
-                        .sub(0).javaBlock().program()).getChildAt(0));
+                .generateDependencyMap(program);
         Map<de.uka.ilkd.key.dl.model.ProgramVariable, LinkedHashSet<de.uka.ilkd.key.dl.model.ProgramVariable>> generateDependencyMap = depState
                 .getDependencies();
         // FileWriter writer;

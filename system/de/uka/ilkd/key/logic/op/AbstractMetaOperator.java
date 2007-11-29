@@ -151,7 +151,7 @@ public abstract class AbstractMetaOperator extends Op implements MetaOperator {
 	/** metaconstructs for DL */
 	public static final AbstractMetaOperator PROG_2_LOGIC_CONVERTER = new Prog2LogicConverter();
 	
-        public static final AbstractMetaOperator ODE_SOLVE = new ODESolve();
+        public static final ODESolve ODE_SOLVE = new ODESolve();
         public static final AbstractMetaOperator DIFFIND = new DiffInd();
         public static final AbstractMetaOperator DIFFFIN = new DiffFin();
         public static final AbstractMetaOperator DIFFADJOIN= new DLDiffAdjoin();
@@ -161,7 +161,7 @@ public abstract class AbstractMetaOperator extends Op implements MetaOperator {
 	public static final AbstractMetaOperator REDUCE = new Reduce();
 	public static final AbstractMetaOperator UNWIND_LOOP = new DLUnwindLoop();
 	public static final AbstractMetaOperator DL_INV_LOOP = new DLIntroNewAnonUpdateOp();
-	public static final AbstractMetaOperator DL_UNIVERSAL_CLOSURE = new DLUniversalClosureOp();
+	public static final DLUniversalClosureOp DL_UNIVERSAL_CLOSURE = new DLUniversalClosureOp();
 
 	public static final AbstractMetaOperator DL_INT_FORALL = new DLRandomAssign();
 

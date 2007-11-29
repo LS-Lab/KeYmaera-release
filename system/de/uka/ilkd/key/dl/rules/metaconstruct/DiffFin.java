@@ -59,17 +59,18 @@ public class DiffFin extends AbstractDLMetaOperator {
      *      de.uka.ilkd.key.java.Services)
      */
     public Term calculate(Term term, SVInstantiations svInst, Services services) {
-        DiffSystem system = (DiffSystem) ((StatementBlock) term.sub(0)
+        final Term arg = term.sub(0);
+        DiffSystem system = (DiffSystem) ((StatementBlock) arg
                 .javaBlock().program()).getChildAt(0);
-        Term post = term.sub(0).sub(0);
+        Term post = arg.sub(0);
         final NamespaceSet nss = services.getNamespaces();
         try {
-            if (term.sub(0).op() == Modality.DIA) {
+            if (arg.op() == Modality.DIA) {
                 return MathSolverManager.getCurrentODESolver()
                 .diffFin(system, post, nss);
             } else {
                 throw new IllegalStateException("Unknown modality "
-                        + term.sub(0).op());
+                        + arg.op());
             }
         } catch (RuntimeException e) {
             throw (RuntimeException) e;

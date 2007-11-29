@@ -69,7 +69,11 @@ public class ODESolve extends AbstractDLMetaOperator {
      *      de.uka.ilkd.key.java.Services)
      */
     public Term calculate(Term term, SVInstantiations svInst, Services services) {
-        DiffSystem system = (DiffSystem) ((StatementBlock) term.sub(0)
+        return odeSolve(term.sub(0), services);
+    }
+
+    public Term odeSolve(Term term, Services services) {
+        DiffSystem system = (DiffSystem) ((StatementBlock) term
                 .javaBlock().program()).getChildAt(0);
         LogicVariable t = null;
         LogicVariable ts = null;
@@ -90,19 +94,19 @@ public class ODESolve extends AbstractDLMetaOperator {
         ts = new LogicVariable(tsName, RealLDT.getRealSort());
         nss.variables().add(t);
         nss.variables().add(ts);
-        Term post = term.sub(0).sub(0);
+        Term post = term.sub(0);
         Term odeSolve;
         if (system.getDifferentialEquations().isEmpty()) {
             // optimize no differential equations
             Term invariant = system.getInvariant();
-            if (term.sub(0).op() == Modality.BOX
-                    || term.sub(0).op() == Modality.TOUT) {
+            if (term.op() == Modality.BOX
+                    || term.op() == Modality.TOUT) {
                 return TermBuilder.DF.imp(invariant, post);
-            } else if (term.sub(0).op() == Modality.DIA) {
+            } else if (term.op() == Modality.DIA) {
                 return TermBuilder.DF.and(invariant, post);
             } else {
                 throw new IllegalStateException("Unknown modality "
-                        + term.sub(0).op());
+                        + term.op());
             }
         } else {
 
@@ -111,8 +115,8 @@ public class ODESolve extends AbstractDLMetaOperator {
                         .getCurrentODESolver().odeSolve(system, t, ts, post,
                                 nss);
 
-                if (term.sub(0).op() == Modality.BOX
-                        || term.sub(0).op() == Modality.TOUT) {
+                if (term.op() == Modality.BOX
+                        || term.op() == Modality.TOUT) {
                     if (system.getInvariant().equals(TermBuilder.DF.tt())) {
                         odeSolve = odeResult.getPostCondition();
                     } else {
@@ -126,7 +130,7 @@ public class ODESolve extends AbstractDLMetaOperator {
                                     TermBuilder.DF.func(getNull(services)) }),
                             odeSolve);
                     return TermBuilder.DF.all(t, odeSolve);
-                } else if (term.sub(0).op() == Modality.DIA) {
+                } else if (term.op() == Modality.DIA) {
                     if (system.getInvariant().equals(TermBuilder.DF.tt())) {
                         odeSolve = odeResult.getPostCondition();
                     } else {
@@ -142,14 +146,13 @@ public class ODESolve extends AbstractDLMetaOperator {
                     return TermBuilder.DF.ex(t, odeSolve);
                 } else {
                     throw new IllegalStateException("Unknown modality "
-                            + term.sub(0).op());
+                            + term.op());
                 }
+            } catch (RuntimeException e) {
+                throw e;
             } catch (Exception e) {
-                if(e instanceof RuntimeException) {
-                    throw (RuntimeException) e;
-                }
                 e.printStackTrace(); // XXX
-                return term.sub(0);
+                return term;
             }
         }
     }

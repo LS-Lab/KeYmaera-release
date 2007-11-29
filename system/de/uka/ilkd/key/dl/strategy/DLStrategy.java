@@ -32,13 +32,18 @@ import de.uka.ilkd.key.dl.rules.EliminateQuantifierRuleWithContext;
 import de.uka.ilkd.key.dl.rules.FindInstanceRule;
 import de.uka.ilkd.key.dl.rules.ReduceRule;
 import de.uka.ilkd.key.dl.rules.VisualizationRule;
+import de.uka.ilkd.key.dl.strategy.features.DiffIndCandidates;
+import de.uka.ilkd.key.dl.strategy.features.DiffSatFeature;
+import de.uka.ilkd.key.dl.strategy.features.DiffWeakenFeature;
 import de.uka.ilkd.key.dl.strategy.features.FOFormula;
 import de.uka.ilkd.key.dl.strategy.features.FOSequence;
 import de.uka.ilkd.key.dl.strategy.features.FindInstanceTest;
 import de.uka.ilkd.key.dl.strategy.features.HypotheticalProvabilityFeature;
 import de.uka.ilkd.key.dl.strategy.features.KeYBeyondFO;
 import de.uka.ilkd.key.dl.strategy.features.LoopInvariantRuleDispatchFeature;
+import de.uka.ilkd.key.dl.strategy.features.ODESolvableFeature;
 import de.uka.ilkd.key.dl.strategy.features.OnlyOncePerBranchFeature;
+import de.uka.ilkd.key.dl.strategy.features.PostDiffStrengthFeature;
 import de.uka.ilkd.key.dl.strategy.features.ReduceFeature;
 import de.uka.ilkd.key.dl.strategy.features.SimplifyFeature;
 import de.uka.ilkd.key.dl.strategy.features.SwitchFeature;
@@ -81,6 +86,7 @@ import de.uka.ilkd.key.strategy.feature.SimplifyBetaCandidateFeature;
 import de.uka.ilkd.key.strategy.feature.SimplifyReplaceKnownCandidateFeature;
 import de.uka.ilkd.key.strategy.feature.SumFeature;
 import de.uka.ilkd.key.strategy.feature.TermSmallerThanFeature;
+import de.uka.ilkd.key.strategy.quantifierHeuristics.HeuristicInstantiation;
 import de.uka.ilkd.key.strategy.termProjection.AssumptionProjection;
 import de.uka.ilkd.key.strategy.termProjection.TermBuffer;
 
@@ -105,7 +111,7 @@ public class DLStrategy extends AbstractFeatureStrategy {
     private Map<Node, FirstOrder> foCache = new WeakHashMap<Node, FirstOrder>();
 
     private Map<Node, CounterExample> ceCache = new WeakHashMap<Node, CounterExample>();
-    
+
     private boolean stopOnFirstCE;
 
     private boolean blockAllRules = false;
@@ -113,9 +119,17 @@ public class DLStrategy extends AbstractFeatureStrategy {
     protected DLStrategy(Proof p_proof) {
         this(p_proof, false);
     }
+
+    /**
+     * 
+     * @param p_proof
+     * @param stopOnFirstCE whether to make a full stop and apply
+     *  no more rules at all as soon as the first counterexample occurs.
+     *  Otherwise, branches without counterexamples are still worked on even though the overall proof cannot close. 
+     */
     protected DLStrategy(Proof p_proof, boolean stopOnFirstCE) {
         super(p_proof);
-        this.stopOnFirstCE=stopOnFirstCE;
+        this.stopOnFirstCE = stopOnFirstCE;
 
         final RuleSetDispatchFeature d = RuleSetDispatchFeature.create();
 
@@ -229,9 +243,9 @@ public class DLStrategy extends AbstractFeatureStrategy {
         bindRuleSet(d, "system_invariant", inftyConst());
         bindRuleSet(d, "query_normalize", inftyConst());
 
-        
-        bindRuleSet(d, "loop_invariant", LoopInvariantRuleDispatchFeature.INSTANCE);
-        
+        bindRuleSet(d, "loop_invariant",
+                LoopInvariantRuleDispatchFeature.INSTANCE);
+
         bindRuleSet(d, "mathematica_reduce", add(ifZero(ReduceFeature.INSTANCE,
                 longConst(4999), inftyConst()), (MathSolverManager
                 .isSimplifierSet()) ? longConst(0) : inftyConst()));
@@ -240,18 +254,7 @@ public class DLStrategy extends AbstractFeatureStrategy {
                 (MathSolverManager.isSimplifierSet()) ? longConst(0)
                         : inftyConst()));
 
-        bindRuleSet(d, "invariant_weaken", new SwitchFeature(
-                HypotheticalProvabilityFeature.INSTANCE,
-                new Case(longConst(0), longConst(-2000)),
-                new Case(longConst(1), longConst(1000000)),
-                new Case(inftyConst(), inftyConst())));
-
-        bindRuleSet(d, "invariant_diff", new SwitchFeature(
-                HypotheticalProvabilityFeature.INSTANCE,
-                new Case(longConst(0), longConst(-1000)),
-                new Case(longConst(1), longConst(10000000)),
-                new Case(inftyConst(), inftyConst())));
-
+        setupDiffSatStrategy(d);
 
         if (DLOptionBean.INSTANCE.isNormalizeEquations()) {
             bindRuleSet(d, "inequation_normalization", -2000);
@@ -323,10 +326,45 @@ public class DLStrategy extends AbstractFeatureStrategy {
                 .createSum(new Feature[] { AutomatedRuleFeature.INSTANCE,
                         NotWithinMVFeature.INSTANCE, simplifierF, duplicateF,
                         ifMatchedF, d, AgeFeature.INSTANCE, reduceSequence,
-                        debugRule, visualRule, contextElimRule, eliminateQuantifier,
-                        findInstanceRule, noQuantifierInstantition });
+                        debugRule, visualRule, contextElimRule,
+                        eliminateQuantifier, findInstanceRule,
+                        noQuantifierInstantition });
 
         approvalF = duplicateF;
+    }
+
+    /**
+     * DiffSat strategy.
+     * @author ap
+     */
+    private void setupDiffSatStrategy(final RuleSetDispatchFeature d) {
+        bindRuleSet(d, "diff_solve",
+                ifZero(ODESolvableFeature.INSTANCE,
+                        longConst(4000),
+                        inftyConst()));
+
+        bindRuleSet(d, "invariant_weaken", new SwitchFeature(DiffWeakenFeature.INSTANCE,
+                new Case(longConst(0), longConst(-4000)),
+                new Case(longConst(1), longConst(1000000)),
+                new Case(inftyConst(), inftyConst())));
+        final TermBuffer augInst = new TermBuffer();
+        bindRuleSet(d, "invariant_strengthen",
+                ifZero(DiffWeakenFeature.INSTANCE,
+                       inftyConst(),
+                       forEach(augInst, DiffIndCandidates.INSTANCE,
+                               add(instantiate("augment", augInst),
+                                   ifZero(DiffSatFeature.INSTANCE,
+                                          longConst(-1000),
+                                          inftyConst())))
+                ));
+        bindRuleSet(d, "invariant_diff",
+                ifZero(PostDiffStrengthFeature.INSTANCE,
+                        longConst(-2000),
+                        new SwitchFeature(HypotheticalProvabilityFeature.INSTANCE,
+                            new Case(longConst(0), longConst(-4000)),
+                            new Case(longConst(1), longConst(20000)),
+                            new Case(inftyConst(), inftyConst()))
+                        ));
     }
 
     public Name name() {
@@ -363,7 +401,7 @@ public class DLStrategy extends AbstractFeatureStrategy {
             return false;
         }
     }
-    
+
     public boolean foundCounterexample() {
         return blockAllRules;
     }
@@ -386,13 +424,13 @@ public class DLStrategy extends AbstractFeatureStrategy {
                 return false;
             }
             if (DLOptionBean.INSTANCE.isUseFindInstanceTest()) {
-                CounterExample cached = getFirstInCacheUntilBranch(goal
-                        .node(), ceCache);
+                CounterExample cached = getFirstInCacheUntilBranch(goal.node(),
+                        ceCache);
                 if (cached != null) {
                     ceCache.put(goal.node(), cached);
                     return cached != CounterExample.CE;
                 } else if (FindInstanceTest.INSTANCE.compute(app, pio, goal) == TopRuleAppCost.INSTANCE) {
-                    System.out.println("Found CE");//XXX 
+                    System.out.println("Found CE");// XXX
                     ceCache.put(goal.node(), CounterExample.CE);
                     if (stopOnFirstCE) {
                         blockAllRules = true;
@@ -415,7 +453,8 @@ public class DLStrategy extends AbstractFeatureStrategy {
         if (cache.containsKey(node)) {
             return cache.get(node);
         }
-        if (node.root() || node.parent().root() || node.parent().childrenCount() > 1) {
+        if (node.root() || node.parent().root()
+                || node.parent().childrenCount() > 1) {
             return null;
         }
         return getFirstInCacheUntilBranch(node.parent(), cache);
@@ -429,6 +468,7 @@ public class DLStrategy extends AbstractFeatureStrategy {
 
     public static class Factory extends StrategyFactory {
         public static final Factory INSTANCE = new Factory();
+
         public Factory() {
 
         }
@@ -438,7 +478,7 @@ public class DLStrategy extends AbstractFeatureStrategy {
                 StrategyProperties strategyProperties) {
             return new DLStrategy(p_proof);
         }
-        
+
         public Strategy create(Proof p_proof,
                 StrategyProperties strategyProperties, boolean stopOnFirstCE) {
             return new DLStrategy(p_proof, stopOnFirstCE);

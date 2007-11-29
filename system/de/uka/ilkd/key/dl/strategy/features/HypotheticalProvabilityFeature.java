@@ -33,6 +33,7 @@ import de.uka.ilkd.key.dl.strategy.DLStrategy;
 import de.uka.ilkd.key.gui.Main;
 import de.uka.ilkd.key.logic.Name;
 import de.uka.ilkd.key.logic.PosInOccurrence;
+import de.uka.ilkd.key.logic.Sequent;
 import de.uka.ilkd.key.pp.PosInSequent;
 import de.uka.ilkd.key.proof.Goal;
 import de.uka.ilkd.key.proof.IGoalChooser;
@@ -73,7 +74,7 @@ public class HypotheticalProvabilityFeature implements Feature {
     }
 
 
-    private static final RuleAppCost TIMEOUT_COST = LongRuleAppCost.create(1);
+    public static final RuleAppCost TIMEOUT_COST = LongRuleAppCost.create(1);
 
     private static final TopRuleAppCost DISPROVABLE_COST = TopRuleAppCost.INSTANCE;
 
@@ -82,7 +83,7 @@ public class HypotheticalProvabilityFeature implements Feature {
     /**
      * maximum number of rule applications in hypothetical proofs.
      */
-    static final int MAX_HYPOTHETICAL_RULE_APPLICATIONS = 1000;
+    public static final int MAX_HYPOTHETICAL_RULE_APPLICATIONS = 1000;
 
     private Map<Node, Long> branchingNodesAlreadyTested = new WeakHashMap<Node, Long>();
 
@@ -195,18 +196,35 @@ public class HypotheticalProvabilityFeature implements Feature {
      * @param goal
      * @return
      */
-    static Proof newHypotheticalProofFor(Goal goal) {
+    static Proof newHypotheticalProofFor(Proof context, Sequent seq) {
         // new proof with settings like goal.proof() but goal as its
         // only goal
-        Proof hypothetic = new Proof(new Name("hypothetic"), goal.proof(), goal
-                .sequent());
+        Proof hypothetic = new Proof(new Name("hypothetic"), context, seq);
         Goal hgoal = hypothetic.getGoal(hypothetic.root());
-        assert hgoal != null && hgoal.sequent().equals(goal.sequent());
+        assert hgoal != null && hgoal.sequent().equals(seq);
         Strategy stopEarly = DLStrategy.Factory.INSTANCE.create(hypothetic,
                 null, true);
         hgoal.setGoalStrategy(stopEarly);
         hypothetic.setActiveStrategy(stopEarly);
         return hypothetic;
+    }
+    static Proof newHypotheticalProofFor(Goal goal) {
+        return newHypotheticalProofFor(goal.proof(), goal.sequent());
+    }
+
+    /**
+     * Determines whether the given goal can finally be proven.
+     * 
+     * @param goal
+     *                the goal to close hypothetically.
+     * @param timeout
+     *                the maximum time how long the proof is attempted to close.
+     * @return Result of proving goal.
+     */
+    public static HypotheticalProvability provable(Proof context, Sequent problem, int maxsteps, long timeout) {
+        // continue hypothetic proof to see if it closes/has
+        // counterexamples
+        return provable(newHypotheticalProofFor(context, problem), maxsteps, timeout);
     }
 
     /**
@@ -241,7 +259,6 @@ public class HypotheticalProvabilityFeature implements Feature {
             int maxsteps, long timeout) {
         Proof hypothetic = newHypotheticalProofFor(goal);
         Goal hgoal = hypothetic.getGoal(hypothetic.root());
-        assert hgoal != null && hgoal.sequent().equals(goal.sequent());
         // apply app on hypothetic proof
         apply(hgoal, app);
         Debug.out("HYPO: after first application");
@@ -263,17 +280,16 @@ public class HypotheticalProvabilityFeature implements Feature {
      */
     public static HypotheticalProvability provable(RuleApp app, PosInOccurrence pos, Goal goal,
             int maxsteps, long timeout) {
+        Proof hypothetic = newHypotheticalProofFor(goal);
+        Goal hgoal = hypothetic.getGoal(hypothetic.root());
         if (!app.complete()) {
             // completing incomplete rule application
-            app = completeRuleApp(goal, (TacletApp) app, pos, goal.proof()
+            app = completeRuleApp(hgoal, (TacletApp) app, pos, hgoal.proof()
                     .getActiveStrategy());
             if (app == null || !app.complete()) {
                 throw new IllegalArgumentException("incompletable rule application\n" + app);
             }
         }
-        Proof hypothetic = newHypotheticalProofFor(goal);
-        Goal hgoal = hypothetic.getGoal(hypothetic.root());
-        assert hgoal != null && hgoal.sequent().equals(goal.sequent());
         // apply app on hypothetic proof
         apply(hgoal, app);
         Debug.out("HYPO: after first application");
