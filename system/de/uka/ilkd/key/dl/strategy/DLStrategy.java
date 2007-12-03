@@ -114,6 +114,9 @@ public class DLStrategy extends AbstractFeatureStrategy {
 
     private boolean stopOnFirstCE;
 
+    /**
+     * whether to block ALL further rule applications.
+     */
     private boolean blockAllRules = false;
 
     protected DLStrategy(Proof p_proof) {
@@ -353,27 +356,40 @@ public class DLStrategy extends AbstractFeatureStrategy {
                 new Case(longConst(0), longConst(-4000)),
                 new Case(longConst(1), longConst(1000000)),
                 new Case(inftyConst(), inftyConst())));
+        enableInstantiate ();
         final TermBuffer augInst = new TermBuffer();
         bindRuleSet(d, "invariant_strengthen",
+                //@todo disable during hypothetic strengthens
+                /*ifZero(DiffWeakenFeature.INSTANCE,
+                       inftyConst(),*/
+                       forEach(augInst, DiffIndCandidates.INSTANCE,
+                               ifZero(new DiffSatFeature(augInst),
+                               add(instantiate("augment", augInst),
+                                          longConst(-1000)),
+                                          inftyConst())
+                ));
+        /*bindRuleSet(d, "invariant_strengthen",
+                //@todo disable during hypothetic strengthens
                 ifZero(DiffWeakenFeature.INSTANCE,
                        inftyConst(),
-                       //@todo turn to forSome()
                        forEach(augInst, DiffIndCandidates.INSTANCE,
                                add(instantiate("augment", augInst),
-                                   ifZero(DiffSatFeature.INSTANCE,
+                                   ifZero(new DiffSatFeature(augInst),
                                           longConst(-1000),
                                           inftyConst())))
-                ));
+                ));*/
+        disableInstantiate ();
         bindRuleSet(d, "invariant_diff",
                 ifZero(DiffWeakenFeature.INSTANCE,
                         inftyConst(),
+                        inftyConst()/*
                         ifZero(PostDiffStrengthFeature.INSTANCE,
                             longConst(-2000),
                             new SwitchFeature(HypotheticalProvabilityFeature.INSTANCE,
                                 new Case(longConst(0), longConst(-4000)),
                                 new Case(longConst(1), longConst(20000)),
                                 new Case(inftyConst(), inftyConst()))
-                        )));
+                        )*/));
     }
 
     public Name name() {

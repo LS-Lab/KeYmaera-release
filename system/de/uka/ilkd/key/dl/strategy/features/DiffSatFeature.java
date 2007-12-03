@@ -58,6 +58,7 @@ import de.uka.ilkd.key.strategy.LongRuleAppCost;
 import de.uka.ilkd.key.strategy.RuleAppCost;
 import de.uka.ilkd.key.strategy.TopRuleAppCost;
 import de.uka.ilkd.key.strategy.feature.Feature;
+import de.uka.ilkd.key.strategy.termProjection.ProjectionToTerm;
 
 /**
  * DiffSat strategy.
@@ -76,7 +77,7 @@ public class DiffSatFeature implements Feature {
      */
     private Map<DiffSystem, Map<Term,RuleAppCost>> diffIndCache = new WeakHashMap<DiffSystem, Map<Term,RuleAppCost>>();
 
-    public static final DiffSatFeature INSTANCE = new DiffSatFeature();
+    //public static final DiffSatFeature INSTANCE = new DiffSatFeature();
 
     /**
      * the default initial timeout, -1 means use
@@ -84,19 +85,22 @@ public class DiffSatFeature implements Feature {
      */
     private final long initialTimeout;
 
+    private final ProjectionToTerm value;
+    
     /**
      * @param timeout
      *                the default overall (initial) timeout for the hypothetic
      *                proof
      */
-    public DiffSatFeature(long timeout) {
+    public DiffSatFeature(long timeout, ProjectionToTerm value) {
         this.initialTimeout = timeout;
+        this.value = value;
     }
 
-    public DiffSatFeature() {
-        this(-1);
+    public DiffSatFeature(ProjectionToTerm value) {
+        this(-1, value);
     }
-
+    
     /*
      * (non-Javadoc)
      * 
@@ -104,6 +108,7 @@ public class DiffSatFeature implements Feature {
      *      de.uka.ilkd.key.logic.PosInOccurrence, de.uka.ilkd.key.proof.Goal)
      */
     public RuleAppCost compute(RuleApp myapp, PosInOccurrence pos, Goal goal) {
+        System.out.println("check sat " + " for " + myapp.rule().name() + " on " + pos);
         TacletApp app = (TacletApp) myapp;
         Node firstNodeAfterBranch = getFirstNodeAfterBranch(goal.node());
         // if (branchingNodesAlreadyTested.containsKey(firstNodeAfterBranch)) {
@@ -156,11 +161,14 @@ public class DiffSatFeature implements Feature {
         final Services services = goal.proof().getServices();
 
         RuleApp diffind = goal.indexOfTaclets().lookup(new Name("diffind"));
-        final Term candidate = (Term) app.instantiations().lookupValue(
+        Term candidate = (Term) app.instantiations().lookupValue(
                 new Name("augmented"));
         if (candidate == null) {
-            throw new IllegalInstantiationException("Invalid instantiation "
+            System.out.println("\tno instantiation "
                     + candidate + " for SV 'augmented'");
+            if (false) throw new IllegalInstantiationException("Invalid instantiation "
+                    + candidate + " for SV 'augmented' in " + app.instantiations());
+            candidate = value.toTerm(app, pos, goal);
         }
         if (TopRuleAppCost.INSTANCE.equals(get(system, candidate))) {
             return TopRuleAppCost.INSTANCE;

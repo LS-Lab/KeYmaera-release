@@ -38,6 +38,7 @@ import de.uka.ilkd.key.java.StatementBlock;
 import de.uka.ilkd.key.logic.ConstrainedFormula;
 import de.uka.ilkd.key.logic.IteratorOfConstrainedFormula;
 import de.uka.ilkd.key.logic.IteratorOfTerm;
+import de.uka.ilkd.key.logic.JavaBlock;
 import de.uka.ilkd.key.logic.ListOfTerm;
 import de.uka.ilkd.key.logic.PosInOccurrence;
 import de.uka.ilkd.key.logic.SLListOfTerm;
@@ -71,22 +72,28 @@ public class DiffIndCandidates implements TermGenerator {
     }
 
     public IteratorOfTerm generate(RuleApp app, PosInOccurrence pos, Goal goal) {
+        System.out.println("generating for " + app.rule().name());
         Term term = pos.subTerm();
         // unbox from update prefix
         while (term.op() instanceof QuanUpdateOperator) {
             term = ((QuanUpdateOperator) term.op()).target(term);
         }
-        if (!(term.op() instanceof Modality))
-            throw new IllegalArgumentException("inapplicable");
-        final DiffSystem system = (DiffSystem) ((StatementBlock) term.sub(0)
+        if (!(term.op() instanceof Modality
+                && term.javaBlock() != null
+                && term.javaBlock() != JavaBlock.EMPTY_JAVABLOCK
+                && term.javaBlock().program() instanceof StatementBlock)) {
+            throw new IllegalArgumentException("inapplicable to " + pos);
+        }
+        final DiffSystem system = (DiffSystem) ((StatementBlock) term
                 .javaBlock().program()).getChildAt(0);
         final Term invariant = system.getInvariant();
         final Term post = term.sub(0).sub(0);
         final Services services = goal.proof().getServices();
 
         Set<Term> l = new LinkedHashSet();
+        l.add(TermBuilder.DF.tt());
         l.add(post);
-        l.addAll(indCandidates(system, goal.sequent()));
+//        l.addAll(indCandidates(system, goal.sequent()));
         System.out.println("CANDIDATES .....\n" + l);
         return genericToOld(new ArrayList<Term>(l)).iterator();
     }

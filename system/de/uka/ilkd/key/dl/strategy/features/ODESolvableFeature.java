@@ -68,6 +68,15 @@ public class ODESolvableFeature implements Feature {
             "Tan",
             "Cot"
     });
+    private static final List<String> algebraicList = Arrays.asList(new String[] {
+            //@todo check non-constant Exp
+            "add",
+            "sub",
+            "neg",
+            "mul",
+            "div",
+            "exp",
+    });
 
 
     public static final Feature INSTANCE = new ODESolvableFeature();
