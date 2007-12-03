@@ -416,6 +416,14 @@ public abstract class AbstractFeatureStrategy implements Strategy {
         return oneOf ( new Feature[] { feature0, feature1 } );
     }
     
+    protected Feature storeRuleApp(RuleAppBuffer buffer, Feature body) {
+        return StoreRuleAppCP.create(buffer, getBtManager(), body);
+    }
+    
+    protected Feature openCurrentRuleApp(Feature body) {
+        return OpenRuleAppCP.create(body, getBtManager());
+    }
+    
     protected Feature sum(TermBuffer x, TermGenerator gen, Feature body) {
         return ComprehendedSumFeature.create ( x, gen, body );
     }
