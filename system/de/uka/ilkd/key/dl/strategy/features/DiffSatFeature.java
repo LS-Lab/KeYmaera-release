@@ -226,7 +226,7 @@ public class DiffSatFeature implements Feature {
                         system,
                         DiffInd.DIFFIND.diffInd(augTerm, services), null,
                         services));
-        System.out.println("HYPOing:\n " + step);
+//        System.out.println("HYPOing:\n " + step);
         result = HypotheticalProvabilityFeature.provable(goal.proof(), step, MAX_STEPS,
                 timeout, taboo);
         System.out.println("HYPO: " + diffind.rule().name() + " step " + result + " for " + candidate);

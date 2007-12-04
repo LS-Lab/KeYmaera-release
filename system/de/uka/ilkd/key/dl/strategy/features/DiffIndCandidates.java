@@ -21,6 +21,7 @@ package de.uka.ilkd.key.dl.strategy.features;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -30,7 +31,10 @@ import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Set;
 
+import orbital.util.Setops;
+
 import de.uka.ilkd.key.dl.model.DiffSystem;
+import de.uka.ilkd.key.dl.model.NamedElement;
 import de.uka.ilkd.key.dl.model.ProgramVariable;
 import de.uka.ilkd.key.dl.transitionmodel.DependencyStateGenerator;
 import de.uka.ilkd.key.java.Services;
@@ -40,6 +44,8 @@ import de.uka.ilkd.key.logic.IteratorOfConstrainedFormula;
 import de.uka.ilkd.key.logic.IteratorOfTerm;
 import de.uka.ilkd.key.logic.JavaBlock;
 import de.uka.ilkd.key.logic.ListOfTerm;
+import de.uka.ilkd.key.logic.Name;
+import de.uka.ilkd.key.logic.Named;
 import de.uka.ilkd.key.logic.PosInOccurrence;
 import de.uka.ilkd.key.logic.SLListOfTerm;
 import de.uka.ilkd.key.logic.Sequent;
@@ -99,6 +105,7 @@ public class DiffIndCandidates implements TermGenerator {
         Set<Term> l = new LinkedHashSet();
         l.add(post);
         l.addAll(indCandidates(update, system, goal.sequent()));
+        l.remove(TermBuilder.DF.tt());
         System.out.println("CANDIDATES .....\n" + l);
         return genericToOld(new ArrayList<Term>(l)).iterator();
     }
@@ -106,15 +113,30 @@ public class DiffIndCandidates implements TermGenerator {
     private List<Term> indCandidates(Update update, DiffSystem system, Sequent seq) {
         final Map<ProgramVariable, LinkedHashSet<ProgramVariable>> dep = DependencyStateGenerator
                 .generateDependencyMap(system).getDependencies();
+        for (Map.Entry<ProgramVariable, LinkedHashSet<ProgramVariable>> s : dep.entrySet()) {
+            if (!s.getValue().contains(s.getKey())) {
+                System.out.println("WARNING: " + "dependency of x'=5 should be reflexive. Hence " + s.getKey() + " contained in " + s.getValue());
+                s.getValue().add(s.getKey());
+                assert s.getValue().contains(s.getKey()) : "dependency of x'=5 should be reflexive. Hence " + s.getKey() + " contained in " + s.getValue();
+            }
+        }
         final Map<ProgramVariable, LinkedHashSet<ProgramVariable>> tdep = DependencyStateGenerator
                 .createTransitiveClosure(dep);
+        for (Map.Entry<ProgramVariable, LinkedHashSet<ProgramVariable>> s : tdep.entrySet()) {
+            if (!s.getValue().contains(s.getKey())) {
+                System.out.println("WARNING: " + "transitive dependency of x'=5 should be reflexive. Hence " + s.getKey() + " contained in " + s.getValue());
+                s.getValue().add(s.getKey());
+                assert s.getValue().contains(s.getKey()) : "transitive dependency of x'=5 should be reflexive. Hence " + s.getKey() + " contained in " + s.getValue();
+            }
+        }
         // modified variables MV(system)
-        final Set<ProgramVariable>  modifieds = new LinkedHashSet<ProgramVariable>();
+        Set<ProgramVariable>  modifieds = new LinkedHashSet<ProgramVariable>();
         for (ProgramVariable s : tdep.keySet()) {
             modifieds.add(s);
         }
+        modifieds = Collections.unmodifiableSet(modifieds);
         // free variables FV(system)
-        final Set<ProgramVariable>  frees = new LinkedHashSet<ProgramVariable>();
+        Set<ProgramVariable>  frees = new LinkedHashSet<ProgramVariable>();
         for (LinkedHashSet<ProgramVariable> s : tdep.values()) {
             //@todo frees.addAll(modifieds) as well?
             frees.addAll(s);
@@ -124,6 +146,7 @@ public class DiffIndCandidates implements TermGenerator {
             frees.addAll(modifieds);
             assert frees.containsAll(modifieds) : "dependency of x'=5 should be reflexive. Hence modifieds " + modifieds + " contained in frees " + frees;
         }
+        frees = Collections.unmodifiableSet(frees);
 
         // compare variables according to number of dependencies
         Comparator<de.uka.ilkd.key.dl.model.ProgramVariable> dependencyComparator = new Comparator<de.uka.ilkd.key.dl.model.ProgramVariable>() {
@@ -143,6 +166,9 @@ public class DiffIndCandidates implements TermGenerator {
 
         };
         
+        final Set<Term> possibles = getMatchingCandidates(update, system, seq);
+        System.out.println("POSSIBLES:  ....\n" + possibles);
+        
         List<Term> result = new LinkedList<Term>();
         PriorityQueue<de.uka.ilkd.key.dl.model.ProgramVariable> depOrder = new PriorityQueue<de.uka.ilkd.key.dl.model.ProgramVariable>(
                 tdep.size() + 1, dependencyComparator);
@@ -150,18 +176,19 @@ public class DiffIndCandidates implements TermGenerator {
         while (!depOrder.isEmpty()) {
             // min is the minimal element, i.e. the element which depends on the
             // least number of variables
-            ProgramVariable min = depOrder.poll();
+            final ProgramVariable min = depOrder.poll();
             // cluster of variables that min depends on, transitively
-            Set<ProgramVariable> cluster = tdep.get(min);
+            final Set<ProgramVariable> cluster = tdep.get(min);
             assert cluster != null : "transitive closure should contain all information for "
                     + min;
-            assert depOrder.containsAll(cluster) : "choosing minimum " + dep
-                    + " yields that depOrder " + depOrder
-                    + " still contains all dependent vars " + cluster;
+//            assert depOrder.containsAll(cluster) : "choosing minimum " + min + " from " + dep
+//                    + " entails that remaining " + depOrder
+//                    + " still contains all dependent vars from its cluster " + cluster;
             // find formulas that only refer to cluster
             Set<Term> matches = selectMatchingCandidates(
-                    getMatchingCandidates(update, system, seq),
+                    possibles,
                     system, cluster, modifieds, frees);
+            System.out.println("GENERATORS: for " + min + " cluster " + cluster + " are " + matches);
             //@todo all nonempty subsets
             Term candidate = TermBuilder.DF.and(genericToOld(matches));
             result.add(candidate);
@@ -197,21 +224,26 @@ public class DiffIndCandidates implements TermGenerator {
         }
         return matches;
     }
-    private Set<Term> selectMatchingCandidates(Set<Term> candidates, DiffSystem system, Set<ProgramVariable> vars,
-            Set<ProgramVariable>  modifieds, Set<ProgramVariable>  frees) {
+    
+    private Set<Term> selectMatchingCandidates(Set<Term> candidates, DiffSystem system, Set<ProgramVariable> myvars,
+            Set<ProgramVariable>  mymodifieds, Set<ProgramVariable>  myfrees) {
+        Set<Name> vars = projectNames2(myvars); 
+        Set<Name> modifieds = projectNames2(mymodifieds); 
+        Set<Name> frees = projectNames2(myfrees); 
         //@todo need to conside possible generation renamings by update
         Term invariant = system.getInvariant();
         Set<Term> matches = new LinkedHashSet<Term>();
         for (Term fml : candidates) {
             //@todo if (invariant.contains(fml)) continue;
-            Set<Operator> occurrences = FOVariableNumberCollector.getVariables(fml);
-            occurrences.retainAll(frees);
-            if (!vars.containsAll(occurrences)) {
+            final Set<Name> occurrences =
+                Collections.unmodifiableSet(projectNames(projectProgramVariables(FOVariableNumberCollector.getVariables(fml))));
+            if (!vars.containsAll(Setops.intersection(occurrences,frees))) {
+                System.out.println("    skip " + fml + " as " + occurrences + " not in " + vars + " ");
                 // variables with more dependencies
                 continue;
             }
-            occurrences.retainAll(modifieds);
-            if (occurrences.isEmpty()) {
+            if (Setops.intersection(occurrences,modifieds).isEmpty()) {
+                System.out.println("    skip " + fml + " as no change. Changes: " + modifieds + " disjoint from occurrences " + occurrences);
                 // trivially invariant as nothing changes
                 continue;
             } else {
@@ -220,6 +252,41 @@ public class DiffIndCandidates implements TermGenerator {
             }
         }
         return matches;
+    }
+    
+    /**
+     * projection to programvariables
+     * @param s
+     * @return
+     */
+    private static Set<de.uka.ilkd.key.logic.op.ProgramVariable> projectProgramVariables(Set<Operator> s) {
+        Set<de.uka.ilkd.key.logic.op.ProgramVariable> r = new LinkedHashSet<de.uka.ilkd.key.logic.op.ProgramVariable>();
+        for (Operator o : s) {
+            if (o instanceof de.uka.ilkd.key.logic.op.ProgramVariable) {
+                r.add((de.uka.ilkd.key.logic.op.ProgramVariable)o);
+            }
+        }
+        return r;
+    }
+    /**
+     * projects set of named things to the set of its respective names.
+     * @param s
+     * @return
+     */
+    private static Set<Name> projectNames(Set<? extends Named> s) {
+        Set<Name> r = new LinkedHashSet<Name>();
+        for (Named n : s) {
+            r.add(n.name());
+        }
+        return r;
+    }
+    //@todo refactor to get rid of this duplication
+    private static Set<Name> projectNames2(Set<? extends NamedElement> s) {
+        Set<Name> r = new LinkedHashSet<Name>();
+        for (NamedElement n : s) {
+            r.add(n.getElementName());
+        }
+        return r;
     }
     
     private static ListOfTerm genericToOld(Collection<Term> c) {
