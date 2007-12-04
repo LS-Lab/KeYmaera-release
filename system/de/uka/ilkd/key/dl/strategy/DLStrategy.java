@@ -377,8 +377,9 @@ public class DLStrategy extends AbstractFeatureStrategy {
                         longConst(4000),
                         inftyConst()));
 
-        bindRuleSet(d, "invariant_weaken", new SwitchFeature(DiffWeakenFeature.INSTANCE,
-                new Case(longConst(0), longConst(-4000)),
+        bindRuleSet(d, "invariant_weaken",
+            new SwitchFeature(DiffWeakenFeature.INSTANCE,
+                new Case(longConst(0), longConst(-6000)),
                 new Case(longConst(1), longConst(1000000)),
                 new Case(inftyConst(), inftyConst())));
         bindRuleSet(d, "invariant_strengthen",

@@ -45,6 +45,8 @@ import de.uka.ilkd.key.logic.PosInOccurrence;
 import de.uka.ilkd.key.logic.Sequent;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.TermBuilder;
+import de.uka.ilkd.key.logic.TermFactory;
+import de.uka.ilkd.key.logic.op.ArrayOfQuantifiableVariable;
 import de.uka.ilkd.key.logic.op.Modality;
 import de.uka.ilkd.key.logic.op.QuanUpdateOperator;
 import de.uka.ilkd.key.logic.op.SchemaVariable;
@@ -56,6 +58,7 @@ import de.uka.ilkd.key.rule.RuleApp;
 import de.uka.ilkd.key.rule.Taclet;
 import de.uka.ilkd.key.rule.TacletApp;
 import de.uka.ilkd.key.rule.inst.IllegalInstantiationException;
+import de.uka.ilkd.key.rule.updatesimplifier.Update;
 import de.uka.ilkd.key.strategy.LongRuleAppCost;
 import de.uka.ilkd.key.strategy.RuleAppCost;
 import de.uka.ilkd.key.strategy.TopRuleAppCost;
@@ -152,12 +155,15 @@ public class DiffSatFeature implements Feature {
      * @param goal
      * @param timeout
      */
-    public RuleAppCost diffSat(TacletApp app, PosInOccurrence pos, Goal goal,
+    public RuleAppCost diffSat(TacletApp app, final PosInOccurrence pos, Goal goal,
             long timeout) {
         Term term = pos.subTerm();
+        final Update update = Update.createUpdate(term);
         // unbox from update prefix
-        while (term.op() instanceof QuanUpdateOperator) {
+        if (term.op() instanceof QuanUpdateOperator) {
             term = ((QuanUpdateOperator) term.op()).target(term);
+            if (term.op() instanceof QuanUpdateOperator)
+                throw new AssertionError("assume nested updates have been merged");
         }
         if (!(term.op() instanceof Modality && term.javaBlock() != null
                 && term.javaBlock() != JavaBlock.EMPTY_JAVABLOCK && term
@@ -189,8 +195,12 @@ public class DiffSatFeature implements Feature {
         // diffind
         System.out.println("HYPO: " + diffind.rule().name() + " initial " + candidate);
         // diffind:"Invariant Initially Valid"
-        Sequent initial = changedSequent(pos, goal.sequent(), TermBuilder.DF.imp(invariant,
-                candidate));
+        Term initialFml = TermBuilder.DF.imp(invariant, candidate);
+        if (pos.subTerm().op() instanceof QuanUpdateOperator) {
+            // keep update prefix
+            initialFml = createUpdate(update, initialFml);
+        }
+        Sequent initial = changedSequent(pos, goal.sequent(), initialFml);
         HypotheticalProvability result = HypotheticalProvabilityFeature
                 .provable(goal.proof(), initial, MAX_STEPS, timeout, taboo);
         System.out.println("HYPO: " + diffind.rule().name() + " initial " + result + " for " + candidate);
@@ -221,11 +231,15 @@ public class DiffSatFeature implements Feature {
                     term.op(),
                     term.javaBlock(),
                     candidate);
-        Sequent step = changedSequent(pos, goal.sequent(),
-                DLUniversalClosureOp.DL_UNIVERSAL_CLOSURE.universalClosure(
-                        system,
-                        DiffInd.DIFFIND.diffInd(augTerm, services), null,
-                        services));
+        Term stepFml = DLUniversalClosureOp.DL_UNIVERSAL_CLOSURE.universalClosure(
+                system,
+                DiffInd.DIFFIND.diffInd(augTerm, services), null,
+                services);
+        if (pos.subTerm().op() instanceof QuanUpdateOperator) {
+            // keep update prefix
+            stepFml = createUpdate(update, stepFml);
+        }
+        Sequent step = changedSequent(pos, goal.sequent(), stepFml);
 //        System.out.println("HYPOing:\n " + step);
         result = HypotheticalProvabilityFeature.provable(goal.proof(), step, MAX_STEPS,
                 timeout, taboo);
@@ -246,6 +260,20 @@ public class DiffSatFeature implements Feature {
         default:
             throw new AssertionError("enum known");
         }
+    }
+
+    private Term createUpdate(final Update update, Term initialFml) {
+        // keep update prefix
+        Term locs[] = new Term[update.locationCount()];
+        Term vals[] = new Term[update.locationCount()];
+        for (int i = 0; i < locs.length; i++) {
+            locs[i] = update.getAssignmentPair(i).locationAsTerm();
+            vals[i] = update.getAssignmentPair(i).value();
+        }
+        initialFml = de.uka.ilkd.key.logic.TermFactory.DEFAULT.createUpdateTerm(
+                locs, vals,
+                initialFml);
+        return initialFml;
     }
 
     private RuleAppCost get(DiffSystem system, Term candidate) {

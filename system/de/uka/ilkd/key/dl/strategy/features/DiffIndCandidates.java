@@ -31,6 +31,8 @@ import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Set;
 
+import com.wolfram.jlink.Expr;
+
 import orbital.util.Setops;
 
 import de.uka.ilkd.key.dl.model.DiffSystem;
@@ -52,6 +54,7 @@ import de.uka.ilkd.key.logic.Sequent;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.TermBuilder;
 import de.uka.ilkd.key.logic.op.CastFunctionSymbol;
+import de.uka.ilkd.key.logic.op.Junctor;
 import de.uka.ilkd.key.logic.op.Modality;
 import de.uka.ilkd.key.logic.op.Operator;
 import de.uka.ilkd.key.logic.op.QuanUpdateOperator;
@@ -104,13 +107,13 @@ public class DiffIndCandidates implements TermGenerator {
 
         Set<Term> l = new LinkedHashSet();
         l.add(post);
-        l.addAll(indCandidates(update, system, goal.sequent()));
+        l.addAll(indCandidates(update, system, goal.sequent(), services));
         l.remove(TermBuilder.DF.tt());
         System.out.println("CANDIDATES .....\n" + l);
         return genericToOld(new ArrayList<Term>(l)).iterator();
     }
 
-    private List<Term> indCandidates(Update update, DiffSystem system, Sequent seq) {
+    private List<Term> indCandidates(Update update, DiffSystem system, Sequent seq, Services services) {
         final Map<ProgramVariable, LinkedHashSet<ProgramVariable>> dep = DependencyStateGenerator
                 .generateDependencyMap(system).getDependencies();
         for (Map.Entry<ProgramVariable, LinkedHashSet<ProgramVariable>> s : dep.entrySet()) {
@@ -166,7 +169,7 @@ public class DiffIndCandidates implements TermGenerator {
 
         };
         
-        final Set<Term> possibles = getMatchingCandidates(update, system, seq);
+        final Set<Term> possibles = getMatchingCandidates(update, system, seq, services);
         System.out.println("POSSIBLES:  ....\n" + possibles);
         
         List<Term> result = new LinkedList<Term>();
@@ -190,10 +193,14 @@ public class DiffIndCandidates implements TermGenerator {
                     system, cluster, modifieds, frees);
             System.out.println("GENERATORS: for " + min + " cluster " + cluster + " are " + matches);
             //@todo all nonempty subsets
-            Term candidate = TermBuilder.DF.and(genericToOld(matches));
-            result.add(candidate);
+            if (!matches.isEmpty()) {
+                result.add(TermBuilder.DF.and(genericToOld(matches)));
+            }
             depOrder.removeAll(cluster);
         }
+        //@todo improve this hack by forming other super/subsets as well
+        //Term candidate = TermBuilder.DF.and(genericToOld(result));
+        //result.add(candidate);
         return result;
     }
 
@@ -203,26 +210,63 @@ public class DiffIndCandidates implements TermGenerator {
      * @param system
      * @return
      */
-    private Set<Term> getMatchingCandidates(Update update, DiffSystem system, Sequent seq) {
+    private Set<Term> getMatchingCandidates(Update update, DiffSystem system, Sequent seq, Services services) {
         //@todo need to conside possible generation renamings by update
-        Term invariant = system.getInvariant();
+        Set<Term> invariant = splitConjuncts(system.getInvariant());
+        System.out.println("  INVARIANT " + invariant + " of " + system.getInvariant() + " of " + system);
         Set<Term> matches = new LinkedHashSet<Term>();
         ArrayOfAssignmentPair asss = update.getAllAssignmentPairs();
         for (int i = 0; i < asss.size(); i++) {
             AssignmentPair ass = asss.getAssignmentPair(i);
             Term x = ass.locationAsTerm();
+            assert x.arity()==0 : "only works for atomic locations";
+            x = TermBuilder.DF.var((de.uka.ilkd.key.logic.op.ProgramVariable)services.getNamespaces().programVariables().lookup(ass.location().name()));
             Term t = ass.value();
+            System.out.println(x + "@" + x.getClass());
             //@todo if x occurs in t then can't do that without alpha-renaming stuff
-            matches.add(TermBuilder.DF.equals(x, t));
+            Term equation = TermBuilder.DF.equals(x, t);
+            if (!invariant.contains(equation)) {
+                System.out.println("\tnew " + equation + " for " + invariant);
+                boolean found = false;
+                for (Term inv : invariant) {
+                    if (inv.toString().equals(equation.toString())) {
+                        System.out.println("identical printout with different representation " + equation + " and " + inv);
+                        //@xxx string comparison is a hack
+                        found = true;
+                    }
+                }
+                if (!found)
+                    matches.add(equation);
+            }
         }
         if (true)
             return matches;
+        //@todo respect different update levels
         for (IteratorOfConstrainedFormula i = seq.antecedent().iterator(); i
                 .hasNext();) {
             ConstrainedFormula cf = i.next();
-            matches.add(cf.formula());
+            if (!invariant.contains(cf.formula())) {
+                matches.add(cf.formula());
+            }
         }
         return matches;
+    }
+
+    /**
+     * Splits a formula along all its conjunctions into a set of its conjuncts.
+     * @param form
+     * @return
+     */
+    private Set<Term> splitConjuncts(Term form) {
+        Set<Term> conjuncts = new LinkedHashSet<Term>();
+        if (form.op() == Junctor.AND) {
+            for (int i = 0; i < form.arity(); i++) {
+                conjuncts.addAll(splitConjuncts(form.sub(i)));
+            }
+        } else {
+            conjuncts.add(form);
+        }
+        return conjuncts;
     }
     
     private Set<Term> selectMatchingCandidates(Set<Term> candidates, DiffSystem system, Set<ProgramVariable> myvars,
@@ -294,6 +338,7 @@ public class DiffIndCandidates implements TermGenerator {
         for (Term s : c) {
             r = r.append(s);
         }
+        assert r.size() == c.size();
         return r;
     }
     private static List<Term> oldToGeneric(ListOfTerm c) {
@@ -301,6 +346,7 @@ public class DiffIndCandidates implements TermGenerator {
         for (IteratorOfTerm i = c.iterator(); i.hasNext(); ) {
             r.add(i.next());
         }
+        assert r.size() == c.size();
         return r;
     }
 }
