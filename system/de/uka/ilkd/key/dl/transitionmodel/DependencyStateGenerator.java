@@ -348,6 +348,7 @@ public class DependencyStateGenerator implements
                 }
             }
         }
+        assert transitiveClosure.keySet().equals(dependency.keySet()) : "dependent variables unchanged from " + dependency.keySet() + " to " + transitiveClosure.keySet();
         return transitiveClosure;
     }
 }

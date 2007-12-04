@@ -54,6 +54,9 @@ import de.uka.ilkd.key.logic.sort.AbstractSort;
 import de.uka.ilkd.key.logic.sort.Sort;
 import de.uka.ilkd.key.proof.Goal;
 import de.uka.ilkd.key.rule.RuleApp;
+import de.uka.ilkd.key.rule.updatesimplifier.ArrayOfAssignmentPair;
+import de.uka.ilkd.key.rule.updatesimplifier.AssignmentPair;
+import de.uka.ilkd.key.rule.updatesimplifier.Update;
 import de.uka.ilkd.key.strategy.termgenerator.TermGenerator;
 import de.uka.ilkd.key.util.Debug;
 
@@ -74,9 +77,12 @@ public class DiffIndCandidates implements TermGenerator {
     public IteratorOfTerm generate(RuleApp app, PosInOccurrence pos, Goal goal) {
         System.out.println("generating for " + app.rule().name());
         Term term = pos.subTerm();
+        final Update update = Update.createUpdate(term);
         // unbox from update prefix
-        while (term.op() instanceof QuanUpdateOperator) {
+        if (term.op() instanceof QuanUpdateOperator) {
             term = ((QuanUpdateOperator) term.op()).target(term);
+            if (term.op() instanceof QuanUpdateOperator)
+                throw new AssertionError("assume nested updates have been merged");
         }
         if (!(term.op() instanceof Modality
                 && term.javaBlock() != null
@@ -92,12 +98,12 @@ public class DiffIndCandidates implements TermGenerator {
 
         Set<Term> l = new LinkedHashSet();
         l.add(post);
-        //l.addAll(indCandidates(system, goal.sequent()));
+        l.addAll(indCandidates(update, system, goal.sequent()));
         System.out.println("CANDIDATES .....\n" + l);
         return genericToOld(new ArrayList<Term>(l)).iterator();
     }
 
-    private List<Term> indCandidates(DiffSystem system, Sequent seq) {
+    private List<Term> indCandidates(Update update, DiffSystem system, Sequent seq) {
         final Map<ProgramVariable, LinkedHashSet<ProgramVariable>> dep = DependencyStateGenerator
                 .generateDependencyMap(system).getDependencies();
         final Map<ProgramVariable, LinkedHashSet<ProgramVariable>> tdep = DependencyStateGenerator
@@ -113,7 +119,11 @@ public class DiffIndCandidates implements TermGenerator {
             //@todo frees.addAll(modifieds) as well?
             frees.addAll(s);
         }
-        assert frees.containsAll(modifieds) : "dependency of x'=5 should be reflexive";
+        if (!frees.containsAll(modifieds)) {
+            System.out.println( "WARNING: dependency of x'=5 should be reflexive. Hence modifieds " + modifieds + " contained in frees " + frees);
+            frees.addAll(modifieds);
+            assert frees.containsAll(modifieds) : "dependency of x'=5 should be reflexive. Hence modifieds " + modifieds + " contained in frees " + frees;
+        }
 
         // compare variables according to number of dependencies
         Comparator<de.uka.ilkd.key.dl.model.ProgramVariable> dependencyComparator = new Comparator<de.uka.ilkd.key.dl.model.ProgramVariable>() {
@@ -150,7 +160,7 @@ public class DiffIndCandidates implements TermGenerator {
                     + " still contains all dependent vars " + cluster;
             // find formulas that only refer to cluster
             Set<Term> matches = selectMatchingCandidates(
-                    getMatchingCandidates(seq, system),
+                    getMatchingCandidates(update, system, seq),
                     system, cluster, modifieds, frees);
             //@todo all nonempty subsets
             Term candidate = TermBuilder.DF.and(genericToOld(matches));
@@ -166,10 +176,20 @@ public class DiffIndCandidates implements TermGenerator {
      * @param system
      * @return
      */
-    private Set<Term> getMatchingCandidates(Sequent seq, DiffSystem system) {
+    private Set<Term> getMatchingCandidates(Update update, DiffSystem system, Sequent seq) {
         //@todo need to conside possible generation renamings by update
         Term invariant = system.getInvariant();
         Set<Term> matches = new LinkedHashSet<Term>();
+        ArrayOfAssignmentPair asss = update.getAllAssignmentPairs();
+        for (int i = 0; i < asss.size(); i++) {
+            AssignmentPair ass = asss.getAssignmentPair(i);
+            Term x = ass.locationAsTerm();
+            Term t = ass.value();
+            //@todo if x occurs in t then can't do that without alpha-renaming stuff
+            matches.add(TermBuilder.DF.equals(x, t));
+        }
+        if (true)
+            return matches;
         for (IteratorOfConstrainedFormula i = seq.antecedent().iterator(); i
                 .hasNext();) {
             ConstrainedFormula cf = i.next();
