@@ -152,7 +152,7 @@ public abstract class AbstractMetaOperator extends Op implements MetaOperator {
 	public static final AbstractMetaOperator PROG_2_LOGIC_CONVERTER = new Prog2LogicConverter();
 	
         public static final ODESolve ODE_SOLVE = new ODESolve();
-        public static final AbstractMetaOperator DIFFIND = new DiffInd();
+        public static final DiffInd DIFFIND = new DiffInd();
         public static final AbstractMetaOperator DIFFFIN = new DiffFin();
         public static final AbstractMetaOperator DIFFADJOIN= new DLDiffAdjoin();
         public static final AbstractMetaOperator INVARIANTPART = new DLInvariantPart();

@@ -107,6 +107,11 @@ public class VisualizationRule extends Visitor implements BuiltInRule,
         return new Name("Visualization rule");
     }
 
+    @Override
+    public String toString() {
+        return displayName();
+    }
+    
     /*
      * (non-Javadoc)
      * 

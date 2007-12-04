@@ -23,6 +23,7 @@
 package de.uka.ilkd.key.dl.strategy.features;
 
 import java.rmi.RemoteException;
+import java.util.Collection;
 import java.util.Map;
 import java.util.WeakHashMap;
 
@@ -83,7 +84,7 @@ public class HypotheticalProvabilityFeature implements Feature {
     /**
      * maximum number of rule applications in hypothetical proofs.
      */
-    public static final int MAX_HYPOTHETICAL_RULE_APPLICATIONS = 1000;
+    public static final int MAX_HYPOTHETICAL_RULE_APPLICATIONS = 10;
 
     private Map<Node, Long> branchingNodesAlreadyTested = new WeakHashMap<Node, Long>();
 
@@ -193,20 +194,29 @@ public class HypotheticalProvabilityFeature implements Feature {
 
     /**
      * Make a new hypothetical proof with the given goal as its only goal 
-     * @param goal
+     * @param seq the problem to proof
+     * @param context in which context (which will be copied) to try to prove seq.
+     * @param taboo which rules are not to be used (tabu) during the hypothetical proof. 
      * @return
      */
-    static Proof newHypotheticalProofFor(Proof context, Sequent seq) {
+    static Proof newHypotheticalProofFor(Proof context, Sequent seq, Collection<Name> taboo) {
         // new proof with settings like goal.proof() but goal as its
         // only goal
         Proof hypothetic = new Proof(new Name("hypothetic"), context, seq);
         Goal hgoal = hypothetic.getGoal(hypothetic.root());
         assert hgoal != null && hgoal.sequent().equals(seq);
-        Strategy stopEarly = DLStrategy.Factory.INSTANCE.create(hypothetic,
-                null, true);
+        Strategy stopEarly;
+        if (taboo == null ) {
+            stopEarly = DLStrategy.Factory.INSTANCE.create(hypothetic, null, true);
+        } else {
+            stopEarly = DLStrategy.Factory.INSTANCE.create(hypothetic, null, true, taboo);
+        }
         hgoal.setGoalStrategy(stopEarly);
         hypothetic.setActiveStrategy(stopEarly);
         return hypothetic;
+    }
+    static Proof newHypotheticalProofFor(Proof context, Sequent seq) {
+        return newHypotheticalProofFor(context, seq, null);
     }
     static Proof newHypotheticalProofFor(Goal goal) {
         return newHypotheticalProofFor(goal.proof(), goal.sequent());
@@ -221,7 +231,15 @@ public class HypotheticalProvabilityFeature implements Feature {
      *                the maximum time how long the proof is attempted to close.
      * @return Result of proving goal.
      */
-    public static HypotheticalProvability provable(Proof context, Sequent problem, int maxsteps, long timeout) {
+    public static HypotheticalProvability provable(Proof context, Sequent problem,
+            int maxsteps, long timeout,
+            Collection<Name> taboo) {
+        // continue hypothetic proof to see if it closes/has
+        // counterexamples
+        return provable(newHypotheticalProofFor(context, problem, taboo), maxsteps, timeout);
+    }
+    public static HypotheticalProvability provable(Proof context, Sequent problem,
+            int maxsteps, long timeout) {
         // continue hypothetic proof to see if it closes/has
         // counterexamples
         return provable(newHypotheticalProofFor(context, problem), maxsteps, timeout);
@@ -353,6 +371,7 @@ public class HypotheticalProvabilityFeature implements Feature {
      */
     private static ListOfGoal apply(Goal goal, RuleApp p_ruleApp) {
         // System.err.println(Thread.currentThread());
+        assert !goal.node().isClosed() : "cannot apply rule " + p_ruleApp + " to closed goal " + goal + " which has been closed by " + goal.appliedRuleApps().head().rule().name();
 
         final Proof proof = goal.proof();
 
@@ -368,16 +387,20 @@ public class HypotheticalProvabilityFeature implements Feature {
         final ListOfGoal goalList = ruleApp.execute(goal, proof.getServices());
 
         if (goalList == null) {
+            System.err.println("WARNING: resulting goals after applying " + p_ruleApp.rule().name() +" is " + goalList);
             // this happens for the simplify decision procedure
             // we do nothing in this case
         } else if (goalList.isEmpty()) {
             proof.closeGoal(goal, ruleApp.constraint());
+            assert !proof.openGoals().contains(goal) : "closing a goals makes it not-open " + goal;
         } else {
             proof.replace(goal, goalList);
             if (ruleApp instanceof TacletApp
-                    && ((TacletApp) ruleApp).taclet().closeGoal())
+                    && ((TacletApp) ruleApp).taclet().closeGoal()) {
                 // the first new goal is the one to be closed
                 proof.closeGoal(goalList.head(), ruleApp.constraint());
+                assert !proof.openGoals().contains(goal) : "closing a goals makes it not-open " + goal;
+            }
         }
 
         final RuleAppInfo ruleAppInfo = journal.getRuleAppInfo(p_ruleApp);
@@ -489,6 +512,10 @@ public class HypotheticalProvabilityFeature implements Feature {
                 System.out.println("Exception during hypothetic proof " + e);
                 e.printStackTrace();
                 throw e;
+            } catch (AssertionError e) {
+                result = HypotheticalProvability.ERROR;
+                System.out.println("Error during hypothetic proof " + e);
+                throw e;
             } finally {
                 Debug.out("HYPO: finished " + getResult());
             }
@@ -514,13 +541,18 @@ public class HypotheticalProvabilityFeature implements Feature {
                 app = g.getRuleAppManager().next();
 
                 if (app == null)
+                    // cannot find applicable and affordable rules, so ignore goal
                     goalChooser.removeGoal(g);
                 else
                     break;
             }
-            if (app == null)
+            assert g != null || app == null : "no chosen goal implies no rule app";  
+            if (app == null) {
                 return false;
-            apply(g, app);
+            }
+            if (g != null) {
+                goalChooser.updateGoalList(g.node(), apply(g, app));
+            }
             return true;
         }
 

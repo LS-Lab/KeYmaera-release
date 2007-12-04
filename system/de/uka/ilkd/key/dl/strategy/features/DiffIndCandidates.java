@@ -87,13 +87,12 @@ public class DiffIndCandidates implements TermGenerator {
         final DiffSystem system = (DiffSystem) ((StatementBlock) term
                 .javaBlock().program()).getChildAt(0);
         final Term invariant = system.getInvariant();
-        final Term post = term.sub(0).sub(0);
+        final Term post = term.sub(0);
         final Services services = goal.proof().getServices();
 
         Set<Term> l = new LinkedHashSet();
-        l.add(TermBuilder.DF.tt());
         l.add(post);
-//        l.addAll(indCandidates(system, goal.sequent()));
+        //l.addAll(indCandidates(system, goal.sequent()));
         System.out.println("CANDIDATES .....\n" + l);
         return genericToOld(new ArrayList<Term>(l)).iterator();
     }
@@ -150,7 +149,9 @@ public class DiffIndCandidates implements TermGenerator {
                     + " yields that depOrder " + depOrder
                     + " still contains all dependent vars " + cluster;
             // find formulas that only refer to cluster
-            Set<Term> matches = getMatchingFormulas(seq, system, cluster, modifieds, frees);
+            Set<Term> matches = selectMatchingCandidates(
+                    getMatchingCandidates(seq, system),
+                    system, cluster, modifieds, frees);
             //@todo all nonempty subsets
             Term candidate = TermBuilder.DF.and(genericToOld(matches));
             result.add(candidate);
@@ -159,15 +160,29 @@ public class DiffIndCandidates implements TermGenerator {
         return result;
     }
 
-    private Set<Term> getMatchingFormulas(Sequent seq, DiffSystem system, Set<ProgramVariable> vars,
-            Set<ProgramVariable>  modifieds, Set<ProgramVariable>  frees) {
+    /**
+     * Get all possibly matching formulas, regardless of their form.
+     * @param seq
+     * @param system
+     * @return
+     */
+    private Set<Term> getMatchingCandidates(Sequent seq, DiffSystem system) {
         //@todo need to conside possible generation renamings by update
         Term invariant = system.getInvariant();
         Set<Term> matches = new LinkedHashSet<Term>();
         for (IteratorOfConstrainedFormula i = seq.antecedent().iterator(); i
                 .hasNext();) {
             ConstrainedFormula cf = i.next();
-            Term fml = cf.formula();
+            matches.add(cf.formula());
+        }
+        return matches;
+    }
+    private Set<Term> selectMatchingCandidates(Set<Term> candidates, DiffSystem system, Set<ProgramVariable> vars,
+            Set<ProgramVariable>  modifieds, Set<ProgramVariable>  frees) {
+        //@todo need to conside possible generation renamings by update
+        Term invariant = system.getInvariant();
+        Set<Term> matches = new LinkedHashSet<Term>();
+        for (Term fml : candidates) {
             //@todo if (invariant.contains(fml)) continue;
             Set<Operator> occurrences = FOVariableNumberCollector.getVariables(fml);
             occurrences.retainAll(frees);

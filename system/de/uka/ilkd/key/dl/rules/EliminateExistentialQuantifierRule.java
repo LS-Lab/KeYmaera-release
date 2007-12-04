@@ -508,6 +508,11 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
         return new Name("Eliminate Existential Quantifier");
     }
 
+    @Override
+    public String toString() {
+        return displayName();
+    }
+
     /**
      * Explicit n-ary-fied version of {@link
      * de.uka.ilkd.logic.TermFactory#createJunctorTerm(Junctor,Term[])}.

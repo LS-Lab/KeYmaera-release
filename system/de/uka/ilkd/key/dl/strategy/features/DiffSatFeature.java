@@ -22,8 +22,10 @@
  */
 package de.uka.ilkd.key.dl.strategy.features;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.WeakHashMap;
 
@@ -77,7 +79,15 @@ public class DiffSatFeature implements Feature {
      */
     private Map<DiffSystem, Map<Term,RuleAppCost>> diffIndCache = new WeakHashMap<DiffSystem, Map<Term,RuleAppCost>>();
 
-    //public static final DiffSatFeature INSTANCE = new DiffSatFeature();
+    public static final DiffSatFeature INSTANCE = new DiffSatFeature(null);
+    
+    /**
+     * List of rules which are taboo during a hypothetical provability check for DiffSat.
+     */
+    private static final Collection<Name> taboo = new LinkedHashSet<Name>(Arrays.asList(new Name[] {
+            new Name("diffstrengthen")
+            //@todo diffweaken since not reasonable?
+    }));
 
     /**
      * the default initial timeout, -1 means use
@@ -108,7 +118,7 @@ public class DiffSatFeature implements Feature {
      *      de.uka.ilkd.key.logic.PosInOccurrence, de.uka.ilkd.key.proof.Goal)
      */
     public RuleAppCost compute(RuleApp myapp, PosInOccurrence pos, Goal goal) {
-        System.out.println("check sat " + " for " + myapp.rule().name() + " on " + pos);
+        System.out.println("check diffsat" + " for " + myapp.rule().name() + " on " + pos);
         TacletApp app = (TacletApp) myapp;
         Node firstNodeAfterBranch = getFirstNodeAfterBranch(goal.node());
         // if (branchingNodesAlreadyTested.containsKey(firstNodeAfterBranch)) {
@@ -161,27 +171,29 @@ public class DiffSatFeature implements Feature {
         final Services services = goal.proof().getServices();
 
         RuleApp diffind = goal.indexOfTaclets().lookup(new Name("diffind"));
-        Term candidate = (Term) app.instantiations().lookupValue(
-                new Name("augmented"));
+        Term candidate = (Term) app.instantiations().lookupValue(new Name("augmented"));
         if (candidate == null) {
-            System.out.println("\tno instantiation "
-                    + candidate + " for SV 'augmented'");
-            if (false) throw new IllegalInstantiationException("Invalid instantiation "
-                    + candidate + " for SV 'augmented' in " + app.instantiations());
+//            System.out.println("\tno instantiation " + candidate + " for SV 'augmented'");
+            if (value == null)
+                throw new IllegalStateException("no such projection " + value);
             candidate = value.toTerm(app, pos, goal);
+            if (candidate == null)
+                throw new IllegalInstantiationException("Invalid instantiation "
+                    + candidate + " for SV 'augmented' in " + app.instantiations());
         }
+        //System.out.println("instantiation " + candidate + " for SV 'augmented'");
         if (TopRuleAppCost.INSTANCE.equals(get(system, candidate))) {
             return TopRuleAppCost.INSTANCE;
         }
 
         // diffind
-        System.out.println("HYPO: " + diffind.rule().name() + " initial");
+        System.out.println("HYPO: " + diffind.rule().name() + " initial " + candidate);
         // diffind:"Invariant Initially Valid"
         Sequent initial = changedSequent(pos, goal.sequent(), TermBuilder.DF.imp(invariant,
                 candidate));
         HypotheticalProvability result = HypotheticalProvabilityFeature
-                .provable(goal.proof(), initial, MAX_STEPS, timeout);
-        System.out.println("HYPO: " + diffind.rule().name() + " initial " + result);
+                .provable(goal.proof(), initial, MAX_STEPS, timeout, taboo);
+        System.out.println("HYPO: " + diffind.rule().name() + " initial " + result + " for " + candidate);
         //@todo cache with goal.sequent()
         switch (result) {
         case PROVABLE:
@@ -204,7 +216,7 @@ public class DiffSatFeature implements Feature {
         if (get(system, candidate) != null) {
             return get(system, candidate);
         }
-        System.out.println("HYPO: " + diffind.rule().name() + " step");
+        System.out.println("HYPO: " + diffind.rule().name() + " step " + candidate);
         Term augTerm = de.uka.ilkd.key.logic.TermFactory.DEFAULT.createProgramTerm(
                     term.op(),
                     term.javaBlock(),
@@ -212,11 +224,12 @@ public class DiffSatFeature implements Feature {
         Sequent step = changedSequent(pos, goal.sequent(),
                 DLUniversalClosureOp.DL_UNIVERSAL_CLOSURE.universalClosure(
                         system,
-                        DiffInd.DIFFIND.calculate(augTerm, null, services), null,
+                        DiffInd.DIFFIND.diffInd(augTerm, services), null,
                         services));
+        System.out.println("HYPOing:\n " + step);
         result = HypotheticalProvabilityFeature.provable(goal.proof(), step, MAX_STEPS,
-                timeout);
-        System.out.println("HYPO: " + diffind.rule().name() + " step " + result);
+                timeout, taboo);
+        System.out.println("HYPO: " + diffind.rule().name() + " step " + result + " for " + candidate);
         switch (result) {
         case PROVABLE:
             put(system, candidate, LongRuleAppCost.ZERO_COST);
@@ -251,8 +264,13 @@ public class DiffSatFeature implements Feature {
         
     protected static Sequent changedSequent(PosInOccurrence pos, Sequent seq,
             Term fml) {
-        return seq.changeFormula(new ConstrainedFormula(fml, pos
+        try {
+            return seq.changeFormula(new ConstrainedFormula(fml, pos
                 .constrainedFormula().constraint()), pos).sequent();
+        } catch (RuntimeException e) {
+            System.err.println(e + " while replacing " + fml);
+            throw e;
+        }
     }
 
     private static RuleApp getRuleAppOf(Name tacletname, PosInOccurrence pos,

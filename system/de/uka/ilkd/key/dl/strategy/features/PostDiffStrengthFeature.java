@@ -22,8 +22,11 @@ package de.uka.ilkd.key.dl.strategy.features;
 import de.uka.ilkd.key.logic.Name;
 import de.uka.ilkd.key.logic.PosInOccurrence;
 import de.uka.ilkd.key.proof.Goal;
+import de.uka.ilkd.key.proof.UpdateSimplificationRuleFilter;
+import de.uka.ilkd.key.rule.ListOfRuleApp;
 import de.uka.ilkd.key.rule.RuleApp;
 import de.uka.ilkd.key.rule.TacletApp;
+import de.uka.ilkd.key.rule.UpdateSimplificationRule;
 import de.uka.ilkd.key.strategy.LongRuleAppCost;
 import de.uka.ilkd.key.strategy.RuleAppCost;
 import de.uka.ilkd.key.strategy.TopRuleAppCost;
@@ -31,6 +34,7 @@ import de.uka.ilkd.key.strategy.feature.Feature;
 
 /**
  * Detects if results from augmentation proof part of diffstrengthen
+ * 
  * @author ap
  * 
  */
@@ -45,14 +49,23 @@ public class PostDiffStrengthFeature implements Feature {
      *      de.uka.ilkd.key.logic.PosInOccurrence, de.uka.ilkd.key.proof.Goal)
      */
     public RuleAppCost compute(RuleApp app, PosInOccurrence pos, Goal goal) {
-
-        if (!goal.appliedRuleApps().isEmpty()
-                && goal.appliedRuleApps().head() instanceof TacletApp) {
-            TacletApp tapp = (TacletApp) goal.appliedRuleApps().head();
-            if (tapp.taclet().ruleSets().next() == goal.proof().getNamespaces()
-                    .ruleSets().lookup(new Name("diffstrengthen"))
-                    || tapp.rule().name().equals(new Name("diffstrengthen"))) {
-                if ("Invariant Valid".equals(goal.node().getNodeInfo().getBranchLabel())) {
+        if ("Invariant Valid".equals(goal.node().getNodeInfo().getBranchLabel())) {
+            if (goal.appliedRuleApps().isEmpty())
+                return TopRuleAppCost.INSTANCE;
+            RuleApp rapp = goal.appliedRuleApps().head();
+            ListOfRuleApp rest = goal.appliedRuleApps().tail();
+            // skip update applications
+            while (UpdateSimplificationRuleFilter.INSTANCE.filter(rapp.rule())) {
+                rapp = rest.head();
+                rest = rest.tail();
+            }
+            if (rapp instanceof TacletApp) {
+                TacletApp tapp = (TacletApp) rapp;
+                if (tapp.taclet().ruleSets().next() == goal.proof()
+                        .getNamespaces().ruleSets().lookup(
+                                new Name("diffstrengthen"))
+                        || tapp.rule().name()
+                                .equals(new Name("diffstrengthen"))) {
                     return LongRuleAppCost.ZERO_COST;
                 }
             }

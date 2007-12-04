@@ -20,6 +20,8 @@
 
 package de.uka.ilkd.key.dl.strategy;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
 import java.util.WeakHashMap;
 
@@ -86,6 +88,7 @@ import de.uka.ilkd.key.strategy.feature.SimplifyBetaCandidateFeature;
 import de.uka.ilkd.key.strategy.feature.SimplifyReplaceKnownCandidateFeature;
 import de.uka.ilkd.key.strategy.feature.SumFeature;
 import de.uka.ilkd.key.strategy.feature.TermSmallerThanFeature;
+import de.uka.ilkd.key.strategy.feature.instantiator.RuleAppBuffer;
 import de.uka.ilkd.key.strategy.quantifierHeuristics.HeuristicInstantiation;
 import de.uka.ilkd.key.strategy.termProjection.AssumptionProjection;
 import de.uka.ilkd.key.strategy.termProjection.TermBuffer;
@@ -100,6 +103,9 @@ public class DLStrategy extends AbstractFeatureStrategy {
 
     private final Feature approvalF;
 
+    private final Feature instantiationF;
+
+    
     private enum FirstOrder {
         NOT_FO, FO;
     }
@@ -123,6 +129,8 @@ public class DLStrategy extends AbstractFeatureStrategy {
         this(p_proof, false);
     }
 
+    private Collection<Name> taboo;
+
     /**
      * 
      * @param p_proof
@@ -131,12 +139,27 @@ public class DLStrategy extends AbstractFeatureStrategy {
      *  Otherwise, branches without counterexamples are still worked on even though the overall proof cannot close. 
      */
     protected DLStrategy(Proof p_proof, boolean stopOnFirstCE) {
+        this(p_proof, stopOnFirstCE, Collections.EMPTY_SET);
+    }
+    /**
+     * DLStrategy with tabus, i.e., certain rule which will never be applied nor tried under no circumstances whatsoever.
+     * @author ap
+     * @see "TabuSearch"
+     * @param p_proof
+     * @param stopOnFirstCE
+     * @param taboo the list of rule names that are tabu, i.e., will never be applied nor tried at all.
+     */
+    protected DLStrategy(Proof p_proof, boolean stopOnFirstCE, Collection<Name> taboo) {
         super(p_proof);
+        if (taboo == null) {
+            throw new NullPointerException("Invalid tabu list " + taboo);
+        }
+        this.taboo = taboo;
         this.stopOnFirstCE = stopOnFirstCE;
 
         final RuleSetDispatchFeature d = RuleSetDispatchFeature.create();
 
-        bindRuleSet(d, "closure", -9000);
+        bindRuleSet(d, "closure", -30000);
         bindRuleSet(d, "concrete", -10000);
         bindRuleSet(d, "alpha", -7000);
         bindRuleSet(d, "delta", -6000);
@@ -257,8 +280,6 @@ public class DLStrategy extends AbstractFeatureStrategy {
                 (MathSolverManager.isSimplifierSet()) ? longConst(0)
                         : inftyConst()));
 
-        setupDiffSatStrategy(d);
-
         if (DLOptionBean.INSTANCE.isNormalizeEquations()) {
             bindRuleSet(d, "inequation_normalization", -2000);
         } else {
@@ -272,6 +293,8 @@ public class DLStrategy extends AbstractFeatureStrategy {
         final Feature duplicateF = ifZero(NonDuplicateAppFeature.INSTANCE,
                 longConst(0), inftyConst());
         Feature reduceSequence = null;
+        
+        setupDiffSatStrategy(d);
 
         if (DLOptionBean.INSTANCE.isCallReduce()) {
             if (DLOptionBean.INSTANCE.isUseTimeoutStrategy()) {
@@ -334,6 +357,8 @@ public class DLStrategy extends AbstractFeatureStrategy {
                         noQuantifierInstantition });
 
         approvalF = duplicateF;
+        
+        instantiationF = setupInstantiationF(p_proof);
     }
 
     /**
@@ -356,18 +381,125 @@ public class DLStrategy extends AbstractFeatureStrategy {
                 new Case(longConst(0), longConst(-4000)),
                 new Case(longConst(1), longConst(1000000)),
                 new Case(inftyConst(), inftyConst())));
-        enableInstantiate ();
-        final TermBuffer augInst = new TermBuffer();
         bindRuleSet(d, "invariant_strengthen",
-                //@todo disable during hypothetic strengthens
-                /*ifZero(DiffWeakenFeature.INSTANCE,
-                       inftyConst(),*/
-                       forEach(augInst, DiffIndCandidates.INSTANCE,
-                               ifZero(new DiffSatFeature(augInst),
-                               add(instantiate("augment", augInst),
-                                          longConst(-1000)),
-                                          inftyConst())
+                ifZero(PostDiffStrengthFeature.INSTANCE,
+                        inftyConst(),             // strengthening augmentation validity proofs seems useless
+                        ifZero(DiffWeakenFeature.INSTANCE,
+                                inftyConst(),     // never instantiate as cheaper rule successful
+                                longConst(8000)   // go on try to instantiate, except when tabooed
+                        )));
+        bindRuleSet(d, "invariant_diff",
+                 ifZero(PostDiffStrengthFeature.INSTANCE,
+                        longConst(-4000),
+                        ifZero(DiffWeakenFeature.INSTANCE,
+                               inftyConst(),
+                               // re-evaluate feature at least after diffstrengthen
+                               longConst(20000)
+                               /*new SwitchFeature(HypotheticalProvabilityFeature.INSTANCE,
+                                  new Case(longConst(0), longConst(-4000)),
+                                  new Case(longConst(1), longConst(20000)),
+                                  new Case(inftyConst(), inftyConst()))*/
+                        )));
+    }
+
+
+    ////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////
+    //
+    // Feature terms that handle the instantiation of incomplete taclet
+    // applications
+    //
+    ////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////
+
+
+    private RuleSetDispatchFeature setupInstantiationF(Proof p_proof) {
+        enableInstantiate ();
+        final RuleSetDispatchFeature d = RuleSetDispatchFeature.create ();
+        setupDiffSatInstantiationStrategy( d );
+        disableInstantiate ();
+        return d;
+    }
+
+    /**
+     * DiffSat instantiation strategy.
+     * @author ap
+     */
+    private void setupDiffSatInstantiationStrategy(final RuleSetDispatchFeature d) {
+        if (!DLOptionBean.INSTANCE.isUseDiffSAT()) {
+            bindRuleSet(d, "invariant_strengthen", inftyConst());
+            return;
+        }
+        final TermBuffer augInst = new TermBuffer();
+        final RuleAppBuffer buffy = new RuleAppBuffer();
+        bindRuleSet(d, "invariant_strengthen",
+                ifZero(storeRuleApp(buffy,
+                        not(sum(augInst, DiffIndCandidates.INSTANCE,
+                                add(buffy,
+                                    instantiate("augment", augInst),
+                                    not(new DiffSatFeature(augInst))
+                                )
+                        ))),
+                        longConst(-1000),
+                        inftyConst()
                 ));
+//        bindRuleSet(d, "invariant_strengthen",
+//              ifZero(DiffWeakenFeature.INSTANCE,
+//                inftyConst(),
+//                add(not(sum(augInst, DiffIndCandidates.INSTANCE,
+//                    ifZero(new DiffSatFeature(augInst),
+//                        add(instantiate("augment", augInst),inftyConst())
+//                )
+//                )),
+//                longConst(-1000))));
+//        bindRuleSet(d, "invariant_strengthen",
+//                ifZero(DiffWeakenFeature.INSTANCE,
+//                  inftyConst(),
+//                  ifZero(storeRuleApp(buffy,
+//                          not(sum(augInst, DiffIndCandidates.INSTANCE,
+//                          add(buffy,
+//                                  instantiate("augment", augInst),
+//                                  not(new DiffSatFeature(augInst))
+//                             )
+//                    ))),
+//                    longConst(-1000),
+//                    inftyConst()
+//                  )));
+        /*bindRuleSet(d, "invariant_strengthen",
+                ifZero(DiffWeakenFeature.INSTANCE,
+                  inftyConst(),
+                  not(sum(augInst, DiffIndCandidates.INSTANCE,
+                          add(instantiate("augment", augInst),
+                                  not(
+                                      ifZero(new DiffSatFeature(augInst),
+                                          longConst(-1000),
+                                          inftyConst())
+                                     )
+                             )
+                  ))));*/
+//        bindRuleSet(d, "invariant_strengthen",
+//                storeRuleApp(buffy,       // store state in buffy
+//                  not(sum(augInst, DiffIndCandidates.INSTANCE,
+//                          add(buffy,     // reset to old state
+//                                  instantiate("augment", augInst),
+//                                  not(openCurrentRuleApp(
+//                                          ifZero(DiffSatFeature.INSTANCE,
+//                                          longConst(-1000),
+//                                          inftyConst()))
+//                                     )
+//                             )
+//                  ))
+//                ));
+//        bindRuleSet(d, "invariant_strengthen",
+//                //@todo disable during hypothetic strengthens
+//                /*ifZero(DiffWeakenFeature.INSTANCE,
+//                       inftyConst(),*/
+//                       forEach(augInst, DiffIndCandidates.INSTANCE,
+//                               ifZero(new DiffSatFeature(augInst),
+//                               add(instantiate("augment", augInst),
+//                                          longConst(-1000)),
+//                                          inftyConst())
+//                ));
         /*bindRuleSet(d, "invariant_strengthen",
                 //@todo disable during hypothetic strengthens
                 ifZero(DiffWeakenFeature.INSTANCE,
@@ -378,18 +510,6 @@ public class DLStrategy extends AbstractFeatureStrategy {
                                           longConst(-1000),
                                           inftyConst())))
                 ));*/
-        disableInstantiate ();
-        bindRuleSet(d, "invariant_diff",
-                ifZero(DiffWeakenFeature.INSTANCE,
-                        inftyConst(),
-                        inftyConst()/*
-                        ifZero(PostDiffStrengthFeature.INSTANCE,
-                            longConst(-2000),
-                            new SwitchFeature(HypotheticalProvabilityFeature.INSTANCE,
-                                new Case(longConst(0), longConst(-4000)),
-                                new Case(longConst(1), longConst(20000)),
-                                new Case(inftyConst(), inftyConst()))
-                        )*/));
     }
 
     public Name name() {
@@ -406,10 +526,10 @@ public class DLStrategy extends AbstractFeatureStrategy {
      */
     public RuleAppCost computeCost(RuleApp app, PosInOccurrence pio, Goal goal) {
         if (veto(app, pio, goal)) {
+            return TopRuleAppCost.INSTANCE;
+        } else {
             RuleAppCost compute = completeF.compute(app, pio, goal);
             return compute;
-        } else {
-            return TopRuleAppCost.INSTANCE;
         }
     }
 
@@ -421,9 +541,9 @@ public class DLStrategy extends AbstractFeatureStrategy {
      */
     public boolean isApprovedApp(RuleApp app, PosInOccurrence pio, Goal goal) {
         if (veto(app, pio, goal)) {
-            return !(approvalF.compute(app, pio, goal) instanceof TopRuleAppCost);
-        } else {
             return false;
+        } else {
+            return !(approvalF.compute(app, pio, goal) instanceof TopRuleAppCost);
         }
     }
 
@@ -432,35 +552,38 @@ public class DLStrategy extends AbstractFeatureStrategy {
     }
 
     /**
-     * TODO jdq documentation since Sep 6, 2007
+     * Check whether the strategy vetos against the specified RuleApp,
+     * during evaluation of cost, evaluation of instantiation, or re-evaluation of cost.
      * 
      * @param app
      * @param pio
      * @param goal
+     * @return true in the case of a veto such that the rule will definitely not be applied.
+     * false if there is no veto against app such that it could be applied (depending on its cost).
      */
-    private boolean veto(RuleApp app, PosInOccurrence pio, Goal goal) {
-        if (blockAllRules) {
-            return false;
+    protected boolean veto(RuleApp app, PosInOccurrence pio, Goal goal) {
+        if (blockAllRules || taboo.contains(app.rule().name())) {
+            return true;
         }
         if (((foCache.containsKey(goal.node()) && foCache.get(goal.node()) == FirstOrder.FO) || FOSequence.INSTANCE
                 .compute(app, pio, goal) == LongRuleAppCost.ZERO_COST)) {
             foCache.put(goal.node(), FirstOrder.FO);
             if (DLOptionBean.INSTANCE.isStopAtFO()) {
-                return false;
+                return true;
             }
             if (DLOptionBean.INSTANCE.isUseFindInstanceTest()) {
                 CounterExample cached = getFirstInCacheUntilBranch(goal.node(),
                         ceCache);
                 if (cached != null) {
                     ceCache.put(goal.node(), cached);
-                    return cached != CounterExample.CE;
+                    return cached == CounterExample.CE;
                 } else if (FindInstanceTest.INSTANCE.compute(app, pio, goal) == TopRuleAppCost.INSTANCE) {
                     System.out.println("Found CE");// XXX
                     ceCache.put(goal.node(), CounterExample.CE);
                     if (stopOnFirstCE) {
                         blockAllRules = true;
                     }
-                    return false;
+                    return true;
                 } else {
                     ceCache.put(goal.node(), CounterExample.NO_CE);
                 }
@@ -468,7 +591,7 @@ public class DLStrategy extends AbstractFeatureStrategy {
         } else {
             foCache.put(goal.node(), FirstOrder.NOT_FO);
         }
-        return true;
+        return false;
     }
 
     /**
@@ -488,9 +611,13 @@ public class DLStrategy extends AbstractFeatureStrategy {
     @Override
     protected RuleAppCost instantiateApp(RuleApp app, PosInOccurrence pio,
             Goal goal) {
-        return TopRuleAppCost.INSTANCE;
+        if (veto(app, pio, goal)) {
+            return TopRuleAppCost.INSTANCE;
+        } else {
+            return instantiationF.compute ( app, pio, goal );
+        }
     }
-
+    
     public static class Factory extends StrategyFactory {
         public static final Factory INSTANCE = new Factory();
 
@@ -507,6 +634,11 @@ public class DLStrategy extends AbstractFeatureStrategy {
         public Strategy create(Proof p_proof,
                 StrategyProperties strategyProperties, boolean stopOnFirstCE) {
             return new DLStrategy(p_proof, stopOnFirstCE);
+        }
+        public Strategy create(Proof p_proof,
+                StrategyProperties strategyProperties, boolean stopOnFirstCE,
+                Collection<Name> taboo) {
+            return new DLStrategy(p_proof, stopOnFirstCE, taboo);
         }
 
         public Name name() {

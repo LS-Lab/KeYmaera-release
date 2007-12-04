@@ -59,18 +59,22 @@ public class DiffInd extends AbstractDLMetaOperator {
      *      de.uka.ilkd.key.java.Services)
      */
     public Term calculate(Term term, SVInstantiations svInst, Services services) {
-        DiffSystem system = (DiffSystem) ((StatementBlock) term.sub(0)
+        return diffInd(term.sub(0), services);
+    }
+
+    public Term diffInd(Term term, Services services) {
+        DiffSystem system = (DiffSystem) ((StatementBlock) term
                 .javaBlock().program()).getChildAt(0);
-        Term post = term.sub(0).sub(0);
+        Term post = term.sub(0);
         final NamespaceSet nss = services.getNamespaces();
         try {
-            if (term.sub(0).op() == Modality.BOX
-                    || term.sub(0).op() == Modality.TOUT) {
+            if (term.op() == Modality.BOX
+                    || term.op() == Modality.TOUT) {
                 return MathSolverManager.getCurrentODESolver()
                 .diffInd(system, post, nss);
             } else {
                 throw new IllegalStateException("Unknown modality "
-                        + term.sub(0).op());
+                        + term.op());
             }
         } catch (RuntimeException e) {
             throw e;

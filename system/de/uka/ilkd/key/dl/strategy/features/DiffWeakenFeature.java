@@ -122,7 +122,7 @@ public class DiffWeakenFeature implements Feature {
         // branchingNodesAlreadyTested.put(firstNodeAfterBranch, timeout);
 
         RuleAppCost r = diffWeaken(pos, goal, timeout);
-        System.out.println("weak " + r + " for " + app.rule().name());
+//        System.out.println("weak " + r + " for " + app.rule().name());
         return r;
     }
 

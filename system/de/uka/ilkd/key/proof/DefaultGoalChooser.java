@@ -42,6 +42,21 @@ public class DefaultGoalChooser implements IGoalChooser {
     public DefaultGoalChooser () {
     }
     
+    public String toString() {
+        assert validate();
+        return "DefaultGoalChooser[" + "working first on " + nextGoals.size() + " goals of " + goalList.size() + " goals out of " + proof.openGoals().size() + " from " + proof.name() + "]";
+    }
+    
+    private boolean validate() {
+        for (IteratorOfGoal i = goalList.iterator(); i.hasNext(); ) {
+            assert proof.openGoals().contains(i.next()) : "working only on open goals";
+        }
+        for (IteratorOfGoal i = nextGoals.iterator(); i.hasNext(); ) {
+            assert goalList.contains(i.next()) : "selecting only working goals";
+        }
+        return true;
+    }
+    
     /* (non-Javadoc)
      * @see de.uka.ilkd.key.proof.IGoalChooser#init(de.uka.ilkd.key.proof.Proof, de.uka.ilkd.key.proof.ListOfGoal)
      */
@@ -105,6 +120,8 @@ public class DefaultGoalChooser implements IGoalChooser {
             result = selectedList.isEmpty () ? null : selectedList.head ();
         }
 
+        assert result == null || !result.node().isClosed() : this + " cannot choose closed goal\n" + result + " which has been closed by " + result.appliedRuleApps().head().rule().name();
+        assert result == null || proof.openGoals().contains(result) : "only chooses open goals, not\n" + result + " which has been closed by " + result.appliedRuleApps().head().rule().name();
         return result;
     }
 
