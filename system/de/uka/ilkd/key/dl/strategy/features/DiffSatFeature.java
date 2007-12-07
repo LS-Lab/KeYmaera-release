@@ -122,7 +122,7 @@ public class DiffSatFeature implements Feature {
      *      de.uka.ilkd.key.logic.PosInOccurrence, de.uka.ilkd.key.proof.Goal)
      */
     public RuleAppCost compute(RuleApp myapp, PosInOccurrence pos, Goal goal) {
-        System.out.println("check diffsat" + " for " + myapp.rule().name() + " on " + pos);
+        //System.out.println("check diffsat" + " for " + myapp.rule().name() + " on " + pos);
         TacletApp app = (TacletApp) myapp;
         Node firstNodeAfterBranch = getFirstNodeAfterBranch(goal.node());
         // if (branchingNodesAlreadyTested.containsKey(firstNodeAfterBranch)) {

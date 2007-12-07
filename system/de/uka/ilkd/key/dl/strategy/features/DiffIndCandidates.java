@@ -84,7 +84,6 @@ public class DiffIndCandidates implements TermGenerator {
     }
 
     public IteratorOfTerm generate(RuleApp app, PosInOccurrence pos, Goal goal) {
-        System.out.println("generating for " + app.rule().name());
         Term term = pos.subTerm();
         final Update update = Update.createUpdate(term);
         // unbox from update prefix
@@ -109,7 +108,7 @@ public class DiffIndCandidates implements TermGenerator {
         //l.add(post);    // consider diffind itself als diffstrengthening 
         l.addAll(indCandidates(update, system, goal.sequent(), services));
         l.remove(TermBuilder.DF.tt());
-        System.out.println("CANDIDATES .....\n" + l);
+        System.out.println("DiffInd CANDIDATES .....\n" + l);
         return genericToOld(new ArrayList<Term>(l)).iterator();
     }
 
@@ -170,7 +169,7 @@ public class DiffIndCandidates implements TermGenerator {
         };
         
         final Set<Term> possibles = getMatchingCandidates(update, system, seq, services);
-        System.out.println("POSSIBLES:  ....\n" + possibles);
+        System.out.println("DiffInd POSSIBLES:  ....\n" + possibles);
         
         List<Term> result = new LinkedList<Term>();
         PriorityQueue<de.uka.ilkd.key.dl.model.ProgramVariable> depOrder = new PriorityQueue<de.uka.ilkd.key.dl.model.ProgramVariable>(
