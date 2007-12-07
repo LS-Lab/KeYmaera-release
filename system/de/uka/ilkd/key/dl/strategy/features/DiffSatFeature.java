@@ -88,7 +88,8 @@ public class DiffSatFeature implements Feature {
      * List of rules which are taboo during a hypothetical provability check for DiffSat.
      */
     private static final Collection<Name> taboo = new LinkedHashSet<Name>(Arrays.asList(new Name[] {
-            new Name("diffstrengthen")
+            new Name("diffstrengthen"),
+            new Name("diffweaken")
             //@todo diffweaken since not reasonable?
     }));
 
@@ -188,12 +189,15 @@ public class DiffSatFeature implements Feature {
                     + candidate + " for SV 'augmented' in " + app.instantiations());
         }
         //System.out.println("instantiation " + candidate + " for SV 'augmented'");
+
+        // diffind
         if (TopRuleAppCost.INSTANCE.equals(get(system, candidate))) {
+            //@todo also recursively check whether subsets of system are invariant, or supersets of system are not invariant 
             return TopRuleAppCost.INSTANCE;
         }
 
-        // diffind
-        System.out.println("HYPO: " + diffind.rule().name() + " initial " + candidate);
+
+        //System.out.println("HYPO: " + diffind.rule().name() + " initial " + candidate);
         // diffind:"Invariant Initially Valid"
         Term initialFml = TermBuilder.DF.imp(invariant, candidate);
         if (pos.subTerm().op() instanceof QuanUpdateOperator) {
@@ -226,7 +230,7 @@ public class DiffSatFeature implements Feature {
         if (get(system, candidate) != null) {
             return get(system, candidate);
         }
-        System.out.println("HYPO: " + diffind.rule().name() + " step " + candidate);
+        //System.out.println("HYPO: " + diffind.rule().name() + " step " + candidate);
         Term augTerm = de.uka.ilkd.key.logic.TermFactory.DEFAULT.createProgramTerm(
                     term.op(),
                     term.javaBlock(),
@@ -243,7 +247,7 @@ public class DiffSatFeature implements Feature {
 //        System.out.println("HYPOing:\n " + step);
         result = HypotheticalProvabilityFeature.provable(goal.proof(), step, MAX_STEPS,
                 timeout, taboo);
-        System.out.println("HYPO: " + diffind.rule().name() + " step " + result + " for " + candidate);
+        System.out.println("HYPO: " + diffind.rule().name() + " step    " + result + " for " + candidate);
         switch (result) {
         case PROVABLE:
             put(system, candidate, LongRuleAppCost.ZERO_COST);

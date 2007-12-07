@@ -359,6 +359,7 @@ public class HypotheticalProvabilityFeature implements Feature {
             if (hypothesizer != null && hypothesizer.isAlive()) {
                 hypothesizer.giveUp = true;
                 hypothesizer.interrupt();
+                hypothesizer = null;
             }
         }
     }
@@ -483,6 +484,7 @@ public class HypotheticalProvabilityFeature implements Feature {
 
         public HypothesizeThread(Proof hypothesis, int maxsteps, long timeout) {
             super("hypothetical prover");
+            setDaemon(true);
             this.result = HypotheticalProvability.UNKNOWN;
             this.timeout = timeout;
             this.hypothesis = hypothesis;
@@ -491,7 +493,7 @@ public class HypotheticalProvabilityFeature implements Feature {
             this.goalChooser.init(hypothesis, hypothesis.openGoals());
             this.maxApplications = maxsteps;
         }
-
+        
         /*
          * (non-Javadoc)
          * 

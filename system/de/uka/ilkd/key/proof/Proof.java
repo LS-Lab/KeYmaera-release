@@ -215,27 +215,18 @@ public class Proof implements Named {
     }
     
     /**
-     * new proof like p except that its only goal and only node is problem
+     * new proof like p except that its only goal and only node is the sequent problem.
+     * Use copies of the current state of namespaces of p and separates both proofs. 
      * @param problem the only sequent of the new proof
      */
     public Proof(Name name, Proof p, Sequent problem) {
-        // use identical services rather than initial p.env().getInitConfig().getServices()
-        this(name, p.getServices().copy(), new ProofSettings(p.settings));
-//        activeStrategy = 
-//            StrategyFactory.create(this, 
-//                    p.getActiveStrategy().name().toString(), 
-//                    getSettings().getStrategySettings().getActiveStrategyProperties());
-        
-        InitConfig ic = p.env().getInitConfig().copy();
-        Node rootNode = new Node(this, problem);
-        setRoot(rootNode);
-        Goal firstGoal = new Goal(rootNode, 
-            new RuleAppIndex(new TacletAppIndex(ic.createTacletIndex()),
-            new BuiltInRuleAppIndex(ic.createBuiltInRuleIndex())));
-        localMgt = new DefaultProofCorrectnessMgt(this);
-        openGoals = openGoals.prepend(firstGoal);
-        setNamespaces(p.getNamespaces().copy());
-        
+        // could also use goal.indexOfTaclets and goal.getRuleAppIndex.builtInRuleAppIndex to focus on rules of a goal
+        this(name.toString(),
+                problem,
+                p.env().getInitConfig().createTacletIndex(),
+                p.env().getInitConfig().createBuiltInRuleIndex(),
+                p.getServices(),
+                new ProofSettings(p.settings));
         setProofEnv(p.env());
         setSimplifier(p.simplifier());
     }

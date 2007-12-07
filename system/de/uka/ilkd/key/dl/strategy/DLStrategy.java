@@ -144,7 +144,7 @@ public class DLStrategy extends AbstractFeatureStrategy {
     /**
      * DLStrategy with tabus, i.e., certain rule which will never be applied nor tried under no circumstances whatsoever.
      * @author ap
-     * @see "TabuSearch"
+     * @see "TabooSearch"
      * @param p_proof
      * @param stopOnFirstCE
      * @param taboo the list of rule names that are tabu, i.e., will never be applied nor tried at all.
@@ -152,7 +152,7 @@ public class DLStrategy extends AbstractFeatureStrategy {
     protected DLStrategy(Proof p_proof, boolean stopOnFirstCE, Collection<Name> taboo) {
         super(p_proof);
         if (taboo == null) {
-            throw new NullPointerException("Invalid tabu list " + taboo);
+            throw new NullPointerException("Invalid taboo list " + taboo);
         }
         this.taboo = taboo;
         this.stopOnFirstCE = stopOnFirstCE;
@@ -386,7 +386,7 @@ public class DLStrategy extends AbstractFeatureStrategy {
                 ifZero(PostDiffStrengthFeature.INSTANCE,
                         inftyConst(),             // strengthening augmentation validity proofs seems useless
                         ifZero(DiffWeakenFeature.INSTANCE,
-                                inftyConst(),     // never instantiate as cheaper rule successful
+                                inftyConst(),     // never instantiate when cheaper rule successful
                                 longConst(8000)   // go on try to instantiate, except when tabooed
                         )));
         bindRuleSet(d, "invariant_diff",

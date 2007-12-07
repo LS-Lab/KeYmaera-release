@@ -106,7 +106,7 @@ public class DiffIndCandidates implements TermGenerator {
         final Services services = goal.proof().getServices();
 
         Set<Term> l = new LinkedHashSet();
-        l.add(post);
+        //l.add(post);    // consider diffind itself als diffstrengthening 
         l.addAll(indCandidates(update, system, goal.sequent(), services));
         l.remove(TermBuilder.DF.tt());
         System.out.println("CANDIDATES .....\n" + l);
@@ -118,7 +118,7 @@ public class DiffIndCandidates implements TermGenerator {
                 .generateDependencyMap(system).getDependencies();
         for (Map.Entry<ProgramVariable, LinkedHashSet<ProgramVariable>> s : dep.entrySet()) {
             if (!s.getValue().contains(s.getKey())) {
-                System.out.println("WARNING: " + "dependency of x'=5 should be reflexive. Hence " + s.getKey() + " contained in " + s.getValue());
+               // System.out.println("WARNING: " + "dependency of x'=5 should be reflexive. Hence " + s.getKey() + " contained in " + s.getValue());
                 s.getValue().add(s.getKey());
                 assert s.getValue().contains(s.getKey()) : "dependency of x'=5 should be reflexive. Hence " + s.getKey() + " contained in " + s.getValue();
             }
@@ -127,7 +127,7 @@ public class DiffIndCandidates implements TermGenerator {
                 .createTransitiveClosure(dep);
         for (Map.Entry<ProgramVariable, LinkedHashSet<ProgramVariable>> s : tdep.entrySet()) {
             if (!s.getValue().contains(s.getKey())) {
-                System.out.println("WARNING: " + "transitive dependency of x'=5 should be reflexive. Hence " + s.getKey() + " contained in " + s.getValue());
+                //System.out.println("WARNING: " + "transitive dependency of x'=5 should be reflexive. Hence " + s.getKey() + " contained in " + s.getValue());
                 s.getValue().add(s.getKey());
                 assert s.getValue().contains(s.getKey()) : "transitive dependency of x'=5 should be reflexive. Hence " + s.getKey() + " contained in " + s.getValue();
             }
@@ -191,16 +191,13 @@ public class DiffIndCandidates implements TermGenerator {
             Set<Term> matches = selectMatchingCandidates(
                     possibles,
                     system, cluster, modifieds, frees);
-            System.out.println("GENERATORS: for " + min + " cluster " + cluster + " are " + matches);
+            System.out.println("    GENERATORS: for " + min + " cluster " + cluster + " are " + matches);
             //@todo all nonempty subsets
             if (!matches.isEmpty()) {
                 result.add(TermBuilder.DF.and(genericToOld(matches)));
             }
             depOrder.removeAll(cluster);
         }
-        //@todo improve this hack by forming other super/subsets as well
-        //Term candidate = TermBuilder.DF.and(genericToOld(result));
-        //result.add(candidate);
         return result;
     }
 
@@ -213,7 +210,7 @@ public class DiffIndCandidates implements TermGenerator {
     private Set<Term> getMatchingCandidates(Update update, DiffSystem system, Sequent seq, Services services) {
         //@todo need to conside possible generation renamings by update
         Set<Term> invariant = splitConjuncts(system.getInvariant());
-        System.out.println("  INVARIANT " + invariant + " of " + system.getInvariant() + " of " + system);
+        //System.out.println("  INVARIANT " + invariant + " of " + system.getInvariant() + " of " + system);
         Set<Term> matches = new LinkedHashSet<Term>();
         ArrayOfAssignmentPair asss = update.getAllAssignmentPairs();
         for (int i = 0; i < asss.size(); i++) {
@@ -222,15 +219,15 @@ public class DiffIndCandidates implements TermGenerator {
             assert x.arity()==0 : "only works for atomic locations";
             x = TermBuilder.DF.var((de.uka.ilkd.key.logic.op.ProgramVariable)services.getNamespaces().programVariables().lookup(ass.location().name()));
             Term t = ass.value();
-            System.out.println(x + "@" + x.getClass());
+            //System.out.println(x + "@" + x.getClass());
             //@todo if x occurs in t then can't do that without alpha-renaming stuff
             Term equation = TermBuilder.DF.equals(x, t);
             if (!invariant.contains(equation)) {
-                System.out.println("\tnew " + equation + " for " + invariant);
+                //System.out.println("\tnew " + equation + " for " + invariant);
                 boolean found = false;
                 for (Term inv : invariant) {
                     if (inv.toString().equals(equation.toString())) {
-                        System.out.println("identical printout with different representation " + equation + " and " + inv);
+                        //System.out.println(" WARNING: identical printout with different representation " + equation + " and " + inv);
                         //@xxx string comparison is a hack
                         found = true;
                     }
@@ -278,16 +275,15 @@ public class DiffIndCandidates implements TermGenerator {
         Term invariant = system.getInvariant();
         Set<Term> matches = new LinkedHashSet<Term>();
         for (Term fml : candidates) {
-            //@todo if (invariant.contains(fml)) continue;
             final Set<Name> occurrences =
                 Collections.unmodifiableSet(projectNames(projectProgramVariables(FOVariableNumberCollector.getVariables(fml))));
             if (!vars.containsAll(Setops.intersection(occurrences,frees))) {
-                System.out.println("    skip " + fml + " as " + occurrences + " not in " + vars + " ");
+                //System.out.println("    skip " + fml + " as " + occurrences + " not in " + vars + " ");
                 // variables with more dependencies
                 continue;
             }
             if (Setops.intersection(occurrences,modifieds).isEmpty()) {
-                System.out.println("    skip " + fml + " as no change. Changes: " + modifieds + " disjoint from occurrences " + occurrences);
+                //System.out.println("    skip " + fml + " as no change. Changes: " + modifieds + " disjoint from occurrences " + occurrences);
                 // trivially invariant as nothing changes
                 continue;
             } else {

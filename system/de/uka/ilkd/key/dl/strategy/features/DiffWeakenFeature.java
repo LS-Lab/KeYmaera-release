@@ -158,7 +158,7 @@ public class DiffWeakenFeature implements Feature {
         RuleApp diffweaken = goal.indexOfTaclets().lookup(new Name("diffweaken")); 
         //= getRuleAppOf(new Name("diffweaken"), pos, goal);
         //@todo optimize first check if post contained in conjunct of invariant
-        System.out.println("HYPO: " + diffweaken.rule().name());
+        //System.out.println("HYPO: " + diffweaken.rule().name());
         Sequent weakened = DiffSatFeature.changedSequent(pos, goal.sequent(),
                 DLUniversalClosureOp.DL_UNIVERSAL_CLOSURE.universalClosure(
                         system, TermBuilder.DF.imp(invariant, post), null, services));
