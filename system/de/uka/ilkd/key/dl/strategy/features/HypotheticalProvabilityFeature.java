@@ -59,6 +59,8 @@ import de.uka.ilkd.key.util.Debug;
  * infinity if some subgoal is definitey not provable because it yields a
  * counterexample, 1 if a timeout occurs before a provable/nonprovable decision
  * has been made.
+ * Feature temporarily applies the given rule in a hypothetical proof and computes a cost
+ * depending on whether the hypothetical proof works out.
  * 
  * @author ap
  */

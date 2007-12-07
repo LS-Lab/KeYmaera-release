@@ -72,7 +72,7 @@ public class SVInstantiationCP implements Feature {
                      + svToInstantiate + " that I was supposed to instantiate\n" +
                      "(taclet " + app.taclet().name() + ")\n" +
                      "Either the name of the variable is wrong, or the variable\n" +
-                     "has already been instantiated." );
+                     "has already been instantiated as " + app.instantiations().lookupValue(svToInstantiate)+ "." );
         return null;
     }
 

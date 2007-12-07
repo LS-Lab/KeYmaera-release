@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -31,13 +30,12 @@ import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Set;
 
-import com.wolfram.jlink.Expr;
-
 import orbital.util.Setops;
-
+import de.uka.ilkd.key.dl.model.DLProgram;
 import de.uka.ilkd.key.dl.model.DiffSystem;
 import de.uka.ilkd.key.dl.model.NamedElement;
 import de.uka.ilkd.key.dl.model.ProgramVariable;
+import de.uka.ilkd.key.dl.model.Star;
 import de.uka.ilkd.key.dl.transitionmodel.DependencyStateGenerator;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.java.StatementBlock;
@@ -53,21 +51,16 @@ import de.uka.ilkd.key.logic.SLListOfTerm;
 import de.uka.ilkd.key.logic.Sequent;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.TermBuilder;
-import de.uka.ilkd.key.logic.op.CastFunctionSymbol;
 import de.uka.ilkd.key.logic.op.Junctor;
 import de.uka.ilkd.key.logic.op.Modality;
 import de.uka.ilkd.key.logic.op.Operator;
 import de.uka.ilkd.key.logic.op.QuanUpdateOperator;
-import de.uka.ilkd.key.logic.op.QuantifiableVariable;
-import de.uka.ilkd.key.logic.sort.AbstractSort;
-import de.uka.ilkd.key.logic.sort.Sort;
 import de.uka.ilkd.key.proof.Goal;
 import de.uka.ilkd.key.rule.RuleApp;
 import de.uka.ilkd.key.rule.updatesimplifier.ArrayOfAssignmentPair;
 import de.uka.ilkd.key.rule.updatesimplifier.AssignmentPair;
 import de.uka.ilkd.key.rule.updatesimplifier.Update;
 import de.uka.ilkd.key.strategy.termgenerator.TermGenerator;
-import de.uka.ilkd.key.util.Debug;
 
 /**
  * DiffInd candidates.
@@ -78,12 +71,54 @@ public class DiffIndCandidates implements TermGenerator {
 
     public final static TermGenerator INSTANCE = new DiffIndCandidates();
 
-    private final TermBuilder tb = TermBuilder.DF;
+    private static final TermBuilder tb = TermBuilder.DF;
 
     private DiffIndCandidates() {
     }
 
     public IteratorOfTerm generate(RuleApp app, PosInOccurrence pos, Goal goal) {
+        Term term = pos.subTerm();
+        // unbox from update prefix
+        while (term.op() instanceof QuanUpdateOperator) {
+            term = ((QuanUpdateOperator) term.op()).target(term);
+        }
+        if (!(term.op() instanceof Modality
+                && term.javaBlock() != null
+                && term.javaBlock() != JavaBlock.EMPTY_JAVABLOCK
+                && term.javaBlock().program() instanceof StatementBlock)) {
+            throw new IllegalArgumentException("inapplicable to " + pos);
+        }
+        final DLProgram program = (DLProgram) ((StatementBlock) term
+                .javaBlock().program()).getChildAt(0);
+        Term currentInvariant;
+        if (program instanceof DiffSystem) {
+            currentInvariant = ((DiffSystem)program).getInvariant();
+        } else if (program instanceof Star) {
+            currentInvariant = tb.tt();
+        } else {
+            throw new IllegalArgumentException("Don't know how to handle " + program);
+        }
+        final Services services = goal.proof().getServices();
+
+        Set<Term> l = new LinkedHashSet<Term>();
+        // we do not need post itself as candidate because diffind or strategy can handle this.
+        // we only consider sophisticated choices
+        //l.add(post);    // consider diffind itself als diffstrengthening 
+        l.addAll(indCandidates(goal.sequent(), pos, currentInvariant, services));
+        System.out.println("DiffInd CANDIDATES .....\n" + l);
+        return genericToOld(new ArrayList<Term>(l)).iterator();
+    }
+
+    /**
+     * Determine diffind candidates for the formula at the given position in the given sequent.
+     * Find candidates relative to the given current invariant, which is already known to be invariant. 
+     * @param seq
+     * @param pos
+     * @param currentInvariant
+     * @param services
+     * @return
+     */
+    private List<Term> indCandidates(Sequent seq, PosInOccurrence pos, Term currentInvariant, Services services) {
         Term term = pos.subTerm();
         final Update update = Update.createUpdate(term);
         // unbox from update prefix
@@ -98,23 +133,11 @@ public class DiffIndCandidates implements TermGenerator {
                 && term.javaBlock().program() instanceof StatementBlock)) {
             throw new IllegalArgumentException("inapplicable to " + pos);
         }
-        final DiffSystem system = (DiffSystem) ((StatementBlock) term
+        final DLProgram program = (DLProgram) ((StatementBlock) term
                 .javaBlock().program()).getChildAt(0);
-        final Term invariant = system.getInvariant();
-        final Term post = term.sub(0);
-        final Services services = goal.proof().getServices();
-
-        Set<Term> l = new LinkedHashSet();
-        //l.add(post);    // consider diffind itself als diffstrengthening 
-        l.addAll(indCandidates(update, system, goal.sequent(), services));
-        l.remove(TermBuilder.DF.tt());
-        System.out.println("DiffInd CANDIDATES .....\n" + l);
-        return genericToOld(new ArrayList<Term>(l)).iterator();
-    }
-
-    private List<Term> indCandidates(Update update, DiffSystem system, Sequent seq, Services services) {
+        // compute dependency relation
         final Map<ProgramVariable, LinkedHashSet<ProgramVariable>> dep = DependencyStateGenerator
-                .generateDependencyMap(system).getDependencies();
+                .generateDependencyMap(program).getDependencies();
         for (Map.Entry<ProgramVariable, LinkedHashSet<ProgramVariable>> s : dep.entrySet()) {
             if (!s.getValue().contains(s.getKey())) {
                // System.out.println("WARNING: " + "dependency of x'=5 should be reflexive. Hence " + s.getKey() + " contained in " + s.getValue());
@@ -168,7 +191,8 @@ public class DiffIndCandidates implements TermGenerator {
 
         };
         
-        final Set<Term> possibles = getMatchingCandidates(update, system, seq, services);
+        // find candidates
+        final Set<Term> possibles = getMatchingCandidates(update, currentInvariant, seq, services);
         System.out.println("DiffInd POSSIBLES:  ....\n" + possibles);
         
         List<Term> result = new LinkedList<Term>();
@@ -189,14 +213,16 @@ public class DiffIndCandidates implements TermGenerator {
             // find formulas that only refer to cluster
             Set<Term> matches = selectMatchingCandidates(
                     possibles,
-                    system, cluster, modifieds, frees);
+                    cluster, modifieds, frees);
             System.out.println("    GENERATORS: for " + min + " cluster " + cluster + " are " + matches);
             //@todo all nonempty subsets
             if (!matches.isEmpty()) {
-                result.add(TermBuilder.DF.and(genericToOld(matches)));
+                result.add(tb.and(genericToOld(matches)));
             }
             depOrder.removeAll(cluster);
         }
+        result.remove(tb.ff());
+        result.remove(tb.tt());
         return result;
     }
 
@@ -206,9 +232,9 @@ public class DiffIndCandidates implements TermGenerator {
      * @param system
      * @return
      */
-    private Set<Term> getMatchingCandidates(Update update, DiffSystem system, Sequent seq, Services services) {
+    private Set<Term> getMatchingCandidates(Update update, Term currentInvariant, Sequent seq, Services services) {
         //@todo need to conside possible generation renamings by update
-        Set<Term> invariant = splitConjuncts(system.getInvariant());
+        Set<Term> invariant = splitConjuncts(currentInvariant);
         //System.out.println("  INVARIANT " + invariant + " of " + system.getInvariant() + " of " + system);
         Set<Term> matches = new LinkedHashSet<Term>();
         ArrayOfAssignmentPair asss = update.getAllAssignmentPairs();
@@ -216,11 +242,11 @@ public class DiffIndCandidates implements TermGenerator {
             AssignmentPair ass = asss.getAssignmentPair(i);
             Term x = ass.locationAsTerm();
             assert x.arity()==0 : "only works for atomic locations";
-            x = TermBuilder.DF.var((de.uka.ilkd.key.logic.op.ProgramVariable)services.getNamespaces().programVariables().lookup(ass.location().name()));
+            x = tb.var((de.uka.ilkd.key.logic.op.ProgramVariable)services.getNamespaces().programVariables().lookup(ass.location().name()));
             Term t = ass.value();
             //System.out.println(x + "@" + x.getClass());
             //@todo if x occurs in t then can't do that without alpha-renaming stuff
-            Term equation = TermBuilder.DF.equals(x, t);
+            Term equation = tb.equals(x, t);
             if (!invariant.contains(equation)) {
                 //System.out.println("\tnew " + equation + " for " + invariant);
                 boolean found = false;
@@ -235,7 +261,7 @@ public class DiffIndCandidates implements TermGenerator {
                     matches.add(equation);
             }
         }
-        if (true)
+        if (false)
             return matches;
         //@todo respect different update levels
         for (IteratorOfConstrainedFormula i = seq.antecedent().iterator(); i
@@ -265,13 +291,17 @@ public class DiffIndCandidates implements TermGenerator {
         return conjuncts;
     }
     
-    private Set<Term> selectMatchingCandidates(Set<Term> candidates, DiffSystem system, Set<ProgramVariable> myvars,
+    /**
+     * Select those candidates that have a promising form.
+     * @param seq
+     * @return
+     */
+    private Set<Term> selectMatchingCandidates(Set<Term> candidates,  Set<ProgramVariable> myvars,
             Set<ProgramVariable>  mymodifieds, Set<ProgramVariable>  myfrees) {
         Set<Name> vars = projectNames2(myvars); 
         Set<Name> modifieds = projectNames2(mymodifieds); 
         Set<Name> frees = projectNames2(myfrees); 
         //@todo need to conside possible generation renamings by update
-        Term invariant = system.getInvariant();
         Set<Term> matches = new LinkedHashSet<Term>();
         for (Term fml : candidates) {
             final Set<Name> occurrences =

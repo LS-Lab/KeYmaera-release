@@ -444,73 +444,24 @@ public class DLStrategy extends AbstractFeatureStrategy {
                         longConst(-1000),
                         inftyConst()
                 ));
-//        bindRuleSet(d, "invariant_strengthen",
-//              ifZero(DiffWeakenFeature.INSTANCE,
-//                inftyConst(),
-//                add(not(sum(augInst, DiffIndCandidates.INSTANCE,
-//                    ifZero(new DiffSatFeature(augInst),
-//                        add(instantiate("augment", augInst),inftyConst())
-//                )
-//                )),
-//                longConst(-1000))));
-//        bindRuleSet(d, "invariant_strengthen",
-//                ifZero(DiffWeakenFeature.INSTANCE,
-//                  inftyConst(),
-//                  ifZero(storeRuleApp(buffy,
-//                          not(sum(augInst, DiffIndCandidates.INSTANCE,
-//                          add(buffy,
-//                                  instantiate("augment", augInst),
-//                                  not(new DiffSatFeature(augInst))
-//                             )
-//                    ))),
-//                    longConst(-1000),
-//                    inftyConst()
-//                  )));
-        /*bindRuleSet(d, "invariant_strengthen",
-                ifZero(DiffWeakenFeature.INSTANCE,
-                  inftyConst(),
-                  not(sum(augInst, DiffIndCandidates.INSTANCE,
-                          add(instantiate("augment", augInst),
-                                  not(
-                                      ifZero(new DiffSatFeature(augInst),
-                                          longConst(-1000),
-                                          inftyConst())
-                                     )
-                             )
-                  ))));*/
-//        bindRuleSet(d, "invariant_strengthen",
-//                storeRuleApp(buffy,       // store state in buffy
-//                  not(sum(augInst, DiffIndCandidates.INSTANCE,
-//                          add(buffy,     // reset to old state
-//                                  instantiate("augment", augInst),
-//                                  not(openCurrentRuleApp(
-//                                          ifZero(DiffSatFeature.INSTANCE,
-//                                          longConst(-1000),
-//                                          inftyConst()))
-//                                     )
-//                             )
-//                  ))
-//                ));
-//        bindRuleSet(d, "invariant_strengthen",
-//                //@todo disable during hypothetic strengthens
-//                /*ifZero(DiffWeakenFeature.INSTANCE,
-//                       inftyConst(),*/
-//                       forEach(augInst, DiffIndCandidates.INSTANCE,
-//                               ifZero(new DiffSatFeature(augInst),
-//                               add(instantiate("augment", augInst),
-//                                          longConst(-1000)),
-//                                          inftyConst())
-//                ));
-        /*bindRuleSet(d, "invariant_strengthen",
-                //@todo disable during hypothetic strengthens
-                ifZero(DiffWeakenFeature.INSTANCE,
-                       inftyConst(),
-                       forEach(augInst, DiffIndCandidates.INSTANCE,
-                               add(instantiate("augment", augInst),
-                                   ifZero(new DiffSatFeature(augInst),
-                                          longConst(-1000),
-                                          inftyConst())))
-                ));*/
+        final RuleAppBuffer buffy2 = new RuleAppBuffer();
+        bindRuleSet(d, "loop_invariant_proposal",
+                storeRuleApp(buffy2,
+                ifZero(add(instantiate("inv", instOf("post")),
+                           openCurrentRuleApp(HypotheticalProvabilityFeature.INSTANCE)
+                        ),
+                       longConst(-2000),
+                       ifZero(
+                               not(sum(augInst, DiffIndCandidates.INSTANCE,
+                                       add(buffy2,
+                                           instantiate("inv", augInst),
+                                           not(openCurrentRuleApp(HypotheticalProvabilityFeature.INSTANCE))
+                                       )
+                               )),
+                               longConst(-1000),
+                               inftyConst()  //@todo use large constant instead to try at least
+                       )
+                )));
     }
 
     public Name name() {
