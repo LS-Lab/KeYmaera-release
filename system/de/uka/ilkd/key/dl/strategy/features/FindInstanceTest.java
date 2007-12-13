@@ -153,6 +153,9 @@ public class FindInstanceTest implements Feature {
                 result = Result.NO_RESULT_IN_TIME;
             } catch (SolverException e) {
                 result = Result.NO_RESULT_IN_TIME;
+            } catch (AssertionError e) {
+                result = Result.UNKNOWN;
+                e.printStackTrace();
             }
         }
 

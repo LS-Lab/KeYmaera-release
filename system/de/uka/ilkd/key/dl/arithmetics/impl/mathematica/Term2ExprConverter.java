@@ -28,6 +28,7 @@ import java.util.HashMap;
 
 import com.wolfram.jlink.Expr;
 
+import de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator.QuantifierType;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.IncompleteEvaluationException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.UnableToConvertInputException;
 import de.uka.ilkd.key.gui.Main;
@@ -184,7 +185,7 @@ public class Term2ExprConverter implements ExprConstants {
                     mergedQuant[0] = new Expr(LIST, allVariables);
                     mergedQuant[1] = kernel;
                     Expr expr = new Expr(FORALL, mergedQuant);
-                    assert equalsTranslateBack(expr, new Expr(FORALL, newArgs));
+                    assert equalsTranslateBack(QuantifierType.FORALL, expr, new Expr(FORALL, newArgs));
                     return expr;
                 } else {
                     return new Expr(FORALL, newArgs);
@@ -208,7 +209,7 @@ public class Term2ExprConverter implements ExprConstants {
                     mergedQuant[0] = new Expr(LIST, allVariables);
                     mergedQuant[1] = kernel;
                     Expr expr = new Expr(EXISTS, mergedQuant);
-                    assert equalsTranslateBack(expr, new Expr(FORALL, newArgs)) : "backtranslation identity";
+                    assert equalsTranslateBack(QuantifierType.EXISTS, expr, new Expr(EXISTS, newArgs)) : "backtranslation identity";
                     return expr;
                 } else {
                     return new Expr(EXISTS, newArgs);
@@ -226,15 +227,22 @@ public class Term2ExprConverter implements ExprConstants {
      * @param expr2
      * @return
      */
-    private static boolean equalsTranslateBack(Expr expr, Expr expr2) {
+    private static boolean equalsTranslateBack(QuantifierType quantifier,
+            Expr expr, Expr expr2) {
         Expr var = expr.args()[0].args()[0];
         Expr form = expr.args()[1];
         Expr[] vars = new Expr[expr.args()[0].args().length - 1];
         System.arraycopy(expr.args()[0].args(), 1, vars, 0, vars.length);
-        Expr newExpr = new Expr(FORALL, new Expr[] { new Expr(LIST, new Expr[] {var}),
-                new Expr(FORALL, new Expr[] { new Expr(LIST, vars), form }) });
-        assert newExpr.equals(expr2) : "backtranslation of " + expr + " is " + newExpr + ", which equals " + expr2;
-        return newExpr
-                .equals(expr2);
+        Expr newExpr = new Expr(quantifier == QuantifierType.FORALL ? FORALL
+                : quantifier == QuantifierType.EXISTS ? EXISTS : null,
+                new Expr[] {
+                        new Expr(LIST, new Expr[] { var }),
+                        new Expr(quantifier == QuantifierType.FORALL ? FORALL
+                                : quantifier == QuantifierType.EXISTS ? EXISTS
+                                        : null, new Expr[] {
+                                new Expr(LIST, vars), form }) });
+        assert newExpr.equals(expr2) : "backtranslation of " + expr + " is "
+                + newExpr + ", which equals " + expr2;
+        return newExpr.equals(expr2);
     }
 }
