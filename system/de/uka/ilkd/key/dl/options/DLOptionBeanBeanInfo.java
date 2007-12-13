@@ -33,6 +33,7 @@ import java.util.Set;
 import orbital.awt.TaggedPropertyEditorSupport;
 import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
 import de.uka.ilkd.key.dl.options.DLOptionBean.ApplyRules;
+import de.uka.ilkd.key.dl.options.DLOptionBean.DiffSat;
 import de.uka.ilkd.key.dl.options.DLOptionBean.InvariantRule;
 
 /**
@@ -46,10 +47,10 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
     }
 
     public BeanDescriptor getBeanDescriptor() {
-	BeanDescriptor d = new BeanDescriptor(beanClass);
-	d.setDisplayName("KeYmaera");
-	d.setShortDescription("Adjusts KeYmaera proof strategy options");
-	return d;
+        BeanDescriptor d = new BeanDescriptor(beanClass);
+        d.setDisplayName("KeYmaera");
+        d.setShortDescription("Adjusts KeYmaera proof strategy options");
+        return d;
     }
 
     public PropertyDescriptor[] getPropertyDescriptors() {
@@ -144,12 +145,12 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
                     createDescriptor("applyGammaRules", "apply gamma rules",
                             "choose if and when gamma rules should be applied",
                             true, false, ApplyRulesPropertyEditor.class),
-                    createDescriptor("useDiffSAT", "use DiffSat strategy",
-                                    "pick if the DiffSa strategy should be applied",
-                                    true, false),
-//                    createDescriptor("invariantRule", "invariant rule",
-//                            "choose which invariant rule should be used", true,
-//                            false, InvariantRulePropertyEditor.class),
+                    createDescriptor("diffSat", "DiffSat strategy",
+                            "select which degree of DiffSat strategy to apply",
+                            true, false, DiffSatPropertyEditor.class),
+            // createDescriptor("invariantRule", "invariant rule",
+            // "choose which invariant rule should be used", true,
+            // false, InvariantRulePropertyEditor.class),
 
             };
             return pds;
@@ -302,33 +303,31 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
 
     public static class ApplyRulesPropertyEditor extends
             TaggedPropertyEditorSupport {
-
-        private static String[] getNames() {
-            java.util.List<String> names = new ArrayList<String>();
-            for (ApplyRules r : ApplyRules.values()) {
-                names.add(r.toString());
-            }
-            return names.toArray(new String[0]);
-        }
-
         public ApplyRulesPropertyEditor() {
-            super(getNames(), ApplyRules.values());
+            super(getNames(ApplyRules.values()), ApplyRules.values());
+        }
+    }
+
+    public static class DiffSatPropertyEditor extends
+            TaggedPropertyEditorSupport {
+        public DiffSatPropertyEditor() {
+            super(getNames(DiffSat.values()), DiffSat.values());
         }
     }
 
     public static class InvariantRulePropertyEditor extends
             TaggedPropertyEditorSupport {
-
-        private static String[] getNames() {
-            java.util.List<String> names = new ArrayList<String>();
-            for (InvariantRule r : InvariantRule.values()) {
-                names.add(r.toString());
-            }
-            return names.toArray(new String[0]);
-        }
-
         public InvariantRulePropertyEditor() {
-            super(getNames(), InvariantRule.values());
+            super(getNames(InvariantRule.values()), InvariantRule.values());
         }
     }
+
+    private static <E extends Enum<E>> String[] getNames(Enum<E> vals[]) {
+        java.util.List<String> names = new ArrayList<String>();
+        for (Enum<E> r : vals) {
+            names.add(r.toString());
+        }
+        return names.toArray(new String[0]);
+    }
+
 }

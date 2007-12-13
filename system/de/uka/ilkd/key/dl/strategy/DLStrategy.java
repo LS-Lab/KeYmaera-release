@@ -23,11 +23,13 @@ package de.uka.ilkd.key.dl.strategy;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
 import java.util.WeakHashMap;
 
 import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
 import de.uka.ilkd.key.dl.options.DLOptionBean;
 import de.uka.ilkd.key.dl.options.DLOptionBean.ApplyRules;
+import de.uka.ilkd.key.dl.options.DLOptionBean.DiffSat;
 import de.uka.ilkd.key.dl.rules.DebugRule;
 import de.uka.ilkd.key.dl.rules.EliminateQuantifierRule;
 import de.uka.ilkd.key.dl.rules.EliminateQuantifierRuleWithContext;
@@ -129,7 +131,7 @@ public class DLStrategy extends AbstractFeatureStrategy {
         this(p_proof, false);
     }
 
-    private Collection<Name> taboo;
+    private Set<Name> taboo;
 
     /**
      * 
@@ -149,7 +151,7 @@ public class DLStrategy extends AbstractFeatureStrategy {
      * @param stopOnFirstCE
      * @param taboo the list of rule names that are tabu, i.e., will never be applied nor tried at all.
      */
-    protected DLStrategy(Proof p_proof, boolean stopOnFirstCE, Collection<Name> taboo) {
+    protected DLStrategy(Proof p_proof, boolean stopOnFirstCE, Set<Name> taboo) {
         super(p_proof);
         if (taboo == null) {
             throw new NullPointerException("Invalid taboo list " + taboo);
@@ -366,41 +368,54 @@ public class DLStrategy extends AbstractFeatureStrategy {
      * @author ap
      */
     private void setupDiffSatStrategy(final RuleSetDispatchFeature d) {
-        if (!DLOptionBean.INSTANCE.isUseDiffSAT()) {
+        if (DLOptionBean.INSTANCE.getDiffSat() == DiffSat.OFF) {
             bindRuleSet(d, "invariant_diff", inftyConst());
             bindRuleSet(d, "invariant_weaken", inftyConst());
             bindRuleSet(d, "invariant_strengthen", inftyConst());
-            return;
+            return;            
+        } else {
+            bindRuleSet(d, "diff_solve",
+                    ifZero(ODESolvableFeature.INSTANCE,
+                            longConst(4000),
+                            inftyConst()));
         }
-        bindRuleSet(d, "diff_solve",
-                ifZero(ODESolvableFeature.INSTANCE,
-                        longConst(4000),
-                        inftyConst()));
 
-        bindRuleSet(d, "invariant_weaken",
-            new SwitchFeature(DiffWeakenFeature.INSTANCE,
-                new Case(longConst(0), longConst(-6000)),
-                new Case(longConst(1), longConst(1000000)),
-                new Case(inftyConst(), inftyConst())));
-        bindRuleSet(d, "invariant_strengthen",
-                ifZero(PostDiffStrengthFeature.INSTANCE,
-                        inftyConst(),             // strengthening augmentation validity proofs seems useless
-                        ifZero(DiffWeakenFeature.INSTANCE,
-                                inftyConst(),     // never instantiate when cheaper rule successful
-                                longConst(8000)   // go on try to instantiate, except when tabooed
-                        )));
-        bindRuleSet(d, "invariant_diff",
-                 ifZero(PostDiffStrengthFeature.INSTANCE,
-                        longConst(-4000),
-                        ifZero(DiffWeakenFeature.INSTANCE,
-                               inftyConst(),
-                               // re-evaluate feature at least after diffstrengthen
-                               longConst(20000)
-                               /*new SwitchFeature(HypotheticalProvabilityFeature.INSTANCE,
-                                  new Case(longConst(0), longConst(-4000)),
-                                  new Case(longConst(1), longConst(20000)),
-                                  new Case(inftyConst(), inftyConst()))*/
-                        )));
+        if (DLOptionBean.INSTANCE.getDiffSat().compareTo(DiffSat.SIMPLE)>=0) {
+            bindRuleSet(d, "invariant_weaken",
+                new SwitchFeature(DiffWeakenFeature.INSTANCE,
+                    new Case(longConst(0), longConst(-6000)),
+                    new Case(longConst(1), longConst(2000000)),
+                    new Case(inftyConst(), inftyConst())));
+            bindRuleSet(d, "invariant_diff",
+                     ifZero(PostDiffStrengthFeature.INSTANCE,
+                            longConst(-4000),
+                            ifZero(DiffWeakenFeature.INSTANCE,
+                                   inftyConst(),
+                                   DLOptionBean.INSTANCE.getDiffSat().compareTo(DiffSat.DIFF)>=0
+                                   ? // re-evaluate feature at least after diffstrengthen
+                                       longConst(800000)
+                                   : // only directly check diffind
+                                       new SwitchFeature(HypotheticalProvabilityFeature.INSTANCE,
+                                         new Case(longConst(0), longConst(-4000)),
+                                         new Case(longConst(1), longConst(20000)),
+                                         new Case(inftyConst(), inftyConst()))
+                            )));
+        } else {
+            bindRuleSet(d, "invariant_diff", inftyConst());
+            bindRuleSet(d, "invariant_weaken", inftyConst());
+        }
+
+        if (DLOptionBean.INSTANCE.getDiffSat().compareTo(DiffSat.DIFF)>=0) {
+            bindRuleSet(d, "invariant_strengthen",
+                    ifZero(PostDiffStrengthFeature.INSTANCE,
+                            inftyConst(),             // strengthening augmentation validity proofs seems useless
+                            ifZero(DiffWeakenFeature.INSTANCE,
+                                    inftyConst(),     // never instantiate when cheaper rule successful
+                                    longConst(8000)   // go on try to instantiate, except when tabooed
+                            )));
+        } else {
+            bindRuleSet(d, "invariant_strengthen", inftyConst());
+        }
     }
 
 
@@ -427,41 +442,44 @@ public class DLStrategy extends AbstractFeatureStrategy {
      * @author ap
      */
     private void setupDiffSatInstantiationStrategy(final RuleSetDispatchFeature d) {
-        if (!DLOptionBean.INSTANCE.isUseDiffSAT()) {
+        if (DLOptionBean.INSTANCE.getDiffSat().compareTo(DiffSat.DIFF)>=0) {
+            final TermBuffer augInst = new TermBuffer();
+            final RuleAppBuffer buffy = new RuleAppBuffer();
+            bindRuleSet(d, "invariant_strengthen",
+                    ifZero(storeRuleApp(buffy,
+                            not(sum(augInst, DiffIndCandidates.INSTANCE,
+                                    add(buffy,
+                                        instantiate("augment", augInst),
+                                        not(new DiffSatFeature(augInst))
+                                    )
+                            ))),
+                            longConst(-1000),
+                            inftyConst()
+                    ));
+        } else {
             bindRuleSet(d, "invariant_strengthen", inftyConst());
-            return;
         }
-        final TermBuffer augInst = new TermBuffer();
-        final RuleAppBuffer buffy = new RuleAppBuffer();
-        bindRuleSet(d, "invariant_strengthen",
-                ifZero(storeRuleApp(buffy,
-                        not(sum(augInst, DiffIndCandidates.INSTANCE,
-                                add(buffy,
-                                    instantiate("augment", augInst),
-                                    not(new DiffSatFeature(augInst))
-                                )
-                        ))),
-                        longConst(-1000),
-                        inftyConst()
-                ));
-        final RuleAppBuffer buffy2 = new RuleAppBuffer();
-        bindRuleSet(d, "loop_invariant_proposal",
-                storeRuleApp(buffy2,
-                ifZero(add(instantiate("inv", instOf("post")),
-                           openCurrentRuleApp(HypotheticalProvabilityFeature.INSTANCE)
-                        ),
-                       longConst(-2000),
-                       ifZero(
-                               not(sum(augInst, DiffIndCandidates.INSTANCE,
-                                       add(buffy2,
-                                           instantiate("inv", augInst),
-                                           not(openCurrentRuleApp(HypotheticalProvabilityFeature.INSTANCE))
-                                       )
-                               )),
-                               longConst(-1000),
-                               inftyConst()  //@todo use large constant instead to try at least
-                       )
-                )));
+        if (DLOptionBean.INSTANCE.getDiffSat().compareTo(DiffSat.AUTO)>=0) {
+            final TermBuffer augInst = new TermBuffer();
+            final RuleAppBuffer buffy = new RuleAppBuffer();
+            bindRuleSet(d, "loop_invariant_proposal",
+                    storeRuleApp(buffy,
+                    ifZero(add(instantiate("inv", instOf("post")),
+                               openCurrentRuleApp(HypotheticalProvabilityFeature.INSTANCE)
+                            ),
+                           longConst(-2000),
+                           ifZero(
+                                   not(sum(augInst, DiffIndCandidates.INSTANCE,
+                                           add(buffy,
+                                               instantiate("inv", augInst),
+                                               not(openCurrentRuleApp(HypotheticalProvabilityFeature.INSTANCE))
+                                           )
+                                   )),
+                                   longConst(-1000),
+                                   inftyConst()  //@todo use large constant instead to try at least
+                           )
+                    )));
+        }
     }
 
     public Name name() {
@@ -589,7 +607,7 @@ public class DLStrategy extends AbstractFeatureStrategy {
         }
         public Strategy create(Proof p_proof,
                 StrategyProperties strategyProperties, boolean stopOnFirstCE,
-                Collection<Name> taboo) {
+                Set<Name> taboo) {
             return new DLStrategy(p_proof, stopOnFirstCE, taboo);
         }
 

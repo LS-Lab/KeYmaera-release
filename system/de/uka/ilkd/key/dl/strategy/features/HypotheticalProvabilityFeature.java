@@ -24,7 +24,10 @@ package de.uka.ilkd.key.dl.strategy.features;
 
 import java.rmi.RemoteException;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.WeakHashMap;
 
 import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
@@ -63,6 +66,8 @@ import de.uka.ilkd.key.util.Debug;
  * depending on whether the hypothetical proof works out.
  * 
  * @author ap
+ * @todo reuse hypothetical proof for doing rule applications in main proof
+ * @todo iteratively increase timeout
  */
 public class HypotheticalProvabilityFeature implements Feature {
 
@@ -201,7 +206,7 @@ public class HypotheticalProvabilityFeature implements Feature {
      * @param taboo which rules are not to be used (tabu) during the hypothetical proof. 
      * @return
      */
-    static Proof newHypotheticalProofFor(Proof context, Sequent seq, Collection<Name> taboo) {
+    static Proof newHypotheticalProofFor(Proof context, Sequent seq, java.util.Set<Name> taboo) {
         // new proof with settings like goal.proof() but goal as its
         // only goal
         Proof hypothetic = new Proof(new Name("hypothetic"), context, seq);
@@ -235,7 +240,7 @@ public class HypotheticalProvabilityFeature implements Feature {
      */
     public static HypotheticalProvability provable(Proof context, Sequent problem,
             int maxsteps, long timeout,
-            Collection<Name> taboo) {
+            Set<Name> taboo) {
         // continue hypothetic proof to see if it closes/has
         // counterexamples
         return provable(newHypotheticalProofFor(context, problem, taboo), maxsteps, timeout);
@@ -317,6 +322,11 @@ public class HypotheticalProvabilityFeature implements Feature {
         // counterexamples
         return provable(hypothetic, maxsteps, timeout);
     }
+    
+    
+    // background proving engine
+    
+    private static Collection<HypothesizeThread> running = new LinkedHashSet<HypothesizeThread>(10);
 
     /**
      * Determines whether the given proof can finally be closed/disproven/times
@@ -333,6 +343,9 @@ public class HypotheticalProvabilityFeature implements Feature {
         HypothesizeThread hypothesizer = new HypothesizeThread(hypothesis,
                 maxsteps,
                 timeout);
+        synchronized(running) {
+          running.add(hypothesizer);
+        }
         try {
             hypothesizer.start();
             try {
@@ -361,7 +374,28 @@ public class HypotheticalProvabilityFeature implements Feature {
             if (hypothesizer != null && hypothesizer.isAlive()) {
                 hypothesizer.giveUp = true;
                 hypothesizer.interrupt();
+                synchronized(running) {
+                    //@internal this synch is a bit pessimistic
+                    running.remove(hypothesizer);
+                }
                 hypothesizer = null;
+            }
+        }
+    }
+    
+    /**
+     * Attempts to stop all running HypotheticalProvabilityFeature threads.
+     */
+    public static void stop() {
+        Collection<HypothesizeThread> copy;
+        synchronized(running) {
+            copy = new LinkedHashSet<HypothesizeThread>(running);
+        }
+        for (HypothesizeThread hypothesizer : copy) {
+            if (hypothesizer != null && hypothesizer.isAlive()) {
+                hypothesizer.giveUp = true;
+                hypothesizer.interrupt();
+                running.remove(hypothesizer);
             }
         }
     }

@@ -25,6 +25,8 @@ import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import de.uka.ilkd.key.dl.strategy.features.HypotheticalProvabilityFeature;
+import de.uka.ilkd.key.dl.strategy.features.HypotheticalProvabilityFeature.HypotheticalProvability;
 import de.uka.ilkd.key.gui.KeYMediator;
 import de.uka.ilkd.key.gui.Main;
 
@@ -51,6 +53,7 @@ public class AbortBridge extends Thread {
     }
 
     public void stopAutomode() {
+        HypotheticalProvabilityFeature.stop();
         KeYMediator mediator = Main.getInstance().mediator();
         if (mediator.autoMode()) {
             mediator.stopAutoMode();
@@ -77,7 +80,7 @@ public class AbortBridge extends Thread {
                 }
             } catch (IOException e) {
                 // TODO Auto-generated catch block
-                e.printStackTrace();
+                //e.printStackTrace();
             }
         }
     }

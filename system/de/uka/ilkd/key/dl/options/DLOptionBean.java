@@ -62,6 +62,26 @@ public class DLOptionBean implements Settings {
         }
     }
 
+    public static enum DiffSat {
+        OFF("off"), SIMPLE("simple"), DIFF("diffauto"), AUTO("auto");
+
+        private String string;
+
+        private DiffSat(String str) {
+            this.string = str;
+        }
+
+        /*
+         * (non-Javadoc)
+         * 
+         * @see java.lang.Enum#toString()
+         */
+        @Override
+        public String toString() {
+            return string;
+        }
+    }
+
     public static enum InvariantRule {
         QUANTIFIERS("loop_inv_box_quan");
 
@@ -131,7 +151,7 @@ public class DLOptionBean implements Settings {
 
     private static final String DLOPTIONS_QUANTIFIER_ELIMINATOR = "[DLOptions]quantifierEliminator";
 
-    private static final String DLOPTIONS_SIMPLFIER = "[DLOptions]simplfier";
+    private static final String DLOPTIONS_SIMPLIFIER = "[DLOptions]simplifier";
 
     private static final String DLOPTIONS_APPLY_GAMMA_RULES = "[DLOptions]applyGammaRules";
 
@@ -141,7 +161,7 @@ public class DLOptionBean implements Settings {
 
     private static final String DLOPTIONS_INVARIANT_RULE = "[DLOptions]invariantRule";
 
-    private static final String DLOPTIONS_USE_DIFF_SAT = "[DLOptions]useDiffSAT";
+    private static final String DLOPTIONS_USE_DIFF_SAT = "[DLOptions]DiffSat";
 
     private Set<Settings> subOptions;
 
@@ -175,7 +195,7 @@ public class DLOptionBean implements Settings {
 
     private boolean stopAtFO;
 
-    private boolean useDiffSAT;
+    private DiffSat diffSatStrategy;
 
     private String counterExampleGenerator;
 
@@ -210,7 +230,7 @@ public class DLOptionBean implements Settings {
         applyGammaRules = ApplyRules.NEVER;
         useFindInstanceTest = true;
         invariantRule = InvariantRule.QUANTIFIERS;
-        useDiffSAT = false;
+        diffSatStrategy = DiffSat.OFF;
 
         listeners = new HashSet<SettingsListener>();
     }
@@ -402,7 +422,7 @@ public class DLOptionBean implements Settings {
         if (quantifierEliminator == null) {
             quantifierEliminator = "";
         }
-        simplifier = props.getProperty(DLOPTIONS_SIMPLFIER);
+        simplifier = props.getProperty(DLOPTIONS_SIMPLIFIER);
         if (simplifier == null) {
             simplifier = "";
         }
@@ -417,7 +437,7 @@ public class DLOptionBean implements Settings {
         }
         property = props.getProperty(DLOPTIONS_USE_DIFF_SAT);
         if (property != null) {
-            useDiffSAT = Boolean.valueOf(property);
+            diffSatStrategy = DiffSat.valueOf(property);
         }
     }
 
@@ -469,13 +489,13 @@ public class DLOptionBean implements Settings {
                     quantifierEliminator);
         }
         if (simplifier != null) {
-            props.setProperty(DLOPTIONS_SIMPLFIER, simplifier);
+            props.setProperty(DLOPTIONS_SIMPLIFIER, simplifier);
         }
 
         props.setProperty(DLOPTIONS_APPLY_GAMMA_RULES, applyGammaRules.name());
         props.setProperty(DLOPTIONS_INVARIANT_RULE, invariantRule.name());
 
-        props.setProperty(DLOPTIONS_USE_DIFF_SAT, Boolean.toString(useDiffSAT));
+        props.setProperty(DLOPTIONS_USE_DIFF_SAT, diffSatStrategy.name());
     }
 
     public void addSubOptionBean(Settings sub) {
@@ -759,15 +779,15 @@ public class DLOptionBean implements Settings {
     /**
      * @return the useDiffSAT
      */
-    public boolean isUseDiffSAT() {
-        return useDiffSAT;
+    public DiffSat getDiffSat() {
+        return diffSatStrategy;
     }
 
     /**
      * @param useDiffSAT the useDiffSAT to set
      */
-    public void setUseDiffSAT(boolean useDiffSAT) {
-        this.useDiffSAT = useDiffSAT;
+    public void setDiffSat(DiffSat useDiffSAT) {
+        this.diffSatStrategy = useDiffSAT;
         firePropertyChanged();
     }
 

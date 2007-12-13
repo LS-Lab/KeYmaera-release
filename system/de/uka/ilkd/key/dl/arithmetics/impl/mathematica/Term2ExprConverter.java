@@ -208,7 +208,7 @@ public class Term2ExprConverter implements ExprConstants {
                     mergedQuant[0] = new Expr(LIST, allVariables);
                     mergedQuant[1] = kernel;
                     Expr expr = new Expr(EXISTS, mergedQuant);
-                    assert equalsTranslateBack(expr, new Expr(FORALL, newArgs));
+                    assert equalsTranslateBack(expr, new Expr(FORALL, newArgs)) : "backtranslation identity";
                     return expr;
                 } else {
                     return new Expr(EXISTS, newArgs);
@@ -233,6 +233,7 @@ public class Term2ExprConverter implements ExprConstants {
         System.arraycopy(expr.args()[0].args(), 1, vars, 0, vars.length);
         Expr newExpr = new Expr(FORALL, new Expr[] { new Expr(LIST, new Expr[] {var}),
                 new Expr(FORALL, new Expr[] { new Expr(LIST, vars), form }) });
+        assert newExpr.equals(expr2) : "backtranslation of " + expr + " is " + newExpr + ", which equals " + expr2;
         return newExpr
                 .equals(expr2);
     }

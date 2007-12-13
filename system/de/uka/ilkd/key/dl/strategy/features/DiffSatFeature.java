@@ -27,6 +27,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.WeakHashMap;
 
 import de.uka.ilkd.key.dl.model.DLStatementBlock;
@@ -87,10 +88,9 @@ public class DiffSatFeature implements Feature {
     /**
      * List of rules which are taboo during a hypothetical provability check for DiffSat.
      */
-    private static final Collection<Name> taboo = new LinkedHashSet<Name>(Arrays.asList(new Name[] {
+    private static final Set<Name> taboo = new LinkedHashSet<Name>(Arrays.asList(new Name[] {
             new Name("diffstrengthen"),
             new Name("diffweaken")
-            //@todo diffweaken since not reasonable?
     }));
 
     /**
