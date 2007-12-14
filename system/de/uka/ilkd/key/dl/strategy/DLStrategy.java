@@ -20,7 +20,6 @@
 
 package de.uka.ilkd.key.dl.strategy;
 
-import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
@@ -94,6 +93,7 @@ import de.uka.ilkd.key.strategy.termProjection.AssumptionProjection;
 import de.uka.ilkd.key.strategy.termProjection.TermBuffer;
 
 /**
+ * Strategy for proving dL formulas with hybrid programs.
  * @author jdq
  * @author ap
  */
@@ -570,7 +570,7 @@ public class DLStrategy extends AbstractFeatureStrategy {
             if (DLOptionBean.INSTANCE.isStopAtFO()) {
                 return true;
             }
-            if (DLOptionBean.INSTANCE.isUseFindInstanceTest()) {
+            if (stopOnFirstCE || DLOptionBean.INSTANCE.isUseFindInstanceTest()) {
                 CounterExample cached = getFirstInCacheUntilBranch(goal.node(),
                         ceCache);
                 if (cached != null) {

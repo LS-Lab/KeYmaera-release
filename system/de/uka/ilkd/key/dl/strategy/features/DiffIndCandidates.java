@@ -118,7 +118,7 @@ public class DiffIndCandidates implements TermGenerator {
      * @param services
      * @return
      */
-    private List<Term> indCandidates(Sequent seq, PosInOccurrence pos, Term currentInvariant, Services services) {
+    protected List<Term> indCandidates(Sequent seq, PosInOccurrence pos, Term currentInvariant, Services services) {
         Term term = pos.subTerm();
         final Update update = Update.createUpdate(term);
         // unbox from update prefix
@@ -136,36 +136,10 @@ public class DiffIndCandidates implements TermGenerator {
         final DLProgram program = (DLProgram) ((StatementBlock) term
                 .javaBlock().program()).getChildAt(0);
         // compute dependency relation
-        final Map<ProgramVariable, LinkedHashSet<ProgramVariable>> dep = DependencyStateGenerator
-                .generateDependencyMap(program).getDependencies();
-        for (Map.Entry<ProgramVariable, LinkedHashSet<ProgramVariable>> s : dep.entrySet()) {
-            if (!s.getValue().contains(s.getKey())) {
-               // System.out.println("WARNING: " + "dependency of x'=5 should be reflexive. Hence " + s.getKey() + " contained in " + s.getValue());
-                s.getValue().add(s.getKey());
-                assert s.getValue().contains(s.getKey()) : "dependency of x'=5 should be reflexive. Hence " + s.getKey() + " contained in " + s.getValue();
-            }
-        }
-        final Map<ProgramVariable, LinkedHashSet<ProgramVariable>> tdep = DependencyStateGenerator
-                .createTransitiveClosure(dep);
-        for (Map.Entry<ProgramVariable, LinkedHashSet<ProgramVariable>> s : tdep.entrySet()) {
-            if (!s.getValue().contains(s.getKey())) {
-                //System.out.println("WARNING: " + "transitive dependency of x'=5 should be reflexive. Hence " + s.getKey() + " contained in " + s.getValue());
-                s.getValue().add(s.getKey());
-                assert s.getValue().contains(s.getKey()) : "transitive dependency of x'=5 should be reflexive. Hence " + s.getKey() + " contained in " + s.getValue();
-            }
-        }
-        // modified variables MV(system)
-        Set<ProgramVariable>  modifieds = new LinkedHashSet<ProgramVariable>();
-        for (ProgramVariable s : tdep.keySet()) {
-            modifieds.add(s);
-        }
-        modifieds = Collections.unmodifiableSet(modifieds);
-        // free variables FV(system)
-        Set<ProgramVariable>  frees = new LinkedHashSet<ProgramVariable>();
-        for (LinkedHashSet<ProgramVariable> s : tdep.values()) {
-            //@todo frees.addAll(modifieds) as well?
-            frees.addAll(s);
-        }
+        final Map<ProgramVariable, LinkedHashSet<ProgramVariable>> dep = computeDependencies(program);
+        final Map<ProgramVariable, LinkedHashSet<ProgramVariable>> tdep = computeTranstitiveDependencies(dep);
+        final Set<ProgramVariable> modifieds = getModifiedVariables(tdep);
+        Set<ProgramVariable> frees = getFreeVariables(tdep);
         if (!frees.containsAll(modifieds)) {
             System.out.println( "WARNING: dependency of x'=5 should be reflexive. Hence modifieds " + modifieds + " contained in frees " + frees);
             frees.addAll(modifieds);
@@ -173,31 +147,14 @@ public class DiffIndCandidates implements TermGenerator {
         }
         frees = Collections.unmodifiableSet(frees);
 
-        // compare variables according to number of dependencies
-        Comparator<de.uka.ilkd.key.dl.model.ProgramVariable> dependencyComparator = new Comparator<de.uka.ilkd.key.dl.model.ProgramVariable>() {
-
-            @Override
-            public int compare(de.uka.ilkd.key.dl.model.ProgramVariable o1,
-                    de.uka.ilkd.key.dl.model.ProgramVariable o2) {
-                int size = tdep.get(o1).size();
-                int size2 = tdep.get(o2).size();
-                if (size == size2) {
-                    return o1.getElementName().toString().compareTo(
-                            o2.getElementName().toString());
-                } else {
-                    return size - size2;
-                }
-            }
-
-        };
-        
         // find candidates
         final Set<Term> possibles = getMatchingCandidates(update, currentInvariant, seq, services);
         System.out.println("DiffInd POSSIBLES:  ....\n" + possibles);
         
         List<Term> result = new LinkedList<Term>();
+        // compare variables according to number of dependencies
         PriorityQueue<de.uka.ilkd.key.dl.model.ProgramVariable> depOrder = new PriorityQueue<de.uka.ilkd.key.dl.model.ProgramVariable>(
-                tdep.size() + 1, dependencyComparator);
+                tdep.size() + 1, dependencyComparator(tdep));
         depOrder.addAll(tdep.keySet());
         while (!depOrder.isEmpty()) {
             // min is the minimal element, i.e. the element which depends on the
@@ -221,15 +178,19 @@ public class DiffIndCandidates implements TermGenerator {
             }
             depOrder.removeAll(cluster);
         }
+        // remove trivial candidates
         result.remove(tb.ff());
         result.remove(tb.tt());
         return result;
     }
-
+    
+    //
+    
     /**
-     * Get all possibly matching formulas, regardless of their form.
-     * @param seq
-     * @param system
+     * Get all possibly matching formulas, regardless of their actual form.
+     * @param update the update characterising the state at which to determine candidates. 
+     * @param currentInvariant the current known invariant, which holds but is not yet strong enough to imply post.
+     * @param seq the sequent for which we want to find candidates.
      * @return
      */
     private Set<Term> getMatchingCandidates(Update update, Term currentInvariant, Sequent seq, Services services) {
@@ -261,8 +222,6 @@ public class DiffIndCandidates implements TermGenerator {
                     matches.add(equation);
             }
         }
-        if (false)
-            return matches;
         //@todo respect different update levels
         for (IteratorOfConstrainedFormula i = seq.antecedent().iterator(); i
                 .hasNext();) {
@@ -323,6 +282,88 @@ public class DiffIndCandidates implements TermGenerator {
         return matches;
     }
     
+    // helper methods
+
+    /**
+     * compare variables according to number of dependencies
+     */ 
+    private Comparator<de.uka.ilkd.key.dl.model.ProgramVariable> dependencyComparator(
+            final Map<ProgramVariable, LinkedHashSet<ProgramVariable>> tdep) {
+        Comparator<de.uka.ilkd.key.dl.model.ProgramVariable> dependencyComparator = new Comparator<de.uka.ilkd.key.dl.model.ProgramVariable>() {
+            @Override
+            public int compare(de.uka.ilkd.key.dl.model.ProgramVariable o1,
+                    de.uka.ilkd.key.dl.model.ProgramVariable o2) {
+                int size = tdep.get(o1).size();
+                int size2 = tdep.get(o2).size();
+                if (size == size2) {
+                    return o1.getElementName().toString().compareTo(
+                            o2.getElementName().toString());
+                } else {
+                    return size - size2;
+                }
+            }
+        };
+        return dependencyComparator;
+    }
+
+    /**
+     * Determine free variables set from dependency relation
+     */
+    private Set<ProgramVariable> getFreeVariables(
+            final Map<ProgramVariable, LinkedHashSet<ProgramVariable>> tdep) {
+        // free variables FV(system)
+        Set<ProgramVariable>  frees = new LinkedHashSet<ProgramVariable>();
+        for (LinkedHashSet<ProgramVariable> s : tdep.values()) {
+            //@todo frees.addAll(modifieds) as well?
+            frees.addAll(s);
+        }
+        return frees;
+    }
+
+    /**
+     * Determine modified variables set from dependency relation
+     */
+    private Set<ProgramVariable> getModifiedVariables(
+            final Map<ProgramVariable, LinkedHashSet<ProgramVariable>> tdep) {
+        // modified variables MV(system)
+        Set<ProgramVariable>  modifieds = new LinkedHashSet<ProgramVariable>();
+        for (ProgramVariable s : tdep.keySet()) {
+            modifieds.add(s);
+        }
+        modifieds = Collections.unmodifiableSet(modifieds);
+        return modifieds;
+    }
+
+    private Map<ProgramVariable, LinkedHashSet<ProgramVariable>> computeTranstitiveDependencies(
+            final Map<ProgramVariable, LinkedHashSet<ProgramVariable>> dep) {
+        final Map<ProgramVariable, LinkedHashSet<ProgramVariable>> tdep = DependencyStateGenerator
+                .createTransitiveClosure(dep);
+        for (Map.Entry<ProgramVariable, LinkedHashSet<ProgramVariable>> s : tdep.entrySet()) {
+            if (!s.getValue().contains(s.getKey())) {
+                //System.out.println("WARNING: " + "transitive dependency of x'=5 should be reflexive. Hence " + s.getKey() + " contained in " + s.getValue());
+                s.getValue().add(s.getKey());
+                assert s.getValue().contains(s.getKey()) : "transitive dependency of x'=5 should be reflexive. Hence " + s.getKey() + " contained in " + s.getValue();
+            }
+        }
+        return tdep;
+    }
+
+    private Map<ProgramVariable, LinkedHashSet<ProgramVariable>> computeDependencies(
+            final DLProgram program) {
+        final Map<ProgramVariable, LinkedHashSet<ProgramVariable>> dep = DependencyStateGenerator
+                .generateDependencyMap(program).getDependencies();
+        for (Map.Entry<ProgramVariable, LinkedHashSet<ProgramVariable>> s : dep.entrySet()) {
+            if (!s.getValue().contains(s.getKey())) {
+               // System.out.println("WARNING: " + "dependency of x'=5 should be reflexive. Hence " + s.getKey() + " contained in " + s.getValue());
+                s.getValue().add(s.getKey());
+                assert s.getValue().contains(s.getKey()) : "dependency of x'=5 should be reflexive. Hence " + s.getKey() + " contained in " + s.getValue();
+            }
+        }
+        return dep;
+    }
+    
+    // more general helpers
+
     /**
      * projection to programvariables
      * @param s
