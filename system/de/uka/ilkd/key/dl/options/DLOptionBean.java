@@ -63,7 +63,7 @@ public class DLOptionBean implements Settings {
     }
 
     public static enum DiffSat {
-        OFF("off"), SIMPLE("simple"), DIFF("diffauto"), AUTO("auto");
+        BLIND("blind"), OFF("off"), SIMPLE("simple"), DIFF("diffauto"), AUTO("auto");
 
         private String string;
 

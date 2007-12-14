@@ -20,7 +20,6 @@
 
 package de.uka.ilkd.key.dl.strategy;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
@@ -91,7 +90,6 @@ import de.uka.ilkd.key.strategy.feature.SimplifyReplaceKnownCandidateFeature;
 import de.uka.ilkd.key.strategy.feature.SumFeature;
 import de.uka.ilkd.key.strategy.feature.TermSmallerThanFeature;
 import de.uka.ilkd.key.strategy.feature.instantiator.RuleAppBuffer;
-import de.uka.ilkd.key.strategy.quantifierHeuristics.HeuristicInstantiation;
 import de.uka.ilkd.key.strategy.termProjection.AssumptionProjection;
 import de.uka.ilkd.key.strategy.termProjection.TermBuffer;
 
@@ -100,6 +98,8 @@ import de.uka.ilkd.key.strategy.termProjection.TermBuffer;
  * @author ap
  */
 public class DLStrategy extends AbstractFeatureStrategy {
+
+    private final Feature vetoF;
 
     private final Feature completeF;
 
@@ -131,8 +131,6 @@ public class DLStrategy extends AbstractFeatureStrategy {
         this(p_proof, false);
     }
 
-    private Set<Name> taboo;
-
     /**
      * 
      * @param p_proof
@@ -141,22 +139,7 @@ public class DLStrategy extends AbstractFeatureStrategy {
      *  Otherwise, branches without counterexamples are still worked on even though the overall proof cannot close. 
      */
     protected DLStrategy(Proof p_proof, boolean stopOnFirstCE) {
-        this(p_proof, stopOnFirstCE, Collections.EMPTY_SET);
-    }
-    /**
-     * DLStrategy with tabus, i.e., certain rule which will never be applied nor tried under no circumstances whatsoever.
-     * @author ap
-     * @see "TabooSearch"
-     * @param p_proof
-     * @param stopOnFirstCE
-     * @param taboo the list of rule names that are tabu, i.e., will never be applied nor tried at all.
-     */
-    protected DLStrategy(Proof p_proof, boolean stopOnFirstCE, Set<Name> taboo) {
         super(p_proof);
-        if (taboo == null) {
-            throw new NullPointerException("Invalid taboo list " + taboo);
-        }
-        this.taboo = taboo;
         this.stopOnFirstCE = stopOnFirstCE;
 
         final RuleSetDispatchFeature d = RuleSetDispatchFeature.create();
@@ -350,6 +333,8 @@ public class DLStrategy extends AbstractFeatureStrategy {
         final Feature noQuantifierInstantition = ifZero(
                 ConstraintStrengthenFeatureUC.create(p_proof), inftyConst());
 
+        vetoF = duplicateF;
+
         completeF = SumFeature
                 .createSum(new Feature[] { AutomatedRuleFeature.INSTANCE,
                         NotWithinMVFeature.INSTANCE, simplifierF, duplicateF,
@@ -358,7 +343,7 @@ public class DLStrategy extends AbstractFeatureStrategy {
                         eliminateQuantifier, findInstanceRule,
                         noQuantifierInstantition });
 
-        approvalF = duplicateF;
+        approvalF = setupApprovalF(p_proof);
         
         instantiationF = setupInstantiationF(p_proof);
     }
@@ -368,7 +353,7 @@ public class DLStrategy extends AbstractFeatureStrategy {
      * @author ap
      */
     private void setupDiffSatStrategy(final RuleSetDispatchFeature d) {
-        if (DLOptionBean.INSTANCE.getDiffSat() == DiffSat.OFF) {
+        if (DLOptionBean.INSTANCE.getDiffSat() == DiffSat.BLIND) {
             bindRuleSet(d, "invariant_diff", inftyConst());
             bindRuleSet(d, "invariant_weaken", inftyConst());
             bindRuleSet(d, "invariant_strengthen", inftyConst());
@@ -384,7 +369,8 @@ public class DLStrategy extends AbstractFeatureStrategy {
             bindRuleSet(d, "invariant_weaken",
                 new SwitchFeature(DiffWeakenFeature.INSTANCE,
                     new Case(longConst(0), longConst(-6000)),
-                    new Case(longConst(1), longConst(2000000)),
+                    // reject if it doesn't help, but retry costs
+                    new Case(longConst(1), longConst(5000)),
                     new Case(inftyConst(), inftyConst())));
             bindRuleSet(d, "invariant_diff",
                      ifZero(PostDiffStrengthFeature.INSTANCE,
@@ -393,11 +379,13 @@ public class DLStrategy extends AbstractFeatureStrategy {
                                    inftyConst(),
                                    DLOptionBean.INSTANCE.getDiffSat().compareTo(DiffSat.DIFF)>=0
                                    ? // re-evaluate feature at least after diffstrengthen
-                                       longConst(800000)
+                                       // reject if it doesn't help, but retry costs
+                                       longConst(6000)
                                    : // only directly check diffind
                                        new SwitchFeature(HypotheticalProvabilityFeature.INSTANCE,
                                          new Case(longConst(0), longConst(-4000)),
-                                         new Case(longConst(1), longConst(20000)),
+                                         // reject if it doesn't help, but retry costs
+                                         new Case(longConst(1), longConst(6000)),
                                          new Case(inftyConst(), inftyConst()))
                             )));
         } else {
@@ -411,7 +399,7 @@ public class DLStrategy extends AbstractFeatureStrategy {
                             inftyConst(),             // strengthening augmentation validity proofs seems useless
                             ifZero(DiffWeakenFeature.INSTANCE,
                                     inftyConst(),     // never instantiate when cheaper rule successful
-                                    longConst(8000)   // go on try to instantiate, except when tabooed
+                                    longConst(10000)   // go on try to instantiate, except when tabooed
                             )));
         } else {
             bindRuleSet(d, "invariant_strengthen", inftyConst());
@@ -482,6 +470,47 @@ public class DLStrategy extends AbstractFeatureStrategy {
         }
     }
 
+    ////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////
+    //
+    // Feature terms that handle the approval of complete taclet applications
+    //
+    ////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////
+
+    private Feature setupApprovalF(Proof p_proof) {
+        final RuleSetDispatchFeature d = RuleSetDispatchFeature.create ();
+        setupDiffSatApprovalStrategy( d );
+        return d;
+    }
+
+    /**
+     * DiffSat approval strategy.
+     * @author ap
+     */
+    private void setupDiffSatApprovalStrategy(final RuleSetDispatchFeature d) {
+        if (DLOptionBean.INSTANCE.getDiffSat().compareTo(DiffSat.SIMPLE)>=0) {
+            bindRuleSet(d, "invariant_weaken",
+                    new SwitchFeature(DiffWeakenFeature.INSTANCE,
+                        new Case(longConst(0), longConst(-6000)),
+                        // reject if it doesn't help, but retry costs
+                        new Case(longConst(1), inftyConst()),
+                        new Case(inftyConst(), inftyConst())));
+            bindRuleSet(d, "invariant_diff",
+                     ifZero(PostDiffStrengthFeature.INSTANCE,
+                            longConst(-4000),
+                            ifZero(DiffWeakenFeature.INSTANCE,
+                                   inftyConst(),
+                                   // only directly check diffind
+                                   new SwitchFeature(HypotheticalProvabilityFeature.INSTANCE,
+                                         new Case(longConst(0), longConst(-4000)),
+                                        // reject if it doesn't help, but retry costs
+                                         new Case(longConst(1), inftyConst()),
+                                         new Case(inftyConst(), inftyConst()))
+                            )));
+        }
+    }    
+    
     public Name name() {
         return new Name("DLStrategy");
     }
@@ -532,7 +561,7 @@ public class DLStrategy extends AbstractFeatureStrategy {
      * false if there is no veto against app such that it could be applied (depending on its cost).
      */
     protected boolean veto(RuleApp app, PosInOccurrence pio, Goal goal) {
-        if (blockAllRules || taboo.contains(app.rule().name())) {
+        if (blockAllRules) {
             return true;
         }
         if (((foCache.containsKey(goal.node()) && foCache.get(goal.node()) == FirstOrder.FO) || FOSequence.INSTANCE
@@ -561,7 +590,7 @@ public class DLStrategy extends AbstractFeatureStrategy {
         } else {
             foCache.put(goal.node(), FirstOrder.NOT_FO);
         }
-        return false;
+        return (vetoF.compute(app, pio, goal) instanceof TopRuleAppCost);
     }
 
     /**
@@ -608,7 +637,7 @@ public class DLStrategy extends AbstractFeatureStrategy {
         public Strategy create(Proof p_proof,
                 StrategyProperties strategyProperties, boolean stopOnFirstCE,
                 Set<Name> taboo) {
-            return new DLStrategy(p_proof, stopOnFirstCE, taboo);
+            return new TabooDLStrategy(p_proof, stopOnFirstCE, taboo);
         }
 
         public Name name() {

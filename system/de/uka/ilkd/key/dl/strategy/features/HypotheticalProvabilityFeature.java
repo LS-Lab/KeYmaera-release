@@ -23,12 +23,16 @@
 package de.uka.ilkd.key.dl.strategy.features;
 
 import java.rmi.RemoteException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
+
+import orbital.util.Pair;
 
 import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
 import de.uka.ilkd.key.dl.options.DLOptionBean;
@@ -41,6 +45,7 @@ import de.uka.ilkd.key.logic.Sequent;
 import de.uka.ilkd.key.pp.PosInSequent;
 import de.uka.ilkd.key.proof.Goal;
 import de.uka.ilkd.key.proof.IGoalChooser;
+import de.uka.ilkd.key.proof.IteratorOfGoal;
 import de.uka.ilkd.key.proof.ListOfGoal;
 import de.uka.ilkd.key.proof.Node;
 import de.uka.ilkd.key.proof.Proof;
@@ -310,7 +315,7 @@ public class HypotheticalProvabilityFeature implements Feature {
         if (!app.complete()) {
             // completing incomplete rule application
             app = completeRuleApp(hgoal, (TacletApp) app, pos, hgoal.proof()
-                    .getActiveStrategy());
+                    .getActiveStrategy(), true);
             if (app == null || !app.complete()) {
                 throw new IllegalArgumentException("incompletable rule application\n" + app);
             }
@@ -328,6 +333,8 @@ public class HypotheticalProvabilityFeature implements Feature {
     
     private static Collection<HypothesizeThread> running = new LinkedHashSet<HypothesizeThread>(10);
 
+    private static Map<List<Sequent>, HypotheticalProvability> provableRuleCache = new WeakHashMap<List<Sequent>, HypotheticalProvability>();
+
     /**
      * Determines whether the given proof can finally be closed/disproven/times
      * out.
@@ -340,6 +347,11 @@ public class HypotheticalProvabilityFeature implements Feature {
      */
     private static HypotheticalProvability provable(Proof hypothesis,
             int maxsteps, long timeout) {
+        final List<Sequent> initialIndex = cacheIndex(hypothesis);
+        final HypotheticalProvability cached = provableRuleCache.get(initialIndex);
+        if (cached != null) {
+            return cached;
+        }
         HypothesizeThread hypothesizer = new HypothesizeThread(hypothesis,
                 maxsteps,
                 timeout);
@@ -350,7 +362,21 @@ public class HypotheticalProvabilityFeature implements Feature {
             hypothesizer.start();
             try {
                 hypothesizer.join(timeout);
-                return hypothesizer.getResult();
+                HypotheticalProvability result = hypothesizer.getResult();
+                switch (result) {
+                case TIMEOUT:
+                case UNKNOWN:
+                    break;
+                case PROVABLE:
+                case DISPROVABLE:
+                    provableRuleCache.put(initialIndex, result);
+                    break;
+                case ERROR:
+                    break;
+                default:
+                    throw new AssertionError("all cases known " + result);
+                }
+                return result;
             } catch (InterruptedException e) {
                 try {
                     MathSolverManager.getCurrentQuantifierEliminator()
@@ -383,6 +409,15 @@ public class HypotheticalProvabilityFeature implements Feature {
         }
     }
     
+    private static List<Sequent> cacheIndex(Proof hypothesis) {
+        //@todo could switch to Set representations of sequents and sequent sets to make independent of order
+        List<Sequent> open = new ArrayList<Sequent>(hypothesis.openGoals().size()+1);
+        for (IteratorOfGoal i = hypothesis.openGoals().iterator(); i.hasNext(); ) {
+            open.add(i.next().sequent());
+        }
+        return open;
+    }
+
     /**
      * Attempts to stop all running HypotheticalProvabilityFeature threads.
      */
@@ -453,17 +488,18 @@ public class HypotheticalProvabilityFeature implements Feature {
      * Create a <code>RuleApp</code> that is suitable to be applied or
      * <code>null</code>.
      * 
+     * @param forced whether to force the rule application for strategic tests (i.e., strategic approval failures should not have any effect).
      * @see TacletAppContainer#completeRuleApp
      */
     static RuleApp completeRuleApp(Goal p_goal, TacletApp app,
-            PosInOccurrence pio, Strategy strategy) {
+            PosInOccurrence pio, Strategy strategy, boolean forced) {
         // if ( !isStillApplicable ( p_goal ) )
         // return null;
         //    
         // if ( !ifFormulasStillValid ( p_goal ) )
         // return null;
 
-        if (!strategy.isApprovedApp(app, pio, p_goal))
+        if (!forced && !strategy.isApprovedApp(app, pio, p_goal))
             return null;
 
         if (pio != null) {
@@ -553,6 +589,7 @@ public class HypotheticalProvabilityFeature implements Feature {
             } catch (AssertionError e) {
                 result = HypotheticalProvability.ERROR;
                 System.out.println("Error during hypothetic proof " + e);
+                e.printStackTrace();
                 throw e;
             } finally {
                 Debug.out("HYPO: finished " + getResult());
