@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -31,6 +32,8 @@ import java.util.PriorityQueue;
 import java.util.Set;
 
 import orbital.util.Setops;
+import de.uka.ilkd.key.dl.formulatools.Prog2LogicConverter;
+import de.uka.ilkd.key.dl.formulatools.ReplacementSubst;
 import de.uka.ilkd.key.dl.model.DLProgram;
 import de.uka.ilkd.key.dl.model.DiffSystem;
 import de.uka.ilkd.key.dl.model.NamedElement;
@@ -148,7 +151,7 @@ public class DiffIndCandidates implements TermGenerator {
         frees = Collections.unmodifiableSet(frees);
 
         // find candidates
-        final Set<Term> possibles = getMatchingCandidates(update, currentInvariant, seq, services);
+        final Set<Term> possibles = getMatchingCandidates(update, currentInvariant, seq, services, modifieds);
         System.out.println("DiffInd POSSIBLES:  ....\n" + possibles);
         
         List<Term> result = new LinkedList<Term>();
@@ -193,63 +196,68 @@ public class DiffIndCandidates implements TermGenerator {
      * @param seq the sequent for which we want to find candidates.
      * @return
      */
-    private Set<Term> getMatchingCandidates(Update update, Term currentInvariant, Sequent seq, Services services) {
+    private Set<Term> getMatchingCandidates(Update update, Term currentInvariant, Sequent seq, Services services, Set<ProgramVariable> modifieds) {
         //@todo need to conside possible generation renamings by update
+        final ReplacementSubst revert = revertStateChange(update, services, modifieds);
+        System.out.println("REVERT " + revert);
         Set<Term> invariant = splitConjuncts(currentInvariant);
         //System.out.println("  INVARIANT " + invariant + " of " + system.getInvariant() + " of " + system);
+
         Set<Term> matches = new LinkedHashSet<Term>();
         ArrayOfAssignmentPair asss = update.getAllAssignmentPairs();
         for (int i = 0; i < asss.size(); i++) {
             AssignmentPair ass = asss.getAssignmentPair(i);
             Term x = ass.locationAsTerm();
             assert x.arity()==0 : "only works for atomic locations";
+            //@todo assert namespaces.unique
             x = tb.var((de.uka.ilkd.key.logic.op.ProgramVariable)services.getNamespaces().programVariables().lookup(ass.location().name()));
             Term t = ass.value();
             //System.out.println(x + "@" + x.getClass());
+            // turn single update into equation
             //@todo if x occurs in t then can't do that without alpha-renaming stuff
-            Term equation = tb.equals(x, t);
-            if (!invariant.contains(equation)) {
-                //System.out.println("\tnew " + equation + " for " + invariant);
-                boolean found = false;
-                for (Term inv : invariant) {
-                    if (inv.toString().equals(equation.toString())) {
-                        //System.out.println(" WARNING: identical printout with different representation " + equation + " and " + inv);
-                        //@xxx string comparison is a hack
-                        found = true;
-                    }
-                }
-                if (!found)
+            Term equation = tb.equals(x, revert.apply(t));
+            if (!containsConjunct(invariant, equation)) {
                     matches.add(equation);
             }
         }
         //@todo respect different update levels
         for (IteratorOfConstrainedFormula i = seq.antecedent().iterator(); i
                 .hasNext();) {
-            ConstrainedFormula cf = i.next();
-            if (!invariant.contains(cf.formula())) {
-                matches.add(cf.formula());
+            final ConstrainedFormula cf = i.next();
+            Term fml = cf.formula();
+            //@todo if fml contains both a key and a value of revert.getReplacements then skip 
+            fml = revert.apply(fml);
+            if (FOSequence.INSTANCE.isFOFormula(fml) && !containsConjunct(invariant, fml)) {
+                matches.add(fml);
             }
         }
         return matches;
     }
 
     /**
-     * Splits a formula along all its conjunctions into a set of its conjuncts.
-     * @param form
-     * @return
+     * Determines the update state reversals of update. 
      */
-    private Set<Term> splitConjuncts(Term form) {
-        Set<Term> conjuncts = new LinkedHashSet<Term>();
-        if (form.op() == Junctor.AND) {
-            for (int i = 0; i < form.arity(); i++) {
-                conjuncts.addAll(splitConjuncts(form.sub(i)));
-            }
-        } else {
-            conjuncts.add(form);
+    private ReplacementSubst revertStateChange(Update update, Services services, Set<ProgramVariable> modifieds) {
+        Map<Term,Term> undos = new HashMap<Term,Term>();
+        ArrayOfAssignmentPair asss = update.getAllAssignmentPairs();
+        Set<de.uka.ilkd.key.logic.op.ProgramVariable> modifieds2 = Prog2LogicConverter.getCorresponding(modifieds, services);
+        for (int i = 0; i < asss.size(); i++) {
+            AssignmentPair ass = asss.getAssignmentPair(i);
+            Term x = ass.locationAsTerm();
+            assert x.arity()==0 : "only works for atomic locations";
+            //@todo assert namespaces.unique
+            de.uka.ilkd.key.logic.op.ProgramVariable xvar = (de.uka.ilkd.key.logic.op.ProgramVariable)services.getNamespaces().programVariables().lookup(ass.location().name());
+            if (!modifieds2.contains(xvar))
+                continue;
+            x = tb.var(xvar);
+            Term t = ass.value();
+            if (t.arity() > 0)
+                continue;
+            undos.put(t,x);
         }
-        return conjuncts;
+        return ReplacementSubst.create(undos);
     }
-    
+
     /**
      * Select those candidates that have a promising form.
      * @param seq
@@ -284,6 +292,41 @@ public class DiffIndCandidates implements TermGenerator {
     
     // helper methods
 
+    private boolean containsConjunct(Set<Term> set, Term formula) {
+        if (set.contains(formula)) {
+            return true;
+        }
+        for (Term inv : set) {
+            if (inv.toString().equals(formula.toString())) {
+                //@todo assert namespaces.unique
+                //System.out.println(" WARNING: identical printout with different representation " + equation + " and " + inv);
+                //@xxx string comparison is a hack
+                return true;
+            }
+        }
+        return false;
+    }
+    private boolean containsConjunct(Term conjuncts, Term formula) {
+        return containsConjunct(splitConjuncts(conjuncts), formula);
+    }
+
+    /**
+     * Splits a formula along all its conjunctions into a set of its conjuncts.
+     * @param form
+     * @return
+     */
+    private Set<Term> splitConjuncts(Term form) {
+        Set<Term> conjuncts = new LinkedHashSet<Term>();
+        if (form.op() == Junctor.AND) {
+            for (int i = 0; i < form.arity(); i++) {
+                conjuncts.addAll(splitConjuncts(form.sub(i)));
+            }
+        } else {
+            conjuncts.add(form);
+        }
+        return conjuncts;
+    }
+    
     /**
      * compare variables according to number of dependencies
      */ 
