@@ -21,7 +21,7 @@ import de.uka.ilkd.key.rule.inst.SVInstantiations;
 
 
 /**
- *  Ensures that the given formula is a valid first order one
+ *  Ensures that the given formula is a well-formed first-order formula
  *  @author jdq
  */
 public class FirstOrderCondition extends VariableConditionAdapter {

@@ -220,6 +220,7 @@ public class Prog2LogicConverter extends AbstractMetaOperator {
         } else if (form instanceof Variable) {
             Name elementName = ((Variable) form).getElementName();
             if (form instanceof de.uka.ilkd.key.dl.model.ProgramVariable) {
+                //@todo assert namespaces.unique because of dangerous name equality
                 de.uka.ilkd.key.logic.op.ProgramVariable var;
                 var = (de.uka.ilkd.key.logic.op.ProgramVariable) services
                         .getNamespaces().programVariables().lookup(elementName);

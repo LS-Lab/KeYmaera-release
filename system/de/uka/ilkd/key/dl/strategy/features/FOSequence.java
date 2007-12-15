@@ -39,11 +39,12 @@ import de.uka.ilkd.key.strategy.TopRuleAppCost;
 import de.uka.ilkd.key.strategy.feature.Feature;
 
 /**
- * TODO jdq documentation
+ * Checks whether formulas are first-order formulas, respectively sequents purely consist
+ * of first-order formulas. 
  * 
  * @author jdq
  * @since 20.02.2007
- * 
+ * @todo undo this slowish synchronization stuff after thinking about it properly
  */
 public class FOSequence extends Visitor implements Feature {
 
@@ -97,8 +98,8 @@ public class FOSequence extends Visitor implements Feature {
     }
 
     /**
-     * This function tests wether the given operator is a common first order
-     * one.
+     * This function tests whether the given operator is a common first-order
+     * logical operator.
      * 
      * @param op
      *            the operator to test

@@ -240,10 +240,13 @@ public class ReplaceVisitor {
                 }
             }
         } else if (form.op() instanceof LogicVariable) {
+            //@todo assert namespaces.unique
             return tf.createLogicalVariable(form.op().name().toString());
         } else if (form.op() instanceof de.uka.ilkd.key.logic.op.ProgramVariable) {
+            //@todo assert namespaces.unique
             return tf.createProgramVariable(form.op().name().toString());
         } else if (form.op() instanceof Metavariable) {
+            //@todo assert namespaces.unique
             return tf.createMetaVariable(form.op().name().toString());
         }
 

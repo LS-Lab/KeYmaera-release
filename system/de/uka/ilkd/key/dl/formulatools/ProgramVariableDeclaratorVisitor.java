@@ -78,6 +78,7 @@ public class ProgramVariableDeclaratorVisitor extends Visitor {
                 if (childAt instanceof de.uka.ilkd.key.dl.model.ProgramVariable) {
                     de.uka.ilkd.key.dl.model.ProgramVariable v = (de.uka.ilkd.key.dl.model.ProgramVariable) childAt;
                     NamespaceSet namespaces = nss;
+                    //@todo assert namespaces.unique
                     de.uka.ilkd.key.logic.op.ProgramVariable kv = (ProgramVariable) namespaces
                             .programVariables().lookup(v.getElementName());
                     if (kv == null) {
