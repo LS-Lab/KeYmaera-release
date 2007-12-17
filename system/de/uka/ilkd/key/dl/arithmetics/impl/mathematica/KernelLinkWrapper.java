@@ -231,6 +231,13 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
             testForError(link);
             link.discardAnswer();
             testForError(link);
+            
+            // Now we redefine the run commands for security reasons.
+            link.newPacket();
+            testForError(link);
+            link.evaluate(" ClearAttributes[Run,Protected];Run:=$Failed;ClearAttributes[RunThrough,Protected];RunThrough:=$Failed;");
+            link.discardAnswer();
+            testForError(link);
             log(Level.FINE, "Awaiting connections from other hosts...");
         } catch (MathLinkException e) {
             log(Level.WARNING, "Could not initialise math link", e);
