@@ -66,8 +66,7 @@ public class FindInstanceTest implements Feature {
         try {
             thread.join(TIMEOUT);
         } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            System.out.println("Interrupted FindInstanceTest");
         }
         if (thread.result == Result.CE_FOUND) {
             return TopRuleAppCost.INSTANCE;

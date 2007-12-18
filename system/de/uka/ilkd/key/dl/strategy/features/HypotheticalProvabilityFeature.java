@@ -23,6 +23,7 @@
 package de.uka.ilkd.key.dl.strategy.features;
 
 import java.rmi.RemoteException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -38,7 +39,9 @@ import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
 import de.uka.ilkd.key.dl.options.DLOptionBean;
 import de.uka.ilkd.key.dl.rules.UnknownProgressRule;
 import de.uka.ilkd.key.dl.strategy.DLStrategy;
+import de.uka.ilkd.key.gui.KeYMediator;
 import de.uka.ilkd.key.gui.Main;
+import de.uka.ilkd.key.gui.ReuseListener;
 import de.uka.ilkd.key.logic.Name;
 import de.uka.ilkd.key.logic.PosInOccurrence;
 import de.uka.ilkd.key.logic.Sequent;
@@ -155,7 +158,10 @@ public class HypotheticalProvabilityFeature implements Feature {
         System.out.println("HYPO: " + app.rule().name());
         HypotheticalProvability result = provable(app, pos, goal,
                 MAX_HYPOTHETICAL_RULE_APPLICATIONS, timeout);
-        System.out.println("HYPO: " + app.rule().name() + " " + result);
+        System.out.println("HYPO: " + app.rule().name() + " " + result + "\t" + 
+                (result == HypotheticalProvability.PROVABLE 
+                 ? SimpleDateFormat.getTimeInstance().format(System.currentTimeMillis())
+                 : ""));
         switch (result) {
         case PROVABLE:
             return PROVABLE_COST;
@@ -359,10 +365,11 @@ public class HypotheticalProvabilityFeature implements Feature {
           running.add(hypothesizer);
         }
         try {
+            HypotheticalProvability result;
             hypothesizer.start();
             try {
                 hypothesizer.join(timeout);
-                HypotheticalProvability result = hypothesizer.getResult();
+                result = hypothesizer.getResult();
                 switch (result) {
                 case TIMEOUT:
                 case UNKNOWN:
@@ -378,6 +385,7 @@ public class HypotheticalProvabilityFeature implements Feature {
                 }
                 return result;
             } catch (InterruptedException e) {
+                result = HypotheticalProvability.TIMEOUT;
                 try {
                     MathSolverManager.getCurrentQuantifierEliminator()
                             .abortCalculation();
@@ -395,7 +403,7 @@ public class HypotheticalProvabilityFeature implements Feature {
                     hypothesizer.interrupt();
                 }
             }
-            return hypothesizer.getResult();
+            return result;
         } finally {
             if (hypothesizer != null && hypothesizer.isAlive()) {
                 hypothesizer.giveUp = true;
@@ -543,6 +551,8 @@ public class HypotheticalProvabilityFeature implements Feature {
 
         private final long timeout;
 
+        private KeYMediator mediator;
+        
         private Proof hypothesis;
 
         private IGoalChooser goalChooser;
@@ -560,7 +570,8 @@ public class HypotheticalProvabilityFeature implements Feature {
             this.result = HypotheticalProvability.UNKNOWN;
             this.timeout = timeout;
             this.hypothesis = hypothesis;
-            this.goalChooser = Main.getInstance().mediator().getProfile()
+            this.mediator = Main.getInstance().mediator();
+            this.goalChooser = mediator.getProfile()
                     .getSelectedGoalChooserBuilder().create();
             this.goalChooser.init(hypothesis, hypothesis.openGoals());
             this.maxApplications = maxsteps;
@@ -574,7 +585,7 @@ public class HypotheticalProvabilityFeature implements Feature {
         @Override
         public void run() {
             try {
-                result = proofEngine();
+                this.result = proofEngine();
                 Debug.out("HYPO: regular end " + getResult());
             } catch (NullPointerException e) {
                 result = HypotheticalProvability.ERROR;
@@ -607,11 +618,15 @@ public class HypotheticalProvabilityFeature implements Feature {
          * applies rules that are chosen by the active strategy
          * 
          * @return true iff a rule has been applied, false otherwise
+         * @see ProofStarter#applyAutomaticRule()
+         * @see ApplyStrategy#applyAutomaticRule()
          */
-        private boolean applyAutomaticRule() {
+        private boolean applyAutomaticRule() throws InterruptedException {
             // Look for the strategy ...
             RuleApp app = null;
             Goal g;
+            ReuseListener rl = mediator.getReuseListener();
+            //@todo could also use reuses as in ApplyStrategy rather than just producing them
             while ((g = goalChooser.getNextGoal()) != null) {
                 app = g.getRuleAppManager().next();
 
@@ -620,13 +635,22 @@ public class HypotheticalProvabilityFeature implements Feature {
                     goalChooser.removeGoal(g);
                 else
                     break;
+                if (Thread.interrupted())
+                    throw new InterruptedException();
             }
             assert g != null || app == null : "no chosen goal implies no rule app";  
             if (app == null) {
                 return false;
             }
+            final ListOfGoal subgoals = apply(g, app);
+            // keep track of and promote reuses
+            // deactivated as not yet usable by the main prover strategy
+            /*rl.removeRPConsumedGoal(g);
+            rl.addRPOldMarkersNewGoals(subgoals);
+            */
+            
             if (g != null) {
-                goalChooser.updateGoalList(g.node(), apply(g, app));
+                goalChooser.updateGoalList(g.node(), subgoals);
             }
             return true;
         }

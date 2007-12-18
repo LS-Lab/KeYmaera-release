@@ -106,7 +106,7 @@ public class VariableDeclarationImpl extends DLNonTerminalProgramElementImpl
      *      de.uka.ilkd.key.java.reference.ExecutionContext)
      */
     public String reuseSignature(Services services, ExecutionContext ec) {
-        StringBuilder builder = new StringBuilder();
+        /*StringBuilder builder = new StringBuilder();
         String space ="";
         for(ProgramElement pe: this) {
             if(pe instanceof ReuseableProgramElement) {
@@ -114,7 +114,9 @@ public class VariableDeclarationImpl extends DLNonTerminalProgramElementImpl
                 space = " ";
             }
         }
-        return builder.toString();
+        return builder.toString();*/
+        // all variable declarations are essentially equivalent and the program effect doesn't really depend on it
+        return "VariableDeclaration";
     }
 
 }

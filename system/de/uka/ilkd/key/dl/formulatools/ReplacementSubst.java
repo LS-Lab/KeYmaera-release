@@ -31,6 +31,7 @@ public class ReplacementSubst {
               public Term apply(Term t) {
                   return t;
               }
+              public String toString() {return "<empty>";}
             };
         } else {
             return new ReplacementSubst(replacements);

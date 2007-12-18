@@ -367,14 +367,17 @@ public class DLStrategy extends AbstractFeatureStrategy {
 
         if (DLOptionBean.INSTANCE.getDiffSat().compareTo(DiffSat.SIMPLE)>=0) {
             bindRuleSet(d, "invariant_weaken",
+                    ifZero(ODESolvableFeature.INSTANCE,
+                            inftyConst(),
                 new SwitchFeature(DiffWeakenFeature.INSTANCE,
                     new Case(longConst(0), longConst(-6000)),
                     // reject if it doesn't help, but retry costs
                     new Case(longConst(1), longConst(5000)),
-                    new Case(inftyConst(), inftyConst())));
+                    new Case(inftyConst(), inftyConst()))));
             bindRuleSet(d, "invariant_diff",
                      ifZero(PostDiffStrengthFeature.INSTANCE,
                             longConst(-4000),
+                          ifZero(ODESolvableFeature.INSTANCE,inftyConst(),
                             ifZero(DiffWeakenFeature.INSTANCE,
                                    inftyConst(),
                                    DLOptionBean.INSTANCE.getDiffSat().compareTo(DiffSat.DIFF)>=0
@@ -387,7 +390,7 @@ public class DLStrategy extends AbstractFeatureStrategy {
                                          // reject if it doesn't help, but retry costs
                                          new Case(longConst(1), longConst(6000)),
                                          new Case(inftyConst(), inftyConst()))
-                            )));
+                            ))));
         } else {
             bindRuleSet(d, "invariant_diff", inftyConst());
             bindRuleSet(d, "invariant_weaken", inftyConst());
@@ -397,10 +400,12 @@ public class DLStrategy extends AbstractFeatureStrategy {
             bindRuleSet(d, "invariant_strengthen",
                     ifZero(PostDiffStrengthFeature.INSTANCE,
                             inftyConst(),             // strengthening augmentation validity proofs seems useless
+                            ifZero(ODESolvableFeature.INSTANCE,
+                                    inftyConst(),
                             ifZero(DiffWeakenFeature.INSTANCE,
                                     inftyConst(),     // never instantiate when cheaper rule successful
                                     longConst(10000)   // go on try to instantiate, except when tabooed
-                            )));
+                            ))));
         } else {
             bindRuleSet(d, "invariant_strengthen", inftyConst());
         }

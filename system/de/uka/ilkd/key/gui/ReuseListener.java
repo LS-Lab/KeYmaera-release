@@ -16,7 +16,7 @@ import de.uka.ilkd.key.proof.Node;
 import de.uka.ilkd.key.proof.reuse.ReusePoint;
 
 
-interface ReuseListener extends KeYSelectionListener {
+public interface ReuseListener extends KeYSelectionListener {
 
    
 
