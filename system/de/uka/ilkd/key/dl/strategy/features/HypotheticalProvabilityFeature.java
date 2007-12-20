@@ -26,26 +26,23 @@ import java.rmi.RemoteException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
 
-import orbital.util.Pair;
-
 import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
 import de.uka.ilkd.key.dl.options.DLOptionBean;
 import de.uka.ilkd.key.dl.rules.UnknownProgressRule;
 import de.uka.ilkd.key.dl.strategy.DLStrategy;
+import de.uka.ilkd.key.gui.ApplyStrategy;
 import de.uka.ilkd.key.gui.KeYMediator;
 import de.uka.ilkd.key.gui.Main;
 import de.uka.ilkd.key.gui.ReuseListener;
 import de.uka.ilkd.key.logic.Name;
 import de.uka.ilkd.key.logic.PosInOccurrence;
 import de.uka.ilkd.key.logic.Sequent;
-import de.uka.ilkd.key.pp.PosInSequent;
 import de.uka.ilkd.key.proof.Goal;
 import de.uka.ilkd.key.proof.IGoalChooser;
 import de.uka.ilkd.key.proof.IteratorOfGoal;
@@ -63,6 +60,7 @@ import de.uka.ilkd.key.strategy.TacletAppContainer;
 import de.uka.ilkd.key.strategy.TopRuleAppCost;
 import de.uka.ilkd.key.strategy.feature.Feature;
 import de.uka.ilkd.key.util.Debug;
+import de.uka.ilkd.key.visualdebugger.ProofStarter;
 
 /**
  * Or-branching Timeout Strategy for testing provability of subgoals within a
