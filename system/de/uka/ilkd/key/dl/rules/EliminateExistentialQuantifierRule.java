@@ -42,6 +42,7 @@ import de.uka.ilkd.key.dl.arithmetics.exceptions.UnsolveableException;
 import de.uka.ilkd.key.dl.formulatools.ContainsMetaVariableVisitor;
 import de.uka.ilkd.key.dl.formulatools.SkolemfunctionTracker;
 import de.uka.ilkd.key.dl.formulatools.TermRewriter;
+import de.uka.ilkd.key.dl.formulatools.TermTools;
 import de.uka.ilkd.key.dl.formulatools.ContainsMetaVariableVisitor.Result;
 import de.uka.ilkd.key.dl.formulatools.TermRewriter.Match;
 import de.uka.ilkd.key.dl.options.DLOptionBean;
@@ -315,9 +316,9 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
             Set<Term> findSkolemSymbols = findSkolemSymbols(g.sequent()
                     .iterator());
 
-            Term antecendent = createJunctorTermNAry(TermBuilder.DF.tt(),
+            Term antecendent = TermTools.createJunctorTermNAry(TermBuilder.DF.tt(),
                     Op.AND, g.sequent().antecedent().iterator(), commonAnte);
-            Term succendent = createJunctorTermNAry(TermBuilder.DF.ff(), Op.OR,
+            Term succendent = TermTools.createJunctorTermNAry(TermBuilder.DF.ff(), Op.OR,
                     g.sequent().succedent().iterator(), commonSucc);
             Set<Match> matches = new HashSet<Match>();
             List<LogicVariable> vars = new ArrayList<LogicVariable>();
@@ -513,36 +514,7 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
         return displayName();
     }
 
-    /**
-     * Explicit n-ary-fied version of {@link
-     * de.uka.ilkd.logic.TermFactory#createJunctorTerm(Junctor,Term[])}.
-     * 
-     * @see orbital.logic.functor.Functionals#foldRight
-     * @internal almost identical to
-     * @see #createJunctorTermNAry(Term,Junctor,IteratorOfTerm)
-     */
-    private static final Term createJunctorTermNAry(Term c, Junctor op,
-            IteratorOfConstrainedFormula i, Set<Term> skip) {
-        Term construct = c;
-        while (i.hasNext()) {
-            ConstrainedFormula f = i.next();
-            Term t = f.formula();
-            if (!skip.contains(t)) {
-                // ignore tautological constraints, since they do not contribute
-                // to
-                // the specification
-                // but report others
-                if (!f.constraint().isBottom())
-                    throw new IllegalArgumentException(
-                            "there is a non-tautological constraint on " + f
-                                    + ". lower constraints, first");
-                construct = TermFactory.DEFAULT.createJunctorTermAndSimplify(
-                        op, construct, t);
-            }
-        }
-        return construct;
-    }
-
+ 
     /**
      * @return the unsolvable
      */

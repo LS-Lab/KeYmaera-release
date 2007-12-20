@@ -25,6 +25,8 @@ package de.uka.ilkd.key.dl.arithmetics.impl.mathematica;
 import java.math.BigDecimal;
 import java.rmi.RemoteException;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 
 import com.wolfram.jlink.Expr;
 
@@ -40,6 +42,8 @@ import de.uka.ilkd.key.logic.op.LogicVariable;
 import de.uka.ilkd.key.logic.op.Metavariable;
 import de.uka.ilkd.key.logic.op.Op;
 import de.uka.ilkd.key.logic.op.Quantifier;
+import de.uka.ilkd.key.rule.updatesimplifier.ArrayOfAssignmentPair;
+import de.uka.ilkd.key.rule.updatesimplifier.AssignmentPair;
 
 /**
  * Converter for the Term to Expr transformation
@@ -244,5 +248,23 @@ public class Term2ExprConverter implements ExprConstants {
         assert newExpr.equals(expr2) : "backtranslation of " + expr + " is "
                 + newExpr + ", which equals " + expr2;
         return newExpr.equals(expr2);
+    }
+
+    public static Expr update2Expr(de.uka.ilkd.key.rule.updatesimplifier.Update update) {
+        List<Expr> rewrites = new LinkedList<Expr>();
+        ArrayOfAssignmentPair asss = update.getAllAssignmentPairs();
+        for (int i = 0; i < asss.size(); i++) {
+            AssignmentPair ass = asss.getAssignmentPair(i);
+            Term x = ass.locationAsTerm();
+            assert x.arity()==0 : "only works for atomic locations";
+            Term t = ass.value();
+            rewrites.add(new Expr(RULE,
+                    new Expr[] {
+                        convert2Expr(x), convert2Expr(t)
+            }));
+        }
+        return new Expr(LIST,
+                rewrites.toArray(new Expr[rewrites.size()])
+                );
     }
 }

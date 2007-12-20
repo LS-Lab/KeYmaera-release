@@ -324,4 +324,10 @@ public class Mathematica implements ICounterExampleGenerator, IODESolver,
     throws RemoteException, SolverException {
         return reduce(form, new LinkedList<String>(), quantifiers);
     }
+
+    @Override
+    public String findTransition(Term initial, Term modalForm)
+            throws RemoteException, SolverException {
+        return bridge.findTransition(initial, modalForm);
+    }
 }

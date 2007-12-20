@@ -126,6 +126,24 @@ public interface IMathematicaDLBridge extends Remote {
             SolverException;
 
     /**
+     * Tries to find a transition within the program of modalForm from a state satisfying initial
+     * to a state satisfying postcondition of modalForm.
+     * 
+     * @param initial first-order formula characterising initial state
+     * @param modalForm Modal formula <p>F characterising transition system p and reachability question F.
+     *  Possibly, <p>F is prefixed with an update giving {U}<p>F.
+     * @return true if successfully found a transition from initial via U and p to F,
+     *  or false for unknown. 
+     * @throws RemoteException
+     * @throws UnsolveableException
+     * @throws ConnectionProblemException
+     * @throws ServerStatusProblemException
+     * 
+     */
+    public String findTransition(Term initial, Term modalForm) throws RemoteException,
+            SolverException;
+
+    /**
      * Abort the current calculation. Or the next one started.
      */
     public void abortCalculation() throws RemoteException;

@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -51,18 +52,28 @@ import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.UnsolveableException;
 import de.uka.ilkd.key.dl.arithmetics.impl.mathematica.IKernelLinkWrapper.ExprAndMessages;
 import de.uka.ilkd.key.dl.formulatools.VariableCollector;
+import de.uka.ilkd.key.dl.logic.ldt.RealLDT;
 import de.uka.ilkd.key.dl.model.DLNonTerminalProgramElement;
+import de.uka.ilkd.key.dl.model.DLProgram;
 import de.uka.ilkd.key.dl.model.DiffSystem;
 import de.uka.ilkd.key.dl.model.Dot;
 import de.uka.ilkd.key.dl.model.ProgramVariable;
 import de.uka.ilkd.key.gui.Main;
 import de.uka.ilkd.key.java.ProgramElement;
+import de.uka.ilkd.key.java.StatementBlock;
+import de.uka.ilkd.key.logic.JavaBlock;
 import de.uka.ilkd.key.logic.Name;
+import de.uka.ilkd.key.logic.Named;
 import de.uka.ilkd.key.logic.NamespaceSet;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.TermBuilder;
 import de.uka.ilkd.key.logic.op.LogicVariable;
+import de.uka.ilkd.key.logic.op.Modality;
+import de.uka.ilkd.key.logic.op.QuanUpdateOperator;
 import de.uka.ilkd.key.logic.op.SubstOp;
+import de.uka.ilkd.key.rule.updatesimplifier.ArrayOfAssignmentPair;
+import de.uka.ilkd.key.rule.updatesimplifier.AssignmentPair;
+import de.uka.ilkd.key.rule.updatesimplifier.Update;
 import de.uka.ilkd.key.util.Debug;
 
 /**
@@ -396,7 +407,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
      *                the variable used as time
      */
     public static final void collectDottedProgramVariables(ProgramElement form,
-            Map<String, Expr> vars, LogicVariable t) {
+            Map<String, Expr> vars, Named t) {
         if (form instanceof Dot) {
             ProgramVariable pv = (ProgramVariable) ((Dot) form).getChildAt(0);
             vars.put(pv.getElementName().toString(), new Expr(new Expr(
@@ -627,5 +638,68 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
             return resultTerm;
         }
         return form;
+    }
+
+    @Override
+    public String findTransition(Term initial, Term modalForm)
+            throws RemoteException, SolverException {
+        Term term = modalForm;
+        final de.uka.ilkd.key.rule.updatesimplifier.Update update = de.uka.ilkd.key.rule.updatesimplifier.Update.createUpdate(term);
+        // unbox from update prefix
+        if (term.op() instanceof QuanUpdateOperator) {
+            term = ((QuanUpdateOperator) term.op()).target(term);
+            if (term.op() instanceof QuanUpdateOperator)
+                throw new AssertionError("assume nested updates have been merged");
+        }
+        if (!(term.op() instanceof Modality
+                && term.javaBlock() != null
+                && term.javaBlock() != JavaBlock.EMPTY_JAVABLOCK
+                && term.javaBlock().program() instanceof StatementBlock)) {
+            throw new IllegalArgumentException("inapplicable to " + modalForm);
+        }
+        Term post = term.sub(0);
+        final DiffSystem system = (DiffSystem) ((StatementBlock) term
+                .javaBlock().program()).getChildAt(0);
+
+        //@todo fixme change this thingx
+        Named t = new LogicVariable(new Name("tmpts"),RealLDT.getRealSort());
+        
+        List<Expr> args = new ArrayList<Expr>();
+
+        Map<String, Expr> vars = new HashMap<String, Expr>();
+
+        collectDottedProgramVariables(system, vars, t);
+        Term invariant = system.getInvariant();
+        final Map<String, Expr> EMPTY = new HashMap<String, Expr>();
+        for (ProgramElement el : system.getDifferentialEquations()) {
+            args.add(DL2ExprConverter.convertDiffEquation(el, t, vars));
+        }
+        Expr loading = new Expr(new Expr(Expr.SYMBOL, "Needs"),
+                new Expr[] { new Expr(Expr.STRING, "AMC`"),
+                        new Expr(Expr.STRING, "~/AMC.m") });
+        Expr call = new Expr(new Expr(Expr.SYMBOL, "AMC`" + "IFindTransition"),
+                new Expr[] {
+                        Term2ExprConverter.convert2Expr(initial),
+                        Term2ExprConverter.update2Expr(update),
+                        new Expr(new Expr(Expr.SYMBOL, "List"), args
+                                .toArray(new Expr[1])),
+                        new Expr(Expr.SYMBOL, t.name().toString()),
+                        Term2ExprConverter.convert2Expr(invariant),
+                        Term2ExprConverter.convert2Expr(post)
+                      });
+        Expr query = new Expr(new Expr(Expr.SYMBOL, "CompoundExpression"),
+                new Expr[] { loading, call });
+        Expr result = evaluate(query).expression;
+
+        List<String> createFindInstanceString = createFindInstanceString(result);
+        Collections.sort(createFindInstanceString);
+        StringBuilder res = new StringBuilder();
+        for (String s : createFindInstanceString) {
+            res.append(s + "\n");
+        }
+        if (false && res.toString().contains("IFindTransition")) {
+            throw new UnsolveableException("Recursive counterexample " + res);
+        }
+        return res.toString();
     }
 }

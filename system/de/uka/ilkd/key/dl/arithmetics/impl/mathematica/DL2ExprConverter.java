@@ -45,6 +45,7 @@ import de.uka.ilkd.key.dl.model.Predicate;
 import de.uka.ilkd.key.dl.model.PredicateTerm;
 import de.uka.ilkd.key.dl.model.ProgramVariable;
 import de.uka.ilkd.key.java.ProgramElement;
+import de.uka.ilkd.key.logic.Named;
 import de.uka.ilkd.key.logic.op.LogicVariable;
 
 /**
@@ -69,7 +70,7 @@ public class DL2ExprConverter implements ExprConstants {
      *                the variables that are time dependend
      * @return the Expr representing the differential equation
      */
-    public static Expr convertDiffEquation(ProgramElement el, LogicVariable t,
+    public static Expr convertDiffEquation(ProgramElement el, Named t,
             Map<String, Expr> vars) {
         if (el instanceof Equals) {
             return EQUALS;
@@ -163,4 +164,5 @@ public class DL2ExprConverter implements ExprConstants {
         throw new IllegalArgumentException("Dont now how to translate: " + el
                 + "(" + el.getClass() + ")");
     }
+
 }

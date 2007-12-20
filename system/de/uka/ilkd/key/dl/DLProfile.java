@@ -26,6 +26,7 @@ import de.uka.ilkd.key.dl.rules.DLUpdateSimplifier;
 import de.uka.ilkd.key.dl.rules.DebugRule;
 import de.uka.ilkd.key.dl.rules.EliminateExistentialQuantifierRule;
 import de.uka.ilkd.key.dl.rules.FindInstanceRule;
+import de.uka.ilkd.key.dl.rules.FindTransitionRule;
 import de.uka.ilkd.key.dl.rules.ReduceRule;
 import de.uka.ilkd.key.dl.rules.VisualizationRule;
 import de.uka.ilkd.key.dl.strategy.DLStrategy;
@@ -128,7 +129,7 @@ public class DLProfile extends AbstractProfile {
     protected ListOfBuiltInRule initBuiltInRules() {
         ListOfBuiltInRule rule = super.initBuiltInRules().prepend(
                 ReduceRule.INSTANCE).prepend(getUpdateSimplificationRule())
-                .prepend(FindInstanceRule.INSTANCE).prepend(EliminateExistentialQuantifierRule.INSTANCE);
+                .prepend(FindInstanceRule.INSTANCE).prepend(EliminateExistentialQuantifierRule.INSTANCE).prepend(FindTransitionRule.INSTANCE);
         rule = rule.prepend(VisualizationRule.INSTANCE);
         if (Debug.ENABLE_DEBUG) {
             rule = rule.prepend(DebugRule.INSTANCE);

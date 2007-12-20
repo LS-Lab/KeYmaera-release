@@ -52,4 +52,22 @@ public interface ICounterExampleGenerator extends IMathSolver {
     public abstract String findInstance(Term form) throws RemoteException,
             SolverException;
 
+
+    /**
+     * Tries to find a transition within the program of modalForm from a state satisfying initial
+     * to a state satisfying postcondition of modalForm.
+     * 
+     * @param initial first-order formula characterising initial state
+     * @param modalForm Modal formula <p>F characterising transition system p and reachability question F.
+     *  Possibly, <p>F is prefixed with an update giving {U}<p>F.
+     * @return true if successfully found a transition from initial via U and p to F,
+     *  or false for unknown. 
+     * @throws RemoteException
+     * @throws UnsolveableException
+     * @throws ConnectionProblemException
+     * @throws ServerStatusProblemException
+     * 
+     */
+    public abstract String findTransition(Term initial, Term modalForm) throws RemoteException,
+            SolverException;
 }
