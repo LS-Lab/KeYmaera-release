@@ -55,14 +55,12 @@ import de.uka.ilkd.key.rule.Rule;
 import de.uka.ilkd.key.rule.RuleApp;
 
 /**
- * The FindInstance is a Built-In Rule that is applied to a whole sequence. It
- * is used by the DLProfile.
+ * The FindInstance is a Built-In Rule to test counterexamples for transition systems.
  * 
  * @author ap
  * @see de.uka.ilkd.key.proof.DLProfile
  */
-public class FindTransitionRule implements BuiltInRule,
-        RuleFilter {
+public class FindTransitionRule implements BuiltInRule, RuleFilter {
 
     public static final FindTransitionRule INSTANCE = new FindTransitionRule();
 
@@ -78,18 +76,23 @@ public class FindTransitionRule implements BuiltInRule,
         if (!MathSolverManager.isCounterExampleGeneratorSet()) {
             return false;
         }
+        if (pos == null) {
+            return false;
+        }
         Term term = pos.subTerm();
         // unbox from update prefix
-        while (term.op() instanceof QuanUpdateOperator) {
+        if (term.op() instanceof QuanUpdateOperator) {
             term = ((QuanUpdateOperator) term.op()).target(term);
+            if (term.op() instanceof QuanUpdateOperator)
+                // can't apply until nested updates have been merged
+                return false;
         }
         if (!(term.op() instanceof Modality && term.javaBlock() != null
                 && term.javaBlock() != JavaBlock.EMPTY_JAVABLOCK && term
                 .javaBlock().program() instanceof StatementBlock)) {
             return false;
         }
-        return ((StatementBlock) term
-                .javaBlock().program()).getChildAt(0) instanceof DiffSystem;
+        return ((StatementBlock) term.javaBlock().program()).getChildAt(0) instanceof DiffSystem;
     }
 
     /*
@@ -101,10 +104,10 @@ public class FindTransitionRule implements BuiltInRule,
     @SuppressWarnings("unchecked")
     public synchronized ListOfGoal apply(Goal goal, Services services,
             RuleApp ruleApp) {
-        IteratorOfConstrainedFormula it = goal.sequent().antecedent()
-                .iterator();
-        Term antecedent = TermTools.createJunctorTermNAry(TermBuilder.DF.tt(), Op.AND, it, Collections.EMPTY_SET);
-        // ignore succedent
+        Term antecedent = TermTools.createJunctorTermNAry(TermBuilder.DF.tt(),
+                Op.AND, goal.sequent().antecedent().iterator(),
+                Collections.EMPTY_SET);
+        // @todo ignore succedent?
 
         try {
             final String result = MathSolverManager

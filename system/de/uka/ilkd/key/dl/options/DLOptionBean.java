@@ -82,6 +82,20 @@ public class DLOptionBean implements Settings {
         }
     }
 
+    public static enum CounterexampleTest {
+        OFF("off"), ON("on"), TRANSITIONS("transitions");
+
+        private String string;
+
+        private CounterexampleTest(String str) {
+            this.string = str;
+        }
+        @Override
+        public String toString() {
+            return string;
+        }
+    }
+
     public static enum InvariantRule {
         QUANTIFIERS("loop_inv_box_quan");
 
@@ -155,7 +169,7 @@ public class DLOptionBean implements Settings {
 
     private static final String DLOPTIONS_APPLY_GAMMA_RULES = "[DLOptions]applyGammaRules";
 
-    private static final String DLOPTIONS_USE_FIND_INSTANCE_TEST = "[DLOptions]useFindInstanceTest";
+    private static final String DLOPTIONS_COUNTEREXAMPLE_TEST = "[DLOptions]counterexampleTest";
 
     private static final String DLOPTIONS_STOP_AT_FO = "[DLOptions]stopAtFO";
 
@@ -191,7 +205,7 @@ public class DLOptionBean implements Settings {
 
     private boolean applyUpdatesToModalities;
 
-    private boolean useFindInstanceTest;
+    private CounterexampleTest counterexampleTest;
 
     private boolean stopAtFO;
 
@@ -228,7 +242,7 @@ public class DLOptionBean implements Settings {
         quantifierEliminator = "";
         simplifier = "";
         applyGammaRules = ApplyRules.NEVER;
-        useFindInstanceTest = true;
+        counterexampleTest = CounterexampleTest.OFF;
         invariantRule = InvariantRule.QUANTIFIERS;
         diffSatStrategy = DiffSat.OFF;
 
@@ -399,9 +413,9 @@ public class DLOptionBean implements Settings {
         if (property != null) {
             applyUpdatesToModalities = property.equals(TRUE);
         }
-        property = props.getProperty(DLOPTIONS_USE_FIND_INSTANCE_TEST);
+        property = props.getProperty(DLOPTIONS_COUNTEREXAMPLE_TEST);
         if (property != null) {
-            useFindInstanceTest = property.equals(TRUE);
+            counterexampleTest = CounterexampleTest.valueOf(property);
         }
         property = props.getProperty(DLOPTIONS_STOP_AT_FO);
         if (property != null) {
@@ -473,8 +487,7 @@ public class DLOptionBean implements Settings {
                 normalizeEquations).toString());
         props.setProperty(DLOPTIONS_APPLY_UPDATES_TO_MODALITIES, new Boolean(
                 applyUpdatesToModalities).toString());
-        props.setProperty(DLOPTIONS_USE_FIND_INSTANCE_TEST, Boolean
-                .toString(useFindInstanceTest));
+        props.setProperty(DLOPTIONS_COUNTEREXAMPLE_TEST, counterexampleTest.name());
         props.setProperty(DLOPTIONS_STOP_AT_FO, Boolean.toString(stopAtFO));
 
         if (counterExampleGenerator != null) {
@@ -732,16 +745,16 @@ public class DLOptionBean implements Settings {
     /**
      * @return the useFindInstanceTest
      */
-    public boolean isUseFindInstanceTest() {
-        return useFindInstanceTest;
+    public CounterexampleTest getCounterexampleTest() {
+        return counterexampleTest;
     }
 
     /**
      * @param useFindInstanceTest
      *                the useFindInstanceTest to set
      */
-    public void setUseFindInstanceTest(boolean useFindInstanceTest) {
-        this.useFindInstanceTest = useFindInstanceTest;
+    public void setCounterexampleTest(CounterexampleTest t) {
+        this.counterexampleTest = t;
         firePropertyChanged();
     }
 

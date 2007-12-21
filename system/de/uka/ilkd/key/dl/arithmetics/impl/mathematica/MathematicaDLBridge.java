@@ -89,6 +89,10 @@ import de.uka.ilkd.key.util.Debug;
 public class MathematicaDLBridge extends UnicastRemoteObject implements
         IMathematicaDLBridge, ExprConstants {
 
+    private static final int CEX_TRANSITION_INSTANCES = 10;
+
+    private static final int TIME_HORIZON = 200;
+
     public static final String[] messageBlacklist = new String[] { "nsmet" };
 
     public static String mBlistString;
@@ -685,7 +689,15 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
                                 .toArray(new Expr[1])),
                         new Expr(Expr.SYMBOL, t.name().toString()),
                         Term2ExprConverter.convert2Expr(invariant),
-                        Term2ExprConverter.convert2Expr(post)
+                        Term2ExprConverter.convert2Expr(TermBuilder.DF.not(post)),
+                        new Expr(new Expr(Expr.SYMBOL, "Rule"), new Expr[] {
+                            new Expr(Expr.SYMBOL, "TimeHorizon"),
+                            new Expr(TIME_HORIZON)
+                        }),
+                        new Expr(new Expr(Expr.SYMBOL, "Rule"), new Expr[] {
+                            new Expr(Expr.SYMBOL, "Instances"),
+                            new Expr(CEX_TRANSITION_INSTANCES)
+                        })
                       });
         Expr query = new Expr(new Expr(Expr.SYMBOL, "CompoundExpression"),
                 new Expr[] { loading, call });
@@ -697,7 +709,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
         for (String s : createFindInstanceString) {
             res.append(s + "\n");
         }
-        if (false && res.toString().contains("IFindTransition")) {
+        if (res.toString().contains("IFindTransition")) {
             throw new UnsolveableException("Recursive counterexample " + res);
         }
         return res.toString();

@@ -33,6 +33,7 @@ import java.util.Set;
 import orbital.awt.TaggedPropertyEditorSupport;
 import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
 import de.uka.ilkd.key.dl.options.DLOptionBean.ApplyRules;
+import de.uka.ilkd.key.dl.options.DLOptionBean.CounterexampleTest;
 import de.uka.ilkd.key.dl.options.DLOptionBean.DiffSat;
 import de.uka.ilkd.key.dl.options.DLOptionBean.InvariantRule;
 
@@ -74,10 +75,10 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
                             "Whether to activate the Iterative Background Closure (IBC) strategy with the corresponding timeouts. Otherwise, call reduce when first-order",
                             false, true),
                     createDescriptor(
-                            "useFindInstanceTest",
-                            "use FindInstance test",
+                            "counterexampleTest",
+                            "quickly check for counterexamples",
                             "if enabled it will be checked if an counterexample can be found before trying to reduce",
-                            true, false),
+                            true, false, CounterexampleTestPropertyEditor.class),
                     createDescriptor(
                             "stopAtFO",
                             "stop strategy on first order goals",
@@ -307,6 +308,13 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
             super(getNames(ApplyRules.values()), ApplyRules.values());
         }
     }
+
+    public static class CounterexampleTestPropertyEditor extends
+    TaggedPropertyEditorSupport {
+public CounterexampleTestPropertyEditor() {
+    super(getNames(CounterexampleTest.values()), CounterexampleTest.values());
+}
+}
 
     public static class DiffSatPropertyEditor extends
             TaggedPropertyEditorSupport {

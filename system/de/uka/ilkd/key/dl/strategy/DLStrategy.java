@@ -27,6 +27,7 @@ import java.util.WeakHashMap;
 import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
 import de.uka.ilkd.key.dl.options.DLOptionBean;
 import de.uka.ilkd.key.dl.options.DLOptionBean.ApplyRules;
+import de.uka.ilkd.key.dl.options.DLOptionBean.CounterexampleTest;
 import de.uka.ilkd.key.dl.options.DLOptionBean.DiffSat;
 import de.uka.ilkd.key.dl.rules.DebugRule;
 import de.uka.ilkd.key.dl.rules.EliminateQuantifierRule;
@@ -41,6 +42,7 @@ import de.uka.ilkd.key.dl.strategy.features.DiffWeakenFeature;
 import de.uka.ilkd.key.dl.strategy.features.FOFormula;
 import de.uka.ilkd.key.dl.strategy.features.FOSequence;
 import de.uka.ilkd.key.dl.strategy.features.FindInstanceTest;
+import de.uka.ilkd.key.dl.strategy.features.FindTransitionTest;
 import de.uka.ilkd.key.dl.strategy.features.HypotheticalProvabilityFeature;
 import de.uka.ilkd.key.dl.strategy.features.KeYBeyondFO;
 import de.uka.ilkd.key.dl.strategy.features.LoopInvariantRuleDispatchFeature;
@@ -102,6 +104,8 @@ import de.uka.ilkd.key.strategy.termProjection.TermBuffer;
 public class DLStrategy extends AbstractFeatureStrategy {
 
     private final Feature vetoF;
+
+    private final Feature counterexampleF;
 
     private final Feature completeF;
 
@@ -341,6 +345,8 @@ public class DLStrategy extends AbstractFeatureStrategy {
 
         vetoF = duplicateF;
 
+        counterexampleF = FindTransitionTest.INSTANCE;
+
         completeF = SumFeature.createSum(new Feature[] {
                 AutomatedRuleFeature.INSTANCE, NotWithinMVFeature.INSTANCE,
                 simplifierF, duplicateF, ifMatchedF, d, AgeFeature.INSTANCE,
@@ -368,6 +374,16 @@ public class DLStrategy extends AbstractFeatureStrategy {
                     longConst(4000), inftyConst()));
         }
 
+        if (DLOptionBean.INSTANCE.getCounterexampleTest().compareTo(
+                CounterexampleTest.TRANSITIONS) >= 0) {
+            // @ don't try any diff rules if there is a counterexample
+            // transition
+            bindRuleSet(d, "diff_rule", FindTransitionTest.INSTANCE
+            // @todo report non-first-order counterexamples to
+            // foundCounterexample()
+            );
+        }
+
         if (DLOptionBean.INSTANCE.getDiffSat().compareTo(DiffSat.SIMPLE) >= 0) {
             bindRuleSet(d, "invariant_weaken", ifZero(
                     ODESolvableFeature.INSTANCE, inftyConst(),
@@ -390,16 +406,16 @@ public class DLStrategy extends AbstractFeatureStrategy {
                                             inftyConst(),
                                             DLOptionBean.INSTANCE.getDiffSat()
                                                     .compareTo(DiffSat.DIFF) >= 0 ? // re-evaluate
-                                                                                    // feature
-                                                                                    // at
-                                                                                    // least
-                                                                                    // after
-                                                                                    // diffstrengthen
+                                            // feature
+                                            // at
+                                            // least
+                                            // after
+                                            // diffstrengthen
                                             // reject if it doesn't help, but
                                             // retry costs
                                             longConst(6000)
                                                     : // only directly check
-                                                        // diffind
+                                                    // diffind
                                                     new SwitchFeature(
                                                             HypotheticalProvabilityFeature.INSTANCE,
                                                             new Case(
@@ -422,20 +438,20 @@ public class DLStrategy extends AbstractFeatureStrategy {
         if (DLOptionBean.INSTANCE.getDiffSat().compareTo(DiffSat.DIFF) >= 0) {
             bindRuleSet(d, "invariant_strengthen", ifZero(
                     PostDiffStrengthFeature.INSTANCE, inftyConst(), // strengthening
-                                                                    // augmentation
-                                                                    // validity
-                                                                    // proofs
-                                                                    // seems
-                                                                    // useless
+                    // augmentation
+                    // validity
+                    // proofs
+                    // seems
+                    // useless
                     ifZero(ODESolvableFeature.INSTANCE, inftyConst(), ifZero(
                             DiffWeakenFeature.INSTANCE, inftyConst(), // never
-                                                                        // instantiate
-                                                                        // when
-                                                                        // cheaper
-                                                                        // rule
-                                                                        // successful
+                            // instantiate
+                            // when
+                            // cheaper
+                            // rule
+                            // successful
                             longConst(10000) // go on try to instantiate,
-                                                // except when tabooed
+                            // except when tabooed
                             ))));
         } else {
             bindRuleSet(d, "invariant_strengthen", inftyConst());
@@ -500,14 +516,14 @@ public class DLStrategy extends AbstractFeatureStrategy {
                                                                     augInst),
                                                             not(openCurrentRuleApp(HypotheticalProvabilityFeature.INSTANCE))))),
                                             longConst(-1000), inftyConst() // @todo
-                                                                            // use
-                                                                            // large
-                                                                            // constant
-                                                                            // instead
-                                                                            // to
-                                                                            // try
-                                                                            // at
-                                                                            // least
+                                    // use
+                                    // large
+                                    // constant
+                                    // instead
+                                    // to
+                                    // try
+                                    // at
+                                    // least
                                     ))));
         }
     }
@@ -614,7 +630,10 @@ public class DLStrategy extends AbstractFeatureStrategy {
             if (DLOptionBean.INSTANCE.isStopAtFO()) {
                 return true;
             }
-            if (stopOnFirstCE || DLOptionBean.INSTANCE.isUseFindInstanceTest()) {
+            // first-order counterexamples
+            if (stopOnFirstCE
+                    || DLOptionBean.INSTANCE.getCounterexampleTest().compareTo(
+                            CounterexampleTest.ON) >= 0) {
                 CounterExample cached = getFirstInCacheUntilBranch(goal.node(),
                         ceCache);
                 if (cached != null) {
