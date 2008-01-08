@@ -58,6 +58,9 @@ import de.uka.ilkd.key.logic.op.Junctor;
 import de.uka.ilkd.key.logic.op.Modality;
 import de.uka.ilkd.key.logic.op.Operator;
 import de.uka.ilkd.key.logic.op.QuanUpdateOperator;
+import de.uka.ilkd.key.pp.LogicPrinter;
+import de.uka.ilkd.key.pp.NotationInfo;
+import de.uka.ilkd.key.pp.ProgramPrinter;
 import de.uka.ilkd.key.proof.Goal;
 import de.uka.ilkd.key.rule.RuleApp;
 import de.uka.ilkd.key.rule.updatesimplifier.ArrayOfAssignmentPair;
@@ -108,7 +111,19 @@ public class DiffIndCandidates implements TermGenerator {
         // we only consider sophisticated choices
         //l.add(post);    // consider diffind itself als diffstrengthening 
         l.addAll(indCandidates(goal.sequent(), pos, currentInvariant, services));
-        System.out.println("DiffInd CANDIDATES .....\n" + l);
+        System.out.println("DiffInd CANDIDATES");
+        for (Term c : l) {
+            try {
+                final LogicPrinter lp = new LogicPrinter(new ProgramPrinter(null), 
+                        NotationInfo.createInstance(),
+                        services);
+                lp.printTerm(c);
+                System.out.print("    " + lp.toString());
+            }
+            catch (Exception ignore) {
+                System.out.println("    " + c.toString());
+            }
+        }
         return genericToOld(new ArrayList<Term>(l)).iterator();
     }
 

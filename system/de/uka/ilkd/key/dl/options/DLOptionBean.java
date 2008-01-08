@@ -135,6 +135,7 @@ public class DLOptionBean implements Settings {
      * 
      */
     private static final String DLOPTIONS_INITIAL_TIMEOUT = "[DLOptions]initialTimeout";
+    private static final String DLOPTIONS_DIFFSAT_TIMEOUT = "[DLOptions]diffSatTimeout";
 
     /**
      * 
@@ -188,6 +189,8 @@ public class DLOptionBean implements Settings {
     private int linearTimeoutIncreaseFactor;
 
     private int constantTimeoutIncreaseFactor;
+    
+    private long diffSatTimeout;
 
     private boolean useTimeoutStrategy;
 
@@ -227,6 +230,7 @@ public class DLOptionBean implements Settings {
         subOptions = new HashSet<Settings>();
         callReduce = true;
         initialTimeout = 2000;
+        diffSatTimeout = 100000;
         quadraticTimeoutIncreaseFactor = 0;
         linearTimeoutIncreaseFactor = 2;
         constantTimeoutIncreaseFactor = 0;
@@ -453,6 +457,10 @@ public class DLOptionBean implements Settings {
         if (property != null) {
             diffSatStrategy = DiffSat.valueOf(property);
         }
+        property = props.getProperty(DLOPTIONS_DIFFSAT_TIMEOUT);
+        if (property != null) {
+            diffSatTimeout = Integer.parseInt(property);
+        }
     }
 
     /*
@@ -509,6 +517,7 @@ public class DLOptionBean implements Settings {
         props.setProperty(DLOPTIONS_INVARIANT_RULE, invariantRule.name());
 
         props.setProperty(DLOPTIONS_USE_DIFF_SAT, diffSatStrategy.name());
+        props.setProperty(DLOPTIONS_DIFFSAT_TIMEOUT, "" + diffSatTimeout);
     }
 
     public void addSubOptionBean(Settings sub) {
@@ -801,6 +810,18 @@ public class DLOptionBean implements Settings {
      */
     public void setDiffSat(DiffSat useDiffSAT) {
         this.diffSatStrategy = useDiffSAT;
+        firePropertyChanged();
+    }
+
+    public long getDiffSatTimeout() {
+        return diffSatTimeout;
+    }
+
+    public void setDiffSatTimeout(long diffSatTimeout) {
+        if (diffSatTimeout < 0) {
+            diffSatTimeout = 0;
+        }
+        this.diffSatTimeout = diffSatTimeout;
         firePropertyChanged();
     }
 

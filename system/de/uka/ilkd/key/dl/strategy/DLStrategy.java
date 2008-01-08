@@ -417,7 +417,7 @@ public class DLStrategy extends AbstractFeatureStrategy {
                                                     : // only directly check
                                                     // diffind
                                                     new SwitchFeature(
-                                                            HypotheticalProvabilityFeature.INSTANCE,
+                                                            new HypotheticalProvabilityFeature(DLOptionBean.INSTANCE.getDiffSatTimeout()),
                                                             new Case(
                                                                     longConst(0),
                                                                     longConst(-4000)),
@@ -504,7 +504,7 @@ public class DLStrategy extends AbstractFeatureStrategy {
                             ifZero(
                                     add(
                                             instantiate("inv", instOf("post")),
-                                            openCurrentRuleApp(HypotheticalProvabilityFeature.INSTANCE)),
+                                            openCurrentRuleApp(new HypotheticalProvabilityFeature(DLOptionBean.INSTANCE.getDiffSatTimeout()))),
                                     longConst(-2000),
                                     ifZero(
                                             not(sum(
@@ -514,7 +514,7 @@ public class DLStrategy extends AbstractFeatureStrategy {
                                                             buffy,
                                                             instantiate("inv",
                                                                     augInst),
-                                                            not(openCurrentRuleApp(HypotheticalProvabilityFeature.INSTANCE))))),
+                                                            not(openCurrentRuleApp(new HypotheticalProvabilityFeature(DLOptionBean.INSTANCE.getDiffSatTimeout())))))),
                                             longConst(-1000), inftyConst() // @todo
                                     // use
                                     // large
@@ -560,7 +560,7 @@ public class DLStrategy extends AbstractFeatureStrategy {
                             DiffWeakenFeature.INSTANCE, inftyConst(),
                             // only directly check diffind
                             new SwitchFeature(
-                                    HypotheticalProvabilityFeature.INSTANCE,
+                                    new HypotheticalProvabilityFeature(DLOptionBean.INSTANCE.getDiffSatTimeout()),
                                     new Case(longConst(0), longConst(-4000)),
                                     // reject if it doesn't help, but retry
                                     // costs
