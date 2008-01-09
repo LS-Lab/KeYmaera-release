@@ -79,7 +79,7 @@ public class DependencyStateGenerator implements
                     result.put((ProgramVariable) childAt, set);
                 }
                 set.addAll(vars);
-                set.remove(childAt); // variables should not depend on
+                //set.remove(childAt); // variables should not depend on
                 // themselves
                 assert result.get(childAt) != null;
             } else {
@@ -98,7 +98,7 @@ public class DependencyStateGenerator implements
                         result.put(pv, set);
                     }
                     set.addAll(allVariables);
-                    set.remove(pv); // variables should not depend on themselves
+                    //set.remove(pv); // variables should not depend on themselves
                     assert result.get(pv) != null;
                 }
             }

@@ -159,8 +159,8 @@ public class DiffIndCandidates implements TermGenerator {
         final Set<ProgramVariable> modifieds = getModifiedVariables(tdep);
         Set<ProgramVariable> frees = getFreeVariables(tdep);
         if (!frees.containsAll(modifieds)) {
-            System.out.println( "WARNING: dependency of x'=5 should be reflexive. Hence modifieds " + modifieds + " contained in frees " + frees);
-            frees.addAll(modifieds);
+            //System.out.println( "WARNING: dependency of x'=5 should be reflexive. Hence modifieds " + modifieds + " contained in frees " + frees);
+            //frees.addAll(modifieds);
             assert frees.containsAll(modifieds) : "dependency of x'=5 should be reflexive. Hence modifieds " + modifieds + " contained in frees " + frees;
         }
         frees = Collections.unmodifiableSet(frees);
@@ -399,7 +399,7 @@ public class DiffIndCandidates implements TermGenerator {
         for (Map.Entry<ProgramVariable, LinkedHashSet<ProgramVariable>> s : tdep.entrySet()) {
             if (!s.getValue().contains(s.getKey())) {
                 //System.out.println("WARNING: " + "transitive dependency of x'=5 should be reflexive. Hence " + s.getKey() + " contained in " + s.getValue());
-                s.getValue().add(s.getKey());
+                //s.getValue().add(s.getKey());
                 assert s.getValue().contains(s.getKey()) : "transitive dependency of x'=5 should be reflexive. Hence " + s.getKey() + " contained in " + s.getValue();
             }
         }
@@ -412,8 +412,8 @@ public class DiffIndCandidates implements TermGenerator {
                 .generateDependencyMap(program).getDependencies();
         for (Map.Entry<ProgramVariable, LinkedHashSet<ProgramVariable>> s : dep.entrySet()) {
             if (!s.getValue().contains(s.getKey())) {
-               // System.out.println("WARNING: " + "dependency of x'=5 should be reflexive. Hence " + s.getKey() + " contained in " + s.getValue());
-                s.getValue().add(s.getKey());
+                //System.out.println("WARNING: " + "dependency of x'=5 should be reflexive. Hence " + s.getKey() + " should be contained in " + s.getValue());
+                //s.getValue().add(s.getKey());
                 assert s.getValue().contains(s.getKey()) : "dependency of x'=5 should be reflexive. Hence " + s.getKey() + " contained in " + s.getValue();
             }
         }

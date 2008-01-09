@@ -219,10 +219,7 @@ public class DLUniversalClosureOp extends AbstractMetaOperator {
                             break;
                         }
                     }
-                    System.out.println("Adding " + var +" from deps");//XXX 
-                    System.out.println(programVariables);//XXX 
                     programVariables.add(i, var);
-                    System.out.println(programVariables);//XXX
                     variableOrder.remove(var);
                 }
             }
@@ -246,7 +243,6 @@ public class DLUniversalClosureOp extends AbstractMetaOperator {
         for (de.uka.ilkd.key.dl.model.ProgramVariable var : transitiveClosure
                 .keySet()) {
             if (!programVariables.contains(var)) {
-                System.out.println("Adding " + var + " as free var");//XXX 
                 freeVars.add(var);
             }
         }

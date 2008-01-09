@@ -35,6 +35,7 @@ import javax.swing.SwingUtilities;
 import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
 import de.uka.ilkd.key.dl.formulatools.TermTools;
 import de.uka.ilkd.key.dl.model.DiffSystem;
+import de.uka.ilkd.key.dl.strategy.features.FOSequence;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.java.StatementBlock;
 import de.uka.ilkd.key.logic.Constraint;
@@ -92,7 +93,8 @@ public class FindTransitionRule implements BuiltInRule, RuleFilter {
                 .javaBlock().program() instanceof StatementBlock)) {
             return false;
         }
-        return ((StatementBlock) term.javaBlock().program()).getChildAt(0) instanceof DiffSystem;
+        return ((StatementBlock) term.javaBlock().program()).getChildAt(0) instanceof DiffSystem
+            && FOSequence.INSTANCE.isFOFormula(term.sub(0));
     }
 
     /*
