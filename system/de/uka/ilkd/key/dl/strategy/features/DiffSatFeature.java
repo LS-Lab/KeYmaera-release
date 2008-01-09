@@ -22,6 +22,8 @@
  */
 package de.uka.ilkd.key.dl.strategy.features;
 
+import java.io.IOException;
+import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -37,6 +39,7 @@ import de.uka.ilkd.key.dl.rules.UnknownProgressRule;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DLUniversalClosureOp;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DiffInd;
 import de.uka.ilkd.key.dl.strategy.features.HypotheticalProvabilityFeature.HypotheticalProvability;
+import de.uka.ilkd.key.java.PrettyPrinter;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.java.StatementBlock;
 import de.uka.ilkd.key.logic.ConstrainedFormula;
@@ -51,6 +54,9 @@ import de.uka.ilkd.key.logic.op.ArrayOfQuantifiableVariable;
 import de.uka.ilkd.key.logic.op.Modality;
 import de.uka.ilkd.key.logic.op.QuanUpdateOperator;
 import de.uka.ilkd.key.logic.op.SchemaVariable;
+import de.uka.ilkd.key.pp.LogicPrinter;
+import de.uka.ilkd.key.pp.NotationInfo;
+import de.uka.ilkd.key.pp.ProgramPrinter;
 import de.uka.ilkd.key.proof.Goal;
 import de.uka.ilkd.key.proof.Node;
 import de.uka.ilkd.key.proof.TacletFilter;
@@ -134,7 +140,7 @@ public class DiffSatFeature implements Feature {
         Long timeout = getLastTimeout(firstNodeAfterBranch);
         if (timeout == null) {
             timeout = initialTimeout >= 0 ? initialTimeout
-                    : DLOptionBean.INSTANCE.getInitialTimeout();
+                    : DLOptionBean.INSTANCE.getDiffSatTimeout();
         } else {
             final int a = DLOptionBean.INSTANCE
                     .getQuadraticTimeoutIncreaseFactor();
@@ -188,6 +194,17 @@ public class DiffSatFeature implements Feature {
                 throw new IllegalInstantiationException("Invalid instantiation "
                     + candidate + " for SV 'augmented' in " + app.instantiations());
         }
+        String candidatePrint;
+        try {
+            final LogicPrinter lp = new LogicPrinter(new ProgramPrinter(null), 
+                    NotationInfo.createInstance(),
+                    services);
+            lp.printTerm(candidate);
+            candidatePrint = lp.toString();
+        }
+        catch (Exception ignore) {
+            candidatePrint = candidate.toString();
+        }
         //System.out.println("instantiation " + candidate + " for SV 'augmented'");
 
         // diffind
@@ -207,7 +224,7 @@ public class DiffSatFeature implements Feature {
         Sequent initial = changedSequent(pos, goal.sequent(), initialFml);
         HypotheticalProvability result = HypotheticalProvabilityFeature
                 .provable(goal.proof(), initial, MAX_STEPS, timeout, taboo);
-        System.out.println("HYPO: " + diffind.rule().name() + " initial " + result + " for " + candidate);
+        System.out.print("HYPO: " + diffind.rule().name() + " initial " + result + " for " + candidatePrint);
         //@todo cache with goal.sequent()
         switch (result) {
         case PROVABLE:
@@ -247,7 +264,7 @@ public class DiffSatFeature implements Feature {
 //        System.out.println("HYPOing:\n " + step);
         result = HypotheticalProvabilityFeature.provable(goal.proof(), step, MAX_STEPS,
                 timeout, taboo);
-        System.out.println("HYPO: " + diffind.rule().name() + " step    " + result + " for " + candidate);
+        System.out.print("HYPO: " + diffind.rule().name() + " step    " + result + " for " + candidatePrint);
         switch (result) {
         case PROVABLE:
             put(system, candidate, LongRuleAppCost.ZERO_COST);

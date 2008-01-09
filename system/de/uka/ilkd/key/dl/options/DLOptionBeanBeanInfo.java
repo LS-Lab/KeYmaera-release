@@ -149,6 +149,11 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
                     createDescriptor("diffSat", "DiffSat strategy",
                             "select which degree of DiffSat strategy to apply",
                             true, false, DiffSatPropertyEditor.class),
+                    createDescriptor(
+                                    "diffSatTimeout",
+                                    "initial DiffSat timeout",
+                                    "the timeout used in the first iteration of the DiffSat strategy (in milliseconds)",
+                                    true, false),
             // createDescriptor("invariantRule", "invariant rule",
             // "choose which invariant rule should be used", true,
             // false, InvariantRulePropertyEditor.class),

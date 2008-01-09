@@ -683,6 +683,7 @@ public class Main extends JFrame {
         // com.togethersoft.util.ui.plaf.metal.OIMetalSplitPaneUI
 
         leftPane.setOneTouchExpandable(true);
+        // leftPane.setMinimumSize(new Dimension(0,0)); // make panes freely resizable for good screenshots
 
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
                 leftPane, goalView) {
