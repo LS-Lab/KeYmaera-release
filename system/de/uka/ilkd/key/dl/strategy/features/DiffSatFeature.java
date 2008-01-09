@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2007 by André Platzer                                   *
+ *   Copyright (C) 2007 by Andre Platzer                                   *
  *   @informatik.uni-oldenburg.de                                          *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -238,7 +238,7 @@ public class DiffSatFeature implements Feature {
         Term stepFml = DLUniversalClosureOp.DL_UNIVERSAL_CLOSURE.universalClosure(
                 system,
                 DiffInd.DIFFIND.diffInd(augTerm, services), null,
-                services);
+                services, false);
         if (pos.subTerm().op() instanceof QuanUpdateOperator) {
             // keep update prefix
             stepFml = createUpdate(update, stepFml);

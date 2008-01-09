@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2007 by André Platzer                                   *
+ *   Copyright (C) 2007 by Andre Platzer                                   *
  *   @informatik.uni-oldenburg.de                                          *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -161,7 +161,7 @@ public class DiffWeakenFeature implements Feature {
         //System.out.println("HYPO: " + diffweaken.rule().name());
         Sequent weakened = DiffSatFeature.changedSequent(pos, goal.sequent(),
                 DLUniversalClosureOp.DL_UNIVERSAL_CLOSURE.universalClosure(
-                        system, TermBuilder.DF.imp(invariant, post), null, services));
+                        system, TermBuilder.DF.imp(invariant, post), null, services, false));
         HypotheticalProvability result = HypotheticalProvabilityFeature
                 .provable(goal.proof(), weakened, MAX_STEPS, timeout);
         System.out.println("HYPO: " + diffweaken.rule().name() + " " + result);

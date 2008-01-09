@@ -11,6 +11,8 @@
  */
 package de.uka.ilkd.key.dl.rules.metaconstruct;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -49,7 +51,7 @@ import de.uka.ilkd.key.rule.inst.SVInstantiations;
 public class DLUniversalClosureOp extends AbstractMetaOperator {
 
     public DLUniversalClosureOp() {
-        super(new Name("#dlUniversalClosure"), 2);
+        super(new Name("#dlUniversalClosure"), 3);
     }
 
     /*
@@ -66,43 +68,52 @@ public class DLUniversalClosureOp extends AbstractMetaOperator {
         Term post = term.sub(1);
         DLProgram program = (DLProgram) ((StatementBlock) term
                 .sub(0).javaBlock().program()).getChildAt(0);
-        return universalClosure(program, post, svInst, services);
+        Term optimizeWrites = term.sub(2);
+        boolean optimize = false;
+        if(optimizeWrites.equals(TermBuilder.DF.tt())) {
+            optimize = true;
+        } else if(optimizeWrites.equals(TermBuilder.DF.ff())) {
+            optimize = false;
+        } else {
+            assert false : "Invalid argument to DLUniversalClosure: " + optimizeWrites;
+        }
+        return universalClosure(program, post, svInst, services, optimize);
     }
 
-   public Term universalClosure(DLProgram program, Term post, SVInstantiations svInst, Services services) {
+   public Term universalClosure(DLProgram program, Term post, SVInstantiations svInst, Services services, boolean optimizeWrites) {
         DependencyState depState = DependencyStateGenerator
                 .generateDependencyMap(program);
         Map<de.uka.ilkd.key.dl.model.ProgramVariable, LinkedHashSet<de.uka.ilkd.key.dl.model.ProgramVariable>> generateDependencyMap = depState
                 .getDependencies();
-        // FileWriter writer;
-        // try {
-        // writer = new FileWriter("/tmp/depgraph.dot");
-        //
-        // writer.write("digraph program\n");
-        // writer.write("{\n");
-        // for (de.uka.ilkd.key.dl.model.ProgramVariable var :
-        // generateDependencyMap
-        // .keySet()) {
-        // writer.write(var.getElementName().toString() + ";\n");
-        // }
-        // for (de.uka.ilkd.key.dl.model.ProgramVariable var :
-        // generateDependencyMap
-        // .keySet()) {
-        // LinkedHashSet<de.uka.ilkd.key.dl.model.ProgramVariable> deps =
-        // generateDependencyMap
-        // .get(var);
-        // for (de.uka.ilkd.key.dl.model.ProgramVariable dvar : deps) {
-        // writer.write(dvar.getElementName().toString() + " -> "
-        // + var.getElementName().toString() + ";\n");
-        // }
-        // }
-        //
-        // writer.write("}\n");
-        // writer.flush();
-        // } catch (IOException e) {
-        // // TODO Auto-generated catch block
-        // e.printStackTrace();
-        // }
+         FileWriter writer;
+         try {
+         writer = new FileWriter("/tmp/depgraph.dot");
+        
+         writer.write("digraph program\n");
+         writer.write("{\n");
+         for (de.uka.ilkd.key.dl.model.ProgramVariable var :
+         generateDependencyMap
+         .keySet()) {
+         writer.write(var.getElementName().toString() + ";\n");
+         }
+         for (de.uka.ilkd.key.dl.model.ProgramVariable var :
+         generateDependencyMap
+         .keySet()) {
+         LinkedHashSet<de.uka.ilkd.key.dl.model.ProgramVariable> deps =
+         generateDependencyMap
+         .get(var);
+         for (de.uka.ilkd.key.dl.model.ProgramVariable dvar : deps) {
+         writer.write(dvar.getElementName().toString() + " -> "
+         + var.getElementName().toString() + ";\n");
+         }
+         }
+        
+         writer.write("}\n");
+         writer.flush();
+         } catch (IOException e) {
+         // TODO Auto-generated catch block
+         e.printStackTrace();
+         }
 
         final Map<de.uka.ilkd.key.dl.model.ProgramVariable, LinkedHashSet<de.uka.ilkd.key.dl.model.ProgramVariable>> transitiveClosure = DependencyStateGenerator.createTransitiveClosure(generateDependencyMap);
 
@@ -208,7 +219,10 @@ public class DLUniversalClosureOp extends AbstractMetaOperator {
                             break;
                         }
                     }
+                    System.out.println("Adding " + var +" from deps");//XXX 
+                    System.out.println(programVariables);//XXX 
                     programVariables.add(i, var);
+                    System.out.println(programVariables);//XXX
                     variableOrder.remove(var);
                 }
             }
@@ -232,6 +246,7 @@ public class DLUniversalClosureOp extends AbstractMetaOperator {
         for (de.uka.ilkd.key.dl.model.ProgramVariable var : transitiveClosure
                 .keySet()) {
             if (!programVariables.contains(var)) {
+                System.out.println("Adding " + var + " as free var");//XXX 
                 freeVars.add(var);
             }
         }
@@ -243,8 +258,8 @@ public class DLUniversalClosureOp extends AbstractMetaOperator {
         // .getProgramVariables(term.sub(0));
         for (de.uka.ilkd.key.dl.model.ProgramVariable pvar : programVariables) {
             if (transitiveClosure.keySet().contains(pvar)
-                    && !(depState.getWriteBeforeReadList().get(pvar) != null && depState
-                            .getWriteBeforeReadList().get(pvar))) {
+                    && (!optimizeWrites || !(depState.getWriteBeforeReadList().get(pvar) != null && depState
+                            .getWriteBeforeReadList().get(pvar)))) {
                 String name = pvar.getElementName().toString();
                 LogicVariable var = searchFreeVar(services, name);
                 post = TermBuilder.DF.all(var, TermFactory.DEFAULT
