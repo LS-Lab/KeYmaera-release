@@ -174,9 +174,7 @@ public class DependencyStateGenerator implements
         } else if(childAt instanceof DiffSystem) {
             DiffSystem sys = (DiffSystem) childAt;
             sets.writes.addAll(getDottedVariables(sys));
-            System.out.println("Writes: " + sets.writes);//XXX 
             sets.reads.addAll(getAllVariables(sys));
-            System.out.println("Reads: " + sets.writes);//XXX
         } else if(childAt instanceof Quest) {
             sets.reads.addAll(getAllVariables(childAt));
         } else if(childAt instanceof RandomAssign) {

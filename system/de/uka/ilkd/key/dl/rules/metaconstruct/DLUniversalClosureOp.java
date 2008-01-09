@@ -24,6 +24,7 @@ import java.util.PriorityQueue;
 import java.util.Set;
 import java.util.TreeSet;
 
+import de.uka.ilkd.key.dl.formulatools.VariableCollector;
 import de.uka.ilkd.key.dl.logic.ldt.RealLDT;
 import de.uka.ilkd.key.dl.model.DLProgram;
 import de.uka.ilkd.key.dl.transitionmodel.DependencyState;
@@ -34,6 +35,7 @@ import de.uka.ilkd.key.logic.Name;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.TermBuilder;
 import de.uka.ilkd.key.logic.TermFactory;
+import de.uka.ilkd.key.logic.Visitor;
 import de.uka.ilkd.key.logic.op.AbstractMetaOperator;
 import de.uka.ilkd.key.logic.op.LogicVariable;
 import de.uka.ilkd.key.logic.op.Modality;
@@ -85,6 +87,17 @@ public class DLUniversalClosureOp extends AbstractMetaOperator {
                 .generateDependencyMap(program);
         Map<de.uka.ilkd.key.dl.model.ProgramVariable, LinkedHashSet<de.uka.ilkd.key.dl.model.ProgramVariable>> generateDependencyMap = depState
                 .getDependencies();
+        final Set<ProgramVariable> variablesInPost = new HashSet<ProgramVariable>();
+        post.execPreOrder(new Visitor() {
+
+            @Override
+            public void visit(Term visited) {
+                if(visited.op() instanceof ProgramVariable) {
+                    variablesInPost.add((ProgramVariable) visited.op());
+                }
+            }
+            
+        });
          FileWriter writer;
          try {
          writer = new FileWriter("/tmp/depgraph.dot");
@@ -254,7 +267,7 @@ public class DLUniversalClosureOp extends AbstractMetaOperator {
         // .getProgramVariables(term.sub(0));
         for (de.uka.ilkd.key.dl.model.ProgramVariable pvar : programVariables) {
             if (transitiveClosure.keySet().contains(pvar)
-                    && (!optimizeWrites || !(depState.getWriteBeforeReadList().get(pvar) != null && depState
+                    && (!optimizeWrites || variablesInPost.contains(pvar) || !(depState.getWriteBeforeReadList().get(pvar) != null && depState
                             .getWriteBeforeReadList().get(pvar)))) {
                 String name = pvar.getElementName().toString();
                 LogicVariable var = searchFreeVar(services, name);
