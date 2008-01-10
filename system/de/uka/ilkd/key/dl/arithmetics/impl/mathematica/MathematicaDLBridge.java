@@ -358,6 +358,9 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
     public List<Update> createUpdates(Expr expr, NamespaceSet nss)
             throws RemoteException, SolverException {
         List<Update> result = new ArrayList<Update>();
+        if (expr.toString().equalsIgnoreCase("$Aborted")) {
+            throw new IncompleteEvaluationException("Calculation aborted!");
+        }
         if (expr.head().equals(LIST)) {
             for (int i = 0; i < expr.args().length; i++) {
                 result.addAll(createUpdates(expr.args()[i], nss));
@@ -384,6 +387,10 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
             }
             u.value = convert(expr.args()[1], nss);
             result.add(u);
+        } else if (Expr2TermConverter.isBlacklisted(expr)) {
+            throw new UnsolveableException("Blacklisted conversion from " + expr.toString() + " to updates"); 
+        } else {
+            throw new IllegalStateException("unknown case");
         }
         return result;
     }

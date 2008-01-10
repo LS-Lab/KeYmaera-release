@@ -121,7 +121,7 @@ public class DiffIndCandidates implements TermGenerator {
                 System.out.print("...  " + lp.toString());
             }
             catch (Exception ignore) {
-                System.out.println("...  " + c.toString());
+                System.out.println("......  " + c.toString());
                 ignore.printStackTrace();
             }
         }
@@ -246,7 +246,9 @@ public class DiffIndCandidates implements TermGenerator {
             //System.out.println(x + "@" + x.getClass());
             // turn single update into equation
             //@todo if x occurs in t then can't do that without alpha-renaming stuff
-            Term equation = tb.equals(x, revert.apply(t));
+            Term revertedt = revert.apply(t);
+            Term equation = tb.equals(x, revertedt);
+            assert equation.op() instanceof de.uka.ilkd.key.logic.op.Equality : "different equalities shouldn't be mixed up: " + " " + x + "@" + x.getClass() + " equaling " + revertedt + "@" + revertedt.getClass() + " gives " + equation + " with operator " + equation.op();
             if (!containsConjunct(invariant, equation)) {
                     matches.add(equation);
             }

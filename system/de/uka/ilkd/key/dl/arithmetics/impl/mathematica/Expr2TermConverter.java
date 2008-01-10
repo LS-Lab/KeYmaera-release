@@ -68,7 +68,7 @@ import de.uka.ilkd.key.logic.sort.Sort;
  */
 public class Expr2TermConverter implements ExprConstants {
 
-    private static final String[] BLACKLIST_ARRAY = { "Reduce", "Simplify",
+    private static final String[] BLACKLIST_ARRAY = { "Abort", "Reduce", "Simplify",
             "FullSimplify", "FindInstance", "Hold", "List", "Resolve",
             "DSolve", "D", "Dt", "Indeterminate" };
 
@@ -266,7 +266,7 @@ public class Expr2TermConverter implements ExprConstants {
                 } else if (expr.head().equals(INTEGRATE)) {
                     Term result = ex[0];
                     result = TermBuilder.DF.func(lookupRigidFunction(nss,
-                            new Name("InverseFunction"), 1), result, ex[1]);
+                            new Name("Integrate"), 1), result, ex[1]);
                     return result;
                 } else if (expr.head().equals(EQUALS)) {
                     Term result = ex[0];
@@ -316,6 +316,7 @@ public class Expr2TermConverter implements ExprConstants {
                 } else if (expr.head().equals(NOT)) {
                     return TermBuilder.DF.not(ex[0]);
                 } else if (expr.head().equals(IMPL)) {
+                    assert ex.length == 2 : "associativity unclear except for binary";
                     Term result = ex[0];
                     for (int i = 1; i < ex.length; i++) {
                         result = TermBuilder.DF.imp(result, ex[i]);
@@ -340,7 +341,7 @@ public class Expr2TermConverter implements ExprConstants {
 
                     Function f = (Function) nss.functions().lookup(name);
                     if (f == null) {
-                        if (BLACKLIST.contains(name.toString())) {
+                        if (isBlacklisted(name)) {
                             throw new RemoteException(
                                     "Mathematica returned a system function "
                                             + name);
@@ -402,5 +403,18 @@ public class Expr2TermConverter implements ExprConstants {
             throw new UnableToConvertInputException("Error converting Expr " + expr + " to Formula", e);
         }
         throw new UnableToConvertInputException("Dont know how to convert " + expr);
+    }
+
+    public static boolean isBlacklisted(Name name) {
+        return BLACKLIST.contains(name.toString());
+    }
+    public static boolean isBlacklisted(Expr expr) {
+        try {
+            return BLACKLIST.contains(expr.head().asString());
+        } catch (ExprFormatException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            return false;
+        }
     }
 }
