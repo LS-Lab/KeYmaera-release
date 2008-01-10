@@ -117,12 +117,12 @@ public abstract class RuleOperatingOnWholeSequence extends Visitor implements
         try {
             resultTerm = performQuery(resultTerm);
         } catch (RemoteException e) {
-            return null;
+            throw new IllegalStateException(e.getCause().getMessage(), e.getCause());
         } catch (UnsolveableException e) {
             unsolvable = true;
-            return null;
+            throw new IllegalStateException(e.getMessage(), e);
         } catch (SolverException e) {
-            return null;
+            throw new IllegalStateException(e.getMessage(), e);
         }
         resultFormula = resultTerm;
 
@@ -227,12 +227,12 @@ public abstract class RuleOperatingOnWholeSequence extends Visitor implements
     public boolean test(Goal goal, Services services, RuleApp app) {
         testMode = true;
         try {
-            if (apply(goal, services, app) != null) {
-                return true;
-            }
+            // try to apply the rule... if no exception occurs it was successful
+            apply(goal, services, app);
+            return true;
         } catch (Exception e) {
+            return false;
         }
-        return false;
     }
 
     public Term getInputFormula() {
