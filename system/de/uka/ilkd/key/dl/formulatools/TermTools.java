@@ -10,6 +10,7 @@ import de.uka.ilkd.key.logic.IteratorOfConstrainedFormula;
 import de.uka.ilkd.key.logic.IteratorOfTerm;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.TermFactory;
+import de.uka.ilkd.key.logic.Visitor;
 import de.uka.ilkd.key.logic.op.Junctor;
 
 /**
@@ -47,4 +48,25 @@ public class TermTools {
         return construct;
     }
 
+
+    /**
+     * checks whether term x occurs in term t
+     * 
+     * @param x
+     * @param t
+     * @return
+     */
+    public static boolean occursIn(final Term x, Term t) {
+        final boolean result[] = new boolean[] {false};
+        t.execPreOrder(new Visitor() {
+
+            @Override
+            public void visit(Term visited) {
+                if (visited.equals(x)) {
+                    result[0] = true;
+                }
+           }
+        });
+        return result[0];
+    }
 }
