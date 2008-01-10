@@ -94,7 +94,8 @@ public class FindTransitionRule implements BuiltInRule, RuleFilter {
             return false;
         }
         return ((StatementBlock) term.javaBlock().program()).getChildAt(0) instanceof DiffSystem
-            && FOSequence.INSTANCE.isFOFormula(term.sub(0));
+            && FOSequence.INSTANCE.isFOFormula(term.sub(0))
+            && FOSequence.INSTANCE.isFOFormulas(goal.sequent().antecedent().iterator());
     }
 
     /*

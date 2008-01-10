@@ -25,11 +25,14 @@ package de.uka.ilkd.key.dl.strategy.features;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.WeakHashMap;
 
 import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
 import de.uka.ilkd.key.dl.arithmetics.IODESolver.ODESolverResult;
 import de.uka.ilkd.key.dl.model.DiffSystem;
 import de.uka.ilkd.key.dl.rules.metaconstruct.ODESolve;
+import de.uka.ilkd.key.java.ProgramElement;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.java.StatementBlock;
 import de.uka.ilkd.key.logic.JavaBlock;
@@ -80,6 +83,7 @@ public class ODESolvableFeature implements Feature {
 
 
     public static final Feature INSTANCE = new ODESolvableFeature();
+    private Map<List<ProgramElement>, RuleAppCost> solvabilityCache = new WeakHashMap<List<ProgramElement>, RuleAppCost>();
     
     /*
      * (non-Javadoc)
@@ -100,10 +104,15 @@ public class ODESolvableFeature implements Feature {
         }
         final DiffSystem system = (DiffSystem) ((StatementBlock) term
                 .javaBlock().program()).getChildAt(0);
-        final Services services = goal.proof().getServices();
-        if (system.getDifferentialEquations().isEmpty()) {
+        final List<ProgramElement> differentialEquations = system.getDifferentialEquations();
+        if (differentialEquations.isEmpty()) {
             return LongRuleAppCost.ZERO_COST;
         }
+        RuleAppCost cached = solvabilityCache.get(differentialEquations);
+        if (cached != null) {
+            return cached;
+        }
+        final Services services = goal.proof().getServices();
         Term result = ODESolve.ODE_SOLVE.odeSolve(term, services);
 
         final boolean[] algebraic = { true };
@@ -116,8 +125,10 @@ public class ODESolvableFeature implements Feature {
             }
         });
         if (algebraic[0]) {
+            solvabilityCache .put(differentialEquations, LongRuleAppCost.ZERO_COST);
             return LongRuleAppCost.ZERO_COST;
         } else {
+            solvabilityCache.put(differentialEquations, TopRuleAppCost.INSTANCE);
             return TopRuleAppCost.INSTANCE;
         }
     }

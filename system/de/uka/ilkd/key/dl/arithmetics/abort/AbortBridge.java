@@ -74,7 +74,7 @@ public class AbortBridge extends Thread {
                         new InputStreamReader(connection.getInputStream()));
                 while (!connection.isClosed()) {
                     String string = reader.readLine();
-                    if (string.equals("stopAutomode")) {
+                    if (string == null || string.equals("stopAutomode")) {
                         stopAutomode();
                     }
                 }

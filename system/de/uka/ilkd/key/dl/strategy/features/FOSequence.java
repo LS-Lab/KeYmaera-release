@@ -79,6 +79,18 @@ public class FOSequence extends Visitor implements Feature {
         return true;
     }
     
+    public synchronized boolean isFOFormulas(IteratorOfConstrainedFormula formulas) {
+        IteratorOfConstrainedFormula it = formulas;
+        while (it.hasNext()) {
+            notFO = false;
+            it.next().formula().execPreOrder(this);
+            if (notFO) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public synchronized boolean isFOFormula(Term t) {
         notFO = false;
         t.execPreOrder(this);
