@@ -49,26 +49,34 @@ import de.uka.ilkd.key.rule.MatchConditions;
  */
 public abstract class DLProgramElementImpl implements DLProgramElement {
 
-    private Map<String, Formula> anotations;
+    private Map<String, Formula> annotations;
     
     public DLProgramElementImpl() {
-        anotations = new HashMap<String, Formula>();
+        annotations = new HashMap<String, Formula>();
     }
     
     /* (non-Javadoc)
      * @see de.uka.ilkd.key.dl.model.DLProgramElement#setDLAnotation(java.lang.String, java.lang.String)
      */
     @Override
-    public void setDLAnotation(String key, Formula value) {
-        anotations.put(key, value);
+    public void setDLAnnotation(String key, Formula value) {
+        annotations.put(key, value);
     }
     
     /* (non-Javadoc)
      * @see de.uka.ilkd.key.dl.model.DLProgramElement#getDLAnotation(java.lang.String)
      */
     @Override
-    public Formula getDLAnotation(String key) {
-        return anotations.get(key);
+    public Formula getDLAnnotation(String key) {
+        return annotations.get(key);
+    }
+    
+    /* (non-Javadoc)
+     * @see de.uka.ilkd.key.dl.model.DLProgramElement#getDLAnnotations()
+     */
+    @Override
+    public Map<String, Formula> getDLAnnotations() {
+        return annotations;
     }
     
     /**

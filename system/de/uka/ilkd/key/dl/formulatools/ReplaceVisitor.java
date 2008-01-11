@@ -86,53 +86,49 @@ public class ReplaceVisitor {
      */
     public static DLProgramElement convert(ProgramElement childAt,
             Map<QuantifiableVariable, Term> substitutionMap, TermFactory tf) {
+        DLProgramElement result = null;
         if (childAt instanceof Chop) {
             Chop chop = (Chop) childAt;
-            return tf.createChop((DLProgram) convert(chop.getChildAt(0),
+            result = tf.createChop((DLProgram) convert(chop.getChildAt(0),
                     substitutionMap, tf), (DLProgram) convert(chop
                     .getChildAt(1), substitutionMap, tf));
         } else if (childAt instanceof Choice) {
             Choice choice = (Choice) childAt;
-            return tf.createChoice((DLProgram) convert(choice.getChildAt(0),
+            result = tf.createChoice((DLProgram) convert(choice.getChildAt(0),
                     substitutionMap, tf), (DLProgram) convert(choice
                     .getChildAt(1), substitutionMap, tf));
         } else if (childAt instanceof Star) {
             Star p = (Star) childAt;
-            Star createStar = tf.createStar((DLProgram) convert(p.getChildAt(0),
-                    substitutionMap, tf));
-            if (p.getInvariant() != null) {
-                createStar.setDLAnotation("invariant", (Formula) (Formula) convert(p
-                        .getInvariant(), substitutionMap, tf));
-            }
-            return createStar;
+            Star createStar = tf.createStar((DLProgram) convert(
+                    p.getChildAt(0), substitutionMap, tf));
+            result = createStar;
         } else if (childAt instanceof Parallel) {
             Parallel parallel = (Parallel) childAt;
-            return tf.createParallel((DLProgram) convert(
-                    parallel.getChildAt(0), substitutionMap, tf),
-                    (DLProgram) convert(parallel.getChildAt(1),
-                            substitutionMap, tf));
+            result = tf.createParallel((DLProgram) convert(parallel
+                    .getChildAt(0), substitutionMap, tf), (DLProgram) convert(
+                    parallel.getChildAt(1), substitutionMap, tf));
         } else if (childAt instanceof Implies) {
             CompoundFormula p = (CompoundFormula) childAt;
-            return tf.createImpl((Formula) convert(p.getChildAt(0),
+            result = tf.createImpl((Formula) convert(p.getChildAt(0),
                     substitutionMap, tf), (Formula) convert(p.getChildAt(1),
                     substitutionMap, tf));
         } else if (childAt instanceof Not) {
             CompoundFormula p = (CompoundFormula) childAt;
-            return tf.createNot((Formula) convert(p.getChildAt(0),
+            result = tf.createNot((Formula) convert(p.getChildAt(0),
                     substitutionMap, tf));
         } else if (childAt instanceof And) {
             CompoundFormula p = (CompoundFormula) childAt;
-            return tf.createAnd((Formula) convert(p.getChildAt(0),
+            result = tf.createAnd((Formula) convert(p.getChildAt(0),
                     substitutionMap, tf), (Formula) convert(p.getChildAt(1),
                     substitutionMap, tf));
         } else if (childAt instanceof Biimplies) {
             CompoundFormula p = (CompoundFormula) childAt;
-            return tf.createBiImpl((Formula) convert(p.getChildAt(0),
+            result = tf.createBiImpl((Formula) convert(p.getChildAt(0),
                     substitutionMap, tf), (Formula) convert(p.getChildAt(1),
                     substitutionMap, tf));
         } else if (childAt instanceof Or) {
             CompoundFormula p = (CompoundFormula) childAt;
-            return tf.createOr((Formula) convert(p.getChildAt(0),
+            result = tf.createOr((Formula) convert(p.getChildAt(0),
                     substitutionMap, tf), (Formula) convert(p.getChildAt(1),
                     substitutionMap, tf));
         } else if (childAt instanceof PredicateTerm) {
@@ -144,7 +140,7 @@ public class ReplaceVisitor {
                 children.add((Expression) convert(p.getChildAt(i),
                         substitutionMap, tf));
             }
-            return tf.createPredicateTerm(pred, children);
+            result = tf.createPredicateTerm(pred, children);
         } else if (childAt instanceof FunctionTerm) {
             FunctionTerm p = (FunctionTerm) childAt;
             de.uka.ilkd.key.dl.model.Function pred = (de.uka.ilkd.key.dl.model.Function) convert(
@@ -154,55 +150,67 @@ public class ReplaceVisitor {
                 children.add((Expression) convert(p.getChildAt(i),
                         substitutionMap, tf));
             }
-            return tf.createFunctionTerm(pred, children);
+            result = tf.createFunctionTerm(pred, children);
         } else if (childAt instanceof Predicate) {
-            return (Predicate) childAt;
+            result = (Predicate) childAt;
         } else if (childAt instanceof de.uka.ilkd.key.dl.model.Function) {
-            return (de.uka.ilkd.key.dl.model.Function) childAt;
+            result = (de.uka.ilkd.key.dl.model.Function) childAt;
         } else if (childAt instanceof Constant) {
-            return (Constant) childAt;
+            result = (Constant) childAt;
         } else if (childAt instanceof DiffSystem) {
             List<Formula> children = new ArrayList<Formula>();
             for (ProgramElement p : (DiffSystem) childAt) {
                 children.add((Formula) convert(p, substitutionMap, tf));
             }
-            return tf.createDiffSystem(children);
+            result = tf.createDiffSystem(children);
         } else if (childAt instanceof Assign) {
             Assign a = (Assign) childAt;
-            return tf.createAssign((de.uka.ilkd.key.dl.model.ProgramVariable) a
-                    .getChildAt(0), (Expression) convert(a.getChildAt(1),
-                    substitutionMap, tf));
+            result = tf.createAssign(
+                    (de.uka.ilkd.key.dl.model.ProgramVariable) a.getChildAt(0),
+                    (Expression) convert(a.getChildAt(1), substitutionMap, tf));
         } else if (childAt instanceof Dot) {
-            return (Dot) childAt;
+            result = (Dot) childAt;
         } else if (childAt instanceof RandomAssign) {
-            return (RandomAssign) childAt;
+            result = (RandomAssign) childAt;
         } else if (childAt instanceof de.uka.ilkd.key.dl.model.ProgramVariable) {
             de.uka.ilkd.key.dl.model.ProgramVariable pv = (de.uka.ilkd.key.dl.model.ProgramVariable) childAt;
-            return pv;
+            result = pv;
         } else if (childAt instanceof LogicalVariable) {
             LogicalVariable logicalVariable = (LogicalVariable) childAt;
             for (QuantifiableVariable v : substitutionMap.keySet()) {
                 if (logicalVariable.getElementName().equals(v.name())) {
-                    return convertToProgram(substitutionMap.get(v), tf);
+                    result = convertToProgram(substitutionMap.get(v), tf);
                 }
             }
-            return logicalVariable;
+            if (result == null) {
+                result = logicalVariable;
+            }
         } else if (childAt instanceof MetaVariable) {
-            return (MetaVariable) childAt;
+            result = (MetaVariable) childAt;
         } else if (childAt instanceof Quest) {
-            return tf.createQuest((Formula) convert(((Quest) childAt)
+            result = tf.createQuest((Formula) convert(((Quest) childAt)
                     .getChildAt(0), substitutionMap, tf));
         } else if (childAt instanceof VariableDeclaration) {
-            return (VariableDeclaration) childAt;
+            result = (VariableDeclaration) childAt;
         } else if (childAt instanceof IfStatement) {
             IfStatement ifS = (IfStatement) childAt;
-            return tf.createIf((Formula) convert(ifS.getExpression(),
+            result = tf.createIf((Formula) convert(ifS.getExpression(),
                     substitutionMap, tf), (DLProgram) convert(ifS.getThen(),
                     substitutionMap, tf), (ifS.getElse() == null) ? null
                     : (DLProgram) convert(ifS.getElse(), substitutionMap, tf));
         }
-        throw new IllegalArgumentException("Dont know how to convert: "
-                + childAt);
+        if (result == null) {
+            throw new IllegalArgumentException("Dont know how to convert: "
+                    + childAt);
+        }
+        if (childAt instanceof DLProgramElement) {
+            DLProgramElement el = (DLProgramElement) childAt;
+            for (String annotation : el.getDLAnnotations().keySet()) {
+                result.setDLAnnotation(annotation, (Formula) convert(el
+                        .getDLAnnotation(annotation), substitutionMap, tf));
+            }
+        }
+        return result;
     }
 
     /**
@@ -243,13 +251,13 @@ public class ReplaceVisitor {
                 }
             }
         } else if (form.op() instanceof LogicVariable) {
-            //@todo assert namespaces.unique
+            // @todo assert namespaces.unique
             return tf.createLogicalVariable(form.op().name().toString());
         } else if (form.op() instanceof de.uka.ilkd.key.logic.op.ProgramVariable) {
-            //@todo assert namespaces.unique
+            // @todo assert namespaces.unique
             return tf.createProgramVariable(form.op().name().toString());
         } else if (form.op() instanceof Metavariable) {
-            //@todo assert namespaces.unique
+            // @todo assert namespaces.unique
             return tf.createMetaVariable(form.op().name().toString());
         }
 

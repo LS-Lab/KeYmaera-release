@@ -59,7 +59,7 @@ public class AnnotationProjection implements ProjectionToTerm {
         }
         final DLProgram program = (DLProgram) ((StatementBlock) term
                 .javaBlock().program()).getChildAt(0);
-        final Object instObj = program.getDLAnotation(annotationKey);
+        final Object instObj = program.getDLAnnotation(annotationKey);
         if ( ! ( instObj instanceof Term ) ) {
             Debug.assertFalse ( demandInst,
                                 "Did not find annotation "
