@@ -50,16 +50,13 @@ import org.w3c.dom.Node;
 
 import de.uka.ilkd.key.dl.arithmetics.IODESolver;
 import de.uka.ilkd.key.dl.arithmetics.impl.orbital.DL2MatrixFormConverter.MatrixForm;
-import de.uka.ilkd.key.dl.formulatools.Prog2LogicConverter;
 import de.uka.ilkd.key.dl.logic.ldt.RealLDT;
 import de.uka.ilkd.key.dl.model.DLNonTerminalProgramElement;
-import de.uka.ilkd.key.dl.model.DLProgramElement;
 import de.uka.ilkd.key.dl.model.DiffSystem;
 import de.uka.ilkd.key.dl.model.Div;
 import de.uka.ilkd.key.dl.model.Dot;
 import de.uka.ilkd.key.dl.model.ProgramVariable;
-import de.uka.ilkd.key.dl.model.impl.DiffSystemImpl;
-import de.uka.ilkd.key.gui.Main;
+import de.uka.ilkd.key.dl.parser.NumberCache;
 import de.uka.ilkd.key.java.ProgramElement;
 import de.uka.ilkd.key.logic.Name;
 import de.uka.ilkd.key.logic.NamespaceSet;
@@ -69,7 +66,6 @@ import de.uka.ilkd.key.logic.op.LogicVariable;
 import de.uka.ilkd.key.logic.op.SubstOp;
 import de.uka.ilkd.key.logic.op.TermSymbol;
 import de.uka.ilkd.key.logic.sort.Sort;
-import de.uka.ilkd.key.parser.dl.NumberCache;
 
 /**
  * TODO jdq documentation since Aug 20, 2007

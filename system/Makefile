@@ -340,8 +340,8 @@ ANTLR_PARSER= \
 	$(GENERATED_SRC_PATH)$(PFX)util/keydoc/parser/KeYDocLexer.java \
 	$(GENERATED_SRC_PATH)$(PFX)util/keydoc/parser/KeYDocParser.java \
 	$(GENERATED_SRC_PATH)$(PFX)util/keydoc/parser/KeYDocTreeWalker.java \
-	$(GENERATED_SRC_PATH)$(PFX)parser/dl/DLParser.java \
-	$(GENERATED_SRC_PATH)$(PFX)parser/dl/DLStage2.java 
+	$(GENERATED_SRC_PATH)$(PFX)dl/parser/DLParser.java \
+	$(GENERATED_SRC_PATH)$(PFX)dl/parser/DLStage2.java 
 
 
 
@@ -623,7 +623,7 @@ $(GENERATED_SRC_PATH)$(PFX)parser/KeYParser.java \
 	@$(ANTLR) -glib $(PFX)parser/lexer.g \
 			 -o $(GENERATED_SRC_PATH)$(PFX)parser $<
 
-DL_PFX=$(PFX)parser/dl/
+DL_PFX=$(PFX)dl/parser/
 DL_GEN_PFX=$(GENERATED_SRC_PATH)$(DL_PFX)
 
 $(DL_GEN_PFX)DLParser.java $(DL_GEN_PFX)DL.tokens: $(DL_PFX)DL.g

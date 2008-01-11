@@ -7,7 +7,7 @@ options {
 }
 
 @header {
-	package de.uka.ilkd.key.parser.dl;
+	package de.uka.ilkd.key.dl.parser;
 	import de.uka.ilkd.key.util.Debug;
 }
 
@@ -39,7 +39,7 @@ options {
 }
 
 @lexer::header {
-	package de.uka.ilkd.key.parser.dl;
+	package de.uka.ilkd.key.dl.parser;
 }
 
 prog:  stat { 

@@ -44,6 +44,7 @@ import de.uka.ilkd.key.dl.model.Or;
 import de.uka.ilkd.key.dl.model.PredicateTerm;
 import de.uka.ilkd.key.dl.model.Variable;
 import de.uka.ilkd.key.dl.model.VariableDeclaration;
+import de.uka.ilkd.key.dl.parser.NumberCache;
 import de.uka.ilkd.key.java.ProgramElement;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.logic.Name;
@@ -55,7 +56,6 @@ import de.uka.ilkd.key.logic.op.AbstractMetaOperator;
 import de.uka.ilkd.key.logic.op.LogicVariable;
 import de.uka.ilkd.key.logic.op.Metavariable;
 import de.uka.ilkd.key.logic.sort.Sort;
-import de.uka.ilkd.key.parser.dl.NumberCache;
 import de.uka.ilkd.key.rule.inst.SVInstantiations;
 
 /**

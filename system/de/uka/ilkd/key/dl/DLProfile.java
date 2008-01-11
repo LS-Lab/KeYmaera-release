@@ -22,6 +22,7 @@
  */
 package de.uka.ilkd.key.dl;
 
+import de.uka.ilkd.key.dl.parser.ProgramBlockProvider;
 import de.uka.ilkd.key.dl.rules.DLUpdateSimplifier;
 import de.uka.ilkd.key.dl.rules.DebugRule;
 import de.uka.ilkd.key.dl.rules.EliminateExistentialQuantifierRule;
@@ -36,7 +37,6 @@ import de.uka.ilkd.key.logic.Name;
 import de.uka.ilkd.key.logic.NamespaceSet;
 import de.uka.ilkd.key.logic.op.DLWarySubstOp;
 import de.uka.ilkd.key.logic.op.Op;
-import de.uka.ilkd.key.parser.dl.ProgramBlockProvider;
 import de.uka.ilkd.key.proof.init.AbstractProfile;
 import de.uka.ilkd.key.rule.ListOfBuiltInRule;
 import de.uka.ilkd.key.rule.UpdateSimplificationRule;
