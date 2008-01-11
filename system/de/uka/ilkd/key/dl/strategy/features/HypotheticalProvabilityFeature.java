@@ -33,6 +33,8 @@ import java.util.Set;
 import java.util.WeakHashMap;
 
 import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.IncompleteEvaluationException;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.UnsolveableException;
 import de.uka.ilkd.key.dl.options.DLOptionBean;
 import de.uka.ilkd.key.dl.rules.UnknownProgressRule;
 import de.uka.ilkd.key.dl.strategy.DLStrategy;
@@ -623,7 +625,7 @@ public class HypotheticalProvabilityFeature implements Feature {
             // Look for the strategy ...
             RuleApp app = null;
             Goal g;
-            ReuseListener rl = mediator.getReuseListener();
+            //ReuseListener rl = mediator.getReuseListener();
             //@todo could also use reuses as in ApplyStrategy rather than just producing them
             while ((g = goalChooser.getNextGoal()) != null) {
                 app = g.getRuleAppManager().next();
@@ -640,7 +642,23 @@ public class HypotheticalProvabilityFeature implements Feature {
             if (app == null) {
                 return false;
             }
-            final ListOfGoal subgoals = apply(g, app);
+            ListOfGoal subgoals;
+            try {
+              subgoals = apply(g, app);
+            }
+            catch (IllegalStateException ex) {
+                if (ex.getCause() instanceof IncompleteEvaluationException) {
+                    // application of rule aborted
+                    // let's just hence pretend that there was a ruleapp and do nothing
+                    //@todo is this okay?
+                    return true;
+                } else if (ex.getCause() instanceof UnsolveableException) {
+                    //@todo tell strategy never to try this bad choice again
+                    throw ex;
+                } else {
+                    throw ex;
+                }
+            }
             // keep track of and promote reuses
             // deactivated as not yet usable by the main prover strategy
             /*rl.removeRPConsumedGoal(g);

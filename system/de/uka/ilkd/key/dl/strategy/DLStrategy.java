@@ -387,11 +387,11 @@ public class DLStrategy extends AbstractFeatureStrategy {
         if (DLOptionBean.INSTANCE.getDiffSat().compareTo(DiffSat.SIMPLE) >= 0) {
             bindRuleSet(d, "invariant_weaken", ifZero(
                     ODESolvableFeature.INSTANCE, inftyConst(),
-                    new SwitchFeature(DiffWeakenFeature.INSTANCE, new Case(
-                            longConst(0), longConst(-6000)),
-                    // reject if it doesn't help, but retry costs
-                            new Case(longConst(1), longConst(5000)), new Case(
-                                    inftyConst(), inftyConst()))));
+                    new SwitchFeature(DiffWeakenFeature.INSTANCE,
+                            new Case(longConst(0), longConst(-6000)),
+                            // reject if it doesn't help, but retry costs
+                            new Case(longConst(1), longConst(5000)),
+                            new Case(inftyConst(), inftyConst()))));
             bindRuleSet(
                     d,
                     "invariant_diff",

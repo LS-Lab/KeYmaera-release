@@ -56,7 +56,7 @@ import de.uka.ilkd.key.strategy.TopRuleAppCost;
 import de.uka.ilkd.key.strategy.feature.Feature;
 
 /**
- * DiffSat strategy.
+ * Weakening part of DiffSat strategy.
  * 
  * @author ap
  */
@@ -68,6 +68,7 @@ public class DiffWeakenFeature implements Feature {
 
     /**
      * Remembers whether diffweaken works for the given [D]F modality.
+     * @todo remember whole sequent instead for completeness!
      */
     private Map<Term, RuleAppCost> diffWeakenCache = new WeakHashMap<Term, RuleAppCost>();
 
@@ -109,7 +110,7 @@ public class DiffWeakenFeature implements Feature {
         Long timeout = getLastTimeout(firstNodeAfterBranch);
         if (timeout == null) {
             timeout = initialTimeout >= 0 ? initialTimeout
-                    : DLOptionBean.INSTANCE.getInitialTimeout();
+                    : DLOptionBean.INSTANCE.getDiffSatTimeout();
         } else {
             final int a = DLOptionBean.INSTANCE
                     .getQuadraticTimeoutIncreaseFactor();

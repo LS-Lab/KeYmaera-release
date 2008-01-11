@@ -118,10 +118,11 @@ public class DiffIndCandidates implements TermGenerator {
                         NotationInfo.createInstance(),
                         services);
                 lp.printTerm(c);
-                System.out.print("    " + lp.toString());
+                System.out.print("...  " + lp.toString());
             }
             catch (Exception ignore) {
-                System.out.println("    " + c.toString());
+                System.out.println("......  " + c.toString());
+                ignore.printStackTrace();
             }
         }
         return genericToOld(new ArrayList<Term>(l)).iterator();
@@ -169,7 +170,7 @@ public class DiffIndCandidates implements TermGenerator {
         final Set<Term> possibles = getMatchingCandidates(update, currentInvariant, seq, services, modifieds);
         System.out.println("DiffInd POSSIBLES:  ....\n" + possibles);
         
-        List<Term> result = new LinkedList<Term>();
+        Set<Set<Term>> resultConjuncts = new LinkedHashSet<Set<Term>>();
         // compare variables according to number of dependencies
         PriorityQueue<de.uka.ilkd.key.dl.model.ProgramVariable> depOrder = new PriorityQueue<de.uka.ilkd.key.dl.model.ProgramVariable>(
                 tdep.size() + 1, dependencyComparator(tdep));
@@ -190,17 +191,32 @@ public class DiffIndCandidates implements TermGenerator {
                     possibles,
                     cluster, modifieds, frees);
             System.out.println("    GENERATORS: for " + min + " cluster " + cluster + " are " + matches);
-            //@todo all nonempty subsets
             if (!matches.isEmpty()) {
-                result.add(tb.and(genericToOld(matches)));
+                // add all nonempty subsets
+                Set<Set<Term>> subsets = Setops.powerset(matches);
+                subsets.remove(Collections.EMPTY_SET);
+                resultConjuncts.addAll(subsets);
             }
             depOrder.removeAll(cluster);
+        }
+        // order by size (number of conjuncts), ascending
+        List<Set<Term>> orderedResultConjuncts = new ArrayList<Set<Term>>(resultConjuncts);
+        Collections.sort(orderedResultConjuncts, sizeComparator);
+        List<Term> result = new LinkedList<Term>();
+        for (Set<Term> s : orderedResultConjuncts) {
+            result.add(tb.and(genericToOld(s)));
         }
         // remove trivial candidates
         result.remove(tb.ff());
         result.remove(tb.tt());
         return result;
     }
+    private static final Comparator<Set<Term>> sizeComparator = new Comparator<Set<Term>>() {
+        @Override
+        public int compare(Set<Term> arg0, Set<Term> arg1) {
+            return arg0.size() - arg1.size();
+        }
+    };
     
     //
     
@@ -230,7 +246,9 @@ public class DiffIndCandidates implements TermGenerator {
             //System.out.println(x + "@" + x.getClass());
             // turn single update into equation
             //@todo if x occurs in t then can't do that without alpha-renaming stuff
-            Term equation = tb.equals(x, revert.apply(t));
+            Term revertedt = revert.apply(t);
+            Term equation = tb.equals(x, revertedt);
+            assert equation.op() instanceof de.uka.ilkd.key.logic.op.Equality : "different equalities shouldn't be mixed up: " + " " + x + "@" + x.getClass() + " equaling " + revertedt + "@" + revertedt.getClass() + " gives " + equation + " with operator " + equation.op();
             if (!containsConjunct(invariant, equation)) {
                     matches.add(equation);
             }

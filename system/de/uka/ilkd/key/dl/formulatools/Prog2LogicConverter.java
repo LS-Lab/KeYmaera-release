@@ -44,6 +44,7 @@ import de.uka.ilkd.key.dl.model.Or;
 import de.uka.ilkd.key.dl.model.PredicateTerm;
 import de.uka.ilkd.key.dl.model.Variable;
 import de.uka.ilkd.key.dl.model.VariableDeclaration;
+import de.uka.ilkd.key.dl.parser.NumberCache;
 import de.uka.ilkd.key.java.ProgramElement;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.logic.Name;
@@ -55,7 +56,6 @@ import de.uka.ilkd.key.logic.op.AbstractMetaOperator;
 import de.uka.ilkd.key.logic.op.LogicVariable;
 import de.uka.ilkd.key.logic.op.Metavariable;
 import de.uka.ilkd.key.logic.sort.Sort;
-import de.uka.ilkd.key.parser.dl.NumberCache;
 import de.uka.ilkd.key.rule.inst.SVInstantiations;
 
 /**
@@ -156,6 +156,10 @@ public class Prog2LogicConverter extends AbstractMetaOperator {
                     .getElementName();
             if (elementName.equals("equals")) {
                 termBuilder.equals(subTerms);
+            if (elementName.equals(new Name("equals"))) {
+                assert subTerms.length == 2 : "equals has arity 2";
+                return termBuilder.equals(subTerms[0], subTerms[1]);
+                // return termBuilder.tf().createEqualityTerm(subTerms);
             } else {
                 return termBuilder.func(getFunction(elementName, services
                         .getNamespaces(), subTerms.length, Sort.FORMULA),
