@@ -36,8 +36,10 @@ import de.uka.ilkd.key.dl.rules.FindInstanceRule;
 import de.uka.ilkd.key.dl.rules.FindTransitionRule;
 import de.uka.ilkd.key.dl.rules.ReduceRule;
 import de.uka.ilkd.key.dl.rules.VisualizationRule;
+import de.uka.ilkd.key.dl.strategy.features.AnnotationList;
 import de.uka.ilkd.key.dl.strategy.features.DiffIndCandidates;
 import de.uka.ilkd.key.dl.strategy.features.DiffSatFeature;
+import de.uka.ilkd.key.dl.strategy.features.DiffInvariantPresentFeature;
 import de.uka.ilkd.key.dl.strategy.features.DiffWeakenFeature;
 import de.uka.ilkd.key.dl.strategy.features.FOFormula;
 import de.uka.ilkd.key.dl.strategy.features.FOSequence;
@@ -433,27 +435,27 @@ public class DLStrategy extends AbstractFeatureStrategy {
         }
 
         if (DLOptionBean.INSTANCE.getDiffSat().compareTo(DiffSat.DIFF) >= 0) {
-            bindRuleSet(d, "invariant_strengthen", ifZero(isAnnotated("strengthen"),
-                    longConst(0),
+            bindRuleSet(d, "invariant_strengthen", 
                     ifZero(
-                    PostDiffStrengthFeature.INSTANCE, inftyConst(), // strengthening
-                    // augmentation
-                    // validity
-                    // proofs
-                    // seems
-                    // useless
+                    PostDiffStrengthFeature.INSTANCE,
+                    // recursively strengthening augmentation validity proofs seems useless
+                    inftyConst(),
+                    ifZero(isAnnotated("strengthen"),
+                            longConst(0),
                     ifZero(ODESolvableFeature.INSTANCE, inftyConst(), ifZero(
-                            DiffWeakenFeature.INSTANCE, inftyConst(), // never
-                            // instantiate
-                            // when
-                            // cheaper
-                            // rule
-                            // successful
-                            longConst(10000) // go on try to instantiate,
+                            DiffWeakenFeature.INSTANCE, inftyConst(), 
+                            // never instantiate when cheaper rule successful
+                            longConst(10000)
+                            // go on try to instantiate,
                             // except when tabooed
                             )))));
         } else {
-            bindRuleSet(d, "invariant_strengthen", isAnnotated("strengthen"));
+            bindRuleSet(d, "invariant_strengthen",
+                    ifZero(
+                            PostDiffStrengthFeature.INSTANCE,
+                            // recursively strengthening augmentation validity proofs seems useless
+                            inftyConst(),
+                            isAnnotated("strengthen")));
         }
     }
 
@@ -485,15 +487,27 @@ public class DLStrategy extends AbstractFeatureStrategy {
             final TermBuffer augInst = new TermBuffer();
             final RuleAppBuffer buffy = new RuleAppBuffer();
             bindRuleSet(d, "invariant_strengthen", ifZero(isAnnotated("strengthen"),
-                    instantiate("augment", annotationOf("strengthen", true)),
+                    ///////instantiate("augment", annotationOf("strengthen", true)),
+                    storeRuleApp(buffy,
+                            not(sum(augInst, new AnnotationList("strengthen", false),
+                                    add(buffy,
+                                    instantiate("augment", augInst),
+                                    not(not(new DiffInvariantPresentFeature(augInst))))))),
+                    // no annotation
                     ifZero(storeRuleApp(buffy,
                     not(sum(augInst, DiffIndCandidates.INSTANCE, add(buffy,
                             instantiate("augment", augInst),
                             not(new DiffSatFeature(augInst)))))),
                     longConst(-1000), inftyConst())));
         } else {
+            final TermBuffer augInst = new TermBuffer();
+            final RuleAppBuffer buffy = new RuleAppBuffer();
             bindRuleSet(d, "invariant_strengthen", ifZero(isAnnotated("strengthen"),
-                    instantiate("augment", annotationOf("strengthen", true)),
+                    storeRuleApp(buffy,
+                            not(sum(augInst, new AnnotationList("strengthen", false),
+                                    add(buffy,
+                                    instantiate("augment", augInst),
+                                    not(not(new DiffInvariantPresentFeature(augInst))))))),
                     inftyConst()));
         }
         if (DLOptionBean.INSTANCE.getDiffSat().compareTo(DiffSat.AUTO) >= 0) {

@@ -3,16 +3,24 @@
  */
 package de.uka.ilkd.key.dl.formulatools;
 
+import java.util.Collection;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
+import de.uka.ilkd.key.dl.model.NamedElement;
 import de.uka.ilkd.key.logic.ConstrainedFormula;
 import de.uka.ilkd.key.logic.IteratorOfConstrainedFormula;
 import de.uka.ilkd.key.logic.IteratorOfTerm;
+import de.uka.ilkd.key.logic.ListOfTerm;
+import de.uka.ilkd.key.logic.Name;
+import de.uka.ilkd.key.logic.Named;
+import de.uka.ilkd.key.logic.SLListOfTerm;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.TermFactory;
 import de.uka.ilkd.key.logic.Visitor;
 import de.uka.ilkd.key.logic.op.Junctor;
+import de.uka.ilkd.key.logic.op.Operator;
 
 /**
  * @author andre
@@ -130,5 +138,57 @@ public class TermTools {
            }
         });
         return result[0];
+    }
+
+
+    // more general helpers
+
+    /**
+     * projection to programvariables
+     * 
+     * @param s
+     * @return
+     */
+    public static Set<de.uka.ilkd.key.logic.op.ProgramVariable> projectProgramVariables(
+            Set<Operator> s) {
+        Set<de.uka.ilkd.key.logic.op.ProgramVariable> r = new LinkedHashSet<de.uka.ilkd.key.logic.op.ProgramVariable>();
+        for (Operator o : s) {
+            if (o instanceof de.uka.ilkd.key.logic.op.ProgramVariable) {
+                r.add((de.uka.ilkd.key.logic.op.ProgramVariable) o);
+            }
+        }
+        return r;
+    }
+
+    /**
+     * projects set of named things to the set of its respective names.
+     * 
+     * @param s
+     * @return
+     */
+    public static Set<Name> projectNames(Set<? extends Named> s) {
+        Set<Name> r = new LinkedHashSet<Name>();
+        for (Named n : s) {
+            r.add(n.name());
+        }
+        return r;
+    }
+
+    public static ListOfTerm genericToOld(Collection<Term> c) {
+        ListOfTerm r = SLListOfTerm.EMPTY_LIST;
+        for (Term s : c) {
+            r = r.append(s);
+        }
+        assert r.size() == c.size();
+        return r;
+    }
+
+    public static List<Term> oldToGeneric(ListOfTerm c) {
+        List<Term> r = new java.util.ArrayList<Term>(c.size());
+        for (IteratorOfTerm i = c.iterator(); i.hasNext();) {
+            r.add(i.next());
+        }
+        assert r.size() == c.size();
+        return r;
     }
 }

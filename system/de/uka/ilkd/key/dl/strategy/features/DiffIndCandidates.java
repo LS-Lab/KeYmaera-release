@@ -128,7 +128,7 @@ public class DiffIndCandidates implements TermGenerator {
                 ignore.printStackTrace();
             }
         }
-        return genericToOld(new ArrayList<Term>(l)).iterator();
+        return TermTools.genericToOld(new ArrayList<Term>(l)).iterator();
     }
 
     /**
@@ -217,7 +217,7 @@ public class DiffIndCandidates implements TermGenerator {
         Collections.sort(orderedResultConjuncts, sizeComparator);
         List<Term> result = new LinkedList<Term>();
         for (Set<Term> s : orderedResultConjuncts) {
-            result.add(tb.and(genericToOld(s)));
+            result.add(tb.and(TermTools.genericToOld(s)));
         }
         // remove trivial candidates
         result.remove(tb.ff());
@@ -350,7 +350,7 @@ public class DiffIndCandidates implements TermGenerator {
         Set<Term> matches = new LinkedHashSet<Term>();
         for (Term fml : candidates) {
             final Set<Name> occurrences = Collections
-                    .unmodifiableSet(projectNames(projectProgramVariables(FOVariableNumberCollector
+                    .unmodifiableSet(TermTools.projectNames(TermTools.projectProgramVariables(FOVariableNumberCollector
                             .getVariables(fml))));
             if (!vars.containsAll(Setops.intersection(occurrences, frees))) {
                 // System.out.println(" skip " + fml + " as " + occurrences + "
@@ -459,39 +459,6 @@ public class DiffIndCandidates implements TermGenerator {
         return dep;
     }
 
-    // more general helpers
-
-    /**
-     * projection to programvariables
-     * 
-     * @param s
-     * @return
-     */
-    private static Set<de.uka.ilkd.key.logic.op.ProgramVariable> projectProgramVariables(
-            Set<Operator> s) {
-        Set<de.uka.ilkd.key.logic.op.ProgramVariable> r = new LinkedHashSet<de.uka.ilkd.key.logic.op.ProgramVariable>();
-        for (Operator o : s) {
-            if (o instanceof de.uka.ilkd.key.logic.op.ProgramVariable) {
-                r.add((de.uka.ilkd.key.logic.op.ProgramVariable) o);
-            }
-        }
-        return r;
-    }
-
-    /**
-     * projects set of named things to the set of its respective names.
-     * 
-     * @param s
-     * @return
-     */
-    private static Set<Name> projectNames(Set<? extends Named> s) {
-        Set<Name> r = new LinkedHashSet<Name>();
-        for (Named n : s) {
-            r.add(n.name());
-        }
-        return r;
-    }
-
     // @todo refactor to get rid of this duplication
     private static Set<Name> projectNames2(Set<? extends NamedElement> s) {
         Set<Name> r = new LinkedHashSet<Name>();
@@ -501,21 +468,4 @@ public class DiffIndCandidates implements TermGenerator {
         return r;
     }
 
-    private static ListOfTerm genericToOld(Collection<Term> c) {
-        ListOfTerm r = SLListOfTerm.EMPTY_LIST;
-        for (Term s : c) {
-            r = r.append(s);
-        }
-        assert r.size() == c.size();
-        return r;
-    }
-
-    private static List<Term> oldToGeneric(ListOfTerm c) {
-        List<Term> r = new java.util.ArrayList<Term>(c.size());
-        for (IteratorOfTerm i = c.iterator(); i.hasNext();) {
-            r.add(i.next());
-        }
-        assert r.size() == c.size();
-        return r;
-    }
 }

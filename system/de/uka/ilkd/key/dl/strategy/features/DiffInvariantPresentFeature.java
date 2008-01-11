@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2007 by Jan David Quesel André Platzer                  *
+ *   Copyright (C) 2007 by André Platzer                                   *
  *   quesel@informatik.uni-oldenburg.de                                    *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -19,29 +19,41 @@
  ***************************************************************************/
 package de.uka.ilkd.key.dl.strategy.features;
 
+import de.uka.ilkd.key.dl.formulatools.TermTools;
+import de.uka.ilkd.key.dl.model.DiffSystem;
+import de.uka.ilkd.key.java.StatementBlock;
+import de.uka.ilkd.key.logic.JavaBlock;
 import de.uka.ilkd.key.logic.Name;
 import de.uka.ilkd.key.logic.PosInOccurrence;
+import de.uka.ilkd.key.logic.Term;
+import de.uka.ilkd.key.logic.op.Modality;
+import de.uka.ilkd.key.logic.op.QuanUpdateOperator;
 import de.uka.ilkd.key.proof.Goal;
 import de.uka.ilkd.key.proof.UpdateSimplificationRuleFilter;
 import de.uka.ilkd.key.rule.ListOfRuleApp;
 import de.uka.ilkd.key.rule.RuleApp;
 import de.uka.ilkd.key.rule.TacletApp;
-import de.uka.ilkd.key.rule.UpdateSimplificationRule;
 import de.uka.ilkd.key.strategy.LongRuleAppCost;
 import de.uka.ilkd.key.strategy.RuleAppCost;
 import de.uka.ilkd.key.strategy.TopRuleAppCost;
 import de.uka.ilkd.key.strategy.feature.Feature;
+import de.uka.ilkd.key.strategy.termProjection.ProjectionToTerm;
+import de.uka.ilkd.key.util.Debug;
 
 /**
- * Detects if results from ("left") augmentation proof part of diffstrengthen
+ * Detects if a term is already present in the invariant (quickly subsumed).
  * 
  * @author ap
  * 
  */
-public class PostDiffStrengthFeature implements Feature {
+public class DiffInvariantPresentFeature implements Feature {
 
-    public static final Feature INSTANCE = new PostDiffStrengthFeature();
-
+    private final ProjectionToTerm value;
+    
+    public DiffInvariantPresentFeature(ProjectionToTerm value) {
+        this.value = value;
+    }
+    
     /*
      * (non-Javadoc)
      * 
@@ -49,27 +61,31 @@ public class PostDiffStrengthFeature implements Feature {
      *      de.uka.ilkd.key.logic.PosInOccurrence, de.uka.ilkd.key.proof.Goal)
      */
     public RuleAppCost compute(RuleApp app, PosInOccurrence pos, Goal goal) {
-        if ("Invariant Valid".equals(goal.node().getNodeInfo().getBranchLabel())) {
-            if (goal.appliedRuleApps().isEmpty())
-                return TopRuleAppCost.INSTANCE;
-            RuleApp rapp = goal.appliedRuleApps().head();
-            ListOfRuleApp rest = goal.appliedRuleApps().tail();
-            // skip update applications
-            while (UpdateSimplificationRuleFilter.INSTANCE.filter(rapp.rule())) {
-                rapp = rest.head();
-                rest = rest.tail();
-            }
-            if (rapp instanceof TacletApp) {
-                TacletApp tapp = (TacletApp) rapp;
-                if (tapp.taclet().ruleSets().next() == goal.proof()
-                        .getNamespaces().ruleSets().lookup(
-                                new Name("diffstrengthen"))
-                        || tapp.rule().name()
-                                .equals(new Name("diffstrengthen"))) {
-                    return LongRuleAppCost.ZERO_COST;
-                }
-            }
+        Term term = pos.subTerm();
+        // unbox from update prefix
+        while (term.op() instanceof QuanUpdateOperator) {
+            term = ((QuanUpdateOperator) term.op()).target(term);
         }
-        return TopRuleAppCost.INSTANCE;
+        if (!(term.op() instanceof Modality
+                && term.javaBlock() != null
+                && term.javaBlock() != JavaBlock.EMPTY_JAVABLOCK
+                && term.javaBlock().program() instanceof StatementBlock)) {
+            throw new IllegalArgumentException("inapplicable to " + pos);
+        }
+        final DiffSystem system = (DiffSystem) ((StatementBlock) term
+                .javaBlock().program()).getChildAt(0);
+        final Term invariant = system.getInvariant();
+        
+        if ( ! ( app instanceof TacletApp ) )
+            Debug.fail ( "Projection is only applicable to taclet apps," +
+                         " but got " + app );
+       
+        final TacletApp tapp = (TacletApp)app;
+        final Term augment = value.toTerm(app, pos, goal);
+        if (TermTools.subsumes(invariant, augment)) {
+            return LongRuleAppCost.ZERO_COST;
+        } else {
+            return TopRuleAppCost.INSTANCE;
+        }
     }
 }
