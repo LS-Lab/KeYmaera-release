@@ -10,6 +10,7 @@
 
 package de.uka.ilkd.key.strategy;
 
+import de.uka.ilkd.key.dl.strategy.features.AnnotatedFeature;
 import de.uka.ilkd.key.dl.strategy.termProjection.AnnotationProjection;
 import de.uka.ilkd.key.logic.*;
 import de.uka.ilkd.key.logic.op.Operator;
@@ -264,6 +265,12 @@ public abstract class AbstractFeatureStrategy implements Strategy {
     */
     public static ProjectionToTerm annotationOf(String annotationKey, boolean demandInst) {
         return AnnotationProjection.create(annotationKey, demandInst);
+    }
+    /**
+     * Feature that returns zero iff a certain annotation is defined for a \find match modality.
+     */
+    protected Feature isAnnotated(String annotationKey) {
+        return AnnotatedFeature.create (annotationKey);
     }
 
     /**
