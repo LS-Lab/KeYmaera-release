@@ -154,8 +154,6 @@ public class Prog2LogicConverter extends AbstractMetaOperator {
             }
             Name elementName = ((NamedElement) p.getChildAt(0))
                     .getElementName();
-            if (elementName.equals("equals")) {
-                termBuilder.equals(subTerms);
             if (elementName.equals(new Name("equals"))) {
                 assert subTerms.length == 2 : "equals has arity 2";
                 return termBuilder.equals(subTerms[0], subTerms[1]);
@@ -165,6 +163,7 @@ public class Prog2LogicConverter extends AbstractMetaOperator {
                         .getNamespaces(), subTerms.length, Sort.FORMULA),
                         subTerms);
             }
+            
         } else if (form instanceof FunctionTerm) {
             FunctionTerm p = (FunctionTerm) form;
             Term[] subTerms = new Term[p.getChildCount() - 1];
