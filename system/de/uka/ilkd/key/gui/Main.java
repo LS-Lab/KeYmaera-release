@@ -287,6 +287,7 @@ public class Main extends JFrame {
 
     private JPopupMenu reusePopup = new JPopupMenu();
 
+    protected static boolean reloadOnStartUp = false;
     protected static String fileNameOnStartUp = null;
 
     /** are we in stand-alone mode? (or with TCC?) */
@@ -2444,7 +2445,9 @@ public class Main extends JFrame {
                 fileNameOnStartUp = opt[index];
             } else {
                 opt[index] = opt[index].toUpperCase();
-                if (opt[index].equals("NO_DEBUG")) {
+                if (opt[index].equals("RELOAD")) {
+                    reloadOnStartUp = true;
+                } else if (opt[index].equals("NO_DEBUG")) {
                     de.uka.ilkd.key.util.Debug.ENABLE_DEBUG = false;
                 } else if (opt[index].equals("DEBUG")) {
                     de.uka.ilkd.key.util.Debug.ENABLE_DEBUG = true;
@@ -2828,6 +2831,15 @@ public class Main extends JFrame {
     }
 
     public void loadCommandLineFile() {
+        if (reloadOnStartUp) {
+            if (recentFiles != null && recentFiles.getMostRecent() != null) {
+                final String recentFile = recentFiles.getMostRecent()
+                        .getAbsolutePath();
+                if (recentFile != null) {
+                    loadProblem(new File(recentFile));
+                }
+            }
+        }
         if (fileNameOnStartUp != null) {
             loadProblem(new File(fileNameOnStartUp));
         }
