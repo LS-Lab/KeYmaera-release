@@ -163,6 +163,7 @@ public class Prog2LogicConverter extends AbstractMetaOperator {
                         .getNamespaces(), subTerms.length, Sort.FORMULA),
                         subTerms);
             }
+            
         } else if (form instanceof FunctionTerm) {
             FunctionTerm p = (FunctionTerm) form;
             Term[] subTerms = new Term[p.getChildCount() - 1];
