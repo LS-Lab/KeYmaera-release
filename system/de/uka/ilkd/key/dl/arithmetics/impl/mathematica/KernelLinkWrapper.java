@@ -587,11 +587,8 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
                                 }
                             }
                         } catch (InterruptedException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
                         } catch (IOException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
+                            break;
                         }
                     }
                 }

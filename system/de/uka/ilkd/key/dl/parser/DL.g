@@ -62,13 +62,13 @@ chop: choice (CHOP^ chop)?
 choice: star (CHOICE^ choice)?
 ;
 
-star: atomp (/*invariant?*/ STAR^)?
+star: atomp (/*invariant?*/ STAR^ (anotation)*)?
 ;
 
 /*invariant: INVARIANT^ LPAREN! form RPAREN!
 ;*/
 
-atomp options { k=3; } : itomp (anotation)*
+atomp options { k=3; } : itomp^ (anotation)*
 ;
 
 itomp options { k=3; } : quest | assign | LPAREN! stat RPAREN! | diffsystem | ifThenElse | vardec | {schemaMode}? sv

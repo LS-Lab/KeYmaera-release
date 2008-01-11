@@ -10,6 +10,7 @@
 
 package de.uka.ilkd.key.strategy;
 
+import de.uka.ilkd.key.dl.strategy.termProjection.AnnotationProjection;
 import de.uka.ilkd.key.logic.*;
 import de.uka.ilkd.key.logic.op.Operator;
 import de.uka.ilkd.key.logic.sort.Sort;
@@ -255,6 +256,16 @@ public abstract class AbstractFeatureStrategy implements Strategy {
         return SVInstantiationProjection.create ( new Name ( schemaVar ), true );
     }
     
+    /**
+    * Projection of rule apps to the value of an annotation in its \find match modality. The
+    * projection can be undefined (null) for those apps that do not
+    * possess the annotation in question, or it can raise an error for
+    * such applications, depending on demandInst
+    */
+    public static ProjectionToTerm annotationOf(String annotationKey, boolean demandInst) {
+        return AnnotationProjection.create(annotationKey, demandInst);
+    }
+
     /**
      * Create a projection of taclet applications to the instantiation of the
      * schema variables <code>schemaVar</code>. The projection will be

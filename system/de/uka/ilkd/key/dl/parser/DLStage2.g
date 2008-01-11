@@ -32,19 +32,22 @@ options {
 prog returns [ DLProgram pe ]:   st = stat { pe = st; } EOF; 
 
 stat returns [ DLProgram pe ] scope { ArrayList<Formula> params; } @init {$stat::params = new ArrayList<Formula>(); }: 
-	st = astat { pe = st; } (ANOTATION w = WORD f = form[true] { pe.setDLAnotation(w.toString(), f); })*
+	st = astat { pe = st; } 
+;
+
+annotation[ DLProgram pe ]: (ANOTATION w = WORD f = form[true] { pe.setDLAnotation(w.toString(), f); })
 ;
 
 astat returns [ DLProgram pe ] : 
-^(CHOP st = stat { pe = st; } (st = stat { pe = tf.createChop(pe, st); })*)
-| ^(CHOICE st = stat { pe = st; } (st = stat { pe = tf.createChoice(pe, st); })*)
-| ^(PARALLEL st = stat { pe = st; } (st = stat { pe = tf.createParallel(pe, st); })*)
-| ^(STAR st = stat) { pe = tf.createStar(st); }
-| ^(QUEST frm = form[false]) { pe = tf.createQuest(frm); }
-| ^(ASSIGN as = assign) { pe = as; }
-| ^(DIFFSYSTEM dsc = form[true] { $stat::params.add(dsc); } (d = form[true] { $stat::params.add(d); })*) { pe = tf.createDiffSystem($stat::params); $stat::params.clear(); }
-| ^(VARDEC dec = vardecl[true]) { pe = dec; }
-| ^(IF frm = form[false] st = stat (st2 = stat)? { pe = tf.createIf(frm, st, st2); })
+^(CHOP st = stat { pe = st; } (st = stat { pe = tf.createChop(pe, st); })* (annotation[pe])*)
+| ^(CHOICE st = stat { pe = st; } (st = stat { pe = tf.createChoice(pe, st); })* (annotation[pe])*)
+| ^(PARALLEL st = stat { pe = st; } (st = stat { pe = tf.createParallel(pe, st); })* (annotation[pe])*)
+| ^(STAR st = stat { pe = tf.createStar(st); } (annotation[pe])*)
+| ^(QUEST frm = form[false] { pe = tf.createQuest(frm); } (annotation[pe])*)
+| ^(ASSIGN as = assign { pe = as; } (annotation[pe])*)
+| ^(DIFFSYSTEM dsc = form[true] { $stat::params.add(dsc); } (d = form[true] { $stat::params.add(d); })* { pe = tf.createDiffSystem($stat::params); $stat::params.clear(); } (annotation[pe])*)
+| ^(VARDEC dec = vardecl[true] { pe = dec; } (annotation[pe])*)
+| ^(IF frm = form[false] st = stat (st2 = stat)? { pe = tf.createIf(frm, st, st2); } (annotation[pe])*)
 | {schemaMode}? sv = svar { pe = tf.schemaProgramVariable(sv); }
 ;
 
