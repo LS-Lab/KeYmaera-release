@@ -35,7 +35,7 @@ header {
   import de.uka.ilkd.key.logic.sort.*;
   import de.uka.ilkd.key.logic.sort.oclsort.OclSort;
 
-  import de.uka.ilkd.key.parser.dl.NumberCache;
+  import de.uka.ilkd.key.dl.parser.NumberCache;
   import de.uka.ilkd.key.dl.logic.ldt.RealLDT;
 
   import de.uka.ilkd.key.proof.*;

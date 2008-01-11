@@ -1,4 +1,4 @@
-package de.uka.ilkd.key.parser.dl;
+package de.uka.ilkd.key.dl.parser;
 
 import java.util.Arrays;
 import java.util.HashSet;

@@ -1,7 +1,7 @@
 /**
  * File created 08.03.2007
  */
-package de.uka.ilkd.key.parser.dl;
+package de.uka.ilkd.key.dl.parser;
 
 import java.math.BigDecimal;
 import java.util.Map;
