@@ -38,17 +38,14 @@ import java.io.IOException;
  */
 public class StarImpl extends CompoundDLProgramImpl implements Star {
 
-    private Formula invariant;
-
     /**
      * Creates a new repetition operator
      * 
      * @param p
      *                the formula to repeat
      */
-    public StarImpl(DLProgram p, Formula invariant) {
+    public StarImpl(DLProgram p) {
         addChild(p);
-        this.invariant = invariant;
     }
 
     /**
@@ -63,7 +60,7 @@ public class StarImpl extends CompoundDLProgramImpl implements Star {
      * @return the invariant
      */
     public Formula getInvariant() {
-        return invariant;
+        return getDLAnotation("invariant");
     }
 
 }

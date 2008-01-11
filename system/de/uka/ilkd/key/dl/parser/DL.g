@@ -48,7 +48,9 @@ prog:  stat {
 		}
 	} (CHOP!)? EOF!; 
 
-stat: parallel
+anotation: ANOTATION WORD LPAREN! form RPAREN!;
+
+stat: parallel (anotation)*
 ;
 
 parallel: chop (PARALLEL^ parallel)?
@@ -60,11 +62,11 @@ chop: choice (CHOP^ chop)?
 choice: star (CHOICE^ choice)?
 ;
 
-star: atomp (invariant? STAR^)?
+star: atomp (/*invariant?*/ STAR^)?
 ;
 
-invariant: INVARIANT^ LPAREN! form RPAREN!
-;
+/*invariant: INVARIANT^ LPAREN! form RPAREN!
+;*/
 
 
 atomp options { k=3; } : quest | assign | LPAREN! stat RPAREN! | diffsystem | ifThenElse | vardec | {schemaMode}? sv
@@ -169,9 +171,10 @@ algodiffeq[boolean diffAllowed]:
 sv: SV^ WORD;
 
 SV		: '#' ;
-INVARIANT: '@invariant' ;
+//INVARIANT: '@invariant' ;
 VARDEC	: '@decl@';
-DIFFSYSTEM : '@';
+DIFFSYSTEM : '@DIFFSYSTEM@';
+ANOTATION : '@';
 NOT		: '!' ;
 IMPL	: '->';
 BIIMPL	: '<->';

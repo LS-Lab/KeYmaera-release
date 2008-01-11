@@ -25,8 +25,11 @@
 package de.uka.ilkd.key.dl.model.impl;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import de.uka.ilkd.key.dl.model.DLProgramElement;
+import de.uka.ilkd.key.dl.model.Formula;
 import de.uka.ilkd.key.java.Comment;
 import de.uka.ilkd.key.java.Position;
 import de.uka.ilkd.key.java.PositionInfo;
@@ -46,6 +49,28 @@ import de.uka.ilkd.key.rule.MatchConditions;
  */
 public abstract class DLProgramElementImpl implements DLProgramElement {
 
+    private Map<String, Formula> anotations;
+    
+    public DLProgramElementImpl() {
+        anotations = new HashMap<String, Formula>();
+    }
+    
+    /* (non-Javadoc)
+     * @see de.uka.ilkd.key.dl.model.DLProgramElement#setDLAnotation(java.lang.String, java.lang.String)
+     */
+    @Override
+    public void setDLAnotation(String key, Formula value) {
+        anotations.put(key, value);
+    }
+    
+    /* (non-Javadoc)
+     * @see de.uka.ilkd.key.dl.model.DLProgramElement#getDLAnotation(java.lang.String)
+     */
+    @Override
+    public Formula getDLAnotation(String key) {
+        return anotations.get(key);
+    }
+    
     /**
      * @return 0 (no annotation in dL)
      * @see de.uka.ilkd.key.dl.model.DLProgramElement#getAnnotationCount()

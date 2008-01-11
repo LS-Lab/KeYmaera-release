@@ -29,13 +29,13 @@ options {
 	tf = new TermFactory();
 }*/
 
-prog returns [ DLProgram pe ]:   st = stat { pe = st; } EOF; 
+prog returns [ DLProgram pe ]:   st = stat { pe = st; } (ANOTATION w = WORD f = form[true] { pe.setDLAnotation(w.toString(), f); })* EOF; 
 
 stat returns [ DLProgram pe ] scope { ArrayList<Formula> params; } @init {$stat::params = new ArrayList<Formula>(); } : 
 ^(CHOP st = stat { pe = st; } (st = stat { pe = tf.createChop(pe, st); })*)
 | ^(CHOICE st = stat { pe = st; } (st = stat { pe = tf.createChoice(pe, st); })*)
 | ^(PARALLEL st = stat { pe = st; } (st = stat { pe = tf.createParallel(pe, st); })*)
-| ^(STAR st = stat (frm = invariant)?) { pe = tf.createStar(st, frm); }
+| ^(STAR st = stat) { pe = tf.createStar(st); }
 | ^(QUEST frm = form[false]) { pe = tf.createQuest(frm); }
 | ^(ASSIGN as = assign) { pe = as; }
 | ^(DIFFSYSTEM dsc = form[true] { $stat::params.add(dsc); } (d = form[true] { $stat::params.add(d); })*) { pe = tf.createDiffSystem($stat::params); $stat::params.clear(); }

@@ -445,8 +445,8 @@ public class TermFactoryImpl extends TermFactory {
      * 
      * @see de.uka.ilkd.key.dl.TermFactory#createStar(de.uka.ilkd.key.dl.DLProgram)
      */
-    public Star createStar(DLProgram st, Formula frm) {
-        return new StarImpl(st, frm);
+    public Star createStar(DLProgram st) {
+        return new StarImpl(st);
     }
 
     /*
