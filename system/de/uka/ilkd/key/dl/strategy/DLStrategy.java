@@ -364,16 +364,10 @@ public class DLStrategy extends AbstractFeatureStrategy {
      * @author ap
      */
     private void setupDiffSatStrategy(final RuleSetDispatchFeature d) {
-        if (DLOptionBean.INSTANCE.getDiffSat() == DiffSat.BLIND) {
-            bindRuleSet(d, "invariant_diff", isAnnotated("diffind"));
-            bindRuleSet(d, "invariant_weaken", isAnnotated("weaken"));
-            bindRuleSet(d, "invariant_strengthen", isAnnotated("strengthen"));
-            return;
-        } else {
+        if (DLOptionBean.INSTANCE.getDiffSat() != DiffSat.BLIND) {
             bindRuleSet(d, "diff_solve", ifZero(ODESolvableFeature.INSTANCE,
                     longConst(4000), inftyConst()));
         }
-
         if (DLOptionBean.INSTANCE.getCounterexampleTest().compareTo(
                 CounterexampleTest.TRANSITIONS) >= 0) {
             // @ don't try any diff rules if there is a counterexample
@@ -383,6 +377,7 @@ public class DLStrategy extends AbstractFeatureStrategy {
             // foundCounterexample()
             );
         }
+        
 
         if (DLOptionBean.INSTANCE.getDiffSat().compareTo(DiffSat.SIMPLE) >= 0) {
             bindRuleSet(d, "invariant_weaken",
@@ -438,7 +433,9 @@ public class DLStrategy extends AbstractFeatureStrategy {
         }
 
         if (DLOptionBean.INSTANCE.getDiffSat().compareTo(DiffSat.DIFF) >= 0) {
-            bindRuleSet(d, "invariant_strengthen", ifZero(
+            bindRuleSet(d, "invariant_strengthen", ifZero(isAnnotated("strengthen"),
+                    longConst(0),
+                    ifZero(
                     PostDiffStrengthFeature.INSTANCE, inftyConst(), // strengthening
                     // augmentation
                     // validity
@@ -454,7 +451,7 @@ public class DLStrategy extends AbstractFeatureStrategy {
                             // successful
                             longConst(10000) // go on try to instantiate,
                             // except when tabooed
-                            ))));
+                            )))));
         } else {
             bindRuleSet(d, "invariant_strengthen", isAnnotated("strengthen"));
         }
@@ -537,6 +534,12 @@ public class DLStrategy extends AbstractFeatureStrategy {
                             instantiate("inv", annotationOf("invariant", true)),
                             inftyConst()));
         }
+        bindRuleSet(d, "loop_variant",
+                ifZero(isAnnotated("variant"),
+                        //@todo rename n in both instantiations when it already occurs elsewhere
+                        add(instantiate("inv", annotationOf("variant", true, 0, 2)),
+                            instantiate("n", annotationOf("variant", true, 1, 2))),
+                        inftyConst()));
     }
 
     // //////////////////////////////////////////////////////////////////////////

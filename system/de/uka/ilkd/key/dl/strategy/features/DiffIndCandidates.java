@@ -254,7 +254,7 @@ public class DiffIndCandidates implements TermGenerator {
         final ReplacementSubst revert = revertStateChange(update, services,
                 modifieds);
         System.out.println("REVERT " + revert);
-        Set<Term> invariant = splitConjuncts(currentInvariant);
+        Set<Term> invariant = TermTools.splitConjuncts(currentInvariant);
         // System.out.println(" INVARIANT " + invariant + " of " +
         // system.getInvariant() + " of " + system);
 
@@ -286,7 +286,7 @@ public class DiffIndCandidates implements TermGenerator {
                     + " gives "
                     + equation
                     + " with operator " + equation.op();
-            if (!containsConjunct(invariant, equation)) {
+            if (!TermTools.subsumes(invariant, equation)) {
                 matches.add(equation);
             }
         }
@@ -299,7 +299,7 @@ public class DiffIndCandidates implements TermGenerator {
             // revert.getReplacements then skip
             fml = revert.apply(fml);
             if (FOSequence.INSTANCE.isFOFormula(fml)
-                    && !containsConjunct(invariant, fml)) {
+                    && !TermTools.subsumes(invariant, fml)) {
                 matches.add(fml);
             }
         }
@@ -372,44 +372,6 @@ public class DiffIndCandidates implements TermGenerator {
     }
 
     // helper methods
-
-    private boolean containsConjunct(Set<Term> set, Term formula) {
-        if (set.contains(formula)) {
-            return true;
-        }
-        for (Term inv : set) {
-            if (inv.toString().equals(formula.toString())) {
-                // @todo assert namespaces.unique
-                // System.out.println(" WARNING: identical printout with
-                // different representation " + equation + " and " + inv);
-                // @xxx string comparison is a hack
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private boolean containsConjunct(Term conjuncts, Term formula) {
-        return containsConjunct(splitConjuncts(conjuncts), formula);
-    }
-
-    /**
-     * Splits a formula along all its conjunctions into a set of its conjuncts.
-     * 
-     * @param form
-     * @return
-     */
-    private Set<Term> splitConjuncts(Term form) {
-        Set<Term> conjuncts = new LinkedHashSet<Term>();
-        if (form.op() == Junctor.AND) {
-            for (int i = 0; i < form.arity(); i++) {
-                conjuncts.addAll(splitConjuncts(form.sub(i)));
-            }
-        } else {
-            conjuncts.add(form);
-        }
-        return conjuncts;
-    }
 
     /**
      * compare variables according to number of dependencies

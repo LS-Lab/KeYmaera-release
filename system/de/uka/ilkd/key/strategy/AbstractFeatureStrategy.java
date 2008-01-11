@@ -258,13 +258,24 @@ public abstract class AbstractFeatureStrategy implements Strategy {
     }
     
     /**
-    * Projection of rule apps to the value of an annotation in its \find match modality. The
-    * projection can be undefined (null) for those apps that do not
-    * possess the annotation in question, or it can raise an error for
-    * such applications, depending on demandInst
-    */
+     * Projection of rule apps to the value of an annotation in its \find match modality. The
+     * projection can be undefined (null) for those apps that do not
+     * possess the annotation in question, or it can raise an error for
+     * such applications, depending on demandInst
+     */
     public static ProjectionToTerm annotationOf(String annotationKey, boolean demandInst) {
         return AnnotationProjection.create(annotationKey, demandInst);
+    }
+    /**
+     * Projection of rule apps to the value of an annotation in its \find match modality. The
+     * projection can be undefined (null) for those apps that do not
+     * possess the annotation in question, or it can raise an error for
+     * such applications, depending on demandInst
+     * @param arg the list element index to pick
+     * @param count the expected number of list elements (or -1 for don't care)
+     */
+    public static ProjectionToTerm annotationOf(String annotationKey, boolean demandInst, int arg, int count) {
+        return AnnotationProjection.create(annotationKey, demandInst, arg, count);
     }
     /**
      * Feature that returns zero iff a certain annotation is defined for a \find match modality.

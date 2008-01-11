@@ -23,6 +23,8 @@ import de.uka.ilkd.key.logic.Constraint;
 import de.uka.ilkd.key.logic.JavaBlock;
 import de.uka.ilkd.key.logic.PosInOccurrence;
 import de.uka.ilkd.key.logic.Term;
+import de.uka.ilkd.key.logic.TermBuilder;
+import de.uka.ilkd.key.logic.TermFactory;
 import de.uka.ilkd.key.logic.op.Modality;
 import de.uka.ilkd.key.logic.op.QuanUpdateOperator;
 import de.uka.ilkd.key.proof.Goal;
@@ -41,14 +43,21 @@ public class AnnotationProjection implements ProjectionToTerm {
 
     private final boolean demandInst;
     private final String annotationKey;
+    private int arg;
+    private int count;
     
-    private AnnotationProjection(String annotationKey, boolean demandInst) {
+    private AnnotationProjection(String annotationKey, boolean demandInst, int arg, int count) {
         this.annotationKey = annotationKey;
         this.demandInst = demandInst;
+        this.arg = arg;
+        this.count = count;
     }
 
     public static AnnotationProjection create(String annotationKey, boolean demandInst) {
-        return new AnnotationProjection ( annotationKey, demandInst);
+        return create( annotationKey, demandInst, 0, -1);
+    }
+    public static AnnotationProjection create(String annotationKey, boolean demandInst, int arg, int count) {
+        return new AnnotationProjection ( annotationKey, demandInst, arg, count);
     }
     
     public Term toTerm(RuleApp app, PosInOccurrence pos, Goal goal) {
@@ -65,9 +74,25 @@ public class AnnotationProjection implements ProjectionToTerm {
         final DLProgram program = (DLProgram) ((StatementBlock) term
                 .javaBlock().program()).getChildAt(0);
         final Services services = goal.proof().getServices();
-        //FIXME: the object is always a List of Formulas, which one should we use?
-        final Object instObj = program.getDLAnnotation(annotationKey).get(0);
-        if ( ! ( instObj instanceof DLProgramElement ) || ((instObj instanceof List) && ((List) instObj).size() > 1)) {
+        List<Formula> annotationList = program.getDLAnnotation(annotationKey);
+        if (annotationList == null) {
+            Debug.assertFalse ( demandInst,
+                    "Did not find annotation "
+                    + annotationKey + " that I was supposed to examine" +
+                    " (taclet " + app.rule().name() + ")" );
+            return null;
+        }
+        if (count >= 0) {
+            Debug.assertFalse(annotationList.size() == count,
+            "Expected annotation length " + count + " != " + annotationList.size() + " of "
+            + annotationKey + " wrong " +
+            " (taclet " + app.rule().name() + ")" );
+        }
+        if (count == 0 || arg < 0) {
+            return TermBuilder.DF.tt();
+        }
+        final Object instObj = annotationList.get(arg);
+        if ( ! ( instObj instanceof DLProgramElement )) {
             Debug.assertFalse ( demandInst,
                                 "Did not find annotation "
                                 + annotationKey + " that I was supposed to examine" +

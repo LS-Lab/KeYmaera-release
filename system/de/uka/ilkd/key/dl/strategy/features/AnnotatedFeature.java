@@ -31,7 +31,7 @@ public class AnnotatedFeature extends BinaryTacletAppFeature {
     }
 
     private AnnotatedFeature(String annotationKey) {
-        instProj = AnnotationProjection.create ( annotationKey, false );
+        instProj = AnnotationProjection.create ( annotationKey, false, -1, -1);
     }
 
     protected boolean filter(TacletApp app, PosInOccurrence pos, Goal goal) {
