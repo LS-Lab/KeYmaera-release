@@ -14,7 +14,21 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 
-import de.uka.ilkd.key.java.*;
+import de.uka.ilkd.key.dl.model.DLBottom;
+import de.uka.ilkd.key.dl.model.Formula;
+import de.uka.ilkd.key.java.ArrayOfExpression;
+import de.uka.ilkd.key.java.ArrayOfLoopInitializer;
+import de.uka.ilkd.key.java.ArrayOfProgramElement;
+import de.uka.ilkd.key.java.Comment;
+import de.uka.ilkd.key.java.Expression;
+import de.uka.ilkd.key.java.Position;
+import de.uka.ilkd.key.java.PositionInfo;
+import de.uka.ilkd.key.java.PrettyPrinter;
+import de.uka.ilkd.key.java.ProgramElement;
+import de.uka.ilkd.key.java.Services;
+import de.uka.ilkd.key.java.SourceData;
+import de.uka.ilkd.key.java.SourceElement;
+import de.uka.ilkd.key.java.Statement;
 import de.uka.ilkd.key.java.abstraction.KeYJavaType;
 import de.uka.ilkd.key.java.annotation.Annotation;
 import de.uka.ilkd.key.java.reference.ExecutionContext;
@@ -33,7 +47,6 @@ import de.uka.ilkd.key.rule.MatchConditions;
 import de.uka.ilkd.key.rule.inst.ProgramList;
 import de.uka.ilkd.key.rule.inst.SVInstantiations;
 import de.uka.ilkd.key.util.Debug;
-import de.uka.ilkd.key.dl.model.DLBottom;
 
 public class ProgramSV extends SortedSchemaVariable implements
         ProgramConstruct, DLBottom {
@@ -687,6 +700,22 @@ public class ProgramSV extends SortedSchemaVariable implements
 
     @Override
     public boolean isDifferentialEquation(ProgramElement el) {
+        throw new UnsupportedOperationException();
+    }
+
+    /* (non-Javadoc)
+     * @see de.uka.ilkd.key.dl.model.DLProgramElement#getDLAnotation(java.lang.String)
+     */
+    @Override
+    public Formula getDLAnotation(String key) {
+        throw new UnsupportedOperationException();
+    }
+
+    /* (non-Javadoc)
+     * @see de.uka.ilkd.key.dl.model.DLProgramElement#setDLAnotation(java.lang.String, java.lang.String)
+     */
+    @Override
+    public void setDLAnotation(String key, Formula value) {
         throw new UnsupportedOperationException();
     }
 }

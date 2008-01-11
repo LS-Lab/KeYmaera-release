@@ -34,5 +34,7 @@ import de.uka.ilkd.key.java.ReuseableProgramElement;
  * 
  */
 public interface DLProgramElement extends ProgramElement, Serializable, ReuseableProgramElement {
-
+    
+    public Formula getDLAnotation(String key);
+    public void setDLAnotation(String key, Formula value);
 }

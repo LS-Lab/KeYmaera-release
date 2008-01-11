@@ -235,10 +235,15 @@ public class DLApplyOnModality extends ApplyOnModality {
                     .getChildAt(1), update, protectedVars));
         } else if (childAt instanceof Star) {
             Star p = (Star) childAt;
-            return tf.createStar((DLProgram) convert(p.getChildAt(0), update,
-                    protectedVars),
-                    (p.getInvariant() != null) ? (Formula) convert(p
-                            .getInvariant(), update, protectedVars) : null);
+
+            Star createStar = tf.createStar((DLProgram) convert(
+                    p.getChildAt(0), update, protectedVars));
+            if (p.getInvariant() != null) {
+                createStar.setDLAnotation("invariant", (Formula) convert(p
+                        .getInvariant(), update, protectedVars));
+            }
+            return createStar;
+
         } else if (childAt instanceof IfStatement) {
             IfStatement ifS = (IfStatement) childAt;
             return tf.createIf((Formula) convert(ifS.getExpression(), update,

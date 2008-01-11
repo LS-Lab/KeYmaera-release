@@ -87,7 +87,7 @@ public class DLUnwindLoop extends AbstractDLMetaOperator {
             dlTf = TermFactory.getTermFactory(TermFactoryImpl.class, services
                     .getNamespaces());
             //FIXME: the invariant gets lost here
-            Star s = dlTf.createStar(program, null);
+            Star s = dlTf.createStar(program);
             Chop chop = dlTf.createChop(program, s);
             JavaBlock jb = JavaBlock.createJavaBlock(new DLStatementBlock(chop));
             return de.uka.ilkd.key.logic.TermFactory.DEFAULT.createProgramTerm(

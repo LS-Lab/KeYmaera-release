@@ -394,7 +394,7 @@ public abstract class TermFactory implements Serializable {
      *                the program to repeat.
      * @return a non-deterministic repetition of the given program.
      */
-    public abstract Star createStar(DLProgram st, Formula frm);
+    public abstract Star createStar(DLProgram st);
 
     /**
      * Creates a non-deterministic choice between two programs.

@@ -98,10 +98,13 @@ public class ReplaceVisitor {
                     .getChildAt(1), substitutionMap, tf));
         } else if (childAt instanceof Star) {
             Star p = (Star) childAt;
-            return tf.createStar((DLProgram) convert(p.getChildAt(0),
-                    substitutionMap, tf),
-                    (p.getInvariant() != null) ? (Formula) convert(p
-                            .getInvariant(), substitutionMap, tf) : null);
+            Star createStar = tf.createStar((DLProgram) convert(p.getChildAt(0),
+                    substitutionMap, tf));
+            if (p.getInvariant() != null) {
+                createStar.setDLAnotation("invariant", (Formula) (Formula) convert(p
+                        .getInvariant(), substitutionMap, tf));
+            }
+            return createStar;
         } else if (childAt instanceof Parallel) {
             Parallel parallel = (Parallel) childAt;
             return tf.createParallel((DLProgram) convert(
