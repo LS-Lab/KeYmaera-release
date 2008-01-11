@@ -29,9 +29,13 @@ options {
 	tf = new TermFactory();
 }*/
 
-prog returns [ DLProgram pe ]:   st = stat { pe = st; } (ANOTATION w = WORD f = form[true] { pe.setDLAnotation(w.toString(), f); })* EOF; 
+prog returns [ DLProgram pe ]:   st = stat { pe = st; } EOF; 
 
-stat returns [ DLProgram pe ] scope { ArrayList<Formula> params; } @init {$stat::params = new ArrayList<Formula>(); } : 
+stat returns [ DLProgram pe ] scope { ArrayList<Formula> params; } @init {$stat::params = new ArrayList<Formula>(); }: 
+	st = astat { pe = st; } (ANOTATION w = WORD f = form[true] { pe.setDLAnotation(w.toString(), f); })*
+;
+
+astat returns [ DLProgram pe ] : 
 ^(CHOP st = stat { pe = st; } (st = stat { pe = tf.createChop(pe, st); })*)
 | ^(CHOICE st = stat { pe = st; } (st = stat { pe = tf.createChoice(pe, st); })*)
 | ^(PARALLEL st = stat { pe = st; } (st = stat { pe = tf.createParallel(pe, st); })*)

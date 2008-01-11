@@ -50,7 +50,7 @@ prog:  stat {
 
 anotation: ANOTATION WORD LPAREN! form RPAREN!;
 
-stat: parallel (anotation)*
+stat: parallel
 ;
 
 parallel: chop (PARALLEL^ parallel)?
@@ -68,8 +68,10 @@ star: atomp (/*invariant?*/ STAR^)?
 /*invariant: INVARIANT^ LPAREN! form RPAREN!
 ;*/
 
+atomp options { k=3; } : itomp (anotation)*
+;
 
-atomp options { k=3; } : quest | assign | LPAREN! stat RPAREN! | diffsystem | ifThenElse | vardec | {schemaMode}? sv
+itomp options { k=3; } : quest | assign | LPAREN! stat RPAREN! | diffsystem | ifThenElse | vardec | {schemaMode}? sv
 ;
 
 vardec: (type var (COMMA var)*) -> ^(VARDEC type var*)
