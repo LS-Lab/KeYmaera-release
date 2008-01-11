@@ -365,9 +365,9 @@ public class DLStrategy extends AbstractFeatureStrategy {
      */
     private void setupDiffSatStrategy(final RuleSetDispatchFeature d) {
         if (DLOptionBean.INSTANCE.getDiffSat() == DiffSat.BLIND) {
-            bindRuleSet(d, "invariant_diff", inftyConst());
-            bindRuleSet(d, "invariant_weaken", inftyConst());
-            bindRuleSet(d, "invariant_strengthen", inftyConst());
+            bindRuleSet(d, "invariant_diff", isAnnotated("diffind"));
+            bindRuleSet(d, "invariant_weaken", isAnnotated("weaken"));
+            bindRuleSet(d, "invariant_strengthen", isAnnotated("strengthen"));
             return;
         } else {
             bindRuleSet(d, "diff_solve", ifZero(ODESolvableFeature.INSTANCE,
@@ -385,13 +385,15 @@ public class DLStrategy extends AbstractFeatureStrategy {
         }
 
         if (DLOptionBean.INSTANCE.getDiffSat().compareTo(DiffSat.SIMPLE) >= 0) {
-            bindRuleSet(d, "invariant_weaken", ifZero(
+            bindRuleSet(d, "invariant_weaken",
+                    ifZero(isAnnotated("weaken"), longConst(-6000),
+                    ifZero(
                     ODESolvableFeature.INSTANCE, inftyConst(),
                     new SwitchFeature(DiffWeakenFeature.INSTANCE,
                             new Case(longConst(0), longConst(-6000)),
                             // reject if it doesn't help, but retry costs
                             new Case(longConst(1), longConst(5000)),
-                            new Case(inftyConst(), inftyConst()))));
+                            new Case(inftyConst(), inftyConst())))));
             bindRuleSet(
                     d,
                     "invariant_diff",
@@ -431,8 +433,8 @@ public class DLStrategy extends AbstractFeatureStrategy {
                                                                     inftyConst(),
                                                                     inftyConst()))))));
         } else {
-            bindRuleSet(d, "invariant_diff", inftyConst());
-            bindRuleSet(d, "invariant_weaken", inftyConst());
+            bindRuleSet(d, "invariant_diff", isAnnotated("diffind"));
+            bindRuleSet(d, "invariant_weaken", isAnnotated("weaken"));
         }
 
         if (DLOptionBean.INSTANCE.getDiffSat().compareTo(DiffSat.DIFF) >= 0) {
@@ -454,7 +456,7 @@ public class DLStrategy extends AbstractFeatureStrategy {
                             // except when tabooed
                             ))));
         } else {
-            bindRuleSet(d, "invariant_strengthen", inftyConst());
+            bindRuleSet(d, "invariant_strengthen", isAnnotated("strengthen"));
         }
     }
 
@@ -485,20 +487,24 @@ public class DLStrategy extends AbstractFeatureStrategy {
         if (DLOptionBean.INSTANCE.getDiffSat().compareTo(DiffSat.DIFF) >= 0) {
             final TermBuffer augInst = new TermBuffer();
             final RuleAppBuffer buffy = new RuleAppBuffer();
-            bindRuleSet(d, "invariant_strengthen", ifZero(storeRuleApp(buffy,
+            bindRuleSet(d, "invariant_strengthen", ifZero(isAnnotated("strengthen"),
+                    instantiate("augment", annotationOf("strengthen", true)),
+                    ifZero(storeRuleApp(buffy,
                     not(sum(augInst, DiffIndCandidates.INSTANCE, add(buffy,
                             instantiate("augment", augInst),
                             not(new DiffSatFeature(augInst)))))),
-                    longConst(-1000), inftyConst()));
+                    longConst(-1000), inftyConst())));
         } else {
-            bindRuleSet(d, "invariant_strengthen", inftyConst());
+            bindRuleSet(d, "invariant_strengthen", ifZero(isAnnotated("strengthen"),
+                    instantiate("augment", annotationOf("strengthen", true)),
+                    inftyConst()));
         }
         if (DLOptionBean.INSTANCE.getDiffSat().compareTo(DiffSat.AUTO) >= 0) {
             final TermBuffer augInst = new TermBuffer();
             final RuleAppBuffer buffy = new RuleAppBuffer();
-            bindRuleSet(
-                    d,
-                    "loop_invariant_proposal",
+            bindRuleSet(d, "loop_invariant_proposal",
+                    ifZero(isAnnotated("invariant"),
+                            instantiate("inv", annotationOf("invariant", true)),
                     storeRuleApp(
                             buffy,
                             ifZero(
@@ -524,7 +530,12 @@ public class DLStrategy extends AbstractFeatureStrategy {
                                     // try
                                     // at
                                     // least
-                                    ))));
+                                    )))));
+        } else {
+            bindRuleSet(d, "loop_invariant_proposal",
+                    ifZero(isAnnotated("invariant"),
+                            instantiate("inv", annotationOf("invariant", true)),
+                            inftyConst()));
         }
     }
 
@@ -549,13 +560,17 @@ public class DLStrategy extends AbstractFeatureStrategy {
      */
     private void setupDiffSatApprovalStrategy(final RuleSetDispatchFeature d) {
         if (DLOptionBean.INSTANCE.getDiffSat().compareTo(DiffSat.SIMPLE) >= 0) {
-            bindRuleSet(d, "invariant_weaken", new SwitchFeature(
+            bindRuleSet(d, "invariant_weaken", ifZero(isAnnotated("weaken"),
+                    longConst(-6000),
+                    new SwitchFeature(
                     DiffWeakenFeature.INSTANCE, new Case(longConst(0),
                             longConst(-6000)),
                     // reject if it doesn't help, but retry costs
                     new Case(longConst(1), inftyConst()), new Case(
-                            inftyConst(), inftyConst())));
-            bindRuleSet(d, "invariant_diff", ifZero(
+                            inftyConst(), inftyConst()))));
+            bindRuleSet(d, "invariant_diff", ifZero(isAnnotated("diffind"),
+                    longConst(-6000),
+                    ifZero(
                     PostDiffStrengthFeature.INSTANCE, longConst(-4000), ifZero(
                             DiffWeakenFeature.INSTANCE, inftyConst(),
                             // only directly check diffind
@@ -565,7 +580,7 @@ public class DLStrategy extends AbstractFeatureStrategy {
                                     // reject if it doesn't help, but retry
                                     // costs
                                     new Case(longConst(1), inftyConst()),
-                                    new Case(inftyConst(), inftyConst())))));
+                                    new Case(inftyConst(), inftyConst()))))));
         }
     }
 

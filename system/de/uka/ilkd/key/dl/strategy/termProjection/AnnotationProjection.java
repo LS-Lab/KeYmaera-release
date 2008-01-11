@@ -11,7 +11,9 @@
 
 package de.uka.ilkd.key.dl.strategy.termProjection;
 
+import de.uka.ilkd.key.dl.formulatools.Prog2LogicConverter;
 import de.uka.ilkd.key.dl.model.DLProgram;
+import de.uka.ilkd.key.dl.model.DLProgramElement;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.java.StatementBlock;
 import de.uka.ilkd.key.logic.Constraint;
@@ -59,15 +61,24 @@ public class AnnotationProjection implements ProjectionToTerm {
         }
         final DLProgram program = (DLProgram) ((StatementBlock) term
                 .javaBlock().program()).getChildAt(0);
+        final Services services = goal.proof().getServices();
         final Object instObj = program.getDLAnotation(annotationKey);
-        if ( ! ( instObj instanceof Term ) ) {
+        if ( ! ( instObj instanceof DLProgramElement ) ) {
             Debug.assertFalse ( demandInst,
                                 "Did not find annotation "
                                 + annotationKey + " that I was supposed to examine" +
                                 " (taclet " + app.rule().name() + ")" );
             return null;
         }
-        return instMVs ( (Term)instObj, app, goal );
+        final Term annotation = Prog2LogicConverter.convert((DLProgramElement)instObj, services);
+        if ( annotation == null) {
+            Debug.assertFalse ( demandInst,
+                                "Did not find annotation "
+                                + annotationKey + " that I was supposed to examine" +
+                                " (taclet " + app.rule().name() + ")" );
+            return null;
+        }
+        return instMVs ( annotation, app, goal );
     }
 
     private static Term instMVs(Term te, RuleApp app, Goal goal) {

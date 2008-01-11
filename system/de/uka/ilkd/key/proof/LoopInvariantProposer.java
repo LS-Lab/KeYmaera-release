@@ -16,14 +16,11 @@ import java.util.Map;
 
 import de.uka.ilkd.key.collection.ListOfString;
 import de.uka.ilkd.key.dl.DLProfile;
-import de.uka.ilkd.key.dl.formulatools.Prog2LogicConverter;
 import de.uka.ilkd.key.dl.formulatools.ProgramVariableCollector;
-import de.uka.ilkd.key.dl.model.Star;
 import de.uka.ilkd.key.gui.Main;
 import de.uka.ilkd.key.java.ProgramElement;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.java.SourceElement;
-import de.uka.ilkd.key.java.StatementBlock;
 import de.uka.ilkd.key.java.StatementContainer;
 import de.uka.ilkd.key.java.annotation.Annotation;
 import de.uka.ilkd.key.java.annotation.LoopInvariantAnnotation;
@@ -182,10 +179,6 @@ public class LoopInvariantProposer implements InstantiationProposer {
 	    final LoopInvariantAnnotation firstLoopInvAnnot = 
                 getFirstLoopInvariantAnnotation(pos.subTerm());
             if (firstLoopInvAnnot == null) {
-                Star s = getFirstStar(pos.subTerm());
-                if(s != null && s.getInvariant() != null) {
-                        return Prog2LogicConverter.convert(s.getInvariant(), services);
-                }
                 return null;
             }
 
@@ -218,22 +211,6 @@ public class LoopInvariantProposer implements InstantiationProposer {
         return inst;
     }
     
-    /**
-     * TODO jdq documentation since Sep 18, 2007 
-     * @param subTerm
-     * @return
-     */
-    private Star getFirstStar(Term t) {
-        while (t.op() instanceof IUpdateOperator) {
-            t = ((IUpdateOperator) t.op()).target(t);
-        }
-        ProgramElement s = ((StatementBlock)t.javaBlock().program()).getChildAt(0);
-        if(s instanceof Star) {
-        return (Star) s;
-        }
-        return null;
-    }
-
     private LoopInvariantAnnotation getFirstLoopInvariantAnnotation(Term t) {
         LoopStatement firstLoopStatement = getFirstLoopStatement(t);
         if (firstLoopStatement != null) {
