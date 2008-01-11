@@ -22,6 +22,7 @@
 package de.uka.ilkd.key.dl.model;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Map;
 
 import de.uka.ilkd.key.java.ProgramElement;
@@ -36,8 +37,8 @@ import de.uka.ilkd.key.java.ReuseableProgramElement;
  */
 public interface DLProgramElement extends ProgramElement, Serializable, ReuseableProgramElement {
     
-    public Formula getDLAnnotation(String key);
-    public void setDLAnnotation(String key, Formula value);
+    public List<Formula> getDLAnnotation(String key);
+    public void setDLAnnotation(String key, List<Formula> value);
     
-    public Map<String, Formula> getDLAnnotations();
+    public Map<String, List<Formula>> getDLAnnotations();
 }

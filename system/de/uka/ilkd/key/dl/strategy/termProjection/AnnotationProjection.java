@@ -11,9 +11,12 @@
 
 package de.uka.ilkd.key.dl.strategy.termProjection;
 
+import java.util.List;
+
 import de.uka.ilkd.key.dl.formulatools.Prog2LogicConverter;
 import de.uka.ilkd.key.dl.model.DLProgram;
 import de.uka.ilkd.key.dl.model.DLProgramElement;
+import de.uka.ilkd.key.dl.model.Formula;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.java.StatementBlock;
 import de.uka.ilkd.key.logic.Constraint;
@@ -62,8 +65,9 @@ public class AnnotationProjection implements ProjectionToTerm {
         final DLProgram program = (DLProgram) ((StatementBlock) term
                 .javaBlock().program()).getChildAt(0);
         final Services services = goal.proof().getServices();
-        final Object instObj = program.getDLAnnotation(annotationKey);
-        if ( ! ( instObj instanceof DLProgramElement ) ) {
+        //FIXME: the object is always a List of Formulas, which one should we use?
+        final Object instObj = program.getDLAnnotation(annotationKey).get(0);
+        if ( ! ( instObj instanceof DLProgramElement ) || ((instObj instanceof List) && ((List) instObj).size() > 1)) {
             Debug.assertFalse ( demandInst,
                                 "Did not find annotation "
                                 + annotationKey + " that I was supposed to examine" +

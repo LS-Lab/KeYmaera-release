@@ -48,7 +48,7 @@ prog:  stat {
 		}
 	} (CHOP!)? EOF!; 
 
-annotation: ANNOTATION WORD LPAREN! form RPAREN!;
+annotation: ANNOTATION WORD LPAREN! form? (COMMA! form)* RPAREN!;
 
 stat: parallel
 ;

@@ -363,8 +363,15 @@ public class DLApplyOnModality extends ApplyOnModality {
         if(childAt instanceof DLProgramElement) {
             DLProgramElement el = (DLProgramElement) childAt;
             for (String annotation : el.getDLAnnotations().keySet()) {
-                result.setDLAnnotation(annotation, (Formula) convert(el
-                        .getDLAnnotation(annotation), update, protectedVars));
+                final List<Formula> annotations = el
+                .getDLAnnotation(annotation);
+                List<Formula> newAnnon = new ArrayList<Formula>();
+                
+                for(Formula form: annotations) {
+                    newAnnon.add((Formula) convert(form, update, protectedVars));
+                }
+                
+                result.setDLAnnotation(annotation, annotations);
             }
         }
         return result;

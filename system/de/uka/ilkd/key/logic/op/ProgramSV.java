@@ -704,27 +704,20 @@ public class ProgramSV extends SortedSchemaVariable implements
         throw new UnsupportedOperationException();
     }
 
-    /* (non-Javadoc)
-     * @see de.uka.ilkd.key.dl.model.DLProgramElement#getDLAnotation(java.lang.String)
-     */
     @Override
-    public Formula getDLAnnotation(String key) {
+    public List<Formula> getDLAnnotation(String key) {
         throw new UnsupportedOperationException();
     }
 
-    /* (non-Javadoc)
-     * @see de.uka.ilkd.key.dl.model.DLProgramElement#setDLAnotation(java.lang.String, java.lang.String)
-     */
     @Override
-    public void setDLAnnotation(String key, Formula value) {
-        
-    }
-
-    /* (non-Javadoc)
-     * @see de.uka.ilkd.key.dl.model.DLProgramElement#getDLAnnotations()
-     */
-    @Override
-    public Map<String, Formula> getDLAnnotations() {
+    public Map<String, List<Formula>> getDLAnnotations() {
         throw new UnsupportedOperationException();
     }
+
+    @Override
+    public void setDLAnnotation(String key, List<Formula> value) {
+        throw new UnsupportedOperationException();
+    }
+
+
 }

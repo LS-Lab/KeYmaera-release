@@ -26,6 +26,7 @@ package de.uka.ilkd.key.dl.model.impl;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import de.uka.ilkd.key.dl.model.DLProgramElement;
@@ -49,17 +50,17 @@ import de.uka.ilkd.key.rule.MatchConditions;
  */
 public abstract class DLProgramElementImpl implements DLProgramElement {
 
-    private Map<String, Formula> annotations;
+    private Map<String, List<Formula>> annotations;
     
     public DLProgramElementImpl() {
-        annotations = new HashMap<String, Formula>();
+        annotations = new HashMap<String, List<Formula>>();
     }
     
     /* (non-Javadoc)
      * @see de.uka.ilkd.key.dl.model.DLProgramElement#setDLAnotation(java.lang.String, java.lang.String)
      */
     @Override
-    public void setDLAnnotation(String key, Formula value) {
+    public void setDLAnnotation(String key, List<Formula> value) {
         annotations.put(key, value);
     }
     
@@ -67,7 +68,7 @@ public abstract class DLProgramElementImpl implements DLProgramElement {
      * @see de.uka.ilkd.key.dl.model.DLProgramElement#getDLAnotation(java.lang.String)
      */
     @Override
-    public Formula getDLAnnotation(String key) {
+    public List<Formula> getDLAnnotation(String key) {
         return annotations.get(key);
     }
     
@@ -75,7 +76,7 @@ public abstract class DLProgramElementImpl implements DLProgramElement {
      * @see de.uka.ilkd.key.dl.model.DLProgramElement#getDLAnnotations()
      */
     @Override
-    public Map<String, Formula> getDLAnnotations() {
+    public Map<String, List<Formula>> getDLAnnotations() {
         return annotations;
     }
     
