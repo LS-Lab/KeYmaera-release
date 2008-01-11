@@ -35,7 +35,7 @@ stat returns [ DLProgram pe ] scope { ArrayList<Formula> params; } @init {$stat:
 	st = astat { pe = st; } 
 ;
 
-annotation[ DLProgram pe ]: (ANOTATION w = WORD f = form[true] { pe.setDLAnotation(w.toString(), f); })
+annotation[ DLProgram pe ]: (ANNOTATION w = WORD f = form[true] { pe.setDLAnnotation(w.toString(), f); })
 ;
 
 astat returns [ DLProgram pe ] : 

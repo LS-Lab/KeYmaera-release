@@ -13,6 +13,7 @@ package de.uka.ilkd.key.logic.op;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import de.uka.ilkd.key.dl.model.DLBottom;
 import de.uka.ilkd.key.dl.model.Formula;
@@ -707,7 +708,7 @@ public class ProgramSV extends SortedSchemaVariable implements
      * @see de.uka.ilkd.key.dl.model.DLProgramElement#getDLAnotation(java.lang.String)
      */
     @Override
-    public Formula getDLAnotation(String key) {
+    public Formula getDLAnnotation(String key) {
         throw new UnsupportedOperationException();
     }
 
@@ -715,7 +716,15 @@ public class ProgramSV extends SortedSchemaVariable implements
      * @see de.uka.ilkd.key.dl.model.DLProgramElement#setDLAnotation(java.lang.String, java.lang.String)
      */
     @Override
-    public void setDLAnotation(String key, Formula value) {
+    public void setDLAnnotation(String key, Formula value) {
+        
+    }
+
+    /* (non-Javadoc)
+     * @see de.uka.ilkd.key.dl.model.DLProgramElement#getDLAnnotations()
+     */
+    @Override
+    public Map<String, Formula> getDLAnnotations() {
         throw new UnsupportedOperationException();
     }
 }

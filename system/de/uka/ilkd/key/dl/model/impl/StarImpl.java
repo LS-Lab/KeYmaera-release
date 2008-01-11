@@ -60,7 +60,7 @@ public class StarImpl extends CompoundDLProgramImpl implements Star {
      * @return the invariant
      */
     public Formula getInvariant() {
-        return getDLAnotation("invariant");
+        return getDLAnnotation("invariant");
     }
 
 }
