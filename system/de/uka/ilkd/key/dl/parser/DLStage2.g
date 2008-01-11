@@ -6,7 +6,7 @@ options {
 }
 
 @header {
-	package de.uka.ilkd.key.parser.dl;
+	package de.uka.ilkd.key.dl.parser;
 	import de.uka.ilkd.key.dl.model.*;
 	import de.uka.ilkd.key.java.ProgramElement;
 	import java.util.ArrayList;
