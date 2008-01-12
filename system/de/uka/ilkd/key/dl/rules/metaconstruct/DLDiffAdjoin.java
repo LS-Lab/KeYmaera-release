@@ -39,6 +39,8 @@ import de.uka.ilkd.key.logic.sort.Sort;
 import de.uka.ilkd.key.rule.inst.SVInstantiations;
 
 /**
+ * Adjoins a formula to a diffsystem.
+ * \[#diffsystem\]post,psi yields \[#diffsystem&psi\]post.
  * @author ap
  */
 public class DLDiffAdjoin extends AbstractDLMetaOperator {
@@ -87,10 +89,12 @@ public class DLDiffAdjoin extends AbstractDLMetaOperator {
             }
             augmented.add(ReplaceVisitor.convertFormulaToProgram(psi, tf));
             // \[#diffsystem&psi\]post
+            DiffSystem augmentedSystem = tf.createDiffSystem(augmented);
+            augmentedSystem.setDLAnnotations(system.getDLAnnotations());
+            System.out.println("  adjoins " + augmentedSystem.getDLAnnotations());
             return de.uka.ilkd.key.logic.TermFactory.DEFAULT.createProgramTerm(
                     term.sub(0).op(), JavaBlock
-                            .createJavaBlock(new DLStatementBlock(tf
-                                    .createDiffSystem(augmented))), post);
+                            .createJavaBlock(new DLStatementBlock(augmentedSystem)), post);
         } catch (InvocationTargetException e) {
             throw (InternalError) new InternalError().initCause(e);
         } catch (IllegalAccessException e) {
