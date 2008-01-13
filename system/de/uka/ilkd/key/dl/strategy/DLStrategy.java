@@ -241,6 +241,10 @@ public class DLStrategy extends AbstractFeatureStrategy {
         bindRuleSet(d, "try_apply_subst", add(
                 EqNonDuplicateAppFeature.INSTANCE, longConst(-10000)));
 
+
+        bindRuleSet(d, "split_gen", longConst(-1000));
+        
+        
         // delete cast
         bindRuleSet(d, "cast_deletion", ifZero(
                 implicitCastNecessary(instOf("castedTerm")), longConst(-5000),
