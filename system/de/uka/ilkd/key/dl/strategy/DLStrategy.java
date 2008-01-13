@@ -472,8 +472,16 @@ public class DLStrategy extends AbstractFeatureStrategy {
         enableInstantiate();
         final RuleSetDispatchFeature d = RuleSetDispatchFeature.create();
         setupDiffSatInstantiationStrategy(d);
+        setupAnnotationInstantiationStrategy(d);
         disableInstantiate();
         return d;
+    }
+
+    private void setupAnnotationInstantiationStrategy(RuleSetDispatchFeature d) {
+        bindRuleSet(d, "split_gen",
+                ifZero(isAnnotated("generalize"),
+                        instantiate("gen", annotationOf("generalize", true)),
+                        inftyConst()));
     }
 
     /**
