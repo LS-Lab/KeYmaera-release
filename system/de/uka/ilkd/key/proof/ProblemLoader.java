@@ -106,38 +106,39 @@ public class ProblemLoader implements Runnable {
          * InterruptedException in doWork().
          */
         worker = new SwingWorker() {
-            public Object construct() {
-                Object res = doWork();
-                return res;
-            }
-
-            public void finished() {
-                mediator.startInterface(true);
-                String msg = (String) get();
-                if (!"".equals(msg)) {
-                    if (Main.batchMode) {
-                        System.exit(-1);
-                    } else {
-                        new ExceptionDialog(mediator.mainFrame(),
-                                exceptionHandler.getExceptions());
-                        exceptionHandler.clear();
-                    }
-                } else {
-                    PresentationFeatures.initialize(mediator.func_ns(),
-                            mediator.getNotationInfo(), mediator
-                                    .getSelectedProof());
-                }
-                if (Main.batchMode) {
-                    // System.out.println("Proof: " +proof.openGoals());
-                    if (proof.openGoals().size() == 0) {
-                        System.out.println("proof.openGoals.size="
-                                + proof.openGoals().size());
-                        System.exit(0);
-                    }
-                    mediator.startAutoMode();
-                }
-            }
-        };
+		public Object construct() {
+		    Object res = doWork();
+		    return res;
+		}
+		public void finished() {
+		    mediator.startInterface(true);
+		    String msg = (String) get();
+		    if(!"".equals(msg)) {
+		        if(Main.batchMode){
+			    System.exit(-1);
+			} else {
+			    new ExceptionDialog
+				(mediator.mainFrame(), 
+                                        exceptionHandler.getExceptions());
+			    exceptionHandler.clear();
+			}
+		    } else {
+			PresentationFeatures.
+			    initialize(mediator.func_ns(), 
+				       mediator.getNotationInfo(),
+				       mediator.getSelectedProof());
+		    }
+		    if (Main.batchMode) {
+                        //System.out.println("Proof: " +proof.openGoals());
+                        if(proof.openGoals().size()==0) {
+                            System.out.println("proof.openGoals.size=" + 
+                                     proof.openGoals().size());		 
+			    System.exit(0);
+			}
+			mediator.startAutoMode();
+		    }		   
+		}
+	    };
         mediator.stopInterface(true);
         worker.start();
     }
@@ -295,14 +296,23 @@ public class ProblemLoader implements Runnable {
                 loadedInsts = new LinkedList();
             loadedInsts.add(s);
             break;
-
-        case 'h':
-            // Debug.fail("Detected use of heuristics!");
-            break;
-        case 'q': // ifseqformula
-            Sequent seq = currGoal.sequent();
-            ifSeqFormulaList = ifSeqFormulaList.append(new IfFormulaInstSeq(
-                    seq, Integer.parseInt(s)));
+            
+	case 'h' :
+	    //             Debug.fail("Detected use of heuristics!");
+	    break;
+	case 'q' : // ifseqformula      
+	    // mu 2008-jan-09
+            // bugfix: without this if-check,
+	    // proofs with meta variables cannot be loaded.
+            // when loading, rules are applied in an order different to the original one
+            // Thus the goal might already have been closed.
+            // Just ignore this ifseqforumla then
+            if(currGoal != null) {
+                Sequent seq = currGoal.sequent();
+                ifSeqFormulaList = ifSeqFormulaList.append(
+                        new IfFormulaInstSeq(seq, Integer.parseInt(s)));    
+            }
+            
             break;
         case 'u': // UserLog
             if (proof.userLog == null)
@@ -354,17 +364,33 @@ public class ProblemLoader implements Runnable {
                 currNode.getNodeInfo().setInteractiveRuleApplication(true);
             }
             break;
-        case 'r':
-            try {
-                currGoal.apply(constructApp());
-                children = currNode.childrenIterator();
-                currNode = null;
-            } catch (Exception e) {
-                throw new RuntimeException("Error loading proof. Line "
-                        + linenr + " rule: " + currTacletName, e);
+        case 'r' :
+            // mu 2008-jan-09
+            // bugfix: without this, proofs with meta variables cannot be loaded.
+            // when loading, rules are applied in an order different to the original one
+            // Thus the goal might already have been closed.
+            // Just ignore this rule then
+            if(currGoal == null)
+                break;
+            
+            try{
+               currGoal.apply(constructApp());
+               children = currNode.childrenIterator();
+               currNode = null;
+            } catch(Exception e) {
+                throw new RuntimeException("Error loading proof. Line "+
+                    linenr+" rule: "+currTacletName,e);
             }
             break;
-        case 'n':
+        case 'n' :
+            // mu 2008-jan-09
+            // bugfix: without this, proofs with meta variables cannot be loaded.
+            // when loading, rules are applied in an order different to the original one
+            // Thus the goal might already have been closed.
+            // Just ignore this rule then
+            if(currGoal == null)
+                break;
+
             try {
                 currGoal.apply(constructBuiltinApp());
                 children = currNode.childrenIterator();
