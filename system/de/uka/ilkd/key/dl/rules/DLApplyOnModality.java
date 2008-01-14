@@ -249,8 +249,8 @@ public class DLApplyOnModality extends ApplyOnModality {
                             ifS.getElse(), update, protectedVars) : null);
         } else if (childAt instanceof Parallel) {
             Parallel parallel = (Parallel) childAt;
-            result = tf.createParallel((DLProgram) convert(
-                    parallel.getChildAt(0), update, protectedVars),
+            result = tf.createParallel((DLProgram) convert(parallel
+                    .getChildAt(0), update, protectedVars),
                     (DLProgram) convert(parallel.getChildAt(1), update,
                             protectedVars));
         } else if (childAt instanceof Implies) {
@@ -311,9 +311,10 @@ public class DLApplyOnModality extends ApplyOnModality {
             result = tf.createDiffSystem(children);
         } else if (childAt instanceof Assign) {
             Assign a = (Assign) childAt;
-            result = tf.createAssign((de.uka.ilkd.key.dl.model.ProgramVariable) a
-                    .getChildAt(0), (Expression) convert(a.getChildAt(1),
-                    update, protectedVars));
+            result = tf
+                    .createAssign((de.uka.ilkd.key.dl.model.ProgramVariable) a
+                            .getChildAt(0), (Expression) convert(a
+                            .getChildAt(1), update, protectedVars));
         } else if (childAt instanceof Dot) {
             result = (Dot) childAt;
         } else if (childAt instanceof RandomAssign) {
@@ -345,7 +346,7 @@ public class DLApplyOnModality extends ApplyOnModality {
                     }
                 }
             }
-            if(result == null) {
+            if (result == null) {
                 return pv;
             }
         } else if (childAt instanceof LogicalVariable) {
@@ -360,18 +361,19 @@ public class DLApplyOnModality extends ApplyOnModality {
             throw new IllegalArgumentException("Dont now how to convert: "
                     + childAt);
         }
-        if(childAt instanceof DLProgramElement) {
+        if (childAt instanceof DLProgramElement) {
             DLProgramElement el = (DLProgramElement) childAt;
             for (String annotation : el.getDLAnnotations().keySet()) {
                 final List<Formula> annotations = el
-                .getDLAnnotation(annotation);
+                        .getDLAnnotation(annotation);
                 List<Formula> newAnnon = new ArrayList<Formula>();
-                
-                for(Formula form: annotations) {
-                    newAnnon.add((Formula) convert(form, update, protectedVars));
+
+                for (Formula form : annotations) {
+                    newAnnon
+                            .add((Formula) convert(form, update, protectedVars));
                 }
-                
-                result.setDLAnnotation(annotation, annotations);
+
+                result.setDLAnnotation(annotation, newAnnon);
             }
         }
         return result;

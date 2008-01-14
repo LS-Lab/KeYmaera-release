@@ -207,14 +207,14 @@ public class ReplaceVisitor {
             DLProgramElement el = (DLProgramElement) childAt;
             for (String annotation : el.getDLAnnotations().keySet()) {
                 final List<Formula> annotations = el
-                .getDLAnnotation(annotation);
+                        .getDLAnnotation(annotation);
                 List<Formula> newAnnon = new ArrayList<Formula>();
-                
-                for(Formula form: annotations) {
+
+                for (Formula form : annotations) {
                     newAnnon.add((Formula) convert(form, substitutionMap, tf));
                 }
-                
-                result.setDLAnnotation(annotation, annotations);
+
+                result.setDLAnnotation(annotation, newAnnon);
             }
         }
         return result;
