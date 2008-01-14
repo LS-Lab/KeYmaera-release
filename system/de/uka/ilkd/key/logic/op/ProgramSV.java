@@ -715,6 +715,10 @@ public class ProgramSV extends SortedSchemaVariable implements
     }
 
     @Override
+    public void setDLAnnotations(Map<String, List<Formula>> annotations) {
+        throw new UnsupportedOperationException();
+    }
+    @Override
     public void setDLAnnotation(String key, List<Formula> value) {
         throw new UnsupportedOperationException();
     }

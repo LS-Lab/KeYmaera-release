@@ -241,6 +241,10 @@ public class DLStrategy extends AbstractFeatureStrategy {
         bindRuleSet(d, "try_apply_subst", add(
                 EqNonDuplicateAppFeature.INSTANCE, longConst(-10000)));
 
+
+        bindRuleSet(d, "split_gen", longConst(-1000));
+        
+        
         // delete cast
         bindRuleSet(d, "cast_deletion", ifZero(
                 implicitCastNecessary(instOf("castedTerm")), longConst(-5000),
@@ -472,8 +476,16 @@ public class DLStrategy extends AbstractFeatureStrategy {
         enableInstantiate();
         final RuleSetDispatchFeature d = RuleSetDispatchFeature.create();
         setupDiffSatInstantiationStrategy(d);
+        setupAnnotationInstantiationStrategy(d);
         disableInstantiate();
         return d;
+    }
+
+    private void setupAnnotationInstantiationStrategy(RuleSetDispatchFeature d) {
+        bindRuleSet(d, "split_gen",
+                ifZero(isAnnotated("generalize"),
+                        instantiate("gen", annotationOf("generalize", true)),
+                        inftyConst()));
     }
 
     /**

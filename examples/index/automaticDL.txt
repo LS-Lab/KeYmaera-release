@@ -6,6 +6,8 @@
 ./hybrid/dev/zero-unique.key
 ./hybrid/dev/random-zero.key
 ./hybrid/dev/random-zero-unique.key
+./hybrid/bouncing-ball/bouncing-ball-inv.key
+./hybrid/bouncing-ball/bouncing-ball-simple.key
 ./hybrid/ETCS/safety/binary_driver-2007-10-09.key
 ./hybrid/ETCS/paper/rbc-controllability-lemma.key
 ./hybrid/ETCS/paper/controllability-lemma.key

@@ -79,6 +79,11 @@ public abstract class DLProgramElementImpl implements DLProgramElement {
     public Map<String, List<Formula>> getDLAnnotations() {
         return annotations;
     }
+    @Override
+    public void setDLAnnotations(Map<String, List<Formula>> annotations) {
+        this.annotations.clear();
+        this.annotations.putAll(annotations);
+    }
     
     /**
      * @return 0 (no annotation in dL)

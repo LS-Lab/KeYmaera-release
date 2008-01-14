@@ -37,8 +37,29 @@ import de.uka.ilkd.key.java.ReuseableProgramElement;
  */
 public interface DLProgramElement extends ProgramElement, Serializable, ReuseableProgramElement {
     
+    /**
+     * Get the annotation for this element of the specified name key (as a list of formulas).
+     * @param key
+     * @return
+     */
     public List<Formula> getDLAnnotation(String key);
+    /**
+     * Set the annotation for this element of the specified name key (as a list of formulas).
+     * @param key
+     * @return
+     */
     public void setDLAnnotation(String key, List<Formula> value);
     
+    /**
+     * Get all annotations of this element.
+     * @param key
+     * @return
+     */
     public Map<String, List<Formula>> getDLAnnotations();
+    /**
+     * Set all annotations for this element, replacing any previous annotations.
+     * @param key
+     * @return
+     */
+    public void setDLAnnotations(Map<String, List<Formula>> annotations);
 }
