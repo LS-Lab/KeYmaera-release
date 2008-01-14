@@ -151,7 +151,7 @@ public class DiffIndCandidates implements TermGenerator {
             term = ((QuanUpdateOperator) term.op()).target(term);
             if (term.op() instanceof QuanUpdateOperator)
                 throw new AssertionError(
-                        "assume nested updates have been merged");
+                        "assume that nested updates have been merged");
         }
         if (!(term.op() instanceof Modality && term.javaBlock() != null
                 && term.javaBlock() != JavaBlock.EMPTY_JAVABLOCK && term
@@ -170,8 +170,8 @@ public class DiffIndCandidates implements TermGenerator {
             // reflexive. Hence modifieds " + modifieds + " contained in frees "
             // + frees);
             // frees.addAll(modifieds);
-            assert frees.containsAll(modifieds) : "dependency of x'=5 should be reflexive. Hence modifieds "
-                    + modifieds + " contained in frees " + frees;
+            assert frees.containsAll(modifieds) : ("dependencies should be reflexive. Hence modified variables "
+                    + modifieds + " should be contained in free variables " + frees + " for " + program);
         }
         frees = Collections.unmodifiableSet(frees);
 
@@ -430,12 +430,8 @@ public class DiffIndCandidates implements TermGenerator {
         for (Map.Entry<ProgramVariable, LinkedHashSet<ProgramVariable>> s : tdep
                 .entrySet()) {
             if (!s.getValue().contains(s.getKey())) {
-                // System.out.println("WARNING: " + "transitive dependency of
-                // x'=5 should be reflexive. Hence " + s.getKey() + " contained
-                // in " + s.getValue());
-                // s.getValue().add(s.getKey());
-                assert s.getValue().contains(s.getKey()) : "transitive dependency of x'=5 should be reflexive. Hence "
-                        + s.getKey() + " contained in " + s.getValue();
+//                System.out.println("WARNING: transitive dependencies are typically reflexive. Hence "
+//                        + s.getKey() + " should be contained in " + s.getValue());
             }
         }
         return tdep;
@@ -448,12 +444,8 @@ public class DiffIndCandidates implements TermGenerator {
         for (Map.Entry<ProgramVariable, LinkedHashSet<ProgramVariable>> s : dep
                 .entrySet()) {
             if (!s.getValue().contains(s.getKey())) {
-                // System.out.println("WARNING: " + "dependency of x'=5 should
-                // be reflexive. Hence " + s.getKey() + " should be contained in
-                // " + s.getValue());
-                // s.getValue().add(s.getKey());
-                assert s.getValue().contains(s.getKey()) : "dependency of x'=5 should be reflexive. Hence "
-                        + s.getKey() + " contained in " + s.getValue();
+                System.out.println("WARNING: transitive dependencies are typically reflexive. Hence "
+                        + s.getKey() + " should be contained in " + s.getValue());
             }
         }
         return dep;
