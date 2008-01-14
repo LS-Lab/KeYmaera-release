@@ -594,11 +594,12 @@ public class DLStrategy extends AbstractFeatureStrategy {
                             new SwitchFeature(
                                     new HypotheticalProvabilityFeature(DLOptionBean.INSTANCE.getDiffSatTimeout()),
                                     new Case(longConst(0), longConst(-4000)),
-                                    // reject if it doesn't help, but retry
-                                    // costs
+                                    // reject if it doesn't help, but retry costs
                                     new Case(longConst(1), inftyConst()),
                                     new Case(inftyConst(), inftyConst()))))));
         }
+        
+        //@todo could use DiffInvariantPresentFeature to ensure diff_strengthen isn't used repeatedly in vain (but it currently isn't anyhow)
     }
 
     public Name name() {
