@@ -20,43 +20,28 @@
 package de.uka.ilkd.key.dl.arithmetics.exceptions;
 
 /**
- * Thrown to indicate an incomplete evaluation, e.g., due to a timeout or abort.
- * @author jdq
- * @since Nov 21, 2007
+ * Thrown when a computation failed permanently
+ * 
+ * @author ap
  * 
  */
-public class IncompleteEvaluationException extends ComputationException {
-
+public class FailedComputationException extends ComputationException {
     /**
      * 
      */
-    public IncompleteEvaluationException() {
-        // TODO Auto-generated constructor stub
-    }
-
-    /**
-     * @param message
-     */
-    public IncompleteEvaluationException(String message) {
-        super(message);
-        // TODO Auto-generated constructor stub
-    }
-
-    /**
-     * @param cause
-     */
-    public IncompleteEvaluationException(Throwable cause) {
-        super(cause);
-        // TODO Auto-generated constructor stub
-    }
-
-    /**
-     * @param message
-     * @param cause
-     */
-    public IncompleteEvaluationException(String message, Throwable cause) {
+    public FailedComputationException(String message, Throwable cause) {
         super(message, cause);
-        // TODO Auto-generated constructor stub
     }
-
+    
+    /**
+     * 
+     */
+    public FailedComputationException(String message) {
+        super(message);
+    }
+    public FailedComputationException() {
+    }
+    public FailedComputationException(Throwable cause) {
+        super(cause);
+    }
 }

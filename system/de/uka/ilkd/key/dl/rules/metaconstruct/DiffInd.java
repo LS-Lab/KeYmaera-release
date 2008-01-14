@@ -20,6 +20,8 @@
 package de.uka.ilkd.key.dl.rules.metaconstruct;
 
 import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.FailedComputationException;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.UnableToConvertInputException;
 import de.uka.ilkd.key.dl.model.DiffSystem;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.java.StatementBlock;
@@ -70,12 +72,13 @@ public class DiffInd extends AbstractDLMetaOperator {
         try {
             if (term.op() == Modality.BOX
                     || term.op() == Modality.TOUT) {
-                return MathSolverManager.getCurrentODESolver()
-                .diffInd(system, post, nss);
+                return MathSolverManager.getCurrentODESolver().diffInd(system, post, nss);
             } else {
                 throw new IllegalStateException("Unknown modality "
                         + term.op());
             }
+        } catch (FailedComputationException e) {
+            throw new IllegalStateException("DiffInd cannot handle these equations", e);
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {

@@ -20,13 +20,14 @@
 package de.uka.ilkd.key.dl.arithmetics.exceptions;
 
 /**
- * TODO jdq documentation since Nov 21, 2007
+ * thrown when expressions could not be converted 
  * 
  * @author jdq
  * @since Nov 21, 2007
  * 
  */
 public class UnableToConvertInputException extends ComputationException {
+
     /**
      * 
      */

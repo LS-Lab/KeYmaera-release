@@ -34,8 +34,11 @@ import java.util.Set;
 import com.wolfram.jlink.Expr;
 import com.wolfram.jlink.ExprFormatException;
 
+import de.uka.ilkd.key.dl.arithmetics.exceptions.ComputationException;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.FailedComputationException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.IncompleteEvaluationException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.UnableToConvertInputException;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.UnsolveableException;
 import de.uka.ilkd.key.dl.logic.ldt.RealLDT;
 import de.uka.ilkd.key.dl.model.Div;
 import de.uka.ilkd.key.dl.model.Exp;
@@ -68,7 +71,8 @@ import de.uka.ilkd.key.logic.sort.Sort;
  */
 public class Expr2TermConverter implements ExprConstants {
 
-    private static final String[] BLACKLIST_ARRAY = { "Abort", "Reduce", "Simplify",
+    private static final String[] BLACKLIST_ARRAY = { "Abort", "$Failed", 
+        "Reduce", "Simplify",
             "FullSimplify", "FindInstance", "Hold", "List", "Resolve",
             "DSolve", "D", "Dt", "Indeterminate" };
 
@@ -107,17 +111,19 @@ public class Expr2TermConverter implements ExprConstants {
      */
     public static Term convert(Expr expr, NamespaceSet nss,
             Map<Name, LogicVariable> quantifiedVariables)
-            throws RemoteException, UnableToConvertInputException, IncompleteEvaluationException {
+            throws RemoteException, ComputationException {
         Term convertImpl = convertImpl(expr, nss, quantifiedVariables);
 //        assert expr.equals(Term2ExprConverter.convert2ExprImpl(convertImpl));
         return convertImpl;
     }
     static Term convertImpl(Expr expr, NamespaceSet nss,
                 Map<Name, LogicVariable> quantifiedVariables)
-        throws RemoteException, UnableToConvertInputException, IncompleteEvaluationException {
+        throws RemoteException, ComputationException {
         try {
             if (expr.toString().equalsIgnoreCase("$Aborted")) {
                 throw new IncompleteEvaluationException("Calculation aborted!");
+            } else if (expr.toString().equalsIgnoreCase("$Failed")) {
+                    throw new FailedComputationException("Calculation failed!");
             } else if (expr.head().equals(FORALL) || expr.head().equals(EXISTS)) {
                 Expr list = expr.args()[0];
                 if (list.head().equals(LIST)) { // LIST

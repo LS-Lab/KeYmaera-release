@@ -20,12 +20,12 @@
 package de.uka.ilkd.key.dl.arithmetics.exceptions;
 
 /**
- * TODO jdq documentation since Nov 21, 2007 
+ * thrown when a computation is unsolvable in principle. 
  * @author jdq
  * @since Nov 21, 2007
  * 
  */
-public class UnsolveableException extends ComputationException {
+public class UnsolveableException extends FailedComputationException {
 
     /**
      * 

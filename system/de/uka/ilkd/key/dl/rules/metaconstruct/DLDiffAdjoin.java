@@ -91,7 +91,6 @@ public class DLDiffAdjoin extends AbstractDLMetaOperator {
             // \[#diffsystem&psi\]post
             DiffSystem augmentedSystem = tf.createDiffSystem(augmented);
             augmentedSystem.setDLAnnotations(system.getDLAnnotations());
-            System.out.println("  adjoins " + augmentedSystem.getDLAnnotations());
             return de.uka.ilkd.key.logic.TermFactory.DEFAULT.createProgramTerm(
                     term.sub(0).op(), JavaBlock
                             .createJavaBlock(new DLStatementBlock(augmentedSystem)), post);
