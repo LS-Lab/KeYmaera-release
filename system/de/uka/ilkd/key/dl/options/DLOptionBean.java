@@ -240,13 +240,13 @@ public class DLOptionBean implements Settings {
         simplifyBeforeReduce = true;
         simplifyAfterReduce = true;
         normalizeEquations = true;
-        applyUpdatesToModalities = true;
+        applyUpdatesToModalities = false;
         counterExampleGenerator = "";
         odeSolver = "";
         quantifierEliminator = "";
         simplifier = "";
-        applyGammaRules = ApplyRules.NEVER;
-        counterexampleTest = CounterexampleTest.OFF;
+        applyGammaRules = ApplyRules.ONLY_TO_MODALITIES;
+        counterexampleTest = CounterexampleTest.ON;
         invariantRule = InvariantRule.QUANTIFIERS;
         diffSatStrategy = DiffSat.OFF;
 

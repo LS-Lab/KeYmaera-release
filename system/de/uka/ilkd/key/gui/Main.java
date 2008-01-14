@@ -2825,7 +2825,7 @@ public class Main extends JFrame {
             if (recentFiles != null && recentFiles.getMostRecent() != null) {
                 final String recentFile = recentFiles.getMostRecent()
                         .getAbsolutePath();
-                if (recentFile != null) {
+                if (recentFile != null && recentFile.endsWith(".key")) {
                     loadProblem(new File(recentFile));
                 }
             }
