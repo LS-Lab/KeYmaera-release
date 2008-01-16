@@ -1400,6 +1400,8 @@ public class Main extends JFrame {
                                 + TimeStatisticGenerator.INSTANCE
                                         .getCachedAnwsers() + " / "
                                 + TimeStatisticGenerator.INSTANCE.getQueries();
+                        stats += "\n"
+                            + "Program Variables: " + mediator.namespaces().programVariables().elements().size();
                     } catch (RemoteException e1) {
                         // if there is an exception the statistic is not
                         // displayed
