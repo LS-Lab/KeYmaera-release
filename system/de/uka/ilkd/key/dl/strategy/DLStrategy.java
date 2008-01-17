@@ -102,6 +102,7 @@ import de.uka.ilkd.key.strategy.termProjection.TermBuffer;
  * 
  * @author jdq
  * @author ap
+ * @todo allow equality rewriting
  */
 public class DLStrategy extends AbstractFeatureStrategy {
 
