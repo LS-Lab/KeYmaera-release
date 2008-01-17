@@ -32,14 +32,15 @@ import javax.swing.JFrame;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 
+import orbital.awt.UIUtilities;
 import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
 import de.uka.ilkd.key.dl.formulatools.TermTools;
 import de.uka.ilkd.key.dl.model.DiffSystem;
 import de.uka.ilkd.key.dl.strategy.features.FOSequence;
+import de.uka.ilkd.key.gui.Main;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.java.StatementBlock;
 import de.uka.ilkd.key.logic.Constraint;
-import de.uka.ilkd.key.logic.IteratorOfConstrainedFormula;
 import de.uka.ilkd.key.logic.JavaBlock;
 import de.uka.ilkd.key.logic.Name;
 import de.uka.ilkd.key.logic.PosInOccurrence;
@@ -125,6 +126,8 @@ public class FindTransitionRule implements BuiltInRule, RuleFilter {
                     String label;
                     if (result.equals("")) {
                         label = "No counterexample found.";
+                    } else if (result.equals("$Aborted")) {
+                            label = "Counterexample computation aborted.";
                     } else {
                         label = result;
                     }
@@ -143,6 +146,7 @@ public class FindTransitionRule implements BuiltInRule, RuleFilter {
 
                     });
                     frame.pack();
+                    UIUtilities.setCenter(frame, Main.getInstance());
                     frame.setVisible(true);
                 }
 

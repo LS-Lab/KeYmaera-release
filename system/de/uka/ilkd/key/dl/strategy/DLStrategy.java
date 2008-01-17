@@ -242,7 +242,10 @@ public class DLStrategy extends AbstractFeatureStrategy {
                 EqNonDuplicateAppFeature.INSTANCE, longConst(-10000)));
 
 
-        bindRuleSet(d, "split_gen", longConst(-1000));
+        bindRuleSet(d, "split_gen",
+                ifZero(isAnnotated("generalize"),
+                        longConst(-2000),
+                        inftyConst()));
         
         
         // delete cast
@@ -279,7 +282,7 @@ public class DLStrategy extends AbstractFeatureStrategy {
                         : inftyConst()));
 
         if (DLOptionBean.INSTANCE.isNormalizeEquations()) {
-            bindRuleSet(d, "inequation_normalization", -2000);
+            bindRuleSet(d, "inequation_normalization", -4000);
         } else {
             bindRuleSet(d, "inequation_normalization", inftyConst());
         }
@@ -363,6 +366,8 @@ public class DLStrategy extends AbstractFeatureStrategy {
 
         instantiationF = setupInstantiationF(p_proof);
     }
+    
+    
 
     /**
      * DiffSat strategy.
@@ -445,7 +450,7 @@ public class DLStrategy extends AbstractFeatureStrategy {
                     // recursively strengthening augmentation validity proofs seems useless
                     inftyConst(),
                     ifZero(isAnnotated("strengthen"),
-                            longConst(0),
+                            longConst(-2000),
                     ifZero(ODESolvableFeature.INSTANCE, inftyConst(), ifZero(
                             DiffWeakenFeature.INSTANCE, inftyConst(), 
                             // never instantiate when cheaper rule successful
@@ -533,7 +538,7 @@ public class DLStrategy extends AbstractFeatureStrategy {
                             ifZero(
                                     add(
                                             instantiate("inv", instOf("post")),
-                                            openCurrentRuleApp(new HypotheticalProvabilityFeature(DLOptionBean.INSTANCE.getDiffSatTimeout()))),
+                                            openCurrentRuleApp(new HypotheticalProvabilityFeature(DLOptionBean.INSTANCE.getLoopSatTimeout()))),
                                     longConst(-2000),
                                     ifZero(
                                             not(sum(
@@ -543,7 +548,7 @@ public class DLStrategy extends AbstractFeatureStrategy {
                                                             buffy,
                                                             instantiate("inv",
                                                                     augInst),
-                                                            not(openCurrentRuleApp(new HypotheticalProvabilityFeature(DLOptionBean.INSTANCE.getDiffSatTimeout())))))),
+                                                            not(openCurrentRuleApp(new HypotheticalProvabilityFeature(DLOptionBean.INSTANCE.getLoopSatTimeout())))))),
                                             longConst(-1000), inftyConst() // @todo
                                     // use
                                     // large
