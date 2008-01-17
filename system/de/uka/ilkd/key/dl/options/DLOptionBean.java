@@ -136,6 +136,7 @@ public class DLOptionBean implements Settings {
      */
     private static final String DLOPTIONS_INITIAL_TIMEOUT = "[DLOptions]initialTimeout";
     private static final String DLOPTIONS_DIFFSAT_TIMEOUT = "[DLOptions]diffSatTimeout";
+    private static final String DLOPTIONS_LOOPSAT_TIMEOUT = "[DLOptions]loopSatTimeout";
 
     /**
      * 
@@ -192,6 +193,8 @@ public class DLOptionBean implements Settings {
     
     private long diffSatTimeout;
 
+    private long loopSatTimeout;
+    
     private boolean useTimeoutStrategy;
 
     private boolean splitBeyondFO;
@@ -230,7 +233,8 @@ public class DLOptionBean implements Settings {
         subOptions = new HashSet<Settings>();
         callReduce = true;
         initialTimeout = 2000;
-        diffSatTimeout = 100000;
+        diffSatTimeout = 4000;
+        loopSatTimeout = 100000;
         quadraticTimeoutIncreaseFactor = 0;
         linearTimeoutIncreaseFactor = 2;
         constantTimeoutIncreaseFactor = 0;
@@ -461,6 +465,10 @@ public class DLOptionBean implements Settings {
         if (property != null) {
             diffSatTimeout = Integer.parseInt(property);
         }
+        property = props.getProperty(DLOPTIONS_LOOPSAT_TIMEOUT);
+        if (property != null) {
+            loopSatTimeout = Integer.parseInt(property);
+        }
     }
 
     /*
@@ -518,6 +526,7 @@ public class DLOptionBean implements Settings {
 
         props.setProperty(DLOPTIONS_USE_DIFF_SAT, diffSatStrategy.name());
         props.setProperty(DLOPTIONS_DIFFSAT_TIMEOUT, "" + diffSatTimeout);
+        props.setProperty(DLOPTIONS_LOOPSAT_TIMEOUT, "" + loopSatTimeout);
     }
 
     public void addSubOptionBean(Settings sub) {
@@ -825,4 +834,15 @@ public class DLOptionBean implements Settings {
         firePropertyChanged();
     }
 
+    public long getLoopSatTimeout() {
+        return loopSatTimeout;
+    }
+
+    public void setLoopSatTimeout(long loopSatTimeout) {
+        if (loopSatTimeout < 0) {
+            loopSatTimeout = 0;
+        }
+        this.loopSatTimeout = loopSatTimeout;
+        firePropertyChanged();
+    }
 }
