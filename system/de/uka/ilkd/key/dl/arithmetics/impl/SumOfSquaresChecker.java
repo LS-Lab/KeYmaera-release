@@ -23,6 +23,10 @@ import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Set;
 
+import orbital.math.Polynomial;
+import orbital.math.ValueFactory;
+import orbital.math.Values;
+
 import de.uka.ilkd.key.dl.logic.ldt.RealLDT;
 import de.uka.ilkd.key.dl.parser.NumberCache;
 import de.uka.ilkd.key.gui.Main;
@@ -33,6 +37,8 @@ import de.uka.ilkd.key.logic.op.Equality;
 import de.uka.ilkd.key.logic.op.Function;
 import de.uka.ilkd.key.logic.op.Op;
 import de.uka.ilkd.key.logic.op.Operator;
+import de.uka.ilkd.key.logic.op.ProgramVariable;
+import de.uka.ilkd.key.logic.op.QuantifiableVariable;
 import de.uka.ilkd.key.logic.op.TermSymbol;
 
 /**
@@ -42,8 +48,6 @@ import de.uka.ilkd.key.logic.op.TermSymbol;
 public class SumOfSquaresChecker {
 
     public static final SumOfSquaresChecker INSTANCE = new SumOfSquaresChecker();
-
-
 
     public void check(Set<Term> ante, Set<Term> succ) {
         final Function lt = getFunction("lt");
@@ -96,13 +100,17 @@ public class SumOfSquaresChecker {
             } else if (t.op().equals(gt)) {
                 f.add(TermBuilder.DF.func(geq, t.sub(0), t.sub(1)));
                 g.add(TermBuilder.DF.func(neq, t.sub(0), t.sub(1)));
-            } else if (t.op().equals(leq)){
-                f.add(TermBuilder.DF.func(geq, TermBuilder.DF.func(getFunction("neg"), t.sub(0)), t.sub(1)));
-                g.add(TermBuilder.DF.func(neq, TermBuilder.DF.func(getFunction("neg"), t.sub(0)), t.sub(1)));
-            } else if (t.op().equals(lt)){
-                f.add(TermBuilder.DF.func(geq, TermBuilder.DF.func(getFunction("neg"), t.sub(0)), t.sub(1)));
+            } else if (t.op().equals(leq)) {
+                f.add(TermBuilder.DF.func(geq, TermBuilder.DF.func(
+                        getFunction("neg"), t.sub(0)), t.sub(1)));
+                g.add(TermBuilder.DF.func(neq, TermBuilder.DF.func(
+                        getFunction("neg"), t.sub(0)), t.sub(1)));
+            } else if (t.op().equals(lt)) {
+                f.add(TermBuilder.DF.func(geq, TermBuilder.DF.func(
+                        getFunction("neg"), t.sub(0)), t.sub(1)));
             } else {
-                throw new IllegalArgumentException("Dont know how to handle the predicate " + t.op());
+                throw new IllegalArgumentException(
+                        "Dont know how to handle the predicate " + t.op());
             }
         }
         check(f, g, h);
@@ -132,14 +140,54 @@ public class SumOfSquaresChecker {
         }
         throw new IllegalArgumentException("Unknown operator " + op);
     }
-    
+
     /**
      * Compute a conjunction of inequaltities f of the form f >= 0, g != 0 or
      * equalities h = 0. Afterwards check if f+g^2+h = 0 is satisfiable. If this
      * holds the input is satisfiable too.
      */
     public void check(Set<Term> f, Set<Term> g, Set<Term> h) {
+        for (Term t : f) {
+            Polynomial poly = createPoly(t.sub(0));
+        }
+    }
 
+    /**
+     * @param sub
+     * @return
+     */
+    private Polynomial createPoly(Term sub) {
+        if (sub.arity() == 0) {
+            if (sub.op() instanceof Function) {
+                try {
+                    return Values.getDefault().polynomial(
+                            new BigDecimal(sub.op().name().toString()));
+                } catch (Exception e) {
+                    return Values.getDefault().polynomial(
+                            Values.getDefault().valueOf(
+                                    sub.op().name().toString()));
+                }
+            } else if (sub.op() instanceof QuantifiableVariable
+                    || sub.op() instanceof ProgramVariable) {
+                return Values.getDefault()
+                        .polynomial(
+                                Values.getDefault().valueOf(
+                                        sub.op().name().toString()));
+            }
+        } else {
+            if(sub.op().equals(getFunction("add"))) {
+                return createPoly(sub.sub(0)).add(createPoly(sub.sub(1)));
+            } else if(sub.op().equals(getFunction("sub"))) {
+                return createPoly(sub.sub(0)).subtract(createPoly(sub.sub(1)));
+            } else if(sub.op().equals(getFunction("mul"))) {
+                return createPoly(sub.sub(0)).multiply(createPoly(sub.sub(1)));
+            } else if(sub.op().equals(getFunction("div"))) {
+                return (Polynomial) createPoly(sub.sub(0)).multiply(createPoly(sub.sub(1)).power(Values.MINUS_ONE));
+            } else if(sub.op().equals(getFunction("exp"))) {
+                return (Polynomial) createPoly(sub.sub(0)).power(createPoly(sub.sub(1)));   
+            }
+        }
+        throw new IllegalArgumentException("Dont know what to do with" + sub.op());
     }
 
     /**
