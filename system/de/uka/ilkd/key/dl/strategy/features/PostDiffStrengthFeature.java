@@ -22,6 +22,7 @@ package de.uka.ilkd.key.dl.strategy.features;
 import de.uka.ilkd.key.logic.Name;
 import de.uka.ilkd.key.logic.PosInOccurrence;
 import de.uka.ilkd.key.proof.Goal;
+import de.uka.ilkd.key.proof.Node;
 import de.uka.ilkd.key.proof.UpdateSimplificationRuleFilter;
 import de.uka.ilkd.key.rule.ListOfRuleApp;
 import de.uka.ilkd.key.rule.RuleApp;
@@ -36,7 +37,7 @@ import de.uka.ilkd.key.strategy.feature.Feature;
  * Detects if results from ("left") augmentation proof part of diffstrengthen
  * 
  * @author ap
- * 
+ * TODO generalize this feature to RuleBranchAncestryFeature by making it parametric to other situations
  */
 public class PostDiffStrengthFeature implements Feature {
 
@@ -49,27 +50,55 @@ public class PostDiffStrengthFeature implements Feature {
      *      de.uka.ilkd.key.logic.PosInOccurrence, de.uka.ilkd.key.proof.Goal)
      */
     public RuleAppCost compute(RuleApp app, PosInOccurrence pos, Goal goal) {
-        if ("Invariant Valid".equals(goal.node().getNodeInfo().getBranchLabel())) {
-            if (goal.appliedRuleApps().isEmpty())
-                return TopRuleAppCost.INSTANCE;
-            RuleApp rapp = goal.appliedRuleApps().head();
-            ListOfRuleApp rest = goal.appliedRuleApps().tail();
-            // skip update applications
-            while (UpdateSimplificationRuleFilter.INSTANCE.filter(rapp.rule())) {
-                rapp = rest.head();
-                rest = rest.tail();
-            }
-            if (rapp instanceof TacletApp) {
-                TacletApp tapp = (TacletApp) rapp;
-                if (tapp.taclet().ruleSets().next() == goal.proof()
-                        .getNamespaces().ruleSets().lookup(
-                                new Name("diffstrengthen"))
-                        || tapp.rule().name()
-                                .equals(new Name("diffstrengthen"))) {
-                    return LongRuleAppCost.ZERO_COST;
-                }
-            }
+        if (amIChildNOf(goal.node(), 0, new Name("diffstrengthen"))) {
+            return LongRuleAppCost.ZERO_COST;
+        } else {
+            return TopRuleAppCost.INSTANCE;
         }
-        return TopRuleAppCost.INSTANCE;
+//        if ("Invariant Valid".equals(goal.node().getNodeInfo().getBranchLabel()))
+//            if (goal.appliedRuleApps().isEmpty())
+//                return TopRuleAppCost.INSTANCE;
+//            RuleApp rapp = goal.appliedRuleApps().head();
+//            ListOfRuleApp rest = goal.appliedRuleApps().tail();
+//            // skip update applications
+//            while (UpdateSimplificationRuleFilter.INSTANCE.filter(rapp.rule())) {
+//                rapp = rest.head();
+//                rest = rest.tail();
+//            }
+//            if (rapp instanceof TacletApp) {
+//                TacletApp tapp = (TacletApp) rapp;
+//                if (tapp.taclet().ruleSets().next() == goal.proof()
+//                        .getNamespaces().ruleSets().lookup(
+//                                new Name("diffstrengthen"))
+//                        || tapp.rule().name()
+//                                .equals(new Name("diffstrengthen"))) {
+//                    return LongRuleAppCost.ZERO_COST;
+//                }
+//            }
+//        }
+//        return TopRuleAppCost.INSTANCE;
+    }
+    
+    /**
+     * Tests whether node me is branch/child n of the last rule application named rule 
+     * @param me
+     * @param i
+     * @param rule
+     * @return
+     */
+    private static boolean amIChildNOf(Node me, int n, Name rule) {
+        if (me.root()) {
+            return false;
+        }
+        Node par = me.parent();
+        Node child = me;
+        while (par.getAppliedRuleApp() != null && !par.getAppliedRuleApp().rule().name().equals(rule)) {
+            if (par.root()) {
+                return false;
+            }
+            child = par;
+            par = par.parent();
+        }
+        return par.childrenCount() > n && child.equals(par.child(n));
     }
 }
