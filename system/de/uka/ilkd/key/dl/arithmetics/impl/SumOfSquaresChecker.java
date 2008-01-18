@@ -20,9 +20,19 @@
 package de.uka.ilkd.key.dl.arithmetics.impl;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
+import com.togethersoft.together.impl.editor.htmltagbrowser.Sys;
+
+import orbital.math.Polynomial;
+import orbital.math.ValueFactory;
+import orbital.math.Values;
+
+import de.uka.ilkd.key.dl.formulatools.VariableCollector;
 import de.uka.ilkd.key.dl.logic.ldt.RealLDT;
 import de.uka.ilkd.key.dl.parser.NumberCache;
 import de.uka.ilkd.key.gui.Main;
@@ -33,7 +43,10 @@ import de.uka.ilkd.key.logic.op.Equality;
 import de.uka.ilkd.key.logic.op.Function;
 import de.uka.ilkd.key.logic.op.Op;
 import de.uka.ilkd.key.logic.op.Operator;
+import de.uka.ilkd.key.logic.op.ProgramVariable;
+import de.uka.ilkd.key.logic.op.QuantifiableVariable;
 import de.uka.ilkd.key.logic.op.TermSymbol;
+import de.uka.ilkd.key.pp.LogicPrinter;
 
 /**
  * @author jdq
@@ -42,8 +55,6 @@ import de.uka.ilkd.key.logic.op.TermSymbol;
 public class SumOfSquaresChecker {
 
     public static final SumOfSquaresChecker INSTANCE = new SumOfSquaresChecker();
-
-
 
     public void check(Set<Term> ante, Set<Term> succ) {
         final Function lt = getFunction("lt");
@@ -96,13 +107,17 @@ public class SumOfSquaresChecker {
             } else if (t.op().equals(gt)) {
                 f.add(TermBuilder.DF.func(geq, t.sub(0), t.sub(1)));
                 g.add(TermBuilder.DF.func(neq, t.sub(0), t.sub(1)));
-            } else if (t.op().equals(leq)){
-                f.add(TermBuilder.DF.func(geq, TermBuilder.DF.func(getFunction("neg"), t.sub(0)), t.sub(1)));
-                g.add(TermBuilder.DF.func(neq, TermBuilder.DF.func(getFunction("neg"), t.sub(0)), t.sub(1)));
-            } else if (t.op().equals(lt)){
-                f.add(TermBuilder.DF.func(geq, TermBuilder.DF.func(getFunction("neg"), t.sub(0)), t.sub(1)));
+            } else if (t.op().equals(leq)) {
+                f.add(TermBuilder.DF.func(geq, TermBuilder.DF.func(
+                        getFunction("neg"), t.sub(0)), t.sub(1)));
+                g.add(TermBuilder.DF.func(neq, TermBuilder.DF.func(
+                        getFunction("neg"), t.sub(0)), t.sub(1)));
+            } else if (t.op().equals(lt)) {
+                f.add(TermBuilder.DF.func(geq, TermBuilder.DF.func(
+                        getFunction("neg"), t.sub(0)), t.sub(1)));
             } else {
-                throw new IllegalArgumentException("Dont know how to handle the predicate " + t.op());
+                throw new IllegalArgumentException(
+                        "Dont know how to handle the predicate " + t.op());
             }
         }
         check(f, g, h);
@@ -132,14 +147,115 @@ public class SumOfSquaresChecker {
         }
         throw new IllegalArgumentException("Unknown operator " + op);
     }
-    
+
     /**
      * Compute a conjunction of inequaltities f of the form f >= 0, g != 0 or
      * equalities h = 0. Afterwards check if f+g^2+h = 0 is satisfiable. If this
      * holds the input is satisfiable too.
      */
     public void check(Set<Term> f, Set<Term> g, Set<Term> h) {
+        Set<String> variables = new HashSet<String>();
+        for (Term t : f) {
+            variables.addAll(VariableCollector.getVariables(t));
+        }
+        for (Term t : g) {
+            variables.addAll(VariableCollector.getVariables(t));
+        }
+        for (Term t : h) {
+            variables.addAll(VariableCollector.getVariables(t));
+        }
+        List<String> vars = new ArrayList<String>();
+        vars.addAll(variables);
+        Polynomial result = null;
+        for (Term t : f) {
+            Polynomial poly = createPoly(t.sub(0), vars);
+            if(result == null) {
+                result = poly;
+            } else {
+                result.add(poly);
+            }
+            System.out.println(t);
+            System.out.println(poly);
+        }
+        Polynomial gPoly = null;
+        for (Term t : g) {
+            Polynomial poly = createPoly(t.sub(0), vars);
+            if(gPoly == null) {
+                gPoly = poly;
+            } else {
+                gPoly = gPoly.multiply(poly);
+            }
+            System.out.println(t);
+            System.out.println(poly);
+        }
+        if(gPoly != null) {
+            result.add((Polynomial) gPoly.power(Values.getDefault().valueOf(2)));
+        }
+        System.out.println("GPoly: " + gPoly);//XXX
+        for (Term t : h) {
+            Polynomial poly = createPoly(t.sub(0), vars);
+            if(result == null) {
+                result = poly;
+            } else {
+                result.add(poly);
+            }
+            System.out.println(t);
+            System.out.println(poly);
+        }
+        System.out.println("Result = " + result);//XXX
+    }
 
+    /**
+     * @param sub
+     * @param variables
+     * @return
+     */
+    private Polynomial createPoly(Term sub, List<String> variables) {
+        int[] size = new int[variables.size()];
+        if (sub.arity() == 0) {
+            if (variables.contains(sub.op().name().toString())) {
+                size[variables.indexOf(sub.op().name().toString())] = 1;
+                return Values.getDefault().MONOMIAL(size);
+            } else {
+                return Values.getDefault().MONOMIAL(
+                        Values.getDefault().valueOf(
+                                new BigDecimal(sub.op().name().toString())
+                                        .doubleValue()), size);
+            }
+        } else {
+            if (sub.op().equals(getFunction("add"))) {
+                return createPoly(sub.sub(0), variables).add(
+                        createPoly(sub.sub(1), variables));
+            } else if (sub.op().equals(getFunction("sub"))) {
+                return createPoly(sub.sub(0), variables).subtract(
+                        createPoly(sub.sub(1), variables));
+            } else if (sub.op().equals(getFunction("mul"))) {
+                return createPoly(sub.sub(0), variables).multiply(
+                        createPoly(sub.sub(1), variables));
+            } else if (sub.op().equals(getFunction("div"))) {
+                // aufmultiplizieren noetig falls der nenner komplizierter ist
+                return (Polynomial) createPoly(sub.sub(0), variables).multiply(
+                        createPoly(sub.sub(1), variables).power(
+                                Values.MINUS_ONE));
+            } else if (sub.op().equals(getFunction("exp"))) {
+                try {
+                    return (Polynomial) createPoly(sub.sub(0), variables)
+                            .power(
+                                    Values.getDefault().valueOf(
+                                            new BigDecimal(sub.sub(1).op()
+                                                    .name().toString())));
+                } catch (Exception e) {
+                    return (Polynomial) createPoly(sub.sub(0), variables)
+                            .power(createPoly(sub.sub(1), variables));
+                }
+            } else if (sub.op().equals(getFunction("neg"))) {
+                return (Polynomial) createPoly(sub.sub(0), variables).multiply(
+                        Values.getDefault().MONOMIAL(                                
+                                        Values.MINUS_ONE, size));
+            }
+        }
+        throw new IllegalArgumentException("Dont know what to do with"
+                + sub.op());
     }
 
     /**
