@@ -34,8 +34,10 @@ import de.uka.ilkd.key.logic.PosInOccurrence;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.proof.Goal;
 import de.uka.ilkd.key.proof.ListOfGoal;
+import de.uka.ilkd.key.proof.RuleFilter;
 import de.uka.ilkd.key.proof.SLListOfGoal;
 import de.uka.ilkd.key.rule.BuiltInRule;
+import de.uka.ilkd.key.rule.Rule;
 import de.uka.ilkd.key.rule.RuleApp;
 
 /**
@@ -45,7 +47,9 @@ import de.uka.ilkd.key.rule.RuleApp;
  * @since 17.01.2008
  * 
  */
-public class SumOfSquaresRule implements BuiltInRule {
+public class SumOfSquaresRule implements BuiltInRule, RuleFilter {
+
+    public static final SumOfSquaresRule INSTANCE = new SumOfSquaresRule();
 
     /**
      * 
@@ -111,6 +115,14 @@ public class SumOfSquaresRule implements BuiltInRule {
     @Override
     public Name name() {
         return new Name("Sum of Squares");
+    }
+
+    /* (non-Javadoc)
+     * @see de.uka.ilkd.key.proof.RuleFilter#filter(de.uka.ilkd.key.rule.Rule)
+     */
+    @Override
+    public boolean filter(Rule rule) {
+        return rule instanceof SumOfSquaresRule;
     }
 
 }
