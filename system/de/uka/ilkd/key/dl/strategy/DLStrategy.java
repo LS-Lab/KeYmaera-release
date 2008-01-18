@@ -401,12 +401,10 @@ public class DLStrategy extends AbstractFeatureStrategy {
                             // reject if it doesn't help, but retry costs
                             new Case(longConst(1), longConst(5000)),
                             new Case(inftyConst(), inftyConst())))));
-            bindRuleSet(
-                    d,
-                    "invariant_diff",
-                    ifZero(
-                            PostDiffStrengthFeature.INSTANCE,
-                            longConst(-4000),
+            bindRuleSet(d, "invariant_diff", ifZero(isAnnotated("diffind"),
+                    longConst(-6000),
+                    ifZero(PostDiffStrengthFeature.INSTANCE,
+                           longConst(-4000),
                             ifZero(
                                     ODESolvableFeature.INSTANCE,
                                     inftyConst(),
@@ -438,9 +436,13 @@ public class DLStrategy extends AbstractFeatureStrategy {
                                                                     longConst(6000)),
                                                             new Case(
                                                                     inftyConst(),
-                                                                    inftyConst()))))));
+                                                                    inftyConst())))))));
         } else {
-            bindRuleSet(d, "invariant_diff", isAnnotated("diffind"));
+            bindRuleSet(d, "invariant_diff", ifZero(isAnnotated("diffind"),
+                    longConst(-6000),
+                    ifZero(PostDiffStrengthFeature.INSTANCE,
+                           longConst(-4000),
+                           inftyConst())));
             bindRuleSet(d, "invariant_weaken", isAnnotated("weaken"));
         }
 
