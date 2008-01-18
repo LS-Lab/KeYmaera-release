@@ -78,7 +78,7 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
                             "counterexampleTest",
                             "quickly check for counterexamples",
                             "if enabled it will be checked if an counterexample can be found before trying to reduce",
-                            true, false, CounterexampleTestPropertyEditor.class),
+                            false, true, CounterexampleTestPropertyEditor.class),
                     createDescriptor(
                             "stopAtFO",
                             "stop strategy on first order goals",
@@ -120,7 +120,7 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
                     createDescriptor(
                             "applyUpdatesToModalities",
                             "apply updates to modalities",
-                            "apply updates to modalites e.g. to get more simpler solutions for differential equations"),
+                            "apply updates to modalites e.g. to get more simpler solutions for differential equations",true, false),
                     createDescriptor(
                             "odeSolver",
                             "solver for differential equations",
