@@ -62,7 +62,7 @@ public class Simplify extends AbstractDLMetaOperator {
         assumptions.add(term.sub(1));
         try {
             return MathSolverManager.getCurrentSimplifier().simplify(
-                    term.sub(0), assumptions);
+                    term.sub(0), assumptions, services.getNamespaces());
         } catch (Exception e) {
             if (e instanceof RuntimeException) {
                 throw (RuntimeException) e;

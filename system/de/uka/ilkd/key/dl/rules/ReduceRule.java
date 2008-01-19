@@ -229,12 +229,12 @@ public class ReduceRule extends RuleOperatingOnWholeSequence implements
             }
         }
         if (DLOptionBean.INSTANCE.isSimplifyBeforeReduce()) {
-            term = MathSolverManager.getCurrentSimplifier().simplify(term);
+            term = MathSolverManager.getCurrentSimplifier().simplify(term, getServices().getNamespaces());
         }
         term = MathSolverManager.getCurrentQuantifierEliminator().reduce(term,
-                variables, new LinkedList<PairOfTermAndQuantifierType>());
+                variables, new LinkedList<PairOfTermAndQuantifierType>(),getServices().getNamespaces());
         if (DLOptionBean.INSTANCE.isSimplifyAfterReduce()) {
-            term = MathSolverManager.getCurrentSimplifier().simplify(term);
+            term = MathSolverManager.getCurrentSimplifier().simplify(term,getServices().getNamespaces());
         }
         return term;
     }

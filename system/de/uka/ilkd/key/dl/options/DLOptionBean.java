@@ -179,6 +179,8 @@ public class DLOptionBean implements Settings {
 
     private static final String DLOPTIONS_USE_DIFF_SAT = "[DLOptions]DiffSat";
 
+    private static final String DLOPTIONS_IGNORE_ANNOTATIONS = "[DLOptions]ignoreAnnotations";
+
     private Set<Settings> subOptions;
 
     private boolean callReduce;
@@ -228,6 +230,8 @@ public class DLOptionBean implements Settings {
     private ApplyRules applyGammaRules;
     
     private InvariantRule invariantRule;
+    
+    private boolean ignoreAnnotations;
 
     private DLOptionBean() {
         subOptions = new HashSet<Settings>();
@@ -253,6 +257,7 @@ public class DLOptionBean implements Settings {
         counterexampleTest = CounterexampleTest.ON;
         invariantRule = InvariantRule.QUANTIFIERS;
         diffSatStrategy = DiffSat.OFF;
+        ignoreAnnotations = false;
 
         listeners = new HashSet<SettingsListener>();
     }
@@ -429,6 +434,10 @@ public class DLOptionBean implements Settings {
         if (property != null) {
             stopAtFO = property.equals(TRUE);
         }
+        property = props.getProperty(DLOPTIONS_IGNORE_ANNOTATIONS);
+        if (property != null) {
+            ignoreAnnotations = property.equals(TRUE);
+        }
 
         counterExampleGenerator = props
                 .getProperty(DLOPTIONS_COUNTEREXAMPLE_GENERATOR);
@@ -505,6 +514,7 @@ public class DLOptionBean implements Settings {
                 applyUpdatesToModalities).toString());
         props.setProperty(DLOPTIONS_COUNTEREXAMPLE_TEST, counterexampleTest.name());
         props.setProperty(DLOPTIONS_STOP_AT_FO, Boolean.toString(stopAtFO));
+        props.setProperty(DLOPTIONS_IGNORE_ANNOTATIONS, Boolean.toString(ignoreAnnotations));
 
         if (counterExampleGenerator != null) {
             props.setProperty(DLOPTIONS_COUNTEREXAMPLE_GENERATOR,
@@ -844,5 +854,16 @@ public class DLOptionBean implements Settings {
         }
         this.loopSatTimeout = loopSatTimeout;
         firePropertyChanged();
+    }
+
+    public boolean isIgnoreAnnotations() {
+        return ignoreAnnotations;
+    }
+
+    public void setIgnoreAnnotations(boolean ignoreAnnotations) {
+        if (this.ignoreAnnotations != ignoreAnnotations) {
+            this.ignoreAnnotations = ignoreAnnotations;
+            firePropertyChanged();
+        }
     }
 }

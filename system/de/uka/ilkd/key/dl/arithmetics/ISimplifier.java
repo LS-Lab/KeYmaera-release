@@ -30,6 +30,7 @@ import de.uka.ilkd.key.dl.arithmetics.exceptions.ServerStatusProblemException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.UnableToConvertInputException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.UnsolveableException;
+import de.uka.ilkd.key.logic.NamespaceSet;
 import de.uka.ilkd.key.logic.Term;
 
 /**
@@ -49,21 +50,21 @@ public interface ISimplifier extends IMathSolver {
      * @throws UnableToConvertInputException
      * 
      */
-    public abstract Term simplify(Term form) throws RemoteException,
+    public abstract Term simplify(Term form, NamespaceSet nss) throws RemoteException,
             SolverException;
 
     /**
      * Simplifies the given term if its a mathematical expression
      * 
      */
-    public abstract Term simplify(Term form, Set<Term> assumptions)
+    public abstract Term simplify(Term form, Set<Term> assumptions, NamespaceSet nss)
             throws RemoteException, SolverException;
 
     /**
      * Fully simplifies the given term if its a mathematical expression
      * 
      */
-    public abstract Term fullSimplify(Term form) throws RemoteException,
+    public abstract Term fullSimplify(Term form, NamespaceSet nss) throws RemoteException,
             SolverException;
 
 }

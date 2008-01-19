@@ -72,6 +72,8 @@ public abstract class RuleOperatingOnWholeSequence extends Visitor implements
 
     private boolean unsolvable;
 
+    private Services services;
+
     /**
      * 
      */
@@ -92,6 +94,8 @@ public abstract class RuleOperatingOnWholeSequence extends Visitor implements
         boolean testModeActive = testMode;
         unsolvable = false;
         testMode = false;
+        
+        this.services = services;
 
         IteratorOfConstrainedFormula it = goal.sequent().antecedent()
                 .iterator();
@@ -248,6 +252,10 @@ public abstract class RuleOperatingOnWholeSequence extends Visitor implements
      */
     public boolean isUnsolvable() {
         return unsolvable;
+    }
+
+    protected Services getServices() {
+        return services;
     }
 
 }

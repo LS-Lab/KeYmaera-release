@@ -60,7 +60,8 @@ public class Reduce extends AbstractDLMetaOperator {
     public Term calculate(Term term, SVInstantiations svInst, Services services) {
         try {
             return MathSolverManager.getCurrentQuantifierEliminator().reduce(
-                    term.sub(0), new ArrayList<PairOfTermAndQuantifierType>());
+                    term.sub(0), new ArrayList<PairOfTermAndQuantifierType>(),
+                    services.getNamespaces());
         } catch (Exception e) {
             if (e instanceof RuntimeException) {
                 throw (RuntimeException) e;

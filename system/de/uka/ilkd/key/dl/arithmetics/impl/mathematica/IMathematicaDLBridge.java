@@ -96,7 +96,7 @@ public interface IMathematicaDLBridge extends Remote {
      * @throws ConnectionProblemException
      * @throws ServerStatusProblemException
      */
-    public Term simplify(Term form, Set<Term> assumptions)
+    public Term simplify(Term form, Set<Term> assumptions, NamespaceSet nss)
             throws RemoteException, SolverException;
 
     /**
@@ -112,7 +112,7 @@ public interface IMathematicaDLBridge extends Remote {
      * @throws ConnectionProblemException
      * @throws ServerStatusProblemException
      */
-    public Term fullSimplify(Term form) throws RemoteException, SolverException;
+    public Term fullSimplify(Term form, NamespaceSet nss) throws RemoteException, SolverException;
 
     /**
      * @param form
@@ -207,6 +207,6 @@ public interface IMathematicaDLBridge extends Remote {
      * @throws UnableToConvertInputException
      */
     public Term reduce(Term form, List<String> additionalReduce,
-            List<PairOfTermAndQuantifierType> quantifiers)
+            List<PairOfTermAndQuantifierType> quantifiers, NamespaceSet nss)
             throws RemoteException, SolverException;
 }

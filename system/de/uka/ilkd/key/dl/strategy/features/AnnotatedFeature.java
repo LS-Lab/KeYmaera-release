@@ -11,6 +11,7 @@
 
 package de.uka.ilkd.key.dl.strategy.features;
 
+import de.uka.ilkd.key.dl.options.DLOptionBean;
 import de.uka.ilkd.key.dl.strategy.termProjection.AnnotationProjection;
 import de.uka.ilkd.key.logic.PosInOccurrence;
 import de.uka.ilkd.key.proof.Goal;
@@ -35,6 +36,10 @@ public class AnnotatedFeature extends BinaryTacletAppFeature {
     }
 
     protected boolean filter(TacletApp app, PosInOccurrence pos, Goal goal) {
+        if (DLOptionBean.INSTANCE.isIgnoreAnnotations()) {
+            // TODO cleanup this hack. We should ignore annotations in the strategy itself not in the system utilities 
+            return false;
+        }
         return instProj.toTerm ( app, pos, goal ) != null;
     }
 

@@ -371,14 +371,14 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
         try {
             if (DLOptionBean.INSTANCE.isSimplifyBeforeReduce()) {
                 query = MathSolverManager.getCurrentSimplifier()
-                        .simplify(query);
+                        .simplify(query, services.getNamespaces());
             }
             Term resultTerm = MathSolverManager
                     .getCurrentQuantifierEliminator()
-                    .reduce(query, quantifiers);
+                    .reduce(query, quantifiers, services.getNamespaces());
             if (DLOptionBean.INSTANCE.isSimplifyAfterReduce()) {
                 resultTerm = MathSolverManager.getCurrentSimplifier().simplify(
-                        resultTerm);
+                        resultTerm, services.getNamespaces());
             }
             // if there is a result: close all goals beside this one... and
             // progress

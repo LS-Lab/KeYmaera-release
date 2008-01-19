@@ -103,7 +103,7 @@ public class FindInstanceRule extends Visitor implements BuiltInRule,
 
         try {
             resultTerm = MathSolverManager.getCurrentSimplifier().simplify(
-                    resultTerm);
+                    resultTerm, services.getNamespaces());
 
             final String result = MathSolverManager
                     .getCurrentCounterExampleGenerator().findInstance(

@@ -211,8 +211,8 @@ public class Mathematica implements ICounterExampleGenerator, IODESolver,
      * 
      * @see de.uka.ilkd.key.dl.IMathSolver#simplify(de.uka.ilkd.key.logic.Term)
      */
-    public Term simplify(Term form) throws RemoteException, SolverException{
-        return simplify(form, new HashSet<Term>());
+    public Term simplify(Term form, NamespaceSet nss) throws RemoteException, SolverException{
+        return simplify(form, new HashSet<Term>(), nss);
     }
 
     /*
@@ -221,10 +221,10 @@ public class Mathematica implements ICounterExampleGenerator, IODESolver,
      * @see de.uka.ilkd.key.dl.IMathSolver#simplify(de.uka.ilkd.key.logic.Term,
      *      java.util.Set)
      */
-    public Term simplify(Term form, Set<Term> assumptions)
+    public Term simplify(Term form, Set<Term> assumptions, NamespaceSet nss)
     throws RemoteException, SolverException{
 
-        return bridge.simplify(form, assumptions);
+        return bridge.simplify(form, assumptions, nss);
 
     }
 
@@ -233,9 +233,9 @@ public class Mathematica implements ICounterExampleGenerator, IODESolver,
      * 
      * @see de.uka.ilkd.key.dl.IMathSolver#fullSimplify(de.uka.ilkd.key.logic.Term)
      */
-    public Term fullSimplify(Term form) throws RemoteException, SolverException{
+    public Term fullSimplify(Term form, NamespaceSet nss) throws RemoteException, SolverException{
 
-        return bridge.fullSimplify(form);
+        return bridge.fullSimplify(form, nss);
 
     }
 
@@ -244,8 +244,8 @@ public class Mathematica implements ICounterExampleGenerator, IODESolver,
      * 
      * @see de.uka.ilkd.key.dl.IMathSolver#reduce(de.uka.ilkd.key.logic.Term)
      */
-    public Term reduce(Term form) throws RemoteException, SolverException {
-        return reduce(form, new ArrayList<PairOfTermAndQuantifierType>());
+    public Term reduce(Term form, NamespaceSet nss) throws RemoteException, SolverException {
+        return reduce(form, new ArrayList<PairOfTermAndQuantifierType>(), nss);
     }
 
     /*
@@ -309,9 +309,9 @@ public class Mathematica implements ICounterExampleGenerator, IODESolver,
      *      java.util.List)
      */
     public Term reduce(Term query, List<String> additionalReduce,
-            List<PairOfTermAndQuantifierType> quantifiers)
+            List<PairOfTermAndQuantifierType> quantifiers, NamespaceSet nss)
     throws RemoteException, SolverException {
-        return bridge.reduce(query, additionalReduce, quantifiers);
+        return bridge.reduce(query, additionalReduce, quantifiers, nss);
     }
 
     /*
@@ -320,9 +320,9 @@ public class Mathematica implements ICounterExampleGenerator, IODESolver,
      * @see de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator#reduce(de.uka.ilkd.key.logic.Term,
      *      java.util.List)
      */
-    public Term reduce(Term form, List<PairOfTermAndQuantifierType> quantifiers)
+    public Term reduce(Term form, List<PairOfTermAndQuantifierType> quantifiers, NamespaceSet nss)
     throws RemoteException, SolverException {
-        return reduce(form, new LinkedList<String>(), quantifiers);
+        return reduce(form, new LinkedList<String>(), quantifiers, nss);
     }
 
     @Override

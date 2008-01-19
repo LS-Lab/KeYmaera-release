@@ -120,7 +120,8 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
                     createDescriptor(
                             "applyUpdatesToModalities",
                             "apply updates to modalities",
-                            "apply updates to modalites e.g. to get more simpler solutions for differential equations",true, false),
+                            "apply updates to modalites e.g. to get more simpler solutions for differential equations",
+                            true, false),
                     createDescriptor(
                             "odeSolver",
                             "solver for differential equations",
@@ -143,22 +144,29 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
                             "simplifier for arithmetic expressions",
                             "select the arithmetic tool that should be used to simplify expressions",
                             true, false, SimplifierPropertyEditor.class),
-                    createDescriptor("applyGammaRules", "apply gamma rules",
+                    createDescriptor(
+                            "applyGammaRules",
+                            "apply gamma rules",
                             "choose if and when gamma rules should be applied for existential quantifiers",
                             true, false, ApplyRulesPropertyEditor.class),
                     createDescriptor("diffSat", "DiffSat strategy",
                             "select which degree of DiffSat strategy to apply",
                             true, false, DiffSatPropertyEditor.class),
                     createDescriptor(
-                                    "diffSatTimeout",
-                                    "initial DiffSat timeout",
-                                    "the timeout used in the first iteration of the DiffSat strategy (in milliseconds)",
-                                    true, false),
+                            "diffSatTimeout",
+                            "initial DiffSat timeout",
+                            "the timeout used in the first iteration of the DiffSat strategy (in milliseconds)",
+                            true, false),
                     createDescriptor(
-                                            "loopSatTimeout",
-                                            "initial LoopSat timeout",
-                                            "the timeout used in the first iteration of the LoopSat strategy (in milliseconds)",
-                                            true, false),
+                            "loopSatTimeout",
+                            "initial LoopSat timeout",
+                            "the timeout used in the first iteration of the LoopSat strategy (in milliseconds)",
+                            true, false),
+                    createDescriptor(
+                            "ignoreAnnotations",
+                            "ignore annotations",
+                            "Whether to ignore all proof skeleton @annotations",
+                            true, false),
             // createDescriptor("invariantRule", "invariant rule",
             // "choose which invariant rule should be used", true,
             // false, InvariantRulePropertyEditor.class),
@@ -320,11 +328,12 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
     }
 
     public static class CounterexampleTestPropertyEditor extends
-    TaggedPropertyEditorSupport {
-public CounterexampleTestPropertyEditor() {
-    super(getNames(CounterexampleTest.values()), CounterexampleTest.values());
-}
-}
+            TaggedPropertyEditorSupport {
+        public CounterexampleTestPropertyEditor() {
+            super(getNames(CounterexampleTest.values()), CounterexampleTest
+                    .values());
+        }
+    }
 
     public static class DiffSatPropertyEditor extends
             TaggedPropertyEditorSupport {

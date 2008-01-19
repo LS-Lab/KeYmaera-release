@@ -155,7 +155,8 @@ public class EliminateQuantifierRule extends RuleOperatingOnWholeSequence
                 term,
                 variables,
                 Collections.singletonList(new PairOfTermAndQuantifierType(
-                        search, QuantifierType.FORALL)));
+                        search, QuantifierType.FORALL)),
+                getServices().getNamespaces());
 
     }
 

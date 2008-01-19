@@ -440,7 +440,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
      * @see de.uka.ilkd.key.dl.IMathematicaDLBridge#simplify(de.uka.ilkd.key.logic.Term,
      *      java.util.Set)
      */
-    public Term simplify(Term form, Set<Term> assumptions)
+    public Term simplify(Term form, Set<Term> assumptions, NamespaceSet nss)
     throws RemoteException, SolverException {
         Expr query = Term2ExprConverter.convert2Expr(form);
         Set<Expr> ass = new HashSet<Expr>();
@@ -450,8 +450,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
         query = new Expr(new Expr(Expr.SYMBOL, "Simplify"), new Expr[] { query,
                 new Expr(LIST, ass.toArray(new Expr[0])) });
         Expr result = evaluate(query).expression;
-        Term resultTerm = convert(result, Main.getInstance().mediator()
-                .namespaces());
+        Term resultTerm = convert(result, nss);
         if (!resultTerm.equals(form)) {
             return resultTerm;
         }
@@ -463,13 +462,12 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
      * 
      * @see de.uka.ilkd.key.dl.IMathematicaDLBridge#fullSimplify(de.uka.ilkd.key.logic.Term)
      */
-    public Term fullSimplify(Term form) throws RemoteException, SolverException{
+    public Term fullSimplify(Term form, NamespaceSet nss) throws RemoteException, SolverException{
         Expr query = Term2ExprConverter.convert2Expr(form);
         query = new Expr(new Expr(Expr.SYMBOL, "FullSimplify"),
                 new Expr[] { query });
         Expr result = evaluate(query).expression;
-        Term resultTerm = convert(result, Main.getInstance().mediator()
-                .namespaces());
+        Term resultTerm = convert(result, nss);
         if (!resultTerm.equals(form)) {
             return resultTerm;
         }
@@ -614,7 +612,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
     }
 
     public Term reduce(Term form, List<String> additionalReduce,
-            List<PairOfTermAndQuantifierType> quantifiers)
+            List<PairOfTermAndQuantifierType> quantifiers, NamespaceSet nss)
     throws RemoteException, SolverException{
         Expr query = Term2ExprConverter.convert2Expr(form);
         List<Expr> vars = new ArrayList<Expr>();
@@ -643,8 +641,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
         // new Expr(LIST, vars.toArray(new Expr[0])),
         // new Expr(Expr.SYMBOL, "Reals") });
         Expr result = evaluate(query).expression;
-        Term resultTerm = convert(result, Main.getInstance().mediator()
-                .namespaces());
+        Term resultTerm = convert(result, nss);
         if (!resultTerm.equals(form)) {
             return resultTerm;
         }

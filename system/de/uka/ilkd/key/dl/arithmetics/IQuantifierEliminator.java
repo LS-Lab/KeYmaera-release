@@ -30,6 +30,7 @@ import de.uka.ilkd.key.dl.arithmetics.exceptions.ServerStatusProblemException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.UnableToConvertInputException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.UnsolveableException;
+import de.uka.ilkd.key.logic.NamespaceSet;
 import de.uka.ilkd.key.logic.Term;
 
 /**
@@ -76,7 +77,7 @@ public interface IQuantifierEliminator extends IMathSolver {
      * @throws ServerStatusProblemException
      * 
      */
-    public abstract Term reduce(Term form) throws RemoteException,
+    public abstract Term reduce(Term form, NamespaceSet nss) throws RemoteException,
             SolverException;
 
     // /**
@@ -98,7 +99,7 @@ public interface IQuantifierEliminator extends IMathSolver {
      * 
      */
     public abstract Term reduce(Term form, List<String> names,
-            List<PairOfTermAndQuantifierType> quantifiers)
+            List<PairOfTermAndQuantifierType> quantifiers, NamespaceSet nss)
             throws RemoteException, SolverException;
 
     /**
@@ -110,6 +111,6 @@ public interface IQuantifierEliminator extends IMathSolver {
      * @return
      */
     public abstract Term reduce(Term query,
-            List<PairOfTermAndQuantifierType> quantifiers)
+            List<PairOfTermAndQuantifierType> quantifiers, NamespaceSet nss)
             throws RemoteException, SolverException;
 }

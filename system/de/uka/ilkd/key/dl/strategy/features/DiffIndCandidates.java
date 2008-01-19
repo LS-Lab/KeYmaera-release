@@ -116,7 +116,7 @@ public class DiffIndCandidates implements TermGenerator {
         l
                 .addAll(indCandidates(goal.sequent(), pos, currentInvariant,
                         services));
-        System.out.println("DiffInd CANDIDATES");
+        System.out.println("INDCANDIDATES " + app.rule().name() + " ...");
         for (Term c : l) {
             try {
                 final LogicPrinter lp = new LogicPrinter(new ProgramPrinter(
@@ -166,11 +166,7 @@ public class DiffIndCandidates implements TermGenerator {
         final Set<ProgramVariable> modifieds = getModifiedVariables(tdep);
         Set<ProgramVariable> frees = getFreeVariables(tdep);
         if (!frees.containsAll(modifieds)) {
-            // System.out.println( "WARNING: dependency of x'=5 should be
-            // reflexive. Hence modifieds " + modifieds + " contained in frees "
-            // + frees);
-            // frees.addAll(modifieds);
-            assert frees.containsAll(modifieds) : ("dependencies should be reflexive. Hence modified variables "
+            System.out.println("WARNING: dependencies should be reflexive. Hence modified variables "
                     + modifieds + " should be contained in free variables " + frees + " for " + program);
         }
         frees = Collections.unmodifiableSet(frees);
@@ -178,7 +174,7 @@ public class DiffIndCandidates implements TermGenerator {
         // find candidates
         final Set<Term> possibles = getMatchingCandidates(update,
                 currentInvariant, seq, services, modifieds);
-        System.out.println("DiffInd POSSIBLES:  ....\n" + possibles);
+        System.out.println("POSSIBLE CANDIDATES:  ....\n" + possibles);
 
         Set<Set<Term>> resultConjuncts = new LinkedHashSet<Set<Term>>();
         // compare variables according to number of dependencies

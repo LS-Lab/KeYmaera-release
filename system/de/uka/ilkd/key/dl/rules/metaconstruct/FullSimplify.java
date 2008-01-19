@@ -61,7 +61,7 @@ public class FullSimplify extends AbstractDLMetaOperator {
         assumptions.add(term.sub(1));
         try {
             return MathSolverManager.getCurrentSimplifier().fullSimplify(
-                    term.sub(0));
+                    term.sub(0), services.getNamespaces());
         } catch (Exception e) {
             e.printStackTrace();
             if(e instanceof RuntimeException) {
