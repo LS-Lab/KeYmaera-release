@@ -709,14 +709,14 @@ public class HypotheticalProvabilityFeature implements Feature {
                             return HypotheticalProvability.PROVABLE;
                         } else {
                             // if counterexample
+                            // TODO make ALL counterexamples known here, including FindTransitionTest counterexamples, otherwise, they just count as non-cached unknowns.
                             if (hypothesis.getActiveStrategy() instanceof DLStrategy
                                     && ((DLStrategy) hypothesis
                                             .getActiveStrategy())
                                             .foundCounterexample()) {
                                 return HypotheticalProvability.DISPROVABLE;
                             } else {
-                                System.out.println("HYPO no more rules on\n"
-                                        + hypothesis.openGoals());
+                                // no more rules applicable on hypothesis.openGoals()
                                 return HypotheticalProvability.UNKNOWN;
                             }
                         }

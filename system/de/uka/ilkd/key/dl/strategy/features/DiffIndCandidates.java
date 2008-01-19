@@ -207,10 +207,32 @@ public class DiffIndCandidates implements TermGenerator {
             }
             depOrder.removeAll(cluster);
         }
+        
         // order by size (number of conjuncts), ascending
         List<Set<Term>> orderedResultConjuncts = new ArrayList<Set<Term>>(
                 resultConjuncts);
         Collections.sort(orderedResultConjuncts, sizeComparator);
+
+        // as last resort, add all for the universal cluster but put them late 
+        Set<Term> matches = selectMatchingCandidates(possibles, Setops.union(modifieds, frees),
+                modifieds, frees);
+        if (!matches.isEmpty()) {
+            // only add subsets of size 1
+            for (Term t : new LinkedHashSet<Term>(matches)) {
+                Set<Term> ts = Collections.singleton(t);
+                if (!resultConjuncts.contains(ts)) {
+                  orderedResultConjuncts.add(ts);
+                } else {
+                    matches.remove(t);
+                }
+            }
+            System.out.println("    EXTRA-GENERATORS: are " + matches);
+//            // add all nonempty subsets
+//            Set<Set<Term>> subsets = Setops.powerset(matches);
+//            subsets.remove(Collections.EMPTY_SET);
+//            resultConjuncts.addAll(subsets);
+        }
+
         List<Term> result = new LinkedList<Term>();
         for (Set<Term> s : orderedResultConjuncts) {
             result.add(tb.and(TermTools.genericToOld(s)));
@@ -334,12 +356,13 @@ public class DiffIndCandidates implements TermGenerator {
      * Select those candidates that have a promising form.
      * 
      * @param seq
+     * @param mycluster within which cluster of modified variables to look
      * @return
      */
     private Set<Term> selectMatchingCandidates(Set<Term> candidates,
-            Set<ProgramVariable> myvars, Set<ProgramVariable> mymodifieds,
+            Set<ProgramVariable> mycluster, Set<ProgramVariable> mymodifieds,
             Set<ProgramVariable> myfrees) {
-        Set<Name> vars = projectNames2(myvars);
+        Set<Name> cluster = projectNames2(mycluster);
         Set<Name> modifieds = projectNames2(mymodifieds);
         Set<Name> frees = projectNames2(myfrees);
         // @todo need to conside possible generation renamings by update
@@ -348,21 +371,21 @@ public class DiffIndCandidates implements TermGenerator {
             final Set<Name> occurrences = Collections
                     .unmodifiableSet(TermTools.projectNames(TermTools.projectProgramVariables(FOVariableNumberCollector
                             .getVariables(fml))));
-            if (!vars.containsAll(Setops.intersection(occurrences, frees))) {
-                // System.out.println(" skip " + fml + " as " + occurrences + "
-                // not in " + vars + " ");
-                // variables with more dependencies
-                continue;
-            }
             if (Setops.intersection(occurrences, modifieds).isEmpty()) {
                 // System.out.println(" skip " + fml + " as no change. Changes:
                 // " + modifieds + " disjoint from occurrences " + occurrences);
                 // trivially invariant as nothing changes
                 continue;
-            } else {
-                // FV(fml)\cap MV(system) != EMPTY
-                matches.add(fml);
             }
+            if (!cluster.containsAll(Setops.intersection(occurrences, frees))) {
+                // System.out.println(" skip " + fml + " as " + occurrences + "
+                // not in " + vars + " ");
+                // variables with more dependencies
+                //if (Setops.intersection(Setops.intersection(occurrences, cluster),modifieds).isEmpty()) {
+                    continue;
+            }
+            // FV(fml)\cap MV(system) != EMPTY
+            matches.add(fml);
         }
         return matches;
     }
