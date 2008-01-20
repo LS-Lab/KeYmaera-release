@@ -41,6 +41,7 @@ import de.uka.ilkd.key.dl.model.NamedElement;
 import de.uka.ilkd.key.dl.model.ProgramVariable;
 import de.uka.ilkd.key.dl.model.Star;
 import de.uka.ilkd.key.dl.transitionmodel.DependencyStateGenerator;
+import de.uka.ilkd.key.gui.Main;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.java.StatementBlock;
 import de.uka.ilkd.key.logic.ConstrainedFormula;
@@ -69,6 +70,7 @@ import de.uka.ilkd.key.rule.updatesimplifier.ArrayOfAssignmentPair;
 import de.uka.ilkd.key.rule.updatesimplifier.AssignmentPair;
 import de.uka.ilkd.key.rule.updatesimplifier.Update;
 import de.uka.ilkd.key.strategy.termgenerator.TermGenerator;
+import de.uka.ilkd.key.dl.formulatools.TermTools;
 
 /**
  * DiffInd candidates.
@@ -113,14 +115,13 @@ public class DiffIndCandidates implements TermGenerator {
         // can handle this.
         // we only consider sophisticated choices
         // l.add(post); // consider diffind itself als diffstrengthening
-        l
-                .addAll(indCandidates(goal.sequent(), pos, currentInvariant,
+        l.addAll(indCandidates(goal.sequent(), pos, currentInvariant,
                         services));
         System.out.println("INDCANDIDATES " + app.rule().name() + " ...");
         for (Term c : l) {
             try {
                 final LogicPrinter lp = new LogicPrinter(new ProgramPrinter(
-                        null), NotationInfo.createInstance(), services);
+                        null), Main.getInstance().mediator().getNotationInfo(), services);
                 lp.printTerm(c);
                 System.out.print("...  " + lp.toString());
             } catch (Exception ignore) {
@@ -197,8 +198,8 @@ public class DiffIndCandidates implements TermGenerator {
             // find formulas that only refer to cluster
             Set<Term> matches = selectMatchingCandidates(possibles, cluster,
                     modifieds, frees);
-            System.out.println("    GENERATORS: for " + min + " cluster "
-                    + cluster + " are " + matches);
+            System.out.println("    GENERATORS: for minimum " + min + " with its cluster "
+                    + cluster + " generators are " + matches);
             if (!matches.isEmpty()) {
                 // add all nonempty subsets
                 Set<Set<Term>> subsets = Setops.powerset(matches);
@@ -217,6 +218,7 @@ public class DiffIndCandidates implements TermGenerator {
         Set<Term> matches = selectMatchingCandidates(possibles, Setops.union(modifieds, frees),
                 modifieds, frees);
         if (!matches.isEmpty()) {
+            if (false) {
             // only add subsets of size 1
             for (Term t : new LinkedHashSet<Term>(matches)) {
                 Set<Term> ts = Collections.singleton(t);
@@ -226,12 +228,18 @@ public class DiffIndCandidates implements TermGenerator {
                     matches.remove(t);
                 }
             }
+            } else {
+                // add all nonempty subsets
+                Set<Set<Term>> subsets = Setops.powerset(matches);
+                subsets.remove(Collections.EMPTY_SET);
+                // remove all that are already known
+                subsets.removeAll(orderedResultConjuncts);
+                orderedResultConjuncts.addAll(subsets);
+            }
             System.out.println("    EXTRA-GENERATORS: are " + matches);
-//            // add all nonempty subsets
-//            Set<Set<Term>> subsets = Setops.powerset(matches);
-//            subsets.remove(Collections.EMPTY_SET);
-//            resultConjuncts.addAll(subsets);
         }
+
+        Collections.sort(orderedResultConjuncts, sizeComparator);
 
         List<Term> result = new LinkedList<Term>();
         for (Set<Term> s : orderedResultConjuncts) {
@@ -345,8 +353,14 @@ public class DiffIndCandidates implements TermGenerator {
                 continue;
             x = tb.var(xvar);
             Term t = ass.value();
-            if (t.arity() > 0)
+            if (TermTools.getSignature(t).isEmpty()) {
+                // skip trivial reverting to, e.g., pure number expressions
                 continue;
+            }
+            if (t.arity() > 0) {
+                // TODO what aboout this case?
+                continue;
+            }
             undos.put(t, x);
         }
         return ReplacementSubst.create(undos);

@@ -3,12 +3,14 @@
  */
 package de.uka.ilkd.key.dl.formulatools;
 
+import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import de.uka.ilkd.key.dl.model.NamedElement;
 import de.uka.ilkd.key.logic.ConstrainedFormula;
 import de.uka.ilkd.key.logic.IteratorOfConstrainedFormula;
 import de.uka.ilkd.key.logic.IteratorOfTerm;
@@ -19,8 +21,13 @@ import de.uka.ilkd.key.logic.SLListOfTerm;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.TermFactory;
 import de.uka.ilkd.key.logic.Visitor;
+import de.uka.ilkd.key.logic.op.Function;
 import de.uka.ilkd.key.logic.op.Junctor;
+import de.uka.ilkd.key.logic.op.LogicVariable;
+import de.uka.ilkd.key.logic.op.Metavariable;
+import de.uka.ilkd.key.logic.op.Op;
 import de.uka.ilkd.key.logic.op.Operator;
+import de.uka.ilkd.key.logic.op.Quantifier;
 
 /**
  * @author andre
@@ -140,6 +147,66 @@ public class TermTools {
         return result[0];
     }
 
+    private static final List<String> builtinList = Arrays.asList(new String[] {
+            "add",
+            "sub",
+            "neg",
+            "mul",
+            "div",
+            "exp",
+            "gt",
+            "geq",
+            "equals",
+            "neq",
+            "leq",
+            "lt"
+    });
+    /**
+     * Get the set of all symbols that occur in a formula or term.
+     */
+    public static Set<Operator> getSignature(Term form) {
+        Set<Operator> result = new LinkedHashSet<Operator>();
+        for (int i = 0; i < form.arity(); i++) {
+            result.addAll(getSignature(form.sub(i)));
+        }
+        if (form.op() == Op.FALSE) {
+            return Collections.EMPTY_SET;
+        } else if (form.op() == Op.TRUE) {
+            return Collections.EMPTY_SET;
+        } else if (form.op().name().toString().equals("equals")) {
+            return result;
+        } else if (form.op() instanceof Function) {
+            Function f = (Function) form.op();
+            if (builtinList.contains(f.name().toString())) {
+                return result;
+            } else {
+                try {
+                    // number
+                    BigDecimal d = new BigDecimal(form.op().name().toString());
+                    return result;
+                } catch (NumberFormatException e) {
+                    result.add(f);
+                    return result;
+                }
+            }
+        } else if (form.op() instanceof LogicVariable
+                || form.op() instanceof de.uka.ilkd.key.logic.op.ProgramVariable
+                || form.op() instanceof Metavariable) {
+            result.add(form.op());
+            return result;
+        } else if (form.op() instanceof Junctor) {
+            if (form.op() == Junctor.AND || form.op() == Junctor.OR || form.op() == Junctor.IMP
+             || form.op() == Junctor.NOT) {
+                return result;
+            }
+        } else if (form.op() instanceof Quantifier) {
+            //@todo should we remove bound variables?
+            return result;
+        }
+        throw new IllegalArgumentException("Don't know about: " + form
+                + "Operator was: " + form.op());
+    }
+    
 
     // more general helpers
 
