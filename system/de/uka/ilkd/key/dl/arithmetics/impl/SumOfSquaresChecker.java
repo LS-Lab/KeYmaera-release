@@ -21,17 +21,12 @@ package de.uka.ilkd.key.dl.arithmetics.impl;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.togethersoft.together.impl.editor.htmltagbrowser.Sys;
-
 import orbital.math.Polynomial;
-import orbital.math.ValueFactory;
 import orbital.math.Values;
-
 import de.uka.ilkd.key.dl.formulatools.VariableCollector;
 import de.uka.ilkd.key.dl.logic.ldt.RealLDT;
 import de.uka.ilkd.key.dl.parser.NumberCache;
@@ -41,12 +36,8 @@ import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.TermBuilder;
 import de.uka.ilkd.key.logic.op.Equality;
 import de.uka.ilkd.key.logic.op.Function;
-import de.uka.ilkd.key.logic.op.Op;
 import de.uka.ilkd.key.logic.op.Operator;
-import de.uka.ilkd.key.logic.op.ProgramVariable;
-import de.uka.ilkd.key.logic.op.QuantifiableVariable;
 import de.uka.ilkd.key.logic.op.TermSymbol;
-import de.uka.ilkd.key.pp.LogicPrinter;
 
 /**
  * @author jdq
