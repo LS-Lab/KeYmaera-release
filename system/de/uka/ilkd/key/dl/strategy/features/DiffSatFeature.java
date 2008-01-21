@@ -76,6 +76,13 @@ public class DiffSatFeature implements Feature {
     private Map<Node, Long> branchingNodesAlreadyTested = new WeakHashMap<Node, Long>();
 
     /**
+     * Remembers diffweaks for the given surrounding term T.
+     * A==>B,[D&H]F
+     * caches at A==>B,H->F
+     */
+    private Map<Sequent,RuleAppCost> diffWeakCache = new WeakHashMap<Sequent,RuleAppCost>();
+
+    /**
      * Remembers diffinds for the given [D]F modality.
      * diffAugCache.get(D).get(A) remembers whether A is diffind for [D] 
      */
@@ -98,15 +105,21 @@ public class DiffSatFeature implements Feature {
     private final long initialTimeout;
 
     private final ProjectionToTerm value;
+
+    private boolean strongCandidates;
     
     /**
      * @param timeout
      *                the default overall (initial) timeout for the hypothetic
      *                proof
      */
-    public DiffSatFeature(long timeout, ProjectionToTerm value) {
+    public DiffSatFeature(long timeout, ProjectionToTerm value, boolean strongInd) {
         this.initialTimeout = timeout;
         this.value = value;
+        this.strongCandidates=strongInd;
+    }
+    public DiffSatFeature(long timeout, ProjectionToTerm value) {
+        this(timeout, value, false);
     }
 
     public DiffSatFeature(ProjectionToTerm value) {
@@ -154,7 +167,7 @@ public class DiffSatFeature implements Feature {
      * @param goal
      * @param timeout
      */
-    public RuleAppCost diffSat(TacletApp app, final PosInOccurrence pos, Goal goal,
+    private RuleAppCost diffSat(TacletApp app, final PosInOccurrence pos, Goal goal,
             long timeout) {
         Term term = pos.subTerm();
         final Update update = Update.createUpdate(term);
@@ -214,27 +227,66 @@ public class DiffSatFeature implements Feature {
             initialFml = createUpdate(update, initialFml);
         }
         Sequent initial = changedSequent(pos, goal.sequent(), initialFml);
-        HypotheticalProvability result = HypotheticalProvabilityFeature
-                .provable(goal.proof(), initial, MAX_STEPS, timeout, taboo);
-        System.out.print("HYPO: " + diffind.rule().name() + " initial " + result + " for " + candidatePrint);
-        //@todo cache with goal.sequent()
-        switch (result) {
-        case PROVABLE:
-            break;
-        case ERROR:
-        case DISPROVABLE:
-            // resultCache.put(firstNodeAfterBranch,
-            // TopRuleAppCost.INSTANCE);
+        RuleAppCost cachedInitial = diffWeakCache.get(initial);
+        if (TopRuleAppCost.INSTANCE == cachedInitial) {
             return TopRuleAppCost.INSTANCE;
-        case UNKNOWN:
-        case TIMEOUT:
-            // resultCache.put(firstNodeAfterBranch,
-            // LongRuleAppCost.create(1));
-            return HypotheticalProvabilityFeature.TIMEOUT_COST;
-        default:
-            throw new AssertionError("enum known");
+        }
+        if (LongRuleAppCost.ZERO_COST != cachedInitial) {
+            HypotheticalProvability result = HypotheticalProvabilityFeature
+                    .provable(goal.proof(), initial, MAX_STEPS, timeout, taboo);
+            System.out.print("HYPO: " + diffind.rule().name() + " initial " + result + " for " + candidatePrint);
+            switch (result) {
+            case PROVABLE:
+                diffWeakCache.put(initial, LongRuleAppCost.ZERO_COST);
+                break;
+            case ERROR:
+            case DISPROVABLE:
+                diffWeakCache.put(initial, TopRuleAppCost.INSTANCE);
+                return TopRuleAppCost.INSTANCE;
+            case UNKNOWN:
+                diffWeakCache.put(initial, TopRuleAppCost.INSTANCE);
+                return TopRuleAppCost.INSTANCE;
+            case TIMEOUT:
+                // resultCache.put(firstNodeAfterBranch,
+                // LongRuleAppCost.create(1));
+                return HypotheticalProvabilityFeature.TIMEOUT_COST;
+            default:
+                throw new AssertionError("enum known");
+            }
         }
 
+        if (strongCandidates) {
+            Term finishTerm = DLUniversalClosureOp.DL_UNIVERSAL_CLOSURE.universalClosure(
+                    system,
+                    TermBuilder.DF.imp(candidate, post), null,
+                    services, false);
+            if (pos.subTerm().op() instanceof QuanUpdateOperator) {
+                // keep update prefix
+                finishTerm = createUpdate(update, finishTerm);
+            }
+            Sequent finish = changedSequent(pos, goal.sequent(), finishTerm);
+            HypotheticalProvability result = HypotheticalProvabilityFeature.provable(goal.proof(), finish, MAX_STEPS,
+                    timeout, taboo);
+            System.out.print("HYPO: " + diffind.rule().name() + " finish  " + result + " for " + candidatePrint);
+            // TODO cache
+            switch (result) {
+            case PROVABLE:
+                break;
+            case ERROR:
+            case DISPROVABLE:
+                return TopRuleAppCost.INSTANCE;
+            case UNKNOWN:
+                return TopRuleAppCost.INSTANCE;
+            case TIMEOUT:
+                // resultCache.put(firstNodeAfterBranch,
+                // LongRuleAppCost.create(1));
+                return HypotheticalProvabilityFeature.TIMEOUT_COST;
+            default:
+                throw new AssertionError("enum known");
+            }
+        }
+        
+        
         // diffind:"ODE Preserves Invariant"
         if (get(system, candidate) != null) {
             return get(system, candidate);
@@ -247,14 +299,14 @@ public class DiffSatFeature implements Feature {
         Term stepFml = DLUniversalClosureOp.DL_UNIVERSAL_CLOSURE.universalClosure(
                 system,
                 DiffInd.DIFFIND.diffInd(augTerm, services), null,
-                services, false);
+                services, true);
         if (pos.subTerm().op() instanceof QuanUpdateOperator) {
             // keep update prefix
             stepFml = createUpdate(update, stepFml);
         }
         Sequent step = changedSequent(pos, goal.sequent(), stepFml);
 //        System.out.println("HYPOing:\n " + step);
-        result = HypotheticalProvabilityFeature.provable(goal.proof(), step, MAX_STEPS,
+        HypotheticalProvability result = HypotheticalProvabilityFeature.provable(goal.proof(), step, MAX_STEPS,
                 timeout, taboo);
         System.out.print("HYPO: " + diffind.rule().name() + " step    " + result + " for " + candidatePrint);
         switch (result) {
@@ -266,6 +318,8 @@ public class DiffSatFeature implements Feature {
             put(system, candidate, TopRuleAppCost.INSTANCE);
             return TopRuleAppCost.INSTANCE;
         case UNKNOWN:
+            put(system, candidate, TopRuleAppCost.INSTANCE);
+            return TopRuleAppCost.INSTANCE;
         case TIMEOUT:
             // resultCache.put(firstNodeAfterBranch,
             // LongRuleAppCost.create(1));

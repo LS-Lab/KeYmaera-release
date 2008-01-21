@@ -243,9 +243,13 @@ public class DLStrategy extends AbstractFeatureStrategy {
         bindRuleSet(d, "try_apply_subst", add(
                 EqNonDuplicateAppFeature.INSTANCE, longConst(-10000)));
 
-        bindRuleSet(d, "split_gen", ifZero(isAnnotated("generalize"),
-                longConst(-2000), inftyConst()));
 
+        bindRuleSet(d, "split_gen",
+                ifZero(isAnnotated("generalize"),
+                        longConst(-2000),
+                        inftyConst()));
+        
+        
         // delete cast
         bindRuleSet(d, "cast_deletion", ifZero(
                 implicitCastNecessary(instOf("castedTerm")), longConst(-5000),
@@ -339,12 +343,12 @@ public class DLStrategy extends AbstractFeatureStrategy {
                         inftyConst()),
                 ConditionalFeature.createConditional(DebugRule.INSTANCE,
                         inftyConst()),
+                ConditionalFeature.createConditional(SumOfSquaresRule.INSTANCE,
+                        inftyConst()),
                 ConditionalFeature.createConditional(
                         VisualizationRule.INSTANCE, inftyConst()),
                 ConditionalFeature.createConditional(
-                        FindTransitionRule.INSTANCE, inftyConst()),
-                ConditionalFeature.createConditional(SumOfSquaresRule.INSTANCE,
-                        inftyConst()) });
+                        FindTransitionRule.INSTANCE, inftyConst()) });
 
         final Feature ifMatchedF = ifZero(MatchedIfFeature.INSTANCE,
                 longConst(+1));
@@ -366,6 +370,8 @@ public class DLStrategy extends AbstractFeatureStrategy {
 
         instantiationF = setupInstantiationF(p_proof);
     }
+    
+    
 
     /**
      * DiffSat strategy.
@@ -386,96 +392,85 @@ public class DLStrategy extends AbstractFeatureStrategy {
             // foundCounterexample()
             );
         }
+        
 
         if (DLOptionBean.INSTANCE.getDiffSat().compareTo(DiffSat.SIMPLE) >= 0) {
-            bindRuleSet(d, "invariant_weaken", ifZero(isAnnotated("weaken"),
-                    longConst(-6000), ifZero(ODESolvableFeature.INSTANCE,
-                            inftyConst(), new SwitchFeature(
-                                    DiffWeakenFeature.INSTANCE, new Case(
-                                            longConst(0), longConst(-6000)),
-                                    // reject if it doesn't help, but retry
-                                    // costs
-                                    new Case(longConst(1), longConst(5000)),
-                                    new Case(inftyConst(), inftyConst())))));
-            bindRuleSet(
-                    d,
-                    "invariant_diff",
+            bindRuleSet(d, "invariant_weaken",
+                    ifZero(isAnnotated("weaken"), longConst(-6000),
                     ifZero(
-                            isAnnotated("diffind"),
-                            longConst(-6000),
+                    ODESolvableFeature.INSTANCE, inftyConst(),
+                    new SwitchFeature(DiffWeakenFeature.INSTANCE,
+                            new Case(longConst(0), longConst(-6000)),
+                            // reject if it doesn't help, but retry costs
+                            new Case(longConst(1), longConst(5000)),
+                            new Case(inftyConst(), inftyConst())))));
+            bindRuleSet(d, "invariant_diff", ifZero(isAnnotated("diffind"),
+                    longConst(-6000),
+                    ifZero(PostDiffStrengthFeature.INSTANCE,
+                           longConst(-4000),
                             ifZero(
-                                    PostDiffStrengthFeature.INSTANCE,
-                                    longConst(-4000),
+                                    ODESolvableFeature.INSTANCE,
+                                    inftyConst(),
                                     ifZero(
-                                            ODESolvableFeature.INSTANCE,
+                                            DiffWeakenFeature.INSTANCE,
                                             inftyConst(),
-                                            ifZero(
-                                                    DiffWeakenFeature.INSTANCE,
-                                                    inftyConst(),
-                                                    DLOptionBean.INSTANCE
-                                                            .getDiffSat()
-                                                            .compareTo(
-                                                                    DiffSat.DIFF) >= 0 ? // re-evaluate
-                                                    // feature
-                                                    // at
-                                                    // least
-                                                    // after
-                                                    // diffstrengthen
-                                                    // reject if it doesn't
-                                                    // help, but
-                                                    // retry costs
-                                                    longConst(6000)
-                                                            : // only directly
-                                                                // check
-                                                            // diffind
-                                                            new SwitchFeature(
-                                                                    new HypotheticalProvabilityFeature(
-                                                                            DLOptionBean.INSTANCE
-                                                                                    .getDiffSatTimeout()),
-                                                                    new Case(
-                                                                            longConst(0),
-                                                                            longConst(-4000)),
-                                                                    // reject if
-                                                                    // it
-                                                                    // doesn't
-                                                                    // help, but
-                                                                    // retry
-                                                                    // costs
-                                                                    new Case(
-                                                                            longConst(1),
-                                                                            longConst(6000)),
-                                                                    new Case(
-                                                                            inftyConst(),
-                                                                            inftyConst())))))));
+                                            DLOptionBean.INSTANCE.getDiffSat()
+                                                    .compareTo(DiffSat.DIFF) >= 0 ? // re-evaluate
+                                            // feature
+                                            // at
+                                            // least
+                                            // after
+                                            // diffstrengthen
+                                            // reject if it doesn't help, but
+                                            // retry costs
+                                            longConst(6000)
+                                                    : // only directly check
+                                                    // diffind
+                                                    new SwitchFeature(
+                                                            new HypotheticalProvabilityFeature(DLOptionBean.INSTANCE.getDiffSatTimeout()),
+                                                            new Case(
+                                                                    longConst(0),
+                                                                    longConst(-4000)),
+                                                            // reject if it
+                                                            // doesn't help, but
+                                                            // retry costs
+                                                            new Case(
+                                                                    longConst(1),
+                                                                    longConst(6000)),
+                                                            new Case(
+                                                                    inftyConst(),
+                                                                    inftyConst())))))));
         } else {
             bindRuleSet(d, "invariant_diff", ifZero(isAnnotated("diffind"),
-                    longConst(-6000), ifZero(PostDiffStrengthFeature.INSTANCE,
-                            longConst(-4000), inftyConst())));
+                    longConst(-6000),
+                    ifZero(PostDiffStrengthFeature.INSTANCE,
+                           longConst(-4000),
+                           inftyConst())));
             bindRuleSet(d, "invariant_weaken", isAnnotated("weaken"));
         }
 
         if (DLOptionBean.INSTANCE.getDiffSat().compareTo(DiffSat.DIFF) >= 0) {
-            bindRuleSet(d, "invariant_strengthen", ifZero(
+            bindRuleSet(d, "invariant_strengthen", 
+                    ifZero(
                     PostDiffStrengthFeature.INSTANCE,
-                    // recursively strengthening augmentation validity proofs
-                    // seems useless
-                    inftyConst(), ifZero(isAnnotated("strengthen"),
-                            longConst(-2000), ifZero(
-                                    ODESolvableFeature.INSTANCE, inftyConst(),
-                                    ifZero(DiffWeakenFeature.INSTANCE,
-                                            inftyConst(),
-                                            // never instantiate when cheaper
-                                            // rule successful
-                                            longConst(10000)
-                                    // go on try to instantiate,
-                                    // except when tabooed
-                                    )))));
+                    // recursively strengthening augmentation validity proofs seems useless
+                    inftyConst(),
+                    ifZero(isAnnotated("strengthen"),
+                            longConst(-2000),
+                    ifZero(ODESolvableFeature.INSTANCE, inftyConst(), ifZero(
+                            DiffWeakenFeature.INSTANCE, inftyConst(), 
+                            // never instantiate when cheaper rule successful
+                            longConst(10000)
+                            // go on try to instantiate,
+                            // except when tabooed
+                            )))));
         } else {
-            bindRuleSet(d, "invariant_strengthen", ifZero(
-                    PostDiffStrengthFeature.INSTANCE,
-                    // recursively strengthening augmentation validity proofs
-                    // seems useless
-                    inftyConst(), isAnnotated("strengthen")));
+            bindRuleSet(d, "invariant_strengthen",
+                    ifZero(
+                            PostDiffStrengthFeature.INSTANCE,
+                            // recursively strengthening augmentation validity proofs seems useless
+                            inftyConst(),
+                            isAnnotated("strengthen")));
         }
     }
 
@@ -498,9 +493,10 @@ public class DLStrategy extends AbstractFeatureStrategy {
     }
 
     private void setupAnnotationInstantiationStrategy(RuleSetDispatchFeature d) {
-        bindRuleSet(d, "split_gen", ifZero(isAnnotated("generalize"),
-                instantiate("gen", annotationOf("generalize", true)),
-                inftyConst()));
+        bindRuleSet(d, "split_gen",
+                ifZero(isAnnotated("generalize"),
+                        instantiate("gen", annotationOf("generalize", true)),
+                        inftyConst()));
     }
 
     /**
@@ -513,85 +509,75 @@ public class DLStrategy extends AbstractFeatureStrategy {
         if (DLOptionBean.INSTANCE.getDiffSat().compareTo(DiffSat.DIFF) >= 0) {
             final TermBuffer augInst = new TermBuffer();
             final RuleAppBuffer buffy = new RuleAppBuffer();
-            bindRuleSet(d, "invariant_strengthen", ifZero(
-                    isAnnotated("strengthen"),
-                    // /////instantiate("augment", annotationOf("strengthen",
-                    // true)),
+            bindRuleSet(d, "invariant_strengthen", ifZero(isAnnotated("strengthen"),
+                    ///////instantiate("augment", annotationOf("strengthen", true)),
                     storeRuleApp(buffy,
-                            not(sum(augInst, new AnnotationList("strengthen",
-                                    false), add(buffy, instantiate("augment",
-                                    augInst),
-                                    not(not(new DiffInvariantPresentFeature(
-                                            augInst))))))),
+                            not(sum(augInst, new AnnotationList("strengthen", false),
+                                    add(buffy,
+                                    instantiate("augment", augInst),
+                                    not(not(new DiffInvariantPresentFeature(augInst))))))),
                     // no annotation
-                    ifZero(storeRuleApp(buffy, not(sum(augInst,
-                            DiffIndCandidates.INSTANCE, add(buffy, instantiate(
-                                    "augment", augInst),
-                                    not(new DiffSatFeature(augInst)))))),
-                            longConst(-1000), inftyConst())));
+                    ifZero(storeRuleApp(buffy,
+                    not(sum(augInst, DiffIndCandidates.INSTANCE, add(buffy,
+                            instantiate("augment", augInst),
+                            not(new DiffSatFeature(augInst)))))),
+                    longConst(-1000), inftyConst())));
         } else {
             final TermBuffer augInst = new TermBuffer();
             final RuleAppBuffer buffy = new RuleAppBuffer();
-            bindRuleSet(d, "invariant_strengthen", ifZero(
-                    isAnnotated("strengthen"), storeRuleApp(buffy, not(sum(
-                            augInst, new AnnotationList("strengthen", false),
-                            add(buffy, instantiate("augment", augInst),
-                                    not(not(new DiffInvariantPresentFeature(
-                                            augInst))))))), inftyConst()));
+            bindRuleSet(d, "invariant_strengthen", ifZero(isAnnotated("strengthen"),
+                    storeRuleApp(buffy,
+                            not(sum(augInst, new AnnotationList("strengthen", false),
+                                    add(buffy,
+                                    instantiate("augment", augInst),
+                                    not(not(new DiffInvariantPresentFeature(augInst))))))),
+                    inftyConst()));
         }
         if (DLOptionBean.INSTANCE.getDiffSat().compareTo(DiffSat.AUTO) >= 0) {
             final TermBuffer augInst = new TermBuffer();
             final RuleAppBuffer buffy = new RuleAppBuffer();
-            bindRuleSet(
-                    d,
-                    "loop_invariant_proposal",
-                    ifZero(
-                            isAnnotated("invariant"),
+            //TODO add result caching
+            bindRuleSet(d, "loop_invariant_proposal",
+                    ifZero(isAnnotated("invariant"),
                             instantiate("inv", annotationOf("invariant", true)),
-                            storeRuleApp(
-                                    buffy,
+                    storeRuleApp(
+                            buffy,
+                            ifZero(
+                                    add(
+                                            instantiate("inv", instOf("post")),
+                                            openCurrentRuleApp(new HypotheticalProvabilityFeature(DLOptionBean.INSTANCE.getLoopSatTimeout()))),
+                                    longConst(-2000),
                                     ifZero(
-                                            add(
-                                                    instantiate("inv",
-                                                            instOf("post")),
-                                                    openCurrentRuleApp(new HypotheticalProvabilityFeature(
-                                                            DLOptionBean.INSTANCE
-                                                                    .getLoopSatTimeout()))),
-                                            longConst(-2000),
-                                            ifZero(
-                                                    not(sum(
-                                                            augInst,
-                                                            DiffIndCandidates.INSTANCE,
-                                                            add(
-                                                                    buffy,
-                                                                    instantiate(
-                                                                            "inv",
-                                                                            augInst),
-                                                                    not(openCurrentRuleApp(new HypotheticalProvabilityFeature(
-                                                                            DLOptionBean.INSTANCE
-                                                                                    .getLoopSatTimeout())))))),
-                                                    longConst(-1000),
-                                                    inftyConst() // @todo
-                                            // use
-                                            // large
-                                            // constant
-                                            // instead
-                                            // to
-                                            // try
-                                            // at
-                                            // least
-                                            )))));
+                                            not(sum(
+                                                    augInst,
+                                                    DiffIndCandidates.INSTANCE,
+                                                    add(
+                                                            buffy,
+                                                            instantiate("inv",
+                                                                    augInst),
+                                                            not(openCurrentRuleApp(new HypotheticalProvabilityFeature(DLOptionBean.INSTANCE.getLoopSatTimeout())))))),
+                                            longConst(-1000), inftyConst() // @todo
+                                    // use
+                                    // large
+                                    // constant
+                                    // instead
+                                    // to
+                                    // try
+                                    // at
+                                    // least
+                                    )))));
         } else {
-            bindRuleSet(d, "loop_invariant_proposal", ifZero(
-                    isAnnotated("invariant"), instantiate("inv", annotationOf(
-                            "invariant", true)), inftyConst()));
+            bindRuleSet(d, "loop_invariant_proposal",
+                    ifZero(isAnnotated("invariant"),
+                            instantiate("inv", annotationOf("invariant", true)),
+                            inftyConst()));
         }
-        bindRuleSet(d, "loop_variant", ifZero(isAnnotated("variant"),
-                // @todo rename n in both instantiations when it already occurs
-                // elsewhere
-                add(instantiate("inv", annotationOf("variant", true, 0, 2)),
-                        instantiate("n", annotationOf("variant", true, 1, 2))),
-                inftyConst()));
+        bindRuleSet(d, "loop_variant",
+                ifZero(isAnnotated("variant"),
+                        //@todo rename n in both instantiations when it already occurs elsewhere
+                        add(instantiate("inv", annotationOf("variant", true, 0, 2)),
+                            instantiate("n", annotationOf("variant", true, 1, 2))),
+                        inftyConst()));
     }
 
     // //////////////////////////////////////////////////////////////////////////
@@ -616,41 +602,28 @@ public class DLStrategy extends AbstractFeatureStrategy {
     private void setupDiffSatApprovalStrategy(final RuleSetDispatchFeature d) {
         if (DLOptionBean.INSTANCE.getDiffSat().compareTo(DiffSat.SIMPLE) >= 0) {
             bindRuleSet(d, "invariant_weaken", ifZero(isAnnotated("weaken"),
-                    longConst(-6000), new SwitchFeature(
-                            DiffWeakenFeature.INSTANCE, new Case(longConst(0),
-                                    longConst(-6000)),
-                            // reject if it doesn't help, but retry costs
-                            new Case(longConst(1), inftyConst()), new Case(
-                                    inftyConst(), inftyConst()))));
-            bindRuleSet(
-                    d,
-                    "invariant_diff",
+                    longConst(-6000),
+                    new SwitchFeature(
+                    DiffWeakenFeature.INSTANCE, new Case(longConst(0),
+                            longConst(-6000)),
+                    // reject if it doesn't help, but retry costs
+                    new Case(longConst(1), inftyConst()), new Case(
+                            inftyConst(), inftyConst()))));
+            bindRuleSet(d, "invariant_diff", ifZero(isAnnotated("diffind"),
+                    longConst(-6000),
                     ifZero(
-                            isAnnotated("diffind"),
-                            longConst(-6000),
-                            ifZero(
-                                    PostDiffStrengthFeature.INSTANCE,
-                                    longConst(-4000),
-                                    ifZero(
-                                            DiffWeakenFeature.INSTANCE,
-                                            inftyConst(),
-                                            // only directly check diffind
-                                            new SwitchFeature(
-                                                    new HypotheticalProvabilityFeature(
-                                                            DLOptionBean.INSTANCE
-                                                                    .getDiffSatTimeout()),
-                                                    new Case(longConst(0),
-                                                            longConst(-4000)),
-                                                    // reject if it doesn't
-                                                    // help, but retry costs
-                                                    new Case(longConst(1),
-                                                            inftyConst()),
-                                                    new Case(inftyConst(),
-                                                            inftyConst()))))));
+                    PostDiffStrengthFeature.INSTANCE, longConst(-4000), ifZero(
+                            DiffWeakenFeature.INSTANCE, inftyConst(),
+                            // only directly check diffind
+                            new SwitchFeature(
+                                    new HypotheticalProvabilityFeature(DLOptionBean.INSTANCE.getDiffSatTimeout()),
+                                    new Case(longConst(0), longConst(-4000)),
+                                    // reject if it doesn't help, but retry costs
+                                    new Case(longConst(1), inftyConst()),
+                                    new Case(inftyConst(), inftyConst()))))));
         }
-
-        // @todo could use DiffInvariantPresentFeature to ensure diff_strengthen
-        // isn't used repeatedly in vain (but it currently isn't anyhow)
+        
+        //@todo could use DiffInvariantPresentFeature to ensure diff_strengthen isn't used repeatedly in vain (but it currently isn't anyhow)
     }
 
     public Name name() {

@@ -102,9 +102,8 @@ public class DLUniversalClosureOp extends AbstractMetaOperator {
             }
 
         });
-        FileWriter writer;
         try {
-            writer = new FileWriter("/tmp/depgraph.dot");
+            FileWriter writer = new FileWriter("/tmp/depgraph.dot");
 
             writer.write("digraph program\n");
             writer.write("{\n");
@@ -124,9 +123,8 @@ public class DLUniversalClosureOp extends AbstractMetaOperator {
 
             writer.write("}\n");
             writer.flush();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+        } catch (IOException ignore) {
+            /*System.err.println("could not create /tmp/depgraph.dot " + ignore); */
         }
 
         final Map<de.uka.ilkd.key.dl.model.ProgramVariable, LinkedHashSet<de.uka.ilkd.key.dl.model.ProgramVariable>> transitiveClosure = DependencyStateGenerator
