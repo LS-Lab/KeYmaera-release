@@ -33,6 +33,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.rmi.RemoteException;
 import java.util.HashMap;
@@ -64,6 +65,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
+import javax.swing.JTextPane;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
@@ -86,9 +88,6 @@ import de.uka.ilkd.key.dl.DLInitializer;
 import de.uka.ilkd.key.dl.DLProfile;
 import de.uka.ilkd.key.dl.gui.TimeStatisticGenerator;
 import de.uka.ilkd.key.dl.options.DLOptionBean;
-import de.uka.ilkd.key.gui.assistant.ProofAssistant;
-import de.uka.ilkd.key.gui.assistant.ProofAssistantAI;
-import de.uka.ilkd.key.gui.assistant.ProofAssistantController;
 import de.uka.ilkd.key.gui.assistant.*;
 import de.uka.ilkd.key.gui.configuration.*;
 import de.uka.ilkd.key.gui.nodeviews.NonGoalInfoView;
@@ -1707,6 +1706,33 @@ public class Main extends JFrame {
         });
         help.add(about);
 
+        if (ProofSettings.DEFAULT_SETTINGS.getProfile() instanceof DLProfile) {
+            JMenuItem tutorial = new JMenuItem("KeYmaera Help");
+            tutorial.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e)  {
+                    //Class desktop = Class.forName("java.awt.Desktop").getDesktop().browse();
+                    /*JTextPane tp = new JTextPane();
+                    JScrollPane js = new JScrollPane();
+                    js.getViewport().add(tp);
+                    try {
+                        URL url = new URL("http://www.functologic.com/info/KeYmaera-guide.html");
+                        tp.setPage(url);
+                        JFrame jf = new JFrame();
+                        jf.getContentPane().add(js);
+                        jf.pack();
+                        jf.setVisible(true); 
+                    } catch (Exception react)*/
+                    {
+                        JOptionPane.showMessageDialog(Main.this,
+                                "Information and documentation on using KeYmaera,\nthe syntax of its specification language, and\nits verification features, is available on the web:\n"
+                                + "see KeYmaera Tutorial at http://www.functologic.com/info/KeYmaera-guide.html",                   
+                        "KeYmaera Documentation", JOptionPane.INFORMATION_MESSAGE);
+                    }
+                }
+            });
+            help.add(tutorial);
+        }
+
         JMenuItem license = new JMenuItem("License");
         license.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -2490,7 +2516,7 @@ public class Main extends JFrame {
                 else if (opt[index].equals("FOL")) {                     
                    ProofSettings.DEFAULT_SETTINGS.setProfile(new PureFOLProfile());
                 } else if (opt[index].equals("DL")) {
-                    DLInitializer.initilize();
+                    DLInitializer.initialize();
                 } else if (opt[index].equals("TIMEOUT")) {
                     long timeout = -1;
                     try {

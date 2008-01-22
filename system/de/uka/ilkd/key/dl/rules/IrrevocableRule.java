@@ -19,6 +19,8 @@
  ***************************************************************************/
 package de.uka.ilkd.key.dl.rules;
 
+import de.uka.ilkd.key.proof.Node;
+
 /**
  * Tags rules that are irrevocable, i.e., cannot be made undone by goal back.  
  * @author jdq
@@ -26,5 +28,12 @@ package de.uka.ilkd.key.dl.rules;
  * 
  */
 public interface IrrevocableRule {
+
+    /**
+     * Determines whether the rule application at the indicated position is irrevocable. 
+     * @param parent
+     * @return
+     */
+    boolean irrevocable(Node parent);
 
 }

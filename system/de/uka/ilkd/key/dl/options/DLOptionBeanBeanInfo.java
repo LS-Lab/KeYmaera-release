@@ -42,6 +42,7 @@ import de.uka.ilkd.key.dl.options.DLOptionBean.InvariantRule;
  * 
  */
 public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
+    public static final String DESCRIPTION = "Adjusts KeYmaera proof strategy options";
     private static final Class<DLOptionBean> beanClass = DLOptionBean.class;
 
     public DLOptionBeanBeanInfo() {
@@ -50,7 +51,7 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
     public BeanDescriptor getBeanDescriptor() {
         BeanDescriptor d = new BeanDescriptor(beanClass);
         d.setDisplayName("KeYmaera");
-        d.setShortDescription("Adjusts KeYmaera proof strategy options");
+        d.setShortDescription(DESCRIPTION);
         return d;
     }
 

@@ -46,6 +46,7 @@ import de.uka.ilkd.key.dl.strategy.features.FOFormula;
 import de.uka.ilkd.key.dl.strategy.features.FOSequence;
 import de.uka.ilkd.key.dl.strategy.features.FindInstanceTest;
 import de.uka.ilkd.key.dl.strategy.features.FindTransitionTest;
+import de.uka.ilkd.key.dl.strategy.features.FirstOrderFeature;
 import de.uka.ilkd.key.dl.strategy.features.HypotheticalProvabilityFeature;
 import de.uka.ilkd.key.dl.strategy.features.KeYBeyondFO;
 import de.uka.ilkd.key.dl.strategy.features.LoopInvariantRuleDispatchFeature;
@@ -543,9 +544,10 @@ public class DLStrategy extends AbstractFeatureStrategy {
                     storeRuleApp(
                             buffy,
                             ifZero(
-                                    add(
-                                            instantiate("inv", instOf("post")),
-                                            openCurrentRuleApp(new HypotheticalProvabilityFeature(DLOptionBean.INSTANCE.getLoopSatTimeout()))),
+                                    ifZero(new FirstOrderFeature(instOf("post")),
+                                            add(instantiate("inv", instOf("post")),
+                                                openCurrentRuleApp(new HypotheticalProvabilityFeature(DLOptionBean.INSTANCE.getLoopSatTimeout()))),
+                                            inftyConst()),
                                     longConst(-2000),
                                     ifZero(
                                             not(sum(

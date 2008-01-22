@@ -605,7 +605,8 @@ public class Proof implements Named {
 		while (goalIt.hasNext()) {
 		    final Goal nextGoal = goalIt.next();
 		    if (!parentSet.contains(nextGoal.node().parent())) {
-		        if(nextGoal.node().parent().getAppliedRuleApp().rule() instanceof IrrevocableRule) {
+		        if (nextGoal.node().parent().getAppliedRuleApp().rule() instanceof IrrevocableRule
+		                && ((IrrevocableRule)nextGoal.node().parent().getAppliedRuleApp().rule()).irrevocable(nextGoal.node().parent())) {
 		            return false;
 		        } else {
 		            removeList = removeList.prepend(nextGoal);

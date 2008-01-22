@@ -36,6 +36,7 @@ import de.uka.ilkd.key.dl.arithmetics.abort.AbortBridge;
 import de.uka.ilkd.key.dl.arithmetics.abort.AbortProgram;
 import de.uka.ilkd.key.dl.arithmetics.impl.mathematica.KernelLinkWrapper;
 import de.uka.ilkd.key.dl.options.DLOptionBean;
+import de.uka.ilkd.key.dl.options.DLOptionBeanBeanInfo;
 import de.uka.ilkd.key.gui.AutoModeListener;
 import de.uka.ilkd.key.gui.Main;
 import de.uka.ilkd.key.gui.configuration.ProofSettings;
@@ -65,7 +66,7 @@ public class DLInitializer {
      * one provided by the {@link AbortProgram}</li>
      * </ul>
      */
-    public static void initilize() {
+    public static void initialize() {
         ProofSettings.DEFAULT_SETTINGS.setProfile(new DLProfile());
         // call something in the MathSolverManager to force initialization
         MathSolverManager.getQuantifierEliminators();
@@ -84,8 +85,8 @@ public class DLInitializer {
             customizer = CustomizerViewController
                     .customizerFor(DLOptionBean.class);
             customizer.setObject(DLOptionBean.INSTANCE);
-            Main.getInstance().addTab("DLOptions", (JComponent) customizer,
-                    "Alter options related to dL");
+            Main.getInstance().addTab("Hybrid Strategy", (JComponent) customizer,
+                    DLOptionBeanBeanInfo.DESCRIPTION);
         } catch (IntrospectionException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

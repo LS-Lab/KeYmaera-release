@@ -42,9 +42,15 @@ import de.uka.ilkd.key.gui.ApplyStrategy;
 import de.uka.ilkd.key.gui.KeYMediator;
 import de.uka.ilkd.key.gui.Main;
 import de.uka.ilkd.key.gui.ReuseListener;
+import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.logic.Name;
 import de.uka.ilkd.key.logic.PosInOccurrence;
 import de.uka.ilkd.key.logic.Sequent;
+import de.uka.ilkd.key.logic.Term;
+import de.uka.ilkd.key.logic.op.EntryOfSchemaVariableAndInstantiationEntry;
+import de.uka.ilkd.key.logic.op.IteratorOfEntryOfSchemaVariableAndInstantiationEntry;
+import de.uka.ilkd.key.pp.LogicPrinter;
+import de.uka.ilkd.key.pp.ProgramPrinter;
 import de.uka.ilkd.key.proof.Goal;
 import de.uka.ilkd.key.proof.IGoalChooser;
 import de.uka.ilkd.key.proof.IteratorOfGoal;
@@ -140,6 +146,7 @@ public class HypotheticalProvabilityFeature implements Feature {
         // }
         // return TopRuleAppCost.INSTANCE;
         // } else {
+        final Services services = goal.proof().getServices();
         Long timeout = getLastTimeout(firstNodeAfterBranch);
         if (timeout == null) {
             timeout = initialTimeout >= 0 ? initialTimeout
@@ -155,13 +162,14 @@ public class HypotheticalProvabilityFeature implements Feature {
         }
         // branchingNodesAlreadyTested.put(firstNodeAfterBranch, timeout);
 
-        System.out.println("HYPO: " + app.rule().name());
+        System.out.println("HYPO: " + app.rule().name() + prettyPrint(app, services));
         HypotheticalProvability result = provable(app, pos, goal,
                 MAX_HYPOTHETICAL_RULE_APPLICATIONS, timeout);
         System.out.println("HYPO: " + app.rule().name() + " " + result + "\t" + 
                 (result == HypotheticalProvability.PROVABLE 
                  ? SimpleDateFormat.getTimeInstance().format(System.currentTimeMillis())
-                 : ""));
+                 : "")
+                 + prettyPrint(app, services));
         switch (result) {
         case PROVABLE:
             return PROVABLE_COST;
@@ -175,6 +183,28 @@ public class HypotheticalProvabilityFeature implements Feature {
             return TIMEOUT_COST;
         default:
             throw new AssertionError("enum known");
+        }
+    }
+
+    private String prettyPrint(RuleApp app, Services services) {
+        if (app instanceof TacletApp) {
+            TacletApp tapp = (TacletApp) app;
+            String r = "";
+            for (IteratorOfEntryOfSchemaVariableAndInstantiationEntry i = tapp.instantiations().interesting().entryIterator(); i.hasNext(); ) {
+                EntryOfSchemaVariableAndInstantiationEntry e = i.next();
+                r += "\n\t";
+                try {
+                    final LogicPrinter lp = new LogicPrinter(new ProgramPrinter(
+                            null), Main.getInstance().mediator().getNotationInfo(), services);
+                    lp.printTerm((Term)e.value().getInstantiation());
+                    r += e.key().name() + "<-  " + lp.toString();
+                } catch (Exception ignore) {
+                    r += e.key().name() + "<-  " + e.value().getInstantiation().toString();
+                }
+            }
+            return r;
+        } else {
+            return "";
         }
     }
 

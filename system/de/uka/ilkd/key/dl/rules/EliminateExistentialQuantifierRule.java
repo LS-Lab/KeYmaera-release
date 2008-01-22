@@ -70,6 +70,7 @@ import de.uka.ilkd.key.logic.op.RigidFunction;
 import de.uka.ilkd.key.proof.Goal;
 import de.uka.ilkd.key.proof.IteratorOfGoal;
 import de.uka.ilkd.key.proof.ListOfGoal;
+import de.uka.ilkd.key.proof.Node;
 import de.uka.ilkd.key.rule.BuiltInRule;
 import de.uka.ilkd.key.rule.Rule;
 import de.uka.ilkd.key.rule.RuleApp;
@@ -520,6 +521,11 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
      */
     public boolean isUnsolvable() {
         return unsolvable;
+    }
+
+    @Override
+    public boolean irrevocable(Node parent) {
+        return parent.childrenCount() > 1;
     }
 
 }
