@@ -107,6 +107,12 @@ public class HypotheticalProvabilityFeature implements Feature {
      */
     public static final int MAX_HYPOTHETICAL_RULE_APPLICATIONS = 10;
 
+    /**
+     * Whether to stop on the first goal without progress.
+     */
+    private static final boolean STOP_EARLY = false;
+
+
     private Map<Node, Long> branchingNodesAlreadyTested = new WeakHashMap<Node, Long>();
 
     private Map<Node, RuleAppCost> resultCache = new WeakHashMap<Node, RuleAppCost>();
@@ -661,8 +667,15 @@ public class HypotheticalProvabilityFeature implements Feature {
                 app = g.getRuleAppManager().next();
 
                 if (app == null)
-                    // cannot find applicable and affordable rules, so ignore goal
-                    goalChooser.removeGoal(g);
+                    // cannot find applicable and affordable rules
+                    if (STOP_EARLY) {
+                        // ignore goal
+                        goalChooser.removeGoal(g);
+                    } else {
+                        // give up the proof and stop early presuming it can't get better by working on other goals
+                        // TODO except for EliminateExistentialQuantifierRule
+                        return false;
+                    }
                 else
                     break;
                 if (Thread.interrupted())

@@ -372,6 +372,11 @@ public class Expr2TermConverter implements ExprConstants {
                     }
                     name = new Name(name.toString().replaceAll(USCORE_ESCAPE,
                             "_"));
+                    if (isBlacklisted(name)) {
+                        throw new RemoteException(
+                                "Mathematica returned a system function "
+                                        + name);
+                    }
                     if (quantifiedVariables.containsKey(name)) {
                         return TermBuilder.DF
                                 .var(quantifiedVariables.get(name));
