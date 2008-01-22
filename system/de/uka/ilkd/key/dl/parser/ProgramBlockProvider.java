@@ -1,6 +1,5 @@
 package de.uka.ilkd.key.dl.parser;
 
-import java.util.Arrays;
 import java.util.HashSet;
 
 import org.antlr.runtime.ANTLRStringStream;
@@ -87,6 +86,9 @@ public class ProgramBlockProvider implements
             String message = parser.getErrorMessage(e, parser.getTokenNames());
             message += "\nin line " + e.line + " at position "
                     + e.charPositionInLine;
+            if(e.token != null) {
+                message += "\nwhile reading token: " + e.token.getText(); 
+            }
             throw new IllegalStateException("Parse error: " + message
                     + "\nwhile parsing: " + programBlock, e);
         }
