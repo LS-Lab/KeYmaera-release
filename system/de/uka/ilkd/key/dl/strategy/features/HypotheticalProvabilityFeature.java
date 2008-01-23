@@ -110,7 +110,7 @@ public class HypotheticalProvabilityFeature implements Feature {
     /**
      * Whether to stop on the first goal without progress.
      */
-    private static final boolean STOP_EARLY = false;
+    private static final boolean STOP_EARLY = true;
 
 
     private Map<Node, Long> branchingNodesAlreadyTested = new WeakHashMap<Node, Long>();
@@ -423,6 +423,7 @@ public class HypotheticalProvabilityFeature implements Feature {
             } catch (InterruptedException e) {
                 result = HypotheticalProvability.TIMEOUT;
                 try {
+                    hypothesizer.giveUp = true;
                     MathSolverManager.getCurrentQuantifierEliminator()
                             .abortCalculation();
                 } catch (RemoteException f) {
@@ -477,6 +478,10 @@ public class HypotheticalProvabilityFeature implements Feature {
                 running.remove(hypothesizer);
             }
         }
+	try {
+	    MathSolverManager.getCurrentQuantifierEliminator()
+		.abortCalculation();
+	} catch (RemoteException ignore) {}
     }
 
     // rule application engines
@@ -660,10 +665,10 @@ public class HypotheticalProvabilityFeature implements Feature {
         private boolean applyAutomaticRule() throws InterruptedException {
             // Look for the strategy ...
             RuleApp app = null;
-            Goal g;
+            Goal g = null;
             //ReuseListener rl = mediator.getReuseListener();
             //@todo could also use reuses as in ApplyStrategy rather than just producing them
-            while ((g = goalChooser.getNextGoal()) != null) {
+            while (!giveUp && (g = goalChooser.getNextGoal()) != null) {
                 app = g.getRuleAppManager().next();
 
                 if (app == null)
@@ -681,6 +686,9 @@ public class HypotheticalProvabilityFeature implements Feature {
                 if (Thread.interrupted())
                     throw new InterruptedException();
             }
+	    if (giveUp) {
+		return false;
+	    }
             assert g != null || app == null : "no chosen goal implies no rule app";  
             if (app == null) {
                 return false;

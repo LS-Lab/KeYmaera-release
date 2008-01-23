@@ -33,11 +33,13 @@ import de.uka.ilkd.key.dl.rules.UnknownProgressRule;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DLUniversalClosureOp;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DiffInd;
 import de.uka.ilkd.key.dl.strategy.features.HypotheticalProvabilityFeature.HypotheticalProvability;
+import de.uka.ilkd.key.dl.formulatools.TermTools;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.java.StatementBlock;
 import de.uka.ilkd.key.logic.ConstrainedFormula;
 import de.uka.ilkd.key.logic.JavaBlock;
 import de.uka.ilkd.key.logic.Name;
+import de.uka.ilkd.key.logic.Sequent;
 import de.uka.ilkd.key.logic.PosInOccurrence;
 import de.uka.ilkd.key.logic.Sequent;
 import de.uka.ilkd.key.logic.Term;
@@ -67,10 +69,14 @@ public class DiffWeakenFeature implements Feature {
     private Map<Node, Long> branchingNodesAlreadyTested = new WeakHashMap<Node, Long>();
 
     /**
-     * Remembers whether diffweaken works for the given [D]F modality.
-     * @todo remember whole sequent instead for completeness!
+     * Remembers whether diffweaken works for the given [D&H]F modality
+     * and surrounding stuff.
+     * diffWeakenCache.get(D&H).get(A==>B,{U}(H->F))
+     * remembers whether F is diffweakable for A==>B,{U}[D&H]F
+     * @note The cached formula is UNSOUND because of missing universal closures.
+     *  This is intentionally so, because DLUniversalClosure otherwise introduces new variables rendering caching useless.
      */
-    private Map<Term, RuleAppCost> diffWeakenCache = new WeakHashMap<Term, RuleAppCost>();
+    private Map<DiffSystem, Map<Sequent,RuleAppCost>> diffWeakenCache = new WeakHashMap<DiffSystem, Map<Sequent,RuleAppCost>>();
 
     public static final DiffWeakenFeature INSTANCE = new DiffWeakenFeature();
 
@@ -146,9 +152,6 @@ public class DiffWeakenFeature implements Feature {
                 && term.javaBlock().program() instanceof StatementBlock)) {
             throw new IllegalArgumentException("inapplicable to " + pos);
         }
-        if (diffWeakenCache.containsKey(term)) {
-            return diffWeakenCache.get(term);
-        }
         final DiffSystem system = (DiffSystem) ((StatementBlock) term
                 .javaBlock().program()).getChildAt(0);
         final Term invariant = system.getInvariant();
@@ -158,24 +161,42 @@ public class DiffWeakenFeature implements Feature {
         // diffweaken
         RuleApp diffweaken = goal.indexOfTaclets().lookup(new Name("diffweaken")); 
         //= getRuleAppOf(new Name("diffweaken"), pos, goal);
-        //@todo optimize first check if post contained in conjunct of invariant
-        //System.out.println("HYPO: " + diffweaken.rule().name());
+	
+	// diffWeakenCache.get(D&H).get(A==>B,{U}(H->F))
+        final Sequent indexing = DiffSatFeature.changedSequent(pos, goal.sequent(),
+                       /* SKIP for caching: DLUniversalClosureOp.DL_UNIVERSAL_CLOSURE.universalClosure */
+                        TermBuilder.DF.imp(invariant, post), pos.subTerm());
+        RuleAppCost cached = get(system, indexing);
+	if (cached != null) {
+            return cached;
+        }
+        // optimize first check if post contained in conjunct of invariant
+	if (TermTools.subsumes(invariant, post)) {
+            put(system, indexing, LongRuleAppCost.ZERO_COST);
+            // if weakening provably successful, only use weakening
+            return LongRuleAppCost.ZERO_COST;
+	}
+        System.out.println("HYPOy: " + diffweaken.rule().name());
+	Term weakenFml = TermBuilder.DF.imp(invariant, post);
         Sequent weakened = DiffSatFeature.changedSequent(pos, goal.sequent(),
                 DLUniversalClosureOp.DL_UNIVERSAL_CLOSURE.universalClosure(
-                        system, TermBuilder.DF.imp(invariant, post), null, services, false));
+                        system, weakenFml, null, services, false),
+		pos.subTerm());
         HypotheticalProvability result = HypotheticalProvabilityFeature
                 .provable(goal.proof(), weakened, MAX_STEPS, timeout);
-        System.out.println("HYPO: " + diffweaken.rule().name() + " " + result);
+        System.out.println("HYPO:  " + diffweaken.rule().name() + " " + result);
         switch (result) {
         case PROVABLE:
-            diffWeakenCache.put(term, LongRuleAppCost.ZERO_COST);
+            put(system, indexing, LongRuleAppCost.ZERO_COST);
             // if weakening provably successful, only use weakening
             return LongRuleAppCost.ZERO_COST;
         case DISPROVABLE:
         case ERROR:
-            diffWeakenCache.put(term, TopRuleAppCost.INSTANCE);
+            put(system, indexing, TopRuleAppCost.INSTANCE);
             return TopRuleAppCost.INSTANCE;
         case UNKNOWN:
+            put(system, indexing, TopRuleAppCost.INSTANCE);
+            return TopRuleAppCost.INSTANCE;
         case TIMEOUT:
             return HypotheticalProvabilityFeature.TIMEOUT_COST;
         default:
@@ -184,6 +205,18 @@ public class DiffWeakenFeature implements Feature {
     }
 
     // caching
+    private RuleAppCost get(DiffSystem system, Sequent index) {
+        Map<Sequent,RuleAppCost> cache = diffWeakenCache.get(system);
+        return cache == null ? null : cache.get(index);
+    }
+    private RuleAppCost put(DiffSystem system, Sequent index, RuleAppCost cost) {
+        Map<Sequent,RuleAppCost> cache = diffWeakenCache.get(system);
+        if (cache == null)
+            cache = new WeakHashMap<Sequent,RuleAppCost>(10);
+        RuleAppCost old = cache.put(index, cost);
+        diffWeakenCache.put(system, cache);
+        return old;
+    }
 
     /**
      * @param node

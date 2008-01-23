@@ -76,11 +76,11 @@ public class DiffSatFeature implements Feature {
     private Map<Node, Long> branchingNodesAlreadyTested = new WeakHashMap<Node, Long>();
 
     /**
-     * Remembers diffweaks for the given surrounding term T.
+     * Remembers diffind initials for the given surrounding term T.
      * A==>B,[D&H]F
-     * caches at A==>B,H->F
+     * caches at A==>B,{U}(H->F)
      */
-    private Map<Sequent,RuleAppCost> diffWeakCache = new WeakHashMap<Sequent,RuleAppCost>();
+    private Map<Sequent,RuleAppCost> diffInitCache = new WeakHashMap<Sequent,RuleAppCost>();
 
     /**
      * Remembers diffinds for the given [D]F modality.
@@ -170,12 +170,9 @@ public class DiffSatFeature implements Feature {
     private RuleAppCost diffSat(TacletApp app, final PosInOccurrence pos, Goal goal,
             long timeout) {
         Term term = pos.subTerm();
-        final Update update = Update.createUpdate(term);
         // unbox from update prefix
-        if (term.op() instanceof QuanUpdateOperator) {
+        while (term.op() instanceof QuanUpdateOperator) {
             term = ((QuanUpdateOperator) term.op()).target(term);
-            if (term.op() instanceof QuanUpdateOperator)
-                throw new AssertionError("assume nested updates have been merged");
         }
         if (!(term.op() instanceof Modality && term.javaBlock() != null
                 && term.javaBlock() != JavaBlock.EMPTY_JAVABLOCK && term
@@ -191,7 +188,6 @@ public class DiffSatFeature implements Feature {
         RuleApp diffind = goal.indexOfTaclets().lookup(new Name("diffind"));
         Term candidate = (Term) app.instantiations().lookupValue(new Name("augmented"));
         if (candidate == null) {
-//            System.out.println("\tno instantiation " + candidate + " for SV 'augmented'");
             if (value == null)
                 throw new IllegalStateException("no such projection " + value);
             candidate = value.toTerm(app, pos, goal);
@@ -221,30 +217,26 @@ public class DiffSatFeature implements Feature {
 
         //System.out.println("HYPO: " + diffind.rule().name() + " initial " + candidate);
         // diffind:"Invariant Initially Valid"
-        Term initialFml = TermBuilder.DF.imp(invariant, candidate);
-        if (pos.subTerm().op() instanceof QuanUpdateOperator) {
-            // keep update prefix
-            initialFml = createUpdate(update, initialFml);
-        }
-        Sequent initial = changedSequent(pos, goal.sequent(), initialFml);
-        RuleAppCost cachedInitial = diffWeakCache.get(initial);
+        Sequent initial = changedSequent(pos, goal.sequent(), TermBuilder.DF.imp(invariant, candidate), pos.subTerm());
+        RuleAppCost cachedInitial = diffInitCache.get(initial);
         if (TopRuleAppCost.INSTANCE == cachedInitial) {
             return TopRuleAppCost.INSTANCE;
         }
         if (LongRuleAppCost.ZERO_COST != cachedInitial) {
+            System.out.print("HYPOy: " + diffind.rule().name() + " initial for " + candidatePrint);
             HypotheticalProvability result = HypotheticalProvabilityFeature
                     .provable(goal.proof(), initial, MAX_STEPS, timeout, taboo);
-            System.out.print("HYPO: " + diffind.rule().name() + " initial " + result + " for " + candidatePrint);
+            System.out.print("HYPO:  " + diffind.rule().name() + " initial " + result + " for " + candidatePrint);
             switch (result) {
             case PROVABLE:
-                diffWeakCache.put(initial, LongRuleAppCost.ZERO_COST);
+                diffInitCache.put(initial, LongRuleAppCost.ZERO_COST);
                 break;
             case ERROR:
             case DISPROVABLE:
-                diffWeakCache.put(initial, TopRuleAppCost.INSTANCE);
+                diffInitCache.put(initial, TopRuleAppCost.INSTANCE);
                 return TopRuleAppCost.INSTANCE;
             case UNKNOWN:
-                diffWeakCache.put(initial, TopRuleAppCost.INSTANCE);
+                diffInitCache.put(initial, TopRuleAppCost.INSTANCE);
                 return TopRuleAppCost.INSTANCE;
             case TIMEOUT:
                 // resultCache.put(firstNodeAfterBranch,
@@ -260,15 +252,12 @@ public class DiffSatFeature implements Feature {
                     system,
                     TermBuilder.DF.imp(candidate, post), null,
                     services, false);
-            if (pos.subTerm().op() instanceof QuanUpdateOperator) {
-                // keep update prefix
-                finishTerm = createUpdate(update, finishTerm);
-            }
-            Sequent finish = changedSequent(pos, goal.sequent(), finishTerm);
+            Sequent finish = changedSequent(pos, goal.sequent(), finishTerm, pos.subTerm());
+            System.out.print("HYPOy: " + diffind.rule().name() + " finish for " + candidatePrint);
             HypotheticalProvability result = HypotheticalProvabilityFeature.provable(goal.proof(), finish, MAX_STEPS,
                     timeout, taboo);
-            System.out.print("HYPO: " + diffind.rule().name() + " finish  " + result + " for " + candidatePrint);
-            // TODO cache
+            System.out.print("HYPO:  " + diffind.rule().name() + " finish  " + result + " for " + candidatePrint);
+            // TODO cache but remember that DLUniversalClosureOp introduces different variable names
             switch (result) {
             case PROVABLE:
                 break;
@@ -300,15 +289,11 @@ public class DiffSatFeature implements Feature {
                 system,
                 DiffInd.DIFFIND.diffInd(augTerm, services), null,
                 services, true);
-        if (pos.subTerm().op() instanceof QuanUpdateOperator) {
-            // keep update prefix
-            stepFml = createUpdate(update, stepFml);
-        }
-        Sequent step = changedSequent(pos, goal.sequent(), stepFml);
-//        System.out.println("HYPOing:\n " + step);
+        Sequent step = changedSequent(pos, goal.sequent(), stepFml, pos.subTerm());
+        System.out.print("HYPOy: " + diffind.rule().name() + " step     for " + candidatePrint);
         HypotheticalProvability result = HypotheticalProvabilityFeature.provable(goal.proof(), step, MAX_STEPS,
                 timeout, taboo);
-        System.out.print("HYPO: " + diffind.rule().name() + " step    " + result + " for " + candidatePrint);
+        System.out.print("HYPO:  " + diffind.rule().name() + " step    " + result + " for " + candidatePrint);
         switch (result) {
         case PROVABLE:
             put(system, candidate, LongRuleAppCost.ZERO_COST);
@@ -329,7 +314,7 @@ public class DiffSatFeature implements Feature {
         }
     }
 
-    private Term createUpdate(final Update update, Term initialFml) {
+    private static Term createUpdate(final Update update, Term initialFml) {
         // keep update prefix
         Term locs[] = new Term[update.locationCount()];
         Term vals[] = new Term[update.locationCount()];
@@ -356,10 +341,22 @@ public class DiffSatFeature implements Feature {
         return old;
     }
 
-        
+
+    /**
+     * Change a sequent,
+     * keeping updates from updatePrefixContext (but ignoring the remainders of updatePrefixContext).
+     */
     protected static Sequent changedSequent(PosInOccurrence pos, Sequent seq,
-            Term fml) {
+            Term fml, Term updatePrefixContext) {
         try {
+            if (updatePrefixContext.op() instanceof QuanUpdateOperator) {
+                // keep update prefix
+                final Update update = Update.createUpdate(updatePrefixContext);
+                fml = createUpdate(update, fml);
+		if (updatePrefixContext.sub(0).op() instanceof QuanUpdateOperator) {
+                    throw new AssertionError("assume nested updates have been merged");
+		}
+            }
             return seq.changeFormula(new ConstrainedFormula(fml, pos
                 .constrainedFormula().constraint()), pos).sequent();
         } catch (RuntimeException e) {
