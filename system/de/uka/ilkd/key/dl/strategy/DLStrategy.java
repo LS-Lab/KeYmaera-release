@@ -58,6 +58,7 @@ import de.uka.ilkd.key.dl.strategy.features.SimplifyFeature;
 import de.uka.ilkd.key.dl.strategy.features.SwitchFeature;
 import de.uka.ilkd.key.dl.strategy.features.TimeoutTestApplicationFeature;
 import de.uka.ilkd.key.dl.strategy.features.SwitchFeature.Case;
+import de.uka.ilkd.key.dl.strategy.termProjection.UltimatePostProjection;
 import de.uka.ilkd.key.logic.Name;
 import de.uka.ilkd.key.logic.PosInOccurrence;
 import de.uka.ilkd.key.proof.Goal;
@@ -544,10 +545,8 @@ public class DLStrategy extends AbstractFeatureStrategy {
                     storeRuleApp(
                             buffy,
                             ifZero(
-                                    ifZero(new FirstOrderFeature(instOf("post")),
-                                            add(instantiate("inv", instOf("post")),
-                                                openCurrentRuleApp(new HypotheticalProvabilityFeature(DLOptionBean.INSTANCE.getLoopSatTimeout()))),
-                                            inftyConst()),
+                                    add(instantiate("inv", new UltimatePostProjection(instOf("post"))),
+                                        openCurrentRuleApp(new HypotheticalProvabilityFeature(DLOptionBean.INSTANCE.getLoopSatTimeout()))),
                                     longConst(-2000),
                                     ifZero(
                                             not(sum(

@@ -17,8 +17,6 @@ import de.uka.ilkd.key.strategy.termProjection.ProjectionToTerm;
 public class FirstOrderFeature implements Feature {
 
     private final ProjectionToTerm value;
-    
-    
 
     public FirstOrderFeature(ProjectionToTerm value) {
         super();
