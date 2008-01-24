@@ -337,7 +337,7 @@ public class DLStrategy extends AbstractFeatureStrategy {
         
         final Feature eliminateExistentialQuantifier = ConditionalFeature
         .createConditional(EliminateExistentialQuantifierRule.INSTANCE,
-                longConst(100000));
+                longConst(19000));
         // final Feature eliminateQuantifier = ConditionalFeature
         // .createConditional(EliminateQuantifierRule.INSTANCE, add(
         // longConst(5000), FOFormsContainingSymbol.INSTANCE));

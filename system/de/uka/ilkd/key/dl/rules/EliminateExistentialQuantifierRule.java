@@ -152,11 +152,23 @@ EliminateExistentialQuantifierRule implements BuiltInRule,
      */
     public synchronized ListOfGoal apply(Goal goal, Services services,
             RuleApp ruleApp) {
-        Operator op = ruleApp.posInOccurrence().subTerm().op();
+//        Operator op = ruleApp.posInOccurrence().subTerm().op();
+        final Operator[] ops = new Operator[1];
+        ruleApp.posInOccurrence().constrainedFormula().formula().execPreOrder(new Visitor() {
+
+            @Override
+            public void visit(Term visited) {
+                if(visited.op() instanceof Metavariable) {
+                    ops[0] = visited.op();
+                }
+            }
+            
+        });
+        Operator op = ops[0];
         if (!(op instanceof Metavariable)) {
             throw new IllegalArgumentException(
                     "This rule can only be applied to Metavariables. Found: "
-                            + op + "[" + op.getClass() + "]");
+                            + op + "[" + ((op!=null)?op.getClass():null) + "]");
         }
         List<Metavariable> variables = new ArrayList<Metavariable>();
         if (ruleApp instanceof ReduceRuleApp) {
@@ -481,15 +493,16 @@ EliminateExistentialQuantifierRule implements BuiltInRule,
      */
     public boolean isApplicable(Goal goal, PosInOccurrence pio,
             Constraint userConstraint) {
-        if (MathSolverManager.isQuantifierEliminatorSet()
-                && ((DLOptionBean.INSTANCE.isSimplifyBeforeReduce() || DLOptionBean.INSTANCE
-                        .isSimplifyAfterReduce()) ? MathSolverManager
-                        .isSimplifierSet() : true)) {
-            return pio != null && pio.subTerm() != null
-                    && pio.subTerm().op() instanceof Metavariable;
-        } else {
-            return false;
-        }
+//        if (MathSolverManager.isQuantifierEliminatorSet()
+//                && ((DLOptionBean.INSTANCE.isSimplifyBeforeReduce() || DLOptionBean.INSTANCE
+//                        .isSimplifyAfterReduce()) ? MathSolverManager
+//                        .isSimplifierSet() : true)) {
+//            return pio != null && pio.subTerm() != null
+//                    && pio.subTerm().op() instanceof Metavariable;
+//        } else {
+//            return false;
+//        }
+        return true;
     }
 
     /*
