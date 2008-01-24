@@ -668,7 +668,7 @@ public class HypotheticalProvabilityFeature implements Feature {
             Goal g = null;
             //ReuseListener rl = mediator.getReuseListener();
             //@todo could also use reuses as in ApplyStrategy rather than just producing them
-            while (!giveUp && (g = goalChooser.getNextGoal()) != null) {
+            while (!maxRuleApplicationOrTimeoutExceeded() && (g = goalChooser.getNextGoal()) != null) {
                 app = g.getRuleAppManager().next();
 
                 if (app == null)
@@ -686,7 +686,7 @@ public class HypotheticalProvabilityFeature implements Feature {
                 if (Thread.interrupted())
                     throw new InterruptedException();
             }
-	    if (giveUp) {
+	    if (maxRuleApplicationOrTimeoutExceeded()) {
 		return false;
 	    }
             assert g != null || app == null : "no chosen goal implies no rule app";  
@@ -737,7 +737,7 @@ public class HypotheticalProvabilityFeature implements Feature {
          *         has been reached
          */
         private boolean maxRuleApplicationOrTimeoutExceeded() {
-            return giveUp || countApplied >= maxApplications || timeout >= 0 ? System
+            return giveUp || Thread.interrupted() || countApplied >= maxApplications || timeout >= 0 ? System
                     .currentTimeMillis()
                     - time >= timeout
                     : false;
