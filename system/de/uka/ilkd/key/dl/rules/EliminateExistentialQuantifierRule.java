@@ -51,7 +51,6 @@ import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.logic.ConstrainedFormula;
 import de.uka.ilkd.key.logic.Constraint;
 import de.uka.ilkd.key.logic.IteratorOfConstrainedFormula;
-import de.uka.ilkd.key.logic.IteratorOfTerm;
 import de.uka.ilkd.key.logic.Name;
 import de.uka.ilkd.key.logic.PosInOccurrence;
 import de.uka.ilkd.key.logic.PosInTerm;
@@ -60,7 +59,6 @@ import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.TermBuilder;
 import de.uka.ilkd.key.logic.TermFactory;
 import de.uka.ilkd.key.logic.Visitor;
-import de.uka.ilkd.key.logic.op.Junctor;
 import de.uka.ilkd.key.logic.op.LogicVariable;
 import de.uka.ilkd.key.logic.op.Metavariable;
 import de.uka.ilkd.key.logic.op.Op;
@@ -71,6 +69,7 @@ import de.uka.ilkd.key.proof.Goal;
 import de.uka.ilkd.key.proof.IteratorOfGoal;
 import de.uka.ilkd.key.proof.ListOfGoal;
 import de.uka.ilkd.key.proof.Node;
+import de.uka.ilkd.key.proof.RuleFilter;
 import de.uka.ilkd.key.rule.BuiltInRule;
 import de.uka.ilkd.key.rule.Rule;
 import de.uka.ilkd.key.rule.RuleApp;
@@ -82,8 +81,9 @@ import de.uka.ilkd.key.rule.RuleApp;
  * @since 27.08.2007
  * 
  */
-public class EliminateExistentialQuantifierRule implements BuiltInRule,
-        UnknownProgressRule, IrrevocableRule {
+public class 
+EliminateExistentialQuantifierRule implements BuiltInRule,
+        UnknownProgressRule, IrrevocableRule, RuleFilter {
 
     /**
      * TODO jdq documentation since Aug 27, 2007
@@ -134,7 +134,7 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
         }
     }
 
-    public static final BuiltInRule INSTANCE = new EliminateExistentialQuantifierRule();
+    public static final EliminateExistentialQuantifierRule INSTANCE = new EliminateExistentialQuantifierRule();
 
     private boolean unsolvable;
 
@@ -152,11 +152,23 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
      */
     public synchronized ListOfGoal apply(Goal goal, Services services,
             RuleApp ruleApp) {
-        Operator op = ruleApp.posInOccurrence().subTerm().op();
+//        Operator op = ruleApp.posInOccurrence().subTerm().op();
+        final Operator[] ops = new Operator[1];
+        ruleApp.posInOccurrence().constrainedFormula().formula().execPreOrder(new Visitor() {
+
+            @Override
+            public void visit(Term visited) {
+                if(visited.op() instanceof Metavariable) {
+                    ops[0] = visited.op();
+                }
+            }
+            
+        });
+        Operator op = ops[0];
         if (!(op instanceof Metavariable)) {
             throw new IllegalArgumentException(
                     "This rule can only be applied to Metavariables. Found: "
-                            + op + "[" + op.getClass() + "]");
+                            + op + "[" + ((op!=null)?op.getClass():null) + "]");
         }
         List<Metavariable> variables = new ArrayList<Metavariable>();
         if (ruleApp instanceof ReduceRuleApp) {
@@ -481,15 +493,16 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
      */
     public boolean isApplicable(Goal goal, PosInOccurrence pio,
             Constraint userConstraint) {
-        if (MathSolverManager.isQuantifierEliminatorSet()
-                && ((DLOptionBean.INSTANCE.isSimplifyBeforeReduce() || DLOptionBean.INSTANCE
-                        .isSimplifyAfterReduce()) ? MathSolverManager
-                        .isSimplifierSet() : true)) {
-            return pio != null && pio.subTerm() != null
-                    && pio.subTerm().op() instanceof Metavariable;
-        } else {
-            return false;
-        }
+//        if (MathSolverManager.isQuantifierEliminatorSet()
+//                && ((DLOptionBean.INSTANCE.isSimplifyBeforeReduce() || DLOptionBean.INSTANCE
+//                        .isSimplifyAfterReduce()) ? MathSolverManager
+//                        .isSimplifierSet() : true)) {
+//            return pio != null && pio.subTerm() != null
+//                    && pio.subTerm().op() instanceof Metavariable;
+//        } else {
+//            return false;
+//        }
+        return true;
     }
 
     /*
@@ -526,6 +539,14 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
     @Override
     public boolean irrevocable(Node parent) {
         return parent.childrenCount() > 1;
+    }
+
+    /* (non-Javadoc)
+     * @see de.uka.ilkd.key.proof.RuleFilter#filter(de.uka.ilkd.key.rule.Rule)
+     */
+    @Override
+    public boolean filter(Rule rule) {
+        return rule instanceof EliminateExistentialQuantifierRule;
     }
 
 }

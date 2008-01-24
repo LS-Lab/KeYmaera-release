@@ -30,6 +30,7 @@ import de.uka.ilkd.key.dl.options.DLOptionBean.ApplyRules;
 import de.uka.ilkd.key.dl.options.DLOptionBean.CounterexampleTest;
 import de.uka.ilkd.key.dl.options.DLOptionBean.DiffSat;
 import de.uka.ilkd.key.dl.rules.DebugRule;
+import de.uka.ilkd.key.dl.rules.EliminateExistentialQuantifierRule;
 import de.uka.ilkd.key.dl.rules.EliminateQuantifierRule;
 import de.uka.ilkd.key.dl.rules.EliminateQuantifierRuleWithContext;
 import de.uka.ilkd.key.dl.rules.FindInstanceRule;
@@ -39,14 +40,14 @@ import de.uka.ilkd.key.dl.rules.SumOfSquaresRule;
 import de.uka.ilkd.key.dl.rules.VisualizationRule;
 import de.uka.ilkd.key.dl.strategy.features.AnnotationList;
 import de.uka.ilkd.key.dl.strategy.features.DiffIndCandidates;
-import de.uka.ilkd.key.dl.strategy.features.DiffSatFeature;
 import de.uka.ilkd.key.dl.strategy.features.DiffInvariantPresentFeature;
+import de.uka.ilkd.key.dl.strategy.features.DiffSatFeature;
 import de.uka.ilkd.key.dl.strategy.features.DiffWeakenFeature;
+import de.uka.ilkd.key.dl.strategy.features.EliminateExistentialApproveFeature;
 import de.uka.ilkd.key.dl.strategy.features.FOFormula;
 import de.uka.ilkd.key.dl.strategy.features.FOSequence;
 import de.uka.ilkd.key.dl.strategy.features.FindInstanceTest;
 import de.uka.ilkd.key.dl.strategy.features.FindTransitionTest;
-import de.uka.ilkd.key.dl.strategy.features.FirstOrderFeature;
 import de.uka.ilkd.key.dl.strategy.features.HypotheticalProvabilityFeature;
 import de.uka.ilkd.key.dl.strategy.features.KeYBeyondFO;
 import de.uka.ilkd.key.dl.strategy.features.LoopInvariantRuleDispatchFeature;
@@ -333,6 +334,10 @@ public class DLStrategy extends AbstractFeatureStrategy {
         final Feature eliminateQuantifier = ConditionalFeature
                 .createConditional(EliminateQuantifierRule.INSTANCE,
                         inftyConst());
+        
+        final Feature eliminateExistentialQuantifier = ConditionalFeature
+        .createConditional(EliminateExistentialQuantifierRule.INSTANCE,
+                longConst(19000));
         // final Feature eliminateQuantifier = ConditionalFeature
         // .createConditional(EliminateQuantifierRule.INSTANCE, add(
         // longConst(5000), FOFormsContainingSymbol.INSTANCE));
@@ -366,7 +371,7 @@ public class DLStrategy extends AbstractFeatureStrategy {
                 AutomatedRuleFeature.INSTANCE, NotWithinMVFeature.INSTANCE,
                 simplifierF, duplicateF, ifMatchedF, d, AgeFeature.INSTANCE,
                 reduceSequence, contextElimRule, eliminateQuantifier,
-                excludeRules, noQuantifierInstantition });
+                excludeRules, noQuantifierInstantition, eliminateExistentialQuantifier });
 
         approvalF = setupApprovalF(p_proof);
 
@@ -592,7 +597,7 @@ public class DLStrategy extends AbstractFeatureStrategy {
     private Feature setupApprovalF(Proof p_proof) {
         final RuleSetDispatchFeature d = RuleSetDispatchFeature.create();
         setupDiffSatApprovalStrategy(d);
-        return d;
+        return SumFeature.createSum(new Feature[] { d, EliminateExistentialApproveFeature.INSTANCE });
     }
 
     /**
