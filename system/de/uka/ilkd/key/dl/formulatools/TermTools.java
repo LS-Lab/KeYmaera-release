@@ -206,6 +206,16 @@ public class TermTools {
         throw new IllegalArgumentException("Don't know about: " + form
                 + "Operator was: " + form.op());
     }
+    /**
+     * Get the set of all symbols that occur in a set of formulas or terms.
+     */
+    public static Set<Operator> getSignature(Collection<Term> formulas) {
+        Set<Operator> s = new LinkedHashSet<Operator>();
+        for (Term t : formulas) {
+            s.addAll(getSignature(t));
+        }
+        return s;
+    }
     
 
     // more general helpers
@@ -226,6 +236,22 @@ public class TermTools {
         }
         return r;
     }
+    /**
+     * projection to dL programvariables
+     * 
+     * @param s
+     * @return
+     */
+    public static Set<de.uka.ilkd.key.logic.op.ProgramVariable> projectDLProgramVariables(Set<Operator> s) {
+        Set<de.uka.ilkd.key.logic.op.ProgramVariable> r = new LinkedHashSet<de.uka.ilkd.key.logic.op.ProgramVariable>();
+        for (Operator o : s) {
+            if (o instanceof de.uka.ilkd.key.logic.op.ProgramVariable) {
+                r.add((de.uka.ilkd.key.logic.op.ProgramVariable) o);
+            }
+        }
+        return r;
+    }
+            
 
     /**
      * projects set of named things to the set of its respective names.

@@ -70,6 +70,7 @@ public class VariableCollector extends Visitor {
                 || (visited.op() instanceof Function && visited.arity() == 0)
                 || visited.op() instanceof Metavariable) {
             try {
+                // TODO replace by BigDecimal parsing
                 Double.parseDouble(visited.op().name().toString());
             } catch (Exception e) {
                 variables.add(visited.op().name().toString());
