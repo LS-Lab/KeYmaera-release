@@ -33,6 +33,7 @@ import de.uka.ilkd.key.dl.arithmetics.exceptions.ServerStatusProblemException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.UnableToConvertInputException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.UnsolveableException;
+import de.uka.ilkd.key.dl.strategy.RealtimeStrategy;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.logic.ConstrainedFormula;
 import de.uka.ilkd.key.logic.IteratorOfConstrainedFormula;
@@ -71,7 +72,7 @@ public abstract class RuleOperatingOnWholeSequence extends Visitor implements
     private Term resultFormula;
 
     private boolean unsolvable;
-
+    
     private Services services;
 
     /**
@@ -89,7 +90,20 @@ public abstract class RuleOperatingOnWholeSequence extends Visitor implements
      */
     public synchronized ListOfGoal apply(Goal goal, Services services,
             RuleApp ruleApp) {
-        // reset the testmode instantaniously to ensure that it cannot be
+        if (goal.getGoalStrategy() instanceof RealtimeStrategy) {
+            if (((RealtimeStrategy)goal.getGoalStrategy()).getTimeout(goal, ruleApp) <= 0) {
+                System.out.println("\tRTC " + ruleApp.rule().name() + " " + ((RealtimeStrategy)goal.getGoalStrategy()).getTimeout(goal, ruleApp)); //XXX
+            }
+            return apply(goal, services, ruleApp,
+                    ((RealtimeStrategy)goal.getGoalStrategy()).getTimeout(goal, ruleApp));
+        } else {
+            return apply(goal, services, ruleApp, -1);
+        }
+    }
+    
+    public synchronized ListOfGoal apply(Goal goal, Services services,
+                RuleApp ruleApp, long timeout) {
+            // reset the testmode instantaniously to ensure that it cannot be
         // enabled accidently
         boolean testModeActive = testMode;
         unsolvable = false;
@@ -119,7 +133,7 @@ public abstract class RuleOperatingOnWholeSequence extends Visitor implements
         resultFormula = null;
 
         try {
-            resultTerm = performQuery(resultTerm);
+            resultTerm = performQuery(resultTerm, timeout);
         } catch (RemoteException e) {
             throw new IllegalStateException(e.getCause().getMessage(), e.getCause());
         } catch (UnsolveableException e) {
@@ -164,7 +178,7 @@ public abstract class RuleOperatingOnWholeSequence extends Visitor implements
      * @throws UnableToConvertInputException 
      * @throws SolverException 
      */
-    protected abstract Term performQuery(Term term) throws RemoteException, SolverException;
+    protected abstract Term performQuery(Term term, long timeout) throws RemoteException, SolverException;
 
     /**
      * Iterates over the given formulas and constructs the conjunction or
@@ -228,7 +242,7 @@ public abstract class RuleOperatingOnWholeSequence extends Visitor implements
         return variables;
     }
 
-    public boolean test(Goal goal, Services services, RuleApp app) {
+    public boolean test(Goal goal, Services services, RuleApp app, long timeout) {
         testMode = true;
         try {
             // try to apply the rule... if no exception occurs it was successful

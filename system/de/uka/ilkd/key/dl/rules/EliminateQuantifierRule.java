@@ -145,7 +145,7 @@ public class EliminateQuantifierRule extends RuleOperatingOnWholeSequence
      *      de.uka.ilkd.key.dl.IMathSolver)
      */
     @Override
-    protected Term performQuery(Term term) throws RemoteException, SolverException {
+    protected Term performQuery(Term term, long timeout) throws RemoteException, SolverException {
         List<String> variables = getVariables();
         if (variables.isEmpty()) {
             variables.add(search.op().name().toString());
@@ -156,7 +156,8 @@ public class EliminateQuantifierRule extends RuleOperatingOnWholeSequence
                 variables,
                 Collections.singletonList(new PairOfTermAndQuantifierType(
                         search, QuantifierType.FORALL)),
-                getServices().getNamespaces());
+                getServices().getNamespaces(),
+                timeout);
 
     }
 

@@ -108,7 +108,7 @@ import de.uka.ilkd.key.strategy.termProjection.TermBuffer;
  * @author ap
  * @todo allow equality rewriting
  */
-public class DLStrategy extends AbstractFeatureStrategy {
+public class DLStrategy extends AbstractFeatureStrategy implements RealtimeStrategy {
 
     private final Feature vetoF;
 
@@ -139,10 +139,15 @@ public class DLStrategy extends AbstractFeatureStrategy {
      */
     private boolean blockAllRules = false;
 
+    private long timeout;
+
     protected DLStrategy(Proof p_proof) {
         this(p_proof, false);
     }
 
+    protected DLStrategy(Proof p_proof, boolean stopOnFirstCE) {
+        this(p_proof, stopOnFirstCE, -1);
+    }
     /**
      * 
      * @param p_proof
@@ -151,10 +156,12 @@ public class DLStrategy extends AbstractFeatureStrategy {
      *                as soon as the first counterexample occurs. Otherwise,
      *                branches without counterexamples are still worked on even
      *                though the overall proof cannot close.
+     * @param timeout the intended time constraint for this strategy
      */
-    protected DLStrategy(Proof p_proof, boolean stopOnFirstCE) {
+    protected DLStrategy(Proof p_proof, boolean stopOnFirstCE, long timeout) {
         super(p_proof);
         this.stopOnFirstCE = stopOnFirstCE;
+        this.timeout = timeout;
 
         final RuleSetDispatchFeature d = RuleSetDispatchFeature.create();
 
@@ -306,11 +313,11 @@ public class DLStrategy extends AbstractFeatureStrategy {
             if (DLOptionBean.INSTANCE.isUseTimeoutStrategy()) {
                 /*
                  * basic idea of the following statement: - check for options -
-                 * if applying timeoutstrategy: -- try to reduce -- if
+                 * if applying timeout strategy: -- try to reduce -- if
                  * successful --- rate the result (cheap for good rating,
-                 * unafordable elsewise) -- if not successful in time --- try to
+                 * unaffordable otherwisewise) -- if not successful in time --- try to
                  * find a counter example (if none is found high costs,
-                 * unafordable otherwise)
+                 * unaffordable if counterexample has been found)
                  */
                 reduceSequence = ConditionalFeature.createConditional(
                         ReduceRule.INSTANCE,
@@ -337,7 +344,7 @@ public class DLStrategy extends AbstractFeatureStrategy {
         
         final Feature eliminateExistentialQuantifier = ConditionalFeature
         .createConditional(EliminateExistentialQuantifierRule.INSTANCE,
-                longConst(19000));
+                inftyConst()/*longConst(19000)*/);
         // final Feature eliminateQuantifier = ConditionalFeature
         // .createConditional(EliminateQuantifierRule.INSTANCE, add(
         // longConst(5000), FOFormsContainingSymbol.INSTANCE));
@@ -757,18 +764,24 @@ public class DLStrategy extends AbstractFeatureStrategy {
         }
 
         public Strategy create(Proof p_proof,
-                StrategyProperties strategyProperties, boolean stopOnFirstCE) {
-            return new DLStrategy(p_proof, stopOnFirstCE);
+                StrategyProperties strategyProperties, boolean stopOnFirstCE, long timeout) {
+            return new DLStrategy(p_proof, stopOnFirstCE, timeout);
         }
 
         public Strategy create(Proof p_proof,
                 StrategyProperties strategyProperties, boolean stopOnFirstCE,
+                long timeout,
                 Set<Name> taboo) {
-            return new TabooDLStrategy(p_proof, stopOnFirstCE, taboo);
+            return new TabooDLStrategy(p_proof, stopOnFirstCE, timeout, taboo);
         }
 
         public Name name() {
             return new Name("DLStrategy");
         }
+    }
+
+    @Override
+    public long getTimeout(Goal goal, RuleApp app) {
+        return timeout;
     }
 }

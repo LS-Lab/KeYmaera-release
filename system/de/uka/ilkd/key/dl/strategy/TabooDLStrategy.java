@@ -44,8 +44,8 @@ public class TabooDLStrategy extends DLStrategy {
      * @param stopOnFirstCE
      * @param taboo the list of rule names that are taboo, i.e., will never be applied nor tried at all.
      */
-    protected TabooDLStrategy(Proof p_proof, boolean stopOnFirstCE, Set<Name> taboo) {
-        super(p_proof, stopOnFirstCE);
+    protected TabooDLStrategy(Proof p_proof, boolean stopOnFirstCE, long timeout, Set<Name> taboo) {
+        super(p_proof, stopOnFirstCE, timeout);
         if (taboo == null) {
             throw new NullPointerException("Invalid taboo list " + taboo);
         }

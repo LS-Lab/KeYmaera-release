@@ -474,11 +474,11 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
         return form;
     }
 
-    private ExprAndMessages evaluate(final Expr expr) throws RemoteException, SolverException {
+    private ExprAndMessages evaluate(final Expr expr, long timeout) throws RemoteException, SolverException {
         ExprAndMessages evaluate;
         IKernelLinkWrapper wrapper = getKernelWrapper();
         try {
-            evaluate = wrapper.evaluate(expr);
+            evaluate = wrapper.evaluate(expr, timeout);
         } catch (RemoteException e) {
             Registry reg = LocateRegistry.getRegistry(serverIP, port);
             try {
@@ -488,7 +488,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
                 throw new ConnectionProblemException("Problem with KernelLink",
                         f);
             }
-            evaluate = wrapper.evaluate(expr);
+            evaluate = wrapper.evaluate(expr, timeout);
         }
         if (!evaluate.messages.toString().equals("{}")) {
             System.err.println("Message while evaluating: " + expr
@@ -501,13 +501,16 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
         }
         return evaluate;
     }
-
+    private ExprAndMessages evaluate(final Expr expr) throws RemoteException, SolverException {
+        return evaluate(expr, -1);
+    }
+        
     /*
      * (non-Javadoc)
      * 
      * @see de.uka.ilkd.key.dl.IMathematicaDLBridge#findInstance(de.uka.ilkd.key.logic.Term)
      */
-    public String findInstance(Term form) throws RemoteException, SolverException {
+    public String findInstance(Term form, long timeout) throws RemoteException, SolverException {
         Expr query = Term2ExprConverter.convert2Expr(form);
         List<Expr> vars = new ArrayList<Expr>();
         for (String var : VariableCollector.getVariables(form)) {
@@ -517,7 +520,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
             query = new Expr(new Expr(Expr.SYMBOL, "FindInstance"), new Expr[] {
                     query, new Expr(LIST, vars.toArray(new Expr[0])),
                     new Expr(Expr.SYMBOL, "Reals") });
-            Expr result = evaluate(query).expression;
+            Expr result = evaluate(query, timeout).expression;
 
             List<String> createFindInstanceString = createFindInstanceString(result);
             Collections.sort(createFindInstanceString);
@@ -612,7 +615,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
     }
 
     public Term reduce(Term form, List<String> additionalReduce,
-            List<PairOfTermAndQuantifierType> quantifiers, NamespaceSet nss)
+            List<PairOfTermAndQuantifierType> quantifiers, NamespaceSet nss, long timeout)
     throws RemoteException, SolverException{
         Expr query = Term2ExprConverter.convert2Expr(form);
         List<Expr> vars = new ArrayList<Expr>();
@@ -640,7 +643,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
         // query = new Expr(new Expr(Expr.SYMBOL, "Reduce"), new Expr[] { query,
         // new Expr(LIST, vars.toArray(new Expr[0])),
         // new Expr(Expr.SYMBOL, "Reals") });
-        Expr result = evaluate(query).expression;
+        Expr result = evaluate(query, timeout).expression;
         Term resultTerm = convert(result, nss);
         if (!resultTerm.equals(form)) {
             return resultTerm;
@@ -649,7 +652,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
     }
 
     @Override
-    public String findTransition(Term initial, Term modalForm)
+    public String findTransition(Term initial, Term modalForm, long timeout)
             throws RemoteException, SolverException {
         Term term = modalForm;
         final de.uka.ilkd.key.rule.updatesimplifier.Update update = de.uka.ilkd.key.rule.updatesimplifier.Update.createUpdate(term);
@@ -705,7 +708,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
                       });
         Expr query = new Expr(new Expr(Expr.SYMBOL, "CompoundExpression"),
                 new Expr[] { loading, call });
-        Expr result = evaluate(query).expression;
+        Expr result = evaluate(query, timeout).expression;
 
         List<String> createFindInstanceString = createFindInstanceString(result);
         Collections.sort(createFindInstanceString);

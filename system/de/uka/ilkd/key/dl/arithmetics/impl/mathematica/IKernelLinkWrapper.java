@@ -80,6 +80,7 @@ public interface IKernelLinkWrapper extends Remote, Serializable {
      * @throws UnsolveableException 
      */
     public ExprAndMessages evaluate(Expr expr) throws RemoteException, ServerStatusProblemException, ConnectionProblemException, UnsolveableException;
+    public ExprAndMessages evaluate(Expr expr, long timeout) throws RemoteException, ServerStatusProblemException, ConnectionProblemException, UnsolveableException;
 
     /**
      * Interrupts the current calculation

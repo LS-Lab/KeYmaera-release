@@ -244,8 +244,11 @@ public class Mathematica implements ICounterExampleGenerator, IODESolver,
      * 
      * @see de.uka.ilkd.key.dl.IMathSolver#reduce(de.uka.ilkd.key.logic.Term)
      */
-    public Term reduce(Term form, NamespaceSet nss) throws RemoteException, SolverException {
+    public Term reduce(Term form, NamespaceSet nss, long timeout) throws RemoteException, SolverException {
         return reduce(form, new ArrayList<PairOfTermAndQuantifierType>(), nss);
+    }
+    public Term reduce(Term form, NamespaceSet nss) throws RemoteException, SolverException {
+        return reduce(form, new ArrayList<PairOfTermAndQuantifierType>(), nss, -1);
     }
 
     /*
@@ -253,8 +256,11 @@ public class Mathematica implements ICounterExampleGenerator, IODESolver,
      * 
      * @see de.uka.ilkd.key.dl.IMathSolver#findInstance(de.uka.ilkd.key.logic.Term)
      */
+    public String findInstance(Term form, long timeout) throws RemoteException, SolverException {
+        return bridge.findInstance(form, timeout);
+    }
     public String findInstance(Term form) throws RemoteException, SolverException {
-        return bridge.findInstance(form);
+        return findInstance(form, -1);
     }
 
     /*
@@ -309,9 +315,14 @@ public class Mathematica implements ICounterExampleGenerator, IODESolver,
      *      java.util.List)
      */
     public Term reduce(Term query, List<String> additionalReduce,
+            List<PairOfTermAndQuantifierType> quantifiers, NamespaceSet nss, long timeout)
+    throws RemoteException, SolverException {
+        return bridge.reduce(query, additionalReduce, quantifiers, nss, timeout);
+    }
+    public Term reduce(Term query, List<String> additionalReduce,
             List<PairOfTermAndQuantifierType> quantifiers, NamespaceSet nss)
     throws RemoteException, SolverException {
-        return bridge.reduce(query, additionalReduce, quantifiers, nss);
+        return reduce(query, additionalReduce, quantifiers, nss, -1);
     }
 
     /*
@@ -320,14 +331,22 @@ public class Mathematica implements ICounterExampleGenerator, IODESolver,
      * @see de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator#reduce(de.uka.ilkd.key.logic.Term,
      *      java.util.List)
      */
+    public Term reduce(Term form, List<PairOfTermAndQuantifierType> quantifiers, NamespaceSet nss, long timeout)
+    throws RemoteException, SolverException {
+        return reduce(form, new LinkedList<String>(), quantifiers, nss, timeout);
+    }
     public Term reduce(Term form, List<PairOfTermAndQuantifierType> quantifiers, NamespaceSet nss)
     throws RemoteException, SolverException {
-        return reduce(form, new LinkedList<String>(), quantifiers, nss);
+        return reduce(form, new LinkedList<String>(), quantifiers, nss, -1);
     }
 
     @Override
-    public String findTransition(Term initial, Term modalForm)
+    public String findTransition(Term initial, Term modalForm, long timeout)
             throws RemoteException, SolverException {
-        return bridge.findTransition(initial, modalForm);
+        return bridge.findTransition(initial, modalForm, timeout);
     }
+    public String findTransition(Term initial, Term modalForm)
+    throws RemoteException, SolverException {
+return bridge.findTransition(initial, modalForm, -1);
+}
 }

@@ -64,7 +64,7 @@ public class FindInstanceTest implements Feature {
         TestThread thread = new TestThread(resultTerm);
         thread.start();
         try {
-            thread.join(TIMEOUT);
+            thread.join(2*TIMEOUT);
         } catch (InterruptedException e) {
             System.out.println("Interrupted FindInstanceTest");
         }
@@ -138,7 +138,7 @@ public class FindInstanceTest implements Feature {
             result = Result.UNKNOWN;
             try {
                 string = MathSolverManager.getCurrentCounterExampleGenerator()
-                        .findInstance(term);
+                        .findInstance(term, TIMEOUT);
                 if (string.equals("")) {
                     result = Result.NO_COUNTER_EXAMPLE_AVAILABLE;
                 } else if(string.trim().equalsIgnoreCase("$Aborted")) {

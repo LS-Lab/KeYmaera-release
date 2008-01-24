@@ -269,6 +269,9 @@ public class CacheOnlyServer extends UnicastRemoteObject implements Remote,
         }
         throw new RemoteException("Anwser to " + expr + " not found in cache");
     }
+    public synchronized ExprAndMessages evaluate(Expr expr, long timeout) throws RemoteException  {
+        return evaluate(expr);
+    }
 
     private void log(Level level, String message) {
         log(level, message, null);

@@ -93,6 +93,8 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 
     public static final String IDENTITY = "KernelLink";
 
+    private static final Expr TIMECONSTRAINED = new Expr(Expr.SYMBOL, "TimeConstrained");
+
     private Map<Expr, ExprAndMessages> cache;
 
     private KernelLink link;
@@ -313,7 +315,7 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
      * 
      * @see de.uka.ilkd.key.dl.IKernelLinkWrapper#evaluate(com.wolfram.jlink.Expr)
      */
-    public synchronized ExprAndMessages evaluate(Expr expr)
+    public synchronized ExprAndMessages evaluate(Expr expr, long timeout)
             throws RemoteException, ServerStatusProblemException, ConnectionProblemException, UnsolveableException {
         // if (abort) {
         // throw new IllegalStateException("Abort forced");
@@ -321,7 +323,11 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
         log(Level.FINEST, "Connection established!");// XXX
         try {
             callCount++;
-            log(Level.FINEST, "Start evaluating: " + expr);
+            if (timeout <= 0) {
+                log(Level.FINEST, "Start evaluating: " + expr);
+            } else {
+                log(Level.FINEST, "Start timed evaluating: " + expr);
+            }
             long curTime = System.currentTimeMillis();
             log(Level.INFO, "Time: "
                     + SimpleDateFormat.getTimeInstance().format(curTime));
@@ -333,10 +339,18 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
                 log(Level.FINEST, exprAndMessages.expression.toString());
                 return exprAndMessages;
             }
+            // wrap inside time constraints
+            final Expr compute = timeout <= 0
+            ? expr
+                    : new Expr(TIMECONSTRAINED, new Expr[] {
+                            expr,
+                            new Expr((timeout+999) / 1000)
+                    });
             log(Level.FINEST, "Clearing link state");
             link.newPacket();
             log(Level.FINEST, "Start evaluation");
-            Expr check = new Expr(new Expr(Expr.SYMBOL,"Check"), new Expr[] { expr,
+            // wrap inside exception checks
+            Expr check = new Expr(new Expr(Expr.SYMBOL,"Check"), new Expr[] { compute,
                     new Expr("$Exception"), mBlist });
             link.evaluate(check);
             testForError(link);
@@ -359,7 +373,7 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
                 link.evaluate("$MessageList");
                 link.waitForAnswer();
                 Expr msg = link.getExpr();
-                throw new UnsolveableException("Cannot solve " + expr.toString()
+                throw new UnsolveableException("Cannot solve " + compute.toString()
                         + " because message " + msg + " of the messages in " + messageBlacklist
                         + " occured");
             }
@@ -370,7 +384,7 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
             link.newPacket();
             testForError(link);
             log(Level.FINEST, "Checking for messages");
-//            link.evaluate("Messages[" + expr.head().toString() + "]");
+//            link.evaluate("Messages[" + compute.head().toString() + "]");
             link.evaluate("$MessageList");
             link.waitForAnswer();
             Expr msg = link.getExpr();
@@ -392,6 +406,7 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
                 cache.clear();
             }
             if (!"$Aborted".equalsIgnoreCase(result.toString())) {
+                // put to cache without time constraints
                 cache.put(expr, exprAndMessages);
             } else {
                 abort = false;
@@ -413,6 +428,10 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
                     e);
         }
 
+    }
+    public synchronized ExprAndMessages evaluate(Expr expr)
+    throws RemoteException, ServerStatusProblemException, ConnectionProblemException, UnsolveableException {
+        return evaluate(expr, -1);
     }
 
     private void log(Level level, String message) {

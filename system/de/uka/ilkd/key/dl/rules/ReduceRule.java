@@ -24,6 +24,8 @@ package de.uka.ilkd.key.dl.rules;
 
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -69,12 +71,17 @@ public class ReduceRule extends RuleOperatingOnWholeSequence implements
     private Set<Term> skolemSymbols;
 
     private HashSet<String> quantifiedVariables;
+    
+    private final Set<Term> TRIVIALS; 
 
     /**
      * @param formulaContainsSearchSymbolDefault
      */
     public ReduceRule() {
         super(true);
+        TRIVIALS = new HashSet<Term>(2);
+        TRIVIALS.add(TermBuilder.DF.tt());
+        TRIVIALS.add(TermBuilder.DF.ff());
     }
 
     public static final ReduceRule INSTANCE = new ReduceRule();
@@ -175,7 +182,7 @@ public class ReduceRule extends RuleOperatingOnWholeSequence implements
      *      de.uka.ilkd.key.dl.IMathSolver)
      */
     @Override
-    protected Term performQuery(Term term) throws RemoteException,
+    protected Term performQuery(Term term, long timeout) throws RemoteException,
             SolverException {
 
         List<String> variables = getVariables();
@@ -223,7 +230,7 @@ public class ReduceRule extends RuleOperatingOnWholeSequence implements
                 } else {
                     throw new IllegalStateException(
                             "Dont know what to do if not readding quantifiers and "
-                                    + "trying to a skolem symbol with parameters to "
+                                    + "trying to add a skolem symbol with parameters to "
                                     + "the variable list");
                 }
             }
@@ -231,8 +238,15 @@ public class ReduceRule extends RuleOperatingOnWholeSequence implements
         if (DLOptionBean.INSTANCE.isSimplifyBeforeReduce()) {
             term = MathSolverManager.getCurrentSimplifier().simplify(term, getServices().getNamespaces());
         }
+        if (TRIVIALS.contains(term)) {
+            return term;
+        }
         term = MathSolverManager.getCurrentQuantifierEliminator().reduce(term,
-                variables, new LinkedList<PairOfTermAndQuantifierType>(),getServices().getNamespaces());
+                variables, new LinkedList<PairOfTermAndQuantifierType>(),getServices().getNamespaces(),
+                timeout);
+        if (TRIVIALS.contains(term)) {
+            return term;
+        }
         if (DLOptionBean.INSTANCE.isSimplifyAfterReduce()) {
             term = MathSolverManager.getCurrentSimplifier().simplify(term,getServices().getNamespaces());
         }

@@ -79,6 +79,8 @@ public interface IQuantifierEliminator extends IMathSolver {
      */
     public abstract Term reduce(Term form, NamespaceSet nss) throws RemoteException,
             SolverException;
+    public abstract Term reduce(Term form, NamespaceSet nss, long timeout) throws RemoteException,
+    SolverException;
 
     // /**
     // * Reduces the given term if its a mathematical expression
@@ -101,6 +103,9 @@ public interface IQuantifierEliminator extends IMathSolver {
     public abstract Term reduce(Term form, List<String> names,
             List<PairOfTermAndQuantifierType> quantifiers, NamespaceSet nss)
             throws RemoteException, SolverException;
+    public abstract Term reduce(Term form, List<String> names,
+            List<PairOfTermAndQuantifierType> quantifiers, NamespaceSet nss, long timeout)
+            throws RemoteException, SolverException;
 
     /**
      * Reduces the given term if its a mathematical expression
@@ -112,5 +117,8 @@ public interface IQuantifierEliminator extends IMathSolver {
      */
     public abstract Term reduce(Term query,
             List<PairOfTermAndQuantifierType> quantifiers, NamespaceSet nss)
+            throws RemoteException, SolverException;
+    public abstract Term reduce(Term query,
+            List<PairOfTermAndQuantifierType> quantifiers, NamespaceSet nss, long timeout)
             throws RemoteException, SolverException;
 }

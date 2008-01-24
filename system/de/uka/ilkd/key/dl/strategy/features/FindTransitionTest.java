@@ -60,7 +60,7 @@ public class FindTransitionTest implements Feature {
         TestThread thread = new TestThread(antecedent, pos.subTerm());
         thread.start();
         try {
-            thread.join(TIMEOUT);
+            thread.join(2*TIMEOUT);
         } catch (InterruptedException e) {
             System.out.println("Interrupted FindTransitionTest");
         }
@@ -102,7 +102,7 @@ public class FindTransitionTest implements Feature {
             result = Result.UNKNOWN;
             try {
                 string = MathSolverManager.getCurrentCounterExampleGenerator()
-                        .findTransition(term, modalFormula);
+                        .findTransition(term, modalFormula, TIMEOUT);
                 if (string.equals("")) {
                     result = Result.NO_COUNTER_EXAMPLE_AVAILABLE;
                 } else if(string.trim().equalsIgnoreCase("$Aborted")) {
