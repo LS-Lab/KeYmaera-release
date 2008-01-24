@@ -120,7 +120,7 @@ public class Expr2TermConverter implements ExprConstants {
                 Map<Name, LogicVariable> quantifiedVariables)
         throws RemoteException, ComputationException {
         try {
-            if (expr.toString().equalsIgnoreCase("$Aborted")) {
+            if (expr.toString().equalsIgnoreCase("$Aborted") || expr.toString().equalsIgnoreCase("Abort[]")) {
                 throw new IncompleteEvaluationException("Calculation aborted!");
             } else if (expr.toString().equalsIgnoreCase("$Failed")) {
                     throw new FailedComputationException("Calculation failed!");
