@@ -51,6 +51,8 @@ import org.w3c.dom.NodeList;
 import com.wolfram.jlink.Expr;
 import com.wolfram.jlink.KernelLink;
 
+import de.uka.ilkd.key.dl.arithmetics.exceptions.ConnectionProblemException;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.ServerStatusProblemException;
 import de.uka.ilkd.key.dl.utils.XMLReader;
 
 /**
@@ -389,6 +391,12 @@ public class CacheOnlyServer extends UnicastRemoteObject implements Remote,
      */
     public void resetAbortState() throws RemoteException {
         abort = false;
+    }
+
+    @Override
+    public long getTotalMemory() throws RemoteException,
+            ServerStatusProblemException, ConnectionProblemException {
+        return -1;
     }
 
 }

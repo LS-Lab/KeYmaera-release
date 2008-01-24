@@ -581,6 +581,10 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
         return getKernelWrapper().getTotalCalculationTime();
     }
 
+    public long getTotalMemory() throws RemoteException, ServerStatusProblemException, ConnectionProblemException {
+        return getKernelWrapper().getTotalMemory();
+    }
+
     /*
      * (non-Javadoc)
      * 

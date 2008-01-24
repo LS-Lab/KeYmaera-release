@@ -165,6 +165,15 @@ public interface IMathematicaDLBridge extends Remote {
     public long getTotalCalculationTime() throws RemoteException;
 
     /**
+     * Get the maximum number of bytes used while started.
+     * @return
+     * @throws RemoteException
+     * @throws ServerStatusProblemException
+     * @throws ConnectionProblemException
+     */
+    public long getTotalMemory() throws RemoteException, ServerStatusProblemException, ConnectionProblemException;
+
+    /**
      * Get the number of cached answers that were returned since the server was
      * started
      * 

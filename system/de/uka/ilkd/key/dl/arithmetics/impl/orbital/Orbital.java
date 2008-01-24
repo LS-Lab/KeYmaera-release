@@ -49,6 +49,8 @@ import orbital.math.functional.Operations;
 import org.w3c.dom.Node;
 
 import de.uka.ilkd.key.dl.arithmetics.IODESolver;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.ConnectionProblemException;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.ServerStatusProblemException;
 import de.uka.ilkd.key.dl.arithmetics.impl.orbital.DL2MatrixFormConverter.MatrixForm;
 import de.uka.ilkd.key.dl.logic.ldt.RealLDT;
 import de.uka.ilkd.key.dl.model.DLNonTerminalProgramElement;
@@ -384,6 +386,13 @@ public class Orbital implements IODESolver {
     public void resetAbortState() throws RemoteException {
         // TODO Auto-generated method stub
 
+    }
+
+    @Override
+    public long getTotalMemory() throws RemoteException,
+            ServerStatusProblemException, ConnectionProblemException {
+        // TODO Auto-generated method stub
+        return 0;
     }
 
 }

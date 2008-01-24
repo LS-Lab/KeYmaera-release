@@ -349,4 +349,10 @@ public class Mathematica implements ICounterExampleGenerator, IODESolver,
     throws RemoteException, SolverException {
 return bridge.findTransition(initial, modalForm, -1);
 }
+
+    @Override
+    public long getTotalMemory() throws RemoteException,
+            ServerStatusProblemException, ConnectionProblemException {
+        return bridge.getTotalMemory();
+    }
 }

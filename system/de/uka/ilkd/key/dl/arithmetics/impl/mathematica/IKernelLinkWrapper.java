@@ -141,6 +141,16 @@ public interface IKernelLinkWrapper extends Remote, Serializable {
     public long getTotalCalculationTime() throws RemoteException;
 
     /**
+     * Get the maximum number of bytes used while started.
+     * @return
+     * @throws RemoteException
+     * @throws ServerStatusProblemException
+     * @throws ConnectionProblemException
+     */
+    public long getTotalMemory() throws RemoteException, ServerStatusProblemException, ConnectionProblemException;
+
+    
+    /**
      * Reset the abort state.
      * 
      * @throws RemoteException
