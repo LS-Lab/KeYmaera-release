@@ -176,7 +176,7 @@ public class DiffWeakenFeature implements Feature {
             // if weakening provably successful, only use weakening
             return LongRuleAppCost.ZERO_COST;
 	}
-        System.out.println("HYPOy: " + diffweaken.rule().name());
+        System.out.print("HYPO: " + diffweaken.rule().name() + " "); System.out.flush();
 	Term weakenFml = TermBuilder.DF.imp(invariant, post);
         Sequent weakened = DiffSatFeature.changedSequent(pos, goal.sequent(),
                 DLUniversalClosureOp.DL_UNIVERSAL_CLOSURE.universalClosure(
@@ -184,7 +184,7 @@ public class DiffWeakenFeature implements Feature {
 		pos.subTerm());
         HypotheticalProvability result = HypotheticalProvabilityFeature
                 .provable(goal.proof(), weakened, MAX_STEPS, timeout);
-        System.out.println("HYPO:  " + diffweaken.rule().name() + " " + result);
+        System.out.println(" " + result);
         switch (result) {
         case PROVABLE:
             put(system, indexing, LongRuleAppCost.ZERO_COST);

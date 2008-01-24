@@ -91,9 +91,9 @@ public abstract class RuleOperatingOnWholeSequence extends Visitor implements
     public synchronized ListOfGoal apply(Goal goal, Services services,
             RuleApp ruleApp) {
         if (goal.getGoalStrategy() instanceof RealtimeStrategy) {
-            if (((RealtimeStrategy)goal.getGoalStrategy()).getTimeout(goal, ruleApp) <= 0) {
+            /*if (((RealtimeStrategy)goal.getGoalStrategy()).getTimeout(goal, ruleApp) <= 0) {
                 System.out.println("\tRTC " + ruleApp.rule().name() + " " + ((RealtimeStrategy)goal.getGoalStrategy()).getTimeout(goal, ruleApp)); //XXX
-            }
+            }*/
             return apply(goal, services, ruleApp,
                     ((RealtimeStrategy)goal.getGoalStrategy()).getTimeout(goal, ruleApp));
         } else {

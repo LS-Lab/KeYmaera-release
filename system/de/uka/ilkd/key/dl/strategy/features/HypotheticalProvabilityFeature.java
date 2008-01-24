@@ -409,6 +409,7 @@ public class HypotheticalProvabilityFeature implements Feature {
             try {
                 hypothesizer.join(2*timeout);
                 result = hypothesizer.getResult();
+                hypothesizer.giveUp = true;
                 switch (result) {
                 case TIMEOUT:
                 case UNKNOWN:

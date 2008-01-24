@@ -223,10 +223,10 @@ public class DiffSatFeature implements Feature {
             return TopRuleAppCost.INSTANCE;
         }
         if (LongRuleAppCost.ZERO_COST != cachedInitial) {
-            System.out.print("HYPOy: " + diffind.rule().name() + " initial for " + candidatePrint);
+            System.out.print("HYPO: " + diffind.rule().name() + " initial for " + candidatePrint);System.out.flush();
             HypotheticalProvability result = HypotheticalProvabilityFeature
                     .provable(goal.proof(), initial, MAX_STEPS, timeout, taboo);
-            System.out.print("HYPO:  " + diffind.rule().name() + " initial " + result + " for " + candidatePrint);
+            System.out.println(" " + result);
             switch (result) {
             case PROVABLE:
                 diffInitCache.put(initial, LongRuleAppCost.ZERO_COST);
@@ -253,10 +253,10 @@ public class DiffSatFeature implements Feature {
                     TermBuilder.DF.imp(candidate, post), null,
                     services, false);
             Sequent finish = changedSequent(pos, goal.sequent(), finishTerm, pos.subTerm());
-            System.out.print("HYPOy: " + diffind.rule().name() + " finish for " + candidatePrint);
+            System.out.print("HYPO: " + diffind.rule().name() + " finish for " + candidatePrint);System.out.println();
             HypotheticalProvability result = HypotheticalProvabilityFeature.provable(goal.proof(), finish, MAX_STEPS,
                     timeout, taboo);
-            System.out.print("HYPO:  " + diffind.rule().name() + " finish  " + result + " for " + candidatePrint);
+            System.out.println(" " + result);
             // TODO cache but remember that DLUniversalClosureOp introduces different variable names
             switch (result) {
             case PROVABLE:
@@ -290,10 +290,10 @@ public class DiffSatFeature implements Feature {
                 DiffInd.DIFFIND.diffInd(augTerm, services), null,
                 services, true);
         Sequent step = changedSequent(pos, goal.sequent(), stepFml, pos.subTerm());
-        System.out.print("HYPOy: " + diffind.rule().name() + " step     for " + candidatePrint);
+        System.out.print("HYPO: " + diffind.rule().name() + " step     for " + candidatePrint); System.out.flush();
         HypotheticalProvability result = HypotheticalProvabilityFeature.provable(goal.proof(), step, MAX_STEPS,
                 timeout, taboo);
-        System.out.print("HYPO:  " + diffind.rule().name() + " step    " + result + " for " + candidatePrint);
+        System.out.println(" " + result);
         switch (result) {
         case PROVABLE:
             put(system, candidate, LongRuleAppCost.ZERO_COST);
