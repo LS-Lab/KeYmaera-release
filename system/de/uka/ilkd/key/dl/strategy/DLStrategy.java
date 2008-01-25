@@ -697,6 +697,10 @@ public class DLStrategy extends AbstractFeatureStrategy implements RealtimeStrat
         if (blockAllRules) {
             return true;
         }
+        if (EliminateExistentialQuantifierRule.INSTANCE.filter(app.rule())) {
+            // TODO we should still allow, e.g., and-right to fight prohibitive complexity
+            return false;
+        }
         if (((foCache.containsKey(goal.node()) && foCache.get(goal.node()) == FirstOrder.FO) || FOSequence.INSTANCE
                 .compute(app, pio, goal) == LongRuleAppCost.ZERO_COST)) {
             foCache.put(goal.node(), FirstOrder.FO);
