@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2007 by Jan David Quesel, André Platzer                 *
+ *   Copyright (C) 2007 by Jan David Quesel, Andre Platzer                 *
  *   quesel@informatik.uni-oldenburg.de                                    *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -660,6 +660,14 @@ public class DLStrategy extends AbstractFeatureStrategy {
      * @return true iff the rule should be applied, false otherwise
      */
     public boolean isApprovedApp(RuleApp app, PosInOccurrence pio, Goal goal) {
+        System.out.println("Is approaved " + app.rule());//XXX 
+        if(app.rule() instanceof EliminateExistentialQuantifierRule) {
+            System.out.println("Is approved ex");//XXX 
+            System.out.println("testing");//XXX 
+            boolean b = !(EliminateExistentialApproveFeature.INSTANCE.compute(app, pio, goal) instanceof TopRuleAppCost);
+            System.out.println("Result: " + b);//XXX
+            return b;
+        }
         if (veto(app, pio, goal)) {
             return false;
         } else {

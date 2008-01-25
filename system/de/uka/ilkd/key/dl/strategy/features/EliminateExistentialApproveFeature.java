@@ -15,6 +15,8 @@ import de.uka.ilkd.key.logic.ConstrainedFormula;
 import de.uka.ilkd.key.logic.IteratorOfConstrainedFormula;
 import de.uka.ilkd.key.logic.Name;
 import de.uka.ilkd.key.logic.PosInOccurrence;
+import de.uka.ilkd.key.logic.Term;
+import de.uka.ilkd.key.logic.Visitor;
 import de.uka.ilkd.key.logic.op.Metavariable;
 import de.uka.ilkd.key.logic.op.Operator;
 import de.uka.ilkd.key.proof.Goal;
@@ -42,8 +44,20 @@ public class EliminateExistentialApproveFeature implements Feature {
      */
     @Override
     public RuleAppCost compute(RuleApp app, PosInOccurrence pos, Goal goal) {
-        if (app instanceof EliminateExistentialQuantifierRule) {
-            Operator op = app.posInOccurrence().subTerm().op();
+        if (app.rule() instanceof EliminateExistentialQuantifierRule) {
+            System.out.println("Testing ElimEx");//XXX 
+            final Operator[] ops = new Operator[1];
+            app.posInOccurrence().constrainedFormula().formula().execPreOrder(new Visitor() {
+
+                @Override
+                public void visit(Term visited) {
+                    if(visited.op() instanceof Metavariable) {
+                        ops[0] = visited.op();
+                    }
+                }
+                
+            });
+            Operator op = ops[0];
             if (!(op instanceof Metavariable)) {
                 return TopRuleAppCost.INSTANCE;
             }
@@ -61,6 +75,7 @@ public class EliminateExistentialApproveFeature implements Feature {
             }
             ListOfGoal openGoals = goal.proof().openGoals();
             IteratorOfGoal goalIt = openGoals.iterator();
+            System.out.println("Iterating over " + openGoals.size() + " goals");//XXX 
             while (goalIt.hasNext()) {
                 Goal curGoal = goalIt.next();
                 IteratorOfConstrainedFormula it = curGoal.sequent().iterator();
@@ -70,19 +85,19 @@ public class EliminateExistentialApproveFeature implements Feature {
                     Result res = ContainsMetaVariableVisitor
                             .containsMetaVariableAndIsFO(variables, next
                                     .formula());
+                    System.out.println("Res is " + res);//XXX 
+                    System.out.println("Result  was " + result);//XXX 
                     if ((result == Result.CONTAINS_VAR)
                             && (res == Result.CONTAINS_VAR_BUT_CANNOT_APPLY || res == Result.DOES_NOT_CONTAIN_VAR_AND_IS_NOT_FO)) {
-                        result = Result.CONTAINS_VAR_BUT_CANNOT_APPLY;
-                        break;
+                        return TopRuleAppCost.INSTANCE;
                     } else if (result == Result.DOES_NOT_CONTAIN_VAR_AND_IS_NOT_FO) {
                         if (res == Result.CONTAINS_VAR) {
                             result = Result.CONTAINS_VAR_BUT_CANNOT_APPLY;
                         }
-                    } else if (res == Result.CONTAINS_VAR) {
+                    } else if (res == Result.CONTAINS_VAR || res == Result.DOES_NOT_CONTAIN_VAR_AND_IS_NOT_FO) {
                         result = res;
                     } else if (res == Result.CONTAINS_VAR_BUT_CANNOT_APPLY) {
-                        result = res;
-                        break;
+                        return TopRuleAppCost.INSTANCE;
                     }
                 }
                 if (result == Result.CONTAINS_VAR_BUT_CANNOT_APPLY) {

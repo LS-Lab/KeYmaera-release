@@ -53,7 +53,8 @@ public class BuiltInRuleAppContainer extends RuleAppContainer {
         final BuiltInRule rule = (BuiltInRule) app.rule();
         final Constraint userConstraint = app.userConstraint();
         final PosInOccurrence pio = getBuiltInRuleApp().posInOccurrence();
-	
+        if ( !p_strategy.isApprovedApp(app, pio, p_goal) ) return null;
+        
         return new BuiltInRuleApp(rule, pio, userConstraint);
     }
 
