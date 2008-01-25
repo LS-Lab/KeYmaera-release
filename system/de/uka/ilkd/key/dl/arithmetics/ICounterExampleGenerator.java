@@ -49,7 +49,7 @@ public interface ICounterExampleGenerator extends IMathSolver {
      * @throws ServerStatusProblemException
      * 
      */
-    public abstract String findInstance(Term form) throws RemoteException,
+    public abstract String findInstance(Term form, long timeout) throws RemoteException,
             SolverException;
 
 
@@ -68,6 +68,6 @@ public interface ICounterExampleGenerator extends IMathSolver {
      * @throws ServerStatusProblemException
      * 
      */
-    public abstract String findTransition(Term initial, Term modalForm) throws RemoteException,
-            SolverException;
+    String findTransition(Term initial, Term modalForm, long timeout)
+            throws RemoteException, SolverException;
 }

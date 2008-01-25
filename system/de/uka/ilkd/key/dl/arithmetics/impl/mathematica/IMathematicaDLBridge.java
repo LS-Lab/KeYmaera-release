@@ -122,7 +122,7 @@ public interface IMathematicaDLBridge extends Remote {
      * @throws ConnectionProblemException
      * @throws ServerStatusProblemException
      */
-    public String findInstance(Term form) throws RemoteException,
+    public String findInstance(Term form, long tmeout) throws RemoteException,
             SolverException;
 
     /**
@@ -140,7 +140,7 @@ public interface IMathematicaDLBridge extends Remote {
      * @throws ServerStatusProblemException
      * 
      */
-    public String findTransition(Term initial, Term modalForm) throws RemoteException,
+    public String findTransition(Term initial, Term modalForm, long timeout) throws RemoteException,
             SolverException;
 
     /**
@@ -163,6 +163,15 @@ public interface IMathematicaDLBridge extends Remote {
      * @throws RemoteException
      */
     public long getTotalCalculationTime() throws RemoteException;
+
+    /**
+     * Get the maximum number of bytes used while started.
+     * @return
+     * @throws RemoteException
+     * @throws ServerStatusProblemException
+     * @throws ConnectionProblemException
+     */
+    public long getTotalMemory() throws RemoteException, ServerStatusProblemException, ConnectionProblemException;
 
     /**
      * Get the number of cached answers that were returned since the server was
@@ -207,6 +216,6 @@ public interface IMathematicaDLBridge extends Remote {
      * @throws UnableToConvertInputException
      */
     public Term reduce(Term form, List<String> additionalReduce,
-            List<PairOfTermAndQuantifierType> quantifiers, NamespaceSet nss)
+            List<PairOfTermAndQuantifierType> quantifiers, NamespaceSet nss, long timeout)
             throws RemoteException, SolverException;
 }

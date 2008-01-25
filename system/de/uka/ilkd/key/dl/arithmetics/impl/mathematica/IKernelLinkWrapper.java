@@ -80,6 +80,7 @@ public interface IKernelLinkWrapper extends Remote, Serializable {
      * @throws UnsolveableException 
      */
     public ExprAndMessages evaluate(Expr expr) throws RemoteException, ServerStatusProblemException, ConnectionProblemException, UnsolveableException;
+    public ExprAndMessages evaluate(Expr expr, long timeout) throws RemoteException, ServerStatusProblemException, ConnectionProblemException, UnsolveableException;
 
     /**
      * Interrupts the current calculation
@@ -139,6 +140,16 @@ public interface IKernelLinkWrapper extends Remote, Serializable {
      */
     public long getTotalCalculationTime() throws RemoteException;
 
+    /**
+     * Get the maximum number of bytes used while started.
+     * @return
+     * @throws RemoteException
+     * @throws ServerStatusProblemException
+     * @throws ConnectionProblemException
+     */
+    public long getTotalMemory() throws RemoteException, ServerStatusProblemException, ConnectionProblemException;
+
+    
     /**
      * Reset the abort state.
      * 

@@ -33,7 +33,7 @@ import de.uka.ilkd.key.rule.RuleApp;
  */
 public interface TestableBuiltInRule {
 
-    public boolean test(Goal goal, Services services, RuleApp app);
+    public boolean test(Goal goal, Services services, RuleApp app, long timeout);
 
     public Term getInputFormula();
 

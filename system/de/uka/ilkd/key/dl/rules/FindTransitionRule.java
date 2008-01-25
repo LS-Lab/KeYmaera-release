@@ -116,7 +116,7 @@ public class FindTransitionRule implements BuiltInRule, RuleFilter {
         try {
             final String result = MathSolverManager
                     .getCurrentCounterExampleGenerator().findTransition(
-                            antecedent, ruleApp.posInOccurrence().subTerm());
+                            antecedent, ruleApp.posInOccurrence().subTerm(), -1);
 
             SwingUtilities.invokeLater(new Runnable() {
 

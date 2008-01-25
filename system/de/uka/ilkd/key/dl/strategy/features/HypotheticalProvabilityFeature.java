@@ -253,7 +253,7 @@ public class HypotheticalProvabilityFeature implements Feature {
      * @param taboo which rules are not to be used (tabu) during the hypothetical proof. 
      * @return
      */
-    static Proof newHypotheticalProofFor(Proof context, Sequent seq, java.util.Set<Name> taboo) {
+    static Proof newHypotheticalProofFor(Proof context, Sequent seq, long timeout, java.util.Set<Name> taboo) {
         // new proof with settings like goal.proof() but goal as its
         // only goal
         Proof hypothetic = new Proof(new Name("hypothetic"), context, seq);
@@ -261,19 +261,22 @@ public class HypotheticalProvabilityFeature implements Feature {
         assert hgoal != null && hgoal.sequent().equals(seq);
         Strategy stopEarly;
         if (taboo == null ) {
-            stopEarly = DLStrategy.Factory.INSTANCE.create(hypothetic, null, true);
+            stopEarly = DLStrategy.Factory.INSTANCE.create(hypothetic, null, true, timeout);
         } else {
-            stopEarly = DLStrategy.Factory.INSTANCE.create(hypothetic, null, true, taboo);
+            stopEarly = DLStrategy.Factory.INSTANCE.create(hypothetic, null, true, timeout, taboo);
         }
         hgoal.setGoalStrategy(stopEarly);
         hypothetic.setActiveStrategy(stopEarly);
         return hypothetic;
     }
     static Proof newHypotheticalProofFor(Proof context, Sequent seq) {
-        return newHypotheticalProofFor(context, seq, null);
+        return newHypotheticalProofFor(context, seq, -1, null);
     }
     static Proof newHypotheticalProofFor(Goal goal) {
         return newHypotheticalProofFor(goal.proof(), goal.sequent());
+    }
+    static Proof newHypotheticalProofFor(Goal goal, long timeout) {
+        return newHypotheticalProofFor(goal.proof(), goal.sequent(), timeout, null);
     }
 
     /**
@@ -290,13 +293,13 @@ public class HypotheticalProvabilityFeature implements Feature {
             Set<Name> taboo) {
         // continue hypothetic proof to see if it closes/has
         // counterexamples
-        return provable(newHypotheticalProofFor(context, problem, taboo), maxsteps, timeout);
+        return provable(newHypotheticalProofFor(context, problem, timeout, taboo), maxsteps, timeout);
     }
     public static HypotheticalProvability provable(Proof context, Sequent problem,
             int maxsteps, long timeout) {
         // continue hypothetic proof to see if it closes/has
         // counterexamples
-        return provable(newHypotheticalProofFor(context, problem), maxsteps, timeout);
+        return provable(newHypotheticalProofFor(context, problem, timeout, null), maxsteps, timeout);
     }
 
     /**
@@ -309,7 +312,7 @@ public class HypotheticalProvabilityFeature implements Feature {
      * @return Result of proving goal.
      */
     public static HypotheticalProvability provable(Goal goal, int maxsteps, long timeout) {
-        Proof hypothetic = newHypotheticalProofFor(goal);
+        Proof hypothetic = newHypotheticalProofFor(goal, timeout);
         // continue hypothetic proof to see if it closes/has
         // counterexamples
         return provable(hypothetic, maxsteps, timeout);
@@ -329,7 +332,7 @@ public class HypotheticalProvabilityFeature implements Feature {
      */
     public static HypotheticalProvability provable(RuleApp app, Goal goal,
             int maxsteps, long timeout) {
-        Proof hypothetic = newHypotheticalProofFor(goal);
+        Proof hypothetic = newHypotheticalProofFor(goal, timeout);
         Goal hgoal = hypothetic.getGoal(hypothetic.root());
         // apply app on hypothetic proof
         apply(hgoal, app);
@@ -352,7 +355,7 @@ public class HypotheticalProvabilityFeature implements Feature {
      */
     public static HypotheticalProvability provable(RuleApp app, PosInOccurrence pos, Goal goal,
             int maxsteps, long timeout) {
-        Proof hypothetic = newHypotheticalProofFor(goal);
+        Proof hypothetic = newHypotheticalProofFor(goal, timeout);
         Goal hgoal = hypothetic.getGoal(hypothetic.root());
         if (!app.complete()) {
             // completing incomplete rule application
@@ -404,8 +407,9 @@ public class HypotheticalProvabilityFeature implements Feature {
             HypotheticalProvability result;
             hypothesizer.start();
             try {
-                hypothesizer.join(timeout);
+                hypothesizer.join(2*timeout);
                 result = hypothesizer.getResult();
+                hypothesizer.giveUp = true;
                 switch (result) {
                 case TIMEOUT:
                 case UNKNOWN:
@@ -668,7 +672,8 @@ public class HypotheticalProvabilityFeature implements Feature {
             Goal g = null;
             //ReuseListener rl = mediator.getReuseListener();
             //@todo could also use reuses as in ApplyStrategy rather than just producing them
-            while (!giveUp && (g = goalChooser.getNextGoal()) != null) {
+            while (!maxRuleApplicationOrTimeoutExceeded()
+                    && (g = goalChooser.getNextGoal()) != null) {
                 app = g.getRuleAppManager().next();
 
                 if (app == null)
@@ -686,7 +691,7 @@ public class HypotheticalProvabilityFeature implements Feature {
                 if (Thread.interrupted())
                     throw new InterruptedException();
             }
-	    if (giveUp) {
+	    if (maxRuleApplicationOrTimeoutExceeded()) {
 		return false;
 	    }
             assert g != null || app == null : "no chosen goal implies no rule app";  
@@ -737,7 +742,7 @@ public class HypotheticalProvabilityFeature implements Feature {
          *         has been reached
          */
         private boolean maxRuleApplicationOrTimeoutExceeded() {
-            return giveUp || countApplied >= maxApplications || timeout >= 0 ? System
+            return giveUp || Thread.interrupted() || countApplied >= maxApplications || timeout >= 0 ? System
                     .currentTimeMillis()
                     - time >= timeout
                     : false;

@@ -59,6 +59,7 @@ public class Reduce extends AbstractDLMetaOperator {
      */
     public Term calculate(Term term, SVInstantiations svInst, Services services) {
         try {
+            // TODO add timeout
             return MathSolverManager.getCurrentQuantifierEliminator().reduce(
                     term.sub(0), new ArrayList<PairOfTermAndQuantifierType>(),
                     services.getNamespaces());

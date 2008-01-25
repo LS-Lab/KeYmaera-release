@@ -24,6 +24,9 @@ package de.uka.ilkd.key.dl.arithmetics;
 
 import java.rmi.RemoteException;
 
+import de.uka.ilkd.key.dl.arithmetics.exceptions.ConnectionProblemException;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.ServerStatusProblemException;
+
 /**
  * The interface that every math solver has to implement.
  * 
@@ -58,6 +61,15 @@ public interface IMathSolver {
      * @throws RemoteException
      */
     public long getTotalCalculationTime() throws RemoteException;
+
+    /**
+     * Get the maximum number of bytes used while started.
+     * @return
+     * @throws RemoteException
+     * @throws ServerStatusProblemException
+     * @throws ConnectionProblemException
+     */
+    public long getTotalMemory() throws RemoteException, ServerStatusProblemException, ConnectionProblemException;
 
     /**
      * Get the number of cached answers that were returned since the server was

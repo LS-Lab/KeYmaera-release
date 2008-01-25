@@ -87,10 +87,10 @@ public class TimeoutTestApplicationFeature implements Feature {
             Rule rule = app.rule();
             if (rule instanceof TestableBuiltInRule) {
                 TestableBuiltInRule tbr = (TestableBuiltInRule) rule;
-                TestThread testThread = new TestThread(goal, tbr, app);
+                TestThread testThread = new TestThread(goal, tbr, app, timeout);
                 testThread.start();
                 try {
-                    testThread.join(timeout);
+                    testThread.join(2*timeout);
                     if (testThread.getResult() == TestResult.SUCCESS) {
 
                         // only accept formulas that are really better than the
@@ -183,11 +183,14 @@ public class TimeoutTestApplicationFeature implements Feature {
 
         private TestResult result;
 
-        public TestThread(Goal goal, TestableBuiltInRule rule, RuleApp app) {
+        private long timeout;
+
+        public TestThread(Goal goal, TestableBuiltInRule rule, RuleApp app, long timeout) {
             this.goal = goal;
             this.rule = rule;
             this.app = app;
             this.result = TestResult.UNKNOWN;
+            this.timeout = timeout;
         }
 
         /*
@@ -199,7 +202,7 @@ public class TimeoutTestApplicationFeature implements Feature {
         public void run() {
             //@TODO pass goal.proof().getServices() instead?
             if (rule.test(goal, Main.getInstance().mediator().getServices(),
-                    app)) {
+                    app, timeout)) {
                 result = TestResult.SUCCESS;
             } else {
                 if (rule.isUnsolvable()) {

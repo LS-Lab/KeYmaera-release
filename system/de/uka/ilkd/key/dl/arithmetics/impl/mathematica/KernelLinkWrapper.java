@@ -53,6 +53,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.wolfram.jlink.Expr;
+import com.wolfram.jlink.ExprFormatException;
 import com.wolfram.jlink.KernelLink;
 import com.wolfram.jlink.MathLinkException;
 import com.wolfram.jlink.MathLinkFactory;
@@ -93,6 +94,8 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 
     public static final String IDENTITY = "KernelLink";
 
+    private static final Expr TIMECONSTRAINED = new Expr(Expr.SYMBOL, "TimeConstrained");
+
     private Map<Expr, ExprAndMessages> cache;
 
     private KernelLink link;
@@ -113,6 +116,8 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
     private static final long serialVersionUID = -9153166120825653744L;
 
     private static final int MAX_CACHE_SIZE = 10000;
+
+    private static final Expr MEMORYCONSUMPTION = new Expr(new Expr(Expr.SYMBOL,"MaxMemoryUsed"), new Expr[]{});
 
     private Logger logger;
 
@@ -313,30 +318,46 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
      * 
      * @see de.uka.ilkd.key.dl.IKernelLinkWrapper#evaluate(com.wolfram.jlink.Expr)
      */
-    public synchronized ExprAndMessages evaluate(Expr expr)
+    public synchronized ExprAndMessages evaluate(Expr expr, long timeout)
             throws RemoteException, ServerStatusProblemException, ConnectionProblemException, UnsolveableException {
+        return evaluate(expr, timeout, true);
+    }
+        public synchronized ExprAndMessages evaluate(Expr expr, long timeout, boolean allowCache)
+        throws RemoteException, ServerStatusProblemException, ConnectionProblemException, UnsolveableException {
         // if (abort) {
         // throw new IllegalStateException("Abort forced");
         // }
         log(Level.FINEST, "Connection established!");// XXX
         try {
             callCount++;
-            log(Level.FINEST, "Start evaluating: " + expr);
+            if (timeout <= 0) {
+                log(Level.FINEST, "Start evaluating: " + expr);
+            } else {
+                log(Level.FINEST, "Start timed evaluating: " + expr);
+            }
             long curTime = System.currentTimeMillis();
             log(Level.INFO, "Time: "
                     + SimpleDateFormat.getTimeInstance().format(curTime));
             log(Level.FINEST, "Checking cache");
-            if (cache.containsKey(expr)) {
+            if (allowCache && cache.containsKey(expr)) {
                 cachedAnwsers++;
                 log(Level.FINEST, "Returning cached anwser!");
                 ExprAndMessages exprAndMessages = cache.get(expr);
                 log(Level.FINEST, exprAndMessages.expression.toString());
                 return exprAndMessages;
             }
+            // wrap inside time constraints
+            final Expr compute = timeout <= 0
+            ? expr
+                    : new Expr(TIMECONSTRAINED, new Expr[] {
+                            expr,
+                            new Expr((timeout+999) / 1000)
+                    });
             log(Level.FINEST, "Clearing link state");
             link.newPacket();
             log(Level.FINEST, "Start evaluation");
-            Expr check = new Expr(new Expr(Expr.SYMBOL,"Check"), new Expr[] { expr,
+            // wrap inside exception checks
+            Expr check = new Expr(new Expr(Expr.SYMBOL,"Check"), new Expr[] { compute,
                     new Expr("$Exception"), mBlist });
             link.evaluate(check);
             testForError(link);
@@ -359,7 +380,7 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
                 link.evaluate("$MessageList");
                 link.waitForAnswer();
                 Expr msg = link.getExpr();
-                throw new UnsolveableException("Cannot solve " + expr.toString()
+                throw new UnsolveableException("Cannot solve " + compute.toString()
                         + " because message " + msg + " of the messages in " + messageBlacklist
                         + " occured");
             }
@@ -370,7 +391,7 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
             link.newPacket();
             testForError(link);
             log(Level.FINEST, "Checking for messages");
-//            link.evaluate("Messages[" + expr.head().toString() + "]");
+//            link.evaluate("Messages[" + compute.head().toString() + "]");
             link.evaluate("$MessageList");
             link.waitForAnswer();
             Expr msg = link.getExpr();
@@ -392,7 +413,10 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
                 cache.clear();
             }
             if (!"$Aborted".equalsIgnoreCase(result.toString())) {
-                cache.put(expr, exprAndMessages);
+                if (allowCache) {
+                    // put to cache without time constraints
+                    cache.put(expr, exprAndMessages);
+                }
             } else {
                 abort = false;
             }
@@ -413,6 +437,10 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
                     e);
         }
 
+    }
+    public synchronized ExprAndMessages evaluate(Expr expr)
+    throws RemoteException, ServerStatusProblemException, ConnectionProblemException, UnsolveableException {
+        return evaluate(expr, -1);
     }
 
     private void log(Level level, String message) {
@@ -473,6 +501,20 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
      */
     public long getTotalCalculationTime() throws RemoteException {
         return addTime;
+    }
+
+    public long getTotalMemory() throws RemoteException, ServerStatusProblemException, ConnectionProblemException {
+        // TODO assuming server hasn't been killed during the computations
+        try {
+            Expr result = evaluate(MEMORYCONSUMPTION, -1, false).expression;
+            return result.asLong();
+        } catch (UnsolveableException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            throw new IllegalStateException("this is not supposed to happen");
+        } catch (ExprFormatException e) {
+            throw new IllegalStateException("this result is not supposed to happen: ");
+        }        
     }
 
     /*

@@ -33,6 +33,7 @@ import de.uka.ilkd.key.dl.options.DLOptionBean;
 import de.uka.ilkd.key.dl.rules.UnknownProgressRule;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DLUniversalClosureOp;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DiffInd;
+import de.uka.ilkd.key.dl.strategy.RuleAppCostTimeout;
 import de.uka.ilkd.key.dl.strategy.features.HypotheticalProvabilityFeature.HypotheticalProvability;
 import de.uka.ilkd.key.gui.Main;
 import de.uka.ilkd.key.java.Services;
@@ -209,24 +210,25 @@ public class DiffSatFeature implements Feature {
         //System.out.println("instantiation " + candidate + " for SV 'augmented'");
 
         // diffind
-        if (TopRuleAppCost.INSTANCE.equals(get(system, candidate))) {
+        RuleAppCost cached = RuleAppCostTimeout.superior(timeout, get(system, candidate));
+        if (cached != null) {
             //@todo also recursively check whether subsets of system are invariant, or supersets of system are not invariant 
-            return TopRuleAppCost.INSTANCE;
+            return cached;
         }
 
 
         //System.out.println("HYPO: " + diffind.rule().name() + " initial " + candidate);
         // diffind:"Invariant Initially Valid"
         Sequent initial = changedSequent(pos, goal.sequent(), TermBuilder.DF.imp(invariant, candidate), pos.subTerm());
-        RuleAppCost cachedInitial = diffInitCache.get(initial);
-        if (TopRuleAppCost.INSTANCE == cachedInitial) {
-            return TopRuleAppCost.INSTANCE;
+        RuleAppCost cachedInitial = RuleAppCostTimeout.superior(timeout,diffInitCache.get(initial));
+        if (cachedInitial!= null && (TopRuleAppCost.INSTANCE == cachedInitial || HypotheticalProvabilityFeature.TIMEOUT_COST.equals(cachedInitial))) {
+            return cachedInitial;
         }
         if (LongRuleAppCost.ZERO_COST != cachedInitial) {
-            System.out.print("HYPOy: " + diffind.rule().name() + " initial for " + candidatePrint);
+            System.out.print("HYPO: " + diffind.rule().name() + " initial for " + candidatePrint);System.out.flush();
             HypotheticalProvability result = HypotheticalProvabilityFeature
                     .provable(goal.proof(), initial, MAX_STEPS, timeout, taboo);
-            System.out.print("HYPO:  " + diffind.rule().name() + " initial " + result + " for " + candidatePrint);
+            System.out.println(" " + result);
             switch (result) {
             case PROVABLE:
                 diffInitCache.put(initial, LongRuleAppCost.ZERO_COST);
@@ -241,6 +243,7 @@ public class DiffSatFeature implements Feature {
             case TIMEOUT:
                 // resultCache.put(firstNodeAfterBranch,
                 // LongRuleAppCost.create(1));
+                diffInitCache.put(initial, RuleAppCostTimeout.create(timeout));
                 return HypotheticalProvabilityFeature.TIMEOUT_COST;
             default:
                 throw new AssertionError("enum known");
@@ -253,10 +256,10 @@ public class DiffSatFeature implements Feature {
                     TermBuilder.DF.imp(candidate, post), null,
                     services, false);
             Sequent finish = changedSequent(pos, goal.sequent(), finishTerm, pos.subTerm());
-            System.out.print("HYPOy: " + diffind.rule().name() + " finish for " + candidatePrint);
+            System.out.print("HYPO: " + diffind.rule().name() + " finish for " + candidatePrint);System.out.println();
             HypotheticalProvability result = HypotheticalProvabilityFeature.provable(goal.proof(), finish, MAX_STEPS,
                     timeout, taboo);
-            System.out.print("HYPO:  " + diffind.rule().name() + " finish  " + result + " for " + candidatePrint);
+            System.out.println(" " + result);
             // TODO cache but remember that DLUniversalClosureOp introduces different variable names
             switch (result) {
             case PROVABLE:
@@ -277,9 +280,6 @@ public class DiffSatFeature implements Feature {
         
         
         // diffind:"ODE Preserves Invariant"
-        if (get(system, candidate) != null) {
-            return get(system, candidate);
-        }
         //System.out.println("HYPO: " + diffind.rule().name() + " step " + candidate);
         Term augTerm = de.uka.ilkd.key.logic.TermFactory.DEFAULT.createProgramTerm(
                     term.op(),
@@ -290,10 +290,10 @@ public class DiffSatFeature implements Feature {
                 DiffInd.DIFFIND.diffInd(augTerm, services), null,
                 services, true);
         Sequent step = changedSequent(pos, goal.sequent(), stepFml, pos.subTerm());
-        System.out.print("HYPOy: " + diffind.rule().name() + " step     for " + candidatePrint);
+        System.out.print("HYPO: " + diffind.rule().name() + " step     for " + candidatePrint); System.out.flush();
         HypotheticalProvability result = HypotheticalProvabilityFeature.provable(goal.proof(), step, MAX_STEPS,
                 timeout, taboo);
-        System.out.print("HYPO:  " + diffind.rule().name() + " step    " + result + " for " + candidatePrint);
+        System.out.println(" " + result);
         switch (result) {
         case PROVABLE:
             put(system, candidate, LongRuleAppCost.ZERO_COST);
@@ -308,6 +308,7 @@ public class DiffSatFeature implements Feature {
         case TIMEOUT:
             // resultCache.put(firstNodeAfterBranch,
             // LongRuleAppCost.create(1));
+            put(system, candidate, RuleAppCostTimeout.create(timeout));
             return HypotheticalProvabilityFeature.TIMEOUT_COST;
         default:
             throw new AssertionError("enum known");

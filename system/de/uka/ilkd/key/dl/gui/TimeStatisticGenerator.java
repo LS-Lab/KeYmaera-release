@@ -31,6 +31,8 @@ import javax.swing.SwingUtilities;
 
 import de.uka.ilkd.key.dl.arithmetics.IMathSolver;
 import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.ConnectionProblemException;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.ServerStatusProblemException;
 import de.uka.ilkd.key.gui.AutoModeListener;
 import de.uka.ilkd.key.proof.ProofEvent;
 
@@ -123,6 +125,18 @@ public class TimeStatisticGenerator implements AutoModeListener {
     public long getTotalCaclulationTime() throws RemoteException {
         IMathSolver solver = MathSolverManager.getCurrentQuantifierEliminator();
         return solver.getTotalCalculationTime();
+    }
+
+    /**
+     * Get the maximum number of bytes used while started.
+     * @return
+     * @throws RemoteException
+     * @throws ServerStatusProblemException
+     * @throws ConnectionProblemException
+     */
+    public long getTotalMemory() throws RemoteException, ServerStatusProblemException, ConnectionProblemException {
+        IMathSolver solver = MathSolverManager.getCurrentQuantifierEliminator();
+        return solver.getTotalMemory();
     }
 
     /**

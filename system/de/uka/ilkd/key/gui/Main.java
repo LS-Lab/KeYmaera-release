@@ -86,6 +86,8 @@ import org.apache.log4j.Logger;
 
 import de.uka.ilkd.key.dl.DLInitializer;
 import de.uka.ilkd.key.dl.DLProfile;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.ConnectionProblemException;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.ServerStatusProblemException;
 import de.uka.ilkd.key.dl.gui.TimeStatisticGenerator;
 import de.uka.ilkd.key.dl.options.DLOptionBean;
 import de.uka.ilkd.key.gui.assistant.*;
@@ -1395,6 +1397,10 @@ public class Main extends JFrame {
                                 + (((double) TimeStatisticGenerator.INSTANCE
                                         .getTotalCaclulationTime()) / 1000d);
                         stats += "\n"
+                            + "Arithmetic Memory: "
+                            + (((double) TimeStatisticGenerator.INSTANCE
+                                    .getTotalMemory()) / 1024d / 1024d) + " Mb";
+                        stats += "\n"
                                 + "CachedAnwsers/Queries: "
                                 + TimeStatisticGenerator.INSTANCE
                                         .getCachedAnwsers() + " / "
@@ -1402,6 +1408,12 @@ public class Main extends JFrame {
                         stats += "\n"
                             + "Program Variables: " + mediator.namespaces().programVariables().elements().size();
                     } catch (RemoteException e1) {
+                        // if there is an exception the statistic is not
+                        // displayed
+                    } catch (ServerStatusProblemException e1) {
+                        // if there is an exception the statistic is not
+                        // displayed
+                    } catch (ConnectionProblemException e1) {
                         // if there is an exception the statistic is not
                         // displayed
                     }
