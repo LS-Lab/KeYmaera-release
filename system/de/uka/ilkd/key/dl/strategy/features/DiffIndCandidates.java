@@ -71,6 +71,8 @@ import de.uka.ilkd.key.strategy.termgenerator.TermGenerator;
  * @author ap
  */
 public class DiffIndCandidates implements TermGenerator {
+    private static final boolean DEBUG_GENERATOR = false;
+
 
     public final static TermGenerator INSTANCE = new DiffIndCandidates();
 
@@ -195,8 +197,10 @@ public class DiffIndCandidates implements TermGenerator {
             // find formulas that only refer to cluster
             Set<Term> matches = selectMatchingCandidates(possibles, cluster,
                     modifieds, frees);
-            System.out.println("    GENERATORS: for minimum " + min + " with its cluster "
+            if (DEBUG_GENERATOR) {
+                System.out.println("    GENERATORS: for minimum " + min + " with its cluster "
                     + cluster + " generators are " + matches);
+            }
             if (!matches.isEmpty()) {
                 // only add subsets of size 1
                 for (Term t : matches) {
@@ -231,7 +235,9 @@ public class DiffIndCandidates implements TermGenerator {
             }
             // lazily add all nonempty subsets of size>1
             resultPowerGenerators2.add(matches);
-            System.out.println("    EXTRA-GENERATORS: are " + extraGenerators);
+            if (DEBUG_GENERATOR) {
+                System.out.println("    EXTRA-GENERATORS: are " + extraGenerators);
+            }
         }
 
         Collections.sort(orderedResultConjuncts, sizeComparator);
@@ -356,23 +362,20 @@ public class DiffIndCandidates implements TermGenerator {
             AssignmentPair ass = asss.getAssignmentPair(i);
             Term xhp = ass.locationAsTerm();
             assert xhp.arity() == 0 : "only works for atomic locations";
-            // @todo assert namespaces.unique
-            final Term x = tb
-                    .var((de.uka.ilkd.key.logic.op.ProgramVariable) services
-                            .getNamespaces().programVariables().lookup(
-                                    ass.location().name()));
+            assert ass.location() instanceof de.uka.ilkd.key.logic.op.ProgramVariable  : "expecting arity 0 program variables";
+            de.uka.ilkd.key.logic.op.ProgramVariable x = (de.uka.ilkd.key.logic.op.ProgramVariable) ass.location();
             Term t = ass.value();
             // System.out.println(x + "@" + x.getClass());
             // turn single update into equation
             Term revertedt = revert.apply(t);
-            if (TermTools.occursIn(x, revertedt)) {
+            if (TermTools.occursIn(xhp, revertedt)) {
                 // if x occurs in t then can't do that without alpha-renaming stuff
                 continue;
             }
-            Term equation = tb.equals(x, revertedt);
+            Term equation = tb.equals(xhp, revertedt);
             assert equation.op() instanceof de.uka.ilkd.key.logic.op.Equality : "different equalities shouldn't be mixed up: "
                     + " "
-                    + x
+                    + xhp
                     + " equaling "
                     + revertedt
                     + " gives "

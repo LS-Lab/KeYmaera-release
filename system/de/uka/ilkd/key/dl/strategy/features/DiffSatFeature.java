@@ -290,7 +290,7 @@ public class DiffSatFeature implements Feature {
                 DiffInd.DIFFIND.diffInd(augTerm, services), null,
                 services, true);
         Sequent step = changedSequent(pos, goal.sequent(), stepFml, pos.subTerm());
-        System.out.print("HYPO: " + diffind.rule().name() + " step     for " + candidatePrint); System.out.flush();
+        System.out.print("HYPO: " + diffind.rule().name() + " step    for " + candidatePrint); System.out.flush();
         HypotheticalProvability result = HypotheticalProvabilityFeature.provable(goal.proof(), step, MAX_STEPS,
                 timeout, taboo);
         System.out.println(" " + result);
