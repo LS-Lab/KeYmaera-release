@@ -46,6 +46,7 @@ import de.uka.ilkd.key.dl.formulatools.TermTools;
 import de.uka.ilkd.key.dl.formulatools.ContainsMetaVariableVisitor.Result;
 import de.uka.ilkd.key.dl.formulatools.TermRewriter.Match;
 import de.uka.ilkd.key.dl.options.DLOptionBean;
+import de.uka.ilkd.key.dl.strategy.features.FOSequence;
 import de.uka.ilkd.key.gui.Main;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.logic.ConstrainedFormula;
@@ -81,8 +82,7 @@ import de.uka.ilkd.key.rule.RuleApp;
  * @since 27.08.2007
  * 
  */
-public class 
-EliminateExistentialQuantifierRule implements BuiltInRule,
+public class EliminateExistentialQuantifierRule implements BuiltInRule,
         UnknownProgressRule, IrrevocableRule, RuleFilter {
 
     /**
@@ -152,23 +152,25 @@ EliminateExistentialQuantifierRule implements BuiltInRule,
      */
     public synchronized ListOfGoal apply(Goal goal, Services services,
             RuleApp ruleApp) {
-//        Operator op = ruleApp.posInOccurrence().subTerm().op();
+        // Operator op = ruleApp.posInOccurrence().subTerm().op();
         final Operator[] ops = new Operator[1];
-        ruleApp.posInOccurrence().constrainedFormula().formula().execPreOrder(new Visitor() {
+        ruleApp.posInOccurrence().constrainedFormula().formula().execPreOrder(
+                new Visitor() {
 
-            @Override
-            public void visit(Term visited) {
-                if(visited.op() instanceof Metavariable) {
-                    ops[0] = visited.op();
-                }
-            }
-            
-        });
+                    @Override
+                    public void visit(Term visited) {
+                        if (visited.op() instanceof Metavariable) {
+                            ops[0] = visited.op();
+                        }
+                    }
+
+                });
         Operator op = ops[0];
         if (!(op instanceof Metavariable)) {
             throw new IllegalArgumentException(
                     "This rule can only be applied to Metavariables. Found: "
-                            + op + "[" + ((op!=null)?op.getClass():null) + "]");
+                            + op + "[" + ((op != null) ? op.getClass() : null)
+                            + "]");
         }
         List<Metavariable> variables = new ArrayList<Metavariable>();
         if (ruleApp instanceof ReduceRuleApp) {
@@ -329,10 +331,12 @@ EliminateExistentialQuantifierRule implements BuiltInRule,
             Set<Term> findSkolemSymbols = findSkolemSymbols(g.sequent()
                     .iterator());
 
-            Term antecendent = TermTools.createJunctorTermNAry(TermBuilder.DF.tt(),
-                    Op.AND, g.sequent().antecedent().iterator(), commonAnte);
-            Term succendent = TermTools.createJunctorTermNAry(TermBuilder.DF.ff(), Op.OR,
-                    g.sequent().succedent().iterator(), commonSucc);
+            Term antecendent = TermTools.createJunctorTermNAry(TermBuilder.DF
+                    .tt(), Op.AND, g.sequent().antecedent().iterator(),
+                    commonAnte);
+            Term succendent = TermTools.createJunctorTermNAry(TermBuilder.DF
+                    .ff(), Op.OR, g.sequent().succedent().iterator(),
+                    commonSucc);
             Set<Match> matches = new HashSet<Match>();
             List<LogicVariable> vars = new ArrayList<LogicVariable>();
             Term imp = TermBuilder.DF.imp(antecendent, succendent);
@@ -361,13 +365,14 @@ EliminateExistentialQuantifierRule implements BuiltInRule,
         }
 
         query = TermBuilder.DF.imp(ante, TermBuilder.DF.or(query, succ));
-        if(!commonMatches.isEmpty()) {
+        if (!commonMatches.isEmpty()) {
             query = TermRewriter.replace(query, commonMatches);
         }
         for (Term sk : SkolemfunctionTracker.INSTANCE.getOrderedList(commonVars
                 .keySet())) {
             query = TermBuilder.DF.all(commonVars.get(sk), query);
-            //TODO: check if we can avoid adding these variables to the namespace...
+            // TODO: check if we can avoid adding these variables to the
+            // namespace...
             services.getNamespaces().variables().add(commonVars.get(sk));
         }
         List<PairOfTermAndQuantifierType> quantifiers = new LinkedList<PairOfTermAndQuantifierType>();
@@ -383,12 +388,12 @@ EliminateExistentialQuantifierRule implements BuiltInRule,
 
         try {
             if (DLOptionBean.INSTANCE.isSimplifyBeforeReduce()) {
-                query = MathSolverManager.getCurrentSimplifier()
-                        .simplify(query, services.getNamespaces());
+                query = MathSolverManager.getCurrentSimplifier().simplify(
+                        query, services.getNamespaces());
             }
             Term resultTerm = MathSolverManager
-                    .getCurrentQuantifierEliminator()
-                    .reduce(query, quantifiers, services.getNamespaces());
+                    .getCurrentQuantifierEliminator().reduce(query,
+                            quantifiers, services.getNamespaces());
             if (DLOptionBean.INSTANCE.isSimplifyAfterReduce()) {
                 resultTerm = MathSolverManager.getCurrentSimplifier().simplify(
                         resultTerm, services.getNamespaces());
@@ -493,16 +498,46 @@ EliminateExistentialQuantifierRule implements BuiltInRule,
      */
     public boolean isApplicable(Goal goal, PosInOccurrence pio,
             Constraint userConstraint) {
-//        if (MathSolverManager.isQuantifierEliminatorSet()
-//                && ((DLOptionBean.INSTANCE.isSimplifyBeforeReduce() || DLOptionBean.INSTANCE
-//                        .isSimplifyAfterReduce()) ? MathSolverManager
-//                        .isSimplifierSet() : true)) {
-//            return pio != null && pio.subTerm() != null
-//                    && pio.subTerm().op() instanceof Metavariable;
-//        } else {
-//            return false;
-//        }
-        return true;
+        // if (MathSolverManager.isQuantifierEliminatorSet()
+        // && ((DLOptionBean.INSTANCE.isSimplifyBeforeReduce() ||
+        // DLOptionBean.INSTANCE
+        // .isSimplifyAfterReduce()) ? MathSolverManager
+        // .isSimplifierSet() : true)) {
+        // return pio != null && pio.subTerm() != null
+        // && pio.subTerm().op() instanceof Metavariable;
+        // } else {
+        // return false;
+        // }
+        if (MathSolverManager.isQuantifierEliminatorSet()
+                && pio != null
+                && pio.constrainedFormula() != null
+                && ((DLOptionBean.INSTANCE.isSimplifyBeforeReduce() || DLOptionBean.INSTANCE
+                        .isSimplifyAfterReduce()) ? MathSolverManager
+                        .isSimplifierSet() : true)) {
+            final Operator[] ops = new Operator[1];
+            final boolean[] fo = new boolean[1];
+            fo[0] = true;
+            pio.constrainedFormula().formula().execPreOrder(new Visitor() {
+
+                @Override
+                public void visit(Term visited) {
+                    if (visited.op() instanceof Metavariable) {
+                        ops[0] = visited.op();
+                    } else if (!FOSequence.isFOOperator(visited.op())) {
+                        fo[0] = false;
+                    }
+                }
+
+            });
+            Operator op = ops[0];
+            if (!fo[0] || !(op instanceof Metavariable)) {
+                return false;
+            }
+
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /*
@@ -528,7 +563,6 @@ EliminateExistentialQuantifierRule implements BuiltInRule,
         return displayName();
     }
 
- 
     /**
      * @return the unsolvable
      */
@@ -541,7 +575,9 @@ EliminateExistentialQuantifierRule implements BuiltInRule,
         return parent.childrenCount() > 1;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see de.uka.ilkd.key.proof.RuleFilter#filter(de.uka.ilkd.key.rule.Rule)
      */
     @Override

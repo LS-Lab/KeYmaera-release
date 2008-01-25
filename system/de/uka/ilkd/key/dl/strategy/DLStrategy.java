@@ -342,9 +342,12 @@ public class DLStrategy extends AbstractFeatureStrategy implements RealtimeStrat
                 .createConditional(EliminateQuantifierRule.INSTANCE,
                         inftyConst());
         
+        // if the sequent is first order, we can try to apply the rule...
+        // the strat should still avoid applying it, if there is another
+        // goal containing a relevant MV that is not totally first order
         final Feature eliminateExistentialQuantifier = ConditionalFeature
         .createConditional(EliminateExistentialQuantifierRule.INSTANCE,
-                inftyConst()/*longConst(19000)*/);
+                SumFeature.createSum(new Feature[] { longConst(19000), FOSequence.INSTANCE}));
         // final Feature eliminateQuantifier = ConditionalFeature
         // .createConditional(EliminateQuantifierRule.INSTANCE, add(
         // longConst(5000), FOFormsContainingSymbol.INSTANCE));
@@ -667,14 +670,6 @@ public class DLStrategy extends AbstractFeatureStrategy implements RealtimeStrat
      * @return true iff the rule should be applied, false otherwise
      */
     public boolean isApprovedApp(RuleApp app, PosInOccurrence pio, Goal goal) {
-        System.out.println("Is approaved " + app.rule());//XXX 
-        if(app.rule() instanceof EliminateExistentialQuantifierRule) {
-            System.out.println("Is approved ex");//XXX 
-            System.out.println("testing");//XXX 
-            boolean b = !(EliminateExistentialApproveFeature.INSTANCE.compute(app, pio, goal) instanceof TopRuleAppCost);
-            System.out.println("Result: " + b);//XXX
-            return b;
-        }
         if (veto(app, pio, goal)) {
             return false;
         } else {

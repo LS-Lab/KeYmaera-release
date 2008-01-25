@@ -45,7 +45,6 @@ public class EliminateExistentialApproveFeature implements Feature {
     @Override
     public RuleAppCost compute(RuleApp app, PosInOccurrence pos, Goal goal) {
         if (app.rule() instanceof EliminateExistentialQuantifierRule) {
-            System.out.println("Testing ElimEx");//XXX 
             final Operator[] ops = new Operator[1];
             app.posInOccurrence().constrainedFormula().formula().execPreOrder(new Visitor() {
 
@@ -75,7 +74,6 @@ public class EliminateExistentialApproveFeature implements Feature {
             }
             ListOfGoal openGoals = goal.proof().openGoals();
             IteratorOfGoal goalIt = openGoals.iterator();
-            System.out.println("Iterating over " + openGoals.size() + " goals");//XXX 
             while (goalIt.hasNext()) {
                 Goal curGoal = goalIt.next();
                 IteratorOfConstrainedFormula it = curGoal.sequent().iterator();
@@ -85,8 +83,6 @@ public class EliminateExistentialApproveFeature implements Feature {
                     Result res = ContainsMetaVariableVisitor
                             .containsMetaVariableAndIsFO(variables, next
                                     .formula());
-                    System.out.println("Res is " + res);//XXX 
-                    System.out.println("Result  was " + result);//XXX 
                     if ((result == Result.CONTAINS_VAR)
                             && (res == Result.CONTAINS_VAR_BUT_CANNOT_APPLY || res == Result.DOES_NOT_CONTAIN_VAR_AND_IS_NOT_FO)) {
                         return TopRuleAppCost.INSTANCE;

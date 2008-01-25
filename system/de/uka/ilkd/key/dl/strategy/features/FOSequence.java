@@ -46,12 +46,25 @@ import de.uka.ilkd.key.strategy.feature.Feature;
  * @since 20.02.2007
  * @todo undo this slowish synchronization stuff after thinking about it properly
  */
-public class FOSequence extends Visitor implements Feature {
+public class FOSequence implements Feature {
 
     public static final FOSequence INSTANCE = new FOSequence();
 
-    private boolean notFO = false;
-
+    public static class FOTestVisitor extends Visitor {
+        
+        boolean notFO = false;
+        
+        /* (non-Javadoc)
+         * @see de.uka.ilkd.key.logic.Visitor#visit(de.uka.ilkd.key.logic.Term)
+         */
+        @Override
+        public void visit(Term visited) {
+            if (!isFOOperator(visited.op())) {
+                notFO = true;
+            }            
+        }
+    }
+    
     /*
      * (non-Javadoc)
      * 
@@ -67,46 +80,34 @@ public class FOSequence extends Visitor implements Feature {
         }
     }
 
-    public synchronized boolean isFOSequent(Sequent seq) {
+    public boolean isFOSequent(Sequent seq) {
         IteratorOfConstrainedFormula it = seq.iterator();
         while (it.hasNext()) {
-            notFO = false;
-            it.next().formula().execPreOrder(this);
-            if (notFO) {
+            FOTestVisitor visitor = new FOTestVisitor();
+            it.next().formula().execPreOrder(visitor);
+            if (visitor.notFO) {
                 return false;
             }
         }
         return true;
     }
     
-    public synchronized boolean isFOFormulas(IteratorOfConstrainedFormula formulas) {
+    public boolean isFOFormulas(IteratorOfConstrainedFormula formulas) {
         IteratorOfConstrainedFormula it = formulas;
         while (it.hasNext()) {
-            notFO = false;
-            it.next().formula().execPreOrder(this);
-            if (notFO) {
+            FOTestVisitor visitor = new FOTestVisitor();
+            it.next().formula().execPreOrder(visitor);
+            if (visitor.notFO) {
                 return false;
             }
         }
         return true;
     }
 
-    public synchronized boolean isFOFormula(Term t) {
-        notFO = false;
-        t.execPreOrder(this);
-        return !notFO;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see de.uka.ilkd.key.logic.Visitor#visit(de.uka.ilkd.key.logic.Term)
-     */
-    @Override
-    public void visit(Term visited) {
-        if (!isFOOperator(visited.op())) {
-            notFO = true;
-        }
+    public boolean isFOFormula(Term t) {
+        FOTestVisitor visitor = new FOTestVisitor();
+        t.execPreOrder(visitor);
+        return !visitor.notFO;
     }
 
     /**
