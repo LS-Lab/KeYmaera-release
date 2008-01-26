@@ -358,7 +358,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
     public List<Update> createUpdates(Expr expr, NamespaceSet nss)
             throws RemoteException, SolverException {
         List<Update> result = new ArrayList<Update>();
-        if (expr.toString().equalsIgnoreCase("$Aborted")) {
+        if (expr.toString().equalsIgnoreCase("$Aborted") || expr.toString().contains("Abort[]")) {
             throw new IncompleteEvaluationException("Calculation aborted!");
         }
         if (expr.head().equals(LIST)) {
@@ -612,8 +612,8 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
         try {
             getKernelWrapper().resetAbortState();
         } catch (Exception e) {
-            System.err.println("Exception occerred in resetAbortState");// XXX
-            e.printStackTrace();
+            System.err.println("Exception occurred in resetAbortState: " + e);// XXX
+            //e.printStackTrace();
             System.err.println("In most cases this can safely be ignored"); // XXX
         }
     }

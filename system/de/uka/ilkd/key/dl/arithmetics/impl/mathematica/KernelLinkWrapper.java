@@ -412,7 +412,7 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
             if (cache.size() > MAX_CACHE_SIZE) {
                 cache.clear();
             }
-            if (!"$Aborted".equalsIgnoreCase(result.toString())) {
+            if (!"$Aborted".equalsIgnoreCase(result.toString()) && !result.toString().contains("Abort[]")) {
                 if (allowCache) {
                     // put to cache without time constraints
                     cache.put(expr, exprAndMessages);
