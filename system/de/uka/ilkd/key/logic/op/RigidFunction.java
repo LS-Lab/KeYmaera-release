@@ -79,4 +79,7 @@ public class RigidFunction extends Function {
 		return type == FunctionType.MATHFUNCTION;
 	}
 	
+	public String toString() {
+	    return super.toString() + (isSkolem() ? "$Sk" : "");
+	}
 }

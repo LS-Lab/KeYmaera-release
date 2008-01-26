@@ -43,7 +43,11 @@ import de.uka.ilkd.key.gui.KeYMediator;
 import de.uka.ilkd.key.gui.Main;
 import de.uka.ilkd.key.gui.ReuseListener;
 import de.uka.ilkd.key.java.Services;
+import de.uka.ilkd.key.logic.IteratorOfNamed;
 import de.uka.ilkd.key.logic.Name;
+import de.uka.ilkd.key.logic.Named;
+import de.uka.ilkd.key.logic.Namespace;
+import de.uka.ilkd.key.logic.NamespaceSet;
 import de.uka.ilkd.key.logic.PosInOccurrence;
 import de.uka.ilkd.key.logic.Sequent;
 import de.uka.ilkd.key.logic.Term;
@@ -291,16 +295,28 @@ public class HypotheticalProvabilityFeature implements Feature {
     public static HypotheticalProvability provable(Proof context, Sequent problem,
             int maxsteps, long timeout,
             Set<Name> taboo) {
+        NamespaceSet copy = null;
+        assert (copy = context.getServices().getNamespaces().copy()) != null;
         // continue hypothetic proof to see if it closes/has
         // counterexamples
-        return provable(newHypotheticalProofFor(context, problem, timeout, taboo), maxsteps, timeout);
+        try {
+            return provable(newHypotheticalProofFor(context, problem, timeout, taboo), maxsteps, timeout);
+        } finally {
+            assert context.getServices().getNamespaces().equalContent(copy) : "no change in original namespaces\n" + printDelta(copy, context.getServices().getNamespaces());
+        }
     }
     public static HypotheticalProvability provable(Proof context, Sequent problem,
             int maxsteps, long timeout) {
+        NamespaceSet copy = null;
+        assert (copy = context.getServices().getNamespaces().copy()) != null;
         // continue hypothetic proof to see if it closes/has
         // counterexamples
-        return provable(newHypotheticalProofFor(context, problem, timeout, null), maxsteps, timeout);
-    }
+        try {
+            return provable(newHypotheticalProofFor(context, problem, timeout, null), maxsteps, timeout);
+        } finally {
+            assert context.getServices().getNamespaces().equalContent(copy) : "no change in original namespaces\n" + printDelta(copy, context.getServices().getNamespaces());
+        }
+   }
 
     /**
      * Determines whether the given goal can finally be proven.
@@ -312,10 +328,16 @@ public class HypotheticalProvabilityFeature implements Feature {
      * @return Result of proving goal.
      */
     public static HypotheticalProvability provable(Goal goal, int maxsteps, long timeout) {
+        NamespaceSet copy = null;
+        assert (copy = goal.proof().getServices().getNamespaces().copy()) != null;
         Proof hypothetic = newHypotheticalProofFor(goal, timeout);
         // continue hypothetic proof to see if it closes/has
         // counterexamples
-        return provable(hypothetic, maxsteps, timeout);
+        try {
+            return provable(hypothetic, maxsteps, timeout);
+        } finally {
+            assert goal.proof().getServices().getNamespaces().equalContent(copy) : "no change in original namespaces\n" + printDelta(copy, goal.proof().getServices().getNamespaces());
+        }
     }
 
     /**
@@ -330,8 +352,10 @@ public class HypotheticalProvabilityFeature implements Feature {
      *                the maximum time how long the proof is attempted to close.
      * @return Result of proving goal.
      */
-    public static HypotheticalProvability provable(RuleApp app, Goal goal,
+    /*public static HypotheticalProvability provable(RuleApp app, Goal goal,
             int maxsteps, long timeout) {
+        NamespaceSet copy = null;
+        assert (copy = goal.proof().getServices().getNamespaces().copy()) != null;
         Proof hypothetic = newHypotheticalProofFor(goal, timeout);
         Goal hgoal = hypothetic.getGoal(hypothetic.root());
         // apply app on hypothetic proof
@@ -339,8 +363,13 @@ public class HypotheticalProvabilityFeature implements Feature {
         Debug.out("HYPO: after first application");
         // continue hypothetic proof to see if it closes/has
         // counterexamples
-        return provable(hypothetic, maxsteps, timeout);
-    }
+        try {
+            return provable(hypothetic, maxsteps, timeout);
+        }
+        finally {
+            assert goal.proof().getServices().getNamespaces().equalContent(copy) : "no change in original namespaces\n" + printDelta(copy, goal.proof().getServices().getNamespaces());
+        }
+    }*/
     /**
      * Determines whether the given goal can finally be proven by applying the
      * given RuleApp, by possibly completing the RuleApp at the specified pos.
@@ -355,6 +384,8 @@ public class HypotheticalProvabilityFeature implements Feature {
      */
     public static HypotheticalProvability provable(RuleApp app, PosInOccurrence pos, Goal goal,
             int maxsteps, long timeout) {
+        NamespaceSet copy = null;
+        assert (copy = goal.proof().getServices().getNamespaces().copy()) != null;
         Proof hypothetic = newHypotheticalProofFor(goal, timeout);
         Goal hgoal = hypothetic.getGoal(hypothetic.root());
         if (!app.complete()) {
@@ -368,12 +399,22 @@ public class HypotheticalProvabilityFeature implements Feature {
         // apply app on hypothetic proof
         apply(hgoal, app);
         Debug.out("HYPO: after first application");
+        assert goal.proof().getServices().getNamespaces().equalContent(copy) : "no change in original namespaces\n" + printDelta(copy, goal.proof().getServices().getNamespaces());
         // continue hypothetic proof to see if it closes/has
         // counterexamples
-        return provable(hypothetic, maxsteps, timeout);
+        try {
+            return provable(hypothetic, maxsteps, timeout);
+        }
+        finally {
+            if (!goal.proof().getServices().getNamespaces().equalContent(copy)) {
+                System.out.println("WARNING:  change in original namespaces"); //+ printDelta(copy, goal.proof().getServices().getNamespaces());
+                // TODO undo this HACK
+                //goal.proof().getServices().setNamespaces(copy);
+            }
+            //assert goal.proof().getServices().getNamespaces().equalContent(copy) : "no change in original namespaces\n" + printDelta(copy, goal.proof().getServices().getNamespaces());
+        }
     }
-    
-    
+
     // background proving engine
     
     private static Collection<HypothesizeThread> running = new LinkedHashSet<HypothesizeThread>(10);
@@ -792,4 +833,41 @@ public class HypotheticalProvabilityFeature implements Feature {
             }
         }
     }
+
+
+    // debug helper 
+    /**
+     * prints the difference of two namespacesets
+     */
+    private static boolean printDelta(NamespaceSet a, NamespaceSet b) {
+        NamespaceSet c = new NamespaceSet();
+        System.out.println("Sort delta");
+        printDelta(a.sorts(), b.sorts());
+        System.out.println("RuleSet delta");
+        printDelta(a.ruleSets(), b.ruleSets());
+        System.out.println("Function delta");
+        printDelta(a.functions(), b.functions());
+        System.out.println("Variables delta");
+        printDelta(a.variables(), b.variables());
+        System.out.println("ProgramVariables delta");
+        printDelta(a.programVariables(), b.programVariables());
+        System.out.println("Choices delta");
+        printDelta(a.choices(), b.choices());
+        return true;
+    }
+    private static void printDelta(Namespace a, Namespace b) {
+        for (IteratorOfNamed it = a.elements().iterator(); it.hasNext();) {
+            Named n = it.next();
+            if (b.lookup(n.name()) == null) {
+                System.out.println("  A\\B: " + n);
+            }
+        }
+        for (IteratorOfNamed it = b.elements().iterator(); it.hasNext();) {
+            Named n = it.next();
+            if (a.lookup(n.name()) == null) {
+                System.out.println("  B\\A: " + n);
+            }
+        }
+    }
+    
 }

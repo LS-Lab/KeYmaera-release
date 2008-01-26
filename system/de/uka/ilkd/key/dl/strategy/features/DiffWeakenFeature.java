@@ -78,7 +78,7 @@ public class DiffWeakenFeature implements Feature {
      * @note The cached formula is UNSOUND because of missing universal closures.
      *  This is intentionally so, because DLUniversalClosure otherwise introduces new variables rendering caching useless.
      */
-    private Map<DiffSystem, Map<Sequent,RuleAppCost>> diffWeakenCache = new HashMap<DiffSystem, Map<Sequent,RuleAppCost>>();
+    private /**/static/**/ final Map<DiffSystem, Map<Sequent,RuleAppCost>> diffWeakenCache = new HashMap<DiffSystem, Map<Sequent,RuleAppCost>>();
 
     public static final DiffWeakenFeature INSTANCE = new DiffWeakenFeature();
 
