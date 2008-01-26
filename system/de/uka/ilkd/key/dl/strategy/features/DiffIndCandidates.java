@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Set;
+import java.util.WeakHashMap;
 
 import orbital.util.Setops;
 import de.uka.ilkd.key.dl.formulatools.Prog2LogicConverter;
@@ -497,8 +498,22 @@ public class DiffIndCandidates implements TermGenerator {
         return modifieds;
     }
 
+
+    /**
+     * Caches transitive dependency information for DiffSystems.getDifferentialFragment()
+     * @internal we exploit that dependency information for DiffSystems does not depend on invariant regions.
+     */
+//    private final Map<DiffSystem, Map<de.uka.ilkd.key.logic.op.ProgramVariable, LinkedHashSet<de.uka.ilkd.key.logic.op.ProgramVariable>>> dependencyCache =
+//        new WeakHashMap<DiffSystem, Map<de.uka.ilkd.key.logic.op.ProgramVariable, LinkedHashSet<de.uka.ilkd.key.logic.op.ProgramVariable>>>();
     private Map<de.uka.ilkd.key.logic.op.ProgramVariable, LinkedHashSet<de.uka.ilkd.key.logic.op.ProgramVariable>> computeTranstitiveDependencies(
             final DLProgram program, Services services) {
+//        if (program instanceof DiffSystem) {
+//            Map<de.uka.ilkd.key.logic.op.ProgramVariable, LinkedHashSet<de.uka.ilkd.key.logic.op.ProgramVariable>> cached = 
+//                dependencyCache.get(((DiffSystem)program).getDifferentialFragment());
+//            if (cached != null) {
+//                return cached;
+//            }
+//        }
         Map<de.uka.ilkd.key.dl.model.ProgramVariable, LinkedHashSet<de.uka.ilkd.key.dl.model.ProgramVariable>> dep = computeDependencies(program);
         final Map<de.uka.ilkd.key.dl.model.ProgramVariable, LinkedHashSet<de.uka.ilkd.key.dl.model.ProgramVariable>> tdep = DependencyStateGenerator
                 .createTransitiveClosure(dep);
@@ -517,6 +532,9 @@ public class DiffIndCandidates implements TermGenerator {
             }
             convertedtdep.put(Prog2LogicConverter.getCorresponding(s.getKey(), services), converted);
         }
+//        if (program instanceof DiffSystem) {
+//            dependencyCache.put(((DiffSystem)program).getDifferentialFragment(), convertedtdep);
+//        }
         return convertedtdep;
     }
 

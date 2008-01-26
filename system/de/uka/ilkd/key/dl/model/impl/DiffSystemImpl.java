@@ -140,4 +140,26 @@ public class DiffSystemImpl extends DLNonTerminalProgramElementImpl implements
         return equations;
     }
 
+    @Override
+    public DiffSystem getDifferentialFragment() {
+        List<Formula> equations = new ArrayList<Formula>();
+        for (ProgramElement el : this) {
+            if (isDifferentialEquation(el)) {
+                equations.add((Formula)el);
+            }
+        }
+        return new DiffSystemImpl(equations);
+    }
+
+    @Override
+    public DiffSystem getInvariantFragment() {
+        List<Formula> equations = new ArrayList<Formula>();
+        for (ProgramElement el : this) {
+            if (!isDifferentialEquation(el)) {
+                equations.add((Formula)el);
+            }
+        }
+        return new DiffSystemImpl(equations);
+    }
+
 }
