@@ -240,4 +240,20 @@ public class Namespace implements java.io.Serializable {
 	numLocalSyms=0;
     }
 
+    public boolean equalContent(Namespace ns) {
+        for (IteratorOfNamed it = elements().iterator(); it.hasNext();) {
+            Named n = it.next();
+            if (ns.lookup(n.name()) == null) {
+                return false;
+            }
+        }
+        for (IteratorOfNamed it = ns.elements().iterator(); it.hasNext();) {
+            Named n = it.next();
+            if (lookup(n.name()) == null) {
+                return false;
+            }
+        }
+        return true;
+    }
+    
 }

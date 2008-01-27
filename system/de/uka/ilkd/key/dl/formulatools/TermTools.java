@@ -98,6 +98,7 @@ public class TermTools {
                 if (b.toString().equals(fml.toString())) {
                     // @todo assert namespaces.unique
                     System.out.println(" WARNING: identical printout with different representation " + b + " and " + fml);
+                    //findDelta(b, fml);
                     // FIXME string comparison is an ugly hack
                     continue all;
                 }
@@ -106,6 +107,24 @@ public class TermTools {
         }
         return true;
     }
+
+    // debugging helper
+    private static void findDelta(Term b, Term fml) {
+        if (b.equals(fml)) {
+            return;
+        }
+        if (b.arity() != fml.arity()) {
+            System.out.println("arity difference " + b + " : " + b.arity() + "\t" + fml + " : " + fml.arity());
+        }
+        if (!b.op().equals(fml.op())) {
+            System.out.println("operator difference " + b + " : " + b.op() + "@" + b.op().getClass() + "\t" + fml + " : " + fml.op() + "@" + fml.op().getClass());
+            System.out.println();
+        }
+        for (int i = 0; i < b.arity(); i++) {
+            findDelta(b.sub(i), fml.sub(i));
+        }
+    }
+
 
     /**
      * Quickly checks whether sup subsumes sub, i.e., all conjuncts of formula sub are identical to
