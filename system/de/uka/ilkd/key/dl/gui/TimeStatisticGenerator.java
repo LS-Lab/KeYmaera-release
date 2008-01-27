@@ -134,9 +134,15 @@ public class TimeStatisticGenerator implements AutoModeListener {
      * @throws ServerStatusProblemException
      * @throws ConnectionProblemException
      */
-    public long getTotalMemory() throws RemoteException, ServerStatusProblemException, ConnectionProblemException {
+    public long getTotalMemory() throws RemoteException {
         IMathSolver solver = MathSolverManager.getCurrentQuantifierEliminator();
-        return solver.getTotalMemory();
+        try {
+            return solver.getTotalMemory();
+        } catch (ServerStatusProblemException e) {
+            return -1;
+        } catch (ConnectionProblemException e) {
+            return -1;
+        }
     }
 
     /**

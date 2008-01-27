@@ -136,6 +136,7 @@ sub fileline {
 
 sub handlefile {
    my ($dotkey, $resultscheme) = @_;
+   if ($dotkey =~ /#$/) {return 2;}
    my @split = split(/ /, $dotkey);
    $dotkey = $split[0];
    my $timeout = -1;
@@ -152,6 +153,8 @@ sub handlefile {
 
 
    foreach my $headerfile (@headerDL) {
+       if ($headerfile =~ /#$/) {
+       } else {
 	   $headerfile =~ s/\n$//;
 	   my $stripped = $headerfile;
        $stripped =~ s/^\s+//;
@@ -199,6 +202,7 @@ sub handlefile {
 		   &processReturn (2, "error in proof with $headerfile", $dotkey);
 		 }
 	   }
+       }
    }
    }
 
@@ -223,8 +227,7 @@ sub produceResultText {
 
 sub runAuto {
   my ($dk, $realfilename, $headerfile, $timeout, $expectedresult) = @_;
-  my $name = "/../examples/statistics.csv";
-  my $statfile = $absolute_bin_path . $name;
+  my $statfile = $absolute_bin_path . "/" . $path_to_pe . "statistics.csv";
   my $tmp = "/tmp/statistics.tmp.$$";
   my $result;
   my $pid;

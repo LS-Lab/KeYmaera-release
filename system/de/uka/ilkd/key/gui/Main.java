@@ -1410,12 +1410,6 @@ public class Main extends JFrame {
                     } catch (RemoteException e1) {
                         // if there is an exception the statistic is not
                         // displayed
-                    } catch (ServerStatusProblemException e1) {
-                        // if there is an exception the statistic is not
-                        // displayed
-                    } catch (ConnectionProblemException e1) {
-                        // if there is an exception the statistic is not
-                        // displayed
                     }
 
                     JOptionPane
