@@ -81,13 +81,13 @@ public class DiffSatFeature implements Feature {
      * A==>B,[D&H]F
      * caches at A==>B,{U}(H->F)
      */
-    private /**/static/**/ final Map<Sequent,RuleAppCost> diffInitCache = new HashMap<Sequent,RuleAppCost>();
+    private final Map<Sequent,RuleAppCost> diffInitCache = new WeakHashMap<Sequent,RuleAppCost>();
 
     /**
      * Remembers diffinds for the given [D]F modality.
      * diffAugCache.get(D).get(A) remembers whether A is diffind for [D] 
      */
-    private /**/static/**/ final Map<DiffSystem, Map<Term,RuleAppCost>> diffIndCache = new HashMap<DiffSystem, Map<Term,RuleAppCost>>();
+    private final Map<DiffSystem, Map<Term,RuleAppCost>> diffIndCache = new WeakHashMap<DiffSystem, Map<Term,RuleAppCost>>();
 
     public static final DiffSatFeature INSTANCE = new DiffSatFeature(null);
     
@@ -336,7 +336,7 @@ public class DiffSatFeature implements Feature {
     private RuleAppCost put(DiffSystem system, Term candidate, RuleAppCost cost) {
         Map<Term,RuleAppCost> cache = diffIndCache.get(system);
         if (cache == null)
-            cache = new HashMap<Term,RuleAppCost>(10);
+            cache = new WeakHashMap<Term,RuleAppCost>(10);
         RuleAppCost old = cache.put(candidate, cost);
         diffIndCache.put(system, cache);
         return old;
