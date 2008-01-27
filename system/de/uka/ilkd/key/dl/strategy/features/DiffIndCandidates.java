@@ -587,6 +587,7 @@ public class DiffIndCandidates implements TermGenerator {
         private Iterator<Term> lazySource = null;
 
         private Iterator<Term> lazyInit() {
+            System.out.println("UNlazying");
             List<Set<Term>> orderedResultConjuncts = new ArrayList<Set<Term>>();
             for (Set<Term> matches : resultPowerGenerators) {
                 // add all nonempty subsets of size > 1 (because size 1 has already been covered)
@@ -594,6 +595,7 @@ public class DiffIndCandidates implements TermGenerator {
                 subsets.remove(Collections.EMPTY_SET);
                 subsets.removeAll(alreadyCoveredConjuncts);
                 subsets.removeAll(orderedResultConjuncts);
+                orderedResultConjuncts.addAll(subsets);
                 alreadyCoveredConjuncts.addAll(subsets);
             }
             Collections.sort(orderedResultConjuncts, sizeComparator);
@@ -604,6 +606,7 @@ public class DiffIndCandidates implements TermGenerator {
                 subsets.remove(Collections.EMPTY_SET);
                 subsets.removeAll(alreadyCoveredConjuncts);
                 subsets.removeAll(orderedResultConjuncts);
+                orderedResultConjuncts.addAll(subsets);
                 alreadyCoveredConjuncts.addAll(subsets);
             }
             Collections.sort(orderedResultConjuncts, sizeComparator);
@@ -615,6 +618,20 @@ public class DiffIndCandidates implements TermGenerator {
             // remove trivial candidates
             result.remove(tb.ff());
             result.remove(tb.tt());
+            if (true) { 
+                System.out.println("LAZY INDCANDIDATE ...");
+                for (Term c : result) {
+                    try {
+                        final LogicPrinter lp = new LogicPrinter(new ProgramPrinter(
+                                null), Main.getInstance().mediator().getNotationInfo(), Main.getInstance().mediator().getServices());
+                        lp.printTerm(c);
+                        System.out.print("...  " + lp.toString());
+                    } catch (Exception ignore) {
+                        System.out.println("......  " + c.toString());
+                        ignore.printStackTrace();
+                    }
+                }
+            }
             return result.iterator();
         }
         public LazyPowerGenerator(Set<Set<Term>> resultConjuncts,
