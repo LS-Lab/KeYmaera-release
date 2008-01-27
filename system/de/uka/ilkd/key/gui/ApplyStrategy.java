@@ -320,10 +320,14 @@ public class ApplyStrategy {
             else
                 statPrinter.print ( "" + countApplied + ", " + time );
             if (ProofSettings.DEFAULT_SETTINGS.getProfile() instanceof DLProfile) {
+                try {
                 statPrinter.print(",  " + (((double) TimeStatisticGenerator.INSTANCE
                         .getTotalCaclulationTime()) / 1000d)
-                        + "s, " + ((long)(((double) TimeStatisticGenerator.INSTANCE
+                        + "s, " + (((long)((double) TimeStatisticGenerator.INSTANCE
                                 .getTotalMemory()) / 1024d / 1024d*1000)/1000) + "Mb ");
+                } catch (Exception e) {
+                    statPrinter.print(",  -1, -1 ");
+                }
             }
             statPrinter.println();
             statPrinter.close();

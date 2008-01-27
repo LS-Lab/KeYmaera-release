@@ -1398,8 +1398,8 @@ public class Main extends JFrame {
                                         .getTotalCaclulationTime()) / 1000d);
                         stats += "\n"
                             + "Arithmetic Memory: "
-                            + (((double) TimeStatisticGenerator.INSTANCE
-                                    .getTotalMemory()) / 1024d / 1024d) + " Mb";
+                            + (((long)((double) TimeStatisticGenerator.INSTANCE
+                                    .getTotalMemory()) / 1024d / 1024d*1000)/1000) + " Mb";
                         stats += "\n"
                                 + "CachedAnwsers/Queries: "
                                 + TimeStatisticGenerator.INSTANCE
