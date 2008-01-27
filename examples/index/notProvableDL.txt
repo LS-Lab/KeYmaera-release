@@ -1,3 +1,4 @@
 ./hybrid/dev/reduce-progress.key
 ./hybrid/dev/random-3.key
 ./hybrid/dev/bouncing-ball-wrong.key
+./hybrid/dev/exist-elim3.key

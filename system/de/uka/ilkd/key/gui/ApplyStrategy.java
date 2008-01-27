@@ -28,7 +28,12 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.uka.ilkd.key.dl.DLProfile;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.ConnectionProblemException;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.ServerStatusProblemException;
 import de.uka.ilkd.key.dl.gui.AutomodeListener;
+import de.uka.ilkd.key.dl.gui.TimeStatisticGenerator;
+import de.uka.ilkd.key.gui.configuration.ProofSettings;
 import de.uka.ilkd.key.gui.notification.events.GeneralFailureEvent;
 import de.uka.ilkd.key.proof.*;
 import de.uka.ilkd.key.proof.proofevent.IteratorOfNodeReplacement;
@@ -311,9 +316,16 @@ public class ApplyStrategy {
             
             statPrinter.print ( fileName + ", " );
             if ("Error".equals ( result ) )
-                statPrinter.println ( "-1, -1" );
+                statPrinter.print ( "-1, -1" );
             else
-                statPrinter.println ( "" + countApplied + ", " + time );                
+                statPrinter.print ( "" + countApplied + ", " + time );
+            if (ProofSettings.DEFAULT_SETTINGS.getProfile() instanceof DLProfile) {
+                statPrinter.print(",  " + (((double) TimeStatisticGenerator.INSTANCE
+                        .getTotalCaclulationTime()) / 1000d)
+                        + "s, " + ((long)(((double) TimeStatisticGenerator.INSTANCE
+                                .getTotalMemory()) / 1024d / 1024d*1000)/1000) + "Mb ");
+            }
+            statPrinter.println();
             statPrinter.close();
         } catch ( IOException e ) {}
     }
