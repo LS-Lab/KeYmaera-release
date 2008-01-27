@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Set;
+import java.util.WeakHashMap;
 
 import orbital.util.SequenceIterator;
 import orbital.util.Setops;
@@ -279,7 +280,7 @@ public class DiffIndCandidates implements TermGenerator {
         /**
          * Cache for clusters of terms
          */
-        final Map<Term, Set<de.uka.ilkd.key.logic.op.ProgramVariable>> clusters = new HashMap<Term, Set<de.uka.ilkd.key.logic.op.ProgramVariable>>();
+        final Map<Term, Set<de.uka.ilkd.key.logic.op.ProgramVariable>> clusters = new WeakHashMap<Term, Set<de.uka.ilkd.key.logic.op.ProgramVariable>>();
         return new Comparator<Set<Term>>() {
             /**
              * Get the cluster of a term, i.e., all its ProgramVariables including transitive dependencies

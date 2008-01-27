@@ -406,7 +406,9 @@ public class HypotheticalProvabilityFeature implements Feature {
             return provable(hypothetic, maxsteps, timeout);
         }
         finally {
-            if (!goal.proof().getServices().getNamespaces().equalContent(copy)) {
+            boolean assertions = false;
+            assert assertions = true;
+            if (assertions && !goal.proof().getServices().getNamespaces().equalContent(copy)) {
                 System.out.println("WARNING:  change in original namespaces"); //+ printDelta(copy, goal.proof().getServices().getNamespaces());
                 // TODO undo this HACK
                 //goal.proof().getServices().setNamespaces(copy);
