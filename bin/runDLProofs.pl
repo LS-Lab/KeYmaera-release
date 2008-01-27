@@ -7,7 +7,8 @@ use strict;
 use Net::SMTP;
 use Getopt::Std;
 use POSIX ":sys_wait_h";
-
+use Sys::Hostname;
+    
 my %option = ();
 getopts("hcm:", \%option);
 
@@ -227,7 +228,7 @@ sub produceResultText {
 
 sub runAuto {
   my ($dk, $realfilename, $headerfile, $timeout, $expectedresult) = @_;
-  my $statfile = $absolute_bin_path . "/" . $path_to_pe . "statistics.csv";
+  my $statfile = $absolute_bin_path . "/" . $path_to_pe . "statistics-" . hostname . ".csv";
   my $tmp = "/tmp/statistics.tmp.$$";
   my $result;
   my $pid;
