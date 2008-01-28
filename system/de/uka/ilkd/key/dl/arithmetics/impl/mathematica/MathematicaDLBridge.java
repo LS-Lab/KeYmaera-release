@@ -329,10 +329,6 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
         for (ProgramElement el : form.getDifferentialEquations()) {
             args.add(DL2ExprConverter.convertDiffEquation(el, t, EMPTY));
         }
-        Expr loading = new Expr(new Expr(Expr.SYMBOL, "Needs"),
-                new Expr[] { new Expr(Expr.STRING, "AMC`"),
-                        new Expr(Expr.STRING, "~/AMC.m") });
-        // evaluate(loading);
         if (Debug.ENABLE_DEBUG) {
             System.out.println(diffOperator
                     + ": "
@@ -348,9 +344,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
                         // new Expr(Expr.SYMBOL, t.name().toString()),
                         new Expr(new Expr(Expr.SYMBOL, "List"), args
                                 .toArray(new Expr[1])), });
-        Expr query = new Expr(new Expr(Expr.SYMBOL, "CompoundExpression"),
-                new Expr[] { loading, diffCall });
-        Expr diffIndExpression = evaluate(query).expression;
+        Expr diffIndExpression = evaluate(diffCall).expression;
 
         return TermBuilder.DF.imp(invariant, convert(diffIndExpression, nss));
     }
@@ -689,9 +683,6 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
         for (ProgramElement el : system.getDifferentialEquations()) {
             args.add(DL2ExprConverter.convertDiffEquation(el, t, vars));
         }
-        Expr loading = new Expr(new Expr(Expr.SYMBOL, "Needs"),
-                new Expr[] { new Expr(Expr.STRING, "AMC`"),
-                        new Expr(Expr.STRING, "~/AMC.m") });
         Expr call = new Expr(new Expr(Expr.SYMBOL, "AMC`" + "IFindTransition"),
                 new Expr[] {
                         Term2ExprConverter.convert2Expr(initial),
@@ -710,9 +701,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
                             new Expr(CEX_TRANSITION_INSTANCES)
                         })
                       });
-        Expr query = new Expr(new Expr(Expr.SYMBOL, "CompoundExpression"),
-                new Expr[] { loading, call });
-        Expr result = evaluate(query, timeout).expression;
+        Expr result = evaluate(call, timeout).expression;
 
         List<String> createFindInstanceString = createFindInstanceString(result);
         Collections.sort(createFindInstanceString);
