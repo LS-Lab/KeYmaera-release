@@ -153,24 +153,21 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
     public synchronized ListOfGoal apply(Goal goal, Services services,
             RuleApp ruleApp) {
         // Operator op = ruleApp.posInOccurrence().subTerm().op();
-        final Operator[] ops = new Operator[1];
+        final List<Metavariable> ops = new ArrayList<Metavariable>();
         ruleApp.posInOccurrence().constrainedFormula().formula().execPreOrder(
                 new Visitor() {
 
                     @Override
                     public void visit(Term visited) {
                         if (visited.op() instanceof Metavariable) {
-                            ops[0] = visited.op();
+                            ops.add((Metavariable) visited.op());
                         }
                     }
 
                 });
-        Operator op = ops[0];
-        if (!(op instanceof Metavariable)) {
+        if (ops.isEmpty()) {
             throw new IllegalArgumentException(
-                    "This rule can only be applied to Metavariables. Found: "
-                            + op + "[" + ((op != null) ? op.getClass() : null)
-                            + "]");
+                    "This rule can only be applied to Metavariables. But there are none found.");
         }
         List<Metavariable> variables = new ArrayList<Metavariable>();
         if (ruleApp instanceof ReduceRuleApp) {
@@ -180,7 +177,7 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
             }
         }
         if (variables.isEmpty()) {
-            variables.add((Metavariable) op);
+            variables.addAll(ops);
         }
 
         // search the variable on all branches
@@ -228,6 +225,7 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
         Set<Term> commonAnte = new HashSet<Term>();
         Set<Term> commonSucc = new HashSet<Term>();
         List<Goal> goalList = new ArrayList<Goal>(goals);
+        System.out.println("Found " + goalList.size() + " relevant goals");// XXX
         IteratorOfConstrainedFormula iterator = goalList.get(0).sequent()
                 .antecedent().iterator();
         while (iterator.hasNext()) {
@@ -241,22 +239,32 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
             if (!commonAnte.isEmpty()) {
                 IteratorOfConstrainedFormula it = goalList.get(i).sequent()
                         .antecedent().iterator();
-
+                Set<Term> forms = new HashSet<Term>();
                 while (it.hasNext()) {
-                    Term formula = it.next().formula();
-                    if (!commonAnte.contains(formula)) {
-                        commonAnte.remove(formula);
+                    forms.add(it.next().formula());
+                }
+                Set<Term> remove = new HashSet<Term>();
+                for (Term ante : commonAnte) {
+                    if (!forms.contains(ante)) {
+                        remove.add(ante);
                     }
                 }
-                if (!commonSucc.isEmpty()) {
-                    it = goalList.get(i).sequent().succedent().iterator();
-                    while (it.hasNext()) {
-                        Term formula = it.next().formula();
-                        if (!commonSucc.contains(formula)) {
-                            commonSucc.remove(formula);
-                        }
+                commonAnte.removeAll(remove);
+            }
+            if (!commonSucc.isEmpty()) {
+                IteratorOfConstrainedFormula it = goalList.get(i).sequent()
+                        .succedent().iterator();
+                Set<Term> forms = new HashSet<Term>();
+                while (it.hasNext()) {
+                    forms.add(it.next().formula());
+                }
+                Set<Term> remove = new HashSet<Term>();
+                for (Term succ : commonSucc) {
+                    if (!forms.contains(succ)) {
+                        remove.add(succ);
                     }
                 }
+                commonSucc.removeAll(remove);
             }
         }
         Term ante = TermBuilder.DF.tt();
@@ -334,12 +342,16 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
             Term antecendent = TermTools.createJunctorTermNAry(TermBuilder.DF
                     .tt(), Op.AND, g.sequent().antecedent().iterator(),
                     commonAnte);
+            System.out.println("Ante: " + antecendent);
             Term succendent = TermTools.createJunctorTermNAry(TermBuilder.DF
                     .ff(), Op.OR, g.sequent().succedent().iterator(),
                     commonSucc);
+            System.out.println("CommonSucc: " + commonSucc);
+            System.out.println("Succ: " + succendent);
             Set<Match> matches = new HashSet<Match>();
             List<LogicVariable> vars = new ArrayList<LogicVariable>();
             Term imp = TermBuilder.DF.imp(antecendent, succendent);
+            System.out.println("Created: " + imp);// XXX
             List<Term> orderedList = SkolemfunctionTracker.INSTANCE
                     .getOrderedList(findSkolemSymbols);
             for (Term sk : orderedList) {
