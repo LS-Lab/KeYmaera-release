@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 import de.uka.ilkd.key.dl.model.DLBottom;
+import de.uka.ilkd.key.dl.model.DiffSystem;
 import de.uka.ilkd.key.dl.model.Formula;
 import de.uka.ilkd.key.java.ArrayOfExpression;
 import de.uka.ilkd.key.java.ArrayOfLoopInitializer;
@@ -720,6 +721,16 @@ public class ProgramSV extends SortedSchemaVariable implements
     }
     @Override
     public void setDLAnnotation(String key, List<Formula> value) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public DiffSystem getDifferentialFragment() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public DiffSystem getInvariantFragment() {
         throw new UnsupportedOperationException();
     }
 

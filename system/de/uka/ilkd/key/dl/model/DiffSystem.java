@@ -64,4 +64,17 @@ public interface DiffSystem extends ElementaryDLProgram {
      */
     public List<ProgramElement> getDifferentialEquations();
 
+    /**
+     * Get the differential part of this DiffSystem, i.e., all parts with differential symbols.
+     * @param system TODO
+     * @see #getDifferentialEquations()
+     */
+    public DiffSystem getDifferentialFragment();
+
+    /**
+     * Get the non-differential part of this DiffSystem, i.e., all parts without differential symbols.
+     * @param system TODO
+     * @see #getInvariant()
+     */
+    public DiffSystem getInvariantFragment();
 }

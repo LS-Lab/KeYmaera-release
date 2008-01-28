@@ -22,26 +22,20 @@
  */
 package de.uka.ilkd.key.dl.strategy.features;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.WeakHashMap;
 
+import de.uka.ilkd.key.dl.formulatools.TermTools;
 import de.uka.ilkd.key.dl.model.DiffSystem;
 import de.uka.ilkd.key.dl.options.DLOptionBean;
 import de.uka.ilkd.key.dl.rules.UnknownProgressRule;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DLUniversalClosureOp;
-import de.uka.ilkd.key.dl.rules.metaconstruct.DiffInd;
 import de.uka.ilkd.key.dl.strategy.RuleAppCostTimeout;
 import de.uka.ilkd.key.dl.strategy.features.HypotheticalProvabilityFeature.HypotheticalProvability;
-import de.uka.ilkd.key.dl.formulatools.TermTools;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.java.StatementBlock;
-import de.uka.ilkd.key.logic.ConstrainedFormula;
 import de.uka.ilkd.key.logic.JavaBlock;
 import de.uka.ilkd.key.logic.Name;
-import de.uka.ilkd.key.logic.Sequent;
 import de.uka.ilkd.key.logic.PosInOccurrence;
 import de.uka.ilkd.key.logic.Sequent;
 import de.uka.ilkd.key.logic.Term;
@@ -50,10 +44,7 @@ import de.uka.ilkd.key.logic.op.Modality;
 import de.uka.ilkd.key.logic.op.QuanUpdateOperator;
 import de.uka.ilkd.key.proof.Goal;
 import de.uka.ilkd.key.proof.Node;
-import de.uka.ilkd.key.proof.TacletFilter;
-import de.uka.ilkd.key.rule.ListOfTacletApp;
 import de.uka.ilkd.key.rule.RuleApp;
-import de.uka.ilkd.key.rule.Taclet;
 import de.uka.ilkd.key.strategy.LongRuleAppCost;
 import de.uka.ilkd.key.strategy.RuleAppCost;
 import de.uka.ilkd.key.strategy.TopRuleAppCost;
@@ -78,7 +69,7 @@ public class DiffWeakenFeature implements Feature {
      * @note The cached formula is UNSOUND because of missing universal closures.
      *  This is intentionally so, because DLUniversalClosure otherwise introduces new variables rendering caching useless.
      */
-    private final Map<DiffSystem, Map<Sequent,RuleAppCost>> diffWeakenCache = new WeakHashMap<DiffSystem, Map<Sequent,RuleAppCost>>();
+    private Map<DiffSystem, Map<Sequent,RuleAppCost>> diffWeakenCache = new WeakHashMap<DiffSystem, Map<Sequent,RuleAppCost>>();
 
     public static final DiffWeakenFeature INSTANCE = new DiffWeakenFeature();
 
