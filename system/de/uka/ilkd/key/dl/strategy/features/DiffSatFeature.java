@@ -23,6 +23,7 @@
 package de.uka.ilkd.key.dl.strategy.features;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
@@ -81,13 +82,13 @@ public class DiffSatFeature implements Feature {
      * A==>B,[D&H]F
      * caches at A==>B,{U}(H->F)
      */
-    private Map<Sequent,RuleAppCost> diffInitCache = new WeakHashMap<Sequent,RuleAppCost>();
+    private final Map<Sequent,RuleAppCost> diffInitCache = new WeakHashMap<Sequent,RuleAppCost>();
 
     /**
      * Remembers diffinds for the given [D]F modality.
      * diffAugCache.get(D).get(A) remembers whether A is diffind for [D] 
      */
-    private Map<DiffSystem, Map<Term,RuleAppCost>> diffIndCache = new WeakHashMap<DiffSystem, Map<Term,RuleAppCost>>();
+    private final Map<DiffSystem, Map<Term,RuleAppCost>> diffIndCache = new WeakHashMap<DiffSystem, Map<Term,RuleAppCost>>();
 
     public static final DiffSatFeature INSTANCE = new DiffSatFeature(null);
     
@@ -290,7 +291,7 @@ public class DiffSatFeature implements Feature {
                 DiffInd.DIFFIND.diffInd(augTerm, services), null,
                 services, true);
         Sequent step = changedSequent(pos, goal.sequent(), stepFml, pos.subTerm());
-        System.out.print("HYPO: " + diffind.rule().name() + " step     for " + candidatePrint); System.out.flush();
+        System.out.print("HYPO: " + diffind.rule().name() + " step    for " + candidatePrint); System.out.flush();
         HypotheticalProvability result = HypotheticalProvabilityFeature.provable(goal.proof(), step, MAX_STEPS,
                 timeout, taboo);
         System.out.println(" " + result);

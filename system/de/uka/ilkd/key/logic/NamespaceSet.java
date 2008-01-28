@@ -105,6 +105,14 @@ public class NamespaceSet implements Serializable {
 	return c;
     }
     
+    public boolean equalContent(NamespaceSet nss) {
+        return sorts().equalContent(nss.sorts())
+            && ruleSets().equalContent(nss.ruleSets())
+            && functions().equalContent(nss.functions())
+            && variables().equalContent(nss.variables())
+            && programVariables().equalContent(nss.programVariables())
+            && choices().equalContent(nss.choices());
+    }
     
     /**
      * starts the protocol of all contained namespaces

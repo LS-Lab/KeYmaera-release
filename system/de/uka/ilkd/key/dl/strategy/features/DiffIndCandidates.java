@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -30,7 +31,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Set;
+import java.util.WeakHashMap;
 
+import orbital.util.SequenceIterator;
 import orbital.util.Setops;
 import de.uka.ilkd.key.dl.formulatools.Prog2LogicConverter;
 import de.uka.ilkd.key.dl.formulatools.ReplacementSubst;
@@ -69,6 +72,8 @@ import de.uka.ilkd.key.strategy.termgenerator.TermGenerator;
  * @author ap
  */
 public class DiffIndCandidates implements TermGenerator {
+    private static final boolean DEBUG_GENERATOR = false;
+
 
     public final static TermGenerator INSTANCE = new DiffIndCandidates();
 
@@ -101,26 +106,27 @@ public class DiffIndCandidates implements TermGenerator {
         }
         final Services services = goal.proof().getServices();
 
-        Set<Term> l = new LinkedHashSet<Term>();
+        System.out.println("INDCANDIDATES " + app.rule().name() + " ...");
         // we do not need post itself as candidate because diffind or strategy
         // can handle this.
         // we only consider sophisticated choices
         // l.add(post); // consider diffind itself als diffstrengthening
-        l.addAll(indCandidates(goal.sequent(), pos, currentInvariant,
-                        services));
-        System.out.println("INDCANDIDATES " + app.rule().name() + " ...");
-        for (Term c : l) {
-            try {
-                final LogicPrinter lp = new LogicPrinter(new ProgramPrinter(
-                        null), Main.getInstance().mediator().getNotationInfo(), services);
-                lp.printTerm(c);
-                System.out.print("...  " + lp.toString());
-            } catch (Exception ignore) {
-                System.out.println("......  " + c.toString());
-                ignore.printStackTrace();
+        final Iterator<Term> candidateGenerator = 
+            indCandidates(goal.sequent(), pos, currentInvariant,
+                        services);
+        return new IteratorOfTerm() {
+
+            @Override
+            public boolean hasNext() {
+                return candidateGenerator.hasNext();
             }
-        }
-        return TermTools.genericToOld(new ArrayList<Term>(l)).iterator();
+
+            @Override
+            public Term next() {
+                return candidateGenerator.next();
+            }
+            
+        };
     }
 
     /**
@@ -134,7 +140,7 @@ public class DiffIndCandidates implements TermGenerator {
      * @param services
      * @return
      */
-    protected List<Term> indCandidates(Sequent seq, PosInOccurrence pos,
+    protected Iterator<Term> indCandidates(Sequent seq, PosInOccurrence pos,
             Term currentInvariant, Services services) {
         Term term = pos.subTerm();
         final Update update = Update.createUpdate(term);
@@ -166,9 +172,12 @@ public class DiffIndCandidates implements TermGenerator {
         // find candidates
         final Set<Term> possibles = getMatchingCandidates(update,
                 currentInvariant, seq, services, modifieds);
-        System.out.println("POSSIBLE CANDIDATES:  ....\n" + possibles);
+        //System.out.println("POSSIBLE CANDIDATES:  ....\n" + possibles);
 
+        // quick cache for singleton clauses
         Set<Set<Term>> resultConjuncts = new LinkedHashSet<Set<Term>>();
+        // lazily generated store for non-singleton clauses 
+        Set<Set<Term>> resultPowerGenerators1 = new LinkedHashSet<Set<Term>>();
         // compare variables according to number of dependencies
         PriorityQueue<de.uka.ilkd.key.logic.op.ProgramVariable> depOrder = new PriorityQueue<de.uka.ilkd.key.logic.op.ProgramVariable>(
                 tdep.size() + 1, dependencyComparator(tdep));
@@ -189,19 +198,23 @@ public class DiffIndCandidates implements TermGenerator {
             // find formulas that only refer to cluster
             Set<Term> matches = selectMatchingCandidates(possibles, cluster,
                     modifieds, frees);
-            System.out.println("    GENERATORS: for minimum " + min + " with its cluster "
+            if (DEBUG_GENERATOR) {
+                System.out.println("    GENERATORS: for minimum " + min + " with its cluster "
                     + cluster + " generators are " + matches);
+            }
             if (!matches.isEmpty()) {
-                // add all nonempty subsets
-                Set<Set<Term>> subsets = Setops.powerset(matches);
-                subsets.remove(Collections.EMPTY_SET);
-                resultConjuncts.addAll(subsets);
+                // only add subsets of size 1
+                for (Term t : matches) {
+                    resultConjuncts.add(Collections.singleton(t));
+                }
+                // lazily add all nonempty subsets of size>1
+                resultPowerGenerators1.add(matches);
             }
             depOrder.removeAll(cluster);
         }
         
-        // order by size (number of conjuncts), ascending
-        Comparator<Set<Term>> sizeComparator = clusterComparator(tdep);
+        // order by size (number of conjuncts), ascending and cluster coverage, descending
+        final Comparator<Set<Term>> sizeComparator = clusterComparator(tdep);
         List<Set<Term>> orderedResultConjuncts = new ArrayList<Set<Term>>(
                 resultConjuncts);
         Collections.sort(orderedResultConjuncts, sizeComparator);
@@ -209,38 +222,53 @@ public class DiffIndCandidates implements TermGenerator {
         // as last resort, add all for the universal cluster but put them late 
         Set<Term> matches = selectMatchingCandidates(possibles, Setops.union(modifieds, frees),
                 modifieds, frees);
+        // lazily generated store for non-singleton clauses 
+        Set<Set<Term>> resultPowerGenerators2 = new LinkedHashSet<Set<Term>>();
         if (!matches.isEmpty()) {
-            if (false) {
+            Set<Term> extraGenerators = new LinkedHashSet<Term>(matches);
             // only add subsets of size 1
-            for (Term t : new LinkedHashSet<Term>(matches)) {
+            for (Term t : matches) {
                 Set<Term> ts = Collections.singleton(t);
                 if (!resultConjuncts.contains(ts)) {
-                  orderedResultConjuncts.add(ts);
-                } else {
-                    matches.remove(t);
+                    orderedResultConjuncts.add(ts);
+                    extraGenerators.add(t);
                 }
             }
-            } else {
-                // add all nonempty subsets
-                Set<Set<Term>> subsets = Setops.powerset(matches);
-                subsets.remove(Collections.EMPTY_SET);
-                // remove all that are already known
-                subsets.removeAll(orderedResultConjuncts);
-                orderedResultConjuncts.addAll(subsets);
+            // lazily add all nonempty subsets of size>1
+            resultPowerGenerators2.add(matches);
+            if (DEBUG_GENERATOR) {
+                System.out.println("    EXTRA-GENERATORS: are " + extraGenerators);
             }
-            System.out.println("    EXTRA-GENERATORS: are " + matches);
         }
 
         Collections.sort(orderedResultConjuncts, sizeComparator);
 
         List<Term> result = new LinkedList<Term>();
         for (Set<Term> s : orderedResultConjuncts) {
-            result.add(tb.and(TermTools.genericToOld(s)));
+            assert s.size() == 1 : "use only singletons, first";
+            result.add(s.iterator().next());
         }
         // remove trivial candidates
         result.remove(tb.ff());
         result.remove(tb.tt());
-        return result;
+
+        System.out.println("INDCANDIDATE-BASIS ...");
+        for (Term c : result) {
+            try {
+                final LogicPrinter lp = new LogicPrinter(new ProgramPrinter(
+                        null), Main.getInstance().mediator().getNotationInfo(), services);
+                lp.printTerm(c);
+                System.out.print("...  " + lp.toString());
+            } catch (Exception ignore) {
+                System.out.println("......  " + c.toString());
+                ignore.printStackTrace();
+            }
+        }
+        // quickly return size-1 formulas, and only lazily generate powersets
+        return new SequenceIterator(new Iterator[] {
+                result.iterator(),
+                new LazyPowerGenerator(resultPowerGenerators1, resultPowerGenerators2, resultConjuncts, sizeComparator)
+        });
     }
 
     /**
@@ -252,7 +280,7 @@ public class DiffIndCandidates implements TermGenerator {
         /**
          * Cache for clusters of terms
          */
-        final Map<Term, Set<de.uka.ilkd.key.logic.op.ProgramVariable>> clusters = new HashMap<Term, Set<de.uka.ilkd.key.logic.op.ProgramVariable>>();
+        final Map<Term, Set<de.uka.ilkd.key.logic.op.ProgramVariable>> clusters = new WeakHashMap<Term, Set<de.uka.ilkd.key.logic.op.ProgramVariable>>();
         return new Comparator<Set<Term>>() {
             /**
              * Get the cluster of a term, i.e., all its ProgramVariables including transitive dependencies
@@ -335,23 +363,20 @@ public class DiffIndCandidates implements TermGenerator {
             AssignmentPair ass = asss.getAssignmentPair(i);
             Term xhp = ass.locationAsTerm();
             assert xhp.arity() == 0 : "only works for atomic locations";
-            // @todo assert namespaces.unique
-            final Term x = tb
-                    .var((de.uka.ilkd.key.logic.op.ProgramVariable) services
-                            .getNamespaces().programVariables().lookup(
-                                    ass.location().name()));
+            assert ass.location() instanceof de.uka.ilkd.key.logic.op.ProgramVariable  : "expecting arity 0 program variables";
+            de.uka.ilkd.key.logic.op.ProgramVariable x = (de.uka.ilkd.key.logic.op.ProgramVariable) ass.location();
             Term t = ass.value();
             // System.out.println(x + "@" + x.getClass());
             // turn single update into equation
             Term revertedt = revert.apply(t);
-            if (TermTools.occursIn(x, revertedt)) {
+            if (TermTools.occursIn(xhp, revertedt)) {
                 // if x occurs in t then can't do that without alpha-renaming stuff
                 continue;
             }
-            Term equation = tb.equals(x, revertedt);
+            Term equation = tb.equals(xhp, revertedt);
             assert equation.op() instanceof de.uka.ilkd.key.logic.op.Equality : "different equalities shouldn't be mixed up: "
                     + " "
-                    + x
+                    + xhp
                     + " equaling "
                     + revertedt
                     + " gives "
@@ -541,6 +566,110 @@ public class DiffIndCandidates implements TermGenerator {
             r.add(n.getElementName());
         }
         return r;
+    }
+
+
+    /**
+     * An iterator which only stores the power set generators and starts generating lazily, i.e.,
+     * at the first call.
+     * @author ap
+     *
+     */
+    private static class LazyPowerGenerator implements Iterator {
+        
+        private final Comparator<Set<Term>> sizeComparator;
+
+        // quick cache for singleton clauses
+        private final Set<Set<Term>> alreadyCoveredConjuncts;
+        // lazily generated store for non-singleton clauses 
+        private final Set<Set<Term>> resultPowerGenerators;
+        private final Set<Set<Term>> resultPowerGenerators2;
+        
+        private Iterator<Term> lazySource = null;
+
+        private Iterator<Term> lazyInit() {
+            System.out.println("UNlazying");
+            List<Set<Term>> orderedResultConjuncts = new ArrayList<Set<Term>>();
+            for (Set<Term> matches : resultPowerGenerators) {
+                // add all nonempty subsets of size > 1 (because size 1 has already been covered)
+                Set<Set<Term>> subsets = Setops.powerset(matches);
+                subsets.remove(Collections.EMPTY_SET);
+                subsets.removeAll(alreadyCoveredConjuncts);
+                subsets.removeAll(orderedResultConjuncts);
+                orderedResultConjuncts.addAll(subsets);
+                alreadyCoveredConjuncts.addAll(subsets);
+            }
+            Collections.sort(orderedResultConjuncts, sizeComparator);
+
+            for (Set<Term> matches : resultPowerGenerators2) {
+                // add all nonempty subsets of size > 1 (because size 1 has already been covered)
+                Set<Set<Term>> subsets = Setops.powerset(matches);
+                subsets.remove(Collections.EMPTY_SET);
+                subsets.removeAll(alreadyCoveredConjuncts);
+                subsets.removeAll(orderedResultConjuncts);
+                orderedResultConjuncts.addAll(subsets);
+                alreadyCoveredConjuncts.addAll(subsets);
+            }
+            Collections.sort(orderedResultConjuncts, sizeComparator);
+            
+            List<Term> result = new LinkedList<Term>();
+            for (Set<Term> s : orderedResultConjuncts) {
+                result.add(tb.and(TermTools.genericToOld(s)));
+            }
+            // remove trivial candidates
+            result.remove(tb.ff());
+            result.remove(tb.tt());
+            if (true) { 
+                System.out.println("LAZY INDCANDIDATE ...");
+                for (Term c : result) {
+                    try {
+                        final LogicPrinter lp = new LogicPrinter(new ProgramPrinter(
+                                null), Main.getInstance().mediator().getNotationInfo(), Main.getInstance().mediator().getServices());
+                        lp.printTerm(c);
+                        System.out.print("...  " + lp.toString());
+                    } catch (Exception ignore) {
+                        System.out.println("......  " + c.toString());
+                        ignore.printStackTrace();
+                    }
+                }
+            }
+            return result.iterator();
+        }
+        public LazyPowerGenerator(Set<Set<Term>> resultConjuncts,
+                Set<Set<Term>> resultPowerGenerators,
+                Set<Set<Term>> resultPowerGenerators2,
+                Comparator<Set<Term>> sizeComparator) {
+            super();
+            this.alreadyCoveredConjuncts = resultConjuncts;
+            this.resultPowerGenerators = resultPowerGenerators;
+            this.resultPowerGenerators2 = resultPowerGenerators2;
+            this.sizeComparator = sizeComparator;
+        }
+
+        @Override
+        public boolean hasNext() {
+            if (lazySource == null) {
+                lazySource = lazyInit();
+            }
+            return lazySource.hasNext();
+        }
+
+        @Override
+        public Object next() {
+            if (lazySource == null) {
+                lazySource = lazyInit();
+            }
+            return lazySource.next();
+        }
+
+        @Override
+        public void remove() {
+            if (lazySource == null) {
+                lazySource = lazyInit();
+            }
+            lazySource.remove();
+        }
+
     }
 
 }

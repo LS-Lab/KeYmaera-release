@@ -1398,8 +1398,8 @@ public class Main extends JFrame {
                                         .getTotalCaclulationTime()) / 1000d);
                         stats += "\n"
                             + "Arithmetic Memory: "
-                            + (((double) TimeStatisticGenerator.INSTANCE
-                                    .getTotalMemory()) / 1024d / 1024d) + " Mb";
+                            + (((long)((double) TimeStatisticGenerator.INSTANCE
+                                    .getTotalMemory()) / 1024d / 1024d*1000)/1000) + " Mb";
                         stats += "\n"
                                 + "CachedAnwsers/Queries: "
                                 + TimeStatisticGenerator.INSTANCE
@@ -1408,12 +1408,6 @@ public class Main extends JFrame {
                         stats += "\n"
                             + "Program Variables: " + mediator.namespaces().programVariables().elements().size();
                     } catch (RemoteException e1) {
-                        // if there is an exception the statistic is not
-                        // displayed
-                    } catch (ServerStatusProblemException e1) {
-                        // if there is an exception the statistic is not
-                        // displayed
-                    } catch (ConnectionProblemException e1) {
                         // if there is an exception the statistic is not
                         // displayed
                     }

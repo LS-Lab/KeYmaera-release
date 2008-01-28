@@ -71,6 +71,7 @@ public class DLRandomAssign extends AbstractDLMetaOperator {
         ProgramVariable progVar = (ProgramVariable) ((RandomAssign) ((StatementBlock) result
                 .javaBlock().program()).getChildAt(0)).getChildAt(0);
         while (var == null) {
+            // TODO replace by VariableNamer
             Name name2 = new Name(progVar.getElementName().toString() + "_"
                     + l++);
             if (services.getNamespaces().lookup(name2) == null) {
