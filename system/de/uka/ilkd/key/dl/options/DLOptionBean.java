@@ -238,7 +238,7 @@ public class DLOptionBean implements Settings {
         callReduce = true;
         initialTimeout = 2000;
         diffSatTimeout = 4000;
-        loopSatTimeout = 100000;
+        loopSatTimeout = 2000000;
         quadraticTimeoutIncreaseFactor = 0;
         linearTimeoutIncreaseFactor = 2;
         constantTimeoutIncreaseFactor = 0;

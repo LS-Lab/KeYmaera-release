@@ -43,6 +43,7 @@ import de.uka.ilkd.key.dl.options.DLOptionBean.InvariantRule;
  */
 public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
     public static final String DESCRIPTION = "Adjusts KeYmaera proof strategy options";
+
     private static final Class<DLOptionBean> beanClass = DLOptionBean.class;
 
     public DLOptionBeanBeanInfo() {
@@ -57,43 +58,23 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
 
     public PropertyDescriptor[] getPropertyDescriptors() {
         try {
-            // PropertyDescriptor _usage = new PropertyDescriptor("usage",
-            // beanClass, "getUsage", "setUsage");
-            // _usage.setDisplayName("usage");
-            // _usage.setShortDescription("primary usage descriptor");
-            // _usage.setPropertyEditorClass(UsagePropertyEditor.class);
-
             PropertyDescriptor[] pds = new PropertyDescriptor[] {
-                    createDescriptor("splitBeyondFO", "split FO formulas",
-                            "simple heuristic: call reduce if only FO formulas are left in the sequent"),
-                    createDescriptor("callReduce", "call reduce",
-                            "try to reduce the whole sequent"),
-                    createDescriptor("splitBeyondFO", "split FO formulas",
-                            "simple heuristic: call reduce if only FO formulas are left in the sequent"),
-                    createDescriptor(
-                            "useTimeoutStrategy",
-                            "Iterative Background Closure",
-                            "Whether to activate the Iterative Background Closure (IBC) strategy with the corresponding timeouts. Otherwise, call reduce when first-order",
-                            false, true),
+                    // expert, preferred, hidden
                     createDescriptor(
                             "counterexampleTest",
                             "quickly check for counterexamples",
-                            "if enabled it will be checked if an counterexample can be found before trying to reduce",
+                            "whether to check for counterexamples before trying to prove exhaustively",
                             false, true, CounterexampleTestPropertyEditor.class),
                     createDescriptor(
-                            "stopAtFO",
-                            "stop strategy on first order goals",
-                            "if enabled the strategy will not apply rules to goals that are already first order",
-                            true, false),
+                            "useTimeoutStrategy",
+                            "Iterative Background Closure",
+                            "whether to activate the Iterative Background Closure (IBC) strategy with incremental timeouts. Otherwise, call reduce when first-order",
+                            false, true),
                     createDescriptor(
                             "initialTimeout",
                             "initial timeout",
                             "the timeout used in the first iteration of the IBC strategy (in milliseconds)",
                             false, true),
-                    createDescriptor(
-                            "quadraticTimeoutIncreaseFactor",
-                            "quadratic timeout increase factor",
-                            "the quadratic part of the IBC timeout. That is, the part c of t_new = a*t_old^2 + b*t_old + c (in milliseconds)"),
                     createDescriptor(
                             "linearTimeoutIncreaseFactor",
                             "linear timeout increase factor",
@@ -103,10 +84,26 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
                             "constant timeout increase factor",
                             "the constant part of the IBC timeout. That is, the part c of t_new = a*t_old^2 + b*t_old + c (in milliseconds)"),
                     createDescriptor(
-                            "readdQuantifiers",
-                            "re-add quantifiers",
-                            "During quantifier elimination, re-add the quantfiers of previously quantified variables (i.e. Skolem symbols)",
-                            true),
+                            "quadraticTimeoutIncreaseFactor",
+                            "quadratic timeout increase factor",
+                            "the quadratic part of the IBC timeout. That is, the part c of t_new = a*t_old^2 + b*t_old + c (in milliseconds)"),
+                    //
+                    createDescriptor("diffSat", "DiffSat strategy",
+                            "select which degree of DiffSat strategy to apply",
+                            false, false, DiffSatPropertyEditor.class),
+                    createDescriptor(
+                            "diffSatTimeout",
+                            "initial DiffSat timeout",
+                            "the timeout used in the first iteration of the DiffSat strategy (in milliseconds)",
+                            false, false),
+                    createDescriptor(
+                            "loopSatTimeout",
+                            "initial LoopSat timeout",
+                            "the timeout used in the first iteration of the LoopSat strategy (in milliseconds)",
+                            false, false),
+                    //
+                    createDescriptor("callReduce", "call reduce",
+                            "try to reduce the whole sequent", true, false),
                     createDescriptor("simplifyBeforeReduce",
                             "simplify before reduce",
                             "simplify formulas passed to the reduce function of the arithmetic solver"),
@@ -115,28 +112,28 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
                             "simplify after reduce",
                             "simplify the results generated by the reduce function of the arithmetic solver"),
                     createDescriptor(
+                            "readdQuantifiers",
+                            "re-add quantifiers",
+                            "During quantifier elimination, re-add the quantfiers of previously quantified variables (i.e. Skolem symbols)",
+                            true),
+                    createDescriptor(
                             "normalizeEquations",
                             "normalize inqualities",
                             "normalize inequalities to greater than and greater equals on the antecedent of the sequent, i.e., to the form a>=b ==> or a>b ==>"),
+                    createDescriptor(
+                            "applyGammaRules",
+                            "apply gamma rules",
+                            "choose if and when gamma rules should be applied for existential quantifiers",
+                            true, false, ApplyRulesPropertyEditor.class),
                     createDescriptor(
                             "applyUpdatesToModalities",
                             "apply updates to modalities",
                             "apply updates to modalites e.g. to get more simpler solutions for differential equations",
                             true, false),
-                    createDescriptor(
-                            "odeSolver",
-                            "solver for differential equations",
-                            "select the arithmetic solver that should be used to solve differential equations",
-                            true, false, ODESolversPropertyEditor.class),
-                    createDescriptor(
-                            "counterExampleGenerator",
-                            "counter example generator",
-                            "select the arithmetic tool that should be used to generate counter examples",
-                            true, false,
-                            CounterExampleGeneratorPropertyEditor.class),
+                    //
                     createDescriptor(
                             "quantifierEliminator",
-                            "tool for quantifier elimination",
+                            "real arithmetic solver",
                             "select the arithmetic solver that should be used to eliminate quantifiers",
                             true, false,
                             QuantifierEliminatorPropertyEditor.class),
@@ -146,26 +143,30 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
                             "select the arithmetic tool that should be used to simplify expressions",
                             true, false, SimplifierPropertyEditor.class),
                     createDescriptor(
-                            "applyGammaRules",
-                            "apply gamma rules",
-                            "choose if and when gamma rules should be applied for existential quantifiers",
-                            true, false, ApplyRulesPropertyEditor.class),
-                    createDescriptor("diffSat", "DiffSat strategy",
-                            "select which degree of DiffSat strategy to apply",
-                            true, false, DiffSatPropertyEditor.class),
+                            "odeSolver",
+                            "differential equation solver",
+                            "select the arithmetic solver that should be used to solve or otherwise handle differential equations",
+                            true, false, ODESolversPropertyEditor.class),
                     createDescriptor(
-                            "diffSatTimeout",
-                            "initial DiffSat timeout",
-                            "the timeout used in the first iteration of the DiffSat strategy (in milliseconds)",
-                            true, false),
+                            "counterExampleGenerator",
+                            "counterexample generator",
+                            "select the arithmetic tool that should be used to generate counter examples",
+                            true, false,
+                            CounterExampleGeneratorPropertyEditor.class),
+                    //
                     createDescriptor(
-                            "loopSatTimeout",
-                            "initial LoopSat timeout",
-                            "the timeout used in the first iteration of the LoopSat strategy (in milliseconds)",
+                            "splitBeyondFO",
+                            "split FO formulas",
+                            "simple heuristic: call reduce if only FO formulas are left in the sequent",
+                            true, false, true),
+                    createDescriptor(
+                            "stopAtFO",
+                            "stop strategy on first order goals",
+                            "if enabled the strategy will not apply rules to goals that are already first order",
                             true, false),
                     createDescriptor(
                             "ignoreAnnotations",
-                            "ignore annotations",
+                            "ignore proof annotations",
                             "Whether to ignore all proof skeleton @annotations",
                             true, false),
             // createDescriptor("invariantRule", "invariant rule",
@@ -203,7 +204,22 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
 
     private static PropertyDescriptor createDescriptor(String propertyName,
             String displayName, String shortDescription, boolean expert,
+            boolean preferred, boolean hidden) throws IntrospectionException {
+        return createDescriptor(propertyName, displayName, shortDescription,
+                expert, preferred, hidden, null);
+    }
+
+    private static PropertyDescriptor createDescriptor(String propertyName,
+            String displayName, String shortDescription, boolean expert,
             boolean preferred, Class<?> propertyEditor)
+            throws IntrospectionException {
+        return createDescriptor(propertyName, displayName, shortDescription,
+                expert, preferred, false, propertyEditor);
+    }
+
+    private static PropertyDescriptor createDescriptor(String propertyName,
+            String displayName, String shortDescription, boolean expert,
+            boolean preferred, boolean hidden, Class<?> propertyEditor)
             throws IntrospectionException {
         PropertyDescriptor result = new PropertyDescriptor(propertyName,
                 beanClass);
@@ -211,6 +227,7 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
         result.setShortDescription(shortDescription);
         result.setExpert(expert);
         result.setPreferred(preferred);
+        result.setHidden(hidden);
         if (propertyEditor != null) {
             result.setPropertyEditorClass(propertyEditor);
         }
