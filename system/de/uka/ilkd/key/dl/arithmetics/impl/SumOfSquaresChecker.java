@@ -23,10 +23,12 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Set;
 
 import orbital.math.Polynomial;
 import orbital.math.Values;
+import orbital.math.Vector;
 import de.uka.ilkd.key.dl.formulatools.VariableCollector;
 import de.uka.ilkd.key.dl.logic.ldt.RealLDT;
 import de.uka.ilkd.key.dl.parser.NumberCache;
@@ -194,6 +196,30 @@ public class SumOfSquaresChecker {
             System.out.println(poly);
         }
         System.out.println("Result = " + result);//XXX
+        
+        // now we need to translate the polynominal into a matrix representation
+        // monominals are iterated x^0y^0, x^0y^1, x^0y^2, ..., x^1y^0, x^1y^1, x^1y^2,..., x^2y^0, x^2y^1,...
+        ListIterator mono = result.iterator();
+        System.out.println("Degree: " + result.degree());
+        System.out.println("Degree-Value: " + result.degreeValue());//XXX
+        int[] indizes = new int[result.degree().intValue()];
+        while(mono.hasNext()) {
+            Object next = mono.next();
+            String blub = "";
+            for(int i = 0; i < indizes.length; i++) {
+                blub += ((char)('a' + i)) + "^" + indizes[i];
+                if(i == 0) {
+                    indizes[i]++;
+                } else {
+                    if(indizes[i-1] > result.degreeValue()) {
+                        indizes[i-1] = 0;
+                        indizes[i]++;
+                    }
+                }
+            }
+            System.out.println(next + "*" + blub);//XXX
+            
+        }
     }
 
     /**
