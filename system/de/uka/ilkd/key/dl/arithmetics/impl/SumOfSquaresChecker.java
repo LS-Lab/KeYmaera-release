@@ -21,12 +21,20 @@ package de.uka.ilkd.key.dl.arithmetics.impl;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Set;
 
+import orbital.math.Arithmetic;
+import orbital.math.Integer;
 import orbital.math.Polynomial;
+import orbital.math.Real;
+import orbital.math.ValueFactory;
 import orbital.math.Values;
+import orbital.math.Vector;
 import de.uka.ilkd.key.dl.formulatools.VariableCollector;
 import de.uka.ilkd.key.dl.logic.ldt.RealLDT;
 import de.uka.ilkd.key.dl.parser.NumberCache;
@@ -47,7 +55,7 @@ public class SumOfSquaresChecker {
 
     public static final SumOfSquaresChecker INSTANCE = new SumOfSquaresChecker();
 
-    public void check(Set<Term> ante, Set<Term> succ) {
+    public boolean check(Set<Term> ante, Set<Term> succ) {
         final Function lt = getFunction("lt");
         final Function leq = getFunction("leq");
         final Function geq = getFunction("geq");
@@ -111,7 +119,7 @@ public class SumOfSquaresChecker {
                         "Dont know how to handle the predicate " + t.op());
             }
         }
-        check(f, g, h);
+        return check(f, g, h);
     }
 
     /**
@@ -144,7 +152,7 @@ public class SumOfSquaresChecker {
      * equalities h = 0. Afterwards check if f+g^2+h = 0 is satisfiable. If this
      * holds the input is satisfiable too.
      */
-    public void check(Set<Term> f, Set<Term> g, Set<Term> h) {
+    public boolean check(Set<Term> f, Set<Term> g, Set<Term> h) {
         Set<String> variables = new HashSet<String>();
         for (Term t : f) {
             variables.addAll(VariableCollector.getVariables(t));
@@ -160,40 +168,193 @@ public class SumOfSquaresChecker {
         Polynomial result = null;
         for (Term t : f) {
             Polynomial poly = createPoly(t.sub(0), vars);
-            if(result == null) {
+            if (result == null) {
                 result = poly;
             } else {
-                result.add(poly);
+                result = result.add(poly);
             }
             System.out.println(t);
             System.out.println(poly);
+            System.out.println("Result = " + result);// XXX
         }
         Polynomial gPoly = null;
         for (Term t : g) {
             Polynomial poly = createPoly(t.sub(0), vars);
-            if(gPoly == null) {
+            if (gPoly == null) {
                 gPoly = poly;
             } else {
                 gPoly = gPoly.multiply(poly);
             }
             System.out.println(t);
             System.out.println(poly);
+            System.out.println("Result = " + result);// XXX
         }
-        if(gPoly != null) {
-            result.add((Polynomial) gPoly.power(Values.getDefault().valueOf(2)));
+        if (gPoly != null) {
+            result
+                    .add((Polynomial) gPoly.power(Values.getDefault()
+                            .valueOf(2)));
         }
-        System.out.println("GPoly: " + gPoly);//XXX
+        System.out.println("GPoly: " + gPoly);// XXX
         for (Term t : h) {
             Polynomial poly = createPoly(t.sub(0), vars);
-            if(result == null) {
+            if (result == null) {
                 result = poly;
             } else {
-                result.add(poly);
+                result = result.add(poly);
             }
             System.out.println(t);
             System.out.println(poly);
+            System.out.println("Result = " + result);// XXX
         }
-        System.out.println("Result = " + result);//XXX
+        System.out.println("Result = " + result);// XXX
+
+        // now we need to translate the polynominal into a matrix representation
+        // monominals are iterated x^0y^0, x^0y^1, x^0y^2, ..., x^1y^0, x^1y^1,
+        // x^1y^2,..., x^2y^0, x^2y^1,...
+        ListIterator mono = result.iterator();
+        System.out.println("Degree: " + result.degree());
+        System.out.println("Degree-Value: " + result.degreeValue());// XXX
+        Iterator indices = result.indices();
+        System.out.println("Rank: " + result.rank());// XXX
+        List<Vector> monominals = new ArrayList<Vector>();
+        while (mono.hasNext()) {
+            Object next = mono.next();
+            String blub = "";
+            Vector v = (Vector) indices.next();
+            for (int i = 0; i < v.dimension(); i++) {
+                blub += ((char) ('a' + i)) + "^" + v.get(i);
+            }
+            if (!next.equals(Values.getDefault().ZERO())) {
+                System.out.println(next + "*" + blub);// XXX
+                boolean ok = true;
+                Vector div = Values.getDefault().valueOf(new int[v.dimension()]);
+                for (int i = 0; i < v.dimension(); i++) {
+                    if (v.get(i) instanceof Real) {
+                        Real in = (Real) v.get(i);
+                        Real sqrt = in.divide(Values.getDefault().valueOf(2));
+                        if (new BigDecimal(sqrt.doubleValue()).abs().equals(
+                                new BigDecimal(sqrt.doubleValue()))) {
+                            System.out.println("Found nice sqrt: " + sqrt);// XXX
+                            double[] d = new double[v.dimension()];
+                            d[i] = in.divide(Values.getDefault().valueOf(2)).doubleValue();
+                            div.add(Values.getDefault().valueOf(d));
+                        } else {
+                            ok = false;
+                        }
+                    }
+                }
+                if (ok) {
+                    System.out.println("Adding monominal: " + div);// XXX
+                    monominals.add(div);
+                }
+            }
+        }
+        // now we know the monominals and need to construct the constraints for
+        // the matrix
+        Vector[][] matrix = new Vector[monominals.size()][monominals.size()];
+        for (int i = 0; i < monominals.size(); i++) {
+            for (int j = 0; j < monominals.size(); j++) {
+                matrix[i][j] = Values.getDefault().valueOf(
+                        new Integer[] { Values.getDefault().valueOf(i + 1),
+                                Values.getDefault().valueOf(j + 1) });
+            }
+        }
+        Poly multiplyVec = multiplyVec(multiplyMatrix(monominals, matrix),
+                monominals);
+        mono = result.iterator();
+        indices = result.indices();
+
+        List<Constraint> constraints = new ArrayList<Constraint>();
+        while (mono.hasNext()) {
+            Object next = mono.next();
+            Vector v = (Vector) indices.next();
+            List<Vector> list = multiplyVec.vec.get(v);
+            if (list != null) {
+                constraints.add(new Constraint(v, list, (Arithmetic) next));
+            } else {
+                System.out.println("Cannot express: " + v);// XXX
+                return false;
+            }
+        }
+        System.out.println(constraints);// XXX
+        return true;
+    }
+
+    private class Constraint {
+
+        Constraint(Vector v, List<Vector> indizes, Arithmetic pre) {
+            this.v = v;
+            this.indizes = indizes;
+            this.pre = pre;
+        }
+
+        Vector v;
+
+        List<Vector> indizes;
+
+        Arithmetic pre;
+
+        /*
+         * (non-Javadoc)
+         * 
+         * @see java.lang.Object#toString()
+         */
+        @Override
+        public String toString() {
+            StringBuilder b = new StringBuilder();
+            b.append("(" + pre + " - " + v + ")");
+            for (Vector vec : indizes) {
+                b.append("*" + vec);
+            }
+            return b.toString();
+        }
+    }
+
+    private class Poly {
+        HashMap<Vector, List<Vector>> vec = new HashMap<Vector, List<Vector>>();
+    }
+
+    /**
+     * @param multiplyMatrix
+     * @param monominals
+     */
+    private Poly multiplyVec(Vec multiplyMatrix, List<Vector> monominals) {
+        Poly p = new Poly();
+        for (Vector v : monominals) {
+            for (Vector vv : multiplyMatrix.vec.keySet()) {
+                Vector res = vv.add(v);
+                List<Vector> result = p.vec.get(res);
+                if (result == null) {
+                    result = new ArrayList<Vector>();
+                    p.vec.put(res, result);
+                }
+                result.addAll(multiplyMatrix.vec.get(vv));
+            }
+        }
+        return p;
+    }
+
+    private class Vec {
+        HashMap<Vector, List<Vector>> vec = new HashMap<Vector, List<Vector>>();
+    }
+
+    /**
+     * @param monominals
+     * @param matrix
+     */
+    private Vec multiplyMatrix(List<Vector> monominals, Vector[][] matrix) {
+        Vec p = new Vec();
+        for (int i = 0; i < monominals.size(); i++) {
+            for (int j = 0; j < monominals.size(); j++) {
+                List<Vector> list = p.vec.get(monominals.get(i));
+                if (list == null) {
+                    list = new ArrayList<Vector>();
+                    p.vec.put(monominals.get(i), list);
+                }
+                list.add(matrix[j][i]);
+            }
+        }
+        return p;
     }
 
     /**
@@ -241,8 +402,7 @@ public class SumOfSquaresChecker {
                 }
             } else if (sub.op().equals(getFunction("neg"))) {
                 return (Polynomial) createPoly(sub.sub(0), variables).multiply(
-                        Values.getDefault().MONOMIAL(                                
-                                        Values.MINUS_ONE, size));
+                        Values.getDefault().MONOMIAL(Values.MINUS_ONE, size));
             }
         }
         throw new IllegalArgumentException("Dont know what to do with"
