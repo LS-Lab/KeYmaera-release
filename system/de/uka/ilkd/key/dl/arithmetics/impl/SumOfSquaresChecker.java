@@ -283,7 +283,17 @@ public class SumOfSquaresChecker {
             }
         }
         System.out.println(constraints);// XXX
+        System.out.println("Matlab Input: ");//XXX
+        System.out.println("n = " + monominals.size() + ";");//XXX
+        System.out.println("cvx_begin");//XXX
+        System.out.println("variable X(n,n) symmetric;");//XXX
+        System.out.println("minimize(0);");//XXX
+        System.out.println("subject to");//XXX
         convertConstraints(constraints, monominals.size());
+        System.out.println("X == semidefinite(n)");//XXX
+        System.out.println("cvx_end");//XXX
+        // print out X
+        System.out.println("X");//XXX
         return true;
     }
 
