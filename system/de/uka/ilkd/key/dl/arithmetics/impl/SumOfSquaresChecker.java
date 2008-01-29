@@ -283,7 +283,33 @@ public class SumOfSquaresChecker {
             }
         }
         System.out.println(constraints);// XXX
+        convertConstraints(constraints, monominals.size());
         return true;
+    }
+
+    /**
+     * @param constraints
+     * @param i 
+     */
+    private void convertConstraints(List<Constraint> constraints, int size) {
+        for(Constraint c: constraints) {
+            int[][] selectionMatrix = new int[size][size];
+            for(Vector v: c.indizes) {
+                selectionMatrix[((Integer)v.get(0)).intValue() - 1][((Integer)v.get(1)).intValue() - 1] = 1;
+            }
+            StringBuilder matrix = new StringBuilder();
+            matrix.append("[ ");
+            for(int i = 0; i < size; i++) {
+                for(int j = 0; j < size; j++) {
+                    matrix.append(selectionMatrix[i][j] + " ");
+                }
+                if(i + 1 < size) {
+                    matrix.append("; ");
+                }
+            }
+            matrix.append(" ]");
+            System.out.println("trace( " + matrix + " * X) == " + c.pre + ";" );//XXX
+        }
     }
 
     private class Constraint {
