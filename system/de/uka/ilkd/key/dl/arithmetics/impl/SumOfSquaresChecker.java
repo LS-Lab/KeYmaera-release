@@ -224,21 +224,23 @@ public class SumOfSquaresChecker {
             for (int i = 0; i < v.dimension(); i++) {
                 blub += ((char) ('a' + i)) + "^" + v.get(i);
             }
+            System.out.println(next + "*" + blub);// XXX
             if (!next.equals(Values.getDefault().ZERO())) {
-                System.out.println(next + "*" + blub);// XXX
                 boolean ok = true;
-                Vector div = Values.getDefault().valueOf(new int[v.dimension()]);
+                Vector div = Values.getDefault()
+                        .valueOf(new int[v.dimension()]);
                 for (int i = 0; i < v.dimension(); i++) {
                     if (v.get(i) instanceof Real) {
                         Real in = (Real) v.get(i);
                         Real sqrt = in.divide(Values.getDefault().valueOf(2));
-                        if (new BigDecimal(sqrt.doubleValue()).abs().equals(
-                                new BigDecimal(sqrt.doubleValue()))) {
-                            System.out.println("Found nice sqrt: " + sqrt);// XXX
+                        try {
+                            new BigDecimal(sqrt.doubleValue()).intValueExact();
+                            System.out.println("Found nice half: " + sqrt);// XXX
                             double[] d = new double[v.dimension()];
-                            d[i] = in.divide(Values.getDefault().valueOf(2)).doubleValue();
-                            div.add(Values.getDefault().valueOf(d));
-                        } else {
+                            d[i] = in.divide(Values.getDefault().valueOf(2))
+                                    .doubleValue();
+                            div = div.add(Values.getDefault().valueOf(d));
+                        } catch(Exception e) {
                             ok = false;
                         }
                     }
@@ -268,12 +270,15 @@ public class SumOfSquaresChecker {
         while (mono.hasNext()) {
             Object next = mono.next();
             Vector v = (Vector) indices.next();
-            List<Vector> list = multiplyVec.vec.get(v);
-            if (list != null) {
-                constraints.add(new Constraint(v, list, (Arithmetic) next));
-            } else {
-                System.out.println("Cannot express: " + v);// XXX
-                return false;
+            if (!Values.getDefault().ZERO().equals(next)) {
+                System.out.println("Checking: " + next + " and vector " + v);// XXX
+                List<Vector> list = multiplyVec.vec.get(v);
+                if (list != null) {
+                    constraints.add(new Constraint(v, list, (Arithmetic) next));
+                } else {
+                    System.out.println("Cannot express: " + v);// XXX
+                    return false;
+                }
             }
         }
         System.out.println(constraints);// XXX
@@ -302,10 +307,15 @@ public class SumOfSquaresChecker {
         @Override
         public String toString() {
             StringBuilder b = new StringBuilder();
-            b.append("(" + pre + " - " + v + ")");
-            for (Vector vec : indizes) {
-                b.append("*" + vec);
+            b.append(pre + " = ");
+            for (int i = 0; i < v.dimension(); i++) {
+                b.append(((char) ('a' + i)) + "^" + v.get(i));
             }
+            b.append(" * (");
+            for (Vector vec : indizes) {
+                b.append("+" + vec);
+            }
+            b.append(")");
             return b.toString();
         }
     }
