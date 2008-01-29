@@ -22,10 +22,16 @@
  */
 package de.uka.ilkd.key.dl.arithmetics.impl.mathematica;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.net.ServerSocket;
@@ -74,27 +80,27 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
         IKernelLinkWrapper {
 
     public static final String[][] messageBlacklist = new String[][] {
-        {"Reduce","nsmet"},
-        {"FindInstance","nsmet"} 
-    };
+            { "Reduce", "nsmet" }, { "FindInstance", "nsmet" } };
 
     public static Expr mBlist;
 
     static {
         java.util.List<Expr> exprs = new ArrayList<Expr>();
         for (String[] blacklist : messageBlacklist) {
-            assert blacklist.length==2;
-            exprs.add(new Expr(new Expr(Expr.SYMBOL,"MessageName"), new Expr[] {
-                new Expr(Expr.SYMBOL, blacklist[0]),
-                new Expr(blacklist[1])
-            }));
+            assert blacklist.length == 2;
+            exprs.add(new Expr(new Expr(Expr.SYMBOL, "MessageName"),
+                    new Expr[] { new Expr(Expr.SYMBOL, blacklist[0]),
+                            new Expr(blacklist[1]) }));
         }
         mBlist = new Expr(Expr.SYM_LIST, exprs.toArray(new Expr[exprs.size()]));
     }
 
     public static final String IDENTITY = "KernelLink";
 
-    private static final Expr TIMECONSTRAINED = new Expr(Expr.SYMBOL, "TimeConstrained");
+    private static final String RESOURCES = "/de/uka/ilkd/key/dl/arithmetics/impl/mathematica/";
+
+    private static final Expr TIMECONSTRAINED = new Expr(Expr.SYMBOL,
+            "TimeConstrained");
 
     private Map<Expr, ExprAndMessages> cache;
 
@@ -117,7 +123,8 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 
     private static final int MAX_CACHE_SIZE = 10000;
 
-    private static final Expr MEMORYCONSUMPTION = new Expr(new Expr(Expr.SYMBOL,"MaxMemoryUsed"), new Expr[]{});
+    private static final Expr MEMORYCONSUMPTION = new Expr(new Expr(
+            Expr.SYMBOL, "MaxMemoryUsed"), new Expr[] {});
 
     private Logger logger;
 
@@ -126,6 +133,8 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
     private StringBuffer calcTimes;
 
     private boolean abort;
+
+    private File amc;
 
     /**
      * Creates a new KernelLinkWrapper for the given port
@@ -236,17 +245,75 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
             testForError(link);
             link.discardAnswer();
             testForError(link);
-            
+
             // Now we redefine the run commands for security reasons.
             link.newPacket();
             testForError(link);
-            link.evaluate(" ClearAttributes[Run,Protected];Run:=$Failed;ClearAttributes[RunThrough,Protected];RunThrough:=$Failed;");
+            link
+                    .evaluate("ClearAttributes[Run,Protected];Run:=$Failed;ClearAttributes[RunThrough,Protected];RunThrough:=$Failed;");
             link.discardAnswer();
             testForError(link);
+
+            try {
+                File amc = createResources();
+                if (amc == null) {
+                    log(Level.WARNING, "No initialization of AMC present");
+                } else {
+                    link.newPacket();
+                    testForError(link);
+                    link
+                            .evaluate(new Expr(new Expr(Expr.SYMBOL, "Needs"),
+                                    new Expr[] {
+                                            new Expr(Expr.STRING, "AMC`"),
+                                            new Expr(Expr.STRING, amc
+                                                    .getAbsolutePath()) }));
+                    link.discardAnswer();
+                    testForError(link);
+                }
+            } catch (IOException dump) {
+                log(Level.WARNING, "Could not initialize AMC because of "
+                        + dump);
+                dump.printStackTrace();
+            }
+
             log(Level.FINE, "Awaiting connections from other hosts...");
         } catch (MathLinkException e) {
             log(Level.WARNING, "Could not initialise math link", e);
             throw new RemoteException("Could not initialise math link", e);
+        }
+    }
+
+    private File createResources() throws IOException {
+        if (amc != null) {
+            return amc;
+        }
+        InputStream amcresource = null;
+        OutputStream amcdump = null;
+        try {
+            amcresource = new BufferedInputStream(getClass()
+                    .getResourceAsStream(RESOURCES + "AMC.mx"));
+            if (amcresource == null) {
+                return null;
+            }
+            this.amc = File.createTempFile("AMCdump", ".mx");
+            amc.deleteOnExit();
+            amcdump = new BufferedOutputStream(new FileOutputStream(amc));
+            final byte[] buffer = new byte[4096];
+            while (true) {
+                int len = amcresource.read(buffer);
+                if (len < 0) {
+                    return amc;
+                } else {
+                    amcdump.write(buffer, 0, len);
+                }
+            }
+        } finally {
+            if (amcresource != null) {
+                amcresource.close();
+            }
+            if (amcdump != null) {
+                amcdump.close();
+            }
         }
     }
 
@@ -319,11 +386,15 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
      * @see de.uka.ilkd.key.dl.IKernelLinkWrapper#evaluate(com.wolfram.jlink.Expr)
      */
     public synchronized ExprAndMessages evaluate(Expr expr, long timeout)
-            throws RemoteException, ServerStatusProblemException, ConnectionProblemException, UnsolveableException {
+            throws RemoteException, ServerStatusProblemException,
+            ConnectionProblemException, UnsolveableException {
         return evaluate(expr, timeout, true);
     }
-        public synchronized ExprAndMessages evaluate(Expr expr, long timeout, boolean allowCache)
-        throws RemoteException, ServerStatusProblemException, ConnectionProblemException, UnsolveableException {
+
+    public synchronized ExprAndMessages evaluate(Expr expr, long timeout,
+            boolean allowCache) throws RemoteException,
+            ServerStatusProblemException, ConnectionProblemException,
+            UnsolveableException {
         // if (abort) {
         // throw new IllegalStateException("Abort forced");
         // }
@@ -347,18 +418,15 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
                 return exprAndMessages;
             }
             // wrap inside time constraints
-            final Expr compute = timeout <= 0
-            ? expr
-                    : new Expr(TIMECONSTRAINED, new Expr[] {
-                            expr,
-                            new Expr((timeout+999) / 1000)
-                    });
+            final Expr compute = timeout <= 0 ? expr : new Expr(
+                    TIMECONSTRAINED, new Expr[] { expr,
+                            new Expr((timeout + 999) / 1000) });
             log(Level.FINEST, "Clearing link state");
             link.newPacket();
             log(Level.FINEST, "Start evaluation");
             // wrap inside exception checks
-            Expr check = new Expr(new Expr(Expr.SYMBOL,"Check"), new Expr[] { compute,
-                    new Expr("$Exception"), mBlist });
+            Expr check = new Expr(new Expr(Expr.SYMBOL, "Check"), new Expr[] {
+                    compute, new Expr("$Exception"), mBlist });
             link.evaluate(check);
             testForError(link);
             log(Level.FINEST, "Waiting for anwser.");
@@ -380,8 +448,9 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
                 link.evaluate("$MessageList");
                 link.waitForAnswer();
                 Expr msg = link.getExpr();
-                throw new UnsolveableException("Cannot solve " + compute.toString()
-                        + " because message " + msg + " of the messages in " + messageBlacklist
+                throw new UnsolveableException("Cannot solve "
+                        + compute.toString() + " because message " + msg
+                        + " of the messages in " + messageBlacklist
                         + " occured");
             }
             testForError(link);
@@ -391,7 +460,7 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
             link.newPacket();
             testForError(link);
             log(Level.FINEST, "Checking for messages");
-//            link.evaluate("Messages[" + compute.head().toString() + "]");
+            // link.evaluate("Messages[" + compute.head().toString() + "]");
             link.evaluate("$MessageList");
             link.waitForAnswer();
             Expr msg = link.getExpr();
@@ -412,7 +481,8 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
             if (cache.size() > MAX_CACHE_SIZE) {
                 cache.clear();
             }
-            if (!"$Aborted".equalsIgnoreCase(result.toString()) && !result.toString().contains("Abort[]")) {
+            if (!"$Aborted".equalsIgnoreCase(result.toString())
+                    && !result.toString().contains("Abort[]")) {
                 if (allowCache) {
                     // put to cache without time constraints
                     cache.put(expr, exprAndMessages);
@@ -438,8 +508,10 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
         }
 
     }
+
     public synchronized ExprAndMessages evaluate(Expr expr)
-    throws RemoteException, ServerStatusProblemException, ConnectionProblemException, UnsolveableException {
+            throws RemoteException, ServerStatusProblemException,
+            ConnectionProblemException, UnsolveableException {
         return evaluate(expr, -1);
     }
 
@@ -503,7 +575,8 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
         return addTime;
     }
 
-    public long getTotalMemory() throws RemoteException, ServerStatusProblemException, ConnectionProblemException {
+    public long getTotalMemory() throws RemoteException,
+            ServerStatusProblemException, ConnectionProblemException {
         // TODO assuming server hasn't been killed during the computations
         try {
             Expr result = evaluate(MEMORYCONSUMPTION, -1, false).expression;
@@ -513,8 +586,9 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
             e.printStackTrace();
             throw new IllegalStateException("this is not supposed to happen");
         } catch (ExprFormatException e) {
-            throw new IllegalStateException("this result is not supposed to happen: ");
-        }        
+            throw new IllegalStateException(
+                    "this result is not supposed to happen: ");
+        }
     }
 
     /*

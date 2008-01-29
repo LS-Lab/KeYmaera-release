@@ -12,5 +12,6 @@
 ./hybrid/ETCS/paper/rbc-controllability-lemma.key
 ./hybrid/ETCS/paper/controllability-lemma.key
 ./hybrid/ETCS/paper/safety-lemma.key
+./hybrid/dev/rotation.key
 ./hybrid/ETCS/paper/reactivity-lemma.key
 ./hybrid/dev/diff-update.key
