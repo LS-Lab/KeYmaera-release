@@ -121,15 +121,15 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
                             "normalize inqualities",
                             "normalize inequalities to greater than and greater equals on the antecedent of the sequent, i.e., to the form a>=b ==> or a>b ==>"),
                     createDescriptor(
-                            "applyGammaRules",
-                            "apply gamma rules",
-                            "choose if and when gamma rules should be applied for existential quantifiers",
-                            true, false, ApplyRulesPropertyEditor.class),
-                    createDescriptor(
                             "applyUpdatesToModalities",
                             "apply updates to modalities",
                             "apply updates to modalites e.g. to get more simpler solutions for differential equations",
                             true, false),
+                    createDescriptor(
+                            "applyGammaRules",
+                            "apply gamma rules",
+                            "choose if and when gamma rules should be applied for existential quantifiers",
+                            true, false, ApplyRulesPropertyEditor.class),
                     //
                     createDescriptor(
                             "quantifierEliminator",

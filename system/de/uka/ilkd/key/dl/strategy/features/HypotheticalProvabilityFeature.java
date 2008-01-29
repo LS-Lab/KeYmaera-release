@@ -384,6 +384,8 @@ public class HypotheticalProvabilityFeature implements Feature {
      */
     public static HypotheticalProvability provable(RuleApp app, PosInOccurrence pos, Goal goal,
             int maxsteps, long timeout) {
+        // TODO could use goal.proof().getServices().getNamespaces().startProtocol(); and introduce remove later on
+        // and use appropriate Services.setBackCounters.
         NamespaceSet copy = null;
         assert (copy = goal.proof().getServices().getNamespaces().copy()) != null;
         Proof hypothetic = newHypotheticalProofFor(goal, timeout);
