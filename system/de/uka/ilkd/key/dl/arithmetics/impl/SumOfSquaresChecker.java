@@ -240,7 +240,7 @@ public class SumOfSquaresChecker {
                             d[i] = in.divide(Values.getDefault().valueOf(2))
                                     .doubleValue();
                             div = div.add(Values.getDefault().valueOf(d));
-                        } catch(Exception e) {
+                        } catch (Exception e) {
                             ok = false;
                         }
                     }
@@ -263,6 +263,7 @@ public class SumOfSquaresChecker {
         }
         Poly multiplyVec = multiplyVec(multiplyMatrix(monominals, matrix),
                 monominals);
+        System.out.println("Polynom: " + multiplyVec);// XXX
         mono = result.iterator();
         indices = result.indices();
 
@@ -282,7 +283,43 @@ public class SumOfSquaresChecker {
             }
         }
         System.out.println(constraints);// XXX
+        System.out.println("Matlab Input: ");//XXX
+        System.out.println("n = " + monominals.size() + ";");//XXX
+        System.out.println("cvx_begin");//XXX
+        System.out.println("variable X(n,n) symmetric;");//XXX
+        System.out.println("minimize(0);");//XXX
+        System.out.println("subject to");//XXX
+        convertConstraints(constraints, monominals.size());
+        System.out.println("X == semidefinite(n)");//XXX
+        System.out.println("cvx_end");//XXX
+        // print out X
+        System.out.println("X");//XXX
         return true;
+    }
+
+    /**
+     * @param constraints
+     * @param i 
+     */
+    private void convertConstraints(List<Constraint> constraints, int size) {
+        for(Constraint c: constraints) {
+            int[][] selectionMatrix = new int[size][size];
+            for(Vector v: c.indizes) {
+                selectionMatrix[((Integer)v.get(0)).intValue() - 1][((Integer)v.get(1)).intValue() - 1] = 1;
+            }
+            StringBuilder matrix = new StringBuilder();
+            matrix.append("[ ");
+            for(int i = 0; i < size; i++) {
+                for(int j = 0; j < size; j++) {
+                    matrix.append(selectionMatrix[i][j] + " ");
+                }
+                if(i + 1 < size) {
+                    matrix.append("; ");
+                }
+            }
+            matrix.append(" ]");
+            System.out.println("trace( " + matrix + " * X) == " + c.pre + ";" );//XXX
+        }
     }
 
     private class Constraint {
@@ -322,6 +359,31 @@ public class SumOfSquaresChecker {
 
     private class Poly {
         HashMap<Vector, List<Vector>> vec = new HashMap<Vector, List<Vector>>();
+
+        /*
+         * (non-Javadoc)
+         * 
+         * @see java.lang.Object#toString()
+         */
+        @Override
+        public String toString() {
+            StringBuilder b = new StringBuilder();
+            String plus = "";
+            for (Vector v : vec.keySet()) {
+                b.append(plus);
+                plus = "+";
+                for (int i = 0; i < v.dimension(); i++) {
+                    b.append(((char) ('a' + i)) + "^" + v.get(i));
+                }
+                b.append("* (");
+                for (Vector w : vec.get(v)) {
+                    b.append(plus);
+                    b.append(w);
+                }
+                b.append(")");
+            }
+            return b.toString();
+        }
     }
 
     /**
@@ -330,22 +392,22 @@ public class SumOfSquaresChecker {
      */
     private Poly multiplyVec(Vec multiplyMatrix, List<Vector> monominals) {
         Poly p = new Poly();
-        for (Vector v : monominals) {
-            for (Vector vv : multiplyMatrix.vec.keySet()) {
-                Vector res = vv.add(v);
+        for (int i = 0; i < monominals.size(); i++) {
+            for (Vector vv : multiplyMatrix.vec[0].keySet()) {
+                Vector res = vv.add(monominals.get(i));
                 List<Vector> result = p.vec.get(res);
                 if (result == null) {
                     result = new ArrayList<Vector>();
                     p.vec.put(res, result);
                 }
-                result.addAll(multiplyMatrix.vec.get(vv));
+                result.addAll(multiplyMatrix.vec[i].get(vv));
             }
         }
         return p;
     }
 
     private class Vec {
-        HashMap<Vector, List<Vector>> vec = new HashMap<Vector, List<Vector>>();
+        HashMap<Vector, List<Vector>>[] vec;
     }
 
     /**
@@ -354,14 +416,18 @@ public class SumOfSquaresChecker {
      */
     private Vec multiplyMatrix(List<Vector> monominals, Vector[][] matrix) {
         Vec p = new Vec();
+        p.vec = new HashMap[monominals.size()];
         for (int i = 0; i < monominals.size(); i++) {
+            p.vec[i] = new HashMap<Vector, List<Vector>>();
             for (int j = 0; j < monominals.size(); j++) {
-                List<Vector> list = p.vec.get(monominals.get(i));
+                List<Vector> list = p.vec[i].get(monominals.get(j));
+                System.out.println("Multiplying: " + monominals.get(j)
+                        + " with " + matrix[i][j]);// XXX
                 if (list == null) {
                     list = new ArrayList<Vector>();
-                    p.vec.put(monominals.get(i), list);
+                    p.vec[i].put(monominals.get(j), list);
                 }
-                list.add(matrix[j][i]);
+                list.add(matrix[i][j]);
             }
         }
         return p;
