@@ -88,8 +88,8 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
                             "quadratic timeout increase factor",
                             "the quadratic part of the IBC timeout. That is, the part c of t_new = a*t_old^2 + b*t_old + c (in milliseconds)"),
                     //
-                    createDescriptor("diffSat", "DiffSat strategy",
-                            "select which degree of DiffSat strategy to apply",
+                    createDescriptor("diffSat", "Differential Saturation",
+                            "select the desired automation degree of Differential Saturation",
                             false, false, DiffSatPropertyEditor.class),
                     createDescriptor(
                             "diffSatTimeout",
