@@ -261,7 +261,7 @@ public class DLOptionBean implements Settings {
         applyGammaRules = ApplyRules.ONLY_TO_MODALITIES;
         counterexampleTest = CounterexampleTest.ON;
         invariantRule = InvariantRule.QUANTIFIERS;
-        diffSatStrategy = DiffSat.OFF;
+        diffSatStrategy = DiffSat.AUTO;
         ignoreAnnotations = false;
 
         listeners = new HashSet<SettingsListener>();
