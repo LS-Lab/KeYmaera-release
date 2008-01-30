@@ -25,10 +25,12 @@ package de.uka.ilkd.key.dl;
 import java.beans.Customizer;
 import java.beans.IntrospectionException;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.net.ServerSocket;
 import java.rmi.RemoteException;
 
 import javax.swing.JComponent;
+import javax.swing.SwingUtilities;
 
 import orbital.awt.CustomizerViewController;
 import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
@@ -55,6 +57,7 @@ import de.uka.ilkd.key.proof.init.Profile;
 public class DLInitializer {
 
     public final static String IDENTITY = "KeyMainProgram";
+
     private static Customizer customizer;
 
     /**
@@ -88,13 +91,27 @@ public class DLInitializer {
             customizer = CustomizerViewController
                     .customizerFor(DLOptionBean.class);
             customizer.setObject(DLOptionBean.INSTANCE);
-            Main.getInstance().addTab("Hybrid Strategy", (JComponent) customizer,
-                    DLOptionBeanBeanInfo.DESCRIPTION);
+            SwingUtilities.invokeAndWait(new Runnable() {
+
+                @Override
+                public void run() {
+                    Main.getInstance().addTab("Hybrid Strategy",
+                            (JComponent) customizer,
+                            DLOptionBeanBeanInfo.DESCRIPTION);
+                }
+
+            });
         } catch (IntrospectionException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
         }
-        
+
         // taken from Mathematica ctor
         Main.getInstance().mediator().addAutoModeListener(
                 new AutomodeListener());
@@ -112,7 +129,7 @@ public class DLInitializer {
                     }
 
                 });
-        
+
     }
 
     /**
