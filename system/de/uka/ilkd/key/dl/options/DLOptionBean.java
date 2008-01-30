@@ -26,6 +26,7 @@ import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
 
+import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
 import de.uka.ilkd.key.gui.GUIEvent;
 import de.uka.ilkd.key.gui.KeYMediator;
 import de.uka.ilkd.key.gui.Main;
@@ -63,7 +64,8 @@ public class DLOptionBean implements Settings {
     }
 
     public static enum DiffSat {
-        BLIND("blind"), OFF("off"), SIMPLE("simple"), DIFF("diffauto"), AUTO("auto");
+        BLIND("blind"), OFF("off"), SIMPLE("simple"), DIFF("diffauto"), AUTO(
+                "auto");
 
         private String string;
 
@@ -90,6 +92,7 @@ public class DLOptionBean implements Settings {
         private CounterexampleTest(String str) {
             this.string = str;
         }
+
         @Override
         public String toString() {
             return string;
@@ -135,7 +138,9 @@ public class DLOptionBean implements Settings {
      * 
      */
     private static final String DLOPTIONS_INITIAL_TIMEOUT = "[DLOptions]initialTimeout";
+
     private static final String DLOPTIONS_DIFFSAT_TIMEOUT = "[DLOptions]diffSatTimeout";
+
     private static final String DLOPTIONS_LOOPSAT_TIMEOUT = "[DLOptions]loopSatTimeout";
 
     /**
@@ -192,11 +197,11 @@ public class DLOptionBean implements Settings {
     private int linearTimeoutIncreaseFactor;
 
     private int constantTimeoutIncreaseFactor;
-    
+
     private long diffSatTimeout;
 
     private long loopSatTimeout;
-    
+
     private boolean useTimeoutStrategy;
 
     private boolean splitBeyondFO;
@@ -228,9 +233,9 @@ public class DLOptionBean implements Settings {
     private String simplifier;
 
     private ApplyRules applyGammaRules;
-    
+
     private InvariantRule invariantRule;
-    
+
     private boolean ignoreAnnotations;
 
     private DLOptionBean() {
@@ -260,6 +265,33 @@ public class DLOptionBean implements Settings {
         ignoreAnnotations = false;
 
         listeners = new HashSet<SettingsListener>();
+    }
+
+    /**
+     * The init method is called from the DL initializer. It is necessary as
+     * there may be dependencies from the MathSolverManager to the
+     * DLOptionBean.INSTANCE, thus we cannot access the MathSolverManager from
+     * the ctor.
+     */
+    public void init() {
+        if (counterExampleGenerator.equals("")
+                && !MathSolverManager.getCounterExampleGenerators().isEmpty()) {
+            counterExampleGenerator = MathSolverManager
+                    .getCounterExampleGenerators().iterator().next();
+        }
+        if (odeSolver.equals("")
+                && !MathSolverManager.getODESolvers().isEmpty()) {
+            odeSolver = MathSolverManager.getODESolvers().iterator().next();
+        }
+        if (quantifierEliminator.equals("")
+                && !MathSolverManager.getQuantifierEliminators().isEmpty()) {
+            quantifierEliminator = MathSolverManager.getQuantifierEliminators()
+                    .iterator().next();
+        }
+        if (simplifier.equals("")
+                && !MathSolverManager.getSimplifiers().isEmpty()) {
+            simplifier = MathSolverManager.getSimplifiers().iterator().next();
+        }
     }
 
     /**
@@ -512,9 +544,11 @@ public class DLOptionBean implements Settings {
                 normalizeEquations).toString());
         props.setProperty(DLOPTIONS_APPLY_UPDATES_TO_MODALITIES, new Boolean(
                 applyUpdatesToModalities).toString());
-        props.setProperty(DLOPTIONS_COUNTEREXAMPLE_TEST, counterexampleTest.name());
+        props.setProperty(DLOPTIONS_COUNTEREXAMPLE_TEST, counterexampleTest
+                .name());
         props.setProperty(DLOPTIONS_STOP_AT_FO, Boolean.toString(stopAtFO));
-        props.setProperty(DLOPTIONS_IGNORE_ANNOTATIONS, Boolean.toString(ignoreAnnotations));
+        props.setProperty(DLOPTIONS_IGNORE_ANNOTATIONS, Boolean
+                .toString(ignoreAnnotations));
 
         if (counterExampleGenerator != null) {
             props.setProperty(DLOPTIONS_COUNTEREXAMPLE_GENERATOR,
@@ -810,7 +844,8 @@ public class DLOptionBean implements Settings {
     }
 
     /**
-     * @param invariantRule the invariantRule to set
+     * @param invariantRule
+     *                the invariantRule to set
      */
     public void setInvariantRule(InvariantRule invariantRule) {
         this.invariantRule = invariantRule;
@@ -825,7 +860,8 @@ public class DLOptionBean implements Settings {
     }
 
     /**
-     * @param useDiffSAT the useDiffSAT to set
+     * @param useDiffSAT
+     *                the useDiffSAT to set
      */
     public void setDiffSat(DiffSat useDiffSAT) {
         this.diffSatStrategy = useDiffSAT;

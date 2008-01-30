@@ -35,11 +35,13 @@ import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
 import de.uka.ilkd.key.dl.arithmetics.abort.AbortBridge;
 import de.uka.ilkd.key.dl.arithmetics.abort.AbortProgram;
 import de.uka.ilkd.key.dl.arithmetics.impl.mathematica.KernelLinkWrapper;
+import de.uka.ilkd.key.dl.gui.AutomodeListener;
 import de.uka.ilkd.key.dl.options.DLOptionBean;
 import de.uka.ilkd.key.dl.options.DLOptionBeanBeanInfo;
 import de.uka.ilkd.key.gui.AutoModeListener;
 import de.uka.ilkd.key.gui.Main;
 import de.uka.ilkd.key.gui.configuration.ProofSettings;
+import de.uka.ilkd.key.proof.ProofEvent;
 import de.uka.ilkd.key.proof.init.Profile;
 
 /**
@@ -81,6 +83,7 @@ public class DLInitializer {
                 e.printStackTrace();
             }
         }
+        DLOptionBean.INSTANCE.init();
         try {
             customizer = CustomizerViewController
                     .customizerFor(DLOptionBean.class);
@@ -91,6 +94,25 @@ public class DLInitializer {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
+        
+        // taken from Mathematica ctor
+        Main.getInstance().mediator().addAutoModeListener(
+                new AutomodeListener());
+        Main.getInstance().mediator().addAutoModeListener(
+                new AutoModeListener() {
+
+                    public void autoModeStarted(ProofEvent e) {
+                        Main.autoModeAction.setEnabled(false);
+                    }
+
+                    public void autoModeStopped(ProofEvent e) {
+                        MathSolverManager.resetAbortState();
+
+                        Main.autoModeAction.enable();
+                    }
+
+                });
+        
     }
 
     /**

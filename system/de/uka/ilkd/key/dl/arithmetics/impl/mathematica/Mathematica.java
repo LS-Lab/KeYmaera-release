@@ -74,8 +74,7 @@ public class Mathematica implements ICounterExampleGenerator, IODESolver,
     private IMathematicaDLBridge bridge;
 
     public Mathematica(Node node) {
-        Main.getInstance().mediator().addAutoModeListener(
-                new AutomodeListener());
+
         try {
             ServerSocket serverSocket = new ServerSocket(0);
             int port = serverSocket.getLocalPort();
@@ -106,20 +105,7 @@ public class Mathematica implements ICounterExampleGenerator, IODESolver,
             e.printStackTrace();
         }
 
-        Main.getInstance().mediator().addAutoModeListener(
-                new AutoModeListener() {
-
-                    public void autoModeStarted(ProofEvent e) {
-                        Main.autoModeAction.setEnabled(false);
-                    }
-
-                    public void autoModeStopped(ProofEvent e) {
-                        MathSolverManager.resetAbortState();
-
-                        Main.autoModeAction.enable();
-                    }
-
-                });
+        
 
         XPath xpath = XPathFactory.newInstance().newXPath();
         String server = null;
@@ -143,37 +129,6 @@ public class Mathematica implements ICounterExampleGenerator, IODESolver,
             e.printStackTrace();// XXX
             throw new RuntimeException("Could not create bridge.", e);
         }
-        // try {
-        // NodeList children = node.getChildNodes();
-        // String server = null;
-        // int port = -1;
-        // for (int i = 0; i < children.getLength(); i++) {
-        // Node n = children.item(i);
-        // if (n.getNodeName().equalsIgnoreCase("server")) {
-        // for (int j = 0; j < n.getChildNodes().getLength(); j++) {
-        // if (n.getChildNodes().item(j).getNodeName()
-        // .equals("ip")) {
-        // server = n.getChildNodes().item(j).getFirstChild()
-        // .getNodeValue();
-        // } else if (n.getChildNodes().item(j).getNodeName()
-        // .equals("port")) {
-        // port = Integer.parseInt(n.getChildNodes().item(j)
-        // .getFirstChild().getNodeValue());
-        // }
-        // }
-        // }
-        // }
-        // if (server == null || port == -1) {
-        // throw new RuntimeException("XML does not contain a correct"
-        // + " server configuration: "
-        // + "<server><ip/><port/></server> needed");
-        // }
-        // bridge = new MathematicaDLBridge(server, port);
-        // } catch (RemoteException e) {
-        // // TODO Auto-generated catch block
-        // e.printStackTrace();
-        // }
-
     }
 
     /*
