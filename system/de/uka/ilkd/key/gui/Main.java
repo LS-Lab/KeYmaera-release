@@ -149,7 +149,7 @@ public class Main extends JFrame {
 
     private static final String COPYRIGHT="(C) Copyright 2001-2007 "
         +"Universit\u00e4t Karlsruhe, Universit\u00e4t Koblenz-Landau, "
-        +"and Chalmers University of Technology";
+        +"Chalmers University of Technology, and Universit\u00e4t Oldenburg";
     
     /**
      * The maximum number of recent files displayed.
