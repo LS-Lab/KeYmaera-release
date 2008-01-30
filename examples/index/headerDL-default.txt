@@ -1,12 +1,15 @@
 \settings {
-"#Proof-Settings-Config-File
-#Tue Sep 18 14:38:15 CEST 2007
+"
+#Proof-Settings-Config-File
+#Wed Jan 30 15:13:50 CET 2008
 [DLOptions]callReduce=true
 [DecisionProcedure]SmtBenchmarkArchiving=false
+[DLOptions]loopSatTimeout=2000000
 [SimultaneousUpdateSimplifier]DeleteEffectLessLocations=true
-[StrategyProperty]QUANTIFIERS_OPTIONS_KEY=QUANTIFIERS_NONE
+[StrategyProperty]QUANTIFIERS_OPTIONS_KEY=QUANTIFIERS_NON_SPLITTING_WITH_PROGS
+[DLOptions]invariantRule=QUANTIFIERS
 [DLOptions]linearTimeoutIncreaseFactor=2
-[StrategyProperty]SPLITTING_OPTIONS_KEY=SPLITTING_NORMAL
+[StrategyProperty]SPLITTING_OPTIONS_KEY=SPLITTING_DELAYED
 [Model]Source=1
 [DLOptions]useTimeoutStrategy=true
 [Strategy]Timeout=-1
@@ -14,16 +17,16 @@
 [StrategyProperty]USER_TACLETS_OPTIONS_KEY2=USER_TACLETS_OFF
 [StrategyProperty]USER_TACLETS_OPTIONS_KEY1=USER_TACLETS_OFF
 [MathematicaOptions]useEliminateList=true
-[Choice]DefaultChoices=transactions-transactions\:transactionsOn , programRules-programRules\:Java , transactionAbort-transactionAbort\:abortOn , throughout-throughout\:toutOn , intRules-intRules\:arithmeticSemanticsIgnoringOF , nullPointerPolicy-nullPointerPolicy\:nullCheck
+[Choice]DefaultChoices=throughout-throughout\:toutOn , transactions-transactions\:transactionsOn , intRules-intRules\:arithmeticSemanticsIgnoringOF , programRules-programRules\:Java , transactionAbort-transactionAbort\:abortOn , nullPointerPolicy-nullPointerPolicy\:nullCheck
 [StrategyProperty]METHOD_OPTIONS_KEY=METHOD_EXPAND
 [General]SuggestiveVarNames=false
 [DLOptions]quantifierEliminator=Mathematica
 [DLOptions]normalizeEquations=true
 [View]HideIntermediateProofsteps=false
 [DecisionProcedureForTest]=Cogent
-[SimultaneousUpdateSimplifier]EagerSimplification=false
+[SimultaneousUpdateSimplifier]EagerSimplification=true
 [DecisionProcedure]=SIMPLIFY
-[Strategy]ActiveStrategy=Simple JavaCardDL
+[Strategy]ActiveStrategy=DLStrategy
 [View]ShowWholeTaclet=false
 [DLOptions]splitBeyondFO=false
 [MathematicaOptions]quantifierEliminationMethod=REDUCE
@@ -32,30 +35,33 @@
 [General]OuterRenaming=false
 [DLOptions]counterExampleGenerator=Mathematica
 [DLOptions]simplifyBeforeReduce=true
-[OrbitalOptions]representation=big
 [DecisionProcedure]SmtZipProblemDir=false
+[OrbitalOptions]representation=big
 [DLOptions]readdQuantifiers=true
+[DLOptions]simplifier=Mathematica
 [OrbitalOptions]precision=34
 [General]StupidMode=true
 [DLOptions]initialTimeout=2000
+[DLOptions]ignoreAnnotations=false
 [DLOptions]stopAtFO=false
 [DLOptions]quadricTimeoutIncreaseFactor=0
 [General]DnDDirectionSensitive=true
 [General]ProofAssistant=false
 [View]FontIndex=2
-[DLOptions]simplfier=Mathematica
 [StrategyProperty]QUERY_OPTIONS_KEY=QUERY_NONE
 [DLOptions]odeSolver=Mathematica
 [DecisionProcedure]SmtUseQuantifiers=true
 [DLOptions]applyToModality=false
+[DLOptions]DiffSat=OFF
+[DLOptions]counterexampleTest=ON
+[DLOptions]diffSatTimeout=4000
 [DLOptions]constantTimeoutIncreaseFactor=0
 [Strategy]MaximumNumberOfAutomaticApplications=1000
 [View]MaxTooltipLines=40
 [General]SoundNotification=false
 [DLOptions]simplifyAfterReduce=true
-[Choice]Choices=transactions-transactions\:transactionsOff-transactions\:transactionsOn , programRules-programRules\:ODL-programRules\:Java-programRules\:dL , throughout-throughout\:toutOff-throughout\:toutOn , transactionAbort-transactionAbort\:abortOff-transactionAbort\:abortOn , intRules-intRules\:arithmeticSemanticsCheckingOF-intRules\:javaSemantics-intRules\:arithmeticSemanticsIgnoringOF , nullPointerPolicy-nullPointerPolicy\:noNullCheck-nullPointerPolicy\:nullCheck
+[Choice]Choices=transactions-transactions\:transactionsOn-transactions\:transactionsOff , throughout-throughout\:toutOn-throughout\:toutOff , programRules-programRules\:Java-programRules\:ODL-programRules\:dL , intRules-intRules\:javaSemantics-intRules\:arithmeticSemanticsIgnoringOF-intRules\:arithmeticSemanticsCheckingOF , transactionAbort-transactionAbort\:abortOn-transactionAbort\:abortOff , nullPointerPolicy-nullPointerPolicy\:noNullCheck-nullPointerPolicy\:nullCheck
 [StrategyProperty]NON_LIN_ARITH_OPTIONS_KEY=NON_LIN_ARITH_NONE
-[StrategyProperty]LOOP_OPTIONS_KEY=LOOP_EXPAND
-[DLOptions]useFindInstanceTest=false
+[StrategyProperty]LOOP_OPTIONS_KEY=LOOP_INVARIANT
 "
 }

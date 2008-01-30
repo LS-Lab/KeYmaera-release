@@ -13,5 +13,5 @@
 ./hybrid/ETCS/paper/controllability-lemma.key
 ./hybrid/ETCS/paper/safety-lemma.key
 ./hybrid/dev/rotation.key
-./hybrid/ETCS/paper/reactivity-lemma.key
-./hybrid/dev/diff-update.key
+./hybrid/ETCS/paper/reactivity-lemma.key 100000
+./hybrid/dev/diff-update.key 100000

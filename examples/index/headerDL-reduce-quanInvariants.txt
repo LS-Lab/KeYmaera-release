@@ -16,7 +16,7 @@
 [DLOptions]quadricTimeoutIncreaseFactor=0
 [DLOptions]quantifierEliminator=Mathematica
 [DLOptions]readdQuantifiers=true
-[DLOptions]simplfier=Mathematica
+[DLOptions]simplifier=Mathematica
 [DLOptions]simplifyAfterReduce=true
 [DLOptions]simplifyBeforeReduce=true
 [DLOptions]splitBeyondFO=false
