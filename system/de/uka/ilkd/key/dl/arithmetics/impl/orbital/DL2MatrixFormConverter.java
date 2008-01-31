@@ -199,7 +199,8 @@ public class DL2MatrixFormConverter {
             ProgramElement childAt = ft.getChildAt(0);
             if (childAt instanceof FreeFunction) {
                 FreeFunction ff = (FreeFunction) childAt;
-                if (ft.getChildCount() == 1) {
+                if (ft.getChildCount() == 1) { // this means the function has
+                                                // no arguments
                     val.res = val.res.multiply(Values.getDefault().symbol(
                             ff.getSymbol()));
                 } else {
@@ -209,10 +210,15 @@ public class DL2MatrixFormConverter {
             } else if (childAt instanceof MinusSign) {
                 val.res = val.res.minus();
                 convert(variables, t, val, ft.getChildAt(1));
+            } else {
+                throw new IllegalArgumentException(
+                        "Dont know how to represent the function of type "
+                                + childAt.getClass() + " in orbital: " + m);
             }
+        } else {
+            throw new IllegalArgumentException("Dont know how to represent a "
+                    + t.getClass() + " in orbital: " + m);
         }
-        throw new IllegalArgumentException("Dont know how to represent a "
-                + t.getClass() + " in orbital: " + m);
     }
 
     /**
