@@ -300,7 +300,7 @@ public class DiffSatFeature implements Feature {
             return TopRuleAppCost.INSTANCE;
         } catch (FailedComputationException e) {
             System.out.print("HYPO: " + diffind.rule().name() + " step    for " + candidatePrint + " FAILED " + e);
-            return TopRuleAppCost.INSTANCE;
+            throw new IllegalArgumentException(e.getMessage(), e);
         } catch (SolverException e) {
             throw (InternalError) new InternalError(e.getMessage()).initCause(e);
         }

@@ -68,9 +68,9 @@ public class DiffInd extends AbstractDLMetaOperator {
         try {
             return diffInd(term.sub(0), services);
         } catch (UnsolveableException e) {
-            throw new IllegalStateException("DiffInd cannot handle these equations", e);
+            throw new IllegalStateException(e.getMessage(), e);
         } catch (FailedComputationException e) {
-            throw new IllegalStateException("DiffInd did not handle these equations", e);
+            throw new IllegalStateException(e.getMessage(), e);
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {

@@ -219,11 +219,11 @@ public class Orbital implements IODESolver {
 
     public Term diffInd(DiffSystem form, Term post, NamespaceSet nss)
     throws RemoteException, SolverException {
-        throw new FailedComputationException("DiffInd not yet implemented for this differential equation solver. Choose a different solver from options menu.");
+        throw new FailedComputationException("This differential equation solver does not provide DiffInd. Choose a different solver from the Options menu.");
     }
     public Term diffFin(DiffSystem form, Term post, NamespaceSet nss)
     throws RemoteException, SolverException {
-        throw new FailedComputationException("DiffFin not yet implemented for this differential equation solver. Choose a different solver from options menu.");
+        throw new FailedComputationException("This differential equation solver does not provide DiffFin. Choose a different solver from the Options menu.");
     }
 
     /**
