@@ -50,7 +50,10 @@ import org.w3c.dom.Node;
 
 import de.uka.ilkd.key.dl.arithmetics.IODESolver;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ConnectionProblemException;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.FailedComputationException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ServerStatusProblemException;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.UnsolveableException;
 import de.uka.ilkd.key.dl.arithmetics.impl.orbital.DL2MatrixFormConverter.MatrixForm;
 import de.uka.ilkd.key.dl.logic.ldt.RealLDT;
 import de.uka.ilkd.key.dl.model.DLNonTerminalProgramElement;
@@ -112,111 +115,115 @@ public class Orbital implements IODESolver {
      *      de.uka.ilkd.key.logic.NamespaceSet)
      */
     public ODESolverResult odeSolve(DiffSystem form, LogicVariable t, LogicVariable ts,
-            Term phi, NamespaceSet nss) throws RemoteException {
-        List<String> vars = new ArrayList<String>();
+            Term phi, NamespaceSet nss) throws RemoteException, SolverException {
+        try {
+            List<String> vars = new ArrayList<String>();
 
-        collectDottedProgramVariables(form, vars, t);
-        Term invariant = form.getInvariant();
-        List<ProgramElement> equations = form.getDifferentialEquations();
+            collectDottedProgramVariables(form, vars, t);
+            Term invariant = form.getInvariant();
+            List<ProgramElement> equations = form.getDifferentialEquations();
 
-        // create matrix
-        MatrixForm matrixForm = DL2MatrixFormConverter.INSTANCE
-                .convertToMatrixForm(vars, equations);
-        System.out.println("Solving ODE x'(t) ==\n" + matrixForm.matrix
-                + "*x(t) + " + matrixForm.b + "\n" + "  " + matrixForm.eta
-                + "'(t) == " + matrixForm.matrix.multiply(matrixForm.eta)
-                + " + " + matrixForm.b + "\n" + "\nwith initial value  "
-                + matrixForm.eta + " at 0");// XXX
-        Function solve = AlgebraicAlgorithms.dSolve(matrixForm.matrix,
-                matrixForm.b, Values.getDefault().ZERO(), matrixForm.eta);
-        System.out.println("yields " + solve); // XXX
-        final Symbol tSym = Values.getDefault().symbol("t");
-        System.out
-                .println("  solution at " + tSym + " is " + solve.apply(tSym));// XXX
-        // Arithmetic apply = (Arithmetic) solve.apply(tSym);
-        final UnivariatePolynomial[] componentPolynomials = AlgebraicAlgorithms
-                .componentPolynomials((UnivariatePolynomial) solve);
-        System.out.println(Arrays.toString(componentPolynomials));// XXX
-        List<Term> values = new ArrayList<Term>();
-        final Sort sortR = RealLDT.getRealSort();
-        final Term zero = TermBuilder.DF.func(NumberCache.getNumber(
-                new BigDecimal("0"), sortR));
-        int j = 0;
-        for (UnivariatePolynomial poly : componentPolynomials) {
+            // create matrix
+            MatrixForm matrixForm = DL2MatrixFormConverter.INSTANCE
+            .convertToMatrixForm(vars, equations);
+            System.out.println("Solving ODE x'(t) ==\n" + matrixForm.matrix
+                    + "*x(t) + " + matrixForm.b + "\n" + "  " + matrixForm.eta
+                    + "'(t) == " + matrixForm.matrix.multiply(matrixForm.eta)
+                    + " + " + matrixForm.b + "\n" + "\nwith initial value  "
+                    + matrixForm.eta + " at 0");// XXX
+            Function solve = AlgebraicAlgorithms.dSolve(matrixForm.matrix,
+                    matrixForm.b, Values.getDefault().ZERO(), matrixForm.eta);
+            System.out.println("yields " + solve); // XXX
+            final Symbol tSym = Values.getDefault().symbol("t");
+            System.out
+            .println("  solution at " + tSym + " is " + solve.apply(tSym));// XXX
+            // Arithmetic apply = (Arithmetic) solve.apply(tSym);
+            final UnivariatePolynomial[] componentPolynomials = AlgebraicAlgorithms
+            .componentPolynomials((UnivariatePolynomial) solve);
+            System.out.println(Arrays.toString(componentPolynomials));// XXX
+            List<Term> values = new ArrayList<Term>();
+            final Sort sortR = RealLDT.getRealSort();
+            final Term zero = TermBuilder.DF.func(NumberCache.getNumber(
+                    new BigDecimal("0"), sortR));
+            int j = 0;
+            for (UnivariatePolynomial poly : componentPolynomials) {
 
-            ListIterator<?> iterator = poly.iterator();
-            Term value = zero;
-            int i = 0;
-            while (iterator.hasNext()) {
-                Object next = iterator.next();
-                Term n = convert(sortR, zero, nss, next);
+                ListIterator<?> iterator = poly.iterator();
+                Term value = zero;
+                int i = 0;
+                while (iterator.hasNext()) {
+                    Object next = iterator.next();
+                    Term n = convert(sortR, zero, nss, next);
 
-                if (n != null) {
-                    if (i == 0) {
-                        value = n;
-                    } else if (i == 1) {
-                        value = TermBuilder.DF.func((TermSymbol) nss
-                                .functions().lookup(new Name("add")), value,
-                                TermBuilder.DF.func((TermSymbol) nss
-                                        .functions().lookup(new Name("mul")),
-                                        n, TermBuilder.DF.var(t)));
-                    } else {
-                        Term tTerm = TermBuilder.DF.var(t);
-                        tTerm = TermBuilder.DF.func((TermSymbol) nss
-                                .functions().lookup(new Name("exp")), tTerm,
-                                TermBuilder.DF.func(NumberCache.getNumber(
-                                        new BigDecimal(i), sortR)));
-                        value = TermBuilder.DF.func((TermSymbol) nss
-                                .functions().lookup(new Name("add")), value,
-                                TermBuilder.DF.func((TermSymbol) nss
-                                        .functions().lookup(new Name("mul")),
-                                        n, tTerm));
+                    if (n != null) {
+                        if (i == 0) {
+                            value = n;
+                        } else if (i == 1) {
+                            value = TermBuilder.DF.func((TermSymbol) nss
+                                    .functions().lookup(new Name("add")), value,
+                                    TermBuilder.DF.func((TermSymbol) nss
+                                            .functions().lookup(new Name("mul")),
+                                            n, TermBuilder.DF.var(t)));
+                        } else {
+                            Term tTerm = TermBuilder.DF.var(t);
+                            tTerm = TermBuilder.DF.func((TermSymbol) nss
+                                    .functions().lookup(new Name("exp")), tTerm,
+                                    TermBuilder.DF.func(NumberCache.getNumber(
+                                            new BigDecimal(i), sortR)));
+                            value = TermBuilder.DF.func((TermSymbol) nss
+                                    .functions().lookup(new Name("add")), value,
+                                    TermBuilder.DF.func((TermSymbol) nss
+                                            .functions().lookup(new Name("mul")),
+                                            n, tTerm));
+                        }
                     }
+                    i++;
                 }
-                i++;
+                System.out.println("Solution for " + matrixForm.eta.get(j) + " is "
+                        + value);// XXX
+                values.add(value);
+                j++;
             }
-            System.out.println("Solution for " + matrixForm.eta.get(j) + " is "
-                    + value);// XXX
-            values.add(value);
-            j++;
-        }
-        List<Term> locations = new ArrayList<Term>();
-        for (Arithmetic variable : matrixForm.eta.toArray()) {
-            de.uka.ilkd.key.logic.op.ProgramVariable lookup = (de.uka.ilkd.key.logic.op.ProgramVariable) nss
-                    .programVariables().lookup(
-                            new Name(((Symbol) variable).getSignifier()));
-            locations.add(TermBuilder.DF.var(lookup));
-        }
+            List<Term> locations = new ArrayList<Term>();
+            for (Arithmetic variable : matrixForm.eta.toArray()) {
+                de.uka.ilkd.key.logic.op.ProgramVariable lookup = (de.uka.ilkd.key.logic.op.ProgramVariable) nss
+                .programVariables().lookup(
+                        new Name(((Symbol) variable).getSignifier()));
+                locations.add(TermBuilder.DF.var(lookup));
+            }
 
-        invariant = TermBuilder.DF.tf().createSubstitutionTerm(
-                SubstOp.SUBST,
-                t,
-                TermBuilder.DF.var(ts),
-                de.uka.ilkd.key.logic.TermFactory.DEFAULT.createUpdateTerm(
-                        locations.toArray(new Term[0]), values
-                                .toArray(new Term[0]), invariant));
-        invariant = ((SubstOp)invariant.op()).apply(invariant);
-        // insert 0 <= ts <= t
-        de.uka.ilkd.key.logic.op.Function leq = (de.uka.ilkd.key.logic.op.Function) nss
-                .functions().lookup(new Name("leq"));
-        Term tsRange = TermBuilder.DF.and(TermBuilder.DF.func(leq, zero,
-                TermBuilder.DF.var(ts)), TermBuilder.DF.func(leq,
-                TermBuilder.DF.var(ts), TermBuilder.DF.var(t)));
-        invariant = TermBuilder.DF.imp(tsRange, invariant);
-        invariant = TermBuilder.DF.all(ts, invariant);
-        return new ODESolverResult(invariant,
-                de.uka.ilkd.key.logic.TermFactory.DEFAULT.createUpdateTerm(
-                        locations.toArray(new Term[0]), values
-                                .toArray(new Term[0]), phi));
+            invariant = TermBuilder.DF.tf().createSubstitutionTerm(
+                    SubstOp.SUBST,
+                    t,
+                    TermBuilder.DF.var(ts),
+                    de.uka.ilkd.key.logic.TermFactory.DEFAULT.createUpdateTerm(
+                            locations.toArray(new Term[0]), values
+                            .toArray(new Term[0]), invariant));
+            invariant = ((SubstOp)invariant.op()).apply(invariant);
+            // insert 0 <= ts <= t
+            de.uka.ilkd.key.logic.op.Function leq = (de.uka.ilkd.key.logic.op.Function) nss
+            .functions().lookup(new Name("leq"));
+            Term tsRange = TermBuilder.DF.and(TermBuilder.DF.func(leq, zero,
+                    TermBuilder.DF.var(ts)), TermBuilder.DF.func(leq,
+                            TermBuilder.DF.var(ts), TermBuilder.DF.var(t)));
+            invariant = TermBuilder.DF.imp(tsRange, invariant);
+            invariant = TermBuilder.DF.all(ts, invariant);
+            return new ODESolverResult(invariant,
+                    de.uka.ilkd.key.logic.TermFactory.DEFAULT.createUpdateTerm(
+                            locations.toArray(new Term[0]), values
+                            .toArray(new Term[0]), phi));
+        } catch (UnsupportedOperationException e) {
+            throw new FailedComputationException(e.getMessage(), e);
+        }
     }
 
     public Term diffInd(DiffSystem form, Term post, NamespaceSet nss)
-    throws RemoteException {
-        throw new UnsupportedOperationException("Not yet implemented for this solver");
+    throws RemoteException, SolverException {
+        throw new FailedComputationException("DiffInd not yet implemented for this differential equation solver. Choose a different solver from options menu.");
     }
     public Term diffFin(DiffSystem form, Term post, NamespaceSet nss)
-    throws RemoteException {
-        throw new UnsupportedOperationException("Not yet implemented for this solver");
+    throws RemoteException, SolverException {
+        throw new FailedComputationException("DiffFin not yet implemented for this differential equation solver. Choose a different solver from options menu.");
     }
 
     /**

@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.rmi.RemoteException;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -60,13 +61,13 @@ public abstract class MathSolverManager {
      */
     private static final String CONFIG_XML = "hybridkey.xml";
 
-    private static Map<String, ICounterExampleGenerator> COUNTEREXAMPLE_GENERATORS = new HashMap<String, ICounterExampleGenerator>();
+    private static Map<String, ICounterExampleGenerator> COUNTEREXAMPLE_GENERATORS = new LinkedHashMap<String, ICounterExampleGenerator>();
 
-    private static Map<String, IODESolver> ODESOLVERS = new HashMap<String, IODESolver>();
+    private static Map<String, IODESolver> ODESOLVERS = new LinkedHashMap<String, IODESolver>();
 
-    private static Map<String, IQuantifierEliminator> QUANTIFIER_ELMINIATORS = new HashMap<String, IQuantifierEliminator>();
+    private static Map<String, IQuantifierEliminator> QUANTIFIER_ELMINIATORS = new LinkedHashMap<String, IQuantifierEliminator>();
 
-    private static Map<String, ISimplifier> SIMPLIFIERS = new HashMap<String, ISimplifier>();
+    private static Map<String, ISimplifier> SIMPLIFIERS = new LinkedHashMap<String, ISimplifier>();
 
     /**
      * @param filename

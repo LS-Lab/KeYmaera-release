@@ -22,6 +22,7 @@
  */
 package de.uka.ilkd.key.dl.strategy.features;
 
+import java.rmi.RemoteException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -30,6 +31,9 @@ import java.util.WeakHashMap;
 
 import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
 import de.uka.ilkd.key.dl.arithmetics.IODESolver.ODESolverResult;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.FailedComputationException;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.UnsolveableException;
 import de.uka.ilkd.key.dl.model.DiffSystem;
 import de.uka.ilkd.key.dl.rules.metaconstruct.ODESolve;
 import de.uka.ilkd.key.java.ProgramElement;
@@ -113,22 +117,35 @@ public class ODESolvableFeature implements Feature {
             return cached;
         }
         final Services services = goal.proof().getServices();
-        Term result = ODESolve.ODE_SOLVE.odeSolve(term, services);
+        try {
+            Term result = ODESolve.ODE_SOLVE.odeSolve(term, services);
 
-        final boolean[] algebraic = { true };
-        result.execPreOrder(new Visitor() {
-            @Override
-            public void visit(Term visited) {
-                if (transcendentalList.contains(visited.op().name().toString())) {
-                    algebraic[0] = false;
+            final boolean[] algebraic = { true };
+            result.execPreOrder(new Visitor() {
+                @Override
+                public void visit(Term visited) {
+                    if (transcendentalList.contains(visited.op().name().toString())) {
+                        algebraic[0] = false;
+                    }
                 }
+            });
+            if (algebraic[0]) {
+                solvabilityCache .put(differentialEquations, LongRuleAppCost.ZERO_COST);
+                return LongRuleAppCost.ZERO_COST;
+            } else {
+                solvabilityCache.put(differentialEquations, TopRuleAppCost.INSTANCE);
+                return TopRuleAppCost.INSTANCE;
             }
-        });
-        if (algebraic[0]) {
-            solvabilityCache .put(differentialEquations, LongRuleAppCost.ZERO_COST);
-            return LongRuleAppCost.ZERO_COST;
-        } else {
+        } catch (UnsolveableException e) {
             solvabilityCache.put(differentialEquations, TopRuleAppCost.INSTANCE);
+            return TopRuleAppCost.INSTANCE;
+        } catch (FailedComputationException e) {
+            return TopRuleAppCost.INSTANCE;
+        } catch (RemoteException e) {
+            e.printStackTrace();
+            return TopRuleAppCost.INSTANCE;
+        } catch (SolverException e) {
+            e.printStackTrace();
             return TopRuleAppCost.INSTANCE;
         }
     }
