@@ -20,6 +20,8 @@
 package de.uka.ilkd.key.dl.rules.metaconstruct;
 
 import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.FailedComputationException;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.UnsolveableException;
 import de.uka.ilkd.key.dl.model.DiffSystem;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.java.StatementBlock;
@@ -72,6 +74,10 @@ public class DiffFin extends AbstractDLMetaOperator {
                 throw new IllegalStateException("Unknown modality "
                         + arg.op());
             }
+        } catch (UnsolveableException e) {
+            throw new IllegalStateException("DiffFin cannot handle these equations", e);
+        } catch (FailedComputationException e) {
+            throw new IllegalStateException("DiffFin did not handle these equations", e);
         } catch (RuntimeException e) {
             throw (RuntimeException) e;
         } catch (Exception e) {

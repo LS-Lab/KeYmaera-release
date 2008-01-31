@@ -20,9 +20,11 @@
 package de.uka.ilkd.key.dl.rules.metaconstruct;
 
 import java.math.BigDecimal;
+import java.rmi.RemoteException;
 
 import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
 import de.uka.ilkd.key.dl.arithmetics.IODESolver.ODESolverResult;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
 import de.uka.ilkd.key.dl.logic.ldt.RealLDT;
 import de.uka.ilkd.key.dl.model.DiffSystem;
 import de.uka.ilkd.key.dl.parser.NumberCache;
@@ -69,10 +71,17 @@ public class ODESolve extends AbstractDLMetaOperator {
      *      de.uka.ilkd.key.java.Services)
      */
     public Term calculate(Term term, SVInstantiations svInst, Services services) {
-        return odeSolve(term.sub(0), services);
+        try {
+            return odeSolve(term.sub(0), services);
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            e.printStackTrace(); // XXX
+            return term;
+        }
     }
 
-    public Term odeSolve(Term term, Services services) {
+    public Term odeSolve(Term term, Services services) throws RemoteException, SolverException {
         DiffSystem system = (DiffSystem) ((StatementBlock) term
                 .javaBlock().program()).getChildAt(0);
         LogicVariable t = null;
@@ -109,8 +118,6 @@ public class ODESolve extends AbstractDLMetaOperator {
                         + term.op());
             }
         } else {
-
-            try {
                 ODESolverResult odeResult = MathSolverManager
                         .getCurrentODESolver().odeSolve(system, t, ts, post,
                                 nss);
@@ -148,12 +155,6 @@ public class ODESolve extends AbstractDLMetaOperator {
                     throw new IllegalStateException("Unknown modality "
                             + term.op());
                 }
-            } catch (RuntimeException e) {
-                throw e;
-            } catch (Exception e) {
-                e.printStackTrace(); // XXX
-                return term;
-            }
         }
     }
 

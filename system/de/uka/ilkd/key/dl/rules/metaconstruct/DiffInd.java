@@ -19,9 +19,13 @@
  ***************************************************************************/
 package de.uka.ilkd.key.dl.rules.metaconstruct;
 
+import java.rmi.RemoteException;
+
 import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.FailedComputationException;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.UnableToConvertInputException;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.UnsolveableException;
 import de.uka.ilkd.key.dl.model.DiffSystem;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.java.StatementBlock;
@@ -61,28 +65,38 @@ public class DiffInd extends AbstractDLMetaOperator {
      *      de.uka.ilkd.key.java.Services)
      */
     public Term calculate(Term term, SVInstantiations svInst, Services services) {
-        return diffInd(term.sub(0), services);
-    }
-
-    public Term diffInd(Term term, Services services) {
-        DiffSystem system = (DiffSystem) ((StatementBlock) term
-                .javaBlock().program()).getChildAt(0);
-        Term post = term.sub(0);
-        final NamespaceSet nss = services.getNamespaces();
         try {
-            if (term.op() == Modality.BOX
-                    || term.op() == Modality.TOUT) {
-                return MathSolverManager.getCurrentODESolver().diffInd(system, post, nss);
-            } else {
-                throw new IllegalStateException("Unknown modality "
-                        + term.op());
-            }
-        } catch (FailedComputationException e) {
+            return diffInd(term.sub(0), services);
+        } catch (UnsolveableException e) {
             throw new IllegalStateException("DiffInd cannot handle these equations", e);
+        } catch (FailedComputationException e) {
+            throw new IllegalStateException("DiffInd did not handle these equations", e);
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {
             throw (InternalError) new InternalError(e.getMessage()).initCause(e);
+        }
+    }
+
+    public Term diffInd(Term term, Services services) throws SolverException {
+        DiffSystem system = (DiffSystem) ((StatementBlock) term
+                .javaBlock().program()).getChildAt(0);
+        Term post = term.sub(0);
+        final NamespaceSet nss = services.getNamespaces();
+        if (term.op() == Modality.BOX
+                || term.op() == Modality.TOUT) {
+            try {
+                return MathSolverManager.getCurrentODESolver().diffInd(system, post, nss);
+            } catch (SolverException e) {
+                throw e;
+            } catch (RuntimeException e) {
+                throw e;
+            } catch (Exception e) {
+                throw (InternalError) new InternalError(e.getMessage()).initCause(e);
+            }
+        } else {
+            throw new IllegalStateException("Unknown modality "
+                    + term.op());
         }
     }
 }

@@ -29,6 +29,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
 
+import de.uka.ilkd.key.dl.arithmetics.exceptions.FailedComputationException;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.UnsolveableException;
 import de.uka.ilkd.key.dl.model.DiffSystem;
 import de.uka.ilkd.key.dl.options.DLOptionBean;
 import de.uka.ilkd.key.dl.rules.UnknownProgressRule;
@@ -285,10 +288,22 @@ public class DiffSatFeature implements Feature {
                     term.op(),
                     term.javaBlock(),
                     candidate);
-        Term stepFml = DLUniversalClosureOp.DL_UNIVERSAL_CLOSURE.universalClosure(
-                system,
-                DiffInd.DIFFIND.diffInd(augTerm, services), null,
-                services, true);
+        Term stepFml;
+        try {
+            stepFml = DLUniversalClosureOp.DL_UNIVERSAL_CLOSURE.universalClosure(
+                    system,
+                    DiffInd.DIFFIND.diffInd(augTerm, services), null,
+                    services, true);
+        } catch (UnsolveableException e) {
+            System.out.print("HYPO: " + diffind.rule().name() + " step    for " + candidatePrint + " UNSOLVABLE " + e);
+            put(system, candidate, TopRuleAppCost.INSTANCE);
+            return TopRuleAppCost.INSTANCE;
+        } catch (FailedComputationException e) {
+            System.out.print("HYPO: " + diffind.rule().name() + " step    for " + candidatePrint + " FAILED " + e);
+            return TopRuleAppCost.INSTANCE;
+        } catch (SolverException e) {
+            throw (InternalError) new InternalError(e.getMessage()).initCause(e);
+        }
         Sequent step = changedSequent(pos, goal.sequent(), stepFml, pos.subTerm());
         System.out.print("HYPO: " + diffind.rule().name() + " step    for " + candidatePrint); System.out.flush();
         HypotheticalProvability result = HypotheticalProvabilityFeature.provable(goal.proof(), step, MAX_STEPS,
