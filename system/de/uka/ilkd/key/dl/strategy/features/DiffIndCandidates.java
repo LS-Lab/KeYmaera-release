@@ -72,6 +72,7 @@ import de.uka.ilkd.key.strategy.termgenerator.TermGenerator;
  * @author ap
  */
 public class DiffIndCandidates implements TermGenerator {
+    private static final boolean DEBUG_CANDIDATES = false;
     private static final boolean DEBUG_GENERATOR = false;
 
 
@@ -106,7 +107,9 @@ public class DiffIndCandidates implements TermGenerator {
         }
         final Services services = goal.proof().getServices();
 
-        System.out.println("INDCANDIDATES " + app.rule().name() + " ...");
+        if (DEBUG_CANDIDATES) {
+            System.out.println("INDCANDIDATES " + app.rule().name() + " ...");
+        }
         // we do not need post itself as candidate because diffind or strategy
         // can handle this.
         // we only consider sophisticated choices
@@ -252,16 +255,18 @@ public class DiffIndCandidates implements TermGenerator {
         result.remove(tb.ff());
         result.remove(tb.tt());
 
-        System.out.println("INDCANDIDATE-BASIS ...");
-        for (Term c : result) {
-            try {
-                final LogicPrinter lp = new LogicPrinter(new ProgramPrinter(
-                        null), Main.getInstance().mediator().getNotationInfo(), services);
-                lp.printTerm(c);
-                System.out.print("...  " + lp.toString());
-            } catch (Exception ignore) {
-                System.out.println("......  " + c.toString());
-                ignore.printStackTrace();
+        if (DEBUG_CANDIDATES) {
+            System.out.println("INDCANDIDATE-BASIS ...");
+            for (Term c : result) {
+                try {
+                    final LogicPrinter lp = new LogicPrinter(new ProgramPrinter(
+                            null), Main.getInstance().mediator().getNotationInfo(), services);
+                    lp.printTerm(c);
+                    System.out.print("...  " + lp.toString());
+                } catch (Exception ignore) {
+                    System.out.println("......  " + c.toString());
+                    ignore.printStackTrace();
+                }
             }
         }
         // quickly return size-1 formulas, and only lazily generate powersets
@@ -352,7 +357,9 @@ public class DiffIndCandidates implements TermGenerator {
         // @todo need to conside possible generation renamings by update
         final ReplacementSubst revert = revertStateChange(update, services,
                 modifieds);
-        System.out.println("REVERT " + revert);
+        if (DEBUG_CANDIDATES) {
+            System.out.println("REVERT " + revert);
+        }
         Set<Term> invariant = TermTools.splitConjuncts(currentInvariant);
         // System.out.println(" INVARIANT " + invariant + " of " +
         // system.getInvariant() + " of " + system);
@@ -605,7 +612,6 @@ public class DiffIndCandidates implements TermGenerator {
         private Iterator<Term> lazySource = null;
 
         private Iterator<Term> lazyInit() {
-            System.out.println("UNlazying");
             List<Set<Term>> orderedResultConjuncts = new ArrayList<Set<Term>>();
             for (Set<Term> matches : resultPowerGenerators) {
                 // add all nonempty subsets of size > 1 (because size 1 has already been covered)
@@ -636,7 +642,7 @@ public class DiffIndCandidates implements TermGenerator {
             // remove trivial candidates
             result.remove(tb.ff());
             result.remove(tb.tt());
-            if (true) { 
+            if (DEBUG_GENERATOR) { 
                 System.out.println("LAZY INDCANDIDATE ...");
                 for (Term c : result) {
                     try {

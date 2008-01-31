@@ -543,6 +543,7 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
             });
             Operator op = ops[0];
             if (!fo[0] || !(op instanceof Metavariable)) {
+                System.out.println("No!!");
                 return false;
             }
 
@@ -584,7 +585,8 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
 
     @Override
     public boolean irrevocable(Node parent) {
-        return parent.childrenCount() > 1;
+        // TODO find out if revocable because we didn't close any foreign goals
+        return true;
     }
 
     /*

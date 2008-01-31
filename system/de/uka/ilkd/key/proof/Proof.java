@@ -588,7 +588,7 @@ public class Proof implements Named {
      * @param node the node desribing the location where to set back
      * @return true iff undo operation was succesfull.
      */
-    public boolean setBack(Node node) {
+    public boolean setBack(final Node node) {
 	final Goal goal = getGoal(node);
 	if (goal!=null) {
 	    return true;
