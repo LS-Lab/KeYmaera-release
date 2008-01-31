@@ -155,7 +155,8 @@ public class DL2MatrixFormConverter {
     }
 
     /**
-     * TODO jdq documentation since Aug 20, 2007
+     * This function converts the given program element m into its orbital
+     * representation and stores the result in val.
      * 
      * @param variables
      * @param t
@@ -209,10 +210,9 @@ public class DL2MatrixFormConverter {
                 val.res = val.res.minus();
                 convert(variables, t, val, ft.getChildAt(1));
             }
-        } else {
-            throw new IllegalArgumentException("Dont know how to represent a "
-                    + t.getClass() + " in orbital: " + m);
         }
+        throw new IllegalArgumentException("Dont know how to represent a "
+                + t.getClass() + " in orbital: " + m);
     }
 
     /**
