@@ -200,7 +200,7 @@ public class DL2MatrixFormConverter {
             if (childAt instanceof FreeFunction) {
                 FreeFunction ff = (FreeFunction) childAt;
                 if (ft.getChildCount() == 1) { // this means the function has
-                                                // no arguments
+                    // no arguments
                     val.res = val.res.multiply(Values.getDefault().symbol(
                             ff.getSymbol()));
                 } else {
@@ -222,10 +222,11 @@ public class DL2MatrixFormConverter {
     }
 
     /**
-     * TODO jdq documentation since Aug 20, 2007
+     * Split sums into its summands.
      * 
      * @param expression
-     * @return
+     *                the sum expression
+     * @return a list of elements that are added in the initial expression
      */
     private List<ProgramElement> splitPlus(ProgramElement expression) {
         List<ProgramElement> result = new ArrayList<ProgramElement>();
@@ -244,10 +245,11 @@ public class DL2MatrixFormConverter {
     }
 
     /**
-     * TODO jdq documentation since Aug 20, 2007
+     * Split product into its factors.
      * 
      * @param expression
-     * @return
+     *                the product expression
+     * @return a list of elements that are multiplied in the initial expression
      */
     private List<ProgramElement> splitMult(ProgramElement expression) {
         List<ProgramElement> result = new ArrayList<ProgramElement>();

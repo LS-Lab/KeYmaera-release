@@ -39,40 +39,42 @@ import de.uka.ilkd.key.strategy.TopRuleAppCost;
 import de.uka.ilkd.key.strategy.feature.Feature;
 
 /**
- * Checks whether formulas are first-order formulas, respectively sequents purely consist
- * of first-order formulas. 
+ * Checks whether formulas are first-order formulas, respectively sequents
+ * purely consist of first-order formulas.
  * 
  * @author jdq
  * @since 20.02.2007
- * @todo undo this slowish synchronization stuff after thinking about it properly
+ * @todo undo this slowish synchronization stuff after thinking about it
+ *       properly
  */
 public class FOSequence implements Feature {
 
     public static final FOSequence INSTANCE = new FOSequence();
 
     public static class FOTestVisitor extends Visitor {
-        
+
         boolean notFO = false;
-        
-        /* (non-Javadoc)
+
+        /*
+         * (non-Javadoc)
+         * 
          * @see de.uka.ilkd.key.logic.Visitor#visit(de.uka.ilkd.key.logic.Term)
          */
         @Override
         public void visit(Term visited) {
             if (!isFOOperator(visited.op())) {
                 notFO = true;
-            }            
+            }
         }
     }
-    
+
     /*
      * (non-Javadoc)
      * 
      * @see de.uka.ilkd.key.strategy.feature.Feature#compute(de.uka.ilkd.key.rule.RuleApp,
      *      de.uka.ilkd.key.logic.PosInOccurrence, de.uka.ilkd.key.proof.Goal)
      */
-    public synchronized RuleAppCost compute(RuleApp app, PosInOccurrence pos,
-            Goal goal) {
+    public RuleAppCost compute(RuleApp app, PosInOccurrence pos, Goal goal) {
         if (isFOSequent(goal.sequent())) {
             return LongRuleAppCost.ZERO_COST;
         } else {
@@ -80,7 +82,17 @@ public class FOSequence implements Feature {
         }
     }
 
-    public boolean isFOSequent(Sequent seq) {
+    /**
+     * Test if all terms in the given sequent does contain any non-first-order
+     * operators.
+     * 
+     * @param seq
+     *                the sequent to check
+     * 
+     * @return false if one of the terms in the given sequent contains any
+     *         non-first-order operators
+     */
+    public static boolean isFOSequent(Sequent seq) {
         IteratorOfConstrainedFormula it = seq.iterator();
         while (it.hasNext()) {
             FOTestVisitor visitor = new FOTestVisitor();
@@ -91,8 +103,18 @@ public class FOSequence implements Feature {
         }
         return true;
     }
-    
-    public boolean isFOFormulas(IteratorOfConstrainedFormula formulas) {
+
+    /**
+     * Test if one of the given terms does contain any non-first-order
+     * operators.
+     * 
+     * @param formulas
+     *                an iterator over formulas
+     * 
+     * @return false if one of the given terms contains any non-first-order
+     *         operators
+     */
+    public static boolean isFOFormulas(IteratorOfConstrainedFormula formulas) {
         IteratorOfConstrainedFormula it = formulas;
         while (it.hasNext()) {
             FOTestVisitor visitor = new FOTestVisitor();
@@ -104,7 +126,14 @@ public class FOSequence implements Feature {
         return true;
     }
 
-    public boolean isFOFormula(Term t) {
+    /**
+     * Test if the given term does contain any non-first-order operators.
+     * 
+     * @param t
+     *                the term to test
+     * @return false if the term contains any non-first-order operators
+     */
+    public static boolean isFOFormula(Term t) {
         FOTestVisitor visitor = new FOTestVisitor();
         t.execPreOrder(visitor);
         return !visitor.notFO;
@@ -115,7 +144,7 @@ public class FOSequence implements Feature {
      * logical operator.
      * 
      * @param op
-     *            the operator to test
+     *                the operator to test
      * @return true, if the operator is an FO operator
      */
     public static boolean isFOOperator(Operator op) {

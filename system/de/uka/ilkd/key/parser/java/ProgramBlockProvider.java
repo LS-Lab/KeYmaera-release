@@ -17,7 +17,7 @@ import de.uka.ilkd.key.parser.ParserConfig;
 import de.uka.ilkd.key.util.Debug;
 
 /**
- * TODO Documentation of ProgramBlockProvider since 08.01.2007
+ * ProgramblockProvider used when parsing java expressions/programs
  * 
  * @author jdq
  * @since 08.01.2007
