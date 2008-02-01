@@ -139,7 +139,6 @@ options {
     private Services services;
     private TermFactory tf;
     private JavaReader javaReader;
-	private ProgramBlockProvider programBlockProvider;
 
     // if this is used then we can capture parts of the input for later use
     private DeclPicker capturer = null;
@@ -165,15 +164,14 @@ options {
      * used we still require the caller to provide the parser mode explicitly, 
      * so that the code is readable.
      */
-    public KeYParser(ParserMode mode, TokenStream lexer, ProgramBlockProvider pbp) {
+    public KeYParser(ParserMode mode, TokenStream lexer) {
 	this((lexer instanceof KeYLexer)? ((KeYLexer)lexer).getSelector() : ((DeclPicker)lexer).getSelector(), 2);
         this.selector = (lexer instanceof KeYLexer)? ((KeYLexer)lexer).getSelector() : ((DeclPicker)lexer).getSelector();
 	this.parserMode = mode;
-	this.programBlockProvider = pbp;
     }
 
-    public KeYParser(ParserMode mode, TokenStream lexer, Services services, ProgramBlockProvider pbp) {
-        this(mode, lexer, pbp);
+    public KeYParser(ParserMode mode, TokenStream lexer, Services services) {
+        this(mode, lexer);
         this.keh = services.getExceptionHandler();
     }
 
@@ -183,8 +181,8 @@ options {
                      Services services,
 		     NamespaceSet nss,
 		     TermFactory tf,
-		     ParserMode mode, ProgramBlockProvider pbp) {
-        this(mode, lexer, pbp);
+		     ParserMode mode) {
+        this(mode, lexer);
         setFilename(filename);
  	this.services = services;
 	if(services != null)
@@ -206,8 +204,8 @@ options {
      */  
     public KeYParser(ParserMode mode, TokenStream lexer,
                      String filename, Services services,
-                     NamespaceSet nss, ProgramBlockProvider pbp) {
-        this(lexer, filename, services, nss, null, mode, pbp);
+                     NamespaceSet nss) {
+        this(lexer, filename, services, nss, null, mode);
 	resetSkips();
     }
 
@@ -219,8 +217,8 @@ options {
     public KeYParser(ParserMode mode, TokenStream lexer,                   
                      String filename, TermFactory  tf,
                      JavaReader jr, Services services,
-                     NamespaceSet nss, AbbrevMap scm, ProgramBlockProvider pbp) {
-        this(lexer, filename, services, nss, tf, mode, pbp);
+                     NamespaceSet nss, AbbrevMap scm) {
+        this(lexer, filename, services, nss, tf, mode);
         this.javaReader = jr;
         this.scm = scm;
     }
@@ -235,33 +233,33 @@ options {
      */  
     public KeYParser(ParserMode mode, TokenStream lexer,
 		     TermFactory tf, JavaReader jr,
-		     NamespaceSet nss, ProgramBlockProvider pbp) {
-        this(lexer, null, new Services(), nss, tf, mode, pbp);
+		     NamespaceSet nss) {
+        this(lexer, null, new Services(), nss, tf, mode);
         this.scm = new AbbrevMap();
         this.javaReader = jr;
     }
 
     public KeYParser(ParserMode mode, TokenStream lexer,
 		     TermFactory tf, Services services,
-		     NamespaceSet nss, ProgramBlockProvider pbp) {
+		     NamespaceSet nss) {
 	this(mode, lexer, tf, 
 	     new Recoder2KeY(
 		new KeYCrossReferenceServiceConfiguration(
 		   services.getExceptionHandler()), 
 		services.getJavaInfo().rec2key(), new NamespaceSet(), 
 		services.getTypeConverter()),
-   	     nss, pbp);
+   	     nss);
     }
 
     public KeYParser(ParserMode mode, TokenStream lexer,
-		     Services services, NamespaceSet nss, ProgramBlockProvider pbp) {
+		     Services services, NamespaceSet nss) {
 	this(mode, lexer, TermFactory.DEFAULT,
 	     new Recoder2KeY(
 	       new KeYCrossReferenceServiceConfiguration(
 	         services.getExceptionHandler()),
 	       services.getJavaInfo().rec2key(), new NamespaceSet(),
 	       services.getTypeConverter()),
-	     nss, pbp);
+	     nss);
     }
 
 
@@ -271,8 +269,8 @@ options {
     public KeYParser(ParserMode mode, TokenStream lexer,
                      String filename, TermFactory tf,
                      SchemaJavaReader jr, Services services,  
-                     NamespaceSet nss, HashMap taclet2Builder, ProgramBlockProvider pbp) {
-        this(lexer, filename, services, nss, tf, mode, pbp);
+                     NamespaceSet nss, HashMap taclet2Builder) {
+        this(lexer, filename, services, nss, tf, mode);
         switchToSchemaMode();
         this.scm = new AbbrevMap();
         this.javaReader = jr;
@@ -281,10 +279,10 @@ options {
 
     public KeYParser(ParserMode mode, TokenStream lexer,
                      String filename, TermFactory tf,
-                     Services services, NamespaceSet nss, ProgramBlockProvider pbp) {
+                     Services services, NamespaceSet nss) {
         this(mode, lexer, filename, tf,
              new SchemaRecoder2KeY(services, nss),
-	     services, nss, new HashMap(), pbp);
+	     services, nss, new HashMap());
     }
 
 
@@ -294,8 +292,8 @@ options {
     public KeYParser(ParserMode mode, TokenStream lexer, 
                      String filename, ParserConfig schemaConfig,
                      ParserConfig normalConfig, HashMap taclet2Builder,
-                     SetOfTaclet taclets, SetOfChoice selectedChoices, ProgramBlockProvider pbp) { 
-        this(lexer, filename, null, null, null, mode, pbp);
+                     SetOfTaclet taclets, SetOfChoice selectedChoices) { 
+        this(lexer, filename, null, null, null, mode);
         if (lexer instanceof DeclPicker) {
             this.capturer = (DeclPicker) lexer;
         }
@@ -317,8 +315,8 @@ options {
         }
     }
 
-    public KeYParser(ParserMode mode, TokenStream lexer, String filename, ProgramBlockProvider pbp) { 
-        this(lexer, filename, null, null, null, mode, pbp);
+    public KeYParser(ParserMode mode, TokenStream lexer, String filename) { 
+        this(lexer, filename, null, null, null, mode);
         if (lexer instanceof DeclPicker) {
             this.capturer = (DeclPicker) lexer;
         }
@@ -991,7 +989,7 @@ options {
     }
 
     private HashSet progVars(JavaBlock jb) {
-		return programBlockProvider.getProgramVariables(jb, namespaces(), 
+		return getServices().getProgramBlockProvider().getProgramVariables(jb, namespaces(), 
 			isGlobalDeclTermParser(), isDeclParser(), (isTermParser() ||
 			isProblemParser()));
 	/*if(isGlobalDeclTermParser()) {
@@ -1054,8 +1052,8 @@ options {
 
 
 	try {
-		Debug.out("Using ProgramBlockProvider: " + programBlockProvider);
-           sjb.javaBlock = programBlockProvider.getProgramBlock(parserConfig,
+		Debug.out("Using ProgramBlockProvider: " + getServices().getProgramBlockProvider());
+           sjb.javaBlock = getServices().getProgramBlockProvider().getProgramBlock(parserConfig,
 		   s, inSchemaMode(), isProblemParser(), isGlobalDeclTermParser());
         } catch (de.uka.ilkd.key.java.PosConvertException e) {
             lineOffset=e.getLine()-1;

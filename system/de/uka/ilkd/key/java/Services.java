@@ -22,6 +22,7 @@ import de.uka.ilkd.key.logic.NamespaceSet;
 import de.uka.ilkd.key.logic.VariableNamer;
 import de.uka.ilkd.key.proof.Counter;
 import de.uka.ilkd.key.proof.Node;
+import de.uka.ilkd.key.proof.init.ProgramBlockProvider;
 import de.uka.ilkd.key.proof.mgt.SpecificationRepository;
 import de.uka.ilkd.key.speclang.jml.JMLTranslator;
 import de.uka.ilkd.key.speclang.ocl.OCLTranslator;
@@ -97,6 +98,8 @@ public class Services{
 
     
     private SpecificationRepository specRepos;
+    
+    private ProgramBlockProvider programBlockProvider;
 
     /**
      * creates a new Services object with a new TypeConverter and a new
@@ -300,5 +303,19 @@ public class Services{
      */
     public void setNamespaces(NamespaceSet namespaces) {
         this.namespaces = namespaces;
+    }
+
+    /**
+     * @return the programBlockProvider
+     */
+    public ProgramBlockProvider getProgramBlockProvider() {
+        return programBlockProvider;
+    }
+
+    /**
+     * @param programBlockProvider the programBlockProvider to set
+     */
+    public void setProgramBlockProvider(ProgramBlockProvider programBlockProvider) {
+        this.programBlockProvider = programBlockProvider;
     }
 }

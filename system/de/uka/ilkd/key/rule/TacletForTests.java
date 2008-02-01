@@ -14,7 +14,6 @@ package de.uka.ilkd.key.rule;
 import java.io.File;
 import java.io.StringReader;
 
-import de.uka.ilkd.key.gui.Main;
 import de.uka.ilkd.key.java.JavaInfo;
 import de.uka.ilkd.key.java.ProgramElement;
 import de.uka.ilkd.key.java.Recoder2KeY;
@@ -166,8 +165,6 @@ public class TacletForTests {
 	if (termstr.equals("")) return null;
 	try {	    
 	    StringReader br   = new StringReader(termstr);
-		Profile profile = Main.getInstance().mediator().getProfile();
-		ProgramBlockProvider provider = profile.getProgramBlockProvider();
 	    KeYParser parser = new KeYParser(ParserMode.TERM,
 	                                     new KeYLexer(br,null), 
 					     "No file. " +
@@ -176,7 +173,7 @@ public class TacletForTests {
 					     TermFactory.DEFAULT, 
 					     new Recoder2KeY(services, nss),
 					     services, nss,
-					     TacletForTests.getAbbrevs(), provider);
+					     TacletForTests.getAbbrevs());
 	    return parser.term();
 	} catch (Exception e) {
 	    System.err.println("Exception during parsing!");
@@ -191,8 +188,6 @@ public class TacletForTests {
 	if (termstr.equals("")) return null;
 	try {	    
 	    StringReader br=new StringReader(termstr);
-		Profile profile = Main.getInstance().mediator().getProfile();
-		ProgramBlockProvider provider = profile.getProgramBlockProvider();
 	    KeYParser parser = new KeYParser(ParserMode.TERM,
 	                                     new KeYLexer(br,null), 
 					     "No file. " +
@@ -202,7 +197,7 @@ public class TacletForTests {
 					     new Recoder2KeY(services(), set),
 					     services(),
 					     set,
-					     new AbbrevMap(), provider);
+					     new AbbrevMap());
 	    return parser.term();
 	} catch (Exception e) {
 	    System.err.println("Exception during parsing!");

@@ -23,9 +23,6 @@ import de.uka.ilkd.key.logic.op.*;
 import de.uka.ilkd.key.parser.KeYLexer;
 import de.uka.ilkd.key.parser.KeYParser;
 import de.uka.ilkd.key.parser.ParserMode;
-import de.uka.ilkd.key.proof.init.Profile;
-import de.uka.ilkd.key.gui.Main;
-import de.uka.ilkd.key.proof.init.ProgramBlockProvider;
 
 
 /**
@@ -105,15 +102,13 @@ public class ModifiesParserHelper {
         Namespace originalProgramVariables = nss.programVariables();
         nss.setProgramVariables(ns);
 
-		Profile profile = Main.getInstance().mediator().getProfile();
-		ProgramBlockProvider provider = profile.getProgramBlockProvider();
         KeYParser parser = new KeYParser(
                     ParserMode.TERM,
                     new KeYLexer(new StringReader(modifiesString), null),
                     "",
                     TermFactory.DEFAULT,
                     services,
-                    nss, provider);
+                    nss);
         SetOfLocationDescriptor result
                 = SetAsListOfLocationDescriptor.EMPTY_SET;
         try {
@@ -226,10 +221,8 @@ public class ModifiesParserHelper {
         modifiesString = "{"+modifiesString+"}";
         Namespace originalProgramVariables = nss.programVariables();
 	nss.setProgramVariables(ns);	    
-	Profile profile = Main.getInstance().mediator().getProfile();
-	ProgramBlockProvider provider = profile.getProgramBlockProvider();
 	KeYParser parser = new KeYParser(ParserMode.TERM, new KeYLexer(new StringReader(modifiesString),null),"", 
-					   TermFactory.DEFAULT, services, nss, provider);
+					   TermFactory.DEFAULT, services, nss);
 	SetOfTerm accessTerms = SetAsListOfTerm.EMPTY_SET;
 	try {
 	    SetOfLocationDescriptor locs = parser.location_list();

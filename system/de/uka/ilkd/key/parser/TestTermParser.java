@@ -26,9 +26,6 @@ import de.uka.ilkd.key.rule.SetAsListOfTaclet;
 import de.uka.ilkd.key.rule.TacletForTests;
 import de.uka.ilkd.key.util.DefaultExceptionHandler;
 import de.uka.ilkd.key.util.ExceptionHandlerException;
-import de.uka.ilkd.key.proof.init.Profile;
-import de.uka.ilkd.key.gui.Main;
-import de.uka.ilkd.key.proof.init.ProgramBlockProvider;
 
 
 public class TestTermParser extends TestCase {
@@ -143,13 +140,10 @@ public class TestTermParser extends TestCase {
 
     private KeYParser stringDeclParser(String s) {
         // fills namespaces 
-		Profile profile = Main.getInstance().mediator().getProfile();
-		ProgramBlockProvider provider = profile.getProgramBlockProvider();	
-
         new Recoder2KeY(TacletForTests.services (), nss).parseSpecialClasses();
 	return new KeYParser(ParserMode.DECLARATION,new KeYLexer(new StringReader(s),null),
 			      "No file. Call of parser from parser/TestTermParser.java",
-			      serv, nss, provider);
+			      serv, nss);
     }
 
     public void parseDecls(String s) {
@@ -166,8 +160,6 @@ public class TestTermParser extends TestCase {
 
     public Term parseProblem(String s) {
 	try {	  
-		Profile profile = Main.getInstance().mediator().getProfile();
-		ProgramBlockProvider provider = profile.getProgramBlockProvider();
 	    new Recoder2KeY(TacletForTests.services (), 
 	                    nss).parseSpecialClasses();	   
 	    return new KeYParser
@@ -175,7 +167,7 @@ public class TestTermParser extends TestCase {
 		 "No file. Call of parser from parser/TestTermParser.java",
 		 new ParserConfig(serv, nss),
 		 new ParserConfig(serv, nss),
-		 null, SetAsListOfTaclet.EMPTY_SET,null, provider).problem();	    
+		 null, SetAsListOfTaclet.EMPTY_SET,null).problem();	    
 	} catch (Exception e) {
 	    StringWriter sw = new StringWriter();
 	    PrintWriter pw = new PrintWriter(sw);
@@ -185,15 +177,13 @@ public class TestTermParser extends TestCase {
     }
 
     private KeYParser stringTermParser(String s) {
-		Profile profile = Main.getInstance().mediator().getProfile();
-		ProgramBlockProvider provider = profile.getProgramBlockProvider();
 	return new KeYParser
 	    (ParserMode.TERM, new KeYLexer(new StringReader(s),new DefaultExceptionHandler()), 
 	     "No file. Call of parser from parser/TestTermParser.java",
 	     tf, 
 	     r2k = new Recoder2KeY(TacletForTests.services(), nss),
 	                           TacletForTests.services(), nss, 
-	                           new AbbrevMap(), provider);
+	                           new AbbrevMap());
 
     }
 
