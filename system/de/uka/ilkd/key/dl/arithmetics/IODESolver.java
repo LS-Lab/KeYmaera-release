@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2007 by Jan David Quesel                                *
+ *   Copyright (C) 2007 by Jan-David Quesel                                *
  *   quesel@informatik.uni-oldenburg.de                                    *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -35,7 +35,9 @@ import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.op.LogicVariable;
 
 /**
- * TODO jdq documentation since Aug 17, 2007
+ * An {@link IODESolver} is a special {@link IMathSolver} that handles the
+ * solving of differential equations. The implementations can be accessed using
+ * the {@link MathSolverManager}.
  * 
  * @author jdq
  * @author ap
@@ -44,6 +46,13 @@ import de.uka.ilkd.key.logic.op.LogicVariable;
  */
 public interface IODESolver extends IMathSolver {
 
+    /**
+     * This class is used to encapsulate the results produced by the ODESolver.
+     * 
+     * @author jdq
+     * @since Feb 1, 2008
+     * 
+     */
     public static class ODESolverResult {
         private Term invariantExpression;
 

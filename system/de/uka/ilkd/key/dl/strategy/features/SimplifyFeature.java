@@ -43,7 +43,10 @@ import de.uka.ilkd.key.strategy.TopRuleAppCost;
 import de.uka.ilkd.key.strategy.feature.Feature;
 
 /**
- * TODO jdq documentation
+ * This feature checks if we should apply the Simplify rule to the current
+ * formula. It returns -10000 if the last rule applied was a local reduce.
+ * Otherwise it checks if the formula only contains numbers, if that is the case
+ * it computes a low cost, otherwise it returns TopRuleCost.
  * 
  * @author jdq
  * @since 20.02.2007

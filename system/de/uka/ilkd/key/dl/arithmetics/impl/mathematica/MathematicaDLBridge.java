@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2007 by Jan David Quesel and Andre Platzer              *
+ *   Copyright (C) 2007 by Jan-David Quesel and Andre Platzer              *
  *   quesel@informatik.uni-oldenburg.de                                    *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -31,7 +31,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -54,7 +53,6 @@ import de.uka.ilkd.key.dl.arithmetics.impl.mathematica.IKernelLinkWrapper.ExprAn
 import de.uka.ilkd.key.dl.formulatools.VariableCollector;
 import de.uka.ilkd.key.dl.logic.ldt.RealLDT;
 import de.uka.ilkd.key.dl.model.DLNonTerminalProgramElement;
-import de.uka.ilkd.key.dl.model.DLProgram;
 import de.uka.ilkd.key.dl.model.DiffSystem;
 import de.uka.ilkd.key.dl.model.Dot;
 import de.uka.ilkd.key.dl.model.ProgramVariable;
@@ -71,9 +69,6 @@ import de.uka.ilkd.key.logic.op.LogicVariable;
 import de.uka.ilkd.key.logic.op.Modality;
 import de.uka.ilkd.key.logic.op.QuanUpdateOperator;
 import de.uka.ilkd.key.logic.op.SubstOp;
-import de.uka.ilkd.key.rule.updatesimplifier.ArrayOfAssignmentPair;
-import de.uka.ilkd.key.rule.updatesimplifier.AssignmentPair;
-import de.uka.ilkd.key.rule.updatesimplifier.Update;
 import de.uka.ilkd.key.util.Debug;
 
 /**

@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2007 by Jan David Quesel                                *
+ *   Copyright (C) 2007 by Jan-David Quesel                                *
  *   quesel@informatik.uni-oldenburg.de                                    *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -45,7 +45,9 @@ import de.uka.ilkd.key.dl.model.Variable;
 import de.uka.ilkd.key.java.ProgramElement;
 
 /**
- * TODO jdq documentation since Aug 20, 2007
+ * The {@link DL2MatrixFormConverter} converts a simple differential equation
+ * into matrix form. It is used to interact with the orbital library to solve
+ * differential equations.
  * 
  * @author jdq
  * @since Aug 20, 2007

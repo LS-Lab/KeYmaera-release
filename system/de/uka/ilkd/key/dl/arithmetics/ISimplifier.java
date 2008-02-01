@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2007 by Jan David Quesel                                *
+ *   Copyright (C) 2007 by Jan-David Quesel                                *
  *   quesel@informatik.uni-oldenburg.de                                    *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -34,7 +34,9 @@ import de.uka.ilkd.key.logic.NamespaceSet;
 import de.uka.ilkd.key.logic.Term;
 
 /**
- * TODO jdq documentation since Aug 17, 2007
+ * An {@link ISimplifier} is a {@link IMathSolver} that is capable of formula simplification.
+ * 
+ * Implementations can be accessed using the {@link MathSolverManager}.
  * 
  * @author jdq
  * @since Aug 17, 2007
