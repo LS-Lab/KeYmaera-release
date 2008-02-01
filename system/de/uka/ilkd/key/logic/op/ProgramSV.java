@@ -32,7 +32,6 @@ import de.uka.ilkd.key.java.SourceData;
 import de.uka.ilkd.key.java.SourceElement;
 import de.uka.ilkd.key.java.Statement;
 import de.uka.ilkd.key.java.abstraction.KeYJavaType;
-import de.uka.ilkd.key.java.annotation.Annotation;
 import de.uka.ilkd.key.java.reference.ExecutionContext;
 import de.uka.ilkd.key.java.reference.PackageReference;
 import de.uka.ilkd.key.java.reference.ReferencePrefix;
@@ -99,29 +98,10 @@ public class ProgramSV extends SortedSchemaVariable implements
         return this;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see de.uka.ilkd.key.java.ProgramElement#getAnnotations()
-     */
-    public Annotation[] getAnnotations() {
-        return new Annotation[0];
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see de.uka.ilkd.key.java.ProgramElement#getAnnotationCount()
-     */
-    public int getAnnotationCount() {
-        return 0;
-    }
-
     /**
-     * Returns the start position of the primary token of this element. To get
-     * the start position of the syntactical first token, call the corresponding
-     * method of <CODE>getFirstElement()</CODE>.
-     * 
+     * Returns the start position of the primary token of this element.
+     * To get the start position of the syntactical first token,
+     * call the corresponding method of <CODE>getFirstElement()</CODE>.
      * @return the start position of the primary token.
      */
     public Position getStartPosition() {

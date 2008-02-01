@@ -15,28 +15,67 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Stack;
 import java.util.Vector;
 
 import de.uka.ilkd.key.dl.rules.ReduceRuleApp;
-import de.uka.ilkd.key.gui.*;
+import de.uka.ilkd.key.gui.ExceptionDialog;
+import de.uka.ilkd.key.gui.KeYMediator;
+import de.uka.ilkd.key.gui.Main;
+import de.uka.ilkd.key.gui.POBrowser;
+import de.uka.ilkd.key.gui.SwingWorker;
 import de.uka.ilkd.key.gui.configuration.ProofSettings;
 import de.uka.ilkd.key.java.ProgramElement;
 import de.uka.ilkd.key.java.Services;
-import de.uka.ilkd.key.logic.*;
-import de.uka.ilkd.key.logic.op.*;
-import de.uka.ilkd.key.parser.*;
+import de.uka.ilkd.key.logic.Constraint;
+import de.uka.ilkd.key.logic.Name;
+import de.uka.ilkd.key.logic.Namespace;
+import de.uka.ilkd.key.logic.NamespaceSet;
+import de.uka.ilkd.key.logic.PosInOccurrence;
+import de.uka.ilkd.key.logic.PosInTerm;
+import de.uka.ilkd.key.logic.Sequent;
+import de.uka.ilkd.key.logic.SetOfLocationDescriptor;
+import de.uka.ilkd.key.logic.Term;
+import de.uka.ilkd.key.logic.TermFactory;
+import de.uka.ilkd.key.logic.op.IteratorOfSchemaVariable;
+import de.uka.ilkd.key.logic.op.LogicVariable;
+import de.uka.ilkd.key.logic.op.NameSV;
+import de.uka.ilkd.key.logic.op.SchemaVariable;
+import de.uka.ilkd.key.logic.op.SetOfSchemaVariable;
+import de.uka.ilkd.key.parser.KeYLexer;
+import de.uka.ilkd.key.parser.KeYParser;
+import de.uka.ilkd.key.parser.ParserException;
+import de.uka.ilkd.key.parser.ParserMode;
+import de.uka.ilkd.key.parser.TermParserFactory;
 import de.uka.ilkd.key.pp.AbbrevMap;
 import de.uka.ilkd.key.pp.PresentationFeatures;
-import de.uka.ilkd.key.proof.init.*;
-import de.uka.ilkd.key.proof.mgt.OldOperationContract;
-import de.uka.ilkd.key.rule.*;
+import de.uka.ilkd.key.proof.decproc.DecisionProcedureSmtAuflia;
+import de.uka.ilkd.key.proof.init.EnvInput;
+import de.uka.ilkd.key.proof.init.InitConfig;
+import de.uka.ilkd.key.proof.init.KeYFile;
+import de.uka.ilkd.key.proof.init.KeYUserProblemFile;
+import de.uka.ilkd.key.proof.init.ProblemInitializer;
+import de.uka.ilkd.key.proof.init.Profile;
+import de.uka.ilkd.key.proof.init.ProofOblInput;
+import de.uka.ilkd.key.proof.mgt.ContractWithInvs;
+import de.uka.ilkd.key.rule.BuiltInRule;
+import de.uka.ilkd.key.rule.BuiltInRuleApp;
+import de.uka.ilkd.key.rule.IfFormulaInstSeq;
+import de.uka.ilkd.key.rule.IteratorOfRuleApp;
+import de.uka.ilkd.key.rule.ListOfIfFormulaInstantiation;
+import de.uka.ilkd.key.rule.NoPosTacletApp;
+import de.uka.ilkd.key.rule.RuleApp;
+import de.uka.ilkd.key.rule.SLListOfIfFormulaInstantiation;
+import de.uka.ilkd.key.rule.SetOfRuleApp;
+import de.uka.ilkd.key.rule.Taclet;
+import de.uka.ilkd.key.rule.TacletApp;
+import de.uka.ilkd.key.rule.UseOperationContractRuleApp;
+import de.uka.ilkd.key.speclang.SLEnvInput;
+import de.uka.ilkd.key.util.Array;
 import de.uka.ilkd.key.util.ExceptionHandlerException;
 import de.uka.ilkd.key.util.KeYExceptionHandler;
-import de.uka.ilkd.key.proof.decproc.DecisionProcedureSmtAuflia;
 
 public class ProblemLoader implements Runnable {
 
@@ -61,9 +100,7 @@ public class ProblemLoader implements Runnable {
     int currFormula = 0;
 
     PosInTerm currPosInTerm = PosInTerm.TOP_LEVEL;
-
-    OldOperationContract currContract = null;
-
+    ContractWithInvs currContract = null;
     Stack stack = new Stack();
 
     LinkedList loadedInsts = null;
@@ -152,28 +189,25 @@ public class ProblemLoader implements Runnable {
      *             if the user has selected a file with an unsupported extension
      *             an exception is thrown to indicate this
      */
-    protected KeYUserProblemFile createProblemFile(File file)
-            throws FileNotFoundException {
-
+    protected EnvInput createEnvInput(File file) 
+    throws FileNotFoundException {                
+        
         final String filename = file.getName();
-
-        if (filename.endsWith(".java")) {
-            // java file, probably enriched by JML specifications
-            return new KeYJMLInput(filename, file,
-                    profile instanceof JavaTestGenerationProfile, main
-                            .getProgressMonitor());
-
-        } else if (filename.endsWith(".key") || filename.endsWith(".proof")) {
+        
+        if (filename.endsWith(".java")){ 
+            // java file, probably enriched by specifications
+            return new SLEnvInput(file.getParentFile().getAbsolutePath());
+            
+        } else if (filename.endsWith(".key") || 
+                filename.endsWith(".proof")) {
             // KeY problem specification or saved proof
-            return new KeYUserProblemFile(filename, file, main
-                    .getProgressMonitor(), Main.jmlSpecs);
-
-        } else if (file.isDirectory()) {
-            // directory containing JML-enriched java sources
-            // prompt the
-            return new JavaInputWithJMLSpecBrowser(file.getPath(), file,
-                    profile instanceof JavaTestGenerationProfile, main
-                            .getProgressMonitor());
+            return new KeYUserProblemFile(filename, file, 
+                    main.getProgressMonitor(), Main.enableSpecs);
+            
+        } else if (file.isDirectory()){ 
+            // directory containing java sources, probably enriched 
+            // by specifications
+            return new SLEnvInput(file.getPath());
         } else {
             if (filename.lastIndexOf('.') != -1) {
                 throw new IllegalArgumentException(
@@ -190,71 +224,84 @@ public class ProblemLoader implements Runnable {
         }
     }
 
-    private Object doWork() {
-        String status = "";
-        KeYUserProblemFile problemFile = null;
-        try {
-            try {
-                if (!keepProblem) {
-                    problemFile = createProblemFile(file);
-                    init = new ProblemInitializer(main);
-                    init.startProver(problemFile, problemFile);
-                }
-                proof = mediator.getSelectedProof();
-                mediator.stopInterface(true); // first stop (above) is not
-                                                // enough
-                // as there is no problem at that time
-                main.setStatusLine("Loading proof");
-                currNode = proof.root(); // initialize loader
-                children = currNode.childrenIterator(); // --"--
-                iconfig = proof.env().getInitConfig();
-                if (!keepProblem) {
-                    init.tryReadProof(this, problemFile);
-                } else {
-                    main.setStatusLine("Loading proof", (int) file.length());
-                    CountingBufferedInputStream cinp = new CountingBufferedInputStream(
-                            new FileInputStream(file), main
-                                    .getProgressMonitor(),
-                            (int) file.length() / 100);
-                    KeYLexer lexer = new KeYLexer(cinp, proof.getServices()
-                            .getExceptionHandler());
-                    Profile profile = Main.getInstance().mediator()
-                    .getProfile();
-            ProgramBlockProvider provider = profile
-                    .getProgramBlockProvider();
-                    KeYParser parser = new KeYParser(ParserMode.PROBLEM, lexer,
-                            proof.getServices(), provider);
-                    antlr.Token t;
-                    do {
-                        t = lexer.getSelector().nextToken();
-                    } while (t.getType() != KeYLexer.PROOF);
-                    parser.proofBody(this);
-                }
-                main.setStandardStatusLine();
+   private Object doWork() {
+       String status = "";
+       ProofOblInput po = null;
+       try{
+           try{
+               if (!keepProblem) {
+        	   EnvInput envInput = createEnvInput(file);
+        	   init = new ProblemInitializer(main); 
+        	   InitConfig initConfig = init.prepare(envInput);
+        	   
+        	   if(envInput instanceof ProofOblInput
+                       && !(envInput instanceof KeYFile 
+                            && ((KeYFile) envInput).chooseContract())) {
+        	       po = (ProofOblInput) envInput;
+        	   } else {
+                       if(envInput instanceof KeYFile) {
+                           initConfig.setOriginalKeYFileName(envInput.name());
+                       }
+        	       POBrowser poBrowser = POBrowser.showInstance(initConfig);        	       
+        	       po = poBrowser.getPO();
+        	       if(po == null) {
+        		   return "Aborted.";
+        	       }
+        	   }
+        	   
+        	   init.startProver(initConfig, po);
+               }
+               proof = mediator.getSelectedProof();
+               mediator.stopInterface(true); // first stop (above) is not enough
+               // as there is no problem at that time
+               main.setStatusLine("Loading proof");
+               currNode = proof.root(); // initialize loader
+               children = currNode.childrenIterator(); // --"--
+               iconfig = proof.env().getInitConfig();
+               if (!keepProblem) {
+                   init.tryReadProof(this, po);
+               } else {
+                   main.setStatusLine("Loading proof", (int)file.length());
+                   CountingBufferedInputStream cinp =
+                       new CountingBufferedInputStream(
+                           new FileInputStream(file),
+                           main.getProgressMonitor(),
+                           (int)file.length()/100);
+                   KeYLexer lexer = new KeYLexer(cinp,
+                       proof.getServices().getExceptionHandler());
+                   KeYParser parser = new KeYParser(ParserMode.PROBLEM, lexer, 
+                                                    proof.getServices());
+                   antlr.Token t;
+                   do { t = lexer.getSelector().nextToken();
+                   } while (t.getType() != KeYLexer.PROOF);
+                   parser.proofBody(this);
+               }
+	       main.setStandardStatusLine();
+           
+           // Inform the decproc classes that a new problem has been loaded
+           // This is done here because all benchmarks resulting from one loaded problem should be
+           // stored in the same directory
+           DecisionProcedureSmtAuflia.fireNewProblemLoaded( file, proof );
+           
+	   } catch (ExceptionHandlerException e) {
+	       throw e;
+	   } catch (Throwable thr) {
+	       exceptionHandler.reportException(thr);
+               status =  thr.getMessage();
+	   }
+       } catch (ExceptionHandlerException ex){
+	       main.setStatusLine("Failed to load problem/proof");
+	       status =  ex.toString();
+       }
+       finally {
+           if (po != null && po instanceof KeYUserProblemFile){
+               ((KeYUserProblemFile) po).close();
+           }
+       }
+       return status;
+   }
 
-                // Inform the decproc classes that a new problem has been loaded
-                // This is done here because all benchmarks resulting from one
-                // loaded problem should be
-                // stored in the same directory
-                DecisionProcedureSmtAuflia.fireNewProblemLoaded(file, proof);
 
-            } catch (ExceptionHandlerException e) {
-                throw e;
-            } catch (Throwable thr) {
-                exceptionHandler.reportException(thr);
-                status = thr.getMessage();
-            }
-        } catch (ExceptionHandlerException ex) {
-            main.setStatusLine("Failed to load problem/proof");
-            status = ex.toString();
-        } finally {
-            if (problemFile != null
-                    && problemFile instanceof KeYUserProblemFile) {
-                ((KeYUserProblemFile) problemFile).close();
-            }
-        }
-        return status;
-    }
 
     public void loadPreferences(String preferences) {
         final ProofSettings proofSettings = ProofSettings.DEFAULT_SETTINGS;
@@ -274,8 +321,9 @@ public class ProblemLoader implements Runnable {
             if (currNode == null)
                 currNode = children.next();
             // otherwise we already fetched the node at branch point
-            currGoal = proof.getGoal(currNode);
-            currTacletName = s;
+            currGoal      = proof.getGoal(currNode);
+            mediator.getSelectionModel().setSelectedGoal(currGoal);
+            currTacletName= s;
             // set default state
             currFormula = 0;
             currPosInTerm = PosInTerm.TOP_LEVEL;
@@ -328,26 +376,27 @@ public class ProblemLoader implements Runnable {
             // System.out.println("---------------\n" + s + "------------\n");
             // necessary for downward compatibility of the proof format
             loadPreferences(s);
-            break;
-        case 'n': // BuiltIn rules
-            if (currNode == null)
-                currNode = children.next();
-            currGoal = proof.getGoal(currNode);
-
+        break;
+        case 'n' : //BuiltIn rules
+            if (currNode == null) currNode = children.next();
+            currGoal      = proof.getGoal(currNode);
+            mediator.getSelectionModel().setSelectedGoal(currGoal);
             currTacletName = s;
             // set default state
             currFormula = 0;
             currPosInTerm = PosInTerm.TOP_LEVEL;
-            break;
-        case 'c': // contract
-            currContract = (OldOperationContract) proof.getServices()
-                    .getSpecificationRepository().getContractByName(s);
             break;
         case 'm': // reduce with parameters
             System.out.println(s);// XXX
             reduceVariables = new ArrayList<String>();
             for (String m : s.trim().split(",")) {
                 reduceVariables.add(m.trim());
+            }
+            break;
+        case 'c' : //contract
+            currContract = new ContractWithInvs(s, proof.getServices());
+            if(currContract == null) {
+                throw new RuntimeException("Error loading proof: contract \"" + s + "\" not found.");
             }
             break;
         }
@@ -423,12 +472,13 @@ public class ProblemLoader implements Runnable {
         }
 
         final Constraint userConstraint = mediator.getUserConstraint()
-                .getConstraint();
-
-        if (currContract != null) {
-            ourApp = new MethodContractRuleApp(UseMethodContractRule.INSTANCE,
-                    pos, userConstraint, currContract);
-            currContract = null;
+                        .getConstraint();
+        
+        if (currContract!=null) {
+            ourApp = new UseOperationContractRuleApp(pos, 
+                                                     userConstraint, 
+                                                     currContract);
+            currContract=null;
             return ourApp;
         }
 
@@ -437,10 +487,11 @@ public class ProblemLoader implements Runnable {
 
         if (ruleApps.size() != 1) {
             if (ruleApps.size() < 1) {
-                throw new BuiltInConstructionException(currTacletName
-                        + " is missing. Most probably the binary "
-                        + "for this built-in rule ist not in your path or "
-                        + "you do not have the permission to execute it.");
+                throw new BuiltInConstructionException
+                (currTacletName +
+                    " is missing. Most probably the binary "+
+                    "for this built-in rule is not in your path or " +
+                    "you do not have the permission to execute it.");
             } else {
                 IteratorOfRuleApp it = ruleApps.iterator();
                 RuleApp next = null;
@@ -543,7 +594,7 @@ public class ProblemLoader implements Runnable {
             result = app.createSkolemConstant(value, sv, true, services);
         } else if (sv.isListSV()) {
             SetOfLocationDescriptor s = parseLocationList(value, targetGoal);
-            result = app.addInstantiation(sv, s.toArray(), true);
+            result = app.addInstantiation(sv, Array.reverse(s.toArray()), true);
         } else {
             Namespace varNS = p.getNamespaces().variables();
             varNS = app.extendVarNamespaceForSV(varNS, sv);
@@ -626,12 +677,10 @@ public class ProblemLoader implements Runnable {
                 new Namespace(), targetGoal.getVariableNamespace(varNS));
         Services services = p.getServices();
         try {
-            Profile profile = Main.getInstance().mediator().getProfile();
-            ProgramBlockProvider provider = profile.getProgramBlockProvider();
             result = (new KeYParser(ParserMode.TERM, new KeYLexer(
                     new StringReader(value), services.getExceptionHandler()),
                     null, TermFactory.DEFAULT, null, services, nss,
-                    new AbbrevMap(), provider)).location_list();
+                    new AbbrevMap())).location_list();
         } catch (antlr.RecognitionException re) {
             throw new RuntimeException("Cannot parse location list " + value,
                     re);

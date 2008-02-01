@@ -124,7 +124,7 @@ public class DLApplyOnModality extends ApplyOnModality {
      * @return
      */
     private boolean applyableUpdates(Update update, Term target) {
-        HashSet protectedVars = collectProgramVariables(target);
+        HashSet protectedVars = collectProgramVariables(target, Main.getInstance().mediator().getServices());
         for (int i = 0; i < update.locationCount(); i++) {
             if (!protectedVars.contains(update.location(i))) {
                 boolean found = false;
@@ -165,7 +165,7 @@ public class DLApplyOnModality extends ApplyOnModality {
 
         // now we apply the update to the term
         if (target.javaBlock() != null) {
-            HashSet protectedVars = collectProgramVariables(target);
+            HashSet protectedVars = collectProgramVariables(target, services);
             target = applyUpdate(target, update, protectedVars);
         }
 
@@ -209,7 +209,7 @@ public class DLApplyOnModality extends ApplyOnModality {
                                             .toArray(new AssignmentPair[0]),
                                             target.sub(0)));
             return UpdateSimplifierTermFactory.DEFAULT.createUpdateTerm(remove(
-                    update, target), updateSimplifier().simplify(result,
+                    update, target, Main.getInstance().mediator().getServices()), updateSimplifier().simplify(result,
                     Main.getInstance().mediator().getServices()));
         }
         return target;
@@ -386,7 +386,7 @@ public class DLApplyOnModality extends ApplyOnModality {
      * @return
      */
     @Override
-    protected HashSet collectProgramVariables(Term target) {
+    protected HashSet collectProgramVariables(Term target, Services services) {
         if (protectedVarsCache.containsKey(target)) {
             return (HashSet) protectedVarsCache.get(target);
         }
@@ -408,7 +408,7 @@ public class DLApplyOnModality extends ApplyOnModality {
         }
 
         for (int i = 0; i < target.arity(); i++) {
-            foundProgVars.addAll(collectProgramVariables(target.sub(i)));
+            foundProgVars.addAll(collectProgramVariables(target.sub(i), services));
         }
 
         if (protectedVarsCache.size() >= 1000) {

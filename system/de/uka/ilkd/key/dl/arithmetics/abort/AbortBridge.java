@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2007 by Jan David Quesel                                *
+ *   Copyright (C) 2007 by Jan-David Quesel                                *
  *   quesel@informatik.uni-oldenburg.de                                    *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -26,7 +26,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 import de.uka.ilkd.key.dl.strategy.features.HypotheticalProvabilityFeature;
-import de.uka.ilkd.key.dl.strategy.features.HypotheticalProvabilityFeature.HypotheticalProvability;
 import de.uka.ilkd.key.gui.KeYMediator;
 import de.uka.ilkd.key.gui.Main;
 

@@ -38,7 +38,8 @@ import de.uka.ilkd.key.rule.RuleApp;
 import de.uka.ilkd.key.strategy.AutomatedRuleApplicationManager;
 
 /**
- * TODO jdq documentation since Jul 26, 2007
+ * This is an implementation of the {@link AutoModeListener}. It is used to set
+ * a {@link DummyRuleApplicationManager} when in interactive mode.
  * 
  * @author jdq
  * @since Jul 26, 2007
@@ -51,7 +52,12 @@ public class AutomodeListener implements AutoModeListener {
     public static boolean aborted = false;
 
     /**
-     * TODO jdq documentation since Aug 13, 2007
+     * This is a dummy implementation of an
+     * {@link AutomatedRuleApplicationManager}. It is used to suppress strategy
+     * evaluations in interactive mode. It solves the problem that manual
+     * application of rules freezes the gui for the current timeout, as the
+     * strategy reevaluates, whether it should apply quantifier elimination or
+     * not.
      * 
      * @author jdq
      * @since Aug 13, 2007

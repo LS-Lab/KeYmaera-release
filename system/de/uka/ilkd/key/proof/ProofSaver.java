@@ -22,7 +22,12 @@ import de.uka.ilkd.key.gui.configuration.ProofSettings;
 import de.uka.ilkd.key.gui.notification.events.GeneralFailureEvent;
 import de.uka.ilkd.key.java.ProgramElement;
 import de.uka.ilkd.key.java.Services;
-import de.uka.ilkd.key.logic.*;
+import de.uka.ilkd.key.logic.ConstrainedFormula;
+import de.uka.ilkd.key.logic.LocationDescriptor;
+import de.uka.ilkd.key.logic.PosInOccurrence;
+import de.uka.ilkd.key.logic.PosInTerm;
+import de.uka.ilkd.key.logic.Sequent;
+import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.op.EntryOfSchemaVariableAndInstantiationEntry;
 import de.uka.ilkd.key.logic.op.IteratorOfEntryOfSchemaVariableAndInstantiationEntry;
 import de.uka.ilkd.key.logic.op.SchemaVariable;
@@ -30,8 +35,21 @@ import de.uka.ilkd.key.pp.LogicPrinter;
 import de.uka.ilkd.key.pp.NotationInfo;
 import de.uka.ilkd.key.pp.PresentationFeatures;
 import de.uka.ilkd.key.pp.ProgramPrinter;
-import de.uka.ilkd.key.rule.*;
-import de.uka.ilkd.key.rule.inst.*;
+import de.uka.ilkd.key.rule.BuiltInRuleApp;
+import de.uka.ilkd.key.rule.IfFormulaInstDirect;
+import de.uka.ilkd.key.rule.IfFormulaInstSeq;
+import de.uka.ilkd.key.rule.IfFormulaInstantiation;
+import de.uka.ilkd.key.rule.IteratorOfIfFormulaInstantiation;
+import de.uka.ilkd.key.rule.IteratorOfObject;
+import de.uka.ilkd.key.rule.ListOfIfFormulaInstantiation;
+import de.uka.ilkd.key.rule.ListOfObject;
+import de.uka.ilkd.key.rule.RuleApp;
+import de.uka.ilkd.key.rule.TacletApp;
+import de.uka.ilkd.key.rule.inst.ListInstantiation;
+import de.uka.ilkd.key.rule.inst.NameInstantiationEntry;
+import de.uka.ilkd.key.rule.inst.ProgramInstantiation;
+import de.uka.ilkd.key.rule.inst.SVInstantiations;
+import de.uka.ilkd.key.rule.inst.TermInstantiation;
 
 /**
  * Saves a proof and provides useful methods for pretty printing terms or
@@ -39,43 +57,41 @@ import de.uka.ilkd.key.rule.inst.*;
  */
 public class ProofSaver {
 
-    protected Main main;
+   protected Main main;
+   protected KeYMediator mediator;
+   protected String filename;
+   protected Proof proof;
+   LogicPrinter printer;
+   
+   
+   private ProofSaver() {
+   }
 
-    protected KeYMediator mediator;
+   public ProofSaver(Main main, String filename) {
+      this.main = main;
+      this.mediator = main.mediator();
+      this.filename = filename;
+      this.proof = mediator.getSelectedProof();
+   }
 
-    protected String filename;
-
-    protected Proof proof;
-
-    LogicPrinter printer;
-
-    private ProofSaver() {
-    }
-
-    public ProofSaver(Main main, String filename) {
-        this.main = main;
-        this.mediator = main.mediator();
-        this.filename = filename;
-        this.proof = mediator.getSelectedProof();
-    }
-
-    public StringBuffer writeLog(Proof p) {
-        StringBuffer logstr = new StringBuffer();
-        // Advance the Logentries
-        if (p.userLog == null)
-            p.userLog = new Vector();
-        if (p.keyVersionLog == null)
-            p.keyVersionLog = new Vector();
-        p.userLog.add(System.getProperty("user.name"));
-        p.keyVersionLog.add(Main.getInstance().getPrcsVersion());
-        int s = p.userLog.size();
-        for (int i = 0; i < s; i++) {
-            logstr.append("(keyLog \"" + i + "\" (keyUser \""
-                    + p.userLog.elementAt(i) + "\" ) (keyVersion \""
-                    + p.keyVersionLog.elementAt(i) + "\"))\n");
-        }
-        return logstr;
-    }
+   public StringBuffer writeLog(Proof p){
+    StringBuffer logstr=new StringBuffer();
+    //Advance the Logentries
+    if(p.userLog==null)
+        p.userLog = new Vector();
+    if(p.keyVersionLog==null)
+        p.keyVersionLog = new Vector();
+    p.userLog.add(System.getProperty("user.name"));
+    p.keyVersionLog.add(Main.getInstance().getPrcsVersion());
+    int s = p.userLog.size();
+    for(int i=0; i<s; i++){
+	logstr.append("(keyLog \""+i+"\" (keyUser \""+
+            p.userLog.elementAt(i)+"\" ) (keyVersion \""+
+            p.keyVersionLog.elementAt(i)+"\"))\n");
+       }
+    return logstr;
+   }
+       
 
     public String writeSettings(ProofSettings ps) {
         return new String("\\settings {\n\"" + ps.settingsToString()
@@ -172,12 +188,7 @@ public class ProofSaver {
             tree.append("\"");
             tree.append(posInOccurrence2Proof(node.sequent(), appliedRuleApp
                     .posInOccurrence()));
-            if (appliedRuleApp instanceof MethodContractRuleApp) {
-                tree.append(" (contract \"");
-                tree.append(((MethodContractRuleApp) appliedRuleApp)
-                        .getMethodContract().getName());
-                tree.append("\")");
-            } else if (appliedRuleApp instanceof ReduceRuleApp) {
+            if (appliedRuleApp instanceof ReduceRuleApp) {
                 if (!((ReduceRuleApp) appliedRuleApp).getVariables().isEmpty()) {
                     tree.append(" (reduceVariables \"");
                     String comma = "";

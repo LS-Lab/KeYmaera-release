@@ -25,9 +25,6 @@ import de.uka.ilkd.key.logic.*;
 import de.uka.ilkd.key.logic.op.SchemaVariable;
 import de.uka.ilkd.key.logic.op.TermSymbol;
 import de.uka.ilkd.key.rule.*;
-import de.uka.ilkd.key.proof.init.ProgramBlockProvider;
-import de.uka.ilkd.key.proof.init.Profile;
-import de.uka.ilkd.key.gui.Main;
 
 /** class tests the parser for Taclets
 */
@@ -86,11 +83,9 @@ public class TestTacletParser extends TestCase {
     
 
     private KeYParser stringDeclParser(String s) {
-	Profile profile = Main.getInstance().mediator().getProfile();
-	ProgramBlockProvider provider = profile.getProgramBlockProvider();
 	return new KeYParser(ParserMode.DECLARATION, new KeYLexer(new StringReader(s), null),
 			      "No file. parser/TestTacletParser.stringDeclParser("+s+")",  
-			       services, nss, provider);
+			       services, nss);
     }
 
     public void parseDecls(String s) {
@@ -109,12 +104,10 @@ public class TestTacletParser extends TestCase {
     // Utility Methods for test cases.
     //
     private KeYParser stringTacletParser(String s) {
-	Profile profile = Main.getInstance().mediator().getProfile();
-	ProgramBlockProvider provider = profile.getProgramBlockProvider();
 	return new KeYParser
 	    (ParserMode.TACLET,new KeYLexer(new StringReader(s), null), 
 	     "No file. parser/TestTacletParser.stringTacletParser("+s+")",  
-	     tf, services, nss, provider);
+	     tf, services, nss);
     }
 
     public Term parseTerm(String s) {

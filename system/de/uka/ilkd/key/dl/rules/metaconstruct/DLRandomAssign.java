@@ -36,7 +36,8 @@ import de.uka.ilkd.key.logic.sort.Sort;
 import de.uka.ilkd.key.rule.inst.SVInstantiations;
 
 /**
- * TODO jdq documentation
+ * {@link DLRandomAssign} represents a random assignment to a variable, i.e. an
+ * arbitrary real number is assigned to the variable.
  * 
  * @author jdq
  * @since 28.02.2007

@@ -34,7 +34,6 @@ import de.uka.ilkd.key.dl.rules.ReduceRuleApp;
 import de.uka.ilkd.key.gui.KeYMediator;
 import de.uka.ilkd.key.gui.Main;
 import de.uka.ilkd.key.gui.ReduceRulesItem;
-import de.uka.ilkd.key.gui.UseMethodContractRuleItem;
 import de.uka.ilkd.key.java.ProgramElement;
 import de.uka.ilkd.key.logic.JavaBlock;
 import de.uka.ilkd.key.logic.NameCreationInfo;
@@ -66,7 +65,6 @@ import de.uka.ilkd.key.rule.Taclet;
 import de.uka.ilkd.key.rule.TacletApp;
 import de.uka.ilkd.key.rule.TacletGoalTemplate;
 import de.uka.ilkd.key.rule.TacletSchemaVariableCollector;
-import de.uka.ilkd.key.rule.UseMethodContractRule;
 
 /**
  * This class creates a menu with Taclets as entries. The invoker has to be of
@@ -196,17 +194,13 @@ class TacletMenu extends JMenu {
      */
     private void addBuiltInRuleItem(BuiltInRule builtInRule, MenuControl control) {
         JMenuItem item;
-        if (builtInRule instanceof UseMethodContractRule) {
-            item = new UseMethodContractRuleItem(mediator.mainFrame(),
-                    (UseMethodContractRule) builtInRule, mediator
-                            .getSelectedProof(), pos.getPosInOccurrence());
-        } else if (builtInRule instanceof EliminateQuantifierRule
+        if (builtInRule instanceof EliminateQuantifierRule
                 || builtInRule instanceof ReduceRule
                 || builtInRule instanceof EliminateExistentialQuantifierRule) {
             item = new ReduceRulesItem(mediator.mainFrame(), builtInRule,
                     mediator.getSelectedProof(), pos.getPosInOccurrence());
         } else {
-            item = new DefaultBuiltInRuleMenuItem(builtInRule);
+        	item = new DefaultBuiltInRuleMenuItem(builtInRule);                       
         }
         item.addActionListener(control);
         add(item);
@@ -379,36 +373,31 @@ class TacletMenu extends JMenu {
     }
 
     /** ActionListener */
-    class MenuControl implements ActionListener {
+    class MenuControl implements ActionListener{
 
-        private boolean validabbreviation(String s) {
-            if (s == null || s.length() == 0)
-                return false;
-            for (int i = 0; i < s.length(); i++) {
-                if (!((s.charAt(i) <= '9' && s.charAt(i) >= '0')
-                        || (s.charAt(i) <= 'z' && s.charAt(i) >= 'a')
-                        || (s.charAt(i) <= 'Z' && s.charAt(i) >= 'A') || s
-                        .charAt(i) == '_'))
-                    return false;
-            }
-            return true;
-        }
+	private boolean validabbreviation(String s){
+	    if(s==null || s.length()==0) return false;
+	    for(int i=0; i<s.length(); i++){
+		if(!((s.charAt(i)<='9' && s.charAt(i)>='0')||
+		     (s.charAt(i)<='z' && s.charAt(i)>='a')||
+		     (s.charAt(i)<='Z' && s.charAt(i)>='A')||
+		     s.charAt(i)=='_')) return false;
+	    }
+	    return true;
+	}
 
-        public void actionPerformed(ActionEvent e) {
-            if (e.getSource() instanceof TacletMenuItem) {
-                ((SequentView) (getPopupMenu().getInvoker())).selectedTaclet(
-                        ((TacletMenuItem) e.getSource()).connectedTo(), pos);
-            } else if (e.getSource() instanceof UseMethodContractRuleItem) {
-                mediator
-                        .selectedUseMethodContractRule(((UseMethodContractRuleItem) e
-                                .getSource()).getRuleApp());
+	public void actionPerformed(ActionEvent e) {
+	    if (e.getSource() instanceof TacletMenuItem) {
+		((SequentView)(getPopupMenu().getInvoker()))
+		    .selectedTaclet(((TacletMenuItem) e.getSource()).connectedTo(), 
+				    pos);
+            } else if (e.getSource() instanceof BuiltInRuleMenuItem) {
+                mediator.selectedBuiltInRule(((BuiltInRuleMenuItem) e
+                        .getSource()).connectedTo(), pos.getPosInOccurrence());
             } else if (e.getSource() instanceof ReduceRulesItem) {
                 mediator
                         .selectedReduceRule((ReduceRuleApp) ((ReduceRulesItem) e
                                 .getSource()).getRuleApp());
-            } else if (e.getSource() instanceof BuiltInRuleMenuItem) {
-                mediator.selectedBuiltInRule(((BuiltInRuleMenuItem) e
-                        .getSource()).connectedTo(), pos.getPosInOccurrence());
             } else if (e.getSource() instanceof FocussedRuleApplicationMenuItem) {
                 mediator.getInteractiveProver().startFocussedAutoMode(
                         pos.getPosInOccurrence(), mediator.getSelectedGoal());
@@ -539,129 +528,127 @@ class TacletMenu extends JMenu {
 
     static class TacletAppComparator implements Comparator {
 
-        private int countFormulaSV(TacletSchemaVariableCollector c) {
-            int formulaSV = 0;
-            IteratorOfSchemaVariable it = c.varIterator();
-            while (it.hasNext()) {
-                SchemaVariable sv = it.next();
-                if (sv instanceof SortedSchemaVariable) {
-                    if (((SortedSchemaVariable) sv).sort() == Sort.FORMULA) {
-                        formulaSV++;
-                    }
-                }
-            }
-
-            return formulaSV;
-        }
-
-        /**
-         * this is a rough estimation about the goal complexity. The complexity
-         * depends on the depth of the term to be replaced. If no such term
-         * exists we add a constant (may be refined in future)
-         */
-        private int measureGoalComplexity(ListOfTacletGoalTemplate l) {
-            int result = 0;
-            IteratorOfTacletGoalTemplate it = l.iterator();
-            while (it.hasNext()) {
-                TacletGoalTemplate gt = it.next();
-                if (gt instanceof RewriteTacletGoalTemplate) {
-                    if (((RewriteTacletGoalTemplate) gt).replaceWith() != null) {
-                        result += ((RewriteTacletGoalTemplate) gt)
-                                .replaceWith().depth();
-                    }
-                }
-                if (gt.sequent() != Sequent.EMPTY_SEQUENT) {
-                    result += 10;
-                }
-            }
-            return result;
-        }
-
-        /**
-         * rough approximation of the program complexity
-         */
-        public int programComplexity(JavaBlock b) {
-            if (b == JavaBlock.EMPTY_JAVABLOCK) {
-                return 0;
-            }
-            return new de.uka.ilkd.key.java.visitor.JavaASTWalker(b.program()) {
-                private int counter = 0;
-
-                protected void doAction(ProgramElement pe) {
-                    counter++;
-                }
-
-                public int getCounter() {
-                    counter = 0;
-                    start();
-                    return counter;
-                }
-            }.getCounter();
-        }
-
-        public int compare(Object o1, Object o2) {
-            FindTaclet taclet1 = (FindTaclet) (((TacletApp) o1).taclet());
-            FindTaclet taclet2 = (FindTaclet) (((TacletApp) o2).taclet());
-
-            int findComplexity1 = taclet1.find().depth();
-            int findComplexity2 = taclet2.find().depth();
-            findComplexity1 += programComplexity(taclet1.find().javaBlock());
-            findComplexity2 += programComplexity(taclet2.find().javaBlock());
-
-            if (findComplexity1 < findComplexity2) {
-                return -1;
-            } else if (findComplexity1 > findComplexity2) {
-                return 1;
-            }
-
-            // depth are equal. Number of schemavariables decides
-            TacletSchemaVariableCollector coll1 = new TacletSchemaVariableCollector();
-            taclet1.find().execPostOrder(coll1);
-            int formulaSV1 = countFormulaSV(coll1);
-
-            TacletSchemaVariableCollector coll2 = new TacletSchemaVariableCollector();
-            taclet2.find().execPostOrder(coll2);
-            int formulaSV2 = countFormulaSV(coll2);
-
-            int cmpVar1 = -coll1.size() + taclet1.getRuleSets().size();
-            int cmpVar2 = -coll2.size() + taclet2.getRuleSets().size();
-
-            if (cmpVar1 == cmpVar2) {
-                cmpVar1 = cmpVar1 - formulaSV1;
-                cmpVar2 = cmpVar2 - formulaSV2;
-            }
-
-            if (cmpVar1 < cmpVar2) {
-                return -1;
-            } else if (cmpVar1 > cmpVar2) {
-                return 1;
-            }
-
-            if (taclet1.ifSequent() == Sequent.EMPTY_SEQUENT
-                    && taclet2.ifSequent() != Sequent.EMPTY_SEQUENT) {
-                return 1;
-            } else if (taclet1.ifSequent() == Sequent.EMPTY_SEQUENT
-                    && taclet2.ifSequent() != Sequent.EMPTY_SEQUENT) {
-                return -1;
-            }
-
-            int goals1 = -taclet1.goalTemplates().size();
-            int goals2 = -taclet2.goalTemplates().size();
-
-            if (goals1 == goals2) {
-                goals1 = -measureGoalComplexity(taclet1.goalTemplates());
-                goals2 = -measureGoalComplexity(taclet2.goalTemplates());
-            }
-
-            if (goals1 < goals2) {
-                return -1;
-            } else if (goals1 > goals2) {
-                return 1;
-            }
-
-            return 0;
-        }
-
+	private int countFormulaSV(TacletSchemaVariableCollector c) {
+	    int formulaSV = 0;
+	    IteratorOfSchemaVariable it = c.varIterator();
+	    while (it.hasNext()) {
+		SchemaVariable sv = it.next();
+		if(sv instanceof SortedSchemaVariable) {
+		    if (((SortedSchemaVariable)sv).sort() == Sort.FORMULA) {
+			formulaSV++;
+		    }
+		}
+	    }
+	
+	    return formulaSV;
+	}
+	
+	/** this is a rough estimation about the goal complexity. The
+	 * complexity depends on the depth of the term to be replaced.
+	 * If no such term exists we add a constant (may be refined in
+	 * future)
+	 */
+	private int measureGoalComplexity(ListOfTacletGoalTemplate l) {
+	    int result = 0;
+	    IteratorOfTacletGoalTemplate it = l.iterator();
+	    while (it.hasNext()) {
+		TacletGoalTemplate gt = it.next();
+		if (gt instanceof RewriteTacletGoalTemplate) {
+		    if (((RewriteTacletGoalTemplate)gt).replaceWith() != null) {
+			result += ((RewriteTacletGoalTemplate)gt).replaceWith().depth();
+		    }
+		} 
+		if (gt.sequent() != Sequent.EMPTY_SEQUENT) {
+		    result += 10;
+		}
+	    }
+	    return result;
+	}
+	
+	
+	/**
+	 * rough approximation of the program complexity
+	 */
+	public int programComplexity(JavaBlock b) {
+	    if (b == JavaBlock.EMPTY_JAVABLOCK) {
+		return 0;
+	    }
+	    return new de.uka.ilkd.key.java.visitor.JavaASTWalker(b.program()) { 
+		    private int counter = 0;
+			    
+		    protected void doAction(ProgramElement pe) {                      
+                        counter++;
+		    }		
+                    
+		    public int getCounter() {
+			counter = 0;
+			start();
+			return counter;
+		    }
+		}.getCounter();
+	}
+	
+	public int compare(Object o1, Object o2) {
+	    FindTaclet taclet1 = (FindTaclet)(((TacletApp)o1).taclet());
+	    FindTaclet taclet2 = (FindTaclet)(((TacletApp)o2).taclet());
+		    
+	    int findComplexity1 = taclet1.find().depth();
+	    int findComplexity2 = taclet2.find().depth();
+	    findComplexity1 += programComplexity(taclet1.find().javaBlock());
+	    findComplexity2 += programComplexity(taclet2.find().javaBlock());
+	
+	    if ( findComplexity1 < findComplexity2 ) {
+		return -1;
+	    } else if (findComplexity1 > findComplexity2) {
+		return 1;
+	    }		    		    		    
+	
+	    // depth are equal. Number of schemavariables decides
+	    TacletSchemaVariableCollector coll1 = new TacletSchemaVariableCollector();
+	    taclet1.find().execPostOrder(coll1);
+	    int formulaSV1 = countFormulaSV(coll1);
+		    
+	    TacletSchemaVariableCollector coll2  = new TacletSchemaVariableCollector();
+	    taclet2.find().execPostOrder(coll2);
+	    int formulaSV2 = countFormulaSV(coll2);
+	
+	    int cmpVar1 = -coll1.size()+taclet1.getRuleSets().size();
+	    int cmpVar2 = -coll2.size()+taclet2.getRuleSets().size();
+		    
+	    if (cmpVar1 == cmpVar2) {
+		cmpVar1 = cmpVar1-formulaSV1;
+		cmpVar2 = cmpVar2-formulaSV2;
+	    }
+		    
+	    if ( cmpVar1 < cmpVar2 ) {
+		return -1;
+	    } else if (cmpVar1 > cmpVar2) {
+		return 1;
+	    }
+	
+	    if (taclet1.ifSequent() == Sequent.EMPTY_SEQUENT && 
+		taclet2.ifSequent() != Sequent.EMPTY_SEQUENT) {
+		return 1;
+	    } else if (taclet1.ifSequent() == Sequent.EMPTY_SEQUENT && 
+		       taclet2.ifSequent() != Sequent.EMPTY_SEQUENT) {
+		return -1;
+	    }
+		    
+	    int goals1 = -taclet1.goalTemplates().size();
+	    int goals2 = -taclet2.goalTemplates().size();
+	
+	    if (goals1 == goals2) {
+		goals1 = -measureGoalComplexity(taclet1.goalTemplates());
+		goals2 = -measureGoalComplexity(taclet2.goalTemplates());		
+	    } 
+	
+	    if (goals1 < goals2) {
+		return -1;
+	    } else if (goals1 > goals2) {
+		return 1;
+	    }
+	
+	    return 0;
+	}
     }
-
 }

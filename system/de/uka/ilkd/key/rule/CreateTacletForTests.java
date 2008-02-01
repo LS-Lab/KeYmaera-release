@@ -24,9 +24,6 @@ import de.uka.ilkd.key.logic.sort.Sort;
 import de.uka.ilkd.key.parser.KeYLexer;
 import de.uka.ilkd.key.parser.KeYParser;
 import de.uka.ilkd.key.parser.ParserMode;
-import de.uka.ilkd.key.proof.init.ProgramBlockProvider;
-import de.uka.ilkd.key.proof.init.Profile;
-import de.uka.ilkd.key.gui.Main;
 
 
 /** 
@@ -285,10 +282,8 @@ public class CreateTacletForTests extends TestCase {
 	Term t_test1=null;
 	try{
 	    StringReader fr = new StringReader(test1);
-		Profile profile = Main.getInstance().mediator().getProfile();
-		ProgramBlockProvider provider = profile.getProgramBlockProvider();
 	    KeYParser parser=
-		new KeYParser(ParserMode.PROBLEM,new KeYLexer(fr,null), provider);
+		new KeYParser(ParserMode.PROBLEM,new KeYLexer(fr,null));
 	    t_test1=parser.problem();
 	} catch (Exception e) {
 	    System.err.println("Parser Error or Input Error");
@@ -362,11 +357,9 @@ public class CreateTacletForTests extends TestCase {
     }
     
     private KeYParser stringDeclParser(String s) {
-	Profile profile = Main.getInstance().mediator().getProfile();
-	ProgramBlockProvider provider = profile.getProgramBlockProvider();
 	return new KeYParser(ParserMode.DECLARATION, new KeYLexer(new StringReader(s),null),
 			      "No file. CreateTacletForTests.stringParser("+s+")",
-			      services, nss, provider);
+			      services, nss);
     }
 
     public void parseDecls(String s) {
@@ -382,11 +375,9 @@ public class CreateTacletForTests extends TestCase {
     }
      
     private KeYParser stringTacletParser(String s) {
-	Profile profile = Main.getInstance().mediator().getProfile();
-	ProgramBlockProvider provider = profile.getProgramBlockProvider();
 	return new KeYParser(ParserMode.TACLET, new KeYLexer(new StringReader(s),null),
 			      "No file. CreateTacletForTests.stringParser("+s+")",
-			      tf, services, nss, provider);
+			      tf, services, nss);
     }
     
     Taclet parseTaclet(String s) {

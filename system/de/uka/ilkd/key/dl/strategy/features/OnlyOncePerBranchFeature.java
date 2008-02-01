@@ -34,7 +34,7 @@ import de.uka.ilkd.key.strategy.TopRuleAppCost;
 import de.uka.ilkd.key.strategy.feature.Feature;
 
 /**
- * TODO jdq documentation
+ * This feature ensures that a rule is only applied once per branch.
  * 
  * @author jdq
  * @since 20.02.2007

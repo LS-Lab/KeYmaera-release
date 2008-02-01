@@ -34,7 +34,10 @@ import de.uka.ilkd.key.logic.NamespaceSet;
 import de.uka.ilkd.key.logic.Term;
 
 /**
- * TODO jdq documentation since Aug 17, 2007
+ * This class encapsulates {@link IMathSolver} that are capable of applying
+ * quantifier elimination.
+ * 
+ * The implementations can be accessed using the {@link MathSolverManager}.
  * 
  * @author jdq
  * @since Aug 17, 2007
@@ -43,7 +46,8 @@ import de.uka.ilkd.key.logic.Term;
 public interface IQuantifierEliminator extends IMathSolver {
 
     /**
-     * TODO jdq documentation since Aug 31, 2007
+     * This class represents a quantified variable together with the type of
+     * quantification.
      * 
      * @author jdq
      * @since Aug 31, 2007
@@ -77,10 +81,11 @@ public interface IQuantifierEliminator extends IMathSolver {
      * @throws ServerStatusProblemException
      * 
      */
-    public abstract Term reduce(Term form, NamespaceSet nss) throws RemoteException,
-            SolverException;
-    public abstract Term reduce(Term form, NamespaceSet nss, long timeout) throws RemoteException,
-    SolverException;
+    public abstract Term reduce(Term form, NamespaceSet nss)
+            throws RemoteException, SolverException;
+
+    public abstract Term reduce(Term form, NamespaceSet nss, long timeout)
+            throws RemoteException, SolverException;
 
     // /**
     // * Reduces the given term if its a mathematical expression
@@ -103,9 +108,10 @@ public interface IQuantifierEliminator extends IMathSolver {
     public abstract Term reduce(Term form, List<String> names,
             List<PairOfTermAndQuantifierType> quantifiers, NamespaceSet nss)
             throws RemoteException, SolverException;
+
     public abstract Term reduce(Term form, List<String> names,
-            List<PairOfTermAndQuantifierType> quantifiers, NamespaceSet nss, long timeout)
-            throws RemoteException, SolverException;
+            List<PairOfTermAndQuantifierType> quantifiers, NamespaceSet nss,
+            long timeout) throws RemoteException, SolverException;
 
     /**
      * Reduces the given term if its a mathematical expression
@@ -118,7 +124,8 @@ public interface IQuantifierEliminator extends IMathSolver {
     public abstract Term reduce(Term query,
             List<PairOfTermAndQuantifierType> quantifiers, NamespaceSet nss)
             throws RemoteException, SolverException;
+
     public abstract Term reduce(Term query,
-            List<PairOfTermAndQuantifierType> quantifiers, NamespaceSet nss, long timeout)
-            throws RemoteException, SolverException;
+            List<PairOfTermAndQuantifierType> quantifiers, NamespaceSet nss,
+            long timeout) throws RemoteException, SolverException;
 }

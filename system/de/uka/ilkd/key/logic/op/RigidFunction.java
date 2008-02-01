@@ -51,7 +51,7 @@ public class RigidFunction extends Function {
 	 * @param argSorts
 	 */
 	public RigidFunction(Name name, Sort sort, ArrayOfSort argSorts) {
-	    super(name, sort, argSorts);
+	    super(name, sort, argSorts);            
 	}
 	
 	/**

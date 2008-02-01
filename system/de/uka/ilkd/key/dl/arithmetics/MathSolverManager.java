@@ -120,8 +120,10 @@ public abstract class MathSolverManager {
                 String optStr = (String) xpath.evaluate("optionbean", node,
                         XPathConstants.STRING);
                 if (optStr != null && !optStr.equals("")) {
-                    Class<? extends Settings> options = (Class<? extends Settings>) Class.forName(optStr);
-                    Settings object = (Settings) options.getDeclaredField("INSTANCE").get(options);
+                    Class<? extends Settings> options = (Class<? extends Settings>) Class
+                            .forName(optStr);
+                    Settings object = (Settings) options.getDeclaredField(
+                            "INSTANCE").get(options);
                     DLOptionBean.INSTANCE.addSubOptionBean(object);
                 }
             } catch (Exception e) {
@@ -220,9 +222,11 @@ public abstract class MathSolverManager {
     }
 
     /**
-     * TODO jdq documentation since Aug 17, 2007
+     * Get the current {@link IMathSolver} that is used for solving differential
+     * equations.
      * 
-     * @return
+     * @see de.uka.ilkd.key.dl.options.DLOptionBean.getOdeSolver()
+     * @return the current solver for differential equations
      */
     public static IODESolver getCurrentODESolver() {
         IODESolver result = getODESolver(DLOptionBean.INSTANCE.getOdeSolver());
@@ -257,9 +261,9 @@ public abstract class MathSolverManager {
     }
 
     /**
-     * TODO jdq documentation since Aug 17, 2007
+     * Get the {@link ICounterExampleGenerator} that is set by the user.
      * 
-     * @return
+     * @return the current counter example generator
      */
     public static ICounterExampleGenerator getCurrentCounterExampleGenerator() {
         ICounterExampleGenerator result = getCounterExampleGenerator(DLOptionBean.INSTANCE
@@ -295,9 +299,10 @@ public abstract class MathSolverManager {
     }
 
     /**
-     * TODO jdq documentation since Aug 17, 2007
+     * Get the current {@link IMathSolver} that should be used to eliminate
+     * quantifiers.
      * 
-     * @return
+     * @return the current {@link IQuantifierEliminator}
      */
     public static IQuantifierEliminator getCurrentQuantifierEliminator() {
         IQuantifierEliminator result = getQuantifierElimantor(DLOptionBean.INSTANCE
@@ -332,9 +337,9 @@ public abstract class MathSolverManager {
     }
 
     /**
-     * TODO jdq documentation since Aug 17, 2007
+     * Get the {@link IMathSolver} that is chosen by the user for formula simplification
      * 
-     * @return
+     * @return the current {@link ISimplifier}
      */
     public static ISimplifier getCurrentSimplifier() {
         ISimplifier result = getSimplifier(DLOptionBean.INSTANCE
@@ -359,7 +364,7 @@ public abstract class MathSolverManager {
     private IMathSolver lnkIMathSolver;
 
     /**
-     * TODO jdq documentation since Aug 17, 2007
+     * Call resetAbortState on all {@link IMathSolver}s
      * 
      * @throws RemoteException
      */

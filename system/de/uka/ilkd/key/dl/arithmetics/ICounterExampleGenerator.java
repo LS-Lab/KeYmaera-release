@@ -31,7 +31,9 @@ import de.uka.ilkd.key.dl.arithmetics.exceptions.UnsolveableException;
 import de.uka.ilkd.key.logic.Term;
 
 /**
- * TODO jdq documentation since Aug 17, 2007
+ * A {@link ICounterExampleGenerator} is used to check a term for
+ * unsatisfiability. The implementations can be accessed using the
+ * {@link MathSolverManager}.
  * 
  * @author jdq
  * @since Aug 17, 2007
@@ -49,19 +51,26 @@ public interface ICounterExampleGenerator extends IMathSolver {
      * @throws ServerStatusProblemException
      * 
      */
-    public abstract String findInstance(Term form, long timeout) throws RemoteException,
-            SolverException;
-
+    public abstract String findInstance(Term form, long timeout)
+            throws RemoteException, SolverException;
 
     /**
-     * Tries to find a transition within the program of modalForm from a state satisfying initial
-     * to a state satisfying postcondition of modalForm.
+     * Tries to find a transition within the program of modalForm from a state
+     * satisfying initial to a state satisfying postcondition of modalForm.
      * 
-     * @param initial first-order formula characterising initial state
-     * @param modalForm Modal formula <p>F characterising transition system p and reachability question F.
-     *  Possibly, <p>F is prefixed with an update giving {U}<p>F.
-     * @return true if successfully found a transition from initial via U and p to F,
-     *  or false for unknown. 
+     * @param initial
+     *                first-order formula characterising initial state
+     * @param modalForm
+     *                Modal formula
+     *                <p>
+     *                F characterising transition system p and reachability
+     *                question F. Possibly,
+     *                <p>
+     *                F is prefixed with an update giving {U}
+     *                <p>
+     *                F.
+     * @return true if successfully found a transition from initial via U and p
+     *         to F, or false for unknown.
      * @throws RemoteException
      * @throws UnsolveableException
      * @throws ConnectionProblemException

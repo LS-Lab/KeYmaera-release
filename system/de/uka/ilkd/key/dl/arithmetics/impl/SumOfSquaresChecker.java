@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2007 by Jan David Quesel                                *
+ *   Copyright (C) 2007 by Jan-David Quesel                                *
  *   quesel@informatik.uni-oldenburg.de                                    *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -32,7 +32,6 @@ import orbital.math.Arithmetic;
 import orbital.math.Integer;
 import orbital.math.Polynomial;
 import orbital.math.Real;
-import orbital.math.ValueFactory;
 import orbital.math.Values;
 import orbital.math.Vector;
 import de.uka.ilkd.key.dl.formulatools.VariableCollector;

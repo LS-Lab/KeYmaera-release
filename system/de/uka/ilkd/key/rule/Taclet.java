@@ -12,6 +12,7 @@ package de.uka.ilkd.key.rule;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.HashMap;
 
 import de.uka.ilkd.key.dl.DLProfile;
 import de.uka.ilkd.key.dl.model.DLNonTerminalProgramElement;
@@ -1545,7 +1546,7 @@ public abstract class Taclet implements Rule, Named {
 		    neededInstances = neededInstances.add ( cit.next () );
 	    }
 
-	    goal.addTaclet(tacletToAdd, neededInstances, matchCond.getConstraint ());
+	    goal.addTaclet(tacletToAdd, neededInstances, matchCond.getConstraint (), true);
 	}
     }
 
@@ -1564,7 +1565,7 @@ public abstract class Taclet implements Rule, Named {
 	    final VariableNamer vn = services.getVariableNamer();
 	    inst = vn.rename(inst, goal, posOfFind);
             final RenamingTable rt = 
-                RenamingTable.getRenamingTable(vn.getRenamingMap());
+                RenamingTable.getRenamingTable((HashMap)vn.getRenamingMap());
             if (rt != null) {
                 renamings = renamings.append(rt);
             }

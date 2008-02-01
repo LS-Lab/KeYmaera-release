@@ -25,9 +25,6 @@ import de.uka.ilkd.key.rule.IfFormulaInstDirect;
 import de.uka.ilkd.key.rule.IfFormulaInstantiation;
 import de.uka.ilkd.key.rule.IteratorOfIfFormulaInstantiation;
 import de.uka.ilkd.key.rule.ListOfIfFormulaInstantiation;
-import de.uka.ilkd.key.proof.init.Profile;
-import de.uka.ilkd.key.gui.Main;
-import de.uka.ilkd.key.proof.init.ProgramBlockProvider;
 
 
 public class IfChoiceModel extends DefaultComboBoxModel {
@@ -91,12 +88,11 @@ public class IfChoiceModel extends DefaultComboBoxModel {
      * @param s the String to parse 
      */
     private KeYParser stringParser(String s) {
-		Profile profile = Main.getInstance().mediator().getProfile();
-		ProgramBlockProvider provider = profile.getProgramBlockProvider();
 	return new KeYParser(ParserMode.TERM,new KeYLexer(new StringReader(s),services.getExceptionHandler()),
 			      "", TermFactory.DEFAULT, 
- 				  new Recoder2KeY(services, nss),
-			      services, nss, scm, provider);
+			      new Recoder2KeY(services,
+					      nss),			      
+			      services, nss, scm);
     }
 
 

@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2007 by Jan David Quesel                                *
+ *   Copyright (C) 2007 by Jan-David Quesel                                *
  *   quesel@informatik.uni-oldenburg.de                                    *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -45,7 +45,9 @@ import de.uka.ilkd.key.dl.model.Variable;
 import de.uka.ilkd.key.java.ProgramElement;
 
 /**
- * TODO jdq documentation since Aug 20, 2007
+ * The {@link DL2MatrixFormConverter} converts a simple differential equation
+ * into matrix form. It is used to interact with the orbital library to solve
+ * differential equations.
  * 
  * @author jdq
  * @since Aug 20, 2007
@@ -155,7 +157,8 @@ public class DL2MatrixFormConverter {
     }
 
     /**
-     * TODO jdq documentation since Aug 20, 2007
+     * This function converts the given program element m into its orbital
+     * representation and stores the result in val.
      * 
      * @param variables
      * @param t
@@ -198,7 +201,8 @@ public class DL2MatrixFormConverter {
             ProgramElement childAt = ft.getChildAt(0);
             if (childAt instanceof FreeFunction) {
                 FreeFunction ff = (FreeFunction) childAt;
-                if (ft.getChildCount() == 1) {
+                if (ft.getChildCount() == 1) { // this means the function has
+                    // no arguments
                     val.res = val.res.multiply(Values.getDefault().symbol(
                             ff.getSymbol()));
                 } else {
@@ -208,6 +212,10 @@ public class DL2MatrixFormConverter {
             } else if (childAt instanceof MinusSign) {
                 val.res = val.res.minus();
                 convert(variables, t, val, ft.getChildAt(1));
+            } else {
+                throw new IllegalArgumentException(
+                        "Dont know how to represent the function of type "
+                                + childAt.getClass() + " in orbital: " + m);
             }
         } else {
             throw new IllegalArgumentException("Dont know how to represent a "
@@ -216,10 +224,11 @@ public class DL2MatrixFormConverter {
     }
 
     /**
-     * TODO jdq documentation since Aug 20, 2007
+     * Split sums into its summands.
      * 
      * @param expression
-     * @return
+     *                the sum expression
+     * @return a list of elements that are added in the initial expression
      */
     private List<ProgramElement> splitPlus(ProgramElement expression) {
         List<ProgramElement> result = new ArrayList<ProgramElement>();
@@ -238,10 +247,11 @@ public class DL2MatrixFormConverter {
     }
 
     /**
-     * TODO jdq documentation since Aug 20, 2007
+     * Split product into its factors.
      * 
      * @param expression
-     * @return
+     *                the product expression
+     * @return a list of elements that are multiplied in the initial expression
      */
     private List<ProgramElement> splitMult(ProgramElement expression) {
         List<ProgramElement> result = new ArrayList<ProgramElement>();

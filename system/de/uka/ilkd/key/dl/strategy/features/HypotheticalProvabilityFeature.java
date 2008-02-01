@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2007 by André Platzer                                   *
+ *   Copyright (C) 2007 by Andre Platzer                                   *
  *   @informatik.uni-oldenburg.de                                          *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -546,8 +546,9 @@ public class HypotheticalProvabilityFeature implements Feature {
         final Proof proof = goal.proof();
 
         // TODO: this is maybe not the right place for this check
-        assert proof.mgt().ruleApplicable(p_ruleApp, goal) : "Someone tried to apply the rule "
-                + p_ruleApp + " that is not justified";
+        // FIXME: proof.mgt().ruleApplicable(p_ruleApp, goal) is not available anymore
+//        assert proof.mgt().ruleApplicable(p_ruleApp, goal) : "Someone tried to apply the rule "
+//                + p_ruleApp + " that is not justified";
 
         final NodeChangeJournal journal = new NodeChangeJournal(proof, goal);
         // addGoalListener(journal);

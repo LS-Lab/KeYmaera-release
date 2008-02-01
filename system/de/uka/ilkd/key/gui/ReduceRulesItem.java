@@ -22,7 +22,10 @@ import de.uka.ilkd.key.rule.BuiltInRule;
 import de.uka.ilkd.key.rule.RuleApp;
 
 /**
- * TODO jdq documentation
+ * This JMenuItem is used to store informations entered by the user like the
+ * list of variables that are to eliminate. When applied it will pop up a dialog
+ * that lets the user enter a list of variables, that can be used by the rule
+ * that is applied, usually a quantifier elimination rule.
  * 
  * @author jdq
  * @since 29.03.2007
@@ -30,80 +33,85 @@ import de.uka.ilkd.key.rule.RuleApp;
  */
 public class ReduceRulesItem extends JMenuItem implements BuiltInRuleMenuItem {
 
-	private BuiltInRule connectedTo;
+    private BuiltInRule connectedTo;
 
-	private Proof proof;
+    private Proof proof;
 
-	private PosInOccurrence pos;
+    private PosInOccurrence pos;
 
-	private RuleApp app;
+    private RuleApp app;
 
-	private JFrame parent;
+    private JFrame parent;
 
-	/** the added action listeners */
-	private List listenerList = new LinkedList();
+    /** the added action listeners */
+    private List listenerList = new LinkedList();
 
-	public ReduceRulesItem(JFrame parent, BuiltInRule rule, Proof proof,
-			PosInOccurrence pos) {
-		super(rule.name().toString());
-		this.connectedTo = rule;
-		this.pos = pos;
-		this.parent = parent;
-		this.proof = proof;
+    public ReduceRulesItem(JFrame parent, BuiltInRule rule, Proof proof,
+            PosInOccurrence pos) {
+        super(rule.name().toString());
+        this.connectedTo = rule;
+        this.pos = pos;
+        this.parent = parent;
+        this.proof = proof;
 
-		super.addActionListener(new ActionListener() {
+        super.addActionListener(new ActionListener() {
 
-			public void actionPerformed(ActionEvent e) {
-				openDialog(e);
-			}
+            public void actionPerformed(ActionEvent e) {
+                openDialog(e);
+            }
 
-		});
+        });
 
-	}
+    }
 
-	public void openDialog(ActionEvent e) {
-		String def = "";
-		if (connectedTo instanceof EliminateQuantifierRule) {
-			def = SkolemSymbolWithMostParametersVisitor
-					.getSkolemSymbolWithMostParameters(pos.subTerm()).op().name()
-					.toString();
-		}
-		String variables = JOptionPane.showInputDialog(
-				"Optional elimination target variables", def);
-		if (variables != null) {
-			List<String> variableSet = new ArrayList<String>();
-			for (String s : variables.trim().split(",")) {
-				if (!s.equals("")) {
-					variableSet.add(s.trim());
-				}
-			}
-			app = new ReduceRuleApp(connectedTo, pos, Constraint.BOTTOM,
-					variableSet);
-			processUseMethodContractRuleSelected(e);
-		}
-	}
+    /**
+     * Open a dialog that lets the user enter a list of variables.
+     * 
+     * @param e
+     */
+    public void openDialog(ActionEvent e) {
+        String def = "";
+        if (connectedTo instanceof EliminateQuantifierRule) {
+            def = SkolemSymbolWithMostParametersVisitor
+                    .getSkolemSymbolWithMostParameters(pos.subTerm()).op()
+                    .name().toString();
+        }
+        String variables = JOptionPane.showInputDialog(
+                "Optional elimination target variables", def);
+        if (variables != null) {
+            List<String> variableSet = new ArrayList<String>();
+            for (String s : variables.trim().split(",")) {
+                if (!s.equals("")) {
+                    variableSet.add(s.trim());
+                }
+            }
+            app = new ReduceRuleApp(connectedTo, pos, Constraint.BOTTOM,
+                    variableSet);
+            processUseMethodContractRuleSelected(e);
+        }
+    }
 
-	public BuiltInRule connectedTo() {
-		return connectedTo;
-	}
+    public BuiltInRule connectedTo() {
+        return connectedTo;
+    }
 
-	public RuleApp getRuleApp() {
-		return app;
-	}
+    public RuleApp getRuleApp() {
+        return app;
+    }
 
-	protected void processUseMethodContractRuleSelected(ActionEvent e) {
-		final Iterator it = listenerList.iterator();
-		while (it.hasNext()) {
-			((ActionListener) it.next()).actionPerformed(e);
-		}
-	}
+    protected void processUseMethodContractRuleSelected(ActionEvent e) {
+        final Iterator it = listenerList.iterator();
+        while (it.hasNext()) {
+            ((ActionListener) it.next()).actionPerformed(e);
+        }
+    }
 
-	public void addActionListener(ActionListener listener) {
-		listenerList.add(listener);
-	}
+    public void addActionListener(ActionListener listener) {
+        listenerList.add(listener);
+    }
 
-	public void removeActionListener(ActionListener listener) {
-		listenerList.remove(listener);
-	}
+    public void removeActionListener(ActionListener listener) {
+        listenerList.remove(listener);
+    }
 
 }

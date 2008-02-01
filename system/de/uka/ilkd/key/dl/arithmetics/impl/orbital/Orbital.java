@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2007 by Jan David Quesel                                *
+ *   Copyright (C) 2007 by Jan-David Quesel                                *
  *   quesel@informatik.uni-oldenburg.de                                    *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -53,7 +53,6 @@ import de.uka.ilkd.key.dl.arithmetics.exceptions.ConnectionProblemException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.FailedComputationException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ServerStatusProblemException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
-import de.uka.ilkd.key.dl.arithmetics.exceptions.UnsolveableException;
 import de.uka.ilkd.key.dl.arithmetics.impl.orbital.DL2MatrixFormConverter.MatrixForm;
 import de.uka.ilkd.key.dl.logic.ldt.RealLDT;
 import de.uka.ilkd.key.dl.model.DLNonTerminalProgramElement;
@@ -73,7 +72,8 @@ import de.uka.ilkd.key.logic.op.TermSymbol;
 import de.uka.ilkd.key.logic.sort.Sort;
 
 /**
- * TODO jdq documentation since Aug 20, 2007
+ * This class is an implementation of {@link IODESolver} that interacts with the
+ * abilities of the orbital library to solve differential equations.
  * 
  * @author jdq
  * @since Aug 20, 2007
@@ -114,8 +114,9 @@ public class Orbital implements IODESolver {
      *      de.uka.ilkd.key.logic.op.LogicVariable, de.uka.ilkd.key.logic.Term,
      *      de.uka.ilkd.key.logic.NamespaceSet)
      */
-    public ODESolverResult odeSolve(DiffSystem form, LogicVariable t, LogicVariable ts,
-            Term phi, NamespaceSet nss) throws RemoteException, SolverException {
+    public ODESolverResult odeSolve(DiffSystem form, LogicVariable t,
+            LogicVariable ts, Term phi, NamespaceSet nss)
+            throws RemoteException, SolverException {
         try {
             List<String> vars = new ArrayList<String>();
 
@@ -125,7 +126,7 @@ public class Orbital implements IODESolver {
 
             // create matrix
             MatrixForm matrixForm = DL2MatrixFormConverter.INSTANCE
-            .convertToMatrixForm(vars, equations);
+                    .convertToMatrixForm(vars, equations);
             System.out.println("Solving ODE x'(t) ==\n" + matrixForm.matrix
                     + "*x(t) + " + matrixForm.b + "\n" + "  " + matrixForm.eta
                     + "'(t) == " + matrixForm.matrix.multiply(matrixForm.eta)
@@ -135,11 +136,11 @@ public class Orbital implements IODESolver {
                     matrixForm.b, Values.getDefault().ZERO(), matrixForm.eta);
             System.out.println("yields " + solve); // XXX
             final Symbol tSym = Values.getDefault().symbol("t");
-            System.out
-            .println("  solution at " + tSym + " is " + solve.apply(tSym));// XXX
+            System.out.println("  solution at " + tSym + " is "
+                    + solve.apply(tSym));// XXX
             // Arithmetic apply = (Arithmetic) solve.apply(tSym);
             final UnivariatePolynomial[] componentPolynomials = AlgebraicAlgorithms
-            .componentPolynomials((UnivariatePolynomial) solve);
+                    .componentPolynomials((UnivariatePolynomial) solve);
             System.out.println(Arrays.toString(componentPolynomials));// XXX
             List<Term> values = new ArrayList<Term>();
             final Sort sortR = RealLDT.getRealSort();
@@ -153,42 +154,52 @@ public class Orbital implements IODESolver {
                 int i = 0;
                 while (iterator.hasNext()) {
                     Object next = iterator.next();
-                    Term n = convert(sortR, zero, nss, next);
+                    Term n = convertOrbitalToTerm(sortR, zero, nss, next);
 
                     if (n != null) {
                         if (i == 0) {
                             value = n;
                         } else if (i == 1) {
                             value = TermBuilder.DF.func((TermSymbol) nss
-                                    .functions().lookup(new Name("add")), value,
-                                    TermBuilder.DF.func((TermSymbol) nss
-                                            .functions().lookup(new Name("mul")),
-                                            n, TermBuilder.DF.var(t)));
+                                    .functions().lookup(new Name("add")),
+                                    value, TermBuilder.DF.func((TermSymbol) nss
+                                            .functions()
+                                            .lookup(new Name("mul")), n,
+                                            TermBuilder.DF.var(t)));
                         } else {
                             Term tTerm = TermBuilder.DF.var(t);
                             tTerm = TermBuilder.DF.func((TermSymbol) nss
-                                    .functions().lookup(new Name("exp")), tTerm,
-                                    TermBuilder.DF.func(NumberCache.getNumber(
-                                            new BigDecimal(i), sortR)));
-                            value = TermBuilder.DF.func((TermSymbol) nss
-                                    .functions().lookup(new Name("add")), value,
-                                    TermBuilder.DF.func((TermSymbol) nss
-                                            .functions().lookup(new Name("mul")),
-                                            n, tTerm));
+                                    .functions().lookup(new Name("exp")),
+                                    tTerm, TermBuilder.DF
+                                            .func(NumberCache.getNumber(
+                                                    new BigDecimal(i), sortR)));
+                            value = TermBuilder.DF
+                                    .func(
+                                            (TermSymbol) nss.functions()
+                                                    .lookup(new Name("add")),
+                                            value,
+                                            TermBuilder.DF
+                                                    .func(
+                                                            (TermSymbol) nss
+                                                                    .functions()
+                                                                    .lookup(
+                                                                            new Name(
+                                                                                    "mul")),
+                                                            n, tTerm));
                         }
                     }
                     i++;
                 }
-                System.out.println("Solution for " + matrixForm.eta.get(j) + " is "
-                        + value);// XXX
+                System.out.println("Solution for " + matrixForm.eta.get(j)
+                        + " is " + value);// XXX
                 values.add(value);
                 j++;
             }
             List<Term> locations = new ArrayList<Term>();
             for (Arithmetic variable : matrixForm.eta.toArray()) {
                 de.uka.ilkd.key.logic.op.ProgramVariable lookup = (de.uka.ilkd.key.logic.op.ProgramVariable) nss
-                .programVariables().lookup(
-                        new Name(((Symbol) variable).getSignifier()));
+                        .programVariables().lookup(
+                                new Name(((Symbol) variable).getSignifier()));
                 locations.add(TermBuilder.DF.var(lookup));
             }
 
@@ -198,44 +209,52 @@ public class Orbital implements IODESolver {
                     TermBuilder.DF.var(ts),
                     de.uka.ilkd.key.logic.TermFactory.DEFAULT.createUpdateTerm(
                             locations.toArray(new Term[0]), values
-                            .toArray(new Term[0]), invariant));
-            invariant = ((SubstOp)invariant.op()).apply(invariant);
+                                    .toArray(new Term[0]), invariant));
+            invariant = ((SubstOp) invariant.op()).apply(invariant);
             // insert 0 <= ts <= t
             de.uka.ilkd.key.logic.op.Function leq = (de.uka.ilkd.key.logic.op.Function) nss
-            .functions().lookup(new Name("leq"));
+                    .functions().lookup(new Name("leq"));
             Term tsRange = TermBuilder.DF.and(TermBuilder.DF.func(leq, zero,
                     TermBuilder.DF.var(ts)), TermBuilder.DF.func(leq,
-                            TermBuilder.DF.var(ts), TermBuilder.DF.var(t)));
+                    TermBuilder.DF.var(ts), TermBuilder.DF.var(t)));
             invariant = TermBuilder.DF.imp(tsRange, invariant);
             invariant = TermBuilder.DF.all(ts, invariant);
             return new ODESolverResult(invariant,
                     de.uka.ilkd.key.logic.TermFactory.DEFAULT.createUpdateTerm(
                             locations.toArray(new Term[0]), values
-                            .toArray(new Term[0]), phi));
+                                    .toArray(new Term[0]), phi));
         } catch (UnsupportedOperationException e) {
             throw new FailedComputationException(e.getMessage(), e);
         }
     }
 
     public Term diffInd(DiffSystem form, Term post, NamespaceSet nss)
-    throws RemoteException, SolverException {
+            throws RemoteException, SolverException {
         // TODO implement
-        throw new FailedComputationException("This differential equation solver does not provide DiffInd. Choose a different solver from the Options menu.");
+                "This differential equation solver does not provide DiffInd. Choose a different solver from the Options menu.");
     }
+
     public Term diffFin(DiffSystem form, Term post, NamespaceSet nss)
-    throws RemoteException, SolverException {
-        throw new FailedComputationException("This differential equation solver does not provide DiffFin. Choose a different solver from the Options menu.");
+            throws RemoteException, SolverException {
+        throw new FailedComputationException(
+                "This differential equation solver does not provide DiffFin. Choose a different solver from the Options menu.");
     }
 
     /**
-     * TODO jdq documentation since Aug 20, 2007
+     * Convert the result that the orbital library has returned into a KeY-Term
      * 
-     * @param next
-     * @param next
+     * @param sortR
+     *                the sort object representing the real numbers
      * @param zero
-     * @return
+     *                a term representing the real number 0
+     * @param nss
+     *                the current set of namespaces
+     * @param next
+     *                the object to convert
+     * @return a term representation of the given object
      */
-    private Term convert(Sort sortR, Term zero, NamespaceSet nss, Object next) {
+    private Term convertOrbitalToTerm(Sort sortR, Term zero, NamespaceSet nss,
+            Object next) {
         if (next instanceof Symbol) {
             Symbol sym = (Symbol) next;
             de.uka.ilkd.key.logic.op.ProgramVariable pvar = (de.uka.ilkd.key.logic.op.ProgramVariable) nss
@@ -256,10 +275,11 @@ public class Orbital implements IODESolver {
                         new BigDecimal(i.longValue()), sortR));
             } else if (next instanceof Rational) {
                 Rational r = (Rational) next;
-                de.uka.ilkd.key.logic.op.Function div = RealLDT.getFunctionFor(Div.class);
-                return TermBuilder.DF.func(div, convert(sortR, zero, nss, r
-                        .numerator()), convert(sortR, zero, nss, r
-                        .denominator()));
+                de.uka.ilkd.key.logic.op.Function div = RealLDT
+                        .getFunctionFor(Div.class);
+                return TermBuilder.DF.func(div, convertOrbitalToTerm(sortR,
+                        zero, nss, r.numerator()), convertOrbitalToTerm(sortR,
+                        zero, nss, r.denominator()));
             } else if (next instanceof Real) {
                 Real r = (Real) next;
                 return TermBuilder.DF.func(NumberCache.getNumber(
@@ -282,12 +302,13 @@ public class Orbital implements IODESolver {
                 Term[] terms = new Term[components.length];
                 int i = 0;
                 for (Object arith : components) {
-                    terms[i++] = convert(sortR, zero, nss, arith);
+                    terms[i++] = convertOrbitalToTerm(sortR, zero, nss, arith);
                 }
                 return TermBuilder.DF.func(op, terms);
             }
         } else if (next instanceof VoidFunction) {
-            return convert(sortR, zero, nss, ((VoidFunction) next).apply());
+            return convertOrbitalToTerm(sortR, zero, nss, ((VoidFunction) next)
+                    .apply());
             // System.out.println("Found function" + next);//XXX
             // Function of = (Function) next;
             // de.uka.ilkd.key.logic.op.Function f =

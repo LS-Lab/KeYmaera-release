@@ -9,6 +9,7 @@ import de.uka.ilkd.key.java.JavaReader;
 import de.uka.ilkd.key.java.Recoder2KeY;
 import de.uka.ilkd.key.java.SchemaJavaReader;
 import de.uka.ilkd.key.java.SchemaRecoder2KeY;
+import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.java.visitor.DeclarationProgramVariableCollector;
 import de.uka.ilkd.key.java.visitor.ProgramVariableCollector;
 import de.uka.ilkd.key.logic.JavaBlock;
@@ -17,7 +18,7 @@ import de.uka.ilkd.key.parser.ParserConfig;
 import de.uka.ilkd.key.util.Debug;
 
 /**
- * TODO Documentation of ProgramBlockProvider since 08.01.2007
+ * ProgramblockProvider used when parsing java expressions/programs
  * 
  * @author jdq
  * @since 08.01.2007
@@ -60,10 +61,10 @@ public class ProgramBlockProvider implements
 
 	public HashSet getProgramVariables(JavaBlock programBlock,
 			NamespaceSet nss, boolean globalDeclTermParser, boolean declParser,
-			boolean termOrProblemParser) {
+			boolean termOrProblemParser, Services services) {
 		if (globalDeclTermParser) {
 			ProgramVariableCollector pvc = new ProgramVariableCollector(
-					programBlock.program());
+					programBlock.program(), services);
 			pvc.start();
 			return pvc.result();
 		} else if (!declParser) {
@@ -72,7 +73,7 @@ public class ProgramBlockProvider implements
 				return new HashSet();
 			}
 			DeclarationProgramVariableCollector pvc = new DeclarationProgramVariableCollector(
-					programBlock.program());
+					programBlock.program(), services);
 			pvc.start();
 			return pvc.result();
 		}
