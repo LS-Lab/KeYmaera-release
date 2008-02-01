@@ -102,6 +102,7 @@ import de.uka.ilkd.key.java.expression.operator.PostDecrement;
 import de.uka.ilkd.key.java.expression.operator.PostIncrement;
 import de.uka.ilkd.key.java.expression.operator.PreDecrement;
 import de.uka.ilkd.key.java.expression.operator.PreIncrement;
+import de.uka.ilkd.key.java.expression.operator.SetAssignment;
 import de.uka.ilkd.key.java.expression.operator.ShiftLeft;
 import de.uka.ilkd.key.java.expression.operator.ShiftLeftAssignment;
 import de.uka.ilkd.key.java.expression.operator.ShiftRight;
@@ -1996,6 +1997,37 @@ public class PrettyPrinter {
         printFooter(x);
     }
 
+    public void printSetAssignment(SetAssignment x) throws java.io.IOException {
+        printHeader(x);
+
+        markStart(0, x);
+        if (!noLinefeed) {
+            writeSymbol(1,0, "");
+        }
+        output();
+
+        boolean wasNoSemicolons = noSemicolons;
+        boolean wasNoLinefeed = noLinefeed;
+        noSemicolons=true;
+        noLinefeed=true;
+
+        write("#set ");
+        writeElement(0, x.getArguments().getExpression(0));
+        writeToken(0, " = ", x);
+        writeElement(0, x.getArguments().getExpression(1));
+        output();
+
+        noSemicolons = wasNoSemicolons;
+        noLinefeed = wasNoLinefeed;
+
+        write(";");
+        output();
+        markEnd(0, x);
+
+        printFooter(x);
+    }
+
+    
     public void printWhile(While x) throws java.io.IOException {
         printHeader(x);
         writeInternalIndentation(x);
@@ -2344,36 +2376,6 @@ public class PrettyPrinter {
         printOperator(x, "=");
         // noLinefeed=false;
         // write("\n");
-        printFooter(x);
-    }
-    
-    public void printSetAssignment(SetAssignment x) throws java.io.IOException {
-        printHeader(x);
-
-        markStart(0, x);
-        if (!noLinefeed) {
-            writeSymbol(1,0, "");
-        }
-        output();
-        
-        boolean wasNoSemicolons = noSemicolons;
-        boolean wasNoLinefeed = noLinefeed;
-        noSemicolons=true;
-        noLinefeed=true;
-        
-        write("#set ");
-        writeElement(0, x.getArguments().getExpression(0));
-        writeToken(0, " = ", x);
-        writeElement(0, x.getArguments().getExpression(1));
-        output();
-        
-        noSemicolons = wasNoSemicolons;
-        noLinefeed = wasNoLinefeed;
-        
-        write(";");
-        output();
-        markEnd(0, x);
-        
         printFooter(x);
     }
 

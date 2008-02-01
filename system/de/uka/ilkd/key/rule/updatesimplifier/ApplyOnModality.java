@@ -130,7 +130,7 @@ public class ApplyOnModality extends AbstractUpdateRule {
      * @param target
      * @return
      */
-    private HashSet collectProgramVariables(Term target, Services services) {
+    protected HashSet collectProgramVariables(Term target, Services services) {
         if (protectedVarsCache.containsKey(target)) {           
             return (HashSet) protectedVarsCache.get(target); 
         }

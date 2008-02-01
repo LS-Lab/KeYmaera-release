@@ -1139,13 +1139,21 @@ public class KeYMediator {
 	public boolean selectedReduceRule(ReduceRuleApp app) {
         Goal goal = keySelectionModel.getSelectedGoal();
         Debug.assertTrue(goal != null);        
-        if (!getProof().mgt().ruleApplicable(app, goal)) {
+        if (!((BuiltInRule)app.rule()).isApplicable(goal, null, null)) {
             barfRuleNotApplicable(app);
             return false;
         }
         applyInteractive(app, goal); 
         return true;
-	}        
+	}    
+	
+	    private void barfRuleNotApplicable(RuleApp rapp) {
+	        JOptionPane.showMessageDialog
+	            (mainFrame, 
+	             "Rule not applicable." + "\n" + rapp.rule().name(), 
+	             "Correctness Management",
+	             JOptionPane.ERROR_MESSAGE);
+	    }
 
     /** 
      * besides the number of rule applications it is possible to define a timeout after which rule application

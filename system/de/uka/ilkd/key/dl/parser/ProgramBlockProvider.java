@@ -16,6 +16,7 @@ import de.uka.ilkd.key.dl.model.TermFactory;
 import de.uka.ilkd.key.dl.model.VariableDeclaration;
 import de.uka.ilkd.key.dl.model.impl.TermFactoryImpl;
 import de.uka.ilkd.key.java.ProgramElement;
+import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.java.StatementBlock;
 import de.uka.ilkd.key.logic.JavaBlock;
 import de.uka.ilkd.key.logic.NamespaceSet;
@@ -97,7 +98,7 @@ public class ProgramBlockProvider implements
 
     public HashSet getProgramVariables(JavaBlock programBlock,
             NamespaceSet nss, boolean globalDeclTermParser, boolean declParser,
-            boolean termOrProblemParser) {
+            boolean termOrProblemParser, Services services) {
         HashSet<ProgramElement> programVariables = getProgramVariables(
                 (DLProgramElement) ((StatementBlock) programBlock.program())
                         .getChildAt(0), nss);

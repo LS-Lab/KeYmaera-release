@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 import de.uka.ilkd.key.casetool.UMLInfo;
+import de.uka.ilkd.key.gui.Main;
 import de.uka.ilkd.key.java.recoderext.KeYCrossReferenceServiceConfiguration;
 import de.uka.ilkd.key.java.recoderext.SchemaCrossReferenceServiceConfiguration;
 import de.uka.ilkd.key.logic.InnerVariableNamer;
@@ -277,15 +278,8 @@ public class Services{
      * @return the programBlockProvider
      */
     public ProgramBlockProvider getProgramBlockProvider() {
-        return programBlockProvider;
+        return Main.getInstance().mediator().getProfile().getProgramBlockProvider();
     }
-
-    /**
-     * @param programBlockProvider the programBlockProvider to set
-     */
-    public void setProgramBlockProvider(ProgramBlockProvider programBlockProvider) {
-        this.programBlockProvider = programBlockProvider;
-	}
 
 	/**
      * Returns the proof to which this object belongs, or null if it does not 

@@ -14,6 +14,8 @@ import java.io.IOException;
 import java.util.Map;
 
 import de.uka.ilkd.key.collection.ListOfString;
+import de.uka.ilkd.key.dl.DLProfile;
+import de.uka.ilkd.key.gui.Main;
 import de.uka.ilkd.key.java.ProgramElement;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.java.SourceElement;
@@ -161,6 +163,9 @@ public class LoopInvariantProposer implements InstantiationProposer {
     public Object tryToInstantiate(TacletApp app, 
                                    SchemaVariable var, 
                                    Services services) {
+        if(Main.getInstance().mediator().getProfile() instanceof DLProfile) {
+            return null;
+        }
         Object inst = null;
         if (app instanceof PosTacletApp 
             && inLoopInvariantRuleSet(app.taclet())) {

@@ -987,7 +987,7 @@ options {
     private HashSet progVars(JavaBlock jb) {
 		return getServices().getProgramBlockProvider().getProgramVariables(jb, namespaces(), 
 			isGlobalDeclTermParser(), isDeclParser(), (isTermParser() ||
-			isProblemParser()));
+			isProblemParser()), getServices());
 	/*if(isGlobalDeclTermParser()) {
   	  ProgramVariableCollector pvc
 	      = new ProgramVariableCollector(jb.program(), getServices());

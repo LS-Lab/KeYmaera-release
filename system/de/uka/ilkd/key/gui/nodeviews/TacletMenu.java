@@ -34,7 +34,6 @@ import de.uka.ilkd.key.dl.rules.ReduceRuleApp;
 import de.uka.ilkd.key.gui.KeYMediator;
 import de.uka.ilkd.key.gui.Main;
 import de.uka.ilkd.key.gui.ReduceRulesItem;
-import de.uka.ilkd.key.gui.UseMethodContractRuleItem;
 import de.uka.ilkd.key.java.ProgramElement;
 import de.uka.ilkd.key.logic.JavaBlock;
 import de.uka.ilkd.key.logic.NameCreationInfo;
@@ -66,7 +65,6 @@ import de.uka.ilkd.key.rule.Taclet;
 import de.uka.ilkd.key.rule.TacletApp;
 import de.uka.ilkd.key.rule.TacletGoalTemplate;
 import de.uka.ilkd.key.rule.TacletSchemaVariableCollector;
-import de.uka.ilkd.key.rule.UseMethodContractRule;
 
 /**
  * This class creates a menu with Taclets as entries. The invoker has to be of

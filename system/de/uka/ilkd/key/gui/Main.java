@@ -1366,17 +1366,17 @@ public class Main extends JFrame {
         });
         registerAtMenu(proof, choiceItem);
 
-        JMenuItem methodContractsItem = new JMenuItem(
-                "Show Used Specifications...");
-        methodContractsItem.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                new UsedSpecificationsDialog(
-                             mediator.getServices(), 
-                             mediator.getSelectedProof()
-                                     .getBasicTask()
-                                     .getUsedSpecs());
-            }});
-        registerAtMenu(proof, methodContractsItem);
+//        JMenuItem methodContractsItem = new JMenuItem(
+//                "Show Used Specifications...");
+//        methodContractsItem.addActionListener(new ActionListener() {
+//            public void actionPerformed(ActionEvent e) {
+//                new UsedSpecificationsDialog(
+//                             mediator.getServices(), 
+//                             mediator.getSelectedProof()
+//                                     .getBasicTask()
+//                                     .getUsedSpecs());
+//            }});
+//        registerAtMenu(proof, methodContractsItem);
 
         final JMenuItem statisticsInfo = new JMenuItem("Show Proof Statistics");
 
@@ -1854,42 +1854,42 @@ public class Main extends JFrame {
         });
         tools.add(extractSpecification);
 
-        JMenuItem specificationBrowser = new JMenuItem(
-                "JML Specification Browser...");
-        specificationBrowser.setAccelerator(KeyStroke.getKeyStroke(
-                KeyEvent.VK_J, ActionEvent.CTRL_MASK));
-        specificationBrowser.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                showSpecBrowser();
-            }
-        });
-        registerAtMenu(tools, specificationBrowser);
+//        JMenuItem specificationBrowser = new JMenuItem(
+//                "JML Specification Browser...");
+//        specificationBrowser.setAccelerator(KeyStroke.getKeyStroke(
+//                KeyEvent.VK_J, ActionEvent.CTRL_MASK));
+//        specificationBrowser.addActionListener(new ActionListener() {
+//            public void actionPerformed(ActionEvent e) {
+//                showSpecBrowser();
+//            }
+//        });
+//        registerAtMenu(tools, specificationBrowser);
 
-        JMenuItem dlSpecificationBrowser = new JMenuItem(
-                "DL Specification Browser...");
-        dlSpecificationBrowser.setAccelerator(KeyStroke.getKeyStroke(
-                KeyEvent.VK_L, ActionEvent.CTRL_MASK));
-        dlSpecificationBrowser.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                showDLSpecBrowser();
-            }
-        });
-        registerAtMenu(tools, dlSpecificationBrowser);
+//        JMenuItem dlSpecificationBrowser = new JMenuItem(
+//                "DL Specification Browser...");
+//        dlSpecificationBrowser.setAccelerator(KeyStroke.getKeyStroke(
+//                KeyEvent.VK_L, ActionEvent.CTRL_MASK));
+//        dlSpecificationBrowser.addActionListener(new ActionListener() {
+//            public void actionPerformed(ActionEvent e) {
+//                showDLSpecBrowser();
+//            }
+//        });
+//        registerAtMenu(tools, dlSpecificationBrowser);
 
-        JMenuItem nonInterference = new JMenuItem("Check Non-Interference");
-        nonInterference.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                BasicTask[] selProofs = proofList.getAllSelectedBasicTasks();
-                if (selProofs.length == 2) {
-                    new NonInterferenceCheck(selProofs).run();
-                } else {
-                    mediator().popupWarning("Please select 2 proofs",
-                            "Non-Interference Check");
-                }
-            }
-        });
-
-        tools.add(nonInterference);
+//        JMenuItem nonInterference = new JMenuItem("Check Non-Interference");
+//        nonInterference.addActionListener(new ActionListener() {
+//            public void actionPerformed(ActionEvent e) {
+//                BasicTask[] selProofs = proofList.getAllSelectedBasicTasks();
+//                if (selProofs.length == 2) {
+//                    new NonInterferenceCheck(selProofs).run();
+//                } else {
+//                    mediator().popupWarning("Please select 2 proofs",
+//                            "Non-Interference Check");
+//                }
+//            }
+//        });
+//
+//        tools.add(nonInterference);
 
         JMenuItem testItem = new JMenuItem();
         testItem.setAction(createUnitTestAction);

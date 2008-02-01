@@ -9,9 +9,6 @@
 //
 package de.uka.ilkd.key.java.visitor;
 import de.uka.ilkd.key.java.ProgramElement;
-import de.uka.ilkd.key.java.ReuseableProgramElement;
-import de.uka.ilkd.key.java.annotation.Annotation;
-import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.op.ListOfSchemaVariable;
 import de.uka.ilkd.key.logic.op.SLListOfSchemaVariable;
 import de.uka.ilkd.key.logic.op.SchemaVariable;

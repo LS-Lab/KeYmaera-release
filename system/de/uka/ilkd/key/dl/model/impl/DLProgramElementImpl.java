@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2007 by Jan David Quesel                                *
+ *   Copyright (C) 2007 by Jan-David Quesel                                *
  *   quesel@informatik.uni-oldenburg.de                                    *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -37,7 +37,6 @@ import de.uka.ilkd.key.java.PositionInfo;
 import de.uka.ilkd.key.java.PrettyPrinter;
 import de.uka.ilkd.key.java.SourceData;
 import de.uka.ilkd.key.java.SourceElement;
-import de.uka.ilkd.key.java.annotation.Annotation;
 import de.uka.ilkd.key.java.visitor.Visitor;
 import de.uka.ilkd.key.rule.MatchConditions;
 
@@ -83,24 +82,6 @@ public abstract class DLProgramElementImpl implements DLProgramElement {
     public void setDLAnnotations(Map<String, List<Formula>> annotations) {
         this.annotations.clear();
         this.annotations.putAll(annotations);
-    }
-    
-    /**
-     * @return 0 (no annotation in dL)
-     * @see de.uka.ilkd.key.dl.model.DLProgramElement#getAnnotationCount()
-     *      getAnnotationCount
-     */
-    public int getAnnotationCount() {
-        return 0;
-    }
-
-    /**
-     * @return an empty array
-     * @see de.uka.ilkd.key.dl.model.DLProgramElement#getAnnotations()
-     *      getAnnotations
-     */
-    public de.uka.ilkd.key.java.annotation.Annotation[] getAnnotations() {
-        return new Annotation[0];
     }
 
     /**

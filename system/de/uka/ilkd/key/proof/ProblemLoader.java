@@ -15,34 +15,67 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Stack;
 import java.util.Vector;
 
 import de.uka.ilkd.key.dl.rules.ReduceRuleApp;
-import de.uka.ilkd.key.gui.*;
+import de.uka.ilkd.key.gui.ExceptionDialog;
+import de.uka.ilkd.key.gui.KeYMediator;
+import de.uka.ilkd.key.gui.Main;
+import de.uka.ilkd.key.gui.POBrowser;
+import de.uka.ilkd.key.gui.SwingWorker;
 import de.uka.ilkd.key.gui.configuration.ProofSettings;
 import de.uka.ilkd.key.java.ProgramElement;
 import de.uka.ilkd.key.java.Services;
-import de.uka.ilkd.key.logic.*;
-import de.uka.ilkd.key.logic.op.*;
-import de.uka.ilkd.key.parser.*;
+import de.uka.ilkd.key.logic.Constraint;
+import de.uka.ilkd.key.logic.Name;
+import de.uka.ilkd.key.logic.Namespace;
+import de.uka.ilkd.key.logic.NamespaceSet;
+import de.uka.ilkd.key.logic.PosInOccurrence;
+import de.uka.ilkd.key.logic.PosInTerm;
+import de.uka.ilkd.key.logic.Sequent;
+import de.uka.ilkd.key.logic.SetOfLocationDescriptor;
+import de.uka.ilkd.key.logic.Term;
+import de.uka.ilkd.key.logic.TermFactory;
+import de.uka.ilkd.key.logic.op.IteratorOfSchemaVariable;
+import de.uka.ilkd.key.logic.op.LogicVariable;
+import de.uka.ilkd.key.logic.op.NameSV;
+import de.uka.ilkd.key.logic.op.SchemaVariable;
+import de.uka.ilkd.key.logic.op.SetOfSchemaVariable;
+import de.uka.ilkd.key.parser.KeYLexer;
+import de.uka.ilkd.key.parser.KeYParser;
+import de.uka.ilkd.key.parser.ParserException;
+import de.uka.ilkd.key.parser.ParserMode;
+import de.uka.ilkd.key.parser.TermParserFactory;
 import de.uka.ilkd.key.pp.AbbrevMap;
 import de.uka.ilkd.key.pp.PresentationFeatures;
-import de.uka.ilkd.key.proof.init.*;
+import de.uka.ilkd.key.proof.decproc.DecisionProcedureSmtAuflia;
+import de.uka.ilkd.key.proof.init.EnvInput;
+import de.uka.ilkd.key.proof.init.InitConfig;
+import de.uka.ilkd.key.proof.init.KeYFile;
+import de.uka.ilkd.key.proof.init.KeYUserProblemFile;
+import de.uka.ilkd.key.proof.init.ProblemInitializer;
+import de.uka.ilkd.key.proof.init.Profile;
+import de.uka.ilkd.key.proof.init.ProofOblInput;
 import de.uka.ilkd.key.proof.mgt.ContractWithInvs;
-import de.uka.ilkd.key.proof.mgt.SpecificationRepository;
-import de.uka.ilkd.key.rule.*;
-import de.uka.ilkd.key.speclang.OperationContract;
+import de.uka.ilkd.key.rule.BuiltInRule;
+import de.uka.ilkd.key.rule.BuiltInRuleApp;
+import de.uka.ilkd.key.rule.IfFormulaInstSeq;
+import de.uka.ilkd.key.rule.IteratorOfRuleApp;
+import de.uka.ilkd.key.rule.ListOfIfFormulaInstantiation;
+import de.uka.ilkd.key.rule.NoPosTacletApp;
+import de.uka.ilkd.key.rule.RuleApp;
+import de.uka.ilkd.key.rule.SLListOfIfFormulaInstantiation;
+import de.uka.ilkd.key.rule.SetOfRuleApp;
+import de.uka.ilkd.key.rule.Taclet;
+import de.uka.ilkd.key.rule.TacletApp;
+import de.uka.ilkd.key.rule.UseOperationContractRuleApp;
 import de.uka.ilkd.key.speclang.SLEnvInput;
-import de.uka.ilkd.key.speclang.SetAsListOfClassInvariant;
-import de.uka.ilkd.key.speclang.SetOfClassInvariant;
 import de.uka.ilkd.key.util.Array;
 import de.uka.ilkd.key.util.ExceptionHandlerException;
 import de.uka.ilkd.key.util.KeYExceptionHandler;
-import de.uka.ilkd.key.proof.decproc.DecisionProcedureSmtAuflia;
 
 public class ProblemLoader implements Runnable {
 
@@ -358,6 +391,8 @@ public class ProblemLoader implements Runnable {
             reduceVariables = new ArrayList<String>();
             for (String m : s.trim().split(",")) {
                 reduceVariables.add(m.trim());
+            }
+            break;
         case 'c' : //contract
             currContract = new ContractWithInvs(s, proof.getServices());
             if(currContract == null) {
@@ -642,12 +677,10 @@ public class ProblemLoader implements Runnable {
                 new Namespace(), targetGoal.getVariableNamespace(varNS));
         Services services = p.getServices();
         try {
-            Profile profile = Main.getInstance().mediator().getProfile();
-            ProgramBlockProvider provider = profile.getProgramBlockProvider();
             result = (new KeYParser(ParserMode.TERM, new KeYLexer(
                     new StringReader(value), services.getExceptionHandler()),
                     null, TermFactory.DEFAULT, null, services, nss,
-                    new AbbrevMap(), provider)).location_list();
+                    new AbbrevMap())).location_list();
         } catch (antlr.RecognitionException re) {
             throw new RuntimeException("Cannot parse location list " + value,
                     re);

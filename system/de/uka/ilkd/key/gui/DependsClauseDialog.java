@@ -32,8 +32,6 @@ import de.uka.ilkd.key.proof.init.InitConfig;
 import de.uka.ilkd.key.speclang.ClassInvariant;
 import de.uka.ilkd.key.util.Debug;
 import de.uka.ilkd.key.util.ExtList;
-import de.uka.ilkd.key.proof.init.Profile;
-import de.uka.ilkd.key.proof.init.ProgramBlockProvider;
 
 
 /**
@@ -125,9 +123,6 @@ public class DependsClauseDialog extends JDialog {
 
 
     private boolean parseText() {
-		Profile profile = Main.getInstance().mediator().getProfile();
-		ProgramBlockProvider provider = profile.getProgramBlockProvider();
-
         KeYLexer lexer
             = new KeYLexer(new StringReader(textArea.getText()),
                            initConfig.getServices().getExceptionHandler());
@@ -137,7 +132,7 @@ public class DependsClauseDialog extends JDialog {
                             null,
                             TermFactory.DEFAULT,
                             initConfig.getServices(),
-                            initConfig.namespaces(), provider);
+                            initConfig.namespaces());
         try {
             SetOfLocationDescriptor locations = parser.location_list();
             
