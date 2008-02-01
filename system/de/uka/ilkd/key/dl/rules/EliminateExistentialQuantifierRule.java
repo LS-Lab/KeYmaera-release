@@ -543,7 +543,6 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
             });
             Operator op = ops[0];
             if (!fo[0] || !(op instanceof Metavariable)) {
-                System.out.println("No!!");
                 return false;
             }
 
