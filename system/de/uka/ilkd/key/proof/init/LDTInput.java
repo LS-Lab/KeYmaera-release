@@ -13,6 +13,7 @@ import de.uka.ilkd.key.dl.DLProfile;
 import de.uka.ilkd.key.gui.Main;
 import de.uka.ilkd.key.gui.configuration.LibrariesSettings;
 import de.uka.ilkd.key.gui.configuration.ProofSettings;
+import de.uka.ilkd.key.java.recoderext.RecoderModelTransformer;
 import de.uka.ilkd.key.logic.Choice;
 import de.uka.ilkd.key.logic.IteratorOfNamed;
 import de.uka.ilkd.key.logic.Namespace;
@@ -56,6 +57,11 @@ public class LDTInput implements EnvInput {
     
     public String name() {
 	return NAME;
+    }
+    
+    
+    public RecoderModelTransformer getTransformer() {
+        return null;
     }
     
     

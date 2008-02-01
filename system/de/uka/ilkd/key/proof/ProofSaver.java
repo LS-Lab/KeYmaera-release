@@ -30,6 +30,7 @@ import de.uka.ilkd.key.pp.LogicPrinter;
 import de.uka.ilkd.key.pp.NotationInfo;
 import de.uka.ilkd.key.pp.PresentationFeatures;
 import de.uka.ilkd.key.pp.ProgramPrinter;
+import de.uka.ilkd.key.proof.mgt.RuleJustificationBySpec;
 import de.uka.ilkd.key.rule.*;
 import de.uka.ilkd.key.rule.inst.*;
 
@@ -39,43 +40,147 @@ import de.uka.ilkd.key.rule.inst.*;
  */
 public class ProofSaver {
 
-    protected Main main;
+   protected Main main;
+   protected KeYMediator mediator;
+   protected String filename;
+   protected Proof proof;
+   LogicPrinter printer;
+   
+   
+   private ProofSaver() {
+   }
 
-    protected KeYMediator mediator;
+   public ProofSaver(Main main, String filename) {
+      this.main = main;
+      this.mediator = main.mediator();
+      this.filename = filename;
+      this.proof = mediator.getSelectedProof();
+   }
 
-    protected String filename;
+   public StringBuffer writeLog(Proof p){
+    StringBuffer logstr=new StringBuffer();
+    //Advance the Logentries
+    if(p.userLog==null)
+        p.userLog = new Vector();
+    if(p.keyVersionLog==null)
+        p.keyVersionLog = new Vector();
+    p.userLog.add(System.getProperty("user.name"));
+    p.keyVersionLog.add(Main.getInstance().getPrcsVersion());
+    int s = p.userLog.size();
+    for(int i=0; i<s; i++){
+	logstr.append("(keyLog \""+i+"\" (keyUser \""+
+            p.userLog.elementAt(i)+"\" ) (keyVersion \""+
+            p.keyVersionLog.elementAt(i)+"\"))\n");
+       }
+    return logstr;
+   }
 
-    protected Proof proof;
+   public String writeSettings(ProofSettings ps){
+    	return new String ("\\settings {\n\""+ps.settingsToString()+"\"\n}\n");
+   }
+   public String save() {
+      String errorMsg = null;
+      FileOutputStream fos = null;
+      PrintStream ps = null;
 
-    LogicPrinter printer;
+      try {
+          fos = new FileOutputStream(filename);
+          ps = new PrintStream(fos);
 
-    private ProofSaver() {
-    }
 
-    public ProofSaver(Main main, String filename) {
-        this.main = main;
-        this.mediator = main.mediator();
-        this.filename = filename;
-        this.proof = mediator.getSelectedProof();
-    }
+          Sequent problemSeq = proof.root().sequent();
+          printer = createLogicPrinter(proof.getServices(), false);
 
-    public StringBuffer writeLog(Proof p) {
-        StringBuffer logstr = new StringBuffer();
-        // Advance the Logentries
-        if (p.userLog == null)
-            p.userLog = new Vector();
-        if (p.keyVersionLog == null)
-            p.keyVersionLog = new Vector();
-        p.userLog.add(System.getProperty("user.name"));
-        p.keyVersionLog.add(Main.getInstance().getPrcsVersion());
-        int s = p.userLog.size();
-        for (int i = 0; i < s; i++) {
-            logstr.append("(keyLog \"" + i + "\" (keyUser \""
-                    + p.userLog.elementAt(i) + "\" ) (keyVersion \""
-                    + p.keyVersionLog.elementAt(i) + "\"))\n");
+          ps.println(writeSettings(proof.getSettings()));
+          ps.print(proof.header());
+          ps.println("\\problem {");
+          printer.printSemisequent(problemSeq.succedent());
+          ps.println(printer.result());
+          ps.println("}\n");
+   //                ps.println(mediator.sort_ns());
+          ps.println("\\proof {");
+          ps.println(writeLog(proof));
+          ps.println(node2Proof(proof.root()));
+          ps.println("}");
+
+      } catch (IOException ioe) {
+          errorMsg = "Could not save \n"+filename+".\n";
+          errorMsg += ioe.toString();	    
+      } catch (NullPointerException npe) {
+          errorMsg = "Could not save \n"+filename+"\n";
+          errorMsg += "No proof present?";
+          npe.printStackTrace();
+      } catch (Exception e) {
+          errorMsg = e.toString();
+          e.printStackTrace();
+      } finally {
+          try {
+	      if (fos != null) fos.close();
+          } catch (IOException ioe) {
+	      mediator.notify(new GeneralFailureEvent(ioe.toString()));
+          }          
+      }	  
+      return errorMsg; // null if success
+   }
+   
+
+
+   private void printSingleNode(Node node, String prefix, StringBuffer tree) {
+
+      RuleApp appliedRuleApp = node.getAppliedRuleApp();
+      if (appliedRuleApp == null && (proof.getGoal(node)!=null)) { // open goal
+         tree.append(prefix); 
+         tree.append("(opengoal \"");
+         LogicPrinter logicPrinter = 
+	     createLogicPrinter(proof.getServices(), false);
+
+         logicPrinter.printSequent(node.sequent());
+	 // WATCHOUT Woj: replaceAll... is necessary for the newly introduced backslash
+	 // notation in the parser
+         tree.append(printer.result().toString().replace('\n',' ').replaceAll("\\\\","\\\\\\\\"));
+         tree.append("\")\n");
+         return;
+      }
+
+      if (appliedRuleApp instanceof TacletApp) {
+         tree.append(prefix); 
+         tree.append("(rule \"");
+         tree.append(appliedRuleApp.rule().name());	
+         tree.append("\"");
+         tree.append(posInOccurrence2Proof(node.sequent(),
+                                           appliedRuleApp.posInOccurrence()));
+         tree.append(getInteresting(((TacletApp)appliedRuleApp).instantiations()));
+         ListOfIfFormulaInstantiation l =
+            ((TacletApp)appliedRuleApp).ifFormulaInstantiations();
+         if (l != null) tree.append(ifFormulaInsts(node, l));
+         tree.append("");
+         userInteraction2Proof(node, tree);
+         tree.append(")\n");
+      }      
+        
+      if (appliedRuleApp instanceof BuiltInRuleApp) {
+        tree.append(prefix); 
+      	tree.append("(builtin \"");
+      	tree.append(appliedRuleApp.rule().name().toString());
+      	tree.append("\"");        
+        tree.append(posInOccurrence2Proof(node.sequent(), 
+                                          appliedRuleApp.posInOccurrence()));
+
+        if (appliedRuleApp.rule() instanceof UseOperationContractRule) {
+            RuleJustificationBySpec ruleJusti = (RuleJustificationBySpec) 
+                            proof.env().getJustifInfo()
+                                       .getJustification(appliedRuleApp, 
+                                                         proof.getServices());
+
+            tree.append(" (contract \"");
+            tree.append(ruleJusti.getSpec().toString());
+            tree.append("\")");
         }
-        return logstr;
-    }
+
+        tree.append(")\n");
+      }
+   }
+       
 
     public String writeSettings(ProofSettings ps) {
         return new String("\\settings {\n\"" + ps.settingsToString()

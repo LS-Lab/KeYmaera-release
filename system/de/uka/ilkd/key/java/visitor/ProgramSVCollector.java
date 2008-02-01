@@ -16,9 +16,7 @@ import de.uka.ilkd.key.logic.op.ListOfSchemaVariable;
 import de.uka.ilkd.key.logic.op.SLListOfSchemaVariable;
 import de.uka.ilkd.key.logic.op.SchemaVariable;
 import de.uka.ilkd.key.rule.inst.SVInstantiations;
-import de.uka.ilkd.key.rule.metaconstruct.UnwindLoop;
-import de.uka.ilkd.key.rule.metaconstruct.WhileInvRule;
-import de.uka.ilkd.key.rule.metaconstruct.WhileInvRuleWrapper;
+import de.uka.ilkd.key.rule.metaconstruct.MetaConstructWithSV;
 
 /** 
  * This visitor is used to collect all appearing SchemaVariables in a 
@@ -68,28 +66,21 @@ public class ProgramSVCollector extends JavaASTWalker {
 	return result;
     }
 
-    /** the action that is performed just before leaving the node the
-     * last time 
+    /** 
+     * the action that is performed just before leaving the node the last time.
+     * Not only schema variables must be taken into consideration, but also
+     * program meta constructs with implicit schema variables containment
+     * 
+     * @see MetaConstructWithSV
      */
     protected void doAction(ProgramElement node) {
-	//	System.out.println("bbbbbbbbbbbbbbb "+node+(node instanceof WhileInvRuleWrapper));
+	// System.out.println("bbbbbbbbbbbbbbb "+node+(node instanceof
+	// WhileInvRuleWrapper));
 	if (node instanceof SchemaVariable) {
-	    result = result.prepend((SchemaVariable)node);
-	} else if (node instanceof UnwindLoop) { 
-            final UnwindLoop uwl = (UnwindLoop)node;
-            result= result.prepend(uwl.getInnerLabelSV()).prepend(uwl.getOuterLabelSV());
-        } else if (node instanceof WhileInvRuleWrapper) {	    	    
-	    Term t = ((WhileInvRuleWrapper)node).unwrap();
-	    WhileInvRule wir = (WhileInvRule)t.op();	    
-	    ReuseableProgramElement jpe = t.sub(0).javaBlock().program();
-	    result = 
-		result.prepend(wir.neededInstantiations
-			       ((ProgramElement)jpe, instantiations));
+	    result = result.prepend((SchemaVariable) node);
+	} else if (node instanceof MetaConstructWithSV) {
+	    MetaConstructWithSV mc = (MetaConstructWithSV)node;
+	    result = result.prepend(mc.neededInstantiations(instantiations));
 	}
     }
-
-    protected void performActionOnAnnotationArray(Annotation[] a){
-	// do nothing
-    }
-  
 }
