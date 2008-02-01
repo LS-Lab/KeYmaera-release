@@ -101,6 +101,11 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
                             "initial LoopSat timeout",
                             "the timeout used in the first iteration of the LoopSat strategy (in milliseconds)",
                             false, false),
+                    createDescriptor(
+                    		"simplifyTimeout",
+                            "timeout for simplify calls",
+                            "the timeout used for calls to the simplifier (in seconds)",
+                            false, false),
                     //
                     createDescriptor("callReduce", "call reduce",
                             "try to reduce the whole sequent", true, false),

@@ -238,6 +238,8 @@ public class DLOptionBean implements Settings {
 
     private boolean ignoreAnnotations;
 
+	private int simplifyTimeout;
+
     private DLOptionBean() {
         subOptions = new HashSet<Settings>();
         callReduce = true;
@@ -247,6 +249,7 @@ public class DLOptionBean implements Settings {
         quadraticTimeoutIncreaseFactor = 0;
         linearTimeoutIncreaseFactor = 2;
         constantTimeoutIncreaseFactor = 0;
+        simplifyTimeout = 0;
         splitBeyondFO = false;
         useTimeoutStrategy = true;
         readdQuantifiers = true;
@@ -902,4 +905,18 @@ public class DLOptionBean implements Settings {
             firePropertyChanged();
         }
     }
+
+	/**
+	 * @return
+	 */
+	public int getSimplifyTimeout() {
+		return simplifyTimeout;
+	}
+
+	/**
+	 * @param simplifyTimeout the simplifyTimeout to set
+	 */
+	public void setSimplifyTimeout(int simplifyTimeout) {
+		this.simplifyTimeout = simplifyTimeout;
+	}
 }
