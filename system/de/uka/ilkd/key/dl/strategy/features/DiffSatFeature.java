@@ -161,7 +161,7 @@ public class DiffSatFeature implements Feature {
         }
         // branchingNodesAlreadyTested.put(firstNodeAfterBranch, timeout);
 
-        return diffSat(app, pos, goal, timeout);
+        return diffSat(app, pos, goal, timeout*1000);
     }
 
     /**
