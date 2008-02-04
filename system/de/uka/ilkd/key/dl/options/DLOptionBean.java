@@ -421,7 +421,7 @@ public class DLOptionBean implements Settings {
 		}
 		property = props.getProperty(DLOPTIONS_INITIAL_TIMEOUT);
 		if (property != null) {
-			initialTimeout = Integer.parseInt(property);
+			initialTimeout = Math.round(((float)Integer.parseInt(property))/1000f);
 		}
 		property = props.getProperty(DLOPTIONS_QUADRIC);
 		if (property != null) {
@@ -509,11 +509,11 @@ public class DLOptionBean implements Settings {
 		}
 		property = props.getProperty(DLOPTIONS_DIFFSAT_TIMEOUT);
 		if (property != null) {
-			diffSatTimeout = Integer.parseInt(property);
+			diffSatTimeout = Math.round(((float)Integer.parseInt(property))/1000f);
 		}
 		property = props.getProperty(DLOPTIONS_LOOPSAT_TIMEOUT);
 		if (property != null) {
-			loopSatTimeout = Integer.parseInt(property);
+			loopSatTimeout = Math.round(((float)Integer.parseInt(property))/1000f);
 		}
 		property = props.getProperty(DLOPTIONS_SIMPLIFY_TIMEOUT);
 		if (property != null) {
@@ -536,7 +536,7 @@ public class DLOptionBean implements Settings {
 				.toString());
 		props.setProperty(DLOPTIONS_USE_TIMEOUT_STRATEGY, new Boolean(
 				useTimeoutStrategy).toString());
-		props.setProperty(DLOPTIONS_INITIAL_TIMEOUT, "" + initialTimeout);
+		props.setProperty(DLOPTIONS_INITIAL_TIMEOUT, "" + initialTimeout * 1000);
 		props.setProperty(DLOPTIONS_QUADRIC, ""
 				+ quadraticTimeoutIncreaseFactor);
 		props.setProperty(DLOPTIONS_LINEAR, "" + linearTimeoutIncreaseFactor);
@@ -578,8 +578,8 @@ public class DLOptionBean implements Settings {
 		props.setProperty(DLOPTIONS_INVARIANT_RULE, invariantRule.name());
 
 		props.setProperty(DLOPTIONS_USE_DIFF_SAT, diffSatStrategy.name());
-		props.setProperty(DLOPTIONS_DIFFSAT_TIMEOUT, "" + diffSatTimeout);
-		props.setProperty(DLOPTIONS_LOOPSAT_TIMEOUT, "" + loopSatTimeout);
+		props.setProperty(DLOPTIONS_DIFFSAT_TIMEOUT, "" + diffSatTimeout * 1000);
+		props.setProperty(DLOPTIONS_LOOPSAT_TIMEOUT, "" + loopSatTimeout * 1000);
 		props.setProperty(DLOPTIONS_SIMPLIFY_TIMEOUT, "" + simplifyTimeout);
 	}
 
