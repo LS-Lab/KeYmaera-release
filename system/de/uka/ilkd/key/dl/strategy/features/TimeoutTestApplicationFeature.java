@@ -45,180 +45,184 @@ import de.uka.ilkd.key.strategy.feature.Feature;
 
 /**
  * Timeout Strategy
+ * 
  * @author jdq
  * 
  */
 public class TimeoutTestApplicationFeature implements Feature {
 
-    private Map<Node, Long> branchingNodesAlreadyTested = new WeakHashMap<Node, Long>();
+	private Map<Node, Long> branchingNodesAlreadyTested = new WeakHashMap<Node, Long>();
 
-    private Map<Node, RuleAppCost> resultCache = new WeakHashMap<Node, RuleAppCost>();
+	private Map<Node, RuleAppCost> resultCache = new WeakHashMap<Node, RuleAppCost>();
 
-    public static final TimeoutTestApplicationFeature INSTANCE = new TimeoutTestApplicationFeature();
+	public static final TimeoutTestApplicationFeature INSTANCE = new TimeoutTestApplicationFeature();
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see de.uka.ilkd.key.strategy.feature.Feature#compute(de.uka.ilkd.key.rule.RuleApp,
-     *      de.uka.ilkd.key.logic.PosInOccurrence, de.uka.ilkd.key.proof.Goal)
-     */
-    public RuleAppCost compute(RuleApp app, PosInOccurrence pos, Goal goal) {
-        Node firstNodeAfterBranch = getFirstNodeAfterBranch(goal.node());
-        if (branchingNodesAlreadyTested.containsKey(firstNodeAfterBranch)) {
-            if (resultCache.containsKey(firstNodeAfterBranch)) {
-                return resultCache.get(firstNodeAfterBranch);
-            }
-            return TopRuleAppCost.INSTANCE;
-        } else {
-            Long timeout = getLastTimeout(firstNodeAfterBranch);
-            if (timeout == null) {
-                timeout = DLOptionBean.INSTANCE.getInitialTimeout();
-            } else {
-                final int a = DLOptionBean.INSTANCE
-                        .getQuadraticTimeoutIncreaseFactor();
-                final int b = DLOptionBean.INSTANCE
-                        .getLinearTimeoutIncreaseFactor();
-                final int c = DLOptionBean.INSTANCE
-                        .getConstantTimeoutIncreaseFactor();
-                timeout = a * timeout * timeout + b * timeout + c;
-            }
-            branchingNodesAlreadyTested.put(firstNodeAfterBranch, timeout);
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.uka.ilkd.key.strategy.feature.Feature#compute(de.uka.ilkd.key.rule.RuleApp,
+	 *      de.uka.ilkd.key.logic.PosInOccurrence, de.uka.ilkd.key.proof.Goal)
+	 */
+	public RuleAppCost compute(RuleApp app, PosInOccurrence pos, Goal goal) {
+		Node firstNodeAfterBranch = getFirstNodeAfterBranch(goal.node());
+		if (branchingNodesAlreadyTested.containsKey(firstNodeAfterBranch)) {
+			if (resultCache.containsKey(firstNodeAfterBranch)) {
+				return resultCache.get(firstNodeAfterBranch);
+			}
+			return TopRuleAppCost.INSTANCE;
+		} else {
+			Long timeout = getLastTimeout(firstNodeAfterBranch);
+			if (timeout == null) {
+				timeout = DLOptionBean.INSTANCE.getInitialTimeout();
+			} else {
+				final int a = DLOptionBean.INSTANCE
+						.getQuadraticTimeoutIncreaseFactor();
+				final int b = DLOptionBean.INSTANCE
+						.getLinearTimeoutIncreaseFactor();
+				final int c = DLOptionBean.INSTANCE
+						.getConstantTimeoutIncreaseFactor();
+				timeout = a * timeout * timeout + b * timeout + c;
+			}
+			branchingNodesAlreadyTested.put(firstNodeAfterBranch, timeout);
 
-            Rule rule = app.rule();
-            if (rule instanceof TestableBuiltInRule) {
-                TestableBuiltInRule tbr = (TestableBuiltInRule) rule;
-                TestThread testThread = new TestThread(goal, tbr, app, timeout);
-                testThread.start();
-                try {
-                    testThread.join(2*timeout);
-                    if (testThread.getResult() == TestResult.SUCCESS) {
+			Rule rule = app.rule();
+			if (rule instanceof TestableBuiltInRule) {
+				TestableBuiltInRule tbr = (TestableBuiltInRule) rule;
+				TestThread testThread = new TestThread(goal, tbr, app,
+						timeout * 1000);
+				testThread.start();
+				try {
+					testThread.join(2 * 1000 * timeout);
+					if (testThread.getResult() == TestResult.SUCCESS) {
 
-                        // only accept formulas that are really better than the
-                        // input formula, i.e. contain less variables
-                        Term inputFormula = tbr.getInputFormula();
-                        Term resultFormula = tbr.getResultFormula();
-                        if (inputFormula != null && resultFormula != null) {
-                            int variableNumber = FOVariableNumberCollector
-                                    .getVariableNumber(inputFormula);
-                            int variableNumber2 = FOVariableNumberCollector
-                                    .getVariableNumber(resultFormula);
-                            int number = variableNumber - variableNumber2;
-                            if (number > 0
-                                    || resultFormula == TermBuilder.DF.tt()) {
-                                // dont put this in the result cache
-                                return LongRuleAppCost.ZERO_COST;
-                            }
-                        }
-                        resultCache.put(firstNodeAfterBranch,
-                                TopRuleAppCost.INSTANCE);
-                        return TopRuleAppCost.INSTANCE;
-                    } else if(testThread.getResult() == TestResult.UNSOLVABLE) {
-                        resultCache.put(firstNodeAfterBranch, TopRuleAppCost.INSTANCE);
-                        return TopRuleAppCost.INSTANCE;
-                    }
-                } catch (InterruptedException e) {
-                    try {
-                        MathSolverManager.getCurrentQuantifierEliminator()
-                                .abortCalculation();
-                    } catch (RemoteException f) {
-                        testThread.interrupt();
+						// only accept formulas that are really better than the
+						// input formula, i.e. contain less variables
+						Term inputFormula = tbr.getInputFormula();
+						Term resultFormula = tbr.getResultFormula();
+						if (inputFormula != null && resultFormula != null) {
+							int variableNumber = FOVariableNumberCollector
+									.getVariableNumber(inputFormula);
+							int variableNumber2 = FOVariableNumberCollector
+									.getVariableNumber(resultFormula);
+							int number = variableNumber - variableNumber2;
+							if (number > 0
+									|| resultFormula == TermBuilder.DF.tt()) {
+								// dont put this in the result cache
+								return LongRuleAppCost.ZERO_COST;
+							}
+						}
+						resultCache.put(firstNodeAfterBranch,
+								TopRuleAppCost.INSTANCE);
+						return TopRuleAppCost.INSTANCE;
+					} else if (testThread.getResult() == TestResult.UNSOLVABLE) {
+						resultCache.put(firstNodeAfterBranch,
+								TopRuleAppCost.INSTANCE);
+						return TopRuleAppCost.INSTANCE;
+					}
+				} catch (InterruptedException e) {
+					try {
+						MathSolverManager.getCurrentQuantifierEliminator()
+								.abortCalculation();
+					} catch (RemoteException f) {
+						testThread.interrupt();
 
-                    }
-                }
-                if (testThread.isAlive()) {
-                    try {
-                        MathSolverManager.getCurrentQuantifierEliminator()
-                                .abortCalculation();
-                    } catch (RemoteException f) {
-                        testThread.interrupt();
+					}
+				}
+				if (testThread.isAlive()) {
+					try {
+						MathSolverManager.getCurrentQuantifierEliminator()
+								.abortCalculation();
+					} catch (RemoteException f) {
+						testThread.interrupt();
 
-                    }
-                }
-            }
+					}
+				}
+			}
 
-            resultCache.put(firstNodeAfterBranch, LongRuleAppCost.create(1));
-            return LongRuleAppCost.create(1);
-        }
-    }
+			resultCache.put(firstNodeAfterBranch, LongRuleAppCost.create(1));
+			return LongRuleAppCost.create(1);
+		}
+	}
 
-    /**
-     * @param node
-     * @return
-     */
-    private Long getLastTimeout(Node node) {
-        Long result = null;
-        if (node != null) {
-            result = branchingNodesAlreadyTested.get(node);
-            if (result == null) {
-                result = getLastTimeout(node.parent());
-            }
-        }
-        return result;
-    }
+	/**
+	 * @param node
+	 * @return
+	 */
+	private Long getLastTimeout(Node node) {
+		Long result = null;
+		if (node != null) {
+			result = branchingNodesAlreadyTested.get(node);
+			if (result == null) {
+				result = getLastTimeout(node.parent());
+			}
+		}
+		return result;
+	}
 
-    /**
-     * @return
-     */
-    public static Node getFirstNodeAfterBranch(Node node) {
-        if (node.root()
-                || node.parent().root()
-                || node.parent().childrenCount() > 1
-                || node.parent().getAppliedRuleApp().rule() instanceof UnknownProgressRule) {
-            return node;
-        }
-        return getFirstNodeAfterBranch(node.parent());
-    }
+	/**
+	 * @return
+	 */
+	public static Node getFirstNodeAfterBranch(Node node) {
+		if (node.root()
+				|| node.parent().root()
+				|| node.parent().childrenCount() > 1
+				|| node.parent().getAppliedRuleApp().rule() instanceof UnknownProgressRule) {
+			return node;
+		}
+		return getFirstNodeAfterBranch(node.parent());
+	}
 
-    private static enum TestResult {
-        UNKNOWN, SUCCESS, FAILURE, UNSOLVABLE;
-    }
+	private static enum TestResult {
+		UNKNOWN, SUCCESS, FAILURE, UNSOLVABLE;
+	}
 
-    private static class TestThread extends Thread {
+	private static class TestThread extends Thread {
 
-        private Goal goal;
+		private Goal goal;
 
-        private TestableBuiltInRule rule;
+		private TestableBuiltInRule rule;
 
-        private RuleApp app;
+		private RuleApp app;
 
-        private TestResult result;
+		private TestResult result;
 
-        private long timeout;
+		private long timeout;
 
-        public TestThread(Goal goal, TestableBuiltInRule rule, RuleApp app, long timeout) {
-            this.goal = goal;
-            this.rule = rule;
-            this.app = app;
-            this.result = TestResult.UNKNOWN;
-            this.timeout = timeout;
-        }
+		public TestThread(Goal goal, TestableBuiltInRule rule, RuleApp app,
+				long timeout) {
+			this.goal = goal;
+			this.rule = rule;
+			this.app = app;
+			this.result = TestResult.UNKNOWN;
+			this.timeout = timeout;
+		}
 
-        /*
-         * (non-Javadoc)
-         * 
-         * @see java.lang.Thread#run()
-         */
-        @Override
-        public void run() {
-            //@TODO pass goal.proof().getServices() instead?
-            if (rule.test(goal, Main.getInstance().mediator().getServices(),
-                    app, timeout)) {
-                result = TestResult.SUCCESS;
-            } else {
-                if (rule.isUnsolvable()) {
-                    result = TestResult.UNSOLVABLE;
-                } else {
-                    result = TestResult.FAILURE;
-                }
-            }
-        }
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see java.lang.Thread#run()
+		 */
+		@Override
+		public void run() {
+			// @TODO pass goal.proof().getServices() instead?
+			if (rule.test(goal, Main.getInstance().mediator().getServices(),
+					app, timeout)) {
+				result = TestResult.SUCCESS;
+			} else {
+				if (rule.isUnsolvable()) {
+					result = TestResult.UNSOLVABLE;
+				} else {
+					result = TestResult.FAILURE;
+				}
+			}
+		}
 
-        /**
-         * @return the result
-         */
-        public TestResult getResult() {
-            return result;
-        }
-    }
+		/**
+		 * @return the result
+		 */
+		public TestResult getResult() {
+			return result;
+		}
+	}
 
 }

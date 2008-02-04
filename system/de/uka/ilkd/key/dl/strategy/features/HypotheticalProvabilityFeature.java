@@ -41,7 +41,6 @@ import de.uka.ilkd.key.dl.strategy.DLStrategy;
 import de.uka.ilkd.key.gui.ApplyStrategy;
 import de.uka.ilkd.key.gui.KeYMediator;
 import de.uka.ilkd.key.gui.Main;
-import de.uka.ilkd.key.gui.ReuseListener;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.logic.IteratorOfNamed;
 import de.uka.ilkd.key.logic.Name;
@@ -174,7 +173,7 @@ public class HypotheticalProvabilityFeature implements Feature {
 
         System.out.println("HYPO: " + app.rule().name() + prettyPrint(app, services));
         HypotheticalProvability result = provable(app, pos, goal,
-                MAX_HYPOTHETICAL_RULE_APPLICATIONS, timeout);
+                MAX_HYPOTHETICAL_RULE_APPLICATIONS, timeout * 1000);
         System.out.println("HYPO: " + app.rule().name() + " " + result + "\t" + 
                 (result == HypotheticalProvability.PROVABLE 
                  ? SimpleDateFormat.getTimeInstance().format(System.currentTimeMillis())

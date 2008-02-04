@@ -73,20 +73,20 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
                     createDescriptor(
                             "initialTimeout",
                             "initial timeout",
-                            "the timeout used in the first iteration of the IBC strategy (in milliseconds)",
+                            "the timeout used in the first iteration of the IBC strategy (in seconds)",
                             false, true),
                     createDescriptor(
                             "linearTimeoutIncreaseFactor",
                             "linear timeout increase factor",
-                            "the linear part of the IBC timeout. That is, the part c of t_new = a*t_old^2 + b*t_old + c (in milliseconds)"),
+                            "the linear part of the IBC timeout. That is, the part c of t_new = a*t_old^2 + b*t_old + c (in seconds)"),
                     createDescriptor(
                             "constantTimeoutIncreaseFactor",
                             "constant timeout increase factor",
-                            "the constant part of the IBC timeout. That is, the part c of t_new = a*t_old^2 + b*t_old + c (in milliseconds)"),
+                            "the constant part of the IBC timeout. That is, the part c of t_new = a*t_old^2 + b*t_old + c (in seconds)"),
                     createDescriptor(
                             "quadraticTimeoutIncreaseFactor",
                             "quadratic timeout increase factor",
-                            "the quadratic part of the IBC timeout. That is, the part c of t_new = a*t_old^2 + b*t_old + c (in milliseconds)"),
+                            "the quadratic part of the IBC timeout. That is, the part c of t_new = a*t_old^2 + b*t_old + c (in seconds)"),
                     //
                     createDescriptor("diffSat", "Differential Saturation",
                             "select the desired automation degree of Differential Saturation",
@@ -94,12 +94,12 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
                     createDescriptor(
                             "diffSatTimeout",
                             "initial DiffSat timeout",
-                            "the timeout used in the first iteration of the DiffSat strategy (in milliseconds)",
+                            "the timeout used in the first iteration of the DiffSat strategy (in seconds)",
                             false, false),
                     createDescriptor(
                             "loopSatTimeout",
                             "initial LoopSat timeout",
-                            "the timeout used in the first iteration of the LoopSat strategy (in milliseconds)",
+                            "the timeout used in the first iteration of the LoopSat strategy (in seconds)",
                             false, false),
                     createDescriptor(
                     		"simplifyTimeout",
