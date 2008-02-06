@@ -249,8 +249,8 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
             // Now we redefine the run commands for security reasons.
             link.newPacket();
             testForError(link);
-            link
-                    .evaluate("ClearAttributes[Run,Protected];Run:=$Failed;ClearAttributes[RunThrough,Protected];RunThrough:=$Failed;");
+            link.evaluate("ClearAttributes[Run,Protected];Run:=$Failed;ClearAttributes[RunThrough,Protected];RunThrough:=$Failed;ClearAttribute[Put,Protected];Put:=$Failed;ClearAttribute[PutAppend,Protected];PutAppend:=$Failed;");
+	    // "ClearAttribute[BinaryWrite,Protected];BinaryWrite:=$Failed;ClearAttribute[OpenWrite,Protected];OpenWrite:=$Failed;");
             link.discardAnswer();
             testForError(link);
 

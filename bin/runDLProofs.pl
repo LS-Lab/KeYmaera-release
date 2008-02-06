@@ -239,7 +239,7 @@ sub runAuto {
 		  print "timeout is $timeout\n"; 
 		  alarm $timeout;
 	  }
-	  print "now trying to proof $realfilename\n";
+	  print "now trying to prove $realfilename\n";
 	  print "output follows\n";
 	  while(<STATUS>) {
 		  print;
