@@ -2570,8 +2570,6 @@ unary_formula returns [Term a = null]
 { Term a1; }
     :  
         NOT a1  = term60 { a = tf.createJunctorTerm(Op.NOT,new Term[]{a1}); }
-    |   COMPUTE_SPEC_OP a1 = term60 
-                { a = tf.createJunctorTerm(Op.COMPUTE_SPEC_OP,new Term[]{a1}); }
     |	a = quantifierterm 
     |   a = modality_dl_term
 ; exception
@@ -2806,8 +2804,6 @@ transactionNumber returns [Term trans = null]
 :
      // "^" is required which is called compute spec. As 
      // the compute specification operator cannot be used here overloading is safe
-     COMPUTE_SPEC_OP LPAREN trans = term60 RPAREN
-    |
      p:PRIMES {
        int primes = p.getText().length();
        if(parsingContracts) {

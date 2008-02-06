@@ -22,9 +22,7 @@
  */
 package de.uka.ilkd.key.dl.rules;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -69,10 +67,7 @@ import de.uka.ilkd.key.java.StatementBlock;
 import de.uka.ilkd.key.logic.JavaBlock;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.Visitor;
-import de.uka.ilkd.key.logic.op.Function;
-import de.uka.ilkd.key.logic.op.LogicVariable;
 import de.uka.ilkd.key.logic.op.NonRigidFunction;
-import de.uka.ilkd.key.logic.op.Op;
 import de.uka.ilkd.key.logic.op.Operator;
 import de.uka.ilkd.key.logic.op.ProgramMethod;
 import de.uka.ilkd.key.logic.op.ProgramVariable;
@@ -396,8 +391,7 @@ public class DLApplyOnModality extends ApplyOnModality {
 
         if (targetOp instanceof ProgramVariable) {
             foundProgVars.add(targetOp);
-        } else if (targetOp == Op.COMPUTE_SPEC_OP
-                || (targetOp instanceof NonRigidFunction && !(targetOp instanceof ProgramMethod))) {
+        } else if ((targetOp instanceof NonRigidFunction && !(targetOp instanceof ProgramMethod))) {
             foundProgVars.add(PROTECT_ALL);
             return foundProgVars;
         }
