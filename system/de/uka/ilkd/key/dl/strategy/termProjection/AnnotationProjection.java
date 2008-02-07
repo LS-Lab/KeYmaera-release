@@ -73,7 +73,7 @@ public class AnnotationProjection implements ProjectionToTerm {
             return null;
         }
         if (count >= 0) {
-            Debug.assertFalse(annotationList.size() == count,
+            Debug.assertTrue(annotationList.size() == count,
             "Expected annotation length " + count + " != " + annotationList.size() + " of "
             + annotationKey + " wrong " +
             " (taclet " + app.rule().name() + ")" );
