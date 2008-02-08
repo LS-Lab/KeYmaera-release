@@ -12,6 +12,8 @@ use Sys::Hostname;
 my %option = ();
 getopts("hcm:", \%option);
 
+system(limit memoryuse 4000); #set memory limit to 4GB
+
 
 my $bin_path = dirname($0);
 my $path_to_pe = "../system/proofExamples/";
