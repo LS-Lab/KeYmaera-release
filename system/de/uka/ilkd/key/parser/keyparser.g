@@ -2676,7 +2676,7 @@ very_strong_arith_op returns [Function op = null]
 }
 :
  (
- EXP      	 { op_name = "exp"; }
+ DLEXP      	 { op_name = "exp"; }
  ) {
      op = (Function) functions().lookup(new Name(op_name)); 
      if(op == null) {

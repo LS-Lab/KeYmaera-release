@@ -528,7 +528,7 @@ options {
       :   '+'
       ;
 
-EXP
+DLEXP
 options {
   paraphrase = "`^'";
 }
