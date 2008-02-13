@@ -66,138 +66,196 @@ import de.uka.ilkd.key.logic.sort.Sort;
 import de.uka.ilkd.key.util.ExtList;
 
 /**
- * TODO jdq documentation since Aug 29, 2007 
+ * This LDT is used in KeYmaera to encapsulate the functions related to real
+ * numbers
+ * 
  * @author jdq
  * @since Aug 29, 2007
  * 
  */
 public class RealLDT extends LDT {
 
-    private static final Map<Function, de.uka.ilkd.key.dl.model.Function> KEY_TO_DL_FUNCTION_MAP = new HashMap<Function, de.uka.ilkd.key.dl.model.Function>();
-    private static final Map<Function, de.uka.ilkd.key.dl.model.Predicate> KEY_TO_DL_PREDICATE_MAP = new HashMap<Function, de.uka.ilkd.key.dl.model.Predicate>();
-    private static final Map<Class<? extends de.uka.ilkd.key.dl.model.Function>, Function> DL_TO_KEY_FUNCTION_MAP = new HashMap<Class<? extends de.uka.ilkd.key.dl.model.Function>, Function>();
-    private static final Map<Class<? extends de.uka.ilkd.key.dl.model.Predicate>, Function> DL_TO_KEY_PREDICATE_MAP = new HashMap<Class<? extends de.uka.ilkd.key.dl.model.Predicate>, Function>();
-    private static Sort staticSort;
-    
-    /**
-     * @param name
-     * @param sorts
-     * @param type
-     */
-    public RealLDT(Namespace sorts, Namespace functions) {
-        super(new Name("R"), sorts, PrimitiveType.JAVA_DOUBLE);
-        RealLDT.staticSort = sort;
-        KEY_TO_DL_PREDICATE_MAP.put((Function)functions.lookup(new Name("lt")), LessImpl.getInstance());
-        KEY_TO_DL_PREDICATE_MAP.put((Function)functions.lookup(new Name("leq")), LessEqualsImpl.getInstance());
-        KEY_TO_DL_PREDICATE_MAP.put((Function)functions.lookup(new Name("equals")), EqualsImpl.getInstance());
-        KEY_TO_DL_PREDICATE_MAP.put((Function)functions.lookup(new Name("geq")), GreaterEqualsImpl.getInstance());
-        KEY_TO_DL_PREDICATE_MAP.put((Function)functions.lookup(new Name("gt")), GreaterImpl.getInstance());
-        KEY_TO_DL_PREDICATE_MAP.put((Function)functions.lookup(new Name("neq")), UnequalsImpl.getInstance());
-        
-        DL_TO_KEY_PREDICATE_MAP.put(Less.class, (Function)functions.lookup(new Name("lt")));
-        DL_TO_KEY_PREDICATE_MAP.put(LessEquals.class, (Function)functions.lookup(new Name("leq")));
-        DL_TO_KEY_PREDICATE_MAP.put(Equals.class, (Function)functions.lookup(new Name("equals")));
-        DL_TO_KEY_PREDICATE_MAP.put(GreaterEquals.class, (Function)functions.lookup(new Name("geq")));
-        DL_TO_KEY_PREDICATE_MAP.put(Greater.class, (Function)functions.lookup(new Name("gt")));
-        DL_TO_KEY_PREDICATE_MAP.put(Unequals.class, (Function)functions.lookup(new Name("neq")));
-        
-        
-        KEY_TO_DL_FUNCTION_MAP.put((Function)functions.lookup(new Name("neg")), MinusSignImpl.getInstance());
-        KEY_TO_DL_FUNCTION_MAP.put((Function)functions.lookup(new Name("sub")), MinusImpl.getInstance());
-        KEY_TO_DL_FUNCTION_MAP.put((Function)functions.lookup(new Name("add")), PlusImpl.getInstance());
-        KEY_TO_DL_FUNCTION_MAP.put((Function)functions.lookup(new Name("mul")), MultImpl.getInstance());
-        KEY_TO_DL_FUNCTION_MAP.put((Function)functions.lookup(new Name("div")), DivImpl.getInstance());
-        KEY_TO_DL_FUNCTION_MAP.put((Function)functions.lookup(new Name("exp")), ExpImpl.getInstance());
-        
-        DL_TO_KEY_FUNCTION_MAP.put(MinusSign.class, (Function)functions.lookup(new Name("neg")));
-        DL_TO_KEY_FUNCTION_MAP.put(Minus.class, (Function)functions.lookup(new Name("sub")));
-        DL_TO_KEY_FUNCTION_MAP.put(Plus.class, (Function)functions.lookup(new Name("add")));
-        DL_TO_KEY_FUNCTION_MAP.put(Mult.class, (Function)functions.lookup(new Name("mul")));
-        DL_TO_KEY_FUNCTION_MAP.put(Div.class, (Function)functions.lookup(new Name("div")));
-        DL_TO_KEY_FUNCTION_MAP.put(Exp.class, (Function)functions.lookup(new Name("exp")));
-    }
+	private static final Map<Function, de.uka.ilkd.key.dl.model.Function> KEY_TO_DL_FUNCTION_MAP = new HashMap<Function, de.uka.ilkd.key.dl.model.Function>();
+	private static final Map<Function, de.uka.ilkd.key.dl.model.Predicate> KEY_TO_DL_PREDICATE_MAP = new HashMap<Function, de.uka.ilkd.key.dl.model.Predicate>();
+	private static final Map<Class<? extends de.uka.ilkd.key.dl.model.Function>, Function> DL_TO_KEY_FUNCTION_MAP = new HashMap<Class<? extends de.uka.ilkd.key.dl.model.Function>, Function>();
+	private static final Map<Class<? extends de.uka.ilkd.key.dl.model.Predicate>, Function> DL_TO_KEY_PREDICATE_MAP = new HashMap<Class<? extends de.uka.ilkd.key.dl.model.Predicate>, Function>();
+	private static Sort staticSort;
 
-    /* (non-Javadoc)
-     * @see de.uka.ilkd.key.logic.ldt.LDT#getFunctionFor(de.uka.ilkd.key.java.expression.Operator, de.uka.ilkd.key.java.Services, de.uka.ilkd.key.java.reference.ExecutionContext)
-     */
-    @Override
-    public Function getFunctionFor(Operator op, Services serv,
-            ExecutionContext ec) {
-        // TODO Auto-generated method stub
-        return null;
-    }
+	/**
+	 * @param name
+	 * @param sorts
+	 * @param type
+	 */
+	public RealLDT(Namespace sorts, Namespace functions) {
+		super(new Name("R"), sorts, PrimitiveType.JAVA_DOUBLE);
+		RealLDT.staticSort = sort;
+		KEY_TO_DL_PREDICATE_MAP.put(
+				(Function) functions.lookup(new Name("lt")), LessImpl
+						.getInstance());
+		KEY_TO_DL_PREDICATE_MAP.put((Function) functions
+				.lookup(new Name("leq")), LessEqualsImpl.getInstance());
+		KEY_TO_DL_PREDICATE_MAP.put((Function) functions.lookup(new Name(
+				"equals")), EqualsImpl.getInstance());
+		KEY_TO_DL_PREDICATE_MAP.put((Function) functions
+				.lookup(new Name("geq")), GreaterEqualsImpl.getInstance());
+		KEY_TO_DL_PREDICATE_MAP.put(
+				(Function) functions.lookup(new Name("gt")), GreaterImpl
+						.getInstance());
+		KEY_TO_DL_PREDICATE_MAP.put((Function) functions
+				.lookup(new Name("neq")), UnequalsImpl.getInstance());
 
-    /* (non-Javadoc)
-     * @see de.uka.ilkd.key.logic.ldt.LDT#hasLiteralFunction(de.uka.ilkd.key.logic.op.Function)
-     */
-    @Override
-    public boolean hasLiteralFunction(Function f) {
-        // TODO Auto-generated method stub
-        return false;
-    }
+		DL_TO_KEY_PREDICATE_MAP.put(Less.class, (Function) functions
+				.lookup(new Name("lt")));
+		DL_TO_KEY_PREDICATE_MAP.put(LessEquals.class, (Function) functions
+				.lookup(new Name("leq")));
+		DL_TO_KEY_PREDICATE_MAP.put(Equals.class, (Function) functions
+				.lookup(new Name("equals")));
+		DL_TO_KEY_PREDICATE_MAP.put(GreaterEquals.class, (Function) functions
+				.lookup(new Name("geq")));
+		DL_TO_KEY_PREDICATE_MAP.put(Greater.class, (Function) functions
+				.lookup(new Name("gt")));
+		DL_TO_KEY_PREDICATE_MAP.put(Unequals.class, (Function) functions
+				.lookup(new Name("neq")));
 
-    /* (non-Javadoc)
-     * @see de.uka.ilkd.key.logic.ldt.LDT#isResponsible(de.uka.ilkd.key.java.expression.Operator, de.uka.ilkd.key.logic.Term[], de.uka.ilkd.key.java.Services, de.uka.ilkd.key.java.reference.ExecutionContext)
-     */
-    @Override
-    public boolean isResponsible(Operator op, Term[] subs, Services services,
-            ExecutionContext ec) {
-        // TODO Auto-generated method stub
-        return false;
-    }
+		KEY_TO_DL_FUNCTION_MAP.put(
+				(Function) functions.lookup(new Name("neg")), MinusSignImpl
+						.getInstance());
+		KEY_TO_DL_FUNCTION_MAP.put(
+				(Function) functions.lookup(new Name("sub")), MinusImpl
+						.getInstance());
+		KEY_TO_DL_FUNCTION_MAP.put(
+				(Function) functions.lookup(new Name("add")), PlusImpl
+						.getInstance());
+		KEY_TO_DL_FUNCTION_MAP.put(
+				(Function) functions.lookup(new Name("mul")), MultImpl
+						.getInstance());
+		KEY_TO_DL_FUNCTION_MAP.put(
+				(Function) functions.lookup(new Name("div")), DivImpl
+						.getInstance());
+		KEY_TO_DL_FUNCTION_MAP.put(
+				(Function) functions.lookup(new Name("exp")), ExpImpl
+						.getInstance());
 
-    /* (non-Javadoc)
-     * @see de.uka.ilkd.key.logic.ldt.LDT#isResponsible(de.uka.ilkd.key.java.expression.Operator, de.uka.ilkd.key.logic.Term, de.uka.ilkd.key.logic.Term, de.uka.ilkd.key.java.Services, de.uka.ilkd.key.java.reference.ExecutionContext)
-     */
-    @Override
-    public boolean isResponsible(Operator op, Term left, Term right,
-            Services services, ExecutionContext ec) {
-        // TODO Auto-generated method stub
-        return false;
-    }
+		DL_TO_KEY_FUNCTION_MAP.put(MinusSign.class, (Function) functions
+				.lookup(new Name("neg")));
+		DL_TO_KEY_FUNCTION_MAP.put(Minus.class, (Function) functions
+				.lookup(new Name("sub")));
+		DL_TO_KEY_FUNCTION_MAP.put(Plus.class, (Function) functions
+				.lookup(new Name("add")));
+		DL_TO_KEY_FUNCTION_MAP.put(Mult.class, (Function) functions
+				.lookup(new Name("mul")));
+		DL_TO_KEY_FUNCTION_MAP.put(Div.class, (Function) functions
+				.lookup(new Name("div")));
+		DL_TO_KEY_FUNCTION_MAP.put(Exp.class, (Function) functions
+				.lookup(new Name("exp")));
+	}
 
-    /* (non-Javadoc)
-     * @see de.uka.ilkd.key.logic.ldt.LDT#isResponsible(de.uka.ilkd.key.java.expression.Operator, de.uka.ilkd.key.logic.Term, de.uka.ilkd.key.java.Services, de.uka.ilkd.key.java.reference.ExecutionContext)
-     */
-    @Override
-    public boolean isResponsible(Operator op, Term sub, Services services,
-            ExecutionContext ec) {
-        // TODO Auto-generated method stub
-        return false;
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.uka.ilkd.key.logic.ldt.LDT#getFunctionFor(de.uka.ilkd.key.java.expression.Operator,
+	 *      de.uka.ilkd.key.java.Services,
+	 *      de.uka.ilkd.key.java.reference.ExecutionContext)
+	 */
+	@Override
+	public Function getFunctionFor(Operator op, Services serv,
+			ExecutionContext ec) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
-    /* (non-Javadoc)
-     * @see de.uka.ilkd.key.logic.ldt.LDT#translateLiteral(de.uka.ilkd.key.java.expression.Literal)
-     */
-    @Override
-    public Term translateLiteral(Literal lit) {
-        // TODO Auto-generated method stub
-        return null;
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.uka.ilkd.key.logic.ldt.LDT#hasLiteralFunction(de.uka.ilkd.key.logic.op.Function)
+	 */
+	@Override
+	public boolean hasLiteralFunction(Function f) {
+		// TODO Auto-generated method stub
+		return false;
+	}
 
-    /* (non-Javadoc)
-     * @see de.uka.ilkd.key.logic.ldt.LDT#translateTerm(de.uka.ilkd.key.logic.Term, de.uka.ilkd.key.util.ExtList)
-     */
-    @Override
-    public Expression translateTerm(Term t, ExtList children) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-    
-    public static Sort getRealSort() {
-        return staticSort;
-    }
-    
-    public static Function getFunctionFor(Class<? extends DLTerminalProgramElement> cla) {
-        Function function = DL_TO_KEY_FUNCTION_MAP.get(cla);
-        if(function == null) {
-            function = DL_TO_KEY_PREDICATE_MAP.get(cla);
-        }
-        return function;
-    }
-    
-    public static Predicate getPredicate(Function func) {
-        return KEY_TO_DL_PREDICATE_MAP.get(func);
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.uka.ilkd.key.logic.ldt.LDT#isResponsible(de.uka.ilkd.key.java.expression.Operator,
+	 *      de.uka.ilkd.key.logic.Term[], de.uka.ilkd.key.java.Services,
+	 *      de.uka.ilkd.key.java.reference.ExecutionContext)
+	 */
+	@Override
+	public boolean isResponsible(Operator op, Term[] subs, Services services,
+			ExecutionContext ec) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.uka.ilkd.key.logic.ldt.LDT#isResponsible(de.uka.ilkd.key.java.expression.Operator,
+	 *      de.uka.ilkd.key.logic.Term, de.uka.ilkd.key.logic.Term,
+	 *      de.uka.ilkd.key.java.Services,
+	 *      de.uka.ilkd.key.java.reference.ExecutionContext)
+	 */
+	@Override
+	public boolean isResponsible(Operator op, Term left, Term right,
+			Services services, ExecutionContext ec) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.uka.ilkd.key.logic.ldt.LDT#isResponsible(de.uka.ilkd.key.java.expression.Operator,
+	 *      de.uka.ilkd.key.logic.Term, de.uka.ilkd.key.java.Services,
+	 *      de.uka.ilkd.key.java.reference.ExecutionContext)
+	 */
+	@Override
+	public boolean isResponsible(Operator op, Term sub, Services services,
+			ExecutionContext ec) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.uka.ilkd.key.logic.ldt.LDT#translateLiteral(de.uka.ilkd.key.java.expression.Literal)
+	 */
+	@Override
+	public Term translateLiteral(Literal lit) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.uka.ilkd.key.logic.ldt.LDT#translateTerm(de.uka.ilkd.key.logic.Term,
+	 *      de.uka.ilkd.key.util.ExtList)
+	 */
+	@Override
+	public Expression translateTerm(Term t, ExtList children) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public static Sort getRealSort() {
+		return staticSort;
+	}
+
+	public static Function getFunctionFor(
+			Class<? extends DLTerminalProgramElement> cla) {
+		Function function = DL_TO_KEY_FUNCTION_MAP.get(cla);
+		if (function == null) {
+			function = DL_TO_KEY_PREDICATE_MAP.get(cla);
+		}
+		return function;
+	}
+
+	public static Predicate getPredicate(Function func) {
+		return KEY_TO_DL_PREDICATE_MAP.get(func);
+	}
 
 }

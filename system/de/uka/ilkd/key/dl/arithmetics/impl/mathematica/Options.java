@@ -31,7 +31,7 @@ import de.uka.ilkd.key.gui.configuration.Settings;
 import de.uka.ilkd.key.gui.configuration.SettingsListener;
 
 /**
- * TODO jdq documentation since Aug 31, 2007
+ * This class serves options specific for the Mathematica interface
  * 
  * @author jdq
  * @since Aug 31, 2007

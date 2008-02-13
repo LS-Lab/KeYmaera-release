@@ -123,9 +123,9 @@ public class ContainsMetaVariableVisitor extends Visitor {
     }
 
     /**
-     * TODO jdq documentation since Aug 27, 2007
+     * check if the metavariable occurs in the program
      * 
-     * @param program
+     * @param program the programelement to check
      */
     private boolean visitProgram(ProgramElement program) {
         boolean result = false;

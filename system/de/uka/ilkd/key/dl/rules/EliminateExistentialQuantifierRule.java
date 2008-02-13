@@ -83,519 +83,517 @@ import de.uka.ilkd.key.rule.RuleApp;
  * 
  */
 public class EliminateExistentialQuantifierRule implements BuiltInRule,
-        UnknownProgressRule, IrrevocableRule, RuleFilter {
+		UnknownProgressRule, IrrevocableRule, RuleFilter {
 
-    /**
-     * TODO jdq documentation since Aug 27, 2007
-     * 
-     * @author jdq
-     * @since Aug 27, 2007
-     * 
-     */
-    private final class CloseRuleApp implements RuleApp {
-        public boolean complete() {
-            return true;
-        }
+	/**
+	 * A RuleApp that is used to close a branch
+	 * 
+	 * @author jdq
+	 * @since Aug 27, 2007
+	 * 
+	 */
+	private final class CloseRuleApp implements RuleApp {
+		public boolean complete() {
+			return true;
+		}
 
-        public Constraint constraint() {
-            return Constraint.BOTTOM;
-        }
+		public Constraint constraint() {
+			return Constraint.BOTTOM;
+		}
 
-        public ListOfGoal execute(Goal goal, Services services) {
-            return goal.split(0);
-        }
+		public ListOfGoal execute(Goal goal, Services services) {
+			return goal.split(0);
+		}
 
-        public PosInOccurrence posInOccurrence() {
-            // TODO Auto-generated method stub
-            return null;
-        }
+		public PosInOccurrence posInOccurrence() {
+			// TODO Auto-generated method stub
+			return null;
+		}
 
-        public Rule rule() {
-            return new Rule() {
+		public Rule rule() {
+			return new Rule() {
 
-                public ListOfGoal apply(Goal goal, Services services,
-                        RuleApp ruleApp) {
-                    // TODO Auto-generated method stub
-                    return null;
-                }
+				public ListOfGoal apply(Goal goal, Services services,
+						RuleApp ruleApp) {
+					// TODO Auto-generated method stub
+					return null;
+				}
 
-                public String displayName() {
-                    return "Closed by"
-                            + EliminateExistentialQuantifierRule.this
-                                    .displayName();
-                }
+				public String displayName() {
+					return "Closed by"
+							+ EliminateExistentialQuantifierRule.this
+									.displayName();
+				}
 
-                public Name name() {
-                    return new Name("Closed by "
-                            + EliminateExistentialQuantifierRule.this.name());
-                }
+				public Name name() {
+					return new Name("Closed by "
+							+ EliminateExistentialQuantifierRule.this.name());
+				}
 
-            };
-        }
-    }
+			};
+		}
+	}
 
-    public static final EliminateExistentialQuantifierRule INSTANCE = new EliminateExistentialQuantifierRule();
+	public static final EliminateExistentialQuantifierRule INSTANCE = new EliminateExistentialQuantifierRule();
 
-    private boolean unsolvable;
+	private boolean unsolvable;
 
-    /**
-     * 
-     */
-    public EliminateExistentialQuantifierRule() {
-    }
+	/**
+	 * 
+	 */
+	public EliminateExistentialQuantifierRule() {
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see de.uka.ilkd.key.rule.Rule#apply(de.uka.ilkd.key.proof.Goal,
-     *      de.uka.ilkd.key.java.Services, de.uka.ilkd.key.rule.RuleApp)
-     */
-    public synchronized ListOfGoal apply(Goal goal, Services services,
-            RuleApp ruleApp) {
-        // Operator op = ruleApp.posInOccurrence().subTerm().op();
-        final List<Metavariable> ops = new ArrayList<Metavariable>();
-        ruleApp.posInOccurrence().constrainedFormula().formula().execPreOrder(
-                new Visitor() {
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.uka.ilkd.key.rule.Rule#apply(de.uka.ilkd.key.proof.Goal,
+	 *      de.uka.ilkd.key.java.Services, de.uka.ilkd.key.rule.RuleApp)
+	 */
+	public synchronized ListOfGoal apply(Goal goal, Services services,
+			RuleApp ruleApp) {
+		// Operator op = ruleApp.posInOccurrence().subTerm().op();
+		final List<Metavariable> ops = new ArrayList<Metavariable>();
+		ruleApp.posInOccurrence().constrainedFormula().formula().execPreOrder(
+				new Visitor() {
 
-                    @Override
-                    public void visit(Term visited) {
-                        if (visited.op() instanceof Metavariable) {
-                            ops.add((Metavariable) visited.op());
-                        }
-                    }
+					@Override
+					public void visit(Term visited) {
+						if (visited.op() instanceof Metavariable) {
+							ops.add((Metavariable) visited.op());
+						}
+					}
 
-                });
-        if (ops.isEmpty()) {
-            throw new IllegalArgumentException(
-                    "This rule can only be applied to Metavariables. But there are none found.");
-        }
-        List<Metavariable> variables = new ArrayList<Metavariable>();
-        if (ruleApp instanceof ReduceRuleApp) {
-            for (String varName : ((ReduceRuleApp) ruleApp).getVariables()) {
-                variables.add((Metavariable) services.getNamespaces()
-                        .variables().lookup(new Name(varName)));
-            }
-        }
-        if (variables.isEmpty()) {
-            variables.addAll(ops);
-        }
+				});
+		if (ops.isEmpty()) {
+			throw new IllegalArgumentException(
+					"This rule can only be applied to Metavariables. But there are none found.");
+		}
+		List<Metavariable> variables = new ArrayList<Metavariable>();
+		if (ruleApp instanceof ReduceRuleApp) {
+			for (String varName : ((ReduceRuleApp) ruleApp).getVariables()) {
+				variables.add((Metavariable) services.getNamespaces()
+						.variables().lookup(new Name(varName)));
+			}
+		}
+		if (variables.isEmpty()) {
+			variables.addAll(ops);
+		}
 
-        // search the variable on all branches
+		// search the variable on all branches
 
-        Set<Goal> goals = new HashSet<Goal>();
-        ListOfGoal openGoals = goal.proof().openGoals();
-        IteratorOfGoal goalIt = openGoals.iterator();
-        while (goalIt.hasNext()) {
-            Goal curGoal = goalIt.next();
-            IteratorOfConstrainedFormula it = curGoal.sequent().iterator();
-            Result result = Result.DOES_NOT_CONTAIN_VAR;
-            while (it.hasNext()) {
-                ConstrainedFormula next = it.next();
-                Result res = ContainsMetaVariableVisitor
-                        .containsMetaVariableAndIsFO(variables, next.formula());
-                if ((result == Result.CONTAINS_VAR)
-                        && (res == Result.CONTAINS_VAR_BUT_CANNOT_APPLY || res == Result.DOES_NOT_CONTAIN_VAR_AND_IS_NOT_FO)) {
-                    result = Result.CONTAINS_VAR_BUT_CANNOT_APPLY;
-                    break;
-                } else if (result == Result.DOES_NOT_CONTAIN_VAR_AND_IS_NOT_FO) {
-                    if (res == Result.CONTAINS_VAR) {
-                        result = Result.CONTAINS_VAR_BUT_CANNOT_APPLY;
-                    }
-                } else if (res == Result.CONTAINS_VAR) {
-                    result = res;
-                } else if (res == Result.CONTAINS_VAR_BUT_CANNOT_APPLY) {
-                    result = res;
-                    break;
-                }
-            }
-            if (result == Result.CONTAINS_VAR_BUT_CANNOT_APPLY) {
-                selectGoalAndShowDialog(curGoal);
-                throw new IllegalStateException("All branches that contain "
-                        + Arrays.toString(variables.toArray())
-                        + " have to be first order");
-            } else if (result == Result.CONTAINS_VAR) {
-                goals.add(curGoal);
-            }
-        }
+		Set<Goal> goals = new HashSet<Goal>();
+		ListOfGoal openGoals = goal.proof().openGoals();
+		IteratorOfGoal goalIt = openGoals.iterator();
+		while (goalIt.hasNext()) {
+			Goal curGoal = goalIt.next();
+			IteratorOfConstrainedFormula it = curGoal.sequent().iterator();
+			Result result = Result.DOES_NOT_CONTAIN_VAR;
+			while (it.hasNext()) {
+				ConstrainedFormula next = it.next();
+				Result res = ContainsMetaVariableVisitor
+						.containsMetaVariableAndIsFO(variables, next.formula());
+				if ((result == Result.CONTAINS_VAR)
+						&& (res == Result.CONTAINS_VAR_BUT_CANNOT_APPLY || res == Result.DOES_NOT_CONTAIN_VAR_AND_IS_NOT_FO)) {
+					result = Result.CONTAINS_VAR_BUT_CANNOT_APPLY;
+					break;
+				} else if (result == Result.DOES_NOT_CONTAIN_VAR_AND_IS_NOT_FO) {
+					if (res == Result.CONTAINS_VAR) {
+						result = Result.CONTAINS_VAR_BUT_CANNOT_APPLY;
+					}
+				} else if (res == Result.CONTAINS_VAR) {
+					result = res;
+				} else if (res == Result.CONTAINS_VAR_BUT_CANNOT_APPLY) {
+					result = res;
+					break;
+				}
+			}
+			if (result == Result.CONTAINS_VAR_BUT_CANNOT_APPLY) {
+				selectGoalAndShowDialog(curGoal);
+				throw new IllegalStateException("All branches that contain "
+						+ Arrays.toString(variables.toArray())
+						+ " have to be first order");
+			} else if (result == Result.CONTAINS_VAR) {
+				goals.add(curGoal);
+			}
+		}
 
-        // construct a conjunction of goal formulas containing implications for
-        // sequents
-        Term query = TermBuilder.DF.tt();
-        Set<Term> skolemSymbols = new HashSet<Term>();
-        Set<Term> commonAnte = new HashSet<Term>();
-        Set<Term> commonSucc = new HashSet<Term>();
-        List<Goal> goalList = new ArrayList<Goal>(goals);
-        System.out.println("Found " + goalList.size() + " relevant goals");// XXX
-        IteratorOfConstrainedFormula iterator = goalList.get(0).sequent()
-                .antecedent().iterator();
-        while (iterator.hasNext()) {
-            commonAnte.add(iterator.next().formula());
-        }
-        iterator = goalList.get(0).sequent().succedent().iterator();
-        while (iterator.hasNext()) {
-            commonSucc.add(iterator.next().formula());
-        }
-        for (int i = 1; i < goals.size(); i++) {
-            if (!commonAnte.isEmpty()) {
-                IteratorOfConstrainedFormula it = goalList.get(i).sequent()
-                        .antecedent().iterator();
-                Set<Term> forms = new HashSet<Term>();
-                while (it.hasNext()) {
-                    forms.add(it.next().formula());
-                }
-                Set<Term> remove = new HashSet<Term>();
-                for (Term ante : commonAnte) {
-                    if (!forms.contains(ante)) {
-                        remove.add(ante);
-                    }
-                }
-                commonAnte.removeAll(remove);
-            }
-            if (!commonSucc.isEmpty()) {
-                IteratorOfConstrainedFormula it = goalList.get(i).sequent()
-                        .succedent().iterator();
-                Set<Term> forms = new HashSet<Term>();
-                while (it.hasNext()) {
-                    forms.add(it.next().formula());
-                }
-                Set<Term> remove = new HashSet<Term>();
-                for (Term succ : commonSucc) {
-                    if (!forms.contains(succ)) {
-                        remove.add(succ);
-                    }
-                }
-                commonSucc.removeAll(remove);
-            }
-        }
-        Term ante = TermBuilder.DF.tt();
-        Set<Match> commonMatches = new HashSet<Match>();
-        Map<Term, LogicVariable> commonVars = new HashMap<Term, LogicVariable>();
-        for (Term t : commonAnte) {
-            ante = TermFactory.DEFAULT.createJunctorTermAndSimplify(Op.AND,
-                    ante, t);
-            final Set<Term> sk = new HashSet<Term>();
-            t.execPreOrder(new Visitor() {
+		// construct a conjunction of goal formulas containing implications for
+		// sequents
+		Term query = TermBuilder.DF.tt();
+		Set<Term> skolemSymbols = new HashSet<Term>();
+		Set<Term> commonAnte = new HashSet<Term>();
+		Set<Term> commonSucc = new HashSet<Term>();
+		List<Goal> goalList = new ArrayList<Goal>(goals);
+		System.out.println("Found " + goalList.size() + " relevant goals");// XXX
+		IteratorOfConstrainedFormula iterator = goalList.get(0).sequent()
+				.antecedent().iterator();
+		while (iterator.hasNext()) {
+			commonAnte.add(iterator.next().formula());
+		}
+		iterator = goalList.get(0).sequent().succedent().iterator();
+		while (iterator.hasNext()) {
+			commonSucc.add(iterator.next().formula());
+		}
+		for (int i = 1; i < goals.size(); i++) {
+			if (!commonAnte.isEmpty()) {
+				IteratorOfConstrainedFormula it = goalList.get(i).sequent()
+						.antecedent().iterator();
+				Set<Term> forms = new HashSet<Term>();
+				while (it.hasNext()) {
+					forms.add(it.next().formula());
+				}
+				Set<Term> remove = new HashSet<Term>();
+				for (Term ante : commonAnte) {
+					if (!forms.contains(ante)) {
+						remove.add(ante);
+					}
+				}
+				commonAnte.removeAll(remove);
+			}
+			if (!commonSucc.isEmpty()) {
+				IteratorOfConstrainedFormula it = goalList.get(i).sequent()
+						.succedent().iterator();
+				Set<Term> forms = new HashSet<Term>();
+				while (it.hasNext()) {
+					forms.add(it.next().formula());
+				}
+				Set<Term> remove = new HashSet<Term>();
+				for (Term succ : commonSucc) {
+					if (!forms.contains(succ)) {
+						remove.add(succ);
+					}
+				}
+				commonSucc.removeAll(remove);
+			}
+		}
+		Term ante = TermBuilder.DF.tt();
+		Set<Match> commonMatches = new HashSet<Match>();
+		Map<Term, LogicVariable> commonVars = new HashMap<Term, LogicVariable>();
+		for (Term t : commonAnte) {
+			ante = TermFactory.DEFAULT.createJunctorTermAndSimplify(Op.AND,
+					ante, t);
+			final Set<Term> sk = new HashSet<Term>();
+			t.execPreOrder(new Visitor() {
 
-                @Override
-                public void visit(Term visited) {
-                    if (visited.op() instanceof RigidFunction) {
-                        RigidFunction f = (RigidFunction) visited.op();
-                        if (f.isSkolem()) {
-                            sk.add(visited);
-                        }
-                    }
-                }
+				@Override
+				public void visit(Term visited) {
+					if (visited.op() instanceof RigidFunction) {
+						RigidFunction f = (RigidFunction) visited.op();
+						if (f.isSkolem()) {
+							sk.add(visited);
+						}
+					}
+				}
 
-            });
-            List<Term> orderedList = SkolemfunctionTracker.INSTANCE
-                    .getOrderedList(sk);
-            for (Term s : orderedList) {
-                if (s.arity() > 0) {
-                    LogicVariable logicVariable = new LogicVariable(new Name(s
-                            .op().name()
-                            + "$sk"), s.op().sort(new Term[0]));
-                    commonVars.put(s, logicVariable);
-                    commonMatches.add(new Match((RigidFunction) s.op(),
-                            TermBuilder.DF.var(logicVariable)));
-                    sk.remove(s);
-                }
-            }
-            skolemSymbols.addAll(sk);
-        }
-        Term succ = TermBuilder.DF.ff();
-        for (Term t : commonSucc) {
-            succ = TermFactory.DEFAULT.createJunctorTermAndSimplify(Op.OR,
-                    succ, t);
-            final Set<Term> sk = new HashSet<Term>();
-            t.execPreOrder(new Visitor() {
+			});
+			List<Term> orderedList = SkolemfunctionTracker.INSTANCE
+					.getOrderedList(sk);
+			for (Term s : orderedList) {
+				if (s.arity() > 0) {
+					LogicVariable logicVariable = new LogicVariable(new Name(s
+							.op().name()
+							+ "$sk"), s.op().sort(new Term[0]));
+					commonVars.put(s, logicVariable);
+					commonMatches.add(new Match((RigidFunction) s.op(),
+							TermBuilder.DF.var(logicVariable)));
+					sk.remove(s);
+				}
+			}
+			skolemSymbols.addAll(sk);
+		}
+		Term succ = TermBuilder.DF.ff();
+		for (Term t : commonSucc) {
+			succ = TermFactory.DEFAULT.createJunctorTermAndSimplify(Op.OR,
+					succ, t);
+			final Set<Term> sk = new HashSet<Term>();
+			t.execPreOrder(new Visitor() {
 
-                @Override
-                public void visit(Term visited) {
-                    if (visited.op() instanceof RigidFunction) {
-                        RigidFunction f = (RigidFunction) visited.op();
-                        if (f.isSkolem()) {
-                            sk.add(visited);
-                        }
-                    }
-                }
+				@Override
+				public void visit(Term visited) {
+					if (visited.op() instanceof RigidFunction) {
+						RigidFunction f = (RigidFunction) visited.op();
+						if (f.isSkolem()) {
+							sk.add(visited);
+						}
+					}
+				}
 
-            });
-            List<Term> orderedList = SkolemfunctionTracker.INSTANCE
-                    .getOrderedList(sk);
-            for (Term s : orderedList) {
-                if (s.arity() > 0) {
-                    LogicVariable logicVariable = new LogicVariable(new Name(s
-                            .op().name()
-                            + "$sk"), s.op().sort(new Term[0]));
-                    commonVars.put(s, logicVariable);
-                    commonMatches.add(new Match((RigidFunction) s.op(),
-                            TermBuilder.DF.var(logicVariable)));
-                    sk.remove(s);
-                }
-            }
-            skolemSymbols.addAll(sk);
-        }
-        for (Goal g : goals) {
-            Set<Term> findSkolemSymbols = findSkolemSymbols(g.sequent()
-                    .iterator());
+			});
+			List<Term> orderedList = SkolemfunctionTracker.INSTANCE
+					.getOrderedList(sk);
+			for (Term s : orderedList) {
+				if (s.arity() > 0) {
+					LogicVariable logicVariable = new LogicVariable(new Name(s
+							.op().name()
+							+ "$sk"), s.op().sort(new Term[0]));
+					commonVars.put(s, logicVariable);
+					commonMatches.add(new Match((RigidFunction) s.op(),
+							TermBuilder.DF.var(logicVariable)));
+					sk.remove(s);
+				}
+			}
+			skolemSymbols.addAll(sk);
+		}
+		for (Goal g : goals) {
+			Set<Term> findSkolemSymbols = findSkolemSymbols(g.sequent()
+					.iterator());
 
-            Term antecendent = TermTools.createJunctorTermNAry(TermBuilder.DF
-                    .tt(), Op.AND, g.sequent().antecedent().iterator(),
-                    commonAnte);
-            System.out.println("Ante: " + antecendent);
-            Term succendent = TermTools.createJunctorTermNAry(TermBuilder.DF
-                    .ff(), Op.OR, g.sequent().succedent().iterator(),
-                    commonSucc);
-            System.out.println("CommonSucc: " + commonSucc);
-            System.out.println("Succ: " + succendent);
-            Set<Match> matches = new HashSet<Match>();
-            List<LogicVariable> vars = new ArrayList<LogicVariable>();
-            Term imp = TermBuilder.DF.imp(antecendent, succendent);
-            System.out.println("Created: " + imp);// XXX
-            List<Term> orderedList = SkolemfunctionTracker.INSTANCE
-                    .getOrderedList(findSkolemSymbols);
-            for (Term sk : orderedList) {
-                if (sk.arity() > 0) {
-                    LogicVariable logicVariable = new LogicVariable(new Name(sk
-                            .op().name()
-                            + "$sk"), sk.op().sort(new Term[0]));
-                    vars.add(logicVariable);
-                    matches.add(new Match((RigidFunction) sk.op(),
-                            TermBuilder.DF.var(logicVariable)));
-                    findSkolemSymbols.remove(sk);
-                }
-            }
-            if (!matches.isEmpty()) {
-                imp = TermRewriter.replace(imp, matches);
-                for (QuantifiableVariable v : vars) {
-                    imp = TermBuilder.DF.all(v, imp);
-                }
-            }
+			Term antecendent = TermTools.createJunctorTermNAry(TermBuilder.DF
+					.tt(), Op.AND, g.sequent().antecedent().iterator(),
+					commonAnte);
+			System.out.println("Ante: " + antecendent);
+			Term succendent = TermTools.createJunctorTermNAry(TermBuilder.DF
+					.ff(), Op.OR, g.sequent().succedent().iterator(),
+					commonSucc);
+			System.out.println("CommonSucc: " + commonSucc);
+			System.out.println("Succ: " + succendent);
+			Set<Match> matches = new HashSet<Match>();
+			List<LogicVariable> vars = new ArrayList<LogicVariable>();
+			Term imp = TermBuilder.DF.imp(antecendent, succendent);
+			System.out.println("Created: " + imp);// XXX
+			List<Term> orderedList = SkolemfunctionTracker.INSTANCE
+					.getOrderedList(findSkolemSymbols);
+			for (Term sk : orderedList) {
+				if (sk.arity() > 0) {
+					LogicVariable logicVariable = new LogicVariable(new Name(sk
+							.op().name()
+							+ "$sk"), sk.op().sort(new Term[0]));
+					vars.add(logicVariable);
+					matches.add(new Match((RigidFunction) sk.op(),
+							TermBuilder.DF.var(logicVariable)));
+					findSkolemSymbols.remove(sk);
+				}
+			}
+			if (!matches.isEmpty()) {
+				imp = TermRewriter.replace(imp, matches);
+				for (QuantifiableVariable v : vars) {
+					imp = TermBuilder.DF.all(v, imp);
+				}
+			}
 
-            skolemSymbols.addAll(findSkolemSymbols);
-            query = TermBuilder.DF.and(query, imp);
-        }
+			skolemSymbols.addAll(findSkolemSymbols);
+			query = TermBuilder.DF.and(query, imp);
+		}
 
-        query = TermBuilder.DF.imp(ante, TermBuilder.DF.or(query, succ));
-        if (!commonMatches.isEmpty()) {
-            query = TermRewriter.replace(query, commonMatches);
-        }
-        for (Term sk : SkolemfunctionTracker.INSTANCE.getOrderedList(commonVars
-                .keySet())) {
-            query = TermBuilder.DF.all(commonVars.get(sk), query);
-            // TODO: check if we can avoid adding these variables to the
-            // namespace...
-            services.getNamespaces().variables().add(commonVars.get(sk));
-        }
-        List<PairOfTermAndQuantifierType> quantifiers = new LinkedList<PairOfTermAndQuantifierType>();
-        for (Metavariable var : variables) {
-            quantifiers.add(new PairOfTermAndQuantifierType(TermBuilder.DF
-                    .func(var), QuantifierType.EXISTS));
-        }
-        for (Term t : SkolemfunctionTracker.INSTANCE
-                .getOrderedList(skolemSymbols)) {
-            quantifiers.add(new PairOfTermAndQuantifierType(t,
-                    QuantifierType.FORALL));
-        }
+		query = TermBuilder.DF.imp(ante, TermBuilder.DF.or(query, succ));
+		if (!commonMatches.isEmpty()) {
+			query = TermRewriter.replace(query, commonMatches);
+		}
+		for (Term sk : SkolemfunctionTracker.INSTANCE.getOrderedList(commonVars
+				.keySet())) {
+			query = TermBuilder.DF.all(commonVars.get(sk), query);
+			// TODO: check if we can avoid adding these variables to the
+			// namespace...
+			services.getNamespaces().variables().add(commonVars.get(sk));
+		}
+		List<PairOfTermAndQuantifierType> quantifiers = new LinkedList<PairOfTermAndQuantifierType>();
+		for (Metavariable var : variables) {
+			quantifiers.add(new PairOfTermAndQuantifierType(TermBuilder.DF
+					.func(var), QuantifierType.EXISTS));
+		}
+		for (Term t : SkolemfunctionTracker.INSTANCE
+				.getOrderedList(skolemSymbols)) {
+			quantifiers.add(new PairOfTermAndQuantifierType(t,
+					QuantifierType.FORALL));
+		}
 
-        try {
-            if (DLOptionBean.INSTANCE.isSimplifyBeforeReduce()) {
-                query = MathSolverManager.getCurrentSimplifier().simplify(
-                        query, services.getNamespaces());
-            }
-            Term resultTerm = MathSolverManager
-                    .getCurrentQuantifierEliminator().reduce(query,
-                            quantifiers, services.getNamespaces());
-            if (DLOptionBean.INSTANCE.isSimplifyAfterReduce()) {
-                resultTerm = MathSolverManager.getCurrentSimplifier().simplify(
-                        resultTerm, services.getNamespaces());
-            }
-            // if there is a result: close all goals beside this one... and
-            // progress
-            // here
-            for (Goal g : goals) {
-                if (g != goal) {
-                    g.apply(new CloseRuleApp());
-                }
-            }
-            if (resultTerm.equals(TermBuilder.DF.tt())) {
-                return goal.split(0);
-            }
-            ListOfGoal result = goal.split(1);
-            removeAllFormulas(result, goal.sequent().succedent().iterator(),
-                    false);
-            removeAllFormulas(result, goal.sequent().antecedent().iterator(),
-                    true);
-            SequentChangeInfo info = result.head().sequent().addFormula(
-                    new ConstrainedFormula(resultTerm), false, true);
-            result.head().setSequent(info);
-            return result;
-        } catch (RemoteException e) {
-            throw new IllegalStateException("Cannot eliminate variable "
-                    + Arrays.toString(variables.toArray()), e);
-        } catch (UnsolveableException e) {
-            unsolvable = true;
-            throw new IllegalStateException("Cannot eliminate variable "
-                    + Arrays.toString(variables.toArray()), e);
-        } catch (SolverException e) {
-            throw new IllegalStateException("Cannot eliminate variable "
-                    + Arrays.toString(variables.toArray()), e);
-        }
-    }
+		try {
+			if (DLOptionBean.INSTANCE.isSimplifyBeforeReduce()) {
+				query = MathSolverManager.getCurrentSimplifier().simplify(
+						query, services.getNamespaces());
+			}
+			Term resultTerm = MathSolverManager
+					.getCurrentQuantifierEliminator().reduce(query,
+							quantifiers, services.getNamespaces());
+			if (DLOptionBean.INSTANCE.isSimplifyAfterReduce()) {
+				resultTerm = MathSolverManager.getCurrentSimplifier().simplify(
+						resultTerm, services.getNamespaces());
+			}
+			// if there is a result: close all goals beside this one... and
+			// progress
+			// here
+			for (Goal g : goals) {
+				if (g != goal) {
+					g.apply(new CloseRuleApp());
+				}
+			}
+			if (resultTerm.equals(TermBuilder.DF.tt())) {
+				return goal.split(0);
+			}
+			ListOfGoal result = goal.split(1);
+			removeAllFormulas(result.head(), goal.sequent().succedent()
+					.iterator(), false);
+			removeAllFormulas(result.head(), goal.sequent().antecedent()
+					.iterator(), true);
+			SequentChangeInfo info = result.head().sequent().addFormula(
+					new ConstrainedFormula(resultTerm), false, true);
+			result.head().setSequent(info);
+			return result;
+		} catch (RemoteException e) {
+			throw new IllegalStateException("Cannot eliminate variable "
+					+ Arrays.toString(variables.toArray()), e);
+		} catch (UnsolveableException e) {
+			unsolvable = true;
+			throw new IllegalStateException("Cannot eliminate variable "
+					+ Arrays.toString(variables.toArray()), e);
+		} catch (SolverException e) {
+			throw new IllegalStateException("Cannot eliminate variable "
+					+ Arrays.toString(variables.toArray()), e);
+		}
+	}
 
-    /**
-     * TODO jdq documentation since Aug 31, 2007
-     * 
-     * @param iterator
-     * @return
-     */
-    private Set<Term> findSkolemSymbols(IteratorOfConstrainedFormula iterator) {
-        final Set<Term> result = new HashSet<Term>();
-        while (iterator.hasNext()) {
-            iterator.next().formula().execPreOrder(new Visitor() {
+	/**
+	 * Find skolem functions that occur in the given formulas
+	 * 
+	 * @param iterator
+	 * @return
+	 */
+	private Set<Term> findSkolemSymbols(IteratorOfConstrainedFormula iterator) {
+		final Set<Term> result = new HashSet<Term>();
+		while (iterator.hasNext()) {
+			iterator.next().formula().execPreOrder(new Visitor() {
 
-                @Override
-                public void visit(Term visited) {
-                    if (visited.op() instanceof RigidFunction) {
-                        RigidFunction f = (RigidFunction) visited.op();
-                        if (f.isSkolem()) {
-                            result.add(visited);
-                        }
-                    }
-                }
+				@Override
+				public void visit(Term visited) {
+					if (visited.op() instanceof RigidFunction) {
+						RigidFunction f = (RigidFunction) visited.op();
+						if (f.isSkolem()) {
+							result.add(visited);
+						}
+					}
+				}
 
-            });
-        }
-        return result;
-    }
+			});
+		}
+		return result;
+	}
 
-    /**
-     * TODO jdq documentation since Aug 29, 2007
-     * 
-     * @param curGoal
-     */
-    private void selectGoalAndShowDialog(Goal curGoal) {
-        Main.getInstance().mediator().goalChosen(curGoal);
-        JOptionPane
-                .showMessageDialog(Main.getInstance(),
-                        "There was a goal that does not match the condition for applying this rule");
-    }
+	/**
+	 * Select the given goal in the GUI and show a dialog that we cannot apply
+	 * this rule
+	 * 
+	 * @param curGoal
+	 */
+	private void selectGoalAndShowDialog(Goal curGoal) {
+		Main.getInstance().mediator().goalChosen(curGoal);
+		JOptionPane
+				.showMessageDialog(Main.getInstance(),
+						"There was a goal that does not match the condition for applying this rule");
+	}
 
-    /**
-     * TODO jdq documentation since Aug 27, 2007
-     * 
-     * @param result
-     * @param iterator
-     * @param ante
-     */
-    private void removeAllFormulas(ListOfGoal result,
-            IteratorOfConstrainedFormula iterator, boolean ante) {
-        while (iterator.hasNext()) {
-            ConstrainedFormula next = iterator.next();
-            SequentChangeInfo removeFormula = result
-                    .head()
-                    .sequent()
-                    .removeFormula(
-                            new PosInOccurrence(next, PosInTerm.TOP_LEVEL, ante));
-            result.head().setSequent(removeFormula);
-        }
-    }
+	/**
+	 * Remove all formulas in the iterator from the given goal
+	 * 
+	 * @param result
+	 * @param iterator
+	 * @param ante
+	 */
+	private void removeAllFormulas(Goal head,
+			IteratorOfConstrainedFormula iterator, boolean ante) {
+		while (iterator.hasNext()) {
+			ConstrainedFormula next = iterator.next();
+			SequentChangeInfo removeFormula = head.sequent().removeFormula(
+					new PosInOccurrence(next, PosInTerm.TOP_LEVEL, ante));
+			head.setSequent(removeFormula);
+		}
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see de.uka.ilkd.key.rule.BuiltInRule#isApplicable(de.uka.ilkd.key.proof.Goal,
-     *      de.uka.ilkd.key.logic.PosInOccurrence,
-     *      de.uka.ilkd.key.logic.Constraint)
-     */
-    public boolean isApplicable(Goal goal, PosInOccurrence pio,
-            Constraint userConstraint) {
-        // if (MathSolverManager.isQuantifierEliminatorSet()
-        // && ((DLOptionBean.INSTANCE.isSimplifyBeforeReduce() ||
-        // DLOptionBean.INSTANCE
-        // .isSimplifyAfterReduce()) ? MathSolverManager
-        // .isSimplifierSet() : true)) {
-        // return pio != null && pio.subTerm() != null
-        // && pio.subTerm().op() instanceof Metavariable;
-        // } else {
-        // return false;
-        // }
-        if (MathSolverManager.isQuantifierEliminatorSet()
-                && pio != null
-                && pio.constrainedFormula() != null
-                && ((DLOptionBean.INSTANCE.isSimplifyBeforeReduce() || DLOptionBean.INSTANCE
-                        .isSimplifyAfterReduce()) ? MathSolverManager
-                        .isSimplifierSet() : true)) {
-            final Operator[] ops = new Operator[1];
-            final boolean[] fo = new boolean[1];
-            fo[0] = true;
-            pio.constrainedFormula().formula().execPreOrder(new Visitor() {
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.uka.ilkd.key.rule.BuiltInRule#isApplicable(de.uka.ilkd.key.proof.Goal,
+	 *      de.uka.ilkd.key.logic.PosInOccurrence,
+	 *      de.uka.ilkd.key.logic.Constraint)
+	 */
+	public boolean isApplicable(Goal goal, PosInOccurrence pio,
+			Constraint userConstraint) {
+		// if (MathSolverManager.isQuantifierEliminatorSet()
+		// && ((DLOptionBean.INSTANCE.isSimplifyBeforeReduce() ||
+		// DLOptionBean.INSTANCE
+		// .isSimplifyAfterReduce()) ? MathSolverManager
+		// .isSimplifierSet() : true)) {
+		// return pio != null && pio.subTerm() != null
+		// && pio.subTerm().op() instanceof Metavariable;
+		// } else {
+		// return false;
+		// }
+		if (MathSolverManager.isQuantifierEliminatorSet()
+				&& pio != null
+				&& pio.constrainedFormula() != null
+				&& ((DLOptionBean.INSTANCE.isSimplifyBeforeReduce() || DLOptionBean.INSTANCE
+						.isSimplifyAfterReduce()) ? MathSolverManager
+						.isSimplifierSet() : true)) {
+			final Operator[] ops = new Operator[1];
+			final boolean[] fo = new boolean[1];
+			fo[0] = true;
+			pio.constrainedFormula().formula().execPreOrder(new Visitor() {
 
-                @Override
-                public void visit(Term visited) {
-                    if (visited.op() instanceof Metavariable) {
-                        ops[0] = visited.op();
-                    } else if (!FOSequence.isFOOperator(visited.op())) {
-                        fo[0] = false;
-                    }
-                }
+				@Override
+				public void visit(Term visited) {
+					if (visited.op() instanceof Metavariable) {
+						ops[0] = visited.op();
+					} else if (!FOSequence.isFOOperator(visited.op())) {
+						fo[0] = false;
+					}
+				}
 
-            });
-            Operator op = ops[0];
-            if (!fo[0] || !(op instanceof Metavariable)) {
-                return false;
-            }
+			});
+			Operator op = ops[0];
+			if (!fo[0] || !(op instanceof Metavariable)) {
+				return false;
+			}
 
-            return true;
-        } else {
-            return false;
-        }
-    }
+			return true;
+		} else {
+			return false;
+		}
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see de.uka.ilkd.key.rule.Rule#displayName()
-     */
-    public String displayName() {
-        return "Eliminate Existential Quantifier";
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.uka.ilkd.key.rule.Rule#displayName()
+	 */
+	public String displayName() {
+		return "Eliminate Existential Quantifier";
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see de.uka.ilkd.key.rule.Rule#name()
-     */
-    public Name name() {
-        return new Name("Eliminate Existential Quantifier");
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.uka.ilkd.key.rule.Rule#name()
+	 */
+	public Name name() {
+		return new Name("Eliminate Existential Quantifier");
+	}
 
-    @Override
-    public String toString() {
-        return displayName();
-    }
+	@Override
+	public String toString() {
+		return displayName();
+	}
 
-    /**
-     * @return the unsolvable
-     */
-    public boolean isUnsolvable() {
-        return unsolvable;
-    }
+	/**
+	 * @return the unsolvable
+	 */
+	public boolean isUnsolvable() {
+		return unsolvable;
+	}
 
-    @Override
-    public boolean irrevocable(Node parent) {
-        // TODO find out if revocable because we didn't close any foreign goals
-        return true;
-    }
+	@Override
+	public boolean irrevocable(Node parent) {
+		// TODO find out if revocable because we didn't close any foreign goals
+		return true;
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see de.uka.ilkd.key.proof.RuleFilter#filter(de.uka.ilkd.key.rule.Rule)
-     */
-    @Override
-    public boolean filter(Rule rule) {
-        return rule instanceof EliminateExistentialQuantifierRule;
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.uka.ilkd.key.proof.RuleFilter#filter(de.uka.ilkd.key.rule.Rule)
+	 */
+	@Override
+	public boolean filter(Rule rule) {
+		return rule instanceof EliminateExistentialQuantifierRule;
+	}
 
 }

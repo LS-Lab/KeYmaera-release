@@ -35,6 +35,7 @@ import de.uka.ilkd.key.logic.Name;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.TermBuilder;
 import de.uka.ilkd.key.logic.TermFactory;
+import de.uka.ilkd.key.logic.VariableNamer;
 import de.uka.ilkd.key.logic.Visitor;
 import de.uka.ilkd.key.logic.op.AbstractMetaOperator;
 import de.uka.ilkd.key.logic.op.LogicVariable;
@@ -286,11 +287,12 @@ public class DLUniversalClosureOp extends AbstractMetaOperator {
     }
 
     /**
-     * TODO jdq documentation since Aug 21, 2007
+     * Search a new variable name for the given location variable
+     * TODO jdq maybe we should use the {@link VariableNamer}
      * 
-     * @param services
-     * @param loc
-     * @return
+     * @param services the services to access the namespaces
+     * @param loc the name of the previous variable
+     * @return a new programvariable with a fresh name
      */
     private LogicVariable searchFreeVar(Services services, String loc) {
         int i = 0;
