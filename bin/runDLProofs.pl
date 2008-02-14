@@ -12,7 +12,7 @@ use Sys::Hostname;
 my %option = ();
 getopts("hcm:", \%option);
 
-system(limit memoryuse 4000); #set memory limit to 4GB
+#system("limit memoryuse 4000"); #set memory limit to 4GB
 
 
 my $bin_path = dirname($0);
