@@ -19,31 +19,36 @@
  ***************************************************************************/
 package de.uka.ilkd.key.dl.arithmetics.exceptions;
 
+import de.uka.ilkd.key.dl.arithmetics.IMathSolver;
+
 /**
- * TODO jdq documentation since Nov 21, 2007
+ * This exception could be thrown by a {@link IMathSolver} because there is a
+ * problem communication with, e.g. the Mathematica server.
  * 
  * @author jdq
  * @since Nov 21, 2007
  * 
  */
 public class ConnectionException extends SolverException {
-    public ConnectionException() {
-        // TODO Auto-generated constructor stub
-    }
-    public ConnectionException(Throwable cause) {
-        super(cause);
-    }
-    /**
-     * 
-     */
-    public ConnectionException(String message, Throwable t) {
-        super(message, t);
-    }
-    
-    /**
-     * 
-     */
-    public ConnectionException(String message) {
-        super(message);
-    }
+	public ConnectionException() {
+		// TODO Auto-generated constructor stub
+	}
+
+	public ConnectionException(Throwable cause) {
+		super(cause);
+	}
+
+	/**
+	 * 
+	 */
+	public ConnectionException(String message, Throwable t) {
+		super(message, t);
+	}
+
+	/**
+	 * 
+	 */
+	public ConnectionException(String message) {
+		super(message);
+	}
 }

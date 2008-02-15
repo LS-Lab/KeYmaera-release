@@ -30,42 +30,45 @@ import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.java.reference.ExecutionContext;
 
 /**
- * TODO jdq documentation since Nov 22, 2007
+ * This is the implementation of {@link Forall}, i.e. it is the hybrid program
+ * representation of an universal quantifier.
  * 
  * @author jdq
  * @since Nov 22, 2007
  * 
  */
 public class ForallImpl extends CompoundFormulaImpl implements Forall {
-    /**
-     * @param dec
-     * @param form
-     */
-    public ForallImpl(VariableDeclaration dec, Formula form) {
-        addChild(dec);
-        addChild(form);
-    }
+	/**
+	 * @param dec
+	 * @param form
+	 */
+	public ForallImpl(VariableDeclaration dec, Formula form) {
+		addChild(dec);
+		addChild(form);
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see de.uka.ilkd.key.java.ReuseableProgramElement#reuseSignature(de.uka.ilkd.key.java.Services,
-     *      de.uka.ilkd.key.java.reference.ExecutionContext)
-     */
-    public String reuseSignature(Services services, ExecutionContext ec) {
-        return getClass().getCanonicalName()
-                + ((DLProgramElement) getChildAt(0)).reuseSignature(services,
-                        ec)
-                + getSymbol()
-                + ((DLProgramElement) getChildAt(1)).reuseSignature(services,
-                        ec);
-    }
-    
-    /* (non-Javadoc)
-     * @see de.uka.ilkd.key.dl.model.impl.DLNonTerminalProgramElementImpl#prettyPrint(de.uka.ilkd.key.java.PrettyPrinter)
-     */
-    @Override
-    public void prettyPrint(PrettyPrinter arg0) throws IOException {
-        arg0.printForall(this);
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.uka.ilkd.key.java.ReuseableProgramElement#reuseSignature(de.uka.ilkd.key.java.Services,
+	 *      de.uka.ilkd.key.java.reference.ExecutionContext)
+	 */
+	public String reuseSignature(Services services, ExecutionContext ec) {
+		return getClass().getCanonicalName()
+				+ ((DLProgramElement) getChildAt(0)).reuseSignature(services,
+						ec)
+				+ getSymbol()
+				+ ((DLProgramElement) getChildAt(1)).reuseSignature(services,
+						ec);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.uka.ilkd.key.dl.model.impl.DLNonTerminalProgramElementImpl#prettyPrint(de.uka.ilkd.key.java.PrettyPrinter)
+	 */
+	@Override
+	public void prettyPrint(PrettyPrinter arg0) throws IOException {
+		arg0.printForall(this);
+	}
 }

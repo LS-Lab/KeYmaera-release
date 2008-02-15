@@ -6,34 +6,36 @@ import de.uka.ilkd.key.dl.model.DLProgram;
 import de.uka.ilkd.key.dl.model.Formula;
 
 /**
- * TODO jdq documentation since Nov 9, 2007
+ * A state generator is used by the {@link TransitionSystemGenerator} to project
+ * the semantics for different applications.
  * 
  * @author jdq
  * @since Nov 9, 2007
  * 
  */
 public interface StateGenerator<S, A> {
-    public S getPostState(S pre, A action);
+	public S getPostState(S pre, A action);
 
-    public A getSymbolForBackloop(S pre, S post);
+	public A getSymbolForBackloop(S pre, S post);
 
-    public A getSpecialSymbolNoop(S pre, S post);
+	public A getSpecialSymbolNoop(S pre, S post);
 
-    /**
-     * TODO jdq documentation since Nov 9, 2007
-     * 
-     * @param program
-     * @return
-     */
-    public A generateAction(DLProgram program);
+	/**
+	 * TODO jdq documentation since Nov 9, 2007
+	 * 
+	 * @param program
+	 * @return
+	 */
+	public A generateAction(DLProgram program);
 
-    public A generateBranch(DLProgram program, int pos);
+	public A generateBranch(DLProgram program, int pos);
 
-    public A generateMerge(DLProgram program, int pos);
+	public A generateMerge(DLProgram program, int pos);
 
-    public S generateMergeState(DLProgram program, List<S> states);
-    
-    public A generateThenAction(Formula f);
-    public A generateElseAction(Formula f);
-    
+	public S generateMergeState(DLProgram program, List<S> states);
+
+	public A generateThenAction(Formula f);
+
+	public A generateElseAction(Formula f);
+
 }

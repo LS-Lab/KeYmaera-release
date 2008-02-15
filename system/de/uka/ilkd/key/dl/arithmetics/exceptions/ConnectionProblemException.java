@@ -20,44 +20,45 @@
 package de.uka.ilkd.key.dl.arithmetics.exceptions;
 
 /**
- * TODO jdq documentation since Nov 21, 2007 
+ * This exception indicates that there is a problem communicating with a server.
+ * 
  * @author jdq
  * @since Nov 21, 2007
  * 
  */
 public class ConnectionProblemException extends ConnectionException {
 
-    /**
-     * 
-     */
-    public ConnectionProblemException() {
-        super();
-        // TODO Auto-generated constructor stub
-    }
+	/**
+	 * 
+	 */
+	public ConnectionProblemException() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
 
-    /**
-     * @param message
-     * @param cause
-     */
-    public ConnectionProblemException(String message, Throwable cause) {
-        super(message, cause);
-        // TODO Auto-generated constructor stub
-    }
+	/**
+	 * @param message
+	 * @param cause
+	 */
+	public ConnectionProblemException(String message, Throwable cause) {
+		super(message, cause);
+		// TODO Auto-generated constructor stub
+	}
 
-    /**
-     * @param message
-     */
-    public ConnectionProblemException(String message) {
-        super(message);
-        // TODO Auto-generated constructor stub
-    }
+	/**
+	 * @param message
+	 */
+	public ConnectionProblemException(String message) {
+		super(message);
+		// TODO Auto-generated constructor stub
+	}
 
-    /**
-     * @param cause
-     */
-    public ConnectionProblemException(Throwable cause) {
-        super(cause);
-        // TODO Auto-generated constructor stub
-    }
+	/**
+	 * @param cause
+	 */
+	public ConnectionProblemException(Throwable cause) {
+		super(cause);
+		// TODO Auto-generated constructor stub
+	}
 
 }

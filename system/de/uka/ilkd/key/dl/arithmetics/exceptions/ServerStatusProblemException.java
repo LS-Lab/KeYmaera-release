@@ -20,43 +20,46 @@
 package de.uka.ilkd.key.dl.arithmetics.exceptions;
 
 /**
- * TODO jdq documentation since Nov 21, 2007 
+ * This exception is thrown, if there is a problem with the current server
+ * status, i.e. it was excepted to be ready but is still computing, or an
+ * unknown status is returned.
+ * 
  * @author jdq
  * @since Nov 21, 2007
  * 
  */
 public class ServerStatusProblemException extends ConnectionException {
 
-    /**
-     * 
-     */
-    public ServerStatusProblemException() {
-        // TODO Auto-generated constructor stub
-    }
+	/**
+	 * 
+	 */
+	public ServerStatusProblemException() {
+		// TODO Auto-generated constructor stub
+	}
 
-    /**
-     * @param message
-     */
-    public ServerStatusProblemException(String message) {
-        super(message);
-        // TODO Auto-generated constructor stub
-    }
+	/**
+	 * @param message
+	 */
+	public ServerStatusProblemException(String message) {
+		super(message);
+		// TODO Auto-generated constructor stub
+	}
 
-    /**
-     * @param cause
-     */
-    public ServerStatusProblemException(Throwable cause) {
-        super(cause);
-        // TODO Auto-generated constructor stub
-    }
+	/**
+	 * @param cause
+	 */
+	public ServerStatusProblemException(Throwable cause) {
+		super(cause);
+		// TODO Auto-generated constructor stub
+	}
 
-    /**
-     * @param message
-     * @param cause
-     */
-    public ServerStatusProblemException(String message, Throwable cause) {
-        super(message, cause);
-        // TODO Auto-generated constructor stub
-    }
+	/**
+	 * @param message
+	 * @param cause
+	 */
+	public ServerStatusProblemException(String message, Throwable cause) {
+		super(message, cause);
+		// TODO Auto-generated constructor stub
+	}
 
 }

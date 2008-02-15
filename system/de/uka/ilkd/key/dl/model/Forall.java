@@ -20,7 +20,8 @@
 package de.uka.ilkd.key.dl.model;
 
 /**
- * TODO jdq documentation since Nov 22, 2007 
+ * This interface represents an universal quantifier in a hybrid program.
+ * 
  * @author jdq
  * @since Nov 22, 2007
  * 

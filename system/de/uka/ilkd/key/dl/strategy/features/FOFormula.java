@@ -33,7 +33,8 @@ import de.uka.ilkd.key.strategy.TopRuleAppCost;
 import de.uka.ilkd.key.strategy.feature.Feature;
 
 /**
- * TODO jdq documentation since Sep 6, 2007
+ * This feature test whether the formula we want to apply the rule to is in
+ * first-order form.
  * 
  * @author jdq
  * @since Sep 6, 2007
@@ -41,30 +42,30 @@ import de.uka.ilkd.key.strategy.feature.Feature;
  */
 public class FOFormula implements Feature {
 
-    public static final Feature INSTANCE = new FOFormula();
-    
-    /*
-     * (non-Javadoc)
-     * 
-     * @see de.uka.ilkd.key.strategy.feature.Feature#compute(de.uka.ilkd.key.rule.RuleApp,
-     *      de.uka.ilkd.key.logic.PosInOccurrence, de.uka.ilkd.key.proof.Goal)
-     */
-    public RuleAppCost compute(RuleApp app, PosInOccurrence pos, Goal goal) {
-        final boolean[] result = { true };
-        pos.constrainedFormula().formula().execPreOrder(new Visitor() {
+	public static final Feature INSTANCE = new FOFormula();
 
-            @Override
-            public void visit(Term visited) {
-                if (!FOSequence.isFOOperator(visited.op())) {
-                    result[0] = false;
-                }
-            }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.uka.ilkd.key.strategy.feature.Feature#compute(de.uka.ilkd.key.rule.RuleApp,
+	 *      de.uka.ilkd.key.logic.PosInOccurrence, de.uka.ilkd.key.proof.Goal)
+	 */
+	public RuleAppCost compute(RuleApp app, PosInOccurrence pos, Goal goal) {
+		final boolean[] result = { true };
+		pos.constrainedFormula().formula().execPreOrder(new Visitor() {
 
-        });
-        if (result[0]) {
-            return LongRuleAppCost.ZERO_COST;
-        } else {
-            return TopRuleAppCost.INSTANCE;
-        }
-    }
+			@Override
+			public void visit(Term visited) {
+				if (!FOSequence.isFOOperator(visited.op())) {
+					result[0] = false;
+				}
+			}
+
+		});
+		if (result[0]) {
+			return LongRuleAppCost.ZERO_COST;
+		} else {
+			return TopRuleAppCost.INSTANCE;
+		}
+	}
 }

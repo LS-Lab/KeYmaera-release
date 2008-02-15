@@ -65,7 +65,7 @@ public class DependencyState {
     }
 
     /**
-     * TODO jdq documentation since Nov 21, 2007
+     * Add all variable dependencies given by the Map parameter
      * 
      * @param dependencies
      */

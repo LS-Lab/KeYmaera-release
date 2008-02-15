@@ -28,6 +28,7 @@ import de.uka.ilkd.key.proof.Goal;
 import de.uka.ilkd.key.rule.RuleApp;
 
 /**
+ * TODO jdq documentation since Nov 21, 2007
  * @author jdq
  * 
  */

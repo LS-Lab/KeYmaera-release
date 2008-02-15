@@ -19,32 +19,36 @@
  ***************************************************************************/
 package de.uka.ilkd.key.dl.arithmetics.exceptions;
 
+import de.uka.ilkd.key.dl.arithmetics.IMathSolver;
+
 /**
- * TODO jdq documentation since Nov 21, 2007
+ * This exception is thrown if request calculation could not be fulfilled by the
+ * {@link IMathSolver} due to computational limitations. This exeception should
+ * be thrown deterministically.
  * 
  * @author jdq
  * @since Nov 21, 2007
  * 
  */
 public class ComputationException extends SolverException {
-    public ComputationException() {
-    }
+	public ComputationException() {
+	}
 
-    public ComputationException(Throwable cause) {
-        super(cause);
-    }
+	public ComputationException(Throwable cause) {
+		super(cause);
+	}
 
-    /**
-     * 
-     */
-    public ComputationException(String message, Throwable t) {
-        super(message, t);
-    }
+	/**
+	 * 
+	 */
+	public ComputationException(String message, Throwable t) {
+		super(message, t);
+	}
 
-    /**
-     * 
-     */
-    public ComputationException(String message) {
-        super(message);
-    }
+	/**
+	 * 
+	 */
+	public ComputationException(String message) {
+		super(message);
+	}
 }

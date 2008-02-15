@@ -19,32 +19,35 @@
  ***************************************************************************/
 package de.uka.ilkd.key.dl.arithmetics.exceptions;
 
+import de.uka.ilkd.key.dl.arithmetics.IMathSolver;
+
 /**
- * TODO jdq documentation since Nov 21, 2007
+ * This is the superclass of all exceptions that can occur when invoking an
+ * {@link IMathSolver} (not including {@link RuntimeException}s).
  * 
  * @author jdq
  * @since Nov 21, 2007
  * 
  */
 public class SolverException extends Exception {
-    public SolverException() {
-    }
+	public SolverException() {
+	}
 
-    public SolverException(Throwable cause) {
-        super(cause);
-    }
+	public SolverException(Throwable cause) {
+		super(cause);
+	}
 
-    /**
-     * 
-     */
-    public SolverException(String message, Throwable t) {
-        super(message, t);
-    }
+	/**
+	 * 
+	 */
+	public SolverException(String message, Throwable t) {
+		super(message, t);
+	}
 
-    /**
-     * 
-     */
-    public SolverException(String message) {
-        super(message);
-    }
+	/**
+	 * 
+	 */
+	public SolverException(String message) {
+		super(message);
+	}
 }
