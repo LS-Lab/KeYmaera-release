@@ -294,6 +294,7 @@ public class ProblemLoader implements Runnable {
 	       status =  ex.toString();
        }
        finally {
+           mediator.resetNrGoalsClosedByHeuristics();
            if (po != null && po instanceof KeYUserProblemFile){
                ((KeYUserProblemFile) po).close();
            }

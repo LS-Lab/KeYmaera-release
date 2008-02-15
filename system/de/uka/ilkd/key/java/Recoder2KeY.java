@@ -10,30 +10,27 @@
 
 package de.uka.ilkd.key.java;
 import java.io.*;
+import java.lang.reflect.*;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
+import java.util.*;
 
 import org.apache.log4j.Logger;
 
 import recoder.abstraction.ClassType;
 import recoder.bytecode.ClassFile;
-import recoder.list.ClassTypeList;
-import recoder.list.ExpressionMutableList;
-import recoder.list.LoopInitializerMutableList;
+import recoder.list.*;
 import recoder.service.ChangeHistory;
 import de.uka.ilkd.key.java.abstraction.*;
+import de.uka.ilkd.key.java.abstraction.Field;
+import de.uka.ilkd.key.java.abstraction.Type;
 import de.uka.ilkd.key.java.declaration.*;
+import de.uka.ilkd.key.java.declaration.Modifier;
 import de.uka.ilkd.key.java.declaration.modifier.*;
 import de.uka.ilkd.key.java.declaration.modifier.Ghost;
 import de.uka.ilkd.key.java.declaration.modifier.Model;
-import de.uka.ilkd.key.java.expression.ArrayInitializer;
-import de.uka.ilkd.key.java.expression.Literal;
-import de.uka.ilkd.key.java.expression.ParenthesizedExpression;
+import de.uka.ilkd.key.java.expression.*;
 import de.uka.ilkd.key.java.expression.PassiveExpression;
 import de.uka.ilkd.key.java.expression.literal.*;
 import de.uka.ilkd.key.java.expression.operator.*;
@@ -47,9 +44,7 @@ import de.uka.ilkd.key.java.statement.MethodBodyStatement;
 import de.uka.ilkd.key.logic.*;
 import de.uka.ilkd.key.logic.op.*;
 import de.uka.ilkd.key.logic.sort.*;
-import de.uka.ilkd.key.util.Debug;
-import de.uka.ilkd.key.util.ExtList;
-import de.uka.ilkd.key.util.KeYResourceManager;
+import de.uka.ilkd.key.util.*;
 
 public class Recoder2KeY implements JavaReader{
     
@@ -76,6 +71,8 @@ public class Recoder2KeY implements JavaReader{
      *  ProgramMethod.
      */
     protected HashMap methodsDeclaring = new HashMap();
+    
+    protected HashMap locClass2finalVar = null;
 
     /**
      * Hashmap from
@@ -1247,7 +1244,10 @@ public class Recoder2KeY implements JavaReader{
 
     /** convert a recoder StamentBlock to a KeY StatementBlock*/
     public StatementBlock convert(recoder.java.StatementBlock block) {
-	return new StatementBlock(collectChildren(block));
+        ExtList children = collectChildren(block);
+        //remove local classes
+        while(children.removeFirstOccurrence(ClassDeclaration.class)!=null){}
+	return new StatementBlock(children);
     }
     
     /** convert a recoder StamentBlock to a KeY StatementBlock*/    
@@ -1449,12 +1449,13 @@ public class Recoder2KeY implements JavaReader{
 
 	KeYJavaType kjt = getKeYJavaType(td);
 	ExtList classMembers = collectChildren(td);       
-
+	
 	ClassDeclaration keYClassDecl = new ClassDeclaration
 	    (classMembers,
-	     new ProgramElementName(td.getFullName()),
-	     parsingLibs);
-
+	     new ProgramElementName(makeAdmissibleName(td.getFullName())),
+	     parsingLibs, td.getContainingClassType()!=null && !td.isStatic(),
+	     td.getName()==null, td.getStatementContainer() !=null
+	     );
 
 	kjt.setJavaType(keYClassDecl);
 	return keYClassDecl;	
@@ -1575,8 +1576,20 @@ public class Recoder2KeY implements JavaReader{
 				  SetOfSort supers) {
         final boolean abstractOrInterface = ct.isAbstract() ||
             ct.isInterface();
-        return new ClassInstanceSortImpl(new Name(ct.getFullName()), 
+        return new ClassInstanceSortImpl(new Name(makeAdmissibleName(ct.getFullName())), 
 					 supers, abstractOrInterface);
+    }
+    
+    private String makeAdmissibleName(String s){
+        return s;
+/*        int i = s.indexOf(".");
+        while(i!=-1){
+            if(s.charAt(i+1)<='9' && s.charAt(i+1)>='0'){
+                s = s.substring(0, i)+"_"+s.substring(i+1);
+            }
+            i = s.indexOf(".", i+1);
+        }
+        return s;*/
     }
 
     private SetOfSort directSuperSorts
@@ -1585,7 +1598,11 @@ public class Recoder2KeY implements JavaReader{
 	recoder.list.ClassTypeList supers=classType.getSupertypes();
 	SetOfSort ss=SetAsListOfSort.EMPTY_SET;
 	for (int i=0; i<supers.size(); i++) {
-	    ss = ss.add(getKeYJavaType(supers.getClassType(i)).getSort());	    
+	    ss = ss.add(getKeYJavaType(supers.getClassType(i)).getSort());
+	}
+	
+	if(classType.getName()==null){
+	    
 	}
 
 	if (ss==SetAsListOfSort.EMPTY_SET && !isObject(classType)) {
@@ -1709,8 +1726,8 @@ public class Recoder2KeY implements JavaReader{
         final KeYJavaType classType = getKeYJavaType(cf);
 
         final Modifier[] modifiers = getModifiers(cf);   
-        final ProgramElementName name = new ProgramElementName(cf.getName());
-        final ProgramElementName fullname = new ProgramElementName(cf.getFullName());
+        final ProgramElementName name = new ProgramElementName(makeAdmissibleName(cf.getName()));
+        final ProgramElementName fullname = new ProgramElementName(makeAdmissibleName(cf.getFullName()));
                 
         ClassTypeList supertype = cf.getSupertypes();
         
@@ -1900,9 +1917,9 @@ public class Recoder2KeY implements JavaReader{
 		(servConf.getSourceInfo()).getType(recoderVarSpec);
 
 	    final ProgramElementName name = VariableNamer.
-                parseName(recoderVarSpec.getName());
+                parseName(makeAdmissibleName(recoderVarSpec.getName()));
 	    final ProgramVariable pv = new LocationVariable(name,
-	            getKeYJavaType(recoderType));	   
+	            getKeYJavaType(recoderType), recoderVarSpec.isFinal());	   
 	    varSpec = new VariableSpecification
 		(collectChildren(recoderVarSpec), pv, 
                  recoderVarSpec.getDimensions(),
@@ -1962,7 +1979,7 @@ public class Recoder2KeY implements JavaReader{
     public FieldSpecification
  	convert(recoder.java.declaration.FieldSpecification recoderVarSpec){
 
-	if (recoderVarSpec == null) { //%%%%%%%%%%%%%	   
+        if (recoderVarSpec == null) { //%%%%%%%%%%%%%	   
             return new FieldSpecification();
 	}
 
@@ -2014,8 +2031,8 @@ public class Recoder2KeY implements JavaReader{
 		final ClassType recContainingClassType = 
 		    recoderVarSpec.getContainingClassType();
 		final ProgramElementName pen = 
-		    new ProgramElementName(recoderVarSpec.getName(),
-		            recContainingClassType.getFullName());		
+		    new ProgramElementName(makeAdmissibleName(recoderVarSpec.getName()),
+		            makeAdmissibleName(recContainingClassType.getFullName()));		
 		
                                 
                 final Literal compileTimeConstant = 
@@ -2154,15 +2171,12 @@ public class Recoder2KeY implements JavaReader{
      */
      public ProgramVariable convert
 	 (recoder.java.reference.VariableReference vr) {
-
 	 final recoder.java.declaration.VariableSpecification 
 	     recoderVarspec = getRecoderVarSpec(vr);	 
-
 	 if (!rec2key.mapped(recoderVarspec)) {
 	     insertToMap(recoderVarspec, 
 			 convert(recoderVarspec));
 	 }
-
 	 return (ProgramVariable)
 	     ((VariableSpecification)rec2key.
 	      toKeY(recoderVarspec)).getProgramVariable();
@@ -2300,8 +2314,8 @@ public class Recoder2KeY implements JavaReader{
 		 = new recoder.java.declaration.FieldSpecification
 		 (fr.getIdentifier());
 	     pv = new LocationVariable
-		 (new ProgramElementName(fs.getName(), 
-		         recField.getContainingClassType().getFullName()),
+		 (new ProgramElementName(makeAdmissibleName(fs.getName()), 
+		         makeAdmissibleName(recField.getContainingClassType().getFullName())),
 		  getKeYJavaType(recoderType),
 		  getKeYJavaType(recField.getContainingClassType()),
 		  recField.isStatic());
@@ -2559,18 +2573,36 @@ public class Recoder2KeY implements JavaReader{
 	final recoder.list.ExpressionMutableList args = n.getArguments();		
 	final recoder.java.reference.ReferencePrefix rp = n.getReferencePrefix();
 	final recoder.java.reference.TypeReference tr = n.getTypeReference();
+	final recoder.java.declaration.ClassDeclaration cd = n.getClassDeclaration();
 	
-	Expression[] arguments = new Expression[args != null ? args.size() : 0];
-	for (int i = 0; i<arguments.length; i++) {
-	    arguments[i] = (Expression)callConvert(args.getExpression(i));
+	LinkedList outerVars = null;
+	if(locClass2finalVar!=null){
+	    outerVars = (LinkedList) locClass2finalVar.get(cd);
 	}
+	int numVars = outerVars!=null? outerVars.size() : 0;
+	Expression[] arguments = new Expression[(args != null ? args.size() : 0)+numVars];
+	for (int i = 0; i<arguments.length-numVars; i++) {
+	    arguments[i] = (Expression)callConvert(args.getExpression(i));
+	}      
+	for (int i = arguments.length-numVars; i<arguments.length; i++) {
+            arguments[i] = (ProgramVariable) convert(
+                    (recoder.java.declaration.VariableSpecification) outerVars.get(i-arguments.length+numVars)).
+                getProgramVariable();    
+	}
+	
+	TypeReference maybeAnonClass = (TypeReference) callConvert(tr);
+        if(n.getClassDeclaration()!=null){
+            callConvert(n.getClassDeclaration());
+            KeYJavaType kjt = getKeYJavaType(n.getClassDeclaration());
+            maybeAnonClass = new TypeRef(kjt);
+        }
 	if (rp == null) {
 	    return new New(arguments , 
-			   (TypeReference) callConvert(tr), 
+			   maybeAnonClass, 
 			   (ReferencePrefix)null);
 	} else {
 	    return new New(arguments , 
-			   (TypeReference) callConvert(tr), 
+			   maybeAnonClass, 
 			   (ReferencePrefix)callConvert(rp));
 	}
     }
@@ -2623,18 +2655,20 @@ public class Recoder2KeY implements JavaReader{
 	String baseType = TypeNameTranslator.getBaseType(typeName);
 	int idx = baseType.indexOf('.');
 	int lastIndex = 0;
-	while (idx != -1) {	    
+	String anonType="";
+	while (idx != -1 && baseType.charAt(lastIndex)>='a' && baseType.charAt(lastIndex)<='z') {	
+	    String s = baseType.substring(lastIndex, idx);
 	    pr = new recoder.java.reference.PackageReference
-		(pr, new recoder.java.Identifier(baseType.substring(lastIndex, idx)));	    
+	            (pr, new recoder.java.Identifier(s));
 	    lastIndex = idx + 1;
 	    idx = baseType.indexOf('.', lastIndex);
 	}
-
+	baseType = anonType+baseType;
 	recoder.java.Identifier typeId;
 	if (baseType.charAt(0) == '<') {
 	    typeId = new ImplicitIdentifier(baseType.substring(lastIndex));
 	} else {	
-	    typeId = new recoder.java.Identifier(baseType.substring(lastIndex));
+	    typeId = new ObjectTypeIdentifier(baseType.substring(lastIndex));
 	}
 	recoder.java.reference.TypeReference result = 
 	    new recoder.java.reference.TypeReference(pr, typeId);
@@ -2708,20 +2742,22 @@ public class Recoder2KeY implements JavaReader{
     
     // invoke model transformers
     protected void transformModel(recoder.list.CompilationUnitMutableList cUnits) {
+        ConstructorNormalformBuilder cnb = new ConstructorNormalformBuilder(servConf, cUnits);
         RecoderModelTransformer[] transformer =
 
         new RecoderModelTransformer[] {
                 new JMLTransformer(servConf, cUnits, parsingLibs),
                 new ImplicitFieldAdder(servConf, cUnits),
                 new InstanceAllocationMethodBuilder(servConf, cUnits),
-                new ConstructorNormalformBuilder(servConf, cUnits),
-                new ClassPreparationMethodBuilder(servConf, cUnits),
-                new ClassInitializeMethodBuilder(servConf, cUnits),
-                new PrepareObjectBuilder(servConf, cUnits),
-                new CreateBuilder(servConf, cUnits),
-                new CreateObjectBuilder(servConf, cUnits),
-                new JVMIsTransientMethodBuilder(servConf, cUnits)
-                };
+		cnb,
+		new ClassPreparationMethodBuilder(servConf, cUnits),
+		new ClassInitializeMethodBuilder(servConf, cUnits),
+		new PrepareObjectBuilder(servConf, cUnits),
+		new CreateBuilder(servConf, cUnits),		
+		new CreateObjectBuilder(servConf, cUnits),		
+		new JVMIsTransientMethodBuilder(servConf, cUnits),
+		new LocalClassTransformation(servConf, cUnits)
+	    };
 
         final ChangeHistory cHistory = servConf.getChangeHistory();
         for (int i = 0; i < transformer.length; i++) {
@@ -2731,9 +2767,11 @@ public class Recoder2KeY implements JavaReader{
             }
 	    transformer[i].execute();	    
 	}
+	locClass2finalVar = cnb.getLocalClass2FinalVar();
         if (cHistory.needsUpdate()) {
             cHistory.updateModel();    
         }
+        RecoderModelTransformer.clear();
     }
 
     /**
@@ -2811,8 +2849,8 @@ public class Recoder2KeY implements JavaReader{
 
 	ImplicitFieldSpecification varSpec = 
 	    new ImplicitFieldSpecification
-	    (new LocationVariable(new ProgramElementName(name, 
-	            prefix.getSort().name().toString()),
+	    (new LocationVariable(new ProgramElementName(makeAdmissibleName(name), 
+	            makeAdmissibleName(prefix.getSort().name().toString())),
 	            typeRef.getKeYJavaType(), prefix, 
 	            isStatic), 
 	     typeRef.getKeYJavaType());	
