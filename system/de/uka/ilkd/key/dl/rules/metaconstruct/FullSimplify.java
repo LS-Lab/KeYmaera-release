@@ -58,7 +58,9 @@ public class FullSimplify extends AbstractDLMetaOperator {
      */
     public Term calculate(Term term, SVInstantiations svInst, Services services) {
         Set<Term> assumptions = new HashSet<Term>();
-        assumptions.add(term.sub(1));
+        if (term.arity() > 1) {
+            throw new IllegalArgumentException("Illegal number of arguments " + term.arity());
+        }
         try {
             return MathSolverManager.getCurrentSimplifier().fullSimplify(
                     term.sub(0), services.getNamespaces());
