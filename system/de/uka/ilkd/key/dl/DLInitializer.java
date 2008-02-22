@@ -22,14 +22,20 @@
  */
 package de.uka.ilkd.key.dl;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.beans.Customizer;
 import java.beans.IntrospectionException;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.ServerSocket;
 import java.rmi.RemoteException;
+import java.util.Set;
 
 import javax.swing.JComponent;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
 import orbital.awt.CustomizerViewController;
@@ -38,11 +44,18 @@ import de.uka.ilkd.key.dl.arithmetics.abort.AbortBridge;
 import de.uka.ilkd.key.dl.arithmetics.abort.AbortProgram;
 import de.uka.ilkd.key.dl.arithmetics.impl.mathematica.KernelLinkWrapper;
 import de.uka.ilkd.key.dl.gui.AutomodeListener;
+import de.uka.ilkd.key.dl.gui.TimeStatisticGenerator;
 import de.uka.ilkd.key.dl.options.DLOptionBean;
 import de.uka.ilkd.key.dl.options.DLOptionBeanBeanInfo;
 import de.uka.ilkd.key.gui.AutoModeListener;
+import de.uka.ilkd.key.gui.IMain;
+import de.uka.ilkd.key.gui.KeYMediator;
 import de.uka.ilkd.key.gui.Main;
 import de.uka.ilkd.key.gui.configuration.ProofSettings;
+import de.uka.ilkd.key.gui.configuration.Settings;
+import de.uka.ilkd.key.proof.IteratorOfNode;
+import de.uka.ilkd.key.proof.Node;
+import de.uka.ilkd.key.proof.Proof;
 import de.uka.ilkd.key.proof.ProofEvent;
 import de.uka.ilkd.key.proof.init.Profile;
 
@@ -56,6 +69,73 @@ import de.uka.ilkd.key.proof.init.Profile;
  */
 public class DLInitializer {
 
+	public static class StatisticGenerator implements ActionListener {
+		
+		private KeYMediator mediator;
+		private Main main;
+
+		public StatisticGenerator(KeYMediator mediator, Main main) {
+			this.mediator = mediator;
+			this.main = main;
+		}
+		
+        public void actionPerformed(ActionEvent e) {
+            final Proof proof = mediator.getSelectedProof();
+            if (mediator != null && proof != null) {
+
+                String stats = proof.statistics();
+
+                int interactiveSteps = computeInteractiveSteps(proof.root());
+
+                stats += "Interactive Steps: " + interactiveSteps;
+
+                stats += "\n"
+                        + "Time: "
+                        + (((double) TimeStatisticGenerator.INSTANCE
+                                .getTime()) / 1000.0d) + " seconds";
+
+                try {
+                    stats += "\n"
+                            + "Arithmetic Solver: "
+                            + (((double) TimeStatisticGenerator.INSTANCE
+                                    .getTotalCaclulationTime()) / 1000d);
+                    stats += "\n"
+                        + "Arithmetic Memory: "
+                        + (((long)((double) TimeStatisticGenerator.INSTANCE
+                                .getTotalMemory()) / 1024d / 1024d*1000)/1000) + " Mb";
+                    stats += "\n"
+                            + "CachedAnwsers/Queries: "
+                            + TimeStatisticGenerator.INSTANCE
+                                    .getCachedAnwsers() + " / "
+                            + TimeStatisticGenerator.INSTANCE.getQueries();
+                    stats += "\n"
+                        + "Program Variables: " + mediator.namespaces().programVariables().elements().size();
+                } catch (RemoteException e1) {
+                    // if there is an exception the statistic is not
+                    // displayed
+                }
+
+                JOptionPane
+                        .showMessageDialog(main, stats,
+                                "Proof Statistics",
+                                JOptionPane.INFORMATION_MESSAGE);
+            }
+        }
+
+        private int computeInteractiveSteps(Node node) {
+            int steps = 0;
+            final IteratorOfNode it = node.childrenIterator();
+            while (it.hasNext()) {
+                steps += computeInteractiveSteps(it.next());
+            }
+
+            if (node.getNodeInfo().getInteractiveRuleApplication()) {
+                steps++;
+            }
+            return steps;
+        }
+    }
+	
     public final static String IDENTITY = "KeyMainProgram";
 
     private static Customizer customizer;
@@ -132,6 +212,58 @@ public class DLInitializer {
 
     }
 
+    public static void registerSettingsMenuItem(final Main main, JMenu options) {
+        final JMenuItem hyKeYOptions = new JMenuItem("KeYmaera Options");
+
+        hyKeYOptions.addActionListener(new ActionListener() {
+
+            public void actionPerformed(ActionEvent arg0) {
+                CustomizerViewController controller = new CustomizerViewController(
+                        main);
+                Set<Settings> subOptions = DLOptionBean.INSTANCE.getSubOptions();
+                Object[] beans = new Object[subOptions.size() + 1];
+                int i = 0;
+                beans[i++] = DLOptionBean.INSTANCE;
+                for(Settings s: subOptions) {
+                    beans[i++] = s;
+                }
+                controller.showCustomizer(beans,
+                        "KeYmaera Configuration");
+                DLInitializer.getCustomizer().setObject(DLOptionBean.INSTANCE);
+            }
+
+        });
+
+        main.registerAtMenu(options, hyKeYOptions);
+    }
+    
+    public static void registerHelpMenuItem(final Main main, JMenu help) {
+    	JMenuItem tutorial = new JMenuItem("KeYmaera Help");
+        tutorial.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e)  {
+                //Class desktop = Class.forName("java.awt.Desktop").getDesktop().browse();
+                /*JTextPane tp = new JTextPane();
+                JScrollPane js = new JScrollPane();
+                js.getViewport().add(tp);
+                try {
+                    URL url = new URL("http://www.functologic.com/info/KeYmaera-guide.html");
+                    tp.setPage(url);
+                    JFrame jf = new JFrame();
+                    jf.getContentPane().add(js);
+                    jf.pack();
+                    jf.setVisible(true); 
+                } catch (Exception react)*/
+                {
+                    JOptionPane.showMessageDialog(main,
+                            "Information and documentation on using KeYmaera,\nthe syntax of its specification language, and\nits verification features, is available on the web:\n"
+                            + "see KeYmaera Tutorial at http://www.functologic.com/info/KeYmaera-guide.html",                   
+                    "KeYmaera Documentation", JOptionPane.INFORMATION_MESSAGE);
+                }
+            }
+        });
+        help.add(tutorial);
+    }
+    	
     /**
      * @return the customizer
      */

@@ -18,14 +18,14 @@ import java.util.LinkedHashSet;
 import java.util.Vector;
 import java.util.Map.Entry;
 
-import recoder.io.PathList;
-import recoder.io.ProjectSettings;
-
 import org.apache.log4j.Logger;
 
-import de.uka.ilkd.key.gui.IMain;
+import recoder.io.PathList;
+import recoder.io.ProjectSettings;
 import de.uka.ilkd.key.dl.DLProfile;
 import de.uka.ilkd.key.dl.formulatools.ProgramVariableDeclaratorVisitor;
+import de.uka.ilkd.key.gui.IMain;
+import de.uka.ilkd.key.gui.Main;
 import de.uka.ilkd.key.gui.configuration.LibrariesSettings;
 import de.uka.ilkd.key.gui.configuration.ProofSettings;
 import de.uka.ilkd.key.java.CompilationUnit;

@@ -1129,7 +1129,7 @@ public class KeYMediator {
 	
 	    private void barfRuleNotApplicable(RuleApp rapp) {
 	        JOptionPane.showMessageDialog
-	            (mainFrame, 
+	            (Main.getInstance(), 
 	             "Rule not applicable." + "\n" + rapp.rule().name(), 
 	             "Correctness Management",
 	             JOptionPane.ERROR_MESSAGE);

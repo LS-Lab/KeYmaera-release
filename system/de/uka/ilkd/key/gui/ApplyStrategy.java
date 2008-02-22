@@ -198,7 +198,7 @@ public class ApplyStrategy {
 
     private synchronized void fireTaskFinished (TaskFinishedInfo info) {
         for (ProverTaskListener listener : proverTaskObservers) {
-            ((ProverTaskListener)proverTaskObservers.get(i)).taskFinished(info);
+            listener.taskFinished(info);
         }
     }
 
