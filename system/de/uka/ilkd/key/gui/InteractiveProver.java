@@ -158,6 +158,7 @@ public class InteractiveProver {
         goal.node().getNodeInfo().setInteractiveRuleApplication(true);
         ListOfGoal goalList = goal.apply(app);
         
+        
         if (!getProof ().closed ()) {
             if ( resumeAutoMode () ) {
                 startAutoMode ();
@@ -227,7 +228,7 @@ public class InteractiveProver {
             interactive = false;
         }
         
-        applyStrategy.start ( goals, getMaxStepCount (), getTimeout() );
+        applyStrategy.start ( proof, goals, getMaxStepCount (), getTimeout() );
     }
     
     /** stops the execution of rules */
@@ -299,7 +300,7 @@ public class InteractiveProver {
     private final class FocussedAutoModeTaskListener implements ProverTaskListener {
         public void taskStarted ( String message, int size ) {}
         public void taskProgress ( int position ) {}
-        public void taskFinished () {
+        public void taskFinished (TaskFinishedInfo info) {
             SwingUtilities.invokeLater ( new Runnable () {
                 public void run () {
                     finishFocussedAutoMode ();

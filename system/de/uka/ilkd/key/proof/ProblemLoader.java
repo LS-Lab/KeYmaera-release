@@ -50,7 +50,6 @@ import de.uka.ilkd.key.parser.ParserException;
 import de.uka.ilkd.key.parser.ParserMode;
 import de.uka.ilkd.key.parser.TermParserFactory;
 import de.uka.ilkd.key.pp.AbbrevMap;
-import de.uka.ilkd.key.pp.PresentationFeatures;
 import de.uka.ilkd.key.proof.decproc.DecisionProcedureSmtAuflia;
 import de.uka.ilkd.key.proof.init.EnvInput;
 import de.uka.ilkd.key.proof.init.InitConfig;
@@ -76,12 +75,12 @@ import de.uka.ilkd.key.speclang.SLEnvInput;
 import de.uka.ilkd.key.util.Array;
 import de.uka.ilkd.key.util.ExceptionHandlerException;
 import de.uka.ilkd.key.util.KeYExceptionHandler;
+import de.uka.ilkd.key.util.ProgressMonitor;
 
 public class ProblemLoader implements Runnable {
 
     File file;
-
-    Main main;
+    private IMain main;    
 
     KeYMediator mediator;
 
@@ -118,21 +117,62 @@ public class ProblemLoader implements Runnable {
     private Profile profile;
 
     private SwingWorker worker;
+    private ProgressMonitor pm;
+    private ProverTaskListener ptl;
+    private boolean enableSpecs;
 
     private ArrayList<String> reduceVariables;
 
-    public ProblemLoader(File file, Main main, Profile profile) {
-        this(file, main, profile, false);
-    }
-
-    public ProblemLoader(File file, Main main, Profile profile,
-            boolean keepProblem) {
+     public ProblemLoader(File file, IMain main, Profile profile, 
+            boolean keepProblem, boolean enableSpecs) {
         this.main = main;
-        mediator = main.mediator();
+        this.mediator  = main.mediator();        
         this.file = file;
         this.profile = profile;
         this.exceptionHandler = mediator.getExceptionHandler();
         this.keepProblem = keepProblem;
+        this.enableSpecs = enableSpecs;
+
+        addProgressMonitor(main.getProgressMonitor());
+    }    
+      
+    public void addProgressMonitor(ProgressMonitor pm) {
+        this.pm = pm;
+    }
+
+    public void addTaskListener(ProverTaskListener ptl) {
+        this.ptl = ptl;
+    }
+    
+    /** 
+     * updates a possibly existing status line with the given information
+     * @param status the String to be printed in the status line
+     */
+    public void setStatusLine(String status) {
+        if (main != null) {
+            main.setStatusLine(status);
+        }
+    }
+
+    /**
+     * updates a possibly existing status line with the given status information
+     * and sets a maximum value for the progress bar
+     * @param status the String with the status information
+     * @param nr the int used a maximum value for a progress bar
+     */
+    public void setStatusLine(String status, int nr) {
+        if (main != null) {
+            main.setStatusLine(status, nr);
+        }
+    }
+    
+    /**
+     * resets a possibly existing statusline to its standard text
+     */
+    public void setStandardStatusLine() {
+        if (main != null) {
+            main.setStandardStatusLine();
+        }        
     }
 
     public void run() {
@@ -143,40 +183,28 @@ public class ProblemLoader implements Runnable {
          * InterruptedException in doWork().
          */
         worker = new SwingWorker() {
+                private long time;
 		public Object construct() {
-		    Object res = doWork();
+                    time = System.currentTimeMillis();
+                    Object res = doWork();
+                    time = System.currentTimeMillis() - time;
 		    return res;
 		}
 		public void finished() {
 		    mediator.startInterface(true);
-		    String msg = (String) get();
-		    if(!"".equals(msg)) {
-		        if(Main.batchMode){
-			    System.exit(-1);
-			} else {
-			    new ExceptionDialog
-				(mediator.mainFrame(), 
-                                        exceptionHandler.getExceptions());
-			    exceptionHandler.clear();
-			}
-		    } else {
-			PresentationFeatures.
-			    initialize(mediator.func_ns(), 
-				       mediator.getNotationInfo(),
-				       mediator.getSelectedProof());
+		    final String msg = (String) get();
+		    if (ptl != null) {                        
+                        final TaskFinishedInfo tfi = new DefaultTaskFinishedInfo(ProblemLoader.this, 
+                                msg, proof, time, 
+                                (proof != null ? proof.countNodes() : 0),                                
+                                (proof != null ? proof.countBranches() -
+                                        proof.openGoals().size() : 0));
+                        ptl.taskFinished(tfi);
 		    }
-		    if (Main.batchMode) {
-                        //System.out.println("Proof: " +proof.openGoals());
-                        if(proof.openGoals().size()==0) {
-                            System.out.println("proof.openGoals.size=" + 
-                                     proof.openGoals().size());		 
-			    System.exit(0);
-			}
-			mediator.startAutoMode();
-		    }		   
 		}
-	    };
+        };
         mediator.stopInterface(true);
+        if (ptl != null) ptl.taskStarted("Loading problem ...", 0);
         worker.start();
     }
 
@@ -201,8 +229,7 @@ public class ProblemLoader implements Runnable {
         } else if (filename.endsWith(".key") || 
                 filename.endsWith(".proof")) {
             // KeY problem specification or saved proof
-            return new KeYUserProblemFile(filename, file, 
-                    main.getProgressMonitor(), Main.enableSpecs);
+            return new KeYUserProblemFile(filename, file, pm, enableSpecs);
             
         } else if (file.isDirectory()){ 
             // directory containing java sources, probably enriched 
@@ -254,18 +281,18 @@ public class ProblemLoader implements Runnable {
                proof = mediator.getSelectedProof();
                mediator.stopInterface(true); // first stop (above) is not enough
                // as there is no problem at that time
-               main.setStatusLine("Loading proof");
+               setStatusLine("Loading proof");
                currNode = proof.root(); // initialize loader
                children = currNode.childrenIterator(); // --"--
                iconfig = proof.env().getInitConfig();
                if (!keepProblem) {
                    init.tryReadProof(this, po);
                } else {
-                   main.setStatusLine("Loading proof", (int)file.length());
+                   setStatusLine("Loading proof", (int)file.length());
                    CountingBufferedInputStream cinp =
                        new CountingBufferedInputStream(
                            new FileInputStream(file),
-                           main.getProgressMonitor(),
+                           pm,
                            (int)file.length()/100);
                    KeYLexer lexer = new KeYLexer(cinp,
                        proof.getServices().getExceptionHandler());
@@ -276,7 +303,7 @@ public class ProblemLoader implements Runnable {
                    } while (t.getType() != KeYLexer.PROOF);
                    parser.proofBody(this);
                }
-	       main.setStandardStatusLine();
+	       setStandardStatusLine();
            
            // Inform the decproc classes that a new problem has been loaded
            // This is done here because all benchmarks resulting from one loaded problem should be
@@ -290,7 +317,7 @@ public class ProblemLoader implements Runnable {
                status =  thr.getMessage();
 	   }
        } catch (ExceptionHandlerException ex){
-	       main.setStatusLine("Failed to load problem/proof");
+	       setStatusLine("Failed to load problem/proof");
 	       status =  ex.toString();
        }
        finally {
@@ -728,6 +755,10 @@ public class ProblemLoader implements Runnable {
         BuiltInConstructionException(String s) {
             super(s);
         }
+    }
+
+    public KeYExceptionHandler getExceptionHandler() {
+        return exceptionHandler;
     }
 
 }
