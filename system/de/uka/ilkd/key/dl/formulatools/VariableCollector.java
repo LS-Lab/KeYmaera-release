@@ -39,12 +39,34 @@ import de.uka.ilkd.key.logic.op.ProgramVariable;
  * @since 22.02.2007
  * 
  */
-public class VariableCollector extends Visitor {
+public class VariableCollector {
 
-    private static final VariableCollector INSTANCE = new VariableCollector();
-
-    private static HashSet<String> variables = new HashSet<String>();
-
+    private static class Collector extends Visitor {
+    	private HashSet<String> variables = new HashSet<String>();
+    	private HashSet<Term> variableTerms = new HashSet<Term>();
+    	
+    	/*
+         * (non-Javadoc)
+         * 
+         * @see de.uka.ilkd.key.logic.Visitor#visit(de.uka.ilkd.key.logic.Term)
+         */
+        @Override
+        public void visit(Term visited) {
+            if (visited.op() instanceof LogicVariable
+                    || visited.op() instanceof ProgramVariable
+                    || (visited.op() instanceof Function && visited.arity() == 0)
+                    || visited.op() instanceof Metavariable) {
+                try {
+                    // TODO replace by BigDecimal parsing
+                    Double.parseDouble(visited.op().name().toString());
+                } catch (Exception e) {
+                    variables.add(visited.op().name().toString());
+                    variableTerms.add(visited);
+                }
+            }
+        }
+    }
+    
     /**
      * Returns all logic, meta and program variables as well as function symbols
      * with arity 0 if they do not represent a number
@@ -52,30 +74,25 @@ public class VariableCollector extends Visitor {
      * @param term
      * @return
      */
-    public synchronized static Set<String> getVariables(Term term) {
-        variables.clear();
-        term.execPreOrder(INSTANCE);
-        return variables;
+    public static Set<String> getVariables(Term term) {
+        Collector col = new Collector();
+        term.execPreOrder(col);
+        return col.variables;
+    }
+    
+    /**
+     * Returns all logic, meta and program variables as well as function symbols
+     * with arity 0 if they do not represent a number
+     * 
+     * @param term
+     * @return
+     */
+    public static Set<Term> getVariableTerms(Term term) {
+        Collector col = new Collector();
+        term.execPreOrder(col);
+        return col.variableTerms;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see de.uka.ilkd.key.logic.Visitor#visit(de.uka.ilkd.key.logic.Term)
-     */
-    @Override
-    public void visit(Term visited) {
-        if (visited.op() instanceof LogicVariable
-                || visited.op() instanceof ProgramVariable
-                || (visited.op() instanceof Function && visited.arity() == 0)
-                || visited.op() instanceof Metavariable) {
-            try {
-                // TODO replace by BigDecimal parsing
-                Double.parseDouble(visited.op().name().toString());
-            } catch (Exception e) {
-                variables.add(visited.op().name().toString());
-            }
-        }
-    }
+    
 
 }

@@ -427,6 +427,7 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
             // wrap inside exception checks
             Expr check = new Expr(new Expr(Expr.SYMBOL, "Check"), new Expr[] {
                     compute, new Expr("$Exception"), mBlist });
+            System.out.println(check);//XXX
             link.evaluate(check);
             testForError(link);
             log(Level.FINEST, "Waiting for anwser.");
