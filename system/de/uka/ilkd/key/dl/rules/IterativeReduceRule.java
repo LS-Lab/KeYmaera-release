@@ -20,6 +20,7 @@ import de.uka.ilkd.key.dl.formulatools.VariableOrderCreator;
 import de.uka.ilkd.key.dl.formulatools.TermRewriter.Match;
 import de.uka.ilkd.key.dl.formulatools.VariableOrderCreator.VariableOrder;
 import de.uka.ilkd.key.dl.options.DLOptionBean;
+import de.uka.ilkd.key.gui.Main;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.logic.Constraint;
 import de.uka.ilkd.key.logic.IteratorOfConstrainedFormula;
@@ -84,6 +85,7 @@ public class IterativeReduceRule implements BuiltInRule, RuleFilter {
 	@Override
 	public ListOfGoal apply(Goal goal, Services services, RuleApp ruleApp) {
 		long timeout = 2000;
+		boolean automde = Main.getInstance().mediator().autoMode();
 		VariableOrder order = VariableOrderCreator.getVariableOrder(goal
 				.sequent().iterator());
 		ListOfTerm initAnte = createOrderedList(order, goal.sequent()
@@ -95,6 +97,9 @@ public class IterativeReduceRule implements BuiltInRule, RuleFilter {
 		ListOfTerm usedAnte = SLListOfTerm.EMPTY_LIST;
 		ListOfTerm usedSucc = SLListOfTerm.EMPTY_LIST;
 		while (true) {
+			if(automde && !Main.getInstance().mediator().autoMode()) {
+				return null;
+			}
 			if (ante.isEmpty() && succ.isEmpty()) {
 				timeout *= 2;
 				ante = initAnte;
