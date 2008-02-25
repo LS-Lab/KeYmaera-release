@@ -139,16 +139,31 @@ public class VariableNameProposer implements InstantiationProposer {
 
 	final NamespaceSet nss = services.getNamespaces();
 	Name l_name;
-	final String basename = name + SKOLEMTERM_VARIABLE_NAME_POSTFIX;
+	final String basename = name;
 	do {
-	    name = basename + services.getCounter(SKOLEMTERMVARCOUNTER_PREFIX + name)
-		.getCountPlusPlusWithParent(undoAnchor);	    
+	    name = computeName(basename, services.getCounter(SKOLEMTERMVARCOUNTER_PREFIX + name)
+		.getCountPlusPlusWithParent(undoAnchor));	    
 	    l_name = new Name(name);
 	} while (nss.lookup(l_name) != null &&
                 !previousProposals.contains(name));
         
         	
 	return name;
+    }
+    
+    private static String computeName(String basename, int index) {
+    	if(basename.contains("" + SKOLEMTERM_VARIABLE_NAME_POSTFIX)) {
+    		String number = basename.substring(basename.lastIndexOf("" + SKOLEMTERM_VARIABLE_NAME_POSTFIX) + 1);
+    		String prev = basename.substring(0, basename.lastIndexOf("" + SKOLEMTERM_VARIABLE_NAME_POSTFIX) + 1);
+    		try {
+    			int i = Integer.parseInt(number);
+    			i+= index+1;
+    			return prev + i; 
+    		} catch(Exception e) {
+    			
+    		}
+    	} 
+   		return basename + (index == 0 ? "" : SKOLEMTERM_VARIABLE_NAME_POSTFIX + "" + index);
     }
 
     public String getNameProposal(String basename, 

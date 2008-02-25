@@ -90,14 +90,14 @@ public class ODESolve extends AbstractDLMetaOperator {
         final NamespaceSet nss = services.getNamespaces();
         Name tName = null;
         do {
-            tName = new Name("t" + i++);
+            tName = new Name("t" + "_" + i++);
         } while (nss.variables().lookup(tName) != null
                 || nss.programVariables().lookup(tName) != null);
         t = new LogicVariable(tName, RealLDT.getRealSort());
         i = 0;
         Name tsName = null;
         do {
-            tsName = new Name("ts" + i++);
+            tsName = new Name("ts" + "_" + i++);
         } while ((nss.variables().lookup(tsName) != null || nss
                 .programVariables().lookup(tsName) != null));
         ts = new LogicVariable(tsName, RealLDT.getRealSort());
