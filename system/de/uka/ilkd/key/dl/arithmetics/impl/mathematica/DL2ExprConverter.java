@@ -125,8 +125,9 @@ public class DL2ExprConverter implements ExprConstants {
             ProgramVariable v = (ProgramVariable) el;
             Expr var = new Expr(Expr.SYMBOL, v.getElementName().toString());
             if (vars.containsKey(v.getElementName().toString())) {
-                return new Expr(var, new Expr[] { new Expr(Expr.SYMBOL, t
-                        .name().toString()) });
+                String name = t.name().toString();
+                name = name.replaceAll("_", USCORE_ESCAPE);
+                return new Expr(var, new Expr[] { new Expr(Expr.SYMBOL, name) });
             } else {
                 return var;
             }
@@ -155,9 +156,11 @@ public class DL2ExprConverter implements ExprConstants {
                     // use implicit differential symbols if there is no temporal variable
                     return differentialSymbol;
                 } else {
+                    String name = t.name().toString();
+                    name = name.replaceAll("_", USCORE_ESCAPE);
                     return new Expr(
                         differentialSymbol,
-                        new Expr[] { new Expr(Expr.SYMBOL, t.name().toString()) });
+                        new Expr[] { new Expr(Expr.SYMBOL, name) });
                 }
             }
         }
