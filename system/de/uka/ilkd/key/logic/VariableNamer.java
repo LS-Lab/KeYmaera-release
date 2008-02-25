@@ -789,17 +789,32 @@ public abstract class VariableNamer implements InstantiationProposer {
         PermIndProgramElementName(String basename,
 	                          int index,
 				  NameCreationInfo creationInfo) {
-            super(basename + (index == 0 ? "" : SEPARATOR + "" + index),
+            super(computeName(basename, index),
 	    	  basename, 
 		  index,
 		  creationInfo);
+        }
+        
+        private static String computeName(String basename, int index) {
+        	if(basename.contains("" + SEPARATOR)) {
+        		String number = basename.substring(basename.lastIndexOf("" + SEPARATOR) + 1);
+        		String prev = basename.substring(0, basename.lastIndexOf("" + SEPARATOR) + 1);
+        		try {
+        			int i = Integer.parseInt(number);
+        			i+= index+1;
+        			return prev + i; 
+        		} catch(Exception e) {
+        			
+        		}
+        	} 
+       		return basename + (index == 0 ? "" : SEPARATOR + "" + index);
         }
 
         PermIndProgramElementName(String basename,
 	                          int index,
 				  NameCreationInfo creationInfo,
 				  Comment[] comments) {
-            super(basename + (index == 0 ? "" : SEPARATOR + "" + index),
+            super(computeName(basename, index),
 	    	  basename, 
 		  index, 
 		  creationInfo,
