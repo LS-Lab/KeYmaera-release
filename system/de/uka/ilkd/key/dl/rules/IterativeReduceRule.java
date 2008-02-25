@@ -184,7 +184,7 @@ public class IterativeReduceRule implements BuiltInRule, RuleFilter {
 						}
 						if (reduce.equals(TermBuilder.DF.tt())) {
 							return goal.split(0);
-						} else {
+						} else if (ante.isEmpty() && succ.isEmpty()) {
 							throw new IllegalStateException(
 									"Dont know what to do, reduce returned: "
 											+ reduce);
