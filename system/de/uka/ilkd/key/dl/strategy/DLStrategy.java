@@ -328,17 +328,25 @@ public class DLStrategy extends AbstractFeatureStrategy implements
                         ifZero(FOSequence.INSTANCE, new SwitchFeature(
                                 TimeoutTestApplicationFeature.INSTANCE,
                                 new Case(longConst(0), longConst(-20000)),
-                                new Case(longConst(1), inftyConst()),
+                                new Case(longConst(1), DLOptionBean.INSTANCE.
+                                		isUseIterativeReduceRule()?inftyConst():longConst(20000)),
                                 new Case(inftyConst(), inftyConst())),
                                 inftyConst()));
                 iterative = ConditionalFeature.createConditional(
                         IterativeReduceRule.INSTANCE,
-                        ifZero(FOSequence.INSTANCE, new SwitchFeature(
-                                TimeoutTestApplicationFeature.INSTANCE,
-                                new Case(longConst(0), inftyConst()),
-                                new Case(longConst(1), longConst(20000)),
-                                new Case(inftyConst(), inftyConst())),
-                                inftyConst()));
+                        DLOptionBean.INSTANCE.isUseIterativeReduceRule()?
+                        		ifZero(
+										FOSequence.INSTANCE,
+										new SwitchFeature(
+												TimeoutTestApplicationFeature.INSTANCE,
+												new Case(longConst(0),
+														inftyConst()),
+												new Case(longConst(1),
+														longConst(20000)),
+												new Case(inftyConst(),
+														inftyConst())),
+										inftyConst())
+                                :inftyConst());
             } else {
                 reduceSequence = ConditionalFeature.createConditional(
                         ReduceRule.INSTANCE, add(
