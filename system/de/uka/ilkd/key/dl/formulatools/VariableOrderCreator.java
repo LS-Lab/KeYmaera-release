@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import de.uka.ilkd.key.logic.IteratorOfConstrainedFormula;
@@ -38,13 +39,15 @@ public class VariableOrderCreator {
 	}
 
 	public static class VariableOrder implements TermOrder {
-		List<String> vars;
+		private List<String> vars;
+		private TreeMap<String, Integer> map;
 
 		/**
 		 * 
 		 */
-		public VariableOrder(List<String> vars) {
-			this.vars = vars;
+		public VariableOrder(TreeMap<String, Integer> vars) {
+			this.vars = new ArrayList<String>(vars.keySet());
+			this.map = vars;
 		}
 
 		/*
@@ -66,7 +69,7 @@ public class VariableOrderCreator {
 								newer = o1;
 							} else {
 								if (newer == o2) {
-									return 0;
+									return minComp(one, two);
 								}
 							}
 						} else if (r < 0) {
@@ -74,7 +77,7 @@ public class VariableOrderCreator {
 								newer = o2;
 							} else {
 								if (newer == o1) {
-									return 0;
+									return minComp(one, two);
 								}
 							}
 						}
@@ -83,7 +86,7 @@ public class VariableOrderCreator {
 							newer = o1;
 						} else {
 							if (newer == o2) {
-								return 0;
+								return minComp(one, two);
 							}
 						}
 					}
@@ -93,13 +96,35 @@ public class VariableOrderCreator {
 							newer = o2;
 						} else {
 							if (newer == o1) {
-								return 0;
+								return minComp(one, two);
 							}
 						}
 					}
 				}
 			}
-			return 0;
+			return (newer == o1) ? 1 : -1;
+		}
+
+		/**
+		 * @param one
+		 * @param two
+		 * @return
+		 */
+		private int minComp(int[] one, int[] two) {
+			int minOne = 0;
+			int minTwo = 0;
+			for (int i = 0; i < one.length; i++) {
+				Integer integer = map.get(vars.get(i));
+				int cur1 = integer - one[i];
+				int cur2 = integer - two[i];
+				if (cur1 < minOne) {
+					minOne = cur1;
+				}
+				if (cur2 < minTwo) {
+					minTwo = cur2;
+				}
+			}
+			return (minOne > minTwo) ? 1 : (minTwo > minOne) ? -1 : 0;
 		}
 
 		/**
@@ -139,29 +164,28 @@ public class VariableOrderCreator {
 
 	public static VariableOrder getVariableOrder(
 			IteratorOfConstrainedFormula iterator) {
-		TreeSet<String> variables = new TreeSet<String>();
+		TreeMap<String, Integer> variables = new TreeMap<String, Integer>();
 
 		while (iterator.hasNext()) {
 			Set<String> variableTerms = VariableCollector.getVariables(iterator
 					.next().formula());
 			for (String s : variableTerms) {
-				int underScores = 0;
-				int firstUscore = -1;
-				for (int i = 0; i < s.length(); i++) {
-					if (s.charAt(i) == '_') {
-						underScores++;
-						if (firstUscore == -1) {
-							firstUscore = i;
+				if (s.contains("_")) {
+					int i = Integer.parseInt(s.substring(s.indexOf('_') + 1));
+					s = s.substring(0, s.indexOf('_'));
+					if (variables.containsKey(s)) {
+						if (variables.get(s) < i) {
+							variables.put(s, i);
 						}
+					} else {
+						variables.put(s, i);
 					}
+				} else {
+					variables.put(s, 0);
 				}
-				if (firstUscore != -1) {
-					s = s.substring(0, firstUscore);
-				}
-				variables.add(s);
 			}
 		}
-		return new VariableOrder(new ArrayList<String>(variables));
+		return new VariableOrder(variables);
 	}
 
 }
