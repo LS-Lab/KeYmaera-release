@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -74,6 +75,27 @@ public class TermTools {
 	 */
 	public static final Term createJunctorTermNAry(Term c, Junctor op,
 			IteratorOfTerm i, Set<Term> skip) {
+		Term construct = c;
+		while (i.hasNext()) {
+			Term t = i.next();
+			if (!skip.contains(t)) {
+				construct = TermFactory.DEFAULT.createJunctorTermAndSimplify(
+						op, construct, t);
+			}
+		}
+		return construct;
+	}
+
+	/**
+	 * Explicit n-ary-fied version of {@link
+	 * de.uka.ilkd.logic.TermFactory#createJunctorTerm(Junctor,Term[])}.
+	 * 
+	 * @see orbital.logic.functor.Functionals#foldRight
+	 * @internal almost identical to
+	 * @see #createJunctorTermNAry(Term,Junctor,IteratorOfTerm)
+	 */
+	public static final Term createJunctorTermNAry(Term c, Junctor op,
+			Iterator<Term> i, Set<Term> skip) {
 		Term construct = c;
 		while (i.hasNext()) {
 			Term t = i.next();

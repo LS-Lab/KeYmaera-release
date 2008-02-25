@@ -5,9 +5,11 @@ package de.uka.ilkd.key.dl.rules;
 
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import java.util.Set;
 
 import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
@@ -88,42 +90,40 @@ public class IterativeReduceRule implements BuiltInRule, RuleFilter {
 		boolean automde = Main.getInstance().mediator().autoMode();
 		VariableOrder order = VariableOrderCreator.getVariableOrder(goal
 				.sequent().iterator());
-		ListOfTerm initAnte = createOrderedList(order, goal.sequent()
+		List<Term> initAnte = createOrderedList(order, goal.sequent()
 				.antecedent().iterator());
-		ListOfTerm initSucc = createOrderedList(order, goal.sequent()
+		List<Term> initSucc = createOrderedList(order, goal.sequent()
 				.succedent().iterator());
-		ListOfTerm ante = SLListOfTerm.EMPTY_LIST;
-		ListOfTerm succ = SLListOfTerm.EMPTY_LIST;
-		ListOfTerm usedAnte = SLListOfTerm.EMPTY_LIST;
-		ListOfTerm usedSucc = SLListOfTerm.EMPTY_LIST;
+		Queue<Term> ante = new LinkedList<Term>();
+		Queue<Term> succ = new LinkedList<Term>();
+		List<Term> usedAnte = new ArrayList<Term>();
+		List<Term> usedSucc = new ArrayList<Term>();
 		while (true) {
 			if(automde && !Main.getInstance().mediator().autoMode()) {
 				return null;
 			}
 			if (ante.isEmpty() && succ.isEmpty()) {
 				timeout *= 2;
-				ante = initAnte;
-				succ = initSucc;
-				usedAnte = SLListOfTerm.EMPTY_LIST;
-				usedSucc = SLListOfTerm.EMPTY_LIST;
+				ante.clear();
+				ante.addAll(initAnte);
+				succ.clear();
+				succ.addAll(initSucc);
+				usedAnte.clear();
+				usedSucc.clear();
 			}
 
 			while (!ante.isEmpty() || !succ.isEmpty()) {
 				if (!ante.isEmpty() && !succ.isEmpty()) {
-					if (order.compare(ante.head(), succ.head()) >= 0) {
-						usedAnte = usedAnte.append(ante.head());
-						ante = ante.removeFirst(ante.head());
+					if (order.compare(ante.peek(), succ.peek()) <= 0) {
+						usedAnte.add(ante.poll());
 					} else {
-						usedSucc = usedSucc.append(succ.head());
-						succ = succ.removeFirst(succ.head());
+						usedSucc.add(succ.poll());
 					}
 				} else {
 					if (!ante.isEmpty()) {
-						usedAnte = usedAnte.append(ante.head());
-						ante = ante.removeFirst(ante.head());
+						usedAnte.add(ante.poll());
 					} else if (!succ.isEmpty()) {
-						usedSucc = usedSucc.append(succ.head());
-						succ = succ.removeFirst(succ.head());
+						usedSucc.add(succ.poll());
 					}
 				}
 				Term and = TermTools.createJunctorTermNAry(TermBuilder.DF.tt(),
@@ -216,25 +216,14 @@ public class IterativeReduceRule implements BuiltInRule, RuleFilter {
 	 * @param iterator
 	 * @return
 	 */
-	private ListOfTerm createOrderedList(VariableOrder order,
+	private List<Term> createOrderedList(VariableOrder order,
 			IteratorOfConstrainedFormula iterator) {
-		ListOfTerm ante = SLListOfTerm.EMPTY_LIST;
+		List<Term> ante = new ArrayList<Term>();
 		while (iterator.hasNext()) {
-			IteratorOfTerm aIt = ante.iterator();
 			Term next = iterator.next().formula();
-			boolean inserted = false;
-			while (aIt.hasNext()) {
-				Term next2 = aIt.next();
-				if (order.compare(next, next2) >= 0) {
-					ante = ante.prepend(next);
-					inserted = true;
-					break;
-				}
-			}
-			if (!inserted) {
-				ante = ante.append(next);
-			}
+			ante.add(next);
 		}
+		Collections.sort(ante, order);
 		return ante;
 	}
 
