@@ -35,6 +35,7 @@ import de.uka.ilkd.key.dl.rules.EliminateQuantifierRule;
 import de.uka.ilkd.key.dl.rules.EliminateQuantifierRuleWithContext;
 import de.uka.ilkd.key.dl.rules.FindInstanceRule;
 import de.uka.ilkd.key.dl.rules.FindTransitionRule;
+import de.uka.ilkd.key.dl.rules.IterativeReduceRule;
 import de.uka.ilkd.key.dl.rules.ReduceRule;
 import de.uka.ilkd.key.dl.rules.SumOfSquaresRule;
 import de.uka.ilkd.key.dl.rules.VisualizationRule;
@@ -311,6 +312,7 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 
         setupDiffSatStrategy(d);
 
+        Feature iterative = inftyConst();
         if (DLOptionBean.INSTANCE.isCallReduce()) {
             if (DLOptionBean.INSTANCE.isUseTimeoutStrategy()) {
                 /*
@@ -326,9 +328,25 @@ public class DLStrategy extends AbstractFeatureStrategy implements
                         ifZero(FOSequence.INSTANCE, new SwitchFeature(
                                 TimeoutTestApplicationFeature.INSTANCE,
                                 new Case(longConst(0), longConst(-20000)),
-                                new Case(longConst(1), longConst(20000)),
+                                new Case(longConst(1), DLOptionBean.INSTANCE.
+                                		isUseIterativeReduceRule()?inftyConst():longConst(20000)),
                                 new Case(inftyConst(), inftyConst())),
                                 inftyConst()));
+                iterative = ConditionalFeature.createConditional(
+                        IterativeReduceRule.INSTANCE,
+                        DLOptionBean.INSTANCE.isUseIterativeReduceRule()?
+                        		ifZero(
+										FOSequence.INSTANCE,
+										new SwitchFeature(
+												TimeoutTestApplicationFeature.INSTANCE,
+												new Case(longConst(0),
+														inftyConst()),
+												new Case(longConst(1),
+														longConst(20000)),
+												new Case(inftyConst(),
+														inftyConst())),
+										inftyConst())
+                                :inftyConst());
             } else {
                 reduceSequence = ConditionalFeature.createConditional(
                         ReduceRule.INSTANCE, add(
@@ -385,7 +403,7 @@ public class DLStrategy extends AbstractFeatureStrategy implements
                 simplifierF, duplicateF, ifMatchedF, d, AgeFeature.INSTANCE,
                 reduceSequence, contextElimRule, eliminateQuantifier,
                 excludeRules, noQuantifierInstantition,
-                eliminateExistentialQuantifier });
+                eliminateExistentialQuantifier, iterative });
 
         approvalF = setupApprovalF(p_proof);
 

@@ -28,6 +28,7 @@ import de.uka.ilkd.key.dl.rules.DebugRule;
 import de.uka.ilkd.key.dl.rules.EliminateExistentialQuantifierRule;
 import de.uka.ilkd.key.dl.rules.FindInstanceRule;
 import de.uka.ilkd.key.dl.rules.FindTransitionRule;
+import de.uka.ilkd.key.dl.rules.IterativeReduceRule;
 import de.uka.ilkd.key.dl.rules.ReduceRule;
 import de.uka.ilkd.key.dl.rules.SumOfSquaresRule;
 import de.uka.ilkd.key.dl.rules.VisualizationRule;
@@ -131,7 +132,7 @@ public class DLProfile extends AbstractProfile {
         ListOfBuiltInRule rule = super.initBuiltInRules().prepend(
                 ReduceRule.INSTANCE).prepend(getUpdateSimplificationRule())
                 .prepend(FindInstanceRule.INSTANCE).prepend(EliminateExistentialQuantifierRule.INSTANCE).prepend(FindTransitionRule.INSTANCE);
-        rule = rule.prepend(VisualizationRule.INSTANCE).prepend(SumOfSquaresRule.INSTANCE);
+        rule = rule.prepend(VisualizationRule.INSTANCE).prepend(SumOfSquaresRule.INSTANCE).prepend(IterativeReduceRule.INSTANCE);
         if (Debug.ENABLE_DEBUG) {
             rule = rule.prepend(DebugRule.INSTANCE);
         }

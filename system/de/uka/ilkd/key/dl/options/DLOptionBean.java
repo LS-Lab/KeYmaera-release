@@ -188,12 +188,14 @@ public class DLOptionBean implements Settings {
 
 	private static final String DLOPTIONS_SIMPLIFY_TIMEOUT = "[DLOptions]simplifyTimeout";
 
+	private static final String DLOPTIONS_ITERATIVE_REDUCE_RULE = "[DLOptions]useIterativeReduceRule";
+
 	private Set<Settings> subOptions;
 
 	private boolean callReduce;
 
 	private long initialTimeout;
-
+	
 	private int quadraticTimeoutIncreaseFactor;
 
 	private int linearTimeoutIncreaseFactor;
@@ -241,6 +243,8 @@ public class DLOptionBean implements Settings {
 	private boolean ignoreAnnotations;
 
 	private int simplifyTimeout;
+	
+	private boolean useIterativeReduceRule;
 
 	private DLOptionBean() {
 		subOptions = new HashSet<Settings>();
@@ -268,6 +272,7 @@ public class DLOptionBean implements Settings {
 		invariantRule = InvariantRule.QUANTIFIERS;
 		diffSatStrategy = DiffSat.AUTO;
 		ignoreAnnotations = false;
+		useIterativeReduceRule = false;
 
 		listeners = new HashSet<SettingsListener>();
 	}
@@ -519,6 +524,10 @@ public class DLOptionBean implements Settings {
 		if (property != null) {
 			simplifyTimeout = Integer.parseInt(property);
 		}
+		property = props.getProperty(DLOPTIONS_ITERATIVE_REDUCE_RULE);
+		if (property != null) {
+			useIterativeReduceRule = Boolean.valueOf(property);
+		}
 	}
 
 	/*
@@ -581,6 +590,9 @@ public class DLOptionBean implements Settings {
 		props.setProperty(DLOPTIONS_DIFFSAT_TIMEOUT, "" + diffSatTimeout * 1000);
 		props.setProperty(DLOPTIONS_LOOPSAT_TIMEOUT, "" + loopSatTimeout * 1000);
 		props.setProperty(DLOPTIONS_SIMPLIFY_TIMEOUT, "" + simplifyTimeout);
+		
+		props.setProperty(DLOPTIONS_ITERATIVE_REDUCE_RULE, Boolean
+				.toString(useIterativeReduceRule));
 	}
 
 	public void addSubOptionBean(Settings sub) {
@@ -929,5 +941,20 @@ public class DLOptionBean implements Settings {
 			this.simplifyTimeout = simplifyTimeout;
 			firePropertyChanged();
 		}
+	}
+
+	/**
+	 * @return the useIterativeReduceRule
+	 */
+	public boolean isUseIterativeReduceRule() {
+		return useIterativeReduceRule;
+	}
+
+	/**
+	 * @param useIterativeReduceRule the useIterativeReduceRule to set
+	 */
+	public void setUseIterativeReduceRule(boolean useIterativeReduceRule) {
+		this.useIterativeReduceRule = useIterativeReduceRule;
+		firePropertyChanged();
 	}
 }

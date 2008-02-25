@@ -71,6 +71,11 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
                             "whether to activate the Iterative Background Closure (IBC) strategy with incremental timeouts. Otherwise, call reduce when first-order",
                             false, true),
                     createDescriptor(
+                            		"useIterativeReduceRule",
+                            		"Iterative Reduce",
+                            		"whether to activate the Iterative Background Closure (IBC) with increasingly bigger formulas.",
+                            		false, true),
+                    createDescriptor(
                             "initialTimeout",
                             "initial timeout",
                             "the timeout used in the first iteration of the IBC strategy (in seconds)",
