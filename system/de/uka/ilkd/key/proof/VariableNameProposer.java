@@ -163,7 +163,7 @@ public class VariableNameProposer implements InstantiationProposer {
     			
     		}
     	} 
-   		return basename + (index == 0 ? "" : SKOLEMTERM_VARIABLE_NAME_POSTFIX + "" + index);
+   		return basename + SKOLEMTERM_VARIABLE_NAME_POSTFIX + index;
     }
 
     public String getNameProposal(String basename, 

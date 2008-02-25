@@ -309,7 +309,9 @@ public class KeYMediator {
 	if (proof != null) {
 	    proof.addProofTreeListener(proofTreeListener);
 	    proof.mgt().setMediator(this);
-	    proof.setSimplifier(upd_simplifier);
+	    if(proof.simplifier() == null) {
+	    	proof.setSimplifier(upd_simplifier);
+	    }
 	}
         //TODO: refactor statistic generator
         // add the timestatistic generator
