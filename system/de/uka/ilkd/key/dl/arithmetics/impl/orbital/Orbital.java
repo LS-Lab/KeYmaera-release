@@ -42,6 +42,7 @@ import orbital.math.Real;
 import orbital.math.Scalar;
 import orbital.math.Symbol;
 import orbital.math.UnivariatePolynomial;
+import orbital.math.ValueFactory;
 import orbital.math.Values;
 import orbital.math.functional.Function;
 import orbital.math.functional.Operations;
@@ -270,6 +271,7 @@ public class Orbital implements IODESolver {
                 }
             }
         } else if (next instanceof Scalar) {
+            next = Values.getDefault().narrow((Scalar) next);
             if (next instanceof Integer) {
                 Integer i = (Integer) next;
                 return TermBuilder.DF.func(NumberCache.getNumber(

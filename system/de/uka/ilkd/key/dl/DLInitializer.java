@@ -256,7 +256,7 @@ public class DLInitializer {
                 {
                     JOptionPane.showMessageDialog(main,
                             "Information and documentation on using KeYmaera,\nthe syntax of its specification language, and\nits verification features, is available on the web:\n"
-                            + "see KeYmaera Tutorial at http://www.functologic.com/info/KeYmaera-guide.html",                   
+                            + "see KeYmaera Tutorial at\n    http://www.functologic.com/info/KeYmaera-guide.html",                   
                     "KeYmaera Documentation", JOptionPane.INFORMATION_MESSAGE);
                 }
             }

@@ -177,22 +177,15 @@ public class DL2MatrixFormConverter {
             }
         } else if (m instanceof Constant) {
             Constant c = (Constant) m;
-            // try {
-            // val.res = val.res.multiply(Values.getDefault()
-            // .valueOf(
-            // c.getValue()
-            // .longValueExact()));
-            // } catch (ArithmeticException e) {
-            // val.res = val.res
-            // .multiply(Values
-            // .getDefault()
-            // .valueOf(
-            // c
-            // .getValue()
-            // .doubleValue()));
-            // }
-            val.res = val.res.multiply(Values.getDefault()
+            // convert integers to orbital integers and proper decimals to orbital reals 
+            try {
+                val.res = val.res.multiply(Values.getDefault()
+                        .valueOf(c.getValue().toBigIntegerExact()));
+            }
+            catch (ArithmeticException floaty) {
+                val.res = val.res.multiply(Values.getDefault()
                     .valueOf(c.getValue()));
+            }
         } else if (m instanceof FunctionTerm) {
             FunctionTerm ft = (FunctionTerm) m;
             ProgramElement childAt = ft.getChildAt(0);
