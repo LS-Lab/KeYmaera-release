@@ -31,6 +31,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.ServerSocket;
 import java.rmi.RemoteException;
 import java.util.Set;
+import java.io.*;
 
 import javax.swing.JComponent;
 import javax.swing.JMenu;
@@ -99,10 +100,12 @@ public class DLInitializer {
                             + "Arithmetic Solver: "
                             + (((double) TimeStatisticGenerator.INSTANCE
                                     .getTotalCaclulationTime()) / 1000d);
+					StringWriter writer = new StringWriter();
+					new PrintWriter(writer).printf("%.3f Mb", ((TimeStatisticGenerator.INSTANCE
+                                .getTotalMemory()) / 1024d / 1024d));
                     stats += "\n"
                         + "Arithmetic Memory: "
-                        + (((long)((double) TimeStatisticGenerator.INSTANCE
-                                .getTotalMemory()) / 1024d / 1024d*1000)/1000) + " Mb";
+                        + writer.toString();
                     stats += "\n"
                             + "CachedAnwsers/Queries: "
                             + TimeStatisticGenerator.INSTANCE
