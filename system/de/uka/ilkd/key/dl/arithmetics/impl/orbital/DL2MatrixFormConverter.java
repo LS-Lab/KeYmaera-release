@@ -167,13 +167,17 @@ public class DL2MatrixFormConverter {
         if (m instanceof Variable) {
             Variable variable = (Variable) m;
             String name = variable.getElementName().toString();
+            // if its a variable altered in the differential equation system, we have to write it into the matrix
+            // if its a parameter variable we have to set the constant part to m
             if (variables.contains(name)) {
                 if (val.variableName.equals(CONSTANT)) {
-                    val.variableName = name;
+                	val.variableName = name;
                 } else {
                     throw new IllegalStateException(
                             "Dont know what to do with the multiplication of two program variables");
                 }
+            } else {
+        		val.res = Values.getDefault().symbol(name);
             }
         } else if (m instanceof Constant) {
             Constant c = (Constant) m;
