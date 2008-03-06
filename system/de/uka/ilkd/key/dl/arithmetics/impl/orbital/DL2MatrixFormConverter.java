@@ -118,7 +118,10 @@ public class DL2MatrixFormConverter {
 	}
 
 	/**
-	 * TODO jdq documentation since Aug 20, 2007
+	 * Create a row in the table. The matrix represents the whole system of
+	 * differential equations. Each row is a differential equation represented
+	 * by the factors before the dotted variables and a constant vector that is
+	 * added to this matrix.
 	 * 
 	 * @param rows
 	 * @param diffeq

@@ -135,8 +135,11 @@ import de.uka.ilkd.key.java.statement.Default;
 import de.uka.ilkd.key.java.statement.Do;
 import de.uka.ilkd.key.java.statement.Else;
 import de.uka.ilkd.key.java.statement.EmptyStatement;
+import de.uka.ilkd.key.java.statement.EnhancedFor;
 import de.uka.ilkd.key.java.statement.Finally;
 import de.uka.ilkd.key.java.statement.For;
+import de.uka.ilkd.key.java.statement.IForUpdates;
+import de.uka.ilkd.key.java.statement.ILoopInit;
 import de.uka.ilkd.key.java.statement.If;
 import de.uka.ilkd.key.java.statement.LabeledStatement;
 import de.uka.ilkd.key.java.statement.MethodBodyStatement;
@@ -1946,6 +1949,51 @@ public class PrettyPrinter {
         }
     }
 
+    public void printEnhancedFor(EnhancedFor x) throws IOException {
+        printHeader(x);
+        writeInternalIndentation(x);
+        output();
+
+        // Mark statement start ...
+        markStart(0, x);
+
+        write("for (");
+        noLinefeed = true;
+        noSemicolons = true;
+
+        ArrayOfLoopInitializer initializers = x.getInitializers();
+        if(initializers != null) {
+            LoopInitializer loopInit = initializers.getLoopInitializer(0);
+            writeElement(1, loopInit);
+        }
+        
+        write(" : ");
+        
+        if(x.getGuard() != null)
+            writeElement(1, x.getGuardExpression());
+        
+        write(")");
+        output();
+        noLinefeed = false;
+        noSemicolons = false;
+        
+        if (x.getBody() == null || x.getBody() instanceof EmptyStatement) {
+            write(";");
+        } else {
+            if (x.getBody() instanceof StatementBlock) {
+                writeElement(1, 0, x.getBody());
+            } else {
+                writeElement(1, +1, 0, x.getBody());
+                changeLevel(-1);
+            }
+        }
+
+        // Mark statement end ...
+        markEnd(0, x);
+
+        printFooter(x);
+    }
+
     public void printFor(For x) throws java.io.IOException {
         printHeader(x);
         writeInternalIndentation(x);
@@ -1958,9 +2006,16 @@ public class PrettyPrinter {
         noLinefeed = true;
         noSemicolons = true;
         write(" ");
-        if (x.getInitializers() != null) {
-            writeCommaList(x.getInitializers());
-        }
+
+        // there is no "getLoopInit" method
+        // so get the first child of the for loop
+        ILoopInit init = x.getILoopInit();
+        if(init != null) {
+            if(init instanceof ProgramSV)
+                writeElement(init);
+            else
+                writeCommaList(x.getInitializers());
+        } 
         noSemicolons = false;
         write("; ");
         output();
@@ -1972,8 +2027,13 @@ public class PrettyPrinter {
         write("; ");
         output();
         noSemicolons = true;
-        if (x.getUpdates() != null) {
-            writeCommaList(0, 0, 1, x.getUpdates());
+        
+        IForUpdates upd = x.getIForUpdates();
+        if(upd != null) {
+            if(upd instanceof ProgramSV)
+                writeElement(1, upd);
+            else
+                writeCommaList(0, 0, 1, x.getUpdates());
         }
         write(" ");
         write(")");
