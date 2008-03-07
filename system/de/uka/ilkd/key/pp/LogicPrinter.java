@@ -1376,8 +1376,22 @@ public class LogicPrinter {
         return result>0 ? result : -1;
 
     }
-
-    String[] setupUpdateSeparators (final Operator loc, final Term t)
+    
+    /**
+     * setup the separators to be printed between the sub-terms of an update
+     * location.
+     * 
+     * The top entity of the update loc is printed by this method.
+     * 
+     * @param loc
+     *            location to write to
+     * @param t
+     *            term to assign
+     * @return an array of separating strings (elements may be "[" "]" "," ")" )
+     * @throws IOException
+     *             if thrown by layouter
+     */
+    private String[] setupUpdateSeparators (final Operator loc, final Term t)
                                                 throws IOException {
         String[] separator = new String [loc.arity ()];
         if ( loc instanceof AttributeOp ) {
@@ -1390,6 +1404,7 @@ public class LogicPrinter {
             layouter.print( loc.name ().toString ().replaceAll ( "::", "." ) );
         } else {
             layouter.print ( loc.name().toString() + "(" );
+            // bugfix: was "m = 1;..." which made separator[0]==null
             for ( int m = 0; m < loc.arity () - 1; m++ ) {
                 separator[m] = ",";
             }
@@ -1480,8 +1495,7 @@ public class LogicPrinter {
      * variable name with colon and sort.
      *
      * @param name the name of the quantifier
-     * @param var  the quantified variable (+colon and sort)
-     * @param sep  the separator (usually a dot)
+     * @param vars  the quantified variables (+colon and sort)
      * @param phi  the quantified formula
      * @param ass  associativity for phi
      */

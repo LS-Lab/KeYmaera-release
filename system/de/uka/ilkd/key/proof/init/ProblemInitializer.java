@@ -184,9 +184,7 @@ public class ProblemInitializer {
 	int i = 0;
 	while(it.hasNext()){
 	    String name = (String) it.next();
-	    keyFile[i++] = new KeYFile(name, 
-				       in.get(name), 
-				       pm, false);
+	    keyFile[i++] = new KeYFile(name, in.get(name), pm);
 	}
 	LDTInput ldtInp = new LDTInput(keyFile, main);
 	
@@ -214,9 +212,7 @@ public class ProblemInitializer {
 	Iterator it = in.getIncludes().iterator();
 	while(it.hasNext()){
 	    String fileName = (String) it.next();
-	    KeYFile keyFile = new KeYFile(fileName, 
-					  in.get(fileName),
-					  pm, false);
+	    KeYFile keyFile = new KeYFile(fileName, in.get(fileName), pm);
 	    readEnvInput(keyFile, initConfig, readLibraries);
 	}
     }
@@ -225,7 +221,8 @@ public class ProblemInitializer {
     /** 
      * Helper for readEnvInput().
      */
-    private void readLibraries(EnvInput envInput, InitConfig initConfig) throws ProofInputException {
+    private void readLibraries(EnvInput envInput, InitConfig initConfig) 
+            throws ProofInputException {
         reportStatus("Loading Libraries");
         
         HashMap libraries = envInput.readLibrariesSettings().getLibraries();
@@ -244,7 +241,7 @@ public class ProblemInitializer {
                 } else {
                     rs = RuleSource.initRuleFile(fileName);
                 }
-                KeYFile keyFile = new KeYFile(fileName, rs, pm, false);
+                KeYFile keyFile = new KeYFile(fileName, rs, pm);
                 readEnvInput(keyFile, initConfig);
             }
         }
@@ -253,6 +250,8 @@ public class ProblemInitializer {
     
         
     /**
+     * get a vector of Strings containing all .java file names 
+     * in the cfile directory.
      * Helper for readJava().
      */
     private Vector getClasses(String f) throws ProofInputException  {
@@ -337,8 +336,9 @@ public class ProblemInitializer {
             if(searchPathList.find(javaPath) == null) {
                 searchPathList.add(javaPath);
             }
-            Recoder2KeY r2k = new Recoder2KeY(initConfig.getServices(), initConfig.namespaces());
-            if (javaPath == "") {             
+            Recoder2KeY r2k = new Recoder2KeY(initConfig.getServices(), 
+                                              initConfig.namespaces());
+            if (javaPath == "") {
                 r2k.parseSpecialClasses();
                 initConfig.getProofEnv().setJavaModel(JavaModel.NO_MODEL);
             } else {                 
@@ -522,7 +522,7 @@ public class ProblemInitializer {
     	    	KeYFile tacletBaseFile
     	    	    = new KeYFile("taclet base", 
     	    		          profile.getStandardRules().getTacletBase(),
-			          pm, false);
+			          pm);
     	    	readEnvInput(tacletBaseFile, lastBaseConfig, false);
 	    }
 	}

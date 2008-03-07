@@ -156,7 +156,7 @@ fi
 # KeY CLASSPATH
 #
 
-key_ext_jars="antlr.jar antlr3.jar stringtemplate.jar jargs.jar recoder.jar dresden-ocl-demo.jar xerces.jar log4j.jar JLink/JLink.jar orbital-ext.jar orbital-core.jar"
+key_ext_jars="antlr.jar antlr3.jar stringtemplate.jar jargs.jar recoderKey.jar dresden-ocl-demo.jar xerces.jar log4j.jar JLink/JLink.jar orbital-ext.jar orbital-core.jar"
 
 keyclasspath="$KEY_HOME/system/binary/"
 
