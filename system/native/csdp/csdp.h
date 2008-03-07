@@ -3,22 +3,22 @@
 
 #include<jni.h>
 
-typedef jdoubleArray bmatrix;
-typedef jdoubleArray cmatrix;
+#define BMATRIX jdoubleArray
+#define CMATRIX jdoubleArray
 
 JNIEXPORT jint JNICALL
-Java_de_uka_ilkd_key_dl_arithmetics_impl_csdp_CSDP_easy_spd(JNIEnv * env,
+Java_de_uka_ilkd_key_dl_arithmetics_impl_csdp_CSDP_easy_SDP(JNIEnv * env,
 															jclass clazz,
 															jint n, jint k,
-															bmatrix C,
+															BMATRIX C,
 															jdoubleArray a,
-															cmatrix
+															CMATRIX
 															constraints,
 															jdouble
 															constant_offset,
-															bmatrix pX,
+															BMATRIX pX,
 															jdoubleArray py,
-															bmatrix pZ,
+															BMATRIX pZ,
 															jdoubleArray
 															ppobj,
 															jdoubleArray
