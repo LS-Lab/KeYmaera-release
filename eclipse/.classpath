@@ -10,8 +10,6 @@
 	<classpathentry exported="true" kind="lib" path="key_lib/recoder.jar"/>
 	<classpathentry exported="true" kind="lib" path="key_lib/antlr.jar"/>
 	<classpathentry kind="lib" path="key_lib/JLink/JLink.jar"/>
-	<classpathentry kind="lib" path="key_lib/orbital-ext.jar" sourcepath="/disk/or/c2t0d0s2/home/fb10-sem/andre/workspace/orbital/src"/>
-	<classpathentry kind="lib" path="key_lib/orbital-core.jar" sourcepath="/home/andre/workspace/orbital/src"/>
 	<classpathentry kind="lib" path="key_lib/antlr3.jar"/>
 	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry exported="true" kind="lib" path="key_lib/xerces.jar"/>
@@ -20,5 +18,6 @@
 	<classpathentry kind="lib" path="tcc_modules/modules"/>
 	<classpathentry kind="lib" path="key_lib/antlr-3.0b5/lib/antlr-2.7.7.jar"/>
 	<classpathentry kind="lib" path="key_lib/antlr-3.0b5/lib/stringtemplate-3.0.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/orbital"/>
 	<classpathentry kind="output" path="system/binary/"/>
 </classpath>
