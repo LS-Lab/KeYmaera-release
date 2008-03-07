@@ -17,7 +17,7 @@ Java_de_uka_ilkd_key_dl_arithmetics_impl_csdp_CSDP_easy_spd(JNIEnv * env,
 															jdouble
 															constant_offset,
 															bmatrix pX,
-															jdoubleArray pY,
+															jdoubleArray py,
 															bmatrix pZ,
 															jdoubleArray
 															ppobj,
