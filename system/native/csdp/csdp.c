@@ -176,7 +176,7 @@ Java_de_uka_ilkd_key_dl_arithmetics_impl_csdp_CSDP_easySDP(JNIEnv * env,
 						  (double) constant_offset, &X, &y, &Z, &pobj,
 						  &dobj);
 
-	printf("result is: %d", result);
+	printf("result is: %d\n", result);
 
 	/*insert_results_bmatrix(env, pX, _pX);
 	insert_results_array2D(env, py, _py);
