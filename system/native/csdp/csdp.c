@@ -10,7 +10,7 @@ double *convert_jdoubleArray_to_double_range(JNIEnv * env, jdoubleArray array,
 		(jdouble *) (*env)->GetDoubleArrayElements(env, array, 0);
 	int size = (*env)->GetArrayLength(env, array);
 	assert(count - from <= size && from < size);
-	double *result = malloc(sizeof(double) * count);
+	double *result = malloc(sizeof(double) * (count+1));
 	int j;
 	for (j = 0; j <= count; j++) {
 		result[j] = element[from + j];
@@ -102,13 +102,6 @@ void insert_results_array2D(JNIEnv * env, jdoubleArray out, double **in)
 #warning implement
 }
 
-void free_matrix(struct blockmatrix *matrix)
-{
-#warning is this enough to free the double*?
-	free(matrix->blocks[0].data.mat);
-	free(matrix);
-}
-
 JNIEXPORT jint JNICALL
 Java_de_uka_ilkd_key_dl_arithmetics_impl_csdp_CSDP_easySDP(JNIEnv * env,
 														   jclass clazz,
@@ -177,11 +170,11 @@ Java_de_uka_ilkd_key_dl_arithmetics_impl_csdp_CSDP_easySDP(JNIEnv * env,
 	insert_results_array(env, ppobj, _ppobj);
 	insert_results_array(env, pdobj, _pdobj);
 
-	free_matrix(_C);
-	free_matrix(_pX);
-	free_matrix(_pZ);
-	free(_a);
+	free_prob(n,k,*_C,_a,_constraints,*_pX,*_py,*_pZ);
+	free(_C);
+	free(_pX);
 	free(_py);
+	free(_pZ);
 	free(_ppobj);
 	free(_pdobj);
 	return result;
