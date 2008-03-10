@@ -1,12 +1,13 @@
 #include<stdlib.h>
+#include<assert.h>
 #include<declarations.h>
 #include"csdp.h"
 
 double *convert_jdoubleArray_to_double_range(JNIEnv * env, jdoubleArray array,
 											 int from, int count)
 {
-	jdouble *element = (jdouble *) GetdoubleArrayElements(env, array, 0);
-	int size = GetArrayLength(env, array);
+	jdouble *element = (jdouble *) (*env)->GetDoubleArrayElements(env, array, 0);
+	int size = (*env)->GetArrayLength(env, array);
 	assert(count - from <= size && from < size);
 	double *result = malloc(sizeof(double) * count);
 	int j;
@@ -18,7 +19,7 @@ double *convert_jdoubleArray_to_double_range(JNIEnv * env, jdoubleArray array,
 
 double *convert_jdoubleArray_to_double(JNIEnv * env, jdoubleArray array)
 {
-	int size = GetArrayLength(env, array);
+	int size = (*env)->GetArrayLength(env, array);
 	return convert_jdoubleArray_to_double_range(env, array, 0, size);
 }
 
