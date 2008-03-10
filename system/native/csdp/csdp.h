@@ -23,5 +23,8 @@ Java_de_uka_ilkd_key_dl_arithmetics_impl_csdp_CSDP_easy_SDP(JNIEnv * env,
 															ppobj,
 															jdoubleArray
 															pdobj);
+JNIEXPORT jint JNICALL
+Java_de_uka_ilkd_key_dl_arithmetics_impl_csdp_CSDP_test(JNIEnv * env,
+														   jclass clazz);
 
 #endif
