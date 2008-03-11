@@ -13,6 +13,7 @@ package de.uka.ilkd.key.proof;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.Iterator;
 import java.util.Vector;
 
 import de.uka.ilkd.key.gui.IMain;
@@ -78,9 +79,9 @@ public class ProofSaver {
     StringBuffer logstr=new StringBuffer();
     //Advance the Logentries
     if(p.userLog==null)
-        p.userLog = new Vector();
+        p.userLog = new Vector<String>();
     if(p.keyVersionLog==null)
-        p.keyVersionLog = new Vector();
+        p.keyVersionLog = new Vector<String>();
     p.userLog.add(System.getProperty("user.name"));
     p.keyVersionLog.add(main.getInternalVersion());
     int s = p.userLog.size();
@@ -93,140 +94,140 @@ public class ProofSaver {
    }
        
 
-    public String writeSettings(ProofSettings ps) {
-        return new String("\\settings {\n\"" + ps.settingsToString()
-                + "\"\n}\n");
+   private StringBuffer collectProof(Node node, String prefix, 
+                                     StringBuffer tree) {       
+
+      printSingleNode(node, prefix, tree);
+      Iterator<Node> childrenIt = null;
+      
+      while (node.childrenCount() == 1) {
+          childrenIt = node.childrenIterator();
+          node = childrenIt.next();
+          printSingleNode(node, prefix, tree);
+      }
+
+
+      if (node.childrenCount() == 0) return tree;
+
+      childrenIt = node.childrenIterator();
+
+      while (childrenIt.hasNext()) {
+         Node child = childrenIt.next();
+         tree.append(prefix);            
+         tree.append("(branch \" "+child.getNodeInfo().getBranchLabel().replaceAll("\\\\","\\\\\\\\")+"\"\n");
+	 collectProof(child, prefix+"   ", tree);
+         tree.append(prefix+")\n");
+      }
+
+      return tree;
+   }
+
+  
+   private void userInteraction2Proof(Node node, StringBuffer tree) {
+       if (node.getNodeInfo().getInteractiveRuleApplication()) 
+           tree.append(" (userinteraction)");
+   }
+
+
+   public String node2Proof(Node node) {
+       StringBuffer tree=new StringBuffer();
+       String s = "(branch \"dummy ID\"\n"+collectProof(node, "",tree)+")\n"; 
+       return s;
+   }
+
+
+    public String posInOccurrence2Proof(Sequent seq, PosInOccurrence pos) {
+        if (pos == null) return "";
+        return " (formula \""+seq.formulaNumberInSequent(pos.isInAntec(),
+                pos.constrainedFormula())+"\")"+
+                posInTerm2Proof(pos.posInTerm());
     }
 
-    public String save() {
-        String errorMsg = null;
-        FileOutputStream fos = null;
-        PrintStream ps = null;
+   
 
-        try {
-            fos = new FileOutputStream(filename);
-            ps = new PrintStream(fos);
+   public String posInTerm2Proof(PosInTerm pos) {
+      if (pos == PosInTerm.TOP_LEVEL) return "";
+      String s = " (term \"";
+      String list = pos.integerList(pos.reverseIterator()); // cheaper to read in
+      s = s + list.substring(1,list.length()-1); // chop off "[" and "]"
+      s = s + "\")";
+      return s;
+   }
+   
+   
 
-            Sequent problemSeq = proof.root().sequent();
-            printer = createLogicPrinter(proof.getServices(), false);
 
-            ps.println(writeSettings(proof.getSettings()));
-            ps.print(proof.header());
-            ps.println("\\problem {");
-            printer.printSemisequent(problemSeq.succedent());
-            ps.println(printer.result());
-            ps.println("}\n");
-            // ps.println(mediator.sort_ns());
-            ps.println("\\proof {");
-            ps.println(writeLog(proof));
-            ps.println(node2Proof(proof.root()));
-            ps.println("}");
+   public String getInteresting(SVInstantiations inst) {
+//System.err.println(inst);   
+      String s = "";
+      IteratorOfEntryOfSchemaVariableAndInstantiationEntry pairIt =
+         inst.interesting().entryIterator();
 
-        } catch (IOException ioe) {
-            errorMsg = "Could not save \n" + filename + ".\n";
-            errorMsg += ioe.toString();
-        } catch (NullPointerException npe) {
-            errorMsg = "Could not save \n" + filename + "\n";
-            errorMsg += "No proof present?";
-            npe.printStackTrace();
-        } catch (Exception e) {
-            errorMsg = e.toString();
-            e.printStackTrace();
-        } finally {
-            try {
-                if (fos != null)
-                    fos.close();
-            } catch (IOException ioe) {
-                mediator.notify(new GeneralFailureEvent(ioe.toString()));
-            }
-        }
-        return errorMsg; // null if success
-    }
+      while (pairIt.hasNext()) {
+         EntryOfSchemaVariableAndInstantiationEntry pair = pairIt.next();
+         SchemaVariable var = pair.key();
+	 s += " (inst \""+var.name()+"=";
+	 Object value = pair.value();
+	 if (value instanceof TermInstantiation) {
+	     s += printTerm(((TermInstantiation) value).getTerm(), 
+	                    proof.getServices());
+	 }
+         else
+	 if (value instanceof ProgramInstantiation) {
+	     ProgramElement pe = 
+		 ((ProgramInstantiation) value).getProgramElement();
+	     s += printProgramElement(pe);
+	 }
+         else
+	 if (value instanceof NameInstantiationEntry) {
+	     s += ((NameInstantiationEntry) value).getInstantiation();
+	 }
+         else 
+         if (value instanceof ListInstantiation) {
+             ListOfObject l = (ListOfObject) ((ListInstantiation) value).getInstantiation();
+             s += printListInstantiation(l, proof.getServices());
+         }
+         else
+             throw new RuntimeException("Saving failed.\n"+
+           "FIXME: Unhandled instantiation type: " +  value.getClass());
+	 s += "\")";
+      }
+      // WATCHOUT: Woj: again, quote backslashes
+      s = s.replaceAll("\\\\","\\\\\\\\");
+      return s;
+   }
+   
+   
 
-    private void printSingleNode(Node node, String prefix, StringBuffer tree) {
+   public static String printListInstantiation(ListOfObject l, Services serv) {
+       final StringBuffer sb = new StringBuffer("{");
+       final IteratorOfObject it = l.iterator();
+       while (it.hasNext()) {
+           final Object next = it.next();
+           if (next instanceof LocationDescriptor) {
+               sb.append(printLocationDescriptor(
+	           (LocationDescriptor)next, serv));
+           } else {
+               throw new RuntimeException("Unexpected entry in " +
+                        "ListInstantiation");               
+           }
+           if (it.hasNext()) sb.append(",");
+       }
+       sb.append("}");
+       return sb.toString();
+   }
 
-        RuleApp appliedRuleApp = node.getAppliedRuleApp();
-        if (appliedRuleApp == null && (proof.getGoal(node) != null)) { // open
-                                                                        // goal
-            tree.append(prefix);
-            tree.append("(opengoal \"");
-            LogicPrinter logicPrinter = createLogicPrinter(proof.getServices(),
-                    false);
-
-            logicPrinter.printSequent(node.sequent());
-            // WATCHOUT Woj: replaceAll... is necessary for the newly introduced
-            // backslash
-            // notation in the parser
-            tree.append(printer.result().toString().replace('\n', ' ')
-                    .replaceAll("\\\\", "\\\\\\\\"));
-            tree.append("\")\n");
-            return;
-        }
-
-        if (appliedRuleApp instanceof TacletApp) {
-            tree.append(prefix);
-            tree.append("(rule \"");
-            tree.append(appliedRuleApp.rule().name());
-            tree.append("\"");
-            tree.append(posInOccurrence2Proof(node.sequent(), appliedRuleApp
-                    .posInOccurrence()));
-            tree.append(getInteresting(((TacletApp) appliedRuleApp)
-                    .instantiations()));
-            ListOfIfFormulaInstantiation l = ((TacletApp) appliedRuleApp)
-                    .ifFormulaInstantiations();
-            if (l != null)
-                tree.append(ifFormulaInsts(node, l));
-            tree.append("");
-            userInteraction2Proof(node, tree);
-            tree.append(")\n");
-        }
-
-        if (appliedRuleApp instanceof BuiltInRuleApp) {
-            tree.append(prefix);
-            tree.append("(builtin \"");
-            tree.append(appliedRuleApp.rule().name().toString());
-            tree.append("\"");
-            tree.append(posInOccurrence2Proof(node.sequent(), appliedRuleApp
-                    .posInOccurrence()));
-            if (appliedRuleApp instanceof ReduceRuleApp) {
-                if (!((ReduceRuleApp) appliedRuleApp).getVariables().isEmpty()) {
-                    tree.append(" (reduceVariables \"");
-                    String comma = "";
-                    for (String str : ((ReduceRuleApp) appliedRuleApp)
-                            .getVariables()) {
-                        tree.append(comma + str);
-                        comma = ", ";
-                    }
-                    tree.append("\")");
-                }
-            }
-            tree.append(")\n");
-        }
-    }
-
-    private StringBuffer collectProof(Node node, String prefix,
-            StringBuffer tree) {
-
-        printSingleNode(node, prefix, tree);
-        IteratorOfNode childrenIt = null;
-
-        while (node.childrenCount() == 1) {
-            childrenIt = node.childrenIterator();
-            node = childrenIt.next();
-            printSingleNode(node, prefix, tree);
-        }
-
-        if (node.childrenCount() == 0)
-            return tree;
-
-        childrenIt = node.childrenIterator();
-
-        while (childrenIt.hasNext()) {
-            Node child = childrenIt.next();
-            tree.append(prefix);
-            String branchLabel = child.getNodeInfo().getBranchLabel();
-            if(branchLabel == null) {
-                branchLabel = "Case";
+   public String ifFormulaInsts(Node node, ListOfIfFormulaInstantiation l) {
+      String s ="";
+      IteratorOfIfFormulaInstantiation it = l.iterator();
+      while (it.hasNext()) {
+         IfFormulaInstantiation iff = it.next();
+         if (iff instanceof IfFormulaInstSeq) {
+            ConstrainedFormula f = iff.getConstrainedFormula();
+            s+= " (ifseqformula \"" + 
+                node.sequent().formulaNumberInSequent(
+                        ((IfFormulaInstSeq)iff).inAntec(),f) + 
+                        "\")";
             }
             tree.append("(branch \" "
                     + branchLabel.replaceAll("\\\\",

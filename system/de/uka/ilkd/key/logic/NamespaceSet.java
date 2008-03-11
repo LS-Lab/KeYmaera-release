@@ -10,9 +10,9 @@
 
 package de.uka.ilkd.key.logic;
 
-import java.io.Serializable;
+import java.util.Iterator;
 
-public class NamespaceSet implements Serializable {
+public class NamespaceSet {
 
     private Namespace varNS=new Namespace();
     private Namespace progVarNS=new Namespace();
@@ -155,7 +155,7 @@ public class NamespaceSet implements Serializable {
       final Namespace[] myNames = asArray();
       final Namespace[] otherNames = nss.asArray();
       for (int i = 0; i<myNames.length; i++) {
-          final IteratorOfNamed it = otherNames[i].getProtocolled();
+          final Iterator<Named> it = otherNames[i].getProtocolled();
           while (it.hasNext()) {
               myNames[i].add(it.next());
           }

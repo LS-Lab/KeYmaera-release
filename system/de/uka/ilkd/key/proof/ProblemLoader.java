@@ -87,8 +87,7 @@ public class ProblemLoader implements Runnable {
     KeYMediator mediator;
 
     Proof proof = null;
-
-    IteratorOfNode children = null;
+    Iterator<Node> children = null;
 
     Node currNode = null;
 
@@ -393,14 +392,14 @@ public class ProblemLoader implements Runnable {
             }
             
             break;
-        case 'u': // UserLog
-            if (proof.userLog == null)
-                proof.userLog = new Vector();
+        case 'u' : //UserLog
+            if(proof.userLog==null)
+                proof.userLog = new Vector<String>();
             proof.userLog.add(s);
             break;
-        case 'v': // Version log
-            if (proof.keyVersionLog == null)
-                proof.keyVersionLog = new Vector();
+        case 'v' : //Version log
+            if(proof.keyVersionLog==null)
+                proof.keyVersionLog = new Vector<String>();
             proof.keyVersionLog.add(s);
             break;
         case 's': // ProofSettings
@@ -436,10 +435,10 @@ public class ProblemLoader implements Runnable {
     public void endExpr(char id, int linenr) {
         // System.out.println("end "+id);
         switch (id) {
-        case 'b':
-            children = (IteratorOfNode) stack.pop();
+        case 'b' :
+            children = (Iterator<Node>) stack.pop();
             break;
-        case 'a':
+        case 'a' :
             if (currNode != null) {
                 currNode.getNodeInfo().setInteractiveRuleApplication(true);
             }
