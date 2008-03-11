@@ -84,12 +84,66 @@ public class CSDP {
 			double[] a, double[] constraints, double constant_offset,
 			double[] blockmatrixpX, double[] py, double[] blockmatrixpZ,
 			double[] ppobj, double[] pdobj);
+	
+	private static native int test();
 
 	public static void main(String[] args) {
+		System.loadLibrary("lapack");
+		System.loadLibrary("blas");
+		System.loadLibrary("m");
 		System.loadLibrary("csdp");
-		easySDP(1, 1, new double[] { 0d }, new double[] { 0 },
-				new double[] { 0 }, 0, new double[] { 0 }, new double[] { 0 },
-				new double[] { 0 }, new double[] { 0 }, new double[] { 0 });
+//		System.loadLibrary("sdp");
+		easySDP(7, 2, new double[] { 
+				2, 1, 0, 0, 0, 0, 0,
+				1, 2, 0, 0, 0, 0, 0,
+				0, 0, 3, 0, 1, 0, 0, 
+				0, 0, 0, 2, 0, 0, 0, 
+				0, 0, 1, 0, 3, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 
+				0, 0, 0, 0, 0, 0, 0 }, 
+				
+				new double[] { 1, 2 },
+				
+				new double[] { 
+				3, 1, 0, 0, 0, 0, 0, 
+				1, 3, 0, 0, 0, 0, 0, 
+				0, 0, 0, 0, 0, 0, 0, 
+				0, 0, 0, 0, 0, 0, 0, 
+				0, 0, 0, 0, 0, 0, 0, 
+				0, 0, 0, 0, 0, 1, 0, 
+				0, 0, 0, 0, 0, 0, 0, 
+				
+				0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 
+				0, 0, 3, 0, 1, 0, 0,
+				0, 0, 0, 4, 0, 0, 0, 
+				0, 0, 1, 0, 5, 0, 0, 
+				0, 0, 0, 0, 0, 0, 0, 
+				0, 0, 0, 0, 0, 0, 1 }, 0,
+				new double[] { 0 }, new double[] { 0 }, new double[] { 0 },
+				new double[] { 0 }, new double[] { 0 });
+//		easySDP(7, 2, new double[] { 2, 1, 0, 0, 0, 0, 1, 2, 0, 0, 0, 0, 0, 0,
+//				3, 0, 1, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 1, 0, 3, 0, 0, 0, 0,
+//				0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, new double[] { 1, 2 },
+//				new double[] { 3, 1, 0, 0, 0, 0, 0, 1, 3, 0, 0, 0, 0, 0, 0, 0,
+//						0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+//						0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 
+//						
+//						0, 0, 0, 0, 0, 0, 0,
+//						0, 0, 0, 0, 0, 0, 0, 
+//						0, 0, 3, 0, 1, 0, 0,
+//						0, 0, 0, 4, 0, 0, 0, 
+//						0, 0, 1, 0, 5, 0, 0, 
+//						0, 0, 0, 0, 0, 0, 0, 
+//						0, 0, 0, 0, 0, 0, 1 }, 0,
+//				new double[] { 0 }, new double[] { 0 }, new double[] { 0 },
+//				new double[] { 0 }, new double[] { 0 });
+		
+//		test();
+		
+		// easySDP(1, 1, new double[] { 0 }, new double[] { 0 },
+		// new double[] { 0 }, 0, new double[] { 0 }, new double[] { 0 },
+		// new double[] { 0 }, new double[] { 0 }, new double[] { 0 });
 	}
-	
+
 }
