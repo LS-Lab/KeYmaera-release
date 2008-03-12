@@ -38,8 +38,9 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
-import javax.swing.JTextField;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.SwingConstants;
 import javax.swing.border.Border;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -125,8 +126,8 @@ public class StrategySelectionView extends JPanel {
     
     JScrollPane javaDLOptionsScrollPane =
         new JScrollPane ( javaDLOptionsPanel,
-                          JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-                          JScrollPane.HORIZONTAL_SCROLLBAR_NEVER );
+                          ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+                          ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER );
     
     
     Border loweredetched = 
@@ -750,7 +751,7 @@ thing. People were thinking it was a button.
                 JFormattedTextField ftf = ((JSpinner.DefaultEditor)this.getEditor()).getTextField();
                 if (ftf != null) {
                     ftf.setColumns(6); 
-                    ftf.setHorizontalAlignment(JTextField.RIGHT);
+                    ftf.setHorizontalAlignment(SwingConstants.RIGHT);
                 }
             }            
         }

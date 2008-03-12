@@ -47,7 +47,12 @@ public class Enumerate1ToNEq implements TermGenerator {
                                             Integer.toString ( i ) );
                 ++i;
                 return tb.equals ( num, num );
-            }            
+            }
+			@Override
+			public void remove() {
+				// TODO Auto-generated method stub
+				
+			}            
         };
     }
 
