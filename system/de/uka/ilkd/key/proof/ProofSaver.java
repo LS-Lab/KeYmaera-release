@@ -16,13 +16,19 @@ import java.io.PrintStream;
 import java.util.Iterator;
 import java.util.Vector;
 
+import de.uka.ilkd.key.dl.rules.ReduceRuleApp;
 import de.uka.ilkd.key.gui.IMain;
 import de.uka.ilkd.key.gui.KeYMediator;
 import de.uka.ilkd.key.gui.configuration.ProofSettings;
 import de.uka.ilkd.key.gui.notification.events.GeneralFailureEvent;
 import de.uka.ilkd.key.java.ProgramElement;
 import de.uka.ilkd.key.java.Services;
-import de.uka.ilkd.key.logic.*;
+import de.uka.ilkd.key.logic.ConstrainedFormula;
+import de.uka.ilkd.key.logic.LocationDescriptor;
+import de.uka.ilkd.key.logic.PosInOccurrence;
+import de.uka.ilkd.key.logic.PosInTerm;
+import de.uka.ilkd.key.logic.Sequent;
+import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.op.EntryOfSchemaVariableAndInstantiationEntry;
 import de.uka.ilkd.key.logic.op.IteratorOfEntryOfSchemaVariableAndInstantiationEntry;
 import de.uka.ilkd.key.logic.op.SchemaVariable;
@@ -31,8 +37,22 @@ import de.uka.ilkd.key.pp.NotationInfo;
 import de.uka.ilkd.key.pp.PresentationFeatures;
 import de.uka.ilkd.key.pp.ProgramPrinter;
 import de.uka.ilkd.key.proof.mgt.RuleJustificationBySpec;
-import de.uka.ilkd.key.rule.*;
-import de.uka.ilkd.key.rule.inst.*;
+import de.uka.ilkd.key.rule.BuiltInRuleApp;
+import de.uka.ilkd.key.rule.IfFormulaInstDirect;
+import de.uka.ilkd.key.rule.IfFormulaInstSeq;
+import de.uka.ilkd.key.rule.IfFormulaInstantiation;
+import de.uka.ilkd.key.rule.IteratorOfIfFormulaInstantiation;
+import de.uka.ilkd.key.rule.IteratorOfObject;
+import de.uka.ilkd.key.rule.ListOfIfFormulaInstantiation;
+import de.uka.ilkd.key.rule.ListOfObject;
+import de.uka.ilkd.key.rule.RuleApp;
+import de.uka.ilkd.key.rule.TacletApp;
+import de.uka.ilkd.key.rule.UseOperationContractRule;
+import de.uka.ilkd.key.rule.inst.ListInstantiation;
+import de.uka.ilkd.key.rule.inst.NameInstantiationEntry;
+import de.uka.ilkd.key.rule.inst.ProgramInstantiation;
+import de.uka.ilkd.key.rule.inst.SVInstantiations;
+import de.uka.ilkd.key.rule.inst.TermInstantiation;
 
 /**
  * Saves a proof and provides useful methods for pretty printing
@@ -176,6 +196,19 @@ public class ProofSaver {
             tree.append(ruleJusti.getSpec().toString());
             tree.append("\")");
         }
+        if (appliedRuleApp instanceof ReduceRuleApp) {
+            if (!((ReduceRuleApp) appliedRuleApp).getVariables().isEmpty()) {
+                tree.append(" (reduceVariables \"");
+                String comma = "";
+                for (String str : ((ReduceRuleApp) appliedRuleApp)
+                        .getVariables()) {
+                    tree.append(comma + str);
+                    comma = ", ";
+                }
+                tree.append("\")");
+            }
+        }
+
 
         tree.append(")\n");
       }
