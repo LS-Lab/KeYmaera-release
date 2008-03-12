@@ -7,4 +7,4 @@ all: libcsdp.so
 #	#strip $@
 
 lib%.so: %.c libsdp.a
-	cc $(CFLAGS) -g -fPIC -shared -I$(JAVA_HOME)/include -I$(JAVA_HOME)/include/linux -I$(HOME)/local/src/Csdp-6.0.1/include -o $@ $< libsdp.a -llapack -lblas -lm
+	cc $(CFLAGS) -g -ggdb -fPIC -shared -I$(JAVA_HOME)/include -I$(JAVA_HOME)/include/linux -I$(HOME)/local/src/Csdp-6.0.1/include -o $@ $< libsdp.a -llapack -lblas -lm

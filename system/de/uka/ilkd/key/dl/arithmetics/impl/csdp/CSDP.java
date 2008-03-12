@@ -84,7 +84,11 @@ public class CSDP {
 			double[] a, double[] constraints, double constant_offset,
 			double[] blockmatrixpX, double[] py, double[] blockmatrixpZ,
 			double[] ppobj, double[] pdobj);
-	
+	private static native int test2(int n, int k, double[] blockmatrixC,
+			double[] a, double[] constraints, double constant_offset,
+			double[] blockmatrixpX, double[] py, double[] blockmatrixpZ,
+			double[] ppobj, double[] pdobj);
+
 	private static native int test();
 
 	public static void main(String[] args) {
@@ -92,58 +96,69 @@ public class CSDP {
 		System.loadLibrary("blas");
 		System.loadLibrary("m");
 		System.loadLibrary("csdp");
-//		System.loadLibrary("sdp");
-		easySDP(7, 2, new double[] { 
-				2, 1, 0, 0, 0, 0, 0,
-				1, 2, 0, 0, 0, 0, 0,
-				0, 0, 3, 0, 1, 0, 0, 
-				0, 0, 0, 2, 0, 0, 0, 
-				0, 0, 1, 0, 3, 0, 0,
-				0, 0, 0, 0, 0, 0, 0, 
-				0, 0, 0, 0, 0, 0, 0 }, 
-				
-				new double[] { 1, 2 },
-				
-				new double[] { 
-				3, 1, 0, 0, 0, 0, 0, 
-				1, 3, 0, 0, 0, 0, 0, 
-				0, 0, 0, 0, 0, 0, 0, 
-				0, 0, 0, 0, 0, 0, 0, 
-				0, 0, 0, 0, 0, 0, 0, 
-				0, 0, 0, 0, 0, 1, 0, 
-				0, 0, 0, 0, 0, 0, 0, 
+		// System.loadLibrary("sdp");
+		
+		test();
+		
+		easySDP(7, 2, convertToFortranForm(new double[] { 2, 1, 0, 0, 0, 0, 0, 1, 2, 0, 0, 0, 0, 0,
+				0, 0, 3, 0, 1, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 1, 0, 3, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, 7),
+
+		new double[] { 1,2 },
+		new double[] { 3, 1, 0, 0, 0, 0, 0, 1, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				1, 0, 0, 0, 0, 0, 0, 0, 0,
 				
 				0, 0, 0, 0, 0, 0, 0,
-				0, 0, 0, 0, 0, 0, 0, 
-				0, 0, 3, 0, 1, 0, 0,
-				0, 0, 0, 4, 0, 0, 0, 
-				0, 0, 1, 0, 5, 0, 0, 
-				0, 0, 0, 0, 0, 0, 0, 
-				0, 0, 0, 0, 0, 0, 1 }, 0,
+				 0, 0, 0, 0, 0, 0, 0,
+				 0, 0, 3, 0, 1, 0, 0,
+				 0, 0, 0, 4, 0, 0, 0,
+				 0, 0, 1, 0, 5, 0, 0,
+				 0, 0, 0, 0, 0, 0, 0,
+				 0, 0, 0, 0, 0, 0, 1
+				}, 0, new double[] { 0 },
 				new double[] { 0 }, new double[] { 0 }, new double[] { 0 },
-				new double[] { 0 }, new double[] { 0 });
-//		easySDP(7, 2, new double[] { 2, 1, 0, 0, 0, 0, 1, 2, 0, 0, 0, 0, 0, 0,
-//				3, 0, 1, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 1, 0, 3, 0, 0, 0, 0,
-//				0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, new double[] { 1, 2 },
-//				new double[] { 3, 1, 0, 0, 0, 0, 0, 1, 3, 0, 0, 0, 0, 0, 0, 0,
-//						0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-//						0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 
-//						
-//						0, 0, 0, 0, 0, 0, 0,
-//						0, 0, 0, 0, 0, 0, 0, 
-//						0, 0, 3, 0, 1, 0, 0,
-//						0, 0, 0, 4, 0, 0, 0, 
-//						0, 0, 1, 0, 5, 0, 0, 
-//						0, 0, 0, 0, 0, 0, 0, 
-//						0, 0, 0, 0, 0, 0, 1 }, 0,
-//				new double[] { 0 }, new double[] { 0 }, new double[] { 0 },
-//				new double[] { 0 }, new double[] { 0 });
-		
-//		test();
-		
+				new double[] { 0 });
+		// easySDP(7, 2, new double[] { 2, 1, 0, 0, 0, 0, 1, 2, 0, 0, 0, 0, 0,
+		// 0,
+		// 3, 0, 1, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 1, 0, 3, 0, 0, 0, 0,
+		// 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, new double[] { 1, 2 },
+		// new double[] { 3, 1, 0, 0, 0, 0, 0, 1, 3, 0, 0, 0, 0, 0, 0, 0,
+		// 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		// 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0,
+		//						
+		// 0, 0, 0, 0, 0, 0, 0,
+		// 0, 0, 0, 0, 0, 0, 0,
+		// 0, 0, 3, 0, 1, 0, 0,
+		// 0, 0, 0, 4, 0, 0, 0,
+		// 0, 0, 1, 0, 5, 0, 0,
+		// 0, 0, 0, 0, 0, 0, 0,
+		// 0, 0, 0, 0, 0, 0, 1 }, 0,
+		// new double[] { 0 }, new double[] { 0 }, new double[] { 0 },
+		// new double[] { 0 }, new double[] { 0 });
+
+		// 
+
 		// easySDP(1, 1, new double[] { 0 }, new double[] { 0 },
 		// new double[] { 0 }, 0, new double[] { 0 }, new double[] { 0 },
 		// new double[] { 0 }, new double[] { 0 }, new double[] { 0 });
+	}
+
+	private static double[] convertToFortranForm(double[] array, int dim) {
+		double[][] tmp = new double[dim][dim];
+		double[] result = new double[array.length];
+		for (int i = 0; i < dim; i++) {
+			for (int j = 0; j < dim; j++) {
+				tmp[i][j] = array[j + i * dim];
+			}
+		}
+
+		for (int i = 0; i < dim; i++) {
+			for (int j = 0; j < dim; j++) {
+				result[j] = tmp[j][i]; 
+			}
+		}
+		return result;
 	}
 
 }
