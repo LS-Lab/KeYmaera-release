@@ -150,6 +150,7 @@ public class CSDP {
 		for (int i = 0; i < dim; i++) {
 			for (int j = 0; j < dim; j++) {
 				tmp[i][j] = array[j + i * dim];
+				System.out.println("Setting pos (" + i + ", " + j + ")" + " to value " + array[j + i * dim]);//XXX
 			}
 		}
 

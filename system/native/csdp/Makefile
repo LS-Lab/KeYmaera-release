@@ -1,4 +1,5 @@
-CFLAGS=-O3 -ansi -Wall -DNOSHORTS 
+#CFLAGS=-O3 -ansi -Wall -DNOSHORTS -DDEBUG
+CFLAGS=-Wall -DNOSHORTS -DDEBUG
 
 all: libcsdp.so
 

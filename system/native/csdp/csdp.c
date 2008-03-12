@@ -15,9 +15,13 @@ double *convert_jdoubleArray_to_double_range(JNIEnv * env, jdoubleArray array,
 	int j;
 	for (j = 0; j < count; j++) {
 		/* dont set anything to array element 0. fortran indexes (1..n) */
-		assert(j+1 < count+2);
+		assert(j < count+1 && from + j < size);
+#ifdef DEBUG
+		printf("setting pos %d to value %d\n", j+1, element[from+j]);
+#endif
 		result[j+1] = element[from + j];
 	}
+	(*env)->ReleaseDoubleArrayElements(env, array, element, JNI_ABORT);
 	return result;
 }
 
@@ -62,13 +66,19 @@ struct constraintmatrix *convert_double_array_to_constraintmatrix(JNIEnv *
 			block->nextbyblock = result[l].blocks;
 		}
 		block = result[l].blocks;
-#ifdef NOSHORTS
+#ifndef NOSHORTS
 #define INDICES_TYPE unsigned short
 #else
 #define INDICES_TYPE int
 #endif
 		block->entries = convert_jdoubleArray_to_double_range(env, constraints,
-														   (l - 1) * k, n);
+			(l - 1) * k, n);
+#ifdef DEBUG
+		int count;
+		for(count = 1; count <= n; count++) {
+			printf("Entry is %d\n", block->entries[count]);
+		}
+#endif
 		int arraysize = (n+1)*(n+1);
 		block->iindices = malloc(sizeof(INDICES_TYPE) * arraysize);
 		block->jindices = malloc(sizeof(INDICES_TYPE) * arraysize);
@@ -107,25 +117,39 @@ void insert_results_array2D(JNIEnv * env, jdoubleArray out, double **in)
 #warning implement
 }
 
-JNIEXPORT jint JNICALL
-Java_de_uka_ilkd_key_dl_arithmetics_impl_csdp_CSDP_easySDP(JNIEnv * env,
-														   jclass clazz,
-														   jint n, jint k,
-														   BMATRIX C,
-														   jdoubleArray a,
-														   CMATRIX
-														   constraints,
-														   jdouble
-														   constant_offset,
-														   BMATRIX pX,
-														   jdoubleArray py,
-														   BMATRIX pZ,
-														   jdoubleArray
-														   ppobj,
-														   jdoubleArray pdobj)
+JNIEXPORT jint JNICALL Java_de_uka_ilkd_key_dl_arithmetics_impl_csdp_CSDP_easySDP
+  (env, clazz, n, k, C, a, constraints, constant_offset, pX, py, pZ, ppobj, pdobj)
+  JNIEnv *env;
+  jclass clazz; 
+  jint n;
+  jint k; 
+  jdoubleArray C;
+  jdoubleArray a; 
+  jdoubleArray constraints; 
+  jdouble constant_offset; 
+  jdoubleArray pX; 
+  jdoubleArray py; 
+  jdoubleArray pZ; 
+  jdoubleArray ppobj; 
+  jdoubleArray pdobj;
 {
 
+#ifdef DEBUG
+	jdouble *element =
+		(jdouble *) (*env)->GetDoubleArrayElements(env, C, 0);
+	int ssize = (*env)->GetArrayLength(env, C);
+	jdouble bla = element[ssize - 1];
+	printf("got at position %d: %d\n", ssize - 1, bla);
+	(*env)->ReleaseDoubleArrayElements(env, C, element, JNI_ABORT);
+#endif
+
 	struct blockmatrix _C = convert_double_array_to_blockmatrix(env, C, n);
+#ifdef DEBUG
+	/* output matrix _C */
+	
+
+#endif
+
 
 	struct constraintmatrix *_constraints =
 		convert_double_array_to_constraintmatrix(env, (int) n, (int) k,
@@ -133,17 +157,23 @@ Java_de_uka_ilkd_key_dl_arithmetics_impl_csdp_CSDP_easySDP(JNIEnv * env,
 
 	double *_a = convert_jdoubleArray_to_double(env, a);
 
+    write_prob("prob-2.dat-s",n,k,_C,_a,_constraints);
+
 	struct blockmatrix X,Z;
     double *y; 
     double pobj,dobj;
 
 	initsoln(n,k,_C,_a,_constraints,&X,&y,&Z);
+#ifdef DEBUG
 	printf("Now starting easy sdp\n");
+#endif
 	int result = easy_sdp((int) n, (int) k, _C, _a, _constraints,
 						  (double) constant_offset, &X, &y, &Z, &pobj,
 						  &dobj);
 
+#ifdef DEBUG
 	printf("result is: %d\n", result);
+#endif
 
 	/*insert_results_bmatrix(env, pX, _pX);
 	insert_results_array2D(env, py, _py);
@@ -151,15 +181,16 @@ Java_de_uka_ilkd_key_dl_arithmetics_impl_csdp_CSDP_easySDP(JNIEnv * env,
 	/*insert_results_array(env, ppobj, _ppobj);
 	insert_results_array(env, pdobj, _pdobj);*/
 
+#ifdef DEBUG
 	printf("freeing problemdata\n");
+#endif
   int i;
   struct sparseblock *ptr;
   struct sparseblock *oldptr;
 
-  if(result < 7) {
-  	free_prob(n,k,_C,_a,_constraints,X,y,Z);
-  }
-	return result;
+  free_prob(n,k,_C,_a,_constraints,X,y,Z);
+
+  return result;
 }
 
 
@@ -631,23 +662,21 @@ struct constraintmatrix* create_test_constraints() {
 /********************************************************************* 
  * Begin external test methods
 ********************************************************************/ 
-
-JNIEXPORT jint JNICALL
-Java_de_uka_ilkd_key_dl_arithmetics_impl_csdp_CSDP_test2(JNIEnv * env,
-														   jclass clazz,
-														   jint n, jint k,
-														   BMATRIX C,
-														   jdoubleArray a,
-														   CMATRIX
-														   constraints,
-														   jdouble
-														   constant_offset,
-														   BMATRIX pX,
-														   jdoubleArray py,
-														   BMATRIX pZ,
-														   jdoubleArray
-														   ppobj,
-														   jdoubleArray pdobj)
+JNIEXPORT jint JNICALL Java_de_uka_ilkd_key_dl_arithmetics_impl_csdp_CSDP_test2
+  (env, clazz, n, k, C, a, constraints, constant_offset, pX, py, pZ, ppobj, pdobj) 
+  JNIEnv *env;
+  jclass clazz; 
+  jint n;
+  jint k; 
+  jdoubleArray C;
+  jdoubleArray a; 
+  jdoubleArray constraints; 
+  jdouble constant_offset; 
+  jdoubleArray pX; 
+  jdoubleArray py; 
+  jdoubleArray pZ; 
+  jdoubleArray ppobj; 
+  jdoubleArray pdobj;
 {
 
 	struct blockmatrix _C = convert_double_array_to_blockmatrix(env, C, n);
@@ -659,6 +688,8 @@ Java_de_uka_ilkd_key_dl_arithmetics_impl_csdp_CSDP_test2(JNIEnv * env,
 	struct constraintmatrix *_constraints = create_test_constraints();
 
 	double *_a = convert_jdoubleArray_to_double(env, a);
+
+    write_prob("prob-2.dat-s",n,k,_C,_a,_constraints);
 
 	struct blockmatrix X,Z;
     double *y; 
