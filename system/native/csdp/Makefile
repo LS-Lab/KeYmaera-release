@@ -1,5 +1,5 @@
 #CFLAGS=-O3 -ansi -Wall -DNOSHORTS -DDEBUG -g -ggdb -fPIC
-CFLAGS=-Wall -DNOSHORTS -DDEBUG -fPIC
+CFLAGS=-O3 -std=c99 -Wall -DNOSHORTS -DDEBUG -fPIC -g -ggdb -fPIC
 
 all: libcsdp.so
 

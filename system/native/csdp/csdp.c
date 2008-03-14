@@ -5,30 +5,30 @@
 #include"csdp.h"
 
 double *convert_jdoubleArray_to_double_range(JNIEnv * env, jdoubleArray array,
-											 int from, int count)
+											 int from, int count, int shift)
 {
 	jdouble *element =
 		(jdouble *) (*env)->GetDoubleArrayElements(env, array, 0);
 	int size = (*env)->GetArrayLength(env, array);
 	assert(count + from <= size);
-	double *result = malloc(sizeof(double) * (count+2));
+	double *result = malloc(sizeof(double) * (count+1 + shift));
 	int j;
 	for (j = 0; j < count; j++) {
 		/* dont set anything to array element 0. fortran indexes (1..n) */
-		assert(j < count+1 && from + j < size);
+		assert(j < count+shift && from + j < size);
 #ifdef DEBUG
-		printf("setting pos %d to value %f\n", j+1, element[from+j]);
+		printf("setting pos %d to value %f\n", j+shift, element[from+j]);
 #endif
-		result[j+1] = element[from + j];
+		result[j+shift] = element[from + j];
 	}
 	(*env)->ReleaseDoubleArrayElements(env, array, element, JNI_ABORT);
 	return result;
 }
 
-double *convert_jdoubleArray_to_double(JNIEnv * env, jdoubleArray array)
+double *convert_jdoubleArray_to_double(JNIEnv * env, jdoubleArray array, int shift)
 {
 	int size = (*env)->GetArrayLength(env, array);
-	return convert_jdoubleArray_to_double_range(env, array, 0, size);
+	return convert_jdoubleArray_to_double_range(env, array, 0, size, shift);
 }
 
 struct blockmatrix convert_double_array_to_blockmatrix(JNIEnv * env,
@@ -36,7 +36,7 @@ struct blockmatrix convert_double_array_to_blockmatrix(JNIEnv * env,
 														int n)
 {
 	union blockdatarec data;
-	data.mat = convert_jdoubleArray_to_double(env, array);
+	data.mat = convert_jdoubleArray_to_double(env, array, 0);
 	/* CSDP ignores the first record, thus we have to allocate 2 blocks */
 	struct blockrec *rec = malloc(2 * sizeof(struct blockrec));
 	rec[1].blockcategory = MATRIX;
@@ -60,6 +60,9 @@ struct constraintmatrix *convert_double_array_to_constraintmatrix(JNIEnv *
 	int l;
 	struct sparseblock *block;
 	for (l = 1; l <= k; l++) {
+#ifdef DEBUG
+		printf("now translating block number %d\n", l);
+#endif
 		result[l].blocks = malloc(sizeof(struct sparseblock));
 		if(l > 1) {
 			block->next = result[l].blocks;
@@ -72,10 +75,10 @@ struct constraintmatrix *convert_double_array_to_constraintmatrix(JNIEnv *
 #define INDICES_TYPE int
 #endif
 		block->entries = convert_jdoubleArray_to_double_range(env, constraints,
-			(l - 1) * k, n);
+			(l - 1) * k, n*n, 1);
 #ifdef DEBUG
 		int count;
-		for(count = 1; count <= n; count++) {
+		for(count = 1; count <= n*n; count++) {
 			printf("Entry is %f\n", block->entries[count]);
 		}
 #endif
@@ -135,6 +138,7 @@ JNIEXPORT jint JNICALL Java_de_uka_ilkd_key_dl_arithmetics_impl_csdp_CSDP_easySD
 {
 
 #ifdef DEBUG
+	printf("test: %d\n", ijtok(1,1,10));
 	jdouble *element =
 		(jdouble *) (*env)->GetDoubleArrayElements(env, C, 0);
 	int ssize = (*env)->GetArrayLength(env, C);
@@ -158,7 +162,7 @@ JNIEXPORT jint JNICALL Java_de_uka_ilkd_key_dl_arithmetics_impl_csdp_CSDP_easySD
 		convert_double_array_to_constraintmatrix(env, (int) n, (int) k,
 												 constraints);
 
-	double *_a = convert_jdoubleArray_to_double(env, a);
+	double *_a = convert_jdoubleArray_to_double(env, a, 1);
 
     write_prob("prob-2.dat-s",n,k,_C,_a,_constraints);
 
@@ -690,7 +694,7 @@ JNIEXPORT jint JNICALL Java_de_uka_ilkd_key_dl_arithmetics_impl_csdp_CSDP_test2
 												 constraints);*/
 	struct constraintmatrix *_constraints = create_test_constraints();
 
-	double *_a = convert_jdoubleArray_to_double(env, a);
+	double *_a = convert_jdoubleArray_to_double(env, a, 1);
 
     write_prob("prob-2.dat-s",n,k,_C,_a,_constraints);
 
