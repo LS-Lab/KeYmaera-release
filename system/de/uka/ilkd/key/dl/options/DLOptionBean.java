@@ -195,6 +195,8 @@ public class DLOptionBean implements Settings {
 
 	private static final String DLOPTIONS_APPLY_LOCAL_REDUCE = "[DLOptions]applyLocalReduce";
 
+	private static final String dLOPTIONS_SIMPLIFY_AFTER_ODESOLVE = "[DLOptions]simplifyAfterODESolve";
+
 	private Set<Settings> subOptions;
 
 	private boolean callReduce;
@@ -255,6 +257,8 @@ public class DLOptionBean implements Settings {
 
 	private boolean applyLocalReduce;
 
+	private boolean simplifyAfterODESolve;
+
 	private DLOptionBean() {
 		subOptions = new HashSet<Settings>();
 		callReduce = true;
@@ -284,6 +288,7 @@ public class DLOptionBean implements Settings {
 		useIterativeReduceRule = false;
 		termFactoryClass = de.uka.ilkd.key.dl.model.impl.TermFactoryImpl.class;
 		applyLocalReduce = true;
+		simplifyAfterODESolve = true;
 
 		listeners = new HashSet<SettingsListener>();
 	}
@@ -556,6 +561,11 @@ public class DLOptionBean implements Settings {
 			applyLocalReduce = Boolean.valueOf(property);
 		}
 
+		property = props.getProperty(dLOPTIONS_SIMPLIFY_AFTER_ODESOLVE);
+		if (property != null) {
+			simplifyAfterODESolve = Boolean.valueOf(property);
+		}
+
 	}
 
 	/*
@@ -628,9 +638,11 @@ public class DLOptionBean implements Settings {
 		props.setProperty(DLOPTIONS_ITERATIVE_REDUCE_RULE, Boolean
 				.toString(useIterativeReduceRule));
 		props.setProperty(DLOPTIONS_TERM_FACTORY_CLASS, termFactoryClass
-				.toString());
+				.getName());
 		props.setProperty(DLOPTIONS_APPLY_LOCAL_REDUCE, Boolean
 				.toString(applyLocalReduce));
+		props.setProperty(dLOPTIONS_SIMPLIFY_AFTER_ODESOLVE, Boolean
+				.toString(simplifyAfterODESolve));
 	}
 
 	public void addSubOptionBean(Settings sub) {
@@ -1031,6 +1043,24 @@ public class DLOptionBean implements Settings {
 	public void setApplyLocalReduce(boolean applyLocalReduce) {
 		if (applyLocalReduce != this.applyLocalReduce) {
 			this.applyLocalReduce = applyLocalReduce;
+			firePropertyChanged();
+		}
+	}
+
+	/**
+	 * @return the simplifyAfterODESolve
+	 */
+	public boolean isSimplifyAfterODESolve() {
+		return simplifyAfterODESolve;
+	}
+
+	/**
+	 * @param simplifyAfterODESolve
+	 *            the simplifyAfterODESolve to set
+	 */
+	public void setSimplifyAfterODESolve(boolean simplifyAfterODESolve) {
+		if (simplifyAfterODESolve != this.simplifyAfterODESolve) {
+			this.simplifyAfterODESolve = simplifyAfterODESolve;
 			firePropertyChanged();
 		}
 	}
