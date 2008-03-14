@@ -136,6 +136,11 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
                             "apply updates to modalites e.g. to get more simpler solutions for differential equations",
                             true, false),
                     createDescriptor(
+                    		"applyLocalReduce",
+                            "apply reduce to single quantifiers",
+                            "try to eliminate a all quantifiers in single first-order formulas before trying to reduce the complete formula",
+                            true, false),
+                    createDescriptor(
                             "applyGammaRules",
                             "apply gamma rules",
                             "choose if and when gamma rules should be applied for existential quantifiers",

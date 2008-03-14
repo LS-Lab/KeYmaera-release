@@ -29,6 +29,7 @@ import de.uka.ilkd.key.dl.model.DiffSystem;
 import de.uka.ilkd.key.dl.model.Formula;
 import de.uka.ilkd.key.dl.model.TermFactory;
 import de.uka.ilkd.key.dl.model.impl.TermFactoryImpl;
+import de.uka.ilkd.key.dl.options.DLOptionBean;
 import de.uka.ilkd.key.java.ProgramElement;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.java.StatementBlock;
@@ -76,7 +77,7 @@ public class DLDiffAdjoin extends AbstractDLMetaOperator {
         Term psi = term.sub(1);
         try {
             final TermFactory tf = TermFactory.getTermFactory(
-                    TermFactoryImpl.class, services.getNamespaces());
+            		DLOptionBean.INSTANCE.getTermFactoryClass(), services.getNamespaces());
             List<Formula> augmented = new ArrayList<Formula>(system
                     .getChildCount() + 1);
             for (ProgramElement el : system) {
