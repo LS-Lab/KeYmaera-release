@@ -17,7 +17,7 @@ double *convert_jdoubleArray_to_double_range(JNIEnv * env, jdoubleArray array,
 		/* dont set anything to array element 0. fortran indexes (1..n) */
 		assert(j < count+1 && from + j < size);
 #ifdef DEBUG
-		printf("setting pos %d to value %d\n", j+1, element[from+j]);
+		printf("setting pos %d to value %f\n", j+1, element[from+j]);
 #endif
 		result[j+1] = element[from + j];
 	}
@@ -76,7 +76,7 @@ struct constraintmatrix *convert_double_array_to_constraintmatrix(JNIEnv *
 #ifdef DEBUG
 		int count;
 		for(count = 1; count <= n; count++) {
-			printf("Entry is %d\n", block->entries[count]);
+			printf("Entry is %f\n", block->entries[count]);
 		}
 #endif
 		int arraysize = (n+1)*(n+1);
@@ -138,8 +138,11 @@ JNIEXPORT jint JNICALL Java_de_uka_ilkd_key_dl_arithmetics_impl_csdp_CSDP_easySD
 	jdouble *element =
 		(jdouble *) (*env)->GetDoubleArrayElements(env, C, 0);
 	int ssize = (*env)->GetArrayLength(env, C);
-	jdouble bla = element[ssize - 1];
-	printf("got at position %d: %d\n", ssize - 1, bla);
+	printf("Outputting array C with size %dx%d\n", n, n);
+	int ii;
+	for (ii=0; ii< ssize; ii++) {
+		printf("got at position %d: %f\n", ii, element[ii]);
+	}
 	(*env)->ReleaseDoubleArrayElements(env, C, element, JNI_ABORT);
 #endif
 
