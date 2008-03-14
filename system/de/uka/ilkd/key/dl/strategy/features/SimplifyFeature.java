@@ -85,14 +85,13 @@ public class SimplifyFeature extends Visitor implements Feature {
 			boolean wasODESolve = false;
 			if (cur instanceof TacletApp) {
 				TacletApp tapp = (TacletApp) cur;
-
 				wasODESolve = tapp.taclet().ruleSets().next() == goal.proof()
 						.getNamespaces().ruleSets().lookup(
 								new Name("diff_solve"))
 						|| tapp.rule().name().equals(new Name("ODESolve_left"))
 						|| tapp.rule().name()
 								.equals(new Name("ODESolve_right"));
-				wasODESolve &= cur.posInOccurrence().isInAntec() && pos.isInAntec();
+				wasODESolve &= (cur.posInOccurrence().isInAntec() == pos.isInAntec());
 			}
 			if (wasReduce || wasODESolve) {
 				return LongRuleAppCost.create(-10000);
