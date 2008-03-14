@@ -98,7 +98,7 @@ public class CSDP {
 		System.loadLibrary("csdp");
 		// System.loadLibrary("sdp");
 		
-		test();
+//		test();
 		
 		easySDP(7, 2, convertToFortranForm(new double[] { 2, 1, 0, 0, 0, 0, 0, 1, 2, 0, 0, 0, 0, 0,
 				0, 0, 3, 0, 1, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 1, 0, 3, 0, 0,
@@ -156,7 +156,7 @@ public class CSDP {
 
 		for (int i = 0; i < dim; i++) {
 			for (int j = 0; j < dim; j++) {
-				result[j] = tmp[j][i]; 
+				result[j + dim*i] = tmp[j][i]; 
 			}
 		}
 		return result;
