@@ -128,6 +128,12 @@ public class DiffIndCandidates implements TermGenerator {
             public Term next() {
                 return candidateGenerator.next();
             }
+
+			@Override
+			public void remove() {
+				// TODO Auto-generated method stub
+				
+			}
             
         };
     }

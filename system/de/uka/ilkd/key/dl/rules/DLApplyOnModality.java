@@ -148,8 +148,8 @@ public class DLApplyOnModality extends ApplyOnModality {
     public Term apply(Update update, Term target, Services services) {
         if (tf == null) {
             try {
-                tf = TermFactory.getTermFactory(TermFactoryImpl.class, Main
-                        .getInstance().mediator().namespaces());
+                tf = TermFactory.getTermFactory(DLOptionBean.INSTANCE
+						.getTermFactoryClass(), services.getNamespaces());
             } catch (Exception e) {
                 e.printStackTrace();
                 throw new IllegalStateException(

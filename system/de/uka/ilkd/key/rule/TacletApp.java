@@ -11,6 +11,7 @@
 package de.uka.ilkd.key.rule;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 
 import de.uka.ilkd.key.collection.ListOfString;
@@ -140,58 +141,51 @@ public abstract class TacletApp implements RuleApp {
     /**
      * collects all bound variables above the occurrence of the schemavariable
      * whose prefix is given
-     * 
-     * @param prefix
-     *            the TacletPrefix of the schemavariable
-     * @param instantiations
-     *            the SVInstantiations so that the find(if)-expression matches
-     * @param pos
-     *            the posInOccurrence describing the position of the
-     *            schemavariable
-     * @return set of the bound variables
+     * @param prefix the TacletPrefix of the schemavariable
+     * @param instantiations the SVInstantiations so that the
+     * find(if)-expression matches 
+     * @param pos the posInOccurrence describing the position of the
+     * schemavariable 
+     * @return set of the bound variables 
      */
-    protected static SetOfQuantifiableVariable boundAtOccurrenceSet(
-            TacletPrefix prefix, SVInstantiations instantiations,
-            PosInOccurrence pos) {
-
-        SetOfQuantifiableVariable result = boundAtOccurrenceSet(prefix,
-                instantiations);
-
-        if (prefix.context())
-            result = result.union(collectBoundVarsAbove(pos));
-
-        return result;
+    protected static SetOfQuantifiableVariable
+	boundAtOccurrenceSet ( TacletPrefix     prefix,
+			       SVInstantiations instantiations,
+			       PosInOccurrence  pos ) {
+    
+	SetOfQuantifiableVariable result =
+	    boundAtOccurrenceSet(prefix, instantiations);
+    
+	if ( prefix.context () )
+	    result = result.union ( collectBoundVarsAbove ( pos ) );
+    
+	return result;		
     }
 
-    /**
-     * collects all those logic variable that are instances of the variableSV of
-     * the given prefix
-     * 
-     * @param pre
-     *            the TacletPrefix of a SchemaVariable that is bound
-     * @param instantiations
-     *            the SVInstantiations to look at
+
+    /** collects all those logic variable that are instances of the variableSV
+     * of the given prefix
+     * @param pre the TacletPrefix of a SchemaVariable that is bound
+     * @param instantiations the SVInstantiations to look at
      * @return the set of the logic variables whose elements are the
-     *         instantiations of a bound SchemaVariable appearing in the
-     *         TacletPrefix
-     */
-    private static SetOfQuantifiableVariable collectPrefixInstantiations(
-            TacletPrefix pre, SVInstantiations instantiations) {
+     * instantiations of a bound SchemaVariable appearing in the TacletPrefix
+     */ 
+    private static SetOfQuantifiableVariable collectPrefixInstantiations
+	(TacletPrefix pre, SVInstantiations instantiations) {
 
-        SetOfQuantifiableVariable instanceSet = SetAsListOfQuantifiableVariable.EMPTY_SET;
-        IteratorOfSchemaVariable it = pre.prefix().iterator();
-        while (it.hasNext()) {
-            SchemaVariable var = it.next();
-            instanceSet = instanceSet
-                    .add((LogicVariable) ((Term) instantiations
-                            .getInstantiation(var)).op());
-        }
-        return instanceSet;
+	SetOfQuantifiableVariable instanceSet 
+	    = SetAsListOfQuantifiableVariable.EMPTY_SET;
+	
+	for (final SchemaVariable var : pre.prefix() ) {
+	    instanceSet = 
+		instanceSet.add((LogicVariable)
+				((Term)instantiations.getInstantiation(var)).op());
+	}
+	return instanceSet;
     }
 
-    /**
-     * returns the taclet the application information is collected for
-     * 
+
+    /** returns the taclet the application information is collected for
      * @return the Taclet the application information is collected for
      */
     public Taclet taclet() {
@@ -241,35 +235,35 @@ public abstract class TacletApp implements RuleApp {
      *            the original SVInstantiations
      * @return the resolved SVInstantiations
      */
-    protected static SVInstantiations resolveCollisionVarSV(Taclet taclet,
-            SVInstantiations insts) {
+    protected static SVInstantiations resolveCollisionVarSV
+	(Taclet taclet, SVInstantiations insts) {
 
-        HashMapFromLogicVariableToSchemaVariable collMap = new HashMapFromLogicVariableToSchemaVariable();
-        IteratorOfEntryOfSchemaVariableAndInstantiationEntry it = insts
-                .pairIterator();
-        while (it.hasNext()) {
-            EntryOfSchemaVariableAndInstantiationEntry pair = it.next();
-            if (pair.key().isVariableSV()) {
-                SchemaVariable varSV = pair.key();
-                Term value = ((TermInstantiation) pair.value()).getTerm();
-                if (!collMap.containsKey((LogicVariable) value.op())) {
-                    collMap.put((LogicVariable) value.op(), varSV);
-                } else {
-                    insts = replaceInstantiation(taclet, insts, varSV);
-                }
-            }
-        }
-        return insts;
+	HashMap<LogicVariable, SchemaVariable> collMap =
+	    new HashMap<LogicVariable, SchemaVariable>();
+	
+	final IteratorOfEntryOfSchemaVariableAndInstantiationEntry it = 
+	    insts.pairIterator();
+	while (it.hasNext()) {
+	    EntryOfSchemaVariableAndInstantiationEntry pair = it.next();
+	    if (pair.key().isVariableSV()) {
+		SchemaVariable varSV = pair.key();		
+		Term value = ((TermInstantiation)pair.value()).getTerm();
+		if (!collMap.containsKey((LogicVariable)value.op())) {
+		    collMap.put((LogicVariable)value.op(), varSV);
+		} else {
+		    insts = replaceInstantiation(taclet, insts, varSV);	
+		}
+	    }
+	}
+	return insts;
     }
 
     /**
-     * delivers the term below the (unique) quantifier of a bound SchemaVariable
-     * in the given term.
-     * 
-     * @param varSV
-     *            the searched Bound Schemavariable
-     * @param term
-     *            the term to be searched in
+     * delivers the term below the (unique) quantifier of a bound
+     * SchemaVariable in the given term.
+     *
+     * @param varSV the searched Bound Schemavariable
+     * @param term the term to be searched in
      * @return the term below the given quantifier in the given term
      */
     private static Term getTermBelowQuantifier(SchemaVariable varSV, Term term) {
@@ -605,9 +599,7 @@ public abstract class TacletApp implements RuleApp {
         TacletApp app = this;
         ListOfString proposals = SLListOfString.EMPTY_LIST;
 
-        final IteratorOfSchemaVariable it = uninstantiatedVars().iterator();
-        while (it.hasNext()) {
-            SchemaVariable var = it.next();
+        for (final SchemaVariable var : uninstantiatedVars()) {
             
             if (LoopInvariantProposer.DEFAULT.inLoopInvariantRuleSet(taclet())){ 
                 Object inv = LoopInvariantProposer.DEFAULT.tryToInstantiate(this, var, services);              
@@ -724,31 +716,26 @@ public abstract class TacletApp implements RuleApp {
     }
 
     /**
-     * Examine all schema variables of the taclet that are currently not
-     * instantiated, and for each one whose sort is generic add a condition to
-     * the instantiations object <code>insts</code> that requires this sort to
-     * be instantiated
-     * 
-     * @return the instantiations object after adding all the conditions, or
-     *         <code>null</code> if any of the generic sorts found cannot be
-     *         instantiated (at least at the time)
+     * Examine all schema variables of the taclet that are currently
+     * not instantiated, and for each one whose sort is generic add a
+     * condition to the instantiations object <code>insts</code> that
+     * requires this sort to be instantiated
+     * @return the instantiations object after adding all the
+     * conditions, or <code>null</code> if any of the generic sorts
+     * found cannot be instantiated (at least at the time)
      */
-    private SVInstantiations forceGenericSortInstantiations(
-            SVInstantiations insts) {
-        final IteratorOfSchemaVariable it = uninstantiatedVars().iterator();
-
+    private SVInstantiations forceGenericSortInstantiations (SVInstantiations insts) {
         // force all generic sorts to be instantiated
         try {
-            while (it.hasNext()) {
-                final SchemaVariable sv = it.next();
-                final GenericSortCondition c = GenericSortCondition
-                        .forceInstantiation(((SortedSchemaVariable) sv).sort(),
-                                true);
-                if (c != null)
-                    insts = insts.add(c);
+            for (final SchemaVariable sv : uninstantiatedVars()) {
+                final GenericSortCondition c =
+                    GenericSortCondition.forceInstantiation
+                    ( ( (SortedSchemaVariable)sv ).sort (), true );
+                if ( c != null ) 			                      
+                    insts = insts.add ( c );                                                                        
             }
-        } catch (GenericSortException e) {
-            Debug.fail("TacletApp cannot be made complete");
+        } catch ( GenericSortException e ) {
+            Debug.fail ( "TacletApp cannot be made complete" );		
         }
         return insts;
     }
@@ -871,38 +858,39 @@ public abstract class TacletApp implements RuleApp {
             Constraint constr, SetOfMetavariable removeVars,
             Constraint replaceC, Services services) {
         // that's tricky ...
-        constr = constr.join(replaceC, services);
-        return constr.removeVariables(removeVars);
+        constr = constr.join ( replaceC, services );
+        return constr.removeVariables ( removeVars );
     }
 
     /**
-     * @return true iff it is possible to use a metavariable to make the given
-     *         instantiation indirect, i.e. to instantiate the schema variable
-     *         with a metavariable instead of a term, and to add the real
-     *         instantiation to the user constraint
+     * @return true iff it is possible to use a metavariable to make
+     * the given instantiation indirect, i.e. to instantiate the
+     * schema variable with a metavariable instead of a term, and to
+     * add the real instantiation to the user constraint
      */
-    private boolean introduceMVFor(
-            EntryOfSchemaVariableAndInstantiationEntry entry, SchemaVariable sv) {
-        return sv.isTermSV()
-                && !sv.isListSV()
-                && !taclet().getIfFindVariables().contains(sv)
-                && canUseMVAPosteriori(sv, ((TermInstantiation) entry.value())
-                        .getTerm());
+    private boolean introduceMVFor (EntryOfSchemaVariableAndInstantiationEntry entry,
+                                    SchemaVariable sv) {
+        return sv.isTermSV () && !sv.isListSV()
+               && !taclet ().getIfFindVariables ().contains ( sv )
+               && canUseMVAPosteriori ( sv,
+                            ( (TermInstantiation)entry.value () ).getTerm () );
     }
 
     /**
-     * Instantiate all uninstantiated schema variables with metavariables; it is
-     * assumed that this is possible (currently checked using an assertion)
-     * 
-     * @return a new taclet app in which all schema variables are instantiated
+     * Instantiate all uninstantiated schema variables with
+     * metavariables; it is assumed that this is possible (currently
+     * checked using an assertion)
+     * @return a new taclet app in which all schema variables are
+     * instantiated
      */
-    private TacletApp handleUninstantiatedSVs(Proof proof, Goal goal,
-            SVInstantiations insts, Constraint constr, SetOfMetavariable newVars) {
-        insts = forceGenericSortInstantiations(insts);
+    private TacletApp handleUninstantiatedSVs (Proof proof,
+                                               Goal goal,
+                                               SVInstantiations insts,
+                                               Constraint constr,
+                                               SetOfMetavariable newVars) {
+        insts = forceGenericSortInstantiations ( insts );
 
-        final IteratorOfSchemaVariable it = uninstantiatedVars().iterator();
-        while (it.hasNext()) {
-            final SchemaVariable sv = it.next();
+        for (final SchemaVariable sv : uninstantiatedVars()) {
             if (isDependingOnModifiesSV(sv))
                 continue;
             Debug.assertTrue(canUseMVAPriori(sv),
@@ -1635,41 +1623,42 @@ public abstract class TacletApp implements RuleApp {
      *         bound SchemaVariables
      */
     public SchemaVariable varSVNameConflict() {
-        IteratorOfSchemaVariable svIt = uninstantiatedVars().iterator();
-        while (svIt.hasNext()) {
-            SchemaVariable sv = svIt.next();
-            if (sv.isTermSV() || sv.isFormulaSV()) {
-                TacletPrefix prefix = taclet().getPrefix(sv);
-                HashSet names = new HashSet();
-                if (prefix.context()) {
-                    IteratorOfQuantifiableVariable contextIt = contextVars(sv)
-                            .iterator();
-                    while (contextIt.hasNext()) {
-                        names.add(contextIt.next().name());
-                    }
-                }
-                IteratorOfSchemaVariable varSVIt = prefix.iterator();
-                while (varSVIt.hasNext()) {
-                    SchemaVariable varSV = varSVIt.next();
-                    Term inst = (Term) instantiations().getInstantiation(varSV);
-                    if (inst != null) {
-                        Name name = inst.op().name();
-                        if (!names.contains(name)) {
-                            names.add(name);
-                        } else {
-                            return varSV;
-                        }
-                    }
-                }
-            }
-        }
-        return null;
+	IteratorOfSchemaVariable svIt=uninstantiatedVars().iterator();
+	while (svIt.hasNext()) { 
+	    SchemaVariable sv=svIt.next();
+	    if (sv.isTermSV() || sv.isFormulaSV()) {
+		TacletPrefix prefix=taclet().getPrefix(sv);
+		HashSet<Name> names=new HashSet<Name>();	    
+		if (prefix.context()) {
+		    IteratorOfQuantifiableVariable contextIt
+			= contextVars(sv).iterator();
+		    while (contextIt.hasNext()) {
+			names.add(contextIt.next().name());
+		    }
+		}
+		IteratorOfSchemaVariable varSVIt=prefix.iterator();
+		while(varSVIt.hasNext()) {
+		    SchemaVariable varSV=varSVIt.next();
+		    Term inst = (Term)
+			instantiations().getInstantiation(varSV);
+		    if (inst!=null) {
+			Name name = inst.op().name();
+			if (!names.contains(name)) {
+			    names.add(name);
+			} else {
+			    return varSV;
+			}
+		    }
+		}
+	    }
+	}
+	return null;
     }
 
+
     /**
-     * For a given SV of the taclet decide a priori whether an instantiation via
-     * metavariable is possible
-     * 
+     * For a given SV of the taclet decide a priori whether an
+     * instantiation via metavariable is possible
      * @return true iff p_var is a termSV with empty prefix
      */
     public boolean canUseMVAPriori(SchemaVariable p_var) {

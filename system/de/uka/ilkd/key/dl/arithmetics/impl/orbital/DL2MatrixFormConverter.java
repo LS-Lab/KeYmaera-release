@@ -44,6 +44,7 @@ import de.uka.ilkd.key.dl.model.Plus;
 import de.uka.ilkd.key.dl.model.TermFactory;
 import de.uka.ilkd.key.dl.model.Variable;
 import de.uka.ilkd.key.dl.model.impl.TermFactoryImpl;
+import de.uka.ilkd.key.dl.options.DLOptionBean;
 import de.uka.ilkd.key.gui.Main;
 import de.uka.ilkd.key.java.ProgramElement;
 
@@ -246,7 +247,7 @@ public class DL2MatrixFormConverter {
 				TermFactory termFactory;
 				try {
 					termFactory = TermFactory.getTermFactory(
-							TermFactoryImpl.class, Main.getInstance()
+							DLOptionBean.INSTANCE.getTermFactoryClass(), Main.getInstance()
 									.mediator().namespaces());
 					for (ProgramElement p : splitPlus(d.getChildAt(2))) {
 						result.add(termFactory.createMinusSign((Expression) p));
