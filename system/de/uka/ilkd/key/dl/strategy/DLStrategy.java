@@ -290,7 +290,7 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 
         bindRuleSet(d, "mathematica_reduce", add(ifZero(ReduceFeature.INSTANCE,
                 longConst(4999), inftyConst()), (MathSolverManager
-                .isSimplifierSet()) ? longConst(0) : inftyConst()));
+                .isQuantifierEliminatorSet()) ? longConst(0) : inftyConst()));
 
         bindRuleSet(d, "mathematica_simplify", add(SimplifyFeature.INSTANCE,
                 (MathSolverManager.isSimplifierSet()) ? longConst(0)
