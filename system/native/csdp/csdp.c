@@ -10,14 +10,18 @@ double *convert_jdoubleArray_to_double_range(JNIEnv * env, jdoubleArray array,
 	jdouble *element =
 		(jdouble *) (*env)->GetDoubleArrayElements(env, array, 0);
 	int size = (*env)->GetArrayLength(env, array);
-	assert(count - from <= size && from < size);
+	assert(count + from <= size);
 	double *result = malloc(sizeof(double) * (count+2));
 	int j;
-	for (j = 0; j <= count; j++) {
+	for (j = 0; j < count; j++) {
 		/* dont set anything to array element 0. fortran indexes (1..n) */
-		assert(j+1 < count+2);
+		assert(j < count+1 && from + j < size);
+#ifdef DEBUG
+		printf("setting pos %d to value %d\n", j+1, element[from+j]);
+#endif
 		result[j+1] = element[from + j];
 	}
+	(*env)->ReleaseDoubleArrayElements(env, array, element, JNI_ABORT);
 	return result;
 }
 
@@ -27,7 +31,7 @@ double *convert_jdoubleArray_to_double(JNIEnv * env, jdoubleArray array)
 	return convert_jdoubleArray_to_double_range(env, array, 0, size);
 }
 
-struct blockmatrix *convert_double_array_to_blockmatrix(JNIEnv * env,
+struct blockmatrix convert_double_array_to_blockmatrix(JNIEnv * env,
 														jdoubleArray array,
 														int n)
 {
@@ -38,9 +42,9 @@ struct blockmatrix *convert_double_array_to_blockmatrix(JNIEnv * env,
 	rec[1].blockcategory = MATRIX;
 	rec[1].data = data;
 	rec[1].blocksize = n;
-	struct blockmatrix *b = malloc(sizeof(struct blockmatrix));
-	b->nblocks = 1;
-	b->blocks = rec;
+	struct blockmatrix b;
+	b.nblocks = 1;
+	b.blocks = rec;
 	return b;
 }
 
@@ -54,29 +58,37 @@ struct constraintmatrix *convert_double_array_to_constraintmatrix(JNIEnv *
 	struct constraintmatrix *result =
 		malloc((k+1) * sizeof(struct constraintmatrix));
 	int l;
+	struct sparseblock *block;
 	for (l = 1; l <= k; l++) {
 		result[l].blocks = malloc(sizeof(struct sparseblock));
-		struct sparseblock *block= result[l].blocks;
-#ifdef NOSHORTS
+		if(l > 1) {
+			block->next = result[l].blocks;
+			block->nextbyblock = result[l].blocks;
+		}
+		block = result[l].blocks;
+#ifndef NOSHORTS
 #define INDICES_TYPE unsigned short
 #else
 #define INDICES_TYPE int
 #endif
 		block->entries = convert_jdoubleArray_to_double_range(env, constraints,
-														   (l - 1) * k, n);
-	/*	int size = n - (l - 1) * k;
-		block->entries = malloc(sizeof(double) * size + 1);
-		int j = 1;
-		for (j = 1; j <= size; j++) {
-			block->entries[j] = tmp[j - 1];
+			(l - 1) * k, n);
+#ifdef DEBUG
+		int count;
+		for(count = 1; count <= n; count++) {
+			printf("Entry is %d\n", block->entries[count]);
 		}
-		free(tmp);*/
-		block->iindices = malloc(sizeof(INDICES_TYPE) * (n / 2 + 1));
-		block->jindices = malloc(sizeof(INDICES_TYPE) * (n / 2 + 1));
-		INDICES_TYPE i;
-		for (i = 1; i <= n / 2 + 1; i++) {
-			block->iindices[i] = i;
-			block->jindices[i] = i;
+#endif
+		int arraysize = (n+1)*(n+1);
+		block->iindices = malloc(sizeof(INDICES_TYPE) * arraysize);
+		block->jindices = malloc(sizeof(INDICES_TYPE) * arraysize);
+		INDICES_TYPE i,j;
+		for (i = 1; i <= n; i++) {
+			for (j = 1; j <= n; j++) {
+				assert(n*(i-1)+j < arraysize);
+				block->iindices[n*(i-1)+j] = i;
+				block->jindices[n*(i-1)+j] = j;
+			}
 		}
 		block->blocknum = 1;
 		block->blocksize = n;
@@ -84,6 +96,7 @@ struct constraintmatrix *convert_double_array_to_constraintmatrix(JNIEnv *
 		block->constraintnum = l;
 		block->issparse = 1;
 		block->next = 0;
+		block->nextbyblock = 0;
 	}
 	return result;
 }
@@ -104,79 +117,63 @@ void insert_results_array2D(JNIEnv * env, jdoubleArray out, double **in)
 #warning implement
 }
 
-JNIEXPORT jint JNICALL
-Java_de_uka_ilkd_key_dl_arithmetics_impl_csdp_CSDP_easySDP(JNIEnv * env,
-														   jclass clazz,
-														   jint n, jint k,
-														   BMATRIX C,
-														   jdoubleArray a,
-														   CMATRIX
-														   constraints,
-														   jdouble
-														   constant_offset,
-														   BMATRIX pX,
-														   jdoubleArray py,
-														   BMATRIX pZ,
-														   jdoubleArray
-														   ppobj,
-														   jdoubleArray pdobj)
+JNIEXPORT jint JNICALL Java_de_uka_ilkd_key_dl_arithmetics_impl_csdp_CSDP_easySDP
+  (env, clazz, n, k, C, a, constraints, constant_offset, pX, py, pZ, ppobj, pdobj)
+  JNIEnv *env;
+  jclass clazz; 
+  jint n;
+  jint k; 
+  jdoubleArray C;
+  jdoubleArray a; 
+  jdoubleArray constraints; 
+  jdouble constant_offset; 
+  jdoubleArray pX; 
+  jdoubleArray py; 
+  jdoubleArray pZ; 
+  jdoubleArray ppobj; 
+  jdoubleArray pdobj;
 {
 
-	struct blockmatrix *_C = convert_double_array_to_blockmatrix(env, C, n);
-	struct blockmatrix *_pX = convert_double_array_to_blockmatrix(env, pX, n);
-	struct blockmatrix *_pZ = convert_double_array_to_blockmatrix(env, pZ, n);
+#ifdef DEBUG
+	jdouble *element =
+		(jdouble *) (*env)->GetDoubleArrayElements(env, C, 0);
+	int ssize = (*env)->GetArrayLength(env, C);
+	jdouble bla = element[ssize - 1];
+	printf("got at position %d: %d\n", ssize - 1, bla);
+	(*env)->ReleaseDoubleArrayElements(env, C, element, JNI_ABORT);
+#endif
+
+	struct blockmatrix _C = convert_double_array_to_blockmatrix(env, C, n);
+#ifdef DEBUG
+	/* output matrix _C */
+	
+
+#endif
+
 
 	struct constraintmatrix *_constraints =
 		convert_double_array_to_constraintmatrix(env, (int) n, (int) k,
 												 constraints);
 
 	double *_a = convert_jdoubleArray_to_double(env, a);
-	/*
-	double *tmp = convert_jdoubleArray_to_double(env, a);
-	int size = (*env)->GetArrayLength(env, a);
-	double *_a = malloc(sizeof(double) * (size + 1));
-	int i = 1;
-	for (i = 1; i <= size; i++) {
-		_a[i] = tmp[i - 1];
-	}
-	free(tmp);*/
-	/*
-	tmp = convert_jdoubleArray_to_double(env, py);
-	size = (*env)->GetArrayLength(env, py);
-	double **_py = malloc(sizeof(double *));
-	*_py = malloc(sizeof(double) * size + 1);
-	i = 1;
-	for (i = 1; i <= size; i++) {
-		_py[0][i] = tmp[i - 1];
-	}
-	free(tmp);
-	tmp = convert_jdoubleArray_to_double(env, ppobj);
-	size = (*env)->GetArrayLength(env, ppobj);
-	double *_ppobj = malloc(sizeof(double) * size + 1);
-	i = 1;
-	for (i = 1; i <= size; i++) {
-		_ppobj[i] = tmp[i - 1];
-	}
-	free(tmp);
-	tmp = convert_jdoubleArray_to_double(env, ppobj);
-	size = (*env)->GetArrayLength(env, pdobj);
-	double *_pdobj = convert_jdoubleArray_to_double(env, pdobj);
-	i = 1;
-	for (i = 1; i <= size; i++) {
-		_pdobj[i] = tmp[i - 1];
-	}
-	free(tmp);
-	*/
+
+    write_prob("prob-2.dat-s",n,k,_C,_a,_constraints);
+
 	struct blockmatrix X,Z;
     double *y; 
     double pobj,dobj;
 
-	initsoln(n,k,*_C,_a,_constraints,&X,&y,&Z);
-	int result = easy_sdp((int) n, (int) k, *_C, _a, _constraints,
+	initsoln(n,k,_C,_a,_constraints,&X,&y,&Z);
+#ifdef DEBUG
+	printf("Now starting easy sdp\n");
+#endif
+	int result = easy_sdp((int) n, (int) k, _C, _a, _constraints,
 						  (double) constant_offset, &X, &y, &Z, &pobj,
 						  &dobj);
 
+#ifdef DEBUG
 	printf("result is: %d\n", result);
+#endif
 
 	/*insert_results_bmatrix(env, pX, _pX);
 	insert_results_array2D(env, py, _py);
@@ -184,109 +181,24 @@ Java_de_uka_ilkd_key_dl_arithmetics_impl_csdp_CSDP_easySDP(JNIEnv * env,
 	/*insert_results_array(env, ppobj, _ppobj);
 	insert_results_array(env, pdobj, _pdobj);*/
 
+#ifdef DEBUG
 	printf("freeing problemdata\n");
+#endif
   int i;
   struct sparseblock *ptr;
   struct sparseblock *oldptr;
 
-  /*
-   * First, free the vectors of doubles.
-   */
+  free_prob(n,k,_C,_a,_constraints,X,y,Z);
 
-  free(y);
-  printf("y is free");
-  free(a);
-  printf("a is free");
-
-  printf("Vectors are free");
-
-  /*
-   * Now, the block matrices.
-   */
-
-
-  free_mat(*_C);
-  free_mat(X);
-  free_mat(Z);
-
-  printf("Matrices are free");
-
-  /*
-   * Finally, get rid of the constraints.
-   */
-
-  if (_constraints != NULL)
-    {
-      for (i=1; i<=k; i++)
-	{
-	  /*
-	   * Get rid of constraint i.
-	   */
-	  
-	  ptr=_constraints[i].blocks;
-	  while (ptr != NULL)
-	    {
-	      free(ptr->entries);
-	      free(ptr->iindices);
-	      free(ptr->jindices);
-	      oldptr=ptr;
-	      ptr=ptr->next;
-	      free(oldptr);
-	    };
-	};
-      /*
-       * Finally, free the constraints array.
-       */
-
-	  printf("finally free constraints");
-      free(_constraints);
-    };
-
-	printf("freeing matrix _C\n");
-	free(_C);
-	/*free(_pX);
-	free(_py);
-	free(_pZ);
-	free(_ppobj);
-	free(_pdobj);*/
-	return result;
+  return result;
 }
 
-JNIEXPORT jint JNICALL
-Java_de_uka_ilkd_key_dl_arithmetics_impl_csdp_CSDP_test(JNIEnv * env,
-														   jclass clazz)
-{
-  /*
-   * The problem and solution data.
-   */
 
+/*
+ * Test DATA
+ */
+struct blockmatrix create_test_blockmatrix() {
   struct blockmatrix C;
-  double *b;
-  struct constraintmatrix *constraints;
-
-  /*
-   * Storage for the initial and final solutions.
-   */
-
-  struct blockmatrix X,Z;
-  double *y;
-  double pobj,dobj;
-
-  /*
-   * blockptr will be used to point to blocks in constraint matrices.
-   */
-
-  struct sparseblock *blockptr;
-
-  /*
-   * A return code for the call to easy_sdp().
-   */
-
-  int ret;
-
-  /*
-   * The first major task is to setup the C matrix and right hand side b.
-   */
 
   /*
    * First, allocate storage for the C matrix.  We have three blocks, but
@@ -373,24 +285,12 @@ Java_de_uka_ilkd_key_dl_arithmetics_impl_csdp_CSDP_test(JNIEnv * env,
   C.blocks[3].data.vec[1]=0.0;
   C.blocks[3].data.vec[2]=0.0;
 
+  return C;
+}
 
-  /*
-   * Allocate storage for the right hand side, b.
-   */
+struct constraintmatrix* create_test_constraints() {
+  struct constraintmatrix *constraints;
 
-  b=(double *)malloc((2+1)*sizeof(double));
-  if (b==NULL)
-    {
-      printf("Failed to allocate storage for a!\n");
-      exit(1);
-    };
-
-  /*
-   * Fill in the entries in b.
-   */
-
-  b[1]=1.0;
-  b[2]=2.0;
 
   /*
    * The next major step is to setup the two constraint matrices A1 and A2.
@@ -420,6 +320,12 @@ Java_de_uka_ilkd_key_dl_arithmetics_impl_csdp_CSDP_test(JNIEnv * env,
   /*
    * Now, we handle block 3 of A1.
    */
+
+  /*
+   * blockptr will be used to point to blocks in constraint matrices.
+   */
+
+  struct sparseblock *blockptr;
 
   /*
    * Allocate space for block 3 of A1.
@@ -750,6 +656,123 @@ Java_de_uka_ilkd_key_dl_arithmetics_impl_csdp_CSDP_test(JNIEnv * env,
  	struct sparseblock *p = constraints[counter].blocks;
     printf("\n counter: %d, blocknum: %d, constraintnum: %d, blocksize: %d\n", counter, p->blocknum, p->constraintnum, p->blocksize);
  }   
+ return constraints;
+}
+
+/********************************************************************* 
+ * Begin external test methods
+********************************************************************/ 
+JNIEXPORT jint JNICALL Java_de_uka_ilkd_key_dl_arithmetics_impl_csdp_CSDP_test2
+  (env, clazz, n, k, C, a, constraints, constant_offset, pX, py, pZ, ppobj, pdobj) 
+  JNIEnv *env;
+  jclass clazz; 
+  jint n;
+  jint k; 
+  jdoubleArray C;
+  jdoubleArray a; 
+  jdoubleArray constraints; 
+  jdouble constant_offset; 
+  jdoubleArray pX; 
+  jdoubleArray py; 
+  jdoubleArray pZ; 
+  jdoubleArray ppobj; 
+  jdoubleArray pdobj;
+{
+
+	struct blockmatrix _C = convert_double_array_to_blockmatrix(env, C, n);
+	/*struct blockmatrix _C = create_test_blockmatrix();*/
+
+	/*struct constraintmatrix *_constraints =
+		convert_double_array_to_constraintmatrix(env, (int) n, (int) k,
+												 constraints);*/
+	struct constraintmatrix *_constraints = create_test_constraints();
+
+	double *_a = convert_jdoubleArray_to_double(env, a);
+
+    write_prob("prob-2.dat-s",n,k,_C,_a,_constraints);
+
+	struct blockmatrix X,Z;
+    double *y; 
+    double pobj,dobj;
+
+	initsoln(n,k,_C,_a,_constraints,&X,&y,&Z);
+	printf("Now starting easy sdp\n");
+	int result = easy_sdp((int) n, (int) k, _C, _a, _constraints,
+						  (double) constant_offset, &X, &y, &Z, &pobj,
+						  &dobj);
+
+	printf("result is: %d\n", result);
+
+	/*insert_results_bmatrix(env, pX, _pX);
+	insert_results_array2D(env, py, _py);
+	insert_results_bmatrix(env, pZ, _pZ);*/
+	/*insert_results_array(env, ppobj, _ppobj);
+	insert_results_array(env, pdobj, _pdobj);*/
+
+	printf("freeing problemdata\n");
+  int i;
+  struct sparseblock *ptr;
+  struct sparseblock *oldptr;
+
+  free_prob(n,k,_C,_a,_constraints,X,y,Z);
+	return result;
+}
+
+JNIEXPORT jint JNICALL
+Java_de_uka_ilkd_key_dl_arithmetics_impl_csdp_CSDP_test(JNIEnv * env,
+														   jclass clazz)
+{
+  /*
+   * The problem and solution data.
+   */
+
+  struct blockmatrix C;
+  double *b;
+  struct constraintmatrix *constraints;
+
+  /*
+   * Storage for the initial and final solutions.
+   */
+
+  struct blockmatrix X,Z;
+  double *y;
+  double pobj,dobj;
+
+
+  /*
+   * A return code for the call to easy_sdp().
+   */
+
+  int ret;
+
+  /*
+   * The first major task is to setup the C matrix and right hand side b.
+   */
+
+	C = create_test_blockmatrix();
+
+
+  /*
+   * Allocate storage for the right hand side, b.
+   */
+
+  b=(double *)malloc((2+1)*sizeof(double));
+  if (b==NULL)
+    {
+      printf("Failed to allocate storage for a!\n");
+      exit(1);
+    };
+
+  /*
+   * Fill in the entries in b.
+   */
+
+  b[1]=1.0;
+  b[2]=2.0;
+
+
+	constraints = create_test_constraints();
+
  
 
   /*
@@ -772,6 +795,7 @@ Java_de_uka_ilkd_key_dl_arithmetics_impl_csdp_CSDP_test(JNIEnv * env,
   initsoln(7,2,C,b,constraints,&X,&y,&Z);
 
   printf("After initsol");
+  int counter;
  for(counter = 1; counter <= 2; counter++)
  {   
  	struct sparseblock *p = constraints[counter].blocks;
@@ -801,7 +825,7 @@ Java_de_uka_ilkd_key_dl_arithmetics_impl_csdp_CSDP_test(JNIEnv * env,
    */
 
   free_prob(7,2,C,b,constraints,X,y,Z);
-  exit(0);
-  
+  return 0;
 }
+
 
