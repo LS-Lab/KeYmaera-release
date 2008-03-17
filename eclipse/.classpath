@@ -3,8 +3,6 @@
 	<classpathentry excluding="aspects/|binary/|proofExamples/|proofExamples/arrays/classes/|proofExamples/challenges/jacobsEtAl/abruptTermination/|proofExamples/challenges/jacobsEtAl/aliasing/|proofExamples/challenges/jacobsEtAl/sideeffects/|proofExamples/challenges/jacobsEtAl/static_initialisation/classes/|proofExamples/dev/|proofExamples/dev/aroth_java/|proofExamples/dev/bugs_java/|proofExamples/dev/schemamodal_java/|proofExamples/dev/transactions_java/|proofExamples/generic/classes/|proofExamples/initialisation/java/|proofExamples/instanceCreation/classes/|proofExamples/java_dl/SimpleAttributes_java/|proofExamples/java_dl/attributes_java/|proofExamples/java_dl/compileTimeConstants_java/|proofExamples/java_dl/exceptions_java/|proofExamples/java_dl/methodcall_java/|proofExamples/java_dl/testcontext_java/|proofExamples/ocl/classes/|proofExamples/simplifier/|proofExamples/staticInitialisation/java/|resources/" including="TestKey.java|de/|genSrc|tudresden/" kind="src" path="system"/>
 	<classpathentry kind="src" path="system/genSrc"/>
 	<classpathentry kind="lib" path="key_lib/JLink/JLink.jar"/>
-	<classpathentry kind="lib" path="key_lib/orbital-ext.jar" sourcepath="/disk/or/c2t0d0s2/home/fb10-sem/andre/workspace/orbital/src"/>
-	<classpathentry kind="lib" path="key_lib/orbital-core.jar" sourcepath="/home/andre/workspace/orbital/src"/>
 	<classpathentry kind="lib" path="key_lib/antlr3.jar"/>
 	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="key_lib/xerces.jar"/>
@@ -20,5 +18,6 @@
 	<classpathentry kind="lib" path="tcc_modules/modules"/>
 	<classpathentry kind="lib" path="key_lib/antlr-3.0b5/lib/antlr-2.7.7.jar"/>
 	<classpathentry kind="lib" path="key_lib/antlr-3.0b5/lib/stringtemplate-3.0.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/orbital"/>
 	<classpathentry kind="output" path="system/binary/"/>
 </classpath>

@@ -291,7 +291,7 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 		if (DLOptionBean.INSTANCE.isApplyLocalReduce()) {
 			bindRuleSet(d, "mathematica_reduce", add(ifZero(
 					ReduceFeature.INSTANCE, longConst(4999), inftyConst()),
-					(MathSolverManager.isSimplifierSet()) ? longConst(0)
+					(MathSolverManager.isQuantifierEliminatorSet()) ? longConst(0)
 							: inftyConst()));
 		} else {
 			bindRuleSet(d, "mathematica_reduce", inftyConst());
