@@ -112,13 +112,17 @@ struct constraintmatrix *convert_double_array_to_constraintmatrix(JNIEnv *
 void insert_results_bmatrix(JNIEnv * env, jdoubleArray out,
 							struct blockmatrix *in)
 {
-	int size = in->blocks[1].blocksize;
     jdouble* destArrayElems = 
            (*env)->GetDoubleArrayElements(env, out, NULL);
-	int i;
-	for(i = 0; i < size; i++)
+	int i,j;
+	int index = 0;
+	for(j=1; j <= in->nblocks; j++)
 	{
-		destArrayElems[i] = in->blocks[1].data.mat[i];
+		int size = in->blocks[j].blocksize;
+		for(i = 0; i < size*size; i++)
+		{
+			destArrayElems[index++] = in->blocks[j].data.mat[i];
+		}
 	}
 	(*env)->ReleaseDoubleArrayElements(env, out, destArrayElems, 0);
 }
@@ -178,9 +182,10 @@ JNIEXPORT jint JNICALL
 						  (double) constant_offset, &X, &y, &Z, &pobj,
 						  &dobj);
 
+	write_sol("prob-2.sol", n, k, X, y, Z);
 
 	insert_results_bmatrix(env, pX, &X);
-	insert_results_array(env, py, y, n);
+	insert_results_array(env, py, y, k);
 	insert_results_bmatrix(env, pZ, &Z);
 	insert_results_array(env, ppobj, &pobj, n);
 	insert_results_array(env, pdobj, &dobj, k);

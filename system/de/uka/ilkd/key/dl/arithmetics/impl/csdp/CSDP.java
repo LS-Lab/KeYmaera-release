@@ -102,6 +102,8 @@ public class CSDP {
 		
 		test();
 		
+		int n = 7;
+		
 		double[] constraints = new double[] { 
 				3, 1, 0, 0, 0, 0, 0,
 				1, 3, 0, 0, 0, 0, 0, 
@@ -124,9 +126,9 @@ public class CSDP {
 				0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 		double[] a = new double[] { 1,2 };
 		double[] X = new double[C.length], 
-		y = new double[C.length], 
+		y = new double[a.length], 
 		Z = new double[C.length], 
-		pobj = new double[C.length], 
+		pobj = new double[n], 
 		dobj = new double[a.length];
 		
 		easySDP(7, 2, convertToFortranForm(C, 7), a, constraints, 0, X, y, Z,
