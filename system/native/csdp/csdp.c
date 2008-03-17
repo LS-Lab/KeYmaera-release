@@ -63,43 +63,61 @@ struct constraintmatrix *convert_double_array_to_constraintmatrix(JNIEnv *
 #ifdef DEBUG
 		printf("now translating block number %d\n", l);
 #endif
-		result[l].blocks = malloc(sizeof(struct sparseblock));
+		result[l].blocks = NULL;
+		block = malloc(sizeof(struct sparseblock));
 		if(l > 1) {
 			block->next = result[l].blocks;
 			block->nextbyblock = result[l].blocks;
 		}
-		block = result[l].blocks;
+		result[l].blocks = block;
 #ifndef NOSHORTS
 #define INDICES_TYPE unsigned short
 #else
 #define INDICES_TYPE int
 #endif
-		block->entries = convert_jdoubleArray_to_double_range(env, constraints,
-			(l - 1) * k, n*n, 1);
-#ifdef DEBUG
-		int count;
-		for(count = 1; count <= n*n; count++) {
-			printf("Entry is %f\n", block->entries[count]);
-		}
-#endif
-		int arraysize = (n+1)*(n+1);
-		block->iindices = malloc(sizeof(INDICES_TYPE) * arraysize);
-		block->jindices = malloc(sizeof(INDICES_TYPE) * arraysize);
-		INDICES_TYPE i,j;
-		for (i = 1; i <= n; i++) {
-			for (j = 1; j <= n; j++) {
-				assert(n*(i-1)+j < arraysize);
-				block->iindices[n*(i-1)+j] = i;
-				block->jindices[n*(i-1)+j] = j;
+		double* matrix_data = convert_jdoubleArray_to_double_range(env, constraints,
+			(l - 1) * n * n, n*n, 0);
+		/* now we need to find out howmany non zero entries the matrix contains */
+		int ii;
+		int nonzero = 0;
+		for(ii = 0; ii < n*n; ii++) 
+		{
+			if(matrix_data[ii] != 0)
+			{
+				printf("Constraint %d is %f at %d\n", l, matrix_data[ii], ii);
+				nonzero++;
 			}
 		}
+
+		block->iindices = malloc(sizeof(INDICES_TYPE) * nonzero+1);
+		block->jindices = malloc(sizeof(INDICES_TYPE) * nonzero+1);
+
+		block->entries = malloc(sizeof(double) * nonzero+1);
+
+		INDICES_TYPE i,j;
+
+		int curentry = 1;
+		for(ii = 0; ii < n*n; ii++)
+		{
+			if(matrix_data[ii] != 0)
+			{
+				block->entries[curentry] = matrix_data[ii];
+				block->iindices[curentry] = ii/n+1;
+				block->jindices[curentry] = ii%7+1;
+				printf("%d should be i = %d and j = %d\n", ii, block->iindices[curentry], block->jindices[curentry]);
+				printf("Entry at (%d, %d) is %f\n", block->iindices[curentry], block->jindices[curentry], matrix_data[ii]);
+				curentry++;
+			}
+		}
+		free(matrix_data);
+
 		block->blocknum = 1;
 		block->blocksize = n;
-		block->numentries = n;
+		block->numentries = nonzero;
 		block->constraintnum = l;
 		block->issparse = 1;
-		block->next = 0;
-		block->nextbyblock = 0;
+		block->next = NULL;
+		block->nextbyblock = NULL;
 	}
 	return result;
 }
@@ -119,6 +137,8 @@ void insert_results_array2D(JNIEnv * env, jdoubleArray out, double **in)
 {
 #warning implement
 }
+
+struct constraintmatrix* create_test_constraints();
 
 JNIEXPORT jint JNICALL Java_de_uka_ilkd_key_dl_arithmetics_impl_csdp_CSDP_easySDP
   (env, clazz, n, k, C, a, constraints, constant_offset, pX, py, pZ, ppobj, pdobj)
@@ -214,7 +234,7 @@ struct blockmatrix create_test_blockmatrix() {
    * make sure that the malloc succeeded.
    */
 
-  C.nblocks=3;
+  C.nblocks=1;
   C.blocks=(struct blockrec *)malloc(4*sizeof(struct blockrec));
   if (C.blocks == NULL)
     {
@@ -227,8 +247,8 @@ struct blockmatrix create_test_blockmatrix() {
    */
   
   C.blocks[1].blockcategory=MATRIX;
-  C.blocks[1].blocksize=2;
-  C.blocks[1].data.mat=(double *)malloc(2*2*sizeof(double));
+  C.blocks[1].blocksize=7;
+  C.blocks[1].data.mat=(double *)malloc(7*7*sizeof(double));
   if (C.blocks[1].data.mat == NULL)
     {
       printf("Couldn't allocate storage for C!\n");
@@ -239,58 +259,61 @@ struct blockmatrix create_test_blockmatrix() {
    * Put the entries into the first block.
    */
 
-  C.blocks[1].data.mat[ijtok(1,1,2)]=2.0;
-  C.blocks[1].data.mat[ijtok(1,2,2)]=1.0;
-  C.blocks[1].data.mat[ijtok(2,1,2)]=1.0;
-  C.blocks[1].data.mat[ijtok(2,2,2)]=2.0;
+  C.blocks[1].data.mat[ijtok(1,1,7)]=2.0;
+  C.blocks[1].data.mat[ijtok(1,2,7)]=1.0;
+  C.blocks[1].data.mat[ijtok(1,3,7)]=0.0;
+  C.blocks[1].data.mat[ijtok(1,4,7)]=0.0;
+  C.blocks[1].data.mat[ijtok(1,5,7)]=0.0;
+  C.blocks[1].data.mat[ijtok(1,6,7)]=0.0;
+  C.blocks[1].data.mat[ijtok(1,7,7)]=0.0;
 
-  /*
-   * Setup the second block.
-   */
-  
-  C.blocks[2].blockcategory=MATRIX;
-  C.blocks[2].blocksize=3;
-  C.blocks[2].data.mat=(double *)malloc(3*3*sizeof(double));
-  if (C.blocks[2].data.mat == NULL)
-    {
-      printf("Couldn't allocate storage for C!\n");
-      exit(1);
-    };
+  C.blocks[1].data.mat[ijtok(2,1,7)]=1.0;
+  C.blocks[1].data.mat[ijtok(2,2,7)]=2.0;
+  C.blocks[1].data.mat[ijtok(2,3,7)]=0.0;
+  C.blocks[1].data.mat[ijtok(2,4,7)]=0.0;
+  C.blocks[1].data.mat[ijtok(2,5,7)]=0.0;
+  C.blocks[1].data.mat[ijtok(2,6,7)]=0.0;
+  C.blocks[1].data.mat[ijtok(2,7,7)]=0.0;
 
-  /*
-   * Put the entries into the second block.
-   */
+  C.blocks[1].data.mat[ijtok(3,1,7)]=0.0;
+  C.blocks[1].data.mat[ijtok(3,2,7)]=0.0;
+  C.blocks[1].data.mat[ijtok(3,3,7)]=3.0;
+  C.blocks[1].data.mat[ijtok(3,4,7)]=0.0;
+  C.blocks[1].data.mat[ijtok(3,5,7)]=1.0;
+  C.blocks[1].data.mat[ijtok(3,6,7)]=0.0;
+  C.blocks[1].data.mat[ijtok(3,7,7)]=0.0;
 
-  C.blocks[2].data.mat[ijtok(1,1,3)]=3.0;
-  C.blocks[2].data.mat[ijtok(1,2,3)]=0.0;
-  C.blocks[2].data.mat[ijtok(1,3,3)]=1.0;
-  C.blocks[2].data.mat[ijtok(2,1,3)]=0.0;
-  C.blocks[2].data.mat[ijtok(2,2,3)]=2.0;
-  C.blocks[2].data.mat[ijtok(2,3,3)]=0.0;
-  C.blocks[2].data.mat[ijtok(3,1,3)]=1.0;
-  C.blocks[2].data.mat[ijtok(3,2,3)]=0.0;
-  C.blocks[2].data.mat[ijtok(3,3,3)]=3.0;
+  C.blocks[1].data.mat[ijtok(4,1,7)]=0.0;
+  C.blocks[1].data.mat[ijtok(4,2,7)]=0.0;
+  C.blocks[1].data.mat[ijtok(4,3,7)]=0.0;
+  C.blocks[1].data.mat[ijtok(4,4,7)]=2.0;
+  C.blocks[1].data.mat[ijtok(4,5,7)]=0.0;
+  C.blocks[1].data.mat[ijtok(4,6,7)]=0.0;
+  C.blocks[1].data.mat[ijtok(4,7,7)]=0.0;
 
-  /*
-   * Setup the third block.  Note that we have to allocate space for 3
-   * entries because C starts array indexing with 0 rather than 1.
-   */
-  
-  C.blocks[3].blockcategory=DIAG;
-  C.blocks[3].blocksize=2;
-  C.blocks[3].data.vec=(double *)malloc((2+1)*sizeof(double));
-  if (C.blocks[3].data.vec == NULL)
-    {
-      printf("Couldn't allocate storage for C!\n");
-      exit(1);
-    };
+  C.blocks[1].data.mat[ijtok(5,1,7)]=0.0;
+  C.blocks[1].data.mat[ijtok(5,2,7)]=0.0;
+  C.blocks[1].data.mat[ijtok(5,3,7)]=1.0;
+  C.blocks[1].data.mat[ijtok(5,4,7)]=0.0;
+  C.blocks[1].data.mat[ijtok(5,5,7)]=3.0;
+  C.blocks[1].data.mat[ijtok(5,6,7)]=0.0;
+  C.blocks[1].data.mat[ijtok(5,7,7)]=0.0;
 
-  /*
-   * Put the entries into the third block.
-   */
+  C.blocks[1].data.mat[ijtok(6,1,7)]=0.0;
+  C.blocks[1].data.mat[ijtok(6,2,7)]=0.0;
+  C.blocks[1].data.mat[ijtok(6,3,7)]=0.0;
+  C.blocks[1].data.mat[ijtok(6,4,7)]=0.0;
+  C.blocks[1].data.mat[ijtok(6,5,7)]=0.0;
+  C.blocks[1].data.mat[ijtok(6,6,7)]=0.0;
+  C.blocks[1].data.mat[ijtok(6,7,7)]=0.0;
 
-  C.blocks[3].data.vec[1]=0.0;
-  C.blocks[3].data.vec[2]=0.0;
+  C.blocks[1].data.mat[ijtok(7,1,7)]=0.0;
+  C.blocks[1].data.mat[ijtok(7,2,7)]=0.0;
+  C.blocks[1].data.mat[ijtok(7,3,7)]=0.0;
+  C.blocks[1].data.mat[ijtok(7,4,7)]=0.0;
+  C.blocks[1].data.mat[ijtok(7,5,7)]=0.0;
+  C.blocks[1].data.mat[ijtok(7,6,7)]=0.0;
+  C.blocks[1].data.mat[ijtok(7,7,7)]=0.0;
 
   return C;
 }
@@ -346,27 +369,29 @@ struct constraintmatrix* create_test_constraints() {
     };
 
   /*
-   * Initialize block 3.
+   * Initialize block 1.
    */
 
-  blockptr->blocknum=3;
-  blockptr->blocksize=2;
+  printf("Now creating constraint 1\n");
+
+  blockptr->blocknum=1;
+  blockptr->blocksize=7;
   blockptr->constraintnum=1;
   blockptr->next=NULL;
   blockptr->nextbyblock=NULL;
-  blockptr->entries=(double *) malloc((1+1)*sizeof(double));
+  blockptr->entries=(double *) malloc((5+1)*sizeof(double));
   if (blockptr->entries==NULL)
     {
       printf("Allocation of constraint block failed!\n");
       exit(1);
     };
-  blockptr->iindices=(int *) malloc((1+1)*sizeof(int));
+  blockptr->iindices=(int *) malloc((5+1)*sizeof(int));
   if (blockptr->iindices==NULL)
     {
       printf("Allocation of constraint block failed!\n");
       exit(1);
     };
-  blockptr->jindices=(int *) malloc((1+1)*sizeof(int));
+  blockptr->jindices=(int *) malloc((5+1)*sizeof(int));
   if (blockptr->jindices==NULL)
     {
       printf("Allocation of constraint block failed!\n");
@@ -377,7 +402,7 @@ struct constraintmatrix* create_test_constraints() {
    * We have 1 nonzero entry in the upper triangle of block 3 of A1.
    */
 
-  blockptr->numentries=1;
+  blockptr->numentries=5;
 
   /*
    * The entry in the 1,1 position of block 3 of A1 is 1.0
@@ -385,108 +410,26 @@ struct constraintmatrix* create_test_constraints() {
 
   blockptr->iindices[1]=1;
   blockptr->jindices[1]=1;
-  blockptr->entries[1]=1.0;
-
-  /*
-   * Note that the entry in the 2,2 position of block 3 of A1 is 0, 
-   * So we don't store anything for it.
-   */
-
-  /*
-   * Insert block 3 into the linked list of A1 blocks.  
-   */
-
-  blockptr->next=constraints[1].blocks;
-  constraints[1].blocks=blockptr;
-
-  /*
-   * Now, we handle block 1.  
-   */
-
-  /*
-   * Allocate space for block 1.
-   */
-
-  blockptr=(struct sparseblock *)malloc(sizeof(struct sparseblock));
-  if (blockptr==NULL)
-    {
-      printf("Allocation of constraint block failed!\n");
-      exit(1);
-    };
-
-  /*
-   * Initialize block 1.
-   */
-
-  blockptr->blocknum=1;
-  blockptr->blocksize=2;
-  blockptr->constraintnum=1;
-  blockptr->next=NULL;
-  blockptr->nextbyblock=NULL;
-  blockptr->entries=(double *) malloc((3+1)*sizeof(double));
-  if (blockptr->entries==NULL)
-    {
-      printf("Allocation of constraint block failed!\n");
-      exit(1);
-    };
-  blockptr->iindices=(int *) malloc((3+1)*sizeof(int));
-  if (blockptr->iindices==NULL)
-    {
-      printf("Allocation of constraint block failed!\n");
-      exit(1);
-    };
-  blockptr->jindices=(int *) malloc((3+1)*sizeof(int));
-  if (blockptr->jindices==NULL)
-    {
-      printf("Allocation of constraint block failed!\n");
-      exit(1);
-    };
-
-  /*
-   * We have 3 nonzero entries in the upper triangle of block 1 of A1.
-   */
-
-  blockptr->numentries=3;
-
-  /*
-   * The entry in the 1,1 position of block 1 of A1 is 3.0
-   */
-
-  blockptr->iindices[1]=1;
-  blockptr->jindices[1]=1;
   blockptr->entries[1]=3.0;
 
-  /*
-   * The entry in the 1,2 position of block 1 of A1 is 1.0
-   */
-
-  blockptr->iindices[2]=1;
-  blockptr->jindices[2]=2;
+  blockptr->iindices[2]=2;
+  blockptr->jindices[2]=1;
   blockptr->entries[2]=1.0;
-
-  /*
-   * The entry in the 2,2 position of block 1 of A1 is 3.0
-   */
 
   blockptr->iindices[3]=2;
   blockptr->jindices[3]=2;
   blockptr->entries[3]=3.0;
 
-  /*
-   * Note that we don't have to store the 2,1 entry- this is assumed to be
-   * equal to the 1,2 entry.
-   */
+  blockptr->iindices[4]=1;
+  blockptr->jindices[4]=2;
+  blockptr->entries[4]=1.0;
 
-  /*
-   * Insert block 1 into the linked list of A1 blocks.  
-   */
+  blockptr->iindices[5]=6;
+  blockptr->jindices[5]=6;
+  blockptr->entries[5]=1.0;
 
   blockptr->next=constraints[1].blocks;
   constraints[1].blocks=blockptr;
-
-  /*
-   * Note that the second block of A1 is 0, so we didn't store anything for it.
-   */
 
   /*
    * Setup the A2 matrix.  This time, there are nonzero entries in block 3
@@ -518,24 +461,26 @@ struct constraintmatrix* create_test_constraints() {
    * Initialize block 3.
    */
 
-  blockptr->blocknum=3;
-  blockptr->blocksize=2;
+  printf("Now creating constraint 2\n");
+
+  blockptr->blocknum=1;
+  blockptr->blocksize=7;
   blockptr->constraintnum=2;
   blockptr->next=NULL;
   blockptr->nextbyblock=NULL;
-  blockptr->entries=(double *) malloc((1+1)*sizeof(double));
+  blockptr->entries=(double *) malloc((6+1)*sizeof(double));
   if (blockptr->entries==NULL)
     {
       printf("Allocation of constraint block failed!\n");
       exit(1);
     };
-  blockptr->iindices=(int *) malloc((1+1)*sizeof(int));
+  blockptr->iindices=(int *) malloc((6+1)*sizeof(int));
   if (blockptr->iindices==NULL)
     {
       printf("Allocation of constraint block failed!\n");
       exit(1);
     };
-  blockptr->jindices=(int *) malloc((1+1)*sizeof(int));
+  blockptr->jindices=(int *) malloc((6+1)*sizeof(int));
   if (blockptr->jindices==NULL)
     {
       printf("Allocation of constraint block failed!\n");
@@ -546,16 +491,36 @@ struct constraintmatrix* create_test_constraints() {
    * We have 1 nonzero entry in the upper triangle of block 3 of A2.
    */
 
-  blockptr->numentries=1;
+  blockptr->numentries=6;
 
 
   /*
    * The entry in the 2,2 position of block 3 of A2 is 1.0
    */
 
-  blockptr->iindices[1]=2;
-  blockptr->jindices[1]=2;
-  blockptr->entries[1]=1.0;
+  blockptr->iindices[1]=3;
+  blockptr->jindices[1]=3;
+  blockptr->entries[1]=3.0;
+
+  blockptr->iindices[2]=3;
+  blockptr->jindices[2]=5;
+  blockptr->entries[2]=1.0;
+
+  blockptr->iindices[3]=5;
+  blockptr->jindices[3]=3;
+  blockptr->entries[3]=1.0;
+
+  blockptr->iindices[4]=4;
+  blockptr->jindices[4]=4;
+  blockptr->entries[4]=4.0;
+
+  blockptr->iindices[5]=5;
+  blockptr->jindices[5]=5;
+  blockptr->entries[5]=5.0;
+
+  blockptr->iindices[6]=7;
+  blockptr->jindices[6]=7;
+  blockptr->entries[6]=1.0;
 
   /*
    * Insert block 3 into the linked list of A2 blocks.  
@@ -564,98 +529,8 @@ struct constraintmatrix* create_test_constraints() {
   blockptr->next=constraints[2].blocks;
   constraints[2].blocks=blockptr;
 
-  /*
-   * Now, we handle block 2.  
-   */
 
-  /*
-   * Allocate space for block 2.
-   */
-
-  blockptr=(struct sparseblock *)malloc(sizeof(struct sparseblock));
-  if (blockptr==NULL)
-    {
-      printf("Allocation of constraint block failed!\n");
-      exit(1);
-    };
-
-  /*
-   * Initialize block 2.
-   */
-
-  blockptr->blocknum=2;
-  blockptr->blocksize=3;
-  blockptr->constraintnum=2;
-  blockptr->next=NULL;
-  blockptr->nextbyblock=NULL;
-  blockptr->entries=(double *) malloc((4+1)*sizeof(double));
-  if (blockptr->entries==NULL)
-    {
-      printf("Allocation of constraint block failed!\n");
-      exit(1);
-    };
-  blockptr->iindices=(int *) malloc((4+1)*sizeof(int));
-  if (blockptr->iindices==NULL)
-    {
-      printf("Allocation of constraint block failed!\n");
-      exit(1);
-    };
-  blockptr->jindices=(int *) malloc((4+1)*sizeof(int));
-  if (blockptr->jindices==NULL)
-    {
-      printf("Allocation of constraint block failed!\n");
-      exit(1);
-    };
-
-  /*
-   * We have 4 nonzero entries in the upper triangle of block 2 of A2.
-   */
-
-  blockptr->numentries=4;
-
-
-  /*
-   * The entry in the 1,1 position of block 2 of A2 is 3.0
-   */
-
-  blockptr->iindices[1]=1;
-  blockptr->jindices[1]=1;
-  blockptr->entries[1]=3.0;
-
-  /*
-   * The entry in the 2,2 position of block 2 of A2 is 4.0
-   */
-
-  blockptr->iindices[2]=2;
-  blockptr->jindices[2]=2;
-  blockptr->entries[2]=4.0;
-
-  /*
-   * The entry in the 3,3 position of block 2 of A2 is 5.0
-   */
-
-  blockptr->iindices[3]=3;
-  blockptr->jindices[3]=3;
-  blockptr->entries[3]=5.0;
-
-  /*
-   * The entry in the 1,3 position of block 2 of A2 is 1.0
-   */
-
-  blockptr->iindices[4]=1;
-  blockptr->jindices[4]=3;
-  blockptr->entries[4]=1.0;
-
-  /*
-   * Note that we don't store the 0 entries and entries below the diagonal!
-   */
-
-  /*
-   * Insert block 2 into the linked list of A2 blocks.  
-   */
-
-  blockptr->next=constraints[2].blocks;
-  constraints[2].blocks=blockptr;
+  printf("Now outputting constraints\n");
 
  int counter;
  for(counter = 1; counter <= 2; counter++)
