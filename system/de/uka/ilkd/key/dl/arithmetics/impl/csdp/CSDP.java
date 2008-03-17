@@ -86,12 +86,26 @@ public class CSDP {
 			double[] a, double[] constraints, double constant_offset,
 			double[] blockmatrixpX, double[] py, double[] blockmatrixpZ,
 			double[] ppobj, double[] pdobj);
+	
+	@SuppressWarnings("unused")
 	private static native int test2(int n, int k, double[] blockmatrixC,
 			double[] a, double[] constraints, double constant_offset,
 			double[] blockmatrixpX, double[] py, double[] blockmatrixpZ,
 			double[] ppobj, double[] pdobj);
 
 	private static native int test();
+	
+	public static boolean sdp(int n, int k, double[] a, double[] constraints) {
+		double[] X = new double[n*n], 
+		y = new double[a.length], 
+		Z = new double[n*n], 
+		pobj = new double[n], 
+		dobj = new double[a.length];
+		System.out.println("n is: " + n);//XXX
+		System.out.println("a is: " + Arrays.toString(a));//XXX
+		System.out.println("constraints is: " + Arrays.toString(constraints));//XXX
+		return easySDP(n, k, new double[n*n], a, constraints, 0, X, y, Z, pobj, dobj) == 0;
+	}
 
 	public static void main(String[] args) {
 		System.loadLibrary("lapack");
