@@ -92,7 +92,9 @@ struct constraintmatrix *convert_double_array_to_constraintmatrix(JNIEnv *
 			if (matrix_data[ii] != 0) {
 				block->entries[curentry] = matrix_data[ii];
 				block->iindices[curentry] = ii / n + 1;
-				block->jindices[curentry] = ii % 7 + 1;
+				assert(block->iindices[curentry] <= n);
+				block->jindices[curentry] = ii % n + 1;
+				assert(block->jindices[curentry] <= n);
 				curentry++;
 			}
 		}
