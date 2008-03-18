@@ -2,6 +2,7 @@
 CFLAGS=-O3 -std=c99 -Wall -DNOSHORTS -DDEBUG -fPIC -g -ggdb -fPIC
 
 all: libcsdp.so
+	cp libcsdp.so ../../binary
 
 #libcsdp.so: csdp.o libsdp.a
 #	ld -shared -o $@ csdp.o libsdp.a #-llapack -lblas -lm
