@@ -7,18 +7,30 @@
 double *convert_jdoubleArray_to_double_range(JNIEnv * env, jdoubleArray array,
 											 int from, int count, int shift)
 {
+	printf("Converting an array from %d %d elements\n", from, count);
+	jboolean isCopy;
 	jdouble *element =
-		(jdouble *) (*env)->GetDoubleArrayElements(env, array, 0);
+		(jdouble *) (*env)->GetDoubleArrayElements(env, array, &isCopy);
 	int size = (*env)->GetArrayLength(env, array);
 	assert(count + from <= size);
-	double *result = malloc(sizeof(double) * (count + 1 + shift));
+	printf("Now allocating %d doubles\n", count + shift);
+	double *result = malloc(sizeof(double) * (count + shift));
+	if(result == NULL) {
+		printf("Could not allocate memory\n");
+		exit(1);
+	}
 	int j;
 	for (j = 0; j < count; j++) {
 		/* dont set anything to array element 0. fortran indexes (1..n) */
-		assert(j < count + shift && from + j < size);
+		assert(j < count && from + j < size);
+		printf("Converting element %d\n", j + shift);
 		result[j + shift] = element[from + j];
 	}
-	(*env)->ReleaseDoubleArrayElements(env, array, element, JNI_ABORT);
+	printf("Finshed copying\n");
+	if(isCopy == JNI_TRUE) {
+		(*env)->ReleaseDoubleArrayElements(env, array, element, JNI_ABORT);
+	}
+	printf("Returning result\n");
 	return result;
 }
 
@@ -114,8 +126,9 @@ struct constraintmatrix *convert_double_array_to_constraintmatrix(JNIEnv *
 void insert_results_bmatrix(JNIEnv * env, jdoubleArray out,
 							struct blockmatrix *in)
 {
+    jboolean isCopy;
     jdouble* destArrayElems = 
-           (*env)->GetDoubleArrayElements(env, out, NULL);
+           (*env)->GetDoubleArrayElements(env, out, &isCopy);
 	int i,j;
 	int index = 0;
 	for(j=1; j <= in->nblocks; j++)
@@ -126,19 +139,24 @@ void insert_results_bmatrix(JNIEnv * env, jdoubleArray out,
 			destArrayElems[index++] = in->blocks[j].data.mat[i];
 		}
 	}
-	(*env)->ReleaseDoubleArrayElements(env, out, destArrayElems, 0);
+	if(isCopy == JNI_TRUE) {
+		(*env)->ReleaseDoubleArrayElements(env, out, destArrayElems, 0);
+	}
 }
 
 void insert_results_array(JNIEnv * env, jdoubleArray out, double *in, int size)
 {
+    jboolean isCopy;
     jdouble* destArrayElems = 
-           (*env)->GetDoubleArrayElements(env, out, NULL);
+           (*env)->GetDoubleArrayElements(env, out, &isCopy);
 	int i;
 	for(i = 0; i < size; i++)
 	{
 		destArrayElems[i] = in[i+1];
 	}
-	(*env)->ReleaseDoubleArrayElements(env, out, destArrayElems, 0);
+	if(isCopy == JNI_TRUE) {
+		(*env)->ReleaseDoubleArrayElements(env, out, destArrayElems, 0);
+	}
 }
 
 struct constraintmatrix *create_test_constraints();
@@ -179,6 +197,7 @@ JNIEXPORT jint JNICALL
 	double *y;
 	double pobj, dobj;
 
+	printf("n = %d, k = %d\n", n, k);
 	initsoln(n, k, _C, _a, _constraints, &X, &y, &Z);
 	int result = easy_sdp((int) n, (int) k, _C, _a, _constraints,
 						  (double) constant_offset, &X, &y, &Z, &pobj,
