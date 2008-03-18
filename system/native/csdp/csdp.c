@@ -183,6 +183,8 @@ JNIEXPORT jint JNICALL
 	 jdoubleArray pdobj;
 {
 
+	assert(sizeof(double) == sizeof(jdouble));
+	assert(sizeof(int) == sizeof(jint));
 	struct blockmatrix _C = convert_double_array_to_blockmatrix(env, C, n);
 
 	struct constraintmatrix *_constraints =
