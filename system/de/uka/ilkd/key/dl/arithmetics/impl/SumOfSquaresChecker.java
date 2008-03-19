@@ -35,6 +35,8 @@ import orbital.math.Real;
 import orbital.math.Values;
 import orbital.math.Vector;
 import de.uka.ilkd.key.dl.arithmetics.impl.csdp.CSDP;
+import de.uka.ilkd.key.dl.arithmetics.impl.sos.PolynomialOrder;
+import de.uka.ilkd.key.dl.arithmetics.impl.sos.SimpleOrder;
 import de.uka.ilkd.key.dl.formulatools.VariableCollector;
 import de.uka.ilkd.key.dl.logic.ldt.RealLDT;
 import de.uka.ilkd.key.dl.parser.NumberCache;
@@ -52,6 +54,10 @@ import de.uka.ilkd.key.logic.op.TermSymbol;
  * 
  */
 public class SumOfSquaresChecker {
+
+	private enum Result {
+		SOLUTION_FOUND, NO_SOLUTION_AVAILABLE, UNKNOWN;
+	}
 
 	public static final SumOfSquaresChecker INSTANCE = new SumOfSquaresChecker();
 
@@ -168,49 +174,41 @@ public class SumOfSquaresChecker {
 		}
 		List<String> vars = new ArrayList<String>();
 		vars.addAll(variables);
+		HashMap<String, String> hashMap = new HashMap<String, String>();
+		hashMap.put("orbital.math.UnivariatePolynomial.sparse", "true");
+		Values.getInstance(hashMap);
 		Polynomial result = null;
-		for (Term t : f) {
-			Polynomial poly = createPoly(t.sub(0), vars);
-			if (result == null) {
-				result = poly;
-			} else {
-				result = result.add(poly);
-			}
-			System.out.println(t);
-			System.out.println(poly);
-			System.out.println("Result = " + result);// XXX
-		}
-		Polynomial gPoly = null;
-		for (Term t : g) {
-			Polynomial poly = createPoly(t.sub(0), vars);
-			if (gPoly == null) {
-				gPoly = poly;
-			} else {
-				gPoly = gPoly.multiply(poly);
-			}
-			System.out.println(t);
-			System.out.println(poly);
-			System.out.println("Result = " + result);// XXX
-		}
-		if (gPoly != null) {
-			result
-					.add((Polynomial) gPoly.power(Values.getDefault()
-							.valueOf(2)));
-		}
-		System.out.println("GPoly: " + gPoly);// XXX
-		for (Term t : h) {
-			Polynomial poly = createPoly(t.sub(0), vars);
-			if (result == null) {
-				result = poly;
-			} else {
-				result = result.add(poly);
-			}
-			System.out.println(t);
-			System.out.println(poly);
-			System.out.println("Result = " + result);// XXX
-		}
-		System.out.println("Result = " + result);// XXX
 
+		// now we need to construct the different polynomes
+		HashSet<Polynomial> polyF = new HashSet<Polynomial>();
+		HashSet<Polynomial> polyG = new HashSet<Polynomial>();
+		HashSet<Polynomial> polyH = new HashSet<Polynomial>();
+
+		for (Term t : f) {
+			polyF.add(createPoly(t.sub(0), vars));
+		}
+		for (Term t : g) {
+			polyG.add(createPoly(t.sub(0), vars));
+		}
+		for (Term t : h) {
+			polyH.add(createPoly(t.sub(0), vars));
+		}
+
+		PolynomialOrder order = new SimpleOrder();
+		
+		while(order.hasNext()) {
+			if(searchSolution(order.getNext()) == Result.SOLUTION_FOUND) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * @param result
+	 * @return
+	 */
+	private Result searchSolution(Polynomial result) {
 		// now we need to translate the polynominal into a matrix representation
 		// monominals are iterated x^0y^0, x^0y^1, x^0y^2, ..., x^1y^0, x^1y^1,
 		// x^1y^2,..., x^2y^0, x^2y^1,...
@@ -281,17 +279,22 @@ public class SumOfSquaresChecker {
 					constraints.add(new Constraint(v, list, (Arithmetic) next));
 				} else {
 					System.out.println("Cannot express: " + v);// XXX
-					return false;
+					return Result.UNKNOWN;
 				}
 			}
 		}
 		System.out.println(constraints);// XXX
 		// outputMatlab(monominals, constraints);
-		return CSDP
+
+		if (CSDP
 				.sdp(monominals.size(), constraints.size(),
 						convertConstraintsToResultVector(constraints,
 								monominals.size()), convertConstraintsToCSDP(
-								constraints, monominals.size()));
+								constraints, monominals.size()))) {
+			return Result.SOLUTION_FOUND;
+		} else {
+			return Result.NO_SOLUTION_AVAILABLE;
+		}
 	}
 
 	/**
@@ -529,8 +532,8 @@ public class SumOfSquaresChecker {
 								.power(Values.MINUS_ONE));
 					} else if (sub.op().equals(getFunction("exp"))) {
 						try {
-							return (Polynomial) p.power(
-									Values.getDefault().valueOf(
+							return (Polynomial) p.power(Values.getDefault()
+									.valueOf(
 											new BigDecimal(sub.sub(1).op()
 													.name().toString())));
 						} catch (Exception e) {
