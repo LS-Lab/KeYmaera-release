@@ -56,6 +56,7 @@ public class SumOfSquaresChecker {
 	public static final SumOfSquaresChecker INSTANCE = new SumOfSquaresChecker();
 
 	public boolean check(Set<Term> ante, Set<Term> succ) {
+		System.out.println("Computing f, g^2 and h");// XXX
 		final Function lt = getFunction("lt");
 		final Function leq = getFunction("leq");
 		final Function geq = getFunction("geq");
@@ -92,6 +93,7 @@ public class SumOfSquaresChecker {
 			}
 		}
 		conjunction.addAll(ante);
+		System.out.println("Finished computing conjunction");// XXX
 		// split to f, g, h
 		Set<Term> f = new HashSet<Term>();
 		Set<Term> g = new HashSet<Term>();
@@ -153,6 +155,7 @@ public class SumOfSquaresChecker {
 	 * holds the input is satisfiable too.
 	 */
 	public boolean check(Set<Term> f, Set<Term> g, Set<Term> h) {
+		System.out.println("Try to find monominals");// XXX
 		Set<String> variables = new HashSet<String>();
 		for (Term t : f) {
 			variables.addAll(VariableCollector.getVariables(t));
@@ -284,9 +287,11 @@ public class SumOfSquaresChecker {
 		}
 		System.out.println(constraints);// XXX
 		// outputMatlab(monominals, constraints);
-		return CSDP.sdp(monominals.size(), constraints.size(),
-				convertConstraintsToResultVector(constraints, monominals.size()),
-				convertConstraintsToCSDP(constraints, monominals.size()));
+		return CSDP
+				.sdp(monominals.size(), constraints.size(),
+						convertConstraintsToResultVector(constraints,
+								monominals.size()), convertConstraintsToCSDP(
+								constraints, monominals.size()));
 	}
 
 	/**
@@ -491,47 +496,58 @@ public class SumOfSquaresChecker {
 	 * @return
 	 */
 	private Polynomial createPoly(Term sub, List<String> variables) {
-		int[] size = new int[variables.size()];
-		if (sub.arity() == 0) {
-			if (variables.contains(sub.op().name().toString())) {
-				size[variables.indexOf(sub.op().name().toString())] = 1;
-				return Values.getDefault().MONOMIAL(size);
+		System.out.println(sub);// XXX
+		try {
+			int[] size = new int[variables.size()];
+			if (sub.arity() == 0) {
+				if (variables.contains(sub.op().name().toString())) {
+					size[variables.indexOf(sub.op().name().toString())] = 1;
+					return Values.getDefault().MONOMIAL(size);
+				} else {
+					return Values.getDefault().MONOMIAL(
+							Values.getDefault().valueOf(
+									new BigDecimal(sub.op().name().toString())
+											.doubleValue()), size);
+				}
 			} else {
-				return Values.getDefault().MONOMIAL(
-						Values.getDefault().valueOf(
-								new BigDecimal(sub.op().name().toString())
-										.doubleValue()), size);
-			}
-		} else {
-			if (sub.op().equals(getFunction("add"))) {
-				return createPoly(sub.sub(0), variables).add(
-						createPoly(sub.sub(1), variables));
-			} else if (sub.op().equals(getFunction("sub"))) {
-				return createPoly(sub.sub(0), variables).subtract(
-						createPoly(sub.sub(1), variables));
-			} else if (sub.op().equals(getFunction("mul"))) {
-				return createPoly(sub.sub(0), variables).multiply(
-						createPoly(sub.sub(1), variables));
-			} else if (sub.op().equals(getFunction("div"))) {
-				// aufmultiplizieren noetig falls der nenner komplizierter ist
-				return (Polynomial) createPoly(sub.sub(0), variables).multiply(
-						createPoly(sub.sub(1), variables).power(
-								Values.MINUS_ONE));
-			} else if (sub.op().equals(getFunction("exp"))) {
-				try {
-					return (Polynomial) createPoly(sub.sub(0), variables)
-							.power(
+				if (sub.arity() == 2) {
+					Polynomial p = createPoly(sub.sub(0), variables);
+					Polynomial q = createPoly(sub.sub(1), variables);
+					System.out.println("p = " + p + " of type " + p.getClass());// XXX
+					System.out.println("with q = " + q + " of type "
+							+ q.getClass());// XXX
+					if (sub.op().equals(getFunction("add"))) {
+						return p.add(q);
+					} else if (sub.op().equals(getFunction("sub"))) {
+						return p.subtract(q);
+					} else if (sub.op().equals(getFunction("mul"))) {
+						return p.multiply(q);
+					} else if (sub.op().equals(getFunction("div"))) {
+						// aufmultiplizieren noetig falls der nenner
+						// komplizierter ist
+						return (Polynomial) p.multiply(q
+								.power(Values.MINUS_ONE));
+					} else if (sub.op().equals(getFunction("exp"))) {
+						try {
+							return (Polynomial) p.power(
 									Values.getDefault().valueOf(
 											new BigDecimal(sub.sub(1).op()
 													.name().toString())));
-				} catch (Exception e) {
-					return (Polynomial) createPoly(sub.sub(0), variables)
-							.power(createPoly(sub.sub(1), variables));
+						} catch (Exception e) {
+							return (Polynomial) p.power(q);
+						}
+					}
+				} else if (sub.arity() == 1) {
+					if (sub.op().equals(getFunction("neg"))) {
+						return (Polynomial) createPoly(sub.sub(0), variables)
+								.multiply(
+										Values.getDefault().MONOMIAL(
+												Values.MINUS_ONE, size));
+					}
 				}
-			} else if (sub.op().equals(getFunction("neg"))) {
-				return (Polynomial) createPoly(sub.sub(0), variables).multiply(
-						Values.getDefault().MONOMIAL(Values.MINUS_ONE, size));
 			}
+		} finally {
+			System.out.println("Finished: " + sub);// XXX
 		}
 		throw new IllegalArgumentException("Dont know what to do with"
 				+ sub.op());
