@@ -39,128 +39,160 @@ import de.uka.ilkd.key.gui.configuration.SettingsListener;
  */
 public class Options implements Settings {
 
-    public static enum QuantifierEliminationMethod {
-        REDUCE("Reduce", true), RESOLVE("Resolve", false);
-        private String command;
-        private boolean supportsList;
-        
-        private QuantifierEliminationMethod(String command, boolean supportsList) {
-            this.command = command;
-            this.supportsList = supportsList;
-        }
+	public static enum QuantifierEliminationMethod {
+		REDUCE("Reduce", true), RESOLVE("Resolve", false);
+		private String command;
+		private boolean supportsList;
 
-        /*
-         * (non-Javadoc)
-         * 
-         * @see java.lang.Enum#toString()
-         */
-        @Override
-        public String toString() {
-            return command;
-        }
+		private QuantifierEliminationMethod(String command, boolean supportsList) {
+			this.command = command;
+			this.supportsList = supportsList;
+		}
 
-        /**
-         * @return the supportsList
-         */
-        public boolean isSupportsList() {
-            return supportsList;
-        }
-    }
-    
-    public static final Options INSTANCE = new Options();
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see java.lang.Enum#toString()
+		 */
+		@Override
+		public String toString() {
+			return command;
+		}
 
-    private static final String OPTIONS_QUANTIFIER_ELIMINATION_METHOD = "[MathematicaOptions]quantifierEliminationMethod";
+		/**
+		 * @return the supportsList
+		 */
+		public boolean isSupportsList() {
+			return supportsList;
+		}
+	}
 
-    private static final String OPTIONS_USE_ELIMINATE_LIST = "[MathematicaOptions]useEliminateList";
+	public static final Options INSTANCE = new Options();
 
-    private QuantifierEliminationMethod quantifierEliminationMethod;
+	private static final String OPTIONS_QUANTIFIER_ELIMINATION_METHOD = "[MathematicaOptions]quantifierEliminationMethod";
 
-    private boolean useEliminateList;
+	private static final String OPTIONS_USE_ELIMINATE_LIST = "[MathematicaOptions]useEliminateList";
 
-    private List<SettingsListener> listeners;
+	private static final String OPTIONS_MEMORYCONSTRAINT = "[MathematicaOptions]memoryConstraint";
 
-    private Options() {
-        listeners = new LinkedList<SettingsListener>();
-        quantifierEliminationMethod = QuantifierEliminationMethod.REDUCE;
-        useEliminateList = true;
-    }
+	private QuantifierEliminationMethod quantifierEliminationMethod;
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see de.uka.ilkd.key.gui.Settings#addSettingsListener(de.uka.ilkd.key.gui.SettingsListener)
-     */
-    public void addSettingsListener(SettingsListener l) {
-        listeners.add(l);
-    }
-    
-    private void firePropertyChanged() {
-        for(SettingsListener l: listeners) {
-            l.settingsChanged(new GUIEvent(this));
-        }
-    }
+	private boolean useEliminateList;
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see de.uka.ilkd.key.gui.Settings#readSettings(java.util.Properties)
-     */
-    public void readSettings(Properties props) {
-        String property = props
-                .getProperty(OPTIONS_QUANTIFIER_ELIMINATION_METHOD);
-        if (property != null) {
-            quantifierEliminationMethod = QuantifierEliminationMethod
-                    .valueOf(property);
-        }
-        property = props.getProperty(OPTIONS_USE_ELIMINATE_LIST);
-        if (property != null) {
-            useEliminateList = property.equals(Boolean.TRUE.toString());
-        }
-    }
+	private List<SettingsListener> listeners;
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see de.uka.ilkd.key.gui.Settings#writeSettings(java.util.Properties)
-     */
-    public void writeSettings(Properties props) {
-        props.setProperty(OPTIONS_QUANTIFIER_ELIMINATION_METHOD,
-                quantifierEliminationMethod.name());
-        props.setProperty(OPTIONS_USE_ELIMINATE_LIST, Boolean
-                .toString(useEliminateList));
-    }
+	private int memoryConstraint;
 
-    /**
-     * @return the quantifierEliminationMethod
-     */
-    public QuantifierEliminationMethod getQuantifierEliminationMethod() {
-        return quantifierEliminationMethod;
-    }
+	private Options() {
+		listeners = new LinkedList<SettingsListener>();
+		quantifierEliminationMethod = QuantifierEliminationMethod.REDUCE;
+		useEliminateList = true;
+		memoryConstraint = 1048576; // 1GB
+	}
 
-    /**
-     * @param quantifierEliminationMethod
-     *                the quantifierEliminationMethod to set
-     */
-    public void setQuantifierEliminationMethod(
-            QuantifierEliminationMethod quantifierEliminationMethod) {
-        this.quantifierEliminationMethod = quantifierEliminationMethod;
-        firePropertyChanged();
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.uka.ilkd.key.gui.Settings#addSettingsListener(de.uka.ilkd.key.gui.SettingsListener)
+	 */
+	public void addSettingsListener(SettingsListener l) {
+		listeners.add(l);
+	}
 
-    /**
-     * @return the useEliminateList
-     */
-    public boolean isUseEliminateList() {
-        return useEliminateList;
-    }
+	private void firePropertyChanged() {
+		for (SettingsListener l : listeners) {
+			l.settingsChanged(new GUIEvent(this));
+		}
+	}
 
-    /**
-     * @param useEliminateList
-     *                the useEliminateList to set
-     */
-    public void setUseEliminateList(boolean useEliminateList) {
-        this.useEliminateList = useEliminateList;
-        firePropertyChanged();
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.uka.ilkd.key.gui.Settings#readSettings(java.util.Properties)
+	 */
+	public void readSettings(Properties props) {
+		String property = props
+				.getProperty(OPTIONS_QUANTIFIER_ELIMINATION_METHOD);
+		if (property != null) {
+			quantifierEliminationMethod = QuantifierEliminationMethod
+					.valueOf(property);
+		}
+		property = props.getProperty(OPTIONS_USE_ELIMINATE_LIST);
+		if (property != null) {
+			useEliminateList = Boolean.getBoolean(property);
+		}
+		property = props.getProperty(OPTIONS_MEMORYCONSTRAINT);
+		if (property != null) {
+			memoryConstraint = Integer.parseInt(property);
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.uka.ilkd.key.gui.Settings#writeSettings(java.util.Properties)
+	 */
+	public void writeSettings(Properties props) {
+		props.setProperty(OPTIONS_QUANTIFIER_ELIMINATION_METHOD,
+				quantifierEliminationMethod.name());
+		props.setProperty(OPTIONS_USE_ELIMINATE_LIST, Boolean
+				.toString(useEliminateList));
+		props.setProperty(OPTIONS_MEMORYCONSTRAINT, "" + memoryConstraint);
+	}
+
+	/**
+	 * @return the quantifierEliminationMethod
+	 */
+	public QuantifierEliminationMethod getQuantifierEliminationMethod() {
+		return quantifierEliminationMethod;
+	}
+
+	/**
+	 * @param quantifierEliminationMethod
+	 *            the quantifierEliminationMethod to set
+	 */
+	public void setQuantifierEliminationMethod(
+			QuantifierEliminationMethod quantifierEliminationMethod) {
+		if (this.quantifierEliminationMethod != quantifierEliminationMethod) {
+			this.quantifierEliminationMethod = quantifierEliminationMethod;
+			firePropertyChanged();
+		}
+	}
+
+	/**
+	 * @return the useEliminateList
+	 */
+	public boolean isUseEliminateList() {
+		return useEliminateList;
+	}
+
+	/**
+	 * @param useEliminateList
+	 *            the useEliminateList to set
+	 */
+	public void setUseEliminateList(boolean useEliminateList) {
+		if (this.useEliminateList != useEliminateList) {
+			this.useEliminateList = useEliminateList;
+			firePropertyChanged();
+		}
+	}
+
+	/**
+	 * @return the memoryConstraint
+	 */
+	public int getMemoryConstraint() {
+		return memoryConstraint;
+	}
+
+	/**
+	 * @param memoryConstraint
+	 *            the memoryConstraint to set
+	 */
+	public void setMemoryConstraint(int memoryConstraint) {
+		if (this.memoryConstraint != memoryConstraint) {
+			this.memoryConstraint = memoryConstraint;
+			firePropertyChanged();
+		}
+	}
 
 }
