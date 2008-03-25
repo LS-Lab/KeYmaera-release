@@ -65,8 +65,8 @@ public class ApplyStrategy {
     private ProofListener proofListener = new ProofListener();
 
     private boolean startedAsInteractive;
-
-    private List<ProverTaskListener> proverTaskObservers = new ArrayList<ProverTaskListener>();
+    
+    private List<ProverTaskListener> proverTaskObservers = new ArrayList<ProverTaskListener> ();
 
     private ReusePoint reusePoint;
 
@@ -179,28 +179,32 @@ public class ApplyStrategy {
      *         been reached
      */
     private boolean maxRuleApplicationOrTimeoutExceeded() {
-        return countApplied >= maxApplications || timeout >= 0 ? System
-                .currentTimeMillis()
-                - time >= timeout : false;
+        return countApplied >= maxApplications || 
+           timeout>=0 ? 
+                System.currentTimeMillis() - time >= timeout : false;
     }
 
-    private synchronized void fireTaskStarted() {
-        for (ProverTaskListener listener : proverTaskObservers) {
-            listener.taskStarted(PROCESSING_STRATEGY, maxApplications);
+
+    private synchronized void fireTaskStarted () {
+        for (int i = 0, sz = proverTaskObservers.size(); i<sz; i++) {
+            proverTaskObservers.get(i)
+                .taskStarted(PROCESSING_STRATEGY, maxApplications);
         }
     }
 
-    private synchronized void fireTaskProgress() {
-        for (ProverTaskListener listener : proverTaskObservers) {
-            listener.taskProgress(countApplied);
+    private synchronized void fireTaskProgress () {
+        for (int i = 0, sz = proverTaskObservers.size(); i<sz; i++) {
+            proverTaskObservers.get(i)
+                .taskProgress(countApplied);
         }
     }
 
     private synchronized void fireTaskFinished (TaskFinishedInfo info) {
-        for (ProverTaskListener listener : proverTaskObservers) {
-            listener.taskFinished(info);
+        for (int i = 0, sz = proverTaskObservers.size(); i<sz; i++) {
+            proverTaskObservers.get(i).taskFinished(info);
         }
     }
+
 
     private void init(Proof proof, ListOfGoal goals, int maxSteps, long timeout) {
         this.proof = proof;

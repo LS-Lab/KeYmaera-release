@@ -15,7 +15,6 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -30,7 +29,6 @@ import org.apache.log4j.Logger;
 import de.uka.ilkd.key.dl.rules.EliminateExistentialQuantifierRule;
 import de.uka.ilkd.key.dl.rules.EliminateQuantifierRule;
 import de.uka.ilkd.key.dl.rules.ReduceRule;
-import de.uka.ilkd.key.dl.rules.ReduceRuleApp;
 import de.uka.ilkd.key.gui.KeYMediator;
 import de.uka.ilkd.key.gui.Main;
 import de.uka.ilkd.key.gui.ReduceRulesItem;
@@ -67,132 +65,126 @@ import de.uka.ilkd.key.rule.TacletGoalTemplate;
 import de.uka.ilkd.key.rule.TacletSchemaVariableCollector;
 
 /**
- * This class creates a menu with Taclets as entries. The invoker has to be of
- * type SequentView because of the method call selectedTaclet that hands over
- * the selected Taclet. The class is used to get all Taclet that are applicable
- * at a selected position in a sequent.
- */
+ *  This class creates a menu with Taclets as entries. The invoker has
+ * to be of type SequentView because of the method call selectedTaclet
+ * that hands over the selected Taclet. The class is used to get all
+ * Taclet that are applicable at a selected position in a sequent.
+ */ 
 class TacletMenu extends JMenu {
 
     private PosInSequent pos;
-
     private SequentView sequentView;
-
     private KeYMediator mediator;
 
     private TacletAppComparator comp = new TacletAppComparator();
-
+    
     static Logger logger = Logger.getLogger(TacletMenu.class.getName());
-
-    /**
-     * creates empty menu
+    
+    /** 
+     * creates empty menu 
      */
-    TacletMenu() {
-    }
+    TacletMenu() {}
 
-    /**
-     * creates a new menu that displays all applicable rules at the given
+
+    /** creates a new menu that displays all applicable rules at the given
      * position
-     * 
-     * @param sequentView
-     *                the SequentView that is the parent of this menu
-     * @param findList
-     *                ListOfTaclet with all applicable FindTaclets
-     * @param rewriteList
-     *                ListOfTaclet with all applicable RewriteTaclets
-     * @param noFindList
-     *                ListOfTaclet with all applicable noFindTaclets
-     * @param builtInList
-     *                ListOfBuiltInRule with all applicable BuiltInRules
-     * @param pos
-     *                the PosInSequent
-     */
-    TacletMenu(SequentView sequentView, ListOfTacletApp findList,
-            ListOfTacletApp rewriteList, ListOfTacletApp noFindList,
-            ListOfBuiltInRule builtInList, PosInSequent pos) {
-        super();
-        this.sequentView = sequentView;
-        this.mediator = sequentView.mediator();
-        this.pos = pos;
-        // delete RewriteTaclet from findList because they will be in
-        // the rewrite list and concatenate both lists
-        createTacletMenu(removeRewrites(findList).prepend(rewriteList),
-                noFindList, builtInList, new MenuControl());
+     * @param sequentView the SequentView that is the parent of this menu
+     * @param findList ListOfTaclet with all applicable FindTaclets
+     * @param rewriteList ListOfTaclet with all applicable RewriteTaclets
+     * @param noFindList ListOfTaclet with all applicable noFindTaclets
+     * @param builtInList ListOfBuiltInRule with all applicable BuiltInRules
+     * @param pos the PosInSequent
+     */ 
+    TacletMenu(SequentView sequentView,
+	       ListOfTacletApp findList, ListOfTacletApp rewriteList,
+	       ListOfTacletApp noFindList, ListOfBuiltInRule builtInList,
+	       PosInSequent pos) {
+        super();        
+	this.sequentView = sequentView;
+	this.mediator = sequentView.mediator();
+ 	this.pos = pos;
+	// delete RewriteTaclet from findList because they will be in
+	// the rewrite list and concatenate both lists
+	createTacletMenu(removeRewrites(findList).prepend(rewriteList),
+			 noFindList, builtInList, new MenuControl());
     }
 
-    /**
-     * removes RewriteTaclet from list
-     * 
-     * @param list
-     *                the ListOfTaclet from where the RewriteTaclet are removed
+    
+    /** removes RewriteTaclet from list
+     * @param list the ListOfTaclet from where the RewriteTaclet are
+     * removed
      * @return list without RewriteTaclets
      */
     private ListOfTacletApp removeRewrites(ListOfTacletApp list) {
-        ListOfTacletApp result = SLListOfTacletApp.EMPTY_LIST;
-        IteratorOfTacletApp it = list.iterator();
+	ListOfTacletApp result = SLListOfTacletApp.EMPTY_LIST;
+	IteratorOfTacletApp it = list.iterator();
 
-        while (it.hasNext()) {
-            TacletApp tacletApp = it.next();
-            Taclet taclet = tacletApp.taclet();
-            result = (taclet instanceof RewriteTaclet ? result : result
-                    .prepend(tacletApp));
-        }
-        return result;
+	while(it.hasNext()) {
+	    TacletApp tacletApp = it.next();
+	    Taclet taclet=tacletApp.taclet();
+	    result = (taclet instanceof RewriteTaclet ? result :
+		      result.prepend(tacletApp));
+	}
+	return result;
     }
 
+
     /** creates the menu by adding all submenus and items */
-    private void createTacletMenu(ListOfTacletApp find, ListOfTacletApp noFind,
-            ListOfBuiltInRule builtInList, MenuControl control) {
-        addActionListener(control);
-        boolean rulesAvailable = (addSection("Find", sort(find), control));
-        if (pos != null && pos.isSequent()) {
-            rulesAvailable = addSection("NoFind", noFind, control)
-                    | rulesAvailable;
-        }
-        if (!rulesAvailable) {
-            createSection("No rules applicable.");
-        }
+    private void createTacletMenu(ListOfTacletApp find,
+				  ListOfTacletApp noFind,
+				  ListOfBuiltInRule builtInList,
+				  MenuControl control) {	 
+	addActionListener(control);
+	boolean rulesAvailable=(addSection("Find", sort(find), control));
+	if (pos != null && pos.isSequent()) {
+	    rulesAvailable=addSection("NoFind", noFind, control)
+		| rulesAvailable;
+	}
+	if (!rulesAvailable) {
+	    createSection("No rules applicable.");
+	}
 
-        createBuiltInRuleMenu(builtInList, control);
+	createBuiltInRuleMenu(builtInList, control);
+        
+	createFocussedAutoModeMenu ( control );
+    
+	//        addPopFrameItem(control);
 
-        createFocussedAutoModeMenu(control);
+	addClipboardItem(control);
 
-        // addPopFrameItem(control);
+	if (pos != null) {
+	    PosInOccurrence occ = pos.getPosInOccurrence();	    
+	    if (occ != null && occ.posInTerm() != null) {
+		Term t = occ.subTerm ();
+		createAbbrevSection(t, control);
 
-        addClipboardItem(control);
-
-        if (pos != null) {
-            PosInOccurrence occ = pos.getPosInOccurrence();
-            if (occ != null && occ.posInTerm() != null) {
-                Term t = occ.subTerm();
-                createAbbrevSection(t, control);
-
-                if (t.op() instanceof ProgramVariable) {
-                    ProgramVariable var = (ProgramVariable) t.op();
-                    if (var.getProgramElementName().getCreationInfo() != null) {
-                        createNameCreationInfoSection(control);
-                    }
-                }
-            }
-        }
+		if(t.op() instanceof ProgramVariable) {
+		    ProgramVariable var = (ProgramVariable)t.op();
+		    if(var.getProgramElementName().getCreationInfo() != null) {
+		    	createNameCreationInfoSection(control);
+		    }
+		}
+	    }
+	}
     }
 
     private void createBuiltInRuleMenu(ListOfBuiltInRule builtInList,
-            MenuControl control) {
+				       MenuControl            control) {
 
-        if (builtInList != SLListOfBuiltInRule.EMPTY_LIST) {
-            addSeparator();
-            IteratorOfBuiltInRule it = builtInList.iterator();
-            while (it.hasNext()) {
-                addBuiltInRuleItem(it.next(), control);
-            }
-        }
+	if (builtInList != SLListOfBuiltInRule.EMPTY_LIST) {
+	    addSeparator();	
+	    IteratorOfBuiltInRule it = builtInList.iterator();
+	    while (it.hasNext()) {                
+		addBuiltInRuleItem(it.next(), control);
+	    }
+	}
     }
-
+				      
     /**
      * adds an item for built in rules (e.g. Run Simplify or Update Simplifier)
      */
-    private void addBuiltInRuleItem(BuiltInRule builtInRule, MenuControl control) {
+    private void addBuiltInRuleItem(BuiltInRule builtInRule,
+				    MenuControl control) {
         JMenuItem item;
         if (builtInRule instanceof EliminateQuantifierRule
                 || builtInRule instanceof ReduceRule
@@ -206,172 +198,170 @@ class TacletMenu extends JMenu {
         add(item);
     }
 
-    private void createFocussedAutoModeMenu(MenuControl control) {
+    
+    private void createFocussedAutoModeMenu (MenuControl control) {
         addSeparator();
-        JMenuItem item = new FocussedRuleApplicationMenuItem();
+        JMenuItem item = new FocussedRuleApplicationMenuItem ();
         item.addActionListener(control);
-        add(item);
+        add(item);        
     }
+    
 
     private ListOfTacletApp sort(ListOfTacletApp finds) {
-        ListOfTacletApp result = SLListOfTacletApp.EMPTY_LIST;
-        List list = new ArrayList(finds.size());
+	ListOfTacletApp result = SLListOfTacletApp.EMPTY_LIST;
+	
+	List<TacletApp> list = new ArrayList<TacletApp>(finds.size());
 
-        IteratorOfTacletApp it = finds.iterator();
-        while (it.hasNext()) {
-            list.add(it.next());
-        }
+	for (final TacletApp app : finds) {
+	    list.add(app);
+	}
 
-        Collections.sort(list, comp);
+	Collections.sort(list, comp);
 
-        Iterator it2 = list.iterator();
-        while (it2.hasNext()) {
-            result = result.prepend((TacletApp) it2.next());
-        }
+	for (final TacletApp app : list) {
+	    result = result.prepend(app);
+	}
 
-        return result;
+	return result;
     }
 
-    private void createAbbrevSection(Term t, MenuControl control) {
-        AbbrevMap scm = mediator.getNotationInfo().getAbbrevMap();
-        JMenuItem sc = null;
-        if (scm.containsTerm(t)) {
-            sc = new JMenuItem("Change abbreviation");
-            sc.addActionListener(control);
-            add(sc);
-            if (scm.isEnabled(t)) {
-                sc = new JMenuItem("Disable abbreviation");
-            } else {
-                sc = new JMenuItem("Enable abbreviation");
-            }
-        } else {
-            sc = new JMenuItem("Create abbreviation");
-        }
-        sc.addActionListener(control);
-        add(sc);
+
+    private void createAbbrevSection(Term t, MenuControl control){
+	AbbrevMap scm = mediator.getNotationInfo().getAbbrevMap();
+	JMenuItem sc = null;
+	if(scm.containsTerm(t)){
+	    sc = new JMenuItem("Change abbreviation");
+	    sc.addActionListener(control);
+	    add(sc);
+	    if(scm.isEnabled(t)){
+		sc = new JMenuItem("Disable abbreviation");
+	    }else{
+		sc = new JMenuItem("Enable abbreviation");
+	    }
+	}else{
+	    sc = new JMenuItem("Create abbreviation");
+	}
+	sc.addActionListener(control);
+	add(sc);
     }
+
 
     private void createNameCreationInfoSection(MenuControl control) {
-        JMenuItem item = new JMenuItem("View name creation info...");
-        item.addActionListener(control);
-        add(item);
+	JMenuItem item = new JMenuItem("View name creation info...");
+	item.addActionListener(control);
+	add(item);
     }
 
-    /**
-     * creates a non selectable label with the specified name and adds it to the
-     * component followed by the entries of this section
-     * 
-     * @param title
-     *                a String the title of the section
-     * @param taclet
-     *                ListOfTaclet that contains the Taclets belonging to this
-     *                section
+
+
+    /** creates a non selectable label with the specified name and adds it to
+     * the component followed by the entries of this section 
+     * @param title a String the title of the section
+     * @param taclet ListOfTaclet that contains the Taclets belonging to this section
      * @return true if section has been added (empty sections are not added)
-     */
-    private boolean addSection(String title, ListOfTacletApp taclet,
-            MenuControl control) {
-        if (taclet.size() > 0) {
-            // uncomment if you want submenus with subtitels
-            // insert(createSubMenu(taclet, title, control), 1);
-            // createSection(title);
-            add(createMenuItems(taclet, control));
-            return true;
-        }
-        return false;
+     */ 
+    private boolean addSection(String title, ListOfTacletApp taclet, 
+			       MenuControl control) {
+	if (taclet.size() > 0) {
+	    //uncomment if you want submenus with subtitels
+	    //	    insert(createSubMenu(taclet, title, control), 1);
+	    //	    createSection(title);
+	    add(createMenuItems(taclet, control));
+	    return true;
+	}
+	return false;
     }
 
-    /**
-     * inserts separator followed from the section's title
-     * 
-     * @param title
-     *                a String that contains the title of the section
+    /** inserts separator followed from the section's title 
+     * @param title a String that contains the title of the section
      */
     private void createSection(String title) {
-        // addSeparator();
-        add(new JLabel(title));
+	//addSeparator();
+	add(new JLabel(title));
     }
+    
 
     private void addPopFrameItem(MenuControl control) {
-        JMenuItem item = new JMenuItem("Pop method frame");
-        item.addActionListener(control);
-        add(item);
+	JMenuItem item = new JMenuItem("Pop method frame");
+	item.addActionListener(control);
+	add(item);
     }
 
+    
     private void addClipboardItem(MenuControl control) {
-        addSeparator();
-        JMenuItem item = new JMenuItem("to clipboard");
-        item.addActionListener(control);
-        add(item);
+	addSeparator();
+	JMenuItem item = new JMenuItem("to clipboard");
+	item.addActionListener(control);
+	add(item);
     }
+    
 
-    /** adds array of TacletMenuItem to itself */
+
+    /** adds array of TacletMenuItem to itself*/
     private void add(TacletMenuItem[] items) {
-        for (int i = 0; i < items.length; i++) {
-            add((Component) items[i]);
-        }
+	for (int i = 0; i < items.length; i++) {
+	    add((Component) items[i]);
+	}
     }
 
-    /**
-     * creates new TacletMenuItems for each taclet in the list and set the given
-     * MenuControl as their ActionListener
-     * 
-     * @param taclets
-     *                ListOfTaclet with the Taclets the items represent
-     * @param control
-     *                the ActionListener
+    /** creates new TacletMenuItems for each taclet in the list and set
+     * the given MenuControl as their ActionListener
+     * @param taclets ListOfTaclet with the Taclets the items represent
+     * @param control the ActionListener
      * @return the new MenuItems
      */
-    private TacletMenuItem[] createMenuItems(ListOfTacletApp taclets,
-            MenuControl control) {
-        List items = new LinkedList();
-        IteratorOfTacletApp it = taclets.iterator();
-
-        final InsertHiddenTacletMenuItem insHiddenItem = new InsertHiddenTacletMenuItem(
-                mediator.mainFrame(), mediator.getNotationInfo(), mediator
-                        .getServices());
-
-        final InsertionTacletBrowserMenuItem insSystemInvItem = new InsertSystemInvariantTacletMenuItem(
-                mediator.mainFrame(), mediator.getNotationInfo(), mediator
-                        .getServices());
-
+    private TacletMenuItem[] createMenuItems(ListOfTacletApp taclets, 
+					     MenuControl  control) {
+	List<TacletMenuItem> items = new LinkedList<TacletMenuItem>();
+	IteratorOfTacletApp it = taclets.iterator();
+	
+        final InsertHiddenTacletMenuItem insHiddenItem = 
+            new InsertHiddenTacletMenuItem(mediator.mainFrame(), 
+                    mediator.getNotationInfo(), mediator.getServices());
+        
+        final InsertionTacletBrowserMenuItem insSystemInvItem = 
+            new InsertSystemInvariantTacletMenuItem(mediator.mainFrame(), 
+                    mediator.getNotationInfo(), mediator.getServices());
+       
+        
         for (int i = 0; it.hasNext(); i++) {
             final TacletApp app = it.next();
-
+           
             final Taclet taclet = app.taclet();
             if (insHiddenItem.isResponsible(taclet)) {
                 insHiddenItem.add(app);
-            } else if (insSystemInvItem.isResponsible(taclet)) {
+            } else if (insSystemInvItem.isResponsible(taclet)) { 
                 insSystemInvItem.add(app);
             } else {
-                final TacletMenuItem item = new DefaultTacletMenuItem(this,
-                        app, mediator.getNotationInfo());
+                final TacletMenuItem item = 
+                    new DefaultTacletMenuItem(this, app, 
+                        mediator.getNotationInfo()); 
                 item.addActionListener(control);
-                items.add(item);
-            }
-        }
-
+                items.add(item);                
+            }        
+	}
+        
         if (insHiddenItem.getAppSize() > 0) {
             items.add(0, insHiddenItem);
             insHiddenItem.addActionListener(control);
         }
-
+        
         if (insSystemInvItem.getAppSize() > 0) {
             items.add(0, insSystemInvItem);
             insSystemInvItem.addActionListener(control);
         }
-
-        return (TacletMenuItem[]) items
-                .toArray(new TacletMenuItem[items.size()]);
+        
+	return items.toArray(new TacletMenuItem[items.size()]);
     }
-
+        
     /** makes submenus invisible */
     void invisible() {
-        for (int i = 0; i < getMenuComponentCount(); i++) {
-            if (getMenuComponent(i) instanceof JMenu)
-                ((JMenu) getMenuComponent(i)).getPopupMenu().setVisible(false);
-        }
+	for (int i = 0; i < getMenuComponentCount(); i++) {
+	    if (getMenuComponent(i) instanceof JMenu) 
+		((JMenu)getMenuComponent(i)).getPopupMenu().setVisible(false);
+	}
     }
-
+    
     /** ActionListener */
     class MenuControl implements ActionListener{
 
@@ -392,141 +382,134 @@ class TacletMenu extends JMenu {
 		    .selectedTaclet(((TacletMenuItem) e.getSource()).connectedTo(), 
 				    pos);
             } else if (e.getSource() instanceof BuiltInRuleMenuItem) {
-                mediator.selectedBuiltInRule(((BuiltInRuleMenuItem) e
-                        .getSource()).connectedTo(), pos.getPosInOccurrence());
-            } else if (e.getSource() instanceof ReduceRulesItem) {
-                mediator
-                        .selectedReduceRule((ReduceRuleApp) ((ReduceRulesItem) e
-                                .getSource()).getRuleApp());
-            } else if (e.getSource() instanceof FocussedRuleApplicationMenuItem) {
-                mediator.getInteractiveProver().startFocussedAutoMode(
-                        pos.getPosInOccurrence(), mediator.getSelectedGoal());
-            } else {
-                if (((JMenuItem) e.getSource()).getText().startsWith(
-                        "to clipboard")) {
+                        mediator.selectedBuiltInRule
+                    (((BuiltInRuleMenuItem) e.getSource()).connectedTo(), 
+                     pos.getPosInOccurrence());
+	    } else if (e.getSource() instanceof FocussedRuleApplicationMenuItem) {
+	        mediator.getInteractiveProver ()
+	            .startFocussedAutoMode ( pos.getPosInOccurrence (),
+	                                     mediator.getSelectedGoal () );
+	    } else {
+		if (((JMenuItem)e.getSource()).getText()
+		    .startsWith("to clipboard")){
                     Main.copyHighlightToClipboard(sequentView);
-                } else if (((JMenuItem) e.getSource()).getText().startsWith(
-                        "Pop method frame")) {
-                    // mediator.popMethodFrame();
-                } else if (((JMenuItem) e.getSource()).getText().startsWith(
-                        "Disable abbreviation")) {
-                    PosInOccurrence occ = pos.getPosInOccurrence();
-                    if (occ != null && occ.posInTerm() != null) {
-                        mediator.getNotationInfo().getAbbrevMap().setEnabled(
-                                occ.subTerm(), false);
-                        sequentView.printSequent();
-                    }
-                } else if (((JMenuItem) e.getSource()).getText().startsWith(
-                        "Enable abbreviation")) {
-                    PosInOccurrence occ = pos.getPosInOccurrence();
-                    if (occ != null && occ.posInTerm() != null) {
-                        mediator.getNotationInfo().getAbbrevMap().setEnabled(
-                                occ.subTerm(), true);
-                        sequentView.printSequent();
-                    }
-                } else if (((JMenuItem) e.getSource()).getText().startsWith(
-                        "Create abbreviation")) {
-                    PosInOccurrence occ = pos.getPosInOccurrence();
-                    if (occ != null && occ.posInTerm() != null) {
-                        String abbreviation = (String) JOptionPane
-                                .showInputDialog(new JFrame(),
-                                        "Enter abbreviation for term: \n"
-                                                + occ.subTerm().toString(),
-                                        "New Abbreviation",
-                                        JOptionPane.QUESTION_MESSAGE, null,
-                                        null, "");
+		} else if(((JMenuItem)e.getSource()).getText().
+			  startsWith("Pop method frame")){
+		    //                        mediator.popMethodFrame();
+		} else if(((JMenuItem)e.getSource()).getText().
+			  startsWith("Disable abbreviation")){
+		    PosInOccurrence occ = pos.getPosInOccurrence();	    
+		    if (occ != null && occ.posInTerm() != null) {
+			mediator.getNotationInfo().getAbbrevMap().setEnabled(occ.subTerm(),false);
+			sequentView.printSequent();
+		    }
+		}else if(((JMenuItem)e.getSource()).getText().
+			 startsWith("Enable abbreviation")){
+		    PosInOccurrence occ = pos.getPosInOccurrence();	    
+		    if (occ != null && occ.posInTerm() != null) {
+			mediator.getNotationInfo().
+			    getAbbrevMap().setEnabled(occ.subTerm(),true);
+			sequentView.printSequent();
+		    }
+		}else if(((JMenuItem)e.getSource()).getText().
+			 startsWith("Create abbreviation")){
+		    PosInOccurrence occ = pos.getPosInOccurrence();
+		    if (occ != null && occ.posInTerm() != null) {
+			String abbreviation = (String)JOptionPane.showInputDialog
+			    (new JFrame(),
+			     "Enter abbreviation for term: \n"+occ.subTerm().toString(), 
+			     "New Abbreviation",
+			     JOptionPane.QUESTION_MESSAGE,
+			     null,
+			     null,
+			     "");
+				    
+			try{
+			    if(abbreviation!=null){
+				if(!validabbreviation(abbreviation)){
+				    JOptionPane.showMessageDialog(new JFrame(),
+								  "Only letters, numbers and '_' are allowed for Abbreviations", 
+								  "Sorry",
+								  JOptionPane.INFORMATION_MESSAGE);
+				}else{
+				    mediator.getNotationInfo().
+					getAbbrevMap().put(occ.subTerm(),abbreviation,true);
+				    sequentView.printSequent();
+				}
+			    }
+			}catch(AbbrevException sce){
+			    JOptionPane.showMessageDialog(new JFrame(), sce.getMessage(), "Sorry",
+							  JOptionPane.INFORMATION_MESSAGE);
+			}
+		    }
 
-                        try {
-                            if (abbreviation != null) {
-                                if (!validabbreviation(abbreviation)) {
-                                    JOptionPane
-                                            .showMessageDialog(
-                                                    new JFrame(),
-                                                    "Only letters, numbers and '_' are allowed for Abbreviations",
-                                                    "Sorry",
-                                                    JOptionPane.INFORMATION_MESSAGE);
-                                } else {
-                                    mediator.getNotationInfo().getAbbrevMap()
-                                            .put(occ.subTerm(), abbreviation,
-                                                    true);
-                                    sequentView.printSequent();
-                                }
-                            }
-                        } catch (AbbrevException sce) {
-                            JOptionPane.showMessageDialog(new JFrame(), sce
-                                    .getMessage(), "Sorry",
-                                    JOptionPane.INFORMATION_MESSAGE);
-                        }
-                    }
-
-                } else if (((JMenuItem) e.getSource()).getText().startsWith(
-                        "Change abbreviation")) {
-                    PosInOccurrence occ = pos.getPosInOccurrence();
-                    if (occ != null && occ.posInTerm() != null) {
-                        String abbreviation = (String) JOptionPane
-                                .showInputDialog(new JFrame(),
-                                        "Enter abbreviation for term: \n"
-                                                + occ.subTerm().toString(),
-                                        "Change Abbreviation",
-                                        JOptionPane.QUESTION_MESSAGE, null,
-                                        null, mediator.getNotationInfo()
-                                                .getAbbrevMap().getAbbrev(
-                                                        occ.subTerm())
-                                                .substring(1));
-                        try {
-                            if (abbreviation != null) {
-                                if (!validabbreviation(abbreviation)) {
-                                    JOptionPane
-                                            .showMessageDialog(
-                                                    new JFrame(),
-                                                    "Only letters, numbers and '_' are allowed for Abbreviations",
-                                                    "Sorry",
-                                                    JOptionPane.INFORMATION_MESSAGE);
-                                } else {
-                                    mediator.getNotationInfo().getAbbrevMap()
-                                            .changeAbbrev(occ.subTerm(),
-                                                    abbreviation);
-                                    sequentView.printSequent();
-                                }
-                            }
-                        } catch (AbbrevException sce) {
-                            JOptionPane.showMessageDialog(new JFrame(), sce
-                                    .getMessage(), "Sorry",
-                                    JOptionPane.INFORMATION_MESSAGE);
-                        }
-                    }
-                } else if (((JMenuItem) e.getSource()).getText().startsWith(
-                        "View name creation info")) {
-                    Term t = pos.getPosInOccurrence().subTerm();
-                    ProgramVariable var = (ProgramVariable) t.op();
-                    ProgramElementName name = var.getProgramElementName();
-                    NameCreationInfo info = name.getCreationInfo();
-                    String message;
-                    if (info != null) {
-                        message = info.infoAsString();
-                    } else {
-                        message = "No information available.";
-                    }
-                    JOptionPane.showMessageDialog(null, message,
-                            "Name creation info",
-                            JOptionPane.INFORMATION_MESSAGE);
-                }
-            }
-        }
+		}else if(((JMenuItem)e.getSource()).getText().
+			 startsWith("Change abbreviation")){
+		    PosInOccurrence occ = pos.getPosInOccurrence();
+		    if (occ != null && occ.posInTerm() != null) {
+			String abbreviation = (String)JOptionPane.showInputDialog
+			    (new JFrame(),
+			     "Enter abbreviation for term: \n"+occ.subTerm().toString(),
+			     "Change Abbreviation",
+			     JOptionPane.QUESTION_MESSAGE,
+			     null,
+			     null,
+			     mediator.getNotationInfo().
+			     getAbbrevMap().getAbbrev(occ.subTerm()).substring(1));
+			try{
+			    if(abbreviation!=null){
+				if(!validabbreviation(abbreviation)){
+				    JOptionPane.showMessageDialog(new JFrame(),
+								  "Only letters, numbers and '_' are allowed for Abbreviations",
+								  "Sorry",
+								  JOptionPane.INFORMATION_MESSAGE);
+				}else{
+				    mediator.getNotationInfo().
+					getAbbrevMap().changeAbbrev(occ.subTerm(),abbreviation);
+				    sequentView.printSequent();
+				}
+			    }
+			}catch(AbbrevException sce){
+			    JOptionPane.showMessageDialog(new JFrame(), sce.getMessage(), "Sorry",
+							  JOptionPane.INFORMATION_MESSAGE);
+			}
+		    }
+		} else if(((JMenuItem)e.getSource()).getText().
+			 startsWith("View name creation info")) {
+		    Term t = pos.getPosInOccurrence().subTerm();
+		    ProgramVariable var = (ProgramVariable)t.op();
+		    ProgramElementName name = var.getProgramElementName();
+		    NameCreationInfo info = name.getCreationInfo();
+		    String message;
+		    if(info != null) {
+			message = info.infoAsString();
+		    } else {
+		        message = "No information available.";
+		    }
+		    JOptionPane.showMessageDialog(null,
+		    				  message,
+						  "Name creation info",
+		  				  JOptionPane.INFORMATION_MESSAGE);
+		}
+	    }
+	}
     }
+
+
 
     static class FocussedRuleApplicationMenuItem extends JMenuItem {
-        public FocussedRuleApplicationMenuItem() {
+        public FocussedRuleApplicationMenuItem () {
             super("Apply rules automatically here");
-            setToolTipText("<html>Initiates and restricts automatic rule applications on the "
-                    + "highlighted formula, term or sequent.<br> "
-                    + "'Shift + left mouse click' on the highlighted "
-                    + "entity does the same.</html>");
+            setToolTipText("<html>Initiates and restricts automatic rule applications on the " +
+                        "highlighted formula, term or sequent.<br> "+
+                        "'Shift + left mouse click' on the highlighted " +
+                        "entity does the same.</html>");
         }
-
+               
     }
-
-    static class TacletAppComparator implements Comparator {
+    
+    
+    static class TacletAppComparator implements Comparator<TacletApp> {
 
 	private int countFormulaSV(TacletSchemaVariableCollector c) {
 	    int formulaSV = 0;
@@ -588,33 +571,48 @@ class TacletMenu extends JMenu {
 		}.getCounter();
 	}
 	
-	public int compare(Object o1, Object o2) {
-	    FindTaclet taclet1 = (FindTaclet)(((TacletApp)o1).taclet());
-	    FindTaclet taclet2 = (FindTaclet)(((TacletApp)o2).taclet());
-		    
-	    int findComplexity1 = taclet1.find().depth();
-	    int findComplexity2 = taclet2.find().depth();
-	    findComplexity1 += programComplexity(taclet1.find().javaBlock());
-	    findComplexity2 += programComplexity(taclet2.find().javaBlock());
-	
-	    if ( findComplexity1 < findComplexity2 ) {
-		return -1;
-	    } else if (findComplexity1 > findComplexity2) {
-		return 1;
-	    }		    		    		    
-	
-	    // depth are equal. Number of schemavariables decides
-	    TacletSchemaVariableCollector coll1 = new TacletSchemaVariableCollector();
-	    taclet1.find().execPostOrder(coll1);
-	    int formulaSV1 = countFormulaSV(coll1);
-		    
-	    TacletSchemaVariableCollector coll2  = new TacletSchemaVariableCollector();
-	    taclet2.find().execPostOrder(coll2);
-	    int formulaSV2 = countFormulaSV(coll2);
-	
-	    int cmpVar1 = -coll1.size()+taclet1.getRuleSets().size();
-	    int cmpVar2 = -coll2.size()+taclet2.getRuleSets().size();
-		    
+	public int compare(TacletApp o1, TacletApp o2) {
+	    final Taclet taclet1 = o1.taclet();
+	    final Taclet taclet2 = o2.taclet();
+		
+            int formulaSV1 = 0;
+            int formulaSV2 = 0;
+
+            int cmpVar1 = taclet1.getRuleSets().size();
+            int cmpVar2 = taclet2.getRuleSets().size();
+
+	    if (taclet1 instanceof FindTaclet && taclet2 instanceof FindTaclet) {
+	        final Term find1 = ((FindTaclet) taclet1).find();
+	        int findComplexity1 = find1.depth();
+	        final Term find2 = ((FindTaclet) taclet2).find();
+	        int findComplexity2 = find2.depth();
+	        findComplexity1 += programComplexity(find1.javaBlock());
+	        findComplexity2 += programComplexity(find2.javaBlock());
+
+	        if ( findComplexity1 < findComplexity2 ) {
+	            return -1;
+	        } else if (findComplexity1 > findComplexity2) {
+	            return 1;
+	        }		    		    		    
+	        // depth are equal. Number of schemavariables decides
+	        TacletSchemaVariableCollector coll1 = new TacletSchemaVariableCollector();
+	        find1.execPostOrder(coll1);
+	        formulaSV1 = countFormulaSV(coll1);
+
+	        TacletSchemaVariableCollector coll2  = new TacletSchemaVariableCollector();
+	        find2.execPostOrder(coll2);
+	        formulaSV2 = countFormulaSV(coll2);
+	        cmpVar1 += -coll1.size();
+	        cmpVar2 += -coll2.size();
+
+	    } else if (taclet1 instanceof FindTaclet != taclet2 instanceof FindTaclet) {
+	        if (taclet1 instanceof FindTaclet) {
+	            return -1;
+	        } else {
+	            return 1;
+	        }
+	    }
+
 	    if (cmpVar1 == cmpVar2) {
 		cmpVar1 = cmpVar1-formulaSV1;
 		cmpVar2 = cmpVar2-formulaSV2;
