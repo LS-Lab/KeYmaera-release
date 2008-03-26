@@ -23,17 +23,19 @@ public class SimpleOrder implements PolynomialOrder {
 	public static class PolynomialComparator implements Comparator<Polynomial> {
 
 		public static final PolynomialComparator INSTANCE = new PolynomialComparator();
-		
-		/* (non-Javadoc)
+
+		/*
+		 * (non-Javadoc)
+		 * 
 		 * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
 		 */
 		@Override
 		public int compare(Polynomial o1, Polynomial o2) {
 			return o1.degree().intValue() - o2.degree().intValue();
 		}
-		
+
 	}
-	
+
 	private ArrayList<Polynomial> f;
 	private ArrayList<Polynomial> g;
 	private ArrayList<Polynomial> h;
@@ -51,9 +53,9 @@ public class SimpleOrder implements PolynomialOrder {
 	private Collection<Polynomial> currentG = new HashSet<Polynomial>();
 	private Collection<Polynomial> currentH = new HashSet<Polynomial>();
 	private Combinatorical currentFCombinations;
-	private int currentFTupelSize;
+	private int currentFTupelSize = 0;
 	private Combinatorical currentHCombinations;
-	private int currentHTupelSize;
+	private int currentHTupelSize = 0;
 
 	public static Polynomial createCombined(Collection<? extends Polynomial> f,
 			Collection<? extends Polynomial> g,
@@ -109,6 +111,7 @@ public class SimpleOrder implements PolynomialOrder {
 	public boolean hasNext() {
 		if (next == null) {
 			next = computeNext();
+			System.out.println("Next is now: " + next);
 		}
 		return next != null && next.degree().intValue() <= maxdegree;
 	}
@@ -121,10 +124,11 @@ public class SimpleOrder implements PolynomialOrder {
 	 * @return
 	 */
 	private Polynomial computeNext() {
+		System.out.println("Computing next");
 		boolean nextF = true;
 		boolean nextG = true;
 		boolean nextH = true;
-		
+
 		if (nextG) {
 			computeG();
 		}
@@ -134,6 +138,9 @@ public class SimpleOrder implements PolynomialOrder {
 		if (nextH) {
 			computeNextH();
 		}
+		if(currentF.isEmpty() && currentG.isEmpty() && currentH.isEmpty()) {
+			return null;
+		}
 		return createCombined(currentF, currentG, currentH);
 	}
 
@@ -142,18 +149,22 @@ public class SimpleOrder implements PolynomialOrder {
 	 */
 	private boolean computeNextH() {
 		// TODO jdq: use that h is an ideal
-		
+		if (h.size() == 0
+				|| (currentHTupelSize == h.size() && (currentHCombinations == null || !currentHCombinations
+						.hasNext()))) {
+			currentH.clear();
+			return true;
+		}
 		if (currentHCombinations == null || !currentHCombinations.hasNext()) {
 			currentHCombinations = Combinatorical.getCombinations(
-					currentGTupelSize, g.size(), true);
-			currentHTupelSize++;
+					++currentHTupelSize, h.size(), true);
 		}
 		int[] next2 = currentHCombinations.next();
 		currentH.clear();
 		int maxd = 0;
-		for(int i: next2) {
+		for (int i : next2) {
 			Polynomial polynomial = h.get(i);
-			if(polynomial.degree().intValue() > maxd) {
+			if (polynomial.degree().intValue() > maxd) {
 				maxd = polynomial.degree().intValue();
 			}
 			currentH.add(polynomial);
@@ -166,18 +177,22 @@ public class SimpleOrder implements PolynomialOrder {
 	 */
 	private boolean computeNextF() {
 		// TODO jdq: use that f is a cone
-		
+		if (f.size() == 0
+				|| (currentFTupelSize == f.size() && (currentFCombinations == null || !currentFCombinations
+						.hasNext()))) {
+			currentF.clear();
+			return true;
+		}
 		if (currentFCombinations == null || !currentFCombinations.hasNext()) {
 			currentFCombinations = Combinatorical.getCombinations(
-					currentGTupelSize, g.size(), true);
-			currentGTupelSize++;
+					++currentFTupelSize, f.size(), true);
 		}
 		int[] next2 = currentFCombinations.next();
 		currentF.clear();
 		int maxd = 0;
-		for(int i: next2) {
+		for (int i : next2) {
 			Polynomial polynomial = f.get(i);
-			if(polynomial.degree().intValue() > maxd) {
+			if (polynomial.degree().intValue() > maxd) {
 				maxd = polynomial.degree().intValue();
 			}
 			currentF.add(polynomial);
@@ -189,17 +204,22 @@ public class SimpleOrder implements PolynomialOrder {
 	 * 
 	 */
 	private void computeG() {
+		if (g.size() == 0
+				|| (currentGTupelSize == g.size() && (currentGCombinations == null || !currentGCombinations
+						.hasNext()))) {
+			currentG.clear();
+			return;
+		}
 		if (currentGCombinations == null || !currentGCombinations.hasNext()) {
 			currentGCombinations = Combinatorical.getCombinations(
-					currentGTupelSize, g.size(), true);
-			currentGTupelSize++;
+					++currentGTupelSize, g.size(), true);
 		}
 		int[] next2 = currentGCombinations.next();
 		currentG.clear();
 		int maxd = 0;
-		for(int i: next2) {
+		for (int i : next2) {
 			Polynomial polynomial = g.get(i);
-			if(polynomial.degree().intValue() > maxd) {
+			if (polynomial.degree().intValue() > maxd) {
 				maxd = polynomial.degree().intValue();
 			}
 			currentG.add(polynomial);

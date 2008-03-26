@@ -195,8 +195,12 @@ public class SumOfSquaresChecker {
 		}
 
 		PolynomialOrder order = new SimpleOrder();
-		
+		order.setF(polyF);
+		order.setG(polyG);
+		order.setH(polyH);
+		order.setMaxDegree(20);
 		while(order.hasNext()) {
+			System.out.println("searching");
 			if(searchSolution(order.getNext()) == Result.SOLUTION_FOUND) {
 				return true;
 			}
