@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 import de.uka.ilkd.key.collection.ListOfString;
+import de.uka.ilkd.key.collection.PairOfListOfGoalAndTacletApp;
 import de.uka.ilkd.key.collection.PairOfTermAndListOfName;
 import de.uka.ilkd.key.collection.PairOfSVInstantiationsAndListOfName;
 import de.uka.ilkd.key.collection.SLListOfString;
@@ -393,24 +394,25 @@ public abstract class TacletApp implements RuleApp {
      */
     public ListOfGoal execute(Goal goal, Services services) {
 
-        if (!complete()) {
-            throw new IllegalStateException("Tried to apply rule \n" + taclet
-                    + "\nthat is not complete.");
-        }
-        goal.addAppliedRuleApp(this);
-        return taclet().apply(goal, services, this);
-    }
+	if (!complete()) {	  
+	    throw new IllegalStateException("Tried to apply rule \n"+taclet
+					    +"\nthat is not complete.");
+	}
+        goal.addAppliedRuleApp(this);	
+        Node n = goal.node();
+        PairOfListOfGoalAndTacletApp p = taclet().applyHelp(
+                goal, services, this);
+        n.setAppliedRuleApp(p.getTacletApp());	
+	return p.getListOfGoal();
+    }    
 
-    /**
-     * applies the specified rule at the specified position if all schema
-     * variables have been instantiated and creates a new goal if the if-sequent
-     * does not match. The new goal proves that the if sequent can be derived.
-     * 
-     * @param goal
-     *            the Goal where to apply the rule
-     * @param services
-     *            the Services encapsulating all java information
-     * @return list of new created goals
+    /** applies the specified rule at the specified position 
+     * if all schema variables have been instantiated
+     * and creates a new goal if the if-sequent does not match.
+     * The new goal proves that the if sequent can be derived.
+     * @param goal the Goal where to apply the rule
+     * @param services the Services encapsulating all java information
+     * @return list of new created goals 
      */
     /*
      * public ListOfGoal executeForceIf(Goal goal, Services services) { if
