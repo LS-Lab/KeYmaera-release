@@ -10,13 +10,11 @@
 
 package de.uka.ilkd.key.logic;
 
-import java.io.Serializable;
-
 /**
  * A Name object is created to represent the name of an object which
  * usually implements the interface {@link Named}.
  */
-public class Name implements Serializable {
+public class Name {
     
     protected final String nameString;
 
