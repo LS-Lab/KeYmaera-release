@@ -59,9 +59,26 @@ public class SumOfSquaresChecker {
 		SOLUTION_FOUND, NO_SOLUTION_AVAILABLE, UNKNOWN;
 	}
 
+	public enum FormulaStatus {
+		VALID, INVALID, UNKNOWN;
+	}
+
+	public static class PolynomialClassification<T> {
+		public Set<T> f;
+		public Set<T> g;
+		public Set<T> h;
+
+		public PolynomialClassification(Set<T> f, Set<T> g, Set<T> h) {
+			this.f = f;
+			this.g = g;
+			this.h = h;
+		}
+	}
+
 	public static final SumOfSquaresChecker INSTANCE = new SumOfSquaresChecker();
 
-	public boolean check(Set<Term> ante, Set<Term> succ) {
+	public PolynomialClassification<Term> classify(Set<Term> ante,
+			Set<Term> succ) {
 		System.out.println("Computing f, g^2 and h");// XXX
 		final Function lt = getFunction("lt");
 		final Function leq = getFunction("leq");
@@ -98,7 +115,31 @@ public class SumOfSquaresChecker {
 				conjunction.add(TermBuilder.DF.equals(sub, sub2));
 			}
 		}
-		conjunction.addAll(ante);
+		for (Term t : ante) {
+			Term sub = t.sub(0);
+			Term sub2 = t.sub(1);
+			Operator op = t.op();
+			if (!(sub.equals(zero) || sub2.equals(zero))) {
+				sub = TermBuilder.DF.func(getFunction("sub"), t.sub(0), t
+						.sub(1));
+				sub2 = zero;
+			}
+			if (t.sub(0).equals(zero) && !t.sub(1).equals(zero)) {
+				Term hold = sub;
+				sub = sub2;
+				sub2 = hold;
+			}
+			if (op instanceof Function) {
+				if (!op.equals(neq) && t.sub(0).equals(zero)
+						&& !t.sub(1).equals(zero)) {
+					op = negationLookUp(op);
+				}
+				conjunction
+						.add(TermBuilder.DF.func((TermSymbol) op, sub, sub2));
+			} else if (op instanceof Equality) {
+				conjunction.add(TermBuilder.DF.equals(sub, sub2));
+			}
+		}
 		System.out.println("Finished computing conjunction");// XXX
 		// split to f, g, h
 		Set<Term> f = new HashSet<Term>();
@@ -127,7 +168,7 @@ public class SumOfSquaresChecker {
 						"Dont know how to handle the predicate " + t.op());
 			}
 		}
-		return check(f, g, h);
+		return new PolynomialClassification(f, g, h);
 	}
 
 	/**
@@ -155,23 +196,29 @@ public class SumOfSquaresChecker {
 		throw new IllegalArgumentException("Unknown operator " + op);
 	}
 
-	/**
-	 * Compute a conjunction of inequaltities f of the form f >= 0, g != 0 or
-	 * equalities h = 0. Afterwards check if f+g^2+h = 0 is satisfiable. If this
-	 * holds the input is satisfiable too.
-	 */
-	public boolean check(Set<Term> f, Set<Term> g, Set<Term> h) {
+	public PolynomialClassification<Polynomial> classify(
+			PolynomialClassification<Term> cla) {
 		System.out.println("Try to find monominals");// XXX
+		System.out.println("We check the following Terms:");// XXX
 		Set<String> variables = new HashSet<String>();
-		for (Term t : f) {
+		System.out.println("F contains: "); // XXX
+		for (Term t : cla.f) {
+			System.out.println(t);// XXX
 			variables.addAll(VariableCollector.getVariables(t));
 		}
-		for (Term t : g) {
+		System.out.println("-- end F");
+		System.out.println("G contains: "); // XXX
+		for (Term t : cla.g) {
+			System.out.println(t);// XXX
 			variables.addAll(VariableCollector.getVariables(t));
 		}
-		for (Term t : h) {
+		System.out.println("-- end G");
+		System.out.println("H contains: "); // XXX
+		for (Term t : cla.h) {
+			System.out.println(t);// XXX
 			variables.addAll(VariableCollector.getVariables(t));
 		}
+		System.out.println("-- end H");
 		List<String> vars = new ArrayList<String>();
 		vars.addAll(variables);
 		HashMap<String, String> hashMap = new HashMap<String, String>();
@@ -184,28 +231,55 @@ public class SumOfSquaresChecker {
 		HashSet<Polynomial> polyG = new HashSet<Polynomial>();
 		HashSet<Polynomial> polyH = new HashSet<Polynomial>();
 
-		for (Term t : f) {
+		for (Term t : cla.f) {
 			polyF.add(createPoly(t.sub(0), vars));
 		}
-		for (Term t : g) {
+		for (Term t : cla.g) {
 			polyG.add(createPoly(t.sub(0), vars));
 		}
-		for (Term t : h) {
+		for (Term t : cla.h) {
 			polyH.add(createPoly(t.sub(0), vars));
 		}
+		return new PolynomialClassification<Polynomial>(polyF, polyG, polyH);
+	}
 
+	/**
+	 * Compute a conjunction of inequaltities f of the form f >= 0, g != 0 or
+	 * equalities h = 0. Afterwards check if f+g^2+h = 0 is satisfiable. If this
+	 * holds the input is satisfiable too.
+	 * 
+	 * @return true if a combination of f, g and h is found such that f+g^2+h =
+	 *         0.
+	 */
+	public FormulaStatus check(PolynomialClassification<Term> cla) {
+		return check(cla.f, cla.g, cla.h);
+	}
+
+	/**
+	 * Compute a conjunction of inequaltities f of the form f >= 0, g != 0 or
+	 * equalities h = 0. Afterwards check if f+g^2+h = 0 is satisfiable. If this
+	 * holds the input is satisfiable too.
+	 * 
+	 * @return true if a combination of f, g and h is found such that f+g^2+h =
+	 *         0.
+	 */
+	public FormulaStatus check(Set<Term> f, Set<Term> g, Set<Term> h) {
+		PolynomialClassification<Polynomial> classify = classify(new PolynomialClassification<Term>(
+				f, g, h));
 		PolynomialOrder order = new SimpleOrder();
-		order.setF(polyF);
-		order.setG(polyG);
-		order.setH(polyH);
+		order.setF(classify.f);
+		order.setG(classify.g);
+		order.setH(classify.h);
 		order.setMaxDegree(20);
-		while(order.hasNext()) {
+		while (order.hasNext()) {
 			System.out.println("searching");
-			if(searchSolution(order.getNext()) == Result.SOLUTION_FOUND) {
-				return true;
+			Result searchSolution = searchSolution(order.getNext());
+			System.out.println("Result: " + searchSolution);
+			if (searchSolution == Result.SOLUTION_FOUND) {
+				return FormulaStatus.INVALID;
 			}
 		}
-		return false;
+		return FormulaStatus.UNKNOWN;
 	}
 
 	/**

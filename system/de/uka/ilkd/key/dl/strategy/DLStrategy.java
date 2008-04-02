@@ -35,6 +35,7 @@ import de.uka.ilkd.key.dl.rules.EliminateQuantifierRule;
 import de.uka.ilkd.key.dl.rules.EliminateQuantifierRuleWithContext;
 import de.uka.ilkd.key.dl.rules.FindInstanceRule;
 import de.uka.ilkd.key.dl.rules.FindTransitionRule;
+import de.uka.ilkd.key.dl.rules.GroebnerBasisRule;
 import de.uka.ilkd.key.dl.rules.IterativeReduceRule;
 import de.uka.ilkd.key.dl.rules.ReduceRule;
 import de.uka.ilkd.key.dl.rules.SumOfSquaresRule;
@@ -399,7 +400,9 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 				ConditionalFeature.createConditional(
 						VisualizationRule.INSTANCE, inftyConst()),
 				ConditionalFeature.createConditional(
-						FindTransitionRule.INSTANCE, inftyConst()) });
+						FindTransitionRule.INSTANCE, inftyConst()),
+				ConditionalFeature.createConditional(
+						GroebnerBasisRule.INSTANCE, inftyConst()) });
 
 		final Feature ifMatchedF = ifZero(MatchedIfFeature.INSTANCE,
 				longConst(+1));

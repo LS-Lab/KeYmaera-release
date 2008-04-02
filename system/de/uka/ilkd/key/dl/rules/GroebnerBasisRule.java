@@ -25,8 +25,10 @@ package de.uka.ilkd.key.dl.rules;
 import java.util.HashSet;
 import java.util.Set;
 
+import orbital.math.AlgebraicAlgorithms;
+import orbital.math.Polynomial;
 import de.uka.ilkd.key.dl.arithmetics.impl.SumOfSquaresChecker;
-import de.uka.ilkd.key.dl.arithmetics.impl.SumOfSquaresChecker.FormulaStatus;
+import de.uka.ilkd.key.dl.arithmetics.impl.SumOfSquaresChecker.PolynomialClassification;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.logic.Constraint;
 import de.uka.ilkd.key.logic.IteratorOfConstrainedFormula;
@@ -42,20 +44,20 @@ import de.uka.ilkd.key.rule.Rule;
 import de.uka.ilkd.key.rule.RuleApp;
 
 /**
- * This class is used for the sum of squares backend
+ * This class is used for the groebner basis backend
  * 
  * @author jdq
  * @since 17.01.2008
  * 
  */
-public class SumOfSquaresRule implements BuiltInRule, RuleFilter {
+public class GroebnerBasisRule implements BuiltInRule, RuleFilter {
 
-    public static final SumOfSquaresRule INSTANCE = new SumOfSquaresRule();
+    public static final GroebnerBasisRule INSTANCE = new GroebnerBasisRule();
 
     /**
      * 
      */
-    public SumOfSquaresRule() {
+    public GroebnerBasisRule() {
     }
 
     /*
@@ -78,8 +80,25 @@ public class SumOfSquaresRule implements BuiltInRule, RuleFilter {
         while(it.hasNext()) {
             succ.add(it.next().formula());
         }
-        
-        if(SumOfSquaresChecker.INSTANCE.check(SumOfSquaresChecker.INSTANCE.classify(ante, succ)) == FormulaStatus.VALID) {
+        PolynomialClassification<Term> classify = SumOfSquaresChecker.INSTANCE.classify(ante, succ);
+        PolynomialClassification<Polynomial> classify2 = SumOfSquaresChecker.INSTANCE.classify(classify);
+        boolean solutionFound = false;
+        System.out.println("H is: ");
+        for(Polynomial p: classify2.h) {
+        	System.out.println(p);
+        }
+        Set groebnerBasis = orbital.math.AlgebraicAlgorithms.groebnerBasis(classify2.h, AlgebraicAlgorithms.DEGREE_REVERSE_LEXICOGRAPHIC);
+        System.out.println(groebnerBasis);
+        for(Object o: groebnerBasis) {
+        	if(o instanceof Polynomial) {
+        		Polynomial p = (Polynomial) o;
+        		if(p.degree().isZero()) {
+        			assert(!p.isZero());
+        			solutionFound = true;
+        		}
+        	}
+        }
+        if(solutionFound) {
             return SLListOfGoal.EMPTY_LIST;
         }
         return SLListOfGoal.EMPTY_LIST.append(goal);
@@ -108,7 +127,7 @@ public class SumOfSquaresRule implements BuiltInRule, RuleFilter {
      */
     @Override
     public String displayName() {
-        return "Sum of Squares";
+        return "Groebner Basis";
     }
 
     /*
@@ -118,7 +137,7 @@ public class SumOfSquaresRule implements BuiltInRule, RuleFilter {
      */
     @Override
     public Name name() {
-        return new Name("Sum of Squares");
+        return new Name("Groebner Basis");
     }
 
     /* (non-Javadoc)
@@ -126,7 +145,7 @@ public class SumOfSquaresRule implements BuiltInRule, RuleFilter {
      */
     @Override
     public boolean filter(Rule rule) {
-        return rule instanceof SumOfSquaresRule;
+        return rule instanceof GroebnerBasisRule;
     }
 
 }
