@@ -34,3 +34,5 @@ examples/statistics.csv
 eclipse/.settings/org.eclipse.jdt.ui.prefs
 *.tgz
 *.tar
+system/native/csdp/*.so
+system/native/csdp/*.a

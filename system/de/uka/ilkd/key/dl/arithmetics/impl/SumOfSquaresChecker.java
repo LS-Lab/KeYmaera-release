@@ -46,6 +46,7 @@ import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.TermBuilder;
 import de.uka.ilkd.key.logic.op.Equality;
 import de.uka.ilkd.key.logic.op.Function;
+import de.uka.ilkd.key.logic.op.Op;
 import de.uka.ilkd.key.logic.op.Operator;
 import de.uka.ilkd.key.logic.op.TermSymbol;
 
@@ -90,9 +91,17 @@ public class SumOfSquaresChecker {
 		// handle succedent
 		Set<Term> conjunction = new HashSet<Term>();
 		for (Term t : succ) {
-			Term sub = t.sub(0);
-			Term sub2 = t.sub(1);
-			Operator op = negationLookUp(t.op());
+			Term sub, sub2;
+			Operator op;
+			if (t.op().equals(Op.NOT)) {
+				sub = t.sub(0).sub(0);
+				sub2 = t.sub(0).sub(1);
+				op = t.sub(0).op();
+			} else {
+				sub = t.sub(0);
+				sub2 = t.sub(1);
+				op = negationLookUp(t.op());
+			}
 			if (!(sub.equals(zero) || sub2.equals(zero))) {
 				sub = TermBuilder.DF.func(getFunction("sub"), t.sub(0), t
 						.sub(1));
@@ -116,9 +125,17 @@ public class SumOfSquaresChecker {
 			}
 		}
 		for (Term t : ante) {
-			Term sub = t.sub(0);
-			Term sub2 = t.sub(1);
-			Operator op = t.op();
+			Term sub, sub2;
+			Operator op;
+			if (t.op().equals(Op.NOT)) {
+				sub = t.sub(0).sub(0);
+				sub2 = t.sub(0).sub(1);
+				op = negationLookUp(t.sub(0).op());
+			} else {
+				sub = t.sub(0);
+				sub2 = t.sub(1);
+				op = t.op();
+			}
 			if (!(sub.equals(zero) || sub2.equals(zero))) {
 				sub = TermBuilder.DF.func(getFunction("sub"), t.sub(0), t
 						.sub(1));
@@ -163,12 +180,17 @@ public class SumOfSquaresChecker {
 			} else if (t.op().equals(lt)) {
 				f.add(TermBuilder.DF.func(geq, TermBuilder.DF.func(
 						getFunction("neg"), t.sub(0)), t.sub(1)));
+			} else if (t.op().equals(TermBuilder.DF.tt().op())
+					|| t.op().equals(TermBuilder.DF.ff().op())) {
+				// TODO jdq: we need to do something useful with this
+				System.err.println("Found " + t.op() + " (" + t.op().getClass()
+						+ ") " + " instead of an inequality");
 			} else {
 				throw new IllegalArgumentException(
 						"Dont know how to handle the predicate " + t.op());
 			}
 		}
-		return new PolynomialClassification(f, g, h);
+		return new PolynomialClassification<Term>(f, g, h);
 	}
 
 	/**
