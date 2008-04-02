@@ -3,7 +3,7 @@ To enable the CSDP support the following software is necessary:
 - lapack (used by Csdp)
 - blas (used by Csdp)
 
-Compile the Csdp library with CFLAG -fPIC and copy the resulting archive
+For compiling the Csdp library with CFLAG -fPIC and copy the resulting archive
 libsdp.a to system/native/csdp
 
 Now run make in that directory. Make creates a libcsdp.so file which is
