@@ -24,9 +24,7 @@ package de.uka.ilkd.key.dl.rules;
 
 import java.rmi.RemoteException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ConnectionProblemException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ServerStatusProblemException;
@@ -36,9 +34,9 @@ import de.uka.ilkd.key.dl.arithmetics.exceptions.UnsolveableException;
 import de.uka.ilkd.key.dl.strategy.RealtimeStrategy;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.logic.ConstrainedFormula;
-import de.uka.ilkd.key.logic.IteratorOfConstrainedFormula;
 import de.uka.ilkd.key.logic.PosInOccurrence;
 import de.uka.ilkd.key.logic.PosInTerm;
+import de.uka.ilkd.key.logic.Semisequent;
 import de.uka.ilkd.key.logic.SequentChangeInfo;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.TermBuilder;
@@ -57,219 +55,248 @@ import de.uka.ilkd.key.rule.RuleApp;
  * 
  */
 public abstract class RuleOperatingOnWholeSequence extends Visitor implements
-        BuiltInRule, TestableBuiltInRule {
+		BuiltInRule, TestableBuiltInRule {
 
-    protected boolean addFormula;
+	private class PairOfTermAndChangeset {
+		public PairOfTermAndChangeset(Term resultTerm,
+				List<PosInOccurrence> changes) {
+			this.term = resultTerm;
+			this.changes = changes;
+		}
 
-    private boolean addFormulaDefault;
+		Term term;
+		List<PosInOccurrence> changes;
+	}
 
-    private List<String> variables;
+	protected boolean addFormula;
 
-    private boolean testMode = false;
+	private boolean addFormulaDefault;
 
-    private Term inputFormula;
+	private List<String> variables;
 
-    private Term resultFormula;
+	private boolean testMode = false;
 
-    private boolean unsolvable;
-    
-    private Services services;
+	private Term inputFormula;
 
-    /**
-     * 
-     */
-    public RuleOperatingOnWholeSequence(boolean addFormulaDef) {
-        addFormulaDefault = addFormulaDef;
-    }
+	private Term resultFormula;
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see de.uka.ilkd.key.rule.Rule#apply(de.uka.ilkd.key.proof.Goal,
-     *      de.uka.ilkd.key.java.Services, de.uka.ilkd.key.rule.RuleApp)
-     */
-    public synchronized ListOfGoal apply(Goal goal, Services services,
-            RuleApp ruleApp) {
-        if (goal.getGoalStrategy() instanceof RealtimeStrategy) {
-            /*if (((RealtimeStrategy)goal.getGoalStrategy()).getTimeout(goal, ruleApp) <= 0) {
-                System.out.println("\tRTC " + ruleApp.rule().name() + " " + ((RealtimeStrategy)goal.getGoalStrategy()).getTimeout(goal, ruleApp)); //XXX
-            }*/
-            return apply(goal, services, ruleApp,
-                    ((RealtimeStrategy)goal.getGoalStrategy()).getTimeout(goal, ruleApp));
-        } else {
-            return apply(goal, services, ruleApp, -1);
-        }
-    }
-    
-    public synchronized ListOfGoal apply(Goal goal, Services services,
-                RuleApp ruleApp, long timeout) {
-            // reset the testmode instantaniously to ensure that it cannot be
-        // enabled accidently
-        boolean testModeActive = testMode;
-        unsolvable = false;
-        testMode = false;
-        
-        this.services = services;
+	private boolean unsolvable;
 
-        IteratorOfConstrainedFormula it = goal.sequent().antecedent()
-                .iterator();
-        Term resultTerm = TermBuilder.DF.tt();
-        Map<Term, List<PosInOccurrence>> changes = iterate(goal, it,
-                resultTerm, true, true);
-        resultTerm = changes.keySet().iterator().next();
-        it = goal.sequent().succedent().iterator();
-        Map<Term, List<PosInOccurrence>> changes2 = iterate(goal, it,
-                TermBuilder.DF.ff(), false, false);
-        resultTerm = TermBuilder.DF.imp(resultTerm, changes2.keySet()
-                .iterator().next());
+	private Services services;
 
-        if (ruleApp instanceof ReduceRuleApp) {
-            variables = ((ReduceRuleApp) ruleApp).getVariables();
-        } else {
-            variables = new ArrayList<String>();
-        }
+	/**
+	 * 
+	 */
+	public RuleOperatingOnWholeSequence(boolean addFormulaDef) {
+		addFormulaDefault = addFormulaDef;
+	}
 
-        inputFormula = resultTerm;
-        resultFormula = null;
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.uka.ilkd.key.rule.Rule#apply(de.uka.ilkd.key.proof.Goal,
+	 *      de.uka.ilkd.key.java.Services, de.uka.ilkd.key.rule.RuleApp)
+	 */
+	public synchronized ListOfGoal apply(Goal goal, Services services,
+			RuleApp ruleApp) {
+		if (goal.getGoalStrategy() instanceof RealtimeStrategy) {
+			/*
+			 * if (((RealtimeStrategy)goal.getGoalStrategy()).getTimeout(goal,
+			 * ruleApp) <= 0) { System.out.println("\tRTC " +
+			 * ruleApp.rule().name() + " " +
+			 * ((RealtimeStrategy)goal.getGoalStrategy()).getTimeout(goal,
+			 * ruleApp)); //XXX }
+			 */
+			return apply(goal, services, ruleApp, ((RealtimeStrategy) goal
+					.getGoalStrategy()).getTimeout(goal, ruleApp));
+		} else {
+			return apply(goal, services, ruleApp, -1);
+		}
+	}
 
-        try {
-            resultTerm = performQuery(resultTerm, timeout);
-        } catch (RemoteException e) {
-            throw new IllegalStateException(e.getCause().getMessage(), e.getCause());
-        } catch (UnsolveableException e) {
-            unsolvable = true;
-            throw new IllegalStateException(e.getMessage(), e);
-        } catch (SolverException e) {
-            throw new IllegalStateException(e.getMessage(), e);
-        }
-        resultFormula = resultTerm;
+	public synchronized ListOfGoal apply(Goal goal, Services services,
+			RuleApp ruleApp, long timeout) {
+		// reset the testmode instantaniously to ensure that it cannot be
+		// enabled accidently
+		boolean testModeActive = testMode;
+		unsolvable = false;
+		testMode = false;
 
-        if (!testModeActive) {
-            if (resultTerm.equals(TermBuilder.DF.tt())) {
-                return goal.split(0);
-            }
-            ListOfGoal result = goal.split(1);
-            for (PosInOccurrence i : changes.values().iterator().next()) {
-                result.head().setSequent(
-                        result.head().sequent().removeFormula(i));
-            }
-            for (PosInOccurrence i : changes2.values().iterator().next()) {
-                result.head().setSequent(
-                        result.head().sequent().removeFormula(i));
-            }
-            if (!resultTerm.equals(TermBuilder.DF.ff())) {
-                SequentChangeInfo info = result.head().sequent().addFormula(
-                        new ConstrainedFormula(resultTerm), false, true);
-                result.head().setSequent(info);
-            }
-            return result;
-        }
-        return SLListOfGoal.EMPTY_LIST;
-    }
+		this.services = services;
 
-    /**
-     * @param resultTerm
-     * @param solver
-     * @return
-     * @throws RemoteException
-     * @throws UnsolveableException 
-     * @throws ConnectionProblemException 
-     * @throws ServerStatusProblemException 
-     * @throws UnableToConvertInputException 
-     * @throws SolverException 
-     */
-    protected abstract Term performQuery(Term term, long timeout) throws RemoteException, SolverException;
+		Term resultTerm = TermBuilder.DF.tt();
+		PairOfTermAndChangeset changes = iterate(goal, goal.sequent()
+				.antecedent(), resultTerm, true, true);
+		resultTerm = changes.term;
+		PairOfTermAndChangeset changes2 = iterate(goal, goal.sequent()
+				.succedent(), TermBuilder.DF.ff(), false, false);
+		resultTerm = TermBuilder.DF.imp(resultTerm, changes2.term);
 
-    /**
-     * Iterates over the given formulas and constructs the conjunction or
-     * disjunction of all first order formulas in the sequence.
-     * 
-     * @param result
-     *                the current goal
-     * @param it
-     *                the iterator used to access the formulas
-     * @param resultTerm
-     *                the term built so far
-     * @param and
-     *                if true this function returns the conjunction, otherwise
-     *                the disjunction is returned
-     * @return the conjunction or disjunction of all first order formulas in the
-     *         sequence.
-     */
-    private Map<Term, List<PosInOccurrence>> iterate(Goal result,
-            IteratorOfConstrainedFormula it, Term resultTerm, boolean and, boolean ante) {
-        List<PosInOccurrence> changes = new ArrayList<PosInOccurrence>();
-        while (it.hasNext()) {
-            ConstrainedFormula f = it.next();
-            addFormula = addFormulaDefault;
-            f.formula().execPostOrder(this);
-            if (addFormula) {
-                changes.add(new PosInOccurrence(f, PosInTerm.TOP_LEVEL, ante));
-                if (and) {
-                    resultTerm = TermBuilder.DF.and(resultTerm, f.formula());
-                } else {
-                    resultTerm = TermBuilder.DF.or(resultTerm, f.formula());
-                }
-            }
-        }
-        HashMap<Term, List<PosInOccurrence>> res = new HashMap<Term, List<PosInOccurrence>>();
-        res.put(resultTerm, changes);
-        return res;
-    }
+		if (ruleApp instanceof ReduceRuleApp) {
+			variables = ((ReduceRuleApp) ruleApp).getVariables();
+		} else {
+			variables = new ArrayList<String>();
+		}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see de.uka.ilkd.key.logic.Visitor#visit(de.uka.ilkd.key.logic.Term)
-     */
-    @Override
-    public void visit(Term visited) {
-        performSearch(visited);
-    }
+		inputFormula = resultTerm;
+		resultFormula = null;
 
-    /**
-     * Filters the terms. The result is passed using the addFormula field.
-     * 
-     * @param visited
-     *                the term to test.
-     */
-    protected abstract void performSearch(Term visited);
+		try {
+			resultTerm = performQuery(resultTerm, timeout);
+		} catch (RemoteException e) {
+			throw new IllegalStateException(e.getCause().getMessage(), e
+					.getCause());
+		} catch (UnsolveableException e) {
+			unsolvable = true;
+			throw new IllegalStateException(e.getMessage(), e);
+		} catch (SolverException e) {
+			throw new IllegalStateException(e.getMessage(), e);
+		}
+		resultFormula = resultTerm;
 
-    /**
-     * @return the variables
-     */
-    protected List<String> getVariables() {
-        return variables;
-    }
+		// if we are not in test mode, we want to apply the resulting changes
+		if (!testModeActive) {
+			// if the result is true, we can close the goal
+			if (resultTerm.equals(TermBuilder.DF.tt())) {
+				return goal.split(0);
+			}
+			// otherwise we got one child node
+			ListOfGoal result = goal.split(1);
+			// remove all formulas from the antecendent
+			for (PosInOccurrence i : changes.changes) {
+				result.head().setSequent(
+						result.head().sequent().removeFormula(i));
+			}
 
-    public boolean test(Goal goal, Services services, RuleApp app, long timeout) {
-        testMode = true;
-        try {
-            // try to apply the rule... if no exception occurs it was successful
-            apply(goal, services, app);
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
-    }
+			// remove all formulas from the succedent as well
+			for (PosInOccurrence i : changes2.changes) {
+				result.head().setSequent(
+						result.head().sequent().removeFormula(i));
+			}
+			// now if the result wasnt false add the resulting formula to the
+			// sequent
+			if (!resultTerm.equals(TermBuilder.DF.ff())) {
+				SequentChangeInfo info = result.head().sequent().addFormula(
+						new ConstrainedFormula(resultTerm), false, true);
+				result.head().setSequent(info);
+			}
+			return result;
+		}
+		// if we are in testmode we always return an empty list
+		return SLListOfGoal.EMPTY_LIST;
+	}
 
-    public Term getInputFormula() {
-        return inputFormula;
-    }
+	/**
+	 * This method is used to implement different rules operating on the whole
+	 * sequent. This method gets the query term and the current timeout as input
+	 * and should try to solve that term.
+	 * 
+	 * @param term
+	 *            the term that should be solved
+	 * @param timeout
+	 *            the current timeout
+	 * @return the resulting term from artihmetic transformations
+	 * @throws RemoteException
+	 *             if there is an error with RMI connections
+	 * @throws SolverException
+	 *             if there was an error from a background solver
+	 */
+	protected abstract Term performQuery(Term term, long timeout)
+			throws RemoteException, SolverException;
 
-    public Term getResultFormula() {
-        return resultFormula;
-    }
+	/**
+	 * Iterates over the given formulas and constructs the conjunction or
+	 * disjunction of all first order formulas in the sequence.
+	 * 
+	 * @param result
+	 *            the current goal
+	 * @param it
+	 *            the iterator used to access the formulas
+	 * @param resultTerm
+	 *            the term built so far
+	 * @param and
+	 *            if true this function returns the conjunction, otherwise the
+	 *            disjunction is returned
+	 * @return the conjunction or disjunction of all first order formulas in the
+	 *         sequence.
+	 */
+	private PairOfTermAndChangeset iterate(Goal result, Semisequent it,
+			Term resultTerm, boolean and, boolean ante) {
+		List<PosInOccurrence> changes = new ArrayList<PosInOccurrence>();
+		for (ConstrainedFormula f : it) {
+			addFormula = addFormulaDefault;
+			f.formula().execPostOrder(this);
+			if (addFormula) {
+				changes.add(new PosInOccurrence(f, PosInTerm.TOP_LEVEL, ante));
+				if (and) {
+					resultTerm = TermBuilder.DF.and(resultTerm, f.formula());
+				} else {
+					resultTerm = TermBuilder.DF.or(resultTerm, f.formula());
+				}
+			}
+		}
+		return new PairOfTermAndChangeset(resultTerm, changes);
+	}
 
-    /**
-     * @return the unsolvable
-     */
-    public boolean isUnsolvable() {
-        return unsolvable;
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.uka.ilkd.key.logic.Visitor#visit(de.uka.ilkd.key.logic.Term)
+	 */
+	@Override
+	public void visit(Term visited) {
+		performSearch(visited);
+	}
 
-    protected Services getServices() {
-        return services;
-    }
+	/**
+	 * Filters the terms. The result is passed using the addFormula field.
+	 * 
+	 * @param visited
+	 *            the term to test.
+	 */
+	protected abstract void performSearch(Term visited);
+
+	/**
+	 * @return the variables
+	 */
+	protected List<String> getVariables() {
+		return variables;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.uka.ilkd.key.dl.rules.TestableBuiltInRule#test(de.uka.ilkd.key.proof.Goal,
+	 *      de.uka.ilkd.key.java.Services, de.uka.ilkd.key.rule.RuleApp, long)
+	 */
+	public boolean test(Goal goal, Services services, RuleApp app, long timeout) {
+		testMode = true;
+		try {
+			// try to apply the rule... if no exception occurs it was successful
+			apply(goal, services, app);
+			return true;
+		} catch (Exception e) {
+			return false;
+		}
+	}
+
+	public Term getInputFormula() {
+		return inputFormula;
+	}
+
+	public Term getResultFormula() {
+		return resultFormula;
+	}
+
+	/**
+	 * @return the unsolvable
+	 */
+	public boolean isUnsolvable() {
+		return unsolvable;
+	}
+
+	protected Services getServices() {
+		return services;
+	}
 
 }
