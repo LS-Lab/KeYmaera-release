@@ -13,6 +13,7 @@ package de.uka.ilkd.key.rule;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 
 import de.uka.ilkd.key.collection.ListOfString;
 import de.uka.ilkd.key.collection.PairOfListOfGoalAndTacletApp;
@@ -1682,40 +1683,108 @@ public abstract class TacletApp implements RuleApp {
     protected boolean canUseMVAPosteriori(SchemaVariable p_var, Term p_term) {
         // disabled
         return false;
-        // return canUseMVAPriori ( p_var ) && p_term.isRigid ();
-    }
+//	return canUseMVAPriori ( p_var ) && p_term.isRigid ();
+    }    
+
 
     /**
-     * @return true iff the list of if instantiations has the correct size or is
-     *         null
+     * @return true iff the list of if instantiations has the correct
+     * size or is null
      */
-    protected static boolean ifInstsCorrectSize(Taclet p_taclet,
-            ListOfIfFormulaInstantiation p_list) {
-        return p_list == null
-                || p_list.size() == (p_taclet.ifSequent().antecedent().size() + p_taclet
-                        .ifSequent().succedent().size());
+    protected static boolean ifInstsCorrectSize ( Taclet                       p_taclet,
+						  ListOfIfFormulaInstantiation p_list ) {        
+	return p_list == null ||
+	    p_list.size () == ( p_taclet.ifSequent ().antecedent ().size () +
+				p_taclet.ifSequent ().succedent  ().size () );
     }
 
     /**
-     * @return true iff the Taclet may be applied for the given mode
-     *         (interactive/non-interactive, activated rule sets)
+     * @return true iff the Taclet may be applied for the
+     * given mode (interactive/non-interactive, activated rule sets)
      */
-    public boolean admissible(boolean interactive, ListOfRuleSet ruleSets) {
-        return taclet().admissible(interactive, ruleSets);
+    public boolean admissible(boolean       interactive,
+			      ListOfRuleSet ruleSets) {
+	return taclet ().admissible (interactive, ruleSets);
     }
 
     /**
-     * checks if the variable conditions of type 'x not free in y' are hold by
-     * the found instantiations. The variable conditions is used implicit in the
-     * prefix. (Used to calculate the prefix)
-     * 
-     * @param taclet
-     *            the Taclet that is tried to be instantiated. A match for the
-     *            find (or/and if) has been found.
-     * @param instantiations
-     *            the SVInstantiations so that the find(if) expression matches
-     * @param pos
-     *            the PosInOccurrence where the Taclet is applied
+     * returns a name encoding a list of list of names. The list contains actual names of the 
+     * added program variables after applying {@link TacletApp#taclet()} 
+     * For example: The string <code>"v1,v2;;v3"</code> if three goals have been created where
+     * two program variables <code>v1,v2</code> have been added to the first one, none to the second goal
+     * and one variable <code>v3</code> to the third goal 
+     * @param newNames a LinkedList containing a list with names for added program variables 
+     * for each goal 
+     * @return the given list of list of names encoded as a String
+     */
+    private Name storeActualUsedProgramVariableNamesInString(final LinkedList<ListOfName> newNames) {
+        // we use Strings here as the lists contain usually only one element
+            // so that using StringBuffer does not pay off
+            String actualUsedProgramVariableNames = ""; 
+            for (ListOfName addedProgVarNames : newNames) {
+                String actualProgVarNamesPerGoal = "";
+                for (Name addedProgVarName : addedProgVarNames) {
+                    actualProgVarNamesPerGoal += "," + addedProgVarName;
+                }
+                
+                actualUsedProgramVariableNames += 
+                    (actualProgVarNamesPerGoal.length() == 0 ? "" : 
+                        actualProgVarNamesPerGoal.substring(1)) + ";";
+            }
+            actualUsedProgramVariableNames = actualUsedProgramVariableNames.substring(0, 
+                    actualUsedProgramVariableNames.length()-1);
+        return new Name(actualUsedProgramVariableNames);
+    }
+    
+    /** 
+     * checks if name proposals for program variables to be added are available 
+     * and returns the proposals as list of names per goal
+     * @return an array with (a possible empty) list of names proposed to be used for 
+     * the respective goal 
+     */
+    protected ListOfName[] getNameProposalsForAddedProgramVariables() {
+        final ListOfName[] progvar_proposals = new ListOfName[taclet().goalTemplates().size()];
+        
+        Object o = instantiations().getNameProposalsForNewProgramVariables();
+    
+        if (o instanceof Name) {            
+            final String ostr = o.toString();
+            
+            final String[] props;            
+            // split ignores empty trailing spaces
+            // take care of the case when last created goal adds no progvars            
+            if (ostr.trim().endsWith(";")) {
+                props = (ostr+"x").split(";");
+                props[props.length-1] = "";
+            } else {
+                props = ostr.split(";");                
+            }
+            
+            for (int i = 0; i < progvar_proposals.length; i++) {
+                progvar_proposals[i] = SLListOfName.EMPTY_LIST;
+                
+                if (props[i].length() != 0) {
+                    String[] props2 = props[i].split(",");
+                    for (int j = 0; j < props2.length; j++) {
+                        progvar_proposals[i] = progvar_proposals[i].append(
+                                new Name(props2[j]));
+                    }
+                }
+                    
+            }
+    
+        }
+        return progvar_proposals;
+    }
+
+    /** checks if the variable conditions of type 'x not free in y' are
+     * hold by the found instantiations. The variable conditions is used
+     * implicit in the prefix. (Used to calculate the prefix)
+     * @param taclet the Taclet that is tried to be instantiated. A match for the
+     * find (or/and if) has been found.
+     * @param instantiations the SVInstantiations so that the find(if)
+     * expression matches
+     * @param pos the PosInOccurrence where the Taclet is applied
      * @return true iff all variable conditions x not free in y are hold
      */
     public static boolean checkVarCondNotFreeIn(Taclet taclet,
@@ -1761,5 +1830,11 @@ public abstract class TacletApp implements RuleApp {
         }
 
         return result;
+    }
+
+    
+    public TacletApp addNameProposal(LinkedList<ListOfName> newNames) {
+        return setInstantiation(instantiations()
+                .addNameProposals(storeActualUsedProgramVariableNamesInString(newNames)));
     }
 }
