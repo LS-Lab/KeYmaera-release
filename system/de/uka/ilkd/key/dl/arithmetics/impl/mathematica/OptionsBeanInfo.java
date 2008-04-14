@@ -60,18 +60,18 @@ public class OptionsBeanInfo extends SimpleBeanInfo {
 			PropertyDescriptor[] pds = new PropertyDescriptor[] {
 					createDescriptor(
 							"useEliminateList",
-							"use elimination list",
-							"choose if the list of variables should be passed to Mathematica",
+							"elimination list",
+							"choose if the list of elimination variables should be passed to Mathematica's Reduce",
 							true, false),
 					createDescriptor(
 							"memoryConstraint",
 							"memory limit",
-							"the maximum memory used by the Mathematica server in bytes",
+							"the maximum memory used by the Mathematica server [in bytes], -1 means no limit",
 							true, false),
 					createDescriptor(
 							"quantifierEliminationMethod",
-							"method for quantifier elimination",
-							"the mathematica method that is used to perform quantifier elimination",
+							"quantifier elimination procedure",
+							"the Mathematica method that is used to perform quantifier elimination",
 							true, false,
 							QuantifierEliminationMethodPropertyEditor.class)
 

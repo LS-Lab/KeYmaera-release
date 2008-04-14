@@ -35,7 +35,7 @@ import de.uka.ilkd.key.gui.configuration.SettingsListener;
  * 
  * @author jdq
  * @since Aug 31, 2007
- * 
+ * @TODO somehow, the values are written from default even before they are read from disk.
  */
 public class Options implements Settings {
 
