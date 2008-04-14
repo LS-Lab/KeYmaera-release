@@ -34,7 +34,6 @@ import orbital.math.Polynomial;
 import orbital.math.Real;
 import orbital.math.Values;
 import orbital.math.Vector;
-import de.uka.ilkd.key.dl.formulatools.VariableCollector;
 import de.uka.ilkd.key.dl.logic.ldt.RealLDT;
 import de.uka.ilkd.key.dl.parser.NumberCache;
 import de.uka.ilkd.key.gui.Main;
@@ -45,6 +44,11 @@ import de.uka.ilkd.key.logic.op.Equality;
 import de.uka.ilkd.key.logic.op.Function;
 import de.uka.ilkd.key.logic.op.Operator;
 import de.uka.ilkd.key.logic.op.TermSymbol;
+
+import de.uka.ilkd.key.dl.formulatools.collector.*;
+import de.uka.ilkd.key.dl.formulatools.collector.filter.FilterArity;
+import de.uka.ilkd.key.dl.formulatools.collector.filter.FilterOperatorTypes;
+import de.uka.ilkd.key.dl.formulatools.collector.filter.FilterVariableCollector;
 
 /**
  * @author jdq
@@ -153,15 +157,18 @@ public class SumOfSquaresChecker {
      */
     public boolean check(Set<Term> f, Set<Term> g, Set<Term> h) {
         Set<String> variables = new HashSet<String>();
-        for (Term t : f) {
-            variables.addAll(VariableCollector.getVariables(t));
+        
+        // Filterusage
+        for( Term t: f ) {
+        	variables.addAll( AllCollector.getItemSet(t).filter(new FilterVariableCollector(null)).getVariables() );   
         }
-        for (Term t : g) {
-            variables.addAll(VariableCollector.getVariables(t));
+        for( Term t: g ) {
+        	variables.addAll( AllCollector.getItemSet(t).filter(new FilterVariableCollector(null)).getVariables() );
         }
-        for (Term t : h) {
-            variables.addAll(VariableCollector.getVariables(t));
+        for( Term t: h ) {
+        	variables.addAll( AllCollector.getItemSet(t).filter(new FilterVariableCollector(null)).getVariables() );
         }
+        
         List<String> vars = new ArrayList<String>();
         vars.addAll(variables);
         Polynomial result = null;
