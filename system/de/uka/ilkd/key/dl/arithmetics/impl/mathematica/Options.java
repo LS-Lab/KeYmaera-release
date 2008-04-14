@@ -87,7 +87,7 @@ public class Options implements Settings {
 		listeners = new LinkedList<SettingsListener>();
 		quantifierEliminationMethod = QuantifierEliminationMethod.REDUCE;
 		useEliminateList = true;
-		memoryConstraint = 1048576; // 1GB
+		memoryConstraint = -1;
 	}
 
 	/*
@@ -119,11 +119,11 @@ public class Options implements Settings {
 		}
 		property = props.getProperty(OPTIONS_USE_ELIMINATE_LIST);
 		if (property != null) {
-			useEliminateList = Boolean.getBoolean(property);
+			useEliminateList = Boolean.valueOf(property);
 		}
 		property = props.getProperty(OPTIONS_MEMORYCONSTRAINT);
 		if (property != null) {
-			memoryConstraint = Integer.parseInt(property);
+			memoryConstraint = Integer.valueOf(property);
 		}
 	}
 

@@ -23,6 +23,7 @@
 package de.uka.ilkd.key.dl.options;
 
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Properties;
 import java.util.Set;
 
@@ -260,7 +261,7 @@ public class DLOptionBean implements Settings {
 	private boolean simplifyAfterODESolve;
 
 	private DLOptionBean() {
-		subOptions = new HashSet<Settings>();
+		subOptions = new LinkedHashSet<Settings>();
 		callReduce = true;
 		initialTimeout = 2;
 		diffSatTimeout = 4;
