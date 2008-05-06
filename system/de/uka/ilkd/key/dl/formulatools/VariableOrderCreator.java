@@ -150,6 +150,7 @@ public class VariableOrderCreator {
 					underScores = Integer.parseInt(s
 							.substring(s.indexOf('_') + 1));
 					underScores++;
+					s = s.substring(0, s.indexOf('_'));
 				}
 				// add smallest (oldest) numbers
 				int indexOf = vars.indexOf(s);
