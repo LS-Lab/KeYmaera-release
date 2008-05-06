@@ -145,13 +145,13 @@ public class IterativeReduceRule implements BuiltInRule, RuleFilter {
 				.sequent().iterator());
 		// IDEA: initial sequent is successively moved from ante/succ to usedAnte/usedSucc
 		// parts of initAnte/initSucc that still make sense to be added
-		Queue<Term> ante = new LinkedList<Term>();
-		Queue<Term> succ = new LinkedList<Term>();
-		// parts of ante/succ that are used in the current frontier
-		List<Term> usedAnte = new ArrayList<Term>(createOrderedList(order, goal.sequent()
+		Queue<Term> ante = new LinkedList<Term>(createOrderedList(order, goal.sequent()
 				.antecedent().iterator()));
-		List<Term> usedSucc = new ArrayList<Term>(createOrderedList(order, goal.sequent()
+		Queue<Term> succ = new LinkedList<Term>(createOrderedList(order, goal.sequent()
 				.succedent().iterator()));
+		// parts of ante/succ that are used in the current frontier
+		List<Term> usedAnte = new ArrayList<Term>();
+		List<Term> usedSucc = new ArrayList<Term>();
 		// iteratively built construction cache for the set of all queries
 		List<QueryTriple> queryCache = new LinkedList<QueryTriple>();
 		
@@ -167,7 +167,10 @@ public class IterativeReduceRule implements BuiltInRule, RuleFilter {
 
 			currentQueryCache.clear();
 			currentQueryCache.addAll(queryCache);
-			
+			if(ante.isEmpty() && succ.isEmpty() && currentQueryCache.isEmpty()) {
+				System.out.println("There is nothing we can do anymore :/");//XXX
+				return null;
+			}
 			// loop until all added or all remaining cached items have been visited again
 			while (!ante.isEmpty() || !succ.isEmpty() || !currentQueryCache.isEmpty()) {
 				// during first sweep, only repeat with current timeout as long as there are further alternatives
@@ -257,19 +260,25 @@ public class IterativeReduceRule implements BuiltInRule, RuleFilter {
 							// we did not find a useful result, but we still got
 							// formulas we could add. therefore we remove the
 							// current formula
+							System.out.println("Counterexample found for " + currentItem.getUseForFindInstance());//XXX
+							System.out.println("It is: " + reduce);//XXX
 							queryCache.remove(currentItem);
 						}
 					} else if (ante.isEmpty() && succ.isEmpty()  && currentQueryCache.isEmpty()) {
 						// we have a counter example for maximum sequent
+						System.out.println("Counterexample for the complete sequence found: " + findInstance);//XXX
 						throw new IllegalStateException(
 								"Dont know what to do, counterexample for: "
 										+ currentItem.getUseForFindInstance() + " is " + findInstance);
 					} else {
 						// we have a counter example
+						System.out.println("Counterexample found for " + currentItem.getUseForFindInstance());//XXX
+						System.out.println("Removing...");//XXX
 						queryCache.remove(currentItem);
 					}
 				} catch (IncompleteEvaluationException e) {
 					// timeout while performing query
+					System.out.println("Timeout while reducing");//XXX
 				} catch (RemoteException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
