@@ -11,3 +11,4 @@ all: libcsdp.so
 
 lib%.so: %.c libsdp.a
 	cc $(CFLAGS) -shared -I$(JAVA_HOME)/include -I$(JAVA_HOME)/include/linux -I$(HOME)/workspace/Csdp-6.0.1/include -o $@ $< libsdp.a -llapack -lblas -lm -lgfortran
+#	cc $(CFLAGS) -shared -I$(JAVA_HOME)/include -I$(JAVA_HOME)/include/linux -I$(HOME)/workspace/Csdp-6.0.1/include -o $@ $< libsdp.a -llapack -lblas -lm
