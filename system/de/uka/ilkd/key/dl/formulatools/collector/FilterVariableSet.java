@@ -72,6 +72,21 @@ public class FilterVariableSet extends HashSet<FoundItem> {
 		
 		return newSet;
 	}
+	
+	/**
+	 * Finds the first Term, which passes the filter
+	 * 
+	 * @param filter
+	 * @return
+	 */
+	public FoundItem filterFirst( IFilter filter ) {
+		
+		for( FoundItem f: this) {
+			if( filter.isValid(f) == RemoveItem.NOT_REMOVE )
+				return f;
+		}
+		return null;
+	}
 
 	/**
 	 * Filters the set of variables with the given filter
