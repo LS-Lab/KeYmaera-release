@@ -35,6 +35,7 @@ import de.uka.ilkd.key.logic.op.Modality;
 import de.uka.ilkd.key.logic.op.ProgramVariable;
 import de.uka.ilkd.key.logic.op.Quantifier;
 import de.uka.ilkd.key.proof.Goal;
+import de.uka.ilkd.key.rule.ListOfRuleApp;
 import de.uka.ilkd.key.rule.RuleApp;
 import de.uka.ilkd.key.rule.TacletApp;
 import de.uka.ilkd.key.rule.UpdateSimplificationRule;
@@ -80,7 +81,11 @@ public class SimplifyFeature extends Visitor implements Feature {
 			RuleApp cur = goal.appliedRuleApps().head();
 			int i = 1;
 			while (cur.rule() instanceof UpdateSimplificationRule) {
-				cur = goal.appliedRuleApps().take(i++).head();
+				ListOfRuleApp take = goal.appliedRuleApps().take(i++);
+				if(take.isEmpty()) {
+					return TopRuleAppCost.INSTANCE;
+				}
+				cur = take.head();
 			}
 			boolean wasODESolve = false;
 			if (cur instanceof TacletApp) {
