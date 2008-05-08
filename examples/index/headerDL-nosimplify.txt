@@ -1,3 +1,5 @@
+\settings {
+"
 #Proof-Settings-Config-File
 #Wed May 07 15:09:28 CEST 2008
 [DLOptions]callReduce=true
@@ -67,3 +69,5 @@
 [Choice]Choices=throughout-throughout\:toutOn-throughout\:toutOff , transactions-transactions\:transactionsOn-transactions\:transactionsOff , intRules-intRules\:javaSemantics-intRules\:arithmeticSemanticsIgnoringOF-intRules\:arithmeticSemanticsCheckingOF , programRules-programRules\:Java-programRules\:ODL-programRules\:dL , transactionAbort-transactionAbort\:abortOn-transactionAbort\:abortOff , nullPointerPolicy-nullPointerPolicy\:noNullCheck-nullPointerPolicy\:nullCheck , javacard-javacard\:jcOff-javacard\:jcOn
 [StrategyProperty]NON_LIN_ARITH_OPTIONS_KEY=NON_LIN_ARITH_NONE
 [StrategyProperty]LOOP_OPTIONS_KEY=LOOP_INVARIANT
+"
+}
