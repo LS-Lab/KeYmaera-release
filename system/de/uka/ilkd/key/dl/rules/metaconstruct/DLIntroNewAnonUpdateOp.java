@@ -11,9 +11,24 @@
  */
 package de.uka.ilkd.key.dl.rules.metaconstruct;
 
-import de.uka.ilkd.key.dl.formulatools.ProgramVariableCollector;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
+import de.uka.ilkd.key.dl.formulatools.collector.AllCollector;
+import de.uka.ilkd.key.dl.formulatools.collector.FilterVariableSet;
+import de.uka.ilkd.key.dl.formulatools.collector.FoundItem;
+import de.uka.ilkd.key.dl.formulatools.collector.filter.FilterModality;
 import de.uka.ilkd.key.dl.logic.ldt.RealLDT;
+import de.uka.ilkd.key.dl.model.Assign;
+import de.uka.ilkd.key.dl.model.DLNonTerminalProgramElement;
+import de.uka.ilkd.key.dl.model.DLProgramElement;
+import de.uka.ilkd.key.dl.model.Dot;
+import de.uka.ilkd.key.dl.model.RandomAssign;
+import de.uka.ilkd.key.java.ProgramElement;
 import de.uka.ilkd.key.java.Services;
+import de.uka.ilkd.key.java.StatementBlock;
 import de.uka.ilkd.key.logic.Name;
 import de.uka.ilkd.key.logic.ProgramElementName;
 import de.uka.ilkd.key.logic.Term;
@@ -46,14 +61,25 @@ public class DLIntroNewAnonUpdateOp extends AbstractMetaOperator {
      */
     public Term calculate(Term term, SVInstantiations svInst, Services services) {
         Term post = term.sub(1);
+        
+        // Find first modality
+        FilterVariableSet set = AllCollector.getItemSet(term.sub(0));
+        FoundItem item = set.filterFirst(new FilterModality(null));
 
-        for (String name : ProgramVariableCollector.INSTANCE
-                .getProgramVariables(term.sub(0))) {
+        // for (String name : ProgramVariableCollector.INSTANCE.getProgramVariables(term.sub(0))) {
+        //    ProgramVariable var = searchFreeVar(services, name);
+        //    post = TermFactory.DEFAULT.createUpdateTerm(TermBuilder.DF
+        //            .var((ProgramVariable) services.getNamespaces().lookup(
+        //                    new Name(name))), TermBuilder.DF.var(var), post);
+        // }
+        for (String name : getProgramVariables(item.getTerm())) {
+        	
             ProgramVariable var = searchFreeVar(services, name);
             post = TermFactory.DEFAULT.createUpdateTerm(TermBuilder.DF
                     .var((ProgramVariable) services.getNamespaces().lookup(
                             new Name(name))), TermBuilder.DF.var(var), post);
         }
+        
         return post;
 
     }
@@ -79,6 +105,58 @@ public class DLIntroNewAnonUpdateOp extends AbstractMetaOperator {
                 new ProgramElementName(newName), RealLDT.getRealSort());
         services.getNamespaces().programVariables().add(locationVariable);
         return locationVariable;
+    }
+    
+    // added by Timo Michelsen
+    private Set<String> getProgramVariables( Term term ) {
+    	Set<String> names = new LinkedHashSet<String>();
+    	
+    	DLProgramElement childAt = (DLProgramElement) ((StatementBlock) term.javaBlock().program()).getChildAt(0);
+        names.addAll(getProgramVariables(childAt));
+        
+        ArrayList<String> inv = new ArrayList<String>(names);
+        names.clear();
+        for(int i = inv.size() - 1; i >= 0; i--) {
+            names.add(inv.get(i));
+        }
+        assert names.size() == inv.size();
+
+        return names;
+    }
+    
+    // added by Timo Michelsen
+    private Collection<String> getProgramVariables(ProgramElement form) {
+        LinkedHashSet<String> result = new LinkedHashSet<String>();
+        if (form instanceof Dot) {
+            Dot dot = (Dot) form;
+            if (dot.getChildAt(0) instanceof de.uka.ilkd.key.dl.model.ProgramVariable) {
+                de.uka.ilkd.key.dl.model.ProgramVariable pv = (de.uka.ilkd.key.dl.model.ProgramVariable) dot
+                        .getChildAt(0);
+                result.add(pv.getElementName().toString());
+            }
+        } else if (form instanceof RandomAssign) {
+            RandomAssign dot = (RandomAssign) form;
+            if (dot.getChildAt(0) instanceof de.uka.ilkd.key.dl.model.ProgramVariable) {
+                de.uka.ilkd.key.dl.model.ProgramVariable pv = (de.uka.ilkd.key.dl.model.ProgramVariable) dot
+                        .getChildAt(0);
+
+                result.add(pv.getElementName().toString());
+            }
+        } else if (form instanceof Assign) {
+            Assign assign = (Assign) form;
+            if (assign.getChildAt(0) instanceof de.uka.ilkd.key.dl.model.ProgramVariable) {
+                de.uka.ilkd.key.dl.model.ProgramVariable pv = (de.uka.ilkd.key.dl.model.ProgramVariable) assign
+                        .getChildAt(0);
+                result.add(pv.getElementName().toString());
+            }
+        } else if (form instanceof DLNonTerminalProgramElement) {
+            DLNonTerminalProgramElement dlnpe = (DLNonTerminalProgramElement) form;
+            for (ProgramElement p : dlnpe) {
+                result.addAll(getProgramVariables(p));
+            }
+        }
+
+        return result;
     }
 
     /*
