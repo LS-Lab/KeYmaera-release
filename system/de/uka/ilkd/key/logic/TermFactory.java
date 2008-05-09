@@ -8,6 +8,7 @@
 //
 //
 
+
 package de.uka.ilkd.key.logic;
 
 import java.util.*;
@@ -19,15 +20,16 @@ import de.uka.ilkd.key.rule.UpdatePair;
 import de.uka.ilkd.key.util.Debug;
 import de.uka.ilkd.key.util.LRUCache;
 
-/**
- * The TermFactory is the <em>only</em> way to create terms using constructos
- * of class Term or any of its subclasses. It is the only class that implements
- * and may exploit knowledge about sub classes of {@link Term} all other classes
- * of the system only know about terms what the {@link Term} class offers them.
+/** 
+ * The TermFactory is the <em>only</em> way to create terms using constructos of
+ * class Term or any of its subclasses. It is the
+ * only class that implements and may exploit knowledge about sub
+ * classes of {@link Term} all other classes of the system only know
+ * about terms what the {@link Term} class offers them. 
  * 
- * This class is used to encapsulate knowledge about the internal term
- * structures. See {@link de.uka.ilkd.key.logic.TermBuilder} for more
- * convienient methods to create terms.
+ * This class is used to encapsulate knowledge about the internal term structures.
+ * See {@link de.uka.ilkd.key.logic.TermBuilder} for more convienient methods to create
+ * terms. 
  */
 public class TermFactory {
 

@@ -50,11 +50,6 @@ import de.uka.ilkd.key.logic.op.Op;
 import de.uka.ilkd.key.logic.op.Operator;
 import de.uka.ilkd.key.logic.op.TermSymbol;
 
-import de.uka.ilkd.key.dl.formulatools.collector.*;
-import de.uka.ilkd.key.dl.formulatools.collector.filter.FilterArity;
-import de.uka.ilkd.key.dl.formulatools.collector.filter.FilterOperatorTypes;
-import de.uka.ilkd.key.dl.formulatools.collector.filter.FilterVariableCollector;
-
 /**
  * @author jdq
  * 

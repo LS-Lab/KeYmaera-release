@@ -61,6 +61,7 @@ import de.uka.ilkd.key.unittest.UnitTestBuilder;
 import de.uka.ilkd.key.util.*;
 import de.uka.ilkd.key.util.ProgressMonitor;
 
+
 public class Main extends JFrame implements IMain {
 
     public static final String INTERNAL_VERSION = 
@@ -957,558 +958,923 @@ public class Main extends JFrame implements IMain {
 	    if(poBrowser.getPO() != null) {
 		ProblemInitializer pi = new ProblemInitializer(this);
 		try {
-			final FileWriter statistics = new FileWriter(file, true);
-			final PrintWriter statPrinter = new PrintWriter(statistics);
-
-			String fileName = Main.fileNameOnStartUp;
-			final int slashIndex = fileName.lastIndexOf("examples/");
-			if (slashIndex >= 0)
-				fileName = fileName.substring(slashIndex);
-
-			statPrinter.print(fileName + ", ");
-			if ("Error".equals(result))
-				statPrinter.println("-1, -1");
-			else
-				statPrinter.println("" + appliedRules + ", " + time);
-			statPrinter.close();
-		} catch (IOException e) {
+		    pi.startProver(mediator.getProof().env(), 
+			    	   poBrowser.getPO());
+		} catch(ProofInputException e)  {
+		    ExtList list = new ExtList();
+		    list.add(e);
+		    new ExceptionDialog(this, list);
 		}
+	    }
 	}
+    }
 
-	/**
-	 * called when the batch mode has been finished
-	 * 
-	 * @param result
-	 *            the Object encapsulating informtation about the result, e.g.
-	 *            String "Error" if an error has occurred.
-	 * @param proof
-	 *            the Proof to which <tt>appliedRules</tt> rules have been
-	 *            applied requiring <tt>time</tt> ms
-	 * @param time
-	 *            the long giving the needed time in ms
-	 * @param appliedRules
-	 *            the int giving the number of applied rules
-	 */
-	private void finishedBatchMode(Object result, Proof proof, long time,
-			int appliedRules) {
+    /**
+     * for debugging - opens a window with the settings from current Proof and the default settings
+     */
+    protected void showSettings() {
+        String message;
+        
+        message = "Default Settings: \n" + ProofSettings.DEFAULT_SETTINGS.settingsToString()
+        + "\n----------\n";
+        message += "Settings[CurrentProof]:\n"
+            + ((mediator.getProof() == null) ? "No proof loaded." : mediator.getProof()
+                    .getSettings().settingsToString());
+        
+        final JTextArea settings = new JTextArea(message, 30, 80);
+        settings.setEditable(false);
+        settings.setLineWrap(true);
+        
+        JScrollPane settingsPane = new JScrollPane(settings);
+        
+        JOptionPane.showMessageDialog(Main.this, settingsPane, "Settings",
+                JOptionPane.INFORMATION_MESSAGE);
+    }
+    
+    /** opens configuration dialog for the simultaneous update simplifier */
+    protected void configSimultaneousUpdateSimplifier() {
+	SimultaneousUpdateSimplifierConfiguration config = 
+	    new SimultaneousUpdateSimplifierConfiguration
+	    (mediator(), 
+	     ProofSettings.DEFAULT_SETTINGS.getSimultaneousUpdateSimplifierSettings());
+	config.setVisible(true);
+    }
+    
+    /**
+     * opens a configuration dialog for the loaded libraries
+     */
+    protected void configLibraries() {
+        LibrariesConfiguration config = 
+            new LibrariesConfiguration
+            (mediator(), 
+             ProofSettings.DEFAULT_SETTINGS.getLibrariesSettings());
+        config.setVisible(true);
+    }
+    
+    protected void makePrettyView() {
+        if (mediator().ensureProofLoadedSilent()) {
+            if (!PresentationFeatures.ENABLED) {
+                mediator().getNotationInfo().setBackToDefault();
+            } else {
+                PresentationFeatures.modifyNotationInfo(mediator.getNotationInfo(), mediator
+                        .func_ns());
+            }
+            mediator().getSelectedProof().updateProof();
+            userConstraintView.updateTableDisplay(); // %%% HACK
+        }
+        
+    }
+    
+    public void showLicense() {
+        
+        URL lic = 
+            KeYResourceManager.getManager().getResourceFile(Main.class,
+            "LICENSE.TXT"); 
+        StringBuffer sb=new StringBuffer();
+        try {
+            FileInputStream inp=new FileInputStream(lic.getFile());
+            while (inp.available()>0) sb.append((char)inp.read());	   
+        } catch (IOException ioe) {
+            System.out.println("License file cannot be loaded or is missing: \n"+
+                    COPYRIGHT+"\nKeY is protected by the "
+                    +"GNU General Public License");
+            sb=new StringBuffer(COPYRIGHT+"\nKeY is protected by the "
+                    +"GNU General Public License");
+        } 
+        String s=sb.toString();
+        JScrollPane scroll = new JScrollPane();
+        JTextArea text = new JTextArea(s,20,40);
+        text.setEditable(false);
+        text.setCaretPosition(0);
+        scroll.setViewportView(text);
+        JFrame fr = new JFrame("KeY License");
+        fr.getContentPane().setLayout(new BorderLayout());
+        fr.getContentPane().add(scroll,BorderLayout.CENTER);
+        JButton ok = new JButton("OK");
+        ok.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {		   
+                ((JFrame)((JButton)e.getSource())
+                        .getTopLevelAncestor()).dispose();
+            }});
+        fr.getContentPane().add(ok, BorderLayout.SOUTH);
+        fr.setSize(600,900);
+        fr.getContentPane().add(scroll);
+        fr.setVisible(true);
+    }
+    
+    public void showAbout() {
+        String aspects = compiledAspects();
+        JOptionPane pane =new JOptionPane(
+                COPYRIGHT+"\n\nWWW: http://key-project.org\n\nVersion "+
+                VERSION
+                + ((aspects.length()==0) ? "":
+                    "\nCompiled with Aspects:\n"+aspects)
+                    ,
+                    JOptionPane.INFORMATION_MESSAGE, JOptionPane.DEFAULT_OPTION,
+                    IconFactory.keyLogo(105,60));
+        JDialog dialog = pane.createDialog(this, "The KeY Project");
+        dialog.setVisible(true);
+    }
+    
+    
+    /**
+     * Return a list of aspects compiled into the system, one by line. The idea is that the aspects
+     * will advise this method to add themselves to the list.
+     */
+    public String compiledAspects() {
+        return "";
+    }
+    
+    /**
+     * registers a new menuitem at the given menu
+     * 
+     * @param menu
+     *            the JMenu where to register the new item
+     * @param item
+     *            the JMenuItem to register
+     */
+    public void registerAtMenu(JMenu menu, JMenuItem item) {
+        menu.add(item);
+    }
+    
+    /**
+     * adds a separator to the given menu
+     */
+    public void addSeparator(JMenu menu) {
+        menu.addSeparator();
+    }
+    
+    /** the number of goals the goal list currently contains */
+    public int displayedOpenGoalNumber() {
+        return goalList.getModel().getSize();
+    }
+    
+    /** starts the goal choice frame */
+    protected void initGoalList() {
+        goalList = new GoalList(mediator);
+        goalList.setSize(goalList.getPreferredSize());
+        openGoalsView.setViewportView(goalList);
+    }
+    
+    protected void initProofList() {
+        proofList = new TaskTree(mediator);
+        proofListView = new JScrollPane();
+    }
+    
+    protected void addToProofList(de.uka.ilkd.key.proof.ProofAggregate plist) {
+        proofList.addProof(plist);
+        // GUI
+        proofList.setSize(proofList.getPreferredSize());
+        proofListView.setViewportView(proofList);
+    }
+    
+    /** starts the gui proof tree frame */
+    protected void initGUIProofTree() {
+	ProofTreeView guiProofTree = new ProofTreeView(mediator);
+	guiProofTree.setSize(guiProofTree.getPreferredSize());
+	guiProofTree.setVisible(true);
+        proofView.removeAll();
+	proofView.add(guiProofTree);
+    }
+    
+    static java.awt.TextArea clipBoardTextArea = new java.awt.TextArea(
+            "",10,10,java.awt.TextArea.SCROLLBARS_NONE) {
+        public java.awt.Dimension getMaximumSize() {
+            return new java.awt.Dimension(0,0);
+        }
+    };
 
-		if (Main.statisticsFile != null)
-			printStatistics(Main.statisticsFile, result, time, appliedRules);
-
-		if ("Error".equals(result)) {
-			// Error in batchMode. Terminate with status -1.
-			System.exit(-1);
-		}
-
-		// Save the proof before exit.
-
-		String baseName = Main.fileNameOnStartUp;
-		int idx = baseName.indexOf(".key");
-		if (idx == -1) {
-			idx = baseName.indexOf(".proof");
-		}
-		baseName = baseName.substring(0, idx == -1 ? baseName.length() : idx);
-
-		File f;
-		int counter = 0;
-		do {
-
-			f = new File(baseName + ".auto." + counter + ".proof");
-			counter++;
-		} while (f.exists());
-
-		Main.getInstance().saveProof(f.getAbsolutePath());
-		if (proof.openGoals().size() == 0) {
-			// Says that all Proofs have succeeded
-			if (proof.getBasicTask().getStatus().getProofClosedButLemmasLeft()) {
-				// Says that the proof is closed by depends on (unproved) lemmas
-				System.exit(2);
-			}
-			System.exit(0);
-		} else {
-			// Says that there is at least one open Proof
-			System.exit(1);
-		}
-	}
-
-	class MainConstraintTableListener implements ConstraintTableListener {
-		public void constraintChanged(ConstraintTableEvent e) {
-			setProofNodeDisplay();
-		}
-	}
-
-	class MainTaskListenerBatchMode implements ProverTaskListener { // XXX
-		public void taskStarted(String message, int size) {
-			System.out.print(message + " ... ");
-		}
-
-		public void taskProgress(int position) {
-		}
-
-		public void taskFinished(TaskFinishedInfo info) {
-			System.out.println("[ DONE ]");
-			if (info.getSource() instanceof ApplyStrategy) {
-				finishedBatchMode(info.getResult(), info.getProof(), info
-						.getTime(), info.getAppliedRules());
-				Debug.fail("Control flow should not reach this point.");
-			} else if (info.getSource() instanceof ProblemLoader) {
-				if (!"".equals(info.getResult())) {
-					System.exit(-1);
-				}
-				if (info.getProof().openGoals().size() == 0) {
-					System.out.println("proof.openGoals.size="
-							+ info.getProof().openGoals().size());
-					System.exit(0);
-				}
-				mediator.startAutoMode();
-			}
-		}
-	}
-
-	class MainTaskListener implements ProverTaskListener { // XXX
-		public void taskStarted(String message, int size) {
-			final MainStatusLine sl = getStatusLine();
-			sl.reset();
-			if (size > 0) {
-				sl.setProgressPanelVisible(true);
-				getProgressMonitor().setMaximum(size);
-			}
-			sl.setStatusText(message);
-		}
-
-		public void taskProgress(int position) {
-			getProgressMonitor().setProgress(position);
-		}
-
-		public void taskFinished(TaskFinishedInfo info) {
-			final MainStatusLine sl = getStatusLine();
-			sl.reset();
-			if (info.getSource() instanceof ApplyStrategy) {
-				displayResults(info.getTime(), info.getAppliedRules(), info
-						.getClosedGoals());
-			} else if (info.getSource() instanceof ProblemLoader) {
-				if (!"".equals(info.getResult())) {
-					final KeYExceptionHandler exceptionHandler = ((ProblemLoader) info
-							.getSource()).getExceptionHandler();
-					new ExceptionDialog(Main.this, exceptionHandler
-							.getExceptions());
-					exceptionHandler.clear();
-				} else {
-					PresentationFeatures.initialize(mediator.func_ns(),
-							mediator.getNotationInfo(), mediator
-									.getSelectedProof());
-				}
-			}
-		}
-	}
-
-	public static void evaluateOptions(String[] opt) {
-		int index = 0;
-		while (opt.length > index) {
-			if ((new File(opt[index])).exists()) {
-				fileNameOnStartUp = opt[index];
-			} else {
-				opt[index] = opt[index].toUpperCase();
-
-				if (opt[index].equals("RELOAD")) {
-					reloadOnStartUp = true;
-				} else if (opt[index].equals("NO_DEBUG")) {
-					de.uka.ilkd.key.util.Debug.ENABLE_DEBUG = false;
-				} else if (opt[index].equals("DEBUG")) {
-					de.uka.ilkd.key.util.Debug.ENABLE_DEBUG = true;
-				} else if (opt[index].equals("NO_ASSERTION")) {
-					de.uka.ilkd.key.util.Debug.ENABLE_ASSERTION = false;
-				} else if (opt[index].equals("ASSERTION")) {
-					de.uka.ilkd.key.util.Debug.ENABLE_ASSERTION = true;
-				} else if (opt[index].equals("NO_JMLSPECS")) {
-					GeneralSettings.disableSpecs = true;
-				} else if (opt[index].equals("AUTO")) {
-					batchMode = true;
-					visible = false;
-				} else if (opt[index].equals("TESTING")
-						|| opt[index].equals("UNIT")) {
-					if (opt[index].equals("TESTING")) {
-						testStandalone = true;
-						visible = false;
-					}
-					System.out.println("VBT optimizations enabled ...");
-
-					final Profile p = new JavaTestGenerationProfile(null);
-
-					if (index + 1 < opt.length
-							&& opt[index + 1].toUpperCase().equals("LOOP")) {
-						p
-								.setSelectedGoalChooserBuilder(BalancedGoalChooserBuilder.NAME);
-						System.out.println("Balanced loop unwinding ...");
-						index++;
-					}
-					ProofSettings.DEFAULT_SETTINGS.setProfile(p);
-					p.updateSettings(ProofSettings.DEFAULT_SETTINGS);
-					testMode = true;
-				} else if (opt[index].equals("DEBUGGER")) {
-					System.out
-							.println("Symbolic Execution Debugger Mode enabled ...");
-					final Profile p = new DebuggerProfile(null);
-					if (index + 1 < opt.length && opt[index + 1].equals("LOOP")) {
-						p
-								.setSelectedGoalChooserBuilder(BalancedGoalChooserBuilder.NAME);
-						// System.out.println("Balanced loop unwinding ...");
-						index++;
-					}
-					ProofSettings.DEFAULT_SETTINGS.setProfile(p);
-					p.updateSettings(ProofSettings.DEFAULT_SETTINGS);
-					testMode = true;
-				}
-
-				else if (opt[index].equals("FOL")) {
-					ProofSettings.DEFAULT_SETTINGS
-							.setProfile(new PureFOLProfile());
-				} else if (opt[index].equals("DL")) {
-					DLInitializer.initialize();
-				} else if (opt[index].equals("TIMEOUT")) {
-					long timeout = -1;
-					try {
-						timeout = Long.parseLong(opt[index + 1]);
-					} catch (NumberFormatException nfe) {
-						System.out
-								.println("Illegal timeout (must be a number >=-1).");
-						System.exit(-1);
-					}
-					if (timeout < -1) {
-						System.out
-								.println("Illegal timeout (must be a number >=-1).");
-						System.exit(-1);
-					}
-					index++;
-					ProofSettings.DEFAULT_SETTINGS.getStrategySettings()
-							.setTimeout(timeout);
-				} else if (opt[index].equals("PRINT_STATISTICS")) {
-					if (!(opt.length > index + 1))
-						printUsageAndExit();
-					statisticsFile = opt[index + 1];
-					++index;
-				} else {
-					printUsageAndExit();
-				}
-			}
-			index++;
-		}
-		if (Debug.ENABLE_DEBUG) {
-			System.out.println("Running in debug mode ...");
-		} else {
-			System.out.println("Running in normal mode ...");
-		}
-		if (Debug.ENABLE_ASSERTION) {
-			System.out.println("Using assertions ...");
-		} else {
-			System.out.println("Not using assertions ...");
-		}
-	}
-
-	private static void printUsageAndExit() {
-		System.out.println("File not found or unrecognized option.\n");
-		System.out.println("Possible parameters are (* = default): ");
-		System.out.println("  no_debug        : disables debug mode (*)");
-		System.out.println("  debug           : enables debug mode");
-		System.out.println("  no_assertion    : disables assertions");
-		System.out.println("  assertion       : enables assertions (*)");
-		System.out
-				.println("  no_jmlspecs     : disables parsing JML specifications");
-		System.out
-				.println("  unit [loop]     : unit test generation mode (optional argument loop to "
-						+ "enable balanced loop unwinding)");
-		System.out
-				.println("  auto	          : start prove procedure after initialisation");
-		System.out
-				.println("  testing         : starts the prover with a simple test generation oriented user interface");
-		System.out.println("  print_statistics <filename>");
-		System.out
-				.println("                  : in auto mode, output nr. of rule applications and time spent");
-		System.out
-				.println("  fol             : use FOL profile (no program or update rules)");
-		System.out.println("  timeout <time in ms>");
-		System.out.println("                  : set maximal time for rule "
-				+ "application in ms (-1 disables timeout)");
-		System.out.println("  <filename>      : loads a .key file");
-		System.exit(-1);
-	}
-
-	/**
-	 * Glass pane that only delivers events for the status line (i.e. the abort
-	 * button)
-	 * 
-	 * This has been partly taken from the GlassPaneDemo of the Java Tutorial
-	 */
-	class BlockingGlassPane extends JComponent {
-		GlassPaneListener listener;
-
-		public BlockingGlassPane(Container contentPane) {
-			setCursor(new Cursor(Cursor.WAIT_CURSOR));
-
-			listener = new GlassPaneListener(this, contentPane);
-			addMouseListener(listener);
-			addMouseMotionListener(listener);
-		}
-	}
-
-	/**
-	 * Mouse listener for the glass pane that only delivers events for the
-	 * status line (i.e. the abort button)
-	 * 
-	 * This has been partly taken from the GlassPaneDemo of the Java Tutorial
-	 */
-	class GlassPaneListener extends MouseInputAdapter {
-		Component currentComponent = null;
-		Component glassPane;
-		Container contentPane;
-
-		public GlassPaneListener(Component glassPane, Container contentPane) {
-			this.glassPane = glassPane;
-			this.contentPane = contentPane;
-		}
-
-		public void mouseMoved(MouseEvent e) {
-			redispatchMouseEvent(e);
-		}
-
-		/*
-		 * We must forward at least the mouse drags that started with mouse
-		 * presses over the check box. Otherwise, when the user presses the
-		 * check box then drags off, the check box isn't disarmed -- it keeps
-		 * its dark gray background or whatever its L&F uses to indicate that
-		 * the button is currently being pressed.
-		 */
-		public void mouseDragged(MouseEvent e) {
-			redispatchMouseEvent(e);
-		}
-
-		public void mouseClicked(MouseEvent e) {
-			redispatchMouseEvent(e);
-		}
-
-		public void mouseEntered(MouseEvent e) {
-			redispatchMouseEvent(e);
-		}
-
-		public void mouseExited(MouseEvent e) {
-			redispatchMouseEvent(e);
-		}
-
-		public void mousePressed(MouseEvent e) {
-			redispatchMouseEvent(e);
-		}
-
-		public void mouseReleased(MouseEvent e) {
-			redispatchMouseEvent(e);
-			currentComponent = null;
-		}
-
-		private void redispatchMouseEvent(MouseEvent e) {
-			if (currentComponent != null) {
-				dispatchForCurrentComponent(e);
-			} else {
-				int eventID = e.getID();
-				Point glassPanePoint = e.getPoint();
-
-				Point containerPoint = SwingUtilities.convertPoint(glassPane,
-						glassPanePoint, contentPane);
-				Component component = SwingUtilities.getDeepestComponentAt(
-						contentPane, containerPoint.x, containerPoint.y);
-
-				if (eventID == MouseEvent.MOUSE_PRESSED
-						&& isLiveComponent(component)) {
-					currentComponent = component;
-					dispatchForCurrentComponent(e);
-				}
-			}
-		}
-
-		private boolean isLiveComponent(Component c) {
-			// this is not the most elegant way to identify the right
-			// components, but it scales well ;-)
-			while (c != null) {
-				if ((c instanceof JComponent)
-						&& AUTO_MODE_TEXT.equals(((JComponent) c)
-								.getToolTipText()))
-					return true;
-				c = c.getParent();
-			}
-			return false;
-		}
-
-		private void dispatchForCurrentComponent(MouseEvent e) {
-			Point glassPanePoint = e.getPoint();
-			Point componentPoint = SwingUtilities.convertPoint(glassPane,
-					glassPanePoint, currentComponent);
-			currentComponent.dispatchEvent(new MouseEvent(currentComponent, e
-					.getID(), e.getWhen(), e.getModifiers(), componentPoint.x,
-					componentPoint.y, e.getClickCount(), e.isPopupTrigger()));
-		}
-	}
-
-	private final class CreateUnitTestAction extends AbstractAction {
-		final Icon icon = IconFactory.junitLogo(TOOLBAR_ICON_SIZE);
-
-		public CreateUnitTestAction() {
-			putValue(NAME, "Create Unittests");
-			putValue(Action.SHORT_DESCRIPTION,
-					"Create JUnit test cases from proof.");
-			putValue(Action.SMALL_ICON, icon);
-
-			setEnabled(mediator.getSelectedProof() != null);
-
-			mediator.addKeYSelectionListener(new KeYSelectionListener() {
-				/** focused node has changed */
-				public void selectedNodeChanged(KeYSelectionEvent e) {
-				}
-
-				/**
-				 * the selected proof has changed. Enable or disable action
-				 * depending whether a proof is available or not
-				 */
-				public void selectedProofChanged(KeYSelectionEvent e) {
-					setEnabled(e.getSource().getSelectedProof() != null);
-				}
-			});
-		}
-
+ 
+    
+    public static void copyHighlightToClipboard(SequentView view) {
+        String s = view.getHighlightedText();
+        // now CLIPBOARD
+        java.awt.datatransfer.StringSelection ss = 
+            new java.awt.datatransfer.StringSelection(s);
+        clipBoardTextArea.getToolkit().getSystemClipboard().setContents(ss,ss);
+        // now PRIMARY
+        clipBoardTextArea.setText(s);
+        clipBoardTextArea.selectAll();
+    }
+    
+    protected JMenu createFileMenu() {
+        JMenu fileMenu = new JMenu("File");
+        fileMenu.setMnemonic(KeyEvent.VK_F);
+        
+        JMenuItem load = new JMenuItem();
+        load.setAction(openFileAction);
+        
+        JMenuItem save = new JMenuItem();
+        save.setAction(saveFileAction);
+        
+        registerAtMenu(fileMenu, load);
+        registerAtMenu(fileMenu, save);
+        
+        JMenuItem tacletPOItem = new JMenuItem("Load Non-Axiom Lemma ...");
+        tacletPOItem.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                if (mediator().ensureProofLoaded()) {
+                    generateTacletPO();
+                }
+            }
+        });
+        registerAtMenu(fileMenu, tacletPOItem);
+        
+        JMenuItem exit = new JMenuItem("Exit");
+        exit.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, ActionEvent.CTRL_MASK));
+        exit.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                exitMain();
+            }
+        });
+        
+        addSeparator(fileMenu);
+        
+        recentFiles = new RecentFileMenu(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                loadProblem(new File(recentFiles.getAbsolutePath((JMenuItem) e.getSource())));
+            }
+        }, MAX_RECENT_FILES, null);
+        
+        recentFiles.load(PathConfig.RECENT_FILES_STORAGE);
+        
+        registerAtMenu(fileMenu, recentFiles.getMenu());
+        
+        addSeparator(fileMenu);
+        registerAtMenu(fileMenu, exit);
+        return fileMenu;
+    }
+    
+    protected JMenu createFontSizeMenuEntry() {
+        final JMenu fontSize = new JMenu("Font Size");
+        
+        final JMenuItem smaller = new JMenuItem("Smaller");
+        smaller.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                Config.DEFAULT.smaller();
+            }
+        });
+        smaller.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, InputEvent.CTRL_DOWN_MASK));
+        
+        final JMenuItem larger = new JMenuItem("Larger");
+        larger.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                Config.DEFAULT.larger();
+            }
+        });
+        larger.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_UP, InputEvent.CTRL_DOWN_MASK));
+        
+        Config.DEFAULT.addConfigChangeListener(new ConfigChangeListener() {
+            public void configChanged(ConfigChangeEvent e) {
+                smaller.setEnabled(!Config.DEFAULT.isMinimumSize());
+                larger.setEnabled(!Config.DEFAULT.isMaximumSize());
+            }
+        });
+        
+        fontSize.add(smaller);
+        fontSize.add(larger);
+        return fontSize;
+    }
+    
+    protected JMenu createViewMenu() {
+        JMenu view = new JMenu("View");
+        view.setMnemonic(KeyEvent.VK_V);
+        
+        JMenuItem pretty = new JCheckBoxMenuItem("Use pretty syntax");
+        pretty.setToolTipText("If ticked, infix notations are used.");
+        pretty.setSelected(PresentationFeatures.ENABLED);
+	pretty.addActionListener(new ActionListener() {
 		public void actionPerformed(ActionEvent e) {
-			MethodSelectionDialog.getInstance(mediator);
-		}
-	}
+		    PresentationFeatures.ENABLED=((JCheckBoxMenuItem)e.getSource()).
+			isSelected();
+		    makePrettyView();
+		}});
 
-	/**
-	 * This action undoes the last rule application on the currently selected
-	 * branch (if not closed).
-	 * 
-	 * The action is enabled if a goal is selected.
-	 */
-	private final class UndoLastStep extends AbstractAction {
+	
+	
+	registerAtMenu(view, pretty);
+	addSeparator(view);
+		
+	registerAtMenu(view, createFontSizeMenuEntry());
+	
+	final JMenuItem tacletOptionsView = new JMenuItem(TACLET_OPTIONS_MENU_STRING);
 
-		public UndoLastStep() {
-			setBackMode();
-		}
-
-		/**
-		 * Registers the action at some listeners to update its status in a
-		 * correct fashion. This method has to be invoked after the Main class
-		 * has been initialised with the KeYMediator.
-		 */
-		public void init() {
-			final KeYSelectionListener selListener = new KeYSelectionListener() {
-
-				public void selectedNodeChanged(KeYSelectionEvent e) {
-					final Proof proof = mediator.getSelectedProof();
-					if (proof == null) {
-						// no proof loaded
-						setEnabled(false);
-					} else {
-						final Goal selGoal = mediator.getSelectedGoal();
-						final Node selNode = mediator.getSelectedNode();
-
-						if (selGoal == null && selNode == null) {
-							setBackMode();
-							setEnabled(false);
-						} else if (selGoal != null) {
-							/*
-							 * we undo the last rule application, if the goal
-							 * refers not to the proof's root
-							 */
-							setBackMode();
-							setEnabled(selNode != proof.root());
-						} else {/* pruning instead of goal back */
-							// pruning a tree only if the selected node has
-							// children
-							// and sub tree is not closed
-							pruneMode();
-							setEnabled(!(selNode.leaf() || selNode.isClosed()));
-						}
-					}
-				}
-
-				public void selectedProofChanged(KeYSelectionEvent e) {
-					selectedNodeChanged(e);
-				}
-			};
-
-			mediator.addKeYSelectionListener(selListener);
-
-			mediator.addAutoModeListener(new AutoModeListener() {
-				public void autoModeStarted(ProofEvent e) {
-					mediator.removeKeYSelectionListener(selListener);
-					setEnabled(false);
-				}
-
-				public void autoModeStopped(ProofEvent e) {
-					mediator.addKeYSelectionListener(selListener);
-					selListener.selectedNodeChanged(null);
-				}
-			});
-			selListener.selectedNodeChanged(new KeYSelectionEvent(mediator
-					.getSelectionModel()));
-		}
-
-		private void setBackMode() {
-			putValue(NAME, "Goal Back");
-			putValue(SMALL_ICON, IconFactory.goalBackLogo(TOOLBAR_ICON_SIZE));
-			putValue(SHORT_DESCRIPTION, "Undo the last rule application.");
-		}
-
-		private void pruneMode() {
-			putValue(NAME, "Prune Proof");
-			putValue(SMALL_ICON, IconFactory.goalBackLogo(TOOLBAR_ICON_SIZE));
-			putValue(SHORT_DESCRIPTION,
-					"Prune the tree below the selected node.");
-		}
-
+	tacletOptionsView.setAccelerator(KeyStroke.getKeyStroke
+			    (KeyEvent.VK_M, ActionEvent.CTRL_MASK));
+	tacletOptionsView.addActionListener(new ActionListener() {
 		public void actionPerformed(ActionEvent e) {
-			final Goal selGoal = mediator.getSelectedGoal();
-			if (selGoal != null) {
-				mediator.setBack(selGoal);
-			} else {
-				mediator.setBack(mediator.getSelectedNode());
-			}
-		}
-	}
+		    selectMaxTooltipLines();
+		    tacletOptionsView.setText(TACLET_OPTIONS_MENU_STRING);
+		    //+ "(" +
+			// ProofSettings.DEFAULT_SETTINGS.getViewSettings().getMaxTooltipLines()
+			// + ")");
+		}});
+	registerAtMenu(view, tacletOptionsView);
+        
+        
+        return view;
+    }
+    
+    protected JMenu createProofMenu() {
+        JMenu proof = new JMenu("Proof");
+        proof.setMnemonic(KeyEvent.VK_P);
+        JMenuItem close = new JMenuItem("Abandon Task");
+        close.setAccelerator(KeyStroke.getKeyStroke
+                (KeyEvent.VK_W, ActionEvent.CTRL_MASK));
+        close.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                closeTask();
+            }});
+        registerAtMenu(proof, close);	
+        
+        JMenuItem choiceItem = new JMenuItem("Show Active Taclet Options");
+        choiceItem.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                showActivatedChoices();
+            }});
+        registerAtMenu(proof, choiceItem);
+        
+        JMenuItem methodContractsItem = new JMenuItem("Show Used Specifications...");
+        methodContractsItem.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                new UsedSpecificationsDialog(
+                             mediator.getServices(), 
+                             mediator.getSelectedProof()
+                                     .getBasicTask()
+                                     .getUsedSpecs());
+            }});
+        registerAtMenu(proof, methodContractsItem);
 
-	/**
-	 * This action is enabled if in the current proof situation reuse has been
-	 * requested and is possible, i.e. a reuse candidate has been found.
-	 * 
-	 * The actions {@link ReuseAction#actionPerformed(ActionEvent)} method
-	 * starts the reuse when invoked.
-	 */
-	private final class ReuseAction extends AbstractAction {
-		public ReusePoint rP;
+        final JMenuItem statisticsInfo = new JMenuItem("Show Proof Statistics");
+        
+        if (ProofSettings.DEFAULT_SETTINGS.getProfile() instanceof DLProfile) {
+        	statisticsInfo.addActionListener(new DLInitializer.StatisticGenerator(mediator, this));
+        } else {
+        statisticsInfo.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {                                    
+                final Proof proof = mediator.getSelectedProof();
+                if (mediator() != null && proof != null) {
+                    
+                    String stats = proof.statistics();
+                    
+                    int interactiveSteps = computeInteractiveSteps(proof.root());                  
+                    
+                    
+                    stats += "Interactive Steps: " +interactiveSteps;
+                    
+                    JOptionPane.showMessageDialog(Main.this, 
+                            stats,
+                            "Proof Statistics", JOptionPane.INFORMATION_MESSAGE);
+                }
+            }
 
-		public ReuseAction() {
-			setReusePoint(null);
-			putValue(SMALL_ICON, IconFactory.reuseLogo());
-			putValue(NAME, "Reuse");
-		}
+            private int computeInteractiveSteps(Node node) {
+                int steps = 0;
+                final Iterator<Node> it = node.childrenIterator();
+                while (it.hasNext()) {
+                  steps += computeInteractiveSteps(it.next());
+                }
+                
+                if (node.getNodeInfo().getInteractiveRuleApplication()) {
+                    steps++;
+                }
+                return steps;
+            }
+        });
+        }
+        registerAtMenu(proof, statisticsInfo);
 
-		public void setReusePoint(ReusePoint reusePoint) {
-			this.rP = reusePoint;
-			setEnabled(rP != null);
-			if (rP == null) {
-				putValue(SHORT_DESCRIPTION,
-						"Start proof reuse (when template available)");
-			} else {
-				putValue(SHORT_DESCRIPTION, rP.toString());
-			}
-		}
+        return proof;
+    }
 
-		public boolean isEnabled() {
-			return super.isEnabled() && rP != null;
-		}
+    protected JMenu createOptionsMenu() {
+	JMenu options = new JMenu("Options");
+	options.setMnemonic(KeyEvent.VK_O);
+	
+	// default taclet options
+	JMenuItem choiceItem = new JMenuItem("Default Taclet Options...");
+	choiceItem.setAccelerator(KeyStroke.getKeyStroke
+			    (KeyEvent.VK_T, ActionEvent.CTRL_MASK));
 
+	choiceItem.addActionListener(new ActionListener() {
 		public void actionPerformed(ActionEvent e) {
-			final ReusePoint reusePoint = rP;
-			setReusePoint(null);
-			mediator.startReuse(reusePoint);
-		}
-	}
+		    selectChoices();
+		}});
+	registerAtMenu(options, choiceItem);	
 
+	// update simplifier
+	JMenuItem updateSimplifierItem = new JMenuItem("Update Simplifier...");
+	updateSimplifierItem.setAccelerator(KeyStroke.getKeyStroke
+			    (KeyEvent.VK_U, ActionEvent.CTRL_MASK));
+
+	updateSimplifierItem.addActionListener(new ActionListener() {
+		public void actionPerformed(ActionEvent e) {
+		    configSimultaneousUpdateSimplifier();
+		}});
+	registerAtMenu(options, updateSimplifierItem);	
+    
+	// taclet libraries
+        JMenuItem librariesItem = new JMenuItem("Taclet Libraries...");
+        librariesItem.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                configLibraries();
+            }
+        });
+        registerAtMenu(options, librariesItem);
+        
+        // decision procedures
+        ButtonGroup decisionProcGroup = new ButtonGroup();
+        setupDecisionProcedureGroup(decisionProcGroup);
+        registerAtMenu(options, decisionProcedureOption);
+                        
+        // specification extraction
+        JMenuItem computeSpecificationOptions = 
+            ComputeSpecificationView.createOptionMenuItems();
+        registerAtMenu(options, computeSpecificationOptions);
+                
+        // specification languages
+        JMenuItem speclangItem = setupSpeclangMenu();
+        registerAtMenu(options, speclangItem);
+        
+        addSeparator(options);
+        
+        // minimize interaction
+        final boolean stupidMode = 
+            ProofSettings.DEFAULT_SETTINGS.getGeneralSettings().stupidMode();
+        final JMenuItem stupidModeOption = new
+            JCheckBoxMenuItem("Minimize Interaction", stupidMode);
+        mediator.setStupidMode(stupidMode);
+        
+        stupidModeOption.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                boolean b = ((JCheckBoxMenuItem) e.getSource()).isSelected();
+                mediator().setStupidMode(b);
+                ProofSettings.DEFAULT_SETTINGS.
+                getGeneralSettings().setStupidMode(b);
+            }});
+        
+        registerAtMenu(options, stupidModeOption);
+        
+        if (ProofSettings.DEFAULT_SETTINGS.getProfile() instanceof DLProfile) {
+            DLInitializer.registerSettingsMenuItem(this, options);
+        } 
+        
+	// dnd direction sensitive		
+        final boolean dndDirectionSensitivity = 
+            ProofSettings.DEFAULT_SETTINGS.getGeneralSettings().isDndDirectionSensitive();
+        final JMenuItem dndDirectionSensitivityOption =
+            new JCheckBoxMenuItem("DnD Direction Sensitive", dndDirectionSensitivity);
+        dndDirectionSensitivityOption.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                boolean b = ((JCheckBoxMenuItem)e.getSource()).isSelected();           
+                ProofSettings.DEFAULT_SETTINGS.
+                getGeneralSettings().setDnDDirectionSensitivity(b);           
+        }});
+        
+        registerAtMenu(options, dndDirectionSensitivityOption);        
+        
+	// sound settings
+	final boolean soundNotification = 
+	    ProofSettings.DEFAULT_SETTINGS.getGeneralSettings().soundNotification();
+	final JMenuItem soundNotificationOption =
+	    new JCheckBoxMenuItem("Sound", soundNotification);
+	if (notificationManager!=null) {
+            notificationManager.setDefaultNotification(soundNotification);
+        }
+	soundNotificationOption.addActionListener(new ActionListener() {
+	    public void actionPerformed(ActionEvent e) {
+	        boolean b = ((JCheckBoxMenuItem)e.getSource()).isSelected();	       
+	        if (notificationManager!=null) {
+                    notificationManager.setDefaultNotification(b);                
+	        }
+	        ProofSettings.DEFAULT_SETTINGS.
+	        getGeneralSettings().setSoundNotification(b);	        
+        }});
+	
+	registerAtMenu(options, soundNotificationOption);
+
+	// proof assistant
+	final JMenuItem assistantOption = new JCheckBoxMenuItem
+	    ("Proof Assistant", 
+	     ProofSettings.DEFAULT_SETTINGS.
+	     getGeneralSettings().proofAssistantMode());
+
+	final ProofAssistantController assistant = new ProofAssistantController
+	    (mediator, 
+	     ProofSettings.DEFAULT_SETTINGS.getGeneralSettings(),
+	     new ProofAssistantAI(), new ProofAssistant());
+
+ 	// listen to the state of the assistant in order to hold the
+ 	// item and state consistent
+	assistant.addChangeListener(new ChangeListener() {
+	    public void stateChanged(ChangeEvent e) {
+	        final boolean assistentEnabled = 
+                    ((ProofAssistantController)e.getSource()).getState();
+	        assistantOption.setSelected(assistentEnabled);
+	        // setSelected does not trigger an action event so we have
+	        // to make the change explicitly permanent
+	        ProofSettings.DEFAULT_SETTINGS.getGeneralSettings().
+	        setProofAssistantMode(assistentEnabled);
+	    }
+	});
+
+	assistantOption.addActionListener(new ActionListener() {
+	    public void actionPerformed(ActionEvent e) {
+		ProofSettings.DEFAULT_SETTINGS.getGeneralSettings().
+		    setProofAssistantMode
+		    (((JCheckBoxMenuItem)e.getSource()).isSelected());
+	    }});
+
+	registerAtMenu(options, assistantOption);
+	        
+        return options;
+    }
+
+
+    private void setupDecisionProcedureGroup(ButtonGroup decisionProcGroup) {
+        simplifyButton.setSelected(ProofSettings.DEFAULT_SETTINGS.getDecisionProcedureSettings()
+                .useSimplify());
+        simplifyButton.setIcon(IconFactory.simplifyLogo(15));
+        decisionProcGroup.add(simplifyButton);
+        decisionProcedureOption.add(simplifyButton);
+        
+        DecisionProcButtonListener decisionProcButtonListener = new DecisionProcButtonListener();
+        simplifyButton.addActionListener(decisionProcButtonListener);
+        
+        icsButton.setIcon(IconFactory.icsLogo(15));
+        icsButton.setSelected(ProofSettings.DEFAULT_SETTINGS.getDecisionProcedureSettings()
+                .useICS());
+        decisionProcGroup.add(icsButton);
+        decisionProcedureOption.add(icsButton);
+        icsButton.addActionListener(decisionProcButtonListener);
+        
+        cvc3Button.setIcon(IconFactory.icsLogo(15));
+        cvc3Button.setSelected(ProofSettings.DEFAULT_SETTINGS.getDecisionProcedureSettings()
+                .useCVC3());
+        decisionProcGroup.add(cvc3Button);
+        decisionProcedureOption.add(cvc3Button);
+        cvc3Button.addActionListener(decisionProcButtonListener);
+        
+        
+        cvcLiteButton.setIcon(IconFactory.icsLogo(15));
+        cvcLiteButton.setSelected(ProofSettings.DEFAULT_SETTINGS.getDecisionProcedureSettings()
+                .useCVCLite());
+        decisionProcGroup.add(cvcLiteButton);
+        decisionProcedureOption.add(cvcLiteButton);
+        cvcLiteButton.addActionListener(decisionProcButtonListener);
+        
+        svcButton.setIcon(IconFactory.icsLogo(15));
+        svcButton.setSelected(ProofSettings.DEFAULT_SETTINGS.getDecisionProcedureSettings()
+                .useSVC());
+        decisionProcGroup.add(svcButton);
+        decisionProcedureOption.add(svcButton);
+        svcButton.addActionListener(decisionProcButtonListener);
+        
+        yicesButton.setIcon(IconFactory.icsLogo(15));
+        yicesButton.setSelected(ProofSettings.DEFAULT_SETTINGS.getDecisionProcedureSettings()
+                .useYices());
+        decisionProcGroup.add(yicesButton);
+        decisionProcedureOption.add(yicesButton);
+        yicesButton.addActionListener(decisionProcButtonListener);
+        
+        smtButton.setIcon(IconFactory.icsLogo(15));
+        smtButton.setSelected(ProofSettings.DEFAULT_SETTINGS.getDecisionProcedureSettings()
+                .useSMT_Translation());
+        decisionProcGroup.add(smtButton);
+        decisionProcedureOption.add(smtButton);
+        smtButton.addActionListener(decisionProcButtonListener);
+        
+        // Add option for quantifier translation
+        final boolean useQuantifiers = ProofSettings.DEFAULT_SETTINGS
+                                       .getDecisionProcedureSettings().useQuantifiers();
+        smtUseQuantifiersOption = new JCheckBoxMenuItem("Translate quantifiers (SMT)",
+                                                        useQuantifiers);
+        decisionProcedureOption.add(smtUseQuantifiersOption);
+        smtUseQuantifiersOption.addActionListener(decisionProcButtonListener);
+        
+        // Add the options for SMT benchmark archiving
+        decisionProcedureOption.addSeparator();
+        final boolean benchmarkArchiving = ProofSettings.DEFAULT_SETTINGS
+                                           .getDecisionProcedureSettings().doBenchmarkArchiving();
+        smtBenchmarkArchivingOption = new JCheckBoxMenuItem("Archive SMT benchmarks",
+                                                            benchmarkArchiving);
+        decisionProcedureOption.add(smtBenchmarkArchivingOption);
+        smtBenchmarkArchivingOption.addActionListener(decisionProcButtonListener);
+                
+        final boolean zipProblemDir = ProofSettings.DEFAULT_SETTINGS
+                                      .getDecisionProcedureSettings().doZipProblemDir();
+        smtZipProblemDirOption = new JCheckBoxMenuItem("Zip problem dir into archive", zipProblemDir);
+        decisionProcedureOption.add(smtZipProblemDirOption);
+        smtZipProblemDirOption.addActionListener(decisionProcButtonListener);
+    }    
+    
+    
+    private JMenuItem setupSpeclangMenu() {
+        JMenu result = new JMenu("Specification Languages");       
+        ButtonGroup group = new ButtonGroup();
+        GeneralSettings gs 
+            = ProofSettings.DEFAULT_SETTINGS.getGeneralSettings();
+        
+        JRadioButtonMenuItem noneButton 
+            = new JRadioButtonMenuItem("None", !gs.useJML() && !gs.useOCL());
+        result.add(noneButton);
+        group.add(noneButton);
+        noneButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                GeneralSettings gs 
+                    = ProofSettings.DEFAULT_SETTINGS.getGeneralSettings();
+                gs.setUseJML(false);
+                gs.setUseOCL(false);
+            }
+        });
+        
+        JRadioButtonMenuItem jmlButton 
+            = new JRadioButtonMenuItem("JML", gs.useJML());
+        result.add(jmlButton);
+        group.add(jmlButton);
+        jmlButton.setIcon(IconFactory.jmlLogo(15));
+        jmlButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                GeneralSettings gs 
+                    = ProofSettings.DEFAULT_SETTINGS.getGeneralSettings();
+                gs.setUseJML(true);
+                gs.setUseOCL(false);
+            }
+        });
+        
+        JRadioButtonMenuItem oclButton 
+            = new JRadioButtonMenuItem("OCL", gs.useOCL());
+        result.add(oclButton);
+        group.add(oclButton);
+        oclButton.setIcon(IconFactory.umlLogo(15));
+        oclButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                GeneralSettings gs 
+                    = ProofSettings.DEFAULT_SETTINGS.getGeneralSettings();
+                gs.setUseJML(false);
+                gs.setUseOCL(true);
+            }
+        });
+        
+        return result;
+    }
+    
+    
+    public JMenu createHelpMenu() {
+        JMenu help = new JMenu("About");
+        help.setMnemonic(KeyEvent.VK_A);
+        JMenuItem about = new JMenuItem("About KeY");
+        about.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                showAbout();
+            }});
+        help.add(about);	
+        
+        if (ProofSettings.DEFAULT_SETTINGS.getProfile() instanceof DLProfile) {
+            DLInitializer.registerHelpMenuItem(this, help);
+        } 
+        
+        JMenuItem license = new JMenuItem("License");
+        license.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                showLicense();
+            }});
+        help.add(license);
+        return help;
+    }
+    
+    protected JMenu createToolsMenu() {
+	JMenu tools = new JMenu("Tools");
+	tools.setMnemonic(KeyEvent.VK_T);
+	getJMenuBar().add(tools);
+
+	JMenuItem extractSpecification = new JMenuItem("Extract Specification");
+	extractSpecification.setAccelerator(KeyStroke.getKeyStroke
+			    (KeyEvent.VK_E, ActionEvent.CTRL_MASK));
+
+	extractSpecification.addActionListener(new ActionListener() {
+		public void actionPerformed(ActionEvent e) {
+		    if (mediator().ensureProofLoaded()) {
+			//@internal we don't want to block UI just
+			//because we are about to calculate a lot of
+			//things, now. Also the interactive prover
+			//might want to run during the execution of
+			//ComputeSpecification
+			new Thread(new Runnable() {
+				public void run() {
+				    ComputeSpecificationView.show(mediator());
+				}
+			    }).start();
+		    }
+		}
+	    });
+	tools.add(extractSpecification);
+
+	JMenuItem specificationBrowser = 
+	    new JMenuItem("Proof Obligation Browser...");
+	specificationBrowser.setAccelerator(KeyStroke.getKeyStroke
+					    (KeyEvent.VK_B, 
+					     ActionEvent.CTRL_MASK));
+	specificationBrowser.addActionListener(new ActionListener() {
+	    public void actionPerformed(ActionEvent e) {
+    	        showPOBrowser();
+    	    }});
+	registerAtMenu(tools, specificationBrowser);
+        
+        JMenuItem nonInterference = new JMenuItem("Check Non-Interference");
+        nonInterference.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                BasicTask[] selProofs = proofList.getAllSelectedBasicTasks();
+                if (selProofs.length==2) {
+                    new NonInterferenceCheck(selProofs).run();
+                } else {
+                    mediator().popupWarning(
+                            "Please select 2 proofs", "Non-Interference Check");
+                }
+            }
+        });
+        
+        tools.add(nonInterference);
+        
+        JMenuItem testItem = new JMenuItem();
+        testItem.setAction(createUnitTestAction);
+        
+        tools.add(testItem);
+        
+     // implemented by mbender for jmltest
+        final JMenuItem createWrapper = new JMenuItem("Create JML-Wrapper");
+        
+        createWrapper.setAccelerator(KeyStroke.getKeyStroke
+                (KeyEvent.VK_J, 
+                 ActionEvent.CTRL_MASK));
+
+        createWrapper.setEnabled(mediator.getProof() != null);
+
+        mediator.addKeYSelectionListener(new KeYSelectionListener() {
+            /** focused node has changed */
+            public void selectedNodeChanged(KeYSelectionEvent e) {
+            }
+
+            /**
+             * the selected proof has changed. Enable or disable action
+             * depending whether a proof is available or not
+             */
+            public void selectedProofChanged(KeYSelectionEvent e) {
+                createWrapper
+                        .setEnabled(e.getSource().getSelectedProof() != null);
+            }
+        });
+
+        createWrapper.addActionListener(new ActionListener() {
+
+            public void actionPerformed(ActionEvent e) {
+                JMLTestFileCreator jmltfc = new JMLTestFileCreator();
+                jmltfc.createWrapper();
+            }
+        });
+        tools.add(createWrapper);
+        
+        return tools;
+    }
+    
+    protected JMenu createDebugMenu() {
+        JMenu debug = new JMenu("Debug");
+        debug.setMnemonic(KeyEvent.VK_D);
+        JMenuItem showSettings = new JMenuItem("Show settings");
+        showSettings.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                showSettings();
+            }
+        });
+        debug.add(showSettings);
+        return debug;
+    }
+    
+    /** creates menubar entries and adds them to menu bar */
+    private void createMenuBarEntries() {
+        JMenuBar menuBar = getJMenuBar();
+        menuBar.add(createFileMenu());
+        menuBar.add(createViewMenu());
+        menuBar.add(createProofMenu());
+        menuBar.add(createOptionsMenu());
+        menuBar.add(createToolsMenu());
+        menuBar.add(Box.createHorizontalGlue());
+        menuBar.add(createHelpMenu());
+        if (Debug.ENABLE_DEBUG)
+            menuBar.add(createDebugMenu());
+    }
+    
+    /**
+     * returns the toolbar
+     */
+    public JToolBar getToolBar() {
+        return toolBar;
+    }
+    
+    /**
+     * Sets the content of the current goal view. Do not use this method from outside, take method
+     * {@link #updateGoalView(String, JComponent)} instead (thread safe)
+     */
+    private void paintGoalView(String borderTitle, JComponent goalViewPane) {
+        goalView.setViewportView(goalViewPane);
+        goalView.setBorder(new TitledBorder(borderTitle));
+        goalView.validate();
+        validate();
+    }
+    
+    /**
+     * updates the view of the sequent being displayed in the main frame
+     */
+    private synchronized void updateGoalView(final String borderTitle, final JComponent goalViewPane) {
+        if (SwingUtilities.isEventDispatchThread()) {
+            paintGoalView(borderTitle, goalViewPane);
+        } else {
+            Runnable sequentUpdater = new Runnable() {
+                public void run() {
+                    paintGoalView(borderTitle, goalViewPane);
+                }
+            };
+            SwingUtilities.invokeLater(sequentUpdater);
+        }
+    }
+    
+    
+    /**
+     * prints the content of the sequent view
+     */
+    public void printSequentView(Sequent sequent) {
+        SequentPrintFilter filter =
+            new ConstraintSequentPrintFilter ( sequent,
+                    mediator ().getUserConstraint ()
+                    .getConstraint () );
+        final LogicPrinter printer = new LogicPrinter
+        (new ProgramPrinter(null), 
+                mediator().getNotationInfo(),
+                mediator.getServices());
+                
+        sequentView.setPrinter(printer, filter, null);
+        sequentView.printSequent();
+        
+        updateGoalView("Current Goal", sequentView);
+    }
+    
+    
+    public static KeYFileChooser getFileChooser(String title) {
+        if (fileChooser == null) {
+            fileChooser = new KeYFileChooser();
+        }
+        fileChooser.setDialogTitle(title);
+        fileChooser.prepare();
+        return fileChooser;
+    }
+    
+    /** saves a proof */
+    protected void saveProof() {
+        KeYFileChooser jFC = getFileChooser("Choose filename to save proof");
+        boolean saved = jFC.showSaveDialog(this);
+        if (saved) {
+            saveProof(jFC.getSelectedFile());
+        }
+    }
+    
+    protected void saveProof(String proofFile) {
+        saveProof(new File(proofFile));
+    }
+    
+    protected void saveProof(File proofFile) {
+        String filename = proofFile.getAbsolutePath();    
+        ProofSaver saver;
+        if (filename.endsWith(".tex"))
+            saver = new ProofSaverLatex(this, filename);
+        else saver = new ProofSaver(this, filename);
+        String errorMsg = saver.save();
+        
+        if (errorMsg != null) {
+            notify(new GeneralFailureEvent
+                    ("Saving Proof failed.\n Error: " + errorMsg));
+        }
+    }
+    
+    protected void loadProblem(File file) {
+	recentFiles.addRecentFile(file.getAbsolutePath());
+        if(unitKeY!=null){
+            unitKeY.recent.addRecentFile(file.getAbsolutePath());
+        }
+        final ProblemLoader pl = 
+            new ProblemLoader(file, this, mediator.getProfile(), false);
+        pl.addTaskListener(getProverTaskListener());
+        pl.run();
+    }
+    
+    protected void closeTask() {
+	final Proof proof = mediator.getProof();
+	if (proof != null) {
+	    final TaskTreeNode rootTask = 
+		proof.getBasicTask().getRootTask();	
+	    proofList.removeTask(rootTask);   
+	    
+            ((ProofTreeView)proofView.getComponent(0)).removeProofs(rootTask.allProofs());
+	}
     }
     
     
