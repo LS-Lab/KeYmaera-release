@@ -299,32 +299,31 @@ public class ApplyStrategy {
     }
 
     private class ProofListener implements RuleAppListener {
+    
+	/** invoked when a rule has been applied */
+	public void ruleApplied(ProofEvent e) {
+            if (!isAutoModeActive() || e.getSource() != proof) return;            
+	    RuleAppInfo rai = e.getRuleAppInfo ();
+	    if ( rai == null )
+		return;
 
-        /** invoked when a rule has been applied */
-        public void ruleApplied(ProofEvent e) {
-            if (!isAutoModeActive())
-                return;
-            RuleAppInfo rai = e.getRuleAppInfo();
-            if (rai == null)
-                return;
+	    synchronized ( ApplyStrategy.this ) {
+		ListOfGoal                newGoals = SLListOfGoal.EMPTY_LIST;
+		IteratorOfNodeReplacement it       = rai.getReplacementNodes ();
+		Node                      node;
+		Goal                      goal;          
+                
+		while ( it.hasNext () ) {
+		    node = it.next ().getNode ();
+		    goal = proof.getGoal ( node );
+		    if ( goal != null )
+			newGoals = newGoals.prepend ( goal );
+		}
 
-            synchronized (ApplyStrategy.this) {
-                ListOfGoal newGoals = SLListOfGoal.EMPTY_LIST;
-                IteratorOfNodeReplacement it = rai.getReplacementNodes();
-                Node node;
-                Goal goal;
-
-                while (it.hasNext()) {
-                    node = it.next().getNode();
-                    goal = proof.getGoal(node);
-                    if (goal != null)
-                        newGoals = newGoals.prepend(goal);
-                }
-
-                goalChooser.updateGoalList(rai.getOriginalNode(), newGoals);
-            }
-        }
-
+                goalChooser.updateGoalList ( rai.getOriginalNode (), newGoals );
+	    }
+	}
+	
     }
 
     public boolean isAutoModeActive() {

@@ -232,6 +232,12 @@ public class DefaultProofCorrectnessMgt implements ProofCorrectnessMgt {
     }
     
     
+    public void finalize() {
+        if (mediator != null) {
+            mediator.removeRuleAppListener(proofListener);
+        }
+    }
+
     
     //-------------------------------------------------------------------------
     //inner classes
@@ -249,7 +255,7 @@ public class DefaultProofCorrectnessMgt implements ProofCorrectnessMgt {
 
     
     private class DefaultMgtProofTreeListener extends ProofTreeAdapter {
-	public void proofClosed(ProofTreeEvent e) {
+	public void proofClosed(ProofTreeEvent e) {	    
 	    ProofEnvironment pEnv = proof.env();
 	    pEnv.updateProofStatus();
 	}
