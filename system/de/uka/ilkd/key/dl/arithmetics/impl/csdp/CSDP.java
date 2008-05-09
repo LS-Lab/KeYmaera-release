@@ -19,6 +19,8 @@
  ***************************************************************************/
 package de.uka.ilkd.key.dl.arithmetics.impl.csdp;
 
+import java.util.Arrays;
+
 import de.uka.ilkd.key.dl.arithmetics.impl.csdp.Blockmat.blockmatrix;
 import de.uka.ilkd.key.dl.arithmetics.impl.csdp.Blockmat.constraintmatrix;
 
@@ -85,65 +87,89 @@ public class CSDP {
 			double[] blockmatrixpX, double[] py, double[] blockmatrixpZ,
 			double[] ppobj, double[] pdobj);
 	
+	@SuppressWarnings("unused")
+	private static native int test2(int n, int k, double[] blockmatrixC,
+			double[] a, double[] constraints, double constant_offset,
+			double[] blockmatrixpX, double[] py, double[] blockmatrixpZ,
+			double[] ppobj, double[] pdobj);
+
 	private static native int test();
+	
+	public static boolean sdp(int n, int k, double[] a, double[] constraints) {
+		double[] X = new double[n*n], 
+		y = new double[a.length], 
+		Z = new double[n*n], 
+		pobj = new double[n], 
+		dobj = new double[a.length];
+		System.out.println("n is: " + n);//XXX
+		System.out.println("a is: " + Arrays.toString(a));//XXX
+		System.out.println("constraints is: " + Arrays.toString(constraints));//XXX
+		return easySDP(n, k, new double[n*n], a, constraints, 0, X, y, Z, pobj, dobj) == 0;
+	}
 
 	public static void main(String[] args) {
 		System.loadLibrary("lapack");
 		System.loadLibrary("blas");
 		System.loadLibrary("m");
 		System.loadLibrary("csdp");
-//		System.loadLibrary("sdp");
-		easySDP(7, 2, new double[] { 
-				2, 1, 0, 0, 0, 0, 0,
-				1, 2, 0, 0, 0, 0, 0,
-				0, 0, 3, 0, 1, 0, 0, 
-				0, 0, 0, 2, 0, 0, 0, 
-				0, 0, 1, 0, 3, 0, 0,
-				0, 0, 0, 0, 0, 0, 0, 
-				0, 0, 0, 0, 0, 0, 0 }, 
-				
-				new double[] { 1, 2 },
-				
-				new double[] { 
-				3, 1, 0, 0, 0, 0, 0, 
+		// System.loadLibrary("sdp");
+		
+		test();
+		
+		int n = 7;
+		
+		double[] constraints = new double[] { 
+				3, 1, 0, 0, 0, 0, 0,
 				1, 3, 0, 0, 0, 0, 0, 
 				0, 0, 0, 0, 0, 0, 0, 
 				0, 0, 0, 0, 0, 0, 0, 
 				0, 0, 0, 0, 0, 0, 0, 
 				0, 0, 0, 0, 0, 1, 0, 
-				0, 0, 0, 0, 0, 0, 0, 
-				
 				0, 0, 0, 0, 0, 0, 0,
-				0, 0, 0, 0, 0, 0, 0, 
-				0, 0, 3, 0, 1, 0, 0,
-				0, 0, 0, 4, 0, 0, 0, 
-				0, 0, 1, 0, 5, 0, 0, 
-				0, 0, 0, 0, 0, 0, 0, 
-				0, 0, 0, 0, 0, 0, 1 }, 0,
-				new double[] { 0 }, new double[] { 0 }, new double[] { 0 },
-				new double[] { 0 }, new double[] { 0 });
-//		easySDP(7, 2, new double[] { 2, 1, 0, 0, 0, 0, 1, 2, 0, 0, 0, 0, 0, 0,
-//				3, 0, 1, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 1, 0, 3, 0, 0, 0, 0,
-//				0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, new double[] { 1, 2 },
-//				new double[] { 3, 1, 0, 0, 0, 0, 0, 1, 3, 0, 0, 0, 0, 0, 0, 0,
-//						0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-//						0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 
-//						
-//						0, 0, 0, 0, 0, 0, 0,
-//						0, 0, 0, 0, 0, 0, 0, 
-//						0, 0, 3, 0, 1, 0, 0,
-//						0, 0, 0, 4, 0, 0, 0, 
-//						0, 0, 1, 0, 5, 0, 0, 
-//						0, 0, 0, 0, 0, 0, 0, 
-//						0, 0, 0, 0, 0, 0, 1 }, 0,
-//				new double[] { 0 }, new double[] { 0 }, new double[] { 0 },
-//				new double[] { 0 }, new double[] { 0 });
+					
+					0, 0, 0, 0, 0, 0, 0,
+					 0, 0, 0, 0, 0, 0, 0,
+					 0, 0, 3, 0, 1, 0, 0,
+					 0, 0, 0, 4, 0, 0, 0,
+					 0, 0, 1, 0, 5, 0, 0,
+					 0, 0, 0, 0, 0, 0, 0,
+					 0, 0, 0, 0, 0, 0, 1
+					};
+		double[] C = new double[] { 2, 1, 0, 0, 0, 0, 0, 1, 2, 0, 0, 0, 0, 0,
+				0, 0, 3, 0, 1, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 1, 0, 3, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+		double[] a = new double[] { 1,2 };
+		double[] X = new double[C.length], 
+		y = new double[a.length], 
+		Z = new double[C.length], 
+		pobj = new double[n], 
+		dobj = new double[a.length];
 		
-//		test();
-		
-		// easySDP(1, 1, new double[] { 0 }, new double[] { 0 },
-		// new double[] { 0 }, 0, new double[] { 0 }, new double[] { 0 },
-		// new double[] { 0 }, new double[] { 0 }, new double[] { 0 });
+		easySDP(7, 2, convertToFortranForm(C, 7), a, constraints, 0, X, y, Z,
+				pobj, dobj);
+		System.out.println("X: " + Arrays.toString(X));//XXX
+		System.out.println("y: " + Arrays.toString(y));//XXX
+		System.out.println("Z: " + Arrays.toString(Z));//XXX
+		System.out.println("pobj: " + Arrays.toString(pobj));//XXX
+		System.out.println("dobj: " + Arrays.toString(dobj));//XXX
+	}
+
+	private static double[] convertToFortranForm(double[] array, int dim) {
+		double[][] tmp = new double[dim][dim];
+		double[] result = new double[array.length];
+		for (int i = 0; i < dim; i++) {
+			for (int j = 0; j < dim; j++) {
+				tmp[i][j] = array[j + i * dim];
+				System.out.println("Setting pos (" + i + ", " + j + ")" + " to value " + array[j + i * dim]);//XXX
+			}
+		}
+
+		for (int i = 0; i < dim; i++) {
+			for (int j = 0; j < dim; j++) {
+				result[j + dim*i] = tmp[j][i]; 
+			}
+		}
+		return result;
 	}
 
 }

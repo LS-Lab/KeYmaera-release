@@ -17,6 +17,8 @@ import de.uka.ilkd.key.logic.sort.Sort;
 import de.uka.ilkd.key.rule.UpdateSimplifier;
 import de.uka.ilkd.key.rule.updatesimplifier.*;
 
+
+
 /**
  * Factory providing the update constructors that are described in "Sequential,
  * Parallel and Quantified Updates of First-Order Structures". Don't try to use
@@ -27,22 +29,22 @@ import de.uka.ilkd.key.rule.updatesimplifier.*;
  * could be optimized
  */
 public class UpdateFactory {
-
+    
     /**
      * Context of the updates that are produced by the factory.
      */
-    private final Services services;
-
+    private final Services services; 
+    
     /**
      * the update simplifier to be used
      */
     private final UpdateSimplifier simplifier;
-
-    private final TermFactory tf = TermFactory.DEFAULT;
-
-    private final UpdateSimplifierTermFactory utf = UpdateSimplifierTermFactory.DEFAULT;
-
-    public UpdateFactory(Services services, UpdateSimplifier simplifier) {
+    
+    private final TermFactory        tf            = TermFactory.DEFAULT;
+    private final UpdateSimplifierTermFactory utf  =
+                                            UpdateSimplifierTermFactory.DEFAULT;
+   
+    public UpdateFactory (Services services, UpdateSimplifier simplifier) {
         this.services = services;
         this.simplifier = simplifier;
     }
@@ -64,13 +66,10 @@ public class UpdateFactory {
             
             return tf.createFunctionTerm ( WORelation, t1, t2 );
         }
-
-        // TEST
-        System.out.println("UF: Sorts are " + t1.sort() + "("
-                + t1.sort().hashCode() + ") and " + t2.sort() + "("
-                + t2.sort().hashCode() + ")");
-        System.out.println("correct int sort is: " + integerLDT.targetSort()
-                + "(" + integerLDT.targetSort().hashCode() + ")");
+        
+        //TEST
+        System.out.println("UF: Sorts are " + t1.sort() + "("  + t1.sort().hashCode() + ") and " + t2.sort() + "(" + t2.sort().hashCode() + ")");
+        System.out.println("correct int sort is: " + integerLDT.targetSort() + "(" + integerLDT.targetSort().hashCode() + ")");
         System.exit(-1);
 
         assert false : "Update factory can currently not handle the"
@@ -92,63 +91,66 @@ public class UpdateFactory {
     public Term apply(Update update, Term target) {
         return getSimplifier ().simplify ( update, target, services );
     }
-
+    
+    
     /**
      * Apply an update to another update
      */
     public Update apply(Update update, Update target) {
-        final ArrayOfAssignmentPair oldPairs = target.getAllAssignmentPairs();
+        final ArrayOfAssignmentPair oldPairs = target.getAllAssignmentPairs ();
 
-        final AssignmentPair[] newPairs = new AssignmentPair[oldPairs.size()];
+        final AssignmentPair[] newPairs = new AssignmentPair[oldPairs.size ()];
         boolean changed = false;
-        for (int i = 0; i != oldPairs.size(); ++i) {
-            newPairs[i] = apply(update, oldPairs.getAssignmentPair(i));
-            changed = changed || newPairs[i] != oldPairs.getAssignmentPair(i);
+        for ( int i = 0; i != oldPairs.size (); ++i ) {
+            newPairs[i] = apply ( update, oldPairs.getAssignmentPair ( i ) );
+            changed = changed || newPairs[i] != oldPairs.getAssignmentPair ( i );
         }
 
-        if (!changed)
-            return target;
-
-        return Update.createUpdate(newPairs);
-    }
-
+        if ( !changed ) return target;
+        
+        return Update.createUpdate ( newPairs );
+    }    
+    
+    
     /**
      * Apply an update to an assignment pair
      */
-    private AssignmentPair apply(Update update, AssignmentPair oriTarget) {
-        final AssignmentPair cleanedTarget = utf.resolveCollisions(oriTarget,
-                update.freeVars());
+    private AssignmentPair apply (Update update, AssignmentPair oriTarget) {
+        final AssignmentPair cleanedTarget =
+            utf.resolveCollisions ( oriTarget, update.freeVars () );
 
         boolean changed = false;
-
-        final Term[] locSubs = new Term[cleanedTarget.locationSubs().length];
+        
+        final Term[] locSubs = new Term [cleanedTarget.locationSubs().length];
         for (int i = 0; i != locSubs.length; ++i) {
-            locSubs[i] = apply(update, cleanedTarget.locationSubs()[i]);
-            changed = changed || locSubs[i] != cleanedTarget.locationSubs()[i];
+            locSubs[i] = apply ( update, cleanedTarget.locationSubs ()[i] );
+            changed = changed || locSubs[i] != cleanedTarget.locationSubs ()[i];
         }
 
-        /**
-         * unsafe is safe in this case, as the evaluated value will be used on
-         * the right side of an update
+        /** unsafe is safe in this case, as the evaluated value will be used on the 
+         * right side of an update
          */
-        final Term newValue = apply(update, cleanedTarget.valueUnsafe());
+        final Term newValue = apply ( update, cleanedTarget.valueUnsafe() );
         changed = changed || newValue != cleanedTarget.valueUnsafe();
-
-        final Term newGuard = apply(update, cleanedTarget.guard());
-        changed = changed || newGuard != cleanedTarget.guard();
-
-        if (!changed)
-            return oriTarget;
-        return new AssignmentPairImpl(cleanedTarget.boundVars(), newGuard,
-                cleanedTarget.location(), locSubs, newValue);
+        
+        final Term newGuard = apply (update, cleanedTarget.guard());
+        changed = changed || newGuard != cleanedTarget.guard ();
+        
+        if ( !changed ) return oriTarget;
+        return new AssignmentPairImpl ( cleanedTarget.boundVars (),
+                                        newGuard,
+                                        cleanedTarget.location (),
+                                        locSubs,
+                                        newValue );
     }
-
+    
+    
     /**
      * The neutral update (neutral element concerning parallel and sequential
      * composition) not updating anything
      */
-    public Update skip() {
-        return Update.createUpdate(new AssignmentPair[0]);
+    public Update skip () {
+        return Update.createUpdate ( new AssignmentPair [0] );
     }
 
     /**
@@ -161,33 +163,33 @@ public class UpdateFactory {
      *            Term describing the new value of the updated location
      * 
      * @return the resulting update
-     */
-    public Update elementaryUpdate(Term leftHandSide, Term value) {
-        final Term[] subs = new Term[leftHandSide.arity()];
-        for (int i = 0; i != subs.length; ++i)
-            subs[i] = leftHandSide.sub(i);
-
-        final AssignmentPair ass = new AssignmentPairImpl(
-                (Location) leftHandSide.op(), subs, value);
-
-        return Update.createUpdate(new AssignmentPair[] { ass });
+     */    
+    public Update elementaryUpdate (Term leftHandSide, Term value) {
+        final Term[] subs = new Term [leftHandSide.arity ()];
+        for ( int i = 0; i != subs.length; ++i )
+            subs[i] = leftHandSide.sub ( i );
+        
+        final AssignmentPair ass =
+            new AssignmentPairImpl ( (Location)leftHandSide.op (), subs, value );
+        
+        return Update.createUpdate ( new AssignmentPair [] { ass } );
     }
-
+    
     /**
      * Compute the parallel composition of two updates,
      * <tt>update1 | update2</tt>
      */
-    public Update parallel(Update update1, Update update2) {
+    public Update parallel (Update update1, Update update2) {
         final ArrayOfAssignmentPair pairs1 = update1.getAllAssignmentPairs();
         final ArrayOfAssignmentPair pairs2 = update2.getAllAssignmentPairs();
-
-        final AssignmentPair[] resPairs = new AssignmentPair[pairs1.size()
-                + pairs2.size()];
-
-        pairs1.arraycopy(0, resPairs, 0, pairs1.size());
-        pairs2.arraycopy(0, resPairs, pairs1.size(), pairs2.size());
-
-        return Update.createUpdate(resPairs);
+        
+        final AssignmentPair[] resPairs =
+            new AssignmentPair [pairs1.size() + pairs2.size()];
+        
+        pairs1.arraycopy ( 0, resPairs, 0, pairs1.size () );
+        pairs2.arraycopy ( 0, resPairs, pairs1.size (), pairs2.size () );
+        
+        return Update.createUpdate ( resPairs );
     }
 
     /**
@@ -195,35 +197,33 @@ public class UpdateFactory {
      * 
      * TODO: this could be implemented more efficiently
      */
-    public Update parallel(Update[] updates) {
-        if (updates.length == 0)
-            return skip();
+    public Update parallel (Update[] updates) {
+        if ( updates.length == 0 ) return skip ();
 
         Update res = updates[0];
-        for (int i = 1; i != updates.length; ++i)
-            res = parallel(res, updates[i]);
+        for ( int i = 1; i != updates.length; ++i )
+            res = parallel ( res, updates[i] );
 
         return res;
     }
-
+    
     /**
      * Compute the sequential composition of two updates,
      * <tt>update1 ; update2</tt>
      */
-    public Update sequential(Update update1, Update update2) {
-        return parallel(update1, apply(update1, update2));
+    public Update sequential (Update update1, Update update2) {
+        return parallel ( update1, apply ( update1, update2 ) );
     }
-
+    
     /**
      * Compute the sequential composition of an array of updates.
      */
-    public Update sequential(Update[] updates) {
-        if (updates.length == 0)
-            return skip();
+    public Update sequential (Update[] updates) {
+        if ( updates.length == 0 ) return skip ();
 
         Update res = updates[0];
-        for (int i = 1; i != updates.length; ++i)
-            res = sequential(res, updates[i]);
+        for ( int i = 1; i != updates.length; ++i )
+            res = sequential ( res, updates[i] );
 
         return res;
     }
@@ -242,24 +242,24 @@ public class UpdateFactory {
      * Quantify over <code>var</code>, i.e. carry out the update
      * <code>update</code> in parallel for all values of <code>var</code>
      */
-    public Update quantify(QuantifiableVariable var, Update update) {
+    public Update quantify (QuantifiableVariable var, Update update) {
         // ensure that no collisions occur later on
-        update = utf.resolveCollisions(update, update.freeVars());
-
-        final ArrayOfAssignmentPair oldPairs = update.getAllAssignmentPairs();
-
+        update = utf.resolveCollisions ( update, update.freeVars () );
+        
+        final ArrayOfAssignmentPair oldPairs = update.getAllAssignmentPairs ();
+        
         // we create a copy of the update in which <tt>var</tt> is replaced with
         // a new variable <tt>var'</tt>
-        final LogicVariable varP = createPrime(var);
-        final ArrayOfAssignmentPair oldPairsP = substitute(update, var, varP)
-                .getAllAssignmentPairs();
-
+        final LogicVariable varP = createPrime ( var );
+        final ArrayOfAssignmentPair oldPairsP =
+            substitute ( update, var, varP ).getAllAssignmentPairs();
+        
         // sanity check
         assert oldPairs.size () == oldPairsP.size ();
         
         return quantify ( var, varP, oldPairs, oldPairsP );
     }
-
+    
     /**
      * Perform quantification over <code>var</code> for the update described
      * by <code>oldPairs</code>. Therefore it is necessary to add certain
@@ -293,33 +293,40 @@ public class UpdateFactory {
                 + "Please ask a wizard to improve me.";
             
             final Term newGuard;
-            if (pair.locationAsTerm().freeVars().contains(var)) {
-                final Term clashCond = clashConditions(var, varP, pair,
-                        firstNPairs(oldPairsP, locNum));
-                newGuard = tf.createJunctorTermAndSimplify(Op.AND, clashCond,
-                        pair.guard());
+            if ( pair.locationAsTerm().freeVars ().contains ( var ) ) {
+                final Term clashCond = clashConditions ( var,
+                                                         varP,
+                                                         pair,
+                                                         firstNPairs ( oldPairsP,
+                                                                       locNum ) );
+                newGuard = tf.createJunctorTermAndSimplify ( Op.AND,
+                                                             clashCond,
+                                                             pair.guard () );                
             } else {
-                newGuard = pair.guard();
+                newGuard = pair.guard ();
             }
-
-            newPairs[locNum] = new AssignmentPairImpl(pushFront(var, pair),
-                    newGuard, pair.location(), pair.locationSubs(), pair
-                            .value());
+            
+            newPairs[locNum] = new AssignmentPairImpl ( pushFront ( var, pair ),
+                                                        newGuard,
+                                                        pair.location (),
+                                                        pair.locationSubs (),
+                                                        pair.value () );
         }
-        return Update.createUpdate(newPairs);
+        return Update.createUpdate ( newPairs );
     }
 
     /**
      * Add <code>var</code> as first bound variable of <code>pair</code>
      */
-    private ArrayOfQuantifiableVariable pushFront(QuantifiableVariable var,
-            AssignmentPair pair) {
-        final int oldSize = pair.boundVars().size();
-        final QuantifiableVariable[] newBoundVars = new QuantifiableVariable[oldSize + 1];
+    private ArrayOfQuantifiableVariable pushFront (QuantifiableVariable var,
+                                                   AssignmentPair pair) {
+        final int oldSize = pair.boundVars ().size ();
+        final QuantifiableVariable[] newBoundVars =
+            new QuantifiableVariable [oldSize + 1];
         newBoundVars[0] = var;
-        pair.boundVars().arraycopy(0, newBoundVars, 1, oldSize);
+        pair.boundVars ().arraycopy ( 0, newBoundVars, 1, oldSize );
 
-        return new ArrayOfQuantifiableVariable(newBoundVars);
+        return new ArrayOfQuantifiableVariable ( newBoundVars );
     }
 
     /**
@@ -330,41 +337,43 @@ public class UpdateFactory {
      * through the parallel composition operator changes the order of update
      * execution
      */
-    private Term clashConditions(QuantifiableVariable var, LogicVariable varP,
-            AssignmentPair pair, Update prefix) {
-        Term res = getSimplifier().matchingCondition(prefix,
-                pair.locationAsTerm(), services);
-        if (res.op() == Op.FALSE)
-            return UpdateSimplifierTermFactory.DEFAULT.getValidGuard();
+    private Term clashConditions (QuantifiableVariable var,
+                                  LogicVariable varP,
+                                  AssignmentPair pair,
+                                  Update prefix) {
+        Term res = getSimplifier().matchingCondition ( prefix, pair.locationAsTerm (), services );
+        if ( res.op () == Op.FALSE )
+            return UpdateSimplifierTermFactory.DEFAULT.getValidGuard ();
 
-        // Bug in the first implementation: It is wrong to add quanifiers here
-        // if ( pair.boundVars ().size () > 0 )
-        // res = tf.createQuantifierTerm ( Op.EX, pair.boundVars (), res );
-        res = tf.createJunctorTerm(Op.NOT, res);
+// Bug in the first implementation: It is wrong to add quanifiers here        
+//        if ( pair.boundVars ().size () > 0 )
+//            res = tf.createQuantifierTerm ( Op.EX, pair.boundVars (), res );
+        res = tf.createJunctorTerm ( Op.NOT, res );
+        
+        final Term var2varPComparison =
+            wellOrder ( tf.createVariableTerm ( (LogicVariable)var ),
+                        tf.createVariableTerm ( varP ) );
 
-        final Term var2varPComparison = wellOrder(tf
-                .createVariableTerm((LogicVariable) var), tf
-                .createVariableTerm(varP));
-
-        res = tf.createJunctorTermAndSimplify(Op.OR, var2varPComparison, res);
-        return tf.createQuantifierTerm(Op.ALL, varP, res);
+        res = tf.createJunctorTermAndSimplify ( Op.OR, var2varPComparison, res );
+        return tf.createQuantifierTerm ( Op.ALL, varP, res );
     }
 
-    private Update firstNPairs(ArrayOfAssignmentPair pairs, int n) {
-        final AssignmentPair[] criticalPairs = new AssignmentPair[n];
-        pairs.arraycopy(0, criticalPairs, 0, n);
-        return Update.createUpdate(criticalPairs);
+    private Update firstNPairs (ArrayOfAssignmentPair pairs, int n) {
+        final AssignmentPair[] criticalPairs = new AssignmentPair [n];
+        pairs.arraycopy ( 0, criticalPairs, 0, n );
+        return Update.createUpdate ( criticalPairs );
     }
 
-    private LogicVariable createPrime(QuantifiableVariable var) {
+    private LogicVariable createPrime (QuantifiableVariable var) {
         // TODO: name the new variable in a better way
-        return new LogicVariable(new Name(var.name().toString() + "Prime"), var
-                .sort());
+        return new LogicVariable ( new Name ( var.name ().toString () + "Prime" ),
+                                   var.sort () );
     }
 
-    private Update substitute(Update update, QuantifiableVariable var,
-            LogicVariable varPrime) {
-        return utf.substitute(update, var, tf.createVariableTerm(varPrime));
+    private Update substitute (Update update,
+                               QuantifiableVariable var,
+                               LogicVariable varPrime) {
+        return utf.substitute ( update, var, tf.createVariableTerm ( varPrime ) );
     }
 
     /**
@@ -391,10 +400,10 @@ public class UpdateFactory {
                                                    pair.locationSubs (),
                                                    pair.value () );
         }
-        return Update.createUpdate(newPairs);
+        return Update.createUpdate ( newPairs );
     }
-
-    private UpdateSimplifier getSimplifier() {
+    
+    private UpdateSimplifier getSimplifier () {
         return simplifier;
     }
 }

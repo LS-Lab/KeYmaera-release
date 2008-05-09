@@ -13,7 +13,6 @@ package de.uka.ilkd.key.proof.init;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Set;
 
 import de.uka.ilkd.key.java.ArrayOfExpression;
 import de.uka.ilkd.key.java.Statement;
@@ -88,7 +87,7 @@ public abstract class EnsuresPO extends AbstractPO {
                                        ListOfProgramVariable paramVars, 
                                        ProgramVariable resultVar,
                                        ProgramVariable exceptionVar,
-                                       Map atPreFunctions) 
+                                       Map<Operator, Function/*atPre*/> atPreFunctions) 
                                                     throws ProofInputException;
     
     
@@ -96,7 +95,7 @@ public abstract class EnsuresPO extends AbstractPO {
                                         ListOfProgramVariable paramVars, 
                                         ProgramVariable resultVar,
                                         ProgramVariable exceptionVar,
-                                        Map atPreFunctions)
+                                        Map<Operator, Function/*atPre*/> atPreFunctions)
                                                     throws ProofInputException;
     
 
@@ -356,7 +355,8 @@ public abstract class EnsuresPO extends AbstractPO {
         }
         ProgramVariable resultVar = buildResultVar(programMethod);
         ProgramVariable exceptionVar = buildExcVar();
-        Map atPreFunctions = new LinkedHashMap();
+        Map<Operator, Function/*atPre*/> atPreFunctions = 
+            new LinkedHashMap<Operator, Function/*atPre*/>();
         
         //build general assumption
         Term gaTerm = buildGeneralAssumption(selfVar, paramVars);

@@ -1,0 +1,11 @@
+To enable the CSDP support the following software is necessary:
+- Csdp (https://projects.coin-or.org/Csdp/)
+- lapack (used by Csdp)
+- blas (used by Csdp)
+
+For compiling the Csdp library with CFLAG -fPIC and copy the resulting archive
+libsdp.a to system/native/csdp
+
+Now run make in that directory. Make creates a libcsdp.so file which is
+required to be in your java library path it will be copied to your binary
+directory.

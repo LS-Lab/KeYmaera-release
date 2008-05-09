@@ -21,6 +21,7 @@ import de.uka.ilkd.key.dl.model.DLProgram;
 import de.uka.ilkd.key.dl.model.DLStatementBlock;
 import de.uka.ilkd.key.dl.model.TermFactory;
 import de.uka.ilkd.key.dl.model.impl.TermFactoryImpl;
+import de.uka.ilkd.key.dl.options.DLOptionBean;
 import de.uka.ilkd.key.dl.rules.DLApplyOnModality;
 import de.uka.ilkd.key.gui.Main;
 import de.uka.ilkd.key.java.ProgramElement;
@@ -185,7 +186,7 @@ public class DLWaryClashFreeSubst extends WaryClashFreeSubst {
         DLProgram res = p;
         try {
             res = (DLProgram) ReplaceVisitor.convert(p, substMap, TermFactory
-                    .getTermFactory(TermFactoryImpl.class, Main.getInstance()
+                    .getTermFactory(DLOptionBean.INSTANCE.getTermFactoryClass(), Main.getInstance()
                             .mediator().getServices().getNamespaces()));
         } catch (InvocationTargetException e) {
             // TODO Auto-generated catch block

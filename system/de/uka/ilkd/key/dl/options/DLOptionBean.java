@@ -23,10 +23,12 @@
 package de.uka.ilkd.key.dl.options;
 
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Properties;
 import java.util.Set;
 
 import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
+import de.uka.ilkd.key.dl.model.TermFactory;
 import de.uka.ilkd.key.gui.GUIEvent;
 import de.uka.ilkd.key.gui.KeYMediator;
 import de.uka.ilkd.key.gui.Main;
@@ -190,12 +192,18 @@ public class DLOptionBean implements Settings {
 
 	private static final String DLOPTIONS_ITERATIVE_REDUCE_RULE = "[DLOptions]useIterativeReduceRule";
 
+	private static final String DLOPTIONS_TERM_FACTORY_CLASS = "[DLOptions]termFactoryClass";
+
+	private static final String DLOPTIONS_APPLY_LOCAL_REDUCE = "[DLOptions]applyLocalReduce";
+
+	private static final String dLOPTIONS_SIMPLIFY_AFTER_ODESOLVE = "[DLOptions]simplifyAfterODESolve";
+
 	private Set<Settings> subOptions;
 
 	private boolean callReduce;
 
 	private long initialTimeout;
-	
+
 	private int quadraticTimeoutIncreaseFactor;
 
 	private int linearTimeoutIncreaseFactor;
@@ -243,11 +251,17 @@ public class DLOptionBean implements Settings {
 	private boolean ignoreAnnotations;
 
 	private int simplifyTimeout;
-	
+
 	private boolean useIterativeReduceRule;
 
+	private Class<? extends TermFactory> termFactoryClass;
+
+	private boolean applyLocalReduce;
+
+	private boolean simplifyAfterODESolve;
+
 	private DLOptionBean() {
-		subOptions = new HashSet<Settings>();
+		subOptions = new LinkedHashSet<Settings>();
 		callReduce = true;
 		initialTimeout = 2;
 		diffSatTimeout = 4;
@@ -273,6 +287,9 @@ public class DLOptionBean implements Settings {
 		diffSatStrategy = DiffSat.AUTO;
 		ignoreAnnotations = false;
 		useIterativeReduceRule = false;
+		termFactoryClass = de.uka.ilkd.key.dl.model.impl.TermFactoryImpl.class;
+		applyLocalReduce = true;
+		simplifyAfterODESolve = true;
 
 		listeners = new HashSet<SettingsListener>();
 	}
@@ -426,7 +443,8 @@ public class DLOptionBean implements Settings {
 		}
 		property = props.getProperty(DLOPTIONS_INITIAL_TIMEOUT);
 		if (property != null) {
-			initialTimeout = Math.round(((float)Integer.parseInt(property))/1000f);
+			initialTimeout = Math
+					.round(((float) Integer.parseInt(property)) / 1000f);
 		}
 		property = props.getProperty(DLOPTIONS_QUADRIC);
 		if (property != null) {
@@ -514,11 +532,13 @@ public class DLOptionBean implements Settings {
 		}
 		property = props.getProperty(DLOPTIONS_DIFFSAT_TIMEOUT);
 		if (property != null) {
-			diffSatTimeout = Math.round(((float)Integer.parseInt(property))/1000f);
+			diffSatTimeout = Math
+					.round(((float) Integer.parseInt(property)) / 1000f);
 		}
 		property = props.getProperty(DLOPTIONS_LOOPSAT_TIMEOUT);
 		if (property != null) {
-			loopSatTimeout = Math.round(((float)Integer.parseInt(property))/1000f);
+			loopSatTimeout = Math
+					.round(((float) Integer.parseInt(property)) / 1000f);
 		}
 		property = props.getProperty(DLOPTIONS_SIMPLIFY_TIMEOUT);
 		if (property != null) {
@@ -528,6 +548,25 @@ public class DLOptionBean implements Settings {
 		if (property != null) {
 			useIterativeReduceRule = Boolean.valueOf(property);
 		}
+		property = props.getProperty(DLOPTIONS_TERM_FACTORY_CLASS);
+		if (property != null) {
+			try {
+				termFactoryClass = (Class<? extends TermFactory>) getClass()
+						.getClassLoader().loadClass(property);
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			}
+		}
+		property = props.getProperty(DLOPTIONS_APPLY_LOCAL_REDUCE);
+		if (property != null) {
+			applyLocalReduce = Boolean.valueOf(property);
+		}
+
+		property = props.getProperty(dLOPTIONS_SIMPLIFY_AFTER_ODESOLVE);
+		if (property != null) {
+			simplifyAfterODESolve = Boolean.valueOf(property);
+		}
+
 	}
 
 	/*
@@ -545,7 +584,9 @@ public class DLOptionBean implements Settings {
 				.toString());
 		props.setProperty(DLOPTIONS_USE_TIMEOUT_STRATEGY, new Boolean(
 				useTimeoutStrategy).toString());
-		props.setProperty(DLOPTIONS_INITIAL_TIMEOUT, "" + initialTimeout * 1000);
+		props
+				.setProperty(DLOPTIONS_INITIAL_TIMEOUT, "" + initialTimeout
+						* 1000);
 		props.setProperty(DLOPTIONS_QUADRIC, ""
 				+ quadraticTimeoutIncreaseFactor);
 		props.setProperty(DLOPTIONS_LINEAR, "" + linearTimeoutIncreaseFactor);
@@ -587,12 +628,22 @@ public class DLOptionBean implements Settings {
 		props.setProperty(DLOPTIONS_INVARIANT_RULE, invariantRule.name());
 
 		props.setProperty(DLOPTIONS_USE_DIFF_SAT, diffSatStrategy.name());
-		props.setProperty(DLOPTIONS_DIFFSAT_TIMEOUT, "" + diffSatTimeout * 1000);
-		props.setProperty(DLOPTIONS_LOOPSAT_TIMEOUT, "" + loopSatTimeout * 1000);
+		props
+				.setProperty(DLOPTIONS_DIFFSAT_TIMEOUT, "" + diffSatTimeout
+						* 1000);
+		props
+				.setProperty(DLOPTIONS_LOOPSAT_TIMEOUT, "" + loopSatTimeout
+						* 1000);
 		props.setProperty(DLOPTIONS_SIMPLIFY_TIMEOUT, "" + simplifyTimeout);
-		
+
 		props.setProperty(DLOPTIONS_ITERATIVE_REDUCE_RULE, Boolean
 				.toString(useIterativeReduceRule));
+		props.setProperty(DLOPTIONS_TERM_FACTORY_CLASS, termFactoryClass
+				.getName());
+		props.setProperty(DLOPTIONS_APPLY_LOCAL_REDUCE, Boolean
+				.toString(applyLocalReduce));
+		props.setProperty(dLOPTIONS_SIMPLIFY_AFTER_ODESOLVE, Boolean
+				.toString(simplifyAfterODESolve));
 	}
 
 	public void addSubOptionBean(Settings sub) {
@@ -951,10 +1002,67 @@ public class DLOptionBean implements Settings {
 	}
 
 	/**
-	 * @param useIterativeReduceRule the useIterativeReduceRule to set
+	 * @param useIterativeReduceRule
+	 *            the useIterativeReduceRule to set
 	 */
 	public void setUseIterativeReduceRule(boolean useIterativeReduceRule) {
-		this.useIterativeReduceRule = useIterativeReduceRule;
-		firePropertyChanged();
+		if (this.useIterativeReduceRule != useIterativeReduceRule) {
+			this.useIterativeReduceRule = useIterativeReduceRule;
+			firePropertyChanged();
+		}
+	}
+
+	/**
+	 * @return the termFactory
+	 */
+	public Class<? extends TermFactory> getTermFactoryClass() {
+		return termFactoryClass;
+	}
+
+	/**
+	 * @param termFactory
+	 *            the termFactory to set
+	 */
+	public void setTermFactoryClass(Class<? extends TermFactory> termFactory) {
+		if (termFactory != this.termFactoryClass) {
+			this.termFactoryClass = termFactory;
+			firePropertyChanged();
+		}
+	}
+
+	/**
+	 * @return the applyLocalReduce
+	 */
+	public boolean isApplyLocalReduce() {
+		return applyLocalReduce;
+	}
+
+	/**
+	 * @param applyLocalReduce
+	 *            the applyLocalReduce to set
+	 */
+	public void setApplyLocalReduce(boolean applyLocalReduce) {
+		if (applyLocalReduce != this.applyLocalReduce) {
+			this.applyLocalReduce = applyLocalReduce;
+			firePropertyChanged();
+		}
+	}
+
+	/**
+	 * @return the simplifyAfterODESolve
+	 */
+	public boolean isSimplifyAfterODESolve() {
+		return simplifyAfterODESolve;
+	}
+
+	/**
+	 * @param simplifyAfterODESolve
+	 *            the simplifyAfterODESolve to set
+	 */
+	public void setSimplifyAfterODESolve(boolean simplifyAfterODESolve) {
+		if (simplifyAfterODESolve != this.simplifyAfterODESolve) {
+			this.simplifyAfterODESolve = simplifyAfterODESolve;
+			firePropertyChanged();
+		}
 	}
 }

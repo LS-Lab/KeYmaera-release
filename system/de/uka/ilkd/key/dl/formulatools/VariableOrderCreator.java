@@ -67,6 +67,7 @@ public class VariableOrderCreator {
 			int[] two = rate(terms2);
 			Term newer = null;
 			for (int i = 0; i < one.length; i++) {
+				assert (one[i] >= -1 && two[i] >= -1);
 				if (one[i] != -1) {
 					if (two[i] != -1) {
 						int r = one[i] - two[i];
@@ -112,6 +113,9 @@ public class VariableOrderCreator {
 		}
 
 		/**
+		 * In conflicting cases, the term with a variable closest to the current
+		 * generation is considered greater.
+		 * 
 		 * @param one
 		 * @param two
 		 * @return
@@ -134,6 +138,9 @@ public class VariableOrderCreator {
 		}
 
 		/**
+		 * Construct a vector that contains the oldest occurrences of all
+		 * variables
+		 * 
 		 * @param variableTerms
 		 * @return
 		 */
@@ -145,19 +152,13 @@ public class VariableOrderCreator {
 			for (Term var : variableTerms) {
 				String s = var.op().name().toString();
 				int underScores = 0;
-				int firstUscore = -1;
-				for (int i = 0; i < s.length(); i++) {
-					if (s.charAt(i) == '_') {
-						underScores++;
-						if (firstUscore == -1) {
-							firstUscore = i;
-						}
-					}
+				if (s.contains("_")) {
+					underScores = Integer.parseInt(s
+							.substring(s.indexOf('_') + 1));
+					underScores++;
+					s = s.substring(0, s.indexOf('_'));
 				}
-				if (firstUscore != -1) {
-					s = s.substring(0, firstUscore);
-				}
-				// add smallest numbers
+				// add smallest (oldest) numbers
 				int indexOf = vars.indexOf(s);
 				if (vector[indexOf] == -1 || underScores < vector[indexOf]) {
 					vector[indexOf] = underScores;
@@ -178,8 +179,11 @@ public class VariableOrderCreator {
 			for (String s : variableTerms) {
 				if (s.contains("_")) {
 					int i = Integer.parseInt(s.substring(s.indexOf('_') + 1));
+					i++;
+					assert i > 0;
 					s = s.substring(0, s.indexOf('_'));
 					if (variables.containsKey(s)) {
+						// we add the maximal index to the map
 						if (variables.get(s) < i) {
 							variables.put(s, i);
 						}

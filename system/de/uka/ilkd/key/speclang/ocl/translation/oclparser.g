@@ -121,7 +121,7 @@ options {
         formulaBoolConverter = new FormulaBoolConverter(services, nss);
         
         //initialise integer helper
-        intHelper = new JavaIntegerSemanticsHelper(services);
+        intHelper = new JavaIntegerSemanticsHelper(services, excManager);
         
         //initialise property manager
         propertyManager = new PropertyManager(services,
@@ -227,9 +227,18 @@ options {
             newOp = term.op();
         }
         
+        final ArrayOfQuantifiableVariable[] vars = 
+		new ArrayOfQuantifiableVariable[term.arity()];
+		
+	final Term[] subTerms = getSubTerms(term);
+	
+	for(int i = 0; i < subTerms.length; i++) {
+	    vars[i] = term.varsBoundHere(i);
+	}
+        
         Term result = tb.tf().createTerm(newOp, 
-                                         getSubTerms(term), 
-                                         term.varsBoundHere(0), 
+                                         subTerms, 
+                                         vars, 
                                          term.javaBlock());
         return result;
     }
@@ -726,7 +735,13 @@ ifExpression returns [Term result=null] throws SLTranslationException
 
 literal returns [Term result=null] throws SLTranslationException
 	:	STRING {raiseError("String literals are currently not supported.");}
-	| 	n:NUMBER { result=tb.zTerm(services, n.getText()); }
+	| 	n:NUMBER 
+		{ 
+		    Term intTerm = tb.zTerm(services, n.getText()); 
+		    result = intHelper.castToLDTSort(intTerm, 
+					 services.getTypeConverter()
+					     	 .getIntLDT());
+                }
 //  |	enumLiteral //this looks just like a property call with a long name -> not good
   	{
   		if (result == null) {

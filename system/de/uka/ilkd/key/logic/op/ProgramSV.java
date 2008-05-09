@@ -570,10 +570,11 @@ public class ProgramSV extends SortedSchemaVariable implements
         }
 
         SVInstantiations instantiations = matchCond.getInstantiations();
-
-        final ExecutionContext ec = instantiations.getExecutionContext();
-
-        final java.util.ArrayList matchedElements = new java.util.ArrayList();
+        
+        final ExecutionContext ec = instantiations.getExecutionContext();        
+        
+        final java.util.ArrayList<ProgramElement> matchedElements = 
+            new java.util.ArrayList<ProgramElement>();        
 
         while (src != null) {
             if (!check(src, ec, services)) {

@@ -26,6 +26,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import de.uka.ilkd.key.dl.arithmetics.impl.SumOfSquaresChecker;
+import de.uka.ilkd.key.dl.arithmetics.impl.SumOfSquaresChecker.FormulaStatus;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.logic.Constraint;
 import de.uka.ilkd.key.logic.IteratorOfConstrainedFormula;
@@ -78,7 +79,7 @@ public class SumOfSquaresRule implements BuiltInRule, RuleFilter {
             succ.add(it.next().formula());
         }
         
-        if(!SumOfSquaresChecker.INSTANCE.check(ante, succ)) {
+        if(SumOfSquaresChecker.INSTANCE.check(SumOfSquaresChecker.INSTANCE.classify(ante, succ)) == FormulaStatus.VALID) {
             return SLListOfGoal.EMPTY_LIST;
         }
         return SLListOfGoal.EMPTY_LIST.append(goal);

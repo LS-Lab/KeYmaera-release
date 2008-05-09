@@ -85,7 +85,7 @@ options {
     private final static int LOCATION_MODIFIER = 1;
     private final static int HEAP_DEPENDENT = 2;
 
-    static HashMap prooflabel2tag = new HashMap(16);
+    static HashMap<String, Character> prooflabel2tag = new HashMap<String, Character>(15);
     static {
       prooflabel2tag.put("branch", new Character('b'));
       prooflabel2tag.put("rule", new Character('r'));
@@ -3916,6 +3916,7 @@ varexp[TacletBuilder b]
     | varcond_non_implicit[b] | varcond_non_implicit_query[b]
     | varcond_enum_const[b]
     | varcond_inReachableState[b] 
+    | varcond_isupdated[b]    
   ) 
   | 
   ( (NOT {negated = true;} )? 
@@ -3929,7 +3930,6 @@ varexp[TacletBuilder b]
       | varcond_typecheck[b, negated]
 	  | varcond_firstorderformula[b, negated]
       | varcond_localvariable[b, negated]
-	  | varcond_isupdated[b, negated]
       | varcond_freeLabelIn[b,negated] )
   )
 ;
@@ -4251,14 +4251,14 @@ varcond_firstorderformula [TacletBuilder b, boolean negated]
 ;
 
 
-varcond_isupdated [TacletBuilder b, boolean negated]
+varcond_isupdated [TacletBuilder b]
 {
   ParsableVariable x = null;
 }
 :
    ISUPDATED 
 	LPAREN x=varId RPAREN {
-     	   b.addVariableCondition(new IsUpdatedVariableCondition((SchemaVariable) x, negated));
+     	   b.addVariableCondition(new IsUpdatedVariableCondition((SchemaVariable) x));
         } 
 ;
 
@@ -4648,7 +4648,7 @@ expreid returns [ char eid = '0' ]
 { String id = null; } 
 :
    id = simple_ident {
-      Character c = (Character)prooflabel2tag.get(id);
+      Character c = prooflabel2tag.get(id);
       if(c != null)
          eid = c.charValue();
    }

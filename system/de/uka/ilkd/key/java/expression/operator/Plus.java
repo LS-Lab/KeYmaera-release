@@ -66,4 +66,7 @@ public class Plus extends BinaryOperator {
 	v.performActionOnPlus(this);
     }
 
+    public void prettyPrint(PrettyPrinter p) throws java.io.IOException {
+        p.printPlus(this);
+    }
 }

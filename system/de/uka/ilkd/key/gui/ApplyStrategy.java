@@ -65,8 +65,8 @@ public class ApplyStrategy {
     private ProofListener proofListener = new ProofListener();
 
     private boolean startedAsInteractive;
-
-    private List<ProverTaskListener> proverTaskObservers = new ArrayList<ProverTaskListener>();
+    
+    private List<ProverTaskListener> proverTaskObservers = new ArrayList<ProverTaskListener> ();
 
     private ReusePoint reusePoint;
 
@@ -179,28 +179,32 @@ public class ApplyStrategy {
      *         been reached
      */
     private boolean maxRuleApplicationOrTimeoutExceeded() {
-        return countApplied >= maxApplications || timeout >= 0 ? System
-                .currentTimeMillis()
-                - time >= timeout : false;
+        return countApplied >= maxApplications || 
+           timeout>=0 ? 
+                System.currentTimeMillis() - time >= timeout : false;
     }
 
-    private synchronized void fireTaskStarted() {
-        for (ProverTaskListener listener : proverTaskObservers) {
-            listener.taskStarted(PROCESSING_STRATEGY, maxApplications);
+
+    private synchronized void fireTaskStarted () {
+        for (int i = 0, sz = proverTaskObservers.size(); i<sz; i++) {
+            proverTaskObservers.get(i)
+                .taskStarted(PROCESSING_STRATEGY, maxApplications);
         }
     }
 
-    private synchronized void fireTaskProgress() {
-        for (ProverTaskListener listener : proverTaskObservers) {
-            listener.taskProgress(countApplied);
+    private synchronized void fireTaskProgress () {
+        for (int i = 0, sz = proverTaskObservers.size(); i<sz; i++) {
+            proverTaskObservers.get(i)
+                .taskProgress(countApplied);
         }
     }
 
     private synchronized void fireTaskFinished (TaskFinishedInfo info) {
-        for (ProverTaskListener listener : proverTaskObservers) {
-            listener.taskFinished(info);
+        for (int i = 0, sz = proverTaskObservers.size(); i<sz; i++) {
+            proverTaskObservers.get(i).taskFinished(info);
         }
     }
+
 
     private void init(Proof proof, ListOfGoal goals, int maxSteps, long timeout) {
         this.proof = proof;
@@ -295,32 +299,31 @@ public class ApplyStrategy {
     }
 
     private class ProofListener implements RuleAppListener {
+    
+	/** invoked when a rule has been applied */
+	public void ruleApplied(ProofEvent e) {
+            if (!isAutoModeActive() || e.getSource() != proof) return;            
+	    RuleAppInfo rai = e.getRuleAppInfo ();
+	    if ( rai == null )
+		return;
 
-        /** invoked when a rule has been applied */
-        public void ruleApplied(ProofEvent e) {
-            if (!isAutoModeActive())
-                return;
-            RuleAppInfo rai = e.getRuleAppInfo();
-            if (rai == null)
-                return;
+	    synchronized ( ApplyStrategy.this ) {
+		ListOfGoal                newGoals = SLListOfGoal.EMPTY_LIST;
+		IteratorOfNodeReplacement it       = rai.getReplacementNodes ();
+		Node                      node;
+		Goal                      goal;          
+                
+		while ( it.hasNext () ) {
+		    node = it.next ().getNode ();
+		    goal = proof.getGoal ( node );
+		    if ( goal != null )
+			newGoals = newGoals.prepend ( goal );
+		}
 
-            synchronized (ApplyStrategy.this) {
-                ListOfGoal newGoals = SLListOfGoal.EMPTY_LIST;
-                IteratorOfNodeReplacement it = rai.getReplacementNodes();
-                Node node;
-                Goal goal;
-
-                while (it.hasNext()) {
-                    node = it.next().getNode();
-                    goal = proof.getGoal(node);
-                    if (goal != null)
-                        newGoals = newGoals.prepend(goal);
-                }
-
-                goalChooser.updateGoalList(rai.getOriginalNode(), newGoals);
-            }
-        }
-
+                goalChooser.updateGoalList ( rai.getOriginalNode (), newGoals );
+	    }
+	}
+	
     }
 
     public boolean isAutoModeActive() {

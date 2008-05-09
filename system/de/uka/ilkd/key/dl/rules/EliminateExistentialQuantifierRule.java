@@ -160,7 +160,9 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
 					@Override
 					public void visit(Term visited) {
 						if (visited.op() instanceof Metavariable) {
-							ops.add((Metavariable) visited.op());
+							if(!ops.contains(visited.op())) {
+								ops.add((Metavariable) visited.op());
+							}
 						}
 					}
 

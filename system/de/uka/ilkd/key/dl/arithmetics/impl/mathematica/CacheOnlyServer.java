@@ -53,6 +53,7 @@ import com.wolfram.jlink.KernelLink;
 
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ConnectionProblemException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ServerStatusProblemException;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.UnsolveableException;
 import de.uka.ilkd.key.dl.utils.XMLReader;
 
 /**
@@ -63,340 +64,369 @@ import de.uka.ilkd.key.dl.utils.XMLReader;
  * 
  */
 public class CacheOnlyServer extends UnicastRemoteObject implements Remote,
-        IKernelLinkWrapper {
+		IKernelLinkWrapper {
 
-    public static final String IDENTITY = "KernelLink";
+	public static final String IDENTITY = "KernelLink";
 
-    private Map<Expr, ExprAndMessages> cache;
+	private Map<Expr, ExprAndMessages> cache;
 
-    private KernelLink link;
+	private KernelLink link;
 
-    private boolean eval;
+	private boolean eval;
 
-    private long addTime;
+	private long addTime;
 
-    private String linkCall;
+	private String linkCall;
 
-    private long callCount;
+	private long callCount;
 
-    private long cachedAnwsers;
+	private long cachedAnwsers;
 
-    /**
-     * 
-     */
-    private static final long serialVersionUID = -9153166120825653744L;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -9153166120825653744L;
 
-    private static final int MAX_CACHE_SIZE = 10000;
+	private static final int MAX_CACHE_SIZE = 10000;
 
-    private Logger logger;
+	private Logger logger;
 
-    private BlockingQueue<String> log;
+	private BlockingQueue<String> log;
 
-    private Object mutex;
+	private Object mutex;
 
-    private StringBuffer calcTimes;
+	private StringBuffer calcTimes;
 
-    private boolean abort;
+	private boolean abort;
 
-    /**
-     * Creates a new KernelLinkWrapper for the given port
-     * 
-     * @param port
-     * @param cache
-     * @throws RemoteException
-     */
-    protected CacheOnlyServer(int port, Map<Expr, ExprAndMessages> cache)
-            throws RemoteException {
-        super(port);
-        this.cache = cache;
-        log = new LinkedBlockingQueue<String>();
-        calcTimes = new StringBuffer();
-        mutex = new Object();
-        logger = Logger.getLogger("KernelLinkLogger");
-        ConsoleHandler consoleHandler = new ConsoleHandler();
-        consoleHandler.setLevel(Level.SEVERE);
-        consoleHandler.setFormatter(new Formatter() {
+	/**
+	 * Creates a new KernelLinkWrapper for the given port
+	 * 
+	 * @param port
+	 * @param cache
+	 * @throws RemoteException
+	 */
+	protected CacheOnlyServer(int port, Map<Expr, ExprAndMessages> cache)
+			throws RemoteException {
+		super(port);
+		this.cache = cache;
+		log = new LinkedBlockingQueue<String>();
+		calcTimes = new StringBuffer();
+		mutex = new Object();
+		logger = Logger.getLogger("KernelLinkLogger");
+		ConsoleHandler consoleHandler = new ConsoleHandler();
+		consoleHandler.setLevel(Level.SEVERE);
+		consoleHandler.setFormatter(new Formatter() {
 
-            @Override
-            public String format(LogRecord record) {
-                return record.getMessage() + "\n";
-            }
+			@Override
+			public String format(LogRecord record) {
+				return record.getMessage() + "\n";
+			}
 
-        });
-        logger.setLevel(Level.SEVERE);
-        logger.addHandler(consoleHandler);
-        logger.setUseParentHandlers(false);
-        linkCall = readLinkCall();
-        createLink();
-        addTime = 0;
-        callCount = 0;
-        cachedAnwsers = 0;
-    }
+		});
+		logger.setLevel(Level.SEVERE);
+		logger.addHandler(consoleHandler);
+		logger.setUseParentHandlers(false);
+		linkCall = readLinkCall();
+		createLink();
+		addTime = 0;
+		callCount = 0;
+		cachedAnwsers = 0;
+	}
 
-    /**
-     * Read the server call string from the config file
-     * 
-     */
-    private static String readLinkCall() {
-        // linkCall = "-linkmode launch -linkname "
-        // + "'/space/users/andre/program/Mathematica/"
-        // + "Executables/math -mathlink'";
-        XMLReader reader = new XMLReader("hybridkey.xml");
-        NodeList nodeList = reader.getDocument().getElementsByTagName(
-                "MathSolver");
-        for (int i = 0; i < nodeList.getLength(); i++) {
-            Node node = nodeList.item(i);
-            NodeList children = node.getChildNodes();
-            for (int j = 0; j < children.getLength(); j++) {
-                Node n = children.item(j);
-                if (n.getNodeName().equals("mathkernel")) {
-                    return n.getFirstChild().getNodeValue();
-                }
-            }
-        }
-        throw new IllegalStateException(
-                "Could not find the server configuration.");
-    }
+	/**
+	 * Read the server call string from the config file
+	 * 
+	 */
+	private static String readLinkCall() {
+		// linkCall = "-linkmode launch -linkname "
+		// + "'/space/users/andre/program/Mathematica/"
+		// + "Executables/math -mathlink'";
+		XMLReader reader = new XMLReader("hybridkey.xml");
+		NodeList nodeList = reader.getDocument().getElementsByTagName(
+				"MathSolver");
+		for (int i = 0; i < nodeList.getLength(); i++) {
+			Node node = nodeList.item(i);
+			NodeList children = node.getChildNodes();
+			for (int j = 0; j < children.getLength(); j++) {
+				Node n = children.item(j);
+				if (n.getNodeName().equals("mathkernel")) {
+					return n.getFirstChild().getNodeValue();
+				}
+			}
+		}
+		throw new IllegalStateException(
+				"Could not find the server configuration.");
+	}
 
-    /**
-     * Read the server port from the config file
-     */
-    private static int readPort() {
-        // linkCall = "-linkmode launch -linkname "
-        // + "'/space/users/andre/program/Mathematica/"
-        // + "Executables/math -mathlink'";
-        XMLReader reader = new XMLReader("hybridkey.xml");
-        NodeList nodeList = reader.getDocument().getElementsByTagName(
-                "MathSolver");
-        for (int i = 0; i < nodeList.getLength(); i++) {
-            Node node = nodeList.item(i);
-            NodeList children = node.getChildNodes();
-            for (int j = 0; j < children.getLength(); j++) {
-                Node n = children.item(j);
-                if (n.getNodeName().equals("server")) {
-                    NodeList subChildren = n.getChildNodes();
-                    for (int k = 0; k < subChildren.getLength(); k++) {
-                        Node subChild = subChildren.item(k);
-                        if (subChild.getNodeName().equals("port")) {
-                            return Integer.parseInt(subChild.getFirstChild()
-                                    .getNodeValue());
-                        }
-                    }
-                }
-            }
-        }
-        throw new IllegalStateException(
-                "Could not find the server configuration.");
-    }
+	/**
+	 * Read the server port from the config file
+	 */
+	private static int readPort() {
+		// linkCall = "-linkmode launch -linkname "
+		// + "'/space/users/andre/program/Mathematica/"
+		// + "Executables/math -mathlink'";
+		XMLReader reader = new XMLReader("hybridkey.xml");
+		NodeList nodeList = reader.getDocument().getElementsByTagName(
+				"MathSolver");
+		for (int i = 0; i < nodeList.getLength(); i++) {
+			Node node = nodeList.item(i);
+			NodeList children = node.getChildNodes();
+			for (int j = 0; j < children.getLength(); j++) {
+				Node n = children.item(j);
+				if (n.getNodeName().equals("server")) {
+					NodeList subChildren = n.getChildNodes();
+					for (int k = 0; k < subChildren.getLength(); k++) {
+						Node subChild = subChildren.item(k);
+						if (subChild.getNodeName().equals("port")) {
+							return Integer.parseInt(subChild.getFirstChild()
+									.getNodeValue());
+						}
+					}
+				}
+			}
+		}
+		throw new IllegalStateException(
+				"Could not find the server configuration.");
+	}
 
-    /**
-     * Create the server link
-     */
-    private void createLink() throws RemoteException {
-        // Noop
-    }
+	/**
+	 * Create the server link
+	 */
+	private void createLink() throws RemoteException {
+		// Noop
+	}
 
-    /**
-     * @param args
-     * @throws IOException
-     */
-    public static void main(String[] args) throws IOException {
-        Map<Expr, ExprAndMessages> cache = null;
-        for (int i = 0; i < args.length; i++) {
-            if (args[i].equalsIgnoreCase("--load-cache")) {
-                if (args.length >= i)
-                    break;
-                String cachefile = args[++i];
-                FileInputStream stream = new FileInputStream(cachefile);
+	/**
+	 * @param args
+	 * @throws IOException
+	 */
+	public static void main(String[] args) throws IOException {
+		Map<Expr, ExprAndMessages> cache = null;
+		for (int i = 0; i < args.length; i++) {
+			if (args[i].equalsIgnoreCase("--load-cache")) {
+				if (args.length >= i)
+					break;
+				String cachefile = args[++i];
+				FileInputStream stream = new FileInputStream(cachefile);
 
-                try {
-                    cache = (Map<Expr, ExprAndMessages>) new ObjectInputStream(
-                            stream).readObject();
-                } catch (ClassNotFoundException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-        if (cache == null) {
-            cache = new HashMap<Expr, ExprAndMessages>();
-        }
-        int port = readPort();
-        LocateRegistry.createRegistry(port);
-        Registry registry = LocateRegistry.getRegistry(port);
-        final CacheOnlyServer kernelLinkWrapper = new CacheOnlyServer(port,
-                cache);
-        registry.rebind(IDENTITY, kernelLinkWrapper);
-        new Thread(new Runnable() {
+				try {
+					cache = (Map<Expr, ExprAndMessages>) new ObjectInputStream(
+							stream).readObject();
+				} catch (ClassNotFoundException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		if (cache == null) {
+			cache = new HashMap<Expr, ExprAndMessages>();
+		}
+		int port = readPort();
+		LocateRegistry.createRegistry(port);
+		Registry registry = LocateRegistry.getRegistry(port);
+		final CacheOnlyServer kernelLinkWrapper = new CacheOnlyServer(port,
+				cache);
+		registry.rebind(IDENTITY, kernelLinkWrapper);
+		new Thread(new Runnable() {
 
-            public void run() {
-                BufferedReader reader = new BufferedReader(
-                        new InputStreamReader(System.in));
-                while (true) {
-                    String line;
-                    try {
-                        line = reader.readLine();
+			public void run() {
+				BufferedReader reader = new BufferedReader(
+						new InputStreamReader(System.in));
+				while (true) {
+					String line;
+					try {
+						line = reader.readLine();
 
-                        if (line.toLowerCase().startsWith("abort")) {
-                            kernelLinkWrapper.interruptCalculation();
-                        }
-                    } catch (Exception e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    }
-                }
-            }
+						if (line.toLowerCase().startsWith("abort")) {
+							kernelLinkWrapper.interruptCalculation();
+						}
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}
 
-        }).start();
-    }
+		}).start();
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see de.uka.ilkd.key.dl.IKernelLinkWrapper#evaluate(com.wolfram.jlink.Expr)
-     */
-    public synchronized ExprAndMessages evaluate(Expr expr)
-            throws RemoteException {
-        callCount++;
-        log(Level.FINEST, "Start evaluating: " + expr);
-        long curTime = System.currentTimeMillis();
-        log(Level.INFO, "Time: "
-                + SimpleDateFormat.getTimeInstance().format(curTime));
-        log(Level.FINEST, "Checking cache");
-        if (cache.containsKey(expr)) {
-            cachedAnwsers++;
-            log(Level.FINEST, "Returning cached anwser!");
-            ExprAndMessages exprAndMessages = cache.get(expr);
-            log(Level.FINEST, exprAndMessages.expression.toString());
-            return exprAndMessages;
-        }
-        throw new RemoteException("Anwser to " + expr + " not found in cache");
-    }
-    public synchronized ExprAndMessages evaluate(Expr expr, long timeout) throws RemoteException  {
-        return evaluate(expr);
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.uka.ilkd.key.dl.IKernelLinkWrapper#evaluate(com.wolfram.jlink.Expr)
+	 */
+	public synchronized ExprAndMessages evaluate(Expr expr)
+			throws RemoteException {
+		callCount++;
+		log(Level.FINEST, "Start evaluating: " + expr);
+		long curTime = System.currentTimeMillis();
+		log(Level.INFO, "Time: "
+				+ SimpleDateFormat.getTimeInstance().format(curTime));
+		log(Level.FINEST, "Checking cache");
+		if (cache.containsKey(expr)) {
+			cachedAnwsers++;
+			log(Level.FINEST, "Returning cached anwser!");
+			ExprAndMessages exprAndMessages = cache.get(expr);
+			log(Level.FINEST, exprAndMessages.expression.toString());
+			return exprAndMessages;
+		}
+		throw new RemoteException("Anwser to " + expr + " not found in cache");
+	}
 
-    private void log(Level level, String message) {
-        log(level, message, null);
-    }
+	public synchronized ExprAndMessages evaluate(Expr expr, long timeout)
+			throws RemoteException {
+		return evaluate(expr);
+	}
 
-    private void log(Level level, String message, Throwable e) {
-        if (e != null) {
-            logger.log(level, message, e);
-        } else {
-            logger.log(level, message);
-        }
-        log.offer(message);
-    }
+	private void log(Level level, String message) {
+		log(level, message, null);
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see de.uka.ilkd.key.dl.IKernelLinkWrapper#interruptCalculation()
-     */
-    public void interruptCalculation() throws RemoteException {
-        // noop
-    }
+	private void log(Level level, String message, Throwable e) {
+		if (e != null) {
+			logger.log(level, message, e);
+		} else {
+			logger.log(level, message);
+		}
+		log.offer(message);
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see de.uka.ilkd.key.dl.IKernelLinkWrapper#getStatus()
-     */
-    public int getStatus() throws RemoteException {
-        return 1;
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.uka.ilkd.key.dl.IKernelLinkWrapper#interruptCalculation()
+	 */
+	public void interruptCalculation() throws RemoteException {
+		// noop
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see de.uka.ilkd.key.dl.IKernelLinkWrapper#getLogList()
-     */
-    public List<String> getLogList() throws RemoteException {
-        List<String> result = new ArrayList<String>();
-        try {
-            result.add(log.take());
-            while (!log.isEmpty()) {
-                result.add(log.take());
-            }
-            return result;
-        } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        throw new RemoteException("Log could not be read");
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.uka.ilkd.key.dl.IKernelLinkWrapper#getStatus()
+	 */
+	public int getStatus() throws RemoteException {
+		return 1;
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see de.uka.ilkd.key.dl.IKernelLinkWrapper#getTimeStatistics()
-     */
-    public String getTimeStatistics() {
-        String result = "Overall: " + addTime / 1000 + " sec\n";
-        result += "Calculation times: \n" + calcTimes.toString();
-        return result;
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.uka.ilkd.key.dl.IKernelLinkWrapper#getLogList()
+	 */
+	public List<String> getLogList() throws RemoteException {
+		List<String> result = new ArrayList<String>();
+		try {
+			result.add(log.take());
+			while (!log.isEmpty()) {
+				result.add(log.take());
+			}
+			return result;
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		throw new RemoteException("Log could not be read");
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see de.uka.ilkd.key.dl.IKernelLinkWrapper#getTotalCalculationTime()
-     */
-    public long getTotalCalculationTime() throws RemoteException {
-        return addTime;
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.uka.ilkd.key.dl.IKernelLinkWrapper#getTimeStatistics()
+	 */
+	public String getTimeStatistics() {
+		String result = "Overall: " + addTime / 1000 + " sec\n";
+		result += "Calculation times: \n" + calcTimes.toString();
+		return result;
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see de.uka.ilkd.key.dl.IKernelLinkWrapper#getCache()
-     */
-    public Map<Expr, ExprAndMessages> getCache() throws RemoteException {
-        return cache;
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.uka.ilkd.key.dl.IKernelLinkWrapper#getTotalCalculationTime()
+	 */
+	public long getTotalCalculationTime() throws RemoteException {
+		return addTime;
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see de.uka.ilkd.key.dl.IKernelLinkWrapper#addToCache(java.util.Map)
-     */
-    public void addToCache(Map<Expr, ExprAndMessages> cache)
-            throws RemoteException {
-        this.cache.putAll(cache);
-        log(Level.INFO, "Cache loaded");
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.uka.ilkd.key.dl.IKernelLinkWrapper#getCache()
+	 */
+	public Map<Expr, ExprAndMessages> getCache() throws RemoteException {
+		return cache;
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see de.uka.ilkd.key.dl.IKernelLinkWrapper#getCachedAnwsers()
-     */
-    public long getCachedAnwsers() throws RemoteException {
-        return cachedAnwsers;
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.uka.ilkd.key.dl.IKernelLinkWrapper#addToCache(java.util.Map)
+	 */
+	public void addToCache(Map<Expr, ExprAndMessages> cache)
+			throws RemoteException {
+		this.cache.putAll(cache);
+		log(Level.INFO, "Cache loaded");
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see de.uka.ilkd.key.dl.IKernelLinkWrapper#getCallCount()
-     */
-    public long getCallCount() throws RemoteException {
-        return callCount;
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.uka.ilkd.key.dl.IKernelLinkWrapper#getCachedAnwsers()
+	 */
+	public long getCachedAnwsers() throws RemoteException {
+		return cachedAnwsers;
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see de.uka.ilkd.key.dl.IKernelLinkWrapper#resetAbortState()
-     */
-    public void resetAbortState() throws RemoteException {
-        abort = false;
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.uka.ilkd.key.dl.IKernelLinkWrapper#getCallCount()
+	 */
+	public long getCallCount() throws RemoteException {
+		return callCount;
+	}
 
-    @Override
-    public long getTotalMemory() throws RemoteException,
-            ServerStatusProblemException, ConnectionProblemException {
-        return -1;
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.uka.ilkd.key.dl.IKernelLinkWrapper#resetAbortState()
+	 */
+	public void resetAbortState() throws RemoteException {
+		abort = false;
+	}
+
+	@Override
+	public long getTotalMemory() throws RemoteException,
+			ServerStatusProblemException, ConnectionProblemException {
+		return -1;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.uka.ilkd.key.dl.arithmetics.impl.mathematica.IKernelLinkWrapper#evaluate(com.wolfram.jlink.Expr,
+	 *      long, long)
+	 */
+	@Override
+	public ExprAndMessages evaluate(Expr expr, long timeout,
+			long memoryconstraint) throws RemoteException,
+			ServerStatusProblemException, ConnectionProblemException,
+			UnsolveableException {
+		return evaluate(expr);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.uka.ilkd.key.dl.arithmetics.impl.mathematica.IKernelLinkWrapper#evaluate(com.wolfram.jlink.Expr,
+	 *      long, boolean)
+	 */
+	@Override
+	public ExprAndMessages evaluate(Expr expr, long timeout, boolean allowCache)
+			throws RemoteException, ServerStatusProblemException,
+			ConnectionProblemException, UnsolveableException {
+		return evaluate(expr);
+	}
 
 }

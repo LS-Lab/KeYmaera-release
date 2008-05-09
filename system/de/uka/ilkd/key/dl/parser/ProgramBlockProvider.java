@@ -15,6 +15,7 @@ import de.uka.ilkd.key.dl.model.DLStatementBlock;
 import de.uka.ilkd.key.dl.model.TermFactory;
 import de.uka.ilkd.key.dl.model.VariableDeclaration;
 import de.uka.ilkd.key.dl.model.impl.TermFactoryImpl;
+import de.uka.ilkd.key.dl.options.DLOptionBean;
 import de.uka.ilkd.key.java.ProgramElement;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.java.StatementBlock;
@@ -40,8 +41,6 @@ import de.uka.ilkd.key.util.Debug;
 public class ProgramBlockProvider implements
         de.uka.ilkd.key.proof.init.ProgramBlockProvider {
 
-    private static final Class<? extends TermFactory> TERM_FACTORY_CLASS = TermFactoryImpl.class;
-
     /*
      * (non-Javadoc)
      * 
@@ -56,11 +55,11 @@ public class ProgramBlockProvider implements
 
         TermFactory tf = null;
         try {
-            tf = TermFactory.getTermFactory(TERM_FACTORY_CLASS, config
+            tf = TermFactory.getTermFactory(DLOptionBean.INSTANCE.getTermFactoryClass(), config
                     .namespaces());
         } catch (Exception e) {
             throw new IllegalStateException("Term factory not found: "
-                    + TERM_FACTORY_CLASS, e);
+                    + DLOptionBean.INSTANCE.getTermFactoryClass(), e);
         }
         CommonTokenStream tokens = new CommonTokenStream(new DLLexer(
                 new ANTLRStringStream(programBlock)));

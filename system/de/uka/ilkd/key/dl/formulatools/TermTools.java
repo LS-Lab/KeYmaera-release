@@ -4,14 +4,18 @@
 package de.uka.ilkd.key.dl.formulatools;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import de.uka.ilkd.key.dl.formulatools.TermRewriter.Match;
 import de.uka.ilkd.key.logic.ConstrainedFormula;
 import de.uka.ilkd.key.logic.IteratorOfConstrainedFormula;
 import de.uka.ilkd.key.logic.IteratorOfTerm;
@@ -20,6 +24,7 @@ import de.uka.ilkd.key.logic.Name;
 import de.uka.ilkd.key.logic.Named;
 import de.uka.ilkd.key.logic.SLListOfTerm;
 import de.uka.ilkd.key.logic.Term;
+import de.uka.ilkd.key.logic.TermBuilder;
 import de.uka.ilkd.key.logic.TermFactory;
 import de.uka.ilkd.key.logic.Visitor;
 import de.uka.ilkd.key.logic.op.Function;
@@ -28,7 +33,9 @@ import de.uka.ilkd.key.logic.op.LogicVariable;
 import de.uka.ilkd.key.logic.op.Metavariable;
 import de.uka.ilkd.key.logic.op.Op;
 import de.uka.ilkd.key.logic.op.Operator;
+import de.uka.ilkd.key.logic.op.QuantifiableVariable;
 import de.uka.ilkd.key.logic.op.Quantifier;
+import de.uka.ilkd.key.logic.op.RigidFunction;
 
 /**
  * @author andre
@@ -342,5 +349,74 @@ public class TermTools {
 		}
 		assert r.size() == c.size();
 		return r;
+	}
+
+	public static class PairOfTermAndVariableList {
+		private Term t;
+		private List<String> variables = new ArrayList<String>();
+
+		/**
+		 * 
+		 */
+		public PairOfTermAndVariableList(Term t) {
+			this.t = t;
+		}
+
+		/**
+		 * @return the t
+		 */
+		public Term getT() {
+			return t;
+		}
+
+		/**
+		 * @return the variables
+		 */
+		public List<String> getVariables() {
+			return variables;
+		}
+	}
+
+	/**
+	 * Quantify all skolem symbols occuring in the formula by replacing them
+	 * with <functionname>$sk and adding universal quantifiers in front of the
+	 * formula
+	 * 
+	 * @param t
+	 * @return
+	 */
+	public static PairOfTermAndVariableList quantifyAllSkolemSymbols(Term t) {
+		PairOfTermAndVariableList result = new PairOfTermAndVariableList(t);
+		List<Term> skolem = new LinkedList<Term>();
+		final Set<Term> skolemSym = new HashSet<Term>();
+		result.t.execPreOrder(new Visitor() {
+
+			@Override
+			public void visit(Term visited) {
+				if (visited.op() instanceof RigidFunction
+						&& ((RigidFunction) visited.op()).isSkolem()) {
+					skolemSym.add(visited);
+				}
+			}
+
+		});
+		skolem.addAll(SkolemfunctionTracker.INSTANCE.getOrderedList(skolemSym));
+
+		Set<Match> matches = new HashSet<Match>();
+		List<LogicVariable> vars = new ArrayList<LogicVariable>();
+		for (Term sk : skolem) {
+			LogicVariable logicVariable = new LogicVariable(new Name(sk.op()
+					.name()
+					+ "$sk"), sk.op().sort(new Term[0]));
+			vars.add(logicVariable);
+			matches.add(new Match((RigidFunction) sk.op(), TermBuilder.DF
+					.var(logicVariable)));
+			result.variables.add(logicVariable.name().toString());
+		}
+		result.t = TermRewriter.replace(result.t, matches);
+		for (QuantifiableVariable v : vars) {
+			result.t = TermBuilder.DF.all(v, result.t);
+		}
+		return result;
 	}
 }

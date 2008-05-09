@@ -411,7 +411,7 @@ public class Expr2TermConverter implements ExprConstants {
                 }
             }
         } catch (ExprFormatException e) {
-            throw new UnableToConvertInputException("Error converting Expr " + expr + " to Formula", e);
+            throw new UnableToConvertInputException("Error converting Expr " + expr + " to Formula, because " + e, e);
         }
         throw new UnableToConvertInputException("Dont know how to convert " + expr);
     }

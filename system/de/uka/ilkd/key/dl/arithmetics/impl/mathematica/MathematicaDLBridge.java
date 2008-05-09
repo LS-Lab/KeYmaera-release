@@ -198,14 +198,13 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 							new Expr[] { new Expr(0) }),
 					new Expr(Expr.SYMBOL, name + "$") }));
 		}
-        String name = t.name().toString();
-        name = name.replaceAll("_", USCORE_ESCAPE);
+		String name = t.name().toString();
+		name = name.replaceAll("_", USCORE_ESCAPE);
 		Expr query = new Expr(new Expr(Expr.SYMBOL, "DSolve"), new Expr[] {
 				new Expr(new Expr(Expr.SYMBOL, "List"), args
 						.toArray(new Expr[1])),
 				new Expr(new Expr(Expr.SYMBOL, "List"), vars.values().toArray(
-						new Expr[0])),
-				new Expr(Expr.SYMBOL, name) });
+						new Expr[0])), new Expr(Expr.SYMBOL, name) });
 		Expr updateExpressions = evaluate(query).expression;
 
 		List<Update> updates = createUpdates(updateExpressions, nss);
@@ -416,8 +415,8 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 	 */
 	public static final void collectDottedProgramVariables(ProgramElement form,
 			Map<String, Expr> vars, Named t) {
-        String name = t.name().toString();
-        name = name.replaceAll("_", USCORE_ESCAPE);
+		String name = t.name().toString();
+		name = name.replaceAll("_", USCORE_ESCAPE);
 		if (form instanceof Dot) {
 			ProgramVariable pv = (ProgramVariable) ((Dot) form).getChildAt(0);
 			vars.put(pv.getElementName().toString(), new Expr(new Expr(
@@ -485,7 +484,8 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 		ExprAndMessages evaluate;
 		IKernelLinkWrapper wrapper = getKernelWrapper();
 		try {
-			evaluate = wrapper.evaluate(expr, timeout);
+			evaluate = wrapper.evaluate(expr, timeout, Options.INSTANCE
+					.getMemoryConstraint());
 		} catch (RemoteException e) {
 			Registry reg = LocateRegistry.getRegistry(serverIP, port);
 			try {
@@ -495,7 +495,8 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 				throw new ConnectionProblemException("Problem with KernelLink",
 						f);
 			}
-			evaluate = wrapper.evaluate(expr, timeout);
+			evaluate = wrapper.evaluate(expr, timeout, Options.INSTANCE
+					.getMemoryConstraint());
 		}
 		if (!evaluate.messages.toString().equals("{}")) {
 			System.err.println("Message while evaluating: " + expr

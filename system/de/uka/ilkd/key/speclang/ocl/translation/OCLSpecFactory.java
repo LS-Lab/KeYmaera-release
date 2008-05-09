@@ -18,11 +18,7 @@ import de.uka.ilkd.key.java.abstraction.KeYJavaType;
 import de.uka.ilkd.key.logic.EverythingLocationDescriptor;
 import de.uka.ilkd.key.logic.Name;
 import de.uka.ilkd.key.logic.SetOfLocationDescriptor;
-import de.uka.ilkd.key.logic.op.ListOfParsableVariable;
-import de.uka.ilkd.key.logic.op.LogicVariable;
-import de.uka.ilkd.key.logic.op.Modality;
-import de.uka.ilkd.key.logic.op.ParsableVariable;
-import de.uka.ilkd.key.logic.op.ProgramMethod;
+import de.uka.ilkd.key.logic.op.*;
 import de.uka.ilkd.key.logic.sort.Sort;
 import de.uka.ilkd.key.speclang.ClassInvariant;
 import de.uka.ilkd.key.speclang.ClassInvariantImpl;
@@ -102,8 +98,11 @@ public class OCLSpecFactory {
                                                                null,
                                                                null);
         //all-quantify
-        inv = inv.allClose(services);
-        
+        // dlohner: Not necessary (?), as ClassInvariantImpl.getClosedInv(..)
+        // provides a closed version, where the original selfVar is replaced.
+        // Also compare to JMLSpecFactory.createJMLClassInvariant(..).
+        //inv = inv.allClose(services);
+
         //create invariant
         String name = getInvName();
         return new ClassInvariantImpl(name, 
@@ -136,11 +135,11 @@ public class OCLSpecFactory {
         ParsableVariable excVar = SVF.createExcVar(services,
                                                    programMethod, 
                                                    false);
-        Map atPreFunctions = new LinkedHashMap();
+        Map<Operator, Function> atPreFunctions = new LinkedHashMap<Operator, Function>();
         
         //translate pre
         FormulaWithAxioms pre;
-        if(originalPre == null) {
+        if(originalPre == null || originalPre.equals("")) {
             pre = FormulaWithAxioms.TT;
         } else {
             pre = translator.translateExpression(originalPre,
@@ -154,7 +153,7 @@ public class OCLSpecFactory {
         
         //translate post
         FormulaWithAxioms post;
-        if(originalPost == null) {
+        if(originalPost == null || originalPost.equals("")) {
             post = FormulaWithAxioms.TT;
         } else {
             post = translator.translateExpression(originalPost, 
@@ -168,7 +167,7 @@ public class OCLSpecFactory {
         
         //translate modifies
         SetOfLocationDescriptor modifies;
-        if(originalModifies == null) {
+        if(originalModifies == null || originalModifies.equals("")) {
             modifies = EverythingLocationDescriptor.INSTANCE_AS_SET;
         } else {
             modifies = translator.translateModifiesExpression(originalModifies, 

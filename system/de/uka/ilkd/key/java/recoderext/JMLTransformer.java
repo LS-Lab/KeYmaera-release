@@ -17,7 +17,6 @@ import de.uka.ilkd.key.collection.IteratorOfString;
 import de.uka.ilkd.key.collection.ListOfString;
 import de.uka.ilkd.key.collection.SLListOfString;
 import de.uka.ilkd.key.gui.configuration.ProofSettings;
-import de.uka.ilkd.key.java.recoderext.RecoderModelTransformer.TransformerCache;
 import de.uka.ilkd.key.speclang.PositionedString;
 import de.uka.ilkd.key.speclang.jml.pretranslation.IteratorOfTextualJMLConstruct;
 import de.uka.ilkd.key.speclang.jml.pretranslation.KeYJMLPreParser;
@@ -30,6 +29,7 @@ import de.uka.ilkd.key.speclang.translation.SLTranslationException;
 import recoder.CrossReferenceServiceConfiguration;
 import recoder.abstraction.Constructor;
 import recoder.abstraction.Method;
+import recoder.io.DataLocation;
 import recoder.java.Comment;
 import recoder.java.CompilationUnit;
 import recoder.java.Declaration;
@@ -515,7 +515,12 @@ public class JMLTransformer extends RecoderModelTransformer {
                     List<? extends Constructor> constructorList = td.getConstructors();
                     List<Method> methodList = td.getMethods();
                     
-                    transformClasslevelComments(td, unit.getName());
+                    // fix mu: units carry an artificial file name.
+                    // use getOriginalDataLocation instead
+                    DataLocation dl = unit.getOriginalDataLocation();
+                    String fileName = dl == null ? "" : dl.toString();
+                    
+                    transformClasslevelComments(td, fileName);
                     
                     //iterate over all pre-existing constructors
                     for(int k = 0, o = constructorList.size(); k < o; k++) {

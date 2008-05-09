@@ -30,6 +30,7 @@ import de.uka.ilkd.key.dl.model.DLStatementBlock;
 import de.uka.ilkd.key.dl.model.Star;
 import de.uka.ilkd.key.dl.model.TermFactory;
 import de.uka.ilkd.key.dl.model.impl.TermFactoryImpl;
+import de.uka.ilkd.key.dl.options.DLOptionBean;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.java.StatementBlock;
 import de.uka.ilkd.key.logic.JavaBlock;
@@ -84,7 +85,7 @@ public class DLUnwindLoop extends AbstractDLMetaOperator {
         Term post = term.sub(0).sub(0);
         TermFactory dlTf;
         try {
-            dlTf = TermFactory.getTermFactory(TermFactoryImpl.class, services
+            dlTf = TermFactory.getTermFactory(DLOptionBean.INSTANCE.getTermFactoryClass(), services
                     .getNamespaces());
             //FIXME: the invariant gets lost here
             Star s = dlTf.createStar(program);
