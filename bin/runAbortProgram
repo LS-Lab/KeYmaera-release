@@ -237,4 +237,4 @@ $JAVA $JAVA_OPTIONS $keysysprops $hpfix \
 -ea:de.uka.ilkd.key... -noverify -Djvm.dir=$JVM_DIR -Xms64m -Xmx512m \
 -Dkey.home=$KEY_HOME \
 -Dkey.pattern.path=$HOME/.key/keypatterns/ \
--classpath $keyclasspath:$togetherclasspath:$JDK_RT_JAR de.uka.ilkd.key.dl.arithmetics.abort.AbortProgram $keyarg
+-classpath $keyclasspath:$togetherclasspath:$JDK_RT_JAR de.uka.ilkd.key.dl.arithmetics.abort.ServerConsole $keyarg

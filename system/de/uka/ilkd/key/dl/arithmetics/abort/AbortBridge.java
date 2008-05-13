@@ -31,7 +31,7 @@ import de.uka.ilkd.key.gui.KeYMediator;
 import de.uka.ilkd.key.gui.Main;
 
 /**
- * The AbortBridge is used to communicate with the {@link AbortProgram}. It
+ * The AbortBridge is used to communicate with the {@link ServerConsole}. It
  * serves basic functions like stopping the automode.
  * 
  * @author jdq
