@@ -84,7 +84,7 @@ import de.uka.ilkd.key.gui.IconFactory;
  * @since 13.02.2007
  * 
  */
-public class AbortProgram extends JFrame {
+public class ServerConsole extends JFrame {
 
     private String server;
 
@@ -105,7 +105,7 @@ public class AbortProgram extends JFrame {
 
     private BufferedWriter keyWriter;
 
-    public AbortProgram(String title, final String[] args)
+    public ServerConsole(String title, final String[] args)
             throws UnknownHostException, IOException {
         super(title);
         server = null;
@@ -235,7 +235,7 @@ public class AbortProgram extends JFrame {
     public static void main(final String[] args) {
         JFrame frame;
         try {
-            frame = new AbortProgram("Abort calculation", args);
+            frame = new ServerConsole("Abort calculation", args);
             frame.setVisible(true);
             InputStreamReader reader = new InputStreamReader(System.in);
             while (true) {
@@ -582,7 +582,7 @@ public class AbortProgram extends JFrame {
                             .lookup(KernelLinkWrapper.IDENTITY);
                     Map<Expr, ExprAndMessages> cache = kernelWrapper.getCache();
                     JFileChooser chooser = new JFileChooser();
-                    int i = chooser.showSaveDialog(AbortProgram.this);
+                    int i = chooser.showSaveDialog(ServerConsole.this);
                     if (i == JFileChooser.APPROVE_OPTION) {
                         File file = chooser.getSelectedFile();
                         try {
@@ -590,7 +590,7 @@ public class AbortProgram extends JFrame {
                             ObjectOutputStream oout = new ObjectOutputStream(
                                     out);
                             oout.writeObject(cache);
-                            JOptionPane.showMessageDialog(AbortProgram.this,
+                            JOptionPane.showMessageDialog(ServerConsole.this,
                                     cache.size() + " cache entries saved!");
                         } catch (FileNotFoundException e) {
                             e.printStackTrace();
@@ -634,14 +634,14 @@ public class AbortProgram extends JFrame {
                     IKernelLinkWrapper kernelWrapper = (IKernelLinkWrapper) reg
                             .lookup(KernelLinkWrapper.IDENTITY);
                     JFileChooser chooser = new JFileChooser();
-                    int i = chooser.showOpenDialog(AbortProgram.this);
+                    int i = chooser.showOpenDialog(ServerConsole.this);
                     if (i == JFileChooser.APPROVE_OPTION) {
                         File file = chooser.getSelectedFile();
                         FileInputStream stream = new FileInputStream(file);
                         Map<Expr, ExprAndMessages> cache = (Map<Expr, ExprAndMessages>) new ObjectInputStream(
                                 stream).readObject();
                         kernelWrapper.addToCache(cache);
-                        JOptionPane.showMessageDialog(AbortProgram.this, cache
+                        JOptionPane.showMessageDialog(ServerConsole.this, cache
                                 .size()
                                 + " cache entries added!");
                     }
