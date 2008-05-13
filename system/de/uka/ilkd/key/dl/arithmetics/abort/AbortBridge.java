@@ -52,11 +52,11 @@ public class AbortBridge extends Thread {
     }
 
     public void stopAutomode() {
-        HypotheticalProvabilityFeature.stop();
         KeYMediator mediator = Main.getInstance().mediator();
-        if (mediator.autoMode()) {
+    	if (mediator.autoMode()) {
             mediator.stopAutoMode();
         }
+    	HypotheticalProvabilityFeature.stop();
     }
 
     /*

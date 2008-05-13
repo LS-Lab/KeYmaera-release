@@ -959,7 +959,7 @@ public class Main extends JFrame implements IMain {
 		ProblemInitializer pi = new ProblemInitializer(this);
 		try {
 		    pi.startProver(mediator.getProof().env(), 
-			    	   poBrowser.getPO());
+			    	   poBrowser.getAndClearPO());
 		} catch(ProofInputException e)  {
 		    ExtList list = new ExtList();
 		    list.add(e);
@@ -1619,6 +1619,9 @@ public class Main extends JFrame implements IMain {
         return result;
     }
     
+    public JPanel getProofView(){
+        return proofView;
+    }
     
     public JMenu createHelpMenu() {
         JMenu help = new JMenu("About");
@@ -1872,7 +1875,7 @@ public class Main extends JFrame implements IMain {
 	    final TaskTreeNode rootTask = 
 		proof.getBasicTask().getRootTask();	
 	    proofList.removeTask(rootTask);   
-	    
+	    proof.getServices().getSpecificationRepository().removeProof(proof);
             ((ProofTreeView)proofView.getComponent(0)).removeProofs(rootTask.allProofs());
 	}
     }
@@ -1884,7 +1887,8 @@ public class Main extends JFrame implements IMain {
             final TaskTreeNode rootTask = 
                 proof.getBasicTask().getRootTask();     
             proofList.removeTaskWithoutInteraction(rootTask);   
-            
+            proof.getServices().getSpecificationRepository().removeProof(proof);
+            proof.mgt().removeProofListener();
             ((ProofTreeView)proofView.getComponent(0)).removeProofs(rootTask.allProofs());
         }
     }

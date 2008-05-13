@@ -14,12 +14,14 @@ import java.util.Set;
 
 import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
 import de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator.PairOfTermAndQuantifierType;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.IncompleteEvaluationException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
 import de.uka.ilkd.key.dl.formulatools.SkolemfunctionTracker;
 import de.uka.ilkd.key.dl.formulatools.TermRewriter;
 import de.uka.ilkd.key.dl.formulatools.TermTools;
 import de.uka.ilkd.key.dl.formulatools.VariableOrderCreator;
 import de.uka.ilkd.key.dl.formulatools.TermRewriter.Match;
+import de.uka.ilkd.key.dl.formulatools.TermTools.PairOfTermAndVariableList;
 import de.uka.ilkd.key.dl.formulatools.VariableOrderCreator.VariableOrder;
 import de.uka.ilkd.key.dl.options.DLOptionBean;
 import de.uka.ilkd.key.gui.Main;
@@ -47,6 +49,63 @@ import de.uka.ilkd.key.rule.RuleApp;
  * 
  */
 public class IterativeReduceRule implements BuiltInRule, RuleFilter {
+
+	private static class QueryTriple {
+
+		private Term useForFindInstance;
+		private Term useForReduce;
+		private List<String> variables;
+
+		private Term and;
+		private Term or;
+
+		public QueryTriple(Term and, Term or) {
+			this.and = and;
+			this.or = or;
+		}
+
+		/**
+		 * @return the useForFindInstance
+		 */
+		public Term getUseForFindInstance() {
+			if (useForFindInstance == null) {
+				useForFindInstance = TermBuilder.DF.imp(and, or);
+			}
+			return useForFindInstance;
+		}
+
+		/**
+		 * @return the useForReduce
+		 * @throws SolverException
+		 * @throws RemoteException
+		 */
+		public Term getUseForReduce(Services services) throws RemoteException,
+				SolverException {
+			if (useForReduce == null) {
+				Term result = getUseForFindInstance();
+				PairOfTermAndVariableList pair = TermTools.quantifyAllSkolemSymbols(result);
+				result = pair.getT();
+				variables = pair.getVariables();
+				if (DLOptionBean.INSTANCE.isSimplifyBeforeReduce()) {
+					result = MathSolverManager.getCurrentSimplifier().simplify(
+							result, services.getNamespaces());
+				}
+				useForReduce = result;
+			}
+			return useForReduce;
+		}
+
+		/**
+		 * @return the reduceVariables
+		 * @throws SolverException
+		 * @throws RemoteException
+		 */
+		public List<String> getReduceVariables(Services services)
+				throws RemoteException, SolverException {
+			getUseForReduce(services); // update cache
+			return variables;
+		}
+	}
 
 	public static final IterativeReduceRule INSTANCE = new IterativeReduceRule();
 
@@ -81,43 +140,46 @@ public class IterativeReduceRule implements BuiltInRule, RuleFilter {
 	@Override
 	public ListOfGoal apply(Goal goal, Services services, RuleApp ruleApp) {
 		long timeout = 2000;
-		boolean automde = Main.getInstance().mediator().autoMode();
-		VariableOrder order = VariableOrderCreator.getVariableOrder(goal
+		final boolean automode = Main.getInstance().mediator().autoMode();
+		final VariableOrder order = VariableOrderCreator.getVariableOrder(goal
 				.sequent().iterator());
-		List<Term> initAnte = createOrderedList(order, goal.sequent()
-				.antecedent().iterator());
-		List<Term> initSucc = createOrderedList(order, goal.sequent()
-				.succedent().iterator());
-		Queue<Term> ante = new LinkedList<Term>();
-		Queue<Term> succ = new LinkedList<Term>();
+		// IDEA: initial sequent is successively moved from ante/succ to usedAnte/usedSucc
+		// parts of initAnte/initSucc that still make sense to be added
+		Queue<Term> ante = new LinkedList<Term>(createOrderedList(order, goal.sequent()
+				.antecedent().iterator()));
+		Queue<Term> succ = new LinkedList<Term>(createOrderedList(order, goal.sequent()
+				.succedent().iterator()));
+		// parts of ante/succ that are used in the current frontier
 		List<Term> usedAnte = new ArrayList<Term>();
 		List<Term> usedSucc = new ArrayList<Term>();
-		List<Term> useForFindInstance = new LinkedList<Term>();
-		List<Term> useForReduce = new LinkedList<Term>();
-		List<List<String>> useReduceVariables = new LinkedList<List<String>>();
-		int counter = 0;
+		// iteratively built construction cache for the set of all queries
+		List<QueryTriple> queryCache = new LinkedList<QueryTriple>();
+		
+		// current frontier of re-tested queries
+		Queue<QueryTriple> currentQueryCache = new LinkedList<QueryTriple>();
+		
 		while (true) {
-			if (automde && !Main.getInstance().mediator().autoMode()) {
+			if (automode && !Main.getInstance().mediator().autoMode()) {
+				// automode stopped
 				return null;
 			}
-			if (ante.isEmpty() && succ.isEmpty()) {
-				timeout *= 2;
-				ante.clear();
-				ante.addAll(initAnte);
-				succ.clear();
-				succ.addAll(initSucc);
-				usedAnte.clear();
-				usedSucc.clear();
+			timeout *= 2;
+
+			currentQueryCache.clear();
+			currentQueryCache.addAll(queryCache);
+			if(ante.isEmpty() && succ.isEmpty() && currentQueryCache.isEmpty()) {
+				System.out.println("There is nothing we can do anymore :/");//XXX
+				return null;
 			}
-
-			while (!ante.isEmpty() || !succ.isEmpty()
-					|| !useForFindInstance.isEmpty()) {
-
+			// loop until all added or all remaining cached items have been visited again
+			while (!ante.isEmpty() || !succ.isEmpty() || !currentQueryCache.isEmpty()) {
+				// during first sweep, only repeat with current timeout as long as there are further alternatives
+				// further sweeps of the algorithm re-check the known alternatives with larger timeouts
 				try {
-					Term result = null;
-					Term reduce = null;
-					List<String> variables = null;
+					QueryTriple currentItem;
+					
 					if (!ante.isEmpty() || !succ.isEmpty()) {
+						// first sweep of the algorithm keeps adding alternatives until all alternatives are in queryCache
 						if (!ante.isEmpty() && !succ.isEmpty()) {
 							if (order.compare(ante.peek(), succ.peek()) <= 0) {
 								usedAnte.add(ante.poll());
@@ -131,73 +193,40 @@ public class IterativeReduceRule implements BuiltInRule, RuleFilter {
 								usedSucc.add(succ.poll());
 							}
 						}
+
+						
 						Term and = TermTools.createJunctorTermNAry(
 								TermBuilder.DF.tt(), Op.AND, usedAnte
 										.iterator(), new HashSet<Term>());
 						Term or = TermTools.createJunctorTermNAry(
 								TermBuilder.DF.ff(), Op.OR,
 								usedSucc.iterator(), new HashSet<Term>());
-						result = TermBuilder.DF.imp(and, or);
 
-						useForFindInstance.add(result);
+						currentItem = new QueryTriple(and, or);
+
+						queryCache.add(currentItem);
 					} else {
-						result = useForFindInstance.get(counter);
-						reduce = useForReduce.get(counter);
-						variables = useReduceVariables.get(counter);
-						counter = ++counter % useForFindInstance.size();
+						currentItem = currentQueryCache.poll();
 					}
 					System.out.println("Testing for CE for " + timeout);// XXX
-					String findInstance = MathSolverManager
-							.getCurrentCounterExampleGenerator().findInstance(
-									TermBuilder.DF.not(result), timeout);
+					String findInstance = "";
+					try {
+						findInstance = MathSolverManager
+								.getCurrentCounterExampleGenerator()
+								.findInstance(TermBuilder.DF.not(currentItem.getUseForFindInstance()),
+										timeout);
+					} catch (IncompleteEvaluationException e) {
+						// timeout
+					}
 					if (findInstance.equals("") || findInstance.startsWith("$")) {
+						// No CEX found
 						System.out.println("Reducing for " + timeout);// XXX
-						if (reduce == null) {
-							List<Term> skolem = new LinkedList<Term>();
-							final Set<Term> skolemSym = new HashSet<Term>();
-							result.execPreOrder(new Visitor() {
-
-								@Override
-								public void visit(Term visited) {
-									if (visited.op() instanceof RigidFunction
-											&& ((RigidFunction) visited.op())
-													.isSkolem()) {
-										skolemSym.add(visited);
-									}
-								}
-
-							});
-							skolem.addAll(SkolemfunctionTracker.INSTANCE
-									.getOrderedList(skolemSym));
-
-							variables = new ArrayList<String>();
-							Set<Match> matches = new HashSet<Match>();
-							List<LogicVariable> vars = new ArrayList<LogicVariable>();
-							for (Term sk : skolem) {
-								LogicVariable logicVariable = new LogicVariable(
-										new Name(sk.op().name() + "$sk"), sk
-												.op().sort(new Term[0]));
-								vars.add(logicVariable);
-								matches.add(new Match((RigidFunction) sk.op(),
-										TermBuilder.DF.var(logicVariable)));
-								variables.add(logicVariable.name().toString());
-							}
-							result = TermRewriter.replace(result, matches);
-							for (QuantifiableVariable v : vars) {
-								result = TermBuilder.DF.all(v, result);
-							}
-							if (DLOptionBean.INSTANCE.isSimplifyBeforeReduce()) {
-								result = MathSolverManager
-										.getCurrentSimplifier().simplify(
-												result,
-												services.getNamespaces());
-							}
-							reduce = result;
-							useForReduce.add(reduce);
-							useReduceVariables.add(variables);
-						}
+					    Term reduce = currentItem.getUseForReduce(services);
+						List<String> variables = currentItem
+									.getReduceVariables(services);
 						if (ante.isEmpty() && succ.isEmpty()
-								&& useForReduce.size() == 1) {
+								&& queryCache.size() == 1) {
+							// as a last resort if we run out of alternatives: this is the last item. do not timeout the reduce
 							reduce = MathSolverManager
 									.getCurrentQuantifierEliminator()
 									.reduce(
@@ -206,6 +235,7 @@ public class IterativeReduceRule implements BuiltInRule, RuleFilter {
 											new ArrayList<PairOfTermAndQuantifierType>(),
 											services.getNamespaces());
 						} else {
+							// reduce call with timeout
 							reduce = MathSolverManager
 									.getCurrentQuantifierEliminator()
 									.reduce(
@@ -215,27 +245,40 @@ public class IterativeReduceRule implements BuiltInRule, RuleFilter {
 											services.getNamespaces(), timeout);
 						}
 						if (DLOptionBean.INSTANCE.isSimplifyAfterReduce()) {
-							result = MathSolverManager.getCurrentSimplifier()
-									.simplify(result, services.getNamespaces());
+							reduce = MathSolverManager.getCurrentSimplifier()
+									.simplify(reduce, services.getNamespaces());
 						}
 						if (reduce.equals(TermBuilder.DF.tt())) {
 							return goal.split(0);
-						} else if (ante.isEmpty() && succ.isEmpty()) {
+						} else if (ante.isEmpty() && succ.isEmpty() && currentQueryCache.isEmpty()) {
+							// maximum sequent is always last in the current query cache (likewise during first construction sweep)
+							//TODO should return result
 							throw new IllegalStateException(
 									"Dont know what to do, reduce returned: "
 											+ reduce);
 						} else {
-							useForFindInstance.remove(counter);
-							useForReduce.remove(counter);
-							useReduceVariables.remove(counter);
+							// we did not find a useful result, but we still got
+							// formulas we could add. therefore we remove the
+							// current formula
+							System.out.println("Counterexample found for " + currentItem.getUseForFindInstance());//XXX
+							System.out.println("It is: " + reduce);//XXX
+							queryCache.remove(currentItem);
 						}
-					} else if (ante.isEmpty() && succ.isEmpty()) {
+					} else if (ante.isEmpty() && succ.isEmpty()  && currentQueryCache.isEmpty()) {
+						// we have a counter example for maximum sequent
+						System.out.println("Counterexample for the complete sequence found: " + findInstance);//XXX
 						throw new IllegalStateException(
 								"Dont know what to do, counterexample for: "
-										+ result + " is " + findInstance);
+										+ currentItem.getUseForFindInstance() + " is " + findInstance);
 					} else {
-						useForFindInstance.remove(counter);
+						// we have a counter example
+						System.out.println("Counterexample found for " + currentItem.getUseForFindInstance());//XXX
+						System.out.println("Removing...");//XXX
+						queryCache.remove(currentItem);
 					}
+				} catch (IncompleteEvaluationException e) {
+					// timeout while performing query
+					System.out.println("Timeout while reducing");//XXX
 				} catch (RemoteException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
