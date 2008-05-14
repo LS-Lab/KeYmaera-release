@@ -9,6 +9,9 @@
 //
 package de.uka.ilkd.key.proof.init;
 
+import java.util.List;
+import java.io.File;
+
 import de.uka.ilkd.key.gui.IMain;
 import de.uka.ilkd.key.dl.DLProfile;
 import de.uka.ilkd.key.gui.configuration.LibrariesSettings;
@@ -100,6 +103,9 @@ public class LDTInput implements EnvInput {
     public String readJavaPath() throws ProofInputException {
 	return "";
     }
+    public List<File> readClassPath() throws ProofInputException {
+        return null;
+    }
 
     
     /** reads all LDTs, i.e., all associated .key files with respect to 
@@ -186,4 +192,7 @@ public class LDTInput implements EnvInput {
 	}
 	return result;
     }
+
+
+
 }

@@ -4,6 +4,7 @@
 package de.uka.ilkd.key.parser.java;
 
 import java.util.HashSet;
+import java.util.Set;
 
 import de.uka.ilkd.key.java.JavaReader;
 import de.uka.ilkd.key.java.Recoder2KeY;
@@ -59,7 +60,7 @@ public class ProgramBlockProvider implements
 
 	}
 
-	public HashSet getProgramVariables(JavaBlock programBlock,
+	public Set getProgramVariables(JavaBlock programBlock,
 			NamespaceSet nss, boolean globalDeclTermParser, boolean declParser,
 			boolean termOrProblemParser, Services services) {
 		if (globalDeclTermParser) {

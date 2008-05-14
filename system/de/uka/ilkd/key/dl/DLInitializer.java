@@ -42,7 +42,7 @@ import javax.swing.SwingUtilities;
 import orbital.awt.CustomizerViewController;
 import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
 import de.uka.ilkd.key.dl.arithmetics.abort.AbortBridge;
-import de.uka.ilkd.key.dl.arithmetics.abort.AbortProgram;
+import de.uka.ilkd.key.dl.arithmetics.abort.ServerConsole;
 import de.uka.ilkd.key.dl.arithmetics.impl.mathematica.KernelLinkWrapper;
 import de.uka.ilkd.key.dl.gui.AutomodeListener;
 import de.uka.ilkd.key.dl.gui.TimeStatisticGenerator;
@@ -148,10 +148,10 @@ public class DLInitializer {
      * <ul>
      * <li> The current {@link Profile} is set to the {@link DLProfile}</li>
      * <li> The {@link AbortBridge} is initiated on a new {@link ServerSocket}</li>
-     * <li> The {@link AbortProgram} is started</li>
+     * <li> The {@link ServerConsole} is started</li>
      * <li>An {@link AutoModeListener} is added that resets the abort state in
      * the current arithmetic solver and disables the stop button, as we use the
-     * one provided by the {@link AbortProgram}</li>
+     * one provided by the {@link ServerConsole}</li>
      * </ul>
      */
     public static void initialize() {

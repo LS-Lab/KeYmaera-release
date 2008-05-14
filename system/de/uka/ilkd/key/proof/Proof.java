@@ -589,10 +589,8 @@ public class Proof implements Named {
      * @return true iff undo operation was succesfull.
      */
     public boolean setBack(final Node node) {
-	final Goal goal = getGoal(node);
-	if (goal!=null) {
-	    return true;
-	} else {
+	Goal goal = getGoal(node);
+	while (goal == null) {	
 	    final ListOfGoal goalList = getSubtreeGoals(node);
 	    if (!goalList.isEmpty()) {
 		// The subtree goals (goalList) are scanned for common
@@ -620,10 +618,12 @@ public class Proof implements Named {
 		while (removeIt.hasNext()) {
 		    setBack(removeIt.next());
 		}
-		return setBack(node);
+		goal = getGoal(node);
+	    } else {
+	        return false;
 	    }
-	    return false;
 	}
+	return true;
     }
 
     // ?? seems to be required for presentation uses
