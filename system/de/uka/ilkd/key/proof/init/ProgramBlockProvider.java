@@ -4,6 +4,7 @@
 package de.uka.ilkd.key.proof.init;
 
 import java.util.HashSet;
+import java.util.Set;
 
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.logic.JavaBlock;
@@ -23,7 +24,7 @@ public interface ProgramBlockProvider {
             boolean schemaMode, boolean problemParser,
             boolean globalDeclTermParser);
 
-    public HashSet getProgramVariables(JavaBlock programBlock,
+    public Set getProgramVariables(JavaBlock programBlock,
             NamespaceSet nss, boolean globalDeclTermParser, boolean declParser,
             boolean termOrProblemParser, Services services);
 }
