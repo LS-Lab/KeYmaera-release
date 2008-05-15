@@ -28,6 +28,8 @@ import java.util.TreeSet;
 
 import de.uka.ilkd.key.logic.IteratorOfConstrainedFormula;
 import de.uka.ilkd.key.logic.Term;
+import de.uka.ilkd.key.dl.formulatools.collector.*;
+import de.uka.ilkd.key.dl.formulatools.collector.filter.FilterVariableCollector;
 
 /**
  * @author jdq
@@ -57,8 +59,12 @@ public class VariableOrderCreator {
 		 */
 		@Override
 		public int compare(Term o1, Term o2) {
-			int[] one = rate(VariableCollector.getVariableTerms(o1));
-			int[] two = rate(VariableCollector.getVariableTerms(o2));
+			
+			Set<Term> terms1 = AllCollector.getItemSet(o1).filter( new FilterVariableCollector(null)).getVariableTerms();
+			Set<Term> terms2 = AllCollector.getItemSet(o1).filter( new FilterVariableCollector(null)).getVariableTerms();
+			
+			int[] one = rate(terms1);
+			int[] two = rate(terms2);
 			Term newer = null;
 			for (int i = 0; i < one.length; i++) {
 				assert (one[i] >= -1 && two[i] >= -1);
@@ -168,8 +174,8 @@ public class VariableOrderCreator {
 		TreeMap<String, Integer> variables = new TreeMap<String, Integer>();
 
 		while (iterator.hasNext()) {
-			Set<String> variableTerms = VariableCollector.getVariables(iterator
-					.next().formula());
+			Set<String> variableTerms = AllCollector.getItemSet( iterator.next().formula()).filter( 
+					new FilterVariableCollector(null)).getVariables();
 			for (String s : variableTerms) {
 				if (s.contains("_")) {
 					int i = Integer.parseInt(s.substring(s.indexOf('_') + 1));

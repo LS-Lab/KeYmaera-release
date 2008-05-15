@@ -36,6 +36,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import de.uka.ilkd.key.dl.formulatools.collector.*;
+import de.uka.ilkd.key.dl.formulatools.collector.filter.FilterVariableCollector;
+
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
@@ -51,7 +54,6 @@ import de.uka.ilkd.key.dl.arithmetics.exceptions.ServerStatusProblemException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.UnsolveableException;
 import de.uka.ilkd.key.dl.arithmetics.impl.mathematica.IKernelLinkWrapper.ExprAndMessages;
-import de.uka.ilkd.key.dl.formulatools.VariableCollector;
 import de.uka.ilkd.key.dl.logic.ldt.RealLDT;
 import de.uka.ilkd.key.dl.model.DLNonTerminalProgramElement;
 import de.uka.ilkd.key.dl.model.DiffSystem;
@@ -131,7 +133,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 	/**
 	 * @directed
 	 */
-	private VariableCollector lnkVariableCollector;
+	//private VariableCollector lnkVariableCollector;
 
 	/**
 	 * @directed
@@ -522,7 +524,8 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 			SolverException {
 		Expr query = Term2ExprConverter.convert2Expr(form);
 		List<Expr> vars = new ArrayList<Expr>();
-		for (String var : VariableCollector.getVariables(form)) {
+		Set<String> variables = AllCollector.getItemSet(form).filter(new FilterVariableCollector(null)).getVariables();
+		for (String var : variables ) {
 			vars.add(new Expr(Expr.SYMBOL, var.replaceAll("_", USCORE_ESCAPE)));
 		}
 		if (vars.size() > 0) {

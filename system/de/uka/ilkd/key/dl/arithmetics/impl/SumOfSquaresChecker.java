@@ -35,9 +35,12 @@ import orbital.math.Real;
 import orbital.math.Values;
 import orbital.math.Vector;
 import de.uka.ilkd.key.dl.arithmetics.impl.csdp.CSDP;
-import de.uka.ilkd.key.dl.arithmetics.impl.sos.PolynomialOrder;
-import de.uka.ilkd.key.dl.arithmetics.impl.sos.SimpleOrder;
-import de.uka.ilkd.key.dl.formulatools.VariableCollector;
+// edited by Timo Michelsen
+// import de.uka.ilkd.key.dl.arithmetics.impl.sos.PolynomialOrder;
+// import de.uka.ilkd.key.dl.arithmetics.impl.sos.SimpleOrder;
+import de.uka.ilkd.key.dl.formulatools.collector.AllCollector;
+import de.uka.ilkd.key.dl.formulatools.collector.FilterVariableSet;
+import de.uka.ilkd.key.dl.formulatools.collector.filter.FilterVariableCollector;
 import de.uka.ilkd.key.dl.logic.ldt.RealLDT;
 import de.uka.ilkd.key.dl.parser.NumberCache;
 import de.uka.ilkd.key.gui.Main;
@@ -226,19 +229,44 @@ public class SumOfSquaresChecker {
 		System.out.println("F contains: "); // XXX
 		for (Term t : cla.f) {
 			System.out.println(t);// XXX
-			variables.addAll(VariableCollector.getVariables(t));
+			
+			// added by Timo Michelsen
+			// BEGIN
+			FilterVariableSet set = AllCollector.getItemSet(t);
+			FilterVariableSet set2 = set.filter( new FilterVariableCollector(null));
+			variables.addAll(set2.getVariables());
+			// END
+			
+			// replaced:
+			// variables.addAll(VariableCollector.getVariables(t));
 		}
 		System.out.println("-- end F");
 		System.out.println("G contains: "); // XXX
 		for (Term t : cla.g) {
 			System.out.println(t);// XXX
-			variables.addAll(VariableCollector.getVariables(t));
+			// added by Timo Michelsen
+			// BEGIN
+			FilterVariableSet set = AllCollector.getItemSet(t);
+			FilterVariableSet set2 = set.filter( new FilterVariableCollector(null));
+			variables.addAll(set2.getVariables());
+			// END
+			
+			// replaced:
+			// variables.addAll(VariableCollector.getVariables(t));
 		}
 		System.out.println("-- end G");
 		System.out.println("H contains: "); // XXX
 		for (Term t : cla.h) {
 			System.out.println(t);// XXX
-			variables.addAll(VariableCollector.getVariables(t));
+			// added by Timo Michelsen
+			// BEGIN
+			FilterVariableSet set = AllCollector.getItemSet(t);
+			FilterVariableSet set2 = set.filter( new FilterVariableCollector(null));
+			variables.addAll(set2.getVariables());
+			// END
+			
+			// replaced:
+			// variables.addAll(VariableCollector.getVariables(t));
 		}
 		System.out.println("-- end H");
 		List<String> vars = new ArrayList<String>();
