@@ -1,5 +1,6 @@
 \settings {
-"#Proof-Settings-Config-File
+"
+#Proof-Settings-Config-File
 #Tue Sep 18 14:41:09 CEST 2007
 [DLOptions]callReduce=true
 [DecisionProcedure]SmtBenchmarkArchiving=false

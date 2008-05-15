@@ -1,7 +1,7 @@
 \settings {
 "
 #Proof-Settings-Config-File
-#Wed May 07 15:09:28 CEST 2008
+#Thu May 15 10:31:58 CEST 2008
 [DLOptions]callReduce=true
 [DecisionProcedure]SmtBenchmarkArchiving=false
 [MathematicaOptions]memoryConstraint=-1
@@ -30,18 +30,18 @@
 [DecisionProcedure]=SIMPLIFY
 [Strategy]ActiveStrategy=DLStrategy
 [View]ShowWholeTaclet=false
-[DLOptions]simplifyAfterODESolve=false
+[DLOptions]simplifyAfterODESolve=true
 [DLOptions]simplifyTimeout=0
 [DLOptions]splitBeyondFO=false
 [MathematicaOptions]quantifierEliminationMethod=REDUCE
 [Libraries]Default=acc.key-false, stringRules.key-false, deprecatedRules.key-false
 [DLOptions]applyGammaRules=ONLY_TO_MODALITIES
 [DLOptions]counterExampleGenerator=Mathematica
-[DLOptions]simplifyBeforeReduce=false
+[DLOptions]simplifyBeforeReduce=true
 [OrbitalOptions]representation=big
 [DecisionProcedure]SmtZipProblemDir=false
 [DLOptions]readdQuantifiers=true
-[DLOptions]simplifier=
+[DLOptions]simplifier=Mathematica
 [OrbitalOptions]precision=34
 [General]StupidMode=true
 [DLOptions]initialTimeout=2000
@@ -65,7 +65,7 @@
 [Strategy]MaximumNumberOfAutomaticApplications=1000
 [View]MaxTooltipLines=40
 [General]SoundNotification=false
-[DLOptions]simplifyAfterReduce=false
+[DLOptions]simplifyAfterReduce=true
 [Choice]Choices=transactions-transactions\:transactionsOn-transactions\:transactionsOff , throughout-throughout\:toutOn-throughout\:toutOff , programRules-programRules\:Java-programRules\:ODL-programRules\:dL , intRules-intRules\:javaSemantics-intRules\:arithmeticSemanticsIgnoringOF-intRules\:arithmeticSemanticsCheckingOF , transactionAbort-transactionAbort\:abortOn-transactionAbort\:abortOff , nullPointerPolicy-nullPointerPolicy\:noNullCheck-nullPointerPolicy\:nullCheck , javacard-javacard\:jcOff-javacard\:jcOn
 [StrategyProperty]NON_LIN_ARITH_OPTIONS_KEY=NON_LIN_ARITH_NONE
 [StrategyProperty]LOOP_OPTIONS_KEY=LOOP_INVARIANT
