@@ -81,10 +81,8 @@ public class GeneralSettings implements Settings {
     public boolean soundNotification() {
         return soundNotification;
     }
-    
-    /**
-     * returns true if drag and drop shall be direction sensitive   
-     */
+
+
     public boolean isDndDirectionSensitive() {        
         return dndDirectionSensitive;
     }
