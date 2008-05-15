@@ -57,7 +57,7 @@ fi
 
 key_ext_jars="antlr.jar antlr3.jar stringtemplate.jar recoderKey.jar dresden-ocl-demo.jar xerces.jar log4j.jar jargs.jar JLink/JLink.jar orbital-ext.jar"
 
-key_dev_jars="javacc.jar junit.jar"
+key_dev_jars="javacc.jar junit.jar junit-4.4.jar"
 
 together_jars="lib/openapi.jar lib/jgl.zip lib/together.jar modules/"
 
