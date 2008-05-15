@@ -58,7 +58,9 @@ import de.uka.ilkd.key.proof.mgt.TaskTreeNode;
 import de.uka.ilkd.key.proof.reuse.ReusePoint;
 import de.uka.ilkd.key.unittest.ModelGenerator;
 import de.uka.ilkd.key.unittest.UnitTestBuilder;
-import de.uka.ilkd.key.util.*;
+import de.uka.ilkd.key.util.Debug;
+import de.uka.ilkd.key.util.KeYExceptionHandler;
+import de.uka.ilkd.key.util.KeYResourceManager;
 import de.uka.ilkd.key.util.ProgressMonitor;
 
 
@@ -322,7 +324,7 @@ public class Main extends JFrame implements IMain {
      * @param visible a boolean indicating if Main shall be made visible
      * @return the instance of Main
      */
-    public static Main getInstance(boolean visible) {
+    public static Main getInstance(final boolean visible) {
         if (instance == null) {
         	if (ProofSettings.DEFAULT_SETTINGS.getProfile() instanceof DLProfile) {
                 instance = new Main("KeYmaera -- Prover");
@@ -331,8 +333,18 @@ public class Main extends JFrame implements IMain {
                 instance = new Main("KeY -- Prover");
             } 
         }
-        if (!instance.isVisible())
-            instance.setVisible(visible); // XXX: enough?
+        if (!instance.isVisible()) {
+            if (SwingUtilities.isEventDispatchThread()) {
+                instance.setVisible(visible); // XXX: enough?
+            } else {
+                SwingUtilities.invokeLater(new Runnable() {
+                    public void run() {                            
+                        if (!instance.isVisible())
+                            instance.setVisible(visible);
+                    }
+                });
+            }
+        }
         return instance;
     }
     
@@ -961,9 +973,7 @@ public class Main extends JFrame implements IMain {
 		    pi.startProver(mediator.getProof().env(), 
 			    	   poBrowser.getAndClearPO());
 		} catch(ProofInputException e)  {
-		    ExtList list = new ExtList();
-		    list.add(e);
-		    new ExceptionDialog(this, list);
+		    new ExceptionDialog(this, e);
 		}
 	    }
 	}
@@ -1934,8 +1944,7 @@ public class Main extends JFrame implements IMain {
     }
     
     protected Proof setUpNewProof(Proof proof) {
-        KeYMediator localMediator = mediator();
-        localMediator.setProof(proof);
+        mediator().setProof(proof);
         return proof;
     }
     
@@ -3212,9 +3221,7 @@ public class Main extends JFrame implements IMain {
                         try{
                             runTest(tam.test, tam.model);
                         }catch(Exception exc){
-                            ExtList l = new ExtList();
-                            l.add(exc);
-                            new ExceptionDialog(testGui, l);    
+                            new ExceptionDialog(testGui, exc);    
                         }
                     }
                 }
@@ -3607,9 +3614,7 @@ public class Main extends JFrame implements IMain {
                                         }
                                         main.setStatusLine("Test Generation Completed");
                                     }catch(Exception exc){
-                                        ExtList l = new ExtList();
-                                        l.add(exc);
-                                        new ExceptionDialog(testGui, l);
+                                        new ExceptionDialog(testGui, exc);
                                     }
                                     creatingTests = false;
                                     enable();

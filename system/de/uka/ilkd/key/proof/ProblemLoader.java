@@ -687,18 +687,37 @@ public class ProblemLoader implements Runnable {
     public static Term parseTerm(String value, Proof proof, Namespace varNS,
             Namespace progVar_ns) {
         try {
-            return TermParserFactory.createInstance().parse(
-                    new StringReader(value), null, proof.getServices(), varNS,
-                    proof.getNamespaces().functions(),
-                    proof.getNamespaces().sorts(), progVar_ns, new AbbrevMap());
-        } catch (ParserException e) {
-            throw new RuntimeException("Error while parsing value " + value
-                    + "\nVar namespace is: " + varNS + "\n", e);
+            return TermParserFactory.createInstance().
+                parse(new StringReader(value), null,
+                      proof.getServices(),
+                      varNS,
+                      proof.getNamespaces().functions(),
+                      proof.getNamespaces().sorts(),
+                      progVar_ns,
+                      new AbbrevMap());
+        } catch(ParserException e) {
+            throw new RuntimeException("Error while parsing value "+value+
+                                       "\nVar namespace is: "+varNS+"\n", e);
+        }
+    }
+    public static Term parseTerm(String value, Services services,
+            Namespace varNS, Namespace progVar_ns) {
+        try { 
+            return TermParserFactory.createInstance().
+                parse(new StringReader(value), null,
+                      services,
+                      varNS,
+                      services.getNamespaces().functions(),
+                      services.getNamespaces().sorts(),
+                      progVar_ns,
+                      new AbbrevMap());
+        } catch(ParserException e) {
+            throw new RuntimeException("Error while parsing value "+value+
+                                       "\nVar namespace is: "+varNS+"\n", e);
         }
     }
 
-    public static SetOfLocationDescriptor parseLocationList(String value,
-            Goal targetGoal) {
+    public static SetOfLocationDescriptor parseLocationList(String value, Goal targetGoal) {
         SetOfLocationDescriptor result = null;
         Proof p = targetGoal.proof();
         Namespace varNS = p.getNamespaces().variables();

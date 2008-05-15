@@ -82,15 +82,14 @@ public class ApplyStrategy {
     // Otherwise the addition/removal of the InteractiveProofListener
     // can cause a ConcurrentModificationException during ongoing operation
     public ApplyStrategy(KeYMediator medi) {
-        this.medi = medi;
-        medi.addRuleAppListener(proofListener);
-        this.goalChooser = medi.getProfile().getSelectedGoalChooserBuilder()
-                .create();
+	this.medi = medi;
+        medi.addRuleAppListener( proofListener );
+        this.goalChooser = medi.getProfile().getSelectedGoalChooserBuilder().create();        
     }
+    
+    
 
-    /**
-     * applies rules that are chosen by the active strategy
-     * 
+    /** applies rules that are chosen by the active strategy 
      * @return true iff a rule has been applied, false otherwise
      */
     private synchronized boolean applyAutomaticRule() {

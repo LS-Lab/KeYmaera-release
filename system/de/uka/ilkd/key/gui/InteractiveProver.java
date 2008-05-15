@@ -82,7 +82,7 @@ public class InteractiveProver {
 	this.mediator = mediator;
 	mediator.addKeYSelectionListener(selListener);
 	applyStrategy = new ApplyStrategy(mediator);
-	applyStrategy.addProverTaskObserver(mediator().getProverTaskListener());
+        applyStrategy.addProverTaskObserver(mediator().getProverTaskListener());
     }
 
     /** returns the KeYMediator */
@@ -578,6 +578,24 @@ public class InteractiveProver {
             }
         }
        	return result;
+    }
+
+    /**     
+     * adds a proverTaskListener to apply strategy. 
+     * 
+     * @param ptl the ProverTaskListener to be added
+     */
+    public void addProverTaskListener(ProverTaskListener ptl) {
+        applyStrategy.addProverTaskObserver(ptl);
+    }
+
+    /**
+     * removes <code>ptl</code> from the list of proverTaskListeners
+     *  
+     * @param ptl the proverTaskListener to be removed
+     */
+    public void removeProverTaskListener(ProverTaskListener ptl) {      
+        applyStrategy.removeProverTaskObserver(ptl);        
     }
     
 }
