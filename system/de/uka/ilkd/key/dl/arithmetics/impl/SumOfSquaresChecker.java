@@ -35,9 +35,8 @@ import orbital.math.Real;
 import orbital.math.Values;
 import orbital.math.Vector;
 import de.uka.ilkd.key.dl.arithmetics.impl.csdp.CSDP;
-// edited by Timo Michelsen
-// import de.uka.ilkd.key.dl.arithmetics.impl.sos.PolynomialOrder;
-// import de.uka.ilkd.key.dl.arithmetics.impl.sos.SimpleOrder;
+import de.uka.ilkd.key.dl.arithmetics.impl.sos.PolynomialOrder;
+import de.uka.ilkd.key.dl.arithmetics.impl.sos.SimpleOrder;
 import de.uka.ilkd.key.dl.formulatools.collector.AllCollector;
 import de.uka.ilkd.key.dl.formulatools.collector.FilterVariableSet;
 import de.uka.ilkd.key.dl.formulatools.collector.filter.FilterVariableCollector;
