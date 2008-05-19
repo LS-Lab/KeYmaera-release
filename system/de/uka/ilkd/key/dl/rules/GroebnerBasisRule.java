@@ -25,6 +25,7 @@ package de.uka.ilkd.key.dl.rules;
 import java.util.HashSet;
 import java.util.Set;
 
+import orbital.logic.functor.Function;
 import orbital.math.AlgebraicAlgorithms;
 import orbital.math.Polynomial;
 import de.uka.ilkd.key.dl.arithmetics.impl.SumOfSquaresChecker;
@@ -89,41 +90,29 @@ public class GroebnerBasisRule implements BuiltInRule, RuleFilter {
 		for (Polynomial p : classify2.h) {
 			System.out.println(p);
 		}
+		// we try to get a contradiction by computing the groebner basis of all
+		// the equalities. if the common basis contains a constant part, the
+		// equality system is unsatisfiable, thus we can close this goal
+		Function groebnerBasis = orbital.math.AlgebraicAlgorithms.reduce(
+				classify2.h, AlgebraicAlgorithms.DEGREE_REVERSE_LEXICOGRAPHIC);
+		System.out.println(groebnerBasis);
+		Polynomial apply = (Polynomial) groebnerBasis.apply(classify2.h
+				.iterator().next().one());
+		if(apply.equals(apply.zero())) {
+			return SLListOfGoal.EMPTY_LIST;
+		}
 		if (!classify2.g.isEmpty()) {
 			// we test if one of the inequalities g is unsatisfiable under the
 			// variety \forall f \in h: f = 0. if it is, we get false on the
 			// left side of the sequent and can close this goal
 			for (Polynomial g : classify2.g) {
-				Polynomial reduce = AlgebraicAlgorithms.reduce(g, classify2.h,
-						AlgebraicAlgorithms.DEGREE_REVERSE_LEXICOGRAPHIC);
-				Polynomial zero = AlgebraicAlgorithms.reduce((Polynomial) g
-						.zero(), classify2.h,
-						AlgebraicAlgorithms.DEGREE_REVERSE_LEXICOGRAPHIC);
-				if (reduce.equals(zero)) {
+				Polynomial reduce = (Polynomial) groebnerBasis.apply(g);
+				if (reduce.equals(reduce.zero())) {
 					return SLListOfGoal.EMPTY_LIST;
 				}
 			}
 		}
-		// as we either could not deduce a contradiction using the inequalities
-		// (maybe there are no inequalities), we just try to get a contradiction
-		// by computing the groebner basis of all the equalities. if the common
-		// basis contains a constant part, the equality system is unsatisfiable,
-		// thus we can close this goal
-		Set groebnerBasis = orbital.math.AlgebraicAlgorithms.groebnerBasis(
-				classify2.h, AlgebraicAlgorithms.DEGREE_REVERSE_LEXICOGRAPHIC);
-		System.out.println(groebnerBasis);
-		for (Object o : groebnerBasis) {
-			if (o instanceof Polynomial) {
-				Polynomial p = (Polynomial) o;
-				if (p.degree().isZero()) {
-					assert (!p.isZero());
-					solutionFound = true;
-				}
-			}
-		}
-		if (solutionFound) {
-			return SLListOfGoal.EMPTY_LIST;
-		}
+
 		return SLListOfGoal.EMPTY_LIST.append(goal);
 		// return SLListOfGoal.EMPTY_LIST;
 	}
