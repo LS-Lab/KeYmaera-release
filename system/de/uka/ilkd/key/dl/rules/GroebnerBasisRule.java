@@ -52,100 +52,124 @@ import de.uka.ilkd.key.rule.RuleApp;
  */
 public class GroebnerBasisRule implements BuiltInRule, RuleFilter {
 
-    public static final GroebnerBasisRule INSTANCE = new GroebnerBasisRule();
+	public static final GroebnerBasisRule INSTANCE = new GroebnerBasisRule();
 
-    /**
-     * 
-     */
-    public GroebnerBasisRule() {
-    }
+	/**
+	 * 
+	 */
+	public GroebnerBasisRule() {
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see de.uka.ilkd.key.rule.Rule#apply(de.uka.ilkd.key.proof.Goal,
-     *      de.uka.ilkd.key.java.Services, de.uka.ilkd.key.rule.RuleApp)
-     */
-    public synchronized ListOfGoal apply(Goal goal, Services services,
-            RuleApp ruleApp) {
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.uka.ilkd.key.rule.Rule#apply(de.uka.ilkd.key.proof.Goal,
+	 *      de.uka.ilkd.key.java.Services, de.uka.ilkd.key.rule.RuleApp)
+	 */
+	public synchronized ListOfGoal apply(Goal goal, Services services,
+			RuleApp ruleApp) {
 
-        IteratorOfConstrainedFormula it = goal.sequent().antecedent()
-                .iterator();
-        Set<Term> ante = new HashSet<Term>(); 
-        while(it.hasNext()) {
-            ante.add(it.next().formula());
-        }
-        it = goal.sequent().succedent().iterator();
-        Set<Term> succ = new HashSet<Term>(); 
-        while(it.hasNext()) {
-            succ.add(it.next().formula());
-        }
-        PolynomialClassification<Term> classify = SumOfSquaresChecker.INSTANCE.classify(ante, succ);
-        PolynomialClassification<Polynomial> classify2 = SumOfSquaresChecker.INSTANCE.classify(classify);
-        boolean solutionFound = false;
-        System.out.println("H is: ");
-        for(Polynomial p: classify2.h) {
-        	System.out.println(p);
-        }
-        Set groebnerBasis = orbital.math.AlgebraicAlgorithms.groebnerBasis(classify2.h, AlgebraicAlgorithms.DEGREE_REVERSE_LEXICOGRAPHIC);
-        System.out.println(groebnerBasis);
-        for(Object o: groebnerBasis) {
-        	if(o instanceof Polynomial) {
-        		Polynomial p = (Polynomial) o;
-        		if(p.degree().isZero()) {
-        			assert(!p.isZero());
-        			solutionFound = true;
-        		}
-        	}
-        }
-        if(solutionFound) {
-            return SLListOfGoal.EMPTY_LIST;
-        }
-        return SLListOfGoal.EMPTY_LIST.append(goal);
-        
-        //return SLListOfGoal.EMPTY_LIST;
-    }
+		IteratorOfConstrainedFormula it = goal.sequent().antecedent()
+				.iterator();
+		Set<Term> ante = new HashSet<Term>();
+		while (it.hasNext()) {
+			ante.add(it.next().formula());
+		}
+		it = goal.sequent().succedent().iterator();
+		Set<Term> succ = new HashSet<Term>();
+		while (it.hasNext()) {
+			succ.add(it.next().formula());
+		}
+		PolynomialClassification<Term> classify = SumOfSquaresChecker.INSTANCE
+				.classify(ante, succ);
+		PolynomialClassification<Polynomial> classify2 = SumOfSquaresChecker.INSTANCE
+				.classify(classify);
+		boolean solutionFound = false;
+		System.out.println("H is: ");
+		for (Polynomial p : classify2.h) {
+			System.out.println(p);
+		}
+		if (!classify2.g.isEmpty()) {
+			// we test if one of the inequalities g is unsatisfiable under the
+			// variety \forall f \in h: f = 0. if it is, we get false on the
+			// left side of the sequent and can close this goal
+			for (Polynomial g : classify2.g) {
+				Polynomial reduce = AlgebraicAlgorithms.reduce(g, classify2.h,
+						AlgebraicAlgorithms.DEGREE_REVERSE_LEXICOGRAPHIC);
+				Polynomial zero = AlgebraicAlgorithms.reduce((Polynomial) g
+						.zero(), classify2.h,
+						AlgebraicAlgorithms.DEGREE_REVERSE_LEXICOGRAPHIC);
+				if (reduce.equals(zero)) {
+					return SLListOfGoal.EMPTY_LIST;
+				}
+			}
+		}
+		// as we either could not deduce a contradiction using the inequalities
+		// (maybe there are no inequalities), we just try to get a contradiction
+		// by computing the groebner basis of all the equalities. if the common
+		// basis contains a constant part, the equality system is unsatisfiable,
+		// thus we can close this goal
+		Set groebnerBasis = orbital.math.AlgebraicAlgorithms.groebnerBasis(
+				classify2.h, AlgebraicAlgorithms.DEGREE_REVERSE_LEXICOGRAPHIC);
+		System.out.println(groebnerBasis);
+		for (Object o : groebnerBasis) {
+			if (o instanceof Polynomial) {
+				Polynomial p = (Polynomial) o;
+				if (p.degree().isZero()) {
+					assert (!p.isZero());
+					solutionFound = true;
+				}
+			}
+		}
+		if (solutionFound) {
+			return SLListOfGoal.EMPTY_LIST;
+		}
+		return SLListOfGoal.EMPTY_LIST.append(goal);
+		// return SLListOfGoal.EMPTY_LIST;
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see de.uka.ilkd.key.rule.BuiltInRule#isApplicable(de.uka.ilkd.key.proof.Goal,
-     *      de.uka.ilkd.key.logic.PosInOccurrence,
-     *      de.uka.ilkd.key.logic.Constraint)
-     */
-    @Override
-    public boolean isApplicable(Goal goal, PosInOccurrence pio,
-            Constraint userConstraint) {
-        // TODO jdq: insert application test
-        return true;
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.uka.ilkd.key.rule.BuiltInRule#isApplicable(de.uka.ilkd.key.proof.Goal,
+	 *      de.uka.ilkd.key.logic.PosInOccurrence,
+	 *      de.uka.ilkd.key.logic.Constraint)
+	 */
+	@Override
+	public boolean isApplicable(Goal goal, PosInOccurrence pio,
+			Constraint userConstraint) {
+		// TODO jdq: insert application test
+		return true;
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see de.uka.ilkd.key.rule.Rule#displayName()
-     */
-    @Override
-    public String displayName() {
-        return "Groebner Basis";
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.uka.ilkd.key.rule.Rule#displayName()
+	 */
+	@Override
+	public String displayName() {
+		return "Groebner Basis";
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see de.uka.ilkd.key.rule.Rule#name()
-     */
-    @Override
-    public Name name() {
-        return new Name("Groebner Basis");
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.uka.ilkd.key.rule.Rule#name()
+	 */
+	@Override
+	public Name name() {
+		return new Name("Groebner Basis");
+	}
 
-    /* (non-Javadoc)
-     * @see de.uka.ilkd.key.proof.RuleFilter#filter(de.uka.ilkd.key.rule.Rule)
-     */
-    @Override
-    public boolean filter(Rule rule) {
-        return rule instanceof GroebnerBasisRule;
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.uka.ilkd.key.proof.RuleFilter#filter(de.uka.ilkd.key.rule.Rule)
+	 */
+	@Override
+	public boolean filter(Rule rule) {
+		return rule instanceof GroebnerBasisRule;
+	}
 
 }
