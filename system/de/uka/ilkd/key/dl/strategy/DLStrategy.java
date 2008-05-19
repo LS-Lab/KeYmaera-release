@@ -290,16 +290,17 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 				LoopInvariantRuleDispatchFeature.INSTANCE);
 
 		if (DLOptionBean.INSTANCE.isApplyLocalReduce()) {
-			bindRuleSet(d, "mathematica_reduce", add(ifZero(
-					ReduceFeature.INSTANCE, longConst(4999), inftyConst()),
-					(MathSolverManager.isQuantifierEliminatorSet()) ? longConst(0)
+			bindRuleSet(d, "mathematica_reduce",
+					add(ifZero(ReduceFeature.INSTANCE, longConst(4999),
+							inftyConst()), (MathSolverManager
+							.isQuantifierEliminatorSet()) ? longConst(0)
 							: inftyConst()));
 		} else {
 			bindRuleSet(d, "mathematica_reduce", inftyConst());
 		}
-		bindRuleSet(d, "mathematica_simplify", add(
-				SimplifyFeature.INSTANCE, (MathSolverManager
-						.isSimplifierSet()) ? longConst(0) : inftyConst()));
+		bindRuleSet(d, "mathematica_simplify", add(SimplifyFeature.INSTANCE,
+				(MathSolverManager.isSimplifierSet()) ? longConst(0)
+						: inftyConst()));
 
 		if (DLOptionBean.INSTANCE.isNormalizeEquations()) {
 			bindRuleSet(d, "inequation_normalization", -4000);
@@ -314,62 +315,74 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 		final Feature duplicateF = ifZero(NonDuplicateAppFeature.INSTANCE,
 				longConst(0), inftyConst());
 		Feature reduceSequence = null;
+		Feature groebnerBasisRule = ConditionalFeature.createConditional(
+				GroebnerBasisRule.INSTANCE, inftyConst());
 
 		setupDiffSatStrategy(d);
 
-		Feature iterative = inftyConst();
-		if (DLOptionBean.INSTANCE.isCallReduce()) {
-			if (DLOptionBean.INSTANCE.isUseTimeoutStrategy()) {
-				/*
-				 * basic idea of the following statement: - check for options -
-				 * if applying timeout strategy: -- try to reduce -- if
-				 * successful --- rate the result (cheap for good rating,
-				 * unaffordable otherwisewise) -- if not successful in time ---
-				 * try to find a counter example (if none is found high costs,
-				 * unaffordable if counterexample has been found)
-				 */
-				reduceSequence = ConditionalFeature
-						.createConditional(
-								ReduceRule.INSTANCE,
-								ifZero(
-										FOSequence.INSTANCE,
-										new SwitchFeature(
-												TimeoutTestApplicationFeature.INSTANCE,
-												new Case(longConst(0),
-														longConst(-20000)),
-												new Case(
-														longConst(1),
-														DLOptionBean.INSTANCE
-																.isUseIterativeReduceRule() ? inftyConst()
-																: longConst(20000)),
-												new Case(inftyConst(),
-														inftyConst())),
-										inftyConst()));
-				iterative = ConditionalFeature
-						.createConditional(
-								IterativeReduceRule.INSTANCE,
-								DLOptionBean.INSTANCE
-										.isUseIterativeReduceRule() ? ifZero(
-										FOSequence.INSTANCE,
-										new SwitchFeature(
-												TimeoutTestApplicationFeature.INSTANCE,
-												new Case(longConst(0),
-														inftyConst()),
-												new Case(longConst(1),
-														longConst(20000)),
-												new Case(inftyConst(),
-														inftyConst())),
-										inftyConst())
-										: inftyConst());
+		Feature iterative = ConditionalFeature.createConditional(
+				IterativeReduceRule.INSTANCE, inftyConst());
+		if (MathSolverManager.isQuantifierEliminatorSet()) {
+			if (DLOptionBean.INSTANCE.isCallReduce()) {
+				if (DLOptionBean.INSTANCE.isUseTimeoutStrategy()) {
+					/*
+					 * basic idea of the following statement: - check for
+					 * options - if applying timeout strategy: -- try to reduce --
+					 * if successful --- rate the result (cheap for good rating,
+					 * unaffordable otherwisewise) -- if not successful in time
+					 * --- try to find a counter example (if none is found high
+					 * costs, unaffordable if counterexample has been found)
+					 */
+					reduceSequence = ConditionalFeature
+							.createConditional(
+									ReduceRule.INSTANCE,
+									ifZero(
+											FOSequence.INSTANCE,
+											new SwitchFeature(
+													TimeoutTestApplicationFeature.INSTANCE,
+													new Case(longConst(0),
+															longConst(-20000)),
+													new Case(
+															longConst(1),
+															DLOptionBean.INSTANCE
+																	.isUseIterativeReduceRule() ? inftyConst()
+																	: longConst(20000)),
+													new Case(inftyConst(),
+															inftyConst())),
+											inftyConst()));
+					iterative = ConditionalFeature
+							.createConditional(
+									IterativeReduceRule.INSTANCE,
+									DLOptionBean.INSTANCE
+											.isUseIterativeReduceRule() ? ifZero(
+											FOSequence.INSTANCE,
+											new SwitchFeature(
+													TimeoutTestApplicationFeature.INSTANCE,
+													new Case(longConst(0),
+															inftyConst()),
+													new Case(longConst(1),
+															longConst(20000)),
+													new Case(inftyConst(),
+															inftyConst())),
+											inftyConst())
+											: inftyConst());
+				} else {
+					reduceSequence = ConditionalFeature.createConditional(
+							ReduceRule.INSTANCE, add(
+									OnlyOncePerBranchFeature.INSTANCE,
+									KeYBeyondFO.INSTANCE, FOSequence.INSTANCE));
+				}
 			} else {
 				reduceSequence = ConditionalFeature.createConditional(
-						ReduceRule.INSTANCE, add(
-								OnlyOncePerBranchFeature.INSTANCE,
-								KeYBeyondFO.INSTANCE, FOSequence.INSTANCE));
+						ReduceRule.INSTANCE, inftyConst());
+				groebnerBasisRule = ConditionalFeature.createConditional(
+						GroebnerBasisRule.INSTANCE, longConst(20000));
 			}
 		} else {
 			reduceSequence = ConditionalFeature.createConditional(
 					ReduceRule.INSTANCE, inftyConst());
+			groebnerBasisRule = ConditionalFeature.createConditional(
+					GroebnerBasisRule.INSTANCE, longConst(20000));
 		}
 
 		final Feature eliminateQuantifier = ConditionalFeature
@@ -400,9 +413,7 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 				ConditionalFeature.createConditional(
 						VisualizationRule.INSTANCE, inftyConst()),
 				ConditionalFeature.createConditional(
-						FindTransitionRule.INSTANCE, inftyConst()),
-				ConditionalFeature.createConditional(
-						GroebnerBasisRule.INSTANCE, inftyConst()) });
+						FindTransitionRule.INSTANCE, inftyConst()), });
 
 		final Feature ifMatchedF = ifZero(MatchedIfFeature.INSTANCE,
 				longConst(+1));
@@ -419,7 +430,7 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 				simplifierF, duplicateF, ifMatchedF, d, AgeFeature.INSTANCE,
 				reduceSequence, contextElimRule, eliminateQuantifier,
 				excludeRules, noQuantifierInstantition,
-				eliminateExistentialQuantifier, iterative });
+				eliminateExistentialQuantifier, iterative, groebnerBasisRule });
 
 		approvalF = setupApprovalF(p_proof);
 

@@ -85,7 +85,6 @@ public class GroebnerBasisRule implements BuiltInRule, RuleFilter {
 				.classify(ante, succ);
 		PolynomialClassification<Polynomial> classify2 = SumOfSquaresChecker.INSTANCE
 				.classify(classify);
-		boolean solutionFound = false;
 		System.out.println("H is: ");
 		for (Polynomial p : classify2.h) {
 			System.out.println(p);
