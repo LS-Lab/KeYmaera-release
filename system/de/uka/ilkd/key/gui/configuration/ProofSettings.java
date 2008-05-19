@@ -11,7 +11,7 @@ package de.uka.ilkd.key.gui.configuration;
 
 import java.io.*;
 import java.net.URL;
-import java.util.*;
+import java.util.Properties;
 
 import javax.swing.JMenuItem;
 
