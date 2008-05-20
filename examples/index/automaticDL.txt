@@ -9,10 +9,10 @@
 ./hybrid/bouncing-ball/bouncing-ball.key
 ./hybrid/bouncing-ball/bouncing-ball-inv.key
 ./hybrid/bouncing-ball/bouncing-ball-simple.key
-./hybrid/ETCS/safety/binary_driver-2007-10-09.key
+./hybrid/ETCS/safety/binary_driver-2007-10-09.key 100000
 ./hybrid/ETCS/paper/rbc-controllability-lemma.key
 ./hybrid/ETCS/paper/controllability-lemma.key
-./hybrid/ETCS/paper/safety-lemma.key
+./hybrid/ETCS/paper/safety-lemma.key 100000
 ./hybrid/dev/exist-evolve.key
 ./hybrid/dev/rotation.key
 ./hybrid/ETCS/paper/reactivity-lemma.key 100000
