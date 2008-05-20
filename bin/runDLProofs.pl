@@ -22,6 +22,7 @@ my $automaticdl_txt = "automaticDL.txt";
 my $not_provable_txt = "notProvableDL.txt";
 my $interactive_txt = "interactiveDL.txt";
 my $quit_with_error_txt = "quitWithErrorDL.txt";
+my $statfile = $absolute_bin_path . "/" . $path_to_pe . "statistics-" . hostname . ".csv";
 chdir $bin_path;
 my $absolute_bin_path = &getcwd;
 print "$absolute_bin_path\n";
@@ -154,6 +155,9 @@ sub handlefile {
    my @old = <HANDLE>;
    close HANDLE;
 
+   open (STS, ">>$statfile");
+   print STS "Begin `git show |grep commit` `date`\n";
+   close(STS);
 
    foreach my $headerfile (@headerDL) {
        if ($headerfile =~ /#$/) {
@@ -209,6 +213,10 @@ sub handlefile {
    }
    }
 
+   open (STS, ">>$statfile");
+   print STS "END `git show |grep commit` `date`\n";
+   close(STS);
+
 }
 
 sub produceResultText {
@@ -230,7 +238,6 @@ sub produceResultText {
 
 sub runAuto {
   my ($dk, $realfilename, $headerfile, $timeout, $expectedresult) = @_;
-  my $statfile = $absolute_bin_path . "/" . $path_to_pe . "statistics-" . hostname . ".csv";
   my $tmp = "/tmp/statistics.tmp.$$";
   my $result;
   my $pid;
