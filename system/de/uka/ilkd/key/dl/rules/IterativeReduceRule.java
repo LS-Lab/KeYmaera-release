@@ -12,10 +12,13 @@ import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 
+import recoder.util.Order.Lexical;
+
 import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
 import de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator.PairOfTermAndQuantifierType;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.IncompleteEvaluationException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
+import de.uka.ilkd.key.dl.formulatools.LexicographicalOrder;
 import de.uka.ilkd.key.dl.formulatools.SkolemfunctionTracker;
 import de.uka.ilkd.key.dl.formulatools.TermRewriter;
 import de.uka.ilkd.key.dl.formulatools.TermTools;
@@ -83,7 +86,8 @@ public class IterativeReduceRule implements BuiltInRule, RuleFilter {
 				SolverException {
 			if (useForReduce == null) {
 				Term result = getUseForFindInstance();
-				PairOfTermAndVariableList pair = TermTools.quantifyAllSkolemSymbols(result);
+				PairOfTermAndVariableList pair = TermTools
+						.quantifyAllSkolemSymbols(result);
 				result = pair.getT();
 				variables = pair.getVariables();
 				if (DLOptionBean.INSTANCE.isSimplifyBeforeReduce()) {
@@ -141,23 +145,22 @@ public class IterativeReduceRule implements BuiltInRule, RuleFilter {
 	public ListOfGoal apply(Goal goal, Services services, RuleApp ruleApp) {
 		long timeout = 2000;
 		final boolean automode = Main.getInstance().mediator().autoMode();
-		final VariableOrder order = VariableOrderCreator.getVariableOrder(goal
-				.sequent().iterator());
-		// IDEA: initial sequent is successively moved from ante/succ to usedAnte/usedSucc
+		// IDEA: initial sequent is successively moved from ante/succ to
+		// usedAnte/usedSucc
 		// parts of initAnte/initSucc that still make sense to be added
-		Queue<Term> ante = new LinkedList<Term>(createOrderedList(order, goal.sequent()
-				.antecedent().iterator()));
-		Queue<Term> succ = new LinkedList<Term>(createOrderedList(order, goal.sequent()
-				.succedent().iterator()));
+		Queue<Term> ante = LexicographicalOrder.getOrder(createList(goal
+				.sequent().antecedent().iterator()));
+		Queue<Term> succ = LexicographicalOrder.getOrder(createList(goal
+				.sequent().succedent().iterator()));
 		// parts of ante/succ that are used in the current frontier
 		List<Term> usedAnte = new ArrayList<Term>();
 		List<Term> usedSucc = new ArrayList<Term>();
 		// iteratively built construction cache for the set of all queries
 		List<QueryTriple> queryCache = new LinkedList<QueryTriple>();
-		
+
 		// current frontier of re-tested queries
 		Queue<QueryTriple> currentQueryCache = new LinkedList<QueryTriple>();
-		
+
 		while (true) {
 			if (automode && !Main.getInstance().mediator().autoMode()) {
 				// automode stopped
@@ -167,19 +170,24 @@ public class IterativeReduceRule implements BuiltInRule, RuleFilter {
 
 			currentQueryCache.clear();
 			currentQueryCache.addAll(queryCache);
-			if(ante.isEmpty() && succ.isEmpty() && currentQueryCache.isEmpty()) {
-				System.out.println("There is nothing we can do anymore :/");//XXX
+			if (ante.isEmpty() && succ.isEmpty() && currentQueryCache.isEmpty()) {
+				System.out.println("There is nothing we can do anymore :/");// XXX
 				return null;
 			}
-			// loop until all added or all remaining cached items have been visited again
-			while (!ante.isEmpty() || !succ.isEmpty() || !currentQueryCache.isEmpty()) {
-				// during first sweep, only repeat with current timeout as long as there are further alternatives
-				// further sweeps of the algorithm re-check the known alternatives with larger timeouts
+			// loop until all added or all remaining cached items have been
+			// visited again
+			while (!ante.isEmpty() || !succ.isEmpty()
+					|| !currentQueryCache.isEmpty()) {
+				// during first sweep, only repeat with current timeout as long
+				// as there are further alternatives
+				// further sweeps of the algorithm re-check the known
+				// alternatives with larger timeouts
 				try {
 					QueryTriple currentItem;
-					
+
 					if (!ante.isEmpty() || !succ.isEmpty()) {
-						// first sweep of the algorithm keeps adding alternatives until all alternatives are in queryCache
+						// first sweep of the algorithm keeps adding
+						// alternatives until all alternatives are in queryCache
 						if (!ante.isEmpty() && !succ.isEmpty()) {
 							if (order.compare(ante.peek(), succ.peek()) <= 0) {
 								usedAnte.add(ante.poll());
@@ -194,7 +202,6 @@ public class IterativeReduceRule implements BuiltInRule, RuleFilter {
 							}
 						}
 
-						
 						Term and = TermTools.createJunctorTermNAry(
 								TermBuilder.DF.tt(), Op.AND, usedAnte
 										.iterator(), new HashSet<Term>());
@@ -213,7 +220,9 @@ public class IterativeReduceRule implements BuiltInRule, RuleFilter {
 					try {
 						findInstance = MathSolverManager
 								.getCurrentCounterExampleGenerator()
-								.findInstance(TermBuilder.DF.not(currentItem.getUseForFindInstance()),
+								.findInstance(
+										TermBuilder.DF.not(currentItem
+												.getUseForFindInstance()),
 										timeout);
 					} catch (IncompleteEvaluationException e) {
 						// timeout
@@ -221,12 +230,13 @@ public class IterativeReduceRule implements BuiltInRule, RuleFilter {
 					if (findInstance.equals("") || findInstance.startsWith("$")) {
 						// No CEX found
 						System.out.println("Reducing for " + timeout);// XXX
-					    Term reduce = currentItem.getUseForReduce(services);
+						Term reduce = currentItem.getUseForReduce(services);
 						List<String> variables = currentItem
-									.getReduceVariables(services);
+								.getReduceVariables(services);
 						if (ante.isEmpty() && succ.isEmpty()
 								&& queryCache.size() == 1) {
-							// as a last resort if we run out of alternatives: this is the last item. do not timeout the reduce
+							// as a last resort if we run out of alternatives:
+							// this is the last item. do not timeout the reduce
 							reduce = MathSolverManager
 									.getCurrentQuantifierEliminator()
 									.reduce(
@@ -250,9 +260,12 @@ public class IterativeReduceRule implements BuiltInRule, RuleFilter {
 						}
 						if (reduce.equals(TermBuilder.DF.tt())) {
 							return goal.split(0);
-						} else if (ante.isEmpty() && succ.isEmpty() && currentQueryCache.isEmpty()) {
-							// maximum sequent is always last in the current query cache (likewise during first construction sweep)
-							//TODO should return result
+						} else if (ante.isEmpty() && succ.isEmpty()
+								&& currentQueryCache.isEmpty()) {
+							// maximum sequent is always last in the current
+							// query cache (likewise during first construction
+							// sweep)
+							// TODO should return result
 							throw new IllegalStateException(
 									"Dont know what to do, reduce returned: "
 											+ reduce);
@@ -260,25 +273,31 @@ public class IterativeReduceRule implements BuiltInRule, RuleFilter {
 							// we did not find a useful result, but we still got
 							// formulas we could add. therefore we remove the
 							// current formula
-							System.out.println("Counterexample found for " + currentItem.getUseForFindInstance());//XXX
-							System.out.println("It is: " + reduce);//XXX
+							System.out.println("Counterexample found for "
+									+ currentItem.getUseForFindInstance());// XXX
+							System.out.println("It is: " + reduce);// XXX
 							queryCache.remove(currentItem);
 						}
-					} else if (ante.isEmpty() && succ.isEmpty()  && currentQueryCache.isEmpty()) {
+					} else if (ante.isEmpty() && succ.isEmpty()
+							&& currentQueryCache.isEmpty()) {
 						// we have a counter example for maximum sequent
-						System.out.println("Counterexample for the complete sequence found: " + findInstance);//XXX
+						System.out
+								.println("Counterexample for the complete sequence found: "
+										+ findInstance);// XXX
 						throw new IllegalStateException(
 								"Dont know what to do, counterexample for: "
-										+ currentItem.getUseForFindInstance() + " is " + findInstance);
+										+ currentItem.getUseForFindInstance()
+										+ " is " + findInstance);
 					} else {
 						// we have a counter example
-						System.out.println("Counterexample found for " + currentItem.getUseForFindInstance());//XXX
-						System.out.println("Removing...");//XXX
+						System.out.println("Counterexample found for "
+								+ currentItem.getUseForFindInstance());// XXX
+						System.out.println("Removing...");// XXX
 						queryCache.remove(currentItem);
 					}
 				} catch (IncompleteEvaluationException e) {
 					// timeout while performing query
-					System.out.println("Timeout while reducing");//XXX
+					System.out.println("Timeout while reducing");// XXX
 				} catch (RemoteException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -296,14 +315,12 @@ public class IterativeReduceRule implements BuiltInRule, RuleFilter {
 	 * @param iterator
 	 * @return
 	 */
-	private List<Term> createOrderedList(VariableOrder order,
-			IteratorOfConstrainedFormula iterator) {
-		List<Term> ante = new ArrayList<Term>();
+	private Set<Term> createList(IteratorOfConstrainedFormula iterator) {
+		Set<Term> ante = new HashSet<Term>();
 		while (iterator.hasNext()) {
 			Term next = iterator.next().formula();
 			ante.add(next);
 		}
-		Collections.sort(ante, order);
 		return ante;
 	}
 

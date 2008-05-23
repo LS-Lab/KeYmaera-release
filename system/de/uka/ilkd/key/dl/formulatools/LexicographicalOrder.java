@@ -6,6 +6,7 @@ package de.uka.ilkd.key.dl.formulatools;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -13,6 +14,8 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import de.uka.ilkd.key.dl.formulatools.collector.AllCollector;
+import de.uka.ilkd.key.dl.formulatools.collector.filter.FilterVariableCollector;
 import de.uka.ilkd.key.dl.logic.ldt.RealLDT;
 import de.uka.ilkd.key.dl.model.Div;
 import de.uka.ilkd.key.dl.model.Exp;
@@ -37,7 +40,7 @@ import de.uka.ilkd.key.logic.op.RigidFunction;
  */
 public class LexicographicalOrder {
 
-	private static class TermInformations {
+	public static class TermInformations {
 
 		private class Info {
 			int degree = 0;
@@ -148,25 +151,136 @@ public class LexicographicalOrder {
 			throw new IllegalArgumentException("Dont know what to do with "
 					+ current.op() + " of class " + current.op().getClass());
 		}
+
+		public int getDegree() {
+			return degree;
+		}
+
+		public int getDepth() {
+			return depth;
+		}
+
+		public Set<Term> getVariables() {
+			return variables;
+		}
+
+		public Term getT() {
+			return t;
+		}
 	}
-	
-	public static Queue<Term> getOrder(Set<Term> terms, TreeMap<String, Integer> vars) {
+
+	public static Queue<Term> getOrder(Set<Term> terms) {
 		Queue<Term> result = new LinkedList<Term>();
 		Set<TermInformations> infos = new HashSet<TermInformations>();
-		for(Term t: terms) {
-			infos.add(new TermInformations(t));
+		TreeMap<String, Integer> variables = new TreeMap<String, Integer>();
+		for (Term t : terms) {
+			TermInformations termInformations = new TermInformations(t);
+			infos.add(termInformations);
+			for (Term var : termInformations.getVariables()) {
+				String s = var.op().toString();
+				if (s.contains("_")) {
+					int i = Integer.parseInt(s.substring(s.indexOf('_') + 1));
+					i++;
+					assert i > 0;
+					s = s.substring(0, s.indexOf('_'));
+					if (variables.containsKey(s)) {
+						// we add the maximal index to the map
+						if (variables.get(s) < i) {
+							variables.put(s, i);
+						}
+					} else {
+						variables.put(s, i);
+					}
+				} else {
+					variables.put(s, 0);
+				}
+			}
 		}
-		
-		TreeSet<TermInformations> degreeSortedTerms = new TreeSet<TermInformations>(new Comparator<TermInformations>() {
+
+		final List<Comparator<TermInformations>> comparators = new ArrayList<Comparator<TermInformations>>();
+		comparators.add(new RecencyOrder(variables));
+		comparators.add(new Comparator<TermInformations>() {
 
 			@Override
 			public int compare(TermInformations o1, TermInformations o2) {
 				return o1.degree - o2.degree;
 			}
+
 		});
-		degreeSortedTerms.addAll(infos);
+
+		LinkedHashSet<TermInformations> tResult = new LinkedHashSet<TermInformations>();
+		final HashSet<Term> currentVariables = new HashSet<Term>();
+
+		comparators.add(new Comparator<TermInformations>() {
+
+			@Override
+			public int compare(TermInformations o1, TermInformations o2) {
+				int count1 = 0;
+				int count2 = 0;
+				for (Term var : currentVariables) {
+					o1loop: for (Term o1Var : o1.getVariables()) {
+						if (o1Var.toString().equals(var.toString())) {
+							count1++;
+							break o1loop;
+						}
+					}
+					o2loop: for (Term o2Var : o2.getVariables()) {
+						if (o2Var.toString().equals(var.toString())) {
+							count2++;
+							break o2loop;
+						}
+					}
+				}
+				return (o1.getVariables().size() - count1)
+						- (o2.getVariables().size() - count2);
+			}
+
+		});
 		
-		
+		comparators.add(new Comparator<TermInformations>() {
+
+			@Override
+			public int compare(TermInformations o1, TermInformations o2) {
+				return o1.depth - o2.depth;
+			}
+			
+		});
+
+		Comparator<TermInformations> mainComparator = new Comparator<TermInformations>() {
+
+			@Override
+			public int compare(TermInformations o1, TermInformations o2) {
+				for (Comparator<TermInformations> c : comparators) {
+					int res = c.compare(o1, o2);
+					if (res != 0) {
+						return res;
+					}
+				}
+				return o1.toString().compareTo(o2.toString());
+			}
+		};
+		TreeSet<TermInformations> sortedTerms = new TreeSet<TermInformations>(
+				mainComparator);
+
+		// while we got terms we havent added to our result, we need to reorder
+		// all informations left and take the first one
+		while (!infos.isEmpty()) {
+			sortedTerms.clear();
+			sortedTerms.addAll(infos);
+			TermInformations first = sortedTerms.first();
+
+			currentVariables.addAll(first.getVariables());
+			tResult.add(first);
+
+			sortedTerms.remove(first);
+			// we use sortedTerms as new sorting may be faster
+			infos.clear();
+			infos.addAll(sortedTerms);
+		}
+		for (TermInformations i : tResult) {
+			result.add(i.getT());
+		}
+
 		return result;
 	}
 }
