@@ -22,9 +22,9 @@ my $automaticdl_txt = "automaticDL.txt";
 my $not_provable_txt = "notProvableDL.txt";
 my $interactive_txt = "interactiveDL.txt";
 my $quit_with_error_txt = "quitWithErrorDL.txt";
-my $statfile = $absolute_bin_path . "/" . $path_to_pe . "statistics-" . hostname . ".csv";
 chdir $bin_path;
 my $absolute_bin_path = &getcwd;
+my $statfile = $absolute_bin_path . "/" . $path_to_pe . "statistics-" . hostname . ".csv";
 print "$absolute_bin_path\n";
 chdir $path_to_pe;
 
@@ -156,7 +156,7 @@ sub handlefile {
    close HANDLE;
 
    open (STS, ">>$statfile");
-   print STS "Begin `git show |grep commit` `date`\n";
+   print STS "Begin " . `git show |grep commit` . `date` . "\n";
    close(STS);
 
    foreach my $headerfile (@headerDL) {
@@ -214,7 +214,7 @@ sub handlefile {
    }
 
    open (STS, ">>$statfile");
-   print STS "END `git show |grep commit` `date`\n";
+   print STS "END " . `git show |grep commit` . `date` . "\n";
    close(STS);
 
 }
