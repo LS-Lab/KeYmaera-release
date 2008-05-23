@@ -189,7 +189,11 @@ public class IterativeReduceRule implements BuiltInRule, RuleFilter {
 						// first sweep of the algorithm keeps adding
 						// alternatives until all alternatives are in queryCache
 						if (!ante.isEmpty() && !succ.isEmpty()) {
-							if (order.compare(ante.peek(), succ.peek()) <= 0) {
+							Set<Term> next = new HashSet<Term>();
+							next.add(ante.peek());
+							next.add(succ.peek());
+							Queue<Term> order = LexicographicalOrder.getOrder(next);
+							if (order.peek() == ante.peek()) {
 								usedAnte.add(ante.poll());
 							} else {
 								usedSucc.add(succ.poll());
