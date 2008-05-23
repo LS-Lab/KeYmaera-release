@@ -4,6 +4,7 @@
 package de.uka.ilkd.key.dl.formulatools;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -40,10 +41,17 @@ import de.uka.ilkd.key.logic.op.RigidFunction;
  */
 public class LexicographicalOrder {
 
+	/**
+	 * Represents structural information about terms: (maximal) degree of variables, term depth and variable occurrence information.
+	 */
 	public static class TermInformations {
 
 		private class Info {
 			int degree = 0;
+			
+			public Info(int i) {
+				degree = i;
+			}
 		}
 
 		private int degree = 0;
@@ -56,14 +64,14 @@ public class LexicographicalOrder {
 		public TermInformations(Term t) {
 			this.t = t;
 			this.depth = t.depth();
-			collectInformations(t);
+			degree = collectInformations(t).degree;
 		}
 
 		private Info collectInformations(Term current) {
 			if (current.op() == Op.ALL || current.op() == Op.EX) {
 				Info collectInformations = collectInformations(current.sub(0));
 				// degree of the children + 1
-				degree = collectInformations.degree + 1;
+				return new Info(collectInformations.degree + 1);
 			} else if (current.op() == Op.AND
 					|| current.op() == Op.OR
 					|| current.op() == Op.IMP
@@ -79,11 +87,13 @@ public class LexicographicalOrder {
 				for (int i = 0; i < current.arity(); i++) {
 					infos.add(collectInformations(current.sub(i)));
 				}
+				Info res = new Info(0);
 				for (Info i : infos) {
-					if (i.degree > degree) {
-						degree = i.degree;
+					if (i.degree > res.degree) {
+						res.degree = i.degree;
 					}
 				}
+				return res;
 			} else if (current.op() instanceof RigidFunction) {
 				if (current.arity() > 1) {
 					if (current.op() == RealLDT.getFunctionFor(Plus.class)
@@ -94,41 +104,64 @@ public class LexicographicalOrder {
 						for (int i = 0; i < current.arity(); i++) {
 							infos.add(collectInformations(current.sub(i)));
 						}
+						Info res = new Info(0);
 						for (Info i : infos) {
-							if (i.degree > degree) {
-								degree = i.degree;
+							if (i.degree > res.degree) {
+								res.degree = i.degree;
 							}
 						}
+						return res;
 					} else if (current.op() == RealLDT
 							.getFunctionFor(Mult.class)) {
 						// get sum of degrees of the children
+						Info res = new Info(0);
 						for (int i = 0; i < current.arity(); i++) {
-							degree += collectInformations(current.sub(i)).degree;
+							res.degree += collectInformations(current.sub(i)).degree;
 						}
+						return res;
 					} else if (current.op() == RealLDT
 							.getFunctionFor(Div.class)) {
-						// for x/y get degree(x) - degree(y)
-						degree = collectInformations(current.sub(0)).degree
-								- collectInformations(current.sub(1)).degree;
+						// for x/y return maximal degree of the children
+						List<Info> infos = new ArrayList<Info>();
+						for (int i = 0; i < current.arity(); i++) {
+							infos.add(collectInformations(current.sub(i)));
+						}
+						Info res = new Info(0);
+						for (Info i : infos) {
+							if (i.degree > res.degree) {
+								res.degree = i.degree;
+							}
+						}
+						return res;
 					} else if (current.op() == RealLDT
 							.getFunctionFor(Exp.class)) {
-						degree += collectInformations(current.sub(0)).degree
-								* Integer.parseInt(current.sub(1).toString());
+						Info res = new Info(0);
+						try {
+						    res.degree += collectInformations(current.sub(0)).degree
+								* Math.abs(Integer.parseInt(current.sub(1).toString()));
+						} catch (NumberFormatException noint) {
+							// trouble case because it may not be decidable
+						    res.degree += collectInformations(current.sub(0)).degree
+							* collectInformations(current.sub(1)).degree + 10;
+						}
+						return res;
 					} else {
 						RigidFunction rf = (RigidFunction) current.op();
 						if (rf.isSkolem()) {
 							variables.add(current);
-							Info i = new Info();
+							Info i = new Info(0);
 							i.degree = 1;
 							return i;
 						}
 					}
 				} else if (current.arity() == 1) {
+					Info res = new Info(0);
 					if (current.op() == RealLDT.getFunctionFor(MinusSign.class)) {
-						degree = collectInformations(current.sub(0)).degree;
+						res.degree = collectInformations(current.sub(0)).degree;
+						return res;
 					}
 				} else if (current.arity() == 0) {
-					Info i = new Info();
+					Info i = new Info(0);
 					if (current.op() instanceof ProgramVariable
 							|| current.op() instanceof Metavariable
 							|| current.op() instanceof LogicVariable) {
@@ -169,13 +202,19 @@ public class LexicographicalOrder {
 		}
 	}
 
+	/**
+	 * Compute an ordered set of given formulas with respect to structural information
+	 * @param terms
+	 * @return
+	 */
 	public static Queue<Term> getOrder(Set<Term> terms) {
-		Queue<Term> result = new LinkedList<Term>();
 		Set<TermInformations> infos = new HashSet<TermInformations>();
 		TreeMap<String, Integer> variables = new TreeMap<String, Integer>();
+		// collect term information and recency information
 		for (Term t : terms) {
 			TermInformations termInformations = new TermInformations(t);
 			infos.add(termInformations);
+			// collect information for recency order
 			for (Term var : termInformations.getVariables()) {
 				String s = var.op().toString();
 				if (s.contains("_")) {
@@ -197,8 +236,11 @@ public class LexicographicalOrder {
 			}
 		}
 
+		// lexicographical order of comparators in the following list
 		final List<Comparator<TermInformations>> comparators = new ArrayList<Comparator<TermInformations>>();
+		// recency order, i.e., how new the symbols are
 		comparators.add(new RecencyOrder(variables));
+		// degree order: smaller degrees first
 		comparators.add(new Comparator<TermInformations>() {
 
 			@Override
@@ -208,8 +250,8 @@ public class LexicographicalOrder {
 
 		});
 
-		LinkedHashSet<TermInformations> tResult = new LinkedHashSet<TermInformations>();
-		final HashSet<Term> currentVariables = new HashSet<Term>();
+		// the dynamically changing set of variables that are already included in the current subsequent
+		final Set<Term> currentVariables = new HashSet<Term>();
 
 		comparators.add(new Comparator<TermInformations>() {
 
@@ -236,7 +278,8 @@ public class LexicographicalOrder {
 			}
 
 		});
-		
+
+		// term depth order: shallow terms first
 		comparators.add(new Comparator<TermInformations>() {
 
 			@Override
@@ -246,6 +289,7 @@ public class LexicographicalOrder {
 			
 		});
 
+		// lexicographical order of the above suborders plus alphabetical order for breaking ties
 		Comparator<TermInformations> mainComparator = new Comparator<TermInformations>() {
 
 			@Override
@@ -259,26 +303,21 @@ public class LexicographicalOrder {
 				return o1.toString().compareTo(o2.toString());
 			}
 		};
-		TreeSet<TermInformations> sortedTerms = new TreeSet<TermInformations>(
-				mainComparator);
+		
+		List<TermInformations> ordered = new ArrayList<TermInformations>(infos);
 
+		Queue<Term> result = new LinkedList<Term>();
 		// while we got terms we havent added to our result, we need to reorder
 		// all informations left and take the first one
 		while (!infos.isEmpty()) {
-			sortedTerms.clear();
-			sortedTerms.addAll(infos);
-			TermInformations first = sortedTerms.first();
+			// quick re-sort
+			Collections.sort(ordered, mainComparator);
+			// get minimum
+			TermInformations first = ordered.remove(0);
 
+			// implicitly changes comparator, so re-sort before next use in loop
 			currentVariables.addAll(first.getVariables());
-			tResult.add(first);
-
-			sortedTerms.remove(first);
-			// we use sortedTerms as new sorting may be faster
-			infos.clear();
-			infos.addAll(sortedTerms);
-		}
-		for (TermInformations i : tResult) {
-			result.add(i.getT());
+			result.add(first.getT());
 		}
 
 		return result;
