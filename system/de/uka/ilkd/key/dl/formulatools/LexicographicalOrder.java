@@ -216,7 +216,7 @@ public class LexicographicalOrder {
 			infos.add(termInformations);
 			// collect information for recency order
 			for (Term var : termInformations.getVariables()) {
-				String s = var.op().toString();
+				String s = var.op().name().toString();
 				if (s.contains("_")) {
 					int i = Integer.parseInt(s.substring(s.indexOf('_') + 1));
 					i++;
