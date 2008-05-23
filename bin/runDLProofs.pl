@@ -73,12 +73,17 @@ my %successes;
 my %failures;
 my %erroneous;
 
+
+ open (STS, ">>$statfile");
+ print STS "Begin " . `git show |grep commit` . `date` . "\n";
+ close(STS);
+
  foreach my $dotkey (@automatic_DL) {
    $dotkey = &fileline($dotkey);
 	if ("$dotkey" ne "") {
 		handlefile($dotkey, 0);
 	}
- }
+  }
 
   foreach my $dotkey (@not_provable) {
     $dotkey = &fileline($dotkey);
@@ -87,6 +92,9 @@ my %erroneous;
 	}
   }
 
+  open (STS, ">>$statfile");
+  print STS "END " . `git show |grep commit` . `date` . "\n";
+  close(STS);
 
 #  foreach my $dotkey (@interactive) {
 #    $dotkey = &fileline($dotkey);
@@ -155,10 +163,6 @@ sub handlefile {
    my @old = <HANDLE>;
    close HANDLE;
 
-   open (STS, ">>$statfile");
-   print STS "Begin " . `git show |grep commit` . `date` . "\n";
-   close(STS);
-
    foreach my $headerfile (@headerDL) {
        if ($headerfile =~ /#$/) {
        } else {
@@ -212,10 +216,6 @@ sub handlefile {
        }
    }
    }
-
-   open (STS, ">>$statfile");
-   print STS "END " . `git show |grep commit` . `date` . "\n";
-   close(STS);
 
 }
 
