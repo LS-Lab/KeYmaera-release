@@ -166,25 +166,24 @@ public class LexicographicalOrder {
 					}
 				} else if (current.arity() == 0) {
 					Info i = new Info(0);
-					if (current.op() instanceof ProgramVariable
-							|| current.op() instanceof LocationVariable
-							|| current.op() instanceof Metavariable
-							|| current.op() instanceof LogicVariable) {
+
+					try {
+						Integer.parseInt(current.op().toString());
+						i.degree = 0;
+						return i;
+					} catch (Exception e) {
 						variables.add(current);
 						i.degree = 1;
 						return i;
-					} else if (current.op() instanceof RigidFunction) {
-						try {
-							Integer.parseInt(current.op().toString());
-							i.degree = 0;
-							return i;
-						} catch (Exception e) {
-							variables.add(current);
-							i.degree = 1;
-							return i;
-						}
 					}
 				}
+			} else if (current.op() instanceof ProgramVariable
+					|| current.op() instanceof Metavariable
+					|| current.op() instanceof LogicVariable) {
+				Info i = new Info(0);
+				variables.add(current);
+				i.degree = 1;
+				return i;
 			}
 			throw new IllegalArgumentException("Dont know what to do with "
 					+ current.op() + " of class " + current.op().getClass());
@@ -318,7 +317,7 @@ public class LexicographicalOrder {
 		Queue<Term> result = new LinkedList<Term>();
 		// while we got terms we havent added to our result, we need to reorder
 		// all informations left and take the first one
-		while (!infos.isEmpty()) {
+		while (!ordered.isEmpty()) {
 			// quick re-sort
 			Collections.sort(ordered, mainComparator);
 			// get minimum
