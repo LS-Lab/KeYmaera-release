@@ -8,6 +8,10 @@ import de.uka.ilkd.key.logic.op.ProgramVariable;
 
 public class FilterVariableCollector extends FilterDecorator{
 
+	public FilterVariableCollector() {
+		super(null);
+	}
+	
 	public FilterVariableCollector(IFilter decoratedFilter) {
 		super(decoratedFilter);
 	}

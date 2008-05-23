@@ -59,10 +59,12 @@ public class VariableOrderCreator {
 		 */
 		@Override
 		public int compare(Term o1, Term o2) {
-			
-			Set<Term> terms1 = AllCollector.getItemSet(o1).filter( new FilterVariableCollector(null)).getVariableTerms();
-			Set<Term> terms2 = AllCollector.getItemSet(o1).filter( new FilterVariableCollector(null)).getVariableTerms();
-			
+
+			Set<Term> terms1 = AllCollector.getItemSet(o1).filter(
+					new FilterVariableCollector()).getVariableTerms();
+			Set<Term> terms2 = AllCollector.getItemSet(o1).filter(
+					new FilterVariableCollector()).getVariableTerms();
+
 			int[] one = rate(terms1);
 			int[] two = rate(terms2);
 			Term newer = null;
@@ -174,7 +176,8 @@ public class VariableOrderCreator {
 		TreeMap<String, Integer> variables = new TreeMap<String, Integer>();
 
 		while (iterator.hasNext()) {
-			Set<String> variableTerms = AllCollector.getItemSet( iterator.next().formula()).filter( 
+			Set<String> variableTerms = AllCollector.getItemSet(
+					iterator.next().formula()).filter(
 					new FilterVariableCollector(null)).getVariables();
 			for (String s : variableTerms) {
 				if (s.contains("_")) {
