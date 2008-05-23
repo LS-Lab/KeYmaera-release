@@ -30,6 +30,7 @@ import de.uka.ilkd.key.dl.model.Mult;
 import de.uka.ilkd.key.dl.model.Plus;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.op.Equality;
+import de.uka.ilkd.key.logic.op.LocationVariable;
 import de.uka.ilkd.key.logic.op.LogicVariable;
 import de.uka.ilkd.key.logic.op.Metavariable;
 import de.uka.ilkd.key.logic.op.Op;
@@ -42,13 +43,14 @@ import de.uka.ilkd.key.logic.op.RigidFunction;
 public class LexicographicalOrder {
 
 	/**
-	 * Represents structural information about terms: (maximal) degree of variables, term depth and variable occurrence information.
+	 * Represents structural information about terms: (maximal) degree of
+	 * variables, term depth and variable occurrence information.
 	 */
 	public static class TermInformations {
 
 		private class Info {
 			int degree = 0;
-			
+
 			public Info(int i) {
 				degree = i;
 			}
@@ -137,12 +139,14 @@ public class LexicographicalOrder {
 							.getFunctionFor(Exp.class)) {
 						Info res = new Info(0);
 						try {
-						    res.degree += collectInformations(current.sub(0)).degree
-								* Math.abs(Integer.parseInt(current.sub(1).toString()));
+							res.degree += collectInformations(current.sub(0)).degree
+									* Math.abs(Integer.parseInt(current.sub(1)
+											.toString()));
 						} catch (NumberFormatException noint) {
 							// trouble case because it may not be decidable
-						    res.degree += collectInformations(current.sub(0)).degree
-							* collectInformations(current.sub(1)).degree + 10;
+							res.degree += collectInformations(current.sub(0)).degree
+									* collectInformations(current.sub(1)).degree
+									+ 10;
 						}
 						return res;
 					} else {
@@ -163,6 +167,7 @@ public class LexicographicalOrder {
 				} else if (current.arity() == 0) {
 					Info i = new Info(0);
 					if (current.op() instanceof ProgramVariable
+							|| current.op() instanceof LocationVariable
 							|| current.op() instanceof Metavariable
 							|| current.op() instanceof LogicVariable) {
 						variables.add(current);
@@ -203,7 +208,9 @@ public class LexicographicalOrder {
 	}
 
 	/**
-	 * Compute an ordered set of given formulas with respect to structural information
+	 * Compute an ordered set of given formulas with respect to structural
+	 * information
+	 * 
 	 * @param terms
 	 * @return
 	 */
@@ -250,7 +257,8 @@ public class LexicographicalOrder {
 
 		});
 
-		// the dynamically changing set of variables that are already included in the current subsequent
+		// the dynamically changing set of variables that are already included
+		// in the current subsequent
 		final Set<Term> currentVariables = new HashSet<Term>();
 
 		comparators.add(new Comparator<TermInformations>() {
@@ -286,10 +294,11 @@ public class LexicographicalOrder {
 			public int compare(TermInformations o1, TermInformations o2) {
 				return o1.depth - o2.depth;
 			}
-			
+
 		});
 
-		// lexicographical order of the above suborders plus alphabetical order for breaking ties
+		// lexicographical order of the above suborders plus alphabetical order
+		// for breaking ties
 		Comparator<TermInformations> mainComparator = new Comparator<TermInformations>() {
 
 			@Override
@@ -303,7 +312,7 @@ public class LexicographicalOrder {
 				return o1.toString().compareTo(o2.toString());
 			}
 		};
-		
+
 		List<TermInformations> ordered = new ArrayList<TermInformations>(infos);
 
 		Queue<Term> result = new LinkedList<Term>();
