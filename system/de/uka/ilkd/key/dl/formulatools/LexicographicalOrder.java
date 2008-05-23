@@ -7,16 +7,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.TreeSet;
 
-import de.uka.ilkd.key.dl.formulatools.collector.AllCollector;
-import de.uka.ilkd.key.dl.formulatools.collector.filter.FilterVariableCollector;
 import de.uka.ilkd.key.dl.logic.ldt.RealLDT;
 import de.uka.ilkd.key.dl.model.Div;
 import de.uka.ilkd.key.dl.model.Exp;
@@ -28,9 +24,9 @@ import de.uka.ilkd.key.dl.model.Minus;
 import de.uka.ilkd.key.dl.model.MinusSign;
 import de.uka.ilkd.key.dl.model.Mult;
 import de.uka.ilkd.key.dl.model.Plus;
+import de.uka.ilkd.key.dl.model.Unequals;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.op.Equality;
-import de.uka.ilkd.key.logic.op.LocationVariable;
 import de.uka.ilkd.key.logic.op.LogicVariable;
 import de.uka.ilkd.key.logic.op.Metavariable;
 import de.uka.ilkd.key.logic.op.Op;
@@ -78,11 +74,13 @@ public class LexicographicalOrder {
 					|| current.op() == Op.OR
 					|| current.op() == Op.IMP
 					|| current.op() == Op.EQV
+					|| current.op() == Op.NOT
 					|| current.op() == RealLDT.getFunctionFor(Greater.class)
 					|| current.op() == RealLDT
 							.getFunctionFor(GreaterEquals.class)
 					|| current.op() == RealLDT.getFunctionFor(LessEquals.class)
 					|| current.op() == RealLDT.getFunctionFor(Less.class)
+					|| current.op() == RealLDT.getFunctionFor(Unequals.class)
 					|| current.op() instanceof Equality) {
 				// get maximum degree of the children
 				List<Info> infos = new ArrayList<Info>();
