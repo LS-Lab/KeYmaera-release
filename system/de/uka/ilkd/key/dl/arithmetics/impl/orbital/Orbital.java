@@ -42,7 +42,6 @@ import orbital.math.Real;
 import orbital.math.Scalar;
 import orbital.math.Symbol;
 import orbital.math.UnivariatePolynomial;
-import orbital.math.ValueFactory;
 import orbital.math.Values;
 import orbital.math.functional.Function;
 import orbital.math.functional.Operations;
