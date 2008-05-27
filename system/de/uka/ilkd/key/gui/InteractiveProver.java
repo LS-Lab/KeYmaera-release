@@ -10,24 +10,13 @@
 
 package de.uka.ilkd.key.gui;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
-import java.lang.reflect.InvocationTargetException;
-import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
-import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
 import de.uka.ilkd.key.logic.Constraint;
 import de.uka.ilkd.key.logic.PIOPathIterator;
 import de.uka.ilkd.key.logic.PosInOccurrence;
@@ -37,7 +26,6 @@ import de.uka.ilkd.key.proof.*;
 import de.uka.ilkd.key.rule.*;
 import de.uka.ilkd.key.strategy.AutomatedRuleApplicationManager;
 import de.uka.ilkd.key.strategy.FocussedRuleApplicationManager;
-import de.uka.ilkd.key.strategy.QueueRuleApplicationManager;
 import de.uka.ilkd.key.util.Debug;
 
 public class InteractiveProver {
@@ -155,9 +143,11 @@ public class InteractiveProver {
      * @param app
      * @param goal
      */
-    public void applyInteractive ( final RuleApp app, final Goal goal ) {
+    public void applyInteractive ( RuleApp app, Goal goal ) {
         goal.node().getNodeInfo().setInteractiveRuleApplication(true);
+
         ListOfGoal goalList = goal.apply(app);
+        
         
         
         if (!getProof ().closed ()) {
