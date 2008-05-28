@@ -297,18 +297,18 @@ public class SumOfSquaresChecker {
 		for (Term t : cla.g) {
 			Fraction p = createPoly(t.sub(0), vars);
 			if(p.numerator().isOne()) {
-				polyF.add((Polynomial) p.denominator());
+				polyG.add((Polynomial) p.denominator());
 			} else {
-				polyF.add((Polynomial) p.denominator().multiply(p.numerator()));
+				polyG.add((Polynomial) p.denominator().multiply(p.numerator()));
 				polyG.add((Polynomial) p.numerator());
 			}
 		}
 		for (Term t : cla.h) {
 			Fraction p = createPoly(t.sub(0), vars);
 			if(p.numerator().isOne()) {
-				polyF.add((Polynomial) p.denominator());
+				polyH.add((Polynomial) p.denominator());
 			} else {
-				polyF.add((Polynomial) p.denominator().multiply(p.numerator()));
+				polyH.add((Polynomial) p.denominator().multiply(p.numerator()));
 				polyG.add((Polynomial) p.numerator());
 			}
 		}
