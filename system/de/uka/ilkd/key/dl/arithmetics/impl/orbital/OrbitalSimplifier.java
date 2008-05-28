@@ -101,24 +101,25 @@ public class OrbitalSimplifier implements ISimplifier {
 
 	private boolean translate(Term form) {
 		if (form.op() == Op.AND) {
-			boolean result = true;
 			for (int i = 0; i < form.arity(); i++) {
-				result = result && translate(form.sub(i));
+				if (!translate(form.sub(i))) {
+					return false;
+				}
 			}
-			return result;
+			return true;
 		} else if (form.op() == Op.OR) {
-			boolean result = false;
 			for (int i = 0; i < form.arity(); i++) {
-				result = result || translate(form.sub(i));
+				if (translate(form.sub(i))) {
+					return true;
+				}
 			}
-			return result;
+			return false;
 		} else if (form.op() == Op.IMP) {
 			assert (form.arity() == 2);
-			return (!translate(form.sub(0))) || translate(form.sub(0));
+			return (!translate(form.sub(0))) || translate(form.sub(1));
 		} else if (form.op() == Op.EQV) {
 			assert (form.arity() == 2);
-			return (translate(form.sub(0))) && translate(form.sub(0))
-					|| (!translate(form.sub(0))) && (!translate(form.sub(0)));
+			return translate(form.sub(0)) == translate(form.sub(1));
 		} else if (form.op() instanceof Function
 				|| form.op() instanceof Equality) {
 			Arithmetic[] args = new Arithmetic[form.arity()];
