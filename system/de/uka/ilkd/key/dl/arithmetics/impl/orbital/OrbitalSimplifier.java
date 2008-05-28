@@ -34,6 +34,8 @@ import de.uka.ilkd.key.logic.NamespaceSet;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.TermBuilder;
 import de.uka.ilkd.key.logic.op.Equality;
+import de.uka.ilkd.key.logic.op.Function;
+import de.uka.ilkd.key.logic.op.Op;
 import de.uka.ilkd.key.logic.op.RigidFunction;
 
 /**
@@ -42,14 +44,15 @@ import de.uka.ilkd.key.logic.op.RigidFunction;
  */
 public class OrbitalSimplifier implements ISimplifier {
 
-    /**
-     * 
-     */
-    public OrbitalSimplifier(Node node) {
-        Map<String, String> params = new HashMap<String, String>();
-        params.put("orbital.math.Scalar.precision", "big");
-        Values.setDefault(Values.getInstance(params));
-    }
+	/**
+	 * 
+	 */
+	public OrbitalSimplifier(Node node) {
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("orbital.math.Scalar.precision", "big");
+		Values.setDefault(Values.getInstance(params));
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -85,41 +88,63 @@ public class OrbitalSimplifier implements ISimplifier {
 			throws RemoteException, SolverException {
 		// TODO: use assumptions
 		try {
-			if(translate(form)) {
+			if (translate(form)) {
 				return TermBuilder.DF.tt();
 			} else {
-				return TermBuilder.DF.ff();				
+				return TermBuilder.DF.ff();
 			}
-		} catch(Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return form;
 	}
 
 	private boolean translate(Term form) {
-		Arithmetic[] args = new Arithmetic[form.arity()]; 
-		for(int i = 0; i < form.arity(); i++) {
-			args[i] = translateArithmetic(form.sub(i));
+		if (form.op() == Op.AND) {
+			boolean result = true;
+			for (int i = 0; i < form.arity(); i++) {
+				result = result && translate(form.sub(i));
+			}
+			return result;
+		} else if (form.op() == Op.OR) {
+			boolean result = false;
+			for (int i = 0; i < form.arity(); i++) {
+				result = result || translate(form.sub(i));
+			}
+			return result;
+		} else if (form.op() == Op.IMP) {
+			assert (form.arity() == 2);
+			return (!translate(form.sub(0))) || translate(form.sub(0));
+		} else if (form.op() == Op.EQV) {
+			assert (form.arity() == 2);
+			return (translate(form.sub(0))) && translate(form.sub(0))
+					|| (!translate(form.sub(0))) && (!translate(form.sub(0)));
+		} else if (form.op() instanceof Function
+				|| form.op() instanceof Equality) {
+			Arithmetic[] args = new Arithmetic[form.arity()];
+			for (int i = 0; i < form.arity(); i++) {
+				args[i] = translateArithmetic(form.sub(i));
+			}
+			if (form.op() == RealLDT.getFunctionFor(Greater.class)) {
+				assert (form.arity() == 2);
+				return Operations.greater.apply(args[0], args[1]);
+			} else if (form.op() == RealLDT.getFunctionFor(GreaterEquals.class)) {
+				assert (form.arity() == 2);
+				return Operations.greaterEqual.apply(args[0], args[1]);
+			} else if (form.op() == RealLDT.getFunctionFor(LessEquals.class)) {
+				assert (form.arity() == 2);
+				return Operations.lessEqual.apply(args[0], args[1]);
+			} else if (form.op() == RealLDT.getFunctionFor(Less.class)) {
+				assert (form.arity() == 2);
+				return Operations.less.apply(args[0], args[1]);
+			} else if (form.op() == RealLDT.getFunctionFor(Unequals.class)) {
+				assert (form.arity() == 2);
+				return Operations.unequal.apply(args[0], args[1]);
+			} else if (form.op() instanceof Equality) {
+				assert (form.arity() == 2);
+				return Operations.equal.apply(args[0], args[1]);
+			}
 		}
-		if(form.op() == RealLDT.getFunctionFor(Greater.class)) {
-			assert (form.arity() == 2);
-			return Operations.greater.apply(args[0], args[1]);
-		} else if(form.op() == RealLDT.getFunctionFor(GreaterEquals.class)) {
-			assert (form.arity() == 2);
-			return Operations.greaterEqual.apply(args[0], args[1]);
-		} else if(form.op() == RealLDT.getFunctionFor(LessEquals.class)) {
-			assert (form.arity() == 2);
-			return Operations.lessEqual.apply(args[0], args[1]);
-		} else if(form.op() == RealLDT.getFunctionFor(Less.class)) {
-			assert (form.arity() == 2);
-			return Operations.less.apply(args[0], args[1]);
-		} else if(form.op() == RealLDT.getFunctionFor(Unequals.class)) {
-			assert (form.arity() == 2);
-			return Operations.unequal.apply(args[0], args[1]);
-		} else if(form.op() instanceof Equality) {
-			assert (form.arity() == 2);
-			return Operations.equal.apply(args[0], args[1]);
-		} 
 		throw new IllegalArgumentException("Dont know how to translate "
 				+ form.op() + " of class " + form.op().getClass());
 	}
