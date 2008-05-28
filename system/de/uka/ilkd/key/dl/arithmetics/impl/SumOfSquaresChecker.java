@@ -29,6 +29,7 @@ import java.util.ListIterator;
 import java.util.Set;
 
 import orbital.math.Arithmetic;
+import orbital.math.Fraction;
 import orbital.math.Integer;
 import orbital.math.Polynomial;
 import orbital.math.Real;
@@ -228,14 +229,15 @@ public class SumOfSquaresChecker {
 		System.out.println("F contains: "); // XXX
 		for (Term t : cla.f) {
 			System.out.println(t);// XXX
-			
+
 			// added by Timo Michelsen
 			// BEGIN
 			FilterVariableSet set = AllCollector.getItemSet(t);
-			FilterVariableSet set2 = set.filter( new FilterVariableCollector(null));
+			FilterVariableSet set2 = set.filter(new FilterVariableCollector(
+					null));
 			variables.addAll(set2.getVariables());
 			// END
-			
+
 			// replaced:
 			// variables.addAll(VariableCollector.getVariables(t));
 		}
@@ -246,10 +248,11 @@ public class SumOfSquaresChecker {
 			// added by Timo Michelsen
 			// BEGIN
 			FilterVariableSet set = AllCollector.getItemSet(t);
-			FilterVariableSet set2 = set.filter( new FilterVariableCollector(null));
+			FilterVariableSet set2 = set.filter(new FilterVariableCollector(
+					null));
 			variables.addAll(set2.getVariables());
 			// END
-			
+
 			// replaced:
 			// variables.addAll(VariableCollector.getVariables(t));
 		}
@@ -260,10 +263,11 @@ public class SumOfSquaresChecker {
 			// added by Timo Michelsen
 			// BEGIN
 			FilterVariableSet set = AllCollector.getItemSet(t);
-			FilterVariableSet set2 = set.filter( new FilterVariableCollector(null));
+			FilterVariableSet set2 = set.filter(new FilterVariableCollector(
+					null));
 			variables.addAll(set2.getVariables());
 			// END
-			
+
 			// replaced:
 			// variables.addAll(VariableCollector.getVariables(t));
 		}
@@ -281,13 +285,16 @@ public class SumOfSquaresChecker {
 		HashSet<Polynomial> polyH = new HashSet<Polynomial>();
 
 		for (Term t : cla.f) {
-			polyF.add(createPoly(t.sub(0), vars));
+			Fraction p = createPoly(t.sub(0), vars);
+			polyF.add((Polynomial) p.denominator().multiply(p.numerator()));
 		}
 		for (Term t : cla.g) {
-			polyG.add(createPoly(t.sub(0), vars));
+			Fraction p = createPoly(t.sub(0), vars);
+			polyG.add((Polynomial) p.denominator().multiply(p.numerator()));
 		}
 		for (Term t : cla.h) {
-			polyH.add(createPoly(t.sub(0), vars));
+			Fraction p = createPoly(t.sub(0), vars);
+			polyH.add((Polynomial) p.denominator().multiply(p.numerator()));
 		}
 		return new PolynomialClassification<Polynomial>(polyF, polyG, polyH);
 	}
@@ -625,24 +632,26 @@ public class SumOfSquaresChecker {
 	 * @param variables
 	 * @return
 	 */
-	private Polynomial createPoly(Term sub, List<String> variables) {
+	private Fraction createPoly(Term sub, List<String> variables) {
 		System.out.println(sub);// XXX
 		try {
 			int[] size = new int[variables.size()];
 			if (sub.arity() == 0) {
 				if (variables.contains(sub.op().name().toString())) {
 					size[variables.indexOf(sub.op().name().toString())] = 1;
-					return Values.getDefault().MONOMIAL(size);
+					return Values.getDefault().fraction(
+							Values.getDefault().MONOMIAL(size),
+							Values.getDefault().MONOMIAL(size).one());
 				} else {
-					return Values.getDefault().MONOMIAL(
+					return Values.getDefault().fraction(Values.getDefault().MONOMIAL(
 							Values.getDefault().valueOf(
 									new BigDecimal(sub.op().name().toString())
-											.doubleValue()), size);
+											.doubleValue()), size), Values.getDefault().MONOMIAL(size).one());
 				}
 			} else {
 				if (sub.arity() == 2) {
-					Polynomial p = createPoly(sub.sub(0), variables);
-					Polynomial q = createPoly(sub.sub(1), variables);
+					Fraction p = createPoly(sub.sub(0), variables);
+					Fraction q = createPoly(sub.sub(1), variables);
 					System.out.println("p = " + p + " of type " + p.getClass());// XXX
 					System.out.println("with q = " + q + " of type "
 							+ q.getClass());// XXX
@@ -653,23 +662,20 @@ public class SumOfSquaresChecker {
 					} else if (sub.op().equals(getFunction("mul"))) {
 						return p.multiply(q);
 					} else if (sub.op().equals(getFunction("div"))) {
-						// aufmultiplizieren noetig falls der nenner
-						// komplizierter ist
-						return (Polynomial) p.multiply(q
-								.power(Values.MINUS_ONE));
+						return (Fraction) p.divide(q);
 					} else if (sub.op().equals(getFunction("exp"))) {
 						try {
-							return (Polynomial) p.power(Values.getDefault()
+							return (Fraction) p.power(Values.getDefault()
 									.valueOf(
 											new BigDecimal(sub.sub(1).op()
 													.name().toString())));
 						} catch (Exception e) {
-							return (Polynomial) p.power(q);
+							return (Fraction) p.power(q);
 						}
 					}
 				} else if (sub.arity() == 1) {
 					if (sub.op().equals(getFunction("neg"))) {
-						return (Polynomial) createPoly(sub.sub(0), variables)
+						return (Fraction) createPoly(sub.sub(0), variables)
 								.multiply(
 										Values.getDefault().MONOMIAL(
 												Values.MINUS_ONE, size));
