@@ -43,21 +43,15 @@ import de.uka.ilkd.key.dl.arithmetics.ICounterExampleGenerator;
 import de.uka.ilkd.key.dl.arithmetics.IODESolver;
 import de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator;
 import de.uka.ilkd.key.dl.arithmetics.ISimplifier;
-import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
 import de.uka.ilkd.key.dl.arithmetics.abort.AbortBridge;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ConnectionProblemException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ServerStatusProblemException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
-import de.uka.ilkd.key.dl.arithmetics.exceptions.UnableToConvertInputException;
-import de.uka.ilkd.key.dl.arithmetics.exceptions.UnsolveableException;
-import de.uka.ilkd.key.dl.gui.AutomodeListener;
 import de.uka.ilkd.key.dl.model.DiffSystem;
-import de.uka.ilkd.key.gui.AutoModeListener;
 import de.uka.ilkd.key.gui.Main;
 import de.uka.ilkd.key.logic.NamespaceSet;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.op.LogicVariable;
-import de.uka.ilkd.key.proof.ProofEvent;
 
 /**
  * MathSolver interface for the Mathematica integration.
@@ -85,10 +79,12 @@ public class Mathematica implements ICounterExampleGenerator, IODESolver,
             if (!Main.batchMode) {
                 String abortProgramOptions = "key-host=" + "localhost"
                         + " key-port=" + port;
-                final Process process = Runtime.getRuntime().exec(
-                        System.getProperty("key.home") + File.separator + "bin"
-                                + File.separator + "runAbortProgram "
-                                + abortProgramOptions);
+                String string = System.getProperty("key.home") + File.separator + "bin"
+				        + File.separator + "runAbortProgram "
+				        + abortProgramOptions;
+                System.out.println("Trying to execute: " + string);
+				final Process process = Runtime.getRuntime().exec(
+                        string);
                 Runtime.getRuntime().addShutdownHook(new Thread() {
                     @Override
                     public void run() {
