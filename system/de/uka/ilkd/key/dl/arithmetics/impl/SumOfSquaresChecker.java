@@ -20,6 +20,7 @@
 package de.uka.ilkd.key.dl.arithmetics.impl;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -665,20 +666,18 @@ public class SumOfSquaresChecker {
 						return (Fraction) p.divide(q);
 					} else if (sub.op().equals(getFunction("exp"))) {
 						try {
-							return (Fraction) p.power(Values.getDefault()
+							Integer number = Values.getDefault()
 									.valueOf(
-											new BigDecimal(sub.sub(1).op()
-													.name().toString())));
-						} catch (Exception e) {
+											new BigInteger(sub.sub(1).op()
+													.name().toString()));
+							return (Fraction) p.power(number);
+						} catch (NumberFormatException e) {
 							return (Fraction) p.power(q);
 						}
 					}
 				} else if (sub.arity() == 1) {
 					if (sub.op().equals(getFunction("neg"))) {
-						return (Fraction) createPoly(sub.sub(0), variables)
-								.multiply(
-										Values.getDefault().MONOMIAL(
-												Values.MINUS_ONE, size));
+						return (Fraction) createPoly(sub.sub(0), variables).minus();
 					}
 				}
 			}
