@@ -40,6 +40,7 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
 import orbital.awt.CustomizerViewController;
+import de.uka.ilkd.key.dl.arithmetics.ISimplifier;
 import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
 import de.uka.ilkd.key.dl.arithmetics.abort.AbortBridge;
 import de.uka.ilkd.key.dl.arithmetics.abort.ServerConsole;
@@ -160,7 +161,10 @@ public class DLInitializer {
         MathSolverManager.getQuantifierEliminators();
         try {
             // We just call a method to check if the server is alive
-            MathSolverManager.getSimplifier("Mathematica").getQueryCount();
+            ISimplifier simplifier = MathSolverManager.getSimplifier("Mathematica");
+            if(simplifier != null) {
+            	simplifier.getQueryCount();
+            }
         } catch (RemoteException e1) {
             try {
                 KernelLinkWrapper.main(new String[0]);

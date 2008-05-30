@@ -427,6 +427,32 @@ dist:	branding all
 	@echo "[deleting distribution directory structure]"
 	@rm -rf dist
 
+dist-keymaera:	branding all
+	@echo "[creating distribution directory structure]"
+	@mkdir -p ../dist
+	@mkdir -p dist/key/
+	@cp -r $(BINARYPATH)/* dist/key/
+	@cp -r $(RESOURCEPATH)/* dist/key/
+	@mkdir -p dist/key/examples/hybrid
+	@cp -r ../examples/hybrid/groebner_basis dist/key/examples/hybrid
+# for setup.jar
+	@mkdir -p dist/setup/de/uka/ilkd/key/util/
+	@cp -r $(BINARYPATH)/de/uka/ilkd/key/util/* dist/setup/de/uka/ilkd/key/util/
+	@cp -r $(RESOURCEPATH)/de/uka/ilkd/key/util/install/* dist/setup/de/uka/ilkd/key/util/install/
+	@mkdir -p dist/setup/de/uka/ilkd/key/gui/
+	@cp -r $(BINARYPATH)/de/uka/ilkd/key/gui/IconFactory* dist/setup/de/uka/ilkd/key/gui/
+	@cp -r $(BINARYPATH)/de/uka/ilkd/key/gui/KeYFolderIcon* dist/setup/de/uka/ilkd/key/gui/
+	@cp -r $(BINARYPATH)/de/uka/ilkd/key/gui/KeYControlIcon* dist/setup/de/uka/ilkd/key/gui/
+	@cp -r $(RESOURCEPATH)/de/uka/ilkd/key/gui/* dist/setup/de/uka/ilkd/key/gui/
+	@find dist -name '*~' -exec rm \{\} \; 
+	@echo "[creating jar-file]"
+	@jar cfm keymaera.jar resources/MANIFEST.MF -C dist/key/ .
+	@jar cfm setup.jar resources/de/uka/ilkd/key/util/install/MANIFEST.MF -C dist/setup/ .
+	@tar -czvf ../dist/KeY-$(KEY_VERSION_LONG).tgz keymaera.jar setup.jar -C ../ LICENSE.TXT
+	@cp ../README.install.bytecode ../dist/README-$(KEY_VERSION_LONG).txt
+	@echo "[deleting distribution directory structure]"
+	@rm -rf dist
+
 .PHONY: jar
 jar:	all
 	@echo "[creating jar-file]"
