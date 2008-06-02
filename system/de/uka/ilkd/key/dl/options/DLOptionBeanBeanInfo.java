@@ -87,11 +87,11 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
                     createDescriptor(
                             "constantTimeoutIncreaseFactor",
                             "constant timeout increase",
-                            "the constant part of the IBC timeout. That is, the part c of t_new = a*t_old^2 + b*t_old + c (in seconds)"),
+                            "the constant part of the IBC timeout. That is, the part c of t_new = a*t_old^2 + b*t_old + c (in seconds)", false, false, true),
                     createDescriptor(
                             "quadraticTimeoutIncreaseFactor",
                             "quadratic timeout increase",
-                            "the quadratic part of the IBC timeout. That is, the part c of t_new = a*t_old^2 + b*t_old + c (in seconds)"),
+                            "the quadratic part of the IBC timeout. That is, the part c of t_new = a*t_old^2 + b*t_old + c (in seconds)", false, false, true),
                     //
                     createDescriptor("diffSat", "Differential Saturation",
                             "select the desired automation degree of Differential Saturation",

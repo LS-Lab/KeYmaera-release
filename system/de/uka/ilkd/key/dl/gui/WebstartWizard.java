@@ -41,7 +41,7 @@ public class WebstartWizard {
 		JOptionPane
 				.showMessageDialog(
 						null,
-						"This is a crippled version of the KeYmaera prover\n Quantifier elimination support is not available. Instead groebner basis are calculated.\n This does only work for equations.");
+						"This is a crippled version of the KeYmaera prover. For the full version of KeYmaera (including quantifier elimination support),\n Mathematica is necessary and for that reason you have to install KeYmaera to the harddrive\n instead of using webstart.\n Sorry for the inconvinience.\n  Instead groebner basis are calculated.\n This does only work for equations.");
 		InputStream resourceAsStream = MainFrame.class
 				.getResourceAsStream("/examples/hybrid/groebner_basis/accel-simple.key");
 		try {
