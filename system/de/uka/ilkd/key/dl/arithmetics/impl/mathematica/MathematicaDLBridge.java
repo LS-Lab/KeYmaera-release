@@ -751,7 +751,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 		Set<Expr> h = new HashSet<Expr>();
 		Set<Expr> vars = new HashSet<Expr>();
 		for (Term t : terms.f) {
-			f.add(Term2ExprConverter.convert2Expr(t));
+			f.add(Term2ExprConverter.convert2Expr(t.sub(0)));
 			Set<String> variables = AllCollector.getItemSet(t).filter(
 					new FilterVariableCollector(null)).getVariables();
 			for (String var : variables) {
@@ -760,7 +760,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 			}
 		}
 		for (Term t : terms.g) {
-			g.add(Term2ExprConverter.convert2Expr(t));
+			g.add(Term2ExprConverter.convert2Expr(t.sub(0)));
 			Set<String> variables = AllCollector.getItemSet(t).filter(
 					new FilterVariableCollector(null)).getVariables();
 			for (String var : variables) {
@@ -769,7 +769,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 			}
 		}
 		for (Term t : terms.h) {
-			h.add(Term2ExprConverter.convert2Expr(t));
+			h.add(Term2ExprConverter.convert2Expr(t.sub(0)));
 			Set<String> variables = AllCollector.getItemSet(t).filter(
 					new FilterVariableCollector(null)).getVariables();
 			for (String var : variables) {
