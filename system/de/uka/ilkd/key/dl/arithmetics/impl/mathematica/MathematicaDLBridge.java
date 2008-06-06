@@ -797,7 +797,11 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 					"PolynomialReduce"), new Expr[] { poly, groebnerBasis,
 					new Expr(LIST, vars.toArray(new Expr[vars.size()])) })).expression;
 			System.out.println("Result is: " + expression);
-			if (expression.equals(new Expr(0))) {
+			Expr[] zeros = new Expr[vars.size()];
+			for(int i=0; i < vars.size(); i++) {
+				zeros[i] = new Expr(0);
+			}
+			if (expression.equals(new Expr(LIST, new Expr[]{ new Expr(LIST, zeros), new Expr(1) }))) {
 				return true;
 			}
 			if (!classify2.g.isEmpty()) {
@@ -813,7 +817,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 									groebnerBasis,
 									new Expr(LIST, vars.toArray(new Expr[vars
 											.size()])) })).expression;
-					if (reduce.equals(new Expr(0))) {
+					if (reduce.equals(new Expr(LIST, new Expr[]{ new Expr(LIST, zeros), new Expr(1) }))) {
 						return true;
 					}
 				}
