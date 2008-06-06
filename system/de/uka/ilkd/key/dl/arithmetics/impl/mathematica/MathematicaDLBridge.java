@@ -42,6 +42,10 @@ import de.uka.ilkd.key.dl.formulatools.collector.filter.FilterVariableCollector;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
+import orbital.logic.functor.Function;
+import orbital.math.AlgebraicAlgorithms;
+import orbital.math.Polynomial;
+
 import com.wolfram.jlink.Expr;
 import com.wolfram.jlink.ExprFormatException;
 
@@ -53,6 +57,7 @@ import de.uka.ilkd.key.dl.arithmetics.exceptions.IncompleteEvaluationException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ServerStatusProblemException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.UnsolveableException;
+import de.uka.ilkd.key.dl.arithmetics.impl.SumOfSquaresChecker.PolynomialClassification;
 import de.uka.ilkd.key.dl.arithmetics.impl.mathematica.IKernelLinkWrapper.ExprAndMessages;
 import de.uka.ilkd.key.dl.logic.ldt.RealLDT;
 import de.uka.ilkd.key.dl.model.DLNonTerminalProgramElement;
@@ -133,8 +138,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 	/**
 	 * @directed
 	 */
-	//private VariableCollector lnkVariableCollector;
-
+	// private VariableCollector lnkVariableCollector;
 	/**
 	 * @directed
 	 */
@@ -524,8 +528,9 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 			SolverException {
 		Expr query = Term2ExprConverter.convert2Expr(form);
 		List<Expr> vars = new ArrayList<Expr>();
-		Set<String> variables = AllCollector.getItemSet(form).filter(new FilterVariableCollector(null)).getVariables();
-		for (String var : variables ) {
+		Set<String> variables = AllCollector.getItemSet(form).filter(
+				new FilterVariableCollector(null)).getVariables();
+		for (String var : variables) {
 			vars.add(new Expr(Expr.SYMBOL, var.replaceAll("_", USCORE_ESCAPE)));
 		}
 		if (vars.size() > 0) {
@@ -732,5 +737,95 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 			throw new UnsolveableException("Recursive counterexample " + res);
 		}
 		return res.toString();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.uka.ilkd.key.dl.arithmetics.IGroebnerBasisCalculator#checkForConstantGroebnerBasis(de.uka.ilkd.key.dl.arithmetics.impl.SumOfSquaresChecker.PolynomialClassification)
+	 */
+	public boolean checkForConstantGroebnerBasis(
+			PolynomialClassification<Term> terms) {
+		Set<Expr> f = new HashSet<Expr>();
+		Set<Expr> g = new HashSet<Expr>();
+		Set<Expr> h = new HashSet<Expr>();
+		Set<Expr> vars = new HashSet<Expr>();
+		for (Term t : terms.f) {
+			f.add(Term2ExprConverter.convert2Expr(t));
+			Set<String> variables = AllCollector.getItemSet(t).filter(
+					new FilterVariableCollector(null)).getVariables();
+			for (String var : variables) {
+				vars.add(new Expr(Expr.SYMBOL, var.replaceAll("_",
+						USCORE_ESCAPE)));
+			}
+		}
+		for (Term t : terms.g) {
+			g.add(Term2ExprConverter.convert2Expr(t));
+			Set<String> variables = AllCollector.getItemSet(t).filter(
+					new FilterVariableCollector(null)).getVariables();
+			for (String var : variables) {
+				vars.add(new Expr(Expr.SYMBOL, var.replaceAll("_",
+						USCORE_ESCAPE)));
+			}
+		}
+		for (Term t : terms.h) {
+			h.add(Term2ExprConverter.convert2Expr(t));
+			Set<String> variables = AllCollector.getItemSet(t).filter(
+					new FilterVariableCollector(null)).getVariables();
+			for (String var : variables) {
+				vars.add(new Expr(Expr.SYMBOL, var.replaceAll("_",
+						USCORE_ESCAPE)));
+			}
+		}
+		PolynomialClassification<Expr> classify2 = new PolynomialClassification<Expr>(
+				f, g, h);
+
+		// we try to get a contradiction by computing the groebner basis of all
+		// the equalities. if the common basis contains a constant part, the
+		// equality system is unsatisfiable, thus we can close this goal
+
+		Expr groebnerBasis;
+		try {
+			groebnerBasis = evaluate(new Expr(new Expr(Expr.SYMBOL,
+					"GroebnerBasis"), new Expr[] {
+					new Expr(LIST, h.toArray(new Expr[h.size()])),
+					new Expr(LIST, vars.toArray(new Expr[vars.size()])) })).expression;
+
+			System.out.println(groebnerBasis);
+			Expr poly = new Expr(1);
+			Expr expression = evaluate(new Expr(new Expr(Expr.SYMBOL,
+					"PolynomialReduce"), new Expr[] { poly, groebnerBasis,
+					new Expr(LIST, vars.toArray(new Expr[vars.size()])) })).expression;
+			System.out.println("Result is: " + expression);
+			if (expression.equals(new Expr(0))) {
+				return true;
+			}
+			if (!classify2.g.isEmpty()) {
+				// we test if one of the inequalities g is unsatisfiable under
+				// the
+				// variety \forall f \in h: f = 0. if it is, we get false on the
+				// left side of the sequent and can close this goal
+				for (Expr curG : classify2.g) {
+					Expr reduce = evaluate(new Expr(new Expr(Expr.SYMBOL,
+							"PolynomialReduce"),
+							new Expr[] {
+									curG,
+									groebnerBasis,
+									new Expr(LIST, vars.toArray(new Expr[vars
+											.size()])) })).expression;
+					if (reduce.equals(new Expr(0))) {
+						return true;
+					}
+				}
+			}
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SolverException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return false;
 	}
 }

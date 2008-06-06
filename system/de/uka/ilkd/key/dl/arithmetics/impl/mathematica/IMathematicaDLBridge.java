@@ -27,6 +27,7 @@ import java.rmi.RemoteException;
 import java.util.List;
 import java.util.Set;
 
+import de.uka.ilkd.key.dl.arithmetics.IGroebnerBasisCalculator;
 import de.uka.ilkd.key.dl.arithmetics.IODESolver.ODESolverResult;
 import de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator.PairOfTermAndQuantifierType;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ConnectionProblemException;
@@ -34,6 +35,7 @@ import de.uka.ilkd.key.dl.arithmetics.exceptions.ServerStatusProblemException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.UnableToConvertInputException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.UnsolveableException;
+import de.uka.ilkd.key.dl.arithmetics.impl.SumOfSquaresChecker.PolynomialClassification;
 import de.uka.ilkd.key.dl.model.DiffSystem;
 import de.uka.ilkd.key.logic.NamespaceSet;
 import de.uka.ilkd.key.logic.Term;
@@ -218,4 +220,10 @@ public interface IMathematicaDLBridge extends Remote {
     public Term reduce(Term form, List<String> additionalReduce,
             List<PairOfTermAndQuantifierType> quantifiers, NamespaceSet nss, long timeout)
             throws RemoteException, SolverException;
+    
+	/**
+	 * @param terms
+	 * TODO documentation since Jun 6, 2008
+	 */
+	boolean checkForConstantGroebnerBasis(PolynomialClassification<Term> terms) throws RemoteException;
 }

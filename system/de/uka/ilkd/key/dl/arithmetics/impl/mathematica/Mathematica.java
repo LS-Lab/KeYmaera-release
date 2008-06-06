@@ -40,6 +40,7 @@ import javax.xml.xpath.XPathFactory;
 import org.w3c.dom.Node;
 
 import de.uka.ilkd.key.dl.arithmetics.ICounterExampleGenerator;
+import de.uka.ilkd.key.dl.arithmetics.IGroebnerBasisCalculator;
 import de.uka.ilkd.key.dl.arithmetics.IODESolver;
 import de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator;
 import de.uka.ilkd.key.dl.arithmetics.ISimplifier;
@@ -47,6 +48,7 @@ import de.uka.ilkd.key.dl.arithmetics.abort.AbortBridge;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ConnectionProblemException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ServerStatusProblemException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
+import de.uka.ilkd.key.dl.arithmetics.impl.SumOfSquaresChecker.PolynomialClassification;
 import de.uka.ilkd.key.dl.model.DiffSystem;
 import de.uka.ilkd.key.gui.Main;
 import de.uka.ilkd.key.logic.NamespaceSet;
@@ -61,7 +63,7 @@ import de.uka.ilkd.key.logic.op.LogicVariable;
  * 
  */
 public class Mathematica implements ICounterExampleGenerator, IODESolver,
-        IQuantifierEliminator, ISimplifier {
+        IQuantifierEliminator, ISimplifier, IGroebnerBasisCalculator {
 
     public static final String NAME = "Mathematica";
 
@@ -306,4 +308,13 @@ return bridge.findTransition(initial, modalForm, -1);
             ServerStatusProblemException, ConnectionProblemException {
         return bridge.getTotalMemory();
     }
+
+	/* (non-Javadoc)
+	 * @see de.uka.ilkd.key.dl.arithmetics.IGroebnerBasisCalculator#checkForConstantGroebnerBasis(de.uka.ilkd.key.dl.arithmetics.impl.SumOfSquaresChecker.PolynomialClassification)
+	 */
+	@Override
+	public boolean checkForConstantGroebnerBasis(
+			PolynomialClassification<Term> terms) throws RemoteException {
+		return bridge.checkForConstantGroebnerBasis(terms);
+	}
 }
