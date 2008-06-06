@@ -797,12 +797,20 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 					"PolynomialReduce"), new Expr[] { poly, groebnerBasis,
 					new Expr(LIST, vars.toArray(new Expr[vars.size()])) })).expression;
 			System.out.println("Result is: " + expression);
-			Expr[] zeros = new Expr[vars.size()];
-			for(int i=0; i < vars.size(); i++) {
-				zeros[i] = new Expr(0);
-			}
-			if (expression.equals(new Expr(LIST, new Expr[]{ new Expr(LIST, zeros), new Expr(1) }))) {
-				return true;
+			if (expression.head().equals(LIST)) {
+				if(expression.head().args().length == 2) {
+					if(expression.head().args()[1].head().equals(new Expr(1))) {
+						if (expression.args()[0].head().equals(LIST)) {
+							boolean test = true;
+							for(int i = 0; i < expression.args()[0].args().length; i++) {
+								test = test && expression.args()[0].args()[i].head().equals(new Expr(0));
+							}
+							if(test) {
+								return true;
+							}
+						}
+					}
+				}
 			}
 			if (!classify2.g.isEmpty()) {
 				// we test if one of the inequalities g is unsatisfiable under
@@ -817,8 +825,20 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 									groebnerBasis,
 									new Expr(LIST, vars.toArray(new Expr[vars
 											.size()])) })).expression;
-					if (reduce.equals(new Expr(LIST, new Expr[]{ new Expr(LIST, zeros), new Expr(1) }))) {
-						return true;
+					if (reduce.head().equals(LIST)) {
+						if(reduce.head().args().length == 2) {
+							if(reduce.head().args()[1].head().equals(new Expr(1))) {
+								if (reduce.args()[0].head().equals(LIST)) {
+									boolean test = true;
+									for(int i = 0; i < reduce.args()[0].args().length; i++) {
+										test = test && reduce.args()[0].args()[i].head().equals(new Expr(0));
+									}
+									if(test) {
+										return true;
+									}
+								}
+							}
+						}
 					}
 				}
 			}
