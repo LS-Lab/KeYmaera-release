@@ -42,357 +42,388 @@ import de.uka.ilkd.key.dl.options.DLOptionBean.InvariantRule;
  * 
  */
 public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
-    public static final String DESCRIPTION = "Adjusts KeYmaera proof strategy options";
+	public static final String DESCRIPTION = "Adjusts KeYmaera proof strategy options";
 
-    private static final Class<DLOptionBean> beanClass = DLOptionBean.class;
+	private static final Class<DLOptionBean> beanClass = DLOptionBean.class;
 
-    public DLOptionBeanBeanInfo() {
-    }
+	public DLOptionBeanBeanInfo() {
+	}
 
-    public BeanDescriptor getBeanDescriptor() {
-        BeanDescriptor d = new BeanDescriptor(beanClass);
-        d.setDisplayName("KeYmaera");
-        d.setShortDescription(DESCRIPTION);
-        return d;
-    }
+	public BeanDescriptor getBeanDescriptor() {
+		BeanDescriptor d = new BeanDescriptor(beanClass);
+		d.setDisplayName("KeYmaera");
+		d.setShortDescription(DESCRIPTION);
+		return d;
+	}
 
-    public PropertyDescriptor[] getPropertyDescriptors() {
-        try {
-            PropertyDescriptor[] pds = new PropertyDescriptor[] {
-                    // expert, preferred, hidden
-                    createDescriptor(
-                            "counterexampleTest",
-                            "quick counterexample check",
-                            "whether to check for counterexamples before trying to prove exhaustively",
-                            false, true, CounterexampleTestPropertyEditor.class),
-                    createDescriptor(
-                            "useTimeoutStrategy",
-                            "Iterative Background Closure",
-                            "whether to activate the Iterative Background Closure (IBC) strategy with incremental timeouts. Otherwise, call reduce when first-order",
-                            false, true),
-                    createDescriptor(
-                            		"useIterativeReduceRule",
-                            		"Iterative Reduce",
-                            		"whether to activate the Iterative Background Closure (IBC) with increasingly bigger formulas.",
-                            		false, true),
-                    createDescriptor(
-                            "initialTimeout",
-                            "initial timeout",
-                            "the timeout used in the first iteration of the IBC strategy (in seconds)",
-                            false, true),
-                    createDescriptor(
-                            "linearTimeoutIncreaseFactor",
-                            "linear timeout increase",
-                            "the linear part of the IBC timeout. That is, the part c of t_new = a*t_old^2 + b*t_old + c (in seconds)"),
-                    createDescriptor(
-                            "constantTimeoutIncreaseFactor",
-                            "constant timeout increase",
-                            "the constant part of the IBC timeout. That is, the part c of t_new = a*t_old^2 + b*t_old + c (in seconds)", false, false, true),
-                    createDescriptor(
-                            "quadraticTimeoutIncreaseFactor",
-                            "quadratic timeout increase",
-                            "the quadratic part of the IBC timeout. That is, the part c of t_new = a*t_old^2 + b*t_old + c (in seconds)", false, false, true),
-                    //
-                    createDescriptor("diffSat", "Differential Saturation",
-                            "select the desired automation degree of Differential Saturation",
-                            false, false, DiffSatPropertyEditor.class),
-                    createDescriptor(
-                            "diffSatTimeout",
-                            "initial DiffSat timeout",
-                            "the timeout used in the first iteration of the DiffSat strategy (in seconds)",
-                            false, false),
-                    createDescriptor(
-                            "loopSatTimeout",
-                            "initial LoopSat timeout",
-                            "the timeout used in the first iteration of the LoopSat strategy (in seconds)",
-                            false, false),
-                    createDescriptor(
-                    		"simplifyTimeout",
-                            "simplify timeout",
-                            "the timeout used for calls to the simplifier (in seconds)",
-                            //@TODO what does 0 mean?
-                            false, false),
-                    //
-                    createDescriptor("callReduce", "call reduce",
-                            "try to reduce the whole sequent", true, false),
-                    createDescriptor("simplifyBeforeReduce",
-                            "simplify before reduce",
-                            "simplify formulas passed to the reduce function of the arithmetic solver"),
-                    createDescriptor(
-                            "simplifyAfterReduce",
-                            "simplify after reduce",
-                            "simplify the results generated by the reduce function of the arithmetic solver"),
-                    createDescriptor(
-                       		"simplifyAfterODESolve",
-                       		"simplify after ODESolve",
-                            "simplify the results generated by the ODESolve function of the arithmetic solver"),
-                    createDescriptor(
-                            "readdQuantifiers",
-                            "re-add quantifiers",
-                            "During quantifier elimination, re-add the quantfiers of previously quantified variables (i.e. Skolem symbols)",
-                            true),
-                    createDescriptor(
-                            "normalizeEquations",
-                            "normalize inqualities",
-                            "normalize inequalities to greater than and greater equals on the antecedent of the sequent, i.e., to the form a>=b ==> or a>b ==>"),
-                    createDescriptor(
-                            "applyUpdatesToModalities",
-                            "apply updates to modalities",
-                            "apply updates to modalites e.g. to get more simpler solutions for differential equations",
-                            true, false),
-                    createDescriptor(
-                    		"applyLocalReduce",
-                            "apply reduce to single quantifiers",
-                            "try to eliminate a all quantifiers in single first-order formulas before trying to reduce the complete sequent",
-                            true, false),
-                    createDescriptor(
-                            "applyGammaRules",
-                            "apply gamma rules",
-                            "choose if and when gamma rules should be applied for existential quantifiers",
-                            true, false, ApplyRulesPropertyEditor.class),
-                    //
-                    createDescriptor(
-                            "quantifierEliminator",
-                            "real arithmetic solver",
-                            "select the arithmetic solver that should be used to eliminate quantifiers",
-                            true, false,
-                            QuantifierEliminatorPropertyEditor.class),
-                    createDescriptor(
-                            "simplifier",
-                            "simplifier for arithmetic",
-                            "select the arithmetic tool that should be used to simplify expressions",
-                            true, false, SimplifierPropertyEditor.class),
-                    createDescriptor(
-                            "odeSolver",
-                            "differential equation handler",
-                            "select the arithmetic solver that should be used to solve or otherwise handle differential equations",
-                            true, false, ODESolversPropertyEditor.class),
-                    createDescriptor(
-                            "counterExampleGenerator",
-                            "counterexample generator",
-                            "select the arithmetic tool that should be used to generate counter examples",
-                            true, false,
-                            CounterExampleGeneratorPropertyEditor.class),
-                    //
-                    createDescriptor(
-                            "splitBeyondFO",
-                            "split FO formulas",
-                            "simple heuristic: call reduce if only FO formulas are left in the sequent",
-                            true, false, true),
-                    createDescriptor(
-                            "stopAtFO",
-                            "stop strategy on first-order goals",
-                            "if enabled the strategy will not apply rules to goals that are already first order",
-                            true, false),
-                    createDescriptor(
-                            "ignoreAnnotations",
-                            "ignore proof annotations",
-                            "Whether to ignore all proof skeleton @annotations, like @invariant etc.",
-                            true, false),
-            // createDescriptor("invariantRule", "invariant rule",
-            // "choose which invariant rule should be used", true,
-            // false, InvariantRulePropertyEditor.class),
+	public PropertyDescriptor[] getPropertyDescriptors() {
+		try {
+			PropertyDescriptor[] pds = new PropertyDescriptor[] {
+					// expert, preferred, hidden
+					createDescriptor(
+							"counterexampleTest",
+							"quick counterexample check",
+							"whether to check for counterexamples before trying to prove exhaustively",
+							false, true, CounterexampleTestPropertyEditor.class),
+					createDescriptor(
+							"useTimeoutStrategy",
+							"Iterative Background Closure",
+							"whether to activate the Iterative Background Closure (IBC) strategy with incremental timeouts. Otherwise, call reduce when first-order",
+							false, true),
+					createDescriptor(
+							"useIterativeReduceRule",
+							"Iterative Reduce",
+							"whether to activate the Iterative Background Closure (IBC) with increasingly bigger formulas.",
+							false, true),
+					createDescriptor(
+							"initialTimeout",
+							"initial timeout",
+							"the timeout used in the first iteration of the IBC strategy (in seconds)",
+							false, true),
+					createDescriptor(
+							"linearTimeoutIncreaseFactor",
+							"linear timeout increase",
+							"the linear part of the IBC timeout. That is, the part c of t_new = a*t_old^2 + b*t_old + c (in seconds)"),
+					createDescriptor(
+							"constantTimeoutIncreaseFactor",
+							"constant timeout increase",
+							"the constant part of the IBC timeout. That is, the part c of t_new = a*t_old^2 + b*t_old + c (in seconds)",
+							false, false, true),
+					createDescriptor(
+							"quadraticTimeoutIncreaseFactor",
+							"quadratic timeout increase",
+							"the quadratic part of the IBC timeout. That is, the part c of t_new = a*t_old^2 + b*t_old + c (in seconds)",
+							false, false, true),
+					//
+					createDescriptor(
+							"diffSat",
+							"Differential Saturation",
+							"select the desired automation degree of Differential Saturation",
+							false, false, DiffSatPropertyEditor.class),
+					createDescriptor(
+							"diffSatTimeout",
+							"initial DiffSat timeout",
+							"the timeout used in the first iteration of the DiffSat strategy (in seconds)",
+							false, false),
+					createDescriptor(
+							"loopSatTimeout",
+							"initial LoopSat timeout",
+							"the timeout used in the first iteration of the LoopSat strategy (in seconds)",
+							false, false),
+					createDescriptor(
+							"simplifyTimeout",
+							"simplify timeout",
+							"the timeout used for calls to the simplifier (in seconds)",
+							// @TODO what does 0 mean?
+							false, false),
+					//
+					createDescriptor("callReduce", "call reduce",
+							"try to reduce the whole sequent", true, false),
+					createDescriptor("simplifyBeforeReduce",
+							"simplify before reduce",
+							"simplify formulas passed to the reduce function of the arithmetic solver"),
+					createDescriptor(
+							"simplifyAfterReduce",
+							"simplify after reduce",
+							"simplify the results generated by the reduce function of the arithmetic solver"),
+					createDescriptor(
+							"simplifyAfterODESolve",
+							"simplify after ODESolve",
+							"simplify the results generated by the ODESolve function of the arithmetic solver"),
+					createDescriptor(
+							"readdQuantifiers",
+							"re-add quantifiers",
+							"During quantifier elimination, re-add the quantfiers of previously quantified variables (i.e. Skolem symbols)",
+							true),
+					createDescriptor(
+							"normalizeEquations",
+							"normalize inqualities",
+							"normalize inequalities to greater than and greater equals on the antecedent of the sequent, i.e., to the form a>=b ==> or a>b ==>"),
+					createDescriptor(
+							"applyUpdatesToModalities",
+							"apply updates to modalities",
+							"apply updates to modalites e.g. to get more simpler solutions for differential equations",
+							true, false),
+					createDescriptor(
+							"applyLocalReduce",
+							"apply reduce to single quantifiers",
+							"try to eliminate a all quantifiers in single first-order formulas before trying to reduce the complete sequent",
+							true, false),
+					createDescriptor(
+							"applyGammaRules",
+							"apply gamma rules",
+							"choose if and when gamma rules should be applied for existential quantifiers",
+							true, false, ApplyRulesPropertyEditor.class),
+					//
+					createDescriptor(
+							"quantifierEliminator",
+							"real arithmetic solver",
+							"select the arithmetic solver that should be used to eliminate quantifiers",
+							true, false,
+							QuantifierEliminatorPropertyEditor.class),
+					createDescriptor(
+							"simplifier",
+							"simplifier for arithmetic",
+							"select the arithmetic tool that should be used to simplify expressions",
+							true, false, SimplifierPropertyEditor.class),
+					createDescriptor(
+							"groebner basisx",
+							"calculator backend for groebner basis",
+							"select the arithmetic tool that should be used to calculate groebner basis",
+							true, false,
+							GroebnerBasisCalculatorPropertyEditor.class),
+					createDescriptor(
+							"odeSolver",
+							"differential equation handler",
+							"select the arithmetic solver that should be used to solve or otherwise handle differential equations",
+							true, false, ODESolversPropertyEditor.class),
+					createDescriptor(
+							"counterExampleGenerator",
+							"counterexample generator",
+							"select the arithmetic tool that should be used to generate counter examples",
+							true, false,
+							CounterExampleGeneratorPropertyEditor.class),
+					//
+					createDescriptor(
+							"splitBeyondFO",
+							"split FO formulas",
+							"simple heuristic: call reduce if only FO formulas are left in the sequent",
+							true, false, true),
+					createDescriptor(
+							"stopAtFO",
+							"stop strategy on first-order goals",
+							"if enabled the strategy will not apply rules to goals that are already first order",
+							true, false),
+					createDescriptor(
+							"ignoreAnnotations",
+							"ignore proof annotations",
+							"Whether to ignore all proof skeleton @annotations, like @invariant etc.",
+							true, false),
+			// createDescriptor("invariantRule", "invariant rule",
+			// "choose which invariant rule should be used", true,
+			// false, InvariantRulePropertyEditor.class),
 
-            };
-            return pds;
-        } catch (IntrospectionException ex) {
-            ex.printStackTrace();
-            return null;
-        }
-    }
+			};
+			return pds;
+		} catch (IntrospectionException ex) {
+			ex.printStackTrace();
+			return null;
+		}
+	}
 
-    private static PropertyDescriptor createDescriptor(String propertyName,
-            String displayName, String shortDescription)
-            throws IntrospectionException {
-        return createDescriptor(propertyName, displayName, shortDescription,
-                false);
-    }
+	private static PropertyDescriptor createDescriptor(String propertyName,
+			String displayName, String shortDescription)
+			throws IntrospectionException {
+		return createDescriptor(propertyName, displayName, shortDescription,
+				false);
+	}
 
-    private static PropertyDescriptor createDescriptor(String propertyName,
-            String displayName, String shortDescription, boolean expert)
-            throws IntrospectionException {
-        return createDescriptor(propertyName, displayName, shortDescription,
-                expert, false);
-    }
+	private static PropertyDescriptor createDescriptor(String propertyName,
+			String displayName, String shortDescription, boolean expert)
+			throws IntrospectionException {
+		return createDescriptor(propertyName, displayName, shortDescription,
+				expert, false);
+	}
 
-    private static PropertyDescriptor createDescriptor(String propertyName,
-            String displayName, String shortDescription, boolean expert,
-            boolean preferred) throws IntrospectionException {
-        return createDescriptor(propertyName, displayName, shortDescription,
-                expert, preferred, null);
-    }
+	private static PropertyDescriptor createDescriptor(String propertyName,
+			String displayName, String shortDescription, boolean expert,
+			boolean preferred) throws IntrospectionException {
+		return createDescriptor(propertyName, displayName, shortDescription,
+				expert, preferred, null);
+	}
 
-    private static PropertyDescriptor createDescriptor(String propertyName,
-            String displayName, String shortDescription, boolean expert,
-            boolean preferred, boolean hidden) throws IntrospectionException {
-        return createDescriptor(propertyName, displayName, shortDescription,
-                expert, preferred, hidden, null);
-    }
+	private static PropertyDescriptor createDescriptor(String propertyName,
+			String displayName, String shortDescription, boolean expert,
+			boolean preferred, boolean hidden) throws IntrospectionException {
+		return createDescriptor(propertyName, displayName, shortDescription,
+				expert, preferred, hidden, null);
+	}
 
-    private static PropertyDescriptor createDescriptor(String propertyName,
-            String displayName, String shortDescription, boolean expert,
-            boolean preferred, Class<?> propertyEditor)
-            throws IntrospectionException {
-        return createDescriptor(propertyName, displayName, shortDescription,
-                expert, preferred, false, propertyEditor);
-    }
+	private static PropertyDescriptor createDescriptor(String propertyName,
+			String displayName, String shortDescription, boolean expert,
+			boolean preferred, Class<?> propertyEditor)
+			throws IntrospectionException {
+		return createDescriptor(propertyName, displayName, shortDescription,
+				expert, preferred, false, propertyEditor);
+	}
 
-    private static PropertyDescriptor createDescriptor(String propertyName,
-            String displayName, String shortDescription, boolean expert,
-            boolean preferred, boolean hidden, Class<?> propertyEditor)
-            throws IntrospectionException {
-        PropertyDescriptor result = new PropertyDescriptor(propertyName,
-                beanClass);
-        result.setDisplayName(displayName);
-        result.setShortDescription(shortDescription);
-        result.setExpert(expert);
-        result.setPreferred(preferred);
-        result.setHidden(hidden);
-        if (propertyEditor != null) {
-            result.setPropertyEditorClass(propertyEditor);
-        }
-        return result;
-    }
+	private static PropertyDescriptor createDescriptor(String propertyName,
+			String displayName, String shortDescription, boolean expert,
+			boolean preferred, boolean hidden, Class<?> propertyEditor)
+			throws IntrospectionException {
+		PropertyDescriptor result = new PropertyDescriptor(propertyName,
+				beanClass);
+		result.setDisplayName(displayName);
+		result.setShortDescription(shortDescription);
+		result.setExpert(expert);
+		result.setPreferred(preferred);
+		result.setHidden(hidden);
+		if (propertyEditor != null) {
+			result.setPropertyEditorClass(propertyEditor);
+		}
+		return result;
+	}
 
-    // public static class UsagePropertyEditor extends
-    // TaggedPropertyEditorSupport {
-    // public UsagePropertyEditor() {
-    // super(new String[] {
-    // "evaluation", "testing", "end user"
-    // }, new Object[] {
-    // new Integer(ProgSettings.EVALUATION), new Integer(ProgSettings.TESTING),
-    // new Integer(ProgSettings.END_USER)
-    // }, new String[] {
-    // "ProgSettings.EVALUATION", "ProgSettings.TESTING",
-    // "ProgSettings.END_USER"
-    // });
-    // }
-    // }
+	// public static class UsagePropertyEditor extends
+	// TaggedPropertyEditorSupport {
+	// public UsagePropertyEditor() {
+	// super(new String[] {
+	// "evaluation", "testing", "end user"
+	// }, new Object[] {
+	// new Integer(ProgSettings.EVALUATION), new Integer(ProgSettings.TESTING),
+	// new Integer(ProgSettings.END_USER)
+	// }, new String[] {
+	// "ProgSettings.EVALUATION", "ProgSettings.TESTING",
+	// "ProgSettings.END_USER"
+	// });
+	// }
+	// }
 
-    public static class ODESolversPropertyEditor extends
-            TaggedPropertyEditorSupport {
+	public static class ODESolversPropertyEditor extends
+			TaggedPropertyEditorSupport {
 
-        private static HashSet<String> values;
+		private static HashSet<String> values;
 
-        private static String[] getNames() {
-            if (values == null) {
-                Set<String> names = MathSolverManager.getODESolvers();
-                values = new HashSet<String>();
-                for (String name : names) {
-                    values.add(MathSolverManager.getODESolver(name).getName());
-                }
-                values.add("");
-            }
-            return values.toArray(new String[0]);
-        }
+		private static String[] getNames() {
+			if (values == null) {
+				Set<String> names = MathSolverManager.getODESolvers();
+				values = new HashSet<String>();
+				for (String name : names) {
+					values.add(MathSolverManager.getODESolver(name).getName());
+				}
+				values.add("");
+			}
+			return values.toArray(new String[0]);
+		}
 
-        public ODESolversPropertyEditor() {
-            super(getNames(), getNames());
-        }
-    }
+		public ODESolversPropertyEditor() {
+			super(getNames(), getNames());
+		}
+	}
 
-    public static class CounterExampleGeneratorPropertyEditor extends
-            TaggedPropertyEditorSupport {
-        private static HashSet<String> values;
+	public static class CounterExampleGeneratorPropertyEditor extends
+			TaggedPropertyEditorSupport {
+		private static HashSet<String> values;
 
-        private static String[] getNames() {
-            if (values == null) {
-                Set<String> names = MathSolverManager
-                        .getCounterExampleGenerators();
-                values = new HashSet<String>();
-                for (String name : names) {
-                    values.add(MathSolverManager.getCounterExampleGenerator(
-                            name).getName());
-                }
-                values.add("");
-            }
-            return values.toArray(new String[0]);
-        }
+		private static String[] getNames() {
+			if (values == null) {
+				Set<String> names = MathSolverManager
+						.getCounterExampleGenerators();
+				values = new HashSet<String>();
+				for (String name : names) {
+					values.add(MathSolverManager.getCounterExampleGenerator(
+							name).getName());
+				}
+				values.add("");
+			}
+			return values.toArray(new String[0]);
+		}
 
-        public CounterExampleGeneratorPropertyEditor() {
-            super(getNames(), getNames());
-        }
-    }
+		public CounterExampleGeneratorPropertyEditor() {
+			super(getNames(), getNames());
+		}
+	}
 
-    public static class QuantifierEliminatorPropertyEditor extends
-            TaggedPropertyEditorSupport {
-        private static HashSet<String> values;
+	public static class QuantifierEliminatorPropertyEditor extends
+			TaggedPropertyEditorSupport {
+		private static HashSet<String> values;
 
-        private static String[] getNames() {
-            if (values == null) {
-                Set<String> names = MathSolverManager
-                        .getQuantifierEliminators();
-                values = new HashSet<String>();
-                for (String name : names) {
-                    values.add(MathSolverManager.getQuantifierElimantor(name)
-                            .getName());
-                }
-                values.add("");
-            }
-            return values.toArray(new String[0]);
-        }
+		private static String[] getNames() {
+			if (values == null) {
+				Set<String> names = MathSolverManager
+						.getQuantifierEliminators();
+				values = new HashSet<String>();
+				for (String name : names) {
+					values.add(MathSolverManager.getQuantifierElimantor(name)
+							.getName());
+				}
+				values.add("");
+			}
+			return values.toArray(new String[0]);
+		}
 
-        public QuantifierEliminatorPropertyEditor() {
-            super(getNames(), getNames());
-        }
-    }
+		public QuantifierEliminatorPropertyEditor() {
+			super(getNames(), getNames());
+		}
+	}
 
-    public static class SimplifierPropertyEditor extends
-            TaggedPropertyEditorSupport {
-        private static HashSet<String> values;
+	public static class SimplifierPropertyEditor extends
+			TaggedPropertyEditorSupport {
+		private static HashSet<String> values;
 
-        private static String[] getNames() {
-            if (values == null) {
-                Set<String> names = MathSolverManager.getSimplifiers();
-                values = new HashSet<String>();
-                for (String name : names) {
-                    values.add(MathSolverManager.getSimplifier(name).getName());
-                }
-                values.add("");
-            }
-            return values.toArray(new String[0]);
-        }
+		private static String[] getNames() {
+			if (values == null) {
+				Set<String> names = MathSolverManager.getSimplifiers();
+				values = new HashSet<String>();
+				for (String name : names) {
+					values.add(MathSolverManager.getSimplifier(name).getName());
+				}
+				values.add("");
+			}
+			return values.toArray(new String[0]);
+		}
 
-        public SimplifierPropertyEditor() {
-            super(getNames(), getNames());
-        }
-    }
+		public SimplifierPropertyEditor() {
+			super(getNames(), getNames());
+		}
+	}
 
-    public static class ApplyRulesPropertyEditor extends
-            TaggedPropertyEditorSupport {
-        public ApplyRulesPropertyEditor() {
-            super(getNames(ApplyRules.values()), ApplyRules.values());
-        }
-    }
+	public static class GroebnerBasisCalculatorPropertyEditor extends
+	TaggedPropertyEditorSupport {
+		private static HashSet<String> values;
+		
+		private static String[] getNames() {
+			if (values == null) {
+				Set<String> names = MathSolverManager.getGroebnerBasisCalculators();
+				values = new HashSet<String>();
+				for (String name : names) {
+					values.add(MathSolverManager.getGroebnerBasisCalculator(name).getName());
+				}
+				values.add("");
+			}
+			return values.toArray(new String[0]);
+		}
+		
+		public GroebnerBasisCalculatorPropertyEditor() {
+			super(getNames(), getNames());
+		}
+	}
 
-    public static class CounterexampleTestPropertyEditor extends
-            TaggedPropertyEditorSupport {
-        public CounterexampleTestPropertyEditor() {
-            super(getNames(CounterexampleTest.values()), CounterexampleTest
-                    .values());
-        }
-    }
+	public static class ApplyRulesPropertyEditor extends
+			TaggedPropertyEditorSupport {
+		public ApplyRulesPropertyEditor() {
+			super(getNames(ApplyRules.values()), ApplyRules.values());
+		}
+	}
 
-    public static class DiffSatPropertyEditor extends
-            TaggedPropertyEditorSupport {
-        public DiffSatPropertyEditor() {
-            super(getNames(DiffSat.values()), DiffSat.values());
-        }
-    }
+	public static class CounterexampleTestPropertyEditor extends
+			TaggedPropertyEditorSupport {
+		public CounterexampleTestPropertyEditor() {
+			super(getNames(CounterexampleTest.values()), CounterexampleTest
+					.values());
+		}
+	}
 
-    public static class InvariantRulePropertyEditor extends
-            TaggedPropertyEditorSupport {
-        public InvariantRulePropertyEditor() {
-            super(getNames(InvariantRule.values()), InvariantRule.values());
-        }
-    }
+	public static class DiffSatPropertyEditor extends
+			TaggedPropertyEditorSupport {
+		public DiffSatPropertyEditor() {
+			super(getNames(DiffSat.values()), DiffSat.values());
+		}
+	}
 
-    private static <E extends Enum<E>> String[] getNames(Enum<E> vals[]) {
-        java.util.List<String> names = new ArrayList<String>();
-        for (Enum<E> r : vals) {
-            names.add(r.toString());
-        }
-        return names.toArray(new String[0]);
-    }
+	public static class InvariantRulePropertyEditor extends
+			TaggedPropertyEditorSupport {
+		public InvariantRulePropertyEditor() {
+			super(getNames(InvariantRule.values()), InvariantRule.values());
+		}
+	}
+
+	private static <E extends Enum<E>> String[] getNames(Enum<E> vals[]) {
+		java.util.List<String> names = new ArrayList<String>();
+		for (Enum<E> r : vals) {
+			names.add(r.toString());
+		}
+		return names.toArray(new String[0]);
+	}
 
 }

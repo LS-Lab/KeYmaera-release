@@ -69,6 +69,8 @@ public abstract class MathSolverManager {
 
     private static Map<String, ISimplifier> SIMPLIFIERS = new LinkedHashMap<String, ISimplifier>();
 
+    private static Map<String, IGroebnerBasisCalculator> GROEBNER_BASIS_CALCULATORS= new LinkedHashMap<String, IGroebnerBasisCalculator>();
+
     /**
      * @param filename
      * @throws ClassNotFoundException
@@ -115,6 +117,9 @@ public abstract class MathSolverManager {
             }
             if (solver instanceof ISimplifier) {
                 SIMPLIFIERS.put(solver.getName(), (ISimplifier) solver);
+            }
+            if (solver instanceof IGroebnerBasisCalculator) {
+            	GROEBNER_BASIS_CALCULATORS.put(solver.getName(), (IGroebnerBasisCalculator) solver);
             }
             try {
                 String optStr = (String) xpath.evaluate("optionbean", node,
@@ -164,6 +169,23 @@ public abstract class MathSolverManager {
             }
         }
         return SIMPLIFIERS.keySet();
+    }
+
+    /**
+     * Returns the list of available mathsolvers
+     * 
+     * @return the list of available mathsolvers
+     */
+    public static Set<String> getGroebnerBasisCalculators() {
+    	if (GROEBNER_BASIS_CALCULATORS.isEmpty()) {
+    		try {
+    			initialize(CONFIG_XML);
+    		} catch (Exception e) {
+    			// TODO Auto-generated catch block
+    			e.printStackTrace();
+    		}
+    	}
+    	return GROEBNER_BASIS_CALCULATORS.keySet();
     }
 
     /**
@@ -350,6 +372,43 @@ public abstract class MathSolverManager {
                             + DLOptionBean.INSTANCE.getSimplifier());
         }
         return result;
+    }
+  
+    /**
+     * Returns the MathInterface with the given name or null if it does not
+     * exist
+     * 
+     * @param name
+     *                the name of the interface to get
+     * @return the MathInterface with the given name or null if it does not
+     *         exist
+     */
+    public static IGroebnerBasisCalculator getGroebnerBasisCalculator(String name) {
+    	if (GROEBNER_BASIS_CALCULATORS.isEmpty()) {
+    		try {
+    			initialize(CONFIG_XML);
+    		} catch (Exception e) {
+    			// TODO Auto-generated catch block
+    			e.printStackTrace();
+    		}
+    	}
+    	return GROEBNER_BASIS_CALCULATORS.get(name);
+    }
+    
+    /**
+     * Get the {@link IMathSolver} that is chosen by the user for formula simplification
+     * 
+     * @return the current {@link ISimplifier}
+     */
+    public static IGroebnerBasisCalculator getCurrentGroebnerBasisCalculator() {
+    	IGroebnerBasisCalculator result = getGroebnerBasisCalculator(DLOptionBean.INSTANCE
+    			.getGroebnerBasisCalculator());
+    	if (result == null) {
+    		throw new IllegalStateException(
+    				"Groebner basis calculator option is not set correctly. Could not find: "
+    				+ DLOptionBean.INSTANCE.getGroebnerBasisCalculator());
+    	}
+    	return result;
     }
 
     /**

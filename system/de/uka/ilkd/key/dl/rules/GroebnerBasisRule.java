@@ -29,6 +29,7 @@ import java.util.Set;
 import orbital.logic.functor.Function;
 import orbital.math.AlgebraicAlgorithms;
 import orbital.math.Polynomial;
+import de.uka.ilkd.key.dl.arithmetics.IGroebnerBasisCalculator;
 import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
 import de.uka.ilkd.key.dl.arithmetics.impl.SumOfSquaresChecker;
 import de.uka.ilkd.key.dl.arithmetics.impl.SumOfSquaresChecker.PolynomialClassification;
@@ -88,21 +89,24 @@ public class GroebnerBasisRule implements BuiltInRule, RuleFilter {
 		PolynomialClassification<Term> classify = SumOfSquaresChecker.INSTANCE
 				.classify(ante, succ);
 
-		
-		Mathematica m = (Mathematica) MathSolverManager.getCurrentCounterExampleGenerator();
+		IGroebnerBasisCalculator m = MathSolverManager
+				.getCurrentGroebnerBasisCalculator();
 
-		try {
-			if(m.checkForConstantGroebnerBasis(classify)) {
-				return SLListOfGoal.EMPTY_LIST;
+		if (m != null) {
+			try {
+				if (m.checkForConstantGroebnerBasis(classify)) {
+					return SLListOfGoal.EMPTY_LIST;
+				}
+			} catch (RemoteException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-		} catch (RemoteException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 
-//		if(GroebnerBasisChecker.INSTANCE.checkForConstantGroebnerBasis(classify)) {
-//			return SLListOfGoal.EMPTY_LIST;
-//		}
+		// if(GroebnerBasisChecker.INSTANCE.checkForConstantGroebnerBasis(classify))
+		// {
+		// return SLListOfGoal.EMPTY_LIST;
+		// }
 
 		return SLListOfGoal.EMPTY_LIST.append(goal);
 		// return SLListOfGoal.EMPTY_LIST;

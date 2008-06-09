@@ -19,10 +19,14 @@
  ***************************************************************************/
 package de.uka.ilkd.key.dl.arithmetics.impl.orbital;
 
+import java.rmi.RemoteException;
+
 import orbital.logic.functor.Function;
 import orbital.math.AlgebraicAlgorithms;
 import orbital.math.Polynomial;
 import de.uka.ilkd.key.dl.arithmetics.IGroebnerBasisCalculator;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.ConnectionProblemException;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.ServerStatusProblemException;
 import de.uka.ilkd.key.dl.arithmetics.impl.SumOfSquaresChecker;
 import de.uka.ilkd.key.dl.arithmetics.impl.SumOfSquaresChecker.PolynomialClassification;
 import de.uka.ilkd.key.logic.Term;
@@ -72,6 +76,78 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 		}
 		
 		return false;
+	}
+
+	/* (non-Javadoc)
+	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#abortCalculation()
+	 */
+	@Override
+	public void abortCalculation() throws RemoteException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	/* (non-Javadoc)
+	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#getCachedAnwserCount()
+	 */
+	@Override
+	public long getCachedAnwserCount() throws RemoteException {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	/* (non-Javadoc)
+	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#getName()
+	 */
+	@Override
+	public String getName() {
+		return "Orbital";
+	}
+
+	/* (non-Javadoc)
+	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#getQueryCount()
+	 */
+	@Override
+	public long getQueryCount() throws RemoteException {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	/* (non-Javadoc)
+	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#getTimeStatistics()
+	 */
+	@Override
+	public String getTimeStatistics() throws RemoteException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/* (non-Javadoc)
+	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#getTotalCalculationTime()
+	 */
+	@Override
+	public long getTotalCalculationTime() throws RemoteException {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	/* (non-Javadoc)
+	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#getTotalMemory()
+	 */
+	@Override
+	public long getTotalMemory() throws RemoteException,
+			ServerStatusProblemException, ConnectionProblemException {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	/* (non-Javadoc)
+	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#resetAbortState()
+	 */
+	@Override
+	public void resetAbortState() throws RemoteException {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

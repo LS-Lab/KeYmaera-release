@@ -28,7 +28,7 @@ import de.uka.ilkd.key.logic.Term;
  * @author jdq
  * TODO Documentation since Jun 6, 2008
  */
-public interface IGroebnerBasisCalculator {
+public interface IGroebnerBasisCalculator extends IMathSolver {
 
 	/**
 	 * @param terms
