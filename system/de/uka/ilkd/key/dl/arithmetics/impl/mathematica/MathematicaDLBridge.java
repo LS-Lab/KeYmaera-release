@@ -794,6 +794,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 					new Expr(LIST, vars.toArray(new Expr[vars.size()])),
 					order })).expression;
 
+			assert groebnerBasis.head().equals(LIST) : "The head of the returned groebner basis has to be a list";
 			System.out.println(groebnerBasis);
 			Expr poly = new Expr(1);
 			Expr expression = evaluate(new Expr(new Expr(Expr.SYMBOL,
