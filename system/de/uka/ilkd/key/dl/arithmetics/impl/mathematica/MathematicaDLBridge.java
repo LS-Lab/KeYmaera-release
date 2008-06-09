@@ -786,18 +786,19 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 
 		Expr groebnerBasis;
 		try {
+			Expr order = new Expr(RULE, new Expr[] { new Expr(Expr.SYMBOL, "MonomialOrder"),
+					new Expr(Expr.SYMBOL, "DegreeReverseLexicographic") });
 			groebnerBasis = evaluate(new Expr(new Expr(Expr.SYMBOL,
 					"GroebnerBasis"), new Expr[] {
 					new Expr(LIST, h.toArray(new Expr[h.size()])),
 					new Expr(LIST, vars.toArray(new Expr[vars.size()])),
-					new Expr(RULE, new Expr[] { new Expr(Expr.SYMBOL, "MonomialOrder"),
-							new Expr(Expr.SYMBOL, "DegreeReverseLexicographic") }) })).expression;
+					order })).expression;
 
 			System.out.println(groebnerBasis);
 			Expr poly = new Expr(1);
 			Expr expression = evaluate(new Expr(new Expr(Expr.SYMBOL,
 					"PolynomialReduce"), new Expr[] { poly, groebnerBasis,
-					new Expr(LIST, vars.toArray(new Expr[vars.size()])) })).expression;
+					new Expr(LIST, vars.toArray(new Expr[vars.size()])), order })).expression;
 			System.out.println("Result is: " + expression);
 			if (expression.head().equals(LIST)) {
 				if (expression.args().length == 2) {
@@ -828,7 +829,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 									curG,
 									groebnerBasis,
 									new Expr(LIST, vars.toArray(new Expr[vars
-											.size()])) })).expression;
+											.size()])), order })).expression;
 					if (reduce.head().equals(LIST)) {
 						if (reduce.args().length == 2) {
 							if (reduce.args()[1].toString().equals("1")) {
