@@ -41,7 +41,9 @@ public class WebstartWizard {
 		JOptionPane
 				.showMessageDialog(
 						null,
-						"This is a crippled version of the KeYmaera prover. For the full version of KeYmaera (including quantifier elimination support),\n Mathematica is necessary and for that reason you have to install KeYmaera to the harddrive\n instead of using webstart.\n Sorry for the inconvinience.\n  Instead groebner basis are calculated.\n This does only work for equations.");
+			"Please note that this is only a RESTRICTED WEBSTARTABLE VERSION of the KeYmaera prover for hybrid systems!\n\nThe full version of KeYmaera needs to be installed on your computer to work properly.\nYou can download the full version of KeYmaera for installation on your computer from:\n\n    http://www.functologic.com/info/KeYmaera-download.html\n\nThe full installation has much more features, including the handling of hybrid systems or specifications with inequalities.\nBut you need to have Mathematica installed.\n\nUnfortunately, Mathematica does not allow webstartable versions,\neven if you have already installed Mathematica on your machine.\nWe apologize for the inconvenience.",
+                   "Webstart Restriction Notification",
+                   JOptionPane.INFORMATION_MESSAGE);
 		InputStream resourceAsStream = MainFrame.class
 				.getResourceAsStream("/examples/hybrid/groebner_basis/accel-simple.key");
 		try {
