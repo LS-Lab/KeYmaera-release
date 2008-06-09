@@ -89,27 +89,23 @@ public class GroebnerBasisRule implements BuiltInRule, RuleFilter {
 		PolynomialClassification<Term> classify = SumOfSquaresChecker.INSTANCE
 				.classify(ante, succ);
 
-		IGroebnerBasisCalculator m = MathSolverManager
-				.getCurrentGroebnerBasisCalculator();
+		if (MathSolverManager.isGroebnerBasisCalculatorSet()) {
+			IGroebnerBasisCalculator m = MathSolverManager
+					.getCurrentGroebnerBasisCalculator();
 
-		if (m != null) {
-			try {
-				if (m.checkForConstantGroebnerBasis(classify)) {
-					return SLListOfGoal.EMPTY_LIST;
+			if (m != null) {
+				try {
+					if (m.checkForConstantGroebnerBasis(classify)) {
+						return SLListOfGoal.EMPTY_LIST;
+					}
+				} catch (RemoteException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 				}
-			} catch (RemoteException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
 		}
 
-		// if(GroebnerBasisChecker.INSTANCE.checkForConstantGroebnerBasis(classify))
-		// {
-		// return SLListOfGoal.EMPTY_LIST;
-		// }
-
 		return SLListOfGoal.EMPTY_LIST.append(goal);
-		// return SLListOfGoal.EMPTY_LIST;
 	}
 
 	/*

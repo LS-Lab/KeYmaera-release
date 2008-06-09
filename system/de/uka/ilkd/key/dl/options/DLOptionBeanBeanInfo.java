@@ -28,6 +28,7 @@ import java.beans.SimpleBeanInfo;
 import java.beans.BeanDescriptor;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import orbital.awt.TaggedPropertyEditorSupport;
@@ -287,11 +288,12 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
 		private static String[] getNames() {
 			if (values == null) {
 				Set<String> names = MathSolverManager.getODESolvers();
-				values = new HashSet<String>();
+				values = new LinkedHashSet<String>();
+				values.add("");
+				values.add("-");
 				for (String name : names) {
 					values.add(MathSolverManager.getODESolver(name).getName());
 				}
-				values.add("");
 			}
 			return values.toArray(new String[0]);
 		}
@@ -309,12 +311,13 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
 			if (values == null) {
 				Set<String> names = MathSolverManager
 						.getCounterExampleGenerators();
-				values = new HashSet<String>();
+				values = new LinkedHashSet<String>();
+				values.add("");
+				values.add("-");
 				for (String name : names) {
 					values.add(MathSolverManager.getCounterExampleGenerator(
 							name).getName());
 				}
-				values.add("");
 			}
 			return values.toArray(new String[0]);
 		}
@@ -332,12 +335,13 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
 			if (values == null) {
 				Set<String> names = MathSolverManager
 						.getQuantifierEliminators();
-				values = new HashSet<String>();
+				values = new LinkedHashSet<String>();
+				values.add("");
+				values.add("-");
 				for (String name : names) {
 					values.add(MathSolverManager.getQuantifierElimantor(name)
 							.getName());
 				}
-				values.add("");
 			}
 			return values.toArray(new String[0]);
 		}
@@ -354,11 +358,13 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
 		private static String[] getNames() {
 			if (values == null) {
 				Set<String> names = MathSolverManager.getSimplifiers();
-				values = new HashSet<String>();
+				values = new LinkedHashSet<String>();
+				values.add("");
+				values.add("-");
 				for (String name : names) {
 					values.add(MathSolverManager.getSimplifier(name).getName());
 				}
-				values.add("");
+
 			}
 			return values.toArray(new String[0]);
 		}
@@ -375,11 +381,12 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
 		private static String[] getNames() {
 			if (values == null) {
 				Set<String> names = MathSolverManager.getGroebnerBasisCalculators();
-				values = new HashSet<String>();
+				values = new LinkedHashSet<String>();
+				values.add("");
+				values.add("-");
 				for (String name : names) {
 					values.add(MathSolverManager.getGroebnerBasisCalculator(name).getName());
 				}
-				values.add("");
 			}
 			return values.toArray(new String[0]);
 		}

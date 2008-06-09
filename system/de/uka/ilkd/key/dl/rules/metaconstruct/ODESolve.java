@@ -118,6 +118,7 @@ public class ODESolve extends AbstractDLMetaOperator {
                         + term.op());
             }
         } else {
+        	if(MathSolverManager.isODESolverSet()) {
                 ODESolverResult odeResult = MathSolverManager
                         .getCurrentODESolver().odeSolve(system, t, ts, post,
                                 nss);
@@ -155,7 +156,9 @@ public class ODESolve extends AbstractDLMetaOperator {
                     throw new IllegalStateException("Unknown modality "
                             + term.op());
                 }
+        	}
         }
+        return term;
     }
 
     /**
