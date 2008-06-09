@@ -21,6 +21,8 @@ package de.uka.ilkd.key.dl.arithmetics.impl.orbital;
 
 import java.rmi.RemoteException;
 
+import org.w3c.dom.Node;
+
 import orbital.logic.functor.Function;
 import orbital.math.AlgebraicAlgorithms;
 import orbital.math.Polynomial;
@@ -36,8 +38,11 @@ import de.uka.ilkd.key.logic.Term;
  */
 public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 
-	public static final GroebnerBasisChecker INSTANCE = new GroebnerBasisChecker();
-	
+	/**
+	 * 
+	 */
+	public GroebnerBasisChecker(Node node) {
+	}
 	/*
 	 * (non-Javadoc)
 	 * 

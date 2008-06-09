@@ -167,7 +167,7 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
 							"select the arithmetic tool that should be used to simplify expressions",
 							true, false, SimplifierPropertyEditor.class),
 					createDescriptor(
-							"groebner basisx",
+							"groebnerBasisCalculator",
 							"calculator backend for groebner basis",
 							"select the arithmetic tool that should be used to calculate groebner basis",
 							true, false,
