@@ -798,14 +798,19 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 					new Expr(LIST, vars.toArray(new Expr[vars.size()])) })).expression;
 			System.out.println("Result is: " + expression);
 			if (expression.head().equals(LIST)) {
+				System.out.println("Found list");
 				if(expression.head().args().length == 2) {
+					System.out.println("Has 2 args");
 					if(expression.head().args()[1].head().equals(new Expr(1))) {
+						System.out.println("Second is 1");
 						if (expression.args()[0].head().equals(LIST)) {
+							System.out.println("First is a list too");
 							boolean test = true;
 							for(int i = 0; i < expression.args()[0].args().length; i++) {
 								test = test && expression.args()[0].args()[i].head().equals(new Expr(0));
 							}
 							if(test) {
+								System.out.println("Contains only zero");
 								return true;
 							}
 						}
