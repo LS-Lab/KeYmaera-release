@@ -790,8 +790,8 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 					"GroebnerBasis"), new Expr[] {
 					new Expr(LIST, h.toArray(new Expr[h.size()])),
 					new Expr(LIST, vars.toArray(new Expr[vars.size()])),
-					new Expr(RULE, new Expr[] { new Expr("MonomialOrder"),
-							new Expr("DegreeReverseLexicographic") }) })).expression;
+					new Expr(RULE, new Expr[] { new Expr(Expr.SYMBOL, "MonomialOrder"),
+							new Expr(Expr.SYMBOL, "DegreeReverseLexicographic") }) })).expression;
 
 			System.out.println(groebnerBasis);
 			Expr poly = new Expr(1);

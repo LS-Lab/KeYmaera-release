@@ -142,13 +142,13 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
 							"normalize inequalities to greater than and greater equals on the antecedent of the sequent, i.e., to the form a>=b ==> or a>b ==>"),
 					createDescriptor(
 							"applyUpdatesToModalities",
-							"apply updates to modalities",
+							"update modalities",
 							"apply updates to modalites e.g. to get more simpler solutions for differential equations",
 							true, false),
 					createDescriptor(
 							"applyLocalReduce",
-							"apply reduce to single quantifiers",
-							"try to eliminate a all quantifiers in single first-order formulas before trying to reduce the complete sequent",
+							"reduce standalone quantifiers",
+							"first try to eliminate quantifiers in single first-order formulas before trying to reduce the complete sequent",
 							true, false),
 					createDescriptor(
 							"applyGammaRules",
@@ -159,29 +159,29 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
 					createDescriptor(
 							"quantifierEliminator",
 							"real arithmetic solver",
-							"select the arithmetic solver that should be used to eliminate quantifiers",
+							"select the solver for real arithmetic that should be used to eliminate quantifiers",
 							true, false,
 							QuantifierEliminatorPropertyEditor.class),
 					createDescriptor(
 							"simplifier",
-							"simplifier for arithmetic",
-							"select the arithmetic tool that should be used to simplify expressions",
+							"real arithmetic simplifier",
+							"select the simplification algorithm that should be used to simplify arithmetical expressions",
 							true, false, SimplifierPropertyEditor.class),
 					createDescriptor(
 							"groebnerBasisCalculator",
-							"calculator backend for groebner basis",
-							"select the arithmetic tool that should be used to calculate groebner basis",
+							"equation solver",
+							"select the solver for handling equational theories, e.g., by Groebner bases",
 							true, false,
 							GroebnerBasisCalculatorPropertyEditor.class),
 					createDescriptor(
 							"odeSolver",
 							"differential equation handler",
-							"select the arithmetic solver that should be used to solve or otherwise handle differential equations",
+							"select the solver that should be used to solve or handle differential equations",
 							true, false, ODESolversPropertyEditor.class),
 					createDescriptor(
 							"counterExampleGenerator",
 							"counterexample generator",
-							"select the arithmetic tool that should be used to generate counter examples",
+							"select the tool for generating counterexamples",
 							true, false,
 							CounterExampleGeneratorPropertyEditor.class),
 					//
