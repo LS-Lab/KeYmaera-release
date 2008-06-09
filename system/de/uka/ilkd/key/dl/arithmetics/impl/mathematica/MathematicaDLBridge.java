@@ -789,7 +789,9 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 			groebnerBasis = evaluate(new Expr(new Expr(Expr.SYMBOL,
 					"GroebnerBasis"), new Expr[] {
 					new Expr(LIST, h.toArray(new Expr[h.size()])),
-					new Expr(LIST, vars.toArray(new Expr[vars.size()])) })).expression;
+					new Expr(LIST, vars.toArray(new Expr[vars.size()])),
+					new Expr(RULE, new Expr[] { new Expr("MonomialOrder"),
+							new Expr("DegreeReverseLexicographic") }) })).expression;
 
 			System.out.println(groebnerBasis);
 			Expr poly = new Expr(1);
@@ -798,14 +800,16 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 					new Expr(LIST, vars.toArray(new Expr[vars.size()])) })).expression;
 			System.out.println("Result is: " + expression);
 			if (expression.head().equals(LIST)) {
-				if(expression.args().length == 2) {
-					if(expression.args()[1].toString().equals("1")) {
+				if (expression.args().length == 2) {
+					if (expression.args()[1].toString().equals("1")) {
 						if (expression.args()[0].head().equals(LIST)) {
 							boolean test = true;
-							for(int i = 0; i < expression.args()[0].args().length; i++) {
-								test = test && expression.args()[0].args()[i].toString().equals("0");
+							for (int i = 0; i < expression.args()[0].args().length; i++) {
+								test = test
+										&& expression.args()[0].args()[i]
+												.toString().equals("0");
 							}
-							if(test) {
+							if (test) {
 								return true;
 							}
 						}
@@ -826,14 +830,16 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 									new Expr(LIST, vars.toArray(new Expr[vars
 											.size()])) })).expression;
 					if (reduce.head().equals(LIST)) {
-						if(reduce.args().length == 2) {
-							if(reduce.args()[1].toString().equals("1")) {
+						if (reduce.args().length == 2) {
+							if (reduce.args()[1].toString().equals("1")) {
 								if (reduce.args()[0].head().equals(LIST)) {
 									boolean test = true;
-									for(int i = 0; i < reduce.args()[0].args().length; i++) {
-										test = test && reduce.args()[0].args()[i].toString().equals("0");
+									for (int i = 0; i < reduce.args()[0].args().length; i++) {
+										test = test
+												&& reduce.args()[0].args()[i]
+														.toString().equals("0");
 									}
-									if(test) {
+									if (test) {
 										return true;
 									}
 								}
