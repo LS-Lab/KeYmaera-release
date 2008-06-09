@@ -474,6 +474,10 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 						+ compute.toString() + " because message " + msg
 						+ " of the messages in " + messageBlacklist
 						+ " occured");
+			} else if (result.toString().equals(expr.toString())) {
+				throw new UnsolveableException(
+						"Mathematica returned the identity of the query: "
+								+ result);
 			}
 			testForError(link);
 			// System.err.println("Discarding anwser.");
