@@ -217,7 +217,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 		List<Term> values = new ArrayList<Term>();
 		List<String> varNames = new ArrayList<String>();
 		for (String var : vars.keySet()) {
-			varNames.add(var);
+			varNames.add(var.replaceAll(USCORE_ESCAPE, "_"));
 		}
 		Map<String, Integer> multipleSolutions = new HashMap<String, Integer>();
 		for (Update u : updates) {
@@ -369,7 +369,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 			try {
 				de.uka.ilkd.key.logic.op.ProgramVariable var = (de.uka.ilkd.key.logic.op.ProgramVariable) nss
 						.programVariables().lookup(
-								new Name(expr.args()[0].head().asString()));
+								new Name(expr.args()[0].head().asString().replaceAll(USCORE_ESCAPE, "_")));
 				if (var == null) {
 					// var = new de.uka.ilkd.key.logic.op.LocationVariable(
 					// new ProgramElementName(expr.args()[0].head()
@@ -423,8 +423,10 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 		name = name.replaceAll("_", USCORE_ESCAPE);
 		if (form instanceof Dot) {
 			ProgramVariable pv = (ProgramVariable) ((Dot) form).getChildAt(0);
-			vars.put(pv.getElementName().toString(), new Expr(new Expr(
-					Expr.SYMBOL, pv.getElementName().toString()),
+			String pvName = pv.getElementName().toString();
+			pvName = pvName.replaceAll("_", USCORE_ESCAPE);
+			vars.put(pvName, new Expr(new Expr(
+					Expr.SYMBOL, pvName),
 					new Expr[] { new Expr(Expr.SYMBOL, name) }));
 		}
 		if (form instanceof DLNonTerminalProgramElement) {
