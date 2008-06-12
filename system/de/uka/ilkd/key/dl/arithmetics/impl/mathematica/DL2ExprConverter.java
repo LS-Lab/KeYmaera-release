@@ -82,7 +82,7 @@ public class DL2ExprConverter implements ExprConstants {
             }
             if (args.length == 0) {
                 return new Expr(Expr.SYMBOL, ((Predicate) ((PredicateTerm) el)
-                        .getChildAt(0)).getElementName().toString());
+                        .getChildAt(0)).getElementName().toString().replaceAll("_", USCORE_ESCAPE));
             } else {
                 return new Expr(convertDiffEquation(((PredicateTerm) el)
                         .getChildAt(0), t, vars), args);
@@ -123,8 +123,10 @@ public class DL2ExprConverter implements ExprConstants {
             }
         } else if (el instanceof ProgramVariable) {
             ProgramVariable v = (ProgramVariable) el;
-            Expr var = new Expr(Expr.SYMBOL, v.getElementName().toString());
-            if (vars.containsKey(v.getElementName().toString())) {
+            String pvName = v.getElementName().toString();
+            pvName.replaceAll("_", USCORE_ESCAPE);
+			Expr var = new Expr(Expr.SYMBOL, pvName);
+            if (vars.containsKey(pvName)) {
                 String name = t.name().toString();
                 name = name.replaceAll("_", USCORE_ESCAPE);
                 return new Expr(var, new Expr[] { new Expr(Expr.SYMBOL, name) });
@@ -133,7 +135,7 @@ public class DL2ExprConverter implements ExprConstants {
             }
         } else if (el instanceof MetaVariable) {
             MetaVariable v = (MetaVariable) el;
-            return new Expr(Expr.SYMBOL, v.getElementName().toString());
+            return new Expr(Expr.SYMBOL, v.getElementName().toString().replaceAll("_", USCORE_ESCAPE));
 
         } else {
             if (el instanceof NamedElement) {
@@ -148,7 +150,7 @@ public class DL2ExprConverter implements ExprConstants {
                 Dot dot = (Dot) el;
                 Expr variableName = new Expr(Expr.SYMBOL,
                         ((NamedElement) dot.getChildAt(0))
-                                .getElementName().toString());
+                                .getElementName().toString().replaceAll("_", USCORE_ESCAPE));
                 Expr differentialSymbol = new Expr(new Expr(new Expr(Expr.SYMBOL, "Derivative"),
                         new Expr[] { new Expr(dot.getOrder()) }),
                         new Expr[] { variableName });

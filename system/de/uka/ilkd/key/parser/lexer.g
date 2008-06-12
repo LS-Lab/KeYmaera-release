@@ -27,7 +27,7 @@ header {
 
 class KeYLexer extends Lexer;
 options {
-    k=2;
+    k=3;
     defaultErrorHandler = true;
 }
 
@@ -827,12 +827,12 @@ options {
 		if(LA(1) == '\"') {
                    mQUOTED_STRING_LITERAL(false); continue;
 		}
-		if(LA(1) == '\'') {
-                   mCHAR_LITERAL(false); continue;
-		}
+//		if(LA(1) == '\'') {
+//                   mCHAR_LITERAL(false); continue;
+//		}
 		if((LA(1) == '\r' && LA(2) != '\n') ||
 		    LA(1) == '\n') newline();
-	        if(LA(1) == '\\') break;
+	        if(LA(1) == '\\' && (LA(2) == ']' || LA(2) == '>' || (LA(2) == 'e' && LA(3) == 'n'))) break;
 		matchNot(EOF_CHAR);
 	      }
 	      mMODALITYEND(false);

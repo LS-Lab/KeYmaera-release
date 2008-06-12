@@ -42,6 +42,10 @@ import de.uka.ilkd.key.dl.formulatools.collector.filter.FilterVariableCollector;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
+import orbital.logic.functor.Function;
+import orbital.math.AlgebraicAlgorithms;
+import orbital.math.Polynomial;
+
 import com.wolfram.jlink.Expr;
 import com.wolfram.jlink.ExprFormatException;
 
@@ -53,6 +57,7 @@ import de.uka.ilkd.key.dl.arithmetics.exceptions.IncompleteEvaluationException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ServerStatusProblemException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.UnsolveableException;
+import de.uka.ilkd.key.dl.arithmetics.impl.SumOfSquaresChecker.PolynomialClassification;
 import de.uka.ilkd.key.dl.arithmetics.impl.mathematica.IKernelLinkWrapper.ExprAndMessages;
 import de.uka.ilkd.key.dl.logic.ldt.RealLDT;
 import de.uka.ilkd.key.dl.model.DLNonTerminalProgramElement;
@@ -133,8 +138,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 	/**
 	 * @directed
 	 */
-	//private VariableCollector lnkVariableCollector;
-
+	// private VariableCollector lnkVariableCollector;
 	/**
 	 * @directed
 	 */
@@ -213,7 +217,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 		List<Term> values = new ArrayList<Term>();
 		List<String> varNames = new ArrayList<String>();
 		for (String var : vars.keySet()) {
-			varNames.add(var);
+			varNames.add(var.replaceAll(USCORE_ESCAPE, "_"));
 		}
 		Map<String, Integer> multipleSolutions = new HashMap<String, Integer>();
 		for (Update u : updates) {
@@ -365,7 +369,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 			try {
 				de.uka.ilkd.key.logic.op.ProgramVariable var = (de.uka.ilkd.key.logic.op.ProgramVariable) nss
 						.programVariables().lookup(
-								new Name(expr.args()[0].head().asString()));
+								new Name(expr.args()[0].head().asString().replaceAll(USCORE_ESCAPE, "_")));
 				if (var == null) {
 					// var = new de.uka.ilkd.key.logic.op.LocationVariable(
 					// new ProgramElementName(expr.args()[0].head()
@@ -419,8 +423,10 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 		name = name.replaceAll("_", USCORE_ESCAPE);
 		if (form instanceof Dot) {
 			ProgramVariable pv = (ProgramVariable) ((Dot) form).getChildAt(0);
-			vars.put(pv.getElementName().toString(), new Expr(new Expr(
-					Expr.SYMBOL, pv.getElementName().toString()),
+			String pvName = pv.getElementName().toString();
+			pvName = pvName.replaceAll("_", USCORE_ESCAPE);
+			vars.put(pvName, new Expr(new Expr(
+					Expr.SYMBOL, pvName),
 					new Expr[] { new Expr(Expr.SYMBOL, name) }));
 		}
 		if (form instanceof DLNonTerminalProgramElement) {
@@ -524,8 +530,9 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 			SolverException {
 		Expr query = Term2ExprConverter.convert2Expr(form);
 		List<Expr> vars = new ArrayList<Expr>();
-		Set<String> variables = AllCollector.getItemSet(form).filter(new FilterVariableCollector(null)).getVariables();
-		for (String var : variables ) {
+		Set<String> variables = AllCollector.getItemSet(form).filter(
+				new FilterVariableCollector(null)).getVariables();
+		for (String var : variables) {
 			vars.add(new Expr(Expr.SYMBOL, var.replaceAll("_", USCORE_ESCAPE)));
 		}
 		if (vars.size() > 0) {
@@ -732,5 +739,127 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 			throw new UnsolveableException("Recursive counterexample " + res);
 		}
 		return res.toString();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.uka.ilkd.key.dl.arithmetics.IGroebnerBasisCalculator#checkForConstantGroebnerBasis(de.uka.ilkd.key.dl.arithmetics.impl.SumOfSquaresChecker.PolynomialClassification)
+	 */
+	public boolean checkForConstantGroebnerBasis(
+			PolynomialClassification<Term> terms) {
+		Set<Expr> f = new HashSet<Expr>();
+		Set<Expr> g = new HashSet<Expr>();
+		Set<Expr> h = new HashSet<Expr>();
+		Set<Expr> vars = new HashSet<Expr>();
+		for (Term t : terms.f) {
+			f.add(Term2ExprConverter.convert2Expr(t.sub(0)));
+			Set<String> variables = AllCollector.getItemSet(t).filter(
+					new FilterVariableCollector(null)).getVariables();
+			for (String var : variables) {
+				vars.add(new Expr(Expr.SYMBOL, var.replaceAll("_",
+						USCORE_ESCAPE)));
+			}
+		}
+		for (Term t : terms.g) {
+			g.add(Term2ExprConverter.convert2Expr(t.sub(0)));
+			Set<String> variables = AllCollector.getItemSet(t).filter(
+					new FilterVariableCollector(null)).getVariables();
+			for (String var : variables) {
+				vars.add(new Expr(Expr.SYMBOL, var.replaceAll("_",
+						USCORE_ESCAPE)));
+			}
+		}
+		for (Term t : terms.h) {
+			h.add(Term2ExprConverter.convert2Expr(t.sub(0)));
+			Set<String> variables = AllCollector.getItemSet(t).filter(
+					new FilterVariableCollector(null)).getVariables();
+			for (String var : variables) {
+				vars.add(new Expr(Expr.SYMBOL, var.replaceAll("_",
+						USCORE_ESCAPE)));
+			}
+		}
+		PolynomialClassification<Expr> classify2 = new PolynomialClassification<Expr>(
+				f, g, h);
+
+		// we try to get a contradiction by computing the groebner basis of all
+		// the equalities. if the common basis contains a constant part, the
+		// equality system is unsatisfiable, thus we can close this goal
+
+		Expr groebnerBasis;
+		try {
+			Expr order = new Expr(RULE, new Expr[] { new Expr(Expr.SYMBOL, "MonomialOrder"),
+					new Expr(Expr.SYMBOL, "DegreeReverseLexicographic") });
+			groebnerBasis = evaluate(new Expr(new Expr(Expr.SYMBOL,
+					"GroebnerBasis"), new Expr[] {
+					new Expr(LIST, h.toArray(new Expr[h.size()])),
+					new Expr(LIST, vars.toArray(new Expr[vars.size()])),
+					order })).expression;
+
+			assert groebnerBasis.head().equals(LIST) : "The head of the returned groebner basis has to be a list";
+			System.out.println(groebnerBasis);
+			Expr poly = new Expr(1);
+			Expr expression = evaluate(new Expr(new Expr(Expr.SYMBOL,
+					"PolynomialReduce"), new Expr[] { poly, groebnerBasis,
+					new Expr(LIST, vars.toArray(new Expr[vars.size()])), order })).expression;
+			System.out.println("Result is: " + expression);
+			if (expression.head().equals(LIST)) {
+				if (expression.args().length == 2) {
+					if (expression.args()[1].toString().equals("1")) {
+						if (expression.args()[0].head().equals(LIST)) {
+							boolean test = true;
+							for (int i = 0; i < expression.args()[0].args().length; i++) {
+								test = test
+										&& expression.args()[0].args()[i]
+												.toString().equals("0");
+							}
+							if (test) {
+								return true;
+							}
+						}
+					}
+				}
+			}
+			if (!classify2.g.isEmpty()) {
+				// we test if one of the inequalities g is unsatisfiable under
+				// the
+				// variety \forall f \in h: f = 0. if it is, we get false on the
+				// left side of the sequent and can close this goal
+				for (Expr curG : classify2.g) {
+					Expr reduce = evaluate(new Expr(new Expr(Expr.SYMBOL,
+							"PolynomialReduce"),
+							new Expr[] {
+									curG,
+									groebnerBasis,
+									new Expr(LIST, vars.toArray(new Expr[vars
+											.size()])), order })).expression;
+					if (reduce.head().equals(LIST)) {
+						if (reduce.args().length == 2) {
+							if (reduce.args()[1].toString().equals("1")) {
+								if (reduce.args()[0].head().equals(LIST)) {
+									boolean test = true;
+									for (int i = 0; i < reduce.args()[0].args().length; i++) {
+										test = test
+												&& reduce.args()[0].args()[i]
+														.toString().equals("0");
+									}
+									if (test) {
+										return true;
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SolverException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return false;
 	}
 }

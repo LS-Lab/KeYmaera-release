@@ -29,6 +29,7 @@ import java.util.Set;
 
 import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
 import de.uka.ilkd.key.dl.model.TermFactory;
+import de.uka.ilkd.key.dl.rules.GroebnerBasisRule;
 import de.uka.ilkd.key.gui.GUIEvent;
 import de.uka.ilkd.key.gui.KeYMediator;
 import de.uka.ilkd.key.gui.Main;
@@ -196,7 +197,9 @@ public class DLOptionBean implements Settings {
 
 	private static final String DLOPTIONS_APPLY_LOCAL_REDUCE = "[DLOptions]applyLocalReduce";
 
-	private static final String dLOPTIONS_SIMPLIFY_AFTER_ODESOLVE = "[DLOptions]simplifyAfterODESolve";
+	private static final String DLOPTIONS_SIMPLIFY_AFTER_ODESOLVE = "[DLOptions]simplifyAfterODESolve";
+
+	private static final String DLOPTIONS_GROEBNER_BASIS_CALCULATOR = "[DLOptions]groebnerBasisCalculator";
 
 	private Set<Settings> subOptions;
 
@@ -260,6 +263,8 @@ public class DLOptionBean implements Settings {
 
 	private boolean simplifyAfterODESolve;
 
+	private String groebnerBasisCalculator;
+
 	private DLOptionBean() {
 		subOptions = new LinkedHashSet<Settings>();
 		callReduce = true;
@@ -281,6 +286,7 @@ public class DLOptionBean implements Settings {
 		odeSolver = "";
 		quantifierEliminator = "";
 		simplifier = "";
+		groebnerBasisCalculator = "";
 		applyGammaRules = ApplyRules.ONLY_TO_MODALITIES;
 		counterexampleTest = CounterexampleTest.ON;
 		invariantRule = InvariantRule.QUANTIFIERS;
@@ -318,6 +324,9 @@ public class DLOptionBean implements Settings {
 		if (simplifier.equals("")
 				&& !MathSolverManager.getSimplifiers().isEmpty()) {
 			simplifier = MathSolverManager.getSimplifiers().iterator().next();
+		}
+		if(groebnerBasisCalculator.equals("") && !MathSolverManager.getGroebnerBasisCalculators().isEmpty()) {
+			groebnerBasisCalculator = MathSolverManager.getGroebnerBasisCalculators().iterator().next();
 		}
 	}
 
@@ -517,7 +526,10 @@ public class DLOptionBean implements Settings {
 		if (simplifier == null) {
 			simplifier = "";
 		}
-
+		groebnerBasisCalculator = props.getProperty(DLOPTIONS_GROEBNER_BASIS_CALCULATOR);
+		if (groebnerBasisCalculator== null) {
+			groebnerBasisCalculator = "";
+		}
 		property = props.getProperty(DLOPTIONS_APPLY_GAMMA_RULES);
 		if (property != null) {
 			applyGammaRules = ApplyRules.valueOf(property);
@@ -562,7 +574,7 @@ public class DLOptionBean implements Settings {
 			applyLocalReduce = Boolean.valueOf(property);
 		}
 
-		property = props.getProperty(dLOPTIONS_SIMPLIFY_AFTER_ODESOLVE);
+		property = props.getProperty(DLOPTIONS_SIMPLIFY_AFTER_ODESOLVE);
 		if (property != null) {
 			simplifyAfterODESolve = Boolean.valueOf(property);
 		}
@@ -623,6 +635,9 @@ public class DLOptionBean implements Settings {
 		if (simplifier != null) {
 			props.setProperty(DLOPTIONS_SIMPLIFIER, simplifier);
 		}
+		if (simplifier != null) {
+			props.setProperty(DLOPTIONS_GROEBNER_BASIS_CALCULATOR, groebnerBasisCalculator);
+		}
 
 		props.setProperty(DLOPTIONS_APPLY_GAMMA_RULES, applyGammaRules.name());
 		props.setProperty(DLOPTIONS_INVARIANT_RULE, invariantRule.name());
@@ -642,7 +657,7 @@ public class DLOptionBean implements Settings {
 				.getName());
 		props.setProperty(DLOPTIONS_APPLY_LOCAL_REDUCE, Boolean
 				.toString(applyLocalReduce));
-		props.setProperty(dLOPTIONS_SIMPLIFY_AFTER_ODESOLVE, Boolean
+		props.setProperty(DLOPTIONS_SIMPLIFY_AFTER_ODESOLVE, Boolean
 				.toString(simplifyAfterODESolve));
 	}
 
@@ -1064,5 +1079,25 @@ public class DLOptionBean implements Settings {
 			this.simplifyAfterODESolve = simplifyAfterODESolve;
 			firePropertyChanged();
 		}
+	}
+
+	/**
+	 * @return
+	 * TODO documentation since Jun 9, 2008
+	 */
+	public String getGroebnerBasisCalculator() {
+		return groebnerBasisCalculator;
+	}
+
+	/**
+	 * @return
+	 * TODO documentation since Jun 9, 2008
+	 */
+	public void setGroebnerBasisCalculator(String groebnerBasisCalculator) {
+		if (this.groebnerBasisCalculator != groebnerBasisCalculator) {
+			this.groebnerBasisCalculator = groebnerBasisCalculator;
+			firePropertyChanged();
+		}
+		
 	}
 }
