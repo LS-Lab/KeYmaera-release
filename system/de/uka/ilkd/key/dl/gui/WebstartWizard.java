@@ -38,12 +38,7 @@ public class WebstartWizard {
 	public static void main(String[] args) {
 		// JFrame mainFrame = new MainFrame();
 		// mainFrame.setVisible(true);
-		JOptionPane
-				.showMessageDialog(
-						null,
-			"Please note that this is only a RESTRICTED WEBSTARTABLE VERSION of the KeYmaera prover for hybrid systems!\n\nThe full version of KeYmaera needs to be installed on your computer to work properly.\nYou can download the full version of KeYmaera for installation on your computer from:\n\n    http://www.functologic.com/info/KeYmaera-download.html\n\nThe full installation has much more features, including the handling of hybrid systems or specifications with inequalities.\nBut you need to have Mathematica installed.\n\nUnfortunately, Mathematica does not allow webstartable versions,\neven if you have already installed Mathematica on your machine.\nWe apologize for the inconvenience.",
-                   "Webstart Restriction Notification",
-                   JOptionPane.INFORMATION_MESSAGE);
+		showRestrictionWarning(null);
 		InputStream resourceAsStream = MainFrame.class
 				.getResourceAsStream("/examples/hybrid/groebner_basis/accel-simple.key");
 		try {
@@ -66,6 +61,18 @@ public class WebstartWizard {
 			e.printStackTrace();
 		}
 
+	}
+
+	/**
+	 * 
+	 */
+	public static void showRestrictionWarning(JFrame parent) {
+		JOptionPane
+				.showMessageDialog(
+						parent,
+			"Please note that this is only a RESTRICTED WEBSTARTABLE VERSION of the KeYmaera prover for hybrid systems!\n\nThe full version of KeYmaera needs to be installed on your computer to work properly.\nYou can download the full version of KeYmaera for installation on your computer from:\n\n    http://www.functologic.com/info/KeYmaera-download.html\n\nThe full installation has much more features, including the handling of hybrid systems or specifications with inequalities.\nBut you need to have Mathematica installed.\n\nUnfortunately, Mathematica does not allow webstartable versions,\neven if you have already installed Mathematica on your machine.\nWe apologize for the inconvenience.",
+                   "Webstart Restriction Notification",
+                   JOptionPane.INFORMATION_MESSAGE);
 	}
 
 }
