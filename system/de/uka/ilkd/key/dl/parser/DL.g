@@ -48,7 +48,7 @@ prog:  stat {
 		}
 	} (CHOP!)? EOF!; 
 
-annotation: ANNOTATION WORD LPAREN! form? (COMMA! form)* RPAREN!;
+annotation: ANNOTATION WORD LPAREN! form[true]? (COMMA! form[true])* RPAREN!;
 
 stat: parallel
 ;
@@ -77,35 +77,35 @@ itomp options { k=3; } : quest | assign | LPAREN! stat RPAREN! | diffsystem | if
 vardec: (type var (COMMA var)*) -> ^(VARDEC type var*)
 ;
 
-ifThenElse: IF^ LPAREN! form RPAREN! THEN! stat (ELSE! stat)? FI!
+ifThenElse: IF^ LPAREN! form[false] RPAREN! THEN! stat (ELSE! stat)? FI!
 ;
 
 diffeq: diff EQUALS^ expr[true]
 ;
 
-quest: QUEST^ form; /* FO grammar goes here */
+quest: QUEST^ form[false]; /* FO grammar goes here */
 
-form: biimplies 
+form[boolean diffAllowed]: biimplies[diffAllowed] 
 ;
 
-biimplies: implies (BIIMPL^ biimplies)?
+biimplies[boolean diffAllowed]: implies[diffAllowed] (BIIMPL^ biimplies[diffAllowed])?
 ;
 
-implies: or (IMPL^ implies)?
+implies[boolean diffAllowed]: or[diffAllowed] (IMPL^ implies[diffAllowed])?
 ;
 
-or: and (OR^ or)?
+or[boolean diffAllowed]: and[diffAllowed] (OR^ or[diffAllowed])?
 ;
 
-and: pred (AND^ and)?
+and[boolean diffAllowed]: pred[diffAllowed] (AND^ and[diffAllowed])?
 ;
 
-pred: 
-(expr[false] brel) => expr[false] brel^ expr[false]
-| func[false] 
-| LPAREN! form RPAREN!
-| NOT^ pred
-| (FORALL|EXISTS)^ vardec CHOP pred
+pred[boolean diffAllowed]: 
+(expr[true] brel) => expr[diffAllowed] brel^ expr[diffAllowed]
+| func[diffAllowed] 
+| LPAREN! form[diffAllowed] RPAREN!
+| NOT^ pred[diffAllowed]
+| (FORALL|EXISTS)^ vardec CHOP pred[diffAllowed]
 | {schemaMode}? sv
 ;
 
@@ -158,16 +158,9 @@ diff: WORD (DOT^)+
 ;
 
 diffsystem:
-LBRACE algodiffeq[true] (COMMA algodiffeq[true])* RBRACE
--> ^(DIFFSYSTEM algodiffeq+)
+LBRACE form[true] (COMMA form[true])* RBRACE
+-> ^(DIFFSYSTEM form+)
 | diffeq -> ^(DIFFSYSTEM diffeq)
-;
-
-algodiffeq[boolean diffAllowed]: 
-/* paremter is only used because of wrong parser generation */
-(diff) => diffeq
-| (LPAREN diff) => LPAREN! diffeq RPAREN!
-| form
 ;
 
 sv: SV^ WORD;
