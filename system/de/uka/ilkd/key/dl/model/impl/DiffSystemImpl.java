@@ -53,113 +53,122 @@ import de.uka.ilkd.key.logic.TermBuilder;
  * @author ap
  */
 public class DiffSystemImpl extends DLNonTerminalProgramElementImpl implements
-        DiffSystem {
+		DiffSystem {
 
-    /**
-     * Creates a new DiffSystem with the given content
-     * 
-     * @param content
-     *                the content of the system
-     */
-    public DiffSystemImpl(List<Formula> content) {
-        for (Formula f : content) {
-            addChild(f);
-        }
-    }
+	/**
+	 * Creates a new DiffSystem with the given content
+	 * 
+	 * @param content
+	 *            the content of the system
+	 */
+	public DiffSystemImpl(List<Formula> content) {
+		for (Formula f : content) {
+			addChild(f);
+		}
+	}
 
-    /**
-     * @see de.uka.ilkd.key.dl.model.impl.DLNonTerminalProgramElementImpl#prettyPrint(de.uka.ilkd.key.java.PrettyPrinter)
-     *      prettyPrint
-     */
-    public void prettyPrint(PrettyPrinter arg0) throws IOException {
-        arg0.printDiffSystem(this);
-    }
+	/**
+	 * @see de.uka.ilkd.key.dl.model.impl.DLNonTerminalProgramElementImpl#prettyPrint(de.uka.ilkd.key.java.PrettyPrinter)
+	 *      prettyPrint
+	 */
+	public void prettyPrint(PrettyPrinter arg0) throws IOException {
+		arg0.printDiffSystem(this);
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see de.uka.ilkd.key.java.ReuseableProgramElement#reuseSignature(de.uka.ilkd.key.java.Services,
-     *      de.uka.ilkd.key.java.reference.ExecutionContext)
-     */
-    public String reuseSignature(Services services, ExecutionContext ec) {
-        StringBuilder result = new StringBuilder();
-        result.append("{");
-        for (ProgramElement p : this) {
-            result.append(((DLProgramElement) p).reuseSignature(services, ec));
-        }
-        result.append("}");
-        return result.toString();
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.uka.ilkd.key.java.ReuseableProgramElement#reuseSignature(de.uka.ilkd.key.java.Services,
+	 *      de.uka.ilkd.key.java.reference.ExecutionContext)
+	 */
+	public String reuseSignature(Services services, ExecutionContext ec) {
+		StringBuilder result = new StringBuilder();
+		result.append("{");
+		for (ProgramElement p : this) {
+			result.append(((DLProgramElement) p).reuseSignature(services, ec));
+		}
+		result.append("}");
+		return result.toString();
+	}
 
-    /**
-     * Test whether there is a Dot in the program or not
-     * 
-     * @param el
-     *                the current root element
-     * @return true if an element is found that is instance of Dot
-     */
-    public boolean isDifferentialEquation(ProgramElement el) {
-        if (el instanceof Dot) {
-            return true;
-        } else if (el instanceof DLNonTerminalProgramElement) {
-            boolean result = false;
-            for (ProgramElement p : (DLNonTerminalProgramElement) el) {
-                result |= isDifferentialEquation(p);
-            }
-            return result;
-        }
-        return false;
-    }
+	/**
+	 * Test whether there is a Dot in the program or not
+	 * 
+	 * @param el
+	 *            the current root element
+	 * @return true if an element is found that is instance of Dot
+	 */
+	public boolean isDifferentialEquation(ProgramElement el) {
+		if (el instanceof Dot) {
+			return true;
+		} else if (el instanceof DLNonTerminalProgramElement) {
+			boolean result = false;
+			for (ProgramElement p : (DLNonTerminalProgramElement) el) {
+				result |= isDifferentialEquation(p);
+			}
+			return result;
+		}
+		return false;
+	}
 
-    /**
-     * Get the (accumulated) invariant of this DiffSystem, i.e., the non-differential part.
-     */
-    public Term getInvariant() {
-        Term invariant = TermBuilder.DF.tt();
-        for (ProgramElement el : this) {
-            if (!isDifferentialEquation(el)) {
-                invariant = TermBuilder.DF.and(invariant, Prog2LogicConverter
-                        .convert((DLProgramElement) el, Main.getInstance()
-                                .mediator().getServices()));
-            }
-        }
-        return invariant;
-    }
+	/**
+	 * Get the (accumulated) invariant of this DiffSystem, i.e., the
+	 * non-differential part.
+	 */
+	public Term getInvariant() {
+		Term invariant = TermBuilder.DF.tt();
+		for (ProgramElement el : this) {
+			if (!isDifferentialEquation(el)) {
+				if (invariant.equals(TermBuilder.DF.tt())) {
+					invariant = TermBuilder.DF.and(invariant,
+							Prog2LogicConverter
+									.convert((DLProgramElement) el, Main
+											.getInstance().mediator()
+											.getServices()));
+				} else {
+					throw new IllegalStateException("No single invariant");
+				}
+			}
+		}
+		return invariant;
+	}
 
-    /**
-     * Get the set of differential equations occurring in this DiffSystem.
-     * @param system TODO
-     */
-    public List<ProgramElement> getDifferentialEquations() {
-        List<ProgramElement> equations = new ArrayList<ProgramElement>();
-        for (ProgramElement el : this) {
-            if (isDifferentialEquation(el)) {
-                equations.add(el);
-            }
-        }
-        return equations;
-    }
+	/**
+	 * Get the set of differential equations occurring in this DiffSystem.
+	 * 
+	 * @param system
+	 *            TODO
+	 */
+	public List<ProgramElement> getDifferentialEquations() {
+		List<ProgramElement> equations = new ArrayList<ProgramElement>();
+		for (ProgramElement el : this) {
+			if (isDifferentialEquation(el)) {
+				equations.add(el);
+			}
+		}
+		return equations;
+	}
 
-    @Override
-    public DiffSystem getDifferentialFragment() {
-        List<Formula> equations = new ArrayList<Formula>();
-        for (ProgramElement el : this) {
-            if (isDifferentialEquation(el)) {
-                equations.add((Formula)el);
-            }
-        }
-        return new DiffSystemImpl(equations);
-    }
+	@Override
+	public DiffSystem getDifferentialFragment() {
+		List<Formula> equations = new ArrayList<Formula>();
+		for (ProgramElement el : this) {
+			if (isDifferentialEquation(el)) {
+				equations.add((Formula) el);
+			}
+		}
+		return new DiffSystemImpl(equations);
+	}
 
-    @Override
-    public DiffSystem getInvariantFragment() {
-        List<Formula> equations = new ArrayList<Formula>();
-        for (ProgramElement el : this) {
-            if (!isDifferentialEquation(el)) {
-                equations.add((Formula)el);
-            }
-        }
-        return new DiffSystemImpl(equations);
-    }
+	@Override
+	public DiffSystem getInvariantFragment() {
+		List<Formula> equations = new ArrayList<Formula>();
+		for (ProgramElement el : this) {
+			if (!isDifferentialEquation(el)) {
+				equations.add((Formula) el);
+			}
+		}
+		return new DiffSystemImpl(equations);
+	}
 
 }
