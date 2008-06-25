@@ -19,12 +19,17 @@
  ***************************************************************************/
 package de.uka.ilkd.key.dl.rules.metaconstruct;
 
+import java.io.IOException;
+import java.io.StringWriter;
+import java.text.Normalizer.Form;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator.QuantifierType;
 import de.uka.ilkd.key.dl.formulatools.ReplaceVisitor;
@@ -53,6 +58,7 @@ import de.uka.ilkd.key.dl.model.Unequals;
 import de.uka.ilkd.key.dl.model.Variable;
 import de.uka.ilkd.key.dl.model.VariableDeclaration;
 import de.uka.ilkd.key.dl.model.impl.TermFactoryImpl;
+import de.uka.ilkd.key.java.PrettyPrinter;
 import de.uka.ilkd.key.java.ProgramElement;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.java.StatementBlock;
@@ -147,6 +153,9 @@ public class DNFTransformer extends AbstractDLMetaOperator {
 			}
 			Result r = createPrenexForm(form, services.getNamespaces(), tf);
 			Formula result = r.form;
+			// transform formula result to DNF
+			result = createDNF(result, tf);
+
 			Collections.reverse(r.quantifiers);
 			for (Pair p : r.quantifiers) {
 				VariableDeclaration decl = tf.createVariableDeclaration(p.sort,
@@ -171,6 +180,66 @@ public class DNFTransformer extends AbstractDLMetaOperator {
 		} catch (Exception e) {
 			throw new IllegalArgumentException(e);
 		}
+	}
+
+	/**
+	 * @param result
+	 * @param tf
+	 * @return
+	 */
+	private Formula createDNF(Formula result, TermFactory tf) {
+		// split or
+		Set<Set<Formula>> or = new LinkedHashSet<Set<Formula>>();
+		or.add(new LinkedHashSet<Formula>());
+		or.iterator().next().add(result);
+		LinkedHashSet<Set<Formula>> newOr = new LinkedHashSet<Set<Formula>>();
+		boolean changed = true;
+		while (changed) {
+			changed = false;
+			for (Set<Formula> and : or) {
+				Set<Formula> newAnd = new LinkedHashSet<Formula>();
+				for (Formula f : and) {
+					if (f instanceof And) {
+						newAnd.add((Formula) ((And) f).getChildAt(0));
+						newAnd.add((Formula) ((And) f).getChildAt(1));
+						changed = true;
+					} else if (f instanceof Or) {
+						newAnd.remove(f);
+						Set<Formula> forms = new LinkedHashSet<Formula>(newAnd);
+						newOr.add(forms);
+						// now forms and and are the same and both known
+						// elements of "newOr"
+
+						forms.add((Formula) ((Or) f).getChildAt(0));
+						newAnd.add((Formula) ((Or) f).getChildAt(1));
+						changed = true;
+					} else {
+						newAnd.add(f);
+					}
+					System.out.println(changed);//XXX
+				}
+				newOr.add(newAnd);
+			}
+			or = newOr;
+			newOr = new LinkedHashSet<Set<Formula>>();
+		}
+		result = null;
+		for(Set<Formula> and: or) {
+			Formula con = null;
+			for(Formula f: and) {
+				if(con == null) {
+					con = f;
+				} else {
+					con = tf.createAnd(con, f);
+				}
+			}
+			if(result == null) {
+				result = con;
+			} else {
+				result = tf.createOr(result, con);
+			}
+		}
+		return result;
 	}
 
 	/**
