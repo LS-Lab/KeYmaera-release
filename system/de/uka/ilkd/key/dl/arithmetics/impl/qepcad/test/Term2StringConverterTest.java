@@ -4,42 +4,58 @@ import de.uka.ilkd.key.dl.arithmetics.impl.qepcad.Term2StringConverter;
 import de.uka.ilkd.key.logic.Name;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.TermBuilder;
+import de.uka.ilkd.key.logic.op.Equality;
 import de.uka.ilkd.key.logic.op.RigidFunction;
+import de.uka.ilkd.key.logic.sort.AbstractNonCollectionSort;
+import de.uka.ilkd.key.logic.sort.SetOfSort;
 import de.uka.ilkd.key.logic.sort.Sort;
 
 import junit.framework.TestCase;
 
+class SortR extends AbstractNonCollectionSort {
+	
+	public static final SortR R = new SortR( new Name("R"));
+	
+	public SortR( Name name ) {
+		super(name);
+	}
+	
+	@Override
+	public SetOfSort extendsSorts() {		
+		return null;
+	}
+}
+
 public class Term2StringConverterTest extends TestCase {
 
-	public void test_convert() {
+	TermBuilder tb = TermBuilder.DF;
+	
+	RigidFunction a = new RigidFunction(new Name("A"), Sort.FORMULA,new Sort[0]);
+	RigidFunction b = new RigidFunction(new Name("B"), Sort.FORMULA,new Sort[0]);
+	RigidFunction c = new RigidFunction(new Name("C"), Sort.FORMULA,new Sort[0]);
+		
+	RigidFunction two = new RigidFunction( new Name("2"), SortR.R, new Sort[0]);
+	RigidFunction mul = new RigidFunction( new Name("mul"), SortR.R, new Sort[] { Sort.ANY, Sort.ANY});
+	RigidFunction add = new RigidFunction( new Name("add"), SortR.R, new Sort[] { Sort.ANY, Sort.ANY});
+	RigidFunction eq = new RigidFunction( new Name("equals"), SortR.R, new Sort[] { Sort.ANY, Sort.ANY});
+	
+	public void test_booleanConvert() {
 
 		// Creates the term '(not a) or b'
-		TermBuilder tb = TermBuilder.DF;
-
-		RigidFunction rigidFunction = new RigidFunction(new Name("A"),
-				Sort.FORMULA, new Sort[0]);
-		RigidFunction rigidFunction2 = new RigidFunction(new Name("B"),
-				Sort.FORMULA, new Sort[0]);
-
-		Term term = tb.or(tb.not(tb.func(rigidFunction)), tb
-				.func(rigidFunction2));
+		Term term = tb.or(tb.not(tb.func(a)), tb.func(b));
 
 		String termString = Term2StringConverter.convert2String(term);
 
 		assertEquals("((~(A))\\/(B))", termString);
 	}
 
-	public void test_convert2() {
+	public void test_arithmeticConvert() {
 
 		// Creates the term '(2 * a) + c = b'
-		TermBuilder tb = TermBuilder.DF;
-
-		RigidFunction a = new RigidFunction(new Name("A"), Sort.FORMULA,
-				new Sort[0]);
-		RigidFunction b = new RigidFunction(new Name("B"), Sort.FORMULA,
-				new Sort[0]);
-		RigidFunction c = new RigidFunction(new Name("B"), Sort.FORMULA,
-				new Sort[0]);		
+		Term term = tb.func(eq, tb.func(add, tb.func(mul, tb.func(two),tb.func(a)), tb.func(c)), tb.func(b));
+		
+		String termString = Term2StringConverter.convert2String(term);
+		assertEquals("(((2*(A))+(C))=(B))", termString);
 	}
 
 	public void test_arrayConvert() {
