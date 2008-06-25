@@ -106,9 +106,9 @@ public class Term2StringConverter {
 			}
 		} else if (form.op() instanceof Quantifier) {
 			if (form.op() == Quantifier.ALL) {
-				return "(A " + args[0] + ")";
+				return "(A )" + args[0];
 			} else if (form.op() == Quantifier.EX) {
-				return "(E " + args[0] + ")";
+				return "(E )" + args[0];
 			}
 		}
 		throw new IllegalArgumentException("Could not convert Term: " + form
