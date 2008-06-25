@@ -56,6 +56,13 @@ public class DiffFin extends AbstractDLMetaOperator {
 
 	public static final Name NAME = new Name("#DiffFin");
 
+	private class Result {
+		List<Formula> forms = new LinkedList<Formula>();
+		List<LogicVariable> quantifiedVariables = new LinkedList<LogicVariable>();
+		DiffSystem sys;
+		boolean changed = false;
+	}
+
 	public DiffFin() {
 		super(NAME, 1);
 	}
@@ -86,46 +93,19 @@ public class DiffFin extends AbstractDLMetaOperator {
 		try {
 			if (arg.op() == Modality.DIA) {
 				// TODO: build DNF and split...
-				List<Formula> forms = new LinkedList<Formula>();
-				List<LogicVariable> quantifiedVariables = new LinkedList<LogicVariable>();
-				for (int k = 0; k < system.getChildCount(); k++) {
-					Formula f = (Formula) system.getChildAt(k);
-					if (f instanceof Exists) {
-						Exists exists = (Exists) f;
 
-						VariableDeclaration childAt2 = (VariableDeclaration) exists
-								.getChildAt(0);
-						HashMap<QuantifiableVariable, Term> map = new HashMap<QuantifiableVariable, Term>();
-						for (int i = 1; i < childAt2.getChildCount(); i++) {
-							String string = ((Variable) childAt2.getChildAt(i)).toString();
-							String n2 = string + "_";
-							int j = 0;
-							Name n = new Name(n2 + j);
-							while (nss.lookup(n) != null) {
-								n = new Name(n2 + ++j);
-							}
-							LogicVariable sym = new LogicVariable(n, RealLDT.getRealSort());
-							nss.variables().add(sym);
-							map.put(new LogicVariable(new Name(string), RealLDT.getRealSort()),
-									TermBuilder.DF.var(sym));
-							quantifiedVariables.add(sym);
-						}
-							forms
-							.add((Formula) ReplaceVisitor.convert((Formula) exists.getChildAt(1), map, TermFactory
-									.getTermFactory(TermFactoryImpl.class, nss)));
-
-					}
-				}
-				Term diffFin2 = MathSolverManager.getCurrentODESolver().diffFin(TermFactory
-						.getTermFactory(TermFactoryImpl.class, nss).createDiffSystem(forms),
-						post, nss);
-				// reintroduce the quantifieres
-				Collections.reverse(quantifiedVariables);
-				for(LogicVariable var: quantifiedVariables) {
+				Result r = new Result();
+				r.sys = system;
+				r = removeQuantifiers(nss, r);
+				Term diffFin2 = MathSolverManager.getCurrentODESolver()
+						.diffFin(r.sys, post, nss);
+				// reintroduce the quantifiers
+				Collections.reverse(r.quantifiedVariables);
+				for (LogicVariable var : r.quantifiedVariables) {
 					diffFin2 = TermBuilder.DF.all(var, diffFin2);
 				}
 				return diffFin2;
-			} else { 
+			} else {
 				throw new IllegalStateException("Unknown modality " + arg.op());
 			}
 		} catch (UnsolveableException e) {
@@ -140,5 +120,59 @@ public class DiffFin extends AbstractDLMetaOperator {
 			throw (InternalError) new InternalError(e.getMessage())
 					.initCause(e);
 		}
+	}
+
+	/**
+	 * @param system
+	 * @param nss
+	 * @param r
+	 * @throws InvocationTargetException
+	 * @throws IllegalAccessException
+	 * @throws InstantiationException
+	 * @throws NoSuchMethodException
+	 */
+	private Result removeQuantifiers(final NamespaceSet nss, Result r)
+			throws InvocationTargetException, IllegalAccessException,
+			InstantiationException, NoSuchMethodException {
+		for (int k = 0; k < r.sys.getChildCount(); k++) {
+			Formula f = (Formula) r.sys.getChildAt(k);
+			if (f instanceof Exists) {
+				r.changed = true;
+				Exists exists = (Exists) f;
+
+				VariableDeclaration childAt2 = (VariableDeclaration) exists
+						.getChildAt(0);
+				HashMap<QuantifiableVariable, Term> map = new HashMap<QuantifiableVariable, Term>();
+				for (int i = 1; i < childAt2.getChildCount(); i++) {
+					String string = ((Variable) childAt2.getChildAt(i))
+							.toString();
+					String n2 = string + "_";
+					int j = 0;
+					Name n = new Name(n2 + j);
+					while (nss.lookup(n) != null) {
+						n = new Name(n2 + ++j);
+					}
+					LogicVariable sym = new LogicVariable(n, RealLDT
+							.getRealSort());
+					nss.variables().add(sym);
+					map.put(new LogicVariable(new Name(string), RealLDT
+							.getRealSort()), TermBuilder.DF.var(sym));
+					r.quantifiedVariables.add(sym);
+				}
+				r.forms.add((Formula) ReplaceVisitor.convert((Formula) exists
+						.getChildAt(1), map, TermFactory.getTermFactory(
+						TermFactoryImpl.class, nss)));
+
+			} else {
+				r.forms.add(f);
+			}
+		}
+		if (r.changed) {
+			r.sys = TermFactory.getTermFactory(TermFactoryImpl.class, nss)
+					.createDiffSystem(r.forms);
+			r.changed = false;
+			r = removeQuantifiers(nss, r);
+		}
+		return r;
 	}
 }
