@@ -20,6 +20,7 @@
 package de.uka.ilkd.key.dl.rules.metaconstruct;
 
 import java.rmi.RemoteException;
+import java.util.Collections;
 
 import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.FailedComputationException;
@@ -27,11 +28,14 @@ import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.UnableToConvertInputException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.UnsolveableException;
 import de.uka.ilkd.key.dl.model.DiffSystem;
+import de.uka.ilkd.key.dl.rules.metaconstruct.DiffFin.RemoveQuantifiersResult;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.java.StatementBlock;
 import de.uka.ilkd.key.logic.Name;
 import de.uka.ilkd.key.logic.NamespaceSet;
 import de.uka.ilkd.key.logic.Term;
+import de.uka.ilkd.key.logic.TermBuilder;
+import de.uka.ilkd.key.logic.op.LogicVariable;
 import de.uka.ilkd.key.logic.op.Modality;
 import de.uka.ilkd.key.logic.sort.Sort;
 import de.uka.ilkd.key.rule.inst.SVInstantiations;
@@ -86,7 +90,16 @@ public class DiffInd extends AbstractDLMetaOperator {
         if (term.op() == Modality.BOX
                 || term.op() == Modality.TOUT) {
             try {
-                return MathSolverManager.getCurrentODESolver().diffInd(system, post, nss);
+				RemoveQuantifiersResult r = new RemoveQuantifiersResult(system);
+				r = DiffFin.removeQuantifiers(nss, r);
+				Term diffInd = MathSolverManager.getCurrentODESolver()
+						.diffInd(r.getSys(), post, nss);
+				// reintroduce the quantifiers
+				Collections.reverse(r.getQuantifiedVariables());
+				for (LogicVariable var : r.getQuantifiedVariables()) {
+					diffInd= TermBuilder.DF.all(var, diffInd);
+				}
+				return diffInd;
             } catch (SolverException e) {
                 throw e;
             } catch (RuntimeException e) {

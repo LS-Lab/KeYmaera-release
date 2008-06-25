@@ -56,11 +56,35 @@ public class DiffFin extends AbstractDLMetaOperator {
 
 	public static final Name NAME = new Name("#DiffFin");
 
-	private class Result {
-		List<Formula> forms = new LinkedList<Formula>();
-		List<LogicVariable> quantifiedVariables = new LinkedList<LogicVariable>();
-		DiffSystem sys;
-		boolean changed = false;
+	public static class RemoveQuantifiersResult {
+
+		private List<Formula> forms = new LinkedList<Formula>();
+		private List<LogicVariable> quantifiedVariables = new LinkedList<LogicVariable>();
+		private DiffSystem sys;
+		private boolean changed = false;
+		
+		/**
+		 * 
+		 */
+		public RemoveQuantifiersResult(DiffSystem sys) {
+			this.sys = sys;
+		}
+
+		/**
+		 * @return the sys
+		 */
+		public DiffSystem getSys() {
+			return sys;
+		}
+
+		/**
+		 * @return the quantifiedVariables
+		 */
+		public List<LogicVariable> getQuantifiedVariables() {
+			return quantifiedVariables;
+		}
+		
+
 	}
 
 	public DiffFin() {
@@ -94,8 +118,7 @@ public class DiffFin extends AbstractDLMetaOperator {
 			if (arg.op() == Modality.DIA) {
 				// TODO: build DNF and split...
 
-				Result r = new Result();
-				r.sys = system;
+				RemoveQuantifiersResult r = new RemoveQuantifiersResult(system);
 				r = removeQuantifiers(nss, r);
 				Term diffFin2 = MathSolverManager.getCurrentODESolver()
 						.diffFin(r.sys, post, nss);
@@ -131,7 +154,7 @@ public class DiffFin extends AbstractDLMetaOperator {
 	 * @throws InstantiationException
 	 * @throws NoSuchMethodException
 	 */
-	private Result removeQuantifiers(final NamespaceSet nss, Result r)
+	public static RemoveQuantifiersResult removeQuantifiers(final NamespaceSet nss, RemoveQuantifiersResult r)
 			throws InvocationTargetException, IllegalAccessException,
 			InstantiationException, NoSuchMethodException {
 		for (int k = 0; k < r.sys.getChildCount(); k++) {
