@@ -3608,7 +3608,7 @@ public class PrettyPrinter {
         printHeader(p);
         markStart(0, p);
         
-        write("exists ");
+        write("\\exists ");
         writeElement(p.getChildAt(0));
         write("; ");
         writeElement(p.getChildAt(1));
@@ -3623,7 +3623,7 @@ public class PrettyPrinter {
         printHeader(p);
         markStart(0, p);
         
-        write("forall ");
+        write("\\forall ");
         writeElement(p.getChildAt(0));
         write("; ");
         writeElement(p.getChildAt(1));
