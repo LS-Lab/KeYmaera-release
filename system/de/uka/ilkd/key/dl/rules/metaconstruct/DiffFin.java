@@ -120,6 +120,7 @@ public class DiffFin extends AbstractDLMetaOperator {
 
 				RemoveQuantifiersResult r = new RemoveQuantifiersResult(system);
 				r = removeQuantifiers(nss, r);
+				System.out.println(r.sys);//XXX
 				Term diffFin2 = MathSolverManager.getCurrentODESolver()
 						.diffFin(r.sys, post, nss);
 				// reintroduce the quantifiers

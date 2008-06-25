@@ -19,6 +19,7 @@
  ***************************************************************************/
 package de.uka.ilkd.key.dl.rules.metaconstruct;
 
+import java.io.StringWriter;
 import java.rmi.RemoteException;
 import java.util.Collections;
 
@@ -29,6 +30,7 @@ import de.uka.ilkd.key.dl.arithmetics.exceptions.UnableToConvertInputException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.UnsolveableException;
 import de.uka.ilkd.key.dl.model.DiffSystem;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DiffFin.RemoveQuantifiersResult;
+import de.uka.ilkd.key.java.PrettyPrinter;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.java.StatementBlock;
 import de.uka.ilkd.key.logic.Name;
@@ -92,6 +94,9 @@ public class DiffInd extends AbstractDLMetaOperator {
             try {
 				RemoveQuantifiersResult r = new RemoveQuantifiersResult(system);
 				r = DiffFin.removeQuantifiers(nss, r);
+				StringWriter writer = new StringWriter();
+				r.getSys().prettyPrint(new PrettyPrinter(writer));
+				System.out.println(writer.toString());//XXX
 				Term diffInd = MathSolverManager.getCurrentODESolver()
 						.diffInd(r.getSys(), post, nss);
 				// reintroduce the quantifiers

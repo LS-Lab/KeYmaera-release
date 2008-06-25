@@ -33,6 +33,7 @@ import de.uka.ilkd.key.dl.rules.metaconstruct.DLInvariantPart;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DLRandomAssign;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DLUniversalClosureOp;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DLUnwindLoop;
+import de.uka.ilkd.key.dl.rules.metaconstruct.DNFTransformer;
 import de.uka.ilkd.key.dl.rules.metaconstruct.FullSimplify;
 import de.uka.ilkd.key.dl.rules.metaconstruct.ODESolve;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DiffInd;
@@ -177,6 +178,8 @@ public abstract class AbstractMetaOperator extends Op implements MetaOperator {
 	public static final DLUniversalClosureOp DL_UNIVERSAL_CLOSURE = new DLUniversalClosureOp();
 
 	public static final AbstractMetaOperator DL_INT_FORALL = new DLRandomAssign();
+
+	public static final AbstractMetaOperator DL_DNF_TRANSFORMER = new DNFTransformer();
 
     
     protected TermFactory termFactory = TermFactory.DEFAULT;
