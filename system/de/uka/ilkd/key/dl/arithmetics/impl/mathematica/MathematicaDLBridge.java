@@ -300,16 +300,16 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 
 	public Term diffInd(DiffSystem form, Term post, NamespaceSet nss)
 			throws RemoteException, SolverException {
-		return differentialCall(form, post, nss, "IDiffInd");
+		return differentialCall(form, post, null, nss, "IDiffInd");
 	}
 
-	public Term diffFin(DiffSystem form, Term post, NamespaceSet nss)
+	public Term diffFin(DiffSystem form, Term post, Term ep, NamespaceSet nss)
 			throws RemoteException, SolverException {
 		Term invariant = form.getInvariant();
 		if (!invariant.equals(TermBuilder.DF.tt()))
 			throw new UnsupportedOperationException(
 					"not yet implemented for invariant!=true");
-		return differentialCall(form, post, nss, "IDiffFin");
+		return differentialCall(form, post, ep, nss, "IDiffFin");
 	}
 
 	/**
@@ -322,7 +322,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 	 * @throws ServerStatusProblemException
 	 * @throws IncompleteEvaluationException
 	 */
-	private Term differentialCall(DiffSystem form, Term post, NamespaceSet nss,
+	private Term differentialCall(DiffSystem form, Term post, Term ep, NamespaceSet nss,
 			String diffOperator) throws RemoteException, SolverException {
 		List<Expr> args = new ArrayList<Expr>();
 
@@ -342,12 +342,23 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 					// new Expr(Expr.SYMBOL, t.name().toString())
 							})).expression);
 		}
-		Expr diffCall = new Expr(new Expr(Expr.SYMBOL, "AMC`" + diffOperator),
-				new Expr[] {
-						Term2ExprConverter.convert2Expr(post),
-						// new Expr(Expr.SYMBOL, t.name().toString()),
-						new Expr(new Expr(Expr.SYMBOL, "List"), args
-								.toArray(new Expr[1])), });
+		Expr diffCall;
+		if (ep == null) {
+			diffCall = new Expr(new Expr(Expr.SYMBOL, "AMC`" + diffOperator),
+					new Expr[] {
+							Term2ExprConverter.convert2Expr(post),
+							// new Expr(Expr.SYMBOL, t.name().toString()),
+							new Expr(new Expr(Expr.SYMBOL, "List"), args
+									.toArray(new Expr[1])), });
+		} else {
+			diffCall = new Expr(new Expr(Expr.SYMBOL, "AMC`" + diffOperator),
+					new Expr[] {
+							Term2ExprConverter.convert2Expr(post),
+							Term2ExprConverter.convert2Expr(ep),
+							// new Expr(Expr.SYMBOL, t.name().toString()),
+							new Expr(new Expr(Expr.SYMBOL, "List"), args
+									.toArray(new Expr[1])), });
+		}
 		Expr diffIndExpression = evaluate(diffCall).expression;
 
 		return TermBuilder.DF.imp(invariant, convert(diffIndExpression, nss));

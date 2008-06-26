@@ -40,7 +40,7 @@ public class DiffFin extends AbstractDLMetaOperator {
     public static final Name NAME = new Name("#DiffFin");
 
     public DiffFin() {
-        super(NAME, 1);
+        super(NAME, 2);
     }
 
     /*
@@ -62,6 +62,7 @@ public class DiffFin extends AbstractDLMetaOperator {
      */
     public Term calculate(Term term, SVInstantiations svInst, Services services) {
         final Term arg = term.sub(0);
+        final Term ep = term.sub(1);
         DiffSystem system = (DiffSystem) ((StatementBlock) arg
                 .javaBlock().program()).getChildAt(0);
         Term post = arg.sub(0);
@@ -69,7 +70,7 @@ public class DiffFin extends AbstractDLMetaOperator {
         try {
             if (arg.op() == Modality.DIA) {
                 return MathSolverManager.getCurrentODESolver()
-                .diffFin(system, post, nss);
+                .diffFin(system, post, ep, nss);
             } else {
                 throw new IllegalStateException("Unknown modality "
                         + arg.op());
