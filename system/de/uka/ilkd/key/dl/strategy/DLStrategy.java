@@ -376,13 +376,13 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 				reduceSequence = ConditionalFeature.createConditional(
 						ReduceRule.INSTANCE, inftyConst());
 				groebnerBasisRule = ConditionalFeature.createConditional(
-						GroebnerBasisRule.INSTANCE, longConst(20000));
+						GroebnerBasisRule.INSTANCE, add(FOSequence.INSTANCE, longConst(20000)));
 			}
 		} else {
 			reduceSequence = ConditionalFeature.createConditional(
 					ReduceRule.INSTANCE, inftyConst());
 			groebnerBasisRule = ConditionalFeature.createConditional(
-					GroebnerBasisRule.INSTANCE, longConst(20000));
+					GroebnerBasisRule.INSTANCE, add(FOSequence.INSTANCE, longConst(20000)));
 		}
 
 		final Feature eliminateQuantifier = ConditionalFeature

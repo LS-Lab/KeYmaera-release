@@ -218,6 +218,14 @@ public class ReplaceVisitor {
 						newSubstitutionMap.remove(q);
 						continue out;
 					}
+					for(QuantifiableVariable var: substitutionMap.get(q).freeVars()) {
+						if (var.name().toString().equals(
+								((Variable) decl.getChildAt(i)).getElementName()
+										.toString())) {
+							newSubstitutionMap.remove(q);
+							continue out;
+						}	
+					}
 				}
 			}
 			if (childAt instanceof Forall) {

@@ -39,6 +39,7 @@ import de.uka.ilkd.key.dl.model.DLNonTerminalProgramElement;
 import de.uka.ilkd.key.dl.model.DLProgramElement;
 import de.uka.ilkd.key.dl.model.DLStatementBlock;
 import de.uka.ilkd.key.dl.model.DiffSystem;
+import de.uka.ilkd.key.dl.model.Dot;
 import de.uka.ilkd.key.dl.model.Equals;
 import de.uka.ilkd.key.dl.model.Exists;
 import de.uka.ilkd.key.dl.model.Expression;
@@ -184,11 +185,12 @@ public class DNFTransformer extends AbstractDLMetaOperator {
 			for (Set<Formula> and : or) {
 				Set<Formula> newAnd = new LinkedHashSet<Formula>();
 				for (Formula f : and) {
-					if (f instanceof And) {
+					boolean checkDot = checkDot(f);
+					if (checkDot && f instanceof And) {
 						newAnd.add((Formula) ((And) f).getChildAt(0));
 						newAnd.add((Formula) ((And) f).getChildAt(1));
 						changed = true;
-					} else if (f instanceof Or) {
+					} else if (checkDot && f instanceof Or) {
 						newAnd.remove(f);
 						Set<Formula> forms = new LinkedHashSet<Formula>(newAnd);
 						newOr.add(forms);
@@ -307,6 +309,10 @@ public class DNFTransformer extends AbstractDLMetaOperator {
 	private Result createPrenexForm(Formula t, NamespaceSet namespaces,
 			TermFactory tf) {
 		Result r = new Result();
+		if(!checkDot(t)){
+			r.form = t;
+			return r;
+		}
 		if (t instanceof Forall || t instanceof Exists) {
 			CompoundFormula f = (CompoundFormula) t;
 			VariableDeclaration decl = (VariableDeclaration) f.getChildAt(0);
@@ -385,6 +391,13 @@ public class DNFTransformer extends AbstractDLMetaOperator {
 
 	private Formula createNegationNormalform(Formula t, boolean negated,
 			TermFactory tf) {
+		if(!checkDot(t)) {
+			if(negated) {
+				return tf.createNot(t);
+			} else {
+				return t;
+			}
+		}
 		if (negated) {
 			if (t instanceof Forall) {
 				Forall f = (Forall) t;
@@ -473,6 +486,24 @@ public class DNFTransformer extends AbstractDLMetaOperator {
 		}
 		throw new IllegalArgumentException(
 				"Could not create negation normal form for " + t);
+	}
+
+	/**
+	 * @param t
+	 * @return
+	 */
+	private boolean checkDot(ProgramElement t) {
+		if(t instanceof Dot) {
+			return true;
+		}
+		if(t instanceof DLNonTerminalProgramElement) {
+			for(ProgramElement p: (DLNonTerminalProgramElement)t) {
+				if(checkDot(p)) {
+					return true;
+				}
+			}
+		} 
+		return false;
 	}
 
 	/**
