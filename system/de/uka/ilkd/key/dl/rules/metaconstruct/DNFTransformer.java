@@ -19,15 +19,11 @@
  ***************************************************************************/
 package de.uka.ilkd.key.dl.rules.metaconstruct;
 
-import java.io.IOException;
-import java.io.StringWriter;
-import java.text.Normalizer.Form;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -63,7 +59,6 @@ import de.uka.ilkd.key.dl.model.Variable;
 import de.uka.ilkd.key.dl.model.VariableDeclaration;
 import de.uka.ilkd.key.dl.model.VariableType;
 import de.uka.ilkd.key.dl.model.impl.TermFactoryImpl;
-import de.uka.ilkd.key.java.PrettyPrinter;
 import de.uka.ilkd.key.java.ProgramElement;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.java.StatementBlock;
@@ -206,7 +201,6 @@ public class DNFTransformer extends AbstractDLMetaOperator {
 					} else {
 						newAnd.add(f);
 					}
-					System.out.println(changed);// XXX
 				}
 				newOr.add(newAnd);
 			}
