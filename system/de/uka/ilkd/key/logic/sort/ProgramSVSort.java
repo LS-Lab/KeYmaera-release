@@ -9,6 +9,8 @@
 //
 package de.uka.ilkd.key.logic.sort;
 
+import java.io.IOException;
+import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -29,6 +31,7 @@ import de.uka.ilkd.key.java.Expression;
 import de.uka.ilkd.key.java.Label;
 import de.uka.ilkd.key.java.NamedProgramElement;
 import de.uka.ilkd.key.java.NonTerminalProgramElement;
+import de.uka.ilkd.key.java.PrettyPrinter;
 import de.uka.ilkd.key.java.ProgramElement;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.java.Statement;
@@ -1742,6 +1745,7 @@ public abstract class ProgramSVSort extends PrimitiveSort {
 			}
 			return result;
 		}
+	
 
 		/**
 		 * @param childAt
@@ -1749,10 +1753,8 @@ public abstract class ProgramSVSort extends PrimitiveSort {
 		 */
 		private boolean isOrdinary(ProgramElement childAt) {
 			if (childAt instanceof And) {
-				if (!isOrdinary(((And) childAt).getChildAt(0)) ||
-						!isOrdinary(((And) childAt).getChildAt(1))) {
-					return false;
-				}
+				return (isOrdinary(((And) childAt).getChildAt(0)) &&
+						isOrdinary(((And) childAt).getChildAt(1)));
 			} else if (childAt instanceof PredicateTerm
 					&& ((PredicateTerm) childAt).getChildAt(0) instanceof Equals) {
 				return true;
