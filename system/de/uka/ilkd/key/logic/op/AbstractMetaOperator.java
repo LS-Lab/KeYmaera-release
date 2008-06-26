@@ -13,6 +13,21 @@ package de.uka.ilkd.key.logic.op;
 
 import java.util.HashMap;
 
+import de.uka.ilkd.key.dl.formulatools.Prog2LogicConverter;
+import de.uka.ilkd.key.dl.rules.metaconstruct.DLChoiceUnwind;
+import de.uka.ilkd.key.dl.rules.metaconstruct.DLDiffAdjoin;
+import de.uka.ilkd.key.dl.rules.metaconstruct.DLIntroNewAnonUpdateOp;
+import de.uka.ilkd.key.dl.rules.metaconstruct.DLInvariantPart;
+import de.uka.ilkd.key.dl.rules.metaconstruct.DLRandomAssign;
+import de.uka.ilkd.key.dl.rules.metaconstruct.DLUniversalClosureOp;
+import de.uka.ilkd.key.dl.rules.metaconstruct.DLUnwindLoop;
+import de.uka.ilkd.key.dl.rules.metaconstruct.DNFTransformer;
+import de.uka.ilkd.key.dl.rules.metaconstruct.DiffFin;
+import de.uka.ilkd.key.dl.rules.metaconstruct.DiffInd;
+import de.uka.ilkd.key.dl.rules.metaconstruct.FullSimplify;
+import de.uka.ilkd.key.dl.rules.metaconstruct.ODESolve;
+import de.uka.ilkd.key.dl.rules.metaconstruct.Reduce;
+import de.uka.ilkd.key.dl.rules.metaconstruct.Simplify;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.logic.Name;
 import de.uka.ilkd.key.logic.Namespace;
@@ -23,22 +38,56 @@ import de.uka.ilkd.key.logic.sort.PrimitiveSort;
 import de.uka.ilkd.key.logic.sort.Sort;
 import de.uka.ilkd.key.rule.MatchConditions;
 import de.uka.ilkd.key.rule.inst.SVInstantiations;
-import de.uka.ilkd.key.rule.metaconstruct.*;
-import de.uka.ilkd.key.rule.metaconstruct.arith.*;
+import de.uka.ilkd.key.rule.metaconstruct.ArrayBaseInstanceOf;
+import de.uka.ilkd.key.rule.metaconstruct.ArrayStoreStaticAnalyse;
+import de.uka.ilkd.key.rule.metaconstruct.AtPreEquations;
+import de.uka.ilkd.key.rule.metaconstruct.ConstantValue;
+import de.uka.ilkd.key.rule.metaconstruct.CreateInReachableStatePO;
+import de.uka.ilkd.key.rule.metaconstruct.EnhancedForInvRule;
+import de.uka.ilkd.key.rule.metaconstruct.EnumConstantValue;
+import de.uka.ilkd.key.rule.metaconstruct.ExpandDynamicType;
+import de.uka.ilkd.key.rule.metaconstruct.IntroAtPreDefsOp;
+import de.uka.ilkd.key.rule.metaconstruct.IntroNewAnonUpdateOp;
+import de.uka.ilkd.key.rule.metaconstruct.LocationDependentFunction;
+import de.uka.ilkd.key.rule.metaconstruct.MetaAllSubtypes;
+import de.uka.ilkd.key.rule.metaconstruct.MetaAttribute;
+import de.uka.ilkd.key.rule.metaconstruct.MetaCreated;
+import de.uka.ilkd.key.rule.metaconstruct.MetaEquivalentUpdates;
+import de.uka.ilkd.key.rule.metaconstruct.MetaFieldReference;
+import de.uka.ilkd.key.rule.metaconstruct.MetaLength;
+import de.uka.ilkd.key.rule.metaconstruct.MetaNextToCreate;
+import de.uka.ilkd.key.rule.metaconstruct.MetaShadow;
+import de.uka.ilkd.key.rule.metaconstruct.MetaTraInitialized;
+import de.uka.ilkd.key.rule.metaconstruct.MetaTransactionCounter;
+import de.uka.ilkd.key.rule.metaconstruct.MetaTransient;
+import de.uka.ilkd.key.rule.metaconstruct.MethodCallToUpdate;
+import de.uka.ilkd.key.rule.metaconstruct.ResolveQuery;
+import de.uka.ilkd.key.rule.metaconstruct.Universes;
+import de.uka.ilkd.key.rule.metaconstruct.WhileInvRule;
+import de.uka.ilkd.key.rule.metaconstruct.arith.DivideLCRMonomials;
+import de.uka.ilkd.key.rule.metaconstruct.arith.DivideMonomials;
+import de.uka.ilkd.key.rule.metaconstruct.arith.MetaAdd;
+import de.uka.ilkd.key.rule.metaconstruct.arith.MetaDiv;
+import de.uka.ilkd.key.rule.metaconstruct.arith.MetaEqual;
+import de.uka.ilkd.key.rule.metaconstruct.arith.MetaGeq;
+import de.uka.ilkd.key.rule.metaconstruct.arith.MetaGreater;
+import de.uka.ilkd.key.rule.metaconstruct.arith.MetaJavaIntAnd;
+import de.uka.ilkd.key.rule.metaconstruct.arith.MetaJavaIntOr;
+import de.uka.ilkd.key.rule.metaconstruct.arith.MetaJavaIntShiftLeft;
+import de.uka.ilkd.key.rule.metaconstruct.arith.MetaJavaIntShiftRight;
+import de.uka.ilkd.key.rule.metaconstruct.arith.MetaJavaIntUnsignedShiftRight;
+import de.uka.ilkd.key.rule.metaconstruct.arith.MetaJavaIntXor;
+import de.uka.ilkd.key.rule.metaconstruct.arith.MetaJavaLongAnd;
+import de.uka.ilkd.key.rule.metaconstruct.arith.MetaJavaLongOr;
+import de.uka.ilkd.key.rule.metaconstruct.arith.MetaJavaLongShiftLeft;
+import de.uka.ilkd.key.rule.metaconstruct.arith.MetaJavaLongShiftRight;
+import de.uka.ilkd.key.rule.metaconstruct.arith.MetaJavaLongUnsignedShiftRight;
+import de.uka.ilkd.key.rule.metaconstruct.arith.MetaJavaLongXor;
+import de.uka.ilkd.key.rule.metaconstruct.arith.MetaLeq;
+import de.uka.ilkd.key.rule.metaconstruct.arith.MetaLess;
+import de.uka.ilkd.key.rule.metaconstruct.arith.MetaMul;
+import de.uka.ilkd.key.rule.metaconstruct.arith.MetaSub;
 import de.uka.ilkd.key.util.Debug;
-import de.uka.ilkd.key.dl.formulatools.Prog2LogicConverter;
-import de.uka.ilkd.key.dl.rules.metaconstruct.DLDiffAdjoin;
-import de.uka.ilkd.key.dl.rules.metaconstruct.DLIntroNewAnonUpdateOp;
-import de.uka.ilkd.key.dl.rules.metaconstruct.DLInvariantPart;
-import de.uka.ilkd.key.dl.rules.metaconstruct.DLRandomAssign;
-import de.uka.ilkd.key.dl.rules.metaconstruct.DLUniversalClosureOp;
-import de.uka.ilkd.key.dl.rules.metaconstruct.DLUnwindLoop;
-import de.uka.ilkd.key.dl.rules.metaconstruct.FullSimplify;
-import de.uka.ilkd.key.dl.rules.metaconstruct.ODESolve;
-import de.uka.ilkd.key.dl.rules.metaconstruct.DiffInd;
-import de.uka.ilkd.key.dl.rules.metaconstruct.DiffFin;
-import de.uka.ilkd.key.dl.rules.metaconstruct.Reduce;
-import de.uka.ilkd.key.dl.rules.metaconstruct.Simplify;
 
 /** 
  * this class implements the interface for
@@ -177,6 +226,10 @@ public abstract class AbstractMetaOperator extends Op implements MetaOperator {
 	public static final DLUniversalClosureOp DL_UNIVERSAL_CLOSURE = new DLUniversalClosureOp();
 
 	public static final AbstractMetaOperator DL_INT_FORALL = new DLRandomAssign();
+
+	public static final AbstractMetaOperator DL_DNF_TRANSFORMER = new DNFTransformer();
+
+	public static final AbstractMetaOperator DL_CHOICE_UNWIND = new DLChoiceUnwind();
 
     
     protected TermFactory termFactory = TermFactory.DEFAULT;

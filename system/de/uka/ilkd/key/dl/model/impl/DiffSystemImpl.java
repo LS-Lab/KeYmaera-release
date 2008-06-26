@@ -25,13 +25,11 @@ package de.uka.ilkd.key.dl.model.impl;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 
-import com.wolfram.jlink.Expr;
-
-import de.uka.ilkd.key.dl.arithmetics.impl.mathematica.DL2ExprConverter;
 import de.uka.ilkd.key.dl.formulatools.Prog2LogicConverter;
+import de.uka.ilkd.key.dl.model.And;
 import de.uka.ilkd.key.dl.model.DLNonTerminalProgramElement;
 import de.uka.ilkd.key.dl.model.DLProgramElement;
 import de.uka.ilkd.key.dl.model.DiffSystem;
@@ -63,8 +61,28 @@ public class DiffSystemImpl extends DLNonTerminalProgramElementImpl implements
 	 */
 	public DiffSystemImpl(List<Formula> content) {
 		for (Formula f : content) {
-			addChild(f);
+			// we dont like conjunctions, so we drop them
+			for (Formula sub : normalize(f)) {
+				addChild(sub);
+			}
 		}
+	}
+
+	/**
+	 * @param f
+	 * @return
+	 */
+	private List<Formula> normalize(Formula f) {
+		List<Formula> result = new LinkedList<Formula>();
+		if (f instanceof And) {
+			And a = (And) f;
+			for (int i = 0; i < a.getChildCount(); i++) {
+				result.addAll(normalize((Formula) a.getChildAt(i)));
+			}
+		} else {
+			result.add(f);
+		}
+		return result;
 	}
 
 	/**
@@ -119,15 +137,9 @@ public class DiffSystemImpl extends DLNonTerminalProgramElementImpl implements
 		Term invariant = TermBuilder.DF.tt();
 		for (ProgramElement el : this) {
 			if (!isDifferentialEquation(el)) {
-				if (invariant.equals(TermBuilder.DF.tt())) {
-					invariant = TermBuilder.DF.and(invariant,
-							Prog2LogicConverter
-									.convert((DLProgramElement) el, Main
-											.getInstance().mediator()
-											.getServices()));
-				} else {
-					throw new IllegalStateException("No single invariant");
-				}
+				invariant = TermBuilder.DF.and(invariant, Prog2LogicConverter
+						.convert((DLProgramElement) el, Main.getInstance()
+								.mediator().getServices()));
 			}
 		}
 		return invariant;
