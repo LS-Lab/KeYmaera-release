@@ -21,6 +21,8 @@ import de.uka.ilkd.key.dl.model.DiffSystem;
 import de.uka.ilkd.key.dl.model.Dot;
 import de.uka.ilkd.key.dl.model.Equals;
 import de.uka.ilkd.key.dl.model.Exists;
+import de.uka.ilkd.key.dl.model.Forall;
+import de.uka.ilkd.key.dl.model.Formula;
 import de.uka.ilkd.key.dl.model.Greater;
 import de.uka.ilkd.key.dl.model.GreaterEquals;
 import de.uka.ilkd.key.dl.model.Less;
@@ -351,6 +353,10 @@ public abstract class ProgramSVSort extends PrimitiveSort {
 	private static final DLDiffSystemSort DL_DIFF_SYSTEM_SORT_INSTANCE = new DLDiffSystemSort();
 
 	private static final DLOrdinaryDiffSystemSort DL_ORDINARY_DIFF_SYSTEM_SORT_INSTANCE = new DLOrdinaryDiffSystemSort();
+
+	public static final DLOrdinaryDiffSystemWithoutQuantifiersSort DL_SIMPLE_ORDINARY_DIFF_SYSTEM_SORT_INSTANCE = new DLOrdinaryDiffSystemWithoutQuantifiersSort();
+
+	private static final DLNotDNFDiffSystemSort DL_NOT_DNF_DIFF_SYSTEM_SORT_INSTANCE = new DLNotDNFDiffSystemSort();
 
 	private static final DLDiffSystemTopLevelOrSort DL_DIFF_SYSTEM_WITH_TOPLEVEL_OR_SORT_INSTANCE = new DLDiffSystemTopLevelOrSort();
 
@@ -1751,7 +1757,7 @@ public abstract class ProgramSVSort extends PrimitiveSort {
 		 * @param childAt
 		 * @return
 		 */
-		private boolean isOrdinary(ProgramElement childAt) {
+		private static boolean isOrdinary(ProgramElement childAt) {
 			if (childAt instanceof And) {
 				return (isOrdinary(((And) childAt).getChildAt(0)) &&
 						isOrdinary(((And) childAt).getChildAt(1)));
@@ -1762,7 +1768,92 @@ public abstract class ProgramSVSort extends PrimitiveSort {
 			return !containsDot(childAt);
 		}
 
-		private boolean containsDot(ProgramElement p) {
+		private static boolean containsDot(ProgramElement p) {
+			if (p instanceof Dot) {
+				return true;
+			} else if (p instanceof DLNonTerminalProgramElement) {
+				for (ProgramElement s : (DLNonTerminalProgramElement) p) {
+					if (containsDot(s)) {
+						return true;
+					}
+				}
+			}
+			return false;
+		}
+	}
+	
+	/**
+	 * ProgramSVSort that can stand for an ordinary differential equation system
+	 * 
+	 * @author jdq
+	 */
+	private static class DLNotDNFDiffSystemSort extends ProgramSVSort {
+		public DLNotDNFDiffSystemSort() {
+			super(new Name("NotDNFDiffSystem"));
+		}
+
+		/**
+		 * @see de.uka.ilkd.key.logic.sort.ProgramSVSort#canStandFor(de.uka.ilkd.key.java.ProgramElement,
+		 *      de.uka.ilkd.key.java.Services) canStandFor
+		 */
+		public boolean canStandFor(ProgramElement pe, Services services) {
+			return (pe instanceof de.uka.ilkd.key.dl.model.DiffSystem)
+					&& !isOrdinary(((de.uka.ilkd.key.dl.model.DiffSystem) pe));
+		}
+
+		/**
+		 * @param diffSystem
+		 * @return
+		 */
+		private boolean isOrdinary(DiffSystem diffSystem) {
+			boolean result = true;
+			for (ProgramElement p : diffSystem) {
+				ProgramElement last = null;
+				while (p instanceof Exists || p instanceof Forall) {
+					last = p;
+					p = ((DLNonTerminalProgramElement) p).getChildAt(1);
+				}
+				if(last == null || last instanceof Forall) {
+					result &= isOrdinaryOr(p);	
+				} else {
+					result &= isOrdinary(p);
+				}
+				
+			}
+			return result;
+		}
+
+		/**
+		 * @param childAt
+		 * @return
+		 */
+		private static boolean isOrdinaryOr(ProgramElement childAt) {
+			if (childAt instanceof Or) {
+				return (isOrdinaryOr(((Or) childAt).getChildAt(0)) &&
+						isOrdinaryOr(((Or) childAt).getChildAt(1)));
+			}
+			while (childAt instanceof Exists || childAt instanceof Forall) {
+				childAt = ((DLNonTerminalProgramElement) childAt).getChildAt(1);
+			}
+			return isOrdinary(childAt);
+		}
+
+		/**
+		 * @param childAt
+		 * @return
+		 */
+		private static boolean isOrdinary(ProgramElement childAt) {
+			if (childAt instanceof And) {
+				return (isOrdinary(((And) childAt).getChildAt(0)) &&
+						isOrdinary(((And) childAt).getChildAt(1)));
+			} else if (childAt instanceof PredicateTerm
+					&& ((PredicateTerm) childAt).getChildAt(0) instanceof Equals) {
+				return true;
+			}
+			return !containsDot(childAt);
+		}
+
+		private static boolean containsDot(ProgramElement p) {
 			if (p instanceof Dot) {
 				return true;
 			} else if (p instanceof DLNonTerminalProgramElement) {
@@ -1776,6 +1867,39 @@ public abstract class ProgramSVSort extends PrimitiveSort {
 		}
 	}
 
+	/**
+	 * ProgramSVSort that can stand for an ordinary differential equation system
+	 * 
+	 * @author jdq
+	 */
+	public static class DLOrdinaryDiffSystemWithoutQuantifiersSort extends ProgramSVSort {
+		public DLOrdinaryDiffSystemWithoutQuantifiersSort() {
+			super(new Name("SimpleOrdinaryDiffSystem"));
+		}
+
+		/**
+		 * @see de.uka.ilkd.key.logic.sort.ProgramSVSort#canStandFor(de.uka.ilkd.key.java.ProgramElement,
+		 *      de.uka.ilkd.key.java.Services) canStandFor
+		 */
+		public boolean canStandFor(ProgramElement pe, Services services) {
+			return (pe instanceof de.uka.ilkd.key.dl.model.DiffSystem)
+					&& isOrdinary(((de.uka.ilkd.key.dl.model.DiffSystem) pe));
+		}
+
+		/**
+		 * @param diffSystem
+		 * @return
+		 */
+		private boolean isOrdinary(DiffSystem diffSystem) {
+			boolean result = true;
+			for (ProgramElement p : diffSystem) {
+				result &= DLOrdinaryDiffSystemSort.isOrdinary(p);
+			}
+			return result;
+		}
+	
+	}
+	
 	/**
 	 * ProgramSVSort that can stand for a differential system that contains or
 	 * as top level operator

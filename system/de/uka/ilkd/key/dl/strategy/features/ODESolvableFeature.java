@@ -48,6 +48,7 @@ import de.uka.ilkd.key.logic.Visitor;
 import de.uka.ilkd.key.logic.op.Function;
 import de.uka.ilkd.key.logic.op.Modality;
 import de.uka.ilkd.key.logic.op.QuanUpdateOperator;
+import de.uka.ilkd.key.logic.sort.ProgramSVSort;
 import de.uka.ilkd.key.proof.Goal;
 import de.uka.ilkd.key.rule.RuleApp;
 import de.uka.ilkd.key.rule.TacletApp;
@@ -64,89 +65,92 @@ import de.uka.ilkd.key.strategy.feature.Feature;
  * 
  */
 public class ODESolvableFeature implements Feature {
-    /**
-     * Blacklist of transcendental functions.
-     * @TODO instead use converse, i.e., only accept whitelist of algebraic functions.
-     */
-    private static final List<String> transcendentalList = Arrays.asList(new String[] {
-            //@todo check non-constant Exp
-            "Cos",
-            "Sin",
-            "Tan",
-            "Cot"
-    });
-    private static final List<String> algebraicList = Arrays.asList(new String[] {
-            //@todo check non-constant Exp
-            "add",
-            "sub",
-            "neg",
-            "mul",
-            "div",
-            "exp",
-    });
+	/**
+	 * Blacklist of transcendental functions.
+	 * 
+	 * @TODO instead use converse, i.e., only accept whitelist of algebraic
+	 *       functions.
+	 */
+	private static final List<String> transcendentalList = Arrays
+			.asList(new String[] {
+			// @todo check non-constant Exp
+					"Cos", "Sin", "Tan", "Cot" });
+	private static final List<String> algebraicList = Arrays
+			.asList(new String[] {
+			// @todo check non-constant Exp
+					"add", "sub", "neg", "mul", "div", "exp", });
 
+	public static final Feature INSTANCE = new ODESolvableFeature();
+	private Map<List<ProgramElement>, RuleAppCost> solvabilityCache = new WeakHashMap<List<ProgramElement>, RuleAppCost>();
 
-    public static final Feature INSTANCE = new ODESolvableFeature();
-    private Map<List<ProgramElement>, RuleAppCost> solvabilityCache = new WeakHashMap<List<ProgramElement>, RuleAppCost>();
-    
-    /*
-     * (non-Javadoc)
-     * 
-     * @see de.uka.ilkd.key.strategy.feature.Feature#compute(de.uka.ilkd.key.rule.RuleApp,
-     *      de.uka.ilkd.key.logic.PosInOccurrence, de.uka.ilkd.key.proof.Goal)
-     */
-    public RuleAppCost compute(RuleApp app, PosInOccurrence pos, Goal goal) {
-        Term term = pos.subTerm();
-        // unbox from update prefix
-        while (term.op() instanceof QuanUpdateOperator) {
-            term = ((QuanUpdateOperator) term.op()).target(term);
-        }
-        if (!(term.op() instanceof Modality && term.javaBlock() != null
-                && term.javaBlock() != JavaBlock.EMPTY_JAVABLOCK && term
-                .javaBlock().program() instanceof StatementBlock)) {
-            throw new IllegalArgumentException("inapplicable to " + pos);
-        }
-        final DiffSystem system = (DiffSystem) ((StatementBlock) term
-                .javaBlock().program()).getChildAt(0);
-        final List<ProgramElement> differentialEquations = system.getDifferentialEquations();
-        if (differentialEquations.isEmpty()) {
-            return LongRuleAppCost.ZERO_COST;
-        }
-        RuleAppCost cached = solvabilityCache.get(differentialEquations);
-        if (cached != null) {
-            return cached;
-        }
-        final Services services = goal.proof().getServices();
-        try {
-            Term result = ODESolve.ODE_SOLVE.odeSolve(term, services);
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.uka.ilkd.key.strategy.feature.Feature#compute(de.uka.ilkd.key.rule.RuleApp,
+	 *      de.uka.ilkd.key.logic.PosInOccurrence, de.uka.ilkd.key.proof.Goal)
+	 */
+	public RuleAppCost compute(RuleApp app, PosInOccurrence pos, Goal goal) {
+		Term term = pos.subTerm();
 
-            final boolean[] algebraic = { true };
-            result.execPreOrder(new Visitor() {
-                @Override
-                public void visit(Term visited) {
-                    if (transcendentalList.contains(visited.op().name().toString())) {
-                        algebraic[0] = false;
-                    }
-                }
-            });
-            if (algebraic[0]) {
-                solvabilityCache .put(differentialEquations, LongRuleAppCost.ZERO_COST);
-                return LongRuleAppCost.ZERO_COST;
-            } else {
-                solvabilityCache.put(differentialEquations, TopRuleAppCost.INSTANCE);
-                return TopRuleAppCost.INSTANCE;
-            }
-        } catch (UnsolveableException e) {
-            solvabilityCache.put(differentialEquations, TopRuleAppCost.INSTANCE);
-            return TopRuleAppCost.INSTANCE;
-        } catch (FailedComputationException e) {
-            return TopRuleAppCost.INSTANCE;
-        } catch (RemoteException e) {
-            e.printStackTrace();
-            return TopRuleAppCost.INSTANCE;
-        } catch (SolverException e) {
-            e.printStackTrace();
-            return TopRuleAppCost.INSTANCE;
-        }
-    }
+		// unbox from update prefix
+		while (term.op() instanceof QuanUpdateOperator) {
+			term = ((QuanUpdateOperator) term.op()).target(term);
+		}
+		if (!(term.op() instanceof Modality && term.javaBlock() != null
+				&& term.javaBlock() != JavaBlock.EMPTY_JAVABLOCK && term
+				.javaBlock().program() instanceof StatementBlock)) {
+			throw new IllegalArgumentException("inapplicable to " + pos);
+		}
+		final DiffSystem system = (DiffSystem) ((StatementBlock) term
+				.javaBlock().program()).getChildAt(0);
+		if (!ProgramSVSort.DL_SIMPLE_ORDINARY_DIFF_SYSTEM_SORT_INSTANCE
+				.canStandFor(system, goal.proof().getServices())) {
+			return TopRuleAppCost.INSTANCE;
+		}
+		final List<ProgramElement> differentialEquations = system
+				.getDifferentialEquations();
+		if (differentialEquations.isEmpty()) {
+			return LongRuleAppCost.ZERO_COST;
+		}
+		RuleAppCost cached = solvabilityCache.get(differentialEquations);
+		if (cached != null) {
+			return cached;
+		}
+		final Services services = goal.proof().getServices();
+		try {
+			Term result = ODESolve.ODE_SOLVE.odeSolve(term, services);
+
+			final boolean[] algebraic = { true };
+			result.execPreOrder(new Visitor() {
+				@Override
+				public void visit(Term visited) {
+					if (transcendentalList.contains(visited.op().name()
+							.toString())) {
+						algebraic[0] = false;
+					}
+				}
+			});
+			if (algebraic[0]) {
+				solvabilityCache.put(differentialEquations,
+						LongRuleAppCost.ZERO_COST);
+				return LongRuleAppCost.ZERO_COST;
+			} else {
+				solvabilityCache.put(differentialEquations,
+						TopRuleAppCost.INSTANCE);
+				return TopRuleAppCost.INSTANCE;
+			}
+		} catch (UnsolveableException e) {
+			solvabilityCache
+					.put(differentialEquations, TopRuleAppCost.INSTANCE);
+			return TopRuleAppCost.INSTANCE;
+		} catch (FailedComputationException e) {
+			return TopRuleAppCost.INSTANCE;
+		} catch (RemoteException e) {
+			e.printStackTrace();
+			return TopRuleAppCost.INSTANCE;
+		} catch (SolverException e) {
+			e.printStackTrace();
+			return TopRuleAppCost.INSTANCE;
+		}
+	}
 }

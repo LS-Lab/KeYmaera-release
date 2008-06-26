@@ -62,7 +62,7 @@ public class DiffFin extends AbstractDLMetaOperator {
 		private List<LogicVariable> quantifiedVariables = new LinkedList<LogicVariable>();
 		private DiffSystem sys;
 		private boolean changed = false;
-		
+
 		/**
 		 * 
 		 */
@@ -83,7 +83,6 @@ public class DiffFin extends AbstractDLMetaOperator {
 		public List<LogicVariable> getQuantifiedVariables() {
 			return quantifiedVariables;
 		}
-		
 
 	}
 
@@ -110,7 +109,7 @@ public class DiffFin extends AbstractDLMetaOperator {
 	 */
 	public Term calculate(Term term, SVInstantiations svInst, Services services) {
 		final Term arg = term.sub(0);
-        final Term ep = term.sub(1);
+		final Term ep = term.sub(1);
 		DiffSystem system = (DiffSystem) ((StatementBlock) arg.javaBlock()
 				.program()).getChildAt(0);
 		Term post = arg.sub(0);
@@ -121,9 +120,9 @@ public class DiffFin extends AbstractDLMetaOperator {
 
 				RemoveQuantifiersResult r = new RemoveQuantifiersResult(system);
 				r = removeQuantifiers(nss, r);
-				System.out.println(r.sys);//XXX
+				System.out.println(r.sys);// XXX
 				Term diffFin2 = MathSolverManager.getCurrentODESolver()
-                .diffFin(system, post, ep, nss);
+						.diffFin(system, post, ep, nss);
 				// reintroduce the quantifiers
 				Collections.reverse(r.quantifiedVariables);
 				for (LogicVariable var : r.quantifiedVariables) {
@@ -156,7 +155,8 @@ public class DiffFin extends AbstractDLMetaOperator {
 	 * @throws InstantiationException
 	 * @throws NoSuchMethodException
 	 */
-	public static RemoveQuantifiersResult removeQuantifiers(final NamespaceSet nss, RemoveQuantifiersResult r)
+	public static RemoveQuantifiersResult removeQuantifiers(
+			final NamespaceSet nss, RemoveQuantifiersResult r)
 			throws InvocationTargetException, IllegalAccessException,
 			InstantiationException, NoSuchMethodException {
 		for (int k = 0; k < r.sys.getChildCount(); k++) {
@@ -171,8 +171,24 @@ public class DiffFin extends AbstractDLMetaOperator {
 				for (int i = 1; i < childAt2.getChildCount(); i++) {
 					String string = ((Variable) childAt2.getChildAt(i))
 							.toString();
-					String n2 = string + "_";
-					int j = 0;
+					String n2;
+					int j;
+					if (string.contains("_")) {
+						try {
+							j = Integer.parseInt(string.substring(string
+									.lastIndexOf('_') + 1));
+							j++;
+							n2 = string.substring(0,
+									string.lastIndexOf('_') + 1);
+						} catch (NumberFormatException e) {
+							n2 = string + "_";
+							j = 0;
+						}
+					} else {
+						n2 = string + "_";
+						j = 0;
+					}
+
 					Name n = new Name(n2 + j);
 					while (nss.lookup(n) != null) {
 						n = new Name(n2 + ++j);
