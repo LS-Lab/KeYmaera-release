@@ -1733,9 +1733,12 @@ public abstract class ProgramSVSort extends PrimitiveSort {
 		 * @return
 		 */
 		private boolean isOrdinary(DiffSystem diffSystem) {
-			boolean result = false;
+			boolean result = true;
 			for (ProgramElement p : diffSystem) {
-				result &= isOrdanary(p);
+				while (p instanceof Exists) {
+					p = ((Exists) p).getChildAt(1);
+				}
+				result &= isOrdinary(p);
 			}
 			return result;
 		}
@@ -1744,19 +1747,13 @@ public abstract class ProgramSVSort extends PrimitiveSort {
 		 * @param childAt
 		 * @return
 		 */
-		private boolean isOrdanary(ProgramElement childAt) {
-			while (childAt instanceof Exists) {
-				childAt = ((Exists) childAt).getChildAt(1);
-			}
+		private boolean isOrdinary(ProgramElement childAt) {
 			if (childAt instanceof And) {
-				if (!isOrdanary(((And) childAt).getChildAt(0))) {
+				if (!isOrdinary(((And) childAt).getChildAt(0)) ||
+						!isOrdinary(((And) childAt).getChildAt(1))) {
 					return false;
 				}
-				if (!isOrdanary(((And) childAt).getChildAt(1))) {
-					return false;
-				}
-			}
-			if (childAt instanceof PredicateTerm
+			} else if (childAt instanceof PredicateTerm
 					&& ((PredicateTerm) childAt).getChildAt(0) instanceof Equals) {
 				return true;
 			}
