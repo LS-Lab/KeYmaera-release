@@ -371,7 +371,7 @@ public abstract class TermFactory implements Serializable {
      * @return a new representation for a variable declaration
      */
     public abstract VariableDeclaration createVariableDeclaration(
-    		Sort type, List<String> var, boolean programVariable, boolean fresh);
+    		VariableType type, List<String> var, boolean programVariable, boolean fresh);
    
 
     /**

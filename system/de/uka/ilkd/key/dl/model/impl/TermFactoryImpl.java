@@ -70,6 +70,7 @@ import de.uka.ilkd.key.dl.model.TermFactory;
 import de.uka.ilkd.key.dl.model.Unequals;
 import de.uka.ilkd.key.dl.model.Variable;
 import de.uka.ilkd.key.dl.model.VariableDeclaration;
+import de.uka.ilkd.key.dl.model.VariableType;
 import de.uka.ilkd.key.logic.Name;
 import de.uka.ilkd.key.logic.Named;
 import de.uka.ilkd.key.logic.NamespaceSet;
@@ -753,7 +754,7 @@ public class TermFactoryImpl extends TermFactory {
 	 *      org.antlr.runtime.tree.CommonTree)
 	 */
 	@Override
-	public VariableDeclaration createVariableDeclaration(Sort type,
+	public VariableDeclaration createVariableDeclaration(VariableType type,
 			List<String> decls, boolean programVariable, boolean fresh) {
 		List<Variable> variables = new ArrayList<Variable>();
 		for (String var : decls) {
@@ -778,14 +779,14 @@ public class TermFactoryImpl extends TermFactory {
 							new Name(var)) == null;
 					if (getNamespaces().variables().lookup(new Name(var)) == null) {
 						getNamespaces().variables().addSafely(
-								new LogicVariable(new Name(var), type));
+								new LogicVariable(new Name(var), RealLDT
+										.getRealSort()));
 					}
 				}
 				variables.add(LogicalVariableImpl.getLogicalVariable(var));
 			}
 		}
-		return new VariableDeclarationImpl(VariableTypeImpl
-				.getVariableType(type.name()), variables);
+		return new VariableDeclarationImpl(type, variables);
 	}
 
 	/*

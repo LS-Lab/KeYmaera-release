@@ -23,8 +23,10 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.text.Normalizer.Form;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -37,6 +39,8 @@ import de.uka.ilkd.key.dl.logic.ldt.RealLDT;
 import de.uka.ilkd.key.dl.model.And;
 import de.uka.ilkd.key.dl.model.Biimplies;
 import de.uka.ilkd.key.dl.model.CompoundFormula;
+import de.uka.ilkd.key.dl.model.DLNonTerminalProgramElement;
+import de.uka.ilkd.key.dl.model.DLProgramElement;
 import de.uka.ilkd.key.dl.model.DLStatementBlock;
 import de.uka.ilkd.key.dl.model.DiffSystem;
 import de.uka.ilkd.key.dl.model.Equals;
@@ -57,6 +61,7 @@ import de.uka.ilkd.key.dl.model.TermFactory;
 import de.uka.ilkd.key.dl.model.Unequals;
 import de.uka.ilkd.key.dl.model.Variable;
 import de.uka.ilkd.key.dl.model.VariableDeclaration;
+import de.uka.ilkd.key.dl.model.VariableType;
 import de.uka.ilkd.key.dl.model.impl.TermFactoryImpl;
 import de.uka.ilkd.key.java.PrettyPrinter;
 import de.uka.ilkd.key.java.ProgramElement;
@@ -83,13 +88,13 @@ public class DNFTransformer extends AbstractDLMetaOperator {
 	private static class Pair {
 		QuantifierType type;
 		List<String> decl;
-		Sort sort;
+		VariableType sort;
 
 		/**
 		 * @param decl
 		 * @param type
 		 */
-		public Pair(List<String> decl, QuantifierType type, Sort sort) {
+		public Pair(List<String> decl, QuantifierType type, VariableType sort) {
 			super();
 			this.decl = decl;
 			this.type = type;
@@ -154,24 +159,8 @@ public class DNFTransformer extends AbstractDLMetaOperator {
 			Result r = createPrenexForm(form, services.getNamespaces(), tf);
 			Formula result = r.form;
 			// transform formula result to DNF
-			result = createDNF(result, tf);
+			result = createDNF(r, tf);
 
-			Collections.reverse(r.quantifiers);
-			for (Pair p : r.quantifiers) {
-				VariableDeclaration decl = tf.createVariableDeclaration(p.sort,
-						p.decl, false, false);
-				switch (p.type) {
-				case FORALL:
-					result = tf.createForall(decl, result);
-					break;
-				case EXISTS:
-					result = tf.createExists(decl, result);
-					break;
-				default:
-					throw new IllegalStateException("Unknown Quantifier type: "
-							+ p.type);
-				}
-			}
 			s = tf.createDiffSystem(Collections.singletonList(result));
 			JavaBlock res = JavaBlock.createJavaBlock(new DLStatementBlock(s));
 			return de.uka.ilkd.key.logic.TermFactory.DEFAULT.createTerm(
@@ -187,7 +176,8 @@ public class DNFTransformer extends AbstractDLMetaOperator {
 	 * @param tf
 	 * @return
 	 */
-	private Formula createDNF(Formula result, TermFactory tf) {
+	private Formula createDNF(Result r, TermFactory tf) {
+		Formula result = r.form;
 		// split or
 		Set<Set<Formula>> or = new LinkedHashSet<Set<Formula>>();
 		or.add(new LinkedHashSet<Formula>());
@@ -216,7 +206,7 @@ public class DNFTransformer extends AbstractDLMetaOperator {
 					} else {
 						newAnd.add(f);
 					}
-					System.out.println(changed);//XXX
+					System.out.println(changed);// XXX
 				}
 				newOr.add(newAnd);
 			}
@@ -224,22 +214,95 @@ public class DNFTransformer extends AbstractDLMetaOperator {
 			newOr = new LinkedHashSet<Set<Formula>>();
 		}
 		result = null;
-		for(Set<Formula> and: or) {
+		Collections.reverse(r.quantifiers);
+
+		for (Set<Formula> and : or) {
 			Formula con = null;
-			for(Formula f: and) {
-				if(con == null) {
+			Set<String> vars = new HashSet<String>();
+			for (Formula f : and) {
+				vars.addAll(getVariables(f));
+				if (con == null) {
 					con = f;
 				} else {
 					con = tf.createAnd(con, f);
 				}
 			}
-			if(result == null) {
+			// add quantifiers before each conjuncted element
+			for (Pair p : r.quantifiers) {
+				if (p.type == QuantifierType.FORALL) {
+					// we have to stop if we see an universal quantifier... this
+					// could only be added to the complete formula
+					break;
+				}
+				List<String> varDecls = new ArrayList<String>();
+				for (String s : p.decl) {
+					if (vars.contains(s)) {
+						varDecls.add(s);
+					}
+				}
+				if (!varDecls.isEmpty()) {
+					VariableDeclaration decl = tf.createVariableDeclaration(
+							p.sort, varDecls, false, false);
+					switch (p.type) {
+					case FORALL:
+						throw new IllegalStateException(
+								"Universal quantifers cannot be splitted by disjunctions");
+					case EXISTS:
+						con = tf.createExists(decl, con);
+						break;
+					default:
+						throw new IllegalStateException(
+								"Unknown Quantifier type: " + p.type);
+					}
+				}
+			}
+			if (result == null) {
 				result = con;
 			} else {
 				result = tf.createOr(result, con);
 			}
 		}
+		// add the rest of the quantifiers in front of the complete formula
+		boolean forAllFound = false;
+		outerloop: for (Pair p : r.quantifiers) {
+			if (!forAllFound && p.type == QuantifierType.FORALL) {
+				forAllFound = true;
+			} else if (!forAllFound) {
+				continue outerloop;
+			}
+			VariableDeclaration decl = tf.createVariableDeclaration(p.sort,
+					p.decl, false, false);
+			swi: switch (p.type) {
+			case FORALL:
+				result = tf.createForall(decl, result);
+				break swi;
+			case EXISTS:
+				result = tf.createExists(decl, result);
+				break swi;
+			default:
+				throw new IllegalStateException("Unknown Quantifier type: "
+						+ p.type);
+			}
+		}
 		return result;
+	}
+
+	/**
+	 * @param f
+	 * @return
+	 */
+	private Collection<? extends String> getVariables(DLProgramElement f) {
+		Set<String> vars = new HashSet<String>();
+		if (f instanceof DLNonTerminalProgramElement) {
+			for (ProgramElement p : (DLNonTerminalProgramElement) f) {
+				vars.addAll(getVariables((DLProgramElement) p));
+			}
+		} else {
+			if (f instanceof Variable) {
+				vars.add(((Variable) f).getElementName().toString());
+			}
+		}
+		return vars;
 	}
 
 	/**
@@ -272,11 +335,14 @@ public class DNFTransformer extends AbstractDLMetaOperator {
 			r.form = (Formula) ReplaceVisitor.convert(f.getChildAt(1), map, tf);
 			if (t instanceof Forall) {
 				r.quantifiers.add(new Pair(quantifiers, QuantifierType.FORALL,
-						RealLDT.getRealSort()));
+						decl.getType()));
 			} else {
 				r.quantifiers.add(new Pair(quantifiers, QuantifierType.EXISTS,
-						RealLDT.getRealSort()));
+						decl.getType()));
 			}
+			Result prenexForm = createPrenexForm(r.form, namespaces, tf);
+			r.quantifiers.addAll(prenexForm.quantifiers);
+			r.form = prenexForm.form;
 		} else if (t instanceof And) {
 			Result one = createPrenexForm((Formula) ((And) t).getChildAt(0),
 					namespaces, tf);
@@ -364,7 +430,7 @@ public class DNFTransformer extends AbstractDLMetaOperator {
 			} else if (t instanceof PredicateTerm) {
 				List<Expression> expr = new ArrayList<Expression>();
 				for (int i = 1; i < ((PredicateTerm) t).getChildCount(); i++) {
-					expr.add((Expression) t);
+					expr.add((Expression) ((PredicateTerm) t).getChildAt(i));
 				}
 				return tf.createPredicateTerm(negate(
 						(Predicate) ((PredicateTerm) t).getChildAt(0), tf),
