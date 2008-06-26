@@ -31,6 +31,7 @@ import java.util.Set;
 
 import de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator.QuantifierType;
 import de.uka.ilkd.key.dl.formulatools.ReplaceVisitor;
+import de.uka.ilkd.key.dl.formulatools.TermTools;
 import de.uka.ilkd.key.dl.logic.ldt.RealLDT;
 import de.uka.ilkd.key.dl.model.And;
 import de.uka.ilkd.key.dl.model.Biimplies;
@@ -183,10 +184,11 @@ public class DNFTransformer extends AbstractDLMetaOperator {
 		while (changed) {
 			changed = false;
 			for (Set<Formula> and : or) {
-				Set<Formula> newAnd = new LinkedHashSet<Formula>();
+				Set<Formula> newAnd = new LinkedHashSet<Formula>(and);
 				for (Formula f : and) {
 					boolean checkDot = checkDot(f);
 					if (checkDot && f instanceof And) {
+						newAnd.remove(f);
 						newAnd.add((Formula) ((And) f).getChildAt(0));
 						newAnd.add((Formula) ((And) f).getChildAt(1));
 						changed = true;
@@ -196,12 +198,9 @@ public class DNFTransformer extends AbstractDLMetaOperator {
 						newOr.add(forms);
 						// now forms and and are the same and both known
 						// elements of "newOr"
-
 						forms.add((Formula) ((Or) f).getChildAt(0));
 						newAnd.add((Formula) ((Or) f).getChildAt(1));
 						changed = true;
-					} else {
-						newAnd.add(f);
 					}
 				}
 				newOr.add(newAnd);
