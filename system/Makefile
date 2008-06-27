@@ -427,6 +427,8 @@ dist:	branding all
 	@echo "[deleting distribution directory structure]"
 	@rm -rf dist
 
+OPTIONS:=${OPTIONS} -target 1.5
+
 dist-keymaera:	branding all
 	@echo "[creating distribution directory structure]"
 	@mkdir -p ../dist
