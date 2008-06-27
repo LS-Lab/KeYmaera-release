@@ -98,8 +98,17 @@ public class DLDiffInequalityRewrite extends AbstractDLMetaOperator {
 		try {
 			tf = TermFactory.getTermFactory(TermFactoryImpl.class, services
 					.getNamespaces());
+			Formula input = null;
+			for(ProgramElement f: system1) {
+				if(input == null) {
+					input = (Formula) f;
+				} else {
+					tf.createAnd(input, (Formula) f);
+				}
+			}
+			
 			List<Formula> sys = new ArrayList<Formula>();
-			for (Formula f : splitOr((Formula) system1.getChildAt(0))) {
+			for (Formula f : splitOr(input)) {
 				sys.add(rewriteIneq(f, services.getNamespaces(), tf));
 			}
 			Formula result = null;
