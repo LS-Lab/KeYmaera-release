@@ -307,36 +307,52 @@ public class DLOptionBean implements Settings {
 	 * the ctor.
 	 */
 	public void init() {
-		if ((counterExampleGenerator.equals("") && !MathSolverManager
-				.getCounterExampleGenerators().isEmpty())
+		if ((counterExampleGenerator.equals(""))
 				|| !(MathSolverManager.getCounterExampleGenerators()
 						.contains(counterExampleGenerator))) {
-			counterExampleGenerator = MathSolverManager
-					.getCounterExampleGenerators().iterator().next();
+			if (!MathSolverManager.getCounterExampleGenerators().isEmpty()) {
+				counterExampleGenerator = MathSolverManager
+						.getCounterExampleGenerators().iterator().next();
+			} else {
+				counterExampleGenerator = "-";
+			}
 		}
-		if ((odeSolver.equals("") && !MathSolverManager.getODESolvers()
-				.isEmpty())
+		if ((odeSolver.equals(""))
 				|| !(MathSolverManager.getODESolvers().contains(odeSolver))) {
-			odeSolver = MathSolverManager.getODESolvers().iterator().next();
+			if (!MathSolverManager.getODESolvers().isEmpty()) {
+				odeSolver = MathSolverManager.getODESolvers().iterator().next();
+			} else {
+				odeSolver = "-";
+			}
 		}
-		if ((quantifierEliminator.equals("") && !MathSolverManager
-				.getQuantifierEliminators().isEmpty())
+		if ((quantifierEliminator.equals(""))
 				|| !(MathSolverManager.getQuantifierEliminators()
 						.contains(quantifierEliminator))) {
-			quantifierEliminator = MathSolverManager.getQuantifierEliminators()
-					.iterator().next();
+			if (!MathSolverManager.getQuantifierEliminators().isEmpty()) {
+				quantifierEliminator = MathSolverManager
+						.getQuantifierEliminators().iterator().next();
+			} else {
+				quantifierEliminator = "-";
+			}
 		}
-		if ((simplifier.equals("") && !MathSolverManager.getSimplifiers()
-				.isEmpty())
+		if ((simplifier.equals(""))
 				|| !(MathSolverManager.getSimplifiers().contains(simplifier))) {
-			simplifier = MathSolverManager.getSimplifiers().iterator().next();
+			if (!MathSolverManager.getSimplifiers().isEmpty()) {
+				simplifier = MathSolverManager.getSimplifiers().iterator()
+						.next();
+			} else {
+				simplifier = "-";
+			}
 		}
-		if ((groebnerBasisCalculator.equals("") && !MathSolverManager
-				.getGroebnerBasisCalculators().isEmpty())
+		if ((groebnerBasisCalculator.equals(""))
 				|| !(MathSolverManager.getGroebnerBasisCalculators()
 						.contains(groebnerBasisCalculator))) {
-			groebnerBasisCalculator = MathSolverManager
-					.getGroebnerBasisCalculators().iterator().next();
+			if (!MathSolverManager.getGroebnerBasisCalculators().isEmpty()) {
+				groebnerBasisCalculator = MathSolverManager
+						.getGroebnerBasisCalculators().iterator().next();
+			} else {
+				groebnerBasisCalculator = "-";
+			}
 		}
 	}
 
