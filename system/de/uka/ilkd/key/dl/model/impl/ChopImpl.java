@@ -54,4 +54,13 @@ public class ChopImpl extends CompoundDLProgramImpl implements Chop {
     public boolean printInfix() {
         return true;
     }
+    
+    /* (non-Javadoc)
+     * @see de.uka.ilkd.key.dl.model.impl.DLNonTerminalProgramElementImpl#toString()
+     */
+    @Override
+    public String toString() {
+    	// for the proof view
+    	return "Composition";
+    }
 }
