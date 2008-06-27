@@ -307,26 +307,36 @@ public class DLOptionBean implements Settings {
 	 * the ctor.
 	 */
 	public void init() {
-		if (counterExampleGenerator.equals("")
-				&& !MathSolverManager.getCounterExampleGenerators().isEmpty()) {
+		if ((counterExampleGenerator.equals("") && !MathSolverManager
+				.getCounterExampleGenerators().isEmpty())
+				|| !(MathSolverManager.getCounterExampleGenerators()
+						.contains(counterExampleGenerator))) {
 			counterExampleGenerator = MathSolverManager
 					.getCounterExampleGenerators().iterator().next();
 		}
-		if (odeSolver.equals("")
-				&& !MathSolverManager.getODESolvers().isEmpty()) {
+		if ((odeSolver.equals("") && !MathSolverManager.getODESolvers()
+				.isEmpty())
+				|| !(MathSolverManager.getODESolvers().contains(odeSolver))) {
 			odeSolver = MathSolverManager.getODESolvers().iterator().next();
 		}
-		if (quantifierEliminator.equals("")
-				&& !MathSolverManager.getQuantifierEliminators().isEmpty()) {
+		if ((quantifierEliminator.equals("") && !MathSolverManager
+				.getQuantifierEliminators().isEmpty())
+				|| !(MathSolverManager.getQuantifierEliminators()
+						.contains(quantifierEliminator))) {
 			quantifierEliminator = MathSolverManager.getQuantifierEliminators()
 					.iterator().next();
 		}
-		if (simplifier.equals("")
-				&& !MathSolverManager.getSimplifiers().isEmpty()) {
+		if ((simplifier.equals("") && !MathSolverManager.getSimplifiers()
+				.isEmpty())
+				|| !(MathSolverManager.getSimplifiers().contains(simplifier))) {
 			simplifier = MathSolverManager.getSimplifiers().iterator().next();
 		}
-		if(groebnerBasisCalculator.equals("") && !MathSolverManager.getGroebnerBasisCalculators().isEmpty()) {
-			groebnerBasisCalculator = MathSolverManager.getGroebnerBasisCalculators().iterator().next();
+		if ((groebnerBasisCalculator.equals("") && !MathSolverManager
+				.getGroebnerBasisCalculators().isEmpty())
+				|| !(MathSolverManager.getGroebnerBasisCalculators()
+						.contains(groebnerBasisCalculator))) {
+			groebnerBasisCalculator = MathSolverManager
+					.getGroebnerBasisCalculators().iterator().next();
 		}
 	}
 
@@ -526,8 +536,9 @@ public class DLOptionBean implements Settings {
 		if (simplifier == null) {
 			simplifier = "";
 		}
-		groebnerBasisCalculator = props.getProperty(DLOPTIONS_GROEBNER_BASIS_CALCULATOR);
-		if (groebnerBasisCalculator== null) {
+		groebnerBasisCalculator = props
+				.getProperty(DLOPTIONS_GROEBNER_BASIS_CALCULATOR);
+		if (groebnerBasisCalculator == null) {
 			groebnerBasisCalculator = "";
 		}
 		property = props.getProperty(DLOPTIONS_APPLY_GAMMA_RULES);
@@ -636,7 +647,8 @@ public class DLOptionBean implements Settings {
 			props.setProperty(DLOPTIONS_SIMPLIFIER, simplifier);
 		}
 		if (simplifier != null) {
-			props.setProperty(DLOPTIONS_GROEBNER_BASIS_CALCULATOR, groebnerBasisCalculator);
+			props.setProperty(DLOPTIONS_GROEBNER_BASIS_CALCULATOR,
+					groebnerBasisCalculator);
 		}
 
 		props.setProperty(DLOPTIONS_APPLY_GAMMA_RULES, applyGammaRules.name());
@@ -1082,22 +1094,20 @@ public class DLOptionBean implements Settings {
 	}
 
 	/**
-	 * @return
-	 * TODO documentation since Jun 9, 2008
+	 * @return TODO documentation since Jun 9, 2008
 	 */
 	public String getGroebnerBasisCalculator() {
 		return groebnerBasisCalculator;
 	}
 
 	/**
-	 * @return
-	 * TODO documentation since Jun 9, 2008
+	 * @return TODO documentation since Jun 9, 2008
 	 */
 	public void setGroebnerBasisCalculator(String groebnerBasisCalculator) {
 		if (this.groebnerBasisCalculator != groebnerBasisCalculator) {
 			this.groebnerBasisCalculator = groebnerBasisCalculator;
 			firePropertyChanged();
 		}
-		
+
 	}
 }
