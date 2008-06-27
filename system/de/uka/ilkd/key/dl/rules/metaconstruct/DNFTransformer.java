@@ -174,6 +174,7 @@ public class DNFTransformer extends AbstractDLMetaOperator {
 	 * @return
 	 */
 	private Formula createDNF(Result r, TermFactory tf) {
+		// TODO: preserve the order of the subformulas (insert in place)
 		Formula result = r.form;
 		// split or
 		Set<Set<Formula>> or = new LinkedHashSet<Set<Formula>>();
@@ -193,6 +194,8 @@ public class DNFTransformer extends AbstractDLMetaOperator {
 						newAnd.add((Formula) ((And) f).getChildAt(1));
 						changed = true;
 					} else if (checkDot && f instanceof Or) {
+						// TODO: maybe cache forms, as we perform the same
+						// actions on it, as on newAnd
 						newAnd.remove(f);
 						Set<Formula> forms = new LinkedHashSet<Formula>(newAnd);
 						newOr.add(forms);
@@ -308,7 +311,7 @@ public class DNFTransformer extends AbstractDLMetaOperator {
 	private Result createPrenexForm(Formula t, NamespaceSet namespaces,
 			TermFactory tf) {
 		Result r = new Result();
-		if(!checkDot(t)){
+		if (!checkDot(t)) {
 			r.form = t;
 			return r;
 		}
@@ -321,12 +324,13 @@ public class DNFTransformer extends AbstractDLMetaOperator {
 				String string = ((Variable) decl.getChildAt(i)).toString();
 				String n2;
 				int j;
-				if(string.contains("_")) {
+				if (string.contains("_")) {
 					try {
-						j = Integer.parseInt(string.substring(string.lastIndexOf('_') + 1));
+						j = Integer.parseInt(string.substring(string
+								.lastIndexOf('_') + 1));
 						j++;
 						n2 = string.substring(0, string.lastIndexOf('_') + 1);
-					} catch(NumberFormatException e) {
+					} catch (NumberFormatException e) {
 						n2 = string + "_";
 						j = 0;
 					}
@@ -403,8 +407,8 @@ public class DNFTransformer extends AbstractDLMetaOperator {
 
 	private Formula createNegationNormalform(Formula t, boolean negated,
 			TermFactory tf) {
-		if(!checkDot(t)) {
-			if(negated) {
+		if (!checkDot(t)) {
+			if (negated) {
 				return tf.createNot(t);
 			} else {
 				return t;
@@ -505,16 +509,16 @@ public class DNFTransformer extends AbstractDLMetaOperator {
 	 * @return
 	 */
 	private boolean checkDot(ProgramElement t) {
-		if(t instanceof Dot) {
+		if (t instanceof Dot) {
 			return true;
 		}
-		if(t instanceof DLNonTerminalProgramElement) {
-			for(ProgramElement p: (DLNonTerminalProgramElement)t) {
-				if(checkDot(p)) {
+		if (t instanceof DLNonTerminalProgramElement) {
+			for (ProgramElement p : (DLNonTerminalProgramElement) t) {
+				if (checkDot(p)) {
 					return true;
 				}
 			}
-		} 
+		}
 		return false;
 	}
 
