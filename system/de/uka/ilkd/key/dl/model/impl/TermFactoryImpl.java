@@ -792,6 +792,19 @@ public class TermFactoryImpl extends TermFactory {
 	/*
 	 * (non-Javadoc)
 	 * 
+	 * @see de.uka.ilkd.key.dl.TermFactory#createVariableDeclaration(org.antlr.runtime.tree.CommonTree,
+	 *      org.antlr.runtime.tree.CommonTree)
+	 */
+	@Override
+	public VariableDeclaration createVariableDeclaration(Sort type,
+			List<Variable> decls) {
+		return new VariableDeclarationImpl(VariableTypeImpl
+				.getVariableType(type.name()), decls);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see de.uka.ilkd.key.dl.TermFactory#createIf(de.uka.ilkd.key.dl.Formula,
 	 *      de.uka.ilkd.key.dl.DLProgram, de.uka.ilkd.key.dl.DLProgram)
 	 */

@@ -40,7 +40,7 @@ import de.uka.ilkd.key.logic.sort.Sort;
 import de.uka.ilkd.key.rule.inst.SVInstantiations;
 
 /**
- * @author ap
+ * @author jdq
  */
 public class DLChoiceUnwind extends AbstractDLMetaOperator {
 

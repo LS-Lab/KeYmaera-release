@@ -9,8 +9,6 @@
 //
 package de.uka.ilkd.key.logic.sort;
 
-import java.io.IOException;
-import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -22,7 +20,6 @@ import de.uka.ilkd.key.dl.model.Dot;
 import de.uka.ilkd.key.dl.model.Equals;
 import de.uka.ilkd.key.dl.model.Exists;
 import de.uka.ilkd.key.dl.model.Forall;
-import de.uka.ilkd.key.dl.model.Formula;
 import de.uka.ilkd.key.dl.model.Greater;
 import de.uka.ilkd.key.dl.model.GreaterEquals;
 import de.uka.ilkd.key.dl.model.Less;
@@ -33,7 +30,6 @@ import de.uka.ilkd.key.java.Expression;
 import de.uka.ilkd.key.java.Label;
 import de.uka.ilkd.key.java.NamedProgramElement;
 import de.uka.ilkd.key.java.NonTerminalProgramElement;
-import de.uka.ilkd.key.java.PrettyPrinter;
 import de.uka.ilkd.key.java.ProgramElement;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.java.Statement;
@@ -1751,7 +1747,6 @@ public abstract class ProgramSVSort extends PrimitiveSort {
 			}
 			return result;
 		}
-	
 
 		/**
 		 * @param childAt
@@ -1759,8 +1754,8 @@ public abstract class ProgramSVSort extends PrimitiveSort {
 		 */
 		private static boolean isOrdinary(ProgramElement childAt) {
 			if (childAt instanceof And) {
-				return (isOrdinary(((And) childAt).getChildAt(0)) &&
-						isOrdinary(((And) childAt).getChildAt(1)));
+				return (isOrdinary(((And) childAt).getChildAt(0)) && isOrdinary(((And) childAt)
+						.getChildAt(1)));
 			} else if (childAt instanceof PredicateTerm
 					&& ((PredicateTerm) childAt).getChildAt(0) instanceof Equals) {
 				return true;
@@ -1781,7 +1776,7 @@ public abstract class ProgramSVSort extends PrimitiveSort {
 			return false;
 		}
 	}
-	
+
 	/**
 	 * ProgramSVSort that can stand for an ordinary differential equation system
 	 * 
@@ -1805,7 +1800,7 @@ public abstract class ProgramSVSort extends PrimitiveSort {
 		 * @param diffSystem
 		 * @return
 		 */
-		private boolean isOrdinary(DiffSystem diffSystem) {
+		public static boolean isOrdinary(DiffSystem diffSystem) {
 			boolean result = true;
 			for (ProgramElement p : diffSystem) {
 				ProgramElement last = null;
@@ -1813,12 +1808,11 @@ public abstract class ProgramSVSort extends PrimitiveSort {
 					last = p;
 					p = ((DLNonTerminalProgramElement) p).getChildAt(1);
 				}
-				if(last == null || last instanceof Forall) {
-					result &= isOrdinaryOr(p);	
+				if ((last == null || last instanceof Forall) && diffSystem.getChildCount() == 1) {
+					result &= isOrdinaryOr(p);
 				} else {
 					result &= isOrdinary(p);
 				}
-				
 			}
 			return result;
 		}
@@ -1829,8 +1823,8 @@ public abstract class ProgramSVSort extends PrimitiveSort {
 		 */
 		private static boolean isOrdinaryOr(ProgramElement childAt) {
 			if (childAt instanceof Or) {
-				return (isOrdinaryOr(((Or) childAt).getChildAt(0)) &&
-						isOrdinaryOr(((Or) childAt).getChildAt(1)));
+				return (isOrdinaryOr(((Or) childAt).getChildAt(0)) && isOrdinaryOr(((Or) childAt)
+						.getChildAt(1)));
 			}
 			while (childAt instanceof Exists || childAt instanceof Forall) {
 				childAt = ((DLNonTerminalProgramElement) childAt).getChildAt(1);
@@ -1844,10 +1838,10 @@ public abstract class ProgramSVSort extends PrimitiveSort {
 		 */
 		private static boolean isOrdinary(ProgramElement childAt) {
 			if (childAt instanceof And) {
-				return (isOrdinary(((And) childAt).getChildAt(0)) &&
-						isOrdinary(((And) childAt).getChildAt(1)));
-			} else if (childAt instanceof PredicateTerm
-					&& ((PredicateTerm) childAt).getChildAt(0) instanceof Equals) {
+				return (isOrdinary(((And) childAt).getChildAt(0)) && isOrdinary(((And) childAt)
+						.getChildAt(1)));
+			} else if (childAt instanceof PredicateTerm) {
+				// for the DNF we allow arbitrary predicates
 				return true;
 			}
 			return !containsDot(childAt);
@@ -1872,7 +1866,8 @@ public abstract class ProgramSVSort extends PrimitiveSort {
 	 * 
 	 * @author jdq
 	 */
-	public static class DLOrdinaryDiffSystemWithoutQuantifiersSort extends ProgramSVSort {
+	public static class DLOrdinaryDiffSystemWithoutQuantifiersSort extends
+			ProgramSVSort {
 		public DLOrdinaryDiffSystemWithoutQuantifiersSort() {
 			super(new Name("SimpleOrdinaryDiffSystem"));
 		}
@@ -1897,9 +1892,9 @@ public abstract class ProgramSVSort extends PrimitiveSort {
 			}
 			return result;
 		}
-	
+
 	}
-	
+
 	/**
 	 * ProgramSVSort that can stand for a differential system that contains or
 	 * as top level operator
@@ -1919,7 +1914,9 @@ public abstract class ProgramSVSort extends PrimitiveSort {
 		public boolean canStandFor(ProgramElement pe, Services services) {
 			return (pe instanceof de.uka.ilkd.key.dl.model.DiffSystem)
 					&& checkInequality(
-							(de.uka.ilkd.key.dl.model.DiffSystem) pe, false);
+							(de.uka.ilkd.key.dl.model.DiffSystem) pe, false)
+					&& DLNotDNFDiffSystemSort
+							.isOrdinary((de.uka.ilkd.key.dl.model.DiffSystem) pe);
 		}
 
 		/**

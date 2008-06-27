@@ -646,4 +646,14 @@ public abstract class TermFactory implements Serializable {
     
     public abstract Exists createExists(VariableDeclaration dec, Formula form);
 
+	/**
+	 * @param type
+	 * @param decls
+	 * @param programVariable
+	 * @param fresh
+	 * @return
+	 */
+	public abstract VariableDeclaration createVariableDeclaration(Sort type,
+			List<Variable> decls);
+
 }

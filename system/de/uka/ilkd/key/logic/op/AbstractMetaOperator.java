@@ -16,6 +16,7 @@ import java.util.HashMap;
 import de.uka.ilkd.key.dl.formulatools.Prog2LogicConverter;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DLChoiceUnwind;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DLDiffAdjoin;
+import de.uka.ilkd.key.dl.rules.metaconstruct.DLDiffInequalityRewrite;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DLIntroNewAnonUpdateOp;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DLInvariantPart;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DLRandomAssign;
@@ -230,6 +231,8 @@ public abstract class AbstractMetaOperator extends Op implements MetaOperator {
 	public static final AbstractMetaOperator DL_DNF_TRANSFORMER = new DNFTransformer();
 
 	public static final AbstractMetaOperator DL_CHOICE_UNWIND = new DLChoiceUnwind();
+
+	public static final AbstractMetaOperator DL_DIFF_INEQ_REWRITE = new DLDiffInequalityRewrite();
 
     
     protected TermFactory termFactory = TermFactory.DEFAULT;
