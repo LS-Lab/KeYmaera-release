@@ -522,24 +522,66 @@ public class DLOptionBean implements Settings {
 				.getProperty(DLOPTIONS_COUNTEREXAMPLE_GENERATOR);
 		if (counterExampleGenerator == null) {
 			counterExampleGenerator = "";
+		} else if (!(MathSolverManager.getCounterExampleGenerators()
+				.contains(counterExampleGenerator))
+				&& !counterExampleGenerator.equals("-")) {
+			if (!MathSolverManager.getCounterExampleGenerators().isEmpty()) {
+				counterExampleGenerator = MathSolverManager
+						.getCounterExampleGenerators().iterator().next();
+			} else {
+				counterExampleGenerator = "-";
+			}
 		}
 		odeSolver = props.getProperty(DLOPTIONS_ODESOLVER);
 		if (odeSolver == null) {
 			odeSolver = "";
+		} else if (!(MathSolverManager.getODESolvers().contains(odeSolver))
+				&& !odeSolver.equals("-")) {
+			if (!MathSolverManager.getODESolvers().isEmpty()) {
+				odeSolver = MathSolverManager.getODESolvers().iterator().next();
+			} else {
+				odeSolver = "-";
+			}
 		}
 		quantifierEliminator = props
 				.getProperty(DLOPTIONS_QUANTIFIER_ELIMINATOR);
 		if (quantifierEliminator == null) {
 			quantifierEliminator = "";
+		} else if (!(MathSolverManager.getQuantifierEliminators()
+				.contains(quantifierEliminator))
+				&& !quantifierEliminator.equals("-")) {
+			if (!MathSolverManager.getQuantifierEliminators().isEmpty()) {
+				quantifierEliminator = MathSolverManager
+						.getQuantifierEliminators().iterator().next();
+			} else {
+				quantifierEliminator = "-";
+			}
 		}
 		simplifier = props.getProperty(DLOPTIONS_SIMPLIFIER);
 		if (simplifier == null) {
 			simplifier = "";
+		} else if (!(MathSolverManager.getSimplifiers().contains(simplifier))
+				&& !simplifier.equals("-")) {
+			if (!MathSolverManager.getSimplifiers().isEmpty()) {
+				simplifier = MathSolverManager.getSimplifiers().iterator()
+						.next();
+			} else {
+				simplifier = "-";
+			}
 		}
 		groebnerBasisCalculator = props
 				.getProperty(DLOPTIONS_GROEBNER_BASIS_CALCULATOR);
 		if (groebnerBasisCalculator == null) {
 			groebnerBasisCalculator = "";
+		} else if (!(MathSolverManager.getGroebnerBasisCalculators()
+				.contains(groebnerBasisCalculator))
+				&& !groebnerBasisCalculator.equals("-")) {
+			if (!MathSolverManager.getGroebnerBasisCalculators().isEmpty()) {
+				groebnerBasisCalculator = MathSolverManager
+						.getGroebnerBasisCalculators().iterator().next();
+			} else {
+				groebnerBasisCalculator = "-";
+			}
 		}
 		property = props.getProperty(DLOPTIONS_APPLY_GAMMA_RULES);
 		if (property != null) {
