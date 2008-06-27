@@ -15,5 +15,7 @@
 ./hybrid/ETCS/paper/safety-lemma.key 100000
 ./hybrid/dev/exist-evolve.key
 ./hybrid/dev/rotation.key
+./hybrid/dev/qode-test1.key
+./hybrid/dev/qode-test2.key
 ./hybrid/ETCS/paper/reactivity-lemma.key 100000
 ./hybrid/dev/diff-update.key 100000
