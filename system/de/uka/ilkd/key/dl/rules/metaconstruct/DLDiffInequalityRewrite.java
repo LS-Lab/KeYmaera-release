@@ -103,7 +103,7 @@ public class DLDiffInequalityRewrite extends AbstractDLMetaOperator {
 				if(input == null) {
 					input = (Formula) f;
 				} else {
-					tf.createAnd(input, (Formula) f);
+					input = tf.createAnd(input, (Formula) f);
 				}
 			}
 			
