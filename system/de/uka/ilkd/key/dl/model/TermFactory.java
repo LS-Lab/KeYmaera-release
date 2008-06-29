@@ -33,6 +33,7 @@ import java.util.WeakHashMap;
 import org.antlr.runtime.tree.CommonTree;
 
 import de.uka.ilkd.key.logic.NamespaceSet;
+import de.uka.ilkd.key.logic.sort.Sort;
 
 /**
  * The TermFactory is used by the TreeParser stage of the dL parser. It serves
@@ -363,6 +364,14 @@ public abstract class TermFactory implements Serializable {
      */
     public abstract VariableDeclaration createVariableDeclaration(
             CommonTree type, List<CommonTree> var, boolean programVariable);
+
+    /**
+     * Creates a new representation for a variable declaration
+     * 
+     * @return a new representation for a variable declaration
+     */
+    public abstract VariableDeclaration createVariableDeclaration(
+    		VariableType type, List<String> var, boolean programVariable, boolean fresh);
    
 
     /**
@@ -636,5 +645,15 @@ public abstract class TermFactory implements Serializable {
     public abstract Forall createForall(VariableDeclaration dec, Formula form);
     
     public abstract Exists createExists(VariableDeclaration dec, Formula form);
+
+	/**
+	 * @param type
+	 * @param decls
+	 * @param programVariable
+	 * @param fresh
+	 * @return
+	 */
+	public abstract VariableDeclaration createVariableDeclaration(Sort type,
+			List<Variable> decls);
 
 }

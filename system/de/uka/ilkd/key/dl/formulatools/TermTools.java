@@ -3,6 +3,8 @@
  */
 package de.uka.ilkd.key.dl.formulatools;
 
+import java.io.IOException;
+import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,6 +18,8 @@ import java.util.List;
 import java.util.Set;
 
 import de.uka.ilkd.key.dl.formulatools.TermRewriter.Match;
+import de.uka.ilkd.key.java.PrettyPrinter;
+import de.uka.ilkd.key.java.ProgramElement;
 import de.uka.ilkd.key.logic.ConstrainedFormula;
 import de.uka.ilkd.key.logic.IteratorOfConstrainedFormula;
 import de.uka.ilkd.key.logic.IteratorOfTerm;
@@ -418,5 +422,16 @@ public class TermTools {
 			result.t = TermBuilder.DF.all(v, result.t);
 		}
 		return result;
+	}
+	
+	public static String program2String(ProgramElement p) {
+		StringWriter w = new StringWriter();
+		try {
+			p.prettyPrint(new PrettyPrinter(w));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return w.toString();
 	}
 }

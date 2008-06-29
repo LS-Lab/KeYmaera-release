@@ -138,6 +138,8 @@ public interface IODESolver extends IMathSolver {
      *                the differential equation system
      * @param post
      *                the formula to be attained.
+     * @param ep
+     *                progress
      * @param nss
      *                the current namespace sets
      * @throws RemoteException
@@ -147,6 +149,6 @@ public interface IODESolver extends IMathSolver {
      * @throws ServerStatusProblemException
      * @throws UnableToConvertInputException
      */
-    public abstract Term diffFin(DiffSystem form, Term post, NamespaceSet nss)
+    public abstract Term diffFin(DiffSystem form, Term post, Term ep, NamespaceSet nss)
             throws RemoteException, SolverException;
 }

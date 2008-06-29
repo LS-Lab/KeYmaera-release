@@ -25,6 +25,7 @@
 package de.uka.ilkd.key.dl.model.impl;
 
 import java.io.IOException;
+import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -176,7 +177,15 @@ public abstract class DLProgramElementImpl implements DLProgramElement {
      * @see java.lang.Object#toString() toString
      */
     public String toString() {
-        Class cla = getClass();
+    	StringWriter writer = new StringWriter();
+    	try {
+			prettyPrint(new PrettyPrinter(writer));
+			return writer.toString();
+    	} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	Class cla = getClass();
         return cla.getSimpleName();
     }
 }

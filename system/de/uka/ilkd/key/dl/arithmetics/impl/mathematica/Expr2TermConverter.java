@@ -112,9 +112,14 @@ public class Expr2TermConverter implements ExprConstants {
     public static Term convert(Expr expr, NamespaceSet nss,
             Map<Name, LogicVariable> quantifiedVariables)
             throws RemoteException, ComputationException {
-        Term convertImpl = convertImpl(expr, nss, quantifiedVariables);
+    	try {
+            Term convertImpl = convertImpl(expr, nss, quantifiedVariables);
 //        assert expr.equals(Term2ExprConverter.convert2ExprImpl(convertImpl));
-        return convertImpl;
+            return convertImpl;
+    	}
+    	catch (UnableToConvertInputException ex) {
+    		throw new UnableToConvertInputException(ex.getMessage() + " in " + expr, ex);
+    	}
     }
     static Term convertImpl(Expr expr, NamespaceSet nss,
                 Map<Name, LogicVariable> quantifiedVariables)
@@ -150,7 +155,7 @@ public class Expr2TermConverter implements ExprConstants {
                         quantifiedVariables.put(name, lookup);
                     }
                     if (expr.head().equals(EXISTS)) {
-                        Term result = convert(expr.args()[1], nss,
+                        Term result = convertImpl(expr.args()[1], nss,
                                 quantifiedVariables);
                         for (LogicVariable var : vars) {
                             result = TermBuilder.DF.ex(var, result);
@@ -158,7 +163,7 @@ public class Expr2TermConverter implements ExprConstants {
                         return result;
                     } else {
                         return TermBuilder.DF.all(vars
-                                .toArray(new LogicVariable[0]), convert(expr
+                                .toArray(new LogicVariable[0]), convertImpl(expr
                                 .args()[1], nss, quantifiedVariables));
                     }
                 }

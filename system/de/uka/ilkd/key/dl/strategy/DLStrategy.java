@@ -91,6 +91,7 @@ import de.uka.ilkd.key.strategy.feature.FormulaAddedByRuleFeature;
 import de.uka.ilkd.key.strategy.feature.LeftmostNegAtomFeature;
 import de.uka.ilkd.key.strategy.feature.MatchedIfFeature;
 import de.uka.ilkd.key.strategy.feature.NonDuplicateAppFeature;
+import de.uka.ilkd.key.strategy.feature.NonDuplicateAppModPositionFeature;
 import de.uka.ilkd.key.strategy.feature.NotBelowQuantifierFeature;
 import de.uka.ilkd.key.strategy.feature.NotWithinMVFeature;
 import de.uka.ilkd.key.strategy.feature.PurePosDPathFeature;
@@ -376,13 +377,15 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 				reduceSequence = ConditionalFeature.createConditional(
 						ReduceRule.INSTANCE, inftyConst());
 				groebnerBasisRule = ConditionalFeature.createConditional(
-						GroebnerBasisRule.INSTANCE, longConst(20000));
+						GroebnerBasisRule.INSTANCE, add(FOSequence.INSTANCE,
+								longConst(20000)));
 			}
 		} else {
 			reduceSequence = ConditionalFeature.createConditional(
 					ReduceRule.INSTANCE, inftyConst());
 			groebnerBasisRule = ConditionalFeature.createConditional(
-					GroebnerBasisRule.INSTANCE, longConst(20000));
+					GroebnerBasisRule.INSTANCE, add(FOSequence.INSTANCE,
+							longConst(20000)));
 		}
 
 		final Feature eliminateQuantifier = ConditionalFeature
@@ -443,6 +446,8 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 	 * @author ap
 	 */
 	private void setupDiffSatStrategy(final RuleSetDispatchFeature d) {
+		bindRuleSet(d, "diff_normalize_dnf", longConst(5000));
+		bindRuleSet(d, "diff_normalize_choice", longConst(10000));
 		if (DLOptionBean.INSTANCE.getDiffSat() != DiffSat.BLIND) {
 			bindRuleSet(d, "diff_solve", ifZero(ODESolvableFeature.INSTANCE,
 					longConst(4000), inftyConst()));

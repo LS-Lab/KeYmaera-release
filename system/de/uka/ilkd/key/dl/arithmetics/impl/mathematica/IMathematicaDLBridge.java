@@ -82,7 +82,7 @@ public interface IMathematicaDLBridge extends Remote {
     public Term diffInd(DiffSystem form, Term post, NamespaceSet nss)
             throws RemoteException, SolverException;
 
-    public Term diffFin(DiffSystem form, Term post, NamespaceSet nss)
+    public Term diffFin(DiffSystem form, Term post, Term ep, NamespaceSet nss)
             throws RemoteException, SolverException;
 
     /**

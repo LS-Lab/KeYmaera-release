@@ -54,4 +54,13 @@ public class ChoiceImpl extends CompoundDLProgramImpl implements Choice {
     public boolean printInfix() {
         return true;
     }
+    
+    /* (non-Javadoc)
+     * @see de.uka.ilkd.key.dl.model.impl.DLNonTerminalProgramElementImpl#toString()
+     */
+    @Override
+    public String toString() {
+    	// for proof view
+    	return "Choice";
+    }
 }

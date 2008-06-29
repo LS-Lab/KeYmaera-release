@@ -24,19 +24,31 @@
 package de.uka.ilkd.key.dl.model.impl;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
-import com.wolfram.jlink.Expr;
-
-import de.uka.ilkd.key.dl.arithmetics.impl.mathematica.DL2ExprConverter;
+import de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator.QuantifierType;
 import de.uka.ilkd.key.dl.formulatools.Prog2LogicConverter;
+import de.uka.ilkd.key.dl.model.And;
+import de.uka.ilkd.key.dl.model.Biimplies;
 import de.uka.ilkd.key.dl.model.DLNonTerminalProgramElement;
 import de.uka.ilkd.key.dl.model.DLProgramElement;
 import de.uka.ilkd.key.dl.model.DiffSystem;
 import de.uka.ilkd.key.dl.model.Dot;
+import de.uka.ilkd.key.dl.model.Exists;
+import de.uka.ilkd.key.dl.model.Forall;
 import de.uka.ilkd.key.dl.model.Formula;
+import de.uka.ilkd.key.dl.model.Implies;
+import de.uka.ilkd.key.dl.model.Or;
+import de.uka.ilkd.key.dl.model.PredicateTerm;
+import de.uka.ilkd.key.dl.model.TermFactory;
+import de.uka.ilkd.key.dl.model.Variable;
+import de.uka.ilkd.key.dl.model.VariableDeclaration;
 import de.uka.ilkd.key.gui.Main;
 import de.uka.ilkd.key.java.PrettyPrinter;
 import de.uka.ilkd.key.java.ProgramElement;
@@ -55,6 +67,22 @@ import de.uka.ilkd.key.logic.TermBuilder;
 public class DiffSystemImpl extends DLNonTerminalProgramElementImpl implements
 		DiffSystem {
 
+	private static class Pair {
+		QuantifierType type;
+		VariableDeclaration decl;
+
+		/**
+		 * @param decl
+		 * @param type
+		 */
+		public Pair(QuantifierType type, VariableDeclaration decl) {
+			super();
+			this.decl = decl;
+			this.type = type;
+		}
+
+	}
+
 	/**
 	 * Creates a new DiffSystem with the given content
 	 * 
@@ -63,8 +91,28 @@ public class DiffSystemImpl extends DLNonTerminalProgramElementImpl implements
 	 */
 	public DiffSystemImpl(List<Formula> content) {
 		for (Formula f : content) {
-			addChild(f);
+			// we dont like conjunctions, so we drop them
+			for (Formula sub : normalize(f)) {
+				addChild(sub);
+			}
 		}
+	}
+
+	/**
+	 * @param f
+	 * @return
+	 */
+	private List<Formula> normalize(Formula f) {
+		List<Formula> result = new LinkedList<Formula>();
+		if (f instanceof And) {
+			And a = (And) f;
+			for (int i = 0; i < a.getChildCount(); i++) {
+				result.addAll(normalize((Formula) a.getChildAt(i)));
+			}
+		} else {
+			result.add(f);
+		}
+		return result;
 	}
 
 	/**
@@ -117,20 +165,165 @@ public class DiffSystemImpl extends DLNonTerminalProgramElementImpl implements
 	 */
 	public Term getInvariant() {
 		Term invariant = TermBuilder.DF.tt();
-		for (ProgramElement el : this) {
-			if (!isDifferentialEquation(el)) {
-				if (invariant.equals(TermBuilder.DF.tt())) {
+		TermFactory tf;
+		try {
+			tf = TermFactory.getTermFactory(TermFactoryImpl.class, Main
+					.getInstance().mediator().namespaces());
+
+			for (ProgramElement el : this) {
+				if (!isDifferentialEquation(el)) {
 					invariant = TermBuilder.DF.and(invariant,
 							Prog2LogicConverter
 									.convert((DLProgramElement) el, Main
 											.getInstance().mediator()
 											.getServices()));
 				} else {
-					throw new IllegalStateException("No single invariant");
+					DLProgramElement hiddenInvariantPart = (DLProgramElement) getHiddenInvariantPart(
+							el, getQuantifiedVariablesOccurringInDiffEq(el,
+									new HashSet<Variable>()), tf);
+					if (hiddenInvariantPart != null) {
+						invariant = TermBuilder.DF.and(invariant,
+								Prog2LogicConverter.convert(
+										hiddenInvariantPart, Main.getInstance()
+												.mediator().getServices()));
+					}
+				}
+			}
+			return invariant;
+		} catch (Exception e) {
+			throw new IllegalArgumentException(e);
+		}
+	}
+
+	/**
+	 * @param el
+	 * @return
+	 */
+	private Set<Variable> getQuantifiedVariablesOccurringInDiffEq(
+			ProgramElement el, Set<Variable> quantified) {
+		Set<Variable> result = new HashSet<Variable>();
+
+		if (el instanceof Forall || el instanceof Exists) {
+			DLNonTerminalProgramElement npe = (DLNonTerminalProgramElement) el;
+			VariableDeclaration decl = (VariableDeclaration) npe.getChildAt(0);
+			for (int i = 1; i < decl.getChildCount(); i++) {
+				quantified.add((Variable) decl.getChildAt(i));
+			}
+			result.addAll(getQuantifiedVariablesOccurringInDiffEq(npe
+					.getChildAt(1), quantified));
+		} else if (el instanceof PredicateTerm) {
+			if (isDifferentialEquation(el)) {
+				for (int i = 1; i < ((DLNonTerminalProgramElement) el)
+						.getChildCount(); i++) {
+					result.addAll(getQuantifiedVariablesOccurringInDiffEq(
+							((DLNonTerminalProgramElement) el).getChildAt(i),
+							quantified));
+				}
+			}
+		} else if (el instanceof DLNonTerminalProgramElement) {
+			for (int i = 0; i < ((DLNonTerminalProgramElement) el)
+					.getChildCount(); i++) {
+				result.addAll(getQuantifiedVariablesOccurringInDiffEq(
+						((DLNonTerminalProgramElement) el).getChildAt(i),
+						quantified));
+			}
+
+		} else if (el instanceof Variable) {
+			if (quantified.contains(el)) {
+				result.add((Variable) el);
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * @param el
+	 * @return
+	 */
+	private ProgramElement getHiddenInvariantPart(ProgramElement el,
+			Set<Variable> quantified, TermFactory tf) {
+		if (!isDifferentialEquation(el) && !doesContain(el, quantified)) {
+			return el;
+		}
+		List<Pair> quants = new ArrayList<Pair>();
+		while (el instanceof Forall || el instanceof Exists) {
+			DLNonTerminalProgramElement npe = (DLNonTerminalProgramElement) el;
+			VariableDeclaration decl = (VariableDeclaration) npe.getChildAt(0);
+			List<String> vars = new ArrayList<String>();
+			for (int i = 1; i < decl.getChildCount(); i++) {
+				if (!quantified.contains(decl.getChildAt(i))) {
+					vars.add(((Variable) decl.getChildAt(i)).getElementName()
+							.toString());
+				}
+			}
+			if (!vars.isEmpty()) {
+				QuantifierType type = (el instanceof Forall) ? QuantifierType.FORALL
+						: QuantifierType.EXISTS;
+				quants.add(new Pair(type, tf.createVariableDeclaration(decl
+						.getType(), vars, false, false)));
+			}
+			el = npe.getChildAt(1);
+		}
+		ProgramElement result = null;
+		if (el instanceof And) {
+			ProgramElement one = getHiddenInvariantPart(((And) el)
+					.getChildAt(0), quantified, tf);
+			ProgramElement two = getHiddenInvariantPart(((And) el)
+					.getChildAt(1), quantified, tf);
+			if (one == null) {
+				result = two;
+			} else if (two == null) {
+				result = one;
+			} else {
+				result = tf.createAnd((Formula) one, (Formula) two);
+			}
+		} else if (el instanceof Or) {
+			throw new IllegalArgumentException(
+					"Dont know what the invariant part is if toplevel operator is or: "
+							+ el);
+		} else if (el instanceof Implies) {
+			throw new IllegalArgumentException(
+					"Dont know what the invariant part is if toplevel operator is implies: "
+							+ el);
+		} else if (el instanceof Biimplies) {
+			throw new IllegalArgumentException(
+					"Dont know what the invariant part is if toplevel operator is biimplies: "
+							+ el);
+		}
+		if (result != null) {
+			Collections.reverse(quants);
+			for (Pair p : quants) {
+				switch (p.type) {
+				case FORALL:
+					result = tf.createForall(p.decl, (Formula) result);
+					break;
+				case EXISTS:
+					result = tf.createExists(p.decl, (Formula) result);
+					break;
 				}
 			}
 		}
-		return invariant;
+		return result;
+	}
+
+	/**
+	 * @param el
+	 * @param quantified
+	 * @return
+	 */
+	private boolean doesContain(ProgramElement el, Set<Variable> quantified) {
+		if (el instanceof Variable) {
+			return quantified.contains(el);
+		} else if (el instanceof DLNonTerminalProgramElement) {
+			for (int i = 0; i < ((DLNonTerminalProgramElement) el)
+					.getChildCount(); i++) {
+				if (doesContain(((DLNonTerminalProgramElement) el)
+						.getChildAt(i), quantified)) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	/**

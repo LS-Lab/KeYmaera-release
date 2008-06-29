@@ -235,7 +235,7 @@ public class Orbital implements IODESolver {
                 "This differential equation solver does not provide DiffInd. Choose a different solver from the Options menu.");
     }
 
-    public Term diffFin(DiffSystem form, Term post, NamespaceSet nss)
+    public Term diffFin(DiffSystem form, Term post, Term ep, NamespaceSet nss)
             throws RemoteException, SolverException {
         throw new FailedComputationException(
                 "This differential equation solver does not provide DiffFin. Choose a different solver from the Options menu.");
