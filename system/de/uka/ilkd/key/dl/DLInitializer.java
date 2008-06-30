@@ -152,6 +152,8 @@ public class DLInitializer {
 
 	private static Customizer customizer;
 
+	private static boolean initialized = false;
+
 	/**
 	 * Initializes the HyKeY environment:
 	 * <ul>
@@ -164,67 +166,70 @@ public class DLInitializer {
 	 * </ul>
 	 */
 	public static void initialize() {
-		ProofSettings.DEFAULT_SETTINGS.setProfile(new DLProfile());
-		// call something in the MathSolverManager to force initialization
-		MathSolverManager.getQuantifierEliminators();
-		try {
-			// We just call a method to check if the server is alive
-			ISimplifier simplifier = MathSolverManager
-					.getSimplifier("Mathematica");
-			if (simplifier != null) {
-				simplifier.getQueryCount();
-			}
-		} catch (RemoteException e1) {
+		if (!initialized) {
+			initialized = true;
+			ProofSettings.DEFAULT_SETTINGS.setProfile(new DLProfile());
+			// call something in the MathSolverManager to force initialization
+			MathSolverManager.getQuantifierEliminators();
 			try {
-				KernelLinkWrapper.main(new String[0]);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		DLOptionBean.INSTANCE.init();
-		try {
-			customizer = CustomizerViewController
-					.customizerFor(DLOptionBean.class);
-			customizer.setObject(DLOptionBean.INSTANCE);
-			SwingUtilities.invokeAndWait(new Runnable() {
-
-				@Override
-				public void run() {
-					Main.getInstance().addTab("Hybrid Strategy",
-							(JComponent) customizer,
-							DLOptionBeanBeanInfo.DESCRIPTION);
+				// We just call a method to check if the server is alive
+				ISimplifier simplifier = MathSolverManager
+						.getSimplifier("Mathematica");
+				if (simplifier != null) {
+					simplifier.getQueryCount();
 				}
+			} catch (RemoteException e1) {
+				try {
+					KernelLinkWrapper.main(new String[0]);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			DLOptionBean.INSTANCE.init();
+			try {
+				customizer = CustomizerViewController
+						.customizerFor(DLOptionBean.class);
+				customizer.setObject(DLOptionBean.INSTANCE);
+				SwingUtilities.invokeAndWait(new Runnable() {
 
-			});
-		} catch (IntrospectionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InvocationTargetException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		// taken from Mathematica ctor
-		Main.getInstance().mediator().addAutoModeListener(
-				new AutomodeListener());
-		Main.getInstance().mediator().addAutoModeListener(
-				new AutoModeListener() {
-
-					public void autoModeStarted(ProofEvent e) {
-						Main.autoModeAction.setEnabled(false);
-					}
-
-					public void autoModeStopped(ProofEvent e) {
-						MathSolverManager.resetAbortState();
-
-						Main.autoModeAction.enable();
+					@Override
+					public void run() {
+						Main.getInstance().addTab("Hybrid Strategy",
+								(JComponent) customizer,
+								DLOptionBeanBeanInfo.DESCRIPTION);
 					}
 
 				});
+			} catch (IntrospectionException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (InvocationTargetException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			// taken from Mathematica ctor
+			Main.getInstance().mediator().addAutoModeListener(
+					new AutomodeListener());
+			Main.getInstance().mediator().addAutoModeListener(
+					new AutoModeListener() {
+
+						public void autoModeStarted(ProofEvent e) {
+							Main.autoModeAction.setEnabled(false);
+						}
+
+						public void autoModeStopped(ProofEvent e) {
+							MathSolverManager.resetAbortState();
+
+							Main.autoModeAction.enable();
+						}
+
+					});
+		}
 
 	}
 
