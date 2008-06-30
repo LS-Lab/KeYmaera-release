@@ -44,120 +44,140 @@ import de.uka.ilkd.key.proof.ProofEvent;
  */
 public class TimeStatisticGenerator implements AutoModeListener {
 
-    private long time;
+	private long time;
 
-    private long oldT;
+	private long oldT;
 
-    private boolean start;
+	private boolean start;
 
-    private static final StatDialog statDialog = new StatDialog();
+	private static final StatDialog statDialog = new StatDialog();
 
-    public static TimeStatisticGenerator INSTANCE = new TimeStatisticGenerator();
+	public static TimeStatisticGenerator INSTANCE = new TimeStatisticGenerator();
 
-    private TimeStatisticGenerator() {
-        time = 0;
-    }
+	private TimeStatisticGenerator() {
+		time = 0;
+	}
 
-    public static void hookTimeStatisticGenerator(JMenu menu) {
-        JMenuItem item = new JMenuItem("Open statistic generator");
-        item.addActionListener(new ActionListener() {
+	public static void hookTimeStatisticGenerator(JMenu menu) {
+		JMenuItem item = new JMenuItem("Open statistic generator");
+		item.addActionListener(new ActionListener() {
 
-            public void actionPerformed(ActionEvent arg0) {
-                statDialog.setVisible(true);
-            }
+			public void actionPerformed(ActionEvent arg0) {
+				statDialog.setVisible(true);
+			}
 
-        });
-        menu.add(item);
-    }
+		});
+		menu.add(item);
+	}
 
-    static class StatDialog extends JFrame {
-        /**
+	static class StatDialog extends JFrame {
+		/**
          * 
          */
-        private static final long serialVersionUID = -185617352313612850L;
+		private static final long serialVersionUID = -185617352313612850L;
 
-        private final JLabel label = new JLabel("Time: 0");
+		private final JLabel label = new JLabel("Time: 0");
 
-        public StatDialog() {
-            add(label);
-            pack();
-        }
-    }
+		public StatDialog() {
+			add(label);
+			pack();
+		}
+	}
 
-    public void autoModeStarted(ProofEvent e) {
-        if (!start) {
-            start = true;
-            oldT = System.currentTimeMillis();
-        }
-    }
+	public void autoModeStarted(ProofEvent e) {
+		if (!start) {
+			start = true;
+			oldT = System.currentTimeMillis();
+		}
+	}
 
-    public void autoModeStopped(ProofEvent e) {
-        if (start) {
-            time += System.currentTimeMillis() - oldT;
-            SwingUtilities.invokeLater(new Runnable() {
+	public void autoModeStopped(ProofEvent e) {
+		if (start) {
+			time += System.currentTimeMillis() - oldT;
+			SwingUtilities.invokeLater(new Runnable() {
 
-                public void run() {
-                    statDialog.label.setText("Time: " + INSTANCE.time);
-                    statDialog.pack();
-                }
-            });
-            start = false;
-        }
-    }
+				public void run() {
+					statDialog.label.setText("Time: " + INSTANCE.time);
+					statDialog.pack();
+				}
+			});
+			start = false;
+		}
+	}
 
-    public long getTime() {
-        return time;
-    }
+	public long getTime() {
+		return time;
+	}
 
-    /**
-     * @return
-     * @throws RemoteException
-     */
-    public String getSolverTimes() throws RemoteException {
-        IMathSolver solver = MathSolverManager.getCurrentQuantifierEliminator();
-        return solver.getTimeStatistics();
-    }
+	/**
+	 * @return
+	 * @throws RemoteException
+	 */
+	public String getSolverTimes() throws RemoteException {
+		IMathSolver solver = MathSolverManager.getCurrentQuantifierEliminator();
+		if (solver != null) {
+			return solver.getTimeStatistics();
+		} else {
+			return "na";
+		}
+	}
 
-    /**
-     * @return
-     * @throws RemoteException
-     */
-    public long getTotalCaclulationTime() throws RemoteException {
-        IMathSolver solver = MathSolverManager.getCurrentQuantifierEliminator();
-        return solver.getTotalCalculationTime();
-    }
+	/**
+	 * @return
+	 * @throws RemoteException
+	 */
+	public long getTotalCaclulationTime() throws RemoteException {
+		IMathSolver solver = MathSolverManager.getCurrentQuantifierEliminator();
+		if (solver != null) {
+			return solver.getTotalCalculationTime();
+		} else {
+			return -1;
+		}
+	}
 
-    /**
-     * Get the maximum number of bytes used while started.
-     * @return
-     * @throws RemoteException
-     * @throws ServerStatusProblemException
-     * @throws ConnectionProblemException
-     */
-    public long getTotalMemory() throws RemoteException {
-        IMathSolver solver = MathSolverManager.getCurrentQuantifierEliminator();
-        try {
-            return solver.getTotalMemory();
-        } catch (ServerStatusProblemException e) {
-            return -1;
-        } catch (ConnectionProblemException e) {
-            return -1;
-        }
-    }
+	/**
+	 * Get the maximum number of bytes used while started.
+	 * 
+	 * @return
+	 * @throws RemoteException
+	 * @throws ServerStatusProblemException
+	 * @throws ConnectionProblemException
+	 */
+	public long getTotalMemory() throws RemoteException {
+		IMathSolver solver = MathSolverManager.getCurrentQuantifierEliminator();
+		if (solver == null) {
+			return -1;
+		}
+		try {
+			return solver.getTotalMemory();
+		} catch (ServerStatusProblemException e) {
+			return -1;
+		} catch (ConnectionProblemException e) {
+			return -1;
+		}
+	}
 
-    /**
-     * @return
-     */
-    public long getCachedAnwsers() throws RemoteException {
-        IMathSolver solver = MathSolverManager.getCurrentQuantifierEliminator();
-        return solver.getCachedAnwserCount();
-    }
+	/**
+	 * @return
+	 */
+	public long getCachedAnwsers() throws RemoteException {
+		IMathSolver solver = MathSolverManager.getCurrentQuantifierEliminator();
+		if (solver != null) {
+			return solver.getCachedAnwserCount();
+		} else {
+			return -1;
+		}
+	}
 
-    /**
-     * @return
-     */
-    public long getQueries() throws RemoteException {
-        IMathSolver solver = MathSolverManager.getCurrentQuantifierEliminator();
-        return solver.getQueryCount();
-    }
+	/**
+	 * @return
+	 */
+	public long getQueries() throws RemoteException {
+		IMathSolver solver = MathSolverManager.getCurrentQuantifierEliminator();
+		if(solver != null) {
+			return solver.getQueryCount();
+		} else {
+			return -1;
+		}
+	}
 }
