@@ -114,8 +114,9 @@ public class TimeStatisticGenerator implements AutoModeListener {
 	 * @throws RemoteException
 	 */
 	public String getSolverTimes() throws RemoteException {
-		IMathSolver solver = MathSolverManager.getCurrentQuantifierEliminator();
-		if (solver != null) {
+		if (MathSolverManager.isQuantifierEliminatorSet()) {
+			IMathSolver solver = MathSolverManager
+					.getCurrentQuantifierEliminator();
 			return solver.getTimeStatistics();
 		} else {
 			return "na";
@@ -127,8 +128,9 @@ public class TimeStatisticGenerator implements AutoModeListener {
 	 * @throws RemoteException
 	 */
 	public long getTotalCaclulationTime() throws RemoteException {
-		IMathSolver solver = MathSolverManager.getCurrentQuantifierEliminator();
-		if (solver != null) {
+		if (MathSolverManager.isQuantifierEliminatorSet()) {
+			IMathSolver solver = MathSolverManager
+					.getCurrentQuantifierEliminator();
 			return solver.getTotalCalculationTime();
 		} else {
 			return -1;
@@ -144,25 +146,29 @@ public class TimeStatisticGenerator implements AutoModeListener {
 	 * @throws ConnectionProblemException
 	 */
 	public long getTotalMemory() throws RemoteException {
-		IMathSolver solver = MathSolverManager.getCurrentQuantifierEliminator();
-		if (solver == null) {
+		if (MathSolverManager.isQuantifierEliminatorSet()) {
+			IMathSolver solver = MathSolverManager
+					.getCurrentQuantifierEliminator();
+			try {
+				return solver.getTotalMemory();
+			} catch (ServerStatusProblemException e) {
+				return -1;
+			} catch (ConnectionProblemException e) {
+				return -1;
+			}
+		} else {
 			return -1;
 		}
-		try {
-			return solver.getTotalMemory();
-		} catch (ServerStatusProblemException e) {
-			return -1;
-		} catch (ConnectionProblemException e) {
-			return -1;
-		}
+
 	}
 
 	/**
 	 * @return
 	 */
 	public long getCachedAnwsers() throws RemoteException {
-		IMathSolver solver = MathSolverManager.getCurrentQuantifierEliminator();
-		if (solver != null) {
+		if (MathSolverManager.isQuantifierEliminatorSet()) {
+			IMathSolver solver = MathSolverManager
+					.getCurrentQuantifierEliminator();
 			return solver.getCachedAnwserCount();
 		} else {
 			return -1;
@@ -173,8 +179,9 @@ public class TimeStatisticGenerator implements AutoModeListener {
 	 * @return
 	 */
 	public long getQueries() throws RemoteException {
-		IMathSolver solver = MathSolverManager.getCurrentQuantifierEliminator();
-		if(solver != null) {
+		if (MathSolverManager.isQuantifierEliminatorSet()) {
+			IMathSolver solver = MathSolverManager
+					.getCurrentQuantifierEliminator();
 			return solver.getQueryCount();
 		} else {
 			return -1;
