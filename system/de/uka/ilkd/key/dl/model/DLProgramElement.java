@@ -49,6 +49,11 @@ public interface DLProgramElement extends ProgramElement, Serializable, Reuseabl
      * @return
      */
     public void setDLAnnotation(String key, List<Formula> value);
+    /**
+     * Returns true if this element has an annotation for the specified name key set.
+     * @param key
+     */
+    public boolean containsDLAnnotation(String key);
     
     /**
      * Get all annotations of this element.

@@ -23,6 +23,7 @@
 package de.uka.ilkd.key.dl.formulatools;
 
 import java.math.BigDecimal;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -34,6 +35,7 @@ import de.uka.ilkd.key.dl.model.DLNonTerminalProgramElement;
 import de.uka.ilkd.key.dl.model.DLProgramElement;
 import de.uka.ilkd.key.dl.model.Exists;
 import de.uka.ilkd.key.dl.model.Forall;
+import de.uka.ilkd.key.dl.model.Formula;
 import de.uka.ilkd.key.dl.model.FunctionTerm;
 import de.uka.ilkd.key.dl.model.Implies;
 import de.uka.ilkd.key.dl.model.LogicalVariable;
@@ -64,6 +66,7 @@ import de.uka.ilkd.key.rule.inst.SVInstantiations;
  * 
  * @version 1.00
  * @author jdq
+ * @author ap
  */
 public class Prog2LogicConverter extends AbstractMetaOperator {
     public static final Name NAME = new Name("#prog2logic");
@@ -104,30 +107,49 @@ public class Prog2LogicConverter extends AbstractMetaOperator {
         return convertRecursivly(pe, services);
     }
 
-    public static de.uka.ilkd.key.logic.op.Function getFunction(Name name,
-            NamespaceSet namespaces, int arity, Sort sort) {
-        de.uka.ilkd.key.logic.op.Function result = (de.uka.ilkd.key.logic.op.Function) namespaces
-                .functions().lookup(name);
+    /**
+     * Obtain a view of a DLProgramElement iterator as a converted term iterator. 
+     */
+    public static Iterator<Term> convert(final java.util.Iterator<? extends DLProgramElement> iterator, final Services services) {
+	return new java.util.Iterator<Term>() {
+			public boolean hasNext() {
+				return iterator.hasNext();
+			}
 
-        if (result == null) {
-            Sort[] sorts = new Sort[arity];
-            Sort sortR = RealLDT.getRealSort();
+			public Term next() {
+				return convert(iterator.next(), services);
+			}
 
-            for (int i = 0; i < sorts.length; i++) {
-                sorts[i] = sortR;
-            }
-            if (arity == 0) {
-                try {
-                    BigDecimal b = new BigDecimal(name.toString());
-                    result = NumberCache.getNumber(b, sortR);
-                } catch (Exception e) {
-                    // not a number
-                }
-            }
-            if (result == null) {
-                result = new de.uka.ilkd.key.logic.op.RigidFunction(name, sort,
-                        sorts);
-            }
+			public void remove() {
+				iterator.remove();
+			}
+		};
+	}
+
+	public static de.uka.ilkd.key.logic.op.Function getFunction(Name name,
+			NamespaceSet namespaces, int arity, Sort sort) {
+		de.uka.ilkd.key.logic.op.Function result = (de.uka.ilkd.key.logic.op.Function) namespaces
+				.functions().lookup(name);
+
+		if (result == null) {
+			Sort[] sorts = new Sort[arity];
+			Sort sortR = RealLDT.getRealSort();
+
+			for (int i = 0; i < sorts.length; i++) {
+				sorts[i] = sortR;
+			}
+			if (arity == 0) {
+				try {
+					BigDecimal b = new BigDecimal(name.toString());
+					result = NumberCache.getNumber(b, sortR);
+				} catch (Exception e) {
+					// not a number
+				}
+			}
+			if (result == null) {
+				result = new de.uka.ilkd.key.logic.op.RigidFunction(name, sort,
+						sorts);
+			}
             namespaces.functions().add(result);
         }
 
@@ -135,12 +157,12 @@ public class Prog2LogicConverter extends AbstractMetaOperator {
     }
 
     /**
-     * Converts the given DLFormula recursivly into a logic formula
-     * 
-     * @param form
-     *                the formula to convert
-     * @return the converted formula
-     */
+	 * Converts the given DLFormula recursivly into a logic formula
+	 * 
+	 * @param form
+	 *            the formula to convert
+	 * @return the converted formula
+	 */
     public static Term convertRecursivly(ProgramElement form, Services services) {
         Sort sortR = RealLDT.getRealSort();
 
@@ -319,4 +341,5 @@ public class Prog2LogicConverter extends AbstractMetaOperator {
     public boolean validTopLevel(Term arg0) {
         return true;
     }
+
 }

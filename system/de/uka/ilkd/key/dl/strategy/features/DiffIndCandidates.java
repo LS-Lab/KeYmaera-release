@@ -276,24 +276,18 @@ public class DiffIndCandidates implements TermGenerator {
             }
         }
         // prefer @candidate annotations, then quickly return size=1 formulas, and only lazily generate powersets
-        return new SequenceIterator(new Iterator[] {
-        		new Iterator<Term>() {
-        			final Iterator<Formula> cands = program.getDLAnnotation("candidate").iterator();
-					public boolean hasNext() {
-						return cands.hasNext();
-					}
-
-					public Term next() {
-						return Prog2LogicConverter.convert(cands.next(), services);
-					}
-
-					public void remove() {
-						throw new UnsupportedOperationException();
-					}
-        		},
-                result.iterator(),
-                new LazyPowerGenerator(resultPowerGenerators1, resultPowerGenerators2, resultConjuncts, sizeComparator)
-        });
+        if (program.containsDLAnnotation("candidate")) {
+        	return new SequenceIterator(new Iterator[] {
+        			Prog2LogicConverter.convert(program.getDLAnnotation("candidate").iterator(), services),
+        			result.iterator(),
+        			new LazyPowerGenerator(resultPowerGenerators1, resultPowerGenerators2, resultConjuncts, sizeComparator)
+        	});
+        } else {
+        	return new SequenceIterator(new Iterator[] {
+        			result.iterator(),
+        			new LazyPowerGenerator(resultPowerGenerators1, resultPowerGenerators2, resultConjuncts, sizeComparator)
+        	});
+        }
     }
 
     /**

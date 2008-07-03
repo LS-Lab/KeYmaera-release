@@ -715,5 +715,10 @@ public class ProgramSV extends SortedSchemaVariable implements
         throw new UnsupportedOperationException();
     }
 
+	@Override
+	public boolean containsDLAnnotation(String key) {
+        throw new UnsupportedOperationException();
+	}
+
 
 }
