@@ -93,7 +93,7 @@ public class Term2StringConverter {
 		} else if (form.op() instanceof LogicVariable
 				|| form.op() instanceof de.uka.ilkd.key.logic.op.ProgramVariable
 				|| form.op() instanceof Metavariable) {
-			return form.op().name().toString();
+			return "(" + form.op().name().toString() + ")";
 		} else if (form.op() instanceof Junctor) {
 			if (form.op() == Junctor.AND) {
 				return "(" + args[0] + "/\\" + args[1] + ")";
@@ -105,10 +105,19 @@ public class Term2StringConverter {
 				return "(~" + args[0] + ")";
 			}
 		} else if (form.op() instanceof Quantifier) {
+			
+			// Bindende Variablen ermitteln
+			int varsNum = form.varsBoundHere(0).size();
+			String[] vars = new String[varsNum];
+			for( int i = 0; i < varsNum; i++ ) {
+				vars[i] = form.varsBoundHere(0).getQuantifiableVariable(i).name().toString();
+			}
+			
+			// Quantor auswerten
 			if (form.op() == Quantifier.ALL) {
-				return "(A )" + args[0];
+				return "(A " + array2String(vars) + ")" + args[0];
 			} else if (form.op() == Quantifier.EX) {
-				return "(E )" + args[0];
+				return "(E " + array2String(vars) + ")" + args[0];
 			}
 		}
 		throw new IllegalArgumentException("Could not convert Term: " + form

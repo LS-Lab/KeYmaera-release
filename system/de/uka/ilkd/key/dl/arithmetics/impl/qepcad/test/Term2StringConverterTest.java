@@ -64,11 +64,9 @@ public class Term2StringConverterTest extends TestCase {
 	}
 
 	public void test_quantifierConvert() {
-		// Creates the term '(A x)(E y)(y > x)'
 		Term term = tb.all(x, tb.ex(y, tb.func(gt, tb.var(y), tb.var(x))));
 
 		String termString = Term2StringConverter.convert2String(term);
-		System.out.println( termString );
 		assertEquals("(A x)(E y)((y)>(x))", termString);
 	}
 
