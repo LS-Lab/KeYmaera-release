@@ -29,7 +29,7 @@ public class Term2QepCadConverter {
 		
 		// Getting the string-representation
 		String formula = convert2String( form );
-		this.input.setVariableList( "(" + array2String(this.existingVars.toArray(new String[0])) + ")" );
+		this.input.setVariableList( "(" + array2String(getVariableList()) + ")" );
 		this.input.setFreeVariableNum( this.existingVars.size() - this.quantifiedVars.size());
 		
 		// Convert formula-String to QepCad-Notation
@@ -160,7 +160,7 @@ public class Term2QepCadConverter {
 		}
 		
 		// no found --> add varName to the list
-		this.quantifiedVars.add(0, varName);
+		this.quantifiedVars.add(varName);
 	}
 	
 	private void addExistingVariable( String varName ) {
@@ -171,6 +171,40 @@ public class Term2QepCadConverter {
 		}
 		
 		// no found --> add varName to the list
-		this.existingVars.add(0, varName);		
+		this.existingVars.add(varName);		
+	}
+	
+	private String[] getVariableList() {
+		
+		ArrayList<String> notQuantifiedVars = new ArrayList<String>();
+		ArrayList<String> quantifiedVars = new ArrayList<String>();
+		
+		for( String var : this.existingVars ) {
+			
+			boolean quantified = false;
+			for( String quantVar : this.quantifiedVars ) {
+				if( var.equals(quantVar)) {
+					quantified = true;
+					break;
+				}
+			}
+			
+			if( !quantified ) {
+				notQuantifiedVars.add(var);
+			} else {
+				quantifiedVars.add(var);
+			}
+			
+		}
+
+		String[] result = new String[ this.existingVars.size()];
+		for( int i = 0; i < notQuantifiedVars.size(); i++ ) {
+			result[i] = notQuantifiedVars.get(i);
+		}
+		for( int i = 0; i < quantifiedVars.size(); i++ ) {
+			result[notQuantifiedVars.size() + i] = quantifiedVars.get(i);
+		}
+		
+		return result;
 	}
 }
