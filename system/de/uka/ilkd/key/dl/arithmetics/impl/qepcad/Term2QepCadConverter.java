@@ -1,10 +1,8 @@
 package de.uka.ilkd.key.dl.arithmetics.impl.qepcad;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 
-import com.wolfram.jlink.Expr;
-
-import de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator.QuantifierType;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.op.Function;
 import de.uka.ilkd.key.logic.op.Junctor;
@@ -13,21 +11,44 @@ import de.uka.ilkd.key.logic.op.Metavariable;
 import de.uka.ilkd.key.logic.op.Op;
 import de.uka.ilkd.key.logic.op.Quantifier;
 
-/**
- * Converts a given term in a string. TODO: Replace String with own class (T.M.)
- * 
- * @author Timo Michelsen
- */
-public class Term2StringConverter {
+public class Term2QepCadConverter {
 
-	/**
-	 * Converts a given term in a string
-	 * 
-	 * @param term
-	 *            Term to convert
-	 * @return string-rep. of the given term
-	 */
-	public static String convert2String(Term form) {
+	private QepCadInput input = new QepCadInput();
+	private ArrayList<String> quantifiedVars = new ArrayList<String>();
+	private ArrayList<String> existingVars = new ArrayList<String>();
+	
+	public Term2QepCadConverter() {
+	}
+	
+	public static QepCadInput convert( Term form ) {
+		Term2QepCadConverter converter = new Term2QepCadConverter();
+		return converter.convertImpl( form );
+	}
+	
+	private QepCadInput convertImpl( Term form ) {
+		
+		// Getting the string-representation
+		String formula = convert2String( form );
+		this.input.setVariableList( "(" + array2String(this.existingVars.toArray(new String[0])) + ")" );
+		this.input.setFreeVariableNum( this.existingVars.size() - this.quantifiedVars.size());
+		
+		// Convert formula-String to QepCad-Notation
+		int counter = 0;
+		for( int i = 0; i < formula.length(); i++ ) {
+			if( formula.charAt(i) == '(') {
+				counter++;
+				if( counter == this.quantifiedVars.size() + 1) {
+					formula = formula.substring(0, i) + "[" + formula.substring(i+1, formula.length() - 1) + "].";
+					break;
+				}
+			}
+		}
+				
+		this.input.setFormula(formula);
+		return this.input;
+	}
+	
+	private String convert2String(Term form) {
 		String[] args = new String[form.arity()];
 		for (int i = 0; i < args.length; i++) {
 			args[i] = convert2String(form.sub(i));
@@ -62,14 +83,6 @@ public class Term2StringConverter {
 				return "(" + args[0] + "*" + args[1] + ")";
 			} else if (f.name().toString().equals("div")) {
 				return "(" + args[0] + "/" + args[1] + ")";
-				// TODO: check
-				// for (Expr e : args) {
-				// boolean rational = e.numberQ();
-				// if (!rational) {
-				// return new Expr(DIV, args);
-				// }
-				// }
-				// return new Expr(RATIONAL, args);
 			} else if (f.name().toString().equals("exp")) {
 				return "(" + args[0] + "^" + args[1] + ")";
 			} else {
@@ -93,6 +106,7 @@ public class Term2StringConverter {
 		} else if (form.op() instanceof LogicVariable
 				|| form.op() instanceof de.uka.ilkd.key.logic.op.ProgramVariable
 				|| form.op() instanceof Metavariable) {
+			addExistingVariable(form.op().name().toString());
 			return "(" + form.op().name().toString() + ")";
 		} else if (form.op() instanceof Junctor) {
 			if (form.op() == Junctor.AND) {
@@ -106,25 +120,25 @@ public class Term2StringConverter {
 			}
 		} else if (form.op() instanceof Quantifier) {
 			
-			// Bindende Variablen ermitteln
 			int varsNum = form.varsBoundHere(0).size();
 			String[] vars = new String[varsNum];
 			for( int i = 0; i < varsNum; i++ ) {
 				vars[i] = form.varsBoundHere(0).getQuantifiableVariable(i).name().toString();
+				addExistingVariable(vars[i]);
+				addQuantifiedVariable(vars[i]);
 			}
 			
-			// Quantor auswerten
 			if (form.op() == Quantifier.ALL) {
-				return "(A " + array2String(vars) + ")" + args[0];
+				return "(A" + array2String(vars) + ")" + args[0];
 			} else if (form.op() == Quantifier.EX) {
-				return "(E " + array2String(vars) + ")" + args[0];
+				return "(E" + array2String(vars) + ")" + args[0];
 			}
 		}
 		throw new IllegalArgumentException("Could not convert Term: " + form
 				+ "Operator was: " + form.op());
 	}
 
-	public static String array2String(String[] args) {
+	private String array2String(String[] args) {
 		if (args == null)
 			return "";
 
@@ -136,5 +150,27 @@ public class Term2StringConverter {
 		}
 
 		return result;
+	}	
+	
+	private void addQuantifiedVariable( String varName ) {
+		// try to find the variable
+		for( String var : this.quantifiedVars ) {
+			if( var.equals(varName))
+				return;
+		}
+		
+		// no found --> add varName to the list
+		this.quantifiedVars.add(0, varName);
+	}
+	
+	private void addExistingVariable( String varName ) {
+		// try to find the variable
+		for( String var : this.existingVars ) {
+			if( var.equals(varName))
+				return;
+		}
+		
+		// no found --> add varName to the list
+		this.existingVars.add(0, varName);		
 	}
 }
