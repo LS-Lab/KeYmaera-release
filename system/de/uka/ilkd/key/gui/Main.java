@@ -645,7 +645,7 @@ public class Main extends JFrame implements IMain {
         
         statusLine = new MainStatusLine("<html>" + PARA + COPYRIGHT + PARA
                 + "KeY is free software and comes with ABSOLUTELY NO WARRANTY."
-                + " See Help | License.", getFont());
+                + " See About | License.", getFont());
         getContentPane().add(statusLine, BorderLayout.SOUTH);
         setupInternalInspection();
     }
@@ -959,6 +959,44 @@ public class Main extends JFrame implements IMain {
                     JOptionPane.INFORMATION_MESSAGE);
         }
     }
+    
+    protected void showTypeHierarchy() {
+        Proof currentProof = mediator.getProof();
+        if(currentProof == null) {
+            mediator.notify(new GeneralInformationEvent("No Type Hierarchy available.",
+                    "If you wish to see the types "
+                    + "for a proof you have to load one first"));
+        } else {
+            final JDialog dialog = new JDialog(this, "Known types for this proof", true);
+            dialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+            Container pane = dialog.getContentPane();
+            pane.setLayout(new BorderLayout());
+            {   
+                JScrollPane scrollpane = new JScrollPane();
+                ClassTree classTree = new ClassTree(false, false, null, null, currentProof.getServices());
+                classTree.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+                scrollpane.setViewportView(classTree);
+                pane.add(scrollpane, BorderLayout.CENTER);
+            }
+            {
+                JButton button = new JButton("OK");
+                button.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        dialog.setVisible(false);
+                        dialog.dispose();
+                    }
+                });
+                {
+                    JPanel panel = new JPanel();
+                    panel.add(button);
+                    pane.add(panel, BorderLayout.SOUTH);
+                }
+            }
+            dialog.setSize(300, 400);
+            dialog.setLocationRelativeTo(this);
+            dialog.setVisible(true);
+        }
+    }
 
     public void showPOBrowser(){
 	if(mediator.getProof() == null){
@@ -967,11 +1005,11 @@ public class Main extends JFrame implements IMain {
 	}else{
 	    POBrowser poBrowser 
 	    	= POBrowser.showInstance(mediator.getProof().env().getInitConfig());
-	    if(poBrowser.getPO() != null) {
+	    ProofOblInput po = poBrowser.getAndClearPO();
+	    if(po != null) {
 		ProblemInitializer pi = new ProblemInitializer(this);
 		try {
-		    pi.startProver(mediator.getProof().env(), 
-			    	   poBrowser.getAndClearPO());
+		    pi.startProver(mediator.getProof().env(), po);
 		} catch(ProofInputException e)  {
 		    new ExceptionDialog(this, e);
 		}
@@ -1353,7 +1391,14 @@ public class Main extends JFrame implements IMain {
         });
         }
         registerAtMenu(proof, statisticsInfo);
-
+        
+        final JMenuItem typeHierInfo = new JMenuItem("Show Known Types");
+        typeHierInfo.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                showTypeHierarchy();
+            }});
+        registerAtMenu(proof, typeHierInfo);
+        
         return proof;
     }
 

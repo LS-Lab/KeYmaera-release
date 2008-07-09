@@ -122,6 +122,7 @@ public class DLDiffInequalityRewrite extends AbstractDLMetaOperator {
 			}
 			DLProgram program = tf.createDiffSystem(Collections
 					.singletonList(result));
+			program.setDLAnnotations(system1.getDLAnnotations());
 			return de.uka.ilkd.key.logic.TermFactory.DEFAULT.createTerm(term
 					.sub(0).op(), new Term[] { post },
 					new ArrayOfQuantifiableVariable[0], JavaBlock

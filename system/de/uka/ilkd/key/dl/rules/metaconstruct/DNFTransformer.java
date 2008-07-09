@@ -159,6 +159,8 @@ public class DNFTransformer extends AbstractDLMetaOperator {
 			result = createDNF(r, tf);
 
 			s = tf.createDiffSystem(Collections.singletonList(result));
+			// add all old annotations to the new diff system
+			s.setDLAnnotations(system.getDLAnnotations());
 			JavaBlock res = JavaBlock.createJavaBlock(new DLStatementBlock(s));
 			return de.uka.ilkd.key.logic.TermFactory.DEFAULT.createTerm(
 					modality, new Term[] { post },

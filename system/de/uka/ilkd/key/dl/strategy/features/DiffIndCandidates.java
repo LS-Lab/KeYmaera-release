@@ -40,6 +40,7 @@ import de.uka.ilkd.key.dl.formulatools.ReplacementSubst;
 import de.uka.ilkd.key.dl.formulatools.TermTools;
 import de.uka.ilkd.key.dl.model.DLProgram;
 import de.uka.ilkd.key.dl.model.DiffSystem;
+import de.uka.ilkd.key.dl.model.Formula;
 import de.uka.ilkd.key.dl.model.NamedElement;
 import de.uka.ilkd.key.dl.model.Star;
 import de.uka.ilkd.key.dl.transitionmodel.DependencyStateGenerator;
@@ -131,8 +132,7 @@ public class DiffIndCandidates implements TermGenerator {
 
 			@Override
 			public void remove() {
-				// TODO Auto-generated method stub
-				
+				throw new UnsupportedOperationException();
 			}
             
         };
@@ -150,7 +150,7 @@ public class DiffIndCandidates implements TermGenerator {
      * @return
      */
     protected Iterator<Term> indCandidates(Sequent seq, PosInOccurrence pos,
-            Term currentInvariant, Services services) {
+            Term currentInvariant, final Services services) {
         Term term = pos.subTerm();
         final Update update = Update.createUpdate(term);
         // unbox from update prefix
@@ -275,11 +275,19 @@ public class DiffIndCandidates implements TermGenerator {
                 }
             }
         }
-        // quickly return size-1 formulas, and only lazily generate powersets
-        return new SequenceIterator(new Iterator[] {
-                result.iterator(),
-                new LazyPowerGenerator(resultPowerGenerators1, resultPowerGenerators2, resultConjuncts, sizeComparator)
-        });
+        // prefer @candidate annotations, then quickly return size=1 formulas, and only lazily generate powersets
+        if (program.containsDLAnnotation("candidate")) {
+        	return new SequenceIterator(new Iterator[] {
+        			Prog2LogicConverter.convert(program.getDLAnnotation("candidate").iterator(), services),
+        			result.iterator(),
+        			new LazyPowerGenerator(resultPowerGenerators1, resultPowerGenerators2, resultConjuncts, sizeComparator)
+        	});
+        } else {
+        	return new SequenceIterator(new Iterator[] {
+        			result.iterator(),
+        			new LazyPowerGenerator(resultPowerGenerators1, resultPowerGenerators2, resultConjuncts, sizeComparator)
+        	});
+        }
     }
 
     /**

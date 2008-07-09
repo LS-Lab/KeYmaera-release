@@ -73,6 +73,14 @@ public abstract class DLProgramElementImpl implements DLProgramElement {
     }
     
     /* (non-Javadoc)
+     * @see de.uka.ilkd.key.dl.model.DLProgramElement#getDLAnotation(java.lang.String)
+     */
+    @Override
+    public boolean containsDLAnnotation(String key) {
+        return annotations.containsKey(key);
+    }
+
+    /* (non-Javadoc)
      * @see de.uka.ilkd.key.dl.model.DLProgramElement#getDLAnnotations()
      */
     @Override

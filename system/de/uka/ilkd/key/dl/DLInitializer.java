@@ -72,7 +72,7 @@ import de.uka.ilkd.key.proof.init.Profile;
 public class DLInitializer {
 
 	public static class StatisticGenerator implements ActionListener {
-		
+
 		private KeYMediator mediator;
 		private Main main;
 
@@ -80,202 +80,217 @@ public class DLInitializer {
 			this.mediator = mediator;
 			this.main = main;
 		}
-		
-        public void actionPerformed(ActionEvent e) {
-            final Proof proof = mediator.getSelectedProof();
-            if (mediator != null && proof != null) {
 
-                String stats = proof.statistics();
+		public void actionPerformed(ActionEvent e) {
+			final Proof proof = mediator.getSelectedProof();
+			if (mediator != null && proof != null) {
 
-                int interactiveSteps = computeInteractiveSteps(proof.root());
+				String stats = proof.statistics();
 
-                stats += "Interactive Steps: " + interactiveSteps;
+				int interactiveSteps = computeInteractiveSteps(proof.root());
 
-                stats += "\n"
-                        + "Time: "
-                        + (((double) TimeStatisticGenerator.INSTANCE
-                                .getTime()) / 1000.0d) + " seconds";
+				stats += "Interactive Steps: " + interactiveSteps;
 
-                try {
-                    stats += "\n"
-                            + "Arithmetic Solver: "
-                            + (((double) TimeStatisticGenerator.INSTANCE
-                                    .getTotalCaclulationTime()) / 1000d);
-					StringWriter writer = new StringWriter();
-					new PrintWriter(writer).printf("%.3f Mb", ((TimeStatisticGenerator.INSTANCE
-                                .getTotalMemory()) / 1024d / 1024d));
-                    stats += "\n"
-                        + "Arithmetic Memory: "
-                        + writer.toString();
-                    stats += "\n"
-                            + "CachedAnwsers/Queries: "
-                            + TimeStatisticGenerator.INSTANCE
-                                    .getCachedAnwsers() + " / "
-                            + TimeStatisticGenerator.INSTANCE.getQueries();
-                    stats += "\n"
-                        + "Program Variables: " + mediator.namespaces().programVariables().elements().size();
-                } catch (RemoteException e1) {
-                    // if there is an exception the statistic is not
-                    // displayed
-                }
+				stats += "\n"
+						+ "Time: "
+						+ (((double) TimeStatisticGenerator.INSTANCE.getTime()) / 1000.0d)
+						+ " seconds";
 
-                JOptionPane
-                        .showMessageDialog(main, stats,
-                                "Proof Statistics",
-                                JOptionPane.INFORMATION_MESSAGE);
-            }
-        }
+				try {
+					long totalCaclulationTime = TimeStatisticGenerator.INSTANCE
+							.getTotalCaclulationTime();
+					if (totalCaclulationTime != -1) {
+						stats += "\n" + "Arithmetic Solver: "
+								+ (((double) totalCaclulationTime) / 1000d);
+					}
+					long totalMemory = TimeStatisticGenerator.INSTANCE
+							.getTotalMemory();
+					if (totalMemory != -1) {
+						StringWriter writer = new StringWriter();
+						new PrintWriter(writer).printf("%.3f Mb",
+								(totalMemory / 1024d / 1024d));
+						stats += "\n" + "Arithmetic Memory: "
+								+ writer.toString();
+					}
 
-        private int computeInteractiveSteps(Node node) {
-            int steps = 0;
-            final IteratorOfNode it = node.childrenIterator();
-            while (it.hasNext()) {
-                steps += computeInteractiveSteps(it.next());
-            }
+					long cachedAnwsers = TimeStatisticGenerator.INSTANCE
+							.getCachedAnwsers();
+					if (cachedAnwsers != -1) {
+						stats += "\n" + "CachedAnwsers/Queries: "
+								+ cachedAnwsers + " / "
+								+ TimeStatisticGenerator.INSTANCE.getQueries();
+					}
+					stats += "\n"
+							+ "Program Variables: "
+							+ mediator.namespaces().programVariables()
+									.elements().size();
+				} catch (RemoteException e1) {
+					// if there is an exception the statistic is not
+					// displayed
+				}
 
-            if (node.getNodeInfo().getInteractiveRuleApplication()) {
-                steps++;
-            }
-            return steps;
-        }
-    }
-	
-    public final static String IDENTITY = "KeyMainProgram";
+				JOptionPane.showMessageDialog(main, stats, "Proof Statistics",
+						JOptionPane.INFORMATION_MESSAGE);
+			}
+		}
 
-    private static Customizer customizer;
+		private int computeInteractiveSteps(Node node) {
+			int steps = 0;
+			final IteratorOfNode it = node.childrenIterator();
+			while (it.hasNext()) {
+				steps += computeInteractiveSteps(it.next());
+			}
 
-    /**
-     * Initializes the HyKeY environment:
-     * <ul>
-     * <li> The current {@link Profile} is set to the {@link DLProfile}</li>
-     * <li> The {@link AbortBridge} is initiated on a new {@link ServerSocket}</li>
-     * <li> The {@link ServerConsole} is started</li>
-     * <li>An {@link AutoModeListener} is added that resets the abort state in
-     * the current arithmetic solver and disables the stop button, as we use the
-     * one provided by the {@link ServerConsole}</li>
-     * </ul>
-     */
-    public static void initialize() {
-        ProofSettings.DEFAULT_SETTINGS.setProfile(new DLProfile());
-        // call something in the MathSolverManager to force initialization
-        MathSolverManager.getQuantifierEliminators();
-        try {
-            // We just call a method to check if the server is alive
-            ISimplifier simplifier = MathSolverManager.getSimplifier("Mathematica");
-            if(simplifier != null) {
-            	simplifier.getQueryCount();
-            }
-        } catch (RemoteException e1) {
-            try {
-                KernelLinkWrapper.main(new String[0]);
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
-        DLOptionBean.INSTANCE.init();
-        try {
-            customizer = CustomizerViewController
-                    .customizerFor(DLOptionBean.class);
-            customizer.setObject(DLOptionBean.INSTANCE);
-            SwingUtilities.invokeAndWait(new Runnable() {
+			if (node.getNodeInfo().getInteractiveRuleApplication()) {
+				steps++;
+			}
+			return steps;
+		}
+	}
 
-                @Override
-                public void run() {
-                    Main.getInstance().addTab("Hybrid Strategy",
-                            (JComponent) customizer,
-                            DLOptionBeanBeanInfo.DESCRIPTION);
-                }
+	public final static String IDENTITY = "KeyMainProgram";
 
-            });
-        } catch (IntrospectionException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+	private static Customizer customizer;
 
-        // taken from Mathematica ctor
-        Main.getInstance().mediator().addAutoModeListener(
-                new AutomodeListener());
-        Main.getInstance().mediator().addAutoModeListener(
-                new AutoModeListener() {
+	private static boolean initialized = false;
 
-                    public void autoModeStarted(ProofEvent e) {
-                        Main.autoModeAction.setEnabled(false);
-                    }
+	/**
+	 * Initializes the HyKeY environment:
+	 * <ul>
+	 * <li>The current {@link Profile} is set to the {@link DLProfile}</li>
+	 * <li>The {@link AbortBridge} is initiated on a new {@link ServerSocket}</li>
+	 * <li>The {@link ServerConsole} is started</li>
+	 * <li>An {@link AutoModeListener} is added that resets the abort state in
+	 * the current arithmetic solver and disables the stop button, as we use the
+	 * one provided by the {@link ServerConsole}</li>
+	 * </ul>
+	 */
+	public static void initialize() {
+		if (!initialized) {
+			initialized = true;
+			ProofSettings.DEFAULT_SETTINGS.setProfile(new DLProfile());
+			// call something in the MathSolverManager to force initialization
+			MathSolverManager.getQuantifierEliminators();
+			try {
+				// We just call a method to check if the server is alive
+				ISimplifier simplifier = MathSolverManager
+						.getSimplifier("Mathematica");
+				if (simplifier != null) {
+					simplifier.getQueryCount();
+				}
+			} catch (RemoteException e1) {
+				try {
+					KernelLinkWrapper.main(new String[0]);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			DLOptionBean.INSTANCE.init();
+			try {
+				customizer = CustomizerViewController
+						.customizerFor(DLOptionBean.class);
+				customizer.setObject(DLOptionBean.INSTANCE);
+				SwingUtilities.invokeAndWait(new Runnable() {
 
-                    public void autoModeStopped(ProofEvent e) {
-                        MathSolverManager.resetAbortState();
+					@Override
+					public void run() {
+						Main.getInstance().addTab("Hybrid Strategy",
+								(JComponent) customizer,
+								DLOptionBeanBeanInfo.DESCRIPTION);
+					}
 
-                        Main.autoModeAction.enable();
-                    }
+				});
+			} catch (IntrospectionException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (InvocationTargetException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 
-                });
+			// taken from Mathematica ctor
+			Main.getInstance().mediator().addAutoModeListener(
+					new AutomodeListener());
+			Main.getInstance().mediator().addAutoModeListener(
+					new AutoModeListener() {
 
-    }
+						public void autoModeStarted(ProofEvent e) {
+							Main.autoModeAction.setEnabled(false);
+						}
 
-    public static void registerSettingsMenuItem(final Main main, JMenu options) {
-        final JMenuItem hyKeYOptions = new JMenuItem("KeYmaera Options");
+						public void autoModeStopped(ProofEvent e) {
+							MathSolverManager.resetAbortState();
 
-        hyKeYOptions.addActionListener(new ActionListener() {
+							Main.autoModeAction.enable();
+						}
 
-            public void actionPerformed(ActionEvent arg0) {
-                CustomizerViewController controller = new CustomizerViewController(
-                        main);
-                Set<Settings> subOptions = DLOptionBean.INSTANCE.getSubOptions();
-                Object[] beans = new Object[subOptions.size() + 1];
-                int i = 0;
-                beans[i++] = DLOptionBean.INSTANCE;
-                for(Settings s: subOptions) {
-                    beans[i++] = s;
-                }
-                controller.showCustomizer(beans,
-                        "KeYmaera Configuration");
-                DLInitializer.getCustomizer().setObject(DLOptionBean.INSTANCE);
-            }
+					});
+		}
 
-        });
+	}
 
-        main.registerAtMenu(options, hyKeYOptions);
-    }
-    
-    public static void registerHelpMenuItem(final Main main, JMenu help) {
-    	JMenuItem tutorial = new JMenuItem("KeYmaera Help");
-        tutorial.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e)  {
-                //Class desktop = Class.forName("java.awt.Desktop").getDesktop().browse();
-                /*JTextPane tp = new JTextPane();
-                JScrollPane js = new JScrollPane();
-                js.getViewport().add(tp);
-                try {
-                    URL url = new URL("http://www.functologic.com/info/KeYmaera-guide.html");
-                    tp.setPage(url);
-                    JFrame jf = new JFrame();
-                    jf.getContentPane().add(js);
-                    jf.pack();
-                    jf.setVisible(true); 
-                } catch (Exception react)*/
-                {
-                    JOptionPane.showMessageDialog(main,
-                            "Information and documentation on using KeYmaera,\nthe syntax of its specification language, and\nits verification features, is available on the web:\n"
-                            + "see KeYmaera Tutorial at\n    http://www.functologic.com/info/KeYmaera-guide.html",                   
-                    "KeYmaera Documentation", JOptionPane.INFORMATION_MESSAGE);
-                }
-            }
-        });
-        help.add(tutorial);
-    }
-    	
-    /**
-     * @return the customizer
-     */
-    public static Customizer getCustomizer() {
-        return customizer;
-    }
+	public static void registerSettingsMenuItem(final Main main, JMenu options) {
+		final JMenuItem hyKeYOptions = new JMenuItem("KeYmaera Options");
+
+		hyKeYOptions.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent arg0) {
+				CustomizerViewController controller = new CustomizerViewController(
+						main);
+				Set<Settings> subOptions = DLOptionBean.INSTANCE
+						.getSubOptions();
+				Object[] beans = new Object[subOptions.size() + 1];
+				int i = 0;
+				beans[i++] = DLOptionBean.INSTANCE;
+				for (Settings s : subOptions) {
+					beans[i++] = s;
+				}
+				controller.showCustomizer(beans, "KeYmaera Configuration");
+				DLInitializer.getCustomizer().setObject(DLOptionBean.INSTANCE);
+			}
+
+		});
+
+		main.registerAtMenu(options, hyKeYOptions);
+	}
+
+	public static void registerHelpMenuItem(final Main main, JMenu help) {
+		JMenuItem tutorial = new JMenuItem("KeYmaera Help");
+		tutorial.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				// Class desktop =
+				// Class.forName("java.awt.Desktop").getDesktop().browse();
+				/*
+				 * JTextPane tp = new JTextPane(); JScrollPane js = new
+				 * JScrollPane(); js.getViewport().add(tp); try { URL url = new
+				 * URL("http://www.functologic.com/info/KeYmaera-guide.html");
+				 * tp.setPage(url); JFrame jf = new JFrame();
+				 * jf.getContentPane().add(js); jf.pack(); jf.setVisible(true);
+				 * } catch (Exception react)
+				 */
+				{
+					JOptionPane
+							.showMessageDialog(
+									main,
+									"Information and documentation on using KeYmaera,\nthe syntax of its specification language, and\nits verification features, is available on the web:\n"
+											+ "see KeYmaera Tutorial at\n    http://www.functologic.com/info/KeYmaera-guide.html",
+									"KeYmaera Documentation",
+									JOptionPane.INFORMATION_MESSAGE);
+				}
+			}
+		});
+		help.add(tutorial);
+	}
+
+	/**
+	 * @return the customizer
+	 */
+	public static Customizer getCustomizer() {
+		return customizer;
+	}
 
 }
