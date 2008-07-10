@@ -51,30 +51,20 @@ public class ProgramCommunicator {
 		}
 
 	}
-
+	
 	private static void readUntil(BufferedReader reader, String text) {
 		try {
 			String s = null;
-			while ((s = reader.readLine()) != null && s.equals(text))
-				;
+			boolean running = false;
+			while (!running ) {
+				s = reader.readLine();
+				//System.out.println(s);
+				running = s.equals(text);
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
-	
-//	private static void readUntil_Debug(BufferedReader reader, String text) {
-//		try {
-//			String s = null;
-//			boolean running = false;
-//			while (!running ) {
-//				s = reader.readLine();
-//				System.out.println(s);
-//				running = s.equals(text);
-//			}
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
-//	}
 	
 	private static String getResult( BufferedReader reader ) {
 		try {

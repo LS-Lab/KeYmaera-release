@@ -44,11 +44,14 @@ public class QepCad implements IQuantifierEliminator {
 	// Main-implementation
 	public Term reduce(Term form, List<String> names, List<PairOfTermAndQuantifierType> quantifiers, NamespaceSet nss, long timeout) throws RemoteException, SolverException {		
 		QepCadInput input = Term2QepCadConverter.convert(form);
+		
+		System.out.println("Formula to reduce: " + input.getFormula());
+		
 		String res = ProgramCommunicator.start( input );
 		
-		// TODO: res parsen
-		
-		return TermBuilder.DF.tt(); // temporär
+		System.out.println("Result: " + res);
+			
+		return String2TermConverter.convert(res);
 	}
 
 	public Term reduce(Term query, List<PairOfTermAndQuantifierType> quantifiers, NamespaceSet nss) throws RemoteException, SolverException {		
