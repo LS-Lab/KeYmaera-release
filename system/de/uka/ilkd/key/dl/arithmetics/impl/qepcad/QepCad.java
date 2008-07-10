@@ -43,7 +43,8 @@ public class QepCad implements IQuantifierEliminator {
 
 	// Main-implementation
 	public Term reduce(Term form, List<String> names, List<PairOfTermAndQuantifierType> quantifiers, NamespaceSet nss, long timeout) throws RemoteException, SolverException {		
-		QepCadInput input = Term2QepCadConverter.convert(form);
+		Term prenex = PrenexGenerator.transform(form);
+		QepCadInput input = Term2QepCadConverter.convert(prenex);
 		
 		System.out.println("Formula to reduce: " + input.getFormula());
 		
