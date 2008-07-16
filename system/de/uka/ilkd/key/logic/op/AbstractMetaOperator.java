@@ -29,6 +29,7 @@ import de.uka.ilkd.key.dl.rules.metaconstruct.FullSimplify;
 import de.uka.ilkd.key.dl.rules.metaconstruct.ODESolve;
 import de.uka.ilkd.key.dl.rules.metaconstruct.Reduce;
 import de.uka.ilkd.key.dl.rules.metaconstruct.Simplify;
+import de.uka.ilkd.key.dl.rules.metaconstruct.WeakNegation;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.logic.Name;
 import de.uka.ilkd.key.logic.Namespace;
@@ -233,6 +234,8 @@ public abstract class AbstractMetaOperator extends Op implements MetaOperator {
 	public static final AbstractMetaOperator DL_CHOICE_UNWIND = new DLChoiceUnwind();
 
 	public static final AbstractMetaOperator DL_DIFF_INEQ_REWRITE = new DLDiffInequalityRewrite();
+
+	public static final AbstractMetaOperator DL_WEAKNEGATE = new WeakNegation();
 
     
     protected TermFactory termFactory = TermFactory.DEFAULT;

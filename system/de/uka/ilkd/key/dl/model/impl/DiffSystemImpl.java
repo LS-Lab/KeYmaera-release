@@ -28,6 +28,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -126,8 +127,9 @@ public class DiffSystemImpl extends DLNonTerminalProgramElementImpl implements
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see de.uka.ilkd.key.java.ReuseableProgramElement#reuseSignature(de.uka.ilkd.key.java.Services,
-	 *      de.uka.ilkd.key.java.reference.ExecutionContext)
+	 * @see
+	 * de.uka.ilkd.key.java.ReuseableProgramElement#reuseSignature(de.uka.ilkd
+	 * .key.java.Services, de.uka.ilkd.key.java.reference.ExecutionContext)
 	 */
 	public String reuseSignature(Services services, ExecutionContext ec) {
 		StringBuilder result = new StringBuilder();
@@ -180,7 +182,7 @@ public class DiffSystemImpl extends DLNonTerminalProgramElementImpl implements
 				} else {
 					DLProgramElement hiddenInvariantPart = (DLProgramElement) getHiddenInvariantPart(
 							el, getQuantifiedVariablesOccurringInDiffEq(el,
-									new HashSet<Variable>()), tf);
+									new LinkedHashSet<Variable>()), tf);
 					if (hiddenInvariantPart != null) {
 						invariant = TermBuilder.DF.and(invariant,
 								Prog2LogicConverter.convert(
@@ -308,6 +310,66 @@ public class DiffSystemImpl extends DLNonTerminalProgramElementImpl implements
 
 	/**
 	 * @param el
+	 * @return
+	 */
+	private ProgramElement removeHiddenInvariantPart(ProgramElement el,
+			Set<Variable> quantified, TermFactory tf) {
+		if (!isDifferentialEquation(el) && !doesContain(el, quantified)) {
+			return null;
+		}
+		List<Pair> quants = new ArrayList<Pair>();
+		while (el instanceof Forall || el instanceof Exists) {
+			DLNonTerminalProgramElement npe = (DLNonTerminalProgramElement) el;
+			VariableDeclaration decl = (VariableDeclaration) npe.getChildAt(0);
+			List<String> vars = new ArrayList<String>();
+			for (int i = 1; i < decl.getChildCount(); i++) {
+				if (quantified.contains(decl.getChildAt(i))) {
+					vars.add(((Variable) decl.getChildAt(i)).getElementName()
+							.toString());
+				}
+			}
+			if (!vars.isEmpty()) {
+				QuantifierType type = (el instanceof Forall) ? QuantifierType.FORALL
+						: QuantifierType.EXISTS;
+				quants.add(new Pair(type, tf.createVariableDeclaration(decl
+						.getType(), vars, false, false)));
+			}
+			el = npe.getChildAt(1);
+		}
+		ProgramElement result = null;
+		if (el instanceof And) {
+			ProgramElement one = removeHiddenInvariantPart(((And) el)
+					.getChildAt(0), quantified, tf);
+			ProgramElement two = removeHiddenInvariantPart(((And) el)
+					.getChildAt(1), quantified, tf);
+			if (one == null) {
+				result = two;
+			} else if (two == null) {
+				result = one;
+			} else {
+				result = tf.createAnd((Formula) one, (Formula) two);
+			}
+		} else {
+			result = el;
+		}
+		if (result != null) {
+			Collections.reverse(quants);
+			for (Pair p : quants) {
+				switch (p.type) {
+				case FORALL:
+					result = tf.createForall(p.decl, (Formula) result);
+					break;
+				case EXISTS:
+					result = tf.createExists(p.decl, (Formula) result);
+					break;
+				}
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * @param el
 	 * @param quantified
 	 * @return
 	 */
@@ -334,12 +396,32 @@ public class DiffSystemImpl extends DLNonTerminalProgramElementImpl implements
 	 */
 	public List<ProgramElement> getDifferentialEquations() {
 		List<ProgramElement> equations = new ArrayList<ProgramElement>();
-		for (ProgramElement el : this) {
-			if (isDifferentialEquation(el)) {
-				equations.add(el);
+		TermFactory tf;
+		try {
+			tf = TermFactory.getTermFactory(TermFactoryImpl.class, Main
+					.getInstance().mediator().namespaces());
+			for (ProgramElement el : this) {
+				if (isDifferentialEquation(el)) {
+					equations.add(removeHiddenInvariantPart(el,
+							getQuantifiedVariablesOccurringInDiffEq(el,
+									new LinkedHashSet<Variable>()), tf));
+				}
 			}
+			return equations;
+		} catch (InvocationTargetException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InstantiationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (NoSuchMethodException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-		return equations;
+		return null;
 	}
 
 	@Override
