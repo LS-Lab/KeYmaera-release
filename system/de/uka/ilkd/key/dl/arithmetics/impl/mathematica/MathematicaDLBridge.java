@@ -306,9 +306,6 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 	public Term diffFin(DiffSystem form, Term post, Term ep, NamespaceSet nss)
 			throws RemoteException, SolverException {
 		Term invariant = form.getInvariant();
-		if (!invariant.equals(TermBuilder.DF.tt()))
-			throw new UnsupportedOperationException(
-					"not yet implemented for invariant!=true");
 		return differentialCall(form, post, ep, nss, "IDiffFin");
 	}
 

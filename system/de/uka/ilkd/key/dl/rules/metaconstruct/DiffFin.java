@@ -46,6 +46,7 @@ import de.uka.ilkd.key.logic.TermBuilder;
 import de.uka.ilkd.key.logic.op.LogicVariable;
 import de.uka.ilkd.key.logic.op.Modality;
 import de.uka.ilkd.key.logic.op.QuantifiableVariable;
+import de.uka.ilkd.key.logic.op.SchemaVariable;
 import de.uka.ilkd.key.logic.sort.Sort;
 import de.uka.ilkd.key.rule.inst.SVInstantiations;
 
@@ -109,7 +110,13 @@ public class DiffFin extends AbstractDLMetaOperator {
 	 */
 	public Term calculate(Term term, SVInstantiations svInst, Services services) {
 		final Term arg = term.sub(0);
-		final Term ep = term.sub(1);
+		Term ep = term.sub(1);
+		System.out.println(ep + " " + ep.op() + " " + ep.op().getClass());//XXX
+		if(ep.op() instanceof SchemaVariable) {
+			ep = svInst.getTermInstantiation((SchemaVariable) ep.op(), null, services);
+		} else if(ep.op() instanceof LogicVariable) {
+			services.getNamespaces().variables().add(ep.op());
+		}
 		DiffSystem system = (DiffSystem) ((StatementBlock) arg.javaBlock()
 				.program()).getChildAt(0);
 		Term post = arg.sub(0);
