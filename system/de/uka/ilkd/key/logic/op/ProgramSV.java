@@ -636,20 +636,6 @@ public class ProgramSV extends SortedSchemaVariable implements
     /*
      * (non-Javadoc)
      * 
-     * @see de.uka.ilkd.key.logic.op.TermSymbol#sort()
-     */
-    @Override
-    public Sort sort() {
-        Sort sort = super.sort();
-        if (sort instanceof PlaceHolderSort) {
-            return ((PlaceHolderSort) sort).getRealSort();
-        }
-        return sort;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
      * @see de.uka.ilkd.key.logic.op.TermSymbol#sort(de.uka.ilkd.key.logic.Term[])
      */
     @Override
