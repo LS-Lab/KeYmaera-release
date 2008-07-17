@@ -23,8 +23,10 @@
 package de.uka.ilkd.key.dl.formulatools;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 
 import de.uka.ilkd.key.dl.logic.ldt.RealLDT;
@@ -107,16 +109,17 @@ public class Prog2LogicConverter extends AbstractMetaOperator {
 	 * @return the logic representation of the program element
 	 */
 	public static Term convert(DLProgramElement pe, Services services) {
-		if(pe instanceof DiffSystem) {
-			System.out.println("Converting: " + pe);//XXX
+		if (pe instanceof DiffSystem) {
+			System.out.println("Converting: " + pe);// XXX
 			Term result = TermBuilder.DF.tt();
-			for(ProgramElement p: (DiffSystem)pe) {
-				result = TermBuilder.DF.and(result, convertRecursivly(p, services));
+			for (ProgramElement p : (DiffSystem) pe) {
+				result = TermBuilder.DF.and(result, convertRecursivly(p,
+						services, new HashMap<String, Term>()));
 			}
-			System.out.println("Result is: " + result);//XXX
+			System.out.println("Result is: " + result);// XXX
 			return result;
 		} else {
-			return convertRecursivly(pe, services);
+			return convertRecursivly(pe, services, new HashMap<String, Term>());
 		}
 	}
 
@@ -179,7 +182,8 @@ public class Prog2LogicConverter extends AbstractMetaOperator {
 	 *            the formula to convert
 	 * @return the converted formula
 	 */
-	public static Term convertRecursivly(ProgramElement form, Services services) {
+	public static Term convertRecursivly(ProgramElement form,
+			Services services, Map<String, Term> dotReplacementmap) {
 		Sort sortR = RealLDT.getRealSort();
 
 		TermBuilder termBuilder = services.getTypeConverter();
@@ -188,7 +192,8 @@ public class Prog2LogicConverter extends AbstractMetaOperator {
 			Term[] subTerms = new Term[p.getChildCount() - 1];
 
 			for (int i = 1; i < p.getChildCount(); i++) {
-				subTerms[i - 1] = convertRecursivly(p.getChildAt(i), services);
+				subTerms[i - 1] = convertRecursivly(p.getChildAt(i), services,
+						dotReplacementmap);
 			}
 			Name elementName = ((NamedElement) p.getChildAt(0))
 					.getElementName();
@@ -207,7 +212,8 @@ public class Prog2LogicConverter extends AbstractMetaOperator {
 			Term[] subTerms = new Term[p.getChildCount() - 1];
 
 			for (int i = 1; i < p.getChildCount(); i++) {
-				subTerms[i - 1] = convertRecursivly(p.getChildAt(i), services);
+				subTerms[i - 1] = convertRecursivly(p.getChildAt(i), services,
+						dotReplacementmap);
 			}
 
 			return termBuilder
@@ -221,11 +227,12 @@ public class Prog2LogicConverter extends AbstractMetaOperator {
 			LogicVariable[] vars = new LogicVariable[decl.getChildCount() - 1];
 			for (int i = 1; i < decl.getChildCount(); i++) {
 				vars[i - 1] = (LogicVariable) convertRecursivly(
-						decl.getChildAt(i), services).op();
-				services.getNamespaces().variables().add(vars[i-1]);
+						decl.getChildAt(i), services, dotReplacementmap).op();
+				services.getNamespaces().variables().add(vars[i - 1]);
 			}
 			// do not convert the formula before addind the vars
-			Term formula = convertRecursivly(f.getChildAt(1), services);
+			Term formula = convertRecursivly(f.getChildAt(1), services,
+					dotReplacementmap);
 			return TermBuilder.DF.all(vars, formula);
 		} else if (form instanceof Exists) {
 			Exists f = (Exists) form;
@@ -233,18 +240,20 @@ public class Prog2LogicConverter extends AbstractMetaOperator {
 			LogicVariable[] vars = new LogicVariable[decl.getChildCount() - 1];
 			for (int i = 1; i < decl.getChildCount(); i++) {
 				vars[i - 1] = (LogicVariable) convertRecursivly(
-						decl.getChildAt(i), services).op();
-				services.getNamespaces().variables().add(vars[i-1]);
+						decl.getChildAt(i), services, dotReplacementmap).op();
+				services.getNamespaces().variables().add(vars[i - 1]);
 			}
 			// do not convert the formula before addind the vars
-			Term formula = convertRecursivly(f.getChildAt(1), services);
+			Term formula = convertRecursivly(f.getChildAt(1), services,
+					dotReplacementmap);
 			return TermBuilder.DF.ex(vars, formula);
 		} else if (form instanceof DLNonTerminalProgramElement) {
 			DLNonTerminalProgramElement p = (DLNonTerminalProgramElement) form;
 			Term[] subTerms = new Term[p.getChildCount()];
 
 			for (int i = 0; i < subTerms.length; i++) {
-				subTerms[i] = convertRecursivly(p.getChildAt(i), services);
+				subTerms[i] = convertRecursivly(p.getChildAt(i), services,
+						dotReplacementmap);
 			}
 
 			if (p instanceof And) {
@@ -270,28 +279,37 @@ public class Prog2LogicConverter extends AbstractMetaOperator {
 			} else if (p instanceof Not) {
 				return termBuilder.not(subTerms[0]);
 			} else if (p instanceof Dot) {
-				String name = ((NamedElement) p.getChildAt(0)).getElementName()
+				final String name = ((NamedElement) p.getChildAt(0)).getElementName()
 						.toString();
+				if (dotReplacementmap.containsKey(name + ((Dot) p).getOrder())) {
+					return dotReplacementmap.get(name + ((Dot) p).getOrder());
+				}
 				int num = 0;
+				String newName = "";
 				if (name.contains("_")) {
 					try {
 						num = Integer.parseInt(name.substring(name
 								.lastIndexOf("_"), name.length()));
 						num++;
-						name = name.substring(name.lastIndexOf("_"));
+						newName = name.substring(name.lastIndexOf("_"));
 					} catch (NumberFormatException e) {
 
 					}
+				} else {
+					newName = name;
 				}
-				String n = name + "_" + num;
+				newName += ((Dot) p).getOrder();
+				String n = newName + "_" + num;
 				while (services.getNamespaces().programVariables().lookup(
 						new ProgramElementName(n)) != null) {
-					n = name + "_" + ++num;
+					n = newName + "_" + ++num;
 				}
 				de.uka.ilkd.key.logic.op.ProgramVariable var = new LocationVariable(
 						new ProgramElementName(n), RealLDT.getRealSort());
 				services.getNamespaces().programVariables().add(var);
-				return TermBuilder.DF.var(var);
+				Term var2 = TermBuilder.DF.var(var);
+				dotReplacementmap.put(name + ((Dot) p).getOrder(), var2);
+				return var2;
 			}
 		} else if (form instanceof Variable) {
 			Variable vform = (Variable) form;

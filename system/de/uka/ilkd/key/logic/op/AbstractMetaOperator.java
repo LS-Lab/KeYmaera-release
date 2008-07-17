@@ -26,6 +26,7 @@ import de.uka.ilkd.key.dl.rules.metaconstruct.DNFTransformer;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DiffFin;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DiffInd;
 import de.uka.ilkd.key.dl.rules.metaconstruct.FullSimplify;
+import de.uka.ilkd.key.dl.rules.metaconstruct.ImplicationIntroductor;
 import de.uka.ilkd.key.dl.rules.metaconstruct.ODESolve;
 import de.uka.ilkd.key.dl.rules.metaconstruct.Reduce;
 import de.uka.ilkd.key.dl.rules.metaconstruct.Simplify;
@@ -236,6 +237,8 @@ public abstract class AbstractMetaOperator extends Op implements MetaOperator {
 	public static final AbstractMetaOperator DL_DIFF_INEQ_REWRITE = new DLDiffInequalityRewrite();
 
 	public static final AbstractMetaOperator DL_WEAKNEGATE = new WeakNegation();
+
+	public static final AbstractMetaOperator DL_IMPLICATION = new ImplicationIntroductor();
 
     
     protected TermFactory termFactory = TermFactory.DEFAULT;
