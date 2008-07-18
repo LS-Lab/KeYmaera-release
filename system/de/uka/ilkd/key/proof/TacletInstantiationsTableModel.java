@@ -17,16 +17,43 @@ import javax.swing.table.AbstractTableModel;
 
 import de.uka.ilkd.key.collection.ListOfString;
 import de.uka.ilkd.key.collection.SLListOfString;
+import de.uka.ilkd.key.dl.DLProfile;
 import de.uka.ilkd.key.gui.Main;
-import de.uka.ilkd.key.java.*;
+import de.uka.ilkd.key.java.Expression;
+import de.uka.ilkd.key.java.JavaInfo;
+import de.uka.ilkd.key.java.ProgramElement;
+import de.uka.ilkd.key.java.Services;
+import de.uka.ilkd.key.java.StatementBlock;
+import de.uka.ilkd.key.java.TypeConverter;
 import de.uka.ilkd.key.java.abstraction.KeYJavaType;
-import de.uka.ilkd.key.logic.*;
-import de.uka.ilkd.key.logic.op.*;
+import de.uka.ilkd.key.logic.JavaBlock;
+import de.uka.ilkd.key.logic.MetavariableDeliverer;
+import de.uka.ilkd.key.logic.Name;
+import de.uka.ilkd.key.logic.Named;
+import de.uka.ilkd.key.logic.Namespace;
+import de.uka.ilkd.key.logic.NamespaceSet;
+import de.uka.ilkd.key.logic.PosInProgram;
+import de.uka.ilkd.key.logic.SetOfLocationDescriptor;
+import de.uka.ilkd.key.logic.Term;
+import de.uka.ilkd.key.logic.TermBuilder;
+import de.uka.ilkd.key.logic.TermFactory;
+import de.uka.ilkd.key.logic.VariableNamer;
+import de.uka.ilkd.key.logic.op.IteratorOfSchemaVariable;
+import de.uka.ilkd.key.logic.op.LocationVariable;
+import de.uka.ilkd.key.logic.op.LogicVariable;
+import de.uka.ilkd.key.logic.op.SchemaVariable;
+import de.uka.ilkd.key.logic.op.SortedSchemaVariable;
 import de.uka.ilkd.key.logic.sort.ArraySort;
 import de.uka.ilkd.key.logic.sort.ProgramSVSort;
 import de.uka.ilkd.key.logic.sort.Sort;
-import de.uka.ilkd.key.parser.*;
+import de.uka.ilkd.key.parser.IdDeclaration;
+import de.uka.ilkd.key.parser.KeYLexer;
+import de.uka.ilkd.key.parser.KeYParser;
 import de.uka.ilkd.key.parser.Location;
+import de.uka.ilkd.key.parser.ParserConfig;
+import de.uka.ilkd.key.parser.ParserException;
+import de.uka.ilkd.key.parser.ParserMode;
+import de.uka.ilkd.key.parser.TermParserFactory;
 import de.uka.ilkd.key.pp.AbbrevMap;
 import de.uka.ilkd.key.rule.NewVarcond;
 import de.uka.ilkd.key.rule.TacletApp;
@@ -208,8 +235,8 @@ public class TacletInstantiationsTableModel extends AbstractTableModel {
 			KeYParser parser = new KeYParser(ParserMode.DECLARATION,
 					new KeYLexer(new StringReader(s), services
 							.getExceptionHandler()), "", services, // should
-																	// not be
-																	// needed
+					// not be
+					// needed
 					nss);
 			return parser.id_declaration();
 		} catch (antlr.RecognitionException re) {
@@ -345,7 +372,9 @@ public class TacletInstantiationsTableModel extends AbstractTableModel {
 
 	public static ProgramElement getProgramElement(TacletApp app,
 			String instantiation, SchemaVariable sv, Services services) {
+		System.out.println(sv);// XXX
 		Sort svSort = ((SortedSchemaVariable) sv).sort();
+		System.out.println(svSort.getClass());// XXX
 		if (svSort == ProgramSVSort.LABEL) {
 			return VariableNamer.parseName(instantiation);
 		} else if (svSort == ProgramSVSort.VARIABLE) {
@@ -383,6 +412,13 @@ public class TacletInstantiationsTableModel extends AbstractTableModel {
 				return new LocationVariable(VariableNamer
 						.parseName(instantiation), kjt);
 			}
+		} else if (svSort == ProgramSVSort.DL_DIFF_SYSTEM_SORT_INSTANCE) {
+			JavaBlock programBlock = services
+					.getProgramBlockProvider()
+					.getProgramBlock(
+							new ParserConfig(services, services.getNamespaces()),
+							instantiation, false, true, false);
+			return ((StatementBlock) programBlock.program()).getChildAt(0);
 		}
 		return null;
 	}
@@ -400,14 +436,14 @@ public class TacletInstantiationsTableModel extends AbstractTableModel {
 
 		String instantiation = (String) getValueAt(irow, 1);
 		SortedSchemaVariable sv = (SortedSchemaVariable) getValueAt(irow, 0);
-
-		if (!varNamer.isUniqueNameForSchemaVariable(instantiation, sv,
-				originalApp.posInOccurrence(), originalApp.instantiations()
-						.getContextInstantiation().prefix())) {
-			throw new SVInstantiationParserException(instantiation, irow, 0,
-					"Name is already in use.", false);
+		if (!(Main.getInstance().mediator().getProfile() instanceof DLProfile)) {
+			if (!varNamer.isUniqueNameForSchemaVariable(instantiation, sv,
+					originalApp.posInOccurrence(), originalApp.instantiations()
+							.getContextInstantiation().prefix())) {
+				throw new SVInstantiationParserException(instantiation, irow,
+						0, "Name is already in use.", false);
+			}
 		}
-
 		ContextInstantiationEntry contextInstantiation = originalApp
 				.instantiations().getContextInstantiation();
 
@@ -609,7 +645,7 @@ public class TacletInstantiationsTableModel extends AbstractTableModel {
 		String s = VariableNameProposer
 				.createBaseNameProposalBasedOnCorrespondence(p_app, p_var)
 				.toUpperCase();
-		//TODO jdq hack this should be done at a central naming handler
+		// TODO jdq hack this should be done at a central naming handler
 		if (s.contains("_")) {
 			String num = s.substring(s.lastIndexOf('_') + 1);
 			try {

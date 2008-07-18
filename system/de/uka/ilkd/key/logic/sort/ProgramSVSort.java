@@ -346,7 +346,7 @@ public abstract class ProgramSVSort extends PrimitiveSort {
 
 	private static final DLVariableSort DL_VARIABLE_SORT_INSTANCE = new DLVariableSort();
 
-	private static final DLDiffSystemSort DL_DIFF_SYSTEM_SORT_INSTANCE = new DLDiffSystemSort();
+	public static final DLDiffSystemSort DL_DIFF_SYSTEM_SORT_INSTANCE = new DLDiffSystemSort();
 
 	private static final DLOrdinaryDiffSystemSort DL_ORDINARY_DIFF_SYSTEM_SORT_INSTANCE = new DLOrdinaryDiffSystemSort();
 
@@ -1678,7 +1678,8 @@ public abstract class ProgramSVSort extends PrimitiveSort {
 	 * 
 	 * @author jdq
 	 */
-	private static class DLDiffSystemSort extends ProgramSVSort {
+	private static class DLDiffSystemSort extends ProgramSVSort implements
+	PlaceHolderSort {
 		public DLDiffSystemSort() {
 			super(new Name("DiffSystem"));
 		}
@@ -1689,6 +1690,37 @@ public abstract class ProgramSVSort extends PrimitiveSort {
 		 */
 		public boolean canStandFor(ProgramElement pe, Services services) {
 			return (pe instanceof de.uka.ilkd.key.dl.model.DiffSystem);
+		}
+		
+		/**
+		 * @see de.uka.ilkd.key.logic.sort.ProgramSVSort#canStandFor(de.uka.ilkd.key.logic.Term)
+		 *      canStandFor
+		 */
+		public boolean canStandFor(Term arg0) {
+			return true;
+		}
+		
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see de.uka.ilkd.key.logic.sort.PlaceHolderSort#getRealSort()
+		 */
+		public Sort getRealSort() {
+			return Sort.FORMULA;
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see de.uka.ilkd.key.logic.sort.PlaceHolderSort#getRealSort(de.uka.ilkd.key.logic.Term[])
+		 */
+		public Sort getRealSort(Term[] term) {
+			System.out.println(term);//XXX
+			if (term.length == 0) {
+				return Sort.FORMULA;
+			} else {
+				return this;
+			}
 		}
 	}
 
@@ -1859,6 +1891,7 @@ public abstract class ProgramSVSort extends PrimitiveSort {
 			}
 			return false;
 		}
+
 	}
 
 	/**
@@ -1945,6 +1978,7 @@ public abstract class ProgramSVSort extends PrimitiveSort {
 			}
 			return false;
 		}
+
 	}
 
 	/**
