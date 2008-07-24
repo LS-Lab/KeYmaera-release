@@ -3,6 +3,7 @@ package de.uka.ilkd.key.dl.arithmetics.impl.qepcad.test;
 import junit.framework.TestCase;
 import de.uka.ilkd.key.dl.arithmetics.impl.qepcad.QepCadInput;
 import de.uka.ilkd.key.dl.arithmetics.impl.qepcad.Term2QepCadConverter;
+
 import de.uka.ilkd.key.logic.Name;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.TermBuilder;
@@ -37,6 +38,7 @@ public class Term2QepCadConverterTest extends TestCase{
 	RigidFunction gt = new RigidFunction(new Name("gt"), SortR.FORMULA, new Sort[] { SortR.R, SortR.R });
 	
 	public void test_convert() {
+            
 		Term term = tb.all(x, 
 				    	tb.ex(y, 
 				    		tb.and( 
@@ -45,7 +47,6 @@ public class Term2QepCadConverterTest extends TestCase{
 				    		) 
 				    	)       
 				    );
-		
 		QepCadInput input = Term2QepCadConverter.convert(term);
 		
 		assertEquals( "(a,x,y)", input.getVariableList());
