@@ -120,6 +120,15 @@ public class SumOfSquaresRule implements BuiltInRule, RuleFilter {
     public Name name() {
         return new Name("Sum of Squares");
     }
+    
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+    	return displayName();
+    }
+    
 
     /* (non-Javadoc)
      * @see de.uka.ilkd.key.proof.RuleFilter#filter(de.uka.ilkd.key.rule.Rule)
