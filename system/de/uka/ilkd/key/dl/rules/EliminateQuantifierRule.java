@@ -119,6 +119,14 @@ public class EliminateQuantifierRule extends RuleOperatingOnWholeSequence
         return new Name("EliminateQuantifier");
     }
 
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+    	return displayName();
+    }
+    
     /*
      * (non-Javadoc)
      * 
