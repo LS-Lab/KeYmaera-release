@@ -720,7 +720,7 @@ public class TermFactoryImpl extends TermFactory {
 		for (CommonTree var : decls) {
 			if (programVariable) {
 				assert getNamespaces().variables().lookup(
-						new Name(var.getText())) == null;
+						new Name(var.getText())) == null : "newly declared program variable " + var + " not yet in variables namespace at " + decls;
 				// && getNamespaces().programVariables().lookup(
 				// new Name(var.getText())) == null;
 				if (getNamespaces().programVariables().lookup(
@@ -733,7 +733,7 @@ public class TermFactoryImpl extends TermFactory {
 						.getText(), true));
 			} else {
 				assert getNamespaces().programVariables().lookup(
-						new Name(var.getText())) == null;
+						new Name(var.getText())) == null : "newly declared non-program variable " + var + " not yet in program variables namespace at " + decls;
 				if (getNamespaces().variables().lookup(new Name(var.getText())) == null) {
 					getNamespaces().variables().addSafely(
 							new LogicVariable(new Name(var.getText()), RealLDT
