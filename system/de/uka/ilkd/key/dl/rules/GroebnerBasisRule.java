@@ -141,6 +141,14 @@ public class GroebnerBasisRule implements BuiltInRule, RuleFilter {
 	public Name name() {
 		return new Name("Groebner Basis");
 	}
+	
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return displayName();
+	}
 
 	/*
 	 * (non-Javadoc)

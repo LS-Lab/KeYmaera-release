@@ -348,4 +348,12 @@ public class IterativeReduceRule implements BuiltInRule, RuleFilter {
 		return new Name("IterativeReduce");
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return displayName();
+	}
+	
 }

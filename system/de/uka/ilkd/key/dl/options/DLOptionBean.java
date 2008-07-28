@@ -278,8 +278,9 @@ public class DLOptionBean implements Settings {
 		splitBeyondFO = false;
 		useTimeoutStrategy = true;
 		readdQuantifiers = true;
-		simplifyBeforeReduce = true;
-		simplifyAfterReduce = true;
+		simplifyBeforeReduce = false;
+		simplifyAfterReduce = false;
+                simplifyAfterODESolve = false;
 		normalizeEquations = true;
 		applyUpdatesToModalities = false;
 		counterExampleGenerator = "";
@@ -294,8 +295,7 @@ public class DLOptionBean implements Settings {
 		ignoreAnnotations = false;
 		useIterativeReduceRule = false;
 		termFactoryClass = de.uka.ilkd.key.dl.model.impl.TermFactoryImpl.class;
-		applyLocalReduce = true;
-		simplifyAfterODESolve = true;
+		applyLocalReduce = false;
 
 		listeners = new HashSet<SettingsListener>();
 	}
