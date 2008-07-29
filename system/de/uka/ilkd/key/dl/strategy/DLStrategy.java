@@ -41,6 +41,7 @@ import de.uka.ilkd.key.dl.rules.ReduceRule;
 import de.uka.ilkd.key.dl.rules.SumOfSquaresRule;
 import de.uka.ilkd.key.dl.rules.VisualizationRule;
 import de.uka.ilkd.key.dl.strategy.features.AnnotationList;
+import de.uka.ilkd.key.dl.strategy.features.ContainsInequalityFeature;
 import de.uka.ilkd.key.dl.strategy.features.DiffIndCandidates;
 import de.uka.ilkd.key.dl.strategy.features.DiffInvariantPresentFeature;
 import de.uka.ilkd.key.dl.strategy.features.DiffSatFeature;
@@ -328,11 +329,12 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 				if (DLOptionBean.INSTANCE.isUseTimeoutStrategy()) {
 					/*
 					 * basic idea of the following statement: - check for
-					 * options - if applying timeout strategy: -- try to reduce --
-					 * if successful --- rate the result (cheap for good rating,
-					 * unaffordable otherwisewise) -- if not successful in time
-					 * --- try to find a counter example (if none is found high
-					 * costs, unaffordable if counterexample has been found)
+					 * options - if applying timeout strategy: -- try to reduce
+					 * -- if successful --- rate the result (cheap for good
+					 * rating, unaffordable otherwisewise) -- if not successful
+					 * in time --- try to find a counter example (if none is
+					 * found high costs, unaffordable if counterexample has been
+					 * found)
 					 */
 					reduceSequence = ConditionalFeature
 							.createConditional(
@@ -448,6 +450,16 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 	private void setupDiffSatStrategy(final RuleSetDispatchFeature d) {
 		bindRuleSet(d, "diff_normalize_dnf", longConst(5000));
 		bindRuleSet(d, "diff_normalize_choice", longConst(10000));
+//		bindRuleSet(d, "diff_ineq_weaken", ifZero(ContainsInequalityFeature.INSTANCE,
+//				new SwitchFeature(new HypotheticalProvabilityFeature(DLOptionBean.INSTANCE
+//						.getDiffSatTimeout()), 
+//						new Case(longConst(0),longConst(-4000)),
+//				// reject if it	doesn't help, but retry costs
+//						new Case(longConst(1), longConst(6000)), 
+//						new Case(inftyConst(), inftyConst())),inftyConst()));
+		bindRuleSet(d, "diff_ineq_weaken",inftyConst());
+		
+		
 		if (DLOptionBean.INSTANCE.getDiffSat() != DiffSat.BLIND) {
 			bindRuleSet(d, "diff_solve", ifZero(ODESolvableFeature.INSTANCE,
 					longConst(4000), inftyConst()));
@@ -490,7 +502,9 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 													DLOptionBean.INSTANCE
 															.getDiffSat()
 															.compareTo(
-																	DiffSat.DIFF) >= 0 ? // re-evaluate
+																	DiffSat.DIFF) >= 0 ? // re
+																							// -
+																							// evaluate
 													// feature
 													// at
 													// least
@@ -554,14 +568,14 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 		}
 	}
 
-	// //////////////////////////////////////////////////////////////////////////
-	// //////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////
 	//
 	// Feature terms that handle the instantiation of incomplete taclet
 	// applications
 	//
-	// //////////////////////////////////////////////////////////////////////////
-	// //////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////
 
 	private RuleSetDispatchFeature setupInstantiationF(Proof p_proof) {
 		enableInstantiate();
@@ -673,13 +687,13 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 				inftyConst()));
 	}
 
-	// //////////////////////////////////////////////////////////////////////////
-	// //////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////
 	//
 	// Feature terms that handle the approval of complete taclet applications
 	//
-	// //////////////////////////////////////////////////////////////////////////
-	// //////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////
 
 	private Feature setupApprovalF(Proof p_proof) {
 		final RuleSetDispatchFeature d = RuleSetDispatchFeature.create();
