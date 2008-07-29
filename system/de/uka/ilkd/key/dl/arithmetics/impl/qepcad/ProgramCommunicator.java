@@ -12,7 +12,8 @@ import java.io.OutputStreamWriter;
  * @author Timo Michelsen
  */
 public class ProgramCommunicator {
-
+        private static boolean debug = false;
+        
 	public static String start(QepCadInput input) {
 		try {
 			Process process = new ProcessBuilder(new String[] { "/home/boomer/Arbeit/qesource/bin/qepcad" }).start();
@@ -58,7 +59,8 @@ public class ProgramCommunicator {
 			boolean running = false;
 			while (!running ) {
 				s = reader.readLine();
-				//System.out.println(s);
+				if( debug ) 
+                                    System.out.println(s);
 				running = s.equals(text);
 			}
 		} catch (IOException e) {

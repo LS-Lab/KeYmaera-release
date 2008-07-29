@@ -28,7 +28,7 @@ public class Term2QepCadConverter {
 	private QepCadInput convertImpl( Term form ) {
 		
 		// Getting the string-representation
-		String formula = convert2String( form );
+		String formula = "(" + convert2String( form ) + ")";
 		this.input.setVariableList( "(" + array2String(getVariableList()) + ")" );
 		this.input.setFreeVariableNum( this.existingVars.size() - this.quantifiedVars.size());
 		
@@ -58,21 +58,21 @@ public class Term2QepCadConverter {
 		} else if (form.op() == Op.TRUE) {
 			return "TRUE";
 		} else if (form.op().name().toString().equals("equals")) {
-			return "(" + args[0] + "=" + args[1] + ")";
+			return "[" + args[0] + "=" + args[1] + "]";
 		} else if (form.op() instanceof Function) {
 			Function f = (Function) form.op();
 			if (f.name().toString().equals("gt")) {
-				return "(" + args[0] + ">" + args[1] + ")";
+				return "[" + args[0] + ">" + args[1] + "]";
 			} else if (f.name().toString().equals("geq")) {
-				return "(" + args[0] + ">=" + args[1] + ")";
+				return "[" + args[0] + ">=" + args[1] + "]";
 			} else if (f.name().toString().equals("equals")) {
-				return "(" + args[0] + "=" + args[1] + ")"; // 2x EQUALS?
+				return "[" + args[0] + "=" + args[1] + "]"; // 2x EQUALS?
 			} else if (f.name().toString().equals("neq")) {
-				return "(" + args[0] + "/=" + args[1] + ")";
+				return "[" + args[0] + "/=" + args[1] + "]";
 			} else if (f.name().toString().equals("leq")) {
-				return "(" + args[0] + "<=" + args[1] + ")";
+				return "[" + args[0] + "<=" + args[1] + "]";
 			} else if (f.name().toString().equals("lt")) {
-				return "(" + args[0] + "<" + args[1] + ")";
+				return "[" + args[0] + "<" + args[1] + "]";
 			} else if (f.name().toString().equals("add")) {
 				return "(" + args[0] + "+" + args[1] + ")";
 			} else if (f.name().toString().equals("sub")) {
@@ -89,7 +89,7 @@ public class Term2QepCadConverter {
 				try {
 					BigDecimal d = new BigDecimal(form.op().name().toString());
 					try {
-						return String.valueOf(d.intValueExact());
+						return "(" + String.valueOf(d.intValueExact())+ ")";
 					} catch (ArithmeticException e) {
 						return "<TODO>"; // TODO : Change this
 						// return new Expr(Expr.SYM_REAL,
@@ -110,13 +110,13 @@ public class Term2QepCadConverter {
 			return "(" + form.op().name().toString() + ")";
 		} else if (form.op() instanceof Junctor) {
 			if (form.op() == Junctor.AND) {
-				return "(" + args[0] + "/\\" + args[1] + ")";
+				return "[" + args[0] + "/\\" + args[1] + "]";
 			} else if (form.op() == Junctor.OR) {
-				return "(" + args[0] + "\\/" + args[1] + ")";
+				return "[" + args[0] + "\\/" + args[1] + "]";
 			} else if (form.op() == Junctor.IMP) {
-				return "(" + args[0] + "==>" + args[1] + ")";
+				return "[" + args[0] + "==>" + args[1] + "]";
 			} else if (form.op() == Junctor.NOT) {
-				return "(~" + args[0] + ")";
+				return "[~" + args[0] + "]";
 			}
 		} else if (form.op() instanceof Quantifier) {
 			
