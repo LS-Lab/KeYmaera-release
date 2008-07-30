@@ -377,7 +377,7 @@ public class ProblemInitializer {
 	    	    
 	    //read Java
 //	    readJava(envInput, initConfig);
-	    
+	    if(!(Main.getInstance().mediator().getProfile() instanceof DLProfile)) {
 	    //read libraries
 	    if(readLibraries) {
 	    	readLibraries(envInput, initConfig);
@@ -385,7 +385,9 @@ public class ProblemInitializer {
 	    
             //read Java
             readJava(envInput, initConfig);	
-            
+	    } else {
+	    	initConfig.getProofEnv().setJavaModel(JavaModel.NO_MODEL);
+	    }
 	    //read envInput itself
 	    reportStatus("Reading "+envInput.name(), 
 		    	 envInput.getNumberOfChars());
