@@ -11,28 +11,50 @@ import de.uka.ilkd.key.logic.op.Metavariable;
 import de.uka.ilkd.key.logic.op.Op;
 import de.uka.ilkd.key.logic.op.Quantifier;
 
+/**
+ * Converts a term to a QepcadInput readable for
+ * the Qepcad-Program. 
+ * 
+ * @author Timo Michelsen
+ */
 public class Term2QepCadConverter {
 
-	private QepCadInput input = new QepCadInput();
-	private ArrayList<String> quantifiedVars = new ArrayList<String>();
-	private ArrayList<String> existingVars = new ArrayList<String>();
+	private QepCadInput input = new QepCadInput(); // Result
+	private ArrayList<String> quantifiedVars = new ArrayList<String>(); // List of quantified Variables
+	private ArrayList<String> existingVars = new ArrayList<String>(); // List of existing Variables
 	
+        /**
+         * Standardconstructor.
+         */
 	public Term2QepCadConverter() {
 	}
 	
+        /**
+         * Function to start to convert a given term.
+         * 
+         * @param form Term to convert
+         * @return QepCadInput-Instance of the given term.
+         */
 	public static QepCadInput convert( Term form ) {
 		Term2QepCadConverter converter = new Term2QepCadConverter();
 		return converter.convertImpl( form );
 	}
 	
+        /**
+         * Implementation of the convert-algorithm
+         */
 	private QepCadInput convertImpl( Term form ) {
 		
 		// Getting the string-representation
 		String formula = "(" + convert2String( form ) + ")";
+                
+                // extracts additional information for qepcad
 		this.input.setVariableList( "(" + array2String(getVariableList()) + ")" );
 		this.input.setFreeVariableNum( this.existingVars.size() - this.quantifiedVars.size());
 		
 		// Convert formula-String to QepCad-Notation
+                // first ( )-Pair, which is no Quantor, must be replaced
+                // by [ ]-Pair and a dot.
 		int counter = 0;
 		for( int i = 0; i < formula.length(); i++ ) {
 			if( formula.charAt(i) == '(') {
@@ -138,6 +160,9 @@ public class Term2QepCadConverter {
 				+ "Operator was: " + form.op());
 	}
 
+        // Converts an array of Strings in
+        // one string. The elements are seperated by
+        // ','
 	private String array2String(String[] args) {
 		if (args == null)
 			return "";
@@ -152,6 +177,8 @@ public class Term2QepCadConverter {
 		return result;
 	}	
 	
+        // Inserts a new variable in the list of quantified variables,
+        // if is not in the list
 	private void addQuantifiedVariable( String varName ) {
 		// try to find the variable
 		for( String var : this.quantifiedVars ) {
@@ -163,7 +190,9 @@ public class Term2QepCadConverter {
 		this.quantifiedVars.add(varName);
 	}
 	
-	private void addExistingVariable( String varName ) {
+        // Inserts a new variable in the list of existing variables,
+        // if is not in the list
+        private void addExistingVariable( String varName ) {
 		// try to find the variable
 		for( String var : this.existingVars ) {
 			if( var.equals(varName))
@@ -174,6 +203,7 @@ public class Term2QepCadConverter {
 		this.existingVars.add(varName);		
 	}
 	
+        // Gets the variable-list, which is important for qepcad
 	private String[] getVariableList() {
 		
 		ArrayList<String> notQuantifiedVars = new ArrayList<String>();

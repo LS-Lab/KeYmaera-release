@@ -7,7 +7,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 
 /**
- * Class to communicate with an external program. Uses consoleinput and -output.
+ * Class to communicate with the external program Qepcad. Uses consoleinput and -output.
  * 
  * @author Timo Michelsen
  */
