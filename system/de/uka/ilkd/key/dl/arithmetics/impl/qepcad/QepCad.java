@@ -45,7 +45,7 @@ public class QepCad implements IQuantifierEliminator {
         
         // System.out.println("START  : Reduce called");
         
-        Term prenex = PrenexGenerator.transform(form);
+        Term prenex = PrenexGenerator.transform(form, nss);
         QepCadInput input = Term2QepCadConverter.convert(prenex);
         // System.out.println("PRENEX : Formula send to QEPCAD: " + input.getFormula());
 

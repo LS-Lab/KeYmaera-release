@@ -49,12 +49,17 @@ public class Term2QepCadConverter {
 		
 		// Getting the string-representation
 //		String formula = "(" + convert2String( form ) + ")";
-		String formula = convert2String( form ) + ".";
+		String formula = convert2String( form );
                 
                 // extracts additional information for qepcad
 		this.input.setVariableList( "(" + array2String(getVariableList()) + ")" );
 		this.input.setFreeVariableNum( this.existingVars.size() - this.quantifiedVars.size());
 		
+		if(!formula.startsWith("(") && !formula.startsWith("[")) {
+			formula = "[ " + formula + " ]."; 
+		} else {
+			formula += ".";
+		}
 		// Convert formula-String to QepCad-Notation
                 // first ( )-Pair, which is no Quantor, must be replaced
                 // by [ ]-Pair and a dot.
