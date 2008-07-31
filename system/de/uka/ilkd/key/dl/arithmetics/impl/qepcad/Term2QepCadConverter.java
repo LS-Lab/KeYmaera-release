@@ -116,7 +116,7 @@ public class Term2QepCadConverter {
 			} else if (form.op() == Junctor.IMP) {
 				return "[" + args[0] + "==>" + args[1] + "]";
 			} else if (form.op() == Junctor.NOT) {
-				return "[~" + args[0] + "]";
+				return "~[" + args[0] + "]";
 			}
 		} else if (form.op() instanceof Quantifier) {
 			

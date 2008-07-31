@@ -68,14 +68,15 @@ logic_impl returns [ Term t ]	:	e = logic_or { t = e; }
 							( IMPL_L f = logic { t = tb.imp(f,e); })? );
 logic_or returns [ Term t ]		: 	e = logic_and {t = e;} ( OR f = logic { t = tb.or(e,f); } )?;	
 logic_and returns [Term t]		:	( e = predicate{ t = e; } ( AND f = logic { t = tb.and(e,f); })? );
-//						( NOT e = logic { t = e; });
+
 					
 predicate returns [Term t]		:	( e = expression  
 							((func = pred_func f = expression { t = tb.func( func, e, f );} ) |
 							(EQ f = expression { t = tb.equals( e, f ); }) )
 						)
-						| ( LB e = logic RB ) { t = e; };
-						
+						| ( LB e = logic RB ) { t = e; }
+						| ( NOT e = logic { t = tb.not(e); });	
+											
 pred_func returns [ Function f ]	:	GT { f = RealLDT.getFunctionFor(Greater.class);} |
 						LT { f = RealLDT.getFunctionFor(Less.class);} |
 						GE { f = RealLDT.getFunctionFor(GreaterEquals.class); }|
