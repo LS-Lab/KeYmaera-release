@@ -19,6 +19,8 @@ import de.uka.ilkd.key.logic.op.Quantifier;
  */
 public class Term2QepCadConverter {
 
+	static final String USCOREESCAPE = "uscore";
+	static final String DOLLARESCAPE = "dollar";
 	private QepCadInput input = new QepCadInput(); // Result
 	private ArrayList<String> quantifiedVars = new ArrayList<String>(); // List of quantified Variables
 	private ArrayList<String> existingVars = new ArrayList<String>(); // List of existing Variables
@@ -46,7 +48,8 @@ public class Term2QepCadConverter {
 	private QepCadInput convertImpl( Term form ) {
 		
 		// Getting the string-representation
-		String formula = "(" + convert2String( form ) + ")";
+//		String formula = "(" + convert2String( form ) + ")";
+		String formula = convert2String( form ) + ".";
                 
                 // extracts additional information for qepcad
 		this.input.setVariableList( "(" + array2String(getVariableList()) + ")" );
@@ -55,16 +58,17 @@ public class Term2QepCadConverter {
 		// Convert formula-String to QepCad-Notation
                 // first ( )-Pair, which is no Quantor, must be replaced
                 // by [ ]-Pair and a dot.
-		int counter = 0;
-		for( int i = 0; i < formula.length(); i++ ) {
-			if( formula.charAt(i) == '(') {
-				counter++;
-				if( counter == this.quantifiedVars.size() + 1) {
-					formula = formula.substring(0, i) + "[" + formula.substring(i+1, formula.length() - 1) + "].";
-					break;
-				}
-			}
-		}
+		// FIXME: this breaks quantified formulas
+//		int counter = 0;
+//		for( int i = 0; i < formula.length(); i++ ) {
+//			if( formula.charAt(i) == '(') {
+//				counter++;
+//				if( counter == this.quantifiedVars.size() + 1) {
+//					formula = formula.substring(0, i) + "[" + formula.substring(i+1, formula.length() - 1) + "].";
+//					break;
+//				}
+//			}
+//		}
 				
 		this.input.setFormula(formula);
 		return this.input;
@@ -119,6 +123,14 @@ public class Term2QepCadConverter {
 					}
 				} catch (NumberFormatException e) {
 					String name = form.op().name().toString();
+					if(name.contains("_")) {
+						name = name.replaceAll("_", USCOREESCAPE);
+						
+					}
+					if(name.contains("$")) {
+						name = name.replaceAll("\\$", DOLLARESCAPE);
+					}
+					addExistingVariable(name);
 					if (args.length == 0) {
 						return "(" + name + ")";
 					}
@@ -128,8 +140,15 @@ public class Term2QepCadConverter {
 		} else if (form.op() instanceof LogicVariable
 				|| form.op() instanceof de.uka.ilkd.key.logic.op.ProgramVariable
 				|| form.op() instanceof Metavariable) {
-			addExistingVariable(form.op().name().toString());
-			return "(" + form.op().name().toString() + ")";
+			String name = form.op().name().toString();
+			if(name.contains("_")) {
+				name = name.replaceAll("_", USCOREESCAPE);
+			}
+			if(name.contains("$")) {
+				name = name.replaceAll("\\$", DOLLARESCAPE);
+			}
+			addExistingVariable(name);
+			return "(" + name + ")";
 		} else if (form.op() instanceof Junctor) {
 			if (form.op() == Junctor.AND) {
 				return "[" + args[0] + "/\\" + args[1] + "]";
@@ -145,15 +164,22 @@ public class Term2QepCadConverter {
 			int varsNum = form.varsBoundHere(0).size();
 			String[] vars = new String[varsNum];
 			for( int i = 0; i < varsNum; i++ ) {
-				vars[i] = form.varsBoundHere(0).getQuantifiableVariable(i).name().toString();
+				String name = form.varsBoundHere(0).getQuantifiableVariable(i).name().toString();
+				if(name.contains("_")) {
+					name = name.replaceAll("_", USCOREESCAPE);
+				}
+				if(name.contains("$")) {
+					name = name.replaceAll("\\$", DOLLARESCAPE);
+				}
+				vars[i] = name;
 				addExistingVariable(vars[i]);
 				addQuantifiedVariable(vars[i]);
 			}
 			
 			if (form.op() == Quantifier.ALL) {
-				return "(A" + array2String(vars) + ")" + args[0];
+				return "(A " + array2String(vars) + ")" + args[0];
 			} else if (form.op() == Quantifier.EX) {
-				return "(E" + array2String(vars) + ")" + args[0];
+				return "(E " + array2String(vars) + ")" + args[0];
 			}
 		}
 		throw new IllegalArgumentException("Could not convert Term: " + form

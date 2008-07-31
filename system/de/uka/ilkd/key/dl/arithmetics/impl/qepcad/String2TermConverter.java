@@ -9,6 +9,8 @@ import org.antlr.runtime.RecognitionException;
 
 import de.uka.ilkd.key.logic.NamespaceSet;
 import de.uka.ilkd.key.logic.Term;
+import de.uka.ilkd.key.logic.TermBuilder;
+import de.uka.ilkd.key.strategy.termProjection.TermBuffer;
 
 /**
  * Converts an given String to a Term-Instance
@@ -27,7 +29,14 @@ public class String2TermConverter {
      * @return Terminstance
      */
     public static Term convert(String formula, NamespaceSet nss) {
-  
+    	formula = formula.replaceAll(Term2QepCadConverter.USCOREESCAPE, "_");
+    	formula = formula.replaceAll(Term2QepCadConverter.DOLLARESCAPE, "$");
+    	System.out.println("replaced result is: " + formula);//XXX
+    	if(formula.equalsIgnoreCase("TRUE")) {
+    		return TermBuilder.DF.tt();
+    	} else if(formula.equalsIgnoreCase("FALSE")) {
+    		return TermBuilder.DF.ff();
+    	}
         QepcadLexer lexer = new QepcadLexer(new ANTLRStringStream(formula));
         CommonTokenStream tok = new CommonTokenStream(lexer);
         QepcadParser parser = new QepcadParser(tok);

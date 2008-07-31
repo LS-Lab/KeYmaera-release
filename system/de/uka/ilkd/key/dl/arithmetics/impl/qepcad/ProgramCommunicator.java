@@ -12,7 +12,7 @@ import java.io.OutputStreamWriter;
  * @author Timo Michelsen
  */
 public class ProgramCommunicator {
-        private static boolean debug = false;
+        private static boolean debug = true;
         
 	public static String start(QepCadInput input) {
 		try {
@@ -85,6 +85,7 @@ public class ProgramCommunicator {
 	}
 	
 	private static void writeText(BufferedWriter writer, String text) {
+		System.out.println("We want to write: " + text);//XXX
 		try {
 			writer.write(text);
 			writer.newLine();
