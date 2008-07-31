@@ -1,12 +1,14 @@
 package de.uka.ilkd.key.dl.arithmetics.impl.qepcad;
 
+import de.uka.ilkd.key.dl.parser.QepcadLexer;
+import de.uka.ilkd.key.dl.parser.QepcadParser;
+
 import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
 
 import de.uka.ilkd.key.logic.NamespaceSet;
 import de.uka.ilkd.key.logic.Term;
-import de.uka.ilkd.key.logic.TermBuilder;
 
 /**
  * Converts an given String to a Term-Instance

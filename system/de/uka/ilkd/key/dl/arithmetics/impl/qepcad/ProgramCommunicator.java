@@ -16,7 +16,7 @@ public class ProgramCommunicator {
         
 	public static String start(QepCadInput input) {
 		try {
-			Process process = new ProcessBuilder(new String[] { "/home/boomer/Arbeit/qesource/bin/qepcad" }).start();
+			Process process = new ProcessBuilder(new String[] { "qepcad" }).start();
 
 			BufferedReader stdout = new BufferedReader(new InputStreamReader(process.getInputStream()));
 			BufferedWriter stdin = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()));

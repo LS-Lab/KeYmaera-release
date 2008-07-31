@@ -332,7 +332,8 @@ ANTLR_PARSER= \
 	$(GENERATED_SRC_PATH)$(PFX)util/keydoc/parser/KeYDocParser.java \
 	$(GENERATED_SRC_PATH)$(PFX)util/keydoc/parser/KeYDocTreeWalker.java \
 	$(GENERATED_SRC_PATH)$(PFX)dl/parser/DLParser.java \
-	$(GENERATED_SRC_PATH)$(PFX)dl/parser/DLStage2.java 
+	$(GENERATED_SRC_PATH)$(PFX)dl/parser/DLStage2.java \
+	$(GENERATED_SRC_PATH)$(PFX)dl/parser/QepcadParser.java 
 
 
 
@@ -657,6 +658,10 @@ $(DL_GEN_PFX)DLStage2.java: $(DL_PFX)DLStage2.g $(DL_GEN_PFX)DL.tokens
 	@mkdir -p $(DL_GEN_PFX)
 	@$(ANTLR3) -lib $(DL_GEN_PFX) -o $(GENERATED_SRC_PATH) $<
 
+$(DL_GEN_PFX)QepcadParser.java: $(DL_PFX)Qepcad.g $(DL_GEN_PFX)DL.tokens
+	@echo [creating Qepcad parser]
+	@mkdir -p $(DL_GEN_PFX)
+	@$(ANTLR3) -lib $(DL_GEN_PFX) -o $(GENERATED_SRC_PATH) $<
 
 $(GENERATED_SRC_PATH)$(PFX)parser/simplify/SimplifyLexer.java \
 $(GENERATED_SRC_PATH)$(PFX)parser/simplify/SimplifyLexerTokenTypes.txt \
