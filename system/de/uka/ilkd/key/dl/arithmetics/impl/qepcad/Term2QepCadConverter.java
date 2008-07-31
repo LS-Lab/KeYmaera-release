@@ -80,7 +80,7 @@ public class Term2QepCadConverter {
 			} else if (f.name().toString().equals("neg")) {
 				return "(-" + args[0] + ")";
 			} else if (f.name().toString().equals("mul")) {
-				return "(" + args[0] + "*" + args[1] + ")";
+				return "(" + args[0] + " " + args[1] + ")"; 
 			} else if (f.name().toString().equals("div")) {
 				return "(" + args[0] + "/" + args[1] + ")";
 			} else if (f.name().toString().equals("exp")) {
@@ -89,7 +89,7 @@ public class Term2QepCadConverter {
 				try {
 					BigDecimal d = new BigDecimal(form.op().name().toString());
 					try {
-						return "(" + String.valueOf(d.intValueExact())+ ")";
+						return String.valueOf(d.intValueExact());
 					} catch (ArithmeticException e) {
 						return "<TODO>"; // TODO : Change this
 						// return new Expr(Expr.SYM_REAL,

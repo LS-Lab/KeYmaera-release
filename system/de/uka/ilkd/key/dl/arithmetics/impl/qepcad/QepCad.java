@@ -47,13 +47,13 @@ public class QepCad implements IQuantifierEliminator {
         
         Term prenex = PrenexGenerator.transform(form);
         QepCadInput input = Term2QepCadConverter.convert(prenex);
-        System.out.println("PRENEX : Formula to reduce: " + input.getFormula());
+        System.out.println("PRENEX : Formula send to QEPCAD: " + input.getFormula());
 
         String res = ProgramCommunicator.start(input);
         System.out.println("QEPCAD : Result: " + res);
 
         Term parsedTerm = String2TermConverter.convert(res, nss);
-        System.out.println("PARSER : " + Term2QepCadConverter.convert(parsedTerm).getFormula()); // DEBUG
+        System.out.println("PARSER : Result: " + Term2QepCadConverter.convert(parsedTerm).getFormula()); // DEBUG
             
         return parsedTerm;
     }
