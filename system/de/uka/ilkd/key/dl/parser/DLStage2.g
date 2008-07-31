@@ -35,7 +35,14 @@ stat returns [ DLProgram pe ] scope { ArrayList<Formula> params; } @init {$stat:
 	st = astat { pe = st; } 
 ;
 
-annotation[ DLProgram pe ]: (ANNOTATION w = WORD { pe.setDLAnnotation(w.toString(), new ArrayList<Formula>()); } (f = form[true] { pe.getDLAnnotation(w.toString()).add(f); })* )
+annotation[ DLProgram pe ]: (ANNOTATION w = WORD 
+	{ 
+		if(!pe.getDLAnnotations().containsKey(w.toString())) { 
+			pe.setDLAnnotation(w.toString(), new ArrayList<Formula>()); 
+		} else { 
+			throw new RecognitionException(); /* todo add text filename and line */
+		} 
+	} (f = form[true] { pe.getDLAnnotation(w.toString()).add(f); })* )
 ;
 
 astat returns [ DLProgram pe ] : 
