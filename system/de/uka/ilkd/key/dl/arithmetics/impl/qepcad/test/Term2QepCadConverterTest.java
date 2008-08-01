@@ -47,7 +47,7 @@ public class Term2QepCadConverterTest extends TestCase{
 				    		) 
 				    	)       
 				    );
-		QepCadInput input = Term2QepCadConverter.convert(term);
+		QepCadInput input = Term2QepCadConverter.convert(term, null);
 		
 		assertEquals( "(a,x,y)", input.getVariableList());
 		assertEquals( 1, input.getFreeVariableNum());
