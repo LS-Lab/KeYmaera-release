@@ -1,5 +1,6 @@
 package de.uka.ilkd.key.dl.arithmetics.impl.qepcad;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -26,6 +27,37 @@ import de.uka.ilkd.key.logic.op.SubstOp;
  */
 public class PrenexGenerator {
 
+	public static class PrenexGeneratorResult {
+		private Term term;
+		private List<QuantifiableVariable> variables;
+
+		/**
+		 * @param term
+		 * @param variables
+		 */
+		public PrenexGeneratorResult(Term term,
+				List<QuantifiableVariable> variables) {
+			super();
+			this.term = term;
+			this.variables = variables;
+		}
+
+		/**
+		 * @return the term
+		 */
+		public Term getTerm() {
+			return term;
+		}
+
+		/**
+		 * @return the variables
+		 */
+		public List<QuantifiableVariable> getVariables() {
+			return variables;
+		}
+
+	}
+
 	private static class Pair {
 		QuantifierType type;
 		LogicVariable var;
@@ -41,25 +73,37 @@ public class PrenexGenerator {
 
 	}
 
-	public static Term transform(Term term, NamespaceSet nss) {
+	public static PrenexGeneratorResult transform(Term term, NamespaceSet nss) {
 		List<Pair> quantifiers = new LinkedList<Pair>();
 		term = createPrenexForm(quantifiers, term, false, nss);
 		Collections.reverse(quantifiers);
+		List<QuantifiableVariable> vars = new ArrayList<QuantifiableVariable>();
 		for (Pair p : quantifiers) {
+			Term nTerm;
 			switch (p.type) {
 			case FORALL:
-				term = TermBuilder.DF.all(p.var, term);
+				nTerm = TermBuilder.DF.all(p.var, term);
+				if(nTerm != term) {
+					term = nTerm;
+					vars.add(p.var);
+				}
 				break;
 			case EXISTS:
-				term = TermBuilder.DF.ex(p.var, term);
+				nTerm = TermBuilder.DF.ex(p.var, term);
+				if(nTerm != term) {
+					// check if the variable occurred in the term
+					term = nTerm;
+					vars.add(p.var);
+				}
 				break;
 			default:
 				throw new IllegalArgumentException("Unknown quantifier type: "
 						+ p.type);
 			}
 		}
-		System.out.println(term);//XXX
-		return term;
+
+		return new PrenexGeneratorResult(term,
+				vars);
 	}
 
 	/**
@@ -114,8 +158,8 @@ public class PrenexGenerator {
 					quantifiers.add(new Pair(newVariable,
 							(term.op() == Op.ALL) ? QuantifierType.FORALL
 									: QuantifierType.EXISTS));
-					nTerm = TermFactory.DEFAULT.createSubstitutionTerm(Op.SUBST,
-							quantifiableVariable, TermBuilder.DF
+					nTerm = TermFactory.DEFAULT.createSubstitutionTerm(
+							Op.SUBST, quantifiableVariable, TermBuilder.DF
 									.var(newVariable), nTerm);
 					nTerm = ((SubstOp) nTerm.op()).apply(nTerm);
 				}

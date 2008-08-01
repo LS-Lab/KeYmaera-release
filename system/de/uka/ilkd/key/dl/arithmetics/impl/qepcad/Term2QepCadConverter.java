@@ -2,6 +2,9 @@ package de.uka.ilkd.key.dl.arithmetics.impl.qepcad;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.op.Function;
@@ -9,11 +12,11 @@ import de.uka.ilkd.key.logic.op.Junctor;
 import de.uka.ilkd.key.logic.op.LogicVariable;
 import de.uka.ilkd.key.logic.op.Metavariable;
 import de.uka.ilkd.key.logic.op.Op;
+import de.uka.ilkd.key.logic.op.QuantifiableVariable;
 import de.uka.ilkd.key.logic.op.Quantifier;
 
 /**
- * Converts a term to a QepcadInput readable for
- * the Qepcad-Program. 
+ * Converts a term to a QepcadInput readable for the Qepcad-Program.
  * 
  * @author Timo Michelsen
  */
@@ -22,63 +25,76 @@ public class Term2QepCadConverter {
 	static final String USCOREESCAPE = "uscore";
 	static final String DOLLARESCAPE = "dollar";
 	private QepCadInput input = new QepCadInput(); // Result
-	private ArrayList<String> quantifiedVars = new ArrayList<String>(); // List of quantified Variables
-	private ArrayList<String> existingVars = new ArrayList<String>(); // List of existing Variables
-	
-        /**
-         * Standardconstructor.
-         */
+	private ArrayList<String> existingVars = new ArrayList<String>(); // List of
+
+	// existing
+	// Variables
+
+	/**
+	 * Standardconstructor.
+	 */
 	public Term2QepCadConverter() {
 	}
-	
-        /**
-         * Function to start to convert a given term.
-         * 
-         * @param form Term to convert
-         * @return QepCadInput-Instance of the given term.
-         */
-	public static QepCadInput convert( Term form ) {
+
+	/**
+	 * Function to start to convert a given term.
+	 * 
+	 * @param form
+	 *            Term to convert
+	 * @param variables
+	 * @return QepCadInput-Instance of the given term.
+	 */
+	public static QepCadInput convert(Term form,
+			List<QuantifiableVariable> variables) {
 		Term2QepCadConverter converter = new Term2QepCadConverter();
-		return converter.convertImpl( form );
+		return converter.convertImpl(form, variables);
 	}
-	
-        /**
-         * Implementation of the convert-algorithm
-         */
-	private QepCadInput convertImpl( Term form ) {
-		
+
+	/**
+	 * Implementation of the convert-algorithm
+	 * 
+	 * @param variables
+	 */
+	private QepCadInput convertImpl(Term form,
+			List<QuantifiableVariable> variables) {
+
 		// Getting the string-representation
-//		String formula = "(" + convert2String( form ) + ")";
-		String formula = convert2String( form );
-                
-                // extracts additional information for qepcad
-		this.input.setVariableList( "(" + array2String(getVariableList()) + ")" );
-		this.input.setFreeVariableNum( this.existingVars.size() - this.quantifiedVars.size());
-		
-		if(!formula.startsWith("(") && !formula.startsWith("[")) {
-			formula = "[ " + formula + " ]."; 
+		// String formula = "(" + convert2String( form ) + ")";
+		String formula = convert2String(form);
+
+		// extracts additional information for qepcad
+		List<String> freeVarlist = new ArrayList<String>(existingVars);
+
+		// the first parameter is changed by the function
+		this.input.setVariableList("("
+				+ array2String(getVariableList(freeVarlist, variables)) + ")");
+		this.input.setFreeVariableNum(freeVarlist.size());
+
+		if (!formula.startsWith("(") && !formula.startsWith("[")) {
+			formula = "[ " + formula + " ].";
 		} else {
 			formula += ".";
 		}
 		// Convert formula-String to QepCad-Notation
-                // first ( )-Pair, which is no Quantor, must be replaced
-                // by [ ]-Pair and a dot.
+		// first ( )-Pair, which is no Quantor, must be replaced
+		// by [ ]-Pair and a dot.
 		// FIXME: this breaks quantified formulas
-//		int counter = 0;
-//		for( int i = 0; i < formula.length(); i++ ) {
-//			if( formula.charAt(i) == '(') {
-//				counter++;
-//				if( counter == this.quantifiedVars.size() + 1) {
-//					formula = formula.substring(0, i) + "[" + formula.substring(i+1, formula.length() - 1) + "].";
-//					break;
-//				}
-//			}
-//		}
-				
+		// int counter = 0;
+		// for( int i = 0; i < formula.length(); i++ ) {
+		// if( formula.charAt(i) == '(') {
+		// counter++;
+		// if( counter == this.quantifiedVars.size() + 1) {
+		// formula = formula.substring(0, i) + "[" + formula.substring(i+1,
+		// formula.length() - 1) + "].";
+		// break;
+		// }
+		// }
+		// }
+
 		this.input.setFormula(formula);
 		return this.input;
 	}
-	
+
 	private String convert2String(Term form) {
 		String[] args = new String[form.arity()];
 		for (int i = 0; i < args.length; i++) {
@@ -111,7 +127,7 @@ public class Term2QepCadConverter {
 			} else if (f.name().toString().equals("neg")) {
 				return "(-" + args[0] + ")";
 			} else if (f.name().toString().equals("mul")) {
-				return "(" + args[0] + " " + args[1] + ")"; 
+				return "(" + args[0] + " " + args[1] + ")";
 			} else if (f.name().toString().equals("div")) {
 				return "(" + args[0] + "/" + args[1] + ")";
 			} else if (f.name().toString().equals("exp")) {
@@ -128,11 +144,11 @@ public class Term2QepCadConverter {
 					}
 				} catch (NumberFormatException e) {
 					String name = form.op().name().toString();
-					if(name.contains("_")) {
+					if (name.contains("_")) {
 						name = name.replaceAll("_", USCOREESCAPE);
-						
+
 					}
-					if(name.contains("$")) {
+					if (name.contains("$")) {
 						name = name.replaceAll("\\$", DOLLARESCAPE);
 					}
 					addExistingVariable(name);
@@ -146,10 +162,10 @@ public class Term2QepCadConverter {
 				|| form.op() instanceof de.uka.ilkd.key.logic.op.ProgramVariable
 				|| form.op() instanceof Metavariable) {
 			String name = form.op().name().toString();
-			if(name.contains("_")) {
+			if (name.contains("_")) {
 				name = name.replaceAll("_", USCOREESCAPE);
 			}
-			if(name.contains("$")) {
+			if (name.contains("$")) {
 				name = name.replaceAll("\\$", DOLLARESCAPE);
 			}
 			addExistingVariable(name);
@@ -165,22 +181,22 @@ public class Term2QepCadConverter {
 				return "~[" + args[0] + "]";
 			}
 		} else if (form.op() instanceof Quantifier) {
-			
+
 			int varsNum = form.varsBoundHere(0).size();
 			String[] vars = new String[varsNum];
-			for( int i = 0; i < varsNum; i++ ) {
-				String name = form.varsBoundHere(0).getQuantifiableVariable(i).name().toString();
-				if(name.contains("_")) {
+			for (int i = 0; i < varsNum; i++) {
+				String name = form.varsBoundHere(0).getQuantifiableVariable(i)
+						.name().toString();
+				if (name.contains("_")) {
 					name = name.replaceAll("_", USCOREESCAPE);
 				}
-				if(name.contains("$")) {
+				if (name.contains("$")) {
 					name = name.replaceAll("\\$", DOLLARESCAPE);
 				}
 				vars[i] = name;
-				addExistingVariable(vars[i]);
-				addQuantifiedVariable(vars[i]);
+				addExistingVariable(name);
 			}
-			
+
 			if (form.op() == Quantifier.ALL) {
 				return "(A " + array2String(vars) + ")" + args[0];
 			} else if (form.op() == Quantifier.EX) {
@@ -191,9 +207,9 @@ public class Term2QepCadConverter {
 				+ "Operator was: " + form.op());
 	}
 
-        // Converts an array of Strings in
-        // one string. The elements are seperated by
-        // ','
+	// Converts an array of Strings in
+	// one string. The elements are seperated by
+	// ','
 	private String array2String(String[] args) {
 		if (args == null)
 			return "";
@@ -206,66 +222,50 @@ public class Term2QepCadConverter {
 		}
 
 		return result;
-	}	
-	
-        // Inserts a new variable in the list of quantified variables,
-        // if is not in the list
-	private void addQuantifiedVariable( String varName ) {
-		// try to find the variable
-		for( String var : this.quantifiedVars ) {
-			if( var.equals(varName))
-				return;
-		}
-		
-		// no found --> add varName to the list
-		this.quantifiedVars.add(varName);
 	}
-	
-        // Inserts a new variable in the list of existing variables,
-        // if is not in the list
-        private void addExistingVariable( String varName ) {
-		// try to find the variable
-		for( String var : this.existingVars ) {
-			if( var.equals(varName))
-				return;
-		}
-		
-		// no found --> add varName to the list
-		this.existingVars.add(varName);		
-	}
-	
-        // Gets the variable-list, which is important for qepcad
-	private String[] getVariableList() {
-		
-		ArrayList<String> notQuantifiedVars = new ArrayList<String>();
-		ArrayList<String> quantifiedVars = new ArrayList<String>();
-		
-		for( String var : this.existingVars ) {
-			
-			boolean quantified = false;
-			for( String quantVar : this.quantifiedVars ) {
-				if( var.equals(quantVar)) {
-					quantified = true;
-					break;
-				}
-			}
-			
-			if( !quantified ) {
-				notQuantifiedVars.add(var);
-			} else {
-				quantifiedVars.add(var);
-			}
-			
+
+	// Inserts a new variable in the list of existing variables,
+	// if is not in the list
+	private void addExistingVariable(String varName) {
+		if (!existingVars.contains(varName)) {
+			this.existingVars.add(varName);
 		}
 
-		String[] result = new String[ this.existingVars.size()];
-		for( int i = 0; i < notQuantifiedVars.size(); i++ ) {
-			result[i] = notQuantifiedVars.get(i);
-		}
-		for( int i = 0; i < quantifiedVars.size(); i++ ) {
-			result[notQuantifiedVars.size() + i] = quantifiedVars.get(i);
-		}
+	}
+
+	// Gets the variable-list, which is important for qepcad
+	private String[] getVariableList(List<String> allVariables,
+			List<QuantifiableVariable> quantifiedVars) {
+
+		ArrayList<String> freeVars = new ArrayList<String>();
+		List<String> quantified = new ArrayList<String>();
 		
+		for (QuantifiableVariable var : quantifiedVars) {
+			String name = var.name().toString();
+			if (name.contains("_")) {
+				name = name.replaceAll("_", USCOREESCAPE);
+			}
+			if (name.contains("$")) {
+				name = name.replaceAll("\\$", DOLLARESCAPE);
+			}
+			allVariables.remove(name);
+			quantified.add(name);
+		}
+		Collections.reverse(quantified);
+
+		for (String var : allVariables) {
+			freeVars.add(var);
+		}
+
+		String[] result = new String[allVariables.size()
+				+ quantified.size()];
+		for (int i = 0; i < freeVars.size(); i++) {
+			result[i] = freeVars.get(i);
+		}
+		for (int i = 0; i < quantified.size(); i++) {
+			result[freeVars.size() + i] = quantified.get(i);
+		}
+
 		return result;
 	}
 }
