@@ -43,7 +43,6 @@ public class Term2QepCadConverterTest extends TestCase {
 			new Sort[] { SortR.R, SortR.R });
 
 	public void test_convert() {
-
 		Term term = tb.all(x, tb.ex(y, tb.and(
 				tb.func(gt, tb.var(y), tb.var(x)), tb.func(gt, tb.var(a), tb
 						.var(y)))));
