@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 
 import de.uka.ilkd.key.dl.arithmetics.exceptions.UnableToConvertInputException;
+import de.uka.ilkd.key.dl.gui.MessageWindow;
 
 /**
  * Class to communicate with the external program Qepcad. Uses consoleinput and
@@ -72,17 +73,28 @@ public class ProgramCommunicator {
 		try {
 			String s = null;
 			boolean running = false;
+			boolean outputMessage = false;
+			StringBuilder errorMessage = new StringBuilder();
+			boolean errorOccurred = false;
 			while (!running) {
 				s = reader.readLine();
 				if (debug) {
 					System.out.println(s);
 				}
+				if(errorOccurred || s.contains("Error")) {
+					errorOccurred = true;
+					errorMessage.append(s + "\n");
+				}
 				if (s.equals(error)) {
 					throw new UnableToConvertInputException(
 							"An erorr occured while communicating with qepcad. it did not understand the input for: "
-									+ error);
+									+ error + "\n Message was: " + errorMessage.toString());
 				}
 				running = s.equals(text);
+				if(!running && outputMessage) {
+					MessageWindow.INSTNACE.addMessage(s);
+				}
+				outputMessage |= s.equals("finish");
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -108,6 +120,7 @@ public class ProgramCommunicator {
 	}
 
 	private static void writeText(BufferedWriter writer, String text) {
+		System.out.println("Want to write: " + text);//XXX
 		try {
 			writer.write(text);
 			writer.newLine();

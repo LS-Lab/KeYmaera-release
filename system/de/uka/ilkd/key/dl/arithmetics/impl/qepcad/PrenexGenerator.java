@@ -136,7 +136,7 @@ public class PrenexGenerator {
 						.sub(0), !negated, nss), createPrenexForm(quantifiers,
 						term.sub(1), negated, nss));
 			} else if (term.op() == Op.NOT) {
-				TermBuilder.DF.not(createPrenexForm(quantifiers, term.sub(0),
+				return TermBuilder.DF.not(createPrenexForm(quantifiers, term.sub(0),
 						!negated, nss));
 			} else {
 				Term[] args = new Term[term.arity()];
@@ -169,7 +169,7 @@ public class PrenexGenerator {
 						.sub(0), !negated, nss), createPrenexForm(quantifiers,
 						term.sub(1), negated, nss));
 			} else if (term.op() == Op.NOT) {
-				TermBuilder.DF.not(createPrenexForm(quantifiers, term.sub(0),
+				return TermBuilder.DF.not(createPrenexForm(quantifiers, term.sub(0),
 						!negated, nss));
 			} else {
 				Term[] args = new Term[term.arity()];
@@ -181,7 +181,6 @@ public class PrenexGenerator {
 						new ArrayOfQuantifiableVariable[0], term.javaBlock());
 			}
 		}
-		throw new IllegalArgumentException("Dont know what to do with: " + term);
 	}
 
 	public static LogicVariable getNewVariable(String string,
