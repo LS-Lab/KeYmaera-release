@@ -713,12 +713,23 @@ public class Main extends JFrame implements IMain {
     }
     
     private JButton createAutoModeButton() {
-        return new JButton(autoModeAction);
+        final JButton button = new JButton(autoModeAction);
+        // button.setMnemonic(KeyEvent.VK_P);
+        /*goalView.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW ).put(
+                KeyStroke.getKeyStroke(KeyEvent.VK_P, ActionEvent.CTRL_MASK),
+                "auto_mode");
+        goalView.getActionMap().put("auto_mode", autoModeAction);*/
+        return button;
     }
     
     private JComponent createOpenMostRecentFile() {
         final JButton button = new JButton();
-        button.setAction(new OpenMostRecentFile());
+        OpenMostRecentFile openMostRecentAction = new OpenMostRecentFile();
+        button.setAction(openMostRecentAction);
+        goalView.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW ).put(
+                KeyStroke.getKeyStroke(KeyEvent.VK_F5, 0),
+                "open_recent_file");
+        goalView.getActionMap().put("open_recent_file", openMostRecentAction);
         return button;
     }
     
@@ -1326,6 +1337,13 @@ public class Main extends JFrame implements IMain {
     protected JMenu createProofMenu() {
         JMenu proof = new JMenu("Proof");
         proof.setMnemonic(KeyEvent.VK_P);
+
+        JMenuItem run = new JMenuItem("Start Proof Search");
+        run.setAccelerator(KeyStroke.getKeyStroke
+                (KeyEvent.VK_P, ActionEvent.CTRL_MASK));
+        run.addActionListener(autoModeAction);
+        registerAtMenu(proof, run);   
+        
         JMenuItem close = new JMenuItem("Abandon Task");
         close.setAccelerator(KeyStroke.getKeyStroke
                 (KeyEvent.VK_W, ActionEvent.CTRL_MASK));
