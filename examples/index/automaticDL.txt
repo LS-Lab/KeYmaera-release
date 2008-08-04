@@ -17,5 +17,10 @@
 ./hybrid/dev/rotation.key
 ./hybrid/dev/qode-test1.key
 ./hybrid/dev/qode-test2.key
+./hybrid/ATC/roundabout/TRM-roundabout.key
+./hybrid/ATC/roundabout/TRM-roundabout-3.key
+./hybrid/ATC/roundabout/bounded-speed.key
 ./hybrid/ETCS/paper/reactivity-lemma.key 100000
 ./hybrid/dev/diff-update.key 100000
+./hybrid/ATC/roundabout/TRM-roundabout-4.key 150000
+./hybrid/ATC/roundabout/TRM-roundabout-5.key 300000
