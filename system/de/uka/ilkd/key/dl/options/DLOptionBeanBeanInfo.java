@@ -187,9 +187,9 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
 					//
 					createDescriptor(
 							"splitBeyondFO",
-							"split FO formulas",
+							"lazy QE (if no ITB)",
 							"simple heuristic: call reduce if only FO formulas are left in the sequent",
-							true, false, true),
+							true, false),
 					createDescriptor(
 							"stopAtFO",
 							"stop strategy on first-order goals",
