@@ -1,6 +1,6 @@
 \settings {
 "
-# default settings
+# default settings ignoring annotations
 #Proof-Settings-Config-File
 #Thu Aug 07 09:24:09 CEST 2008
 [DLOptions]callReduce=true
@@ -48,7 +48,7 @@
 [DLOptions]initialTimeout=2000
 [DLOptions]termFactoryClass=de.uka.ilkd.key.dl.model.impl.TermFactoryImpl
 [General]UseJML=true
-[DLOptions]ignoreAnnotations=false
+[DLOptions]ignoreAnnotations=true
 [DLOptions]stopAtFO=false
 [DLOptions]quadricTimeoutIncreaseFactor=0
 [General]DnDDirectionSensitive=true

@@ -27,7 +27,7 @@
 [SimultaneousUpdateSimplifier]EagerSimplification=true
 [General]UseOCL=false
 [DecisionProcedure]=SIMPLIFY
-[Strategy]ActiveStrategy=Simple JavaCardDL
+[Strategy]ActiveStrategy=DLStrategy
 [View]ShowWholeTaclet=false
 [DLOptions]simplifyAfterODESolve=false
 [DLOptions]simplifyTimeout=0

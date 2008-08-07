@@ -1,8 +1,6 @@
-\settings {
-"
-# default settings
-#Proof-Settings-Config-File
-#Thu Aug 07 09:24:09 CEST 2008
+\settings{
+"#Proof-Settings-Config-File
+#Mon Jul 28 16:51:48 CEST 2008
 [DLOptions]callReduce=true
 [DecisionProcedure]SmtBenchmarkArchiving=false
 [MathematicaOptions]memoryConstraint=-1
@@ -13,14 +11,14 @@
 [DLOptions]linearTimeoutIncreaseFactor=2
 [StrategyProperty]SPLITTING_OPTIONS_KEY=SPLITTING_DELAYED
 [Model]Source=1
-[DLOptions]useTimeoutStrategy=true
+[DLOptions]useTimeoutStrategy=false
 [DLOptions]useIterativeReduceRule=false
 [Strategy]Timeout=-1
 [StrategyProperty]USER_TACLETS_OPTIONS_KEY3=USER_TACLETS_OFF
 [StrategyProperty]USER_TACLETS_OPTIONS_KEY2=USER_TACLETS_OFF
 [StrategyProperty]USER_TACLETS_OPTIONS_KEY1=USER_TACLETS_OFF
 [MathematicaOptions]useEliminateList=true
-[Choice]DefaultChoices=transactions-transactions\:transactionsOn , throughout-throughout\:toutOn , programRules-programRules\:Java , intRules-intRules\:arithmeticSemanticsIgnoringOF , transactionAbort-transactionAbort\:abortOn , nullPointerPolicy-nullPointerPolicy\:nullCheck , javacard-javacard\:jcOff
+[Choice]DefaultChoices=
 [StrategyProperty]METHOD_OPTIONS_KEY=METHOD_EXPAND
 [DLOptions]quantifierEliminator=Mathematica
 [DLOptions]normalizeEquations=true
@@ -33,7 +31,7 @@
 [View]ShowWholeTaclet=false
 [DLOptions]simplifyAfterODESolve=false
 [DLOptions]simplifyTimeout=0
-[DLOptions]splitBeyondFO=false
+[DLOptions]splitBeyondFO=true
 [MathematicaOptions]quantifierEliminationMethod=REDUCE
 [Libraries]Default=acc.key-false, stringRules.key-false, deprecatedRules.key-false
 [DLOptions]applyGammaRules=ONLY_TO_MODALITIES
@@ -48,7 +46,7 @@
 [DLOptions]initialTimeout=2000
 [DLOptions]termFactoryClass=de.uka.ilkd.key.dl.model.impl.TermFactoryImpl
 [General]UseJML=true
-[DLOptions]ignoreAnnotations=false
+[DLOptions]ignoreAnnotations=true
 [DLOptions]stopAtFO=false
 [DLOptions]quadricTimeoutIncreaseFactor=0
 [General]DnDDirectionSensitive=true
