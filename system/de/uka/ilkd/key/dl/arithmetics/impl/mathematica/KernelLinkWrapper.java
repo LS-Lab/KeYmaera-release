@@ -129,6 +129,8 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 	private static final Expr MEMORYCONSUMPTION = new Expr(new Expr(
 			Expr.SYMBOL, "MaxMemoryUsed"), new Expr[] {});
 
+    private static final long NOMEMORYCONSTRAINT = -1;
+
 	private Logger logger;
 
 	private Object mutex;
@@ -399,7 +401,7 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 			boolean allowCache) throws RemoteException,
 			ServerStatusProblemException, ConnectionProblemException,
 			UnsolveableException {
-		return evaluate(expr, timeout, allowCache);
+		return evaluate(expr, timeout, NOMEMORYCONSTRAINT, allowCache);
 	}
 
 	public synchronized ExprAndMessages evaluate(Expr expr, long timeout,

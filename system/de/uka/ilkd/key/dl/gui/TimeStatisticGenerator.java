@@ -197,6 +197,7 @@ public class TimeStatisticGenerator implements AutoModeListener {
         try {
             printer.print(",  " + getTotalCalculationTime() + "," + getTotalMemory());
         } catch (RemoteException ex) {
+            ex.printStackTrace();
             printer.print(",  na,na");
         }
     }
