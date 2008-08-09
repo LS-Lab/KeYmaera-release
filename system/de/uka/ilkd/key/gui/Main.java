@@ -28,6 +28,7 @@ import org.apache.log4j.Logger;
 
 import de.uka.ilkd.key.dl.DLInitializer;
 import de.uka.ilkd.key.dl.DLProfile;
+import de.uka.ilkd.key.dl.gui.TimeStatisticGenerator;
 import de.uka.ilkd.key.gui.assistant.ProofAssistant;
 import de.uka.ilkd.key.gui.assistant.ProofAssistantAI;
 import de.uka.ilkd.key.gui.assistant.ProofAssistantController;
@@ -2471,9 +2472,11 @@ public class Main extends JFrame implements IMain {
             
             statPrinter.print ( fileName + ", " );
             if ("Error".equals ( result ) )
-                statPrinter.println ( "-1, -1" );
+                statPrinter.print ( "-1, -1" );
             else
-                statPrinter.println ( "" + appliedRules + ", " + time );                
+                statPrinter.print ( "" + appliedRules + ", " + time );
+            TimeStatisticGenerator.INSTANCE.print(statPrinter);
+            statPrinter.println();
             statPrinter.close();
         } catch ( IOException e ) {}
     }

@@ -365,7 +365,7 @@ public class Orbital implements IODESolver {
      * 
      * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#getCachedAnwserCount()
      */
-    public long getCachedAnwserCount() throws RemoteException {
+    public long getCachedAnswerCount() throws RemoteException {
         // TODO Auto-generated method stub
         return 0;
     }

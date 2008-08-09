@@ -98,7 +98,7 @@ public class DLInitializer {
 
 				try {
 					long totalCaclulationTime = TimeStatisticGenerator.INSTANCE
-							.getTotalCaclulationTime();
+							.getTotalCalculationTime();
 					if (totalCaclulationTime != -1) {
 						stats += "\n" + "Arithmetic Solver: "
 								+ (((double) totalCaclulationTime) / 1000d);
@@ -114,7 +114,7 @@ public class DLInitializer {
 					}
 
 					long cachedAnwsers = TimeStatisticGenerator.INSTANCE
-							.getCachedAnwsers();
+							.getCachedAnswers();
 					if (cachedAnwsers != -1) {
 						stats += "\n" + "CachedAnwsers/Queries: "
 								+ cachedAnwsers + " / "

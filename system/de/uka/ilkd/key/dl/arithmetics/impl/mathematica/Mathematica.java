@@ -245,7 +245,7 @@ public class Mathematica implements ICounterExampleGenerator, IODESolver,
 	 * 
 	 * @see de.uka.ilkd.key.dl.IMathSolver#getCachedAnwserCount()
 	 */
-	public long getCachedAnwserCount() throws RemoteException {
+	public long getCachedAnswerCount() throws RemoteException {
 		return bridge.getCachedAnwserCount();
 	}
 

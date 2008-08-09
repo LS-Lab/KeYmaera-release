@@ -124,7 +124,7 @@ public interface IKernelLinkWrapper extends Remote, Serializable {
      *         was started
      * @throws RemoteException
      */
-    public long getCachedAnwsers() throws RemoteException;
+    public long getCachedAnswers() throws RemoteException;
 
     /**
      * Get the statistics about calculation time

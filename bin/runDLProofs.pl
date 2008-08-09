@@ -264,7 +264,7 @@ sub runAuto {
 	alarm 0;
     open (STS, ">>$statfile");
 	my $printtimeout = $timeout*1000;
-	print STS "$realfilename, NA, $printtimeout, $headerfile, $expectedresult, TIMEOUT\n";
+	print STS "T, $realfilename, NA, $printtimeout, $headerfile, $expectedresult, TIMEOUT\n";
 	close(STS);
 	return 2;
   } else {
@@ -273,6 +273,11 @@ sub runAuto {
 	  my $line = $test[-1];
 	  if($line) {
 		  $line =~ s/^.*?, (.*)\n$/$realfilename, $1, $headerfile, $expectedresult, $result\n/;
+                  if ($expectedresult == $result) {
+                      $line = "_, " . $line;
+                  } else {
+                      $line = "E, " . $line;
+                  }
 		  #$line =~ s/\n$/, $headerfile, $expectedresult, $result\n/;
 		  #$line =~ s/^(.*?),/$realfilename,/;
 		  open (STS, ">>$statfile");

@@ -620,7 +620,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 	 * @see de.uka.ilkd.key.dl.IMathematicaDLBridge#getCachedAnwserCount()
 	 */
 	public long getCachedAnwserCount() throws RemoteException {
-		return getKernelWrapper().getCachedAnwsers();
+		return getKernelWrapper().getCachedAnswers();
 	}
 
 	/*

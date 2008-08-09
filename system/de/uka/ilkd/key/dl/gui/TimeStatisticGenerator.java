@@ -21,6 +21,7 @@ package de.uka.ilkd.key.dl.gui;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.PrintWriter;
 import java.rmi.RemoteException;
 
 import javax.swing.JFrame;
@@ -127,7 +128,7 @@ public class TimeStatisticGenerator implements AutoModeListener {
 	 * @return
 	 * @throws RemoteException
 	 */
-	public long getTotalCaclulationTime() throws RemoteException {
+	public long getTotalCalculationTime() throws RemoteException {
 		if (MathSolverManager.isQuantifierEliminatorSet()) {
 			IMathSolver solver = MathSolverManager
 					.getCurrentQuantifierEliminator();
@@ -138,7 +139,7 @@ public class TimeStatisticGenerator implements AutoModeListener {
 	}
 
 	/**
-	 * Get the maximum number of bytes used while started.
+	 * Get the maximum number of bytes used while started, including known information from backends.
 	 * 
 	 * @return
 	 * @throws RemoteException
@@ -165,11 +166,11 @@ public class TimeStatisticGenerator implements AutoModeListener {
 	/**
 	 * @return
 	 */
-	public long getCachedAnwsers() throws RemoteException {
+	public long getCachedAnswers() throws RemoteException {
 		if (MathSolverManager.isQuantifierEliminatorSet()) {
 			IMathSolver solver = MathSolverManager
 					.getCurrentQuantifierEliminator();
-			return solver.getCachedAnwserCount();
+			return solver.getCachedAnswerCount();
 		} else {
 			return -1;
 		}
@@ -187,4 +188,16 @@ public class TimeStatisticGenerator implements AutoModeListener {
 			return -1;
 		}
 	}
+
+	/**
+	 * Print time statistics information into the given printer.
+	 * @param printer
+	 */
+    public void print(PrintWriter printer) {
+        try {
+            printer.print(",  " + getTotalCalculationTime() + "," + getTotalMemory());
+        } catch (RemoteException ex) {
+            printer.print(",  na,na");
+        }
+    }
 }

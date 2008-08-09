@@ -69,7 +69,7 @@ public class QepCad implements IQuantifierEliminator {
     public void abortCalculation() throws RemoteException {
     }
 
-    public long getCachedAnwserCount() throws RemoteException {
+    public long getCachedAnswerCount() throws RemoteException {
         return 0;
     }
 
