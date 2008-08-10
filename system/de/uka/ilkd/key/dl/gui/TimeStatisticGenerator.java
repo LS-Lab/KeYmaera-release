@@ -156,6 +156,10 @@ public class TimeStatisticGenerator implements AutoModeListener {
 				return -1;
 			} catch (ConnectionProblemException e) {
 				return -1;
+                        } catch (IllegalStateException e) {
+                            System.out.println("This is not supposed to happen");
+                            e.printStackTrace();
+                            return -1000;
 			}
 		} else {
 			return -1;
