@@ -31,10 +31,10 @@ chdir $path_to_pe;
 if ($option{h}) {
   print "runs all proofs listed in the files: $automaticdl_txt, $interactive_txt, $not_provable_txt and $quit_with_error_txt .\n";
   print "They can be found in " .  $bin_path . "/" . $path_to_pe .  "\n\n";
+  print "Use '-t' to provide the global maximum timeout for each task (in seconds).\n";
   print "Use '-m email\@address.com' to send the report as an email to the specified address.\n";
   print "Use '-h' to get this text (very necessary this line).\n";
   print "Use '-c' to get the debug messages from the smtp part if there are email problems.\n";
-  print "Use '-t' to provide the global minimum timeout.\n";
   exit;
 }
 
