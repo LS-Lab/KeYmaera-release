@@ -264,7 +264,7 @@ sub runAuto {
 	alarm 0;
     open (STS, ">>$statfile");
 	my $printtimeout = $timeout*1000;
-	print STS "T, $realfilename, NA, $printtimeout, $headerfile, $expectedresult, TIMEOUT\n";
+	print STS "T, $realfilename, NA, $printtimeout, NA, NA, $headerfile, $expectedresult, TIMEOUT\n";
 	close(STS);
 	return 2;
   } else {
