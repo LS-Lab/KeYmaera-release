@@ -10,7 +10,7 @@ use POSIX ":sys_wait_h";
 use Sys::Hostname;
     
 my %option = ();
-getopts("hcm:", \%option);
+getopts("hcmt:", \%option);
 
 #system("limit memoryuse 4000"); #set memory limit to 4GB
 
@@ -34,6 +34,7 @@ if ($option{h}) {
   print "Use '-m email\@address.com' to send the report as an email to the specified address.\n";
   print "Use '-h' to get this text (very necessary this line).\n";
   print "Use '-c' to get the debug messages from the smtp part if there are email problems.\n";
+  print "Use '-t' to provide the global minimum timeout.\n";
   exit;
 }
 
@@ -152,8 +153,11 @@ sub handlefile {
    my @split = split(/ /, $dotkey);
    $dotkey = $split[0];
    my $timeout = -1;
+   $timeout = $option{t} if $option{t};
    if($#split > 0) {
-	   $timeout = $split[1];
+	   if($timeout == -1 || $split[1] < $timeout) {
+	   	$timeout = $split[1];
+	   }
    } 
    open (HANDLE, $dotkey) or die  $dotkey. " couldn't be opened.";
    my $cnt=grep /\\settings/, <HANDLE>;
