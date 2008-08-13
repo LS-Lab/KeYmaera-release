@@ -61,7 +61,7 @@
 [DLOptions]applyToModality=false
 [DLOptions]DiffSat=AUTO
 [DLOptions]counterexampleTest=ON
-[DLOptions]diffSatTimeout=4000
+[DLOptions]diffSatTimeout=10000
 [DLOptions]constantTimeoutIncreaseFactor=0
 [Strategy]MaximumNumberOfAutomaticApplications=1000
 [View]MaxTooltipLines=40

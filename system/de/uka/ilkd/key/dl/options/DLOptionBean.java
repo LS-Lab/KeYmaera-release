@@ -269,7 +269,7 @@ public class DLOptionBean implements Settings {
 		subOptions = new LinkedHashSet<Settings>();
 		callReduce = true;
 		initialTimeout = 2;
-		diffSatTimeout = 4;
+		diffSatTimeout = 10;
 		loopSatTimeout = 2000;
 		quadraticTimeoutIncreaseFactor = 0;
 		linearTimeoutIncreaseFactor = 2;
