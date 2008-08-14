@@ -1,5 +1,5 @@
+headerDL-noIBC-eager.txt
 headerDL-default.txt
 headerDL-noIBC-lazy.txt
-headerDL-noIBC-eager.txt
 headerDL-default-auto.txt
 headerDL-noIBC-lazy-auto.txt
