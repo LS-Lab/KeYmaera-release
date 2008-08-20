@@ -27,6 +27,9 @@ import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
 import java.beans.SimpleBeanInfo;
 
+import de.uka.ilkd.key.dl.options.DirectoryPropertyEditor;
+import de.uka.ilkd.key.dl.options.FilePropertyEditor;
+
 /**
  * @author jdq
  * 
@@ -58,17 +61,17 @@ public class OptionsBeanInfo extends SimpleBeanInfo {
 							"qepcadBinary",
 							"Qepcad Executable",
 							"The Qepcad executable including the complete path name if it is not located in the system PATH",
-							true, false),
+							true, false, FilePropertyEditor.class),
 					createDescriptor(
 							"qepcadPath",
 							"Qepcad Path",
 							"The path to the qepcad installation needed to setup the correct environment for the tool",
-							true, false),
+							true, false, DirectoryPropertyEditor.class),
 					createDescriptor(
 							"saclibPath",
 							"Saclib Path",
 							"The path to the saclib installation needed to setup the correct environment for Qepcad",
-							true, false),
+							true, false, DirectoryPropertyEditor.class),
 
 			};
 			return pds;

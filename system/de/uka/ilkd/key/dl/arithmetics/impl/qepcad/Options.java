@@ -22,6 +22,7 @@
  */
 package de.uka.ilkd.key.dl.arithmetics.impl.qepcad;
 
+import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
@@ -46,22 +47,26 @@ public class Options implements Settings {
 	private static final String OPTIONS_QEPCAD_PATH = "[QepcadOptions]qepcadPath";
 	private static final String OPTIONS_SACLIB_PATH = "[QepcadOptions]saclibPath";
 
-	private String qepcadBinary;
-	private String qepcadPath;
-	private String saclibPath;
+	private File qepcadBinary;
+	private File qepcadPath;
+	private File saclibPath;
 
 	private List<SettingsListener> listeners;
 
 	private Options() {
 		listeners = new LinkedList<SettingsListener>();
-		qepcadBinary = "qepcad";
-		qepcadPath = System.getenv("qe");
-		if(qepcadPath == null) {
-			qepcadPath = "";
+		qepcadBinary = new File("qepcad");
+		String qpath = System.getenv("qe");
+		if(qpath == null) {
+			qepcadPath = new File("");
+		} else {
+			qepcadPath = new File(qpath);
 		}
-		saclibPath = System.getenv("saclib");
-		if(saclibPath== null) {
-			saclibPath = "";
+		String spath = System.getenv("saclib");
+		if(spath == null) {
+			saclibPath = new File("/");
+		} else {
+			saclibPath = new File(spath);
 		}
 	}
 
@@ -90,15 +95,15 @@ public class Options implements Settings {
 	public void readSettings(Properties props) {
 		String property = props.getProperty(OPTIONS_QEPCAD_BINARY);
 		if (property != null) {
-			qepcadBinary = property;
+			qepcadBinary = new File(property);
 		}
 		property = props.getProperty(OPTIONS_QEPCAD_PATH);
 		if (property != null) {
-			qepcadPath = property;
+			qepcadPath = new File(property);
 		}
 		property = props.getProperty(OPTIONS_SACLIB_PATH);
 		if (property != null) {
-			saclibPath = property;
+			saclibPath = new File(property);
 		}
 	}
 
@@ -108,15 +113,15 @@ public class Options implements Settings {
 	 * @see de.uka.ilkd.key.gui.Settings#writeSettings(java.util.Properties)
 	 */
 	public void writeSettings(Properties props) {
-		props.setProperty(OPTIONS_QEPCAD_BINARY, qepcadBinary);
-		props.setProperty(OPTIONS_QEPCAD_PATH, qepcadPath);
-		props.setProperty(OPTIONS_SACLIB_PATH, saclibPath);
+		props.setProperty(OPTIONS_QEPCAD_BINARY, qepcadBinary.getAbsolutePath());
+		props.setProperty(OPTIONS_QEPCAD_PATH, qepcadPath.getAbsolutePath());
+		props.setProperty(OPTIONS_SACLIB_PATH, saclibPath.getAbsolutePath());
 	}
 
 	/**
 	 * @return the qepcadBinary
 	 */
-	public String getQepcadBinary() {
+	public File getQepcadBinary() {
 		return qepcadBinary;
 	}
 
@@ -124,7 +129,7 @@ public class Options implements Settings {
 	 * @param qepcadBinary
 	 *            the qepcadBinary to set
 	 */
-	public void setQepcadBinary(String qepcadBinary) {
+	public void setQepcadBinary(File qepcadBinary) {
 		if (!this.qepcadBinary.equals(qepcadBinary)) {
 			this.qepcadBinary = qepcadBinary;
 			firePropertyChanged();
@@ -134,7 +139,7 @@ public class Options implements Settings {
 	/**
 	 * @return the qepcadPath
 	 */
-	public String getQepcadPath() {
+	public File getQepcadPath() {
 		return qepcadPath;
 	}
 
@@ -142,7 +147,7 @@ public class Options implements Settings {
 	 * @param qepcadPath
 	 *            the qepcadPath to set
 	 */
-	public void setQepcadPath(String qepcadPath) {
+	public void setQepcadPath(File qepcadPath) {
 		if (!this.qepcadPath.equals(qepcadPath)) {
 			this.qepcadPath = qepcadPath;
 			firePropertyChanged();
@@ -152,7 +157,7 @@ public class Options implements Settings {
 	/**
 	 * @return the saclibPath
 	 */
-	public String getSaclibPath() {
+	public File getSaclibPath() {
 		return saclibPath;
 	}
 
@@ -160,7 +165,7 @@ public class Options implements Settings {
 	 * @param saclibPath
 	 *            the saclibPath to set
 	 */
-	public void setSaclibPath(String saclibPath) {
+	public void setSaclibPath(File saclibPath) {
 		if (!this.saclibPath.equals(saclibPath)) {
 			this.saclibPath = saclibPath;
 			firePropertyChanged();
