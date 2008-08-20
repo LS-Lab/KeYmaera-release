@@ -131,7 +131,7 @@ public class HypotheticalProvabilityFeature implements Feature {
     /**
      * @param timeout
      *                the default overall (initial) timeout for the hypothetic
-     *                proof
+     *                proof (in s!)
      */
     public HypotheticalProvabilityFeature(long timeout) {
         this.initialTimeout = timeout;
