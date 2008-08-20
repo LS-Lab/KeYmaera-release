@@ -108,7 +108,7 @@ public class HypotheticalProvabilityFeature implements Feature {
     /**
      * maximum number of rule applications in hypothetical proofs.
      */
-    public static final int MAX_HYPOTHETICAL_RULE_APPLICATIONS = 10;
+    public static final int MAX_HYPOTHETICAL_RULE_APPLICATIONS = Main.getInstance().mediator().getMaxAutomaticSteps();
 
     /**
      * Whether to stop on the first goal without progress.
