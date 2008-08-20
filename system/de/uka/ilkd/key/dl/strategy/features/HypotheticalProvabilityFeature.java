@@ -304,6 +304,13 @@ public class HypotheticalProvabilityFeature implements Feature {
             assert context.getServices().getNamespaces().equalContent(copy) : "no change in original namespaces\n" + printDelta(copy, context.getServices().getNamespaces());
         }
     }
+    /**
+     * Determines whether the given goal can finally be proven.
+     * 
+     * @param timeout
+     *                the maximum time (in ms) how long the proof is attempted to close.
+     * @return Result of proving goal.
+     */
     public static HypotheticalProvability provable(Proof context, Sequent problem,
             int maxsteps, long timeout) {
         NamespaceSet copy = null;
@@ -323,7 +330,7 @@ public class HypotheticalProvabilityFeature implements Feature {
      * @param goal
      *                the goal to close hypothetically.
      * @param timeout
-     *                the maximum time how long the proof is attempted to close.
+     *                the maximum time (in ms) how long the proof is attempted to close.
      * @return Result of proving goal.
      */
     public static HypotheticalProvability provable(Goal goal, int maxsteps, long timeout) {

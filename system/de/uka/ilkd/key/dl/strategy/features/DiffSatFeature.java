@@ -169,7 +169,7 @@ public class DiffSatFeature implements Feature {
      * 
      * @param pos
      * @param goal
-     * @param timeout
+     * @param timeout (in ms)
      */
     private RuleAppCost diffSat(TacletApp app, final PosInOccurrence pos, Goal goal,
             long timeout) {

@@ -76,8 +76,9 @@ my %erroneous;
 
 
  open (STS, ">>$statfile");
- print STS ", !! Computer: " . hostname . "\n";
- print STS ", !! Version: " . `git show |grep commit` . ", !! Date: " . `date` . "\n";
+ print STS ", %% Computer: " . hostname . "\n";
+ print STS ", %% Version: " . `git show |grep commit`;
+ print STS ", %% Date: " . `date` . "\n";
  close(STS);
 
  foreach my $dotkey (@automatic_DL) {
@@ -95,7 +96,7 @@ my %erroneous;
   }
 
   open (STS, ">>$statfile");
-  print STS ", END " . `git show |grep commit` . `date` . "\n";
+  print STS ", %% END " . `git show |grep commit` . ", %%" .`date` . "\n";
   close(STS);
 
 #  foreach my $dotkey (@interactive) {
