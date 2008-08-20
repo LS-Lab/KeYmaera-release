@@ -22,12 +22,13 @@
  */
 package de.uka.ilkd.key.dl.arithmetics;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.rmi.RemoteException;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -44,6 +45,7 @@ import org.xml.sax.SAXException;
 
 import de.uka.ilkd.key.dl.options.DLOptionBean;
 import de.uka.ilkd.key.dl.utils.XMLReader;
+import de.uka.ilkd.key.gui.configuration.ProofSettings;
 import de.uka.ilkd.key.gui.configuration.Settings;
 
 /**
@@ -131,6 +133,10 @@ public abstract class MathSolverManager {
 					Settings object = (Settings) options.getDeclaredField(
 							"INSTANCE").get(options);
 					DLOptionBean.INSTANCE.addSubOptionBean(object);
+					FileInputStream in = new FileInputStream(ProofSettings.PROVER_CONFIG_FILE);
+					Properties props = new Properties();
+					props.load(in);
+					object.readSettings(props);
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
