@@ -23,11 +23,11 @@ public class ProgramCommunicator {
 			throws UnableToConvertInputException {
 		try {
 			ProcessBuilder pb = new ProcessBuilder(
-					new String[] { Options.INSTANCE.getQepcadBinary() });
+					new String[] { Options.INSTANCE.getQepcadBinary().getAbsolutePath() });
 
 			Map<String, String> environment = pb.environment();
-			environment.put("qe", Options.INSTANCE.getQepcadPath());
-			environment.put("saclib", Options.INSTANCE.getSaclibPath());
+			environment.put("qe", Options.INSTANCE.getQepcadPath().getAbsolutePath());
+			environment.put("saclib", Options.INSTANCE.getSaclibPath().getAbsolutePath());
 			
 			Process process = pb.start();
 			BufferedReader stdout = new BufferedReader(new InputStreamReader(
