@@ -5,6 +5,7 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.util.Map;
 
 import de.uka.ilkd.key.dl.arithmetics.exceptions.UnableToConvertInputException;
 import de.uka.ilkd.key.dl.gui.MessageWindow;
@@ -18,11 +19,17 @@ import de.uka.ilkd.key.dl.gui.MessageWindow;
 public class ProgramCommunicator {
 	private static boolean debug = true;
 
-	public static String start(QepCadInput input) throws UnableToConvertInputException {
+	public static String start(QepCadInput input)
+			throws UnableToConvertInputException {
 		try {
-			Process process = new ProcessBuilder(new String[] { "qepcad" })
-					.start();
+			ProcessBuilder pb = new ProcessBuilder(
+					new String[] { Options.INSTANCE.getQepcadBinary() });
 
+			Map<String, String> environment = pb.environment();
+			environment.put("qe", Options.INSTANCE.getQepcadPath());
+			environment.put("saclib", Options.INSTANCE.getSaclibPath());
+			
+			Process process = pb.start();
 			BufferedReader stdout = new BufferedReader(new InputStreamReader(
 					process.getInputStream()));
 			BufferedWriter stdin = new BufferedWriter(new OutputStreamWriter(
@@ -81,17 +88,19 @@ public class ProgramCommunicator {
 				if (debug) {
 					System.out.println(s);
 				}
-				if(errorOccurred || s.contains("Error")) {
+				if (errorOccurred || s.contains("Error")) {
 					errorOccurred = true;
 					errorMessage.append(s + "\n");
 				}
 				if (s.equals(error)) {
 					throw new UnableToConvertInputException(
 							"An erorr occured while communicating with qepcad. it did not understand the input for: "
-									+ error + "\n Message was: " + errorMessage.toString());
+									+ error
+									+ "\n Message was: "
+									+ errorMessage.toString());
 				}
 				running = s.equals(text);
-				if(!running && outputMessage) {
+				if (!running && outputMessage) {
 					MessageWindow.INSTNACE.addMessage(s);
 				}
 				outputMessage |= s.equals("finish");
@@ -120,7 +129,7 @@ public class ProgramCommunicator {
 	}
 
 	private static void writeText(BufferedWriter writer, String text) {
-		System.out.println("Want to write: " + text);//XXX
+		System.out.println("Want to write: " + text);// XXX
 		try {
 			writer.write(text);
 			writer.newLine();

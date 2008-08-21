@@ -23,5 +23,6 @@
   </MathSolver>
   <MathSolver> 
 	<class>de.uka.ilkd.key.dl.arithmetics.impl.qepcad.QepCad</class>
+	<optionbean>de.uka.ilkd.key.dl.arithmetics.impl.qepcad.Options</optionbean>
   </MathSolver>
 </MathSolvers>
