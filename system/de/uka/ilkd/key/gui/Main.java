@@ -12,6 +12,7 @@ package de.uka.ilkd.key.gui;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.beans.PropertyChangeListener;
 import java.io.*;
 import java.net.URL;
 import java.util.HashMap;
@@ -23,11 +24,13 @@ import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.*;
 import javax.swing.text.JTextComponent;
+import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.log4j.Logger;
 
 import de.uka.ilkd.key.dl.DLInitializer;
 import de.uka.ilkd.key.dl.DLProfile;
+import de.uka.ilkd.key.dl.gui.ProjectManager;
 import de.uka.ilkd.key.dl.gui.TimeStatisticGenerator;
 import de.uka.ilkd.key.gui.assistant.ProofAssistant;
 import de.uka.ilkd.key.gui.assistant.ProofAssistantAI;
@@ -1221,6 +1224,11 @@ public class Main extends JFrame implements IMain {
         JMenu fileMenu = new JMenu("File");
         fileMenu.setMnemonic(KeyEvent.VK_F);
         
+        JMenuItem project = new JMenuItem();
+        project.setAction(new ProjectManager.ProjectManagerAction());
+        
+        registerAtMenu(fileMenu, project);
+        
         JMenuItem load = new JMenuItem();
         load.setAction(openFileAction);
         
@@ -1932,7 +1940,7 @@ public class Main extends JFrame implements IMain {
         }
     }
     
-    protected void loadProblem(File file) {
+    public void loadProblem(File file) {
 	recentFiles.addRecentFile(file.getAbsolutePath());
         if(unitKeY!=null){
             unitKeY.recent.addRecentFile(file.getAbsolutePath());

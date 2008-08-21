@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<examples>
+	<example>
+		<name>Water Tank</name>
+		<path>/examples/hybrid/publish/water_tank.key</path>
+		<description>This example models the standard water tank model</description>
+	</example>
+	<example>
+		<name>Bouncing Ball</name>
+		<path>/examples/hybrid/publish/bouncing-ball-random-H.key</path>
+		<description>This example models a parametric version of the bouncing ball.</description>
+	</example>
+</examples>
