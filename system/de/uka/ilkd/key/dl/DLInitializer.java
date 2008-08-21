@@ -38,6 +38,11 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPathExpressionException;
+
+import org.w3c.dom.DOMException;
+import org.xml.sax.SAXException;
 
 import orbital.awt.CustomizerViewController;
 import de.uka.ilkd.key.dl.arithmetics.ISimplifier;
@@ -251,6 +256,8 @@ public class DLInitializer {
 				}
 				controller.showCustomizer(beans, "KeYmaera Configuration");
 				DLInitializer.getCustomizer().setObject(DLOptionBean.INSTANCE);
+				MathSolverManager.rehash();
+
 			}
 
 		});

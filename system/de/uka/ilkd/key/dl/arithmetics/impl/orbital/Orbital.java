@@ -426,4 +426,12 @@ public class Orbital implements IODESolver {
         return 0;
     }
 
+	/* (non-Javadoc)
+	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#isConfigured()
+	 */
+	@Override
+	public boolean isConfigured() {
+		return true;
+	}
+
 }

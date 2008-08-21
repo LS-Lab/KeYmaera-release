@@ -96,4 +96,10 @@ public interface IMathSolver {
      * 
      */
     public void resetAbortState() throws RemoteException;
+    
+    
+    /**
+     * @return true, if the tool is probably configured
+     */
+    public boolean isConfigured();
 }
