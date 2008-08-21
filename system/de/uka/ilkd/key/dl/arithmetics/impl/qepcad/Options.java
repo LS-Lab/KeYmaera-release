@@ -43,11 +43,9 @@ public class Options implements Settings {
 
 	public static final Options INSTANCE = new Options();
 
-	private static final String OPTIONS_QEPCAD_BINARY = "[QepcadOptions]qepcadBinary";
 	private static final String OPTIONS_QEPCAD_PATH = "[QepcadOptions]qepcadPath";
 	private static final String OPTIONS_SACLIB_PATH = "[QepcadOptions]saclibPath";
 
-	private File qepcadBinary;
 	private File qepcadPath;
 	private File saclibPath;
 
@@ -55,15 +53,14 @@ public class Options implements Settings {
 
 	private Options() {
 		listeners = new LinkedList<SettingsListener>();
-		qepcadBinary = new File("qepcad");
 		String qpath = System.getenv("qe");
-		if(qpath == null) {
+		if (qpath == null) {
 			qepcadPath = new File("");
 		} else {
 			qepcadPath = new File(qpath);
 		}
 		String spath = System.getenv("saclib");
-		if(spath == null) {
+		if (spath == null) {
 			saclibPath = new File("/");
 		} else {
 			saclibPath = new File(spath);
@@ -93,11 +90,7 @@ public class Options implements Settings {
 	 * @see de.uka.ilkd.key.gui.Settings#readSettings(java.util.Properties)
 	 */
 	public void readSettings(Properties props) {
-		String property = props.getProperty(OPTIONS_QEPCAD_BINARY);
-		if (property != null) {
-			qepcadBinary = new File(property);
-		}
-		property = props.getProperty(OPTIONS_QEPCAD_PATH);
+		String property = props.getProperty(OPTIONS_QEPCAD_PATH);
 		if (property != null) {
 			qepcadPath = new File(property);
 		}
@@ -113,7 +106,6 @@ public class Options implements Settings {
 	 * @see de.uka.ilkd.key.gui.Settings#writeSettings(java.util.Properties)
 	 */
 	public void writeSettings(Properties props) {
-		props.setProperty(OPTIONS_QEPCAD_BINARY, qepcadBinary.getAbsolutePath());
 		props.setProperty(OPTIONS_QEPCAD_PATH, qepcadPath.getAbsolutePath());
 		props.setProperty(OPTIONS_SACLIB_PATH, saclibPath.getAbsolutePath());
 	}
@@ -122,18 +114,8 @@ public class Options implements Settings {
 	 * @return the qepcadBinary
 	 */
 	public File getQepcadBinary() {
-		return qepcadBinary;
-	}
-
-	/**
-	 * @param qepcadBinary
-	 *            the qepcadBinary to set
-	 */
-	public void setQepcadBinary(File qepcadBinary) {
-		if (!this.qepcadBinary.equals(qepcadBinary)) {
-			this.qepcadBinary = qepcadBinary;
-			firePropertyChanged();
-		}
+		return new File(qepcadPath + File.separator + "bin" + File.separator
+				+ "qepcad");
 	}
 
 	/**
