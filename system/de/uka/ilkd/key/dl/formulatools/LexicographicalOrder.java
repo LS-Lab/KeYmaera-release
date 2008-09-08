@@ -257,6 +257,7 @@ public class LexicographicalOrder {
 		// the dynamically changing set of variables that are already included
 		// in the current subsequent
 		final Set<Term> currentVariables = new HashSet<Term>();
+		//@TODO BUG: this variable is always empty
 
 		comparators.add(new Comparator<TermInformations>() {
 

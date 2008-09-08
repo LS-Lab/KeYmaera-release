@@ -25,3 +25,5 @@
 ./hybrid/dev/diff-update.key 18000
 ./hybrid/ATC/roundabout/TRM-essentials-4.key 18000
 ./hybrid/ATC/roundabout/TRM-essentials-5.key 36000
+./hybrid/ETCS/paper/safety-lemma-ineq.key 18000
+./hybrid/ETCS/paper/safety-lemma-disturbance.key 18000
