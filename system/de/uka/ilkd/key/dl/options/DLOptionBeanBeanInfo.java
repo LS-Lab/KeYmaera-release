@@ -36,6 +36,7 @@ import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
 import de.uka.ilkd.key.dl.options.DLOptionBean.ApplyRules;
 import de.uka.ilkd.key.dl.options.DLOptionBean.CounterexampleTest;
 import de.uka.ilkd.key.dl.options.DLOptionBean.DiffSat;
+import de.uka.ilkd.key.dl.options.DLOptionBean.FirstOrderStrategy;
 import de.uka.ilkd.key.dl.options.DLOptionBean.InvariantRule;
 
 /**
@@ -62,20 +63,21 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
 			PropertyDescriptor[] pds = new PropertyDescriptor[] {
 					// expert, preferred, hidden
 					createDescriptor(
-							"counterexampleTest",
-							"quick counterexample check",
-							"whether to check for counterexamples before trying to prove exhaustively",
-							false, true, CounterexampleTestPropertyEditor.class),
-					createDescriptor(
-							"useTimeoutStrategy",
-							"Iterative Background Closure",
-							"whether to activate the Iterative Background Closure (IBC) strategy with incremental timeouts. Otherwise, call reduce when first-order",
-							false, true),
+							"foStrategy",
+							"First Order Strategy",
+							"choose the strategy for first order goals. either STOP or completely UNFOLD, perform EAGER quantifier elimination or LAZY, or activate the Iterative Background Closure (IBC) strategy with incremental timeouts.",
+							false, true, FirstOrderStrategyPropertyEditor.class),
 					createDescriptor(
 							"useIterativeReduceRule",
 							"Iterative Reduce",
 							"whether to activate the Iterative Background Closure (IBC) with increasingly bigger formulas.",
 							false, true),
+
+					createDescriptor(
+							"counterexampleTest",
+							"quick counterexample check",
+							"whether to check for counterexamples before trying to prove exhaustively",
+							false, true, CounterexampleTestPropertyEditor.class),
 					createDescriptor(
 							"initialTimeout",
 							"initial timeout",
@@ -118,8 +120,6 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
 							// @TODO what does 0 mean?
 							false, false),
 					//
-					createDescriptor("callReduce", "call reduce",
-							"try to reduce the whole sequent", true, false),
 					createDescriptor("simplifyBeforeReduce",
 							"simplify before reduce",
 							"simplify formulas passed to the reduce function of the arithmetic solver"),
@@ -184,16 +184,6 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
 							true, false,
 							CounterExampleGeneratorPropertyEditor.class),
 					//
-					createDescriptor(
-							"splitBeyondFO",
-							"lazy QE (if no ITB)",
-							"simple heuristic: call reduce if only FO formulas are left in the sequent",
-							true, false),
-					createDescriptor(
-							"stopAtFO",
-							"stop strategy on first-order goals",
-							"if enabled the strategy will not apply rules to goals that are already first order",
-							true, false),
 					createDescriptor(
 							"ignoreAnnotations",
 							"ignore proof annotations",
@@ -405,6 +395,14 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
 			TaggedPropertyEditorSupport {
 		public InvariantRulePropertyEditor() {
 			super(getNames(InvariantRule.values()), InvariantRule.values());
+		}
+	}
+
+	public static class FirstOrderStrategyPropertyEditor extends
+			TaggedPropertyEditorSupport {
+		public FirstOrderStrategyPropertyEditor() {
+			super(getNames(FirstOrderStrategy.values()), FirstOrderStrategy
+					.values());
 		}
 	}
 

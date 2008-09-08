@@ -29,6 +29,7 @@ import de.uka.ilkd.key.dl.options.DLOptionBean;
 import de.uka.ilkd.key.dl.options.DLOptionBean.ApplyRules;
 import de.uka.ilkd.key.dl.options.DLOptionBean.CounterexampleTest;
 import de.uka.ilkd.key.dl.options.DLOptionBean.DiffSat;
+import de.uka.ilkd.key.dl.options.DLOptionBean.FirstOrderStrategy;
 import de.uka.ilkd.key.dl.rules.DebugRule;
 import de.uka.ilkd.key.dl.rules.EliminateExistentialQuantifierRule;
 import de.uka.ilkd.key.dl.rules.EliminateQuantifierRule;
@@ -92,7 +93,6 @@ import de.uka.ilkd.key.strategy.feature.FormulaAddedByRuleFeature;
 import de.uka.ilkd.key.strategy.feature.LeftmostNegAtomFeature;
 import de.uka.ilkd.key.strategy.feature.MatchedIfFeature;
 import de.uka.ilkd.key.strategy.feature.NonDuplicateAppFeature;
-import de.uka.ilkd.key.strategy.feature.NonDuplicateAppModPositionFeature;
 import de.uka.ilkd.key.strategy.feature.NotBelowQuantifierFeature;
 import de.uka.ilkd.key.strategy.feature.NotWithinMVFeature;
 import de.uka.ilkd.key.strategy.feature.PurePosDPathFeature;
@@ -325,8 +325,9 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 		Feature iterative = ConditionalFeature.createConditional(
 				IterativeReduceRule.INSTANCE, inftyConst());
 		if (MathSolverManager.isQuantifierEliminatorSet()) {
-			if (DLOptionBean.INSTANCE.isCallReduce()) {
-				if (DLOptionBean.INSTANCE.isUseTimeoutStrategy()) {
+			// call reduce is set if the value is not STOP or UNFOLD
+			if (DLOptionBean.INSTANCE.getFoStrategy().compareTo(FirstOrderStrategy.UNFOLD) > 0) {
+				if (DLOptionBean.INSTANCE.getFoStrategy() == FirstOrderStrategy.ITB) {
 					/*
 					 * basic idea of the following statement: - check for
 					 * options - if applying timeout strategy: -- try to reduce
@@ -455,10 +456,11 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 //						.getDiffSatTimeout()), 
 //						new Case(longConst(0),longConst(-4000)),
 //				// reject if it	doesn't help, but retry costs
-//						new Case(longConst(1), longConst(6000)), 
+////						new Case(longConst(1), longConst(6000)), 
+//						new Case(longConst(1), inftyConst()), 
 //						new Case(inftyConst(), inftyConst())),inftyConst()));
 		bindRuleSet(d, "diff_ineq_weaken",inftyConst());
-		
+//		bindRuleSet(d, "diff_ineq_weaken", ifZero(ContainsInequalityFeature.INSTANCE,longConst(-4000)));
 		
 		if (DLOptionBean.INSTANCE.getDiffSat() != DiffSat.BLIND) {
 			bindRuleSet(d, "diff_solve", ifZero(ODESolvableFeature.INSTANCE,
@@ -810,7 +812,7 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 		if (((foCache.containsKey(goal.node()) && foCache.get(goal.node()) == FirstOrder.FO) || FOSequence.INSTANCE
 				.compute(app, pio, goal) == LongRuleAppCost.ZERO_COST)) {
 			foCache.put(goal.node(), FirstOrder.FO);
-			if (DLOptionBean.INSTANCE.isStopAtFO()) {
+			if (DLOptionBean.INSTANCE.getFoStrategy() == FirstOrderStrategy.STOP) {
 				return true;
 			}
 			// first-order counterexamples
