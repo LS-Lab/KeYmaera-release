@@ -327,7 +327,7 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 		if (MathSolverManager.isQuantifierEliminatorSet()) {
 			// call reduce is set if the value is not STOP or UNFOLD
 			if (DLOptionBean.INSTANCE.getFoStrategy().compareTo(FirstOrderStrategy.UNFOLD) > 0) {
-				if (DLOptionBean.INSTANCE.getFoStrategy() == FirstOrderStrategy.ITB) {
+				if (DLOptionBean.INSTANCE.getFoStrategy() == FirstOrderStrategy.IBC) {
 					/*
 					 * basic idea of the following statement: - check for
 					 * options - if applying timeout strategy: -- try to reduce

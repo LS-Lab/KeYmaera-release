@@ -204,6 +204,15 @@ public class DLInitializer {
 				}
 			}
 			DLOptionBean.INSTANCE.init();
+			if (MathSolverManager.getQuantifierEliminators().isEmpty()) {
+				for (Settings s : DLOptionBean.INSTANCE.getSubOptions()) {
+					if (s == de.uka.ilkd.key.dl.arithmetics.impl.qepcad.Options.INSTANCE) {
+						new CustomizerViewController(Main.getInstance())
+								.showCustomizer(s, "QepCad Options");
+
+					}
+				}
+			}
 			try {
 				customizerPane = new JTabbedPane(JTabbedPane.BOTTOM);
 				customizerPane
@@ -381,7 +390,7 @@ public class DLInitializer {
 	private static void updateCustomizers() throws IntrospectionException {
 		MathSolverManager.rehash();
 		for (Customizer c : customizers.keySet()) {
-			System.out.println("Updating" + customizers.get(c));//XXX
+			System.out.println("Updating" + customizers.get(c));// XXX
 			if (!locks.contains(c)) {
 				locks.add(c);
 				((DefaultCustomizer) c).init(customizers.get(c).getClass());

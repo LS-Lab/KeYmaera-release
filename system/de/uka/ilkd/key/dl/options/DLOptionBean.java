@@ -66,7 +66,7 @@ public class DLOptionBean implements Settings {
 	}
 
 	public static enum FirstOrderStrategy {
-		STOP("stop"), UNFOLD("unfold"), EAGER("eager"), ITB("ITB"), LAZY("lazy");
+		STOP("stop"), UNFOLD("unfold"), EAGER("eager"), IBC("Iterative Background Closure"), LAZY("lazy");
 		
 		private String string;
 
@@ -268,9 +268,9 @@ public class DLOptionBean implements Settings {
 
 	private DLOptionBean() {
 		subOptions = new LinkedHashSet<Settings>();
-		foStrategy = FirstOrderStrategy.ITB;
+		foStrategy = FirstOrderStrategy.IBC;
 		initialTimeout = 2;
-		diffSatTimeout = 10;
+		diffSatTimeout = 4;
 		loopSatTimeout = 2000;
 		quadraticTimeoutIncreaseFactor = 0;
 		linearTimeoutIncreaseFactor = 2;

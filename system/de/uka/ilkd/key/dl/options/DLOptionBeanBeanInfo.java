@@ -63,6 +63,11 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
 			PropertyDescriptor[] pds = new PropertyDescriptor[] {
 					// expert, preferred, hidden
 					createDescriptor(
+							"diffSat",
+							"Differential Saturation",
+							"select the desired automation degree of Differential Saturation",
+							false, false, DiffSatPropertyEditor.class),
+					createDescriptor(
 							"foStrategy",
 							"First Order Strategy",
 							"choose the strategy for first order goals. either STOP or completely UNFOLD, perform EAGER quantifier elimination or LAZY, or activate the Iterative Background Closure (IBC) strategy with incremental timeouts.",
@@ -98,11 +103,6 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
 							"the quadratic part of the IBC timeout. That is, the part c of t_new = a*t_old^2 + b*t_old + c (in seconds)",
 							false, false, true),
 					//
-					createDescriptor(
-							"diffSat",
-							"Differential Saturation",
-							"select the desired automation degree of Differential Saturation",
-							false, false, DiffSatPropertyEditor.class),
 					createDescriptor(
 							"diffSatTimeout",
 							"initial DiffSat timeout",
@@ -162,11 +162,7 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
 							"select the solver for real arithmetic that should be used to eliminate quantifiers",
 							true, false,
 							QuantifierEliminatorPropertyEditor.class),
-					createDescriptor(
-							"simplifier",
-							"real arithmetic simplifier",
-							"select the simplification algorithm that should be used to simplify arithmetical expressions",
-							true, false, SimplifierPropertyEditor.class),
+
 					createDescriptor(
 							"groebnerBasisCalculator",
 							"equation solver",
@@ -183,6 +179,11 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
 							"select the tool for generating counterexamples",
 							true, false,
 							CounterExampleGeneratorPropertyEditor.class),
+					createDescriptor(
+							"simplifier",
+							"real arithmetic simplifier",
+							"select the simplification algorithm that should be used to simplify arithmetical expressions",
+							true, false, SimplifierPropertyEditor.class),
 					//
 					createDescriptor(
 							"ignoreAnnotations",
