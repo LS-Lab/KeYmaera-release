@@ -55,7 +55,7 @@ public class Options implements Settings {
 		listeners = new LinkedList<SettingsListener>();
 		String qpath = System.getenv("qe");
 		if (qpath == null) {
-			qepcadPath = new File("");
+			qepcadPath = new File("/");
 		} else {
 			qepcadPath = new File(qpath);
 		}
@@ -131,6 +131,8 @@ public class Options implements Settings {
 	 */
 	public void setQepcadPath(File qepcadPath) {
 		if (!this.qepcadPath.equals(qepcadPath)) {
+			System.out.println("Setting path to " + qepcadPath);//XXX
+			new Exception().printStackTrace();
 			this.qepcadPath = qepcadPath;
 			firePropertyChanged();
 		}

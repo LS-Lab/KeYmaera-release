@@ -177,26 +177,34 @@ public abstract class MathSolverManager {
 		}
 		remove.clear();
 		removeIfNotConfigured(COUNTEREXAMPLE_GENERATORS);
-		if (!COUNTEREXAMPLE_GENERATORS.containsKey(DLOptionBean.INSTANCE
-				.getCounterExampleGenerator())) {
+		if (!DLOptionBean.INSTANCE.getCounterExampleGenerator().equals("-")
+				&& !COUNTEREXAMPLE_GENERATORS.containsKey(DLOptionBean.INSTANCE
+						.getCounterExampleGenerator())) {
 			DLOptionBean.INSTANCE.setCounterExampleGenerator("-");
 		}
 		removeIfNotConfigured(ODESOLVERS);
-		if (!ODESOLVERS.containsKey(DLOptionBean.INSTANCE.getOdeSolver())) {
+		if (!DLOptionBean.INSTANCE.getOdeSolver().equals("-")
+				&& !ODESOLVERS
+						.containsKey(DLOptionBean.INSTANCE.getOdeSolver())) {
 			DLOptionBean.INSTANCE.setOdeSolver("-");
 		}
 		removeIfNotConfigured(QUANTIFIER_ELMINIATORS);
-		if (!QUANTIFIER_ELMINIATORS.containsKey(DLOptionBean.INSTANCE
-				.getQuantifierEliminator())) {
+		if (!DLOptionBean.INSTANCE.getQuantifierEliminator().equals("-")
+				&& !QUANTIFIER_ELMINIATORS.containsKey(DLOptionBean.INSTANCE
+						.getQuantifierEliminator())) {
 			DLOptionBean.INSTANCE.setQuantifierEliminator("-");
 		}
 		removeIfNotConfigured(SIMPLIFIERS);
-		if (!SIMPLIFIERS.containsKey(DLOptionBean.INSTANCE.getSimplifier())) {
+		if (!DLOptionBean.INSTANCE.getSimplifier().equals("-")
+				&& !SIMPLIFIERS.containsKey(DLOptionBean.INSTANCE
+						.getSimplifier())) {
 			DLOptionBean.INSTANCE.setSimplifier("-");
 		}
 		removeIfNotConfigured(GROEBNER_BASIS_CALCULATORS);
-		if (!GROEBNER_BASIS_CALCULATORS.containsKey(DLOptionBean.INSTANCE
-				.getGroebnerBasisCalculator())) {
+		if (!DLOptionBean.INSTANCE.getGroebnerBasisCalculator().equals("-")
+				&& !GROEBNER_BASIS_CALCULATORS
+						.containsKey(DLOptionBean.INSTANCE
+								.getGroebnerBasisCalculator())) {
 			DLOptionBean.INSTANCE.setGroebnerBasisCalculator("-");
 		}
 	}
