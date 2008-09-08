@@ -438,6 +438,7 @@ dist-keymaera:	branding keybase
 	@cp -r $(RESOURCEPATH)/* dist/key/
 	@mkdir -p dist/key/examples/hybrid
 	@cp -r ../examples/hybrid/groebner_basis dist/key/examples/hybrid
+	@cp -rH ../examples/hybrid/publish dist/key/examples/hybrid
 # for setup.jar
 	@mkdir -p dist/setup/de/uka/ilkd/key/util/
 	@cp -r $(BINARYPATH)/de/uka/ilkd/key/util/* dist/setup/de/uka/ilkd/key/util/
