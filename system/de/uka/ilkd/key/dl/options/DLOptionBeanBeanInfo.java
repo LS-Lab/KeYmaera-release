@@ -178,8 +178,7 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
 							"differential equation handler",
 							"select the solver that should be used to solve or handle differential equations",
 							true, false, ODESolversPropertyEditor.class),
-					createDescriptor(
-							"counterExampleGenerator",
+					createDescriptor("counterExampleGenerator",
 							"counterexample generator",
 							"select the tool for generating counterexamples",
 							true, false,
@@ -283,17 +282,13 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
 	public static class ODESolversPropertyEditor extends
 			TaggedPropertyEditorSupport {
 
-		private static HashSet<String> values;
-
 		private static String[] getNames() {
-			if (values == null) {
-				Set<String> names = MathSolverManager.getODESolvers();
-				values = new LinkedHashSet<String>();
-				values.add("");
-				values.add("-");
-				for (String name : names) {
-					values.add(MathSolverManager.getODESolver(name).getName());
-				}
+			Set<String> names = MathSolverManager.getODESolvers();
+			HashSet<String> values = new LinkedHashSet<String>();
+			values.add("");
+			values.add("-");
+			for (String name : names) {
+				values.add(MathSolverManager.getODESolver(name).getName());
 			}
 			return values.toArray(new String[0]);
 		}
@@ -305,20 +300,17 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
 
 	public static class CounterExampleGeneratorPropertyEditor extends
 			TaggedPropertyEditorSupport {
-		private static HashSet<String> values;
 
 		private static String[] getNames() {
-			if (values == null) {
-				Set<String> names = MathSolverManager
-						.getCounterExampleGenerators();
-				values = new LinkedHashSet<String>();
-				values.add("");
-				values.add("-");
-				for (String name : names) {
-					values.add(MathSolverManager.getCounterExampleGenerator(
-							name).getName());
-				}
+			Set<String> names = MathSolverManager.getCounterExampleGenerators();
+			HashSet<String> values = new LinkedHashSet<String>();
+			values.add("");
+			values.add("-");
+			for (String name : names) {
+				values.add(MathSolverManager.getCounterExampleGenerator(name)
+						.getName());
 			}
+
 			return values.toArray(new String[0]);
 		}
 
@@ -329,19 +321,15 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
 
 	public static class QuantifierEliminatorPropertyEditor extends
 			TaggedPropertyEditorSupport {
-		private static HashSet<String> values;
 
 		private static String[] getNames() {
-			if (values == null) {
-				Set<String> names = MathSolverManager
-						.getQuantifierEliminators();
-				values = new LinkedHashSet<String>();
-				values.add("");
-				values.add("-");
-				for (String name : names) {
-					values.add(MathSolverManager.getQuantifierElimantor(name)
-							.getName());
-				}
+			Set<String> names = MathSolverManager.getQuantifierEliminators();
+			HashSet<String> values = new LinkedHashSet<String>();
+			values.add("");
+			values.add("-");
+			for (String name : names) {
+				values.add(MathSolverManager.getQuantifierElimantor(name)
+						.getName());
 			}
 			return values.toArray(new String[0]);
 		}
@@ -353,19 +341,16 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
 
 	public static class SimplifierPropertyEditor extends
 			TaggedPropertyEditorSupport {
-		private static HashSet<String> values;
 
 		private static String[] getNames() {
-			if (values == null) {
-				Set<String> names = MathSolverManager.getSimplifiers();
-				values = new LinkedHashSet<String>();
-				values.add("");
-				values.add("-");
-				for (String name : names) {
-					values.add(MathSolverManager.getSimplifier(name).getName());
-				}
-
+			Set<String> names = MathSolverManager.getSimplifiers();
+			HashSet<String> values = new LinkedHashSet<String>();
+			values.add("");
+			values.add("-");
+			for (String name : names) {
+				values.add(MathSolverManager.getSimplifier(name).getName());
 			}
+
 			return values.toArray(new String[0]);
 		}
 
@@ -375,22 +360,20 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
 	}
 
 	public static class GroebnerBasisCalculatorPropertyEditor extends
-	TaggedPropertyEditorSupport {
-		private static HashSet<String> values;
-		
+			TaggedPropertyEditorSupport {
+
 		private static String[] getNames() {
-			if (values == null) {
-				Set<String> names = MathSolverManager.getGroebnerBasisCalculators();
-				values = new LinkedHashSet<String>();
-				values.add("");
-				values.add("-");
-				for (String name : names) {
-					values.add(MathSolverManager.getGroebnerBasisCalculator(name).getName());
-				}
+			Set<String> names = MathSolverManager.getGroebnerBasisCalculators();
+			HashSet<String> values = new LinkedHashSet<String>();
+			values.add("");
+			values.add("-");
+			for (String name : names) {
+				values.add(MathSolverManager.getGroebnerBasisCalculator(name)
+						.getName());
 			}
 			return values.toArray(new String[0]);
 		}
-		
+
 		public GroebnerBasisCalculatorPropertyEditor() {
 			super(getNames(), getNames());
 		}

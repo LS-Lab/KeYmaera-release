@@ -73,7 +73,7 @@ public abstract class MathSolverManager {
 	private static Map<String, ISimplifier> SIMPLIFIERS = new LinkedHashMap<String, ISimplifier>();
 
 	private static Map<String, IGroebnerBasisCalculator> GROEBNER_BASIS_CALCULATORS = new LinkedHashMap<String, IGroebnerBasisCalculator>();
-	
+
 	private static Map<String, IMathSolver> UNCONFIGURED = new LinkedHashMap<String, IMathSolver>();
 
 	/**
@@ -161,44 +161,65 @@ public abstract class MathSolverManager {
 	}
 
 	public static void rehash() {
-		System.out.println("rehash");//XXX
+		System.out.println("rehash");// XXX
 		Set<String> remove = new HashSet<String>();
-		for(String m: UNCONFIGURED.keySet()) {
-			System.out.println("Testing " + m);//XXX
+		for (String m : UNCONFIGURED.keySet()) {
+			System.out.println("Testing " + m);// XXX
 			IMathSolver solver = UNCONFIGURED.get(m);
-			if(solver.isConfigured()) {
+			if (solver.isConfigured()) {
+				System.out.println("Is now configured " + m);// XXX
 				add(solver);
 				remove.add(m);
 			}
 		}
-		for(String r: remove) {
+		for (String r : remove) {
 			UNCONFIGURED.remove(r);
 		}
 		remove.clear();
 		removeIfNotConfigured(COUNTEREXAMPLE_GENERATORS);
+		if (!COUNTEREXAMPLE_GENERATORS.containsKey(DLOptionBean.INSTANCE
+				.getCounterExampleGenerator())) {
+			DLOptionBean.INSTANCE.setCounterExampleGenerator("-");
+		}
 		removeIfNotConfigured(ODESOLVERS);
+		if (!ODESOLVERS.containsKey(DLOptionBean.INSTANCE.getOdeSolver())) {
+			DLOptionBean.INSTANCE.setOdeSolver("-");
+		}
 		removeIfNotConfigured(QUANTIFIER_ELMINIATORS);
+		if (!QUANTIFIER_ELMINIATORS.containsKey(DLOptionBean.INSTANCE
+				.getQuantifierEliminator())) {
+			DLOptionBean.INSTANCE.setQuantifierEliminator("-");
+		}
 		removeIfNotConfigured(SIMPLIFIERS);
+		if (!SIMPLIFIERS.containsKey(DLOptionBean.INSTANCE.getSimplifier())) {
+			DLOptionBean.INSTANCE.setSimplifier("-");
+		}
 		removeIfNotConfigured(GROEBNER_BASIS_CALCULATORS);
+		if (!GROEBNER_BASIS_CALCULATORS.containsKey(DLOptionBean.INSTANCE
+				.getGroebnerBasisCalculator())) {
+			DLOptionBean.INSTANCE.setGroebnerBasisCalculator("-");
+		}
 	}
 
 	/**
 	 * @param remove
 	 */
-	private static void removeIfNotConfigured(Map<String, ? extends IMathSolver> curMap) {
+	private static void removeIfNotConfigured(
+			Map<String, ? extends IMathSolver> curMap) {
 		Set<String> remove = new HashSet<String>();
-		for(String m: curMap.keySet()) {
+		for (String m : curMap.keySet()) {
 			IMathSolver solver = curMap.get(m);
-			if(!solver.isConfigured()) {
+			if (!solver.isConfigured()) {
+				System.out.println("removing " + m);// XXX
 				remove.add(m);
 				UNCONFIGURED.put(m, solver);
 			}
 		}
-		for(String r: remove) {
+		for (String r : remove) {
 			curMap.remove(r);
 		}
 	}
-	
+
 	/**
 	 * Returns the list of available mathsolvers
 	 * 

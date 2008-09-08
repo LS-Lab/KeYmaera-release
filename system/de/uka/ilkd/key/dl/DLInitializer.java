@@ -22,10 +22,18 @@
  */
 package de.uka.ilkd.key.dl;
 
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.ScrollPane;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.BeanDescriptor;
+import java.beans.BeanInfo;
 import java.beans.Customizer;
 import java.beans.IntrospectionException;
+import java.beans.Introspector;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.ServerSocket;
@@ -37,6 +45,9 @@ import javax.swing.JComponent;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
@@ -65,6 +76,7 @@ import de.uka.ilkd.key.proof.Node;
 import de.uka.ilkd.key.proof.Proof;
 import de.uka.ilkd.key.proof.ProofEvent;
 import de.uka.ilkd.key.proof.init.Profile;
+import de.uka.ilkd.key.rule.CreateTacletForTests;
 
 /**
  * The DLInitializer is used to encapsulate actions done if the "dL" command
@@ -155,9 +167,9 @@ public class DLInitializer {
 
 	public final static String IDENTITY = "KeyMainProgram";
 
-	private static Customizer customizer;
-
 	private static boolean initialized = false;
+
+	private static JTabbedPane customizerPane;
 
 	/**
 	 * Initializes the HyKeY environment:
@@ -193,15 +205,20 @@ public class DLInitializer {
 			}
 			DLOptionBean.INSTANCE.init();
 			try {
-				customizer = CustomizerViewController
+				Customizer customizer = CustomizerViewController
 						.customizerFor(DLOptionBean.class);
 				customizer.setObject(DLOptionBean.INSTANCE);
+				customizerPane = new JTabbedPane(JTabbedPane.BOTTOM);
+				customizerPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
+//				customizerPane.add((Component) customizer);
+				createOptionTabs();
+
 				SwingUtilities.invokeAndWait(new Runnable() {
 
 					@Override
 					public void run() {
 						Main.getInstance().addTab("Hybrid Strategy",
-								(JComponent) customizer,
+								customizerPane,
 								DLOptionBeanBeanInfo.DESCRIPTION);
 					}
 
@@ -213,6 +230,18 @@ public class DLInitializer {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (InvocationTargetException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (SecurityException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (NoSuchFieldException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IllegalArgumentException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
@@ -255,7 +284,29 @@ public class DLInitializer {
 					beans[i++] = s;
 				}
 				controller.showCustomizer(beans, "KeYmaera Configuration");
-				DLInitializer.getCustomizer().setObject(DLOptionBean.INSTANCE);
+				customizerPane.removeAll();
+				try {
+//					Customizer customizer = CustomizerViewController
+//							.customizerFor(DLOptionBean.class);
+//					customizer.setObject(DLOptionBean.INSTANCE);
+//					customizerPane.add((Component) customizer);
+					createOptionTabs();
+				} catch (IntrospectionException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (SecurityException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (NoSuchFieldException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IllegalArgumentException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IllegalAccessException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				MathSolverManager.rehash();
 
 			}
@@ -294,10 +345,32 @@ public class DLInitializer {
 	}
 
 	/**
-	 * @return the customizer
+	 * @throws IntrospectionException
+	 * @throws NoSuchFieldException
+	 * @throws SecurityException
+	 * @throws IllegalAccessException 
+	 * @throws IllegalArgumentException 
+	 * 
 	 */
-	public static Customizer getCustomizer() {
-		return customizer;
+	private static void createOptionTabs() throws IntrospectionException,
+			SecurityException, NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
+		Set<Settings> subOptions = DLOptionBean.INSTANCE.getSubOptions();
+		Customizer customizer = CustomizerViewController
+				.customizerFor(DLOptionBean.class);
+		customizer.setObject(DLOptionBean.INSTANCE);
+		BeanInfo info = Introspector.getBeanInfo(DLOptionBean.class, Introspector.USE_ALL_BEANINFO);
+        BeanDescriptor desc = info.getBeanDescriptor();
+        JPanel panel = new JPanel(new FlowLayout());
+        panel.add((Component) customizer);
+		customizerPane.addTab(desc.getDisplayName(), panel);
+		for (Settings s : subOptions) {
+			customizer = CustomizerViewController.customizerFor(s.getClass());
+			customizer.setObject(s.getClass().getField("INSTANCE").get(s.getClass()));
+			info = Introspector.getBeanInfo(s.getClass(), Introspector.USE_ALL_BEANINFO);
+	        desc = info.getBeanDescriptor();
+	        panel = new JPanel();
+	        panel.add((Component) customizer);
+			customizerPane.addTab(desc.getDisplayName(), panel);
+		}
 	}
-
 }
