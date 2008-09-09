@@ -19,6 +19,7 @@
  ***************************************************************************/
 package de.uka.ilkd.key.dl.gui;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
@@ -34,10 +35,13 @@ import java.util.Set;
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.JTextPane;
 import javax.swing.JTree;
+import javax.swing.SpringLayout;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -91,17 +95,20 @@ public class ProjectManager extends JFrame {
 		private String url;
 		private String description;
 		private Set<String> requirements;
+		private String img;
 
 		/**
 		 * @param name
 		 * @param url
+		 * @param img 
 		 */
 		public ExampleInfo(String name, String url, String description,
-				Set<String> requirements) {
+				String img, Set<String> requirements) {
 			super();
 			this.name = name;
 			this.url = url;
 			this.description = description;
+			this.img = img;
 			this.requirements = requirements;
 		}
 
@@ -130,6 +137,15 @@ public class ProjectManager extends JFrame {
 			return requirements;
 		}
 
+
+		/**
+		 * @return the img
+		 */
+		public String getImg() {
+			return img;
+		}
+
+		
 		/*
 		 * (non-Javadoc)
 		 * 
@@ -151,6 +167,8 @@ public class ProjectManager extends JFrame {
 
 	private JTextArea requirementsArea;
 
+	private JTextPane img;
+
 	/**
 	 * 
 	 */
@@ -165,8 +183,8 @@ public class ProjectManager extends JFrame {
 
 		tree = new JTree(top);
 		JScrollPane treeView = new JScrollPane(tree);
-		setLayout(new FlowLayout());
-		add(treeView);
+		setLayout(new BorderLayout());
+		add(treeView, BorderLayout.WEST);
 		final JButton button = new JButton("Load");
 		button.addActionListener(new ActionListener() {
 
@@ -187,12 +205,15 @@ public class ProjectManager extends JFrame {
 			}
 
 		});
-		JPanel buttonTextPanel = new JPanel(new GridLayout(0, 1));
+		JPanel buttonTextPanel = new JPanel(new BorderLayout());
+		JPanel textPanel = new JPanel(new BorderLayout());
+		JPanel imgPanel = new JPanel(new BorderLayout());
 		textArea = new JTextArea();
 		textArea.setLineWrap(true);
 		textArea.setAutoscrolls(true);
 		textArea.setColumns(50);
 		textArea.setEditable(false);
+		imgPanel.add(textArea, BorderLayout.CENTER);
 
 		requirementsArea = new JTextArea();
 		requirementsArea.setLineWrap(true);
@@ -205,9 +226,26 @@ public class ProjectManager extends JFrame {
 		fileName.setAutoscrolls(true);
 		fileName.setColumns(50);
 		fileName.setEditable(false);
-		buttonTextPanel.add(fileName);
-		buttonTextPanel.add(textArea);
-		buttonTextPanel.add(requirementsArea);
+		img = new JTextPane();
+		img.setContentType("text/html");
+		img.setAutoscrolls(true);
+		img.setEditable(false);
+		imgPanel.add(img, BorderLayout.EAST);
+		textPanel.add(new JLabel("Descirption: "), BorderLayout.NORTH);
+		textPanel.add(imgPanel, BorderLayout.CENTER);
+		JPanel dummy = new JPanel(new FlowLayout());
+		
+		dummy.add(new JLabel("Filename: "));
+		dummy.add(fileName);
+		JPanel dummy2 = new JPanel(new FlowLayout());
+		dummy2.add(new JLabel("Requirements: "));
+		dummy2.add(requirementsArea);
+		JPanel dummy3 = new JPanel(new BorderLayout());
+		dummy3.add(dummy, BorderLayout.NORTH);
+		dummy3.add(dummy2, BorderLayout.SOUTH);
+		textPanel.add(dummy3, BorderLayout.SOUTH);
+		buttonTextPanel.add(textPanel, BorderLayout.CENTER);
+		
 		tree.addTreeSelectionListener(new TreeSelectionListener() {
 
 			@Override
@@ -220,7 +258,11 @@ public class ProjectManager extends JFrame {
 						ExampleInfo info = (ExampleInfo) nodeInfo;
 						fileName.setText(info.getUrl());
 						textArea.setText(info.getDescription());
-						
+						if(info.img.isEmpty()) {
+							img.setText("");
+						} else {
+							img.setText("<html><body><img src=\"" + info.getImg() + "\"/></body></html>");
+						}
 						String or = "";
 						if (info.requirements.isEmpty()) {
 							requirementsArea.setText("No special requirements");
@@ -239,6 +281,7 @@ public class ProjectManager extends JFrame {
 								}
 								or = " or ";
 							}
+							requirementsArea.append(" as real arithmetic solver");
 						}
 					}
 				}
@@ -258,8 +301,8 @@ public class ProjectManager extends JFrame {
 
 		});
 		buttonPanel.add(cancel);
-		buttonTextPanel.add(buttonPanel);
-		add(buttonTextPanel);
+		buttonTextPanel.add(buttonPanel, BorderLayout.SOUTH);
+		add(buttonTextPanel, BorderLayout.CENTER);
 		pack();
 	}
 
@@ -286,9 +329,14 @@ public class ProjectManager extends JFrame {
 			for (int j = 0; j < nodes.getLength(); j++) {
 				requirements.add(nodes.item(j).getNodeValue());
 			}
+			Node img = (Node) xpath.evaluate("img", node, XPathConstants.NODE);
+			String im = "";
+			if(img != null) {
+				im = img.getAttributes().getNamedItem("href").getNodeValue();
+			}
 
 			DefaultMutableTreeNode tNode = new DefaultMutableTreeNode(
-					new ExampleInfo(name, path, description, requirements));
+					new ExampleInfo(name, path, description, im, requirements));
 			top.add(tNode);
 		}
 	}
