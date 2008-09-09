@@ -26,9 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
-import de.uka.ilkd.key.dl.arithmetics.exceptions.ConnectionProblemException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
-import de.uka.ilkd.key.dl.arithmetics.exceptions.UnsolveableException;
 import de.uka.ilkd.key.logic.ConstrainedFormula;
 import de.uka.ilkd.key.logic.IteratorOfConstrainedFormula;
 import de.uka.ilkd.key.logic.PosInOccurrence;
@@ -49,6 +47,9 @@ public class FindInstanceTest implements Feature {
     public static final Feature INSTANCE = new FindInstanceTest();
 
     public RuleAppCost compute(RuleApp app, PosInOccurrence pos, Goal goal) {
+    	if(!MathSolverManager.isCounterExampleGeneratorSet()) {
+    		return LongRuleAppCost.ZERO_COST;
+    	}
         IteratorOfConstrainedFormula it = goal.sequent().antecedent()
                 .iterator();
         Term resultTerm = TermBuilder.DF.tt();

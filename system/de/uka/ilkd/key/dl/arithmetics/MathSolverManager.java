@@ -560,33 +560,35 @@ public abstract class MathSolverManager {
 	}
 
 	public static boolean isCounterExampleGeneratorSet() {
-		return !(DLOptionBean.INSTANCE.getCounterExampleGenerator().equals("") || DLOptionBean.INSTANCE
-				.getCounterExampleGenerator().equals("-")
-				&& getCurrentCounterExampleGenerator().isConfigured());
+		return !DLOptionBean.INSTANCE.getCounterExampleGenerator().equals("")
+				&& !DLOptionBean.INSTANCE.getCounterExampleGenerator().equals(
+						"-")
+				&& getCurrentCounterExampleGenerator().isConfigured();
 	}
 
 	public static boolean isODESolverSet() {
-		return !(DLOptionBean.INSTANCE.getOdeSolver().equals("") || DLOptionBean.INSTANCE
-				.getOdeSolver().equals("-")
-				&& getCurrentODESolver().isConfigured());
+		return !DLOptionBean.INSTANCE.getOdeSolver().equals("")
+				&& !DLOptionBean.INSTANCE.getOdeSolver().equals("-")
+				&& getCurrentODESolver().isConfigured();
 	}
 
 	public static boolean isQuantifierEliminatorSet() {
-		return !(DLOptionBean.INSTANCE.getQuantifierEliminator().equals("") || DLOptionBean.INSTANCE
-				.getQuantifierEliminator().equals("-")
-				&& getCurrentQuantifierEliminator().isConfigured());
+		return !DLOptionBean.INSTANCE.getQuantifierEliminator().equals("")
+				&& !DLOptionBean.INSTANCE.getQuantifierEliminator().equals("-")
+				&& getCurrentQuantifierEliminator().isConfigured();
 	}
 
 	public static boolean isSimplifierSet() {
-		return !(DLOptionBean.INSTANCE.getSimplifier().equals("") || DLOptionBean.INSTANCE
-				.getSimplifier().equals("-")
-				&& getCurrentSimplifier().isConfigured());
+		return !DLOptionBean.INSTANCE.getSimplifier().equals("")
+				&& !DLOptionBean.INSTANCE.getSimplifier().equals("-")
+				&& getCurrentSimplifier().isConfigured();
 	}
 
 	public static boolean isGroebnerBasisCalculatorSet() {
-		return !(DLOptionBean.INSTANCE.getGroebnerBasisCalculator().equals("") || DLOptionBean.INSTANCE
-				.getGroebnerBasisCalculator().equals("-")
-				&& getCurrentGroebnerBasisCalculator().isConfigured());
+		return !DLOptionBean.INSTANCE.getGroebnerBasisCalculator().equals("")
+				&& !DLOptionBean.INSTANCE.getGroebnerBasisCalculator().equals(
+						"-")
+				&& getCurrentGroebnerBasisCalculator().isConfigured();
 	}
 
 }
