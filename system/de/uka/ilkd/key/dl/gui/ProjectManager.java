@@ -19,6 +19,7 @@
  ***************************************************************************/
 package de.uka.ilkd.key.dl.gui;
 
+import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -27,6 +28,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
@@ -47,6 +50,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
 import de.uka.ilkd.key.dl.utils.XMLReader;
 import de.uka.ilkd.key.gui.Main;
 
@@ -86,16 +90,19 @@ public class ProjectManager extends JFrame {
 		private String name;
 		private String url;
 		private String description;
+		private Set<String> requirements;
 
 		/**
 		 * @param name
 		 * @param url
 		 */
-		public ExampleInfo(String name, String url, String description) {
+		public ExampleInfo(String name, String url, String description,
+				Set<String> requirements) {
 			super();
 			this.name = name;
 			this.url = url;
 			this.description = description;
+			this.requirements = requirements;
 		}
 
 		/**
@@ -119,6 +126,10 @@ public class ProjectManager extends JFrame {
 			return description;
 		}
 
+		public Set<String> getRequirements() {
+			return requirements;
+		}
+
 		/*
 		 * (non-Javadoc)
 		 * 
@@ -138,6 +149,8 @@ public class ProjectManager extends JFrame {
 
 	private JTextArea fileName;
 
+	private JTextArea requirementsArea;
+
 	/**
 	 * 
 	 */
@@ -154,7 +167,7 @@ public class ProjectManager extends JFrame {
 		JScrollPane treeView = new JScrollPane(tree);
 		setLayout(new FlowLayout());
 		add(treeView);
-		JButton button = new JButton("Load");
+		final JButton button = new JButton("Load");
 		button.addActionListener(new ActionListener() {
 
 			@Override
@@ -180,6 +193,13 @@ public class ProjectManager extends JFrame {
 		textArea.setAutoscrolls(true);
 		textArea.setColumns(50);
 		textArea.setEditable(false);
+
+		requirementsArea = new JTextArea();
+		requirementsArea.setLineWrap(true);
+		requirementsArea.setAutoscrolls(true);
+		requirementsArea.setColumns(50);
+		requirementsArea.setEditable(false);
+
 		fileName = new JTextArea();
 		fileName.setLineWrap(true);
 		fileName.setAutoscrolls(true);
@@ -187,6 +207,7 @@ public class ProjectManager extends JFrame {
 		fileName.setEditable(false);
 		buttonTextPanel.add(fileName);
 		buttonTextPanel.add(textArea);
+		buttonTextPanel.add(requirementsArea);
 		tree.addTreeSelectionListener(new TreeSelectionListener() {
 
 			@Override
@@ -199,6 +220,26 @@ public class ProjectManager extends JFrame {
 						ExampleInfo info = (ExampleInfo) nodeInfo;
 						fileName.setText(info.getUrl());
 						textArea.setText(info.getDescription());
+						
+						String or = "";
+						if (info.requirements.isEmpty()) {
+							requirementsArea.setText("No special requirements");
+							requirementsArea.setForeground(Color.BLACK);
+							button.setEnabled(true);
+						} else {
+							requirementsArea.setText("You need ");
+							button.setEnabled(false);
+							requirementsArea.setForeground(Color.RED);
+							for (String s : info.getRequirements()) {
+								requirementsArea.append(or + s);
+								if (MathSolverManager
+										.getQuantifierEliminators().contains(s)) {
+									requirementsArea.setForeground(Color.BLACK);
+									button.setEnabled(true);
+								}
+								or = " or ";
+							}
+						}
 					}
 				}
 			}
@@ -238,8 +279,16 @@ public class ProjectManager extends JFrame {
 					XPathConstants.STRING);
 			String description = (String) xpath.evaluate("description", node,
 					XPathConstants.STRING);
+			Set<String> requirements = new LinkedHashSet<String>();
+			NodeList nodes = (NodeList) xpath.evaluate(
+					"requirements/some/quantifiereliminator/text()", node,
+					XPathConstants.NODESET);
+			for (int j = 0; j < nodes.getLength(); j++) {
+				requirements.add(nodes.item(j).getNodeValue());
+			}
+
 			DefaultMutableTreeNode tNode = new DefaultMutableTreeNode(
-					new ExampleInfo(name, path, description));
+					new ExampleInfo(name, path, description, requirements));
 			top.add(tNode);
 		}
 	}
@@ -260,12 +309,12 @@ public class ProjectManager extends JFrame {
 	private File createTmpFileToLoad(String url) {
 		System.out.println("Trying to open " + url);// XXX
 		File file = new File(url.substring(1));
-		if(file.exists()) {
+		if (file.exists()) {
 			return file;
 		}
 		InputStream resourceAsStream = ProjectManager.class
 				.getResourceAsStream(url);
-		if(resourceAsStream == null) {
+		if (resourceAsStream == null) {
 			return null;
 		}
 		try {
