@@ -123,6 +123,7 @@ public abstract class MathSolverManager {
 					Properties props = new Properties();
 					props.load(in);
 					object.readSettings(props);
+					in.close();
 				}
 			} catch (Exception e) {
 				e.printStackTrace();

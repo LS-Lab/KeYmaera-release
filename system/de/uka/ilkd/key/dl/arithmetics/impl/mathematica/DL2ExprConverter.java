@@ -124,7 +124,7 @@ public class DL2ExprConverter implements ExprConstants {
         } else if (el instanceof ProgramVariable) {
             ProgramVariable v = (ProgramVariable) el;
             String pvName = v.getElementName().toString();
-            pvName.replaceAll("_", USCORE_ESCAPE);
+            pvName = pvName.replaceAll("_", USCORE_ESCAPE);
 			Expr var = new Expr(Expr.SYMBOL, pvName);
             if (vars.containsKey(pvName)) {
                 String name = t.name().toString();

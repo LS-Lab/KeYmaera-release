@@ -274,36 +274,6 @@ public class DLInitializer {
 
 	}
 
-	public static void registerSettingsMenuItem(final Main main, JMenu options) {
-		final JMenuItem hyKeYOptions = new JMenuItem("KeYmaera Options");
-
-		hyKeYOptions.addActionListener(new ActionListener() {
-
-			public void actionPerformed(ActionEvent arg0) {
-				CustomizerViewController controller = new CustomizerViewController(
-						main);
-				Set<Settings> subOptions = DLOptionBean.INSTANCE
-						.getSubOptions();
-				Object[] beans = new Object[subOptions.size() + 1];
-				int i = 0;
-				beans[i++] = DLOptionBean.INSTANCE;
-				for (Settings s : subOptions) {
-					beans[i++] = s;
-				}
-				controller.showCustomizer(beans, "KeYmaera Configuration");
-				try {
-					updateCustomizers();
-				} catch (IntrospectionException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-
-		});
-
-		main.registerAtMenu(options, hyKeYOptions);
-	}
-
 	public static void registerHelpMenuItem(final Main main, JMenu help) {
 		JMenuItem tutorial = new JMenuItem("KeYmaera Help");
 		tutorial.addActionListener(new ActionListener() {

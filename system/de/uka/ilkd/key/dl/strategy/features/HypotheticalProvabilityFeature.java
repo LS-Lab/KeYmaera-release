@@ -564,7 +564,7 @@ public class HypotheticalProvabilityFeature implements Feature {
         final ListOfGoal goalList = ruleApp.execute(goal, proof.getServices());
 
         if (goalList == null) {
-            System.err.println("WARNING: resulting goals after applying " + p_ruleApp.rule().name() +" is " + goalList);
+            System.err.println("WARNING: resulting goals after applying " + p_ruleApp.rule().name() +" is null");
             // this happens for the simplify decision procedure
             // we do nothing in this case
         } else if (goalList.isEmpty()) {

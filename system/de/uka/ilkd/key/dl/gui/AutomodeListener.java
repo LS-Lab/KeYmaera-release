@@ -47,9 +47,9 @@ import de.uka.ilkd.key.strategy.AutomatedRuleApplicationManager;
  */
 public class AutomodeListener implements AutoModeListener {
 
-    public static Goal currentGoal = null;
+    static Goal currentGoal = null;
 
-    public static boolean aborted = false;
+    static boolean aborted = false;
 
     /**
      * This is a dummy implementation of an
@@ -63,7 +63,7 @@ public class AutomodeListener implements AutoModeListener {
      * @since Aug 13, 2007
      * 
      */
-    private final class DummyRuleApplicationManager implements
+    private static final class DummyRuleApplicationManager implements
             AutomatedRuleApplicationManager {
 
         private AutomatedRuleApplicationManager original;

@@ -144,7 +144,7 @@ public class DLOptionBean implements Settings {
 	/**
 	 * 
 	 */
-	private static final String TRUE = new Boolean(true).toString();
+	private static final String TRUE = Boolean.valueOf(true).toString();
 
 	/**
 	 * 
@@ -620,15 +620,15 @@ public class DLOptionBean implements Settings {
 		props.setProperty(DLOPTIONS_CONSTANT, ""
 				+ constantTimeoutIncreaseFactor);
 
-		props.setProperty(DLOPTIONS_READD_QUANTIFIERS, new Boolean(
+		props.setProperty(DLOPTIONS_READD_QUANTIFIERS, Boolean.valueOf(
 				readdQuantifiers).toString());
-		props.setProperty(DLOPTIONS_SIMPLIFY_BEFORE_REDUCE, new Boolean(
+		props.setProperty(DLOPTIONS_SIMPLIFY_BEFORE_REDUCE, Boolean.valueOf(
 				simplifyBeforeReduce).toString());
-		props.setProperty(DLOPTIONS_SIMPLIFY_AFTER_REDUCE, new Boolean(
+		props.setProperty(DLOPTIONS_SIMPLIFY_AFTER_REDUCE, Boolean.valueOf(
 				simplifyAfterReduce).toString());
-		props.setProperty(DLOPTIONS_NORMALIZE_EQUATIONS, new Boolean(
+		props.setProperty(DLOPTIONS_NORMALIZE_EQUATIONS, Boolean.valueOf(
 				normalizeEquations).toString());
-		props.setProperty(DLOPTIONS_APPLY_UPDATES_TO_MODALITIES, new Boolean(
+		props.setProperty(DLOPTIONS_APPLY_UPDATES_TO_MODALITIES, Boolean.valueOf(
 				applyUpdatesToModalities).toString());
 		props.setProperty(DLOPTIONS_COUNTEREXAMPLE_TEST, counterexampleTest
 				.name());
@@ -1091,7 +1091,7 @@ public class DLOptionBean implements Settings {
 	 * @return TODO documentation since Jun 9, 2008
 	 */
 	public void setGroebnerBasisCalculator(String groebnerBasisCalculator) {
-		if (this.groebnerBasisCalculator != groebnerBasisCalculator) {
+		if (this.groebnerBasisCalculator.equals(groebnerBasisCalculator)) {
 			this.groebnerBasisCalculator = groebnerBasisCalculator;
 			firePropertyChanged();
 		}

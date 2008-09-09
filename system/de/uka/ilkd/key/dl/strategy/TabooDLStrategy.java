@@ -47,7 +47,7 @@ public class TabooDLStrategy extends DLStrategy {
     protected TabooDLStrategy(Proof p_proof, boolean stopOnFirstCE, long timeout, Set<Name> taboo) {
         super(p_proof, stopOnFirstCE, timeout);
         if (taboo == null) {
-            throw new NullPointerException("Invalid taboo list " + taboo);
+            throw new NullPointerException("Invalid taboo list null");
         }
         this.taboo = taboo;
     }
