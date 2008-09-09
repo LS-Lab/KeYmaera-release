@@ -367,8 +367,8 @@ public class DLOptionBean implements Settings {
 	 *            the callReduce to set
 	 */
 	public void setFoStrategy(FirstOrderStrategy callReduce) {
-		if (this.foStrategy != foStrategy) {
-			this.foStrategy = foStrategy;
+		if (this.foStrategy != callReduce) {
+			this.foStrategy = callReduce;
 			firePropertyChanged();
 		}
 	}
