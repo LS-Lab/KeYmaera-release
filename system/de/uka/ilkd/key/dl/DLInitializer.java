@@ -42,6 +42,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import javax.swing.JComponent;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
@@ -368,5 +369,6 @@ public class DLInitializer {
 				locks.remove(c);
 			}
 		}
+		Main.getInstance().repaint();
 	}
 }
