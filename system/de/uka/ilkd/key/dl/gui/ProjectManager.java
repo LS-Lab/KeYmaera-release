@@ -21,8 +21,12 @@ package de.uka.ilkd.key.dl.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -33,6 +37,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import javax.swing.AbstractAction;
+import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -213,6 +218,7 @@ public class ProjectManager extends JFrame {
 		textArea.setAutoscrolls(true);
 		textArea.setColumns(50);
 		textArea.setEditable(false);
+		textArea.setWrapStyleWord(true);
 		imgPanel.add(textArea, BorderLayout.CENTER);
 
 		requirementsArea = new JTextArea();
@@ -220,30 +226,56 @@ public class ProjectManager extends JFrame {
 		requirementsArea.setAutoscrolls(true);
 		requirementsArea.setColumns(50);
 		requirementsArea.setEditable(false);
-
+		requirementsArea.setWrapStyleWord(true);
+		
 		fileName = new JTextArea();
 		fileName.setLineWrap(true);
 		fileName.setAutoscrolls(true);
 		fileName.setColumns(50);
 		fileName.setEditable(false);
+
 		img = new JTextPane();
 		img.setContentType("text/html");
 		img.setAutoscrolls(true);
 		img.setEditable(false);
 		imgPanel.add(img, BorderLayout.EAST);
-		textPanel.add(new JLabel("Descirption: "), BorderLayout.NORTH);
-		textPanel.add(imgPanel, BorderLayout.CENTER);
-		JPanel dummy = new JPanel(new FlowLayout());
+//		textPanel.add(new JLabel("Descirption: "), BorderLayout.NORTH);
+//		textPanel.add(imgPanel, BorderLayout.CENTER);
 		
-		dummy.add(new JLabel("Filename: "));
-		dummy.add(fileName);
-		JPanel dummy2 = new JPanel(new FlowLayout());
-		dummy2.add(new JLabel("Requirements: "));
-		dummy2.add(requirementsArea);
-		JPanel dummy3 = new JPanel(new BorderLayout());
-		dummy3.add(dummy, BorderLayout.NORTH);
-		dummy3.add(dummy2, BorderLayout.SOUTH);
-		textPanel.add(dummy3, BorderLayout.SOUTH);
+		// left labels
+        GridBagConstraints l = new GridBagConstraints();
+        l.anchor = GridBagConstraints.NORTHWEST;
+        l.insets = new Insets(0, 0, 0, 12);
+        // right components
+        GridBagConstraints r = new GridBagConstraints();
+        r.gridwidth = GridBagConstraints.REMAINDER;
+        r.anchor = GridBagConstraints.NORTHWEST;
+        r.fill = GridBagConstraints.BOTH;
+        r.weightx = 1;
+        // vertical spacing
+        GridBagConstraints v = new GridBagConstraints();
+        v.gridwidth = GridBagConstraints.REMAINDER;
+        v.anchor = GridBagConstraints.NORTH;
+        v.fill = GridBagConstraints.BOTH;
+        // vertical filler
+        GridBagConstraints f = new GridBagConstraints();
+        f.gridwidth = GridBagConstraints.REMAINDER;
+        f.anchor = GridBagConstraints.NORTH;
+        f.fill = GridBagConstraints.BOTH;
+        f.weighty = 0.5;
+        
+        
+		JPanel dummy = new JPanel(new GridBagLayout());
+		dummy.add(new JLabel("Descirption: "), l);
+		dummy.add(imgPanel, r);
+        dummy.add(Box.createVerticalStrut(5), v);
+		dummy.add(new JLabel("Filename: "), l);
+		dummy.add(fileName, r);
+        dummy.add(Box.createVerticalStrut(5), v);
+		dummy.add(new JLabel("Requirements: "), l);
+		dummy.add(requirementsArea, r);
+        
+		textPanel.add(dummy, BorderLayout.NORTH);
 		buttonTextPanel.add(textPanel, BorderLayout.CENTER);
 		
 		tree.addTreeSelectionListener(new TreeSelectionListener() {
