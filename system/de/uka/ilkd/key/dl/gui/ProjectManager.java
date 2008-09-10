@@ -290,7 +290,7 @@ public class ProjectManager extends JFrame {
 						ExampleInfo info = (ExampleInfo) nodeInfo;
 						fileName.setText(info.getUrl());
 						textArea.setText(info.getDescription());
-						if(info.img.isEmpty()) {
+						if(info.img.trim().equals("")) {
 							img.setText("");
 						} else {
 							img.setText("<html><body><img src=\"" + info.getImg() + "\"/></body></html>");
