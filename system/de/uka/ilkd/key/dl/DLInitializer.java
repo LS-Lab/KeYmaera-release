@@ -47,6 +47,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 
@@ -322,8 +323,8 @@ public class DLInitializer {
 		BeanInfo info = Introspector.getBeanInfo(DLOptionBean.class,
 				Introspector.USE_ALL_BEANINFO);
 		BeanDescriptor desc = info.getBeanDescriptor();
-		JPanel panel = new JPanel(new FlowLayout());
-		panel.add((Component) customizer);
+		JScrollPane panel = new JScrollPane();
+		panel.getViewport().add((Component) customizer);
 		customizerPane.addTab(desc.getDisplayName(), panel);
 		customizers.put(customizer, DLOptionBean.INSTANCE);
 		SettingsListener l = new SettingsListener() {
@@ -349,8 +350,8 @@ public class DLInitializer {
 			info = Introspector.getBeanInfo(s.getClass(),
 					Introspector.USE_ALL_BEANINFO);
 			desc = info.getBeanDescriptor();
-			panel = new JPanel();
-			panel.add((Component) c);
+			panel = new JScrollPane();
+			panel.getViewport().add((Component) c);
 			customizerPane.addTab(desc.getDisplayName(), panel);
 		}
 	}

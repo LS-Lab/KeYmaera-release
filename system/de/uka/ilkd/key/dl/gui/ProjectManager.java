@@ -19,22 +19,34 @@
  ***************************************************************************/
 package de.uka.ilkd.key.dl.gui;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
 import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import javax.swing.AbstractAction;
+import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.JTextPane;
 import javax.swing.JTree;
+import javax.swing.SpringLayout;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -47,6 +59,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
 import de.uka.ilkd.key.dl.utils.XMLReader;
 import de.uka.ilkd.key.gui.Main;
 
@@ -86,16 +99,22 @@ public class ProjectManager extends JFrame {
 		private String name;
 		private String url;
 		private String description;
+		private Set<String> requirements;
+		private String img;
 
 		/**
 		 * @param name
 		 * @param url
+		 * @param img 
 		 */
-		public ExampleInfo(String name, String url, String description) {
+		public ExampleInfo(String name, String url, String description,
+				String img, Set<String> requirements) {
 			super();
 			this.name = name;
 			this.url = url;
 			this.description = description;
+			this.img = img;
+			this.requirements = requirements;
 		}
 
 		/**
@@ -119,6 +138,19 @@ public class ProjectManager extends JFrame {
 			return description;
 		}
 
+		public Set<String> getRequirements() {
+			return requirements;
+		}
+
+
+		/**
+		 * @return the img
+		 */
+		public String getImg() {
+			return img;
+		}
+
+		
 		/*
 		 * (non-Javadoc)
 		 * 
@@ -138,6 +170,10 @@ public class ProjectManager extends JFrame {
 
 	private JTextArea fileName;
 
+	private JTextArea requirementsArea;
+
+	private JTextPane img;
+
 	/**
 	 * 
 	 */
@@ -152,9 +188,9 @@ public class ProjectManager extends JFrame {
 
 		tree = new JTree(top);
 		JScrollPane treeView = new JScrollPane(tree);
-		setLayout(new FlowLayout());
-		add(treeView);
-		JButton button = new JButton("Load");
+		setLayout(new BorderLayout());
+		add(treeView, BorderLayout.WEST);
+		final JButton button = new JButton("Load");
 		button.addActionListener(new ActionListener() {
 
 			@Override
@@ -174,19 +210,74 @@ public class ProjectManager extends JFrame {
 			}
 
 		});
-		JPanel buttonTextPanel = new JPanel(new GridLayout(0, 1));
+		JPanel buttonTextPanel = new JPanel(new BorderLayout());
+		JPanel textPanel = new JPanel(new BorderLayout());
+		JPanel imgPanel = new JPanel(new BorderLayout());
 		textArea = new JTextArea();
 		textArea.setLineWrap(true);
 		textArea.setAutoscrolls(true);
 		textArea.setColumns(50);
 		textArea.setEditable(false);
+		textArea.setWrapStyleWord(true);
+		imgPanel.add(textArea, BorderLayout.CENTER);
+
+		requirementsArea = new JTextArea();
+		requirementsArea.setLineWrap(true);
+		requirementsArea.setAutoscrolls(true);
+		requirementsArea.setColumns(50);
+		requirementsArea.setEditable(false);
+		requirementsArea.setWrapStyleWord(true);
+		
 		fileName = new JTextArea();
 		fileName.setLineWrap(true);
 		fileName.setAutoscrolls(true);
 		fileName.setColumns(50);
 		fileName.setEditable(false);
-		buttonTextPanel.add(fileName);
-		buttonTextPanel.add(textArea);
+
+		img = new JTextPane();
+		img.setContentType("text/html");
+		img.setAutoscrolls(true);
+		img.setEditable(false);
+		imgPanel.add(img, BorderLayout.EAST);
+//		textPanel.add(new JLabel("Descirption: "), BorderLayout.NORTH);
+//		textPanel.add(imgPanel, BorderLayout.CENTER);
+		
+		// left labels
+        GridBagConstraints l = new GridBagConstraints();
+        l.anchor = GridBagConstraints.NORTHWEST;
+        l.insets = new Insets(0, 0, 0, 12);
+        // right components
+        GridBagConstraints r = new GridBagConstraints();
+        r.gridwidth = GridBagConstraints.REMAINDER;
+        r.anchor = GridBagConstraints.NORTHWEST;
+        r.fill = GridBagConstraints.BOTH;
+        r.weightx = 1;
+        // vertical spacing
+        GridBagConstraints v = new GridBagConstraints();
+        v.gridwidth = GridBagConstraints.REMAINDER;
+        v.anchor = GridBagConstraints.NORTH;
+        v.fill = GridBagConstraints.BOTH;
+        // vertical filler
+        GridBagConstraints f = new GridBagConstraints();
+        f.gridwidth = GridBagConstraints.REMAINDER;
+        f.anchor = GridBagConstraints.NORTH;
+        f.fill = GridBagConstraints.BOTH;
+        f.weighty = 0.5;
+        
+        
+		JPanel dummy = new JPanel(new GridBagLayout());
+		dummy.add(new JLabel("Descirption: "), l);
+		dummy.add(imgPanel, r);
+        dummy.add(Box.createVerticalStrut(5), v);
+		dummy.add(new JLabel("Filename: "), l);
+		dummy.add(fileName, r);
+        dummy.add(Box.createVerticalStrut(5), v);
+		dummy.add(new JLabel("Requirements: "), l);
+		dummy.add(requirementsArea, r);
+        
+		textPanel.add(dummy, BorderLayout.NORTH);
+		buttonTextPanel.add(textPanel, BorderLayout.CENTER);
+		
 		tree.addTreeSelectionListener(new TreeSelectionListener() {
 
 			@Override
@@ -199,6 +290,31 @@ public class ProjectManager extends JFrame {
 						ExampleInfo info = (ExampleInfo) nodeInfo;
 						fileName.setText(info.getUrl());
 						textArea.setText(info.getDescription());
+						if(info.img.trim().equals("")) {
+							img.setText("");
+						} else {
+							img.setText("<html><body><img src=\"" + info.getImg() + "\"/></body></html>");
+						}
+						String or = "";
+						if (info.requirements.isEmpty()) {
+							requirementsArea.setText("No special requirements");
+							requirementsArea.setForeground(Color.BLACK);
+							button.setEnabled(true);
+						} else {
+							requirementsArea.setText("You need ");
+							button.setEnabled(false);
+							requirementsArea.setForeground(Color.RED);
+							for (String s : info.getRequirements()) {
+								requirementsArea.append(or + s);
+								if (MathSolverManager
+										.getQuantifierEliminators().contains(s)) {
+									requirementsArea.setForeground(Color.BLACK);
+									button.setEnabled(true);
+								}
+								or = " or ";
+							}
+							requirementsArea.append(" as real arithmetic solver");
+						}
 					}
 				}
 			}
@@ -217,8 +333,8 @@ public class ProjectManager extends JFrame {
 
 		});
 		buttonPanel.add(cancel);
-		buttonTextPanel.add(buttonPanel);
-		add(buttonTextPanel);
+		buttonTextPanel.add(buttonPanel, BorderLayout.SOUTH);
+		add(buttonTextPanel, BorderLayout.CENTER);
 		pack();
 	}
 
@@ -238,8 +354,21 @@ public class ProjectManager extends JFrame {
 					XPathConstants.STRING);
 			String description = (String) xpath.evaluate("description", node,
 					XPathConstants.STRING);
+			Set<String> requirements = new LinkedHashSet<String>();
+			NodeList nodes = (NodeList) xpath.evaluate(
+					"requirements/some/quantifiereliminator/text()", node,
+					XPathConstants.NODESET);
+			for (int j = 0; j < nodes.getLength(); j++) {
+				requirements.add(nodes.item(j).getNodeValue());
+			}
+			Node img = (Node) xpath.evaluate("img", node, XPathConstants.NODE);
+			String im = "";
+			if(img != null) {
+				im = img.getAttributes().getNamedItem("href").getNodeValue();
+			}
+
 			DefaultMutableTreeNode tNode = new DefaultMutableTreeNode(
-					new ExampleInfo(name, path, description));
+					new ExampleInfo(name, path, description, im, requirements));
 			top.add(tNode);
 		}
 	}
@@ -260,12 +389,12 @@ public class ProjectManager extends JFrame {
 	private File createTmpFileToLoad(String url) {
 		System.out.println("Trying to open " + url);// XXX
 		File file = new File(url.substring(1));
-		if(file.exists()) {
+		if (file.exists()) {
 			return file;
 		}
 		InputStream resourceAsStream = ProjectManager.class
 				.getResourceAsStream(url);
-		if(resourceAsStream == null) {
+		if (resourceAsStream == null) {
 			return null;
 		}
 		try {
