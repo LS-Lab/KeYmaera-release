@@ -79,6 +79,7 @@ import de.uka.ilkd.key.dl.utils.XMLReader;
  */
 public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 		IKernelLinkWrapper {
+    private static final boolean DEBUG = false;
 
 	public static final String[][] messageBlacklist = new String[][] {
 			{ "Reduce", "nsmet" }, { "FindInstance", "nsmet" } };
@@ -451,7 +452,7 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 			// wrap inside exception checks
 			Expr check = new Expr(new Expr(Expr.SYMBOL, "Check"), new Expr[] {
 					compute, new Expr("$Exception"), mBlist });
-			System.out.println(check);// XXX
+			if (DEBUG) System.out.println(check);// XXX
 			link.evaluate(check);
 			testForError(link);
 			log(Level.FINEST, "Waiting for anwser.");
