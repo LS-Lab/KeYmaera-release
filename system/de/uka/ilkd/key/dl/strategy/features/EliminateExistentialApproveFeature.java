@@ -4,7 +4,9 @@
 package de.uka.ilkd.key.dl.strategy.features;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import de.uka.ilkd.key.dl.formulatools.ContainsMetaVariableVisitor;
 import de.uka.ilkd.key.dl.formulatools.ContainsMetaVariableVisitor.Result;
@@ -45,19 +47,18 @@ public class EliminateExistentialApproveFeature implements Feature {
     @Override
     public RuleAppCost compute(RuleApp app, PosInOccurrence pos, Goal goal) {
         if (app.rule() instanceof EliminateExistentialQuantifierRule) {
-            final Operator[] ops = new Operator[1];
+            final Set<Metavariable> vars = new HashSet<Metavariable>();
             app.posInOccurrence().constrainedFormula().formula().execPreOrder(new Visitor() {
 
                 @Override
                 public void visit(Term visited) {
                     if(visited.op() instanceof Metavariable) {
-                        ops[0] = visited.op();
+                        vars.add((Metavariable) visited.op());
                     }
                 }
                 
             });
-            Operator op = ops[0];
-            if (!(op instanceof Metavariable)) {
+            if (vars.isEmpty()) {
                 return TopRuleAppCost.INSTANCE;
             }
             List<Metavariable> variables = new ArrayList<Metavariable>();
@@ -70,7 +71,7 @@ public class EliminateExistentialApproveFeature implements Feature {
                 }
             }
             if (variables.isEmpty()) {
-                variables.add((Metavariable) op);
+                variables.addAll(vars);
             }
             ListOfGoal openGoals = goal.proof().openGoals();
             IteratorOfGoal goalIt = openGoals.iterator();

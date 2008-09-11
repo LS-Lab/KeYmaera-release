@@ -239,7 +239,7 @@ public class ProjectManager extends JFrame {
 		img.setAutoscrolls(true);
 		img.setEditable(false);
 		imgPanel.add(img, BorderLayout.EAST);
-//		textPanel.add(new JLabel("Descirption: "), BorderLayout.NORTH);
+//		textPanel.add(new JLabel("Description: "), BorderLayout.NORTH);
 //		textPanel.add(imgPanel, BorderLayout.CENTER);
 		
 		// left labels
@@ -266,7 +266,7 @@ public class ProjectManager extends JFrame {
         
         
 		JPanel dummy = new JPanel(new GridBagLayout());
-		dummy.add(new JLabel("Descirption: "), l);
+		dummy.add(new JLabel("Description: "), l);
 		dummy.add(imgPanel, r);
         dummy.add(Box.createVerticalStrut(5), v);
 		dummy.add(new JLabel("Filename: "), l);
