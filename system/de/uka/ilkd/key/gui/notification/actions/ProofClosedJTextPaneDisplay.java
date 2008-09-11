@@ -30,7 +30,7 @@ public class ProofClosedJTextPaneDisplay extends ShowDisplayPane {
         if (pcne instanceof ProofClosedNotificationEvent) {
             Proof proof = ((ProofClosedNotificationEvent)pcne).getProof();
             if (proof != null) {
-                setMessage("Proved.\nStatistics:\n"+proof.statistics());
+                setMessage("Property proved!\nStatistics:\n"+proof.statistics());
             }
         } else {
             setMessage("Proof Closed. No statistics available.");
