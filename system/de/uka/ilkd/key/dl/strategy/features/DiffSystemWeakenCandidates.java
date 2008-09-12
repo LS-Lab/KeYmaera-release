@@ -25,24 +25,33 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
+import com.wolfram.jlink.Expr;
+
 import orbital.util.Setops;
 
+import de.uka.ilkd.key.dl.arithmetics.impl.mathematica.MathematicaDLBridge;
+import de.uka.ilkd.key.dl.model.DLNonTerminalProgramElement;
 import de.uka.ilkd.key.dl.model.DLProgram;
 import de.uka.ilkd.key.dl.model.DiffSystem;
+import de.uka.ilkd.key.dl.model.Dot;
 import de.uka.ilkd.key.dl.model.Equals;
 import de.uka.ilkd.key.dl.model.Expression;
 import de.uka.ilkd.key.dl.model.Formula;
 import de.uka.ilkd.key.dl.model.PredicateTerm;
+import de.uka.ilkd.key.dl.model.ProgramVariable;
 import de.uka.ilkd.key.dl.model.TermFactory;
 import de.uka.ilkd.key.dl.model.impl.TermFactoryImpl;
 import de.uka.ilkd.key.dl.strategy.termProjection.Generator;
 import de.uka.ilkd.key.java.ProgramElement;
 import de.uka.ilkd.key.java.StatementBlock;
 import de.uka.ilkd.key.logic.JavaBlock;
+import de.uka.ilkd.key.logic.Named;
 import de.uka.ilkd.key.logic.PosInOccurrence;
+import de.uka.ilkd.key.logic.SetOfChoice;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.op.Modality;
 import de.uka.ilkd.key.logic.op.QuanUpdateOperator;
@@ -57,7 +66,8 @@ public class DiffSystemWeakenCandidates implements Generator<ProgramElement> {
 
 	public static final Generator<ProgramElement> INSTANCE = new DiffSystemWeakenCandidates();
 
-	public Iterator<ProgramElement> generate(RuleApp app, PosInOccurrence pos, Goal goal) {
+	public Iterator<ProgramElement> generate(RuleApp app, PosInOccurrence pos,
+			Goal goal) {
 
 		Term term = pos.subTerm();
 		// unbox from update prefix
@@ -79,10 +89,12 @@ public class DiffSystemWeakenCandidates implements Generator<ProgramElement> {
 
 			DiffSystem one = (DiffSystem) program;
 			List<Formula> forms = new LinkedList<Formula>();
+			Set<ProgramVariable> dottedVars = new HashSet<ProgramVariable>();
 			for (ProgramElement f : one) {
 				if (one.isDifferentialEquation(f)) {
 					if (f instanceof PredicateTerm) {
 						PredicateTerm p = (PredicateTerm) f;
+						collectDottedProgramVariables(p, dottedVars);
 						if (p.getChildAt(0) instanceof Equals) {
 							forms.add((Formula) f);
 						} else {
@@ -107,15 +119,30 @@ public class DiffSystemWeakenCandidates implements Generator<ProgramElement> {
 			Set<Formula> curForms = new LinkedHashSet<Formula>(forms);
 			Set powerset = Setops.powerset(curForms);
 
-			for (Object s: powerset) {
+			Set<ProgramVariable> currentDottedVars = new HashSet<ProgramVariable>();
+
+			for (Object s : powerset) {
 				Set set = (Set) s;
-				if(!set.isEmpty()) {
+				if (!set.isEmpty()) {
 					List<Formula> can = new LinkedList<Formula>();
-					for(Object f : set) {
+					currentDottedVars.clear();
+					for (Object f : set) {
 						Formula form = (Formula) f;
 						can.add(form);
+						collectDottedProgramVariables(form, currentDottedVars);
 					}
-					candidates.add(tf.createDiffSystem(can));
+					// only add the candidate if it has the same change-set.
+					// (i.e. does not change new variables and does, on the
+					// other hand, change every variable that was changed
+					// before). The first part is necessary for soundness of the
+					// rule. The second part is an heuristic.
+					if (Setops.intersection(dottedVars, currentDottedVars)
+							.size() == dottedVars.size()
+							&& (Setops.union(dottedVars, currentDottedVars)
+									.size() <= dottedVars.size())) {
+						candidates.add(tf.createDiffSystem(can));
+					}
+
 				}
 			}
 			return new PEIterator(candidates);
@@ -176,6 +203,23 @@ public class DiffSystemWeakenCandidates implements Generator<ProgramElement> {
 			terms.poll();
 		}
 
+	}
+
+	/**
+	 * Collect all program variables which are children of a Dot.
+	 */
+	public static final void collectDottedProgramVariables(ProgramElement form,
+			Set<ProgramVariable> vars) {
+		if (form instanceof Dot) {
+			ProgramVariable pv = (ProgramVariable) ((Dot) form).getChildAt(0);
+			vars.add(pv);
+		}
+		if (form instanceof DLNonTerminalProgramElement) {
+			DLNonTerminalProgramElement dlnpe = (DLNonTerminalProgramElement) form;
+			for (ProgramElement p : dlnpe) {
+				collectDottedProgramVariables(p, vars);
+			}
+		}
 	}
 
 }
