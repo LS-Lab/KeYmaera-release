@@ -65,7 +65,7 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
 					createDescriptor(
 							"diffSat",
 							"Differential Saturation",
-							"select the desired automation degree of Differential Saturation",
+							"select the desired automation degree of Differential Saturation for automatic differential induction",
 							false, false, DiffSatPropertyEditor.class),
 					createDescriptor(
 							"foStrategy",
@@ -74,13 +74,13 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
 							false, true, FirstOrderStrategyPropertyEditor.class),
 					createDescriptor(
 							"useIterativeReduceRule",
-							"Iterative Reduce",
-							"whether to activate the Iterative Background Closure (IBC) with increasingly bigger formulas.",
+							"Iterative Inflation",
+							"whether to activate the Iterative Inflation Order (IIO) with increasingly bigger formulas.",
 							false, true),
 
 					createDescriptor(
 							"counterexampleTest",
-							"quick counterexample check",
+							"counterexample check",
 							"whether to check for counterexamples before trying to prove exhaustively",
 							false, true, CounterexampleTestPropertyEditor.class),
 					createDescriptor(
@@ -143,12 +143,12 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
 					createDescriptor(
 							"applyUpdatesToModalities",
 							"update modalities",
-							"apply updates to modalites e.g. to get more simpler solutions for differential equations",
+							"apply updates to modalites e.g. to get simpler solutions for differential equations",
 							true, false),
 					createDescriptor(
 							"applyLocalReduce",
-							"reduce standalone quantifiers",
-							"first try to eliminate quantifiers in single first-order formulas before trying to reduce the complete sequent",
+							"standalone reductions",
+							"first try to eliminate quantifiers in single first-order subformulas before trying to reduce the complete sequent",
 							true, false),
 					createDescriptor(
 							"applyGammaRules",
@@ -171,8 +171,8 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
 							GroebnerBasisCalculatorPropertyEditor.class),
 					createDescriptor(
 							"odeSolver",
-							"differential equation handler",
-							"select the solver that should be used to solve or handle differential equations",
+							"differential equation solver",
+							"select the solver that should be used to solve differential equations or handle them by differential induction",
 							true, false, ODESolversPropertyEditor.class),
 					createDescriptor("counterExampleGenerator",
 							"counterexample generator",

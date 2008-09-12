@@ -822,7 +822,7 @@ public class Proof implements Named {
     }
 
     public String statistics() {
-	return "Nodes:"  + countNodes() + "\n" +
+	return "Nodes: "  + countNodes() + "\n" +
 	    "Branches: " + countBranches() + "\n";
     }
 
