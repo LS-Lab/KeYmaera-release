@@ -53,7 +53,7 @@ public class TimeStatisticGenerator implements AutoModeListener {
 
 	private static final StatDialog statDialog = new StatDialog();
 
-	public static TimeStatisticGenerator INSTANCE = new TimeStatisticGenerator();
+	public static final TimeStatisticGenerator INSTANCE = new TimeStatisticGenerator();
 
 	private TimeStatisticGenerator() {
 		time = 0;

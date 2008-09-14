@@ -24,6 +24,7 @@ package de.uka.ilkd.key.dl.arithmetics.impl.mathematica;
 
 import java.math.BigDecimal;
 import java.rmi.RemoteException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -172,7 +173,7 @@ public class Term2ExprConverter implements ExprConstants {
             newArgs[0] = new Expr(LIST, vars);
             if (form.op() == Quantifier.ALL) {
                 assert args.length == 1 : "'Unary' KeY quantifier \\forall x ("
-                        + args + ")";
+                        + Arrays.toString(args) + ")";
                 if (args[0].head() == FORALL) {
                     assert args[0].args().length == 2 : "'Binary' quantifier with variables and formula";
                     Expr kernel = args[0].args()[1];

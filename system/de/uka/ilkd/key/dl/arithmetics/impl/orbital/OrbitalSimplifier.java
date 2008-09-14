@@ -276,4 +276,12 @@ public class OrbitalSimplifier implements ISimplifier {
 
 	}
 
+	/* (non-Javadoc)
+	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#isConfigured()
+	 */
+	@Override
+	public boolean isConfigured() {
+		return true;
+	}
+
 }

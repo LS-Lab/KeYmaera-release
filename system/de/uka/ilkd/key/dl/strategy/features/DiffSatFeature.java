@@ -196,8 +196,8 @@ public class DiffSatFeature implements Feature {
                 throw new IllegalStateException("no such projection " + value);
             candidate = value.toTerm(app, pos, goal);
             if (candidate == null)
-                throw new IllegalInstantiationException("Invalid instantiation "
-                    + candidate + " for SV 'augmented' in " + app.instantiations());
+                throw new IllegalInstantiationException("Invalid instantiation null"
+                    + " for SV 'augmented' in " + app.instantiations());
         }
         String candidatePrint;
         try {

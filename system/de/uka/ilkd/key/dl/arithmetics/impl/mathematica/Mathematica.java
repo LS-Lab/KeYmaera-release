@@ -331,4 +331,12 @@ public class Mathematica implements ICounterExampleGenerator, IODESolver,
 			PolynomialClassification<Term> terms) throws RemoteException {
 		return bridge.checkForConstantGroebnerBasis(terms);
 	}
+
+	/* (non-Javadoc)
+	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#isConfigured()
+	 */
+	@Override
+	public boolean isConfigured() {
+		return true;
+	}
 }

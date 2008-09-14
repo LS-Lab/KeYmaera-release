@@ -43,6 +43,7 @@ import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -78,6 +79,7 @@ import de.uka.ilkd.key.dl.utils.XMLReader;
  */
 public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 		IKernelLinkWrapper {
+    private static final boolean DEBUG = false;
 
 	public static final String[][] messageBlacklist = new String[][] {
 			{ "Reduce", "nsmet" }, { "FindInstance", "nsmet" } };
@@ -340,8 +342,8 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 		Map<Expr, ExprAndMessages> cache = null;
 		for (int i = 0; i < args.length; i++) {
 			if (args[i].equalsIgnoreCase("--load-cache")) {
-				if (args.length >= i)
-					;
+//				if (args.length >= i)
+//					;
 				String cachefile = args[++i];
 				FileInputStream stream = new FileInputStream(cachefile);
 
@@ -450,7 +452,7 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 			// wrap inside exception checks
 			Expr check = new Expr(new Expr(Expr.SYMBOL, "Check"), new Expr[] {
 					compute, new Expr("$Exception"), mBlist });
-			System.out.println(check);// XXX
+			if (DEBUG) System.out.println(check);// XXX
 			link.evaluate(check);
 			testForError(link);
 			log(Level.FINEST, "Waiting for anwser.");
@@ -474,7 +476,7 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 				Expr msg = link.getExpr();
 				throw new UnsolveableException("Cannot solve "
 						+ compute.toString() + " because message " + msg
-						+ " of the messages in " + messageBlacklist
+						+ " of the messages in " + Arrays.toString(messageBlacklist)
 						+ " occured");
 			} else if (result.toString().equals(expr.toString())) {
 				throw new UnsolveableException(

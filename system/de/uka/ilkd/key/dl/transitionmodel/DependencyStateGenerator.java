@@ -60,7 +60,7 @@ public class DependencyStateGenerator implements
 	 * @since Nov 21, 2007
 	 * 
 	 */
-	public class WriteAndReadSets {
+	public static class WriteAndReadSets {
 		Set<ProgramVariable> reads = new HashSet<ProgramVariable>();
 		Set<ProgramVariable> writes = new HashSet<ProgramVariable>();
 

@@ -6,11 +6,13 @@
 ./hybrid/dev/zero-unique.key
 ./hybrid/dev/random-zero.key
 ./hybrid/dev/random-zero-unique.key
+./hybrid/moving-point.key
 ./hybrid/bouncing-ball/bouncing-ball.key
 ./hybrid/bouncing-ball/bouncing-ball-inv.key
 ./hybrid/bouncing-ball/bouncing-ball-simple.key
 ./hybrid/ETCS/safety/binary_driver-2007-10-09.key 18000
 ./hybrid/ETCS/paper/rbc-controllability-lemma.key
+./hybrid/ETCS/paper/rbc-controllability-characterisation.key
 ./hybrid/ETCS/paper/controllability-lemma.key
 ./hybrid/ETCS/paper/safety-lemma.key 18000
 ./hybrid/dev/exist-evolve.key
@@ -24,3 +26,5 @@
 ./hybrid/dev/diff-update.key 18000
 ./hybrid/ATC/roundabout/TRM-essentials-4.key 18000
 ./hybrid/ATC/roundabout/TRM-essentials-5.key 36000
+./hybrid/ETCS/paper/safety-lemma-ineq.key 18000
+./hybrid/ETCS/paper/safety-lemma-disturbance.key 18000

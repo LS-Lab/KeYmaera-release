@@ -28,7 +28,6 @@ import java.beans.PropertyDescriptor;
 import java.beans.SimpleBeanInfo;
 
 import de.uka.ilkd.key.dl.options.DirectoryPropertyEditor;
-import de.uka.ilkd.key.dl.options.FilePropertyEditor;
 
 /**
  * @author jdq
@@ -57,15 +56,15 @@ public class OptionsBeanInfo extends SimpleBeanInfo {
 			// _usage.setPropertyEditorClass(UsagePropertyEditor.class);
 
 			PropertyDescriptor[] pds = new PropertyDescriptor[] {
-					createDescriptor(
-							"qepcadBinary",
-							"Qepcad Executable",
-							"The Qepcad executable including the complete path name if it is not located in the system PATH",
-							true, false, FilePropertyEditor.class),
+//					createDescriptor(
+//							"qepcadBinary",
+//							"Qepcad Executable",
+//							"The Qepcad executable including the complete path name if it is not located in the system PATH",
+//							true, false, FilePropertyEditor.class),
 					createDescriptor(
 							"qepcadPath",
 							"Qepcad Path",
-							"The path to the qepcad installation needed to setup the correct environment for the tool",
+							"The path to the qepcad installation needed to setup the correct environment for the tool (it must contain bin/qepcad binary)",
 							true, false, DirectoryPropertyEditor.class),
 					createDescriptor(
 							"saclibPath",

@@ -34,6 +34,9 @@ public class ProofTreeView extends JPanel {
     private static final Color BISQUE_COLOR = new Color(240,228,196);
     private static final Color PALE_RED_COLOR = new Color(255,153,153);
     private static final Color LIGHT_BLUE_COLOR = new Color(230,230,255);
+    private static final Color CLOSED_COLOR = new Color(25,128,0);
+    private static final Color OPEN_COLOR = new Color(179,0,0);
+
 
     /** the mediator is stored here */
     private KeYMediator mediator;
@@ -574,7 +577,7 @@ public class ProofTreeView extends JPanel {
 	                implements TreeCellRenderer,
 			           java.io.Serializable {
 
-	public Component getTreeCellRendererComponent(JTree tree,
+    public Component getTreeCellRendererComponent(JTree tree,
 						      Object value,
 						      boolean sel,
 						      boolean expanded,
@@ -630,7 +633,7 @@ public class ProofTreeView extends JPanel {
 		Goal goal = proof.getGoal(node);
 		if ( goal == null ||
 		     mediator ().getUserConstraint ().displayClosed ( node ) ) {
-		    tree_cell.setForeground(Color.green);
+		    tree_cell.setForeground(CLOSED_COLOR);
 		    tree_cell.setIcon(IconFactory.keyHoleClosed(20,20));
 		    ProofTreeView.this.setToolTipText("Closed Goal");
 		    tree_cell.setToolTipText("A closed goal");
@@ -641,7 +644,7 @@ public class ProofTreeView extends JPanel {
 			ProofTreeView.this.setToolTipText("Closable Goal");
 			tree_cell.setToolTipText("A goal that can be closed");
 		    } else {
-			tree_cell.setForeground(Color.red);
+			tree_cell.setForeground(OPEN_COLOR);
 			ProofTreeView.this.setToolTipText("Open Goal");
 			tree_cell.setToolTipText("An open goal");
 		    }                                                            

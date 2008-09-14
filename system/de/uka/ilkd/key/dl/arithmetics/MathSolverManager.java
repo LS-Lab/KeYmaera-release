@@ -26,6 +26,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.rmi.RemoteException;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -73,6 +74,8 @@ public abstract class MathSolverManager {
 
 	private static Map<String, IGroebnerBasisCalculator> GROEBNER_BASIS_CALCULATORS = new LinkedHashMap<String, IGroebnerBasisCalculator>();
 
+	private static Map<String, IMathSolver> UNCONFIGURED = new LinkedHashMap<String, IMathSolver>();
+
 	/**
 	 * @param filename
 	 * @throws ClassNotFoundException
@@ -106,24 +109,6 @@ public abstract class MathSolverManager {
 					node, XPathConstants.STRING));
 			IMathSolver solver = (IMathSolver) forName.getDeclaredConstructor(
 					Node.class).newInstance(node);
-			if (solver instanceof ICounterExampleGenerator) {
-				COUNTEREXAMPLE_GENERATORS.put(solver.getName(),
-						(ICounterExampleGenerator) solver);
-			}
-			if (solver instanceof IODESolver) {
-				ODESOLVERS.put(solver.getName(), (IODESolver) solver);
-			}
-			if (solver instanceof IQuantifierEliminator) {
-				QUANTIFIER_ELMINIATORS.put(solver.getName(),
-						(IQuantifierEliminator) solver);
-			}
-			if (solver instanceof ISimplifier) {
-				SIMPLIFIERS.put(solver.getName(), (ISimplifier) solver);
-			}
-			if (solver instanceof IGroebnerBasisCalculator) {
-				GROEBNER_BASIS_CALCULATORS.put(solver.getName(),
-						(IGroebnerBasisCalculator) solver);
-			}
 			try {
 				String optStr = (String) xpath.evaluate("optionbean", node,
 						XPathConstants.STRING);
@@ -133,14 +118,114 @@ public abstract class MathSolverManager {
 					Settings object = (Settings) options.getDeclaredField(
 							"INSTANCE").get(options);
 					DLOptionBean.INSTANCE.addSubOptionBean(object);
-					FileInputStream in = new FileInputStream(ProofSettings.PROVER_CONFIG_FILE);
+					FileInputStream in = new FileInputStream(
+							ProofSettings.PROVER_CONFIG_FILE);
 					Properties props = new Properties();
 					props.load(in);
 					object.readSettings(props);
+					in.close();
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
+			if (solver.isConfigured()) {
+				add(solver);
+			} else {
+				UNCONFIGURED.put(solver.getName(), solver);
+			}
+		}
+	}
+
+	/**
+	 * @param solver
+	 */
+	private static void add(IMathSolver solver) {
+		if (solver instanceof ICounterExampleGenerator) {
+
+			COUNTEREXAMPLE_GENERATORS.put(solver.getName(),
+					(ICounterExampleGenerator) solver);
+		}
+		if (solver instanceof IODESolver) {
+			ODESOLVERS.put(solver.getName(), (IODESolver) solver);
+		}
+		if (solver instanceof IQuantifierEliminator) {
+			QUANTIFIER_ELMINIATORS.put(solver.getName(),
+					(IQuantifierEliminator) solver);
+		}
+		if (solver instanceof ISimplifier) {
+			SIMPLIFIERS.put(solver.getName(), (ISimplifier) solver);
+		}
+		if (solver instanceof IGroebnerBasisCalculator) {
+			GROEBNER_BASIS_CALCULATORS.put(solver.getName(),
+					(IGroebnerBasisCalculator) solver);
+		}
+	}
+
+	public static void rehash() {
+		System.out.println("rehash");// XXX
+		Set<String> remove = new HashSet<String>();
+		for (String m : UNCONFIGURED.keySet()) {
+			System.out.println("Testing " + m);// XXX
+			IMathSolver solver = UNCONFIGURED.get(m);
+			if (solver.isConfigured()) {
+				System.out.println("Is now configured " + m);// XXX
+				add(solver);
+				remove.add(m);
+			}
+		}
+		for (String r : remove) {
+			UNCONFIGURED.remove(r);
+		}
+		remove.clear();
+		removeIfNotConfigured(COUNTEREXAMPLE_GENERATORS);
+		if (!DLOptionBean.INSTANCE.getCounterExampleGenerator().equals("-")
+				&& !COUNTEREXAMPLE_GENERATORS.containsKey(DLOptionBean.INSTANCE
+						.getCounterExampleGenerator())) {
+			DLOptionBean.INSTANCE.setCounterExampleGenerator("-");
+		}
+		removeIfNotConfigured(ODESOLVERS);
+		if (!DLOptionBean.INSTANCE.getOdeSolver().equals("-")
+				&& !ODESOLVERS
+						.containsKey(DLOptionBean.INSTANCE.getOdeSolver())) {
+			DLOptionBean.INSTANCE.setOdeSolver("-");
+		}
+		removeIfNotConfigured(QUANTIFIER_ELMINIATORS);
+		if (!DLOptionBean.INSTANCE.getQuantifierEliminator().equals("-")
+				&& !QUANTIFIER_ELMINIATORS.containsKey(DLOptionBean.INSTANCE
+						.getQuantifierEliminator())) {
+			DLOptionBean.INSTANCE.setQuantifierEliminator("-");
+		}
+		removeIfNotConfigured(SIMPLIFIERS);
+		if (!DLOptionBean.INSTANCE.getSimplifier().equals("-")
+				&& !SIMPLIFIERS.containsKey(DLOptionBean.INSTANCE
+						.getSimplifier())) {
+			DLOptionBean.INSTANCE.setSimplifier("-");
+		}
+		removeIfNotConfigured(GROEBNER_BASIS_CALCULATORS);
+		if (!DLOptionBean.INSTANCE.getGroebnerBasisCalculator().equals("-")
+				&& !GROEBNER_BASIS_CALCULATORS
+						.containsKey(DLOptionBean.INSTANCE
+								.getGroebnerBasisCalculator())) {
+			DLOptionBean.INSTANCE.setGroebnerBasisCalculator("-");
+		}
+	}
+
+	/**
+	 * @param remove
+	 */
+	private static void removeIfNotConfigured(
+			Map<String, ? extends IMathSolver> curMap) {
+		Set<String> remove = new HashSet<String>();
+		for (String m : curMap.keySet()) {
+			IMathSolver solver = curMap.get(m);
+			if (!solver.isConfigured()) {
+				System.out.println("removing " + m);// XXX
+				remove.add(m);
+				UNCONFIGURED.put(m, solver);
+			}
+		}
+		for (String r : remove) {
+			curMap.remove(r);
 		}
 	}
 
@@ -476,28 +561,35 @@ public abstract class MathSolverManager {
 	}
 
 	public static boolean isCounterExampleGeneratorSet() {
-		return !(DLOptionBean.INSTANCE.getCounterExampleGenerator().equals("") || DLOptionBean.INSTANCE
-				.getCounterExampleGenerator().equals("-"));
+		return !DLOptionBean.INSTANCE.getCounterExampleGenerator().equals("")
+				&& !DLOptionBean.INSTANCE.getCounterExampleGenerator().equals(
+						"-")
+				&& getCurrentCounterExampleGenerator().isConfigured();
 	}
 
 	public static boolean isODESolverSet() {
-		return !(DLOptionBean.INSTANCE.getOdeSolver().equals("") || DLOptionBean.INSTANCE
-				.getOdeSolver().equals("-"));
+		return !DLOptionBean.INSTANCE.getOdeSolver().equals("")
+				&& !DLOptionBean.INSTANCE.getOdeSolver().equals("-")
+				&& getCurrentODESolver().isConfigured();
 	}
 
 	public static boolean isQuantifierEliminatorSet() {
-		return !(DLOptionBean.INSTANCE.getQuantifierEliminator().equals("") || DLOptionBean.INSTANCE
-				.getQuantifierEliminator().equals("-"));
+		return !DLOptionBean.INSTANCE.getQuantifierEliminator().equals("")
+				&& !DLOptionBean.INSTANCE.getQuantifierEliminator().equals("-")
+				&& getCurrentQuantifierEliminator().isConfigured();
 	}
 
 	public static boolean isSimplifierSet() {
-		return !(DLOptionBean.INSTANCE.getSimplifier().equals("") || DLOptionBean.INSTANCE
-				.getSimplifier().equals("-"));
+		return !DLOptionBean.INSTANCE.getSimplifier().equals("")
+				&& !DLOptionBean.INSTANCE.getSimplifier().equals("-")
+				&& getCurrentSimplifier().isConfigured();
 	}
 
 	public static boolean isGroebnerBasisCalculatorSet() {
-		return !(DLOptionBean.INSTANCE.getGroebnerBasisCalculator().equals("") || DLOptionBean.INSTANCE
-				.getGroebnerBasisCalculator().equals("-"));
+		return !DLOptionBean.INSTANCE.getGroebnerBasisCalculator().equals("")
+				&& !DLOptionBean.INSTANCE.getGroebnerBasisCalculator().equals(
+						"-")
+				&& getCurrentGroebnerBasisCalculator().isConfigured();
 	}
 
 }

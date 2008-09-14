@@ -10,29 +10,96 @@
 
 package de.uka.ilkd.key.gui;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.io.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Frame;
+import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Vector;
 
-import javax.swing.*;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
+import javax.swing.Icon;
+import javax.swing.JButton;
+import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JComponent;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JList;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JRadioButtonMenuItem;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JTextArea;
+import javax.swing.JToolBar;
+import javax.swing.KeyStroke;
+import javax.swing.ScrollPaneConstants;
+import javax.swing.SwingUtilities;
+import javax.swing.ToolTipManager;
+import javax.swing.WindowConstants;
 import javax.swing.border.TitledBorder;
-import javax.swing.event.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.MenuEvent;
+import javax.swing.event.MenuListener;
+import javax.swing.event.MouseInputAdapter;
 import javax.swing.text.JTextComponent;
 
 import org.apache.log4j.Logger;
 
 import de.uka.ilkd.key.dl.DLInitializer;
 import de.uka.ilkd.key.dl.DLProfile;
+import de.uka.ilkd.key.dl.gui.ProjectManager;
 import de.uka.ilkd.key.dl.gui.TimeStatisticGenerator;
 import de.uka.ilkd.key.gui.assistant.ProofAssistant;
 import de.uka.ilkd.key.gui.assistant.ProofAssistantAI;
 import de.uka.ilkd.key.gui.assistant.ProofAssistantController;
-import de.uka.ilkd.key.gui.configuration.*;
+import de.uka.ilkd.key.gui.configuration.ChoiceSelector;
+import de.uka.ilkd.key.gui.configuration.Config;
+import de.uka.ilkd.key.gui.configuration.ConfigChangeEvent;
+import de.uka.ilkd.key.gui.configuration.ConfigChangeListener;
+import de.uka.ilkd.key.gui.configuration.GeneralSettings;
+import de.uka.ilkd.key.gui.configuration.LibrariesConfiguration;
+import de.uka.ilkd.key.gui.configuration.PathConfig;
+import de.uka.ilkd.key.gui.configuration.ProofSettings;
+import de.uka.ilkd.key.gui.configuration.SettingsListener;
+import de.uka.ilkd.key.gui.configuration.SimultaneousUpdateSimplifierConfiguration;
+import de.uka.ilkd.key.gui.configuration.StrategySettings;
+import de.uka.ilkd.key.gui.configuration.ViewSelector;
 import de.uka.ilkd.key.gui.nodeviews.NonGoalInfoView;
 import de.uka.ilkd.key.gui.nodeviews.SequentView;
 import de.uka.ilkd.key.gui.notification.NotificationManager;
@@ -48,11 +115,36 @@ import de.uka.ilkd.key.java.StatementBlock;
 import de.uka.ilkd.key.jmltest.JMLTestFileCreator;
 import de.uka.ilkd.key.logic.Sequent;
 import de.uka.ilkd.key.logic.Term;
-import de.uka.ilkd.key.pp.*;
-import de.uka.ilkd.key.proof.*;
+import de.uka.ilkd.key.pp.ConstraintSequentPrintFilter;
+import de.uka.ilkd.key.pp.LogicPrinter;
+import de.uka.ilkd.key.pp.PresentationFeatures;
+import de.uka.ilkd.key.pp.ProgramPrinter;
+import de.uka.ilkd.key.pp.SequentPrintFilter;
+import de.uka.ilkd.key.proof.BalancedGoalChooserBuilder;
+import de.uka.ilkd.key.proof.ConstraintTableEvent;
+import de.uka.ilkd.key.proof.ConstraintTableListener;
+import de.uka.ilkd.key.proof.ConstraintTableModel;
+import de.uka.ilkd.key.proof.Goal;
+import de.uka.ilkd.key.proof.ListOfGoal;
+import de.uka.ilkd.key.proof.Node;
+import de.uka.ilkd.key.proof.ProblemLoader;
+import de.uka.ilkd.key.proof.Proof;
+import de.uka.ilkd.key.proof.ProofEvent;
+import de.uka.ilkd.key.proof.ProofSaver;
+import de.uka.ilkd.key.proof.ProofSaverLatex;
+import de.uka.ilkd.key.proof.ProofTreeAdapter;
+import de.uka.ilkd.key.proof.ProofTreeEvent;
+import de.uka.ilkd.key.proof.ProofTreeListener;
 import de.uka.ilkd.key.proof.decproc.DecProcRunner;
 import de.uka.ilkd.key.proof.decproc.DecisionProcedureSmtAuflia;
-import de.uka.ilkd.key.proof.init.*;
+import de.uka.ilkd.key.proof.init.DebuggerProfile;
+import de.uka.ilkd.key.proof.init.JavaTestGenerationProfile;
+import de.uka.ilkd.key.proof.init.ProblemInitializer;
+import de.uka.ilkd.key.proof.init.Profile;
+import de.uka.ilkd.key.proof.init.ProofInputException;
+import de.uka.ilkd.key.proof.init.ProofOblInput;
+import de.uka.ilkd.key.proof.init.PureFOLProfile;
+import de.uka.ilkd.key.proof.init.TacletSoundnessPOLoader;
 import de.uka.ilkd.key.proof.mgt.BasicTask;
 import de.uka.ilkd.key.proof.mgt.NonInterferenceCheck;
 import de.uka.ilkd.key.proof.mgt.TaskTreeNode;
@@ -1221,6 +1313,11 @@ public class Main extends JFrame implements IMain {
         JMenu fileMenu = new JMenu("File");
         fileMenu.setMnemonic(KeyEvent.VK_F);
         
+        JMenuItem project = new JMenuItem();
+        project.setAction(new ProjectManager.ProjectManagerAction());
+        
+        registerAtMenu(fileMenu, project);
+        
         JMenuItem load = new JMenuItem();
         load.setAction(openFileAction);
         
@@ -1488,10 +1585,6 @@ public class Main extends JFrame implements IMain {
             }});
         
         registerAtMenu(options, stupidModeOption);
-        
-        if (ProofSettings.DEFAULT_SETTINGS.getProfile() instanceof DLProfile) {
-            DLInitializer.registerSettingsMenuItem(this, options);
-        } 
         
 	// dnd direction sensitive		
         final boolean dndDirectionSensitivity = 
@@ -1932,7 +2025,7 @@ public class Main extends JFrame implements IMain {
         }
     }
     
-    protected void loadProblem(File file) {
+    public void loadProblem(File file) {
 	recentFiles.addRecentFile(file.getAbsolutePath());
         if(unitKeY!=null){
             unitKeY.recent.addRecentFile(file.getAbsolutePath());

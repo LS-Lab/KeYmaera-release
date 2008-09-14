@@ -36,6 +36,7 @@ import de.uka.ilkd.key.logic.op.ProgramVariable;
 import de.uka.ilkd.key.logic.op.Quantifier;
 import de.uka.ilkd.key.proof.Goal;
 import de.uka.ilkd.key.rule.ListOfRuleApp;
+import de.uka.ilkd.key.rule.PosTacletApp;
 import de.uka.ilkd.key.rule.RuleApp;
 import de.uka.ilkd.key.rule.TacletApp;
 import de.uka.ilkd.key.rule.UpdateSimplificationRule;
@@ -70,7 +71,7 @@ public class SimplifyFeature extends Visitor implements Feature {
 
 		if (!goal.appliedRuleApps().isEmpty()) {
 			boolean wasReduce = false;
-			if (goal.appliedRuleApps().head() instanceof TacletApp) {
+			if (goal.appliedRuleApps().head() instanceof PosTacletApp) {
 				TacletApp tapp = (TacletApp) goal.appliedRuleApps().head();
 				wasReduce = tapp.taclet().ruleSets().next() == goal.proof()
 						.getNamespaces().ruleSets().lookup(
@@ -88,7 +89,7 @@ public class SimplifyFeature extends Visitor implements Feature {
 				cur = take.head();
 			}
 			boolean wasODESolve = false;
-			if (cur instanceof TacletApp) {
+			if (cur instanceof PosTacletApp) {
 				TacletApp tapp = (TacletApp) cur;
 				wasODESolve = tapp.taclet().ruleSets().next() == goal.proof()
 						.getNamespaces().ruleSets().lookup(

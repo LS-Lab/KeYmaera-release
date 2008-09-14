@@ -109,11 +109,9 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 		}
 	}
 
-	private class Update {
+	private static class Update {
 		Term location;
-
 		Term value;
-
 	}
 
 	/**

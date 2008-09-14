@@ -1,7 +1,7 @@
-\settings{
-"#Proof-Settings-Config-File
-#Mon Jul 28 16:51:48 CEST 2008
-[DLOptions]callReduce=true
+\settings {
+"
+#Proof-Settings-Config-File, default settings
+#Tue Sep 09 15:25:36 CEST 2008
 [DecisionProcedure]SmtBenchmarkArchiving=false
 [MathematicaOptions]memoryConstraint=-1
 [DLOptions]loopSatTimeout=2000000
@@ -11,7 +11,6 @@
 [DLOptions]linearTimeoutIncreaseFactor=2
 [StrategyProperty]SPLITTING_OPTIONS_KEY=SPLITTING_DELAYED
 [Model]Source=1
-[DLOptions]useTimeoutStrategy=false
 [DLOptions]useIterativeReduceRule=false
 [Strategy]Timeout=-1
 [StrategyProperty]USER_TACLETS_OPTIONS_KEY3=USER_TACLETS_OFF
@@ -19,9 +18,10 @@
 [StrategyProperty]USER_TACLETS_OPTIONS_KEY1=USER_TACLETS_OFF
 [MathematicaOptions]useEliminateList=true
 [Choice]DefaultChoices=
+[QepcadOptions]qepcadPath=/home/fb10-sem/andre/program/qepcad/qesource
 [StrategyProperty]METHOD_OPTIONS_KEY=METHOD_EXPAND
 [DLOptions]quantifierEliminator=Mathematica
-[DLOptions]normalizeEquations=true
+[DLOptions]normalizeEquations=false
 [View]HideIntermediateProofsteps=false
 [DecisionProcedureForTest]=Cogent
 [SimultaneousUpdateSimplifier]EagerSimplification=true
@@ -31,7 +31,6 @@
 [View]ShowWholeTaclet=false
 [DLOptions]simplifyAfterODESolve=false
 [DLOptions]simplifyTimeout=0
-[DLOptions]splitBeyondFO=true
 [MathematicaOptions]quantifierEliminationMethod=REDUCE
 [Libraries]Default=acc.key-false, stringRules.key-false, deprecatedRules.key-false
 [DLOptions]applyGammaRules=ONLY_TO_MODALITIES
@@ -44,10 +43,10 @@
 [OrbitalOptions]precision=34
 [General]StupidMode=true
 [DLOptions]initialTimeout=2000
+[QepcadOptions]saclibPath=/home/fb10-sem/andre/program/qepcad/saclib2.2.0
 [DLOptions]termFactoryClass=de.uka.ilkd.key.dl.model.impl.TermFactoryImpl
 [General]UseJML=true
-[DLOptions]ignoreAnnotations=true
-[DLOptions]stopAtFO=false
+[DLOptions]ignoreAnnotations=false
 [DLOptions]quadricTimeoutIncreaseFactor=0
 [General]DnDDirectionSensitive=true
 [General]ProofAssistant=false
@@ -67,6 +66,7 @@
 [DLOptions]simplifyAfterReduce=false
 [Choice]Choices=
 [DLOptions]groebnerBasisCalculator=Mathematica
+[DLOptions]FOStrategy=IBC
 [StrategyProperty]NON_LIN_ARITH_OPTIONS_KEY=NON_LIN_ARITH_NONE
 [StrategyProperty]LOOP_OPTIONS_KEY=LOOP_INVARIANT
 "

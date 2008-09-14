@@ -29,7 +29,6 @@ import java.util.Set;
 
 import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
 import de.uka.ilkd.key.dl.model.TermFactory;
-import de.uka.ilkd.key.dl.rules.GroebnerBasisRule;
 import de.uka.ilkd.key.gui.GUIEvent;
 import de.uka.ilkd.key.gui.KeYMediator;
 import de.uka.ilkd.key.gui.Main;
@@ -66,6 +65,26 @@ public class DLOptionBean implements Settings {
 		}
 	}
 
+	public static enum FirstOrderStrategy {
+		STOP("stop"), UNFOLD("unfold"), EAGER("eager"), IBC("IBC"), LAZY("lazy");
+		
+		private String string;
+
+		private FirstOrderStrategy(String str) {
+			this.string = str;
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see java.lang.Enum#toString()
+		 */
+		@Override
+		public String toString() {
+			return string;
+		}
+	}
+	
 	public static enum DiffSat {
 		BLIND("blind"), OFF("off"), SIMPLE("simple"), DIFF("diffauto"), AUTO(
 				"auto");
@@ -125,17 +144,7 @@ public class DLOptionBean implements Settings {
 	/**
 	 * 
 	 */
-	private static final String DLOPTIONS_SPLIT_BEYOND_FO = "[DLOptions]splitBeyondFO";
-
-	/**
-	 * 
-	 */
-	private static final String DLOPTIONS_USE_TIMEOUT_STRATEGY = "[DLOptions]useTimeoutStrategy";
-
-	/**
-	 * 
-	 */
-	private static final String TRUE = new Boolean(true).toString();
+	private static final String TRUE = Boolean.valueOf(true).toString();
 
 	/**
 	 * 
@@ -149,7 +158,7 @@ public class DLOptionBean implements Settings {
 	/**
 	 * 
 	 */
-	private static final String DLOPTIONS_CALL_REDUCE = "[DLOptions]callReduce";
+	private static final String DLOPTIONS_FO_STRATEGY = "[DLOptions]FOStrategy";
 
 	public static final DLOptionBean INSTANCE = new DLOptionBean();
 
@@ -181,8 +190,6 @@ public class DLOptionBean implements Settings {
 
 	private static final String DLOPTIONS_COUNTEREXAMPLE_TEST = "[DLOptions]counterexampleTest";
 
-	private static final String DLOPTIONS_STOP_AT_FO = "[DLOptions]stopAtFO";
-
 	private static final String DLOPTIONS_INVARIANT_RULE = "[DLOptions]invariantRule";
 
 	private static final String DLOPTIONS_USE_DIFF_SAT = "[DLOptions]DiffSat";
@@ -203,7 +210,7 @@ public class DLOptionBean implements Settings {
 
 	private Set<Settings> subOptions;
 
-	private boolean callReduce;
+	private FirstOrderStrategy foStrategy;
 
 	private long initialTimeout;
 
@@ -216,10 +223,6 @@ public class DLOptionBean implements Settings {
 	private long diffSatTimeout;
 
 	private long loopSatTimeout;
-
-	private boolean useTimeoutStrategy;
-
-	private boolean splitBeyondFO;
 
 	private HashSet<SettingsListener> listeners;
 
@@ -234,8 +237,6 @@ public class DLOptionBean implements Settings {
 	private boolean applyUpdatesToModalities;
 
 	private CounterexampleTest counterexampleTest;
-
-	private boolean stopAtFO;
 
 	private DiffSat diffSatStrategy;
 
@@ -267,21 +268,19 @@ public class DLOptionBean implements Settings {
 
 	private DLOptionBean() {
 		subOptions = new LinkedHashSet<Settings>();
-		callReduce = true;
+		foStrategy = FirstOrderStrategy.IBC;
 		initialTimeout = 2;
-		diffSatTimeout = 10;
+		diffSatTimeout = 4;
 		loopSatTimeout = 2000;
 		quadraticTimeoutIncreaseFactor = 0;
 		linearTimeoutIncreaseFactor = 2;
 		constantTimeoutIncreaseFactor = 0;
 		simplifyTimeout = 0;
-		splitBeyondFO = false;
-		useTimeoutStrategy = true;
 		readdQuantifiers = true;
 		simplifyBeforeReduce = false;
 		simplifyAfterReduce = false;
                 simplifyAfterODESolve = false;
-		normalizeEquations = true;
+		normalizeEquations = false;
 		applyUpdatesToModalities = false;
 		counterExampleGenerator = "";
 		odeSolver = "";
@@ -359,17 +358,17 @@ public class DLOptionBean implements Settings {
 	/**
 	 * @return the callReduce
 	 */
-	public boolean isCallReduce() {
-		return callReduce;
+	public FirstOrderStrategy getFoStrategy() {
+		return foStrategy;
 	}
 
 	/**
 	 * @param callReduce
 	 *            the callReduce to set
 	 */
-	public void setCallReduce(boolean callReduce) {
-		if (this.callReduce != callReduce) {
-			this.callReduce = callReduce;
+	public void setFoStrategy(FirstOrderStrategy callReduce) {
+		if (this.foStrategy != callReduce) {
+			this.foStrategy = callReduce;
 			firePropertyChanged();
 		}
 	}
@@ -394,42 +393,6 @@ public class DLOptionBean implements Settings {
 		}
 		this.initialTimeout = initialTimeout;
 		firePropertyChanged();
-	}
-
-	/**
-	 * @return the useTimeoutStrategy
-	 */
-	public boolean isUseTimeoutStrategy() {
-		return useTimeoutStrategy;
-	}
-
-	/**
-	 * @param useTimeoutStrategy
-	 *            the useTimeoutStrategy to set
-	 */
-	public void setUseTimeoutStrategy(boolean useTimeoutStrategy) {
-		if (this.useTimeoutStrategy != useTimeoutStrategy) {
-			this.useTimeoutStrategy = useTimeoutStrategy;
-			firePropertyChanged();
-		}
-	}
-
-	/**
-	 * @return the splitBeyondFO
-	 */
-	public boolean isSplitBeyondFO() {
-		return splitBeyondFO;
-	}
-
-	/**
-	 * @param splitBeyondFO
-	 *            the splitBeyondFO to set
-	 */
-	public void setSplitBeyondFO(boolean splitBeyondFO) {
-		if (this.splitBeyondFO != splitBeyondFO) {
-			this.splitBeyondFO = splitBeyondFO;
-			firePropertyChanged();
-		}
 	}
 
 	private void firePropertyChanged() {
@@ -472,9 +435,9 @@ public class DLOptionBean implements Settings {
 		for (Settings sub : subOptions) {
 			sub.readSettings(props);
 		}
-		String property = props.getProperty(DLOPTIONS_CALL_REDUCE);
+		String property = props.getProperty(DLOPTIONS_FO_STRATEGY);
 		if (property != null) {
-			callReduce = property.equals(TRUE);
+			foStrategy = FirstOrderStrategy.valueOf(property);
 		}
 		property = props.getProperty(DLOPTIONS_INITIAL_TIMEOUT);
 		if (property != null) {
@@ -492,14 +455,6 @@ public class DLOptionBean implements Settings {
 		property = props.getProperty(DLOPTIONS_CONSTANT);
 		if (property != null) {
 			constantTimeoutIncreaseFactor = Integer.parseInt(property);
-		}
-		property = props.getProperty(DLOPTIONS_USE_TIMEOUT_STRATEGY);
-		if (property != null) {
-			useTimeoutStrategy = property.equals(TRUE);
-		}
-		property = props.getProperty(DLOPTIONS_SPLIT_BEYOND_FO);
-		if (property != null) {
-			splitBeyondFO = property.equals(TRUE);
 		}
 		property = props.getProperty(DLOPTIONS_READD_QUANTIFIERS);
 		if (property != null) {
@@ -524,10 +479,6 @@ public class DLOptionBean implements Settings {
 		property = props.getProperty(DLOPTIONS_COUNTEREXAMPLE_TEST);
 		if (property != null) {
 			counterexampleTest = CounterexampleTest.valueOf(property);
-		}
-		property = props.getProperty(DLOPTIONS_STOP_AT_FO);
-		if (property != null) {
-			stopAtFO = property.equals(TRUE);
 		}
 		property = props.getProperty(DLOPTIONS_IGNORE_ANNOTATIONS);
 		if (property != null) {
@@ -659,12 +610,7 @@ public class DLOptionBean implements Settings {
 		for (Settings sub : subOptions) {
 			sub.writeSettings(props);
 		}
-		props.setProperty(DLOPTIONS_CALL_REDUCE, new Boolean(callReduce)
-				.toString());
-		props.setProperty(DLOPTIONS_SPLIT_BEYOND_FO, new Boolean(splitBeyondFO)
-				.toString());
-		props.setProperty(DLOPTIONS_USE_TIMEOUT_STRATEGY, new Boolean(
-				useTimeoutStrategy).toString());
+		props.setProperty(DLOPTIONS_FO_STRATEGY, foStrategy.name());
 		props
 				.setProperty(DLOPTIONS_INITIAL_TIMEOUT, "" + initialTimeout
 						* 1000);
@@ -674,19 +620,18 @@ public class DLOptionBean implements Settings {
 		props.setProperty(DLOPTIONS_CONSTANT, ""
 				+ constantTimeoutIncreaseFactor);
 
-		props.setProperty(DLOPTIONS_READD_QUANTIFIERS, new Boolean(
+		props.setProperty(DLOPTIONS_READD_QUANTIFIERS, Boolean.valueOf(
 				readdQuantifiers).toString());
-		props.setProperty(DLOPTIONS_SIMPLIFY_BEFORE_REDUCE, new Boolean(
+		props.setProperty(DLOPTIONS_SIMPLIFY_BEFORE_REDUCE, Boolean.valueOf(
 				simplifyBeforeReduce).toString());
-		props.setProperty(DLOPTIONS_SIMPLIFY_AFTER_REDUCE, new Boolean(
+		props.setProperty(DLOPTIONS_SIMPLIFY_AFTER_REDUCE, Boolean.valueOf(
 				simplifyAfterReduce).toString());
-		props.setProperty(DLOPTIONS_NORMALIZE_EQUATIONS, new Boolean(
+		props.setProperty(DLOPTIONS_NORMALIZE_EQUATIONS, Boolean.valueOf(
 				normalizeEquations).toString());
-		props.setProperty(DLOPTIONS_APPLY_UPDATES_TO_MODALITIES, new Boolean(
+		props.setProperty(DLOPTIONS_APPLY_UPDATES_TO_MODALITIES, Boolean.valueOf(
 				applyUpdatesToModalities).toString());
 		props.setProperty(DLOPTIONS_COUNTEREXAMPLE_TEST, counterexampleTest
 				.name());
-		props.setProperty(DLOPTIONS_STOP_AT_FO, Boolean.toString(stopAtFO));
 		props.setProperty(DLOPTIONS_IGNORE_ANNOTATIONS, Boolean
 				.toString(ignoreAnnotations));
 
@@ -979,22 +924,6 @@ public class DLOptionBean implements Settings {
 	}
 
 	/**
-	 * @return the stopAtFO
-	 */
-	public boolean isStopAtFO() {
-		return stopAtFO;
-	}
-
-	/**
-	 * @param stopAtFO
-	 *            the stopAtFO to set
-	 */
-	public void setStopAtFO(boolean stopAtFO) {
-		this.stopAtFO = stopAtFO;
-		firePropertyChanged();
-	}
-
-	/**
 	 * @return the invariantRule
 	 */
 	public InvariantRule getInvariantRule() {
@@ -1162,7 +1091,7 @@ public class DLOptionBean implements Settings {
 	 * @return TODO documentation since Jun 9, 2008
 	 */
 	public void setGroebnerBasisCalculator(String groebnerBasisCalculator) {
-		if (this.groebnerBasisCalculator != groebnerBasisCalculator) {
+		if (this.groebnerBasisCalculator.equals(groebnerBasisCalculator)) {
 			this.groebnerBasisCalculator = groebnerBasisCalculator;
 			firePropertyChanged();
 		}

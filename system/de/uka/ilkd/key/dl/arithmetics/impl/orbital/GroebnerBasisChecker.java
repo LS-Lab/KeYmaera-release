@@ -154,5 +154,12 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 		// TODO Auto-generated method stub
 		
 	}
+	/* (non-Javadoc)
+	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#isConfigured()
+	 */
+	@Override
+	public boolean isConfigured() {
+		return true;
+	}
 
 }

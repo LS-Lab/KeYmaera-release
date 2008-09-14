@@ -36,6 +36,7 @@ import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
 import de.uka.ilkd.key.dl.options.DLOptionBean.ApplyRules;
 import de.uka.ilkd.key.dl.options.DLOptionBean.CounterexampleTest;
 import de.uka.ilkd.key.dl.options.DLOptionBean.DiffSat;
+import de.uka.ilkd.key.dl.options.DLOptionBean.FirstOrderStrategy;
 import de.uka.ilkd.key.dl.options.DLOptionBean.InvariantRule;
 
 /**
@@ -62,20 +63,26 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
 			PropertyDescriptor[] pds = new PropertyDescriptor[] {
 					// expert, preferred, hidden
 					createDescriptor(
-							"counterexampleTest",
-							"quick counterexample check",
-							"whether to check for counterexamples before trying to prove exhaustively",
-							false, true, CounterexampleTestPropertyEditor.class),
+							"diffSat",
+							"Differential Saturation",
+							"select the desired automation degree of Differential Saturation for automatic differential induction",
+							false, false, DiffSatPropertyEditor.class),
 					createDescriptor(
-							"useTimeoutStrategy",
-							"Iterative Background Closure",
-							"whether to activate the Iterative Background Closure (IBC) strategy with incremental timeouts. Otherwise, call reduce when first-order",
-							false, true),
+							"foStrategy",
+							"First Order Strategy",
+							"choose the strategy for first order goals. either STOP or completely UNFOLD, perform EAGER quantifier elimination or LAZY, or activate the Iterative Background Closure (IBC) strategy with incremental timeouts.",
+							false, true, FirstOrderStrategyPropertyEditor.class),
 					createDescriptor(
 							"useIterativeReduceRule",
-							"Iterative Reduce",
-							"whether to activate the Iterative Background Closure (IBC) with increasingly bigger formulas.",
+							"Iterative Inflation",
+							"whether to activate the Iterative Inflation Order (IIO) with increasingly bigger formulas.",
 							false, true),
+
+					createDescriptor(
+							"counterexampleTest",
+							"counterexample check",
+							"whether to check for counterexamples before trying to prove exhaustively",
+							false, true, CounterexampleTestPropertyEditor.class),
 					createDescriptor(
 							"initialTimeout",
 							"initial timeout",
@@ -97,11 +104,6 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
 							false, false, true),
 					//
 					createDescriptor(
-							"diffSat",
-							"Differential Saturation",
-							"select the desired automation degree of Differential Saturation",
-							false, false, DiffSatPropertyEditor.class),
-					createDescriptor(
 							"diffSatTimeout",
 							"initial DiffSat timeout",
 							"the timeout used in the first iteration of the DiffSat strategy (in seconds)",
@@ -118,8 +120,6 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
 							// @TODO what does 0 mean?
 							false, false),
 					//
-					createDescriptor("callReduce", "call reduce",
-							"try to reduce the whole sequent", true, false),
 					createDescriptor("simplifyBeforeReduce",
 							"simplify before reduce",
 							"simplify formulas passed to the reduce function of the arithmetic solver"),
@@ -143,12 +143,12 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
 					createDescriptor(
 							"applyUpdatesToModalities",
 							"update modalities",
-							"apply updates to modalites e.g. to get more simpler solutions for differential equations",
+							"apply updates to modalites e.g. to get simpler solutions for differential equations",
 							true, false),
 					createDescriptor(
 							"applyLocalReduce",
-							"reduce standalone quantifiers",
-							"first try to eliminate quantifiers in single first-order formulas before trying to reduce the complete sequent",
+							"standalone reductions",
+							"first try to eliminate quantifiers in single first-order subformulas before trying to reduce the complete sequent",
 							true, false),
 					createDescriptor(
 							"applyGammaRules",
@@ -162,11 +162,7 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
 							"select the solver for real arithmetic that should be used to eliminate quantifiers",
 							true, false,
 							QuantifierEliminatorPropertyEditor.class),
-					createDescriptor(
-							"simplifier",
-							"real arithmetic simplifier",
-							"select the simplification algorithm that should be used to simplify arithmetical expressions",
-							true, false, SimplifierPropertyEditor.class),
+
 					createDescriptor(
 							"groebnerBasisCalculator",
 							"equation solver",
@@ -175,26 +171,20 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
 							GroebnerBasisCalculatorPropertyEditor.class),
 					createDescriptor(
 							"odeSolver",
-							"differential equation handler",
-							"select the solver that should be used to solve or handle differential equations",
+							"differential equation solver",
+							"select the solver that should be used to solve differential equations or handle them by differential induction",
 							true, false, ODESolversPropertyEditor.class),
-					createDescriptor(
-							"counterExampleGenerator",
+					createDescriptor("counterExampleGenerator",
 							"counterexample generator",
 							"select the tool for generating counterexamples",
 							true, false,
 							CounterExampleGeneratorPropertyEditor.class),
+					createDescriptor(
+							"simplifier",
+							"real arithmetic simplifier",
+							"select the simplification algorithm that should be used to simplify arithmetical expressions",
+							true, false, SimplifierPropertyEditor.class),
 					//
-					createDescriptor(
-							"splitBeyondFO",
-							"lazy QE (if no ITB)",
-							"simple heuristic: call reduce if only FO formulas are left in the sequent",
-							true, false),
-					createDescriptor(
-							"stopAtFO",
-							"stop strategy on first-order goals",
-							"if enabled the strategy will not apply rules to goals that are already first order",
-							true, false),
 					createDescriptor(
 							"ignoreAnnotations",
 							"ignore proof annotations",
@@ -283,17 +273,13 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
 	public static class ODESolversPropertyEditor extends
 			TaggedPropertyEditorSupport {
 
-		private static HashSet<String> values;
-
 		private static String[] getNames() {
-			if (values == null) {
-				Set<String> names = MathSolverManager.getODESolvers();
-				values = new LinkedHashSet<String>();
-				values.add("");
-				values.add("-");
-				for (String name : names) {
-					values.add(MathSolverManager.getODESolver(name).getName());
-				}
+			Set<String> names = MathSolverManager.getODESolvers();
+			HashSet<String> values = new LinkedHashSet<String>();
+			values.add("");
+			values.add("-");
+			for (String name : names) {
+				values.add(MathSolverManager.getODESolver(name).getName());
 			}
 			return values.toArray(new String[0]);
 		}
@@ -305,20 +291,17 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
 
 	public static class CounterExampleGeneratorPropertyEditor extends
 			TaggedPropertyEditorSupport {
-		private static HashSet<String> values;
 
 		private static String[] getNames() {
-			if (values == null) {
-				Set<String> names = MathSolverManager
-						.getCounterExampleGenerators();
-				values = new LinkedHashSet<String>();
-				values.add("");
-				values.add("-");
-				for (String name : names) {
-					values.add(MathSolverManager.getCounterExampleGenerator(
-							name).getName());
-				}
+			Set<String> names = MathSolverManager.getCounterExampleGenerators();
+			HashSet<String> values = new LinkedHashSet<String>();
+			values.add("");
+			values.add("-");
+			for (String name : names) {
+				values.add(MathSolverManager.getCounterExampleGenerator(name)
+						.getName());
 			}
+
 			return values.toArray(new String[0]);
 		}
 
@@ -329,19 +312,15 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
 
 	public static class QuantifierEliminatorPropertyEditor extends
 			TaggedPropertyEditorSupport {
-		private static HashSet<String> values;
 
 		private static String[] getNames() {
-			if (values == null) {
-				Set<String> names = MathSolverManager
-						.getQuantifierEliminators();
-				values = new LinkedHashSet<String>();
-				values.add("");
-				values.add("-");
-				for (String name : names) {
-					values.add(MathSolverManager.getQuantifierElimantor(name)
-							.getName());
-				}
+			Set<String> names = MathSolverManager.getQuantifierEliminators();
+			HashSet<String> values = new LinkedHashSet<String>();
+			values.add("");
+			values.add("-");
+			for (String name : names) {
+				values.add(MathSolverManager.getQuantifierElimantor(name)
+						.getName());
 			}
 			return values.toArray(new String[0]);
 		}
@@ -353,19 +332,16 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
 
 	public static class SimplifierPropertyEditor extends
 			TaggedPropertyEditorSupport {
-		private static HashSet<String> values;
 
 		private static String[] getNames() {
-			if (values == null) {
-				Set<String> names = MathSolverManager.getSimplifiers();
-				values = new LinkedHashSet<String>();
-				values.add("");
-				values.add("-");
-				for (String name : names) {
-					values.add(MathSolverManager.getSimplifier(name).getName());
-				}
-
+			Set<String> names = MathSolverManager.getSimplifiers();
+			HashSet<String> values = new LinkedHashSet<String>();
+			values.add("");
+			values.add("-");
+			for (String name : names) {
+				values.add(MathSolverManager.getSimplifier(name).getName());
 			}
+
 			return values.toArray(new String[0]);
 		}
 
@@ -375,22 +351,20 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
 	}
 
 	public static class GroebnerBasisCalculatorPropertyEditor extends
-	TaggedPropertyEditorSupport {
-		private static HashSet<String> values;
-		
+			TaggedPropertyEditorSupport {
+
 		private static String[] getNames() {
-			if (values == null) {
-				Set<String> names = MathSolverManager.getGroebnerBasisCalculators();
-				values = new LinkedHashSet<String>();
-				values.add("");
-				values.add("-");
-				for (String name : names) {
-					values.add(MathSolverManager.getGroebnerBasisCalculator(name).getName());
-				}
+			Set<String> names = MathSolverManager.getGroebnerBasisCalculators();
+			HashSet<String> values = new LinkedHashSet<String>();
+			values.add("");
+			values.add("-");
+			for (String name : names) {
+				values.add(MathSolverManager.getGroebnerBasisCalculator(name)
+						.getName());
 			}
 			return values.toArray(new String[0]);
 		}
-		
+
 		public GroebnerBasisCalculatorPropertyEditor() {
 			super(getNames(), getNames());
 		}
@@ -422,6 +396,14 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
 			TaggedPropertyEditorSupport {
 		public InvariantRulePropertyEditor() {
 			super(getNames(InvariantRule.values()), InvariantRule.values());
+		}
+	}
+
+	public static class FirstOrderStrategyPropertyEditor extends
+			TaggedPropertyEditorSupport {
+		public FirstOrderStrategyPropertyEditor() {
+			super(getNames(FirstOrderStrategy.values()), FirstOrderStrategy
+					.values());
 		}
 	}
 

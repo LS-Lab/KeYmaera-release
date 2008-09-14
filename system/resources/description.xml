@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<examples>
+	<example>
+		<name>Water Tank</name>
+		<path>/examples/hybrid/publish/water_tank.key</path>
+		<description>Standard water tank model, which regulates water level y between 1 and 12 by filling or emptying the water tank</description>
+		<img 
+href="http://www.functologic.com/info/fig-water-tank.png"/>
+		<requirements>
+			<some>
+				<quantifiereliminator>QepCad</quantifiereliminator>
+				<quantifiereliminator>Mathematica</quantifiereliminator>
+			</some>
+		</requirements>
+	</example>
+	<example>
+		<name>Bouncing Ball</name>
+		<path>/examples/hybrid/publish/bouncing-ball-random-H.key</path>
+		<description>A fully parametric version of the bouncing ball that jumps up and down while being bounced back from the ground.</description>
+		<img 
+href="http://www.functologic.com/info/fig-bouncing-ball.png"/>
+		<requirements>
+			<some>
+				<quantifiereliminator>Mathematica</quantifiereliminator>
+			</some>
+		</requirements>
+	</example>
+	<example>
+		<name>Controlled Moving Point</name>
+		<path>/examples/hybrid/publish/moving-point.key</path>
+		<description>Simple example of a controlled moving point that moves towards zero.</description>
+		<requirements>
+			<some>
+				<quantifiereliminator>QepCad</quantifiereliminator>
+				<quantifiereliminator>Mathematica</quantifiereliminator>
+			</some>
+		</requirements>
+	</example>
+	<example>
+		<name>Simple Acceleration</name>
+		<path>/examples/hybrid/groebner_basis/accel-simple.key</path>
+		<description>Simple example provable with Groebner Basis backend. Note that you have to disable your quantifier eliminator to prove this example. </description>
+	</example>
+	<example>
+		<name>Complete Acceleration</name>
+		<path>/examples/hybrid/groebner_basis/accel-complete.key</path>
+		<description>Complete acceleration example provable with Groebner Basis backend. Note that you have to disable your quantifier eliminator to prove this example. </description>
+	</example>
+</examples>

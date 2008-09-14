@@ -7,6 +7,8 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyEditor;
@@ -32,13 +34,27 @@ public class FilePropertyEditor extends PropertyEditorSupport implements
 		panel = new JPanel(new BorderLayout(5, 0));
 		comp = new JTextField();
 		comp.setText(file.getPath());
-		comp.addPropertyChangeListener(new PropertyChangeListener() {
+//		comp.addPropertyChangeListener(new PropertyChangeListener() {
+//
+//			@Override
+//			public void propertyChange(PropertyChangeEvent evt) {
+//				setValue(new File(comp.getText()));
+//			}
+//
+//		});
+		comp.addFocusListener(new FocusListener() {
 
 			@Override
-			public void propertyChange(PropertyChangeEvent evt) {
-				setValue(new File(comp.getText()));
+			public void focusGained(FocusEvent e) {
+				// TODO Auto-generated method stub
+				
 			}
 
+			@Override
+			public void focusLost(FocusEvent e) {
+				setValue(new File(comp.getText()));
+			}
+			
 		});
 		panel.add(comp, BorderLayout.CENTER);
 		panel.add(button, BorderLayout.EAST);

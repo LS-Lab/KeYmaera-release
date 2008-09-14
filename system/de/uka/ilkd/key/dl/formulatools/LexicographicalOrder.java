@@ -149,7 +149,8 @@ public class LexicographicalOrder {
 						return res;
 					} else {
 						RigidFunction rf = (RigidFunction) current.op();
-						if (rf.isSkolem()) {
+						// test for skolem function
+						if (rf.isSkolem() || rf.name().toString().endsWith("$sk")) {
 							variables.add(current);
 							Info i = new Info(0);
 							i.degree = 1;
@@ -257,6 +258,7 @@ public class LexicographicalOrder {
 		// the dynamically changing set of variables that are already included
 		// in the current subsequent
 		final Set<Term> currentVariables = new HashSet<Term>();
+		//@TODO BUG: this variable is always empty
 
 		comparators.add(new Comparator<TermInformations>() {
 

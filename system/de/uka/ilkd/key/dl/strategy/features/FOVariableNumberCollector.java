@@ -62,7 +62,7 @@ public class FOVariableNumberCollector {
                             } catch (Exception e) {
                                 // s is not a number
                             }
-                        } else if (op.arity() > 0 & op.arity() < 3) {
+                        } else if (op.arity() > 0 && op.arity() < 3) {
                             if (s.equalsIgnoreCase("add")
                                     || s.equalsIgnoreCase("sub")
                                     || s.equalsIgnoreCase("mul")
