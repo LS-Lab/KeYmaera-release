@@ -606,7 +606,7 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 		{
 			final RuleAppBuffer buffy = new RuleAppBuffer();
 			final Buffer<ProgramElement> buf = new Buffer<ProgramElement>();
-			bindRuleSet(d, "diff_ineq_weaken", storeRuleApp(buffy, ifZero(
+			bindRuleSet(d, "diff_ineq_weaken", storeRuleApp(buffy, ifZero(ifZero(
 					ContainsInequalityFeature.INSTANCE,
 					not(sum(buf, DiffSystemWeakenCandidates.INSTANCE, add(
 							buffy, instantiate(new Name("#newsys"), buf),
@@ -620,7 +620,7 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 									// new Case(longConst(1), longConst(6000)),
 									new Case(longConst(1), inftyConst()),
 									new Case(inftyConst(), inftyConst()))))))),
-					inftyConst())));
+					inftyConst()), longConst(-4000), inftyConst())));
 		}
 		if (DLOptionBean.INSTANCE.getDiffSat().compareTo(DiffSat.DIFF) >= 0) {
 			final TermBuffer augInst = new TermBuffer();
