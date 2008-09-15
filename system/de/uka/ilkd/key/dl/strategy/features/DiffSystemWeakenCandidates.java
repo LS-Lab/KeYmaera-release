@@ -120,7 +120,7 @@ public class DiffSystemWeakenCandidates implements Generator<ProgramElement> {
 			Set powerset = Setops.powerset(curForms);
 
 			Set<ProgramVariable> currentDottedVars = new HashSet<ProgramVariable>();
-
+			System.out.println("Dotted vars are: " + dottedVars);//XXX
 			for (Object s : powerset) {
 				Set set = (Set) s;
 				if (!set.isEmpty()) {
@@ -130,16 +130,14 @@ public class DiffSystemWeakenCandidates implements Generator<ProgramElement> {
 						Formula form = (Formula) f;
 						can.add(form);
 						collectDottedProgramVariables(form, currentDottedVars);
+						System.out.println("Current dotted Vars: " + currentDottedVars);//XXX
 					}
 					// only add the candidate if it has the same change-set.
 					// (i.e. does not change new variables and does, on the
 					// other hand, change every variable that was changed
 					// before). The first part is necessary for soundness of the
 					// rule. The second part is an heuristic.
-					if (Setops.intersection(dottedVars, currentDottedVars)
-							.size() == dottedVars.size()
-							&& (Setops.union(dottedVars, currentDottedVars)
-									.size() <= dottedVars.size())) {
+					if (dottedVars.equals(currentDottedVars)) {
 						candidates.add(tf.createDiffSystem(can));
 					}
 
@@ -213,8 +211,8 @@ public class DiffSystemWeakenCandidates implements Generator<ProgramElement> {
 		if (form instanceof Dot) {
 			ProgramVariable pv = (ProgramVariable) ((Dot) form).getChildAt(0);
 			vars.add(pv);
-		}
-		if (form instanceof DLNonTerminalProgramElement) {
+			
+		} else if (form instanceof DLNonTerminalProgramElement) {
 			DLNonTerminalProgramElement dlnpe = (DLNonTerminalProgramElement) form;
 			for (ProgramElement p : dlnpe) {
 				collectDottedProgramVariables(p, vars);

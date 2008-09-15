@@ -37,7 +37,6 @@ public class ContainsInequalityFeature implements Feature {
 	 */
 	@Override
 	public RuleAppCost compute(RuleApp app, PosInOccurrence pos, Goal goal) {
-		System.out.println(app.rule());//XXX
 		Term term = pos.constrainedFormula().formula();
 		while (term.op() instanceof QuanUpdateOperator) {
 			term = ((QuanUpdateOperator) term.op()).target(term);
