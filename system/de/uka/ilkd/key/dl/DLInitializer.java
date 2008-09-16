@@ -96,55 +96,61 @@ public class DLInitializer {
 		}
 
 		public void actionPerformed(ActionEvent e) {
-			final Proof proof = mediator.getSelectedProof();
-			if (mediator != null && proof != null) {
+			if (mediator != null) {
+				final Proof proof = mediator.getSelectedProof();
+				if (proof != null) {
 
-				String stats = proof.statistics();
+					String stats = proof.statistics();
 
-				int interactiveSteps = computeInteractiveSteps(proof.root());
+					int interactiveSteps = computeInteractiveSteps(proof.root());
 
-				stats += "Interactive Steps: " + interactiveSteps;
+					stats += "Interactive Steps: " + interactiveSteps;
 
-				stats += "\n"
-						+ "Time: "
-						+ (((double) TimeStatisticGenerator.INSTANCE.getTime()) / 1000.0d)
-						+ " seconds";
-
-				try {
-					long totalCaclulationTime = TimeStatisticGenerator.INSTANCE
-							.getTotalCalculationTime();
-					if (totalCaclulationTime != -1) {
-						stats += "\n" + "Arithmetic Solver: "
-								+ (((double) totalCaclulationTime) / 1000d);
-					}
-					long totalMemory = TimeStatisticGenerator.INSTANCE
-							.getTotalMemory();
-					if (totalMemory != -1) {
-						StringWriter writer = new StringWriter();
-						new PrintWriter(writer).printf("%.3f Mb",
-								(totalMemory / 1024d / 1024d));
-						stats += "\n" + "Arithmetic Memory: "
-								+ writer.toString();
-					}
-
-					long cachedAnwsers = TimeStatisticGenerator.INSTANCE
-							.getCachedAnswers();
-					if (cachedAnwsers != -1) {
-						stats += "\n" + "CachedAnwsers/Queries: "
-								+ cachedAnwsers + " / "
-								+ TimeStatisticGenerator.INSTANCE.getQueries();
-					}
 					stats += "\n"
-							+ "Program Variables: "
-							+ mediator.namespaces().programVariables()
-									.elements().size();
-				} catch (RemoteException e1) {
-					// if there is an exception the statistic is not
-					// displayed
-				}
+							+ "Time: "
+							+ (((double) TimeStatisticGenerator.INSTANCE
+									.getTime()) / 1000.0d) + " seconds";
 
-				JOptionPane.showMessageDialog(main, stats, "Proof Statistics",
-						JOptionPane.INFORMATION_MESSAGE);
+					try {
+						long totalCaclulationTime = TimeStatisticGenerator.INSTANCE
+								.getTotalCalculationTime();
+						if (totalCaclulationTime != -1) {
+							stats += "\n" + "Arithmetic Solver: "
+									+ (((double) totalCaclulationTime) / 1000d);
+						}
+						long totalMemory = TimeStatisticGenerator.INSTANCE
+								.getTotalMemory();
+						if (totalMemory != -1) {
+							StringWriter writer = new StringWriter();
+							new PrintWriter(writer).printf("%.3f Mb",
+									(totalMemory / 1024d / 1024d));
+							stats += "\n" + "Arithmetic Memory: "
+									+ writer.toString();
+						}
+
+						long cachedAnwsers = TimeStatisticGenerator.INSTANCE
+								.getCachedAnswers();
+						if (cachedAnwsers != -1) {
+							stats += "\n"
+									+ "CachedAnwsers/Queries: "
+									+ cachedAnwsers
+									+ " / "
+									+ TimeStatisticGenerator.INSTANCE
+											.getQueries();
+						}
+						stats += "\n"
+								+ "Program Variables: "
+								+ mediator.namespaces().programVariables()
+										.elements().size();
+					} catch (RemoteException e1) {
+						// if there is an exception the statistic is not
+						// displayed
+					}
+
+					JOptionPane
+							.showMessageDialog(main, stats, "Proof Statistics",
+									JOptionPane.INFORMATION_MESSAGE);
+				}
 			}
 		}
 

@@ -197,7 +197,7 @@ public class Term2ExprConverter implements ExprConstants {
                 }
             } else if (form.op() == Quantifier.EX) {
                 assert args.length == 1 : "'Unary' KeY quantifier \\exists x ("
-                        + args + ")";
+                        + Arrays.toString(args) + ")";
                 if (args[0].head() == EXISTS) {
                     assert args[0].args().length == 2 : "'Binary' quantifier with variables and formula";
                     Expr kernel = args[0].args()[1];
