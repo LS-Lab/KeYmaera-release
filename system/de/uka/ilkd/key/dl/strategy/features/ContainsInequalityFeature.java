@@ -11,6 +11,7 @@ import de.uka.ilkd.key.java.StatementBlock;
 import de.uka.ilkd.key.logic.PosInOccurrence;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.op.Op;
+import de.uka.ilkd.key.logic.op.QuanUpdateOperator;
 import de.uka.ilkd.key.proof.Goal;
 import de.uka.ilkd.key.rule.RuleApp;
 import de.uka.ilkd.key.strategy.LongRuleAppCost;
@@ -36,11 +37,13 @@ public class ContainsInequalityFeature implements Feature {
 	 */
 	@Override
 	public RuleAppCost compute(RuleApp app, PosInOccurrence pos, Goal goal) {
-		System.out.println(app.rule());//XXX
-		if ((pos.isInAntec() && pos.constrainedFormula().formula().op() == Op.BOX)
-				|| (!pos.isInAntec() && pos.constrainedFormula().formula().op() == Op.DIA)) {
-			Term formula = pos.constrainedFormula().formula();
-			DiffSystem one = (DiffSystem) ((StatementBlock) formula.javaBlock()
+		Term term = pos.constrainedFormula().formula();
+		while (term.op() instanceof QuanUpdateOperator) {
+			term = ((QuanUpdateOperator) term.op()).target(term);
+		}
+		if ((pos.isInAntec() && term.op() == Op.BOX)
+				|| (!pos.isInAntec() && term.op() == Op.DIA)) {
+			DiffSystem one = (DiffSystem) ((StatementBlock) term.javaBlock()
 					.program()).getChildAt(0);
 			for (ProgramElement p : one.getDifferentialEquations()) {
 				if (p instanceof PredicateTerm) {

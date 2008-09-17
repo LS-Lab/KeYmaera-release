@@ -46,6 +46,7 @@ import de.uka.ilkd.key.dl.strategy.features.ContainsInequalityFeature;
 import de.uka.ilkd.key.dl.strategy.features.DiffIndCandidates;
 import de.uka.ilkd.key.dl.strategy.features.DiffInvariantPresentFeature;
 import de.uka.ilkd.key.dl.strategy.features.DiffSatFeature;
+import de.uka.ilkd.key.dl.strategy.features.DiffSystemWeakenCandidates;
 import de.uka.ilkd.key.dl.strategy.features.DiffWeakenFeature;
 import de.uka.ilkd.key.dl.strategy.features.EliminateExistentialApproveFeature;
 import de.uka.ilkd.key.dl.strategy.features.FOFormula;
@@ -58,12 +59,17 @@ import de.uka.ilkd.key.dl.strategy.features.LoopInvariantRuleDispatchFeature;
 import de.uka.ilkd.key.dl.strategy.features.ODESolvableFeature;
 import de.uka.ilkd.key.dl.strategy.features.OnlyOncePerBranchFeature;
 import de.uka.ilkd.key.dl.strategy.features.PostDiffStrengthFeature;
+import de.uka.ilkd.key.dl.strategy.features.ProgramSVInstantiationCP;
+import de.uka.ilkd.key.dl.strategy.features.ProjectionToProgramElement;
 import de.uka.ilkd.key.dl.strategy.features.ReduceFeature;
 import de.uka.ilkd.key.dl.strategy.features.SimplifyFeature;
 import de.uka.ilkd.key.dl.strategy.features.SwitchFeature;
 import de.uka.ilkd.key.dl.strategy.features.TimeoutTestApplicationFeature;
 import de.uka.ilkd.key.dl.strategy.features.SwitchFeature.Case;
+import de.uka.ilkd.key.dl.strategy.termProjection.Buffer;
+import de.uka.ilkd.key.dl.strategy.termProjection.Generator;
 import de.uka.ilkd.key.dl.strategy.termProjection.UltimatePostProjection;
+import de.uka.ilkd.key.java.ProgramElement;
 import de.uka.ilkd.key.logic.IteratorOfConstrainedFormula;
 import de.uka.ilkd.key.logic.Name;
 import de.uka.ilkd.key.logic.PosInOccurrence;
@@ -326,7 +332,8 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 				IterativeReduceRule.INSTANCE, inftyConst());
 		if (MathSolverManager.isQuantifierEliminatorSet()) {
 			// call reduce is set if the value is not STOP or UNFOLD
-			if (DLOptionBean.INSTANCE.getFoStrategy().compareTo(FirstOrderStrategy.UNFOLD) > 0) {
+			if (DLOptionBean.INSTANCE.getFoStrategy().compareTo(
+					FirstOrderStrategy.UNFOLD) > 0) {
 				if (DLOptionBean.INSTANCE.getFoStrategy() == FirstOrderStrategy.IBC) {
 					/*
 					 * basic idea of the following statement: - check for
@@ -451,17 +458,11 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 	private void setupDiffSatStrategy(final RuleSetDispatchFeature d) {
 		bindRuleSet(d, "diff_normalize_dnf", longConst(5000));
 		bindRuleSet(d, "diff_normalize_choice", longConst(10000));
-//		bindRuleSet(d, "diff_ineq_weaken", ifZero(ContainsInequalityFeature.INSTANCE,
-//				new SwitchFeature(new HypotheticalProvabilityFeature(DLOptionBean.INSTANCE
-//						.getDiffSatTimeout()), 
-//						new Case(longConst(0),longConst(-4000)),
-//				// reject if it	doesn't help, but retry costs
-////						new Case(longConst(1), longConst(6000)), 
-//						new Case(longConst(1), inftyConst()), 
-//						new Case(inftyConst(), inftyConst())),inftyConst()));
-		bindRuleSet(d, "diff_ineq_weaken",inftyConst());
-//		bindRuleSet(d, "diff_ineq_weaken", ifZero(ContainsInequalityFeature.INSTANCE,longConst(-4000)));
-		
+
+		// bindRuleSet(d, "diff_ineq_weaken",inftyConst());
+		// bindRuleSet(d, "diff_ineq_weaken",
+		// ifZero(ContainsInequalityFeature.INSTANCE,longConst(-4000)));
+
 		if (DLOptionBean.INSTANCE.getDiffSat() != DiffSat.BLIND) {
 			bindRuleSet(d, "diff_solve", ifZero(ODESolvableFeature.INSTANCE,
 					longConst(4000), inftyConst()));
@@ -505,8 +506,8 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 															.getDiffSat()
 															.compareTo(
 																	DiffSat.DIFF) >= 0 ? // re
-																							// -
-																							// evaluate
+													// -
+													// evaluate
 													// feature
 													// at
 													// least
@@ -601,6 +602,26 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 	 */
 	private void setupDiffSatInstantiationStrategy(
 			final RuleSetDispatchFeature d) {
+
+		{
+			final RuleAppBuffer buffy = new RuleAppBuffer();
+			final Buffer<ProgramElement> buf = new Buffer<ProgramElement>();
+			bindRuleSet(d, "diff_ineq_weaken", storeRuleApp(buffy, ifZero(ifZero(
+					ContainsInequalityFeature.INSTANCE,
+					not(sum(buf, DiffSystemWeakenCandidates.INSTANCE, add(
+							buffy, instantiate(new Name("#newsys"), buf),
+							not(openCurrentRuleApp(new SwitchFeature(
+									new HypotheticalProvabilityFeature(
+											DLOptionBean.INSTANCE
+													.getDiffSatTimeout()),
+									new Case(longConst(0), longConst(0)),
+									// reject if it doesn't help, but retry
+									// costs
+									// new Case(longConst(1), longConst(6000)),
+									new Case(longConst(1), inftyConst()),
+									new Case(inftyConst(), inftyConst()))))))),
+					inftyConst()), longConst(-4000), inftyConst())));
+		}
 		if (DLOptionBean.INSTANCE.getDiffSat().compareTo(DiffSat.DIFF) >= 0) {
 			final TermBuffer augInst = new TermBuffer();
 			final RuleAppBuffer buffy = new RuleAppBuffer();
@@ -911,5 +932,17 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 	@Override
 	public long getTimeout(Goal goal, RuleApp app) {
 		return timeout;
+	}
+
+	protected Feature instantiate(Name sv, Buffer<ProgramElement> value) {
+		if (instantiateActive)
+			return ProgramSVInstantiationCP.create(sv, value, getBtManager());
+		else
+			return longConst(0);
+	}
+
+	protected <G> Feature sum(Buffer<G> x, Generator<G> gen, Feature body) {
+		return de.uka.ilkd.key.dl.strategy.termProjection.SumFeature.create(x,
+				gen, body);
 	}
 }

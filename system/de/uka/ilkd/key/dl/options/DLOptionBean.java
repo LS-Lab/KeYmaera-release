@@ -66,7 +66,7 @@ public class DLOptionBean implements Settings {
 	}
 
 	public static enum FirstOrderStrategy {
-		STOP("stop"), UNFOLD("unfold"), EAGER("eager"), IBC("Iterative Background Closure"), LAZY("lazy");
+		STOP("stop"), UNFOLD("unfold"), EAGER("eager"), IBC("IBC"), LAZY("lazy");
 		
 		private String string;
 
@@ -280,7 +280,7 @@ public class DLOptionBean implements Settings {
 		simplifyBeforeReduce = false;
 		simplifyAfterReduce = false;
                 simplifyAfterODESolve = false;
-		normalizeEquations = true;
+		normalizeEquations = false;
 		applyUpdatesToModalities = false;
 		counterExampleGenerator = "";
 		odeSolver = "";

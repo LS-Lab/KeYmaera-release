@@ -148,29 +148,11 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
 	 * (non-Javadoc)
 	 * 
 	 * @see de.uka.ilkd.key.rule.Rule#apply(de.uka.ilkd.key.proof.Goal,
-	 *      de.uka.ilkd.key.java.Services, de.uka.ilkd.key.rule.RuleApp)
+	 * de.uka.ilkd.key.java.Services, de.uka.ilkd.key.rule.RuleApp)
 	 */
 	public synchronized ListOfGoal apply(Goal goal, Services services,
 			RuleApp ruleApp) {
 		// Operator op = ruleApp.posInOccurrence().subTerm().op();
-		final List<Metavariable> ops = new ArrayList<Metavariable>();
-		ruleApp.posInOccurrence().constrainedFormula().formula().execPreOrder(
-				new Visitor() {
-
-					@Override
-					public void visit(Term visited) {
-						if (visited.op() instanceof Metavariable) {
-							if(!ops.contains(visited.op())) {
-								ops.add((Metavariable) visited.op());
-							}
-						}
-					}
-
-				});
-		if (ops.isEmpty()) {
-			throw new IllegalArgumentException(
-					"This rule can only be applied to Metavariables. But there are none found.");
-		}
 		List<Metavariable> variables = new ArrayList<Metavariable>();
 		if (ruleApp instanceof ReduceRuleApp) {
 			for (String varName : ((ReduceRuleApp) ruleApp).getVariables()) {
@@ -179,6 +161,26 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
 			}
 		}
 		if (variables.isEmpty()) {
+			final List<Metavariable> ops = new ArrayList<Metavariable>();
+			IteratorOfConstrainedFormula seqIt = goal.sequent().iterator();
+			while (seqIt.hasNext()) {
+				seqIt.next().formula().execPreOrder(new Visitor() {
+
+					@Override
+					public void visit(Term visited) {
+						if (visited.op() instanceof Metavariable) {
+							if (!ops.contains(visited.op())) {
+								ops.add((Metavariable) visited.op());
+							}
+						}
+					}
+
+				});
+			}
+			if (ops.isEmpty()) {
+				throw new IllegalArgumentException(
+						"This rule can only be applied to Metavariables. But there are none found.");
+			}
 			variables.addAll(ops);
 		}
 
@@ -227,7 +229,6 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
 		Set<Term> commonAnte = new HashSet<Term>();
 		Set<Term> commonSucc = new HashSet<Term>();
 		List<Goal> goalList = new ArrayList<Goal>(goals);
-		System.out.println("Found " + goalList.size() + " relevant goals");// XXX
 		IteratorOfConstrainedFormula iterator = goalList.get(0).sequent()
 				.antecedent().iterator();
 		while (iterator.hasNext()) {
@@ -275,20 +276,7 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
 		for (Term t : commonAnte) {
 			ante = TermFactory.DEFAULT.createJunctorTermAndSimplify(Op.AND,
 					ante, t);
-			final Set<Term> sk = new HashSet<Term>();
-			t.execPreOrder(new Visitor() {
-
-				@Override
-				public void visit(Term visited) {
-					if (visited.op() instanceof RigidFunction) {
-						RigidFunction f = (RigidFunction) visited.op();
-						if (f.isSkolem()) {
-							sk.add(visited);
-						}
-					}
-				}
-
-			});
+			final Set<Term> sk = findSkolemSymbols(t);
 			List<Term> orderedList = SkolemfunctionTracker.INSTANCE
 					.getOrderedList(sk);
 			for (Term s : orderedList) {
@@ -299,29 +287,16 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
 					commonVars.put(s, logicVariable);
 					commonMatches.add(new Match((RigidFunction) s.op(),
 							TermBuilder.DF.var(logicVariable)));
-					sk.remove(s);
+				} else {
+					skolemSymbols.add(s);
 				}
 			}
-			skolemSymbols.addAll(sk);
 		}
 		Term succ = TermBuilder.DF.ff();
 		for (Term t : commonSucc) {
 			succ = TermFactory.DEFAULT.createJunctorTermAndSimplify(Op.OR,
 					succ, t);
-			final Set<Term> sk = new HashSet<Term>();
-			t.execPreOrder(new Visitor() {
-
-				@Override
-				public void visit(Term visited) {
-					if (visited.op() instanceof RigidFunction) {
-						RigidFunction f = (RigidFunction) visited.op();
-						if (f.isSkolem()) {
-							sk.add(visited);
-						}
-					}
-				}
-
-			});
+			final Set<Term> sk = findSkolemSymbols(t);
 			List<Term> orderedList = SkolemfunctionTracker.INSTANCE
 					.getOrderedList(sk);
 			for (Term s : orderedList) {
@@ -332,10 +307,10 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
 					commonVars.put(s, logicVariable);
 					commonMatches.add(new Match((RigidFunction) s.op(),
 							TermBuilder.DF.var(logicVariable)));
-					sk.remove(s);
+				} else {
+					skolemSymbols.add(s);
 				}
 			}
-			skolemSymbols.addAll(sk);
 		}
 		for (Goal g : goals) {
 			Set<Term> findSkolemSymbols = findSkolemSymbols(g.sequent()
@@ -344,37 +319,37 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
 			Term antecendent = TermTools.createJunctorTermNAry(TermBuilder.DF
 					.tt(), Op.AND, g.sequent().antecedent().iterator(),
 					commonAnte);
-			System.out.println("Ante: " + antecendent);
 			Term succendent = TermTools.createJunctorTermNAry(TermBuilder.DF
 					.ff(), Op.OR, g.sequent().succedent().iterator(),
 					commonSucc);
-			System.out.println("CommonSucc: " + commonSucc);
-			System.out.println("Succ: " + succendent);
 			Set<Match> matches = new HashSet<Match>();
 			List<LogicVariable> vars = new ArrayList<LogicVariable>();
 			Term imp = TermBuilder.DF.imp(antecendent, succendent);
-			System.out.println("Created: " + imp);// XXX
 			List<Term> orderedList = SkolemfunctionTracker.INSTANCE
 					.getOrderedList(findSkolemSymbols);
 			for (Term sk : orderedList) {
-				if (sk.arity() > 0) {
-					LogicVariable logicVariable = new LogicVariable(new Name(sk
-							.op().name()
-							+ "$sk"), sk.op().sort(new Term[0]));
-					vars.add(logicVariable);
-					matches.add(new Match((RigidFunction) sk.op(),
-							TermBuilder.DF.var(logicVariable)));
-					findSkolemSymbols.remove(sk);
+				if (!commonVars.containsKey(sk)) {
+					if (sk.arity() > 0) {
+						LogicVariable logicVariable = new LogicVariable(
+								new Name(sk.op().name() + "$sk"), sk.op().sort(
+										new Term[0]));
+						vars.add(logicVariable);
+						matches.add(new Match((RigidFunction) sk.op(),
+								TermBuilder.DF.var(logicVariable)));
+					} else {
+						skolemSymbols.add(sk);
+					}
 				}
 			}
 			if (!matches.isEmpty()) {
 				imp = TermRewriter.replace(imp, matches);
 				for (QuantifiableVariable v : vars) {
-					imp = TermBuilder.DF.all(v, imp);
+					// imp = TermBuilder.DF.all(v, imp);
+					imp = TermFactory.DEFAULT.createQuantifierTerm(Op.ALL, v,
+							imp);
 				}
 			}
 
-			skolemSymbols.addAll(findSkolemSymbols);
 			query = TermBuilder.DF.and(query, imp);
 		}
 
@@ -384,7 +359,9 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
 		}
 		for (Term sk : SkolemfunctionTracker.INSTANCE.getOrderedList(commonVars
 				.keySet())) {
-			query = TermBuilder.DF.all(commonVars.get(sk), query);
+			// query = TermBuilder.DF.all(commonVars.get(sk), query);
+			query = TermFactory.DEFAULT.createQuantifierTerm(Op.ALL, commonVars
+					.get(sk), query);
 			// TODO: check if we can avoid adding these variables to the
 			// namespace...
 			services.getNamespaces().variables().add(commonVars.get(sk));
@@ -454,20 +431,32 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
 	private Set<Term> findSkolemSymbols(IteratorOfConstrainedFormula iterator) {
 		final Set<Term> result = new HashSet<Term>();
 		while (iterator.hasNext()) {
-			iterator.next().formula().execPreOrder(new Visitor() {
+			result.addAll(findSkolemSymbols(iterator.next().formula()));
+		}
+		return result;
+	}
 
-				@Override
-				public void visit(Term visited) {
-					if (visited.op() instanceof RigidFunction) {
-						RigidFunction f = (RigidFunction) visited.op();
-						if (f.isSkolem()) {
-							result.add(visited);
-						}
+	/**
+	 * Find skolem functions that occur in the given formulas
+	 * 
+	 * @param iterator
+	 * @return
+	 */
+	private Set<Term> findSkolemSymbols(Term t) {
+		final Set<Term> result = new HashSet<Term>();
+		t.execPreOrder(new Visitor() {
+
+			@Override
+			public void visit(Term visited) {
+				if (visited.op() instanceof RigidFunction) {
+					RigidFunction f = (RigidFunction) visited.op();
+					if (f.isSkolem()) {
+						result.add(visited);
 					}
 				}
+			}
 
-			});
-		}
+		});
 		return result;
 	}
 
@@ -504,9 +493,9 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see de.uka.ilkd.key.rule.BuiltInRule#isApplicable(de.uka.ilkd.key.proof.Goal,
-	 *      de.uka.ilkd.key.logic.PosInOccurrence,
-	 *      de.uka.ilkd.key.logic.Constraint)
+	 * @see
+	 * de.uka.ilkd.key.rule.BuiltInRule#isApplicable(de.uka.ilkd.key.proof.Goal,
+	 * de.uka.ilkd.key.logic.PosInOccurrence, de.uka.ilkd.key.logic.Constraint)
 	 */
 	public boolean isApplicable(Goal goal, PosInOccurrence pio,
 			Constraint userConstraint) {
