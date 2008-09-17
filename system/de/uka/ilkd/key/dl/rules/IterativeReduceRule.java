@@ -145,13 +145,15 @@ public class IterativeReduceRule implements BuiltInRule, RuleFilter {
 	public ListOfGoal apply(Goal goal, Services services, RuleApp ruleApp) {
 		long timeout = 2000;
 		final boolean automode = Main.getInstance().mediator().autoMode();
+		
 		// IDEA: initial sequent is successively moved from ante/succ to
 		// usedAnte/usedSucc
 		// parts of initAnte/initSucc that still make sense to be added
 		Queue<Term> ante = LexicographicalOrder.getOrder(createList(goal
-				.sequent().antecedent().iterator()));
+				.sequent().antecedent().iterator()), new HashSet<Term>());
 		Queue<Term> succ = LexicographicalOrder.getOrder(createList(goal
-				.sequent().succedent().iterator()));
+				.sequent().succedent().iterator()), new HashSet<Term>());
+		System.out.println("Sorted seq: " + ante + " -> " + succ);//XXX
 		// parts of ante/succ that are used in the current frontier
 		List<Term> usedAnte = new ArrayList<Term>();
 		List<Term> usedSucc = new ArrayList<Term>();
@@ -160,7 +162,7 @@ public class IterativeReduceRule implements BuiltInRule, RuleFilter {
 
 		// current frontier of re-tested queries
 		Queue<QueryTriple> currentQueryCache = new LinkedList<QueryTriple>();
-
+		Set<Term> currentVariables = new HashSet<Term>();
 		while (true) {
 			if (automode && !Main.getInstance().mediator().autoMode()) {
 				// automode stopped
@@ -176,6 +178,7 @@ public class IterativeReduceRule implements BuiltInRule, RuleFilter {
 			}
 			// loop until all added or all remaining cached items have been
 			// visited again
+			
 			while (!ante.isEmpty() || !succ.isEmpty()
 					|| !currentQueryCache.isEmpty()) {
 				// during first sweep, only repeat with current timeout as long
@@ -192,7 +195,7 @@ public class IterativeReduceRule implements BuiltInRule, RuleFilter {
 							Set<Term> next = new HashSet<Term>();
 							next.add(ante.peek());
 							next.add(succ.peek());
-							Queue<Term> order = LexicographicalOrder.getOrder(next);
+							Queue<Term> order = LexicographicalOrder.getOrder(next, currentVariables);
 							if (order.peek() == ante.peek()) {
 								usedAnte.add(ante.poll());
 							} else {
