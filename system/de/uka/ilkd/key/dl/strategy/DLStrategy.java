@@ -736,8 +736,8 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 				isAnnotated("variant"),
 				// @todo rename n in both instantiations when it already occurs
 				// elsewhere
-				add(instantiate("inv", annotationOf("variant", true, 0, 2)),
-						instantiate("n", annotationOf("variant", true, 1, 2))),
+				add(instantiate("inv", annotationOf("variant", true, 1, 2)),
+						instantiate("n", annotationOf("variant", true, 0, 2))),
 				inftyConst()));
 	}
 
