@@ -23,7 +23,9 @@
 package de.uka.ilkd.key.dl.strategy.features;
 
 import java.rmi.RemoteException;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.WeakHashMap;
 
 import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
@@ -34,6 +36,8 @@ import de.uka.ilkd.key.gui.Main;
 import de.uka.ilkd.key.logic.PosInOccurrence;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.TermBuilder;
+import de.uka.ilkd.key.logic.Visitor;
+import de.uka.ilkd.key.logic.op.Metavariable;
 import de.uka.ilkd.key.proof.Goal;
 import de.uka.ilkd.key.proof.Node;
 import de.uka.ilkd.key.rule.Rule;
@@ -60,8 +64,10 @@ public class TimeoutTestApplicationFeature implements Feature {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see de.uka.ilkd.key.strategy.feature.Feature#compute(de.uka.ilkd.key.rule.RuleApp,
-	 *      de.uka.ilkd.key.logic.PosInOccurrence, de.uka.ilkd.key.proof.Goal)
+	 * @see
+	 * de.uka.ilkd.key.strategy.feature.Feature#compute(de.uka.ilkd.key.rule
+	 * .RuleApp, de.uka.ilkd.key.logic.PosInOccurrence,
+	 * de.uka.ilkd.key.proof.Goal)
 	 */
 	public RuleAppCost compute(RuleApp app, PosInOccurrence pos, Goal goal) {
 		Node firstNodeAfterBranch = getFirstNodeAfterBranch(goal.node());
@@ -207,7 +213,34 @@ public class TimeoutTestApplicationFeature implements Feature {
 			// @TODO pass goal.proof().getServices() instead?
 			if (rule.test(goal, Main.getInstance().mediator().getServices(),
 					app, timeout)) {
-				result = TestResult.SUCCESS;
+				// if there are less meta vars now, we propably cannot close
+				// this goal anymore, so do not apply the elimination rule for
+				// universal quantifiers
+				if (rule.getInputFormula().metaVars().size() == rule
+						.getResultFormula().metaVars().size()) {
+					final Set<Metavariable> vars = new HashSet<Metavariable>();
+					Visitor visitor = new Visitor() {
+
+						@Override
+						public void visit(Term visited) {
+							if (visited.op() instanceof Metavariable) {
+								vars.add((Metavariable) visited.op());
+							}
+						}
+
+					};
+					rule.getInputFormula().execPostOrder(visitor);
+					int size = vars.size();
+					vars.clear();
+					rule.getResultFormula().execPostOrder(visitor);
+					if(size < vars.size()) {
+						result = TestResult.FAILURE;
+					} else {
+						result = TestResult.SUCCESS;
+					}
+				} else {
+					result = TestResult.FAILURE;
+				}
 			} else {
 				if (rule.isUnsolvable()) {
 					result = TestResult.UNSOLVABLE;

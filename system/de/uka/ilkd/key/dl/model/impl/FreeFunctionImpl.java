@@ -24,11 +24,11 @@
 
 package de.uka.ilkd.key.dl.model.impl;
 
-import de.uka.ilkd.key.logic.Name;
 import java.util.Map;
 import java.util.WeakHashMap;
 
 import de.uka.ilkd.key.dl.model.FreeFunction;
+import de.uka.ilkd.key.logic.Name;
 
 /**
  * Implementation of {@link FreeFunction}. Weak hashing of the functions is
@@ -65,6 +65,9 @@ public class FreeFunctionImpl extends FunctionImpl implements FreeFunction {
 	 * @return the new or cached function
 	 */
 	public static FreeFunction getFunction(Name name) {
+		if(name.toString().startsWith("$")) {
+			throw new IllegalArgumentException("Dollar ($) prefix is reserved for logic variables!");
+		}
 		FreeFunction result = instances.get(name);
 		if (result == null) {
 			result = new FreeFunctionImpl(name);

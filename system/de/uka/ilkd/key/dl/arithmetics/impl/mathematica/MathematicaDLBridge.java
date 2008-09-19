@@ -652,6 +652,10 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 			long timeout) throws RemoteException, SolverException {
 		Expr query = Term2ExprConverter.convert2Expr(form);
 		List<Expr> vars = new ArrayList<Expr>();
+		for (String name : additionalReduce) {
+			String sym = name.replaceAll("_", USCORE_ESCAPE);
+			vars.add(new Expr(Expr.SYMBOL, sym));
+		}
 		for (PairOfTermAndQuantifierType pair : quantifiers) {
 			Expr convert2Expr = Term2ExprConverter.convert2Expr(pair.term);
 			vars.add(convert2Expr);
@@ -673,10 +677,6 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 						new Expr(LIST, new Expr[] { convert2Expr }), query });
 			}
 
-		}
-		for (String name : additionalReduce) {
-			String sym = name.replaceAll("_", USCORE_ESCAPE);
-			vars.add(new Expr(Expr.SYMBOL, sym));
 		}
 		Expr arg3 = new Expr(Expr.SYMBOL, "Reals");
 		Expr[] argList = new Expr[] { query, };
