@@ -150,6 +150,11 @@ public class Prog2LogicConverter extends AbstractMetaOperator {
 		de.uka.ilkd.key.logic.op.Function result = (de.uka.ilkd.key.logic.op.Function) namespaces
 				.functions().lookup(name);
 
+		if (name.toString().startsWith("$")) {
+			throw new IllegalArgumentException(
+					"Dollar ($) prefix is reserved for logic variables!");
+		}
+
 		if (result == null) {
 			Sort[] sorts = new Sort[arity];
 			Sort sortR = RealLDT.getRealSort();
@@ -202,6 +207,23 @@ public class Prog2LogicConverter extends AbstractMetaOperator {
 				return termBuilder.equals(subTerms[0], subTerms[1]);
 				// return termBuilder.tf().createEqualityTerm(subTerms);
 			} else {
+				if (elementName.toString().startsWith("$")) {
+					LogicVariable var = (LogicVariable) services
+							.getNamespaces().variables().lookup(
+									((NamedElement) p.getChildAt(0))
+											.getElementName());
+					if (var == null) { // XXX
+						// TODO: find a way to locate bound variable objects
+						System.out.println("Could not find logic variable "
+								+ ((NamedElement) p.getChildAt(0))
+										.getElementName());// XXX
+						var = new LogicVariable(
+								((NamedElement) p.getChildAt(0))
+										.getElementName(), sortR);
+						services.getNamespaces().variables().add(var);
+					}
+					return termBuilder.var(var);
+				}
 				return termBuilder.func(getFunction(elementName, services
 						.getNamespaces(), subTerms.length, Sort.FORMULA),
 						subTerms);
@@ -209,6 +231,28 @@ public class Prog2LogicConverter extends AbstractMetaOperator {
 
 		} else if (form instanceof FunctionTerm) {
 			FunctionTerm p = (FunctionTerm) form;
+			if (p.getChildAt(0) instanceof Variable) {
+				return convertRecursivly(p.getChildAt(0), services,
+						dotReplacementmap);
+			}
+			if (((NamedElement) p.getChildAt(0)).getElementName().toString()
+					.startsWith("$")) {
+				LogicVariable var = (LogicVariable) services.getNamespaces()
+						.variables().lookup(
+								((NamedElement) p.getChildAt(0))
+										.getElementName());
+				if (var == null) { // XXX
+					// TODO: find a way to locate bound variable objects
+					System.out
+							.println("Could not find logic variable "
+									+ ((NamedElement) p.getChildAt(0))
+											.getElementName());// XXX
+					var = new LogicVariable(((NamedElement) p.getChildAt(0))
+							.getElementName(), sortR);
+					services.getNamespaces().variables().add(var);
+				}
+				return termBuilder.var(var);
+			}
 			Term[] subTerms = new Term[p.getChildCount() - 1];
 
 			for (int i = 1; i < p.getChildCount(); i++) {
@@ -279,8 +323,8 @@ public class Prog2LogicConverter extends AbstractMetaOperator {
 			} else if (p instanceof Not) {
 				return termBuilder.not(subTerms[0]);
 			} else if (p instanceof Dot) {
-				final String name = ((NamedElement) p.getChildAt(0)).getElementName()
-						.toString();
+				final String name = ((NamedElement) p.getChildAt(0))
+						.getElementName().toString();
 				if (dotReplacementmap.containsKey(name + ((Dot) p).getOrder())) {
 					return dotReplacementmap.get(name + ((Dot) p).getOrder());
 				}
@@ -327,6 +371,7 @@ public class Prog2LogicConverter extends AbstractMetaOperator {
 					System.out.println("Could not find logic variable "
 							+ elementName);// XXX
 					var = new LogicVariable(elementName, sortR);
+					services.getNamespaces().variables().add(var);
 				}
 				return termBuilder.var(var);
 			} else if (form instanceof MetaVariable) {
@@ -380,6 +425,12 @@ public class Prog2LogicConverter extends AbstractMetaOperator {
 				.getNamespaces().programVariables().lookup(
 						form.getElementName());
 		if (var == null) {
+			if (form.getElementName().toString().startsWith("dollar$")) {
+				var = new LocationVariable(new ProgramElementName(form
+						.getElementName().toString()), RealLDT.getRealSort());
+				services.getNamespaces().programVariables().add(var);
+				return var;
+			}
 			throw new IllegalStateException("ProgramVariable " + form
 					+ " is not declared");
 		}

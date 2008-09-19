@@ -44,8 +44,6 @@ import de.uka.ilkd.key.strategy.feature.Feature;
  * 
  * @author jdq
  * @since 20.02.2007
- * @todo undo this slowish synchronization stuff after thinking about it
- *       properly
  */
 public class FOSequence implements Feature {
 

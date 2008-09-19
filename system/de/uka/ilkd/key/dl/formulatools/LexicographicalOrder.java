@@ -150,6 +150,7 @@ public class LexicographicalOrder {
 					} else {
 						RigidFunction rf = (RigidFunction) current.op();
 						// test for skolem function
+						System.out.println(rf.name());//XXX
 						if (rf.isSkolem()
 								|| rf.name().toString().endsWith("$sk")) {
 							variables.add(current);
@@ -166,9 +167,16 @@ public class LexicographicalOrder {
 					}
 				} else if (current.arity() == 0) {
 					Info i = new Info(0);
-
+					RigidFunction rf = (RigidFunction) current.op();
+					// test for skolem function
+					if (rf.isSkolem()
+							|| rf.name().toString().endsWith("$sk")) {
+						variables.add(current);
+						i.degree = 1;
+						return i;
+					}
 					try {
-						Integer.parseInt(current.op().name().toString());
+						Integer.parseInt(rf.name().toString());
 						i.degree = 0;
 						return i;
 					} catch (NumberFormatException e) {

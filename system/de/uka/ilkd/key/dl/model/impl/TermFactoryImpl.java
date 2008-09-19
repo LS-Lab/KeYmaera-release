@@ -186,12 +186,16 @@ public class TermFactoryImpl extends TermFactory {
 			return createFunctionTerm(t, params);
 		} else if (params.size() == 0) {
 			Named logicVar = getNamespaces().variables().lookup(name);
+			if(logicVar == null && t.getText().startsWith("$")) {
+				logicVar = new LogicVariable(name, RealLDT.getRealSort());
+				getNamespaces().variables().add(logicVar);
+			}
 			if (logicVar != null) {
-				assert getNamespaces().programVariables().lookup(name) == null;
+				assert getNamespaces().programVariables().lookup(logicVar.name()) == null;
 				if (logicVar instanceof LogicVariable) {
-					return LogicalVariableImpl.getLogicalVariable(name);
+					return LogicalVariableImpl.getLogicalVariable(logicVar.name());
 				} else if (logicVar instanceof Metavariable) {
-					return createMetaVariable(name.toString());
+					return createMetaVariable(logicVar.name().toString());
 				} else {
 					throw new IllegalArgumentException(
 							"Dont know what to do with variable " + logicVar);
@@ -317,6 +321,9 @@ public class TermFactoryImpl extends TermFactory {
 	 * @return the new or cached program variable
 	 */
 	public ProgramVariable createProgramVariable(String name) {
+		if(name.startsWith("$")) {
+			return ProgramVariableImpl.getProgramVariable("dollar" + name, true);
+		}
 		if (getNamespaces().programVariables().lookup(new Name(name)) != null) {
 			assert getNamespaces().variables().lookup(new Name(name)) == null;
 			return ProgramVariableImpl.getProgramVariable(name, false);

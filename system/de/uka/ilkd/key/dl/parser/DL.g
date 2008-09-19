@@ -208,6 +208,6 @@ LESS_EQUALS : LESS EQUALS;
 GREATER_EQUALS : GREATER EQUALS;
 //WORD  	:   (('a'..'z'|'A'..'Z')('a'..'z'|'A'..'Z'|'0'..'9'|'_')+) ;
 NUM 	:   '0'..'9'* ('0'..'9'| ('.' '0'..'9'+)) ;
-WORD  	:   ('a'..'z'|'A'..'Z'|'0'..'9'|'_')+ ;
+WORD  	:   ('$'|'a'..'z'|'A'..'Z'|'0'..'9'|'_')+ ;
 WS  	:   (' '|'\t'|'\r'|'\n')+ {skip();} ;
 COMMENT :   '/*' .* '*/' {$channel=HIDDEN;};

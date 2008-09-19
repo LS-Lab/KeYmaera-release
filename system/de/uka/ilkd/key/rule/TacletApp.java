@@ -537,7 +537,7 @@ public abstract class TacletApp implements RuleApp {
         if (sv.isVariableSV() && !(term.op() instanceof LogicVariable)) {
             throw new IllegalInstantiationException("Could not add "
                     + "the instantiation of " + sv + " because " + term
-                    + " is no variable.");
+                    + " is no variable, but " + term.op().getClass());
         }
 
         MatchConditions cond = matchConditions();

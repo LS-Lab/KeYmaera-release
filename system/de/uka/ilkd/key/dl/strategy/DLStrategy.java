@@ -43,6 +43,7 @@ import de.uka.ilkd.key.dl.rules.SumOfSquaresRule;
 import de.uka.ilkd.key.dl.rules.VisualizationRule;
 import de.uka.ilkd.key.dl.strategy.features.AnnotationList;
 import de.uka.ilkd.key.dl.strategy.features.ContainsInequalityFeature;
+import de.uka.ilkd.key.dl.strategy.features.ContainsMetaVariableFeature;
 import de.uka.ilkd.key.dl.strategy.features.DiffIndCandidates;
 import de.uka.ilkd.key.dl.strategy.features.DiffInvariantPresentFeature;
 import de.uka.ilkd.key.dl.strategy.features.DiffSatFeature;
@@ -60,7 +61,6 @@ import de.uka.ilkd.key.dl.strategy.features.ODESolvableFeature;
 import de.uka.ilkd.key.dl.strategy.features.OnlyOncePerBranchFeature;
 import de.uka.ilkd.key.dl.strategy.features.PostDiffStrengthFeature;
 import de.uka.ilkd.key.dl.strategy.features.ProgramSVInstantiationCP;
-import de.uka.ilkd.key.dl.strategy.features.ProjectionToProgramElement;
 import de.uka.ilkd.key.dl.strategy.features.ReduceFeature;
 import de.uka.ilkd.key.dl.strategy.features.SimplifyFeature;
 import de.uka.ilkd.key.dl.strategy.features.SwitchFeature;
@@ -357,7 +357,10 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 															longConst(1),
 															DLOptionBean.INSTANCE
 																	.isUseIterativeReduceRule() ? inftyConst()
-																	: longConst(20000)),
+																	: SumFeature
+																			.createSum(new Feature[] {
+																					ContainsMetaVariableFeature.INSTANCE,
+																					longConst(20000) })),
 													new Case(inftyConst(),
 															inftyConst())),
 											inftyConst()));
@@ -606,21 +609,49 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 		{
 			final RuleAppBuffer buffy = new RuleAppBuffer();
 			final Buffer<ProgramElement> buf = new Buffer<ProgramElement>();
-			bindRuleSet(d, "diff_ineq_weaken", storeRuleApp(buffy, ifZero(ifZero(
-					ContainsInequalityFeature.INSTANCE,
-					not(sum(buf, DiffSystemWeakenCandidates.INSTANCE, add(
-							buffy, instantiate(new Name("#newsys"), buf),
-							not(openCurrentRuleApp(new SwitchFeature(
-									new HypotheticalProvabilityFeature(
-											DLOptionBean.INSTANCE
-													.getDiffSatTimeout()),
-									new Case(longConst(0), longConst(0)),
-									// reject if it doesn't help, but retry
-									// costs
-									// new Case(longConst(1), longConst(6000)),
-									new Case(longConst(1), inftyConst()),
-									new Case(inftyConst(), inftyConst()))))))),
-					inftyConst()), longConst(-4000), inftyConst())));
+			bindRuleSet(
+					d,
+					"diff_ineq_weaken",
+					storeRuleApp(
+							buffy,
+							ifZero(
+									ifZero(
+											ContainsInequalityFeature.INSTANCE,
+											not(sum(
+													buf,
+													DiffSystemWeakenCandidates.INSTANCE,
+													add(
+															buffy,
+															instantiate(
+																	new Name(
+																			"#newsys"),
+																	buf),
+															not(openCurrentRuleApp(new SwitchFeature(
+																	new HypotheticalProvabilityFeature(
+																			DLOptionBean.INSTANCE
+																					.getDiffSatTimeout()),
+																	new Case(
+																			longConst(0),
+																			longConst(0)),
+																	// reject if
+																	// it
+																	// doesn't
+																	// help, but
+																	// retry
+																	// costs
+																	// new Case(
+																	// longConst
+																	// (1),
+																	// longConst
+																	// (6000)),
+																	new Case(
+																			longConst(1),
+																			inftyConst()),
+																	new Case(
+																			inftyConst(),
+																			inftyConst()))))))),
+											inftyConst()), longConst(-4000),
+									inftyConst())));
 		}
 		if (DLOptionBean.INSTANCE.getDiffSat().compareTo(DiffSat.DIFF) >= 0) {
 			final TermBuffer augInst = new TermBuffer();

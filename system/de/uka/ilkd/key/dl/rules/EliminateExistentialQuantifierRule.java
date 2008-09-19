@@ -357,14 +357,17 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
 		if (!commonMatches.isEmpty()) {
 			query = TermRewriter.replace(query, commonMatches);
 		}
+		List<String> variableNames = new ArrayList<String>();
 		for (Term sk : SkolemfunctionTracker.INSTANCE.getOrderedList(commonVars
 				.keySet())) {
 			// query = TermBuilder.DF.all(commonVars.get(sk), query);
-			query = TermFactory.DEFAULT.createQuantifierTerm(Op.ALL, commonVars
-					.get(sk), query);
+			LogicVariable var = commonVars
+							.get(sk);
+			query = TermFactory.DEFAULT.createQuantifierTerm(Op.ALL, var, query);
+			variableNames.add(var.name().toString());
 			// TODO: check if we can avoid adding these variables to the
 			// namespace...
-			services.getNamespaces().variables().add(commonVars.get(sk));
+			services.getNamespaces().variables().add(var);
 		}
 		List<PairOfTermAndQuantifierType> quantifiers = new LinkedList<PairOfTermAndQuantifierType>();
 		for (Metavariable var : variables) {
@@ -383,7 +386,7 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
 						query, services.getNamespaces());
 			}
 			Term resultTerm = MathSolverManager
-					.getCurrentQuantifierEliminator().reduce(query,
+					.getCurrentQuantifierEliminator().reduce(query, variableNames,
 							quantifiers, services.getNamespaces());
 			if (DLOptionBean.INSTANCE.isSimplifyAfterReduce()) {
 				resultTerm = MathSolverManager.getCurrentSimplifier().simplify(
