@@ -150,7 +150,9 @@ public class LexicographicalOrder {
 					} else {
 						RigidFunction rf = (RigidFunction) current.op();
 						// test for skolem function
-						if (rf.isSkolem() || rf.name().toString().endsWith("$sk")) {
+						System.out.println(rf.name());//XXX
+						if (rf.isSkolem()
+								|| rf.name().toString().endsWith("$sk")) {
 							variables.add(current);
 							Info i = new Info(0);
 							i.degree = 1;
@@ -165,12 +167,19 @@ public class LexicographicalOrder {
 					}
 				} else if (current.arity() == 0) {
 					Info i = new Info(0);
-
+					RigidFunction rf = (RigidFunction) current.op();
+					// test for skolem function
+					if (rf.isSkolem()
+							|| rf.name().toString().endsWith("$sk")) {
+						variables.add(current);
+						i.degree = 1;
+						return i;
+					}
 					try {
-						Integer.parseInt(current.op().toString());
+						Integer.parseInt(rf.name().toString());
 						i.degree = 0;
 						return i;
-					} catch (Exception e) {
+					} catch (NumberFormatException e) {
 						variables.add(current);
 						i.degree = 1;
 						return i;
@@ -203,6 +212,14 @@ public class LexicographicalOrder {
 		public Term getT() {
 			return t;
 		}
+		
+		/* (non-Javadoc)
+		 * @see java.lang.Object#toString()
+		 */
+		@Override
+		public String toString() {
+			return "(" + t + ", " + degree + ", " + depth + ")";
+		}
 	}
 
 	/**
@@ -212,7 +229,8 @@ public class LexicographicalOrder {
 	 * @param terms
 	 * @return
 	 */
-	public static Queue<Term> getOrder(Set<Term> terms) {
+	public static Queue<Term> getOrder(Set<Term> terms,
+			final Set<Term> currentVariables) {
 		Set<TermInformations> infos = new HashSet<TermInformations>();
 		TreeMap<String, Integer> variables = new TreeMap<String, Integer>();
 		// collect term information and recency information
@@ -236,7 +254,9 @@ public class LexicographicalOrder {
 						variables.put(s, i);
 					}
 				} else {
-					variables.put(s, 0);
+					if(!variables.containsKey(s)) {
+						variables.put(s, 0);
+					}
 				}
 			}
 		}
@@ -253,12 +273,16 @@ public class LexicographicalOrder {
 				return o1.degree - o2.degree;
 			}
 
+			/*
+			 * (non-Javadoc)
+			 * 
+			 * @see java.lang.Object#toString()
+			 */
+			@Override
+			public String toString() {
+				return "DegreeComparator";
+			}
 		});
-
-		// the dynamically changing set of variables that are already included
-		// in the current subsequent
-		final Set<Term> currentVariables = new HashSet<Term>();
-		//@TODO BUG: this variable is always empty
 
 		comparators.add(new Comparator<TermInformations>() {
 
@@ -284,6 +308,15 @@ public class LexicographicalOrder {
 						- (o2.getVariables().size() - count2);
 			}
 
+			/*
+			 * (non-Javadoc)
+			 * 
+			 * @see java.lang.Object#toString()
+			 */
+			@Override
+			public String toString() {
+				return "VariableCountComparator";
+			}
 		});
 
 		// term depth order: shallow terms first
@@ -292,6 +325,16 @@ public class LexicographicalOrder {
 			@Override
 			public int compare(TermInformations o1, TermInformations o2) {
 				return o1.depth - o2.depth;
+			}
+
+			/*
+			 * (non-Javadoc)
+			 * 
+			 * @see java.lang.Object#toString()
+			 */
+			@Override
+			public String toString() {
+				return "DepthComparator";
 			}
 
 		});
@@ -314,17 +357,47 @@ public class LexicographicalOrder {
 
 		List<TermInformations> ordered = new ArrayList<TermInformations>(infos);
 
+		// XXX
+		List<TermInformations> test = new ArrayList<TermInformations>(infos);
+		
+		Collections.sort(test, comparators.get(0));
+		System.out.println("Recency: " + test);//XXX
+		test.clear();
+		test.addAll(infos);
+		Collections.sort(test, comparators.get(1));
+		System.out.println("Degree: " + test);//XXX
+		
+		Collections.sort(test, comparators.get(2));
+		System.out.println("Depth: " + test);//XXX
+		
+		// XXX
 		Queue<Term> result = new LinkedList<Term>();
 		// while we got terms we havent added to our result, we need to reorder
 		// all informations left and take the first one
+
 		while (!ordered.isEmpty()) {
 			// quick re-sort
 			Collections.sort(ordered, mainComparator);
 			// get minimum
 			TermInformations first = ordered.remove(0);
 
+//			System.out.println(first);
+//			int j = 0;
+//			System.out.println("\n" + comparators.get(j).toString());// XXX
+//			int compare = comparators.get(j).compare(first, ordered.get(0));
+//			while (compare == 0 && j + 1 < comparators.size()) {
+//				j++;
+//				Comparator<TermInformations> comparator = comparators.get(j);
+//				System.out.println("\n" + comparator.toString());// XXX
+//				compare = comparators.get(j).compare(first, ordered.get(0));
+//			}
+//			if(compare == 0) {
+//				System.out.println("String compare");
+//			}
+			
 			// implicitly changes comparator, so re-sort before next use in loop
 			currentVariables.addAll(first.getVariables());
+			
 			result.add(first.getT());
 		}
 
