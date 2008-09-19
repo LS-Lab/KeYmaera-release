@@ -213,34 +213,29 @@ public class TimeoutTestApplicationFeature implements Feature {
 			// @TODO pass goal.proof().getServices() instead?
 			if (rule.test(goal, Main.getInstance().mediator().getServices(),
 					app, timeout)) {
-				// if there are less meta vars now, we propably cannot close
-				// this goal anymore, so do not apply the elimination rule for
-				// universal quantifiers
-				if (rule.getInputFormula().metaVars().size() == rule
-						.getResultFormula().metaVars().size()) {
-					final Set<Metavariable> vars = new HashSet<Metavariable>();
-					Visitor visitor = new Visitor() {
-
-						@Override
-						public void visit(Term visited) {
-							if (visited.op() instanceof Metavariable) {
-								vars.add((Metavariable) visited.op());
-							}
-						}
-
-					};
-					rule.getInputFormula().execPostOrder(visitor);
-					int size = vars.size();
-					vars.clear();
-					rule.getResultFormula().execPostOrder(visitor);
-					if(size < vars.size()) {
+				result = TestResult.SUCCESS;
+				if (!rule.getResultFormula().equals(TermBuilder.DF.tt())) {
+					if (!(rule.getInputFormula().metaVars().size() == 0)) {
 						result = TestResult.FAILURE;
 					} else {
-						result = TestResult.SUCCESS;
+						final Set<Metavariable> vars = new HashSet<Metavariable>();
+						Visitor visitor = new Visitor() {
+
+							@Override
+							public void visit(Term visited) {
+								if (visited.op() instanceof Metavariable) {
+									vars.add((Metavariable) visited.op());
+								}
+							}
+
+						};
+						rule.getInputFormula().execPostOrder(visitor);
+						if (vars.size() > 0) {
+							result = TestResult.FAILURE;
+						}
 					}
-				} else {
-					result = TestResult.FAILURE;
 				}
+
 			} else {
 				if (rule.isUnsolvable()) {
 					result = TestResult.UNSOLVABLE;

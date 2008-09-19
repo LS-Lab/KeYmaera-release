@@ -357,10 +357,14 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 															longConst(1),
 															DLOptionBean.INSTANCE
 																	.isUseIterativeReduceRule() ? inftyConst()
-																	: SumFeature
-																			.createSum(new Feature[] {
-																					ContainsMetaVariableFeature.INSTANCE,
-																					longConst(20000) })),
+																	: new SwitchFeature(
+																			ContainsMetaVariableFeature.INSTANCE,
+																			new Case( // we got a metavar so the fallback is existential reduce
+																					longConst(0),
+																					inftyConst()),
+																			new Case(
+																					inftyConst(),
+																					longConst(20000)))),
 													new Case(inftyConst(),
 															inftyConst())),
 											inftyConst()));
