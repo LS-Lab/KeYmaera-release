@@ -179,6 +179,7 @@ public class ServerConsole extends JFrame {
         console = new JTextArea();
         console.setAutoscrolls(true);
         console.setLineWrap(true);
+        console.setEditable(false);
         consoleVisible = false;
 
         final JScrollPane consolePane = new JScrollPane(console);
