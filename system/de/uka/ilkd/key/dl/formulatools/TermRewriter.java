@@ -70,10 +70,14 @@ public class TermRewriter {
 		}
 		if (thisHasChanged[0]) {
 			hasChanged[0] = true;
+			ArrayOfQuantifiableVariable[] boundVars = 
+				new ArrayOfQuantifiableVariable[term.arity()];
+			for (int i = 0, arity = term.arity(); i < arity; i++) { 
+				  boundVars[i] = term.varsBoundHere(i);
+			}
 			return TermFactory.DEFAULT
 					.createTerm(term.op(), arguments.toArray(new Term[0]),
-							new ArrayOfQuantifiableVariable[] { term
-									.varsBoundHere(0) }, null);
+									boundVars, null);
 		} else {
 			return term;
 		}

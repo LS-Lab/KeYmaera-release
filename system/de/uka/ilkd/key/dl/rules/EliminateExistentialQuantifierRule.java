@@ -363,6 +363,7 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
 			// query = TermBuilder.DF.all(commonVars.get(sk), query);
 			LogicVariable var = commonVars
 							.get(sk);
+			assert query.freeVars().contains(var);
 			query = TermFactory.DEFAULT.createQuantifierTerm(Op.ALL, var, query);
 			variableNames.add(var.name().toString());
 			// TODO: check if we can avoid adding these variables to the
