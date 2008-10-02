@@ -9,11 +9,13 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 
+import orbital.algorithm.Combinatorical;
 import orbital.util.Pair;
 import orbital.util.Setops;
 
@@ -181,41 +183,57 @@ public class IterativeReduceRule implements BuiltInRule, RuleFilter {
 		Set<Term> currentVariables = new HashSet<Term>();
 
 		if (DLOptionBean.INSTANCE.isUsePowersetIterativeReduce()) {
-			Set<Term> anteSet = new HashSet<Term>(ante);
-			Set antePowerSet = Setops.powerset(anteSet);
-			Set<Term> succSet = new HashSet<Term>(succ);
-			Set succPowerSet = Setops.powerset(succSet);
-
-			Collection cross = Setops.cross(antePowerSet, succPowerSet);
-			for (Object o : cross) {
-				Pair p = (Pair) o;
-				Set<Term> curAnte = (Set<Term>) p.getA();
-				Set<Term> curSucc = (Set<Term>) p.getB();
-				if (curAnte.size() + curSucc.size() > (ante.size() + succ
-						.size())
+			Term[] anteArray = ante.toArray(new Term[ante.size()]);
+			Term[] succArray = succ.toArray(new Term[succ.size()]);
+//			Set<Term> anteSet = new HashSet<Term>(ante);
+//			Set antePowerSet = Setops.powerset(anteSet);
+//			Set<Term> succSet = new HashSet<Term>(succ);
+//			Set succPowerSet = Setops.powerset(succSet);
+			int availableFormulas = ante.size() + succ.size();
+			double minimumFormulas = availableFormulas
 						* (double)(((double)DLOptionBean.INSTANCE
-								.getPercentOfPowersetForReduce()) / 100d)) {
-					// only take combinations that use at least 70 % of the
-					// formulas
-					Term and = TermTools.createJunctorTermNAry(TermBuilder.DF
-							.tt(), Op.AND, curAnte.iterator(),
-							new HashSet<Term>());
-					Term or = TermTools.createJunctorTermNAry(TermBuilder.DF
-							.ff(), Op.OR, curSucc.iterator(),
-							new HashSet<Term>());
-					
-					queryCache.add(new QueryTriple(and, or, curAnte.size() + curSucc.size()));
-
-				}
+								.getPercentOfPowersetForReduce()) / 100d);
+			List<Combinatorical> combinations = new ArrayList<Combinatorical>();
+			for(int i = availableFormulas; i > minimumFormulas; i--) {
+				combinations.add(Combinatorical.getCombinations(i, availableFormulas, false));
 			}
-			Collections.sort(queryCache, new Comparator<QueryTriple>() {
-
-				@Override
-				public int compare(QueryTriple o1, QueryTriple o2) {
-					return o2.count - o1.count;
+			for (Combinatorical com: combinations) {
+				Term and = TermBuilder.DF.tt();
+				Term or = TermBuilder.DF.ff();
+				while(com.hasNext()) {
+					int[] curComb = com.next();
+					for(int pos : curComb) {
+						if(pos < ante.size()) {
+							and = TermBuilder.DF.and(and, anteArray[pos]);
+						} else {
+							or = TermBuilder.DF.or(or, succArray[pos - ante.size()]);
+						}
+					}
+					queryCache.add(new QueryTriple(and, or));
 				}
 				
-			});
+//				if (curAnte.size() + curSucc.size() > d) {
+//					// only take combinations that use at least 70 % of the
+//					// formulas
+//					Term and = TermTools.createJunctorTermNAry(TermBuilder.DF
+//							.tt(), Op.AND, curAnte.iterator(),
+//							new HashSet<Term>());
+//					Term or = TermTools.createJunctorTermNAry(TermBuilder.DF
+//							.ff(), Op.OR, curSucc.iterator(),
+//							new HashSet<Term>());
+//					
+//					queryCache.add(new QueryTriple(and, or, curAnte.size() + curSucc.size()));
+//
+//				}
+			}
+//			Collections.sort(queryCache, new Comparator<QueryTriple>() {
+//
+//				@Override
+//				public int compare(QueryTriple o1, QueryTriple o2) {
+//					return o2.count - o1.count;
+//				}
+//				
+//			});
 			ante.clear();
 			succ.clear();
 			System.out.println("QueryCache size is " + queryCache.size());//XXX
