@@ -67,7 +67,7 @@ public class DLOptionBean implements Settings {
 
 	public static enum FirstOrderStrategy {
 		STOP("stop"), UNFOLD("unfold"), EAGER("eager"), IBC("IBC"), LAZY("lazy");
-		
+
 		private String string;
 
 		private FirstOrderStrategy(String str) {
@@ -84,7 +84,7 @@ public class DLOptionBean implements Settings {
 			return string;
 		}
 	}
-	
+
 	public static enum DiffSat {
 		BLIND("blind"), OFF("off"), SIMPLE("simple"), DIFF("diffauto"), AUTO(
 				"auto");
@@ -208,6 +208,9 @@ public class DLOptionBean implements Settings {
 
 	private static final String DLOPTIONS_GROEBNER_BASIS_CALCULATOR = "[DLOptions]groebnerBasisCalculator";
 
+	private static final String DLOPTIONS_USE_POWERSET_ITERATIVE_REDUCE = "[DLOptions]usePowersetIterativeReduce";
+	private static final String DLOPTIONS_PERCENT_OF_POWERSET_FOR_ITERATIVE_REDUCE = "[DLOptions]percentOfPowersetForIterativeReduce";
+
 	private Set<Settings> subOptions;
 
 	private FirstOrderStrategy foStrategy;
@@ -266,6 +269,10 @@ public class DLOptionBean implements Settings {
 
 	private String groebnerBasisCalculator;
 
+	private boolean usePowersetIterativeReduce;
+
+	private int percentOfPowersetForReduce;
+
 	private DLOptionBean() {
 		subOptions = new LinkedHashSet<Settings>();
 		foStrategy = FirstOrderStrategy.IBC;
@@ -279,7 +286,7 @@ public class DLOptionBean implements Settings {
 		readdQuantifiers = true;
 		simplifyBeforeReduce = false;
 		simplifyAfterReduce = false;
-                simplifyAfterODESolve = false;
+		simplifyAfterODESolve = false;
 		normalizeEquations = false;
 		applyUpdatesToModalities = false;
 		counterExampleGenerator = "";
@@ -295,6 +302,8 @@ public class DLOptionBean implements Settings {
 		useIterativeReduceRule = false;
 		termFactoryClass = de.uka.ilkd.key.dl.model.impl.TermFactoryImpl.class;
 		applyLocalReduce = false;
+		usePowersetIterativeReduce = true;
+		percentOfPowersetForReduce = 70;
 
 		listeners = new HashSet<SettingsListener>();
 	}
@@ -417,7 +426,9 @@ public class DLOptionBean implements Settings {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see de.uka.ilkd.key.gui.Settings#addSettingsListener(de.uka.ilkd.key.gui.SettingsListener)
+	 * @see
+	 * de.uka.ilkd.key.gui.Settings#addSettingsListener(de.uka.ilkd.key.gui.
+	 * SettingsListener)
 	 */
 	public void addSettingsListener(SettingsListener l) {
 		listeners.add(l);
@@ -599,6 +610,17 @@ public class DLOptionBean implements Settings {
 			simplifyAfterODESolve = Boolean.valueOf(property);
 		}
 
+		property = props.getProperty(DLOPTIONS_USE_POWERSET_ITERATIVE_REDUCE);
+		if (property != null) {
+			usePowersetIterativeReduce = Boolean.valueOf(property);
+		}
+
+		property = props
+				.getProperty(DLOPTIONS_PERCENT_OF_POWERSET_FOR_ITERATIVE_REDUCE);
+		if (property != null) {
+			percentOfPowersetForReduce = Integer.valueOf(property);
+		}
+
 	}
 
 	/*
@@ -628,8 +650,8 @@ public class DLOptionBean implements Settings {
 				simplifyAfterReduce).toString());
 		props.setProperty(DLOPTIONS_NORMALIZE_EQUATIONS, Boolean.valueOf(
 				normalizeEquations).toString());
-		props.setProperty(DLOPTIONS_APPLY_UPDATES_TO_MODALITIES, Boolean.valueOf(
-				applyUpdatesToModalities).toString());
+		props.setProperty(DLOPTIONS_APPLY_UPDATES_TO_MODALITIES, Boolean
+				.valueOf(applyUpdatesToModalities).toString());
 		props.setProperty(DLOPTIONS_COUNTEREXAMPLE_TEST, counterexampleTest
 				.name());
 		props.setProperty(DLOPTIONS_IGNORE_ANNOTATIONS, Boolean
@@ -674,6 +696,10 @@ public class DLOptionBean implements Settings {
 				.toString(applyLocalReduce));
 		props.setProperty(DLOPTIONS_SIMPLIFY_AFTER_ODESOLVE, Boolean
 				.toString(simplifyAfterODESolve));
+		props.setProperty(DLOPTIONS_USE_POWERSET_ITERATIVE_REDUCE, Boolean
+				.toString(usePowersetIterativeReduce));
+		props.setProperty(DLOPTIONS_PERCENT_OF_POWERSET_FOR_ITERATIVE_REDUCE,
+				"" + percentOfPowersetForReduce);
 	}
 
 	public void addSubOptionBean(Settings sub) {
@@ -1096,5 +1122,41 @@ public class DLOptionBean implements Settings {
 			firePropertyChanged();
 		}
 
+	}
+
+	/**
+	 * @return the usePowersetIterativeReduce
+	 */
+	public boolean isUsePowersetIterativeReduce() {
+		return usePowersetIterativeReduce;
+	}
+
+	/**
+	 * @param usePowersetIterativeReduce
+	 *            the usePowersetIterativeReduce to set
+	 */
+	public void setUsePowersetIterativeReduce(boolean usePowersetIterativeReduce) {
+		if (this.usePowersetIterativeReduce != usePowersetIterativeReduce) {
+			this.usePowersetIterativeReduce = usePowersetIterativeReduce;
+			firePropertyChanged();
+		}
+	}
+
+	/**
+	 * @return the percentOfPowersetForReduce
+	 */
+	public int getPercentOfPowersetForReduce() {
+		return percentOfPowersetForReduce;
+	}
+
+	/**
+	 * @param percentOfPowersetForReduce
+	 *            the percentOfPowersetForReduce to set
+	 */
+	public void setPercentOfPowersetForReduce(int percentOfPowersetForReduce) {
+		if (this.percentOfPowersetForReduce != percentOfPowersetForReduce) {
+			this.percentOfPowersetForReduce = percentOfPowersetForReduce;
+			firePropertyChanged();
+		}
 	}
 }

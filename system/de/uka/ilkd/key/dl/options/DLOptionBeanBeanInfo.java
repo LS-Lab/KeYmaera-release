@@ -77,6 +77,16 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
 							"Iterative Inflation",
 							"whether to activate the Iterative Inflation Order (IIO) with increasingly bigger formulas.",
 							false, true),
+					createDescriptor(
+							"usePowersetIterativeReduce",
+							"Iterative Inflation with powerset",
+							"whether to use the powerset for iterative inflation or not",
+							false, true),
+					createDescriptor(
+							"percentOfPowersetForReduce",
+							"Percent of powerset for Iterative Inflation",
+							"the percentage of the powerset to use for the iterative inflation",
+							false, true),
 
 					createDescriptor(
 							"counterexampleTest",

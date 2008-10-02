@@ -5,12 +5,16 @@ package de.uka.ilkd.key.dl.rules;
 
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.Set;
+
+import orbital.util.Pair;
+import orbital.util.Setops;
 
 import recoder.util.Order.Lexical;
 
@@ -125,9 +129,9 @@ public class IterativeReduceRule implements BuiltInRule, RuleFilter {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see de.uka.ilkd.key.rule.BuiltInRule#isApplicable(de.uka.ilkd.key.proof.Goal,
-	 *      de.uka.ilkd.key.logic.PosInOccurrence,
-	 *      de.uka.ilkd.key.logic.Constraint)
+	 * @see
+	 * de.uka.ilkd.key.rule.BuiltInRule#isApplicable(de.uka.ilkd.key.proof.Goal,
+	 * de.uka.ilkd.key.logic.PosInOccurrence, de.uka.ilkd.key.logic.Constraint)
 	 */
 	@Override
 	public boolean isApplicable(Goal goal, PosInOccurrence pio,
@@ -139,13 +143,13 @@ public class IterativeReduceRule implements BuiltInRule, RuleFilter {
 	 * (non-Javadoc)
 	 * 
 	 * @see de.uka.ilkd.key.rule.Rule#apply(de.uka.ilkd.key.proof.Goal,
-	 *      de.uka.ilkd.key.java.Services, de.uka.ilkd.key.rule.RuleApp)
+	 * de.uka.ilkd.key.java.Services, de.uka.ilkd.key.rule.RuleApp)
 	 */
 	@Override
 	public ListOfGoal apply(Goal goal, Services services, RuleApp ruleApp) {
 		long timeout = 2000;
 		final boolean automode = Main.getInstance().mediator().autoMode();
-		
+
 		// IDEA: initial sequent is successively moved from ante/succ to
 		// usedAnte/usedSucc
 		// parts of initAnte/initSucc that still make sense to be added
@@ -153,7 +157,7 @@ public class IterativeReduceRule implements BuiltInRule, RuleFilter {
 				.sequent().antecedent().iterator()), new HashSet<Term>());
 		Queue<Term> succ = LexicographicalOrder.getOrder(createList(goal
 				.sequent().succedent().iterator()), new HashSet<Term>());
-		System.out.println("Sorted seq: " + ante + " -> " + succ);//XXX
+		System.out.println("Sorted seq: " + ante + " -> " + succ);// XXX
 		// parts of ante/succ that are used in the current frontier
 		List<Term> usedAnte = new ArrayList<Term>();
 		List<Term> usedSucc = new ArrayList<Term>();
@@ -163,6 +167,38 @@ public class IterativeReduceRule implements BuiltInRule, RuleFilter {
 		// current frontier of re-tested queries
 		Queue<QueryTriple> currentQueryCache = new LinkedList<QueryTriple>();
 		Set<Term> currentVariables = new HashSet<Term>();
+
+		if (DLOptionBean.INSTANCE.isUsePowersetIterativeReduce()) {
+			Set<Term> anteSet = new HashSet<Term>(ante);
+			Set antePowerSet = Setops.powerset(anteSet);
+			Set<Term> succSet = new HashSet<Term>(succ);
+			Set succPowerSet = Setops.powerset(succSet);
+
+			Collection cross = Setops.cross(antePowerSet, succPowerSet);
+			for (Object o : cross) {
+				Pair p = (Pair) o;
+				Set<Term> curAnte = (Set<Term>) p.getA();
+				Set<Term> curSucc = (Set<Term>) p.getB();
+				if (curAnte.size() + curSucc.size() > (ante.size() + succ
+						.size())
+						* (DLOptionBean.INSTANCE
+								.getPercentOfPowersetForReduce() / 100)) {
+					// only take combinations that use at least 70 % of the
+					// formulas
+					Term and = TermTools.createJunctorTermNAry(TermBuilder.DF
+							.tt(), Op.AND, curAnte.iterator(),
+							new HashSet<Term>());
+					Term or = TermTools.createJunctorTermNAry(TermBuilder.DF
+							.ff(), Op.OR, curSucc.iterator(),
+							new HashSet<Term>());
+
+					queryCache.add(new QueryTriple(and, or));
+				}
+			}
+			ante.clear();
+			succ.clear();
+		}
+
 		while (true) {
 			if (automode && !Main.getInstance().mediator().autoMode()) {
 				// automode stopped
@@ -178,7 +214,7 @@ public class IterativeReduceRule implements BuiltInRule, RuleFilter {
 			}
 			// loop until all added or all remaining cached items have been
 			// visited again
-			
+
 			while (!ante.isEmpty() || !succ.isEmpty()
 					|| !currentQueryCache.isEmpty()) {
 				// during first sweep, only repeat with current timeout as long
@@ -195,7 +231,8 @@ public class IterativeReduceRule implements BuiltInRule, RuleFilter {
 							Set<Term> next = new HashSet<Term>();
 							next.add(ante.peek());
 							next.add(succ.peek());
-							Queue<Term> order = LexicographicalOrder.getOrder(next, currentVariables);
+							Queue<Term> order = LexicographicalOrder.getOrder(
+									next, currentVariables);
 							if (order.peek() == ante.peek()) {
 								usedAnte.add(ante.poll());
 							} else {
@@ -222,7 +259,7 @@ public class IterativeReduceRule implements BuiltInRule, RuleFilter {
 					} else {
 						currentItem = currentQueryCache.poll();
 					}
-					System.out.println("Testing for CE for " + timeout);// XXX
+					System.out.println("Testing for CE for " + timeout / 2);// XXX
 					String findInstance = "";
 					try {
 						findInstance = MathSolverManager
@@ -230,7 +267,7 @@ public class IterativeReduceRule implements BuiltInRule, RuleFilter {
 								.findInstance(
 										TermBuilder.DF.not(currentItem
 												.getUseForFindInstance()),
-										timeout);
+										timeout / 2);
 					} catch (IncompleteEvaluationException e) {
 						// timeout
 					}
@@ -351,12 +388,14 @@ public class IterativeReduceRule implements BuiltInRule, RuleFilter {
 		return new Name("IterativeReduce");
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
 	public String toString() {
 		return displayName();
 	}
-	
+
 }
