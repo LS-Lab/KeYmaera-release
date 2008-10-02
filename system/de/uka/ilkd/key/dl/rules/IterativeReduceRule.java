@@ -7,6 +7,7 @@ import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -65,10 +66,21 @@ public class IterativeReduceRule implements BuiltInRule, RuleFilter {
 
 		private Term and;
 		private Term or;
+		private int count = -1;
 
 		public QueryTriple(Term and, Term or) {
 			this.and = and;
 			this.or = or;
+		}
+
+		/**
+		 * @param and2
+		 * @param or2
+		 * @param i
+		 */
+		public QueryTriple(Term and2, Term or2, int i) {
+			this(and2, or2);
+			count  = i;
 		}
 
 		/**
@@ -191,12 +203,22 @@ public class IterativeReduceRule implements BuiltInRule, RuleFilter {
 					Term or = TermTools.createJunctorTermNAry(TermBuilder.DF
 							.ff(), Op.OR, curSucc.iterator(),
 							new HashSet<Term>());
+					
+					queryCache.add(new QueryTriple(and, or, curAnte.size() + curSucc.size()));
 
-					queryCache.add(new QueryTriple(and, or));
 				}
 			}
+			Collections.sort(queryCache, new Comparator<QueryTriple>() {
+
+				@Override
+				public int compare(QueryTriple o1, QueryTriple o2) {
+					return o2.count - o1.count;
+				}
+				
+			});
 			ante.clear();
 			succ.clear();
+			System.out.println("QueryCache size is " + queryCache.size());//XXX
 		}
 
 		while (true) {
