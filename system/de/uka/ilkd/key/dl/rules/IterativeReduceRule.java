@@ -181,8 +181,8 @@ public class IterativeReduceRule implements BuiltInRule, RuleFilter {
 				Set<Term> curSucc = (Set<Term>) p.getB();
 				if (curAnte.size() + curSucc.size() > (ante.size() + succ
 						.size())
-						* (DLOptionBean.INSTANCE
-								.getPercentOfPowersetForReduce() / 100)) {
+						* (double)(((double)DLOptionBean.INSTANCE
+								.getPercentOfPowersetForReduce()) / 100d)) {
 					// only take combinations that use at least 70 % of the
 					// formulas
 					Term and = TermTools.createJunctorTermNAry(TermBuilder.DF
@@ -222,6 +222,10 @@ public class IterativeReduceRule implements BuiltInRule, RuleFilter {
 				// further sweeps of the algorithm re-check the known
 				// alternatives with larger timeouts
 				try {
+					if (automode && !Main.getInstance().mediator().autoMode()) {
+						// automode stopped
+						return null;
+					}
 					QueryTriple currentItem;
 
 					if (!ante.isEmpty() || !succ.isEmpty()) {
@@ -259,7 +263,7 @@ public class IterativeReduceRule implements BuiltInRule, RuleFilter {
 					} else {
 						currentItem = currentQueryCache.poll();
 					}
-					System.out.println("Testing for CE for " + timeout / 2);// XXX
+//					System.out.println("Testing for CE for " + timeout / 2);// XXX
 					String findInstance = "";
 					try {
 						findInstance = MathSolverManager
@@ -273,7 +277,7 @@ public class IterativeReduceRule implements BuiltInRule, RuleFilter {
 					}
 					if (findInstance.equals("") || findInstance.startsWith("$")) {
 						// No CEX found
-						System.out.println("Reducing for " + timeout);// XXX
+//						System.out.println("Reducing for " + timeout);// XXX
 						Term reduce = currentItem.getUseForReduce(services);
 						List<String> variables = currentItem
 								.getReduceVariables(services);
@@ -334,14 +338,14 @@ public class IterativeReduceRule implements BuiltInRule, RuleFilter {
 										+ " is " + findInstance);
 					} else {
 						// we have a counter example
-						System.out.println("Counterexample found for "
-								+ currentItem.getUseForFindInstance());// XXX
-						System.out.println("Removing...");// XXX
+//						System.out.println("Counterexample found for "
+//								+ currentItem.getUseForFindInstance());// XXX
+//						System.out.println("Removing...");// XXX
 						queryCache.remove(currentItem);
 					}
 				} catch (IncompleteEvaluationException e) {
 					// timeout while performing query
-					System.out.println("Timeout while reducing");// XXX
+//					System.out.println("Timeout while reducing");// XXX
 				} catch (RemoteException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
