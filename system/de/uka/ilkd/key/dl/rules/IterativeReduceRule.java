@@ -5,34 +5,20 @@ package de.uka.ilkd.key.dl.rules;
 
 import java.rmi.RemoteException;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 
 import orbital.algorithm.Combinatorical;
-import orbital.util.Pair;
-import orbital.util.Setops;
-
-import recoder.util.Order.Lexical;
-
 import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
 import de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator.PairOfTermAndQuantifierType;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.IncompleteEvaluationException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
 import de.uka.ilkd.key.dl.formulatools.LexicographicalOrder;
-import de.uka.ilkd.key.dl.formulatools.SkolemfunctionTracker;
-import de.uka.ilkd.key.dl.formulatools.TermRewriter;
 import de.uka.ilkd.key.dl.formulatools.TermTools;
-import de.uka.ilkd.key.dl.formulatools.VariableOrderCreator;
-import de.uka.ilkd.key.dl.formulatools.TermRewriter.Match;
 import de.uka.ilkd.key.dl.formulatools.TermTools.PairOfTermAndVariableList;
-import de.uka.ilkd.key.dl.formulatools.VariableOrderCreator.VariableOrder;
 import de.uka.ilkd.key.dl.options.DLOptionBean;
 import de.uka.ilkd.key.gui.Main;
 import de.uka.ilkd.key.java.Services;
@@ -42,11 +28,7 @@ import de.uka.ilkd.key.logic.Name;
 import de.uka.ilkd.key.logic.PosInOccurrence;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.TermBuilder;
-import de.uka.ilkd.key.logic.Visitor;
-import de.uka.ilkd.key.logic.op.LogicVariable;
 import de.uka.ilkd.key.logic.op.Op;
-import de.uka.ilkd.key.logic.op.QuantifiableVariable;
-import de.uka.ilkd.key.logic.op.RigidFunction;
 import de.uka.ilkd.key.proof.Goal;
 import de.uka.ilkd.key.proof.ListOfGoal;
 import de.uka.ilkd.key.proof.RuleFilter;
@@ -82,7 +64,7 @@ public class IterativeReduceRule implements BuiltInRule, RuleFilter {
 		 */
 		public QueryTriple(Term and2, Term or2, int i) {
 			this(and2, or2);
-			count  = i;
+			count = i;
 		}
 
 		/**
@@ -164,13 +146,23 @@ public class IterativeReduceRule implements BuiltInRule, RuleFilter {
 		long timeout = 2000;
 		final boolean automode = Main.getInstance().mediator().autoMode();
 
-		// IDEA: initial sequent is successively moved from ante/succ to
-		// usedAnte/usedSucc
-		// parts of initAnte/initSucc that still make sense to be added
-		Queue<Term> ante = LexicographicalOrder.getOrder(createList(goal
-				.sequent().antecedent().iterator()), new HashSet<Term>());
-		Queue<Term> succ = LexicographicalOrder.getOrder(createList(goal
-				.sequent().succedent().iterator()), new HashSet<Term>());
+		Queue<Term> ante;
+		Queue<Term> succ;
+		if (DLOptionBean.INSTANCE.isUsePowersetIterativeReduce()) {
+			ante = new LinkedList<Term>(createList(goal.sequent().antecedent()
+					.iterator()));
+			succ = new LinkedList<Term>(createList(goal.sequent().succedent()
+					.iterator()));
+		} else {
+			// IDEA: initial sequent is successively moved from ante/succ to
+			// usedAnte/usedSucc
+			// parts of initAnte/initSucc that still make sense to be added
+			ante = LexicographicalOrder.getOrder(createList(goal.sequent()
+					.antecedent().iterator()), new HashSet<Term>());
+			succ = LexicographicalOrder.getOrder(createList(goal.sequent()
+					.succedent().iterator()), new HashSet<Term>());
+		}
+
 		System.out.println("Sorted seq: " + ante + " -> " + succ);// XXX
 		// parts of ante/succ that are used in the current frontier
 		List<Term> usedAnte = new ArrayList<Term>();
@@ -185,58 +177,34 @@ public class IterativeReduceRule implements BuiltInRule, RuleFilter {
 		if (DLOptionBean.INSTANCE.isUsePowersetIterativeReduce()) {
 			Term[] anteArray = ante.toArray(new Term[ante.size()]);
 			Term[] succArray = succ.toArray(new Term[succ.size()]);
-//			Set<Term> anteSet = new HashSet<Term>(ante);
-//			Set antePowerSet = Setops.powerset(anteSet);
-//			Set<Term> succSet = new HashSet<Term>(succ);
-//			Set succPowerSet = Setops.powerset(succSet);
 			int availableFormulas = ante.size() + succ.size();
 			double minimumFormulas = availableFormulas
-						* (double)(((double)DLOptionBean.INSTANCE
-								.getPercentOfPowersetForReduce()) / 100d);
+					* (double) (((double) DLOptionBean.INSTANCE
+							.getPercentOfPowersetForReduce()) / 100d);
 			List<Combinatorical> combinations = new ArrayList<Combinatorical>();
-			for(int i = availableFormulas; i > minimumFormulas; i--) {
-				combinations.add(Combinatorical.getCombinations(i, availableFormulas, false));
+			for (int i = availableFormulas; i > minimumFormulas; i--) {
+				combinations.add(Combinatorical.getCombinations(i,
+						availableFormulas, false));
 			}
-			for (Combinatorical com: combinations) {
+			for (Combinatorical com : combinations) {
 				Term and = TermBuilder.DF.tt();
 				Term or = TermBuilder.DF.ff();
-				while(com.hasNext()) {
+				while (com.hasNext()) {
 					int[] curComb = com.next();
-					for(int pos : curComb) {
-						if(pos < ante.size()) {
+					for (int pos : curComb) {
+						if (pos < ante.size()) {
 							and = TermBuilder.DF.and(and, anteArray[pos]);
 						} else {
-							or = TermBuilder.DF.or(or, succArray[pos - ante.size()]);
+							or = TermBuilder.DF.or(or, succArray[pos
+									- ante.size()]);
 						}
 					}
 					queryCache.add(new QueryTriple(and, or));
 				}
-				
-//				if (curAnte.size() + curSucc.size() > d) {
-//					// only take combinations that use at least 70 % of the
-//					// formulas
-//					Term and = TermTools.createJunctorTermNAry(TermBuilder.DF
-//							.tt(), Op.AND, curAnte.iterator(),
-//							new HashSet<Term>());
-//					Term or = TermTools.createJunctorTermNAry(TermBuilder.DF
-//							.ff(), Op.OR, curSucc.iterator(),
-//							new HashSet<Term>());
-//					
-//					queryCache.add(new QueryTriple(and, or, curAnte.size() + curSucc.size()));
-//
-//				}
 			}
-//			Collections.sort(queryCache, new Comparator<QueryTriple>() {
-//
-//				@Override
-//				public int compare(QueryTriple o1, QueryTriple o2) {
-//					return o2.count - o1.count;
-//				}
-//				
-//			});
 			ante.clear();
 			succ.clear();
-			System.out.println("QueryCache size is " + queryCache.size());//XXX
+			System.out.println("QueryCache size is " + queryCache.size());// XXX
 		}
 
 		while (true) {
@@ -303,7 +271,8 @@ public class IterativeReduceRule implements BuiltInRule, RuleFilter {
 					} else {
 						currentItem = currentQueryCache.poll();
 					}
-//					System.out.println("Testing for CE for " + timeout / 2);// XXX
+					// System.out.println("Testing for CE for " + timeout /
+					// 2);// XXX
 					String findInstance = "";
 					try {
 						findInstance = MathSolverManager
@@ -317,7 +286,7 @@ public class IterativeReduceRule implements BuiltInRule, RuleFilter {
 					}
 					if (findInstance.equals("") || findInstance.startsWith("$")) {
 						// No CEX found
-//						System.out.println("Reducing for " + timeout);// XXX
+						// System.out.println("Reducing for " + timeout);// XXX
 						Term reduce = currentItem.getUseForReduce(services);
 						List<String> variables = currentItem
 								.getReduceVariables(services);
@@ -378,14 +347,14 @@ public class IterativeReduceRule implements BuiltInRule, RuleFilter {
 										+ " is " + findInstance);
 					} else {
 						// we have a counter example
-//						System.out.println("Counterexample found for "
-//								+ currentItem.getUseForFindInstance());// XXX
-//						System.out.println("Removing...");// XXX
+						// System.out.println("Counterexample found for "
+						// + currentItem.getUseForFindInstance());// XXX
+						// System.out.println("Removing...");// XXX
 						queryCache.remove(currentItem);
 					}
 				} catch (IncompleteEvaluationException e) {
 					// timeout while performing query
-//					System.out.println("Timeout while reducing");// XXX
+					// System.out.println("Timeout while reducing");// XXX
 				} catch (RemoteException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
