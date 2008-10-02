@@ -187,9 +187,9 @@ public class IterativeReduceRule implements BuiltInRule, RuleFilter {
 						availableFormulas, false));
 			}
 			for (Combinatorical com : combinations) {
-				Term and = TermBuilder.DF.tt();
-				Term or = TermBuilder.DF.ff();
 				while (com.hasNext()) {
+					Term and = TermBuilder.DF.tt();
+					Term or = TermBuilder.DF.ff();
 					int[] curComb = com.next();
 					for (int pos : curComb) {
 						if (pos < ante.size()) {
