@@ -60,21 +60,34 @@ public class ExprRenamer {
         return copy;
     }
 
-    private Expr renameImpl(Expr expr, RenameTable table) {
+    private Expr renameImpl(Expr expr, RenameTable table) throws UnableToConvertInputException {
+        
+        // Argumente auch umbenennen (mittels Rekursion)
+        ArrayList<Expr> renamedList = new ArrayList<Expr>();
+        for( int i = 0; i < expr.args().length ; i++ ) {
+            renamedList.add( renameImpl( expr.args()[i], table ));
+        }
+        Expr[] args = renamedList.toArray(new Expr[0]);
         
         Expr head = expr.head();
         
-        // Quantoren
-        if( head.equals(FORALL) || head.equals(EXISTS) ) {
-            
-            // Argmente auslesen
-            Expr list = expr.args()[0];
-            if( list.head().args().equals(LIST)) {
-                for( int i = 0; i < list.args().length; i++ ) {
-                    
-                }
-            }
+        // Listen
+        if( head.equals(LIST)) {
+            return new Expr( Expr.SYM_LIST, args );
         }
+        
+        // Quantoren
+        if( head.equals(FORALL)) {
+            return new Expr( FORALL, args );
+        } else if( head.equals(EXISTS)) {
+            return new Expr( EXISTS, args );
+        }
+        
+        // Variablen
+        if( head.equals(SYMBOL)) {
+            
+        }
+
         return null;
         
 //        try {
