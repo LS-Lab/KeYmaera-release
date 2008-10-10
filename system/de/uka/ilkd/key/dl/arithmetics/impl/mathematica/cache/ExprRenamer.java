@@ -12,7 +12,24 @@ public class ExprRenamer {
         
     }
     
+    /**
+     * Renames the variables with the given renametable
+     * 
+     * @param expr Expression to rename
+     * @param table Table with renameinformation
+     * @return Renamed expression (copy)
+     */
     public Expr rename( Expr expr, RenameTable table ) {
+        Expr copy = null; // TODO: Expr kopieren
+        
+        // Annahme: In copy ist eine tiefe Kopie von expr
+        
+        renameImpl( copy, table );
+        
+        return copy;
+    }
+    
+    private void renameImpl( Expr expr, RenameTable table ) {
         
     }
 }
