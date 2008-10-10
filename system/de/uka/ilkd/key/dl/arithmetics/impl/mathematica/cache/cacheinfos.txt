@@ -1,0 +1,51 @@
+Chache
+======
+
+Ausgangslage:
+-------------
+ - Für jede Anfrage an Mathematica wird vorher in 
+   ein Cache geschaut, ob diese Anfrage schon in der
+   Vergangenheit getätigt wurde. 
+ - Ist diese Anfrage im Cache vorhanden (ein "hit"), da
+   wird das entsprechende Ergebnis aus dem Cache entnommen.
+ - Ist die Anfrage nicht im Cache ("miss"), so wird die Anfrage an
+   Mathematika gesendet. Das Ergebnis wird mitsamt der Anfrage
+   in den Cache aufgenommen.
+   
+Problem:
+--------
+ - Anfragen mit der gleichen Form, aber unterschiedlicher 
+   Bezeichnung der Variablennamen, werden im Cache als 
+   unterschiedlich behandelt.
+ - Daraus folgt, dass die eigentliche gleiche Anfrage mehr
+   als einmal zu Mathematika gesendet wird. 
+   
+Beispiel:
+---------
+Erste Anfrage:
+(for all t ) t > 0 -> c > t
+Im Cache gespeichert
+Zweite Anfrage:
+(for all x ) x > 0 -> y > x
+Wird im Cache nicht gefunden, obwohl
+diese schon existiert (nur die Variablennamen sind
+anders)
+Also nochmal im Chache gespeichert
+   
+Zu Betrachtende Klassen:
+------------------------
+KernelLinkWrapper (dort wird Cache genutzt)
+Expr2TermConverter (als Beispiel, worauf beim Durchlaufen von Exprs beachtet werden muss)
+
+Vorgehen: 
+---------
+- Expr-Instanz abfangen, und die Variablen nach einen vorgegebenen Schema umbenennen (z.B. a1, a2, usw.)
+- Die Umbenennung wird in einer Tabelle eingetragen und während der Umbenennung weiterentwickelt
+- Konvertierung in ein String, welches dann mit dem Ergebnis der Mathematica-Berechnung im Chache gespeichert wird
+- Die Tabelle muss nicht in den Cache
+
+- Bei einer neuen Abfrage Variablen wieder umbenennen
+- Daraus entsteht erneut eine Übersetzungstabelle
+- Im Cache nachschauen, ob Expr-String schon vorhanden ist
+- Wenn ja, dann Tabelle auf das zugehörige Ergebnis im Cache rückwärtig anwenden
+- Umbenanntes Ergebnis zurückgeben, ohne Mathematica zu kontaktieren
