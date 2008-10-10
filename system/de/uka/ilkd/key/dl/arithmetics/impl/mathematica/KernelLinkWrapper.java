@@ -428,6 +428,9 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 			log(Level.INFO, "Time: "
 					+ SimpleDateFormat.getTimeInstance().format(curTime));
 			log(Level.FINEST, "Checking cache");
+                        
+                        // hier einsetzen: Timo Michelsen
+                        
 			if (allowCache && cache.containsKey(expr)) {
 				cachedAnwsers++;
 				log(Level.FINEST, "Returning cached anwser!");
