@@ -720,6 +720,10 @@ options {
         Function f = (Function)funcs.lookup(n);
 		if(f == null) {
 			Sort r = RealLDT.getRealSort();
+			if(r == null) {
+				r = (Sort)nss.sorts().lookup(new Name("R"));
+			}
+			assert r != null : "sort must not be null";
 			f = NumberCache.getNumber(b,r);
 			funcs.add(f);
 		}

@@ -205,7 +205,7 @@ public class OrbitalSimplifier implements ISimplifier {
 	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#getCachedAnwserCount()
 	 */
 	@Override
-	public long getCachedAnwserCount() throws RemoteException {
+	public long getCachedAnswerCount() throws RemoteException {
 		// TODO Auto-generated method stub
 		return 0;
 	}
@@ -274,6 +274,14 @@ public class OrbitalSimplifier implements ISimplifier {
 	public void resetAbortState() throws RemoteException {
 		// TODO Auto-generated method stub
 
+	}
+
+	/* (non-Javadoc)
+	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#isConfigured()
+	 */
+	@Override
+	public boolean isConfigured() {
+		return true;
 	}
 
 }

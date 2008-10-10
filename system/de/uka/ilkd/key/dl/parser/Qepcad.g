@@ -3,7 +3,7 @@ grammar Qepcad;
 // by Timo Michelsen
 
 @header {
-	package de.uka.ilkd.key.dl.arithmetics.impl.qepcad;
+	package de.uka.ilkd.key.dl.parser;
 	import de.uka.ilkd.key.logic.Term;
 	import de.uka.ilkd.key.logic.TermBuilder;
 	import de.uka.ilkd.key.dl.parser.NumberCache;
@@ -24,7 +24,7 @@ grammar Qepcad;
 }
 
 @lexer::header {
-	package de.uka.ilkd.key.dl.arithmetics.impl.qepcad;
+	package de.uka.ilkd.key.dl.parser;
 }
 
 @members {
@@ -41,6 +41,10 @@ grammar Qepcad;
 	}	
 	
 	public Term getVariable( String var ) {
+		Function f = (Function)this.nss.functions().lookup(new Name(var));
+		if(f != null) {
+			return tb.func(f);
+		}
        		 LogicVariable n = (LogicVariable)this.nss.variables().lookup(new Name(var));
         		if( n != null ) {
             		return tb.var(n);
@@ -61,21 +65,21 @@ grammar Qepcad;
 formula returns [Term t ]		: 	(st = logic { t = st; }) EOF;
 
 /* Logical expressions */
-logic returns [ Term t ]		:	e = logic_bimpl { t = e; }; // Lesbarkeit
-logic_bimpl returns [ Term t ]	:	e = logic_impl { t = e; } ( BIMPL f = logic { t = tb.equiv(e, f); })?;
+logic returns [ Term t ]		:	e = logic_biimpl { t = e; }; // Lesbarkeit
+logic_biimpl returns [ Term t ]	:	e = logic_impl { t = e; } ( BIMPL f = logic_biimpl { t = tb.equiv(e, f); })?;
 logic_impl returns [ Term t ]	:	e = logic_or { t = e; } 
-							( (IMPL_R f = logic {t = tb.imp(e,f); })? |
-							( IMPL_L f = logic { t = tb.imp(f,e); })? );
-logic_or returns [ Term t ]		: 	e = logic_and {t = e;} ( OR f = logic { t = tb.or(e,f); } )?;	
-logic_and returns [Term t]		:	( e = predicate{ t = e; } ( AND f = logic { t = tb.and(e,f); })? );
+							( (IMPL_R f = logic_impl {t = tb.imp(e,f); })|
+							( IMPL_L f = logic_impl { t = tb.imp(f,e); }) )?;
+logic_or returns [ Term t ]		: 	e = logic_and {t = e;} ( OR f = logic_or { t = tb.or(e,f); } )?;	
+logic_and returns [Term t]		:	e = predicate{ t = e; } ( AND f = logic_and { t = tb.and(e,f); })?;
 
 					
-predicate returns [Term t]		:	( e = expression  
+predicate returns [Term t]		:	( e = expression )  
 							((func = pred_func f = expression { t = tb.func( func, e, f );} ) |
 							(EQ f = expression { t = tb.equals( e, f ); }) )
-						)
+						
 						| ( LB e = logic RB ) { t = e; }
-						| ( NOT e = logic { t = tb.not(e); });	
+						| ( NOT e = predicate { t = tb.not(e); });	
 											
 pred_func returns [ Function f ]	:	GT { f = RealLDT.getFunctionFor(Greater.class);} |
 						LT { f = RealLDT.getFunctionFor(Less.class);} |
@@ -85,12 +89,12 @@ pred_func returns [ Function f ]	:	GT { f = RealLDT.getFunctionFor(Greater.class
 						
 /* Arithmetic expressions */
 expression returns [ Term t ]	:	e = expr_add { t = e; }; // Lesbarkeit
-expr_add returns [Term t ]		:	e = expr_sub { t = e; } ( ADD f = expression { t = tb.func((Function)nss.functions().lookup( new Name("add")),e,f); } )?; 
+expr_add returns [Term t ]		:	e = expr_sub { t = e; } ( ADD f = expr_add { t = tb.func((Function)nss.functions().lookup( new Name("add")),e,f); } )?; 
 
-expr_sub returns [ Term t ]		:	e = expr_mul{ t = e; } ( SUB f = expression {  t = tb.func((Function)nss.functions().lookup( new Name("sub")),e,f);} )?;
-expr_mul returns [ Term t ]		:	e = expr_pow{ t = e; } ( f = expression {  t = tb.func((Function)nss.functions().lookup( new Name("mul")),e,f);} )?; 
+expr_sub returns [ Term t ]		:	e = expr_mul{ t = e; } ( SUB f = expr_sub {  t = tb.func((Function)nss.functions().lookup( new Name("sub")),e,f);} )?;
+expr_mul returns [ Term t ]		:	e = expr_pow{ t = e; } ( f = expr_mul {  t = tb.func((Function)nss.functions().lookup( new Name("mul")),e,f);} )?; 
 expr_pow returns [ Term t ]	:	e = expr_atom { t = e; } ( POW f = number { t = tb.func((Function)nss.functions().lookup( new Name("exp")), e, f);})?;
-expr_atom returns [Term t ]	:	( LP st = expression RP { t = st; }) | 
+expr_atom returns [Term t ]	:	( LP st = expression RP { t = st; }) |
 						( st = varOrNum { t = st; } ) |
 						( TRUE { t = tb.tt(); } ) |
 						( FALSE { t = tb.ff(); } ); 
@@ -133,6 +137,6 @@ POW	:	'^'; // OK
 
 WS 	:  	('\t' | ' ' | '\r' | '\n'| '\u000C' )+ { $channel = HIDDEN; };
 NUM 	:   	'0'..'9'* ('0'..'9'| ('.' '0'..'9'+)) ;
-VAR	:	('a'..'z'|'A'..'Z');
+VAR	:	(('a'..'z'|'A'..'Z')('a'..'z'|'A'..'Z'|'0'..'9'|'_')*);
 
 

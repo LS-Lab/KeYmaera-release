@@ -26,9 +26,8 @@ import java.util.List;
 import java.util.Map;
 
 import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
-import de.uka.ilkd.key.dl.arithmetics.exceptions.ConnectionProblemException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
-import de.uka.ilkd.key.dl.arithmetics.exceptions.UnsolveableException;
+import de.uka.ilkd.key.dl.formulatools.MetaVariableLocator;
 import de.uka.ilkd.key.logic.ConstrainedFormula;
 import de.uka.ilkd.key.logic.IteratorOfConstrainedFormula;
 import de.uka.ilkd.key.logic.PosInOccurrence;
@@ -36,6 +35,7 @@ import de.uka.ilkd.key.logic.PosInTerm;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.TermBuilder;
 import de.uka.ilkd.key.proof.Goal;
+import de.uka.ilkd.key.proof.Goal.GoalStatus;
 import de.uka.ilkd.key.rule.RuleApp;
 import de.uka.ilkd.key.strategy.LongRuleAppCost;
 import de.uka.ilkd.key.strategy.RuleAppCost;
@@ -49,6 +49,9 @@ public class FindInstanceTest implements Feature {
     public static final Feature INSTANCE = new FindInstanceTest();
 
     public RuleAppCost compute(RuleApp app, PosInOccurrence pos, Goal goal) {
+    	if(!MathSolverManager.isCounterExampleGeneratorSet()) {
+    		return LongRuleAppCost.ZERO_COST;
+    	}
         IteratorOfConstrainedFormula it = goal.sequent().antecedent()
                 .iterator();
         Term resultTerm = TermBuilder.DF.tt();
@@ -69,6 +72,10 @@ public class FindInstanceTest implements Feature {
             System.out.println("Interrupted FindInstanceTest");
         }
         if (thread.result == Result.CE_FOUND) {
+        	if(resultTerm.metaVars().size() == 0) {
+        		// we do not count the CE if there are metavariables
+        		goal.setStatus(GoalStatus.COUNTER_EXAMPLE);
+        	}
             return TopRuleAppCost.INSTANCE;
         }
         if (thread.isAlive()) {
@@ -121,7 +128,7 @@ public class FindInstanceTest implements Feature {
         CE_FOUND, NO_RESULT_IN_TIME, UNKNOWN, NO_COUNTER_EXAMPLE_AVAILABLE
     }
 
-    private class TestThread extends Thread {
+    private static class TestThread extends Thread {
 
         private Term term;
 

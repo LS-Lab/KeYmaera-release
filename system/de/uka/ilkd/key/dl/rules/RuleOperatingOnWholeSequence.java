@@ -57,7 +57,7 @@ import de.uka.ilkd.key.rule.RuleApp;
 public abstract class RuleOperatingOnWholeSequence extends Visitor implements
 		BuiltInRule, TestableBuiltInRule {
 
-	private class PairOfTermAndChangeset {
+	private static class PairOfTermAndChangeset {
 		public PairOfTermAndChangeset(Term resultTerm,
 				List<PosInOccurrence> changes) {
 			this.term = resultTerm;

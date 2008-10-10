@@ -374,7 +374,7 @@ public class CacheOnlyServer extends UnicastRemoteObject implements Remote,
 	 * 
 	 * @see de.uka.ilkd.key.dl.IKernelLinkWrapper#getCachedAnwsers()
 	 */
-	public long getCachedAnwsers() throws RemoteException {
+	public long getCachedAnswers() throws RemoteException {
 		return cachedAnwsers;
 	}
 

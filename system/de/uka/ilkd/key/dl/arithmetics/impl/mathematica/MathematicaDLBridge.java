@@ -36,15 +36,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import de.uka.ilkd.key.dl.formulatools.collector.*;
-import de.uka.ilkd.key.dl.formulatools.collector.filter.FilterVariableCollector;
-
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
-
-import orbital.logic.functor.Function;
-import orbital.math.AlgebraicAlgorithms;
-import orbital.math.Polynomial;
 
 import com.wolfram.jlink.Expr;
 import com.wolfram.jlink.ExprFormatException;
@@ -59,6 +52,8 @@ import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.UnsolveableException;
 import de.uka.ilkd.key.dl.arithmetics.impl.SumOfSquaresChecker.PolynomialClassification;
 import de.uka.ilkd.key.dl.arithmetics.impl.mathematica.IKernelLinkWrapper.ExprAndMessages;
+import de.uka.ilkd.key.dl.formulatools.collector.AllCollector;
+import de.uka.ilkd.key.dl.formulatools.collector.filter.FilterVariableCollector;
 import de.uka.ilkd.key.dl.logic.ldt.RealLDT;
 import de.uka.ilkd.key.dl.model.DLNonTerminalProgramElement;
 import de.uka.ilkd.key.dl.model.DiffSystem;
@@ -109,11 +104,9 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 		}
 	}
 
-	private class Update {
+	private static class Update {
 		Term location;
-
 		Term value;
-
 	}
 
 	/**
@@ -180,9 +173,9 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see de.uka.ilkd.key.dl.IMathematicaDLBridge#odeSolve(de.uka.ilkd.key.dl.DiffSystem,
-	 *      de.uka.ilkd.key.logic.op.LogicVariable, de.uka.ilkd.key.logic.Term,
-	 *      de.uka.ilkd.key.logic.NamespaceSet)
+	 * @seede.uka.ilkd.key.dl.IMathematicaDLBridge#odeSolve(de.uka.ilkd.key.dl.
+	 * DiffSystem, de.uka.ilkd.key.logic.op.LogicVariable,
+	 * de.uka.ilkd.key.logic.Term, de.uka.ilkd.key.logic.NamespaceSet)
 	 */
 	public ODESolverResult odeSolve(DiffSystem form, LogicVariable t,
 			LogicVariable ts, Term phi, NamespaceSet nss)
@@ -319,8 +312,9 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 	 * @throws ServerStatusProblemException
 	 * @throws IncompleteEvaluationException
 	 */
-	private Term differentialCall(DiffSystem form, Term post, Term ep, NamespaceSet nss,
-			String diffOperator) throws RemoteException, SolverException {
+	private Term differentialCall(DiffSystem form, Term post, Term ep,
+			NamespaceSet nss, String diffOperator) throws RemoteException,
+			SolverException {
 		List<Expr> args = new ArrayList<Expr>();
 
 		// use implicit differential symbols
@@ -377,7 +371,8 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 			try {
 				de.uka.ilkd.key.logic.op.ProgramVariable var = (de.uka.ilkd.key.logic.op.ProgramVariable) nss
 						.programVariables().lookup(
-								new Name(expr.args()[0].head().asString().replaceAll(USCORE_ESCAPE, "_")));
+								new Name(expr.args()[0].head().asString()
+										.replaceAll(USCORE_ESCAPE, "_")));
 				if (var == null) {
 					// var = new de.uka.ilkd.key.logic.op.LocationVariable(
 					// new ProgramElementName(expr.args()[0].head()
@@ -406,7 +401,8 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see de.uka.ilkd.key.dl.IMathematicaDLBridge#convert(com.wolfram.jlink.Expr)
+	 * @see
+	 * de.uka.ilkd.key.dl.IMathematicaDLBridge#convert(com.wolfram.jlink.Expr)
 	 */
 	public Term convert(Expr expr, NamespaceSet nss) throws RemoteException,
 			SolverException {
@@ -433,8 +429,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 			ProgramVariable pv = (ProgramVariable) ((Dot) form).getChildAt(0);
 			String pvName = pv.getElementName().toString();
 			pvName = pvName.replaceAll("_", USCORE_ESCAPE);
-			vars.put(pvName, new Expr(new Expr(
-					Expr.SYMBOL, pvName),
+			vars.put(pvName, new Expr(new Expr(Expr.SYMBOL, pvName),
 					new Expr[] { new Expr(Expr.SYMBOL, name) }));
 		}
 		if (form instanceof DLNonTerminalProgramElement) {
@@ -449,8 +444,9 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see de.uka.ilkd.key.dl.IMathematicaDLBridge#simplify(de.uka.ilkd.key.logic.Term,
-	 *      java.util.Set)
+	 * @see
+	 * de.uka.ilkd.key.dl.IMathematicaDLBridge#simplify(de.uka.ilkd.key.logic
+	 * .Term, java.util.Set)
 	 */
 	public Term simplify(Term form, Set<Term> assumptions, NamespaceSet nss)
 			throws RemoteException, SolverException {
@@ -478,7 +474,9 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see de.uka.ilkd.key.dl.IMathematicaDLBridge#fullSimplify(de.uka.ilkd.key.logic.Term)
+	 * @see
+	 * de.uka.ilkd.key.dl.IMathematicaDLBridge#fullSimplify(de.uka.ilkd.key.
+	 * logic.Term)
 	 */
 	public Term fullSimplify(Term form, NamespaceSet nss)
 			throws RemoteException, SolverException {
@@ -532,7 +530,9 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see de.uka.ilkd.key.dl.IMathematicaDLBridge#findInstance(de.uka.ilkd.key.logic.Term)
+	 * @see
+	 * de.uka.ilkd.key.dl.IMathematicaDLBridge#findInstance(de.uka.ilkd.key.
+	 * logic.Term)
 	 */
 	public String findInstance(Term form, long timeout) throws RemoteException,
 			SolverException {
@@ -620,7 +620,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 	 * @see de.uka.ilkd.key.dl.IMathematicaDLBridge#getCachedAnwserCount()
 	 */
 	public long getCachedAnwserCount() throws RemoteException {
-		return getKernelWrapper().getCachedAnwsers();
+		return getKernelWrapper().getCachedAnswers();
 	}
 
 	/*
@@ -652,16 +652,31 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 			long timeout) throws RemoteException, SolverException {
 		Expr query = Term2ExprConverter.convert2Expr(form);
 		List<Expr> vars = new ArrayList<Expr>();
-		for (PairOfTermAndQuantifierType pair : quantifiers) {
-			Expr convert2Expr = Term2ExprConverter.convert2Expr(pair.term);
-			vars.add(convert2Expr);
-			query = new Expr((pair.type == QuantifierType.FORALL) ? FORALL
-					: EXISTS, new Expr[] {
-					new Expr(LIST, new Expr[] { convert2Expr }), query });
-		}
 		for (String name : additionalReduce) {
 			String sym = name.replaceAll("_", USCORE_ESCAPE);
 			vars.add(new Expr(Expr.SYMBOL, sym));
+		}
+		for (PairOfTermAndQuantifierType pair : quantifiers) {
+			Expr convert2Expr = Term2ExprConverter.convert2Expr(pair.term);
+			vars.add(convert2Expr);
+			Expr quant = (pair.type == QuantifierType.FORALL) ? FORALL : EXISTS;
+			if (quant == query.head()) {
+				Expr kernel = query.args()[1];
+				assert query.args()[0].head() == LIST : "Term2ExprConverter always builds list quantifiers";
+				Expr[] innerVariables = query.args()[0].args();
+				Expr[] allVariables = new Expr[innerVariables.length + 1];
+				allVariables[0] = convert2Expr;
+				System.arraycopy(innerVariables, 0, allVariables, 1,
+						innerVariables.length);
+				Expr[] mergedQuant = new Expr[2];
+				mergedQuant[0] = new Expr(LIST, allVariables);
+				mergedQuant[1] = kernel;
+				query = new Expr(quant, mergedQuant);
+			} else {
+				query = new Expr(quant, new Expr[] {
+						new Expr(LIST, new Expr[] { convert2Expr }), query });
+			}
+
 		}
 		Expr arg3 = new Expr(Expr.SYMBOL, "Reals");
 		Expr[] argList = new Expr[] { query, };
@@ -752,7 +767,10 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see de.uka.ilkd.key.dl.arithmetics.IGroebnerBasisCalculator#checkForConstantGroebnerBasis(de.uka.ilkd.key.dl.arithmetics.impl.SumOfSquaresChecker.PolynomialClassification)
+	 * @seede.uka.ilkd.key.dl.arithmetics.IGroebnerBasisCalculator#
+	 * checkForConstantGroebnerBasis
+	 * (de.uka.ilkd.key.dl.arithmetics.impl.SumOfSquaresChecker
+	 * .PolynomialClassification)
 	 */
 	public boolean checkForConstantGroebnerBasis(
 			PolynomialClassification<Term> terms) {
@@ -796,20 +814,26 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 
 		Expr groebnerBasis;
 		try {
-			Expr order = new Expr(RULE, new Expr[] { new Expr(Expr.SYMBOL, "MonomialOrder"),
+			Expr order = new Expr(RULE, new Expr[] {
+					new Expr(Expr.SYMBOL, "MonomialOrder"),
 					new Expr(Expr.SYMBOL, "DegreeReverseLexicographic") });
-			groebnerBasis = evaluate(new Expr(new Expr(Expr.SYMBOL,
-					"GroebnerBasis"), new Expr[] {
-					new Expr(LIST, h.toArray(new Expr[h.size()])),
-					new Expr(LIST, vars.toArray(new Expr[vars.size()])),
-					order })).expression;
+			groebnerBasis = evaluate(new Expr(
+					new Expr(Expr.SYMBOL, "GroebnerBasis"),
+					new Expr[] {
+							new Expr(LIST, h.toArray(new Expr[h.size()])),
+							new Expr(LIST, vars.toArray(new Expr[vars.size()])),
+							order })).expression;
 
 			assert groebnerBasis.head().equals(LIST) : "The head of the returned groebner basis has to be a list";
 			System.out.println(groebnerBasis);
 			Expr poly = new Expr(1);
-			Expr expression = evaluate(new Expr(new Expr(Expr.SYMBOL,
-					"PolynomialReduce"), new Expr[] { poly, groebnerBasis,
-					new Expr(LIST, vars.toArray(new Expr[vars.size()])), order })).expression;
+			Expr expression = evaluate(new Expr(
+					new Expr(Expr.SYMBOL, "PolynomialReduce"),
+					new Expr[] {
+							poly,
+							groebnerBasis,
+							new Expr(LIST, vars.toArray(new Expr[vars.size()])),
+							order })).expression;
 			System.out.println("Result is: " + expression);
 			if (expression.head().equals(LIST)) {
 				if (expression.args().length == 2) {

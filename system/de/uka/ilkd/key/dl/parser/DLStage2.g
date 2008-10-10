@@ -35,7 +35,14 @@ stat returns [ DLProgram pe ] scope { ArrayList<Formula> params; } @init {$stat:
 	st = astat { pe = st; } 
 ;
 
-annotation[ DLProgram pe ]: (ANNOTATION w = WORD { pe.setDLAnnotation(w.toString(), new ArrayList<Formula>()); } (f = form[true] { pe.getDLAnnotation(w.toString()).add(f); })* )
+annotation[ DLProgram pe ]: (ANNOTATION w = WORD 
+	{ 
+		if(!pe.getDLAnnotations().containsKey(w.toString())) { 
+			pe.setDLAnnotation(w.toString(), new ArrayList<Formula>()); 
+		} else { 
+			throw new RecognitionException(); /* todo add text filename and line */
+		} 
+	} (f = form[true] { pe.getDLAnnotation(w.toString()).add(f); })* )
 ;
 
 astat returns [ DLProgram pe ] : 
@@ -61,7 +68,7 @@ form[boolean diff] returns [ Formula fe ] scope { ArrayList<Expression> params; 
 | ^(FORALL ^(VARDEC decl = vardecl[false]) CHOP frm = form[diff] { fe = tf.createForall(decl, frm); })
 | ^(EXISTS ^(VARDEC decl = vardecl[false]) CHOP frm = form[diff] { fe = tf.createExists(decl, frm); })
 | ^(t = WORD (e = expr[diff] { $form::params.add(e); })* { fe = tf.createPredicateTerm(t, $form::params); $form::params.clear(); })
-| t = WORD { fe = tf.createPredicateTerm(t); }
+| t = (WORD_DOLLAR | WORD) { fe = tf.createPredicateTerm(t); }
 | {schemaMode}? sv = svar { fe = tf.schemaTermVariable(sv, diff); }
 ;
 
@@ -94,7 +101,7 @@ expr[boolean diffAllowed] returns [ Expression pe ] scope { ArrayList<Expression
 | ^(op = DIV e=expr[diffAllowed] { pe = e; } (b=expr[diffAllowed] { pe = tf.createDiv(pe, b); })+)
 | ^(op = EXP e = expr[diffAllowed] b=expr[false] { pe = e; } { pe = tf.createExp(pe, b); })
 | ^(t = WORD (e = expr[diffAllowed] { $expr::params.add(e); })* { pe = tf.createAtomicTerm(t, $expr::params); $expr::params.clear(); })
-| t = WORD { pe = tf.createAtomicTerm(t); }
+| t = (WORD | WORD_DOLLAR) { pe = tf.createAtomicTerm(t); }
 | num = NUM { pe = tf.createConstant(num); }
 | {diffAllowed}? d = diff { pe = d; }
 | sv = svar { pe = tf.schemaExpressionVariable(sv); }

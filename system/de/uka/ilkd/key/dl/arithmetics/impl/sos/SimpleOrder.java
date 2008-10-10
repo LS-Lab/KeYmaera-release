@@ -81,8 +81,8 @@ public class SimpleOrder implements PolynomialOrder {
 		for (Polynomial p : g) {
 			pg.multiply(p);
 		}
-		result.add((Polynomial) pg.power(Values.getDefault().valueOf(2)));
 		assert (result != null);
+		result.add((Polynomial) pg.power(Values.getDefault().valueOf(2)));
 		for (Polynomial p : h) {
 			result = result.add(p);
 		}

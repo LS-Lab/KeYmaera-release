@@ -63,7 +63,7 @@ public class AutomodeListener implements AutoModeListener {
      * @since Aug 13, 2007
      * 
      */
-    private final class DummyRuleApplicationManager implements
+    private static final class DummyRuleApplicationManager implements
             AutomatedRuleApplicationManager {
 
         private AutomatedRuleApplicationManager original;

@@ -123,6 +123,7 @@ public class DLUniversalClosureOp extends AbstractMetaOperator {
 
             writer.write("}\n");
             writer.flush();
+            writer.close();
         } catch (IOException ignore) {
             /*System.err.println("could not create /tmp/depgraph.dot " + ignore); */
         }

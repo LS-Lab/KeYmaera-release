@@ -121,7 +121,7 @@ public class DiffWeakenFeature implements Feature {
         }
         // branchingNodesAlreadyTested.put(firstNodeAfterBranch, timeout);
 
-        RuleAppCost r = diffWeaken(pos, goal, timeout);
+        RuleAppCost r = diffWeaken(pos, goal, timeout * 1000);
 //        System.out.println("weak " + r + " for " + app.rule().name());
         return r;
     }
@@ -130,7 +130,7 @@ public class DiffWeakenFeature implements Feature {
      * Determines whether to apply diffweaken rule to the specified position in goal by DiffSat.
      * @param pos
      * @param goal
-     * @param timeout
+     * @param timeout in ms
      */
     public RuleAppCost diffWeaken(PosInOccurrence pos, Goal goal,
             long timeout) {

@@ -1,5 +1,5 @@
-headerDL-default.txt
-headerDL-nolocalreduce.txt
-headerDL-nosimplify.txt
-headerDL-noIBC.txt
-headerDL-plain.txt
+headerDL-eager.txt
+headerDL-IBC.txt
+headerDL-lazy.txt
+headerDL-IBC-auto.txt
+headerDL-lazy-auto.txt

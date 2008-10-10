@@ -458,7 +458,7 @@ public abstract class AbstractFeatureStrategy implements Strategy {
     // which can be useful in order to use the same feature definitions both for
     // cost computation and instantiation
     
-    private boolean instantiateActive = false;
+    protected boolean instantiateActive = false;
     protected void enableInstantiate() {
         instantiateActive = true;
     }

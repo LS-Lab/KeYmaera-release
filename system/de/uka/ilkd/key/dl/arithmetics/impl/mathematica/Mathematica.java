@@ -245,7 +245,7 @@ public class Mathematica implements ICounterExampleGenerator, IODESolver,
 	 * 
 	 * @see de.uka.ilkd.key.dl.IMathSolver#getCachedAnwserCount()
 	 */
-	public long getCachedAnwserCount() throws RemoteException {
+	public long getCachedAnswerCount() throws RemoteException {
 		return bridge.getCachedAnwserCount();
 	}
 
@@ -330,5 +330,13 @@ public class Mathematica implements ICounterExampleGenerator, IODESolver,
 	public boolean checkForConstantGroebnerBasis(
 			PolynomialClassification<Term> terms) throws RemoteException {
 		return bridge.checkForConstantGroebnerBasis(terms);
+	}
+
+	/* (non-Javadoc)
+	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#isConfigured()
+	 */
+	@Override
+	public boolean isConfigured() {
+		return true;
 	}
 }

@@ -169,7 +169,7 @@ public class DiffSatFeature implements Feature {
      * 
      * @param pos
      * @param goal
-     * @param timeout
+     * @param timeout (in ms)
      */
     private RuleAppCost diffSat(TacletApp app, final PosInOccurrence pos, Goal goal,
             long timeout) {
@@ -196,8 +196,8 @@ public class DiffSatFeature implements Feature {
                 throw new IllegalStateException("no such projection " + value);
             candidate = value.toTerm(app, pos, goal);
             if (candidate == null)
-                throw new IllegalInstantiationException("Invalid instantiation "
-                    + candidate + " for SV 'augmented' in " + app.instantiations());
+                throw new IllegalInstantiationException("Invalid instantiation null"
+                    + " for SV 'augmented' in " + app.instantiations());
         }
         String candidatePrint;
         try {

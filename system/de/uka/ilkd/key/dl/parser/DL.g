@@ -145,10 +145,10 @@ func[diffAllowed]
 | {schemaMode}? sv
 ;
 
-func[boolean diffAllowed]: WORD^ (list[diffAllowed])?
+func[boolean diffAllowed]: (WORD_DOLLAR | WORD)^ (list[diffAllowed])?
 ;
 
-var: WORD 
+var: WORD_DOLLAR | WORD
 ;
 
 type: WORD
@@ -209,5 +209,6 @@ GREATER_EQUALS : GREATER EQUALS;
 //WORD  	:   (('a'..'z'|'A'..'Z')('a'..'z'|'A'..'Z'|'0'..'9'|'_')+) ;
 NUM 	:   '0'..'9'* ('0'..'9'| ('.' '0'..'9'+)) ;
 WORD  	:   ('a'..'z'|'A'..'Z'|'0'..'9'|'_')+ ;
+WORD_DOLLAR  	:   '$' ('a'..'z'|'A'..'Z'|'0'..'9'|'_')+ ;
 WS  	:   (' '|'\t'|'\r'|'\n')+ {skip();} ;
 COMMENT :   '/*' .* '*/' {$channel=HIDDEN;};

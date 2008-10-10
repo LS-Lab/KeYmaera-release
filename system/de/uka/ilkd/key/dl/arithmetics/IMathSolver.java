@@ -79,7 +79,7 @@ public interface IMathSolver {
      *         was started
      * @throws RemoteException
      */
-    public long getCachedAnwserCount() throws RemoteException;
+    public long getCachedAnswerCount() throws RemoteException;
 
     /**
      * Get the number of queries to the server
@@ -96,4 +96,10 @@ public interface IMathSolver {
      * 
      */
     public void resetAbortState() throws RemoteException;
+    
+    
+    /**
+     * @return true, if the tool is probably configured
+     */
+    public boolean isConfigured();
 }

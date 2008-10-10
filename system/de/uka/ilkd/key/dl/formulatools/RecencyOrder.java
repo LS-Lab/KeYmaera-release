@@ -21,6 +21,7 @@ public class RecencyOrder implements Comparator<TermInformations> {
 	 */
 	public RecencyOrder(TreeMap<String, Integer> vars) {
 		this.vars = new ArrayList<String>(vars.keySet());
+		System.out.println(vars);
 		this.map = vars;
 	}
 
@@ -126,9 +127,9 @@ public class RecencyOrder implements Comparator<TermInformations> {
 			int underScores = 0;
 			if (s.contains("_")) {
 				underScores = Integer.parseInt(s
-						.substring(s.indexOf('_') + 1));
+						.substring(s.lastIndexOf('_') + 1));
 				underScores++;
-				s = s.substring(0, s.indexOf('_'));
+				s = s.substring(0, s.lastIndexOf('_'));
 			}
 			// add smallest (oldest) numbers
 			int indexOf = vars.indexOf(s);

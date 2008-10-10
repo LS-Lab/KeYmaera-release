@@ -96,7 +96,7 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#getCachedAnwserCount()
 	 */
 	@Override
-	public long getCachedAnwserCount() throws RemoteException {
+	public long getCachedAnswerCount() throws RemoteException {
 		// TODO Auto-generated method stub
 		return 0;
 	}
@@ -153,6 +153,13 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 	public void resetAbortState() throws RemoteException {
 		// TODO Auto-generated method stub
 		
+	}
+	/* (non-Javadoc)
+	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#isConfigured()
+	 */
+	@Override
+	public boolean isConfigured() {
+		return true;
 	}
 
 }

@@ -10,7 +10,7 @@ use POSIX ":sys_wait_h";
 use Sys::Hostname;
     
 my %option = ();
-getopts("hcm:", \%option);
+getopts("hcmt:", \%option);
 
 #system("limit memoryuse 4000"); #set memory limit to 4GB
 
@@ -31,6 +31,7 @@ chdir $path_to_pe;
 if ($option{h}) {
   print "runs all proofs listed in the files: $automaticdl_txt, $interactive_txt, $not_provable_txt and $quit_with_error_txt .\n";
   print "They can be found in " .  $bin_path . "/" . $path_to_pe .  "\n\n";
+  print "Use '-t' to provide the global maximum timeout for each task (in seconds).\n";
   print "Use '-m email\@address.com' to send the report as an email to the specified address.\n";
   print "Use '-h' to get this text (very necessary this line).\n";
   print "Use '-c' to get the debug messages from the smtp part if there are email problems.\n";
@@ -75,7 +76,9 @@ my %erroneous;
 
 
  open (STS, ">>$statfile");
- print STS "Begin " . `git show |grep commit` . `date` . "\n";
+ print STS ", %% Computer: " . hostname . "\n";
+ print STS ", %% Version: " . `git show |grep commit`;
+ print STS ", %% Date: " . `date` . "\n";
  close(STS);
 
  foreach my $dotkey (@automatic_DL) {
@@ -93,7 +96,7 @@ my %erroneous;
   }
 
   open (STS, ">>$statfile");
-  print STS "END " . `git show |grep commit` . `date` . "\n";
+  print STS ", %% END " . `git show |grep commit` . ", %%" .`date` . "\n";
   close(STS);
 
 #  foreach my $dotkey (@interactive) {
@@ -152,8 +155,11 @@ sub handlefile {
    my @split = split(/ /, $dotkey);
    $dotkey = $split[0];
    my $timeout = -1;
+   $timeout = $option{t} if $option{t};
    if($#split > 0) {
-	   $timeout = $split[1];
+	   if($timeout == -1 || $split[1] < $timeout) {
+	   	$timeout = $split[1];
+	   }
    } 
    open (HANDLE, $dotkey) or die  $dotkey. " couldn't be opened.";
    my $cnt=grep /\\settings/, <HANDLE>;
@@ -264,7 +270,7 @@ sub runAuto {
 	alarm 0;
     open (STS, ">>$statfile");
 	my $printtimeout = $timeout*1000;
-	print STS "$realfilename, NA, $printtimeout, $headerfile, $expectedresult, TIMEOUT\n";
+	print STS "T, $realfilename, NA, $printtimeout, NA, NA, $headerfile, $expectedresult, TIMEOUT\n";
 	close(STS);
 	return 2;
   } else {
@@ -273,6 +279,11 @@ sub runAuto {
 	  my $line = $test[-1];
 	  if($line) {
 		  $line =~ s/^.*?, (.*)\n$/$realfilename, $1, $headerfile, $expectedresult, $result\n/;
+                  if ($expectedresult == $result) {
+                      $line = "_, " . $line;
+                  } else {
+                      $line = "E, " . $line;
+                  }
 		  #$line =~ s/\n$/, $headerfile, $expectedresult, $result\n/;
 		  #$line =~ s/^(.*?),/$realfilename,/;
 		  open (STS, ">>$statfile");

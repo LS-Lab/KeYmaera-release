@@ -44,7 +44,7 @@ public class SkolemfunctionTracker {
 
     public static final SkolemfunctionTracker INSTANCE = new SkolemfunctionTracker();
 
-    private static long count;
+    private long count;
 
     private Map<RigidFunction, Long> orderMap;
 

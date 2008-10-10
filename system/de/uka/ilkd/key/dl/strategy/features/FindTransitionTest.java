@@ -83,7 +83,7 @@ public class FindTransitionTest implements Feature {
         CE_FOUND, NO_RESULT_IN_TIME, UNKNOWN, NO_COUNTER_EXAMPLE_AVAILABLE
     }
 
-    private class TestThread extends Thread {
+    private static class TestThread extends Thread {
 
         private Term term;
         private Term modalFormula;

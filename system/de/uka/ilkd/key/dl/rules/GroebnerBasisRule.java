@@ -35,12 +35,18 @@ import de.uka.ilkd.key.dl.arithmetics.impl.SumOfSquaresChecker;
 import de.uka.ilkd.key.dl.arithmetics.impl.SumOfSquaresChecker.PolynomialClassification;
 import de.uka.ilkd.key.dl.arithmetics.impl.mathematica.Mathematica;
 import de.uka.ilkd.key.dl.arithmetics.impl.orbital.GroebnerBasisChecker;
+import de.uka.ilkd.key.dl.formulatools.collector.AllCollector;
+import de.uka.ilkd.key.dl.strategy.features.FOSequence;
 import de.uka.ilkd.key.java.Services;
+import de.uka.ilkd.key.logic.ConstrainedFormula;
 import de.uka.ilkd.key.logic.Constraint;
 import de.uka.ilkd.key.logic.IteratorOfConstrainedFormula;
 import de.uka.ilkd.key.logic.Name;
 import de.uka.ilkd.key.logic.PosInOccurrence;
 import de.uka.ilkd.key.logic.Term;
+import de.uka.ilkd.key.logic.Visitor;
+import de.uka.ilkd.key.logic.op.Op;
+import de.uka.ilkd.key.logic.op.Quantifier;
 import de.uka.ilkd.key.proof.Goal;
 import de.uka.ilkd.key.proof.ListOfGoal;
 import de.uka.ilkd.key.proof.RuleFilter;
@@ -119,7 +125,28 @@ public class GroebnerBasisRule implements BuiltInRule, RuleFilter {
 	public boolean isApplicable(Goal goal, PosInOccurrence pio,
 			Constraint userConstraint) {
 		// TODO jdq: insert application test
-		return true;
+		if(!MathSolverManager.isGroebnerBasisCalculatorSet()) {
+			return false;
+		}
+		final boolean[] result = new boolean[1];
+		result[0] = true;
+		Visitor visitor = new Visitor() {
+
+			@Override
+			public void visit(Term visited) {
+				if(visited.op() == Op.ALL || visited.op() == Op.EX || !FOSequence.isFOOperator(visited.op())) {
+					result[0] = false;
+				}
+			}
+			
+		};
+		for(ConstrainedFormula f: goal.sequent()) {
+			visitor.visit(f.formula());
+			if(!result[0]) {
+				return false;
+			}
+		}
+		return result[0];
 	}
 
 	/*

@@ -50,6 +50,12 @@ import de.uka.ilkd.key.strategy.Strategy;
  */
 public class Goal  {
 
+	public static enum GoalStatus {
+		UNKNOWN, CLOSED, BLOCKING, COUNTER_EXAMPLE;
+	}
+	
+	private GoalStatus status = GoalStatus.UNKNOWN;
+	
     private Node node;
 
     /** all possible rule applications at this node are managed with this index */ 
@@ -545,6 +551,8 @@ public class Goal  {
 
 		goalList = goalList.prepend(newGoal);
 	    }
+	} else {
+		status = GoalStatus.CLOSED;
 	}
 	
 	fireGoalReplaced ( this, parent, goalList );
@@ -765,4 +773,18 @@ public class Goal  {
         Goal.ruleAppListenerList = ruleAppListenerList;
     }
     // %%%%%%%%%%%%%%%%
+
+	/**
+	 * @return the status
+	 */
+	public GoalStatus getStatus() {
+		return status;
+	}
+
+	/**
+	 * @param status the status to set
+	 */
+	public void setStatus(GoalStatus status) {
+		this.status = status;
+	}
 }
