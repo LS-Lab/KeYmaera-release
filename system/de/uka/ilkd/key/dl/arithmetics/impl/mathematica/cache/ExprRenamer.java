@@ -1,49 +1,48 @@
 package de.uka.ilkd.key.dl.arithmetics.impl.mathematica.cache;
 
-import java.math.BigDecimal;
-import java.rmi.RemoteException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import com.wolfram.jlink.Expr;
-import com.wolfram.jlink.ExprFormatException;
-
-import de.uka.ilkd.key.dl.arithmetics.exceptions.FailedComputationException;
-import de.uka.ilkd.key.dl.arithmetics.exceptions.IncompleteEvaluationException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.UnableToConvertInputException;
-import de.uka.ilkd.key.dl.logic.ldt.RealLDT;
-import de.uka.ilkd.key.dl.model.Div;
-import de.uka.ilkd.key.dl.model.Exp;
-import de.uka.ilkd.key.dl.model.GreaterEquals;
-import de.uka.ilkd.key.dl.model.Less;
-import de.uka.ilkd.key.dl.model.LessEquals;
-import de.uka.ilkd.key.dl.model.MinusSign;
-import de.uka.ilkd.key.dl.model.Mult;
-import de.uka.ilkd.key.dl.model.Plus;
-import de.uka.ilkd.key.dl.model.Unequals;
-import de.uka.ilkd.key.logic.Name;
-import de.uka.ilkd.key.logic.Named;
-import de.uka.ilkd.key.logic.Term;
-import de.uka.ilkd.key.logic.TermBuilder;
-import de.uka.ilkd.key.logic.TermFactory;
-import de.uka.ilkd.key.logic.op.Function;
-import de.uka.ilkd.key.logic.op.LogicVariable;
-import de.uka.ilkd.key.logic.op.Metavariable;
-import de.uka.ilkd.key.logic.op.RigidFunction;
-import de.uka.ilkd.key.logic.op.RigidFunction.FunctionType;
-import de.uka.ilkd.key.logic.sort.Sort;
-
 import static de.uka.ilkd.key.dl.arithmetics.impl.mathematica.ExprConstants.*;
 
 public class ExprRenamer {
+    
+    // TODO: "E"
+    // TODO: symbolQ
+    // TODO: numberQ
+    private static Expr[] stdExpr = {
+        LIST,
+        FORALL,
+        EXISTS,
+        INEQUALITY,
+        LESS,
+        LESS_EQUALS,
+        GREATER_EQUALS,
+        GREATER,
+        PLUS,
+        MINUS,
+        MINUSSIGN,
+        MULT,
+        DIV,
+        EXP,
+        INVERSE_FUNCTION,
+        INTEGRATE,
+        EQUALS,
+        UNEQUAL,
+        AND,
+        OR,
+        NOT,
+        IMPL,
+        TRUE,
+        FALSE
+    };
 
     public ExprRenamer() {
 
     }
 
     public RenameTable getRenaming(Expr expr) {
-
+        return null;
     }
 
     /**
@@ -56,11 +55,18 @@ public class ExprRenamer {
      * @return Renamed expression (copy)
      */
     public Expr rename(Expr expr, RenameTable table) {
-        Expr copy = renameImpl(expr, table);
-        return copy;
+        try { 
+            Expr copy = renameImpl(expr, table);
+            return copy;
+        } catch( UnableToConvertInputException ex ) {
+            return expr;
+        }
     }
 
     private Expr renameImpl(Expr expr, RenameTable table) throws UnableToConvertInputException {
+        
+        // TODO: Changed-Flag einbauen und lokal auswerten, damit nicht 
+        // unnötig Speicher verwendet wird
         
         // Argumente auch umbenennen (mittels Rekursion)
         ArrayList<Expr> renamedList = new ArrayList<Expr>();
@@ -69,26 +75,32 @@ public class ExprRenamer {
         }
         Expr[] args = renamedList.toArray(new Expr[0]);
         
-        Expr head = expr.head();
-        
-        // Listen
-        if( head.equals(LIST)) {
-            return new Expr( Expr.SYM_LIST, args );
+        // Operatoren und andere
+        Expr head = expr.head();     
+        for( int i = 0; i < stdExpr.length; i++ ) {
+            if( head.equals(stdExpr[i]))
+                return new Expr(head,args);
         }
         
-        // Quantoren
-        if( head.equals(FORALL)) {
-            return new Expr( FORALL, args );
-        } else if( head.equals(EXISTS)) {
-            return new Expr( EXISTS, args );
+        // Funktion
+        if( head.args().length > 0 ) {
+            System.out.println("Funktion erkannt!");
+            return new Expr( head, args );
         }
         
-        // Variablen
-        if( head.equals(SYMBOL)) {
-            
+        // Sonstiges --> Variablen
+        // hier umbenennen!
+        String name = expr.toString();
+        String newName;
+        if( table.containsKey(name)) {
+            newName = table.get(name);
+        } else {
+            newName = name;
         }
+        System.out.println("Variable " + name + " in " + newName + " umbenannt");
+        
+        return new Expr(Expr.SYMBOL, newName );
 
-        return null;
         
 //        try {
 //            if (expr.toString().equalsIgnoreCase("$Aborted")
