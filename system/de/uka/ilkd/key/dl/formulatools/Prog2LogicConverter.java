@@ -214,7 +214,7 @@ public class Prog2LogicConverter extends AbstractMetaOperator {
 											.getElementName());
 					if (var == null) { // XXX
 						// TODO: find a way to locate bound variable objects
-						System.out.println("Could not find logic variable "
+						System.out.println("Prog2LogicConverter: Could not find logic variable "
 								+ ((NamedElement) p.getChildAt(0))
 										.getElementName());// XXX
 						var = new LogicVariable(
@@ -244,7 +244,7 @@ public class Prog2LogicConverter extends AbstractMetaOperator {
 				if (var == null) { // XXX
 					// TODO: find a way to locate bound variable objects
 					System.out
-							.println("Could not find logic variable "
+							.println("Prog2LogicConverter: Could not find logic variable "
 									+ ((NamedElement) p.getChildAt(0))
 											.getElementName());// XXX
 					var = new LogicVariable(((NamedElement) p.getChildAt(0))
@@ -368,7 +368,7 @@ public class Prog2LogicConverter extends AbstractMetaOperator {
 						.variables().lookup(elementName);
 				if (var == null) { // XXX
 					// TODO: find a way to locate bound variable objects
-					System.out.println("Could not find logic variable "
+					System.out.println("Prog2LogicConverter: Could not find logic variable "
 							+ elementName);// XXX
 					var = new LogicVariable(elementName, sortR);
 					services.getNamespaces().variables().add(var);
