@@ -138,6 +138,7 @@ public class ExprRenamer {
             // TODO: nachschauen, ob es richtig ist...
             return new Expr(new Expr(Expr.SYMBOL, newName), args);
         }
+        
 
         // Sonstiges --> Variablen
         // hier umbenennen!

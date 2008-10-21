@@ -50,7 +50,7 @@ public class Cacher implements ICacher {
             tbl.reverse();
                         
             // Rename the variables back.
-            // All Variables have now the names in the current context. 
+            // All Variables have now the names for the current context. 
             exprAndMessages.expression = ExprRenamer.rename(exprAndMessages.expression, tbl);
             
             return exprAndMessages;
