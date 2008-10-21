@@ -48,8 +48,7 @@ public class ExprRenamerTest extends TestCase {
         RenameTable tbl = new RenameTable();
         tbl.put("x", "z");
         
-        ExprRenamer renamer = new ExprRenamer();
-        Expr newExpr = renamer.rename(expr, tbl);
+        Expr newExpr = ExprRenamer.rename(expr, tbl);
         
         assertEquals( newExpr.toString(), "ForAll[{z},Exists[{y},And[Greater[y,z],Greater[a,y]]]]" );
     }
@@ -60,7 +59,7 @@ public class ExprRenamerTest extends TestCase {
                                 .var(y)))));
         
         Expr expr = Term2ExprConverter.convert2Expr(term);
-        RenameTable tbl = new ExprRenamer().getRenaming(expr);
+        RenameTable tbl = ExprRenamer.getRenaming(expr);
         
         assertEquals( tbl.get("x"), "x0");
         assertEquals( tbl.get("y"), "x1");

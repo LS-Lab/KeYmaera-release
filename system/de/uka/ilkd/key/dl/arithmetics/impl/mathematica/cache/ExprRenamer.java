@@ -14,10 +14,6 @@ public class ExprRenamer {
             DIV, EXP, INVERSE_FUNCTION, INTEGRATE, EQUALS, UNEQUAL, AND, OR,
             NOT, IMPL, TRUE, FALSE };
 
-    public ExprRenamer() {
-
-    }
-
     /**
      * Calculates the RenameTable-instance for the given Expression.
      * 
@@ -25,13 +21,13 @@ public class ExprRenamer {
      *            Expression to rename
      * @return RenameTable-instance
      */
-    public RenameTable getRenaming(Expr expr) {
+    public static RenameTable getRenaming(Expr expr) {
         RenameTable newTable = new RenameTable();
         getRenamingImpl(expr, newTable);
         return newTable;
     }
 
-    private void getRenamingImpl(Expr expr, RenameTable table) {
+    private static void getRenamingImpl(Expr expr, RenameTable table) {
         for (int i = 0; i < expr.args().length; i++) {
             getRenamingImpl(expr.args()[i], table);
         }
@@ -92,7 +88,7 @@ public class ExprRenamer {
      *            Table with renameinformation
      * @return Renamed expression (copy)
      */
-    public Expr rename(Expr expr, RenameTable table) {
+    public static Expr rename(Expr expr, RenameTable table) {
         try {
             Expr copy = renameImpl(expr, table);
             return copy;
@@ -101,7 +97,7 @@ public class ExprRenamer {
         }
     }
 
-    private Expr renameImpl(Expr expr, RenameTable table)
+    private static Expr renameImpl(Expr expr, RenameTable table)
             throws UnableToConvertInputException {
 
         // TODO: Changed-Flag einbauen und lokal auswerten, damit nicht
