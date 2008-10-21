@@ -30,4 +30,12 @@ public class RenameTable extends HashMap<String, String>{
             put( copy.get(key), key);
         }
     }
+    
+    public String toString() {
+        String res = "RenameTable: ";
+        for( String key : this.keySet() ) {
+            res += "(" + key + " -> " + get(key) + ") ";
+        }
+        return res;
+    }
 }

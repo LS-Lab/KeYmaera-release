@@ -66,4 +66,13 @@ public class CacherTest extends TestCase {
         assertEquals( cacher.contains(expr2), true ); 
     }
     
+    public void test_get() {
+        assertEquals( cacher.contains(expr), false );
+        assertEquals( cacher.contains(expr2), false );
+        
+        cacher.put( expr, eam );      
+        ExprAndMessages result = cacher.get(expr2);
+        
+        assertEquals( result.expression.toString(), expr2.toString());
+    }
 }

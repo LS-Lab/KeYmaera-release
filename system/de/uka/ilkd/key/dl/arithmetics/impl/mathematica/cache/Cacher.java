@@ -35,7 +35,7 @@ public class Cacher implements ICacher {
      * null will be returned.
      */
     public ExprAndMessages get(Expr expr) {
-        
+              
         // Rename given expression
         RenameTable tbl = ExprRenamer.getRenaming(expr);
         Expr renamedExpr = ExprRenamer.rename(expr, tbl);
@@ -45,14 +45,14 @@ public class Cacher implements ICacher {
         if( this.cache.containsKey(exprName)) {
             
             ExprAndMessages exprAndMessages = this.cache.get(exprName);
-            
+           
             // Reverse table
             tbl.reverse();
                         
             // Rename the variables back.
             // All Variables have now the names for the current context. 
             exprAndMessages.expression = ExprRenamer.rename(exprAndMessages.expression, tbl);
-            
+           
             return exprAndMessages;
             
         } else {
@@ -72,6 +72,10 @@ public class Cacher implements ICacher {
         RenameTable tbl = ExprRenamer.getRenaming(expr);
         Expr renamedExpr = ExprRenamer.rename(expr, tbl);
         String exprName = Expr2StringConverter.convert(renamedExpr);
+        
+        // Rename expression in exprAndMessages 
+        tbl = ExprRenamer.getRenaming(exprAndMessages.expression);
+        exprAndMessages.expression = ExprRenamer.rename(exprAndMessages.expression, tbl);     
         
         // Only put it in the cache, when it doesn't already exists
         if( !this.cache.containsKey(exprName)) {
