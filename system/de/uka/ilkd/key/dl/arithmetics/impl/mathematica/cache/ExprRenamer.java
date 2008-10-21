@@ -68,6 +68,8 @@ public class ExprRenamer {
         // TODO: Changed-Flag einbauen und lokal auswerten, damit nicht 
         // unnötig Speicher verwendet wird
         
+        // TODO: Zahlen, wie werden sie behandelt, falls es nicht schon geschehen ist?
+        
         // Argumente auch umbenennen (mittels Rekursion)
         ArrayList<Expr> renamedList = new ArrayList<Expr>();
         for( int i = 0; i < expr.args().length ; i++ ) {
@@ -85,7 +87,20 @@ public class ExprRenamer {
         // Funktion
         if( head.args().length > 0 ) {
             System.out.println("Funktion erkannt!");
-            return new Expr( head, args );
+            
+            // Funktionsnamen umbenennen
+            String name = expr.toString();
+            String newName = "";
+            if( table.containsKey(name)) {
+                newName = table.get(name);
+            } else {
+                newName = name;
+            }
+            
+            System.out.println("Funktion " + name + " in " + newName + " unbenannt");
+            
+            // TODO: nachschauen, ob es richtig ist...
+            return new Expr( new Expr(Expr.SYMBOL, newName), args );
         }
         
         // Sonstiges --> Variablen
