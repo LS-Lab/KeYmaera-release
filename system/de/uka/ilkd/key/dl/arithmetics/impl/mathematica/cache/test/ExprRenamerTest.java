@@ -51,11 +51,19 @@ public class ExprRenamerTest extends TestCase {
         ExprRenamer renamer = new ExprRenamer();
         Expr newExpr = renamer.rename(expr, tbl);
         
-        System.out.println( "Alt : " + expr.toString() );
-        System.out.println( "Neu : " + newExpr.toString() );
+        assertEquals( newExpr.toString(), "ForAll[{z},Exists[{y},And[Greater[y,z],Greater[a,y]]]]" );
     }
 
     public void test_getRenaming() {
-
+        Term term = tb.all(x, tb.ex(y, tb.and(
+                tb.func(gt, tb.var(y), tb.var(x)), tb.func(gt, tb.var(a), tb
+                                .var(y)))));
+        
+        Expr expr = Term2ExprConverter.convert2Expr(term);
+        RenameTable tbl = new ExprRenamer().getRenaming(expr);
+        
+        assertEquals( tbl.get("x"), "x0");
+        assertEquals( tbl.get("y"), "x1");
+        assertEquals( tbl.get("a"), "x2");
     }
 }
