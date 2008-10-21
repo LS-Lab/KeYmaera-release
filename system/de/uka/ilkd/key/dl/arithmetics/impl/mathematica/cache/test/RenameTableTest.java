@@ -3,6 +3,11 @@ package de.uka.ilkd.key.dl.arithmetics.impl.mathematica.cache.test;
 import de.uka.ilkd.key.dl.arithmetics.impl.mathematica.cache.RenameTable;
 import junit.framework.TestCase;
 
+/**
+ * Tests the functionality of the RenameTable-Class.
+ * 
+ * @author Timo Michelsen
+ */
 public class RenameTableTest extends TestCase {
 
     public void test_reverse() {

@@ -15,6 +15,11 @@ import de.uka.ilkd.key.logic.sort.SetOfSort;
 import de.uka.ilkd.key.logic.sort.Sort;
 import junit.framework.TestCase;
 
+/**
+ * Helper class.
+ * 
+ * @author Timo Michelsen
+ */
 class SortR extends AbstractNonCollectionSort {
 
     public static final SortR R = new SortR(new Name("R"));
@@ -29,6 +34,11 @@ class SortR extends AbstractNonCollectionSort {
     }
 }
 
+/**
+ * Tests the functionality of the ExprRenamer-Class
+ * 
+ * @author Timo Michelsen
+ */
 public class ExprRenamerTest extends TestCase {
 
     TermBuilder tb = TermBuilder.DF;

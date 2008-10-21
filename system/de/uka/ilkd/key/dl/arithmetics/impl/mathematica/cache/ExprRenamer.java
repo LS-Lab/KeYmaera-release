@@ -7,8 +7,6 @@ import static de.uka.ilkd.key.dl.arithmetics.impl.mathematica.ExprConstants.*;
 
 public class ExprRenamer {
 
-    // TODO: "E"
-    // TODO: symbolQ
     private static Expr[] stdExpr = { LIST, FORALL, EXISTS, INEQUALITY, LESS,
             LESS_EQUALS, GREATER_EQUALS, GREATER, PLUS, MINUS, MINUSSIGN, MULT,
             DIV, EXP, INVERSE_FUNCTION, INTEGRATE, EQUALS, UNEQUAL, AND, OR,
@@ -31,22 +29,16 @@ public class ExprRenamer {
         for (int i = 0; i < expr.args().length; i++) {
             getRenamingImpl(expr.args()[i], table);
         }
-
-        // Operatoren und andere
+        
         Expr head = expr.head();
         for (int i = 0; i < stdExpr.length; i++) {
             if (head.equals(stdExpr[i]))
                 return;
         }
 
-        // Funktion
         if (head.args().length > 0) {
-            System.out.println("Funktion zum Umbenennen erkannt!");
 
-            // Funktionsnamen umbenennen
             String name = expr.toString();
-
-            // Neuen Funktionsnamen generieren
             if (!table.containsKey(name)) {
                 int i = 0;
                 while (table.containsValue("f" + i)) {
@@ -60,12 +52,8 @@ public class ExprRenamer {
             return;
         }
 
-        // Sonstiges --> Variablen
-        // hier umbenennen!
-        // Variable umbenennen
-        String name = expr.toString();
 
-        // Neuen Variablennamen generieren
+        String name = expr.toString();
         if (!table.containsKey(name)) {
             int i = 0;
             while (table.containsValue("x" + i)) {
@@ -103,45 +91,22 @@ public class ExprRenamer {
         // TODO: Changed-Flag einbauen und lokal auswerten, damit nicht
         // unnötig Speicher verwendet wird
 
-        // TODO: Zahlen, wie werden sie behandelt, falls es nicht schon
-        // geschehen ist?
-
-        // Argumente auch umbenennen (mittels Rekursion)
         ArrayList<Expr> renamedList = new ArrayList<Expr>();
         for (int i = 0; i < expr.args().length; i++) {
             renamedList.add(renameImpl(expr.args()[i], table));
         }
         Expr[] args = renamedList.toArray(new Expr[0]);
 
-        // Operatoren und andere
         Expr head = expr.head();
         for (int i = 0; i < stdExpr.length; i++) {
             if (head.equals(stdExpr[i]))
                 return new Expr(head, args);
         }
-
-        // Funktion
-        if (head.args().length > 0) {
-            System.out.println("Funktion erkannt!");
-
-            // Funktionsnamen umbenennen
-            String name = expr.toString();
-            String newName = "";
-            if (table.containsKey(name)) {
-                newName = table.get(name);
-            } else {
-                newName = name;
-            }
-
-            // System.out.println("Funktion " + name + " in " + newName + " unbenannt");
-
-            // TODO: nachschauen, ob es richtig ist...
-            return new Expr(new Expr(Expr.SYMBOL, newName), args);
+     
+        if( expr.rationalQ() || expr.numberQ() ) {
+            return new Expr( head, args);
         }
         
-
-        // Sonstiges --> Variablen
-        // hier umbenennen!
         String name = expr.toString();
         String newName;
         if (table.containsKey(name)) {
@@ -149,8 +114,11 @@ public class ExprRenamer {
         } else {
             newName = name;
         }
-        // System.out.println("Variable " + name + " in " + newName + " umbenannt");
-
-        return new Expr(Expr.SYMBOL, newName);
+ 
+        if( head.args().length == 0 ) { // Variable
+            return new Expr(Expr.SYMBOL, newName);
+        } else { // Function
+            return new Expr(new Expr(Expr.SYMBOL, newName), args); 
+        }
     }
 }

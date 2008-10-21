@@ -24,7 +24,7 @@ public class Cacher implements ICacher {
         // Rename given expression
         RenameTable tbl = ExprRenamer.getRenaming(expr);
         Expr renamedExpr = ExprRenamer.rename(expr, tbl);
-        String exprName = Expr2StringConverter.convert(renamedExpr);
+        String exprName = renamedExpr.toString();
         
         return this.cache.containsKey(exprName);
     }
@@ -39,7 +39,7 @@ public class Cacher implements ICacher {
         // Rename given expression
         RenameTable tbl = ExprRenamer.getRenaming(expr);
         Expr renamedExpr = ExprRenamer.rename(expr, tbl);
-        String exprName = Expr2StringConverter.convert(renamedExpr);
+        String exprName = renamedExpr.toString();
         
         // Check, if renamed expression is already cached
         if( this.cache.containsKey(exprName)) {
@@ -71,7 +71,7 @@ public class Cacher implements ICacher {
         // Rename given expression
         RenameTable tbl = ExprRenamer.getRenaming(expr);
         Expr renamedExpr = ExprRenamer.rename(expr, tbl);
-        String exprName = Expr2StringConverter.convert(renamedExpr);
+        String exprName = renamedExpr.toString();
         
         // Rename expression in exprAndMessages 
         tbl = ExprRenamer.getRenaming(exprAndMessages.expression);
