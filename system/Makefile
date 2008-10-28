@@ -365,15 +365,15 @@ DIFF_PARSER= \
 ## generic java support
 JAVAFILES=$(GEN_FILES:%=$(PFX)%.java) 
 
-.PHONY: all
-all:	javahomeset branding
-	@$(MAKE) -s all_gen
-
-
+.PHONY: keybase
 keybase: TOGETHER_ENABLED=
 keybase: COMPILE_GF=
 keybase: PLUG_IN_FILTER='\(key/casetool\|key/ocl\|proof/init/OCL\|TestTermParserOCL\|TestTacletParserOCL\|TestOCLTaclets\|TestKey\)'
 keybase: javahomeset
+	@$(MAKE) -s all_gen
+
+.PHONY: all
+all:	javahomeset branding
 	@$(MAKE) -s all_gen
 
 
