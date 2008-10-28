@@ -188,7 +188,7 @@ public class DL2MatrixFormConverter {
 							"Dont know what to do with the multiplication of two program variables");
 				}
 			} else {
-				val.res = Values.getDefault().symbol(name);
+				val.res =  val.res.multiply(Values.getDefault().symbol(name));
 			}
 		} else if (m instanceof Constant) {
 			Constant c = (Constant) m;
@@ -217,6 +217,7 @@ public class DL2MatrixFormConverter {
 			} else if (childAt instanceof MinusSign) {
 				val.res = val.res.minus();
 				convert(variables, t, val, ft.getChildAt(1));
+
 			} else {
 				throw new IllegalArgumentException(
 						"Dont know how to represent the function of type "
