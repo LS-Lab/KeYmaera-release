@@ -156,9 +156,9 @@ fi
 # KeY CLASSPATH
 #
 
-key_ext_jars="antlr.jar antlr-3.0.1.jar jargs.jar recoder.jar dresden-ocl-demo.jar xerces.jar log4j.jar JLink/JLink.jar orbital-ext.jar orbital-core.jar keymaera.jar"
+key_ext_jars="antlr.jar antlr3.jar stringtemplate.jar jargs.jar recoderKey.jar dresden-ocl-demo.jar xerces.jar log4j.jar JLink/JLink.jar orbital-ext.jar orbital-core.jar"
 
-keyclasspath=""
+keyclasspath="$KEY_HOME/system/binary/"
 
 for i in $key_ext_jars ; do
     current_jar="$KEY_LIB/$i"
@@ -237,4 +237,5 @@ exec $JAVA $JAVA_OPTIONS $keysysprops $hpfix \
 -Dkey.simplify.logdir=$KEY_SIMPLIFY_LOG_DIR \
 -Dkey.ics.logdir=$KEY_ICS_LOG_DIR \
 -Dsun.awt.exception.handler=de.uka.ilkd.key.gui.ExceptionalHandler \
+-Djava.library.path=$KEY_HOME/system/binary:/usr/lib \
 -classpath $keyclasspath:$togetherclasspath:$JDK_RT_JAR de.uka.ilkd.key.gui.Main $keyarg dL
