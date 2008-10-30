@@ -419,6 +419,13 @@ public class Main extends JFrame implements IMain {
      */
     public static Main getInstance(final boolean visible) {
         if (instance == null) {
+	        try {
+			    javax.swing.UIManager.setLookAndFeel("javax.swing.plaf.metal.MetalLookAndFeel");
+			}
+			catch (ClassNotFoundException e) {}
+			catch (InstantiationException e) {}
+			catch (javax.swing.UnsupportedLookAndFeelException e) {}
+			catch (IllegalAccessException e) {}
         	if (ProofSettings.DEFAULT_SETTINGS.getProfile() instanceof DLProfile) {
                 instance = new Main("KeYmaera -- Prover");
                 orbital.awt.UIUtilities.setCenter(instance);
