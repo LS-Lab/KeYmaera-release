@@ -71,10 +71,10 @@ import de.uka.ilkd.key.logic.sort.Sort;
  */
 public class Expr2TermConverter implements ExprConstants {
 
-    private static final String[] BLACKLIST_ARRAY = { "Abort", "$Failed", 
-        "Reduce", "Simplify",
-            "FullSimplify", "FindInstance", "Hold", "List", "Resolve",
-            "DSolve", "D", "Dt", "Indeterminate", "GroebnerBasis" };
+    private static final String[] BLACKLIST_ARRAY = { "Abort", "$Failed",
+            "Reduce", "Simplify", "FullSimplify", "FindInstance", "Hold",
+            "List", "Resolve", "DSolve", "D", "Dt", "Indeterminate",
+            "GroebnerBasis" };
 
     private static final Set<String> BLACKLIST = new HashSet<String>(Arrays
             .asList(BLACKLIST_ARRAY));
@@ -101,34 +101,37 @@ public class Expr2TermConverter implements ExprConstants {
      * functions.
      * 
      * @param expr
-     *                the Expr to convert
+     *            the Expr to convert
      * @param nss
-     *                the namespaces to determine which objects are to be used
-     *                for variables and functions
+     *            the namespaces to determine which objects are to be used for
+     *            variables and functions
      * @return a Term representing the given Expr.
      * @throws RemoteException
-     *                 if there is an error while conversion
+     *             if there is an error while conversion
      */
     public static Term convert(Expr expr, NamespaceSet nss,
             Map<Name, LogicVariable> quantifiedVariables)
             throws RemoteException, ComputationException {
-    	try {
-            Term convertImpl = convertImpl(expr, nss, quantifiedVariables);
-//        assert expr.equals(Term2ExprConverter.convert2ExprImpl(convertImpl));
-            return convertImpl;
-    	}
-    	catch (UnableToConvertInputException ex) {
-    		throw new UnableToConvertInputException(ex.getMessage() + " in " + expr, ex);
-    	}
-    }
-    static Term convertImpl(Expr expr, NamespaceSet nss,
-                Map<Name, LogicVariable> quantifiedVariables)
-        throws RemoteException, ComputationException {
         try {
-            if (expr.toString().equalsIgnoreCase("$Aborted") || expr.toString().equalsIgnoreCase("Abort[]")) {
+            Term convertImpl = convertImpl(expr, nss, quantifiedVariables);
+            // assert
+            // expr.equals(Term2ExprConverter.convert2ExprImpl(convertImpl));
+            return convertImpl;
+        } catch (UnableToConvertInputException ex) {
+            throw new UnableToConvertInputException(ex.getMessage() + " in "
+                    + expr, ex);
+        }
+    }
+
+    static Term convertImpl(Expr expr, NamespaceSet nss,
+            Map<Name, LogicVariable> quantifiedVariables)
+            throws RemoteException, ComputationException {
+        try {
+            if (expr.toString().equalsIgnoreCase("$Aborted")
+                    || expr.toString().equalsIgnoreCase("Abort[]")) {
                 throw new IncompleteEvaluationException("Calculation aborted!");
             } else if (expr.toString().equalsIgnoreCase("$Failed")) {
-                    throw new FailedComputationException("Calculation failed!");
+                throw new FailedComputationException("Calculation failed!");
             } else if (expr.head().equals(FORALL) || expr.head().equals(EXISTS)) {
                 Expr list = expr.args()[0];
                 if (list.head().equals(LIST)) { // LIST
@@ -163,8 +166,8 @@ public class Expr2TermConverter implements ExprConstants {
                         return result;
                     } else {
                         return TermBuilder.DF.all(vars
-                                .toArray(new LogicVariable[0]), convertImpl(expr
-                                .args()[1], nss, quantifiedVariables));
+                                .toArray(new LogicVariable[0]), convertImpl(
+                                expr.args()[1], nss, quantifiedVariables));
                     }
                 }
             }
@@ -416,14 +419,17 @@ public class Expr2TermConverter implements ExprConstants {
                 }
             }
         } catch (ExprFormatException e) {
-            throw new UnableToConvertInputException("Error converting Expr " + expr + " to Formula, because " + e, e);
+            throw new UnableToConvertInputException("Error converting Expr "
+                    + expr + " to Formula, because " + e, e);
         }
-        throw new UnableToConvertInputException("Dont know how to convert " + expr);
+        throw new UnableToConvertInputException("Dont know how to convert "
+                + expr);
     }
 
     public static boolean isBlacklisted(Name name) {
         return BLACKLIST.contains(name.toString());
     }
+
     public static boolean isBlacklisted(Expr expr) {
         try {
             return BLACKLIST.contains(expr.head().asString());
