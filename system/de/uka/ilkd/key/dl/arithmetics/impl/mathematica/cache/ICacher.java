@@ -6,7 +6,10 @@ import de.uka.ilkd.key.dl.arithmetics.impl.mathematica.IKernelLinkWrapper.ExprAn
 public interface ICacher {
 
     void put( Expr expr, ExprAndMessages exprAndMessages );
+    void put(ICacher cache);
     boolean contains( Expr expr );
     ExprAndMessages get( Expr expr );
     
+ 
+    void setMaxCacheSize(int size);
 }
