@@ -398,7 +398,7 @@ public class ProjectManager extends JFrame {
 			return null;
 		}
 		try {
-			File tempFile = File.createTempFile("keymaera", ".key");
+			File tempFile = File.createTempFile(url.substring(url.lastIndexOf('/') + 1, url.lastIndexOf('.')), ".key");
 			tempFile.deleteOnExit();
 			System.out.println(tempFile.getCanonicalPath());
 			FileOutputStream fileOutputStream = new FileOutputStream(tempFile);
