@@ -14,7 +14,7 @@ public class FilterOperatorTypes extends FilterDecorator {
 		this.classes = classes;
 	}
 
-	@Override
+	/*@Override*/
 	public RemoveItem isValid(FoundItem val) {
 		for( Class c : this.classes ) {
 			if( c.isInstance(val.getTerm().op())) {

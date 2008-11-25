@@ -16,7 +16,7 @@ public class FilterVariableCollector extends FilterDecorator{
 		super(decoratedFilter);
 	}
 
-	@Override
+	/*@Override*/
 	public RemoveItem isValid(FoundItem val) {
 		if( val.getTerm().op() instanceof ProgramVariable ||
 			val.getTerm().op() instanceof Metavariable ||

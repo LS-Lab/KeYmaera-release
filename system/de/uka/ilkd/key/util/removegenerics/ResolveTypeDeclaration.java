@@ -50,7 +50,7 @@ class ResolveTypeDeclaration extends GenericResolutionTransformation {
         this.declaration = declaration;
     }
 
-    @Override
+    /*@Override*/
     public ProblemReport analyze() {
 
         ASTList<TypeParameterDeclaration> typeParameters = declaration.getTypeParameters();
@@ -318,7 +318,7 @@ class ResolveTypeDeclaration extends GenericResolutionTransformation {
         return superMethods;
     }
 
-    @Override
+    /*@Override*/
     public void transform() {
 
         if (declaration instanceof ClassDeclaration) {

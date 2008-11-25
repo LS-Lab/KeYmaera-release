@@ -87,7 +87,7 @@ public class EnumClassBuilder extends RecoderModelTransformer {
      * 
      * @see recoder.kit.TwoPassTransformation#analyze()
      */
-    @Override
+    /*@Override*/
     public ProblemReport analyze() {
 
         for (CompilationUnit unit : getUnits()) {

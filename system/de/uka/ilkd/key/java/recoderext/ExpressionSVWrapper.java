@@ -124,7 +124,7 @@ public class ExpressionSVWrapper extends Literal implements Expression,
 	suff=path;
     }
 
-	@Override
+	/*@Override*/
 	public Object getEquivalentJavaType() {
 		throw new Error("mulbrich: what to do here?!");
 	}

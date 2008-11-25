@@ -48,7 +48,7 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 	 * 
 	 * @see de.uka.ilkd.key.dl.arithmetics.IGroebnerBasisCalculator#checkForConstantGroebnerBasis()
 	 */
-	@Override
+	/*@Override*/
 	public boolean checkForConstantGroebnerBasis(PolynomialClassification<Term> terms) {
 		PolynomialClassification<Polynomial> classify2 = SumOfSquaresChecker.INSTANCE
 				.classify(terms);
@@ -86,7 +86,7 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 	/* (non-Javadoc)
 	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#abortCalculation()
 	 */
-	@Override
+	/*@Override*/
 	public void abortCalculation() throws RemoteException {
 		// TODO Auto-generated method stub
 		
@@ -95,7 +95,7 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 	/* (non-Javadoc)
 	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#getCachedAnwserCount()
 	 */
-	@Override
+	/*@Override*/
 	public long getCachedAnswerCount() throws RemoteException {
 		// TODO Auto-generated method stub
 		return 0;
@@ -104,7 +104,7 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 	/* (non-Javadoc)
 	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#getName()
 	 */
-	@Override
+	/*@Override*/
 	public String getName() {
 		return "Orbital";
 	}
@@ -112,7 +112,7 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 	/* (non-Javadoc)
 	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#getQueryCount()
 	 */
-	@Override
+	/*@Override*/
 	public long getQueryCount() throws RemoteException {
 		// TODO Auto-generated method stub
 		return 0;
@@ -121,7 +121,7 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 	/* (non-Javadoc)
 	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#getTimeStatistics()
 	 */
-	@Override
+	/*@Override*/
 	public String getTimeStatistics() throws RemoteException {
 		// TODO Auto-generated method stub
 		return null;
@@ -130,7 +130,7 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 	/* (non-Javadoc)
 	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#getTotalCalculationTime()
 	 */
-	@Override
+	/*@Override*/
 	public long getTotalCalculationTime() throws RemoteException {
 		// TODO Auto-generated method stub
 		return 0;
@@ -139,7 +139,7 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 	/* (non-Javadoc)
 	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#getTotalMemory()
 	 */
-	@Override
+	/*@Override*/
 	public long getTotalMemory() throws RemoteException,
 			ServerStatusProblemException, ConnectionProblemException {
 		// TODO Auto-generated method stub
@@ -149,7 +149,7 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 	/* (non-Javadoc)
 	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#resetAbortState()
 	 */
-	@Override
+	/*@Override*/
 	public void resetAbortState() throws RemoteException {
 		// TODO Auto-generated method stub
 		
@@ -157,7 +157,7 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 	/* (non-Javadoc)
 	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#isConfigured()
 	 */
-	@Override
+	/*@Override*/
 	public boolean isConfigured() {
 		return true;
 	}

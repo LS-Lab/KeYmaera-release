@@ -924,7 +924,7 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 		return getFirstInCacheUntilBranch(node.parent(), cache);
 	}
 
-	@Override
+	/*@Override*/
 	protected RuleAppCost instantiateApp(RuleApp app, PosInOccurrence pio,
 			Goal goal) {
 		if (veto(app, pio, goal)) {
@@ -941,7 +941,7 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 
 		}
 
-		@Override
+		/*@Override*/
 		public Strategy create(Proof p_proof,
 				StrategyProperties strategyProperties) {
 			return new DLStrategy(p_proof);
@@ -964,7 +964,7 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 		}
 	}
 
-	@Override
+	/*@Override*/
 	public long getTimeout(Goal goal, RuleApp app) {
 		return timeout;
 	}

@@ -363,7 +363,7 @@ public class ServerConsole extends JFrame {
          * 
          * @see java.lang.Thread#run()
          */
-        @Override
+        /*@Override*/
         public void run() {
             while (running) {
                 int result = -1;
@@ -469,7 +469,7 @@ public class ServerConsole extends JFrame {
          * 
          * @see java.lang.Thread#run()
          */
-        @Override
+        /*@Override*/
         public void run() {
             try {
                 InputStreamReader reader = new InputStreamReader(socket

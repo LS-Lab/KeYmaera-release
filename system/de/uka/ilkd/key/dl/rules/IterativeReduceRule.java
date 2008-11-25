@@ -129,7 +129,7 @@ public class IterativeReduceRule implements BuiltInRule, RuleFilter {
 	 * de.uka.ilkd.key.rule.BuiltInRule#isApplicable(de.uka.ilkd.key.proof.Goal,
 	 * de.uka.ilkd.key.logic.PosInOccurrence, de.uka.ilkd.key.logic.Constraint)
 	 */
-	@Override
+	/*@Override*/
 	public boolean isApplicable(Goal goal, PosInOccurrence pio,
 			Constraint userConstraint) {
 		return true;
@@ -141,7 +141,7 @@ public class IterativeReduceRule implements BuiltInRule, RuleFilter {
 	 * @see de.uka.ilkd.key.rule.Rule#apply(de.uka.ilkd.key.proof.Goal,
 	 * de.uka.ilkd.key.java.Services, de.uka.ilkd.key.rule.RuleApp)
 	 */
-	@Override
+	/*@Override*/
 	public ListOfGoal apply(Goal goal, Services services, RuleApp ruleApp) {
 		long timeout = 2000;
 		final boolean automode = Main.getInstance().mediator().autoMode();
@@ -386,7 +386,7 @@ public class IterativeReduceRule implements BuiltInRule, RuleFilter {
 	 * 
 	 * @see de.uka.ilkd.key.rule.Rule#displayName()
 	 */
-	@Override
+	/*@Override*/
 	public String displayName() {
 		return "IterativeReduce";
 	}
@@ -396,7 +396,7 @@ public class IterativeReduceRule implements BuiltInRule, RuleFilter {
 	 * 
 	 * @see de.uka.ilkd.key.rule.Rule#name()
 	 */
-	@Override
+	/*@Override*/
 	public Name name() {
 		return new Name("IterativeReduce");
 	}
@@ -406,7 +406,7 @@ public class IterativeReduceRule implements BuiltInRule, RuleFilter {
 	 * 
 	 * @see java.lang.Object#toString()
 	 */
-	@Override
+	/*@Override*/
 	public String toString() {
 		return displayName();
 	}

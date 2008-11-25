@@ -29,7 +29,7 @@ public class SimpleOrder implements PolynomialOrder {
 		 * 
 		 * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
 		 */
-		@Override
+		/*@Override*/
 		public int compare(Polynomial o1, Polynomial o2) {
 			return o1.degree().intValue() - o2.degree().intValue();
 		}
@@ -94,7 +94,7 @@ public class SimpleOrder implements PolynomialOrder {
 	 * 
 	 * @see de.uka.ilkd.key.dl.arithmetics.impl.sos.PolynomialOrder#getNext()
 	 */
-	@Override
+	/*@Override*/
 	public Polynomial getNext() {
 		// warning this method is _not_ threadsafe (like most java collections)
 		Polynomial n = next;
@@ -107,7 +107,7 @@ public class SimpleOrder implements PolynomialOrder {
 	 * 
 	 * @see de.uka.ilkd.key.dl.arithmetics.impl.sos.PolynomialOrder#hasNext()
 	 */
-	@Override
+	/*@Override*/
 	public boolean hasNext() {
 		if (next == null) {
 			next = computeNext();
@@ -233,7 +233,7 @@ public class SimpleOrder implements PolynomialOrder {
 	 * 
 	 * @see de.uka.ilkd.key.dl.arithmetics.impl.sos.PolynomialOrder#setF(java.util.Set)
 	 */
-	@Override
+	/*@Override*/
 	public void setF(Set<Polynomial> f) {
 		this.f = new ArrayList<Polynomial>(f);
 		Collections.sort(this.f, PolynomialComparator.INSTANCE);
@@ -244,7 +244,7 @@ public class SimpleOrder implements PolynomialOrder {
 	 * 
 	 * @see de.uka.ilkd.key.dl.arithmetics.impl.sos.PolynomialOrder#setG(java.util.Set)
 	 */
-	@Override
+	/*@Override*/
 	public void setG(Set<Polynomial> g) {
 		this.g = new ArrayList<Polynomial>(g);
 		Collections.sort(this.g, PolynomialComparator.INSTANCE);
@@ -255,7 +255,7 @@ public class SimpleOrder implements PolynomialOrder {
 	 * 
 	 * @see de.uka.ilkd.key.dl.arithmetics.impl.sos.PolynomialOrder#setH(java.util.Set)
 	 */
-	@Override
+	/*@Override*/
 	public void setH(Set<Polynomial> h) {
 		this.h = new ArrayList<Polynomial>(h);
 		Collections.sort(this.h, PolynomialComparator.INSTANCE);
@@ -266,7 +266,7 @@ public class SimpleOrder implements PolynomialOrder {
 	 * 
 	 * @see de.uka.ilkd.key.dl.arithmetics.impl.sos.PolynomialOrder#setMaxDegree(int)
 	 */
-	@Override
+	/*@Override*/
 	public void setMaxDegree(int degree) {
 		this.maxdegree = degree;
 	}

@@ -47,7 +47,7 @@ public class EliminateExistentialApproveFeature implements Feature {
 	 * .RuleApp, de.uka.ilkd.key.logic.PosInOccurrence,
 	 * de.uka.ilkd.key.proof.Goal)
 	 */
-	@Override
+	/*@Override*/
 	public RuleAppCost compute(RuleApp app, PosInOccurrence pos, Goal goal) {
 		if (app.rule() instanceof EliminateExistentialQuantifierRule) {
 			System.out.println("Approving EliminateExistentialQuantifierRule");// XXX
@@ -66,7 +66,7 @@ public class EliminateExistentialApproveFeature implements Feature {
 				app.posInOccurrence().constrainedFormula().formula()
 						.execPreOrder(new Visitor() {
 
-							@Override
+							/*@Override*/
 							public void visit(Term visited) {
 								if (visited.op() instanceof Metavariable) {
 									vars.add((Metavariable) visited.op());

@@ -2,7 +2,7 @@ package de.uka.ilkd.key.util.removegenerics;
 
 public class TestMemberReference extends ResolveGenericClassTest {
 
-    @Override
+    /*@Override*/
     protected void setUp() throws Exception {
         registerCU("package java.lang; public class String {}");
         registerCU("package java.lang; public interface Comparator<X extends Comparator<X>> { }");

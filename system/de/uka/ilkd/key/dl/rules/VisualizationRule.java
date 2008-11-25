@@ -107,7 +107,7 @@ public class VisualizationRule extends Visitor implements BuiltInRule,
         return new Name("Visualization rule");
     }
 
-    @Override
+    /*@Override*/
     public String toString() {
         return displayName();
     }
@@ -117,7 +117,7 @@ public class VisualizationRule extends Visitor implements BuiltInRule,
      * 
      * @see de.uka.ilkd.key.logic.Visitor#visit(de.uka.ilkd.key.logic.Term)
      */
-    @Override
+    /*@Override*/
     public void visit(Term visited) {
         if (visited.javaBlock() != null) {
             try {

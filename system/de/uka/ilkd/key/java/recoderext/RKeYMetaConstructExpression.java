@@ -199,7 +199,7 @@ public class RKeYMetaConstructExpression extends Literal
 		throw new Error("mulbrich: Don't know what to do - yet");
 	}
 
-	@Override
+	/*@Override*/
 	public Object getEquivalentJavaType() {
 		// TODO Auto-generated method stub
 		throw new Error("mulbrich: Don't know what to do - yet");

@@ -140,7 +140,7 @@ public class FindInstanceTest implements Feature {
             this.term = term;
         }
 
-        @Override
+        /*@Override*/
         public void run() {
             result = Result.UNKNOWN;
             try {

@@ -649,7 +649,7 @@ public class ClassFileDeclarationBuilder {
     }
 
     
-    @Override
+    /*@Override*/
     public String toString() {
         return "ClassFileDeclarationBuilder[" + getFullClassname() + "]";
     }

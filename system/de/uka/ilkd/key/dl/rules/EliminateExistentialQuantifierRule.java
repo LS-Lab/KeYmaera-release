@@ -166,7 +166,7 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
 			while (seqIt.hasNext()) {
 				seqIt.next().formula().execPreOrder(new Visitor() {
 
-					@Override
+					/*@Override*/
 					public void visit(Term visited) {
 						if (visited.op() instanceof Metavariable) {
 							if (!ops.contains(visited.op())) {
@@ -450,7 +450,7 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
 		final Set<Term> result = new HashSet<Term>();
 		t.execPreOrder(new Visitor() {
 
-			@Override
+			/*@Override*/
 			public void visit(Term visited) {
 				if (visited.op() instanceof RigidFunction) {
 					RigidFunction f = (RigidFunction) visited.op();
@@ -524,7 +524,7 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
 			fo[0] = true;
 			pio.constrainedFormula().formula().execPreOrder(new Visitor() {
 
-				@Override
+				/*@Override*/
 				public void visit(Term visited) {
 					if (visited.op() instanceof Metavariable) {
 						ops[0] = visited.op();
@@ -563,7 +563,7 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
 		return new Name("Eliminate Existential Quantifier");
 	}
 
-	@Override
+	/*@Override*/
 	public String toString() {
 		return displayName();
 	}
@@ -575,7 +575,7 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
 		return unsolvable;
 	}
 
-	@Override
+	/*@Override*/
 	public boolean irrevocable(Node parent) {
 		// TODO find out if revocable because we didn't close any foreign goals
 		return true;
@@ -586,7 +586,7 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
 	 * 
 	 * @see de.uka.ilkd.key.proof.RuleFilter#filter(de.uka.ilkd.key.rule.Rule)
 	 */
-	@Override
+	/*@Override*/
 	public boolean filter(Rule rule) {
 		return rule instanceof EliminateExistentialQuantifierRule;
 	}

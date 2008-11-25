@@ -8,7 +8,7 @@ public class FilterNotNumber extends FilterDecorator {
 		super(decoratedFilter);
 	}
 
-	@Override
+	/*@Override*/
 	public RemoveItem isValid(FoundItem val) {
 		try {
 			Double.parseDouble(val.getTerm().op().name().toString());

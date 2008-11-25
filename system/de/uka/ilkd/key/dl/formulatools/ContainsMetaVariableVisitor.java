@@ -89,7 +89,7 @@ public class ContainsMetaVariableVisitor extends Visitor {
      * 
      * @see de.uka.ilkd.key.logic.Visitor#visit(de.uka.ilkd.key.logic.Term)
      */
-    @Override
+    /*@Override*/
     public void visit(Term visited) {
         if (!FOSequence.isFOOperator(visited.op())) {
             fo = false;

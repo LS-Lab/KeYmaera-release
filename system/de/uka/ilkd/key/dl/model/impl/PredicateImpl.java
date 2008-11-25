@@ -43,7 +43,7 @@ public abstract class PredicateImpl extends DLTerminalProgramElementImpl
 	 * @see de.uka.ilkd.key.dl.model.impl.DLTerminalProgramElementImpl#equalsModRenaming(de.uka.ilkd.key.java.SourceElement,
 	 *      de.uka.ilkd.key.java.NameAbstractionTable)
 	 */
-	@Override
+	/*@Override*/
 	public boolean equalsModRenaming(SourceElement arg0,
 			NameAbstractionTable arg1) {
 		return arg0 == this

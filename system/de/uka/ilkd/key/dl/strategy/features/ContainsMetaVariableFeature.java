@@ -42,7 +42,7 @@ public class ContainsMetaVariableFeature implements Feature {
 	/* (non-Javadoc)
 	 * @see de.uka.ilkd.key.strategy.feature.Feature#compute(de.uka.ilkd.key.rule.RuleApp, de.uka.ilkd.key.logic.PosInOccurrence, de.uka.ilkd.key.proof.Goal)
 	 */
-	@Override
+	/*@Override*/
 	public RuleAppCost compute(RuleApp app, PosInOccurrence pos, Goal goal) {
 		final boolean[] containsMetaVariable = new boolean[1];
 		for(ConstrainedFormula f: goal.sequent()) {
@@ -51,7 +51,7 @@ public class ContainsMetaVariableFeature implements Feature {
 			}
 			f.formula().execPostOrder(new Visitor() {
 
-				@Override
+				/*@Override*/
 				public void visit(Term visited) {
 					if(visited.op() instanceof Metavariable) {
 						containsMetaVariable[0] = true;

@@ -79,7 +79,7 @@ public class ResolveMemberReference extends GenericResolutionTransformation {
      * 
      * Also, if there are explicit type parameters, they will be removed.
      */
-    @Override
+    /*@Override*/
     public ProblemReport analyze() {
 
         setProblemReport(IDENTITY);
@@ -305,7 +305,7 @@ public class ResolveMemberReference extends GenericResolutionTransformation {
         return (MethodDeclaration) pe;
     }
 
-    @Override
+    /*@Override*/
     public void transform() {
 
         // remove explicit type arguments - if there are any

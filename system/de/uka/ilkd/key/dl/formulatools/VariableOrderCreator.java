@@ -57,7 +57,7 @@ public class VariableOrderCreator {
 		 * 
 		 * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
 		 */
-		@Override
+		/*@Override*/
 		public int compare(Term o1, Term o2) {
 
 			Set<Term> terms1 = AllCollector.getItemSet(o1).filter(

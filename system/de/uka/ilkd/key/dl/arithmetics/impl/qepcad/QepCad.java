@@ -116,7 +116,7 @@ public class QepCad implements IQuantifierEliminator {
 	 * 
 	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#isConfigured()
 	 */
-	@Override
+	/*@Override*/
 	public boolean isConfigured() {
 		return Options.INSTANCE.getQepcadBinary().exists()
 				&& Options.INSTANCE.getSaclibPath().exists();

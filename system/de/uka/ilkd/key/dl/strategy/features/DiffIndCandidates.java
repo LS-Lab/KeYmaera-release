@@ -120,17 +120,17 @@ public class DiffIndCandidates implements TermGenerator {
                         services);
         return new IteratorOfTerm() {
 
-            @Override
+            /*@Override*/
             public boolean hasNext() {
                 return candidateGenerator.hasNext();
             }
 
-            @Override
+            /*@Override*/
             public Term next() {
                 return candidateGenerator.next();
             }
 
-			@Override
+			/*@Override*/
 			public void remove() {
 				throw new UnsupportedOperationException();
 			}
@@ -499,7 +499,7 @@ public class DiffIndCandidates implements TermGenerator {
     private Comparator<de.uka.ilkd.key.logic.op.ProgramVariable> dependencyComparator(
             final Map<de.uka.ilkd.key.logic.op.ProgramVariable, LinkedHashSet<de.uka.ilkd.key.logic.op.ProgramVariable>> tdep) {
         Comparator<de.uka.ilkd.key.logic.op.ProgramVariable> dependencyComparator = new Comparator<de.uka.ilkd.key.logic.op.ProgramVariable>() {
-            @Override
+            /*@Override*/
             public int compare(de.uka.ilkd.key.logic.op.ProgramVariable o1,
                     de.uka.ilkd.key.logic.op.ProgramVariable o2) {
                 int size = tdep.get(o1).size();
@@ -683,7 +683,7 @@ public class DiffIndCandidates implements TermGenerator {
             this.sizeComparator = sizeComparator;
         }
 
-        @Override
+        /*@Override*/
         public boolean hasNext() {
             if (lazySource == null) {
                 lazySource = lazyInit();
@@ -691,7 +691,7 @@ public class DiffIndCandidates implements TermGenerator {
             return lazySource.hasNext();
         }
 
-        @Override
+        /*@Override*/
         public Object next() {
             if (lazySource == null) {
                 lazySource = lazyInit();
@@ -699,7 +699,7 @@ public class DiffIndCandidates implements TermGenerator {
             return lazySource.next();
         }
 
-        @Override
+        /*@Override*/
         public void remove() {
             if (lazySource == null) {
                 lazySource = lazyInit();

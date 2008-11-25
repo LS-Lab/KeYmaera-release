@@ -25,7 +25,7 @@ class SortR extends AbstractNonCollectionSort {
 		super(name);
 	}
 
-	@Override
+	/*@Override*/
 	public SetOfSort extendsSorts() {
 		return null;
 	}

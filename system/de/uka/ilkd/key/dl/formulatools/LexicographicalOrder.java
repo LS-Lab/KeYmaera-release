@@ -216,7 +216,7 @@ public class LexicographicalOrder {
 		/* (non-Javadoc)
 		 * @see java.lang.Object#toString()
 		 */
-		@Override
+		/*@Override*/
 		public String toString() {
 			return "(" + t + ", " + degree + ", " + depth + ")";
 		}
@@ -268,7 +268,7 @@ public class LexicographicalOrder {
 		// degree order: smaller degrees first
 		comparators.add(new Comparator<TermInformations>() {
 
-			@Override
+			/*@Override*/
 			public int compare(TermInformations o1, TermInformations o2) {
 				return o1.degree - o2.degree;
 			}
@@ -278,7 +278,7 @@ public class LexicographicalOrder {
 			 * 
 			 * @see java.lang.Object#toString()
 			 */
-			@Override
+			/*@Override*/
 			public String toString() {
 				return "DegreeComparator";
 			}
@@ -286,7 +286,7 @@ public class LexicographicalOrder {
 
 		comparators.add(new Comparator<TermInformations>() {
 
-			@Override
+			/*@Override*/
 			public int compare(TermInformations o1, TermInformations o2) {
 				int count1 = 0;
 				int count2 = 0;
@@ -313,7 +313,7 @@ public class LexicographicalOrder {
 			 * 
 			 * @see java.lang.Object#toString()
 			 */
-			@Override
+			/*@Override*/
 			public String toString() {
 				return "VariableCountComparator";
 			}
@@ -322,7 +322,7 @@ public class LexicographicalOrder {
 		// term depth order: shallow terms first
 		comparators.add(new Comparator<TermInformations>() {
 
-			@Override
+			/*@Override*/
 			public int compare(TermInformations o1, TermInformations o2) {
 				return o1.depth - o2.depth;
 			}
@@ -332,7 +332,7 @@ public class LexicographicalOrder {
 			 * 
 			 * @see java.lang.Object#toString()
 			 */
-			@Override
+			/*@Override*/
 			public String toString() {
 				return "DepthComparator";
 			}
@@ -343,7 +343,7 @@ public class LexicographicalOrder {
 		// for breaking ties
 		Comparator<TermInformations> mainComparator = new Comparator<TermInformations>() {
 
-			@Override
+			/*@Override*/
 			public int compare(TermInformations o1, TermInformations o2) {
 				for (Comparator<TermInformations> c : comparators) {
 					int res = c.compare(o1, o2);

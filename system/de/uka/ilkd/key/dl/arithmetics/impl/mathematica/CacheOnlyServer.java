@@ -118,7 +118,7 @@ public class CacheOnlyServer extends UnicastRemoteObject implements Remote,
 		consoleHandler.setLevel(Level.SEVERE);
 		consoleHandler.setFormatter(new Formatter() {
 
-			@Override
+			/*@Override*/
 			public String format(LogRecord record) {
 				return record.getMessage() + "\n";
 			}
@@ -396,7 +396,7 @@ public class CacheOnlyServer extends UnicastRemoteObject implements Remote,
 		abort = false;
 	}
 
-	@Override
+	/*@Override*/
 	public long getTotalMemory() throws RemoteException,
 			ServerStatusProblemException, ConnectionProblemException {
 		return -1;
@@ -408,7 +408,7 @@ public class CacheOnlyServer extends UnicastRemoteObject implements Remote,
 	 * @see de.uka.ilkd.key.dl.arithmetics.impl.mathematica.IKernelLinkWrapper#evaluate(com.wolfram.jlink.Expr,
 	 *      long, long)
 	 */
-	@Override
+	/*@Override*/
 	public ExprAndMessages evaluate(Expr expr, long timeout,
 			long memoryconstraint) throws RemoteException,
 			ServerStatusProblemException, ConnectionProblemException,
@@ -422,7 +422,7 @@ public class CacheOnlyServer extends UnicastRemoteObject implements Remote,
 	 * @see de.uka.ilkd.key.dl.arithmetics.impl.mathematica.IKernelLinkWrapper#evaluate(com.wolfram.jlink.Expr,
 	 *      long, boolean)
 	 */
-	@Override
+	/*@Override*/
 	public ExprAndMessages evaluate(Expr expr, long timeout, boolean allowCache)
 			throws RemoteException, ServerStatusProblemException,
 			ConnectionProblemException, UnsolveableException {

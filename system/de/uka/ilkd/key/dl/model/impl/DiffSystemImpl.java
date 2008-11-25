@@ -424,7 +424,7 @@ public class DiffSystemImpl extends DLNonTerminalProgramElementImpl implements
 		return null;
 	}
 
-	@Override
+	/*@Override*/
 	public DiffSystem getDifferentialFragment() {
 		List<Formula> equations = new ArrayList<Formula>();
 		for (ProgramElement el : this) {
@@ -435,7 +435,7 @@ public class DiffSystemImpl extends DLNonTerminalProgramElementImpl implements
 		return new DiffSystemImpl(equations);
 	}
 
-	@Override
+	/*@Override*/
 	public DiffSystem getInvariantFragment() {
 		List<Formula> equations = new ArrayList<Formula>();
 		for (ProgramElement el : this) {

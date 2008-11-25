@@ -76,7 +76,7 @@ public class DLStatementBlock extends StatementBlock {
 	 * @see de.uka.ilkd.key.java.JavaProgramElement#reuseSignature(de.uka.ilkd.key.java.Services,
 	 *      de.uka.ilkd.key.java.reference.ExecutionContext)
 	 */
-	@Override
+	/*@Override*/
 	public String reuseSignature(Services services, ExecutionContext ec) {
 		return ((DLProgramElement) getBody().getStatement(0)).reuseSignature(
 				services, ec);
@@ -88,7 +88,7 @@ public class DLStatementBlock extends StatementBlock {
 	 * @see de.uka.ilkd.key.java.JavaNonTerminalProgramElement#match(de.uka.ilkd.key.java.SourceData,
 	 *      de.uka.ilkd.key.rule.MatchConditions)
 	 */
-	@Override
+	/*@Override*/
 	public MatchConditions match(SourceData source, MatchConditions matchCond) {
 		final ProgramElement src = source.getSource();
 

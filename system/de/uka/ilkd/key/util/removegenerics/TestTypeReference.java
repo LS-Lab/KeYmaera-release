@@ -3,7 +3,7 @@ package de.uka.ilkd.key.util.removegenerics;
 
 public class TestTypeReference extends ResolveGenericClassTest {
     
-    @Override
+    /*@Override*/
     protected void setUp() throws Exception {
         registerCU("package java.lang; class Object { }");
         registerCU("class G<E> { E m() { return null; } } interface H<E> {} class C {}");

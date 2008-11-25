@@ -94,7 +94,7 @@ public class DLUniversalClosureOp extends AbstractMetaOperator {
 		final Set<String> variablesInPost = new HashSet<String>();
 		post.execPreOrder(new Visitor() {
 
-			@Override
+			/*@Override*/
 			public void visit(Term visited) {
 				if (visited.op() instanceof ProgramVariable) {
 					variablesInPost.add(((ProgramVariable) visited.op()).name()
@@ -156,7 +156,7 @@ public class DLUniversalClosureOp extends AbstractMetaOperator {
 		System.out.println(inverseTransitiveClosure.keySet());
 		Comparator<de.uka.ilkd.key.dl.model.ProgramVariable> comparator = new Comparator<de.uka.ilkd.key.dl.model.ProgramVariable>() {
 
-			@Override
+			/*@Override*/
 			public int compare(de.uka.ilkd.key.dl.model.ProgramVariable o1,
 					de.uka.ilkd.key.dl.model.ProgramVariable o2) {
 				int size = inverseTransitiveClosure.get(o1).size();
@@ -190,7 +190,7 @@ public class DLUniversalClosureOp extends AbstractMetaOperator {
 			TreeSet<de.uka.ilkd.key.dl.model.ProgramVariable> orderedDeps = new TreeSet<de.uka.ilkd.key.dl.model.ProgramVariable>(
 					new Comparator<de.uka.ilkd.key.dl.model.ProgramVariable>() {
 
-						@Override
+						/*@Override*/
 						public int compare(
 								de.uka.ilkd.key.dl.model.ProgramVariable o1,
 								de.uka.ilkd.key.dl.model.ProgramVariable o2) {
@@ -256,7 +256,7 @@ public class DLUniversalClosureOp extends AbstractMetaOperator {
 		Set<de.uka.ilkd.key.dl.model.ProgramVariable> freeVars = new TreeSet<de.uka.ilkd.key.dl.model.ProgramVariable>(
 				new Comparator<de.uka.ilkd.key.dl.model.ProgramVariable>() {
 
-					@Override
+					/*@Override*/
 					public int compare(
 							de.uka.ilkd.key.dl.model.ProgramVariable o1,
 							de.uka.ilkd.key.dl.model.ProgramVariable o2) {

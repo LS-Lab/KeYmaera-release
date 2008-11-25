@@ -9,7 +9,7 @@ public class FilterModality extends FilterDecorator {
 		super(decoratedFilter);
 	}
 
-	@Override
+	/*@Override*/
 	public RemoveItem isValid(FoundItem val) {
 		if( val.getTerm().op() instanceof Modality ) {
 			return getDecoratedFilterResult(val);

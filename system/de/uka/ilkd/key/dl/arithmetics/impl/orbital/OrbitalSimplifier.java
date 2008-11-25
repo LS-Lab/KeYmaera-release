@@ -59,7 +59,7 @@ public class OrbitalSimplifier implements ISimplifier {
 	 * @see de.uka.ilkd.key.dl.arithmetics.ISimplifier#fullSimplify(de.uka.ilkd.key.logic.Term,
 	 *      de.uka.ilkd.key.logic.NamespaceSet)
 	 */
-	@Override
+	/*@Override*/
 	public Term fullSimplify(Term form, NamespaceSet nss)
 			throws RemoteException, SolverException {
 		return simplify(form, nss);
@@ -71,7 +71,7 @@ public class OrbitalSimplifier implements ISimplifier {
 	 * @see de.uka.ilkd.key.dl.arithmetics.ISimplifier#simplify(de.uka.ilkd.key.logic.Term,
 	 *      de.uka.ilkd.key.logic.NamespaceSet)
 	 */
-	@Override
+	/*@Override*/
 	public Term simplify(Term form, NamespaceSet nss) throws RemoteException,
 			SolverException {
 		return simplify(form, new HashSet<Term>(), nss);
@@ -83,7 +83,7 @@ public class OrbitalSimplifier implements ISimplifier {
 	 * @see de.uka.ilkd.key.dl.arithmetics.ISimplifier#simplify(de.uka.ilkd.key.logic.Term,
 	 *      java.util.Set, de.uka.ilkd.key.logic.NamespaceSet)
 	 */
-	@Override
+	/*@Override*/
 	public Term simplify(Term form, Set<Term> assumptions, NamespaceSet nss)
 			throws RemoteException, SolverException {
 		// TODO: use assumptions
@@ -193,7 +193,7 @@ public class OrbitalSimplifier implements ISimplifier {
 	 * 
 	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#abortCalculation()
 	 */
-	@Override
+	/*@Override*/
 	public void abortCalculation() throws RemoteException {
 		// TODO Auto-generated method stub
 
@@ -204,7 +204,7 @@ public class OrbitalSimplifier implements ISimplifier {
 	 * 
 	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#getCachedAnwserCount()
 	 */
-	@Override
+	/*@Override*/
 	public long getCachedAnswerCount() throws RemoteException {
 		// TODO Auto-generated method stub
 		return 0;
@@ -215,7 +215,7 @@ public class OrbitalSimplifier implements ISimplifier {
 	 * 
 	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#getName()
 	 */
-	@Override
+	/*@Override*/
 	public String getName() {
 		return "Orbital";
 	}
@@ -225,7 +225,7 @@ public class OrbitalSimplifier implements ISimplifier {
 	 * 
 	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#getQueryCount()
 	 */
-	@Override
+	/*@Override*/
 	public long getQueryCount() throws RemoteException {
 		// TODO Auto-generated method stub
 		return 0;
@@ -236,7 +236,7 @@ public class OrbitalSimplifier implements ISimplifier {
 	 * 
 	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#getTimeStatistics()
 	 */
-	@Override
+	/*@Override*/
 	public String getTimeStatistics() throws RemoteException {
 		// TODO Auto-generated method stub
 		return null;
@@ -247,7 +247,7 @@ public class OrbitalSimplifier implements ISimplifier {
 	 * 
 	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#getTotalCalculationTime()
 	 */
-	@Override
+	/*@Override*/
 	public long getTotalCalculationTime() throws RemoteException {
 		// TODO Auto-generated method stub
 		return 0;
@@ -258,7 +258,7 @@ public class OrbitalSimplifier implements ISimplifier {
 	 * 
 	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#getTotalMemory()
 	 */
-	@Override
+	/*@Override*/
 	public long getTotalMemory() throws RemoteException,
 			ServerStatusProblemException, ConnectionProblemException {
 		// TODO Auto-generated method stub
@@ -270,7 +270,7 @@ public class OrbitalSimplifier implements ISimplifier {
 	 * 
 	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#resetAbortState()
 	 */
-	@Override
+	/*@Override*/
 	public void resetAbortState() throws RemoteException {
 		// TODO Auto-generated method stub
 
@@ -279,7 +279,7 @@ public class OrbitalSimplifier implements ISimplifier {
 	/* (non-Javadoc)
 	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#isConfigured()
 	 */
-	@Override
+	/*@Override*/
 	public boolean isConfigured() {
 		return true;
 	}

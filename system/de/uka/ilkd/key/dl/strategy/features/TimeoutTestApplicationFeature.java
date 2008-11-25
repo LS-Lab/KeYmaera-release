@@ -208,7 +208,7 @@ public class TimeoutTestApplicationFeature implements Feature {
 		 * 
 		 * @see java.lang.Thread#run()
 		 */
-		@Override
+		/*@Override*/
 		public void run() {
 			// @TODO pass goal.proof().getServices() instead?
 			if (rule.test(goal, Main.getInstance().mediator().getServices(),
@@ -221,7 +221,7 @@ public class TimeoutTestApplicationFeature implements Feature {
 						final Set<Metavariable> vars = new HashSet<Metavariable>();
 						Visitor visitor = new Visitor() {
 
-							@Override
+							/*@Override*/
 							public void visit(Term visited) {
 								if (visited.op() instanceof Metavariable) {
 									vars.add((Metavariable) visited.op());

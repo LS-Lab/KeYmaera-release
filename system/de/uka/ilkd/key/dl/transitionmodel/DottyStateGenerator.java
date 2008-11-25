@@ -94,7 +94,7 @@ public class DottyStateGenerator implements
 		writer.flush();
 	}
 
-	@Override
+	/*@Override*/
 	public List<String> generateAction(DLProgram program) {
 		StringWriter writer = new StringWriter();
 		try {
@@ -106,17 +106,17 @@ public class DottyStateGenerator implements
 		return Collections.singletonList(writer.toString());
 	}
 
-	@Override
+	/*@Override*/
 	public List<String> generateBranch(DLProgram program, int pos) {
 		return Collections.singletonList(SpecialSymbols.CHOICE.toString());
 	}
 
-	@Override
+	/*@Override*/
 	public List<String> generateMerge(DLProgram program, int pos) {
 		return Collections.singletonList(SpecialSymbols.NOOP.toString());
 	}
 
-	@Override
+	/*@Override*/
 	public DottyStateGenerator.NumberedState generateMergeState(
 			DLProgram program, List<DottyStateGenerator.NumberedState> states) {
 		NumberedState numberedState = new NumberedState();
@@ -130,7 +130,7 @@ public class DottyStateGenerator implements
 		return numberedState;
 	}
 
-	@Override
+	/*@Override*/
 	public DottyStateGenerator.NumberedState getPostState(
 			DottyStateGenerator.NumberedState pre, List<String> action) {
 		NumberedState numberedState = new NumberedState();
@@ -144,7 +144,7 @@ public class DottyStateGenerator implements
 		return numberedState;
 	}
 
-	@Override
+	/*@Override*/
 	public List<String> getSpecialSymbolNoop(NumberedState pre,
 			NumberedState post) {
 		String string = pre.getNumber() + " -> " + post.getNumber() + ";";
@@ -153,7 +153,7 @@ public class DottyStateGenerator implements
 		return Collections.singletonList(SpecialSymbols.NOOP.toString());
 	}
 
-	@Override
+	/*@Override*/
 	public List<String> getSymbolForBackloop(NumberedState pre,
 			NumberedState post) {
 		String string = pre.getNumber() + " -> " + post.getNumber()
@@ -169,7 +169,7 @@ public class DottyStateGenerator implements
 	 * 
 	 * @see de.uka.ilkd.key.dl.transitionmodel.StateGenerator#generateElseAction(de.uka.ilkd.key.dl.model.Formula)
 	 */
-	@Override
+	/*@Override*/
 	public List<String> generateElseAction(Formula f) {
 		List<String> action = this
 				.generateAction(new QuestImpl(new NotImpl(f)));
@@ -181,7 +181,7 @@ public class DottyStateGenerator implements
 	 * 
 	 * @see de.uka.ilkd.key.dl.transitionmodel.StateGenerator#generateThenAction(de.uka.ilkd.key.dl.model.Formula)
 	 */
-	@Override
+	/*@Override*/
 	public List<String> generateThenAction(Formula f) {
 		List<String> action = this.generateAction(new QuestImpl(f));
 		return action;

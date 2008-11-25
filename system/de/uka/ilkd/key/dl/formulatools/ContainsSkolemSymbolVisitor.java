@@ -58,7 +58,7 @@ public class ContainsSkolemSymbolVisitor extends Visitor {
      * 
      * @see de.uka.ilkd.key.logic.Visitor#visit(de.uka.ilkd.key.logic.Term)
      */
-    @Override
+    /*@Override*/
     public void visit(Term visited) {
         if (fo) {
             if (visited.op() instanceof Modality) {

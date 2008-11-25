@@ -15,7 +15,7 @@ class ResolveMethodDeclaration extends GenericResolutionTransformation {
         this.declaration = declaration;
     }
 
-    @Override
+    /*@Override*/
     public ProblemReport analyze() {
         ASTList<TypeParameterDeclaration> typeParameters = declaration.getTypeParameters();
         if (typeParameters == null || typeParameters.isEmpty()) {
@@ -27,7 +27,7 @@ class ResolveMethodDeclaration extends GenericResolutionTransformation {
         return getProblemReport();
     }
     
-    @Override
+    /*@Override*/
     public void transform() {
 
         if(getProblemReport() == IDENTITY)

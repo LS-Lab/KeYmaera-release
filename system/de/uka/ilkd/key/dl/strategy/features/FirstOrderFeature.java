@@ -23,7 +23,7 @@ public class FirstOrderFeature implements Feature {
         this.value = value;
     }
 
-    @Override
+    /*@Override*/
     public RuleAppCost compute(RuleApp app, PosInOccurrence pos, Goal goal) {
         return FOSequence.INSTANCE.isFOFormula(value.toTerm(app, pos, goal))
                 ? LongRuleAppCost.ZERO_COST

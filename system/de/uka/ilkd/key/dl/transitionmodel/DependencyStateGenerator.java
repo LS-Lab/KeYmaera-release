@@ -213,7 +213,7 @@ public class DependencyStateGenerator implements
 	 * @see de.uka.ilkd.key.dl.transitionmodel.StateGenerator#generateMergeState(de.uka.ilkd.key.dl.model.DLProgram,
 	 *      java.util.List)
 	 */
-	@Override
+	/*@Override*/
 	public DependencyState generateMergeState(DLProgram program,
 			List<DependencyState> states) {
 		DependencyState post = new DependencyState();
@@ -227,7 +227,7 @@ public class DependencyStateGenerator implements
 	 * @see de.uka.ilkd.key.dl.transitionmodel.StateGenerator#getPostState(java.lang.Object,
 	 *      java.lang.Object)
 	 */
-	@Override
+	/*@Override*/
 	public DependencyState getPostState(DependencyState pre, DLProgram action) {
 		DependencyState post = new DependencyState(pre);
 		post.addDependencies(getDependencies(action));
@@ -251,7 +251,7 @@ public class DependencyStateGenerator implements
 	 * @see de.uka.ilkd.key.dl.transitionmodel.StateGenerator#getSpecialSymbolNoop(java.lang.Object,
 	 *      java.lang.Object)
 	 */
-	@Override
+	/*@Override*/
 	public DLProgram getSpecialSymbolNoop(DependencyState pre,
 			DependencyState post) {
 		post.mergeWith(Collections.singleton(pre));
@@ -264,7 +264,7 @@ public class DependencyStateGenerator implements
 	 * @see de.uka.ilkd.key.dl.transitionmodel.StateGenerator#getSymbolForBackloop(java.lang.Object,
 	 *      java.lang.Object)
 	 */
-	@Override
+	/*@Override*/
 	public DLProgram getSymbolForBackloop(DependencyState pre,
 			DependencyState post) {
 		post.mergeWith(Collections.singleton(pre));
@@ -276,7 +276,7 @@ public class DependencyStateGenerator implements
 	 * 
 	 * @see de.uka.ilkd.key.dl.transitionmodel.StateGenerator#generateAction(de.uka.ilkd.key.dl.model.DLProgram)
 	 */
-	@Override
+	/*@Override*/
 	public DLProgram generateAction(DLProgram program) {
 		return program;
 	}
@@ -287,7 +287,7 @@ public class DependencyStateGenerator implements
 	 * @see de.uka.ilkd.key.dl.transitionmodel.StateGenerator#generateBranch(de.uka.ilkd.key.dl.model.DLProgram,
 	 *      int)
 	 */
-	@Override
+	/*@Override*/
 	public DLProgram generateBranch(DLProgram program, int pos) {
 		if (program instanceof DLNonTerminalProgramElement) {
 			return (DLProgram) ((DLNonTerminalProgramElement) program)
@@ -304,7 +304,7 @@ public class DependencyStateGenerator implements
 	 * @see de.uka.ilkd.key.dl.transitionmodel.StateGenerator#generateMerge(de.uka.ilkd.key.dl.model.DLProgram,
 	 *      int)
 	 */
-	@Override
+	/*@Override*/
 	public DLProgram generateMerge(DLProgram program, int pos) {
 		if (program instanceof DLNonTerminalProgramElement) {
 			return (DLProgram) ((DLNonTerminalProgramElement) program)
@@ -320,7 +320,7 @@ public class DependencyStateGenerator implements
 	 * 
 	 * @see de.uka.ilkd.key.dl.transitionmodel.StateGenerator#generateElseAction(de.uka.ilkd.key.dl.model.Formula)
 	 */
-	@Override
+	/*@Override*/
 	public DLProgram generateElseAction(Formula f) {
 		DLProgram action = this.generateAction(new QuestImpl(new NotImpl(f)));
 		return action;
@@ -331,7 +331,7 @@ public class DependencyStateGenerator implements
 	 * 
 	 * @see de.uka.ilkd.key.dl.transitionmodel.StateGenerator#generateThenAction(de.uka.ilkd.key.dl.model.Formula)
 	 */
-	@Override
+	/*@Override*/
 	public DLProgram generateThenAction(Formula f) {
 		DLProgram action = this.generateAction(new QuestImpl(f));
 		return action;

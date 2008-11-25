@@ -94,7 +94,7 @@ public class SumOfSquaresRule implements BuiltInRule, RuleFilter {
      *      de.uka.ilkd.key.logic.PosInOccurrence,
      *      de.uka.ilkd.key.logic.Constraint)
      */
-    @Override
+    /*@Override*/
     public boolean isApplicable(Goal goal, PosInOccurrence pio,
             Constraint userConstraint) {
         // TODO jdq: insert application test
@@ -106,7 +106,7 @@ public class SumOfSquaresRule implements BuiltInRule, RuleFilter {
      * 
      * @see de.uka.ilkd.key.rule.Rule#displayName()
      */
-    @Override
+    /*@Override*/
     public String displayName() {
         return "Sum of Squares";
     }
@@ -116,7 +116,7 @@ public class SumOfSquaresRule implements BuiltInRule, RuleFilter {
      * 
      * @see de.uka.ilkd.key.rule.Rule#name()
      */
-    @Override
+    /*@Override*/
     public Name name() {
         return new Name("Sum of Squares");
     }
@@ -124,7 +124,7 @@ public class SumOfSquaresRule implements BuiltInRule, RuleFilter {
     /* (non-Javadoc)
      * @see java.lang.Object#toString()
      */
-    @Override
+    /*@Override*/
     public String toString() {
     	return displayName();
     }
@@ -133,7 +133,7 @@ public class SumOfSquaresRule implements BuiltInRule, RuleFilter {
     /* (non-Javadoc)
      * @see de.uka.ilkd.key.proof.RuleFilter#filter(de.uka.ilkd.key.rule.Rule)
      */
-    @Override
+    /*@Override*/
     public boolean filter(Rule rule) {
         return rule instanceof SumOfSquaresRule;
     }

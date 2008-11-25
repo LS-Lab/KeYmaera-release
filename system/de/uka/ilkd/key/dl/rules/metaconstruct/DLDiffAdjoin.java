@@ -57,7 +57,7 @@ public class DLDiffAdjoin extends AbstractDLMetaOperator {
      * 
      * @see de.uka.ilkd.key.logic.op.AbstractMetaOperator#sort(de.uka.ilkd.key.logic.Term[])
      */
-    @Override
+    /*@Override*/
     public Sort sort(Term[] term) {
         return Sort.FORMULA;
     }

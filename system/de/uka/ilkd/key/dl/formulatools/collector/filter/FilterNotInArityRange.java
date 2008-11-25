@@ -13,7 +13,7 @@ public class FilterNotInArityRange extends FilterDecorator {
 		this.maxArity = maxArity;
 	}
 	
-	@Override
+	/*@Override*/
 	public RemoveItem isValid(FoundItem val) {
 		if( val.getTerm().op().arity() >= this.minArity && val.getTerm().op().arity() <= this.maxArity )
 			return RemoveItem.REMOVE;

@@ -59,7 +59,7 @@ public abstract class DLProgramElementImpl implements DLProgramElement {
     /* (non-Javadoc)
      * @see de.uka.ilkd.key.dl.model.DLProgramElement#setDLAnotation(java.lang.String, java.lang.String)
      */
-    @Override
+    /*@Override*/
     public void setDLAnnotation(String key, List<Formula> value) {
         annotations.put(key, value);
     }
@@ -67,7 +67,7 @@ public abstract class DLProgramElementImpl implements DLProgramElement {
     /* (non-Javadoc)
      * @see de.uka.ilkd.key.dl.model.DLProgramElement#getDLAnotation(java.lang.String)
      */
-    @Override
+    /*@Override*/
     public List<Formula> getDLAnnotation(String key) {
         return annotations.get(key);
     }
@@ -75,7 +75,7 @@ public abstract class DLProgramElementImpl implements DLProgramElement {
     /* (non-Javadoc)
      * @see de.uka.ilkd.key.dl.model.DLProgramElement#getDLAnotation(java.lang.String)
      */
-    @Override
+    /*@Override*/
     public boolean containsDLAnnotation(String key) {
         return annotations.containsKey(key);
     }
@@ -83,11 +83,11 @@ public abstract class DLProgramElementImpl implements DLProgramElement {
     /* (non-Javadoc)
      * @see de.uka.ilkd.key.dl.model.DLProgramElement#getDLAnnotations()
      */
-    @Override
+    /*@Override*/
     public Map<String, List<Formula>> getDLAnnotations() {
         return annotations;
     }
-    @Override
+    /*@Override*/
     public void setDLAnnotations(Map<String, List<Formula>> annotations) {
         this.annotations.clear();
         this.annotations.putAll(annotations);

@@ -43,7 +43,7 @@ public class EliminateQuantifierRuleWithContext extends EliminateQuantifierRule 
      * 
      * @see de.uka.ilkd.key.rule.Rule#displayName()
      */
-    @Override
+    /*@Override*/
     public String displayName() {
         return "Eliminate Quantifier With Context";
     }
@@ -53,7 +53,7 @@ public class EliminateQuantifierRuleWithContext extends EliminateQuantifierRule 
      * 
      * @see de.uka.ilkd.key.rule.Rule#name()
      */
-    @Override
+    /*@Override*/
     public Name name() {
         return new Name("EliminateQuantifierWithContext");
     }
@@ -63,7 +63,7 @@ public class EliminateQuantifierRuleWithContext extends EliminateQuantifierRule 
      * 
      * @see de.uka.ilkd.key.dl.RuleOperatingOnWholeSequence#performSearch(de.uka.ilkd.key.logic.Term)
      */
-    @Override
+    /*@Override*/
     protected void performSearch(Term visited) {
         // As want the whole context, always set addFormula to true
         addFormula = true;
@@ -74,7 +74,7 @@ public class EliminateQuantifierRuleWithContext extends EliminateQuantifierRule 
      * 
      * @see de.uka.ilkd.key.proof.RuleFilter#filter(de.uka.ilkd.key.rule.Rule)
      */
-    @Override
+    /*@Override*/
     public boolean filter(Rule rule) {
         return rule instanceof EliminateQuantifierRuleWithContext;
     }

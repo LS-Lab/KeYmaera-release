@@ -35,7 +35,7 @@ public class ContainsInequalityFeature implements Feature {
 	 * .RuleApp, de.uka.ilkd.key.logic.PosInOccurrence,
 	 * de.uka.ilkd.key.proof.Goal)
 	 */
-	@Override
+	/*@Override*/
 	public RuleAppCost compute(RuleApp app, PosInOccurrence pos, Goal goal) {
 		Term term = pos.constrainedFormula().formula();
 		while (term.op() instanceof QuanUpdateOperator) {

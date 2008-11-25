@@ -96,7 +96,7 @@ public class Prog2LogicConverter extends AbstractMetaOperator {
 	 *      de.uka.ilkd.key.rule.inst.SVInstantiations,
 	 *      de.uka.ilkd.key.java.Services) calculate
 	 */
-	@Override
+	/*@Override*/
 	public Term calculate(Term arg0, SVInstantiations arg1, Services services) {
 		return arg0.sub(0);
 	}
@@ -441,7 +441,7 @@ public class Prog2LogicConverter extends AbstractMetaOperator {
 	 * @see de.uka.ilkd.key.logic.op.AbstractMetaOperator#sort(de.uka.ilkd.key.logic.Term[])
 	 *      sort
 	 */
-	@Override
+	/*@Override*/
 	public Sort sort(de.uka.ilkd.key.logic.Term[] arg0) {
 		return Sort.FORMULA;
 	}
@@ -450,7 +450,7 @@ public class Prog2LogicConverter extends AbstractMetaOperator {
 	 * @see de.uka.ilkd.key.logic.op.AbstractMetaOperator#validTopLevel(de.uka.ilkd.key.logic.Term)
 	 *      validTopLevel
 	 */
-	@Override
+	/*@Override*/
 	public boolean validTopLevel(Term arg0) {
 		return true;
 	}

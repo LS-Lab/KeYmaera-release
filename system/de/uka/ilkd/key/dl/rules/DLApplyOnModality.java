@@ -106,7 +106,7 @@ public class DLApplyOnModality extends ApplyOnModality {
      * @see de.uka.ilkd.key.rule.updatesimplifier.ApplyOnModality#isApplicable(de.uka.ilkd.key.rule.updatesimplifier.Update,
      *      de.uka.ilkd.key.logic.Term)
      */
-    @Override
+    /*@Override*/
     public boolean isApplicable(Update update, Term target) {
         return super.isApplicable(update, target)
                 && DLOptionBean.INSTANCE.isApplyUpdatesToModalities()
@@ -144,7 +144,7 @@ public class DLApplyOnModality extends ApplyOnModality {
      * @see de.uka.ilkd.key.rule.updatesimplifier.ApplyOnModality#apply(de.uka.ilkd.key.rule.updatesimplifier.Update,
      *      de.uka.ilkd.key.logic.Term, de.uka.ilkd.key.java.Services)
      */
-    @Override
+    /*@Override*/
     public Term apply(Update update, Term target, Services services) {
         if (tf == null) {
             try {
@@ -380,7 +380,7 @@ public class DLApplyOnModality extends ApplyOnModality {
      * @param target
      * @return
      */
-    @Override
+    /*@Override*/
     protected HashSet collectProgramVariables(Term target, Services services) {
         if (protectedVarsCache.containsKey(target)) {
             return (HashSet) protectedVarsCache.get(target);
@@ -484,7 +484,7 @@ public class DLApplyOnModality extends ApplyOnModality {
          * 
          * @see de.uka.ilkd.key.logic.Visitor#visit(de.uka.ilkd.key.logic.Term)
          */
-        @Override
+        /*@Override*/
         public void visit(Term visited) {
             if (visited.op() instanceof ProgramVariable) {
                 variables.add((ProgramVariable) visited.op());

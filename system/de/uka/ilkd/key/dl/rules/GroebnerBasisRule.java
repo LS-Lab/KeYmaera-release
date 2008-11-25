@@ -121,7 +121,7 @@ public class GroebnerBasisRule implements BuiltInRule, RuleFilter {
 	 *      de.uka.ilkd.key.logic.PosInOccurrence,
 	 *      de.uka.ilkd.key.logic.Constraint)
 	 */
-	@Override
+	/*@Override*/
 	public boolean isApplicable(Goal goal, PosInOccurrence pio,
 			Constraint userConstraint) {
 		// TODO jdq: insert application test
@@ -132,7 +132,7 @@ public class GroebnerBasisRule implements BuiltInRule, RuleFilter {
 		result[0] = true;
 		Visitor visitor = new Visitor() {
 
-			@Override
+			/*@Override*/
 			public void visit(Term visited) {
 				if(visited.op() == Op.ALL || visited.op() == Op.EX || !FOSequence.isFOOperator(visited.op())) {
 					result[0] = false;
@@ -154,7 +154,7 @@ public class GroebnerBasisRule implements BuiltInRule, RuleFilter {
 	 * 
 	 * @see de.uka.ilkd.key.rule.Rule#displayName()
 	 */
-	@Override
+	/*@Override*/
 	public String displayName() {
 		return "Groebner Basis";
 	}
@@ -164,7 +164,7 @@ public class GroebnerBasisRule implements BuiltInRule, RuleFilter {
 	 * 
 	 * @see de.uka.ilkd.key.rule.Rule#name()
 	 */
-	@Override
+	/*@Override*/
 	public Name name() {
 		return new Name("Groebner Basis");
 	}
@@ -172,7 +172,7 @@ public class GroebnerBasisRule implements BuiltInRule, RuleFilter {
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
-	@Override
+	/*@Override*/
 	public String toString() {
 		return displayName();
 	}
@@ -182,7 +182,7 @@ public class GroebnerBasisRule implements BuiltInRule, RuleFilter {
 	 * 
 	 * @see de.uka.ilkd.key.proof.RuleFilter#filter(de.uka.ilkd.key.rule.Rule)
 	 */
-	@Override
+	/*@Override*/
 	public boolean filter(Rule rule) {
 		return rule instanceof GroebnerBasisRule;
 	}

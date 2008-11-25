@@ -58,7 +58,7 @@ public class FOSequence implements Feature {
          * 
          * @see de.uka.ilkd.key.logic.Visitor#visit(de.uka.ilkd.key.logic.Term)
          */
-        @Override
+        /*@Override*/
         public void visit(Term visited) {
             if (!isFOOperator(visited.op())) {
                 notFO = true;

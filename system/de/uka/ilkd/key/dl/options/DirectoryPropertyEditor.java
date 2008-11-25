@@ -21,7 +21,7 @@ public class DirectoryPropertyEditor extends FilePropertyEditor {
 	 * de.uka.ilkd.key.dl.options.FilePropertyEditor#actionPerformed(java.awt
 	 * .event.ActionEvent)
 	 */
-	@Override
+	/*@Override*/
 	public void actionPerformed(ActionEvent e) {
 		JFileChooser chooser = new JFileChooser(((File) getValue()).getPath());
 		chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);

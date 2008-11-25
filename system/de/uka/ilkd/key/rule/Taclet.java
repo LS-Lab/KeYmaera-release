@@ -324,7 +324,7 @@ public abstract class Taclet implements Rule, Named {
                 final Collection<QuantifiableVariable> vars = new HashSet<QuantifiableVariable>();
                 Visitor visitor = new Visitor() {
 
-                    @Override
+                    /*@Override*/
                     public void visit(Term visited) {
                         if(visited.op() instanceof Modality) {
                             ProgramElement program = ((StatementBlock) visited.javaBlock().program()).getChildAt(0);

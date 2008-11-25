@@ -176,7 +176,7 @@ public class DiffSystemWeakenCandidates implements Generator<ProgramElement> {
 		 * 
 		 * @see de.uka.ilkd.key.logic.IteratorOfTerm#hasNext()
 		 */
-		@Override
+		/*@Override*/
 		public boolean hasNext() {
 			return !terms.isEmpty();
 		}
@@ -186,7 +186,7 @@ public class DiffSystemWeakenCandidates implements Generator<ProgramElement> {
 		 * 
 		 * @see de.uka.ilkd.key.logic.IteratorOfTerm#next()
 		 */
-		@Override
+		/*@Override*/
 		public ProgramElement next() {
 			return terms.poll();
 		}
@@ -196,7 +196,7 @@ public class DiffSystemWeakenCandidates implements Generator<ProgramElement> {
 		 * 
 		 * @see java.util.Iterator#remove()
 		 */
-		@Override
+		/*@Override*/
 		public void remove() {
 			terms.poll();
 		}

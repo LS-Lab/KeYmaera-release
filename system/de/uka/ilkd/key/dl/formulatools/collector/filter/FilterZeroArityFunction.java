@@ -9,7 +9,7 @@ public class FilterZeroArityFunction extends FilterDecorator {
 		super(decoratedFilter);
 	}
 
-	@Override
+	/*@Override*/
 	public RemoveItem isValid(FoundItem val) {
 		if( val.getTerm().op() instanceof Function && val.getTerm().op().arity() == 0 )
 			return getDecoratedFilterResult(val);

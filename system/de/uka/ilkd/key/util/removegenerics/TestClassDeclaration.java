@@ -3,7 +3,7 @@ package de.uka.ilkd.key.util.removegenerics;
 
 public class TestClassDeclaration extends ResolveGenericClassTest {
 
-    @Override
+    /*@Override*/
     protected void setUp() throws Exception {
         registerCU("package java.lang; class Object {}");
         registerCU("package java.lang; class Comparable<T extends Comparable<T>>  { public int compareTo(T o); }");

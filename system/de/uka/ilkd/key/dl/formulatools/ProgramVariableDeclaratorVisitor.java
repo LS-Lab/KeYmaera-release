@@ -51,7 +51,7 @@ public class ProgramVariableDeclaratorVisitor extends Visitor {
      * 
      * @see de.uka.ilkd.key.logic.Visitor#visit(de.uka.ilkd.key.logic.Term)
      */
-    @Override
+    /*@Override*/
     public void visit(Term visited) {
         if (visited.op() instanceof Modality) {
             declareVariables(((StatementBlock) visited.javaBlock().program())

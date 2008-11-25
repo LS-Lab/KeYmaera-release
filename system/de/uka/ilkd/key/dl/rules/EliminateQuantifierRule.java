@@ -92,7 +92,7 @@ public class EliminateQuantifierRule extends RuleOperatingOnWholeSequence
      * @see de.uka.ilkd.key.rule.Rule#apply(de.uka.ilkd.key.proof.Goal,
      *      de.uka.ilkd.key.java.Services, de.uka.ilkd.key.rule.RuleApp)
      */
-    @Override
+    /*@Override*/
     public synchronized ListOfGoal apply(Goal goal, Services services,
             RuleApp ruleApp) {
         search = SkolemSymbolWithMostParametersVisitor
@@ -122,7 +122,7 @@ public class EliminateQuantifierRule extends RuleOperatingOnWholeSequence
     /* (non-Javadoc)
      * @see java.lang.Object#toString()
      */
-    @Override
+    /*@Override*/
     public String toString() {
     	return displayName();
     }
@@ -132,7 +132,7 @@ public class EliminateQuantifierRule extends RuleOperatingOnWholeSequence
      * 
      * @see de.uka.ilkd.key.logic.Visitor#visit(de.uka.ilkd.key.logic.Term)
      */
-    @Override
+    /*@Override*/
     public void visit(Term visited) {
         performSearch(visited);
     }
@@ -152,7 +152,7 @@ public class EliminateQuantifierRule extends RuleOperatingOnWholeSequence
      * @see de.uka.ilkd.key.dl.RuleOperatingOnWholeSequence#performQuery(de.uka.ilkd.key.logic.Term,
      *      de.uka.ilkd.key.dl.IMathSolver)
      */
-    @Override
+    /*@Override*/
     protected Term performQuery(Term term, long timeout) throws RemoteException, SolverException {
         List<String> variables = getVariables();
         if (variables.isEmpty()) {
@@ -174,7 +174,7 @@ public class EliminateQuantifierRule extends RuleOperatingOnWholeSequence
      * 
      * @see de.uka.ilkd.key.dl.RuleOperatingOnWholeSequence#performSearch(de.uka.ilkd.key.logic.Term)
      */
-    @Override
+    /*@Override*/
     protected void performSearch(Term visited) {
         if (visited.op() == search.op()) {
             addFormula = true;

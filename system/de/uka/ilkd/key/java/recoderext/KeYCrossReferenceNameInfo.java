@@ -45,7 +45,7 @@ public class KeYCrossReferenceNameInfo extends DefaultNameInfo {
      *                 if there was already a different type registered for the
      *                 same name
      */
-    @Override
+    /*@Override*/
     public void register(ClassType ct) {
         
         String name = ct.getFullName();
@@ -77,7 +77,7 @@ public class KeYCrossReferenceNameInfo extends DefaultNameInfo {
      * @param fullname
      *                name of the type to be unregistered
      */
-    @Override
+    /*@Override*/
     public void unregisterClassType(String fullname) {
         super.unregisterClassType(fullname);
         classtypes.remove(fullname);
@@ -86,7 +86,7 @@ public class KeYCrossReferenceNameInfo extends DefaultNameInfo {
     /*
      * just to make sure that classtypes captures all non-array types.
      */
-    @Override
+    /*@Override*/
     public Type getType(String name) {
         Type t = super.getType(name);
         if(t instanceof ClassType)

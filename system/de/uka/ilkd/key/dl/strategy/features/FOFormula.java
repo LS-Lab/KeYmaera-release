@@ -54,7 +54,7 @@ public class FOFormula implements Feature {
 		final boolean[] result = { true };
 		pos.constrainedFormula().formula().execPreOrder(new Visitor() {
 
-			@Override
+			/*@Override*/
 			public void visit(Term visited) {
 				if (!FOSequence.isFOOperator(visited.op())) {
 					result[0] = false;

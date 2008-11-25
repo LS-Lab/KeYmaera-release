@@ -163,7 +163,7 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 			handler = new ServerSocketHandler(port + 1);
 			handler.setFormatter(new Formatter() {
 
-				@Override
+				/*@Override*/
 				public String format(LogRecord record) {
 					return record.getMessage() + "\n";
 				}
@@ -689,7 +689,7 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 				 * 
 				 * @see java.lang.Thread#run()
 				 */
-				@Override
+				/*@Override*/
 				public void run() {
 					while (!socket.isClosed()) {
 						try {
@@ -711,7 +711,7 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 				 * 
 				 * @see java.lang.Thread#run()
 				 */
-				@Override
+				/*@Override*/
 				public void run() {
 					while (bound) {
 						try {

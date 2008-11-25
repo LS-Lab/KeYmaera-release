@@ -419,7 +419,7 @@ public class Orbital implements IODESolver {
 
     }
 
-    @Override
+    /*@Override*/
     public long getTotalMemory() throws RemoteException,
             ServerStatusProblemException, ConnectionProblemException {
         // TODO Auto-generated method stub
@@ -429,7 +429,7 @@ public class Orbital implements IODESolver {
 	/* (non-Javadoc)
 	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#isConfigured()
 	 */
-	@Override
+	/*@Override*/
 	public boolean isConfigured() {
 		return true;
 	}

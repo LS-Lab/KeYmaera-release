@@ -58,7 +58,7 @@ public class ChopImpl extends CompoundDLProgramImpl implements Chop {
     /* (non-Javadoc)
      * @see de.uka.ilkd.key.dl.model.impl.DLNonTerminalProgramElementImpl#toString()
      */
-    @Override
+    /*@Override*/
     public String toString() {
     	// for the proof view
     	return "Composition";

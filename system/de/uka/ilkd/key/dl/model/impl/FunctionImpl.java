@@ -42,7 +42,7 @@ public abstract class FunctionImpl extends DLTerminalProgramElementImpl
 	 * 
 	 * @see de.uka.ilkd.key.dl.model.impl.DLProgramElementImpl#prettyPrint(de.uka.ilkd.key.java.PrettyPrinter)
 	 */
-	@Override
+	/*@Override*/
 	public void prettyPrint(PrettyPrinter arg0) throws IOException {
 		arg0.printFunctionSymbol(this);
 	}
@@ -53,7 +53,7 @@ public abstract class FunctionImpl extends DLTerminalProgramElementImpl
 	 * @see de.uka.ilkd.key.dl.model.impl.DLTerminalProgramElementImpl#equalsModRenaming(de.uka.ilkd.key.java.SourceElement,
 	 *      de.uka.ilkd.key.java.NameAbstractionTable)
 	 */
-	@Override
+	/*@Override*/
 	public boolean equalsModRenaming(SourceElement arg0,
 			NameAbstractionTable arg1) {
 		return arg0 == this

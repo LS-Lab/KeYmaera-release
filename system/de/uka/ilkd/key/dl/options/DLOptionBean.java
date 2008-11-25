@@ -59,7 +59,7 @@ public class DLOptionBean implements Settings {
 		 * 
 		 * @see java.lang.Enum#toString()
 		 */
-		@Override
+		/*@Override*/
 		public String toString() {
 			return string;
 		}
@@ -79,7 +79,7 @@ public class DLOptionBean implements Settings {
 		 * 
 		 * @see java.lang.Enum#toString()
 		 */
-		@Override
+		/*@Override*/
 		public String toString() {
 			return string;
 		}
@@ -100,7 +100,7 @@ public class DLOptionBean implements Settings {
 		 * 
 		 * @see java.lang.Enum#toString()
 		 */
-		@Override
+		/*@Override*/
 		public String toString() {
 			return string;
 		}
@@ -115,7 +115,7 @@ public class DLOptionBean implements Settings {
 			this.string = str;
 		}
 
-		@Override
+		/*@Override*/
 		public String toString() {
 			return string;
 		}
@@ -135,7 +135,7 @@ public class DLOptionBean implements Settings {
 		 * 
 		 * @see java.lang.Enum#toString()
 		 */
-		@Override
+		/*@Override*/
 		public String toString() {
 			return name;
 		}

@@ -78,7 +78,7 @@ public class DLProfile extends AbstractProfile {
 	 * 
 	 * @see de.uka.ilkd.key.proof.init.AbstractProfile#supportedStrategies()
 	 */
-	@Override
+	/*@Override*/
 	protected SetOfStrategyFactory getStrategyFactories() {
 		SetOfStrategyFactory set = super.getStrategyFactories();
 		set = set.add(DEFAULT);
@@ -128,7 +128,7 @@ public class DLProfile extends AbstractProfile {
 	 * 
 	 * @see de.uka.ilkd.key.proof.init.AbstractProfile#initBuiltInRules()
 	 */
-	@Override
+	/*@Override*/
 	protected ListOfBuiltInRule initBuiltInRules() {
 		ListOfBuiltInRule rule = super.initBuiltInRules().prepend(
 				ReduceRule.INSTANCE).prepend(getUpdateSimplificationRule())
@@ -154,7 +154,7 @@ public class DLProfile extends AbstractProfile {
 	 * 
 	 * @see de.uka.ilkd.key.proof.init.AbstractProfile#getDefaultUpdateSimplifier()
 	 */
-	@Override
+	/*@Override*/
 	public UpdateSimplifier getDefaultUpdateSimplifier() {
 		return new DLUpdateSimplifier();
 	}

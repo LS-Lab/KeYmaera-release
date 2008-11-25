@@ -59,7 +59,7 @@ public class IfStatementImpl extends CompoundDLProgramImpl implements
      * 
      * @see de.uka.ilkd.key.dl.model.impl.DLNonTerminalProgramElementImpl#prettyPrint(de.uka.ilkd.key.java.PrettyPrinter)
      */
-    @Override
+    /*@Override*/
     public void prettyPrint(PrettyPrinter arg0) throws IOException {
         arg0.printDLIf(this);
     }
@@ -100,7 +100,7 @@ public class IfStatementImpl extends CompoundDLProgramImpl implements
      * @see de.uka.ilkd.key.dl.model.impl.CompoundDLProgramImpl#reuseSignature(de.uka.ilkd.key.java.Services,
      *      de.uka.ilkd.key.java.reference.ExecutionContext)
      */
-    @Override
+    /*@Override*/
     public String reuseSignature(Services services, ExecutionContext ec) {
         return "if("
                 + getExpression().reuseSignature(services, ec)

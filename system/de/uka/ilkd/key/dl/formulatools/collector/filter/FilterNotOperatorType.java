@@ -11,7 +11,7 @@ public class FilterNotOperatorType extends FilterDecorator {
 		super( decoratedFilter );
 		this.classID = classID;
 	}
-	@Override
+	/*@Override*/
 	public RemoveItem isValid(FoundItem val) {
 		
 		if( classID.isInstance(val.getTerm().op()) )

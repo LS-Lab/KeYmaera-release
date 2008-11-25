@@ -46,7 +46,7 @@ public class FOVariableNumberCollector {
     public static Set<Operator> getVariables(Term inputFormula) {
         final HashSet<Operator> variables = new LinkedHashSet<Operator>();
         inputFormula.execPreOrder(new Visitor() {
-            @Override
+            /*@Override*/
             public void visit(Term visited) {
                 Operator op = visited.op();
                 if (op instanceof LogicVariable

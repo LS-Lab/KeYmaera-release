@@ -208,7 +208,7 @@ public class FindInstanceRule extends Visitor implements BuiltInRule,
      * 
      * @see de.uka.ilkd.key.logic.Visitor#visit(de.uka.ilkd.key.logic.Term)
      */
-    @Override
+    /*@Override*/
     public void visit(Term visited) {
         performSearch(visited);
     }
@@ -240,7 +240,7 @@ public class FindInstanceRule extends Visitor implements BuiltInRule,
      * 
      * @see java.lang.Object#toString()
      */
-    @Override
+    /*@Override*/
     public String toString() {
         return displayName();
     }

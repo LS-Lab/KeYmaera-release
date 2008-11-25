@@ -64,7 +64,7 @@ public class AbortBridge extends Thread {
      * 
      * @see java.lang.Thread#run()
      */
-    @Override
+    /*@Override*/
     public void run() {
         while (true) {
             try {

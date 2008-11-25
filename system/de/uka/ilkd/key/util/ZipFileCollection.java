@@ -97,7 +97,7 @@ public class ZipFileCollection implements FileCollection {
         }
     }
     
-    @Override
+    /*@Override*/
     public String toString() {
         return "ZipFileCollection["+ file + "]";
     }

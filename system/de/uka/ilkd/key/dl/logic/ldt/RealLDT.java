@@ -157,7 +157,7 @@ public class RealLDT extends LDT {
 	 *      de.uka.ilkd.key.java.Services,
 	 *      de.uka.ilkd.key.java.reference.ExecutionContext)
 	 */
-	@Override
+	/*@Override*/
 	public Function getFunctionFor(Operator op, Services serv,
 			ExecutionContext ec) {
 		// TODO Auto-generated method stub
@@ -169,7 +169,7 @@ public class RealLDT extends LDT {
 	 * 
 	 * @see de.uka.ilkd.key.logic.ldt.LDT#hasLiteralFunction(de.uka.ilkd.key.logic.op.Function)
 	 */
-	@Override
+	/*@Override*/
 	public boolean hasLiteralFunction(Function f) {
 		// TODO Auto-generated method stub
 		return false;
@@ -182,7 +182,7 @@ public class RealLDT extends LDT {
 	 *      de.uka.ilkd.key.logic.Term[], de.uka.ilkd.key.java.Services,
 	 *      de.uka.ilkd.key.java.reference.ExecutionContext)
 	 */
-	@Override
+	/*@Override*/
 	public boolean isResponsible(Operator op, Term[] subs, Services services,
 			ExecutionContext ec) {
 		// TODO Auto-generated method stub
@@ -197,7 +197,7 @@ public class RealLDT extends LDT {
 	 *      de.uka.ilkd.key.java.Services,
 	 *      de.uka.ilkd.key.java.reference.ExecutionContext)
 	 */
-	@Override
+	/*@Override*/
 	public boolean isResponsible(Operator op, Term left, Term right,
 			Services services, ExecutionContext ec) {
 		// TODO Auto-generated method stub
@@ -211,7 +211,7 @@ public class RealLDT extends LDT {
 	 *      de.uka.ilkd.key.logic.Term, de.uka.ilkd.key.java.Services,
 	 *      de.uka.ilkd.key.java.reference.ExecutionContext)
 	 */
-	@Override
+	/*@Override*/
 	public boolean isResponsible(Operator op, Term sub, Services services,
 			ExecutionContext ec) {
 		// TODO Auto-generated method stub
@@ -223,7 +223,7 @@ public class RealLDT extends LDT {
 	 * 
 	 * @see de.uka.ilkd.key.logic.ldt.LDT#translateLiteral(de.uka.ilkd.key.java.expression.Literal)
 	 */
-	@Override
+	/*@Override*/
 	public Term translateLiteral(Literal lit) {
 		// TODO Auto-generated method stub
 		return null;
@@ -235,7 +235,7 @@ public class RealLDT extends LDT {
 	 * @see de.uka.ilkd.key.logic.ldt.LDT#translateTerm(de.uka.ilkd.key.logic.Term,
 	 *      de.uka.ilkd.key.util.ExtList)
 	 */
-	@Override
+	/*@Override*/
 	public Expression translateTerm(Term t, ExtList children) {
 		// TODO Auto-generated method stub
 		return null;

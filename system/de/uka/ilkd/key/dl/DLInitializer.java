@@ -230,7 +230,7 @@ public class DLInitializer {
 
 				SwingUtilities.invokeAndWait(new Runnable() {
 
-					@Override
+					/*@Override*/
 					public void run() {
 						Main.getInstance().addTab("Hybrid Strategy",
 								customizerPane,
@@ -335,7 +335,7 @@ public class DLInitializer {
 		customizers.put(customizer, DLOptionBean.INSTANCE);
 		SettingsListener l = new SettingsListener() {
 
-			@Override
+			/*@Override*/
 			public void settingsChanged(GUIEvent e) {
 				try {
 					updateCustomizers();

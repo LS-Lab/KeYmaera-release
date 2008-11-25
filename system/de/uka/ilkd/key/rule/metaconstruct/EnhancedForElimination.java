@@ -74,7 +74,7 @@ public class EnhancedForElimination extends ProgramMetaConstruct {
      *      de.uka.ilkd.key.java.Services,
      *      de.uka.ilkd.key.rule.inst.SVInstantiations)
      */
-    @Override
+    /*@Override*/
     public ProgramElement symbolicExecution(ProgramElement pe,
             Services services, SVInstantiations svInst) {
 

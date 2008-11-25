@@ -58,7 +58,7 @@ public class ChoiceImpl extends CompoundDLProgramImpl implements Choice {
     /* (non-Javadoc)
      * @see de.uka.ilkd.key.dl.model.impl.DLNonTerminalProgramElementImpl#toString()
      */
-    @Override
+    /*@Override*/
     public String toString() {
     	// for proof view
     	return "Choice";

@@ -101,7 +101,7 @@ public class DebugRule extends Visitor implements BuiltInRule, RuleFilter {
      * 
      * @see de.uka.ilkd.key.logic.Visitor#visit(de.uka.ilkd.key.logic.Term)
      */
-    @Override
+    /*@Override*/
     public void visit(Term visited) {
         System.out.println(visited + ": " + visited.getClass() + "@"
                 + visited.hashCode());

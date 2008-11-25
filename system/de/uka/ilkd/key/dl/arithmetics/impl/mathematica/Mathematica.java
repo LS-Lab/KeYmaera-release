@@ -87,7 +87,7 @@ public class Mathematica implements ICounterExampleGenerator, IODESolver,
 				System.out.println("Trying to execute: " + string);
 				final Process process = Runtime.getRuntime().exec(string);
 				Runtime.getRuntime().addShutdownHook(new Thread() {
-					@Override
+					/*@Override*/
 					public void run() {
 						try {
 							process.getOutputStream().write('e');
@@ -304,7 +304,7 @@ public class Mathematica implements ICounterExampleGenerator, IODESolver,
 		return reduce(form, new LinkedList<String>(), quantifiers, nss, -1);
 	}
 
-	@Override
+	/*@Override*/
 	public String findTransition(Term initial, Term modalForm, long timeout)
 			throws RemoteException, SolverException {
 		return bridge.findTransition(initial, modalForm, timeout);
@@ -315,7 +315,7 @@ public class Mathematica implements ICounterExampleGenerator, IODESolver,
 		return bridge.findTransition(initial, modalForm, -1);
 	}
 
-	@Override
+	/*@Override*/
 	public long getTotalMemory() throws RemoteException,
 			ServerStatusProblemException, ConnectionProblemException {
 		return bridge.getTotalMemory();
@@ -326,7 +326,7 @@ public class Mathematica implements ICounterExampleGenerator, IODESolver,
 	 * 
 	 * @see de.uka.ilkd.key.dl.arithmetics.IGroebnerBasisCalculator#checkForConstantGroebnerBasis(de.uka.ilkd.key.dl.arithmetics.impl.SumOfSquaresChecker.PolynomialClassification)
 	 */
-	@Override
+	/*@Override*/
 	public boolean checkForConstantGroebnerBasis(
 			PolynomialClassification<Term> terms) throws RemoteException {
 		return bridge.checkForConstantGroebnerBasis(terms);
@@ -335,7 +335,7 @@ public class Mathematica implements ICounterExampleGenerator, IODESolver,
 	/* (non-Javadoc)
 	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#isConfigured()
 	 */
-	@Override
+	/*@Override*/
 	public boolean isConfigured() {
 		return true;
 	}

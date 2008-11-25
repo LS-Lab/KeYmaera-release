@@ -36,7 +36,7 @@ public class FilePropertyEditor extends PropertyEditorSupport implements
 		comp.setText(file.getPath());
 //		comp.addPropertyChangeListener(new PropertyChangeListener() {
 //
-//			@Override
+//			/*@Override*/
 //			public void propertyChange(PropertyChangeEvent evt) {
 //				setValue(new File(comp.getText()));
 //			}
@@ -44,13 +44,13 @@ public class FilePropertyEditor extends PropertyEditorSupport implements
 //		});
 		comp.addFocusListener(new FocusListener() {
 
-			@Override
+			/*@Override*/
 			public void focusGained(FocusEvent e) {
 				// TODO Auto-generated method stub
 				
 			}
 
-			@Override
+			/*@Override*/
 			public void focusLost(FocusEvent e) {
 				setValue(new File(comp.getText()));
 			}

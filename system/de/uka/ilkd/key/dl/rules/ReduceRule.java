@@ -133,7 +133,7 @@ public class ReduceRule extends RuleOperatingOnWholeSequence implements
      * 
      * @see java.lang.Object#toString()
      */
-    @Override
+    /*@Override*/
     public String toString() {
         return displayName();
     }
@@ -144,7 +144,7 @@ public class ReduceRule extends RuleOperatingOnWholeSequence implements
      * @see de.uka.ilkd.key.dl.RuleOperatingOnWholeSequence#apply(de.uka.ilkd.key.proof.Goal,
      *      de.uka.ilkd.key.java.Services, de.uka.ilkd.key.rule.RuleApp)
      */
-    @Override
+    /*@Override*/
     public synchronized ListOfGoal apply(Goal goal, Services services,
             RuleApp ruleApp) {
         quantifiedVariables = new HashSet<String>();
@@ -157,7 +157,7 @@ public class ReduceRule extends RuleOperatingOnWholeSequence implements
      * 
      * @see de.uka.ilkd.key.dl.RuleOperatingOnWholeSequence#visit(de.uka.ilkd.key.logic.Term)
      */
-    @Override
+    /*@Override*/
     public void visit(Term visited) {
         if (visited.op() instanceof RigidFunction) {
             RigidFunction sk = (RigidFunction) visited.op();
@@ -181,7 +181,7 @@ public class ReduceRule extends RuleOperatingOnWholeSequence implements
      * @see de.uka.ilkd.key.dl.RuleOperatingOnWholeSequence#performQuery(de.uka.ilkd.key.logic.Term,
      *      de.uka.ilkd.key.dl.IMathSolver)
      */
-    @Override
+    /*@Override*/
     protected Term performQuery(Term term, long timeout) throws RemoteException,
             SolverException {
 
@@ -258,7 +258,7 @@ public class ReduceRule extends RuleOperatingOnWholeSequence implements
      * 
      * @see de.uka.ilkd.key.dl.RuleOperatingOnWholeSequence#performSearch(de.uka.ilkd.key.logic.Term)
      */
-    @Override
+    /*@Override*/
     protected void performSearch(Term visited) {
         if (!FOSequence.isFOOperator(visited.op())) {
             addFormula = false;

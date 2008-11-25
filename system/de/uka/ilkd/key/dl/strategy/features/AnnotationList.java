@@ -43,7 +43,7 @@ public class AnnotationList implements TermGenerator {
     /* (non-Javadoc)
      * @see de.uka.ilkd.key.strategy.termgenerator.TermGenerator#generate(de.uka.ilkd.key.rule.RuleApp, de.uka.ilkd.key.logic.PosInOccurrence, de.uka.ilkd.key.proof.Goal)
      */
-    @Override
+    /*@Override*/
     public IteratorOfTerm generate(RuleApp app, PosInOccurrence pos, Goal goal) {
         Term term = pos.subTerm();
         // unbox from update prefix

@@ -699,7 +699,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 		return form;
 	}
 
-	@Override
+	/*@Override*/
 	public String findTransition(Term initial, Term modalForm, long timeout)
 			throws RemoteException, SolverException {
 		Term term = modalForm;

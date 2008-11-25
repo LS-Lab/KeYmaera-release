@@ -216,7 +216,7 @@ public class TermTools {
 		final boolean result[] = new boolean[] { false };
 		t.execPreOrder(new Visitor() {
 
-			@Override
+			/*@Override*/
 			public void visit(Term visited) {
 				if (visited.equals(x)) {
 					result[0] = true;
@@ -395,7 +395,7 @@ public class TermTools {
 		final Set<Term> skolemSym = new HashSet<Term>();
 		result.t.execPreOrder(new Visitor() {
 
-			@Override
+			/*@Override*/
 			public void visit(Term visited) {
 				if (visited.op() instanceof RigidFunction
 						&& ((RigidFunction) visited.op()).isSkolem()) {

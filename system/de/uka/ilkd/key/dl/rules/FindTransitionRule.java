@@ -192,7 +192,7 @@ public class FindTransitionRule implements BuiltInRule, RuleFilter {
      * 
      * @see java.lang.Object#toString()
      */
-    @Override
+    /*@Override*/
     public String toString() {
         return displayName();
     }

@@ -16,7 +16,7 @@ public class AllCollector extends Visitor {
 	 */
 	private FilterVariableSet foundVariables = new FilterVariableSet();
 	
-	@Override
+	/*@Override*/
 	public void visit(Term visited) {
 		this.foundVariables.add( new FoundItem(visited.op().name().toString(), visited) );
 	}

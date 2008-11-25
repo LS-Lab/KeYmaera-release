@@ -156,7 +156,7 @@ public class ProjectManager extends JFrame {
 		 * 
 		 * @see java.lang.Object#toString()
 		 */
-		@Override
+		/*@Override*/
 		public String toString() {
 			return getName();
 		}
@@ -193,7 +193,7 @@ public class ProjectManager extends JFrame {
 		final JButton button = new JButton("Load");
 		button.addActionListener(new ActionListener() {
 
-			@Override
+			/*@Override*/
 			public void actionPerformed(ActionEvent e) {
 				DefaultMutableTreeNode lastSelectedPathComponent = (DefaultMutableTreeNode) tree
 						.getLastSelectedPathComponent();
@@ -280,7 +280,7 @@ public class ProjectManager extends JFrame {
 		
 		tree.addTreeSelectionListener(new TreeSelectionListener() {
 
-			@Override
+			/*@Override*/
 			public void valueChanged(TreeSelectionEvent e) {
 				DefaultMutableTreeNode lastSelectedPathComponent = (DefaultMutableTreeNode) tree
 						.getLastSelectedPathComponent();
@@ -325,7 +325,7 @@ public class ProjectManager extends JFrame {
 		JButton cancel = new JButton("Cancel");
 		cancel.addActionListener(new ActionListener() {
 
-			@Override
+			/*@Override*/
 			public void actionPerformed(ActionEvent e) {
 				setVisible(false);
 				dispose();

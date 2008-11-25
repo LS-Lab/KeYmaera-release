@@ -51,7 +51,7 @@ public class WeakNegation extends AbstractDLMetaOperator {
 	/* (non-Javadoc)
 	 * @see de.uka.ilkd.key.logic.op.AbstractMetaOperator#sort(de.uka.ilkd.key.logic.Term[])
 	 */
-	@Override
+	/*@Override*/
 	public Sort sort(Term[] term) {
 		
 		return Sort.FORMULA;
@@ -65,7 +65,7 @@ public class WeakNegation extends AbstractDLMetaOperator {
 	 * (de.uka.ilkd.key.logic.Term, de.uka.ilkd.key.rule.inst.SVInstantiations,
 	 * de.uka.ilkd.key.java.Services)
 	 */
-	@Override
+	/*@Override*/
 	public Term calculate(Term term, SVInstantiations svInst, Services services) {
 		Term modality = term.sub(0);
 		Term post = term.sub(0).sub(0);

@@ -60,7 +60,7 @@ public class ResolveGenerics extends TwoPassTransformation {
      * 
      * @see recoder.kit.TwoPassTransformation#analyze()
      */
-    @Override
+    /*@Override*/
     public ProblemReport analyze() {
         TreeWalker tw = new TreeWalker(compUnitUnderTest);
         transformations = new LinkedList<TwoPassTransformation>();
@@ -117,7 +117,7 @@ public class ResolveGenerics extends TwoPassTransformation {
     /**
      * simply iterate over all remaining transformations and apply them.
      */
-    @Override
+    /*@Override*/
     public void transform() {
         for (TwoPassTransformation tpt : transformations)
             tpt.transform();

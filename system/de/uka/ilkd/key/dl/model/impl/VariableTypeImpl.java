@@ -100,7 +100,7 @@ public class VariableTypeImpl extends DLTerminalProgramElementImpl implements
      * @see de.uka.ilkd.key.dl.model.impl.DLNonTerminalProgramElementImpl#equalsModRenaming(de.uka.ilkd.key.java.SourceElement,
      *      de.uka.ilkd.key.java.NameAbstractionTable)
      */
-    @Override
+    /*@Override*/
     public boolean equalsModRenaming(SourceElement se, NameAbstractionTable nat) {
         if (se instanceof VariableType) {
             VariableType type = (VariableType) se;

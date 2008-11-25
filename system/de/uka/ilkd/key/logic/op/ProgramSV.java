@@ -638,7 +638,7 @@ public class ProgramSV extends SortedSchemaVariable implements
      * 
      * @see de.uka.ilkd.key.logic.op.TermSymbol#sort(de.uka.ilkd.key.logic.Term[])
      */
-    @Override
+    /*@Override*/
     public Sort sort(Term[] term) {
         Sort sort = super.sort(term);
         if (sort instanceof PlaceHolderSort) {
@@ -657,51 +657,51 @@ public class ProgramSV extends SortedSchemaVariable implements
         return getClass().getName();
     }
 
-    @Override
+    /*@Override*/
     public List<ProgramElement> getDifferentialEquations() {
         throw new UnsupportedOperationException();
     }
 
-    @Override
+    /*@Override*/
     public Term getInvariant() {
         throw new UnsupportedOperationException();
     }
 
-    @Override
+    /*@Override*/
     public boolean isDifferentialEquation(ProgramElement el) {
         throw new UnsupportedOperationException();
     }
 
-    @Override
+    /*@Override*/
     public List<Formula> getDLAnnotation(String key) {
         throw new UnsupportedOperationException();
     }
 
-    @Override
+    /*@Override*/
     public Map<String, List<Formula>> getDLAnnotations() {
         throw new UnsupportedOperationException();
     }
 
-    @Override
+    /*@Override*/
     public void setDLAnnotations(Map<String, List<Formula>> annotations) {
         throw new UnsupportedOperationException();
     }
-    @Override
+    /*@Override*/
     public void setDLAnnotation(String key, List<Formula> value) {
         throw new UnsupportedOperationException();
     }
 
-    @Override
+    /*@Override*/
     public DiffSystem getDifferentialFragment() {
         throw new UnsupportedOperationException();
     }
 
-    @Override
+    /*@Override*/
     public DiffSystem getInvariantFragment() {
         throw new UnsupportedOperationException();
     }
 
-	@Override
+	/*@Override*/
 	public boolean containsDLAnnotation(String key) {
         throw new UnsupportedOperationException();
 	}

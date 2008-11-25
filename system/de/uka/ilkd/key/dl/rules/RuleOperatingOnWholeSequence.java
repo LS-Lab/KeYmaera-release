@@ -243,7 +243,7 @@ public abstract class RuleOperatingOnWholeSequence extends Visitor implements
 	 * 
 	 * @see de.uka.ilkd.key.logic.Visitor#visit(de.uka.ilkd.key.logic.Term)
 	 */
-	@Override
+	/*@Override*/
 	public void visit(Term visited) {
 		performSearch(visited);
 	}

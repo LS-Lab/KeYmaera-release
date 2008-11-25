@@ -34,7 +34,7 @@ public class ResolveTypeReference extends GenericResolutionTransformation {
         sourceInfo = sc.getCrossReferenceSourceInfo();
     }
 
-    @Override
+    /*@Override*/
     public ProblemReport analyze() {
         ASTList<TypeArgumentDeclaration> typeArguments = reference.getTypeArguments();
         if (typeArguments != null && !typeArguments.isEmpty()) {
@@ -53,7 +53,7 @@ public class ResolveTypeReference extends GenericResolutionTransformation {
         return IDENTITY;
     }
 
-    @Override
+    /*@Override*/
     public void transform() {
         if (replaceWith != null) {
             replace(reference, replaceWith);

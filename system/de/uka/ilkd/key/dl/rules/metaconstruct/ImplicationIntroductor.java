@@ -63,7 +63,7 @@ public class ImplicationIntroductor extends AbstractDLMetaOperator {
 	/* (non-Javadoc)
 	 * @see de.uka.ilkd.key.dl.rules.metaconstruct.AbstractDLMetaOperator#calculate(de.uka.ilkd.key.logic.Term, de.uka.ilkd.key.rule.inst.SVInstantiations, de.uka.ilkd.key.java.Services)
 	 */
-	@Override
+	/*@Override*/
 	public Term calculate(Term term, SVInstantiations svInst, Services services) {
 		DiffSystem one = (DiffSystem) ((StatementBlock) term.sub(0).javaBlock().program()).getChildAt(0);
 		DiffSystem two = (DiffSystem) ((StatementBlock) term.sub(1).javaBlock().program()).getChildAt(0);

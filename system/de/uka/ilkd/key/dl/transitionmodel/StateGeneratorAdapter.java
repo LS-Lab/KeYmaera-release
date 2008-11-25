@@ -16,37 +16,37 @@ import de.uka.ilkd.key.dl.transitionmodel.TransitionSystemGenerator.SpecialSymbo
  * 
  */
 public class StateGeneratorAdapter implements StateGenerator<Object, Object> {
-    @Override
+    /*@Override*/
     public Object generateAction(DLProgram program) {
         return program;
     }
 
-    @Override
+    /*@Override*/
     public Object generateBranch(DLProgram program, int pos) {
         return SpecialSymbols.CHOICE;
     }
 
-    @Override
+    /*@Override*/
     public Object generateMerge(DLProgram program, int pos) {
         return SpecialSymbols.NOOP;
     }
 
-    @Override
+    /*@Override*/
     public Object generateMergeState(DLProgram program, List<Object> states) {
         return new Object();
     }
 
-    @Override
+    /*@Override*/
     public Object getPostState(Object pre, Object action) {
         return new Object();
     }
 
-    @Override
+    /*@Override*/
     public Object getSpecialSymbolNoop(Object o, Object ob) {
         return SpecialSymbols.NOOP;
     }
 
-    @Override
+    /*@Override*/
     public Object getSymbolForBackloop(Object pre, Object post) {
         return SpecialSymbols.STAR;
     }
@@ -57,7 +57,7 @@ public class StateGeneratorAdapter implements StateGenerator<Object, Object> {
      * @see de.uka.ilkd.key.dl.transitionmodel.StateGenerator#generateElseAction(de.uka.ilkd.key.dl.model.Formula,
      *      java.lang.Object, java.lang.Object)
      */
-    @Override
+    /*@Override*/
     public Object generateElseAction(Formula f) {
         return this.generateAction(new QuestImpl(f));
     }
@@ -68,7 +68,7 @@ public class StateGeneratorAdapter implements StateGenerator<Object, Object> {
      * @see de.uka.ilkd.key.dl.transitionmodel.StateGenerator#generateThenAction(de.uka.ilkd.key.dl.model.Formula,
      *      java.lang.Object, java.lang.Object)
      */
-    @Override
+    /*@Override*/
     public Object generateThenAction(Formula f) {
         return this.generateAction(new QuestImpl(new NotImpl(f)));
     }

@@ -97,7 +97,7 @@ public class FindTransitionTest implements Feature {
             this.modalFormula = modalFormula;
         }
 
-        @Override
+        /*@Override*/
         public void run() {
             result = Result.UNKNOWN;
             try {

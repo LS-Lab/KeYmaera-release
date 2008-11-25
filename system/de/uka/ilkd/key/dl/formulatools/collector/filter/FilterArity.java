@@ -11,7 +11,7 @@ public class FilterArity extends FilterDecorator {
 		this.arity = arity;
 	}
 
-	@Override
+	/*@Override*/
 	public RemoveItem isValid(FoundItem val) {
 		if( val.getTerm().arity() == this.arity ) {
 			return getDecoratedFilterResult(val);

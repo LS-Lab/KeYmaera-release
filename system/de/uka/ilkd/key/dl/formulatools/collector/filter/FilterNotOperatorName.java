@@ -11,7 +11,7 @@ public class FilterNotOperatorName extends FilterDecorator {
 		this.operatorName = operatorName;
 	}
 	
-	@Override
+	/*@Override*/
 	public RemoveItem isValid(FoundItem val) {
 		if( val.getName().equals(this.operatorName)) 
 			return RemoveItem.REMOVE;

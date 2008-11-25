@@ -54,7 +54,7 @@ public class Options implements Settings {
 		 * 
 		 * @see java.lang.Enum#toString()
 		 */
-		@Override
+		/*@Override*/
 		public String toString() {
 			return command;
 		}

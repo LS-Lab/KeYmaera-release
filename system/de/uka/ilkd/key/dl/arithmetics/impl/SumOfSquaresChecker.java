@@ -551,7 +551,7 @@ public class SumOfSquaresChecker {
 		 * 
 		 * @see java.lang.Object#toString()
 		 */
-		@Override
+		/*@Override*/
 		public String toString() {
 			StringBuilder b = new StringBuilder();
 			b.append(pre + " = ");
@@ -575,7 +575,7 @@ public class SumOfSquaresChecker {
 		 * 
 		 * @see java.lang.Object#toString()
 		 */
-		@Override
+		/*@Override*/
 		public String toString() {
 			StringBuilder b = new StringBuilder();
 			String plus = "";

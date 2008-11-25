@@ -30,7 +30,7 @@ public class RecencyOrder implements Comparator<TermInformations> {
 	 * 
 	 * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
 	 */
-	@Override
+	/*@Override*/
 	public int compare(TermInformations o1, TermInformations o2) {
 
 		Set<Term> terms1 = o1.getVariables();
