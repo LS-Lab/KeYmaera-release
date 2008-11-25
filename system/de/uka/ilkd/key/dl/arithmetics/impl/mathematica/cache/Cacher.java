@@ -98,7 +98,7 @@ public class Cacher implements ICacher {
 	 * de.uka.ilkd.key.dl.arithmetics.impl.mathematica.cache.ICacher#put(de.
 	 * uka.ilkd.key.dl.arithmetics.impl.mathematica.cache.ICacher)
 	 */
-	@Override
+	/*@Override*/
 	public void put(ICacher cache) {
 		if (cache instanceof Cacher) {
 			this.cache.putAll(((Cacher) cache).cache);
@@ -117,7 +117,7 @@ public class Cacher implements ICacher {
 	 * de.uka.ilkd.key.dl.arithmetics.impl.mathematica.cache.ICacher#setMaxCacheSize
 	 * (int)
 	 */
-	@Override
+	/*@Override*/
 	public void setMaxCacheSize(int size) {
 		this.maxSize = size;
 	}
