@@ -393,7 +393,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 			throw new UnsolveableException("Blacklisted conversion from "
 					+ expr.toString() + " to updates");
 		} else {
-			throw new IllegalStateException("unknown case");
+			throw new IllegalStateException("unknown case " + expr.head() + " in\n" + expr);
 		}
 		return result;
 	}
