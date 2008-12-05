@@ -1,0 +1,42 @@
+KeYmaera
+--------
+
+KeYmaera is a hybrid verification tool for hybrid systems that combines deductive, real
+algebraic, and computer algebraic prover technologies. It is an automated and interactive
+theorem prover for a natural specification and verification logic for hybrid systems.
+KeYmaera supports differential dynamic logic (dL), which is a real-valued first-order
+dynamic logic for hybrid programs, a program notation for hybrid automata. For automating
+the verification process, KeYmaera implements a generalized free-variable sequent
+calculus and automatic proof strategies that decompose the hybrid system specification
+symbolically. To overcome the complexity of real arithmetic, we integrate real quantifier
+elimination following an iterative background closure strategy. Our tool is particularly
+suitable for verifying parametric hybrid systems and has been used successfully for
+verifying collision avoidance in case studies from train control and air traffic
+management.
+
+Requirements
+------------
+
+- orbital-core.jar
+- orbital-ext.jar
+- ANTLR 3
+- ANTLR 2.77
+- JLink
+
+
+Startup
+-------
+
+Client:
+
+The client side program can be started using the parameter "dl" to indicate
+that the profile for the logic dL should be loaded.
+Example:
+> bin/runProver dl
+
+Server:
+The mathematica server can be started using the runMathematicaServer
+script.
+Example
+> bin/runMathematicaServer
+
