@@ -108,6 +108,7 @@ public class ServerConsole extends JFrame {
     public ServerConsole(String title, final String[] args)
             throws UnknownHostException, IOException {
         super(title);
+        this.setName(title);
         server = null;
         port = -1;
         if (args.length > 0) {
@@ -236,7 +237,7 @@ public class ServerConsole extends JFrame {
     public static void main(final String[] args) {
         JFrame frame;
         try {
-            frame = new ServerConsole("Abort calculation", args);
+            frame = new ServerConsole("KeYmaera Server Console", args);
             frame.setVisible(true);
             InputStreamReader reader = new InputStreamReader(System.in);
             while (true) {
