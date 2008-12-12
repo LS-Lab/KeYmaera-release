@@ -62,8 +62,11 @@ import org.w3c.dom.NodeList;
 import com.wolfram.jlink.Expr;
 import com.wolfram.jlink.ExprFormatException;
 import com.wolfram.jlink.KernelLink;
+import com.wolfram.jlink.MathLink;
 import com.wolfram.jlink.MathLinkException;
 import com.wolfram.jlink.MathLinkFactory;
+import com.wolfram.jlink.PacketArrivedEvent;
+import com.wolfram.jlink.PacketListener;
 
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ConnectionProblemException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ServerStatusProblemException;
@@ -79,7 +82,7 @@ import de.uka.ilkd.key.dl.utils.XMLReader;
  */
 public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 		IKernelLinkWrapper {
-    private static final boolean DEBUG = false;
+	private static final boolean DEBUG = false;
 
 	public static final String[][] messageBlacklist = new String[][] {
 			{ "Reduce", "nsmet" }, { "FindInstance", "nsmet" } };
@@ -131,7 +134,7 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 	private static final Expr MEMORYCONSUMPTION = new Expr(new Expr(
 			Expr.SYMBOL, "MaxMemoryUsed"), new Expr[] {});
 
-    private static final long NOMEMORYCONSTRAINT = -1;
+	private static final long NOMEMORYCONSTRAINT = -1;
 
 	private Logger logger;
 
@@ -163,7 +166,7 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 			handler = new ServerSocketHandler(port + 1);
 			handler.setFormatter(new Formatter() {
 
-				/*@Override*/
+				/* @Override */
 				public String format(LogRecord record) {
 					return record.getMessage() + "\n";
 				}
@@ -252,6 +255,17 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 			testForError(link);
 			link.discardAnswer();
 			testForError(link);
+
+			link.addPacketListener(new PacketListener() {
+				public boolean packetArrived(PacketArrivedEvent evt)
+						throws MathLinkException {
+					if (evt.getPktType() == MathLink.TEXTPKT) {
+						KernelLink ml = (KernelLink) evt.getSource();
+						KernelLinkWrapper.this.log(Level.WARNING, link.getString());
+					}
+					return true;
+				}
+			});
 
 			// Now we redefine the run commands for security reasons.
 			link.newPacket();
@@ -342,8 +356,8 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 		Map<Expr, ExprAndMessages> cache = null;
 		for (int i = 0; i < args.length; i++) {
 			if (args[i].equalsIgnoreCase("--load-cache")) {
-//				if (args.length >= i)
-//					;
+				// if (args.length >= i)
+				// ;
 				String cachefile = args[++i];
 				FileInputStream stream = new FileInputStream(cachefile);
 
@@ -391,7 +405,8 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see de.uka.ilkd.key.dl.IKernelLinkWrapper#evaluate(com.wolfram.jlink.Expr)
+	 * @see
+	 * de.uka.ilkd.key.dl.IKernelLinkWrapper#evaluate(com.wolfram.jlink.Expr)
 	 */
 	public synchronized ExprAndMessages evaluate(Expr expr, long timeout)
 			throws RemoteException, ServerStatusProblemException,
@@ -432,9 +447,9 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 			log(Level.INFO, "Time: "
 					+ SimpleDateFormat.getTimeInstance().format(curTime));
 			log(Level.FINEST, "Checking cache");
-                        
-                        // hier einsetzen: Timo Michelsen
-                        
+
+			// hier einsetzen: Timo Michelsen
+
 			if (allowCache && cache.containsKey(expr)) {
 				cachedAnwsers++;
 				log(Level.FINEST, "Returning cached anwser!");
@@ -455,7 +470,8 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 			// wrap inside exception checks
 			Expr check = new Expr(new Expr(Expr.SYMBOL, "Check"), new Expr[] {
 					compute, new Expr("$Exception"), mBlist });
-			if (DEBUG) System.out.println(check);// XXX
+			if (DEBUG)
+				System.out.println(check);// XXX
 			link.evaluate(check);
 			testForError(link);
 			log(Level.FINEST, "Waiting for anwser.");
@@ -479,8 +495,8 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 				Expr msg = link.getExpr();
 				throw new UnsolveableException("Cannot solve "
 						+ compute.toString() + " because message " + msg
-						+ " of the messages in " + Arrays.toString(messageBlacklist)
-						+ " occured");
+						+ " of the messages in "
+						+ Arrays.toString(messageBlacklist) + " occured");
 			} else if (result.toString().equals(expr.toString())) {
 				throw new UnsolveableException(
 						"Mathematica returned the identity of the query: "
@@ -617,7 +633,8 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 		} catch (UnsolveableException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			throw new IllegalStateException("this is not supposed to happen: " + e);
+			throw new IllegalStateException("this is not supposed to happen: "
+					+ e);
 		} catch (ExprFormatException e) {
 			throw new IllegalStateException(
 					"this result is not supposed to happen: " + e);
@@ -692,7 +709,7 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 				 * 
 				 * @see java.lang.Thread#run()
 				 */
-				/*@Override*/
+				/* @Override */
 				public void run() {
 					while (!socket.isClosed()) {
 						try {
@@ -714,7 +731,7 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 				 * 
 				 * @see java.lang.Thread#run()
 				 */
-				/*@Override*/
+				/* @Override */
 				public void run() {
 					while (bound) {
 						try {
