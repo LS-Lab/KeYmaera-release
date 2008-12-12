@@ -1117,7 +1117,7 @@ public class DLOptionBean implements Settings {
 	 * @return TODO documentation since Jun 9, 2008
 	 */
 	public void setGroebnerBasisCalculator(String groebnerBasisCalculator) {
-		if (this.groebnerBasisCalculator.equals(groebnerBasisCalculator)) {
+		if (!this.groebnerBasisCalculator.equals(groebnerBasisCalculator)) {
 			this.groebnerBasisCalculator = groebnerBasisCalculator;
 			firePropertyChanged();
 		}
