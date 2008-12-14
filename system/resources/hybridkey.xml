@@ -3,7 +3,7 @@
   <MathSolver> 
 	<class>de.uka.ilkd.key.dl.arithmetics.impl.mathematica.Mathematica</class>
 	<mathkernel>
-		-linkmode launch -linkname 'MathKernel -mathlink'
+		-linkmode launch -linkname '/Applications/Mathematica.app/Contents/MacOS/MathKernel -mathlink'
 	</mathkernel>
 	<server>
 		<ip>localhost</ip>

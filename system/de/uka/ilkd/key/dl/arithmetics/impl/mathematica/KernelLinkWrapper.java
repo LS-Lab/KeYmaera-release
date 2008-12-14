@@ -508,14 +508,15 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 			log(Level.FINEST, "New packet");
 			link.newPacket();
 			testForError(link);
-			log(Level.FINEST, "Checking for messages");
+			/*log(Level.FINEST, "Checking for messages");
 			// link.evaluate("Messages[" + compute.head().toString() + "]");
 			link.evaluate("$MessageList");
 			link.waitForAnswer();
 			Expr msg = link.getExpr();
 			log(Level.INFO, msg.toString());
 			log(Level.FINEST, "New packet");
-			link.newPacket();
+			link.newPacket();*/
+			Expr msg = new Expr(new Expr(Expr.SYMBOL, "LIST"), new Expr[0]);
 			log(Level.FINEST, "Returning anwser...");
 			long newTime = System.currentTimeMillis();
 			long time = (newTime - curTime);
