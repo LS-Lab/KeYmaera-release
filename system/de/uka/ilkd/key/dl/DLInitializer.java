@@ -234,7 +234,7 @@ public class DLInitializer {
 					public void run() {
 						Main.getInstance().addTab("Hybrid Strategy",
 								customizerPane,
-								DLOptionBeanBeanInfo.DESCRIPTION);
+								DLOptionBeanBeanInfo.DESCRIPTION, 1);
 					}
 
 				});

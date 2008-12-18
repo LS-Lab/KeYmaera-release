@@ -544,6 +544,11 @@ public class Main extends JFrame implements IMain {
     public void addTab(String tabname, JComponent view, String description) {
 	tabbedPane.addTab(tabname, null, view, description);
     }
+
+    /** adds a new tab */
+    public void addTab(String tabname, JComponent view, String description, int index) {
+	tabbedPane.insertTab(tabname, null, view, description, index);
+    }
     
     /** sets the tool bar */
     private void setToolBar(JToolBar bar) {
