@@ -60,12 +60,7 @@ if [ "$UNAME" = "darwin" ] ; then
     # we do not need it in macosX
     #JDK_TOOLS_JAR=$JAVA_HOME/Home/lib/ext/jpda.jar
     JAVA=$JRE/bin/java
-	if [ "d"$1 = "ddl" || "d"$1 = "dDl" || "d"$1 = "ddL" || "d"$1 = "dDL"]; then 
-	    JAVA_OPTIONS=$JAVA_OPTIONS\ -Xdock:name="KeYmaera"
-	else
-	    JAVA_OPTIONS=$JAVA_OPTIONS\ -Xdock:name="KeY"
-	fi
-	JAVA_OPTIONS=$JAVA_OPTIONS\ -Dcom.apple.macos.useScreenMenuBar=true\ -Dcom.apple.macos.smallTabs=true
+	JAVA_OPTIONS=$JAVA_OPTIONS\ -Xdock:name="KeY" -Dcom.apple.macos.useScreenMenuBar=true\ -Dcom.apple.macos.smallTabs=true
 # other OS
 else
     JRE=$JAVA_HOME/jre
