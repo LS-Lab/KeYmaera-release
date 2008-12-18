@@ -60,7 +60,7 @@ if [ "$UNAME" = "darwin" ] ; then
     JDK_UI_JAR=$JAVA_HOME/Classes/ui.jar
     # we do not need it in macosX
     #JDK_TOOLS_JAR=$JAVA_HOME/Home/lib/ext/jpda.jar
-	JAVA_OPTIONS=$JAVA_OPTIONS\ -Xdock:name="KeYmaera Server Console" -Dcom.apple.macos.useScreenMenuBar=true\ -Dcom.apple.macos.smallTabs=true
+	JAVA_OPTIONS=$JAVA_OPTIONS\ -Xdock:name="KeYmaera Server Console"\ -Dcom.apple.macos.useScreenMenuBar=true\ -Dcom.apple.macos.smallTabs=true
     JAVA=$JRE/bin/java
 # other OS
 else
