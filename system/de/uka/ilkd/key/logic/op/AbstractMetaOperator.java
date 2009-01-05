@@ -25,6 +25,7 @@ import de.uka.ilkd.key.dl.rules.metaconstruct.DLUnwindLoop;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DNFTransformer;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DiffFin;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DiffInd;
+import de.uka.ilkd.key.dl.rules.metaconstruct.Evaluate;
 import de.uka.ilkd.key.dl.rules.metaconstruct.FullSimplify;
 import de.uka.ilkd.key.dl.rules.metaconstruct.ImplicationIntroductor;
 import de.uka.ilkd.key.dl.rules.metaconstruct.ODESolve;
@@ -240,6 +241,8 @@ public abstract class AbstractMetaOperator extends Op implements MetaOperator {
 
 	public static final AbstractMetaOperator DL_IMPLICATION = new ImplicationIntroductor();
 
+	public static final AbstractMetaOperator EVALUATE = new Evaluate ();
+	
     protected TermFactory termFactory = TermFactory.DEFAULT;
 
     private int arity;
