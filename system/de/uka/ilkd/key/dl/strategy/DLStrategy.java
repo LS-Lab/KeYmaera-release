@@ -25,6 +25,7 @@ import java.util.Set;
 import java.util.WeakHashMap;
 
 import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
+import de.uka.ilkd.key.dl.logic.ldt.RealLDT;
 import de.uka.ilkd.key.dl.options.DLOptionBean;
 import de.uka.ilkd.key.dl.options.DLOptionBean.ApplyRules;
 import de.uka.ilkd.key.dl.options.DLOptionBean.CounterexampleTest;
@@ -69,10 +70,12 @@ import de.uka.ilkd.key.dl.strategy.features.SwitchFeature.Case;
 import de.uka.ilkd.key.dl.strategy.termProjection.Buffer;
 import de.uka.ilkd.key.dl.strategy.termProjection.Generator;
 import de.uka.ilkd.key.dl.strategy.termProjection.UltimatePostProjection;
+import de.uka.ilkd.key.dl.strategy.termfeature.QuasiRealLiteralFeature;
 import de.uka.ilkd.key.java.ProgramElement;
 import de.uka.ilkd.key.logic.IteratorOfConstrainedFormula;
 import de.uka.ilkd.key.logic.Name;
 import de.uka.ilkd.key.logic.PosInOccurrence;
+import de.uka.ilkd.key.logic.op.Function;
 import de.uka.ilkd.key.proof.Goal;
 import de.uka.ilkd.key.proof.Node;
 import de.uka.ilkd.key.proof.Proof;
@@ -95,6 +98,7 @@ import de.uka.ilkd.key.strategy.feature.CountMaxDPathFeature;
 import de.uka.ilkd.key.strategy.feature.CountPosDPathFeature;
 import de.uka.ilkd.key.strategy.feature.EqNonDuplicateAppFeature;
 import de.uka.ilkd.key.strategy.feature.Feature;
+import de.uka.ilkd.key.strategy.feature.FindDepthFeature;
 import de.uka.ilkd.key.strategy.feature.FormulaAddedByRuleFeature;
 import de.uka.ilkd.key.strategy.feature.LeftmostNegAtomFeature;
 import de.uka.ilkd.key.strategy.feature.MatchedIfFeature;
@@ -110,7 +114,9 @@ import de.uka.ilkd.key.strategy.feature.SumFeature;
 import de.uka.ilkd.key.strategy.feature.TermSmallerThanFeature;
 import de.uka.ilkd.key.strategy.feature.instantiator.RuleAppBuffer;
 import de.uka.ilkd.key.strategy.termProjection.AssumptionProjection;
+import de.uka.ilkd.key.strategy.termProjection.FocusProjection;
 import de.uka.ilkd.key.strategy.termProjection.TermBuffer;
+import de.uka.ilkd.key.strategy.termfeature.TermFeature;
 
 /**
  * Strategy for proving dL formulas with hybrid programs.
@@ -178,6 +184,8 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 		super(p_proof);
 		this.stopOnFirstCE = stopOnFirstCE;
 		this.timeout = timeout;
+
+	        this.tf = new ArithTermFeatures ();
 
 		final RuleSetDispatchFeature d = RuleSetDispatchFeature.create();
 
@@ -445,6 +453,8 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 
 		counterexampleF = FindTransitionTest.INSTANCE;
 
+		setupPolySimp(d);
+		
 		completeF = SumFeature.createSum(new Feature[] {
 				AutomatedRuleFeature.INSTANCE, NotWithinMVFeature.INSTANCE,
 				simplifierF, duplicateF, ifMatchedF, d, AgeFeature.INSTANCE,
@@ -576,6 +586,28 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 					// seems useless
 					inftyConst(), isAnnotated("strengthen")));
 		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////
+	//
+	// Built-in handling of arithmetic in the same manner as in vanilla KeY
+	//
+	////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////
+
+	private void setupPolySimp( RuleSetDispatchFeature d) {
+	    
+	    bindRuleSet(d, "eval_literals",
+		        add(applyTF(FocusProjection.create(0),
+		        	    add(not(tf.literal),
+                		        rec(any(), or(op(tf.add), op(tf.sub),
+                			           or(op(tf.mul), op(tf.div),
+				                   or(op(tf.pow), op(tf.neg),
+				                      tf.literal)))))),
+		            FindDepthFeature.INSTANCE,
+                            longConst(-8000)));
+
 	}
 
 	////////////////////////////////////////////////////////////////////////////
@@ -979,5 +1011,43 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 	protected <G> Feature sum(Buffer<G> x, Generator<G> gen, Feature body) {
 		return de.uka.ilkd.key.dl.strategy.termProjection.SumFeature.create(x,
 				gen, body);
+	}
+	
+	////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////
+	//
+	// Termfeatures: characterisations of terms and formulas
+	//
+	////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////
+
+	private final ArithTermFeatures tf;
+	    
+	private class ArithTermFeatures {
+
+	    public ArithTermFeatures () {
+		literal = QuasiRealLiteralFeature.INSTANCE;
+		
+		add = RealLDT.getFunctionFor(de.uka.ilkd.key.dl.model.Plus.class);
+		sub = RealLDT.getFunctionFor(de.uka.ilkd.key.dl.model.Minus.class);
+		mul = RealLDT.getFunctionFor(de.uka.ilkd.key.dl.model.Mult.class);
+		div = RealLDT.getFunctionFor(de.uka.ilkd.key.dl.model.Div.class);
+		pow = RealLDT.getFunctionFor(de.uka.ilkd.key.dl.model.Exp.class);
+		neg = RealLDT.getFunctionFor(de.uka.ilkd.key.dl.model.MinusSign.class);
+		
+		evaluableTerm = rec(any(), or(op(add), op(sub),
+   			                   or(op(mul), op(div),
+			                   or(op(pow), literal))));
+	    }
+	    
+	    final Function add;        
+	    final Function sub;
+	    final Function mul;
+	    final Function div;
+	    final Function pow;
+	    final Function neg;
+
+	    final TermFeature literal;
+	    final TermFeature evaluableTerm;
 	}
 }
