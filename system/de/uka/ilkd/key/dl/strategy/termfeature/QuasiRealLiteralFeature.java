@@ -36,11 +36,53 @@ import de.uka.ilkd.key.strategy.termfeature.TermFeature;
  * is fully normalised. Such a term can be an integer literal or a proper
  * irreducible fraction with a positive denominator.
  */
-public class QuasiRealLiteralFeature extends BinaryTermFeature {
+public abstract class QuasiRealLiteralFeature extends BinaryTermFeature {
 
-    public static final TermFeature INSTANCE = new QuasiRealLiteralFeature ();
-    
+    public static final TermFeature ANY = new QuasiRealLiteralFeature () {
+        protected boolean checkValue(BigInteger num, BigInteger denom) {
+            return true;
+        }
+    };
+
+    public static final TermFeature ZERO = new QuasiRealLiteralFeature () {
+        protected boolean checkValue(BigInteger num, BigInteger denom) {
+            return num.signum() == 0;
+        }
+    };
+
+    public static final TermFeature ONE = new QuasiRealLiteralFeature () {
+        protected boolean checkValue(BigInteger num, BigInteger denom) {
+            return num.equals(BigInteger.ONE) && denom.equals(BigInteger.ONE);
+        }
+    };
+
+    public static final TermFeature POSITIVE = new QuasiRealLiteralFeature () {
+        protected boolean checkValue(BigInteger num, BigInteger denom) {
+            return num.signum() > 0;
+        }
+    };
+
+    public static final TermFeature NEGATIVE = new QuasiRealLiteralFeature () {
+        protected boolean checkValue(BigInteger num, BigInteger denom) {
+            return num.signum() < 0;
+        }
+    };
+
+    public static final TermFeature NON_POSITIVE = new QuasiRealLiteralFeature () {
+        protected boolean checkValue(BigInteger num, BigInteger denom) {
+            return num.signum() >= 0;
+        }
+    };
+
+    public static final TermFeature NON_NEGATIVE = new QuasiRealLiteralFeature () {
+        protected boolean checkValue(BigInteger num, BigInteger denom) {
+            return num.signum() <= 0;
+        }
+    };
+
     private QuasiRealLiteralFeature () {}
+    
+    protected abstract boolean checkValue(BigInteger num, BigInteger denom);
     
     protected boolean filter(Term term) {
 	if (term.op() == RealLDT.getFunctionFor(Div.class)) {
@@ -50,10 +92,14 @@ public class QuasiRealLiteralFeature extends BinaryTermFeature {
 	    BigInteger denom = new BigInteger (term.sub(1).op().name().toString());
 	    return num.signum() != 0 &&
 	           denom.compareTo(BigInteger.ONE) > 0 &&
-	           num.gcd(denom).equals(BigInteger.ONE);
+	           num.gcd(denom).equals(BigInteger.ONE) &&
+	           checkValue(num, denom);
 	}
 	 
-	return isIntLiteral(term);
+	if (!isIntLiteral(term))
+	    return false;
+        BigInteger num = new BigInteger (term.op().name().toString());
+        return checkValue(num, BigInteger.ONE);
     }
     
     private final static Pattern anyInt = Pattern.compile("0|-?[1-9]\\d*");

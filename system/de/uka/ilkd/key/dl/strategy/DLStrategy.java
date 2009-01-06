@@ -596,19 +596,48 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 	////////////////////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////////////
 
-	private void setupPolySimp( RuleSetDispatchFeature d) {
-	    
-	    bindRuleSet(d, "eval_literals",
-		        add(applyTF(FocusProjection.create(0),
-		        	    add(not(tf.literal),
-                		        rec(any(), or(op(tf.add), op(tf.sub),
-                			           or(op(tf.mul), op(tf.div),
-				                   or(op(tf.pow), op(tf.neg),
-				                      tf.literal)))))),
-		            FindDepthFeature.INSTANCE,
-                            longConst(-8000)));
+    private void setupArithPrimaryCategories(RuleSetDispatchFeature d) {
+        // Gaussian elimination + Euclidian algorithm for linear equations;
+        // Buchberger's algorithmus for handling polynomial equations over
+        // the integers
+            
+        bindRuleSet ( d, "polySimp_expand", -4500 );
+        bindRuleSet ( d, "polySimp_directEquations", -3000 );
+        bindRuleSet ( d, "polySimp_pullOutGcd", -2250 );
+        bindRuleSet ( d, "polySimp_leftNonUnit", -2000 );
+        bindRuleSet ( d, "polySimp_saturate", 0 );
+    }
 
-	}
+    private void setupPolySimp( RuleSetDispatchFeature d) {
+	    
+        // computations on concrete literals
+		
+        bindRuleSet(d, "eval_literals",
+                add(applyTF(FocusProjection.create(0),
+                            add(not(tf.literal),
+            		        rec(any(), or(op(tf.add), op(tf.sub),
+                		              or(op(tf.mul), op(tf.div),
+				              or(op(tf.pow), op(tf.neg),
+				                 tf.literal)))))),
+		    FindDepthFeature.INSTANCE,
+		    longConst(-8000)));
+
+        // category "expansion" (normalising polynomial terms)
+        
+        bindRuleSet ( d, "polySimp_elimSubNeg", longConst ( -120 ) );
+
+        bindRuleSet ( d, "polySimp_elimOneLeft", -120 );
+
+        bindRuleSet ( d, "polySimp_elimOneRight", -120 );
+
+        bindRuleSet ( d, "polySimp_homo",
+                add ( applyTF ( "homoRight",
+                                add ( not ( tf.zeroLiteral ), tf.polynomial ) ),
+                      or ( applyTF ( "homoLeft", or ( tf.addF, tf.negMonomial ) ),
+                           not ( monSmallerThan ( "homoRight", "homoLeft", numbers) ) ),
+                      longConst ( -120 ) ) );
+
+    }
 
 	////////////////////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////////////
@@ -1026,7 +1055,7 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 	private class ArithTermFeatures {
 
 	    public ArithTermFeatures () {
-		literal = QuasiRealLiteralFeature.INSTANCE;
+		literal = QuasiRealLiteralFeature.ANY;
 		
 		add = RealLDT.getFunctionFor(de.uka.ilkd.key.dl.model.Plus.class);
 		sub = RealLDT.getFunctionFor(de.uka.ilkd.key.dl.model.Minus.class);
@@ -1035,9 +1064,6 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 		pow = RealLDT.getFunctionFor(de.uka.ilkd.key.dl.model.Exp.class);
 		neg = RealLDT.getFunctionFor(de.uka.ilkd.key.dl.model.MinusSign.class);
 		
-		evaluableTerm = rec(any(), or(op(add), op(sub),
-   			                   or(op(mul), op(div),
-			                   or(op(pow), literal))));
 	    }
 	    
 	    final Function add;        
@@ -1048,6 +1074,5 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 	    final Function neg;
 
 	    final TermFeature literal;
-	    final TermFeature evaluableTerm;
 	}
 }
