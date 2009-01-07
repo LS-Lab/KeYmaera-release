@@ -28,6 +28,7 @@ import de.uka.ilkd.key.dl.logic.ldt.RealLDT;
 import de.uka.ilkd.key.dl.model.Div;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.op.RigidFunction;
+import de.uka.ilkd.key.strategy.TopRuleAppCost;
 import de.uka.ilkd.key.strategy.termfeature.BinaryTermFeature;
 import de.uka.ilkd.key.strategy.termfeature.TermFeature;
 
@@ -53,6 +54,12 @@ public abstract class QuasiRealLiteralFeature extends BinaryTermFeature {
     public static final TermFeature ONE = new QuasiRealLiteralFeature () {
         protected boolean checkValue(BigInteger num, BigInteger denom) {
             return num.equals(BigInteger.ONE) && denom.equals(BigInteger.ONE);
+        }
+    };
+
+    public static final TermFeature INTEGER = new QuasiRealLiteralFeature () {
+        protected boolean checkValue(BigInteger num, BigInteger denom) {
+            return denom.equals(BigInteger.ONE);
         }
     };
 
@@ -110,5 +117,9 @@ public abstract class QuasiRealLiteralFeature extends BinaryTermFeature {
 	    return false;
 	Matcher m = anyInt.matcher(term.op().name().toString());
 	return m.matches();
+    }
+    
+    public static boolean isLiteral(Term term) {
+        return !(ANY.compute(term) instanceof TopRuleAppCost);
     }
 }
