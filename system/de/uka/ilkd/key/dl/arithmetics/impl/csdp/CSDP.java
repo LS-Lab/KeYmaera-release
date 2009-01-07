@@ -21,9 +21,6 @@ package de.uka.ilkd.key.dl.arithmetics.impl.csdp;
 
 import java.util.Arrays;
 
-import de.uka.ilkd.key.dl.arithmetics.impl.csdp.Blockmat.blockmatrix;
-import de.uka.ilkd.key.dl.arithmetics.impl.csdp.Blockmat.constraintmatrix;
-
 /**
  * @author jdq
  * 
@@ -64,29 +61,27 @@ public class CSDP {
 	 *            gives the optimal primal objective value
 	 * @param pdobj
 	 *            gives the optimal dual objective value
-	 * @return
-	 *            <ul>
-	 *            <li> 0: Success. Problem is solvable
-	 *            <li> 1: Success. The problem is primal infeasible.
-	 *            <li> 2: Success. The problem is dual infeasible.
-	 *            <li> 3: Partial Success: A solution has been found, but full
-	 *            accuracy was not achieved. One or more of primal
-	 *            infeasibility, dual infeasibility, or relative duality gap are
-	 *            larger than their tolerances, but by a factor of less than
-	 *            1000.
-	 *            <li> 4: Failure. Maximum iterations reached.
-	 *            <li> 5: Failure. Stuck at edge of primal feasibility.
-	 *            <li> 6: Failure. Stuck at edge of dual infeasibility.
-	 *            <li> 7: Failure. Lack of progress.
-	 *            <li> 8: Failure. X, Z, or O was singular.
-	 *            <li> 9: Failure. Detected NaN or Inf values.
-	 *            </ul>
+	 * @return <ul>
+	 *         <li>0: Success. Problem is solvable
+	 *         <li>1: Success. The problem is primal infeasible.
+	 *         <li>2: Success. The problem is dual infeasible.
+	 *         <li>3: Partial Success: A solution has been found, but full
+	 *         accuracy was not achieved. One or more of primal infeasibility,
+	 *         dual infeasibility, or relative duality gap are larger than their
+	 *         tolerances, but by a factor of less than 1000.
+	 *         <li>4: Failure. Maximum iterations reached.
+	 *         <li>5: Failure. Stuck at edge of primal feasibility.
+	 *         <li>6: Failure. Stuck at edge of dual infeasibility.
+	 *         <li>7: Failure. Lack of progress.
+	 *         <li>8: Failure. X, Z, or O was singular.
+	 *         <li>9: Failure. Detected NaN or Inf values.
+	 *         </ul>
 	 */
 	private static native int easySDP(int n, int k, double[] blockmatrixC,
 			double[] a, double[] constraints, double constant_offset,
 			double[] blockmatrixpX, double[] py, double[] blockmatrixpZ,
 			double[] ppobj, double[] pdobj);
-	
+
 	@SuppressWarnings("unused")
 	private static native int test2(int n, int k, double[] blockmatrixC,
 			double[] a, double[] constraints, double constant_offset,
@@ -94,17 +89,24 @@ public class CSDP {
 			double[] ppobj, double[] pdobj);
 
 	private static native int test();
-	
+
 	public static boolean sdp(int n, int k, double[] a, double[] constraints) {
-		double[] X = new double[n*n], 
-		y = new double[a.length], 
-		Z = new double[n*n], 
-		pobj = new double[n], 
-		dobj = new double[a.length];
-		System.out.println("n is: " + n);//XXX
-		System.out.println("a is: " + Arrays.toString(a));//XXX
-		System.out.println("constraints is: " + Arrays.toString(constraints));//XXX
-		return easySDP(n, k, new double[n*n], a, constraints, 0, X, y, Z, pobj, dobj) == 0;
+		double[] X = new double[n * n], y = new double[a.length], Z = new double[n
+				* n], pobj = new double[n], dobj = new double[a.length];
+		System.out.println("n is: " + n);// XXX
+		System.out.println("a is: " + Arrays.toString(a));// XXX
+		System.out.println("constraints is: " + Arrays.toString(constraints));// XXX
+		int result = easySDP(n, k, new double[n * n], a, constraints, 0, X, y,
+				Z, pobj, dobj);
+		// TODO: check that X is really an PSD matrix and that it yields a
+		// solution when using exact arithmetics
+
+		// check can either be checked by cholesky decomposition or by harrissions algorithm 
+		
+		
+		// TODO: guess fractions for those doubles, as they may be caused by
+		// rounding errors
+		return result == 0;
 	}
 
 	public static void main(String[] args) {
@@ -113,45 +115,31 @@ public class CSDP {
 		System.loadLibrary("m");
 		System.loadLibrary("csdp");
 		// System.loadLibrary("sdp");
-		
+
 		test();
-		
+
 		int n = 7;
-		
-		double[] constraints = new double[] { 
-				3, 1, 0, 0, 0, 0, 0,
-				1, 3, 0, 0, 0, 0, 0, 
-				0, 0, 0, 0, 0, 0, 0, 
-				0, 0, 0, 0, 0, 0, 0, 
-				0, 0, 0, 0, 0, 0, 0, 
-				0, 0, 0, 0, 0, 1, 0, 
-				0, 0, 0, 0, 0, 0, 0,
-					
-					0, 0, 0, 0, 0, 0, 0,
-					 0, 0, 0, 0, 0, 0, 0,
-					 0, 0, 3, 0, 1, 0, 0,
-					 0, 0, 0, 4, 0, 0, 0,
-					 0, 0, 1, 0, 5, 0, 0,
-					 0, 0, 0, 0, 0, 0, 0,
-					 0, 0, 0, 0, 0, 0, 1
-					};
+
+		double[] constraints = new double[] { 3, 1, 0, 0, 0, 0, 0, 1, 3, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0,
+
+				0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 1, 0, 0,
+				0, 0, 0, 4, 0, 0, 0, 0, 0, 1, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 1 };
 		double[] C = new double[] { 2, 1, 0, 0, 0, 0, 0, 1, 2, 0, 0, 0, 0, 0,
 				0, 0, 3, 0, 1, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 1, 0, 3, 0, 0,
 				0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-		double[] a = new double[] { 1,2 };
-		double[] X = new double[C.length], 
-		y = new double[a.length], 
-		Z = new double[C.length], 
-		pobj = new double[n], 
-		dobj = new double[a.length];
-		
+		double[] a = new double[] { 1, 2 };
+		double[] X = new double[C.length], y = new double[a.length], Z = new double[C.length], pobj = new double[n], dobj = new double[a.length];
+
 		easySDP(7, 2, convertToFortranForm(C, 7), a, constraints, 0, X, y, Z,
 				pobj, dobj);
-		System.out.println("X: " + Arrays.toString(X));//XXX
-		System.out.println("y: " + Arrays.toString(y));//XXX
-		System.out.println("Z: " + Arrays.toString(Z));//XXX
-		System.out.println("pobj: " + Arrays.toString(pobj));//XXX
-		System.out.println("dobj: " + Arrays.toString(dobj));//XXX
+		System.out.println("X: " + Arrays.toString(X));// XXX
+		System.out.println("y: " + Arrays.toString(y));// XXX
+		System.out.println("Z: " + Arrays.toString(Z));// XXX
+		System.out.println("pobj: " + Arrays.toString(pobj));// XXX
+		System.out.println("dobj: " + Arrays.toString(dobj));// XXX
 	}
 
 	private static double[] convertToFortranForm(double[] array, int dim) {
@@ -160,13 +148,14 @@ public class CSDP {
 		for (int i = 0; i < dim; i++) {
 			for (int j = 0; j < dim; j++) {
 				tmp[i][j] = array[j + i * dim];
-				System.out.println("Setting pos (" + i + ", " + j + ")" + " to value " + array[j + i * dim]);//XXX
+				System.out.println("Setting pos (" + i + ", " + j + ")"
+						+ " to value " + array[j + i * dim]);// XXX
 			}
 		}
 
 		for (int i = 0; i < dim; i++) {
 			for (int j = 0; j < dim; j++) {
-				result[j + dim*i] = tmp[j][i]; 
+				result[j + dim * i] = tmp[j][i];
 			}
 		}
 		return result;
