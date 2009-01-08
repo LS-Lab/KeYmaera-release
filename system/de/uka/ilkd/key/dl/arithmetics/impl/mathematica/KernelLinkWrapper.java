@@ -313,11 +313,11 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 		OutputStream amcdump = null;
 		try {
 			amcresource = new BufferedInputStream(getClass()
-					.getResourceAsStream(RESOURCES + "AMC.mx"));
+					.getResourceAsStream(RESOURCES + "AMC.m"));
 			if (amcresource == null) {
 				return null;
 			}
-			this.amc = File.createTempFile("AMCdump", ".mx");
+			this.amc = File.createTempFile("AMCdump", ".m");
 			amc.deleteOnExit();
 			amcdump = new BufferedOutputStream(new FileOutputStream(amc));
 			final byte[] buffer = new byte[4096];
