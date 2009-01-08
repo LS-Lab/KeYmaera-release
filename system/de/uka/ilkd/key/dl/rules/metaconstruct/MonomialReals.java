@@ -10,6 +10,9 @@
 
 package de.uka.ilkd.key.dl.rules.metaconstruct;
 
+import java.math.BigInteger;
+
+import orbital.math.AlgebraicAlgorithms;
 import orbital.math.Arithmetic;
 import orbital.moon.math.ValuesImpl;
 
@@ -19,6 +22,8 @@ import de.uka.ilkd.key.dl.strategy.termfeature.QuasiRealLiteralFeature;
 import de.uka.ilkd.key.logic.*;
 import de.uka.ilkd.key.logic.op.Operator;
 import de.uka.ilkd.key.logic.op.TermSymbol;
+import de.uka.ilkd.key.rule.metaconstruct.arith.Monomial;
+import de.uka.ilkd.key.util.Debug;
 import de.uka.ilkd.key.util.LRUCache;
 
 /**
@@ -116,7 +121,31 @@ public class MonomialReals {
                                    m.coefficient.divide(this.coefficient) );
     }
     
-    
+    /**
+     * @return the result of dividing the least common reducible (LCR) of
+     *         monomial <code>m</code> and <code>this</code> by the monomial
+     *         <code>this</code>
+     */
+    public MonomialReals divideLCR(MonomialReals m) {
+        Debug.assertFalse ( coefficient.isZero() );
+        Debug.assertFalse ( m.coefficient.isZero() );
+        
+        final ListOfTerm newParts = difference ( m.parts, this.parts );
+
+        final Arithmetic gcd;
+        if (coefficient instanceof orbital.math.Integer &&
+            m.coefficient instanceof orbital.math.Integer) {
+            // try to avoid the introduction of fractions if both coefficients
+            // are integer
+            gcd = AlgebraicAlgorithms.gcd((orbital.math.Integer)coefficient,
+                                          (orbital.math.Integer)m.coefficient);
+        } else {
+            gcd = ValuesImpl.getDefault().ONE();
+        }
+        
+        return new MonomialReals ( newParts, m.coefficient.divide ( gcd ) );
+    }
+
     public Term toTerm () {
         final TermSymbol mul =
             RealLDT.getFunctionFor(de.uka.ilkd.key.dl.model.Mult.class);

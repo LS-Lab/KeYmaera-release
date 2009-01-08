@@ -69,6 +69,7 @@ import de.uka.ilkd.key.dl.strategy.features.ReducibleMonomialsFeature;
 import de.uka.ilkd.key.dl.strategy.features.SimplifyFeature;
 import de.uka.ilkd.key.dl.strategy.features.SwitchFeature;
 import de.uka.ilkd.key.dl.strategy.features.TimeoutTestApplicationFeature;
+import de.uka.ilkd.key.dl.strategy.features.TrivialMonomialLCRFeature;
 import de.uka.ilkd.key.dl.strategy.features.SwitchFeature.Case;
 import de.uka.ilkd.key.dl.strategy.termProjection.Buffer;
 import de.uka.ilkd.key.dl.strategy.termProjection.Generator;
@@ -792,6 +793,15 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 
         bindRuleSet ( d, "polySimp_applyEqRigid",
                       add ( eq_monomial_feature, longConst ( 2 ) ) );
+
+        // category "saturate"
+        
+        bindRuleSet ( d, "polySimp_critPair",
+           ifZero ( MatchedIfFeature.INSTANCE,
+                    add ( monSmallerThan ( "cpLeft1", "cpLeft2" ),
+                          not ( TrivialMonomialLCRFeature
+                                .create ( instOf ( "cpLeft1" ),
+                                          instOf ( "cpLeft2" ) ) ) ) ) );
 
     }
 

@@ -109,8 +109,8 @@ public class MonomialsSmallerThanFeature extends AbstractMonomialSmallerThanFeat
         int res = 0;
         
         if ( t.op () == mul
-             && QuasiRealLiteralFeature.isLiteral(t.sub ( 0 ))
-             && QuasiRealLiteralFeature.isLiteral(t.sub ( 1 )) )
+             && !QuasiRealLiteralFeature.isLiteral(t.sub ( 0 ))
+             && !QuasiRealLiteralFeature.isLiteral(t.sub ( 1 )) )
             ++res;
 
         for ( int i = 0; i != t.arity (); ++i )
