@@ -65,6 +65,7 @@ import de.uka.ilkd.key.dl.strategy.features.OnlyOncePerBranchFeature;
 import de.uka.ilkd.key.dl.strategy.features.PostDiffStrengthFeature;
 import de.uka.ilkd.key.dl.strategy.features.ProgramSVInstantiationCP;
 import de.uka.ilkd.key.dl.strategy.features.ReduceFeature;
+import de.uka.ilkd.key.dl.strategy.features.ReducibleMonomialsFeature;
 import de.uka.ilkd.key.dl.strategy.features.SimplifyFeature;
 import de.uka.ilkd.key.dl.strategy.features.SwitchFeature;
 import de.uka.ilkd.key.dl.strategy.features.TimeoutTestApplicationFeature;
@@ -77,10 +78,11 @@ import de.uka.ilkd.key.java.ProgramElement;
 import de.uka.ilkd.key.logic.IteratorOfConstrainedFormula;
 import de.uka.ilkd.key.logic.Name;
 import de.uka.ilkd.key.logic.PosInOccurrence;
-import de.uka.ilkd.key.logic.ldt.IntegerLDT;
 import de.uka.ilkd.key.logic.op.Function;
+import de.uka.ilkd.key.logic.op.IUpdateOperator;
 import de.uka.ilkd.key.logic.op.Op;
 import de.uka.ilkd.key.logic.op.Operator;
+import de.uka.ilkd.key.logic.sort.Sort;
 import de.uka.ilkd.key.proof.Goal;
 import de.uka.ilkd.key.proof.Node;
 import de.uka.ilkd.key.proof.Proof;
@@ -98,12 +100,13 @@ import de.uka.ilkd.key.strategy.feature.CheckApplyEqFeature;
 import de.uka.ilkd.key.strategy.feature.ConditionalFeature;
 import de.uka.ilkd.key.strategy.feature.ConstraintStrengthenFeature;
 import de.uka.ilkd.key.strategy.feature.ConstraintStrengthenFeatureUC;
-import de.uka.ilkd.key.strategy.feature.ContainsQuantifierFeature;
 import de.uka.ilkd.key.strategy.feature.CountMaxDPathFeature;
 import de.uka.ilkd.key.strategy.feature.CountPosDPathFeature;
+import de.uka.ilkd.key.strategy.feature.DirectlyBelowSymbolFeature;
 import de.uka.ilkd.key.strategy.feature.EqNonDuplicateAppFeature;
 import de.uka.ilkd.key.strategy.feature.Feature;
 import de.uka.ilkd.key.strategy.feature.FindDepthFeature;
+import de.uka.ilkd.key.strategy.feature.FindRightishFeature;
 import de.uka.ilkd.key.strategy.feature.FormulaAddedByRuleFeature;
 import de.uka.ilkd.key.strategy.feature.LeftmostNegAtomFeature;
 import de.uka.ilkd.key.strategy.feature.MatchedIfFeature;
@@ -121,6 +124,7 @@ import de.uka.ilkd.key.strategy.feature.instantiator.RuleAppBuffer;
 import de.uka.ilkd.key.strategy.termProjection.AssumptionProjection;
 import de.uka.ilkd.key.strategy.termProjection.FocusProjection;
 import de.uka.ilkd.key.strategy.termProjection.TermBuffer;
+import de.uka.ilkd.key.strategy.termfeature.OperatorClassTF;
 import de.uka.ilkd.key.strategy.termfeature.TermFeature;
 
 /**
@@ -261,7 +265,7 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 						ScaleFeature.createScaled(
 								CountMaxDPathFeature.INSTANCE, 10.0) }));
 
-		final TermBuffer equation = new TermBuffer();
+/*		final TermBuffer equation = new TermBuffer();
 		bindRuleSet(d, "apply_equations", add(ifZero(MatchedIfFeature.INSTANCE,
 				add(CheckApplyEqFeature.INSTANCE, let(equation,
 						AssumptionProjection.create(0), TermSmallerThanFeature
@@ -271,7 +275,7 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 						NotBelowQuantifierFeature.INSTANCE, ifZero(
 								ContainsQuantifierFeature.INSTANCE,
 								inftyConst()))), longConst(-4000)));
-
+*/
 		bindRuleSet(d, "order_terms", add(TermSmallerThanFeature.create(
 				instOf("commEqLeft"), instOf("commEqRight")), longConst(-8000)));
 
@@ -453,6 +457,8 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 
 		counterexampleF = FindTransitionTest.INSTANCE;
 
+		setupApplyEq(d);
+		
 		setupArithPrimaryCategories(d);
                 setupPolySimp(d);
 		
@@ -592,6 +598,50 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 	////////////////////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////////////
 	//
+	// Application of equations
+	//
+	////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////
+
+	private void setupApplyEq(RuleSetDispatchFeature d) {
+	    final TermBuffer equation = new TermBuffer ();
+	    final TermBuffer left = new TermBuffer (), right = new TermBuffer ();
+
+	    // applying equations less deep/less leftish in terms/formulas is preferred
+	    // this is important for reducing polynomials (start with the biggest
+	    // summands)
+	    bindRuleSet ( d, "apply_equations",
+	       SumFeature.createSum ( new Feature[] {
+	         ifZero ( applyTF ( FocusProjection.create ( 0 ), tf.realF ),
+	                  add ( applyTF ( FocusProjection.create ( 0 ),
+	                                  tf.monomial ),
+	                        ScaleFeature.createScaled
+	                        ( FindRightishFeature.create ( tf.add ), 5.0 ) ) ),
+	         ifZero ( MatchedIfFeature.INSTANCE,
+	           add (
+	           CheckApplyEqFeature.INSTANCE,
+	           let ( equation, AssumptionProjection.create ( 0 ),
+	                 add ( not ( applyTF ( equation,
+	                                       OperatorClassTF
+	                                       .create ( IUpdateOperator.class ) ) ),
+	                 // there might be updates in front of the assumption
+	                 // formula; in this case we wait until the updates have
+	                 // been applied
+	           let ( left, sub ( equation, 0 ),
+	           let ( right, sub ( equation, 1 ),
+	                 ifZero ( applyTF ( left, tf.realF ),
+	                          add ( applyTF ( left, tf.nonNegOrNonCoeffMonomial ),
+	                                applyTF ( right, tf.polynomial ),
+	                                MonomialsSmallerThanFeature
+	                                .create ( right, left ) ),
+	                          TermSmallerThanFeature.create ( right, left ) )
+	                   ) ) ) ) ) ),
+	         longConst ( -4000 ) } ) );
+	}
+
+	////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////
+	//
 	// Built-in handling of arithmetic in the same manner as in vanilla KeY
 	//
 	////////////////////////////////////////////////////////////////////////////
@@ -716,6 +766,32 @@ public class DLStrategy extends AbstractFeatureStrategy implements
                       add ( applyTF ( "invertRight", tf.zeroLiteral ),
                             applyTF ( "invertLeft", tf.negMonomial ),
                             longConst ( -30 ) ) );
+
+        // application of equations: some specialised rules that handle
+        // monomials and their coefficients properly
+
+        final TermBuffer eqLeft = new TermBuffer ();
+        final TermBuffer focus = new TermBuffer ();
+
+        final Feature validEqApplication =
+            add ( not ( eq ( eqLeft, focus ) ),
+                  applyTF ( focus, not ( tf.literal ) ),
+                  // otherwise, the normal equation rules can and should be used
+                  ReducibleMonomialsFeature.createDivides ( focus, eqLeft ) );
+        
+        final Feature eq_monomial_feature =
+            add ( not ( DirectlyBelowSymbolFeature.create ( tf.mul ) ),
+                  ifZero ( MatchedIfFeature.INSTANCE,
+                           let ( focus, FocusProjection.create ( 0 ),
+                           let ( eqLeft,
+                                 sub ( AssumptionProjection.create ( 0 ), 0 ), 
+                                 validEqApplication ) ) ) );
+        
+        bindRuleSet ( d, "polySimp_applyEq",
+                      add ( eq_monomial_feature, longConst ( 1 ) ) );
+
+        bindRuleSet ( d, "polySimp_applyEqRigid",
+                      add ( eq_monomial_feature, longConst ( 2 ) ) );
 
     }
 
@@ -1158,6 +1234,10 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 		divF = op(div);
                 powF = op(pow);
 
+                realS = RealLDT.getRealSort();
+                
+                realF = extendsTrans ( realS );
+
                 eq = Op.EQUALS;
                 lt = RealLDT.getFunctionFor(de.uka.ilkd.key.dl.model.Less.class);
                 gt = RealLDT.getFunctionFor(de.uka.ilkd.key.dl.model.Greater.class);
@@ -1165,7 +1245,7 @@ public class DLStrategy extends AbstractFeatureStrategy implements
                 geq = RealLDT.getFunctionFor(de.uka.ilkd.key.dl.model.GreaterEquals.class);
 
 		atom = add ( not ( addF ), not ( mulF ),
-		       add ( not ( divF ), not ( powF ) ) );
+		       add ( ifZero ( divF, literal ), not ( powF ) ) );
 
 		// left-associatively arranged monomials, literals are only allowed
 		// as right-most term
@@ -1185,6 +1265,10 @@ public class DLStrategy extends AbstractFeatureStrategy implements
                                             sub ( any (), not ( negLiteral ) ) ) );
 		posMonomial = opSub ( mul, monomial, posLiteral );            
 		negMonomial = opSub ( mul, monomial, negLiteral );            
+		nonNegOrNonCoeffMonomial =
+	            add ( monomial,
+	                  or ( not ( mulF ),
+	                       sub ( any (), not ( negLiteral ) ) ) );
 	    }
 	    
 	    final Function add;        
@@ -1200,12 +1284,16 @@ public class DLStrategy extends AbstractFeatureStrategy implements
             final Function leq;
             final Function geq;
 
+            final Sort realS;
+
 	    final TermFeature addF;
             final TermFeature subF;
             final TermFeature mulF;
             final TermFeature divF;
             final TermFeature powF;
 
+            final TermFeature realF;
+            
 	    final TermFeature atom;
 
 	    // left-associatively arranged monomials
@@ -1216,6 +1304,7 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 	    final TermFeature nonNegMonomial;
             final TermFeature posMonomial;
             final TermFeature negMonomial;
+            final TermFeature nonNegOrNonCoeffMonomial;
 
 	    final TermFeature literal = QuasiRealLiteralFeature.ANY;
             final TermFeature intLiteral = QuasiRealLiteralFeature.INTEGER;

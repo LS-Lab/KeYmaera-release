@@ -15,7 +15,6 @@ import org.w3c.dom.Node;
 import orbital.math.Arithmetic;
 import orbital.math.Integer;
 import orbital.math.Rational;
-import orbital.math.Real;
 import orbital.math.Values;
 import orbital.math.functional.Operations;
 import orbital.moon.math.ValuesImpl;
@@ -216,7 +215,7 @@ public class OrbitalSimplifier implements ISimplifier {
 
 	////////////////////////////////////////////////////////////////////////
 	
-	private Term arithmetic2Term(Arithmetic a) {
+	public static Term arithmetic2Term(Arithmetic a) {
 	    // TODO: generalise this so that we do not have to casesplit over
 	    // the different kinds of Arithmetic
 	    if (a instanceof Integer) {
@@ -225,6 +224,8 @@ public class OrbitalSimplifier implements ISimplifier {
 		return TermBuilder.DF.func(num);
 	    } else if (a instanceof Rational) {
 		final Rational norm = ((Rational)a).representative();
+		if (norm.denominator().isOne())
+		    return arithmetic2Term(norm.numerator());
 		final Term num = arithmetic2Term(norm.numerator());
 		final Term denom = arithmetic2Term(norm.denominator());
 		return TermBuilder.DF.func(RealLDT.getFunctionFor(Div.class),

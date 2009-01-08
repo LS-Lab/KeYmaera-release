@@ -24,6 +24,10 @@ import java.math.BigInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import orbital.math.Arithmetic;
+import orbital.math.ValueFactory;
+import orbital.moon.math.ValuesImpl;
+
 import de.uka.ilkd.key.dl.logic.ldt.RealLDT;
 import de.uka.ilkd.key.dl.model.Div;
 import de.uka.ilkd.key.logic.Term;
@@ -121,5 +125,17 @@ public abstract class QuasiRealLiteralFeature extends BinaryTermFeature {
     
     public static boolean isLiteral(Term term) {
         return !(ANY.compute(term) instanceof TopRuleAppCost);
+    }
+    
+    public static Arithmetic literal2Arithmetic(Term term) {
+        // we assume that the term actually denotes a literal
+        assert(isLiteral(term));
+        ValueFactory f = ValuesImpl.getDefault();
+        if (term.op() == RealLDT.getFunctionFor(Div.class)) {
+            BigInteger num = new BigInteger (term.sub(0).op().name().toString());
+            BigInteger denom = new BigInteger (term.sub(1).op().name().toString());
+            return f.rational(f.valueOf(num), f.valueOf(denom));
+        }
+        return f.valueOf(term.op().name().toString());
     }
 }
