@@ -74,6 +74,7 @@ import de.uka.ilkd.key.dl.strategy.features.SwitchFeature.Case;
 import de.uka.ilkd.key.dl.strategy.termProjection.Buffer;
 import de.uka.ilkd.key.dl.strategy.termProjection.Generator;
 import de.uka.ilkd.key.dl.strategy.termProjection.UltimatePostProjection;
+import de.uka.ilkd.key.dl.strategy.termfeature.DecimalLiteralFeature;
 import de.uka.ilkd.key.dl.strategy.termfeature.QuasiRealLiteralFeature;
 import de.uka.ilkd.key.java.ProgramElement;
 import de.uka.ilkd.key.logic.IteratorOfConstrainedFormula;
@@ -113,6 +114,7 @@ import de.uka.ilkd.key.strategy.feature.LeftmostNegAtomFeature;
 import de.uka.ilkd.key.strategy.feature.MatchedIfFeature;
 import de.uka.ilkd.key.strategy.feature.NonDuplicateAppFeature;
 import de.uka.ilkd.key.strategy.feature.NotBelowQuantifierFeature;
+import de.uka.ilkd.key.strategy.feature.NotInScopeOfModalityFeature;
 import de.uka.ilkd.key.strategy.feature.NotWithinMVFeature;
 import de.uka.ilkd.key.strategy.feature.PurePosDPathFeature;
 import de.uka.ilkd.key.strategy.feature.RuleSetDispatchFeature;
@@ -664,10 +666,12 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 	    
         // computations on concrete literals
 		
-        final TermFeature literalTerm = rec(any(), or(op(tf.add), op(tf.sub),
-                                                   or(op(tf.mul), op(tf.div),
-                                                   or(op(tf.pow), op(tf.neg),
-                                                      tf.literal))));
+        // this might be too slow ... and should maybe be written in native Java
+        final TermFeature literalTerm =
+            rec(any(), or(op(tf.add), op(tf.sub),
+                       or(op(tf.mul), op(tf.div),
+                       or(op(tf.pow), op(tf.neg),
+                       or(tf.literal, DecimalLiteralFeature.INSTANCE)))));
         
         bindRuleSet(d, "eval_literals",
                 add(applyTF(FocusProjection.create(0),
@@ -749,6 +753,14 @@ public class DLStrategy extends AbstractFeatureStrategy implements
                         applyTF ( "distSummand1", tf.polynomial ),
                         longConst ( -35 ) } ) );
 
+        bindRuleSet ( d, "polySimp_decompFract",
+           add ( not ( applyTF ( "fractNum", tf.oneLiteral ) ),
+                 not ( applyTF ( "fractDenom", tf.zeroLiteral ) ),
+                 ifZero ( applyTF ( "fractDenom", tf.literal ),
+                          add ( not ( applyTF ( "fractNum", tf.literal ) ),
+                                longConst ( -120 ) ),
+                          NotInScopeOfModalityFeature.INSTANCE ) ) );
+        
         // category "direct equations"
         
         bindRuleSet ( d, "polySimp_balance",
