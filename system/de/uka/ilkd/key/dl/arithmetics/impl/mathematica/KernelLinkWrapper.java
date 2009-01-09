@@ -85,7 +85,7 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 	private static final boolean DEBUG = false;
 
 	public static final String[][] messageBlacklist = new String[][] {
-			{ "Reduce", "nsmet" }, { "FindInstance", "nsmet" } };
+			{ "Reduce", "nsmet" }, { "FindInstance", "nsmet" }, { "Reduce", "ratnz" }};
 
 	public static Expr mBlist;
 
@@ -516,7 +516,7 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 			log(Level.INFO, msg.toString());
 			log(Level.FINEST, "New packet");
 			link.newPacket();*/
-			Expr msg = new Expr(new Expr(Expr.SYMBOL, "LIST"), new Expr[0]);
+			Expr msg = new Expr("{}");
 			log(Level.FINEST, "Returning anwser...");
 			long newTime = System.currentTimeMillis();
 			long time = (newTime - curTime);

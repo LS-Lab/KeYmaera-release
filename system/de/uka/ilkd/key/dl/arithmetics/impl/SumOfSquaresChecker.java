@@ -82,6 +82,18 @@ public class SumOfSquaresChecker {
 
 	public static final SumOfSquaresChecker INSTANCE = new SumOfSquaresChecker();
 
+	/**
+	 * Given a sequent seperated into antecedent and succedent this methods
+	 * generates a classification of all occuring inequalities, unequalities and
+	 * equalities into sets f, g and h. Where f contains all inequalities, g the
+	 * unequalities and h the equalities.
+	 * 
+	 * @param ante
+	 *            the antecedent of the sequent
+	 * @param succ
+	 *            the succedent of the sequent
+	 * @return a classification of the given terms
+	 */
 	public PolynomialClassification<Term> classify(Set<Term> ante,
 			Set<Term> succ) {
 		System.out.println("Computing f, g^2 and h");// XXX
@@ -222,6 +234,11 @@ public class SumOfSquaresChecker {
 		throw new IllegalArgumentException("Unknown operator " + op);
 	}
 
+	/**
+	 * Generate polynomials from the given term classification. The result
+	 * contains only the leftside polynomial of the inequalities, where for f
+	 * the omitted part is > 0, for g it is != 0 and for h it is = 0.
+	 */
 	public PolynomialClassification<Polynomial> classify(
 			PolynomialClassification<Term> cla) {
 		System.out.println("Try to find monominals");// XXX
@@ -287,7 +304,7 @@ public class SumOfSquaresChecker {
 
 		for (Term t : cla.f) {
 			Fraction p = createPoly(t.sub(0), vars);
-			if(p.numerator().isOne()) {
+			if (p.numerator().isOne()) {
 				polyF.add((Polynomial) p.denominator());
 			} else {
 				polyF.add((Polynomial) p.denominator().multiply(p.numerator()));
@@ -296,7 +313,7 @@ public class SumOfSquaresChecker {
 		}
 		for (Term t : cla.g) {
 			Fraction p = createPoly(t.sub(0), vars);
-			if(p.numerator().isOne()) {
+			if (p.numerator().isOne()) {
 				polyG.add((Polynomial) p.denominator());
 			} else {
 				polyG.add((Polynomial) p.denominator().multiply(p.numerator()));
@@ -305,7 +322,7 @@ public class SumOfSquaresChecker {
 		}
 		for (Term t : cla.h) {
 			Fraction p = createPoly(t.sub(0), vars);
-			if(p.numerator().isOne()) {
+			if (p.numerator().isOne()) {
 				polyH.add((Polynomial) p.denominator());
 			} else {
 				polyH.add((Polynomial) p.denominator().multiply(p.numerator()));
@@ -551,7 +568,7 @@ public class SumOfSquaresChecker {
 		 * 
 		 * @see java.lang.Object#toString()
 		 */
-		/*@Override*/
+		/* @Override */
 		public String toString() {
 			StringBuilder b = new StringBuilder();
 			b.append(pre + " = ");
@@ -575,7 +592,7 @@ public class SumOfSquaresChecker {
 		 * 
 		 * @see java.lang.Object#toString()
 		 */
-		/*@Override*/
+		/* @Override */
 		public String toString() {
 			StringBuilder b = new StringBuilder();
 			String plus = "";
@@ -659,10 +676,15 @@ public class SumOfSquaresChecker {
 							Values.getDefault().MONOMIAL(size),
 							Values.getDefault().MONOMIAL(size).one());
 				} else {
-					return Values.getDefault().fraction(Values.getDefault().MONOMIAL(
-							Values.getDefault().valueOf(
-									new BigDecimal(sub.op().name().toString())
-											.doubleValue()), size), Values.getDefault().MONOMIAL(size).one());
+					return Values.getDefault().fraction(
+							Values.getDefault()
+									.MONOMIAL(
+											Values.getDefault().valueOf(
+													new BigDecimal(sub.op()
+															.name().toString())
+															.doubleValue()),
+											size),
+							Values.getDefault().MONOMIAL(size).one());
 				}
 			} else {
 				if (sub.arity() == 2) {
@@ -681,10 +703,9 @@ public class SumOfSquaresChecker {
 						return (Fraction) p.divide(q);
 					} else if (sub.op().equals(getFunction("exp"))) {
 						try {
-							Integer number = Values.getDefault()
-									.valueOf(
-											new BigInteger(sub.sub(1).op()
-													.name().toString()));
+							Integer number = Values.getDefault().valueOf(
+									new BigInteger(sub.sub(1).op().name()
+											.toString()));
 							return (Fraction) p.power(number);
 						} catch (NumberFormatException e) {
 							return (Fraction) p.power(q);
@@ -692,7 +713,8 @@ public class SumOfSquaresChecker {
 					}
 				} else if (sub.arity() == 1) {
 					if (sub.op().equals(getFunction("neg"))) {
-						return (Fraction) createPoly(sub.sub(0), variables).minus();
+						return (Fraction) createPoly(sub.sub(0), variables)
+								.minus();
 					}
 				}
 			}
