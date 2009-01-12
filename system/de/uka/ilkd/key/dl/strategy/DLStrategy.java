@@ -1266,8 +1266,7 @@ public class DLStrategy extends AbstractFeatureStrategy implements
                 leq = RealLDT.getFunctionFor(de.uka.ilkd.key.dl.model.LessEquals.class);
                 geq = RealLDT.getFunctionFor(de.uka.ilkd.key.dl.model.GreaterEquals.class);
 
-		atom = add ( not ( addF ), not ( mulF ),
-		       add ( ifZero ( divF, literal ), not ( powF ) ) );
+		atom = add ( not ( addF ), not ( mulF ), not ( powF ) );
 
 		// left-associatively arranged monomials, literals are only allowed
 		// as right-most term
