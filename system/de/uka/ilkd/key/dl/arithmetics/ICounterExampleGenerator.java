@@ -28,6 +28,7 @@ import de.uka.ilkd.key.dl.arithmetics.exceptions.ConnectionProblemException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ServerStatusProblemException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.UnsolveableException;
+import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.logic.Term;
 
 /**
@@ -77,6 +78,6 @@ public interface ICounterExampleGenerator extends IMathSolver {
      * @throws ServerStatusProblemException
      * 
      */
-    String findTransition(Term initial, Term modalForm, long timeout)
+    String findTransition(Term initial, Term modalForm, long timeout, Services services)
             throws RemoteException, SolverException;
 }

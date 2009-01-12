@@ -76,7 +76,7 @@ public class WeakNegation extends AbstractDLMetaOperator {
 				if (childAt instanceof DiffSystem) {
 					DiffSystem sys = (DiffSystem) childAt;
 					List<ProgramElement> differentialEquations = sys
-							.getDifferentialEquations();
+							.getDifferentialEquations(services.getNamespaces());
 					TermFactory tf = TermFactory.getTermFactory(
 							TermFactoryImpl.class, services.getNamespaces());
 					ProgramElement p = weakNegate(post, services, tf, true);
@@ -88,7 +88,7 @@ public class WeakNegation extends AbstractDLMetaOperator {
 					return TermBuilder.DF.box(JavaBlock
 							.createJavaBlock(new DLStatementBlock(tf
 									.createDiffSystem(forms))), sys
-							.getInvariant());
+							.getInvariant(services));
 				} else {
 					throw new IllegalArgumentException(
 							"This operator is only applicable to systems of differential equations. Not applicable for: "

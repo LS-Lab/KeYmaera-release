@@ -47,6 +47,7 @@ import de.uka.ilkd.key.dl.model.impl.TermFactoryImpl;
 import de.uka.ilkd.key.dl.options.DLOptionBean;
 import de.uka.ilkd.key.gui.Main;
 import de.uka.ilkd.key.java.ProgramElement;
+import de.uka.ilkd.key.logic.NamespaceSet;
 
 /**
  * The {@link DL2MatrixFormConverter} converts a simple differential equation
@@ -84,11 +85,11 @@ public class DL2MatrixFormConverter {
 	}
 
 	public MatrixForm convertToMatrixForm(List<String> variables,
-			List<ProgramElement> diffEquations) {
+			List<ProgramElement> diffEquations, NamespaceSet nss) {
 		MatrixForm result = new MatrixForm();
 		Map<String, Map<String, Arithmetic>> rows = new TreeMap<String, Map<String, Arithmetic>>();
 		for (ProgramElement diffeq : diffEquations) {
-			createRow(rows, diffeq, variables);
+			createRow(rows, diffeq, variables, nss);
 		}
 		Arithmetic[] eta = new Arithmetic[rows.size()];
 		Arithmetic[] b = new Arithmetic[rows.size()];
@@ -128,7 +129,7 @@ public class DL2MatrixFormConverter {
 	 * @param diffeq
 	 */
 	private void createRow(Map<String, Map<String, Arithmetic>> rows,
-			ProgramElement diffeq, List<String> variables) {
+			ProgramElement diffeq, List<String> variables, NamespaceSet nss) {
 
 		if (diffeq instanceof DLNonTerminalProgramElement) {
 			DLNonTerminalProgramElement de = (DLNonTerminalProgramElement) diffeq;
@@ -141,10 +142,10 @@ public class DL2MatrixFormConverter {
 							.getElementName().toString();
 
 					ProgramElement expression = de.getChildAt(2);
-					List<ProgramElement> addedTerms = splitPlus(expression);
+					List<ProgramElement> addedTerms = splitPlus(expression, nss);
 					Map<String, Arithmetic> rule = new HashMap<String, Arithmetic>();
 					for (ProgramElement t : addedTerms) {
-						List<ProgramElement> multTerms = splitMult(t);
+						List<ProgramElement> multTerms = splitMult(t, nss);
 						ReturnVal val = new ReturnVal();
 						val.variableName = CONSTANT;
 						val.res = Values.getDefault().ONE();
@@ -236,21 +237,20 @@ public class DL2MatrixFormConverter {
 	 *            the sum expression
 	 * @return a list of elements that are added in the initial expression
 	 */
-	private List<ProgramElement> splitPlus(ProgramElement expression) {
+	private List<ProgramElement> splitPlus(ProgramElement expression, NamespaceSet nss) {
 		List<ProgramElement> result = new ArrayList<ProgramElement>();
 		if (expression instanceof DLNonTerminalProgramElement) {
 			DLNonTerminalProgramElement d = (DLNonTerminalProgramElement) expression;
 			if (d.getChildAt(0) instanceof Plus) {
-				result.addAll(splitPlus(d.getChildAt(1)));
-				result.addAll(splitPlus(d.getChildAt(2)));
+				result.addAll(splitPlus(d.getChildAt(1), nss));
+				result.addAll(splitPlus(d.getChildAt(2), nss));
 			} else if (d.getChildAt(0) instanceof Minus) {
-				result.addAll(splitPlus(d.getChildAt(1)));
+				result.addAll(splitPlus(d.getChildAt(1), nss));
 				TermFactory termFactory;
 				try {
 					termFactory = TermFactory.getTermFactory(
-							DLOptionBean.INSTANCE.getTermFactoryClass(), Main.getInstance()
-									.mediator().namespaces());
-					for (ProgramElement p : splitPlus(d.getChildAt(2))) {
+							DLOptionBean.INSTANCE.getTermFactoryClass(), nss);
+					for (ProgramElement p : splitPlus(d.getChildAt(2), nss)) {
 						result.add(termFactory.createMinusSign((Expression) p));
 					}
 				} catch (InvocationTargetException e) {
@@ -282,13 +282,13 @@ public class DL2MatrixFormConverter {
 	 *            the product expression
 	 * @return a list of elements that are multiplied in the initial expression
 	 */
-	private List<ProgramElement> splitMult(ProgramElement expression) {
+	private List<ProgramElement> splitMult(ProgramElement expression, NamespaceSet nss) {
 		List<ProgramElement> result = new ArrayList<ProgramElement>();
 		if (expression instanceof DLNonTerminalProgramElement) {
 			DLNonTerminalProgramElement d = (DLNonTerminalProgramElement) expression;
 			if (d.getChildAt(0) instanceof Mult) {
-				result.addAll(splitPlus(d.getChildAt(1)));
-				result.addAll(splitPlus(d.getChildAt(2)));
+				result.addAll(splitPlus(d.getChildAt(1), nss));
+				result.addAll(splitPlus(d.getChildAt(2), nss));
 			} else {
 				result.add(d);
 			}

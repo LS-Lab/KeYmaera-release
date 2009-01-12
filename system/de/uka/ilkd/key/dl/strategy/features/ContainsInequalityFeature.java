@@ -45,7 +45,7 @@ public class ContainsInequalityFeature implements Feature {
 				|| (!pos.isInAntec() && term.op() == Op.DIA)) {
 			DiffSystem one = (DiffSystem) ((StatementBlock) term.javaBlock()
 					.program()).getChildAt(0);
-			for (ProgramElement p : one.getDifferentialEquations()) {
+			for (ProgramElement p : one.getDifferentialEquations(goal.proof().getNamespaces())) {
 				if (p instanceof PredicateTerm) {
 					if (!(((PredicateTerm) p).getChildAt(0) instanceof Equals)) {
 						return LongRuleAppCost.ZERO_COST;

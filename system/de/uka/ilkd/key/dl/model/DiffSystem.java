@@ -21,14 +21,12 @@
 
 package de.uka.ilkd.key.dl.model;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import de.uka.ilkd.key.dl.formulatools.Prog2LogicConverter;
-import de.uka.ilkd.key.gui.Main;
 import de.uka.ilkd.key.java.ProgramElement;
+import de.uka.ilkd.key.java.Services;
+import de.uka.ilkd.key.logic.NamespaceSet;
 import de.uka.ilkd.key.logic.Term;
-import de.uka.ilkd.key.logic.TermBuilder;
 
 /**
  * The DiffSystem is used to represent the elementary DLProgram of a system of
@@ -56,13 +54,13 @@ public interface DiffSystem extends ElementaryDLProgram {
     /**
      * Get the (accumulated) invariant of this DiffSystem, i.e., the non-differential part.
      */
-    public Term getInvariant();
+    public Term getInvariant(Services services);
 
     /**
      * Get the set of differential equations occurring in this DiffSystem.
      * @param system TODO
      */
-    public List<ProgramElement> getDifferentialEquations();
+    public List<ProgramElement> getDifferentialEquations(NamespaceSet nss);
 
     /**
      * Get the differential part of this DiffSystem, i.e., all parts with differential symbols.

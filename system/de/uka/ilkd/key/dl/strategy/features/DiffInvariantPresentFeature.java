@@ -74,7 +74,7 @@ public class DiffInvariantPresentFeature implements Feature {
         }
         final DiffSystem system = (DiffSystem) ((StatementBlock) term
                 .javaBlock().program()).getChildAt(0);
-        final Term invariant = system.getInvariant();
+        final Term invariant = system.getInvariant(goal.proof().getServices());
         
         if ( ! ( app instanceof TacletApp ) )
             Debug.fail ( "Projection is only applicable to taclet apps," +

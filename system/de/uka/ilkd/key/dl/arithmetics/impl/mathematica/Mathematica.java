@@ -51,6 +51,7 @@ import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
 import de.uka.ilkd.key.dl.arithmetics.impl.SumOfSquaresChecker.PolynomialClassification;
 import de.uka.ilkd.key.dl.model.DiffSystem;
 import de.uka.ilkd.key.gui.Main;
+import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.logic.NamespaceSet;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.op.LogicVariable;
@@ -132,19 +133,19 @@ public class Mathematica implements ICounterExampleGenerator, IODESolver,
 	 * @see de.uka.ilkd.key.dl.MathSolver#evaluate(de.uka.ilkd.key.dl.Formula)
 	 */
 	public ODESolverResult odeSolve(DiffSystem form, LogicVariable t,
-			LogicVariable ts, Term phi, NamespaceSet nss)
+			LogicVariable ts, Term phi, Services services)
 			throws RemoteException, SolverException {
-		return bridge.odeSolve(form, t, ts, phi, nss);
+		return bridge.odeSolve(form, t, ts, phi, services);
 	}
 
-	public Term diffInd(DiffSystem form, Term post, NamespaceSet nss)
+	public Term diffInd(DiffSystem form, Term post, Services services)
 			throws RemoteException, SolverException {
-		return bridge.diffInd(form, post, nss);
+		return bridge.diffInd(form, post, services);
 	}
 
-	public Term diffFin(DiffSystem form, Term post, Term ep, NamespaceSet nss)
+	public Term diffFin(DiffSystem form, Term post, Term ep, Services services)
 			throws RemoteException, SolverException {
-		return bridge.diffFin(form, post, ep, nss);
+		return bridge.diffFin(form, post, ep, services);
 	}
 
 	/*
@@ -305,14 +306,14 @@ public class Mathematica implements ICounterExampleGenerator, IODESolver,
 	}
 
 	/*@Override*/
-	public String findTransition(Term initial, Term modalForm, long timeout)
+	public String findTransition(Term initial, Term modalForm, long timeout, Services services)
 			throws RemoteException, SolverException {
-		return bridge.findTransition(initial, modalForm, timeout);
+		return bridge.findTransition(initial, modalForm, timeout, services);
 	}
 
-	public String findTransition(Term initial, Term modalForm)
+	public String findTransition(Term initial, Term modalForm, Services services)
 			throws RemoteException, SolverException {
-		return bridge.findTransition(initial, modalForm, -1);
+		return bridge.findTransition(initial, modalForm, -1, services);
 	}
 
 	/*@Override*/

@@ -55,6 +55,7 @@ import de.uka.ilkd.key.java.PrettyPrinter;
 import de.uka.ilkd.key.java.ProgramElement;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.java.reference.ExecutionContext;
+import de.uka.ilkd.key.logic.NamespaceSet;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.TermBuilder;
 
@@ -165,20 +166,17 @@ public class DiffSystemImpl extends DLNonTerminalProgramElementImpl implements
 	 * Get the (accumulated) invariant of this DiffSystem, i.e., the
 	 * non-differential part.
 	 */
-	public Term getInvariant() {
+	public Term getInvariant(Services services) {
 		Term invariant = TermBuilder.DF.tt();
 		TermFactory tf;
 		try {
-			tf = TermFactory.getTermFactory(TermFactoryImpl.class, Main
-					.getInstance().mediator().namespaces());
+			tf = TermFactory.getTermFactory(TermFactoryImpl.class, services.getNamespaces());
 
 			for (ProgramElement el : this) {
 				if (!isDifferentialEquation(el)) {
 					invariant = TermBuilder.DF.and(invariant,
 							Prog2LogicConverter
-									.convert((DLProgramElement) el, Main
-											.getInstance().mediator()
-											.getServices()));
+									.convert((DLProgramElement) el, services));
 				} else {
 					DLProgramElement hiddenInvariantPart = (DLProgramElement) getHiddenInvariantPart(
 							el, getQuantifiedVariablesOccurringInDiffEq(el,
@@ -186,8 +184,7 @@ public class DiffSystemImpl extends DLNonTerminalProgramElementImpl implements
 					if (hiddenInvariantPart != null) {
 						invariant = TermBuilder.DF.and(invariant,
 								Prog2LogicConverter.convert(
-										hiddenInvariantPart, Main.getInstance()
-												.mediator().getServices()));
+										hiddenInvariantPart, services));
 					}
 				}
 			}
@@ -394,12 +391,11 @@ public class DiffSystemImpl extends DLNonTerminalProgramElementImpl implements
 	 * @param system
 	 *            TODO
 	 */
-	public List<ProgramElement> getDifferentialEquations() {
+	public List<ProgramElement> getDifferentialEquations(NamespaceSet nss) {
 		List<ProgramElement> equations = new ArrayList<ProgramElement>();
 		TermFactory tf;
 		try {
-			tf = TermFactory.getTermFactory(TermFactoryImpl.class, Main
-					.getInstance().mediator().namespaces());
+			tf = TermFactory.getTermFactory(TermFactoryImpl.class, nss);
 			for (ProgramElement el : this) {
 				if (isDifferentialEquation(el)) {
 					equations.add(removeHiddenInvariantPart(el,

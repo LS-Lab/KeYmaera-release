@@ -1753,7 +1753,7 @@ public abstract class ProgramSVSort extends PrimitiveSort {
 		public boolean canStandFor(ProgramElement pe, Services services) {
 			if (pe instanceof de.uka.ilkd.key.dl.model.DiffSystem) {
 				DiffSystem one = (DiffSystem) pe;
-				for (ProgramElement p : one.getDifferentialEquations()) {
+				for (ProgramElement p : one.getDifferentialEquations(services.getNamespaces())) {
 					if (p instanceof PredicateTerm) {
 						if (!(((PredicateTerm) p).getChildAt(0) instanceof Equals)) {
 							return true;

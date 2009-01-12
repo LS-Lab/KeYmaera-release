@@ -21,9 +21,9 @@ package de.uka.ilkd.key.dl.formulatools;
 
 import de.uka.ilkd.key.dl.model.DLNonTerminalProgramElement;
 import de.uka.ilkd.key.dl.model.MetaVariable;
-import de.uka.ilkd.key.gui.Main;
 import de.uka.ilkd.key.java.ProgramElement;
 import de.uka.ilkd.key.java.StatementBlock;
+import de.uka.ilkd.key.logic.NamespaceSet;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.Visitor;
 import de.uka.ilkd.key.logic.op.Metavariable;
@@ -44,6 +44,14 @@ public class MetaVariableLocator {
 
 	private class MVisitor extends Visitor {
 		private SetOfMetavariable result = SetAsListOfMetavariable.EMPTY_SET;
+		private NamespaceSet nss;
+
+		/**
+		 * @param nss
+		 */
+		public MVisitor(NamespaceSet nss) {
+			this.nss = nss;
+		}
 
 		/*
 		 * (non-Javadoc)
@@ -55,7 +63,7 @@ public class MetaVariableLocator {
 			if (visited.op() instanceof Modality) {
 				result = result
 						.union(findInsideModality((ProgramElement) ((StatementBlock) visited
-								.javaBlock().program()).getChildAt(0)));
+								.javaBlock().program()).getChildAt(0), nss));
 			}
 
 		}
@@ -69,8 +77,8 @@ public class MetaVariableLocator {
 	 * @return a SetOfMetavariable with all Metavariables that occur in the
 	 *         given Term
 	 */
-	public SetOfMetavariable find(Term dominantTerm) {
-		MVisitor vis = new MVisitor();
+	public SetOfMetavariable find(Term dominantTerm, NamespaceSet nss) {
+		MVisitor vis = new MVisitor(nss);
 		dominantTerm.execPreOrder(vis);
 		return vis.result;
 	}
@@ -83,17 +91,16 @@ public class MetaVariableLocator {
 	 * @return a SetOfMetavariables that contains all Metavariables that occur
 	 *         in the program
 	 */
-	private SetOfMetavariable findInsideModality(ProgramElement programElement) {
+	private SetOfMetavariable findInsideModality(ProgramElement programElement, NamespaceSet nss) {
 		SetOfMetavariable result = SetAsListOfMetavariable.EMPTY_SET;
 		if (programElement instanceof DLNonTerminalProgramElement) {
 			DLNonTerminalProgramElement dlnpe = (DLNonTerminalProgramElement) programElement;
 			for (ProgramElement p : dlnpe) {
-				result = result.union(findInsideModality(p));
+				result = result.union(findInsideModality(p, nss));
 			}
 		} else if (programElement instanceof MetaVariable) {
 			MetaVariable var = (MetaVariable) programElement;
-			result = result.add((Metavariable) Main.getInstance().mediator()
-					.getServices().getNamespaces().variables().lookup(
+			result = result.add((Metavariable)nss.variables().lookup(
 							var.getElementName()));
 		}
 		return result;

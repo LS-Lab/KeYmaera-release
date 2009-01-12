@@ -98,7 +98,7 @@ public class DiffInd extends AbstractDLMetaOperator {
 				r.getSys().prettyPrint(new PrettyPrinter(writer));
 				System.out.println(writer.toString());//XXX
 				Term diffInd = MathSolverManager.getCurrentODESolver()
-						.diffInd(r.getSys(), post, nss);
+						.diffInd(r.getSys(), post, services);
 				// reintroduce the quantifiers
 				Collections.reverse(r.getQuantifiedVariables());
 				for (LogicVariable var : r.getQuantifiedVariables()) {
