@@ -59,7 +59,7 @@ public class DLInvariantPart extends AbstractDLMetaOperator {
         DiffSystem system = (DiffSystem) ((StatementBlock) term.sub(0)
                 .javaBlock().program()).getChildAt(0);
         Term post = term.sub(0).sub(0);
-        Term inv = system.getInvariant();
+        Term inv = system.getInvariant(services);
         return inv;
     }
 }

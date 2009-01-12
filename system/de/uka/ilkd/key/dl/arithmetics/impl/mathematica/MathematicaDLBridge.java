@@ -62,6 +62,7 @@ import de.uka.ilkd.key.dl.model.ProgramVariable;
 import de.uka.ilkd.key.dl.options.DLOptionBean;
 import de.uka.ilkd.key.gui.Main;
 import de.uka.ilkd.key.java.ProgramElement;
+import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.java.StatementBlock;
 import de.uka.ilkd.key.logic.JavaBlock;
 import de.uka.ilkd.key.logic.Name;
@@ -178,15 +179,15 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 	 * de.uka.ilkd.key.logic.Term, de.uka.ilkd.key.logic.NamespaceSet)
 	 */
 	public ODESolverResult odeSolve(DiffSystem form, LogicVariable t,
-			LogicVariable ts, Term phi, NamespaceSet nss)
+			LogicVariable ts, Term phi, Services services)
 			throws RemoteException, SolverException {
 		List<Expr> args = new ArrayList<Expr>();
 		Map<String, Expr> vars = new HashMap<String, Expr>();
 
 		collectDottedProgramVariables(form, vars, t);
-		Term invariant = form.getInvariant();
+		Term invariant = form.getInvariant(services);
 		final Map<String, Expr> EMPTY = new HashMap<String, Expr>();
-		for (ProgramElement el : form.getDifferentialEquations()) {
+		for (ProgramElement el : form.getDifferentialEquations(services.getNamespaces())) {
 			args.add(DL2ExprConverter.convertDiffEquation(el, t, vars));
 		}
 		for (String name : vars.keySet()) {
@@ -204,7 +205,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 						new Expr[0])), new Expr(Expr.SYMBOL, name) });
 		Expr updateExpressions = evaluate(query).expression;
 
-		List<Update> updates = createUpdates(updateExpressions, nss);
+		List<Update> updates = createUpdates(updateExpressions, services.getNamespaces());
 
 		List<Term> locations = new ArrayList<Term>();
 		List<Term> values = new ArrayList<Term>();
@@ -279,7 +280,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 		// insert 0 <= ts <= t
 		Term tsRange = convert(new Expr(INEQUALITY, new Expr[] { new Expr(0),
 				LESS_EQUALS, new Expr(Expr.SYMBOL, ts.name().toString()),
-				LESS_EQUALS, new Expr(Expr.SYMBOL, t.name().toString()) }), nss);
+				LESS_EQUALS, new Expr(Expr.SYMBOL, t.name().toString()) }), services.getNamespaces());
 		invariant = TermBuilder.DF.imp(tsRange, invariant);
 		invariant = TermBuilder.DF.all(ts, invariant);
 		return new ODESolverResult(invariant,
@@ -291,15 +292,15 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 		// ({ solved diff equations } phi)
 	}
 
-	public Term diffInd(DiffSystem form, Term post, NamespaceSet nss)
+	public Term diffInd(DiffSystem form, Term post, Services services)
 			throws RemoteException, SolverException {
-		return differentialCall(form, post, null, nss, "IDiffInd");
+		return differentialCall(form, post, null, services, "IDiffInd");
 	}
 
-	public Term diffFin(DiffSystem form, Term post, Term ep, NamespaceSet nss)
+	public Term diffFin(DiffSystem form, Term post, Term ep, Services services)
 			throws RemoteException, SolverException {
-		Term invariant = form.getInvariant();
-		return differentialCall(form, post, ep, nss, "IDiffFin");
+		Term invariant = form.getInvariant(services);
+		return differentialCall(form, post, ep, services, "IDiffFin");
 	}
 
 	/**
@@ -313,15 +314,15 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 	 * @throws IncompleteEvaluationException
 	 */
 	private Term differentialCall(DiffSystem form, Term post, Term ep,
-			NamespaceSet nss, String diffOperator) throws RemoteException,
+			Services services, String diffOperator) throws RemoteException,
 			SolverException {
 		List<Expr> args = new ArrayList<Expr>();
 
 		// use implicit differential symbols
 		final LogicVariable t = null;
-		Term invariant = form.getInvariant();
+		Term invariant = form.getInvariant(services);
 		final Map<String, Expr> EMPTY = new HashMap<String, Expr>();
-		for (ProgramElement el : form.getDifferentialEquations()) {
+		for (ProgramElement el : form.getDifferentialEquations(services.getNamespaces())) {
 			args.add(DL2ExprConverter.convertDiffEquation(el, t, EMPTY));
 		}
 		if (Debug.ENABLE_DEBUG) {
@@ -352,7 +353,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 		}
 		Expr diffIndExpression = evaluate(diffCall).expression;
 
-		return TermBuilder.DF.imp(invariant, convert(diffIndExpression, nss));
+		return TermBuilder.DF.imp(invariant, convert(diffIndExpression, services.getNamespaces()));
 	}
 
 	public List<Update> createUpdates(Expr expr, NamespaceSet nss)
@@ -510,14 +511,16 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 			evaluate = wrapper.evaluate(expr, timeout, Options.INSTANCE
 					.getMemoryConstraint());
 		}
-		if (!evaluate.messages.toString().equals("{}")) {
-			System.err.println("Message while evaluating: " + expr
-					+ "\n Message was: " + evaluate.messages); // XXX
-		}
-		if (evaluate.messages.toString().matches(".*" + mBlistString + ".*")) {
-			throw new UnsolveableException(
-					"Mathematica could not solve the given expression: " + expr
-							+ ". Reason: " + evaluate.messages.toString());
+		if(evaluate.messages != null) {
+			if (!evaluate.messages.toString().equals("{}")) {
+				System.err.println("Message while evaluating: " + expr
+						+ "\n Message was: " + evaluate.messages); // XXX
+			}
+			if (evaluate.messages.toString().matches(".*" + mBlistString + ".*")) {
+				throw new UnsolveableException(
+						"Mathematica could not solve the given expression: " + expr
+								+ ". Reason: " + evaluate.messages.toString());
+			}
 		}
 		return evaluate;
 	}
@@ -700,7 +703,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 	}
 
 	/*@Override*/
-	public String findTransition(Term initial, Term modalForm, long timeout)
+	public String findTransition(Term initial, Term modalForm, long timeout, Services services)
 			throws RemoteException, SolverException {
 		Term term = modalForm;
 		final de.uka.ilkd.key.rule.updatesimplifier.Update update = de.uka.ilkd.key.rule.updatesimplifier.Update
@@ -729,9 +732,9 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 		Map<String, Expr> vars = new HashMap<String, Expr>();
 
 		collectDottedProgramVariables(system, vars, t);
-		Term invariant = system.getInvariant();
+		Term invariant = system.getInvariant(services);
 		final Map<String, Expr> EMPTY = new HashMap<String, Expr>();
-		for (ProgramElement el : system.getDifferentialEquations()) {
+		for (ProgramElement el : system.getDifferentialEquations(services.getNamespaces())) {
 			args.add(DL2ExprConverter.convertDiffEquation(el, t, vars));
 		}
 		Expr call = new Expr(new Expr(Expr.SYMBOL, "AMC`" + "IFindTransition"),
@@ -894,4 +897,5 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 
 		return false;
 	}
+
 }

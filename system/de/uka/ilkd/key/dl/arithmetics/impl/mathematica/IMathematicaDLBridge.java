@@ -27,7 +27,6 @@ import java.rmi.RemoteException;
 import java.util.List;
 import java.util.Set;
 
-import de.uka.ilkd.key.dl.arithmetics.IGroebnerBasisCalculator;
 import de.uka.ilkd.key.dl.arithmetics.IODESolver.ODESolverResult;
 import de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator.PairOfTermAndQuantifierType;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ConnectionProblemException;
@@ -37,6 +36,7 @@ import de.uka.ilkd.key.dl.arithmetics.exceptions.UnableToConvertInputException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.UnsolveableException;
 import de.uka.ilkd.key.dl.arithmetics.impl.SumOfSquaresChecker.PolynomialClassification;
 import de.uka.ilkd.key.dl.model.DiffSystem;
+import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.logic.NamespaceSet;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.op.LogicVariable;
@@ -76,13 +76,13 @@ public interface IMathematicaDLBridge extends Remote {
      * @throws ServerStatusProblemException
      */
     public ODESolverResult odeSolve(DiffSystem form, LogicVariable t,
-            LogicVariable ts, Term phi, NamespaceSet nss)
+            LogicVariable ts, Term phi, Services services)
             throws RemoteException, SolverException;
 
-    public Term diffInd(DiffSystem form, Term post, NamespaceSet nss)
+    public Term diffInd(DiffSystem form, Term post, Services services)
             throws RemoteException, SolverException;
 
-    public Term diffFin(DiffSystem form, Term post, Term ep, NamespaceSet nss)
+    public Term diffFin(DiffSystem form, Term post, Term ep, Services services)
             throws RemoteException, SolverException;
 
     /**
@@ -142,7 +142,7 @@ public interface IMathematicaDLBridge extends Remote {
      * @throws ServerStatusProblemException
      * 
      */
-    public String findTransition(Term initial, Term modalForm, long timeout) throws RemoteException,
+    public String findTransition(Term initial, Term modalForm, long timeout, Services services) throws RemoteException,
             SolverException;
 
     /**

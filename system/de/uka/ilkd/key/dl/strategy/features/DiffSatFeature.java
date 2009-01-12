@@ -185,7 +185,7 @@ public class DiffSatFeature implements Feature {
         }
         final DiffSystem system = (DiffSystem) ((StatementBlock) term
                 .javaBlock().program()).getChildAt(0);
-        final Term invariant = system.getInvariant();
+        final Term invariant = system.getInvariant(goal.proof().getServices());
         final Term post = term.sub(0);
         final Services services = goal.proof().getServices();
 

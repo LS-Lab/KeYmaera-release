@@ -38,6 +38,7 @@ import de.uka.ilkd.key.java.reference.ReferencePrefix;
 import de.uka.ilkd.key.java.reference.TypeReference;
 import de.uka.ilkd.key.java.visitor.Visitor;
 import de.uka.ilkd.key.logic.Name;
+import de.uka.ilkd.key.logic.NamespaceSet;
 import de.uka.ilkd.key.logic.ProgramConstruct;
 import de.uka.ilkd.key.logic.ProgramElementName;
 import de.uka.ilkd.key.logic.Term;
@@ -658,12 +659,12 @@ public class ProgramSV extends SortedSchemaVariable implements
     }
 
     /*@Override*/
-    public List<ProgramElement> getDifferentialEquations() {
+    public List<ProgramElement> getDifferentialEquations(NamespaceSet nss) {
         throw new UnsupportedOperationException();
     }
 
     /*@Override*/
-    public Term getInvariant() {
+    public Term getInvariant(Services services) {
         throw new UnsupportedOperationException();
     }
 

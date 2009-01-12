@@ -26,6 +26,7 @@ import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
 import de.uka.ilkd.key.dl.formulatools.TermTools;
 import de.uka.ilkd.key.dl.rules.FindTransitionRule;
+import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.logic.PosInOccurrence;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.TermBuilder;
@@ -57,7 +58,7 @@ public class FindTransitionTest implements Feature {
                 Op.AND, goal.sequent().antecedent().iterator(),
                 Collections.EMPTY_SET);
 
-        TestThread thread = new TestThread(antecedent, pos.subTerm());
+        TestThread thread = new TestThread(antecedent, pos.subTerm(), goal.proof().getServices());
         thread.start();
         try {
             thread.join(2*TIMEOUT);
@@ -91,8 +92,10 @@ public class FindTransitionTest implements Feature {
         private Result result;
 
         private String string;
+        
+        private Services services;
 
-        public TestThread(Term term, Term modalFormula) {
+        public TestThread(Term term, Term modalFormula, Services services) {
             this.term = term;
             this.modalFormula = modalFormula;
         }
@@ -102,7 +105,7 @@ public class FindTransitionTest implements Feature {
             result = Result.UNKNOWN;
             try {
                 string = MathSolverManager.getCurrentCounterExampleGenerator()
-                        .findTransition(term, modalFormula, TIMEOUT);
+                        .findTransition(term, modalFormula, TIMEOUT, services);
                 if (string.equals("")) {
                     result = Result.NO_COUNTER_EXAMPLE_AVAILABLE;
                 } else if(string.trim().equalsIgnoreCase("$Aborted")) {

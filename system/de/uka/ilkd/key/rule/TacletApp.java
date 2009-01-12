@@ -993,7 +993,7 @@ public abstract class TacletApp implements RuleApp {
 
         final IteratorOfSchemaVariable svIt = insts.svIterator ();        
         while ( svIt.hasNext () )
-            insts = createTermSkolemFunctions ( svIt.next (), insts, p_func_ns );
+            insts = createTermSkolemFunctions ( svIt.next (), insts, p_func_ns, services );
         
         Name[][] anon_proposals = null;
         String anon_genNames = "";
@@ -1057,7 +1057,7 @@ public abstract class TacletApp implements RuleApp {
      * Instantiate a SkolemTermSV
      */
     private SVInstantiations createTermSkolemFunctions(SchemaVariable depSV,
-            SVInstantiations insts, Namespace p_func_ns) {
+            SVInstantiations insts, Namespace p_func_ns, Services services) {
         if (!depSV.isSkolemTermSV())
             return insts;
 
@@ -1067,7 +1067,7 @@ public abstract class TacletApp implements RuleApp {
                 "Name for skolemterm variable missing");
 
         return createSkolemFunction(insts, p_func_ns, depSV, tempDepVar,
-                determineArgMVs(insts, depSV));
+                determineArgMVs(insts, depSV, services));
     }
 
     /**
@@ -1092,7 +1092,7 @@ public abstract class TacletApp implements RuleApp {
         final AnonymisingUpdateFactory auf =
             new AnonymisingUpdateFactory
             ( new UpdateFactory ( services, new UpdateSimplifier () ) );
-        final Term[] mvArgs = toTermArray ( determineArgMVs ( insts, updateSV ) );
+        final Term[] mvArgs = toTermArray ( determineArgMVs ( insts, updateSV, services ) );
         PairOfTermAndListOfName result =
                                   auf.createAnonymisingUpdateAsFor
                                   ( toLocationDescriptorArray ( locationList ),
@@ -1118,13 +1118,13 @@ public abstract class TacletApp implements RuleApp {
      * created skolem symbols (as basis of the occurs check)
      */
     private SetOfMetavariable determineArgMVs(SVInstantiations insts,
-            SchemaVariable depSV) {
-        return determineExplicitArgMVs(insts, depSV).union(
+            SchemaVariable depSV, Services services) {
+        return determineExplicitArgMVs(insts, depSV, services).union(
                 determineArgMVsFromUpdate(insts));
     }
 
     private SetOfMetavariable determineExplicitArgMVs(SVInstantiations insts,
-            SchemaVariable depSV) {
+            SchemaVariable depSV, Services services) {
         final IteratorOfNewDependingOn it = taclet().varsNewDependingOn();
         SetOfMetavariable mvs = SetAsListOfMetavariable.EMPTY_SET;
         while (it.hasNext()) {
@@ -1138,7 +1138,7 @@ public abstract class TacletApp implements RuleApp {
             assert dominantTerm != null : "Variable depends on uninstantiated variable";
             mvs = mvs.union(dominantTerm.metaVars());
             if(Main.getInstance().mediator().getProfile() instanceof DLProfile) {
-                mvs = mvs.union(MetaVariableLocator.INSTANCE.find(dominantTerm));
+                mvs = mvs.union(MetaVariableLocator.INSTANCE.find(dominantTerm, services.getNamespaces()));
             }
         }
         return mvs;

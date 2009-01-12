@@ -105,9 +105,9 @@ public class ODESolve extends AbstractDLMetaOperator {
         nss.variables().add(ts);
         Term post = term.sub(0);
         Term odeSolve;
-        if (system.getDifferentialEquations().isEmpty()) {
+        if (system.getDifferentialEquations(services.getNamespaces()).isEmpty()) {
             // optimize no differential equations
-            Term invariant = system.getInvariant();
+            Term invariant = system.getInvariant(services);
             if (term.op() == Modality.BOX
                     || term.op() == Modality.TOUT) {
                 return TermBuilder.DF.imp(invariant, post);
@@ -121,11 +121,11 @@ public class ODESolve extends AbstractDLMetaOperator {
         	if(MathSolverManager.isODESolverSet()) {
                 ODESolverResult odeResult = MathSolverManager
                         .getCurrentODESolver().odeSolve(system, t, ts, post,
-                                nss);
+                                services);
 
                 if (term.op() == Modality.BOX
                         || term.op() == Modality.TOUT) {
-                    if (system.getInvariant().equals(TermBuilder.DF.tt())) {
+                    if (system.getInvariant(services).equals(TermBuilder.DF.tt())) {
                         odeSolve = odeResult.getPostCondition();
                     } else {
                         odeSolve = TermBuilder.DF.imp(odeResult
@@ -139,7 +139,7 @@ public class ODESolve extends AbstractDLMetaOperator {
                             odeSolve);
                     return TermBuilder.DF.all(t, odeSolve);
                 } else if (term.op() == Modality.DIA) {
-                    if (system.getInvariant().equals(TermBuilder.DF.tt())) {
+                    if (system.getInvariant(services).equals(TermBuilder.DF.tt())) {
                         odeSolve = odeResult.getPostCondition();
                     } else {
                         odeSolve = TermBuilder.DF.and(odeResult

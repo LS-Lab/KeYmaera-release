@@ -108,7 +108,7 @@ public class ODESolvableFeature implements Feature {
 			return TopRuleAppCost.INSTANCE;
 		}
 		final List<ProgramElement> differentialEquations = system
-				.getDifferentialEquations();
+				.getDifferentialEquations(goal.proof().getNamespaces());
 		if (differentialEquations.isEmpty()) {
 			return LongRuleAppCost.ZERO_COST;
 		}

@@ -99,7 +99,7 @@ public class DiffIndCandidates implements TermGenerator {
                 .javaBlock().program()).getChildAt(0);
         Term currentInvariant;
         if (program instanceof DiffSystem) {
-            currentInvariant = ((DiffSystem) program).getInvariant();
+            currentInvariant = ((DiffSystem) program).getInvariant(goal.proof().getServices());
         } else if (program instanceof Star) {
             currentInvariant = tb.tt();
         } else {
