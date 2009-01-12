@@ -511,14 +511,16 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 			evaluate = wrapper.evaluate(expr, timeout, Options.INSTANCE
 					.getMemoryConstraint());
 		}
-		if (evaluate.messages != null && !evaluate.messages.toString().equals("{}")) {
-			System.err.println("Message while evaluating: " + expr
-					+ "\n Message was: " + evaluate.messages); // XXX
-		}
-		if (evaluate.messages.toString().matches(".*" + mBlistString + ".*")) {
-			throw new UnsolveableException(
-					"Mathematica could not solve the given expression: " + expr
-							+ ". Reason: " + evaluate.messages.toString());
+		if(evaluate.messages != null) {
+			if (!evaluate.messages.toString().equals("{}")) {
+				System.err.println("Message while evaluating: " + expr
+						+ "\n Message was: " + evaluate.messages); // XXX
+			}
+			if (evaluate.messages.toString().matches(".*" + mBlistString + ".*")) {
+				throw new UnsolveableException(
+						"Mathematica could not solve the given expression: " + expr
+								+ ". Reason: " + evaluate.messages.toString());
+			}
 		}
 		return evaluate;
 	}

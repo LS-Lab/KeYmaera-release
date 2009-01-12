@@ -55,8 +55,7 @@ public class EliminateExistentialApproveFeature implements Feature {
 			if (app instanceof ReduceRuleApp) {
 				for (String varName : ((ReduceRuleApp) app).getVariables()) {
 					variables
-							.add((Metavariable) Main.getInstance().mediator()
-									.namespaces().variables().lookup(
+							.add((Metavariable) goal.proof().getNamespaces().variables().lookup(
 											new Name(varName)));
 				}
 			}

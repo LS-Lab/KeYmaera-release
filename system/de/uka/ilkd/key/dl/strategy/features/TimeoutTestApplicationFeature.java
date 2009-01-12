@@ -210,8 +210,7 @@ public class TimeoutTestApplicationFeature implements Feature {
 		 */
 		/*@Override*/
 		public void run() {
-			// @TODO pass goal.proof().getServices() instead?
-			if (rule.test(goal, Main.getInstance().mediator().getServices(),
+			if (rule.test(goal, goal.proof().getServices(),
 					app, timeout)) {
 				result = TestResult.SUCCESS;
 				if (!rule.getResultFormula().equals(TermBuilder.DF.tt())) {
