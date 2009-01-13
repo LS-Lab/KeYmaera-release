@@ -80,6 +80,7 @@ import de.uka.ilkd.key.java.ProgramElement;
 import de.uka.ilkd.key.logic.IteratorOfConstrainedFormula;
 import de.uka.ilkd.key.logic.Name;
 import de.uka.ilkd.key.logic.PosInOccurrence;
+import de.uka.ilkd.key.logic.ldt.IntegerLDT;
 import de.uka.ilkd.key.logic.op.Function;
 import de.uka.ilkd.key.logic.op.IUpdateOperator;
 import de.uka.ilkd.key.logic.op.Op;
@@ -116,6 +117,7 @@ import de.uka.ilkd.key.strategy.feature.NonDuplicateAppFeature;
 import de.uka.ilkd.key.strategy.feature.NotBelowQuantifierFeature;
 import de.uka.ilkd.key.strategy.feature.NotInScopeOfModalityFeature;
 import de.uka.ilkd.key.strategy.feature.NotWithinMVFeature;
+import de.uka.ilkd.key.strategy.feature.PolynomialValuesCmpFeature;
 import de.uka.ilkd.key.strategy.feature.PurePosDPathFeature;
 import de.uka.ilkd.key.strategy.feature.RuleSetDispatchFeature;
 import de.uka.ilkd.key.strategy.feature.ScaleFeature;
@@ -299,10 +301,6 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 
 		// disallow simplification of polynomials and inequations here
 		// (these rules need guidance that is not present in this strategy)
-		bindRuleSet(d, "inEqSimp_expand", inftyConst());
-		bindRuleSet(d, "inEqSimp_directInEquations", inftyConst());
-		bindRuleSet(d, "inEqSimp_saturate", inftyConst());
-		bindRuleSet(d, "inEqSimp_propagation", inftyConst());
 		bindRuleSet(d, "inEqSimp_special_nonLin", inftyConst());
 		bindRuleSet(d, "inEqSimp_nonLin", inftyConst());
 
@@ -464,6 +462,7 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 		
 		setupArithPrimaryCategories(d);
                 setupPolySimp(d);
+                setupInEqSimp(d);
 		
 		completeF = SumFeature.createSum(new Feature[] {
 				AutomatedRuleFeature.INSTANCE, NotWithinMVFeature.INSTANCE,
@@ -660,6 +659,16 @@ public class DLStrategy extends AbstractFeatureStrategy implements
         bindRuleSet ( d, "polySimp_pullOutGcd", -2250 );
         bindRuleSet ( d, "polySimp_leftNonUnit", -2000 );
         bindRuleSet ( d, "polySimp_saturate", inftyConst() );
+
+        // Fourier-Motzkin for handling linear arithmetic and inequalities over the
+        // integers; cross-multiplication + case distinctions for nonlinear
+        // inequalities
+
+        bindRuleSet ( d, "inEqSimp_expand", -4500 );
+        bindRuleSet ( d, "inEqSimp_directInEquations", -3000 );
+        bindRuleSet ( d, "inEqSimp_propagation", -2500 );
+        bindRuleSet ( d, "inEqSimp_pullOutGcd", -2250 );
+        bindRuleSet ( d, "inEqSimp_saturate", -2000 );
     }
 
     private void setupPolySimp( RuleSetDispatchFeature d) {
@@ -829,6 +838,66 @@ public class DLStrategy extends AbstractFeatureStrategy implements
     private Feature atomSmallerThan(String smaller, String bigger) {
         return
           AtomsSmallerThanFeature.create ( instOf ( smaller ), instOf ( bigger ) );
+    }
+
+    private void setupInEqSimp(RuleSetDispatchFeature d) {
+
+        // category "expansion" (normalising inequations)
+
+        bindRuleSet ( d, "inEqSimp_moveLeft", -90 );
+
+        bindRuleSet ( d, "inEqSimp_commute",
+           SumFeature.createSum ( new Feature[] {
+             applyTF ( "commRight", tf.monomial ),
+             applyTF ( "commLeft", tf.polynomial ),
+             monSmallerThan ( "commLeft", "commRight" ),
+             longConst ( -40 ) } ) );
+
+        // this is copied from "polySimp_homo"
+        bindRuleSet ( d, "inEqSimp_homo",
+           add ( applyTF ( "homoRight",
+                           add ( not ( tf.zeroLiteral ), tf.polynomial ) ),
+                 or ( applyTF ( "homoLeft", or ( tf.addF, tf.negMonomial ) ),
+                 not ( monSmallerThan ( "homoRight", "homoLeft") ) ) ) );
+
+        // category "direct inequations"
+
+        // this is copied from "polySimp_balance"
+        bindRuleSet ( d, "inEqSimp_balance",
+           add (
+             applyTF ( "sepResidue", tf.polynomial ),
+             ifZero ( isInstantiated ( "sepPosMono" ),
+                add ( applyTF ( "sepPosMono", tf.nonNegMonomial ),
+                      monSmallerThan ( "sepResidue", "sepPosMono" ) ) ),
+             ifZero ( isInstantiated ( "sepNegMono" ),
+                add ( applyTF ( "sepNegMono", tf.negMonomial ),
+                      monSmallerThan ( "sepResidue", "sepNegMono" ) ) )
+             ) );
+        
+        // this is copied from "polySimp_normalise"
+        bindRuleSet ( d, "inEqSimp_normalise",
+                      add ( applyTF ( "invertRight", tf.zeroLiteral ),
+                            applyTF ( "invertLeft", tf.negMonomial ) ) );
+
+        // category "saturate"
+        
+        bindRuleSet ( d, "inEqSimp_antiSymm", longConst ( -20 ) );
+
+        bindRuleSet ( d, "inEqSimp_exactShadow",
+                SumFeature.createSum ( new Feature[] {
+                  applyTF ( "esLeft", tf.nonCoeffMonomial ),
+                  applyTFNonStrict ( "esCoeff2", tf.nonNegLiteral ),
+                  applyTF ( "esRight2", tf.polynomial ),
+                  ifZero ( MatchedIfFeature.INSTANCE,
+                         SumFeature.createSum ( new Feature[] {
+                           applyTFNonStrict ( "esCoeff1", tf.nonNegLiteral ),
+                           applyTF ( "esRight1", tf.polynomial ),
+                           not ( PolynomialValuesCmpFeature
+                                 .leq ( instOf ( "esRight2" ),
+                                        instOf ( "esRight1" ),
+                                        instOfNonStrict ( "esCoeff1" ),
+                                        instOfNonStrict ( "esCoeff2" ) ))
+                         } ) ) } ) );
     }
 
 	////////////////////////////////////////////////////////////////////////////
@@ -1290,6 +1359,9 @@ public class DLStrategy extends AbstractFeatureStrategy implements
                                             sub ( any (), not ( negLiteral ) ) ) );
 		posMonomial = opSub ( mul, monomial, posLiteral );            
 		negMonomial = opSub ( mul, monomial, negLiteral );            
+                nonCoeffMonomial = add ( monomial,
+                            or ( not ( mulF ),
+                                 sub ( any (), not ( literal ) ) ) );
 		nonNegOrNonCoeffMonomial =
 	            add ( monomial,
 	                  or ( not ( mulF ),
@@ -1330,6 +1402,7 @@ public class DLStrategy extends AbstractFeatureStrategy implements
             final TermFeature posMonomial;
             final TermFeature negMonomial;
             final TermFeature nonNegOrNonCoeffMonomial;
+            final TermFeature nonCoeffMonomial;
 
 	    final TermFeature literal = QuasiRealLiteralFeature.ANY;
             final TermFeature intLiteral = QuasiRealLiteralFeature.INTEGER;
