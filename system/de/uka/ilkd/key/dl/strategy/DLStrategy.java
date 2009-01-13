@@ -659,7 +659,7 @@ public class DLStrategy extends AbstractFeatureStrategy implements
         bindRuleSet ( d, "polySimp_directEquations", -3000 );
         bindRuleSet ( d, "polySimp_pullOutGcd", -2250 );
         bindRuleSet ( d, "polySimp_leftNonUnit", -2000 );
-        bindRuleSet ( d, "polySimp_saturate", 0 );
+        bindRuleSet ( d, "polySimp_saturate", inftyConst() );
     }
 
     private void setupPolySimp( RuleSetDispatchFeature d) {
@@ -669,7 +669,7 @@ public class DLStrategy extends AbstractFeatureStrategy implements
         // this might be too slow ... and should maybe be written in native Java
         final TermFeature literalTerm =
             rec(any(), or(op(tf.add), op(tf.sub),
-                       or(op(tf.mul), op(tf.div),
+                       or(op(tf.mul), opSub(tf.div, any(), not(tf.zeroLiteral)),
                        or(op(tf.pow), op(tf.neg),
                        or(tf.literal, DecimalLiteralFeature.INSTANCE)))));
         
@@ -758,9 +758,13 @@ public class DLStrategy extends AbstractFeatureStrategy implements
                  not ( applyTF ( "fractDenom", tf.zeroLiteral ) ),
                  ifZero ( applyTF ( "fractDenom", tf.literal ),
                           add ( not ( applyTF ( "fractNum", tf.literal ) ),
-                                longConst ( -120 ) ),
+                                longConst ( -110 ) ),
                           NotInScopeOfModalityFeature.INSTANCE ) ) );
         
+        bindRuleSet ( d, "polySimp_decompFractMul",
+           add ( NotInScopeOfModalityFeature.INSTANCE,
+                 longConst ( -120 ) ) );
+             
         // category "direct equations"
         
         bindRuleSet ( d, "polySimp_balance",
