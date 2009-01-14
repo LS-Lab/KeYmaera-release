@@ -23,19 +23,13 @@
 package de.uka.ilkd.key.dl.arithmetics.impl.mathematica;
 
 import java.math.BigDecimal;
-import java.rmi.RemoteException;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
 import com.wolfram.jlink.Expr;
 
 import de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator.QuantifierType;
-import de.uka.ilkd.key.dl.arithmetics.exceptions.IncompleteEvaluationException;
-import de.uka.ilkd.key.dl.arithmetics.exceptions.UnableToConvertInputException;
-import de.uka.ilkd.key.gui.Main;
-import de.uka.ilkd.key.logic.Name;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.op.Function;
 import de.uka.ilkd.key.logic.op.Junctor;
@@ -132,17 +126,37 @@ public class Term2ExprConverter implements ExprConstants {
 					try {
 						return new Expr(d.intValueExact());
 					} catch (ArithmeticException e) {
-						// calculate fraction to pass to Mathematica, as decimal
-						// fractions are considered to be numeric values of a
-						// certain precision
-						int remainder = 1;
-						BigDecimal ten = new BigDecimal(10);
-						while (d.intValue() < d.doubleValue()) {
-							remainder *= 10;
-							d = d.multiply(ten);
+						if (Options.INSTANCE.isConvertDecimalsToRationals()) {
+							// calculate fraction to pass to Mathematica, as
+							// decimal fractions are considered to be numeric
+							// values of a certain precision
+							int denominator = 1;
+							BigDecimal ten = new BigDecimal(10);
+							while (d.intValue() < d.doubleValue()) {
+								denominator *= 10;
+								d = d.multiply(ten);
+							}
+
+							// calculate the greatest common divisor of the
+							// fraction
+							int nominator = d.intValueExact();
+							int tmp = nominator;
+							int gcd = denominator;
+							int t;
+							while (tmp > 0) {
+								t = nominator;
+								tmp = gcd % tmp;
+								gcd = t;
+							}
+							nominator = nominator / gcd;
+							denominator = denominator / gcd;
+							return new Expr(RATIONAL,
+									new Expr[] { new Expr(nominator),
+											new Expr(denominator) });
+						} else {
+							return new Expr(Expr.SYM_REAL,
+									new Expr[] { new Expr(d) });
 						}
-						return new Expr(RATIONAL, new Expr[] { new Expr(d.intValueExact()),
-								new Expr(remainder) });
 					}
 				} catch (NumberFormatException e) {
 					String name = form.op().name().toString();

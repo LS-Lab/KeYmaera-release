@@ -75,9 +75,13 @@ public class Options implements Settings {
 
 	private static final String OPTIONS_MEMORYCONSTRAINT = "[MathematicaOptions]memoryConstraint";
 
+	private static final String OPTIONS_CONVERT_DECIMAL_FRACTIONS_TO_RATIONALS = "[MathematicaOptions]convertDecimalFractionsToRationals";
+
 	private QuantifierEliminationMethod quantifierEliminationMethod;
 
 	private boolean useEliminateList;
+
+	private boolean convertDecimalsToRationals;
 
 	private List<SettingsListener> listeners;
 
@@ -87,6 +91,7 @@ public class Options implements Settings {
 		listeners = new LinkedList<SettingsListener>();
 		quantifierEliminationMethod = QuantifierEliminationMethod.REDUCE;
 		useEliminateList = true;
+		convertDecimalsToRationals = true;
 		memoryConstraint = -1;
 	}
 
@@ -120,6 +125,10 @@ public class Options implements Settings {
 		property = props.getProperty(OPTIONS_USE_ELIMINATE_LIST);
 		if (property != null) {
 			useEliminateList = Boolean.valueOf(property);
+		}
+		property = props.getProperty(OPTIONS_CONVERT_DECIMAL_FRACTIONS_TO_RATIONALS);
+		if (property != null) {
+			convertDecimalsToRationals = Boolean.valueOf(property);
 		}
 		property = props.getProperty(OPTIONS_MEMORYCONSTRAINT);
 		if (property != null) {
@@ -194,5 +203,24 @@ public class Options implements Settings {
 			firePropertyChanged();
 		}
 	}
+
+	/**
+	 * @return the convertDecimalsToRationals
+	 */
+	public boolean isConvertDecimalsToRationals() {
+		return convertDecimalsToRationals;
+	}
+
+	/**
+	 * @param convertDecimalsToRationals the convertDecimalsToRationals to set
+	 */
+	public void setConvertDecimalsToRationals(boolean convertDecimalsToRationals) {
+		if(convertDecimalsToRationals != this.convertDecimalsToRationals) {
+			this.convertDecimalsToRationals = convertDecimalsToRationals;
+			firePropertyChanged();
+		}
+	}
+	
+	
 
 }
