@@ -11,14 +11,17 @@
 
 package de.uka.ilkd.key.dl.rules.metaconstruct;
 
-import java.math.BigInteger;
+import orbital.math.AlgebraicAlgorithms;
+import orbital.math.Arithmetic;
+import orbital.moon.math.ValuesImpl;
+import orbital.math.functional.Operations;
 
-import de.uka.ilkd.key.java.Services;
-import de.uka.ilkd.key.java.TypeConverter;
+import de.uka.ilkd.key.dl.arithmetics.impl.orbital.OrbitalSimplifier;
+import de.uka.ilkd.key.dl.logic.ldt.RealLDT;
+import de.uka.ilkd.key.dl.strategy.termfeature.QuasiRealLiteralFeature;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.TermBuilder;
 import de.uka.ilkd.key.logic.TermFactory;
-import de.uka.ilkd.key.logic.ldt.IntegerLDT;
 import de.uka.ilkd.key.logic.op.AbstractMetaOperator;
 import de.uka.ilkd.key.logic.op.CastFunctionSymbol;
 import de.uka.ilkd.key.logic.op.Operator;
@@ -30,55 +33,56 @@ import de.uka.ilkd.key.util.LRUCache;
  */
 public class PolynomialReals {
 
-    private final BigInteger constantPart;
-    private final ListOfMonomial parts;
+    private final Arithmetic constantPart;
+    private final ListOfMonomialReals parts;
 
-    private PolynomialReals(ListOfMonomial parts, BigInteger constantPart) {
+    private PolynomialReals(ListOfMonomialReals parts, Arithmetic constantPart) {
         this.parts = parts;
         this.constantPart = constantPart;
     }
     
     private static final LRUCache<Term, PolynomialReals> polynomialCache = 
         new LRUCache<Term, PolynomialReals> ( 2000 );
-    private static final BigInteger MINUS_ONE = BigInteger.valueOf ( -1 );
 
     public final static PolynomialReals ZERO =
-        new PolynomialReals ( SLListOfMonomial.EMPTY_LIST, BigInteger.ZERO );    
+        new PolynomialReals ( SLListOfMonomialReals.EMPTY_LIST,
+        	              ValuesImpl.getDefault().ZERO());    
     public final static PolynomialReals ONE =
-        new PolynomialReals ( SLListOfMonomial.EMPTY_LIST, BigInteger.ONE );    
+        new PolynomialReals ( SLListOfMonomialReals.EMPTY_LIST,
+        	              ValuesImpl.getDefault().ONE() );    
 
-    public static PolynomialReals create(Term polyTerm, Services services) {
+    public static PolynomialReals create(Term polyTerm) {
         PolynomialReals res = polynomialCache.get ( polyTerm );
         if ( res == null ) {
-            res = createHelp ( polyTerm, services );
+            res = createHelp ( polyTerm );
             polynomialCache.put ( polyTerm, res );
         }
         return res;
     }
 
-    private static PolynomialReals createHelp(Term polynomial, Services services) {
-        final Analyser a = new Analyser ( services );
+    private static PolynomialReals createHelp(Term polynomial) {
+        final Analyser a = new Analyser ();
         a.analyse ( polynomial );
         return new PolynomialReals ( a.parts, a.constantPart );
     }
 
-    public PolynomialReals multiply(BigInteger c) {
-        if ( c.signum () == 0 )
-            return new PolynomialReals ( SLListOfMonomial.EMPTY_LIST, BigInteger.ZERO );
-        ListOfMonomial newParts = SLListOfMonomial.EMPTY_LIST;
-        final IteratorOfMonomial it = parts.iterator ();
+    public PolynomialReals multiply(Arithmetic c) {
+        if ( c.isZero () )
+            return ZERO;
+        ListOfMonomialReals newParts = SLListOfMonomialReals.EMPTY_LIST;
+        final IteratorOfMonomialReals it = parts.iterator ();
         while ( it.hasNext () )
             newParts = newParts.prepend ( it.next ().multiply ( c ) );
 
         return new PolynomialReals ( newParts, constantPart.multiply ( c ) );
     }
 
-    public PolynomialReals multiply(Monomial m) {
-        if ( m.getCoefficient ().signum () == 0 )
-            return new PolynomialReals ( SLListOfMonomial.EMPTY_LIST, BigInteger.ZERO );
+    public PolynomialReals multiply(MonomialReals m) {
+        if ( m.getCoefficient ().isZero () )
+            return ZERO;
         
-        ListOfMonomial newParts = SLListOfMonomial.EMPTY_LIST;
-        final IteratorOfMonomial it = parts.iterator ();
+        ListOfMonomialReals newParts = SLListOfMonomialReals.EMPTY_LIST;
+        final IteratorOfMonomialReals it = parts.iterator ();
         while ( it.hasNext () )
             newParts = newParts.prepend ( it.next ().multiply ( m ) );
 
@@ -87,24 +91,25 @@ public class PolynomialReals {
                                     constantPart.multiply ( m.getCoefficient () ) );
         
         newParts = addPart ( newParts, m.multiply ( constantPart ) );
-        return new PolynomialReals ( newParts, BigInteger.ZERO );
+        return new PolynomialReals ( newParts, ValuesImpl.getDefault().ZERO() );
     }
 
-    public PolynomialReals add(BigInteger c) {
+    public PolynomialReals add(Arithmetic c) {
         return new PolynomialReals ( parts, constantPart.add ( c ) );
     }
     
     public PolynomialReals sub(PolynomialReals p) {
-        final BigInteger newConst =
+        final Arithmetic newConst =
             getConstantTerm ().subtract ( p.getConstantTerm () );
-        ListOfMonomial newParts = parts;
-        final IteratorOfMonomial it = p.getParts ().iterator ();
+        ListOfMonomialReals newParts = parts;
+        final IteratorOfMonomialReals it = p.getParts ().iterator ();
         while ( it.hasNext () )
-            newParts = addPart ( newParts, it.next ().multiply ( MINUS_ONE ) );
+            newParts = addPart ( newParts, it.next ().multiply
+        	                         ( ValuesImpl.getDefault().MINUS_ONE() ) );
         return new PolynomialReals ( newParts, newConst );
     }
     
-    public PolynomialReals add(Monomial m) {
+    public PolynomialReals add(MonomialReals m) {
         if ( m.getParts ().isEmpty () )
             return new PolynomialReals ( parts,
                                     constantPart.add ( m.getCoefficient () ) );
@@ -113,10 +118,10 @@ public class PolynomialReals {
     }
     
     public PolynomialReals add(PolynomialReals p) {
-        final BigInteger newConst =
+        final Arithmetic newConst =
             getConstantTerm ().add ( p.getConstantTerm () );
-        ListOfMonomial newParts = parts;
-        final IteratorOfMonomial it = p.getParts ().iterator ();
+        ListOfMonomialReals newParts = parts;
+        final IteratorOfMonomialReals it = p.getParts ().iterator ();
         while ( it.hasNext () )
             newParts = addPart ( newParts, it.next () );
         return new PolynomialReals ( newParts, newConst );
@@ -128,13 +133,13 @@ public class PolynomialReals {
      *         taken into account. If there are no monomials (apart from the
      *         constant term), the result is <code>BigInteger.ZERO</code>
      */
-    public BigInteger coeffGcd() {
+/*    public BigInteger coeffGcd() {
         BigInteger res = BigInteger.ZERO;
-        final IteratorOfMonomial it = parts.iterator ();
+        final IteratorOfMonomialReals it = parts.iterator ();
         while ( it.hasNext () )
             res = res.gcd ( it.next ().getCoefficient () );
         return res;
-    }
+    } */
     
     /**
      * @return <code>true</code> if the value of <code>this</code> will
@@ -143,7 +148,7 @@ public class PolynomialReals {
      */
     public boolean valueLess(PolynomialReals p) {
         if ( !sameParts ( p ) ) return false;
-        return constantPart.compareTo ( p.constantPart ) < 0;
+        return Operations.less.apply ( constantPart, p.constantPart );
     }
 
     /**
@@ -153,22 +158,22 @@ public class PolynomialReals {
      */
     public boolean valueEq(PolynomialReals p) {
         if ( !sameParts ( p ) ) return false;
-        return constantPart.equals ( p.constantPart );
+        return Operations.equal.apply ( constantPart, p.constantPart );
     }
 
     public boolean valueUneq(PolynomialReals p) {
         if ( !sameParts ( p ) ) return false;
-        return !constantPart.equals ( p.constantPart );
+        return !Operations.equal.apply ( constantPart, p.constantPart );
     }
 
-    public boolean valueEq(BigInteger c) {
+    public boolean valueEq(Arithmetic c) {
         if ( !parts.isEmpty () ) return false;
-        return constantPart.equals ( c );
+        return Operations.equal.apply ( constantPart, c );
     }
 
-    public boolean valueUneq(BigInteger c) {
+    public boolean valueUneq(Arithmetic c) {
         if ( !parts.isEmpty () ) return false;
-        return !constantPart.equals ( c );
+        return !Operations.equal.apply ( constantPart, c );
     }
 
     /**
@@ -178,17 +183,17 @@ public class PolynomialReals {
      */
     public boolean valueLeq(PolynomialReals p) {
         if ( !sameParts ( p ) ) return false;
-        return constantPart.compareTo ( p.constantPart ) <= 0;
+        return Operations.lessEqual.apply ( constantPart, p.constantPart );
     }
 
-    public boolean valueLess(BigInteger c) {
+    public boolean valueLess(Arithmetic c) {
         if ( !parts.isEmpty () ) return false;
-        return constantPart.compareTo ( c ) < 0;
+        return Operations.less.apply ( constantPart, c );
     }
 
-    public boolean valueGeq(BigInteger c) {
+    public boolean valueGeq(Arithmetic c) {
         if ( !parts.isEmpty () ) return false;
-        return constantPart.compareTo ( c ) >= 0;
+        return Operations.greaterEqual.apply ( constantPart, c );
     }
 
     public boolean sameParts(PolynomialReals p) {
@@ -196,24 +201,24 @@ public class PolynomialReals {
         return difference ( parts, p.parts ).isEmpty ();
     }
     
-    public Term toTerm (Services services) {
+    public Term toTerm () {
         final TermSymbol add = 
-            services.getTypeConverter().getIntegerLDT().getAdd();
+            RealLDT.getFunctionFor(de.uka.ilkd.key.dl.model.Plus.class);
         Term res = null;
         
-        final IteratorOfMonomial it = parts.iterator ();
+        final IteratorOfMonomialReals it = parts.iterator ();
         if ( it.hasNext () ) {
-            res = it.next ().toTerm ( services );
+            res = it.next ().toTerm ();
             while ( it.hasNext () )
                 res = TermFactory.DEFAULT.createFunctionTerm
-                              ( add, res, it.next ().toTerm ( services ) );
+                              ( add, res, it.next ().toTerm () );
         }
         
-        final Term cTerm = TermBuilder.DF.zTerm(services, constantPart.toString());
+        final Term cTerm = OrbitalSimplifier.arithmetic2Term(constantPart);
         
         if ( res == null )
             res = cTerm;
-        else if ( !BigInteger.ZERO.equals ( constantPart ) )
+        else if ( !constantPart.isZero () )
             res = TermFactory.DEFAULT.createFunctionTerm ( add, cTerm, res );
         
         return res;        
@@ -223,7 +228,7 @@ public class PolynomialReals {
         final StringBuffer res = new StringBuffer ();
         res.append ( constantPart );
         
-        final IteratorOfMonomial it = parts.iterator ();
+        final IteratorOfMonomialReals it = parts.iterator ();
         while ( it.hasNext () )
             res.append ( " + " + it.next () );
 
@@ -231,45 +236,21 @@ public class PolynomialReals {
     }
     
     private static class Analyser {
-        public BigInteger constantPart = BigInteger.ZERO;
-        public ListOfMonomial parts = SLListOfMonomial.EMPTY_LIST;
-        private final Services services;
-        private final TypeConverter tc;
-        private final Operator numbers, add;
-            
-        public Analyser(final Services services) {
-            this.services = services;
-            this.tc = services.getTypeConverter ();
-            final IntegerLDT intLDT = tc.getIntegerLDT ();
-            numbers = intLDT.getNumberSymbol ();
-            add = intLDT.getAdd();
-        }
-        
+        public Arithmetic constantPart = ValuesImpl.getDefault().ZERO();
+        public ListOfMonomialReals parts = SLListOfMonomialReals.EMPTY_LIST;
+        private final Operator add =
+            RealLDT.getFunctionFor(de.uka.ilkd.key.dl.model.Plus.class);
+
         public void analyse(Term polynomial) {
             final Operator op = polynomial.op ();
             if ( op == add ) {
                 analyse ( polynomial.sub ( 0 ) );
                 analyse ( polynomial.sub ( 1 ) );
-            } else if ( op == numbers ) {
-                final BigInteger c =
-                    new BigInteger ( AbstractMetaOperator
-                                     .convertToDecimalString ( polynomial, services ) );
+            } else if ( QuasiRealLiteralFeature.isLiteral(polynomial) ) {
+                final Arithmetic c = QuasiRealLiteralFeature.literal2Arithmetic(polynomial);
                 constantPart = constantPart.add ( c );
-            } else if ( op instanceof CastFunctionSymbol
-                        && polynomial.sub ( 0 ).sort ().extendsTrans (
-                                             tc.getIntegerLDT ().targetSort () )
-                        &&
-                        ( polynomial.sort () == tc.getByteLDT ().targetSort ()
-                          || polynomial.sort () == tc.getShortLDT ().targetSort ()
-                          || polynomial.sort () == tc.getCharLDT ().targetSort ()
-                          || polynomial.sort () == tc.getIntLDT ().targetSort ()
-                          || polynomial.sort () == tc.getLongLDT ().targetSort ()
-                          || polynomial.sort () == tc.getIntegerLDT ().targetSort () ) ) {
-                // HACK: work around the hackish integer type hierarchy
-                analyse ( polynomial.sub ( 0 ) );
             } else {
-                parts = addPart ( parts,
-                                  Monomial.create ( polynomial, services ) );
+                parts = addPart ( parts, MonomialReals.create ( polynomial ) );
             }
         }
     }
@@ -279,41 +260,41 @@ public class PolynomialReals {
      *         in <code>b</code>. multiplicity is treated as well here, so
      *         this is really difference of multisets
      */
-    private static ListOfMonomial difference(ListOfMonomial a, ListOfMonomial b) {
-        ListOfMonomial res = a;
-        final IteratorOfMonomial it = b.iterator ();
+    private static ListOfMonomialReals difference(ListOfMonomialReals a, ListOfMonomialReals b) {
+        ListOfMonomialReals res = a;
+        final IteratorOfMonomialReals it = b.iterator ();
         while ( it.hasNext () && !res.isEmpty () )
             res = res.removeFirst ( it.next () );
         return res;
     }
 
-    private static ListOfMonomial addPart(ListOfMonomial oldParts, Monomial m) {
-        if ( m.getCoefficient ().signum () == 0 ) return oldParts;
-        final ListOfMonomial newParts = addPartHelp ( oldParts, m );
+    private static ListOfMonomialReals addPart(ListOfMonomialReals oldParts, MonomialReals m) {
+        if ( m.getCoefficient ().isZero() ) return oldParts;
+        final ListOfMonomialReals newParts = addPartHelp ( oldParts, m );
         if ( newParts != null ) return newParts;
         return oldParts.prepend ( m );
     }
 
-    private static ListOfMonomial addPartHelp(ListOfMonomial oldParts, Monomial m) {
+    private static ListOfMonomialReals addPartHelp(ListOfMonomialReals oldParts, MonomialReals m) {
         if ( oldParts.isEmpty () ) return null;
-        final Monomial head = oldParts.head ();
-        final ListOfMonomial tail = oldParts.tail ();
+        final MonomialReals head = oldParts.head ();
+        final ListOfMonomialReals tail = oldParts.tail ();
         if ( head.variablesEqual ( m ) ) {
-            final Monomial newHead =
+            final MonomialReals newHead =
                 head.addToCoefficient ( m.getCoefficient () );
-            if ( newHead.getCoefficient ().signum () == 0 ) return tail;
+            if ( newHead.getCoefficient ().isZero() ) return tail;
             return tail.prepend ( newHead );
         }
-        final ListOfMonomial res = addPartHelp ( tail, m );
+        final ListOfMonomialReals res = addPartHelp ( tail, m );
         if ( res == null ) return null;
         return res.prepend ( head );
     }    
     
-    public BigInteger getConstantTerm() {
+    public Arithmetic getConstantTerm() {
         return constantPart;
     }
 
-    public ListOfMonomial getParts() {
+    public ListOfMonomialReals getParts() {
         return parts;
     }
     

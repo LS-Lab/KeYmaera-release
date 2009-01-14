@@ -81,13 +81,13 @@ public abstract class QuasiRealLiteralFeature extends BinaryTermFeature {
 
     public static final TermFeature NON_POSITIVE = new QuasiRealLiteralFeature () {
         protected boolean checkValue(BigInteger num, BigInteger denom) {
-            return num.signum() >= 0;
+            return num.signum() <= 0;
         }
     };
 
     public static final TermFeature NON_NEGATIVE = new QuasiRealLiteralFeature () {
         protected boolean checkValue(BigInteger num, BigInteger denom) {
-            return num.signum() <= 0;
+            return num.signum() >= 0;
         }
     };
 
