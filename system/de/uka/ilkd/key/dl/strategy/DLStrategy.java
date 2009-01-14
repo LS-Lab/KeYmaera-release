@@ -105,6 +105,7 @@ import de.uka.ilkd.key.strategy.feature.ConstraintStrengthenFeature;
 import de.uka.ilkd.key.strategy.feature.ConstraintStrengthenFeatureUC;
 import de.uka.ilkd.key.strategy.feature.CountMaxDPathFeature;
 import de.uka.ilkd.key.strategy.feature.CountPosDPathFeature;
+import de.uka.ilkd.key.strategy.feature.DiffFindAndIfFeature;
 import de.uka.ilkd.key.strategy.feature.DirectlyBelowSymbolFeature;
 import de.uka.ilkd.key.strategy.feature.EqNonDuplicateAppFeature;
 import de.uka.ilkd.key.strategy.feature.Feature;
@@ -897,6 +898,74 @@ public class DLStrategy extends AbstractFeatureStrategy implements
                                         instOfNonStrict ( "esCoeff1" ),
                                         instOfNonStrict ( "esCoeff2" ) ))
                          } ) ) } ) );
+        
+        // category "propagation"
+
+        setupContradictions(d, false);
+        setupContradictions(d, true);
+
+        bindRuleSet ( d, "inEqSimp_contradEqs",
+           add ( applyTF ( "contradLeft", tf.monomial ),
+                 ifZero ( MatchedIfFeature.INSTANCE,
+                   SumFeature.createSum ( new Feature[] {
+                     applyTF ( "contradRightSmaller", tf.polynomial ),
+                     applyTF ( "contradRightBigger", tf.polynomial ),
+                     PolynomialValuesCmpFeature
+                     .lt ( instOf ( "contradRightSmaller" ),
+                           instOf ( "contradRightBigger" ) ) } ) ),
+                 longConst ( -60 ) ) );
+
+        bindRuleSet ( d, "inEqSimp_strengthen", longConst ( -30 ) );
+
+        setupSubsumption(d, false);
+        setupSubsumption(d, true);
+
+    }
+
+    private void setupContradictions(RuleSetDispatchFeature d, boolean strict) {
+        bindRuleSet ( d, strict ? "inEqSimp_strictContradInEqs" : "inEqSimp_contradInEqs",
+           add ( applyTF ( "contradLeft", tf.monomial ),
+                 ifZero ( MatchedIfFeature.INSTANCE,
+                   SumFeature.createSum ( new Feature[] {
+                     DiffFindAndIfFeature.INSTANCE,
+                     applyTF ( "contradRightSmaller", tf.polynomial ),
+                     applyTF ( "contradRightBigger", tf.polynomial ),
+                     applyTFNonStrict ( "contradCoeffSmaller", tf.posLiteral ),
+                     applyTFNonStrict ( "contradCoeffBigger", tf.posLiteral ),
+                     strict ?
+                       PolynomialValuesCmpFeature
+                       .leq ( instOf ( "contradRightSmaller" ),
+                              instOf ( "contradRightBigger" ),
+                              instOfNonStrict ( "contradCoeffBigger" ),
+                              instOfNonStrict ( "contradCoeffSmaller" ) )
+                     : PolynomialValuesCmpFeature
+                       .lt ( instOf ( "contradRightSmaller" ),
+                             instOf ( "contradRightBigger" ),
+                             instOfNonStrict ( "contradCoeffBigger" ),
+                             instOfNonStrict ( "contradCoeffSmaller" ) )} ) ) ) );
+    }
+
+    private void setupSubsumption(RuleSetDispatchFeature d, boolean strict) {
+        bindRuleSet ( d, strict ? "inEqSimp_strictSubsumption" : "inEqSimp_subsumption",
+           add ( applyTF ( "subsumLeft", tf.monomial ),
+                 ifZero ( MatchedIfFeature.INSTANCE,
+                   SumFeature.createSum ( new Feature[] {
+                     DiffFindAndIfFeature.INSTANCE,
+                     applyTF ( "subsumRightSmaller", tf.polynomial ),
+                     applyTF ( "subsumRightBigger", tf.polynomial ),
+                     applyTFNonStrict ( "subsumCoeffSmaller", tf.posLiteral ),
+                     applyTFNonStrict ( "subsumCoeffBigger", tf.posLiteral ),
+                     strict ?
+                       PolynomialValuesCmpFeature
+                       .lt ( instOf ( "subsumRightSmaller" ),
+                             instOf ( "subsumRightBigger" ),
+                             instOfNonStrict ( "subsumCoeffBigger" ),
+                             instOfNonStrict ( "subsumCoeffSmaller" ) )
+                     : PolynomialValuesCmpFeature
+                       .leq ( instOf ( "subsumRightSmaller" ),
+                              instOf ( "subsumRightBigger" ),
+                              instOfNonStrict ( "subsumCoeffBigger" ),
+                              instOfNonStrict ( "subsumCoeffSmaller" ) ) } ) ) ) );
     }
 
 	////////////////////////////////////////////////////////////////////////////

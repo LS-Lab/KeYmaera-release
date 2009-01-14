@@ -15,10 +15,8 @@ import orbital.math.Arithmetic;
 
 import de.uka.ilkd.key.dl.rules.metaconstruct.PolynomialReals;
 import de.uka.ilkd.key.dl.strategy.termfeature.QuasiRealLiteralFeature;
-import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.logic.PosInOccurrence;
 import de.uka.ilkd.key.logic.Term;
-import de.uka.ilkd.key.logic.op.AbstractMetaOperator;
 import de.uka.ilkd.key.proof.Goal;
 import de.uka.ilkd.key.rule.TacletApp;
 import de.uka.ilkd.key.strategy.feature.BinaryTacletAppFeature;
