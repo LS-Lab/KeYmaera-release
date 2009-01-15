@@ -48,8 +48,7 @@ public class AtomsSmallerThanFeature extends AbstractMonomialSmallerThanFeature 
      */
     protected boolean lessThan(Term t1, Term t2) {
         if ( QuasiRealLiteralFeature.isLiteral(t1) ) {
-            if ( QuasiRealLiteralFeature.isLiteral(t2) ) return true;
-            return super.lessThan ( t1, t2 );
+            if ( !QuasiRealLiteralFeature.isLiteral(t2) ) return true;
         } else {
             if ( QuasiRealLiteralFeature.isLiteral(t2) ) return false;
         }

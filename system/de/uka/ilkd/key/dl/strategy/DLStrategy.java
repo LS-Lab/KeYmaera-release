@@ -115,12 +115,14 @@ import de.uka.ilkd.key.strategy.feature.FormulaAddedByRuleFeature;
 import de.uka.ilkd.key.strategy.feature.LeftmostNegAtomFeature;
 import de.uka.ilkd.key.strategy.feature.MatchedIfFeature;
 import de.uka.ilkd.key.strategy.feature.NonDuplicateAppFeature;
+import de.uka.ilkd.key.strategy.feature.NonDuplicateAppModPositionFeature;
 import de.uka.ilkd.key.strategy.feature.NotBelowQuantifierFeature;
 import de.uka.ilkd.key.strategy.feature.NotInScopeOfModalityFeature;
 import de.uka.ilkd.key.strategy.feature.NotWithinMVFeature;
 import de.uka.ilkd.key.strategy.feature.PurePosDPathFeature;
 import de.uka.ilkd.key.strategy.feature.RuleSetDispatchFeature;
 import de.uka.ilkd.key.strategy.feature.ScaleFeature;
+import de.uka.ilkd.key.strategy.feature.SeqContainsExecutableCodeFeature;
 import de.uka.ilkd.key.strategy.feature.SimplifyBetaCandidateFeature;
 import de.uka.ilkd.key.strategy.feature.SimplifyReplaceKnownCandidateFeature;
 import de.uka.ilkd.key.strategy.feature.SumFeature;
@@ -658,7 +660,7 @@ public class DLStrategy extends AbstractFeatureStrategy implements
         bindRuleSet ( d, "polySimp_directEquations", -3000 );
         bindRuleSet ( d, "polySimp_pullOutGcd", -2250 );
         bindRuleSet ( d, "polySimp_leftNonUnit", -2000 );
-        bindRuleSet ( d, "polySimp_saturate", inftyConst() );
+        bindRuleSet ( d, "polySimp_saturate", 1000 );
 
         // Fourier-Motzkin for handling linear arithmetic and inequalities over the
         // integers; cross-multiplication + case distinctions for nonlinear
@@ -773,7 +775,11 @@ public class DLStrategy extends AbstractFeatureStrategy implements
         bindRuleSet ( d, "polySimp_decompFractMul",
            add ( NotInScopeOfModalityFeature.INSTANCE,
                  longConst ( -120 ) ) );
-             
+
+        bindRuleSet ( d, "polySimp_divAxiom",
+                      add ( not ( applyTF ( "fractDenom", tf.literal ) ),
+                            NonDuplicateAppModPositionFeature.INSTANCE ) );
+                
         // category "direct equations"
         
         bindRuleSet ( d, "polySimp_balance",
@@ -1146,6 +1152,12 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 	private Feature setupApprovalF(Proof p_proof) {
 		final RuleSetDispatchFeature d = RuleSetDispatchFeature.create();
 		setupDiffSatApprovalStrategy(d);
+		
+		// do not introduce S-polynomials while programs are
+		// still present
+		bindRuleSet(d, "polySimp_saturate",
+		            not ( SeqContainsExecutableCodeFeature.PROGRAMS ));
+		
 		return SumFeature.createSum(new Feature[] { d,
 				EliminateExistentialApproveFeature.INSTANCE });
 	}
