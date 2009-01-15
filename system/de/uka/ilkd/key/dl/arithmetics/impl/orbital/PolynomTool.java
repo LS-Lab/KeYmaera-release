@@ -211,11 +211,13 @@ public abstract class PolynomTool {
 			// cross-multiply with the denominators
 			System.out.println("Now calculating " + rightHandSide + " * "
 					+ leftHandSide.denominator());// XXX
-			System.out.println("left is of type " + leftHandSide.denominator().getClass());//XXX
-			System.out.println("right is of type " + rightHandSide.getClass());//XXX
+			System.out.println("left is of type "
+					+ leftHandSide.denominator().getClass());// XXX
+			System.out.println("right is of type " + rightHandSide.getClass());// XXX
 			if (!leftHandSide.denominator().isOne()) {
-				rightHandSide = (Fraction) rightHandSide.multiply(leftHandSide
-						.denominator());
+				rightHandSide = (Fraction) rightHandSide.multiply(Values
+						.getDefault().fraction(leftHandSide.denominator(),
+								leftHandSide.denominator().one()));
 			}
 		}
 
@@ -259,14 +261,15 @@ public abstract class PolynomTool {
 		} else if (t.op().name().toString().equals("leq")) {
 			result = generateResultingFormula(zero, leftDenominator,
 					rightDenominator, left, right, leq, geq);
-		} else if(t.op().name().toString().equals("geq")) {
+		} else if (t.op().name().toString().equals("geq")) {
 			result = generateResultingFormula(zero, leftDenominator,
 					rightDenominator, left, right, geq, leq);
 		} else if (t.op().name().toString().equals("gt")) {
 			result = generateResultingFormula(zero, leftDenominator,
 					rightDenominator, left, right, gt, lt);
 		} else {
-			throw new IllegalArgumentException("Dont know what to do with the operator " + t.op());
+			throw new IllegalArgumentException(
+					"Dont know what to do with the operator " + t.op());
 		}
 
 		// return the resulting terms
