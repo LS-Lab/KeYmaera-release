@@ -129,7 +129,8 @@ public class Orbital implements IODESolver {
 
 			// create matrix
 			MatrixForm matrixForm = DL2MatrixFormConverter.INSTANCE
-					.convertToMatrixForm(vars, equations, services.getNamespaces());
+					.convertToMatrixForm(vars, equations, services
+							.getNamespaces());
 			System.out.println("Solving ODE x'(t) ==\n" + matrixForm.matrix
 					+ "*x(t) + " + matrixForm.b + "\n" + "  " + matrixForm.eta
 					+ "'(t) == " + matrixForm.matrix.multiply(matrixForm.eta)
@@ -157,7 +158,8 @@ public class Orbital implements IODESolver {
 				int i = 0;
 				while (iterator.hasNext()) {
 					Object next = iterator.next();
-					Term n = convertOrbitalToTerm(sortR, zero, services.getNamespaces(), next);
+					Term n = convertOrbitalToTerm(sortR, zero, services
+							.getNamespaces(), next);
 
 					if (n != null) {
 						if (i == 0) {
@@ -219,8 +221,8 @@ public class Orbital implements IODESolver {
 									.toArray(new Term[0]), invariant));
 			invariant = ((SubstOp) invariant.op()).apply(invariant);
 			// insert 0 <= ts <= t
-			de.uka.ilkd.key.logic.op.Function leq = (de.uka.ilkd.key.logic.op.Function) services.getNamespaces()
-					.functions().lookup(new Name("leq"));
+			de.uka.ilkd.key.logic.op.Function leq = (de.uka.ilkd.key.logic.op.Function) services
+					.getNamespaces().functions().lookup(new Name("leq"));
 			Term tsRange = TermBuilder.DF.and(TermBuilder.DF.func(leq, zero,
 					TermBuilder.DF.var(ts)), TermBuilder.DF.func(leq,
 					TermBuilder.DF.var(ts), TermBuilder.DF.var(t)));
@@ -261,17 +263,39 @@ public class Orbital implements IODESolver {
 	 *            the object to convert
 	 * @return a term representation of the given object
 	 */
-	private Term convertOrbitalToTerm(Sort sortR, Term zero, NamespaceSet nss,
+	public static Term convertOrbitalToTerm(Sort sortR, Term zero, NamespaceSet nss,
 			Object next) {
+		return convertOrbitalToTerm(sortR, zero, nss, new HashMap<String, Term>(), next);
+	}
+
+	/**
+	 * Convert the result that the orbital library has returned into a KeY-Term
+	 * 
+	 * @param sortR
+	 *            the sort object representing the real numbers
+	 * @param zero
+	 *            a term representing the real number 0
+	 * @param nss
+	 *            the current set of namespaces
+	 * @param next
+	 *            the object to convert
+	 * @return a term representation of the given object
+	 */
+	public static Term convertOrbitalToTerm(Sort sortR, Term zero,
+			NamespaceSet nss, Map<String, Term> variableMap, Object next) {
 		if (next instanceof Symbol) {
 			Symbol sym = (Symbol) next;
+			String signifier = sym.getSignifier();
+			if(variableMap.containsKey(signifier)) {
+				return variableMap.get(signifier);
+			}
 			de.uka.ilkd.key.logic.op.ProgramVariable pvar = (de.uka.ilkd.key.logic.op.ProgramVariable) nss
-					.programVariables().lookup(new Name(sym.getSignifier()));
+					.programVariables().lookup(new Name(signifier));
 			if (pvar != null) {
 				return TermBuilder.DF.var(pvar);
 			} else {
 				de.uka.ilkd.key.logic.op.Function f = (de.uka.ilkd.key.logic.op.Function) nss
-						.functions().lookup(new Name(sym.getSignifier()));
+						.functions().lookup(new Name(signifier));
 				if (f != null) {
 					return TermBuilder.DF.func(f);
 				}

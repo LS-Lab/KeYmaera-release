@@ -139,19 +139,19 @@ public class Term2ExprConverter implements ExprConstants {
 
 							// calculate the greatest common divisor of the
 							// fraction
-							int nominator = d.intValueExact();
-							int tmp = nominator;
+							int numerator = d.intValueExact();
+							int tmp = numerator;
 							int gcd = denominator;
 							int t;
 							while (tmp > 0) {
-								t = nominator;
+								t = numerator;
 								tmp = gcd % tmp;
 								gcd = t;
 							}
-							nominator = nominator / gcd;
+							numerator = numerator / gcd;
 							denominator = denominator / gcd;
 							return new Expr(RATIONAL,
-									new Expr[] { new Expr(nominator),
+									new Expr[] { new Expr(numerator),
 											new Expr(denominator) });
 						} else {
 							return new Expr(Expr.SYM_REAL,

@@ -20,7 +20,6 @@
 package de.uka.ilkd.key.dl.arithmetics.impl;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -37,12 +36,20 @@ import orbital.math.Real;
 import orbital.math.Values;
 import orbital.math.Vector;
 import de.uka.ilkd.key.dl.arithmetics.impl.csdp.CSDP;
+import de.uka.ilkd.key.dl.arithmetics.impl.orbital.PolynomTool;
 import de.uka.ilkd.key.dl.arithmetics.impl.sos.PolynomialOrder;
 import de.uka.ilkd.key.dl.arithmetics.impl.sos.SimpleOrder;
 import de.uka.ilkd.key.dl.formulatools.collector.AllCollector;
 import de.uka.ilkd.key.dl.formulatools.collector.FilterVariableSet;
 import de.uka.ilkd.key.dl.formulatools.collector.filter.FilterVariableCollector;
 import de.uka.ilkd.key.dl.logic.ldt.RealLDT;
+import de.uka.ilkd.key.dl.model.Greater;
+import de.uka.ilkd.key.dl.model.GreaterEquals;
+import de.uka.ilkd.key.dl.model.Less;
+import de.uka.ilkd.key.dl.model.LessEquals;
+import de.uka.ilkd.key.dl.model.Minus;
+import de.uka.ilkd.key.dl.model.MinusSign;
+import de.uka.ilkd.key.dl.model.Unequals;
 import de.uka.ilkd.key.dl.parser.NumberCache;
 import de.uka.ilkd.key.gui.Main;
 import de.uka.ilkd.key.logic.Name;
@@ -97,11 +104,11 @@ public class SumOfSquaresChecker {
 	public PolynomialClassification<Term> classify(Set<Term> ante,
 			Set<Term> succ) {
 		System.out.println("Computing f, g^2 and h");// XXX
-		final Function lt = getFunction("lt");
-		final Function leq = getFunction("leq");
-		final Function geq = getFunction("geq");
-		final Function gt = getFunction("gt");
-		final Function neq = getFunction("neq");
+		final Function lt = RealLDT.getFunctionFor(Less.class);
+		final Function leq = RealLDT.getFunctionFor(LessEquals.class);
+		final Function geq = RealLDT.getFunctionFor(GreaterEquals.class);
+		final Function gt = RealLDT.getFunctionFor(Greater.class);
+		final Function neq = RealLDT.getFunctionFor(Unequals.class);
 		Term zero = TermBuilder.DF.func(NumberCache.getNumber(
 				new BigDecimal(0), RealLDT.getRealSort()));
 		// handle succedent
@@ -119,7 +126,7 @@ public class SumOfSquaresChecker {
 				op = negationLookUp(t.op());
 			}
 			if (!(sub.equals(zero) || sub2.equals(zero))) {
-				sub = TermBuilder.DF.func(getFunction("sub"), t.sub(0), t
+				sub = TermBuilder.DF.func(RealLDT.getFunctionFor(Minus.class), t.sub(0), t
 						.sub(1));
 				sub2 = zero;
 			}
@@ -153,7 +160,7 @@ public class SumOfSquaresChecker {
 				op = t.op();
 			}
 			if (!(sub.equals(zero) || sub2.equals(zero))) {
-				sub = TermBuilder.DF.func(getFunction("sub"), t.sub(0), t
+				sub = TermBuilder.DF.func(RealLDT.getFunctionFor(Minus.class), t.sub(0), t
 						.sub(1));
 				sub2 = zero;
 			}
@@ -190,12 +197,12 @@ public class SumOfSquaresChecker {
 				g.add(TermBuilder.DF.func(neq, t.sub(0), t.sub(1)));
 			} else if (t.op().equals(leq)) {
 				f.add(TermBuilder.DF.func(geq, TermBuilder.DF.func(
-						getFunction("neg"), t.sub(0)), t.sub(1)));
+						RealLDT.getFunctionFor(MinusSign.class), t.sub(0)), t.sub(1)));
 				g.add(TermBuilder.DF.func(neq, TermBuilder.DF.func(
-						getFunction("neg"), t.sub(0)), t.sub(1)));
+						RealLDT.getFunctionFor(MinusSign.class), t.sub(0)), t.sub(1)));
 			} else if (t.op().equals(lt)) {
 				f.add(TermBuilder.DF.func(geq, TermBuilder.DF.func(
-						getFunction("neg"), t.sub(0)), t.sub(1)));
+						RealLDT.getFunctionFor(MinusSign.class), t.sub(0)), t.sub(1)));
 			} else if (t.op().equals(TermBuilder.DF.tt().op())
 					|| t.op().equals(TermBuilder.DF.ff().op())) {
 				// TODO jdq: we need to do something useful with this
@@ -214,14 +221,15 @@ public class SumOfSquaresChecker {
 	 * @return
 	 */
 	private Operator negationLookUp(Operator op) {
-		Function lt = getFunction("lt");
-		Function leq = getFunction("leq");
-		Function geq = getFunction("geq");
-		Function gt = getFunction("gt");
-		if (op.equals(getFunction("neq"))) {
+		final Function lt = RealLDT.getFunctionFor(Less.class);
+		final Function leq = RealLDT.getFunctionFor(LessEquals.class);
+		final Function geq = RealLDT.getFunctionFor(GreaterEquals.class);
+		final Function gt = RealLDT.getFunctionFor(Greater.class);
+		final Function neq = RealLDT.getFunctionFor(Unequals.class);
+		if (op.equals(neq)) {
 			return Equality.EQUALS;
 		} else if (op == Equality.EQUALS) {
-			return getFunction("neq");
+			return neq;
 		} else if (op.equals(geq)) {
 			return lt;
 		} else if (op.equals(gt)) {
@@ -303,7 +311,7 @@ public class SumOfSquaresChecker {
 		HashSet<Polynomial> polyH = new HashSet<Polynomial>();
 
 		for (Term t : cla.f) {
-			Fraction p = createPoly(t.sub(0), vars);
+			Fraction p = PolynomTool.createFractionOfPolynomialsFromTerm(t.sub(0), vars);
 			if (p.numerator().isOne()) {
 				polyF.add((Polynomial) p.denominator());
 			} else {
@@ -312,7 +320,7 @@ public class SumOfSquaresChecker {
 			}
 		}
 		for (Term t : cla.g) {
-			Fraction p = createPoly(t.sub(0), vars);
+			Fraction p = PolynomTool.createFractionOfPolynomialsFromTerm(t.sub(0), vars);
 			if (p.numerator().isOne()) {
 				polyG.add((Polynomial) p.denominator());
 			} else {
@@ -321,7 +329,7 @@ public class SumOfSquaresChecker {
 			}
 		}
 		for (Term t : cla.h) {
-			Fraction p = createPoly(t.sub(0), vars);
+			Fraction p = PolynomTool.createFractionOfPolynomialsFromTerm(t.sub(0), vars);
 			if (p.numerator().isOne()) {
 				polyH.add((Polynomial) p.denominator());
 			} else {
@@ -659,79 +667,4 @@ public class SumOfSquaresChecker {
 		}
 		return p;
 	}
-
-	/**
-	 * @param sub
-	 * @param variables
-	 * @return
-	 */
-	private Fraction createPoly(Term sub, List<String> variables) {
-		System.out.println(sub);// XXX
-		try {
-			int[] size = new int[variables.size()];
-			if (sub.arity() == 0) {
-				if (variables.contains(sub.op().name().toString())) {
-					size[variables.indexOf(sub.op().name().toString())] = 1;
-					return Values.getDefault().fraction(
-							Values.getDefault().MONOMIAL(size),
-							Values.getDefault().MONOMIAL(size).one());
-				} else {
-					return Values.getDefault().fraction(
-							Values.getDefault()
-									.MONOMIAL(
-											Values.getDefault().valueOf(
-													new BigDecimal(sub.op()
-															.name().toString())
-															.doubleValue()),
-											size),
-							Values.getDefault().MONOMIAL(size).one());
-				}
-			} else {
-				if (sub.arity() == 2) {
-					Fraction p = createPoly(sub.sub(0), variables);
-					Fraction q = createPoly(sub.sub(1), variables);
-					System.out.println("p = " + p + " of type " + p.getClass());// XXX
-					System.out.println("with q = " + q + " of type "
-							+ q.getClass());// XXX
-					if (sub.op().equals(getFunction("add"))) {
-						return p.add(q);
-					} else if (sub.op().equals(getFunction("sub"))) {
-						return p.subtract(q);
-					} else if (sub.op().equals(getFunction("mul"))) {
-						return p.multiply(q);
-					} else if (sub.op().equals(getFunction("div"))) {
-						return (Fraction) p.divide(q);
-					} else if (sub.op().equals(getFunction("exp"))) {
-						try {
-							Integer number = Values.getDefault().valueOf(
-									new BigInteger(sub.sub(1).op().name()
-											.toString()));
-							return (Fraction) p.power(number);
-						} catch (NumberFormatException e) {
-							return (Fraction) p.power(q);
-						}
-					}
-				} else if (sub.arity() == 1) {
-					if (sub.op().equals(getFunction("neg"))) {
-						return (Fraction) createPoly(sub.sub(0), variables)
-								.minus();
-					}
-				}
-			}
-		} finally {
-			System.out.println("Finished: " + sub);// XXX
-		}
-		throw new IllegalArgumentException("Dont know what to do with"
-				+ sub.op());
-	}
-
-	/**
-	 * @param neq
-	 * @return
-	 */
-	private Function getFunction(String neq) {
-		return (Function) Main.getInstance().mediator().namespaces()
-				.functions().lookup(new Name(neq));
-	}
-
 }

@@ -10,6 +10,7 @@ import de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ConnectionProblemException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ServerStatusProblemException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
+import de.uka.ilkd.key.dl.arithmetics.impl.orbital.PolynomTool;
 import de.uka.ilkd.key.dl.arithmetics.impl.qepcad.PrenexGenerator.PrenexGeneratorResult;
 import de.uka.ilkd.key.logic.NamespaceSet;
 import de.uka.ilkd.key.logic.Term;
@@ -53,10 +54,11 @@ public class QepCad implements IQuantifierEliminator {
 
 		// System.out.println("START  : Reduce called");
 		PrenexGeneratorResult result = PrenexGenerator.transform(form, nss);
+		
 		QepCadInput input = Term2QepCadConverter.convert(result.getTerm(),
 				result.getVariables());
-		// System.out.println("PRENEX : Formula send to QEPCAD: " +
-		// input.getFormula());
+		 System.out.println("PRENEX : Formula send to QEPCAD: " +
+		 input.getFormula());
 
 		String res = ProgramCommunicator.start(input);
 		// System.out.println("QEPCAD : Result                : " + res);
