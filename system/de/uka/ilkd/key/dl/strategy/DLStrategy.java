@@ -73,6 +73,7 @@ import de.uka.ilkd.key.dl.strategy.features.TimeoutTestApplicationFeature;
 import de.uka.ilkd.key.dl.strategy.features.TrivialMonomialLCRFeature;
 import de.uka.ilkd.key.dl.strategy.features.SwitchFeature.Case;
 import de.uka.ilkd.key.dl.strategy.termProjection.Buffer;
+import de.uka.ilkd.key.dl.strategy.termProjection.CoeffGcdProjection;
 import de.uka.ilkd.key.dl.strategy.termProjection.Generator;
 import de.uka.ilkd.key.dl.strategy.termProjection.UltimatePostProjection;
 import de.uka.ilkd.key.dl.strategy.termfeature.DecimalLiteralFeature;
@@ -466,6 +467,15 @@ public class DLStrategy extends AbstractFeatureStrategy implements
                 setupPolySimp(d);
                 setupInEqSimp(d);
 		
+                // For taclets that need instantiation, but where the instantiation is
+                // deterministic and does not have to be repeated at a later point, we
+                // setup the same feature terms as in the instantiation method. The
+                // definitions in <code>setupInstantiationWithoutRetry</code> should
+                // give cost infinity to those incomplete rule applications that will
+                // never be instantiated (so that these applications can be removed from
+                // the queue and do not have to be considered again).
+                setupInstantiationWithoutRetry ( d );
+
 		completeF = SumFeature.createSum(new Feature[] {
 				AutomatedRuleFeature.INSTANCE, NotWithinMVFeature.INSTANCE,
 				simplifierF, duplicateF, ifMatchedF, d, AgeFeature.INSTANCE,
@@ -658,7 +668,7 @@ public class DLStrategy extends AbstractFeatureStrategy implements
             
         bindRuleSet ( d, "polySimp_expand", -4500 );
         bindRuleSet ( d, "polySimp_directEquations", -3000 );
-        bindRuleSet ( d, "polySimp_pullOutGcd", -2250 );
+        bindRuleSet ( d, "polySimp_pullOutGcd", -3500 );
         bindRuleSet ( d, "polySimp_leftNonUnit", -2000 );
         bindRuleSet ( d, "polySimp_saturate", 1000 );
 
@@ -836,6 +846,31 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 
     }
 
+    // For taclets that need instantiation, but where the instantiation is
+    // deterministic and does not have to be repeated at a later point, we
+    // setup the same feature terms as in the instantiation method. The
+    // definitions in <code>setupInstantiationWithoutRetry</code> should
+    // give cost infinity to those incomplete rule applications that will
+    // never be instantiated (so that these applications can be removed from
+    // the queue and do not have to be considered again).
+    private void setupPolySimpInstantiationWithoutRetry(RuleSetDispatchFeature d) {
+        final TermBuffer gcd = new TermBuffer ();
+
+        bindRuleSet ( d, "polySimp_pullOutGcd",
+                SumFeature.createSum ( new Feature[] {
+                 applyTF ( "elimGcdLeft", tf.nonNegMonomial ),
+                      applyTF ( "elimGcdRight", tf.polynomial ),
+                      println(instOf("elimGcdLeft")),
+                      println(instOf("elimGcdRight")),
+                      let ( gcd,
+                            CoeffGcdProjection.create ( instOf ( "elimGcdLeft" ),
+                                                        instOf ( "elimGcdRight" ) ),
+                            add (                       println(gcd),
+                                   applyTF ( gcd, add ( not ( tf.oneLiteral ),
+                                                       not ( tf.zeroLiteral ) ) ),
+                                  instantiate ( "elimGcd", gcd ) ) ) } ) );
+    }
+        
     private Feature monSmallerThan(String smaller, String bigger) {
         return
           MonomialsSmallerThanFeature.create ( instOf ( smaller ), instOf ( bigger ));
@@ -910,22 +945,31 @@ public class DLStrategy extends AbstractFeatureStrategy implements
         setupContradictions(d, false);
         setupContradictions(d, true);
 
-        bindRuleSet ( d, "inEqSimp_contradEqs",
-           add ( applyTF ( "contradLeft", tf.monomial ),
-                 ifZero ( MatchedIfFeature.INSTANCE,
-                   SumFeature.createSum ( new Feature[] {
-                     applyTF ( "contradRightSmaller", tf.polynomial ),
-                     applyTF ( "contradRightBigger", tf.polynomial ),
-                     PolynomialValuesCmpFeature
-                     .lt ( instOf ( "contradRightSmaller" ),
-                           instOf ( "contradRightBigger" ) ) } ) ),
-                 longConst ( -60 ) ) );
+        setupEqContradictions(d, false);
+        setupEqContradictions(d, true);
 
         bindRuleSet ( d, "inEqSimp_strengthen", longConst ( -30 ) );
 
         setupSubsumption(d, false);
         setupSubsumption(d, true);
 
+    }
+
+    private void setupEqContradictions(RuleSetDispatchFeature d, boolean strict) {
+        bindRuleSet ( d, strict ? "inEqSimp_strictContradEqs" : "inEqSimp_contradEqs",
+           add ( applyTF ( "contradLeft", tf.monomial ),
+                 ifZero ( MatchedIfFeature.INSTANCE,
+                   SumFeature.createSum ( new Feature[] {
+                     applyTF ( "contradRightSmaller", tf.polynomial ),
+                     applyTF ( "contradRightBigger", tf.polynomial ),
+                     strict ?
+                       PolynomialValuesCmpFeature
+                       .leq ( instOf ( "contradRightSmaller" ),
+                              instOf ( "contradRightBigger" ) )
+                     : PolynomialValuesCmpFeature
+                       .lt ( instOf ( "contradRightSmaller" ),
+                             instOf ( "contradRightBigger" ) ) } ) ),
+                 longConst ( -60 ) ) );
     }
 
     private void setupContradictions(RuleSetDispatchFeature d, boolean strict) {
@@ -988,8 +1032,24 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 		final RuleSetDispatchFeature d = RuleSetDispatchFeature.create();
 		setupDiffSatInstantiationStrategy(d);
 		setupAnnotationInstantiationStrategy(d);
+		setupInstantiationWithoutRetry(d);
 		disableInstantiate();
 		return d;
+	}
+
+	/**
+	 * For taclets that need instantiation, but where the instantiation is
+	 * deterministic and does not have to be repeated at a later point, we setup
+	 * the same feature terms both in the cost computation method and in the
+	 * instantiation method. The definitions in
+	 * <code>setupInstantiationWithoutRetry</code> should give cost infinity
+	 * to those incomplete rule applications that will never be instantiated (so
+	 * that these applications can be removed from the queue and do not have to
+	 * be considered again).
+	 */
+	private void setupInstantiationWithoutRetry(RuleSetDispatchFeature d) {
+	    setupPolySimpInstantiationWithoutRetry ( d );
+//	    setupInEqSimpInstantiationWithoutRetry ( d );
 	}
 
 	private void setupAnnotationInstantiationStrategy(RuleSetDispatchFeature d) {

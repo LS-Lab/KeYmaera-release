@@ -10,10 +10,10 @@
 
 package de.uka.ilkd.key.dl.rules.metaconstruct;
 
-import java.math.BigInteger;
-
 import orbital.math.AlgebraicAlgorithms;
 import orbital.math.Arithmetic;
+import orbital.math.Integer;
+import orbital.math.Rational;
 import orbital.moon.math.ValuesImpl;
 
 import de.uka.ilkd.key.dl.arithmetics.impl.orbital.OrbitalSimplifier;
@@ -22,7 +22,6 @@ import de.uka.ilkd.key.dl.strategy.termfeature.QuasiRealLiteralFeature;
 import de.uka.ilkd.key.logic.*;
 import de.uka.ilkd.key.logic.op.Operator;
 import de.uka.ilkd.key.logic.op.TermSymbol;
-import de.uka.ilkd.key.rule.metaconstruct.arith.Monomial;
 import de.uka.ilkd.key.util.Debug;
 import de.uka.ilkd.key.util.LRUCache;
 
@@ -244,4 +243,43 @@ public class MonomialReals {
         return difference ( parts, m.parts ).equals ( parts );
     }
     
+    /**
+     * The gcd of two fractions <code>a1/a2</code>, <code>b1/b2</code>, which
+     * we define as <code>gcd(a1, b1) / lcm(a2, b2)</code>.
+     */
+    public static Arithmetic gcd(Arithmetic a, Arithmetic b) {
+        final Integer a1, a2;
+        if (a instanceof Integer) {
+            a1 = (Integer)a;
+            a2 = ValuesImpl.getDefault().ONE();
+        } else {
+            assert (a instanceof Rational);
+            final Rational norm = ((Rational)a).representative();
+            a1 = norm.numerator();
+            a2 = norm.denominator();
+        }
+
+        final Integer b1, b2;
+        if (b instanceof Integer) {
+            b1 = (Integer)b;
+            b2 = ValuesImpl.getDefault().ONE();
+        } else {
+            assert (b instanceof Rational);
+            final Rational norm = ((Rational)b).representative();
+            b1 = norm.numerator();
+            b2 = norm.denominator();
+        }
+        
+        final Integer num;
+        if (a1.isZero())
+            num = b1;
+        else if (b1.isZero())
+            num = a1;
+        else
+            num = (Integer)AlgebraicAlgorithms.gcd.apply(a1, b1);
+        
+        final Integer denom = (Integer)AlgebraicAlgorithms.lcm.apply(a2, b2);
+
+        return ValuesImpl.getDefault().rational(num, denom);
+    }
 }

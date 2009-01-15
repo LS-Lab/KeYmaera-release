@@ -11,7 +11,6 @@
 
 package de.uka.ilkd.key.dl.rules.metaconstruct;
 
-import orbital.math.AlgebraicAlgorithms;
 import orbital.math.Arithmetic;
 import orbital.moon.math.ValuesImpl;
 import orbital.math.functional.Operations;
@@ -20,10 +19,7 @@ import de.uka.ilkd.key.dl.arithmetics.impl.orbital.OrbitalSimplifier;
 import de.uka.ilkd.key.dl.logic.ldt.RealLDT;
 import de.uka.ilkd.key.dl.strategy.termfeature.QuasiRealLiteralFeature;
 import de.uka.ilkd.key.logic.Term;
-import de.uka.ilkd.key.logic.TermBuilder;
 import de.uka.ilkd.key.logic.TermFactory;
-import de.uka.ilkd.key.logic.op.AbstractMetaOperator;
-import de.uka.ilkd.key.logic.op.CastFunctionSymbol;
 import de.uka.ilkd.key.logic.op.Operator;
 import de.uka.ilkd.key.logic.op.TermSymbol;
 import de.uka.ilkd.key.util.LRUCache;
@@ -126,20 +122,21 @@ public class PolynomialReals {
             newParts = addPart ( newParts, it.next () );
         return new PolynomialReals ( newParts, newConst );
     }
-    
+
     /**
      * @return the greatest common divisor of the coefficients of the monomials
-     *         of this polynomial. The constant part of the polynomial is not
-     *         taken into account. If there are no monomials (apart from the
-     *         constant term), the result is <code>BigInteger.ZERO</code>
+     *         of this polynomial (referring to {@link MonomialReals.gcd}).
+     *         The constant part of the polynomial is not taken into account. If
+     *         there are no monomials (apart from the constant term), the result
+     *         is <code>ZERO</code>
      */
-/*    public BigInteger coeffGcd() {
-        BigInteger res = BigInteger.ZERO;
+    public Arithmetic coeffGcd() {
+        Arithmetic res = ValuesImpl.getDefault().ZERO();
         final IteratorOfMonomialReals it = parts.iterator ();
         while ( it.hasNext () )
-            res = res.gcd ( it.next ().getCoefficient () );
+            res = MonomialReals.gcd ( res, it.next ().getCoefficient () );
         return res;
-    } */
+    }
     
     /**
      * @return <code>true</code> if the value of <code>this</code> will
