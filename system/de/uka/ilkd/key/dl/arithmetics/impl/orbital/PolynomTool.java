@@ -206,7 +206,7 @@ public abstract class PolynomTool {
 				new BigDecimal(0), r));
 		System.out.println("Left is " + leftHandSide);// XXX
 		System.out.println("Right is " + rightHandSide);// XXX
-		
+
 		if (!leftHandSide.denominator().isOne()) {
 			Term leftDenominator = convertPolynomToTerm(
 					(Polynomial) leftHandSide.denominator(), varList,
@@ -243,8 +243,8 @@ public abstract class PolynomTool {
 		Term right = convertPolynomToTerm(rightPoly, varList, variables, nss);
 
 		if (t.op() instanceof Equality) {
-			System.out.println(left);//XXX
-			System.out.println(right);//XXX
+			System.out.println(left);// XXX
+			System.out.println(right);// XXX
 			result.add(TermBuilder.DF.equals(left, right));
 		} else {
 			System.out.println("Creating " + left + " " + t.op() + " " + right);// XXX
@@ -252,7 +252,7 @@ public abstract class PolynomTool {
 		}
 
 		// return the resulting terms
-		System.out.println("Converted " + t + " to " + result);//XXX
+		System.out.println("Converted " + t + " to " + result);// XXX
 		return result;
 	}
 
@@ -276,7 +276,11 @@ public abstract class PolynomTool {
 			Object next = mono.next();
 			Vector v = (Vector) indices.next();
 			if (!((Arithmetic) next).isZero()) {
-				Term summand = Orbital.convertOrbitalToTerm(r, zero, nss, next);
+				Term summand = null;
+				if (!((Arithmetic) next).isOne()) {
+					summand = Orbital.convertOrbitalToTerm(r, zero, nss,
+							next);
+				}
 				String blub = "";
 				for (int i = 0; i < v.dimension(); i++) {
 					if (!v.get(i).isZero()) {
@@ -286,7 +290,11 @@ public abstract class PolynomTool {
 									.convertOrbitalToTerm(r, zero, nss, v
 											.get(i)));
 						}
-						summand = TermBuilder.DF.func(mult, summand, s2);
+						if (summand == null) {
+							summand = s2;
+						} else {
+							summand = TermBuilder.DF.func(mult, summand, s2);
+						}
 						blub += variables.get(i) + "^" + v.get(i);
 					}
 				}
