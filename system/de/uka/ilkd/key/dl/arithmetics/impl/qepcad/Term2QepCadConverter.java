@@ -248,21 +248,21 @@ public class Term2QepCadConverter {
 		String result = null;
 		for (Term t : fractionFree) {
 			if (t.op().name().toString().equals(operator)) {
-				String eq = "[" + convert2String(t.sub(0), nss) + qOperator
-						+ convert2String(t.sub(1), nss) + "]";
+				String eq = "[ " + convert2String(t.sub(0), nss) + " " + qOperator
+						+ " " + convert2String(t.sub(1), nss) + " ]";
 				if (result == null) {
 					result = eq;
 				} else {
-					result = "[" + result + " /\\ " + eq + "]";
+					result = "[ " + result + " /\\ " + eq + " ]";
 				}
 			} else if (t.op() instanceof Function
 					&& t.op().name().toString().equals("neq")) {
-				String eq = "[" + convert2String(t.sub(0), nss) + "/="
-						+ convert2String(t.sub(1), nss) + "]";
+				String eq = "[ " + convert2String(t.sub(0), nss) + " /= "
+						+ convert2String(t.sub(1), nss) + " ]";
 				if (result == null) {
 					result = eq;
 				} else {
-					result = "[" + result + " /\\ " + eq + "]";
+					result = "[ " + result + " /\\ " + eq + " ]";
 				}
 			} else {
 				throw new IllegalArgumentException(
