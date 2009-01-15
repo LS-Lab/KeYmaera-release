@@ -23,18 +23,15 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
-import java.util.Set;
 
 import orbital.math.Arithmetic;
 import orbital.math.Fraction;
 import orbital.math.Integer;
 import orbital.math.Polynomial;
-import orbital.math.Real;
 import orbital.math.Values;
 import orbital.math.Vector;
 import de.uka.ilkd.key.dl.formulatools.collector.AllCollector;
@@ -155,8 +152,7 @@ public abstract class PolynomTool {
 	 * @return a set of terms containing the inequalities used to express the
 	 *         equivalant proposition without fractions
 	 */
-	public static Set<Term> eliminateFractionsFromInequality(Term t,
-			NamespaceSet nss) {
+	public static Term eliminateFractionsFromInequality(Term t, NamespaceSet nss) {
 		final Function lt = RealLDT.getFunctionFor(Less.class);
 		final Function leq = RealLDT.getFunctionFor(LessEquals.class);
 		final Function geq = RealLDT.getFunctionFor(GreaterEquals.class);
@@ -198,7 +194,7 @@ public abstract class PolynomTool {
 
 		// reduce the fractions
 
-		Set<Term> result = new HashSet<Term>();
+		Term result = null;
 
 		// add terms stating that the denominators are unequal to zero
 		Sort r = RealLDT.getRealSort();
@@ -207,16 +203,16 @@ public abstract class PolynomTool {
 		System.out.println("Left is " + leftHandSide);// XXX
 		System.out.println("Right is " + rightHandSide);// XXX
 
+		Term leftDenominator = null;
 		if (!leftHandSide.denominator().isOne()) {
-			Term leftDenominator = convertPolynomToTerm(
-					(Polynomial) leftHandSide.denominator(), varList,
-					variables, nss);
-
-			result.add(TermBuilder.DF.func(neq, leftDenominator, zero));
+			leftDenominator = convertPolynomToTerm((Polynomial) leftHandSide
+					.denominator(), varList, variables, nss);
 
 			// cross-multiply with the denominators
 			System.out.println("Now calculating " + rightHandSide + " * "
 					+ leftHandSide.denominator());// XXX
+			System.out.println("left is of type " + leftHandSide.denominator().getClass());//XXX
+			System.out.println("right is of type " + rightHandSide.getClass());//XXX
 			if (!leftHandSide.denominator().isOne()) {
 				rightHandSide = (Fraction) rightHandSide.multiply(leftHandSide
 						.denominator());
@@ -226,11 +222,10 @@ public abstract class PolynomTool {
 		Polynomial leftPoly = (Polynomial) leftHandSide.numerator();
 
 		// add terms stating that the denominators are unequal to zero
+		Term rightDenominator = null;
 		if (!rightHandSide.denominator().isOne()) {
-			Term rightDenominator = convertPolynomToTerm(
-					(Polynomial) rightHandSide.denominator(), varList,
-					variables, nss);
-			result.add(TermBuilder.DF.func(neq, rightDenominator, zero));
+			rightDenominator = convertPolynomToTerm((Polynomial) rightHandSide
+					.denominator(), varList, variables, nss);
 			// cross-multiply with the denominators
 			leftPoly = (Polynomial) leftPoly.multiply(rightHandSide
 					.denominator());
@@ -243,17 +238,97 @@ public abstract class PolynomTool {
 		Term right = convertPolynomToTerm(rightPoly, varList, variables, nss);
 
 		if (t.op() instanceof Equality) {
-			System.out.println(left);// XXX
-			System.out.println(right);// XXX
-			result.add(TermBuilder.DF.equals(left, right));
+			result = TermBuilder.DF.equals(left, right);
+			if (rightDenominator != null) {
+				result = and(result, func(neq, rightDenominator, zero));
+			}
+			if (leftDenominator != null) {
+				result = and(result, func(neq, leftDenominator, zero));
+			}
+		} else if (t.op().name().toString().equals("neq")) {
+			result = TermBuilder.DF.func((TermSymbol) t.op(), left, right);
+			if (rightDenominator != null) {
+				result = and(result, func(neq, rightDenominator, zero));
+			}
+			if (leftDenominator != null) {
+				result = and(result, func(neq, leftDenominator, zero));
+			}
+		} else if (t.op().name().toString().equals("lt")) {
+			result = generateResultingFormula(zero, leftDenominator,
+					rightDenominator, left, right, lt, gt);
+		} else if (t.op().name().toString().equals("leq")) {
+			result = generateResultingFormula(zero, leftDenominator,
+					rightDenominator, left, right, leq, geq);
+		} else if(t.op().name().toString().equals("geq")) {
+			result = generateResultingFormula(zero, leftDenominator,
+					rightDenominator, left, right, geq, leq);
+		} else if (t.op().name().toString().equals("gt")) {
+			result = generateResultingFormula(zero, leftDenominator,
+					rightDenominator, left, right, gt, lt);
 		} else {
-			System.out.println("Creating " + left + " " + t.op() + " " + right);// XXX
-			result.add(TermBuilder.DF.func((TermSymbol) t.op(), left, right));
+			throw new IllegalArgumentException("Dont know what to do with the operator " + t.op());
 		}
 
 		// return the resulting terms
 		System.out.println("Converted " + t + " to " + result);// XXX
 		return result;
+	}
+
+	/**
+	 * @param lt
+	 * @param gt
+	 * @param result
+	 * @param zero
+	 * @param leftDenominator
+	 * @param rightDenominator
+	 * @param left
+	 * @param right
+	 * @param operator
+	 * @param dualOperator
+	 * @return
+	 */
+	private static Term generateResultingFormula(Term zero,
+			Term leftDenominator, Term rightDenominator, Term left, Term right,
+			TermSymbol operator, TermSymbol dualOperator) {
+		final Function lt = RealLDT.getFunctionFor(Less.class);
+		final Function gt = RealLDT.getFunctionFor(Greater.class);
+
+		Term nlt = func(operator, left, right);
+		Term result = nlt;
+		if (rightDenominator != null || leftDenominator != null) {
+			Term ngt = func(dualOperator, left, right);
+
+			if (rightDenominator == null) {
+				Term leftGt = func(gt, leftDenominator, zero);
+				Term leftLt = func(lt, leftDenominator, zero);
+				result = or(and(nlt, leftGt), and(ngt, leftLt));
+			} else if (leftDenominator == null) {
+				Term rightGt = func(gt, rightDenominator, zero);
+				Term rightLt = func(lt, rightDenominator, zero);
+				result = or(and(nlt, rightGt), and(ngt, rightLt));
+			} else {
+				Term leftGt = func(gt, leftDenominator, zero);
+				Term leftLt = func(lt, leftDenominator, zero);
+				Term rightGt = func(gt, rightDenominator, zero);
+				Term rightLt = func(lt, rightDenominator, zero);
+				result = or(or(and(and(nlt, rightGt), leftGt), and(and(nlt,
+						rightLt), leftLt)), or(and(and(ngt, rightLt), leftGt),
+						and(and(ngt, rightGt), leftLt)));
+			}
+		}
+		return result;
+	}
+
+	private static Term func(TermSymbol op, Term a, Term b) {
+		return TermBuilder.DF.func(op, a, b);
+	}
+
+	private static Term or(Term a, Term b) {
+		return TermBuilder.DF.or(a, b);
+	}
+
+	private static Term and(Term a, Term b) {
+		return TermBuilder.DF.or(a, b);
 	}
 
 	/**
@@ -278,8 +353,7 @@ public abstract class PolynomTool {
 			if (!((Arithmetic) next).isZero()) {
 				Term summand = null;
 				if (!((Arithmetic) next).isOne()) {
-					summand = Orbital.convertOrbitalToTerm(r, zero, nss,
-							next);
+					summand = Orbital.convertOrbitalToTerm(r, zero, nss, next);
 				}
 				String blub = "";
 				for (int i = 0; i < v.dimension(); i++) {
