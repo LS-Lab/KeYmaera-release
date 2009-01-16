@@ -31,6 +31,7 @@ import com.wolfram.jlink.Expr;
 
 import de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator.QuantifierType;
 import de.uka.ilkd.key.logic.Term;
+import de.uka.ilkd.key.logic.op.Equality;
 import de.uka.ilkd.key.logic.op.Function;
 import de.uka.ilkd.key.logic.op.Junctor;
 import de.uka.ilkd.key.logic.op.LogicVariable;
@@ -184,6 +185,8 @@ public class Term2ExprConverter implements ExprConstants {
 			} else if (form.op() == Junctor.NOT) {
 				return new Expr(NOT, args);
 			}
+		} else if (form.op() instanceof Equality) {
+			return new Expr(BIIMPL, args);
 		} else if (form.op() instanceof Quantifier) {
 			Expr[] newArgs = new Expr[args.length + 1];
 			System.arraycopy(args, 0, newArgs, 1, args.length);

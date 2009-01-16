@@ -21,6 +21,7 @@ package de.uka.ilkd.key.dl.arithmetics.impl.orbital;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -34,6 +35,8 @@ import orbital.math.Integer;
 import orbital.math.Polynomial;
 import orbital.math.Values;
 import orbital.math.Vector;
+import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
 import de.uka.ilkd.key.dl.formulatools.collector.AllCollector;
 import de.uka.ilkd.key.dl.formulatools.collector.FilterVariableSet;
 import de.uka.ilkd.key.dl.formulatools.collector.FoundItem;
@@ -51,6 +54,7 @@ import de.uka.ilkd.key.dl.model.Mult;
 import de.uka.ilkd.key.dl.model.Plus;
 import de.uka.ilkd.key.dl.model.Unequals;
 import de.uka.ilkd.key.dl.parser.NumberCache;
+import de.uka.ilkd.key.gui.Main;
 import de.uka.ilkd.key.logic.NamespaceSet;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.TermBuilder;
@@ -274,6 +278,37 @@ public abstract class PolynomTool {
 
 		// return the resulting terms
 		System.out.println("Converted " + t + " to " + result);// XXX
+
+		boolean assertions = false;
+		assert assertions = true;
+		if (assertions) {
+
+			Term prev = t;
+			if (rightDenominator != null) {
+				prev = and(prev, func(neq, rightDenominator, zero));
+			}
+			if (leftDenominator != null) {
+				prev = and(prev, func(neq, leftDenominator, zero));
+			}
+			if (MathSolverManager.getQuantifierElimantor("Mathematica") != null) {
+				try {
+					assert MathSolverManager.getQuantifierElimantor(
+							"Mathematica").reduce(
+							TermBuilder.DF.equiv(prev, result),
+							(nss == null) ? Main.getInstance().mediator()
+									.namespaces() : nss).equals(
+							TermBuilder.DF.tt());
+				} catch (RemoteException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (SolverException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+
+		}
+
 		return result;
 	}
 
@@ -331,7 +366,7 @@ public abstract class PolynomTool {
 	}
 
 	private static Term and(Term a, Term b) {
-		return TermBuilder.DF.or(a, b);
+		return TermBuilder.DF.and(a, b);
 	}
 
 	/**

@@ -80,6 +80,8 @@ public interface ExprConstants {
 
 	final Expr IMPL = new Expr(Expr.SYMBOL, "Implies");
 
+	final Expr BIIMPL = new Expr(Expr.SYMBOL, "Equivalent");
+
 	final Expr INVERSE_FUNCTION = new Expr(Expr.SYMBOL, "InverseFunction");
 
 	final Expr INTEGRATE = new Expr(Expr.SYMBOL, "Integrate");
