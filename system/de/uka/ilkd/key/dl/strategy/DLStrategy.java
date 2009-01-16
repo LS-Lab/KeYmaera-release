@@ -860,13 +860,10 @@ public class DLStrategy extends AbstractFeatureStrategy implements
                 SumFeature.createSum ( new Feature[] {
                  applyTF ( "elimGcdLeft", tf.nonNegMonomial ),
                       applyTF ( "elimGcdRight", tf.polynomial ),
-                      println(instOf("elimGcdLeft")),
-                      println(instOf("elimGcdRight")),
                       let ( gcd,
                             CoeffGcdProjection.create ( instOf ( "elimGcdLeft" ),
                                                         instOf ( "elimGcdRight" ) ),
-                            add (                       println(gcd),
-                                   applyTF ( gcd, add ( not ( tf.oneLiteral ),
+                            add ( applyTF ( gcd, add ( not ( tf.oneLiteral ),
                                                        not ( tf.zeroLiteral ) ) ),
                                   instantiate ( "elimGcd", gcd ) ) ) } ) );
     }
