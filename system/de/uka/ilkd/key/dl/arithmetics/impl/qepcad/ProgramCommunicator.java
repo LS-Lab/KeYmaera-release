@@ -92,7 +92,7 @@ public class ProgramCommunicator {
 					errorOccurred = true;
 					errorMessage.append(s + "\n");
 				}
-				if (error.equals(s)) {
+				if (error != null && error.equals(s)) {
 					throw new UnableToConvertInputException(
 							"An erorr occured while communicating with qepcad. it did not understand the input for: "
 									+ error

@@ -3,9 +3,10 @@ package de.uka.ilkd.key.dl.arithmetics.impl.qepcad;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 
+import de.uka.ilkd.key.dl.arithmetics.impl.orbital.PolynomTool;
+import de.uka.ilkd.key.logic.NamespaceSet;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.op.Function;
 import de.uka.ilkd.key.logic.op.Junctor;
@@ -60,7 +61,7 @@ public class Term2QepCadConverter {
 
 		// Getting the string-representation
 		// String formula = "(" + convert2String( form ) + ")";
-		String formula = convert2String(form);
+		String formula = convert2String(form, null, true);
 
 		// extracts additional information for qepcad
 		List<String> freeVarlist = new ArrayList<String>(existingVars);
@@ -95,52 +96,137 @@ public class Term2QepCadConverter {
 		return this.input;
 	}
 
-	private String convert2String(Term form) {
-		String[] args = new String[form.arity()];
-		for (int i = 0; i < args.length; i++) {
-			args[i] = convert2String(form.sub(i));
-		}
+	private String convert2String(Term form, NamespaceSet nss,
+			boolean eliminateFractions) {
 		if (form.op() == Op.FALSE) {
 			return "FALSE";
 		} else if (form.op() == Op.TRUE) {
 			return "TRUE";
 		} else if (form.op().name().toString().equals("equals")) {
-			return "[" + args[0] + "=" + args[1] + "]";
+			if (eliminateFractions) {
+				return convert2String(PolynomTool
+						.eliminateFractionsFromInequality(form, nss), nss,
+						false);
+			}
+			return "[ " + convert2String(form.sub(0), nss, true) + " = "
+					+ convert2String(form.sub(1), nss, true) + " ]";
 		} else if (form.op() instanceof Function) {
 			Function f = (Function) form.op();
 			if (f.name().toString().equals("gt")) {
-				return "[" + args[0] + ">" + args[1] + "]";
+				if (eliminateFractions) {
+					return convert2String(PolynomTool
+							.eliminateFractionsFromInequality(form, nss), nss,
+							false);
+				}
+				return "[ " + convert2String(form.sub(0), nss, true) + " > "
+						+ convert2String(form.sub(1), nss, true) + " ]";
 			} else if (f.name().toString().equals("geq")) {
-				return "[" + args[0] + ">=" + args[1] + "]";
+				if (eliminateFractions) {
+					return convert2String(PolynomTool
+							.eliminateFractionsFromInequality(form, nss), nss,
+							false);
+				}
+				return "[ " + convert2String(form.sub(0), nss, true) + " >= "
+						+ convert2String(form.sub(1), nss, true) + " ]";
 			} else if (f.name().toString().equals("equals")) {
-				return "[" + args[0] + "=" + args[1] + "]"; // 2x EQUALS?
+				if (eliminateFractions) {
+					return convert2String(PolynomTool
+							.eliminateFractionsFromInequality(form, nss), nss,
+							false);
+				}
+				return "[ " + convert2String(form.sub(0), nss, true) + " = "
+						+ convert2String(form.sub(1), nss, true) + " ]"; 
+				// 2x EQUALS ?
 			} else if (f.name().toString().equals("neq")) {
-				return "[" + args[0] + "/=" + args[1] + "]";
+				if (eliminateFractions) {
+					return convert2String(PolynomTool
+							.eliminateFractionsFromInequality(form, nss), nss,
+							false);
+				}
+				return "[ " + convert2String(form.sub(0), nss, true) + " /= "
+						+ convert2String(form.sub(1), nss, true) + " ]";
 			} else if (f.name().toString().equals("leq")) {
-				return "[" + args[0] + "<=" + args[1] + "]";
+				if (eliminateFractions) {
+					return convert2String(PolynomTool
+							.eliminateFractionsFromInequality(form, nss), nss,
+							false);
+				}
+				return "[ " + convert2String(form.sub(0), nss, true) + " <= "
+						+ convert2String(form.sub(1), nss, true) + " ]";
 			} else if (f.name().toString().equals("lt")) {
-				return "[" + args[0] + "<" + args[1] + "]";
+				if (eliminateFractions) {
+					return convert2String(PolynomTool
+							.eliminateFractionsFromInequality(form, nss), nss,
+							false);
+				}
+				return "[ " + convert2String(form.sub(0), nss, true) + " < "
+						+ convert2String(form.sub(1), nss, true) + " ]";
 			} else if (f.name().toString().equals("add")) {
-				return "(" + args[0] + "+" + args[1] + ")";
+				return "("
+						+ convert2String(form.sub(0), nss, eliminateFractions)
+						+ "+"
+						+ convert2String(form.sub(1), nss, eliminateFractions)
+						+ ")";
 			} else if (f.name().toString().equals("sub")) {
-				return "(" + args[0] + "-" + args[1] + ")";
+				return "("
+						+ convert2String(form.sub(0), nss, eliminateFractions)
+						+ "-"
+						+ convert2String(form.sub(1), nss, eliminateFractions)
+						+ ")";
 			} else if (f.name().toString().equals("neg")) {
-				return "(-" + args[0] + ")";
+				return "(-"
+						+ convert2String(form.sub(0), nss, eliminateFractions)
+						+ ")";
 			} else if (f.name().toString().equals("mul")) {
-				return "(" + args[0] + " " + args[1] + ")";
+				return "("
+						+ convert2String(form.sub(0), nss, eliminateFractions)
+						+ " "
+						+ convert2String(form.sub(1), nss, eliminateFractions)
+						+ ")";
 			} else if (f.name().toString().equals("div")) {
-				return "(" + args[0] + "/" + args[1] + ")";
+				return "("
+						+ convert2String(form.sub(0), nss, eliminateFractions)
+						+ "/"
+						+ convert2String(form.sub(1), nss, eliminateFractions)
+						+ ")";
 			} else if (f.name().toString().equals("exp")) {
-				return "(" + args[0] + "^" + args[1] + ")";
+				return "("
+						+ convert2String(form.sub(0), nss, eliminateFractions)
+						+ "^"
+						+ convert2String(form.sub(1), nss, eliminateFractions)
+						+ ")";
 			} else {
+				String[] args = new String[form.arity()];
+				for (int i = 0; i < args.length; i++) {
+					args[i] = convert2String(form.sub(i), nss,
+							eliminateFractions);
+				}
 				try {
 					BigDecimal d = new BigDecimal(form.op().name().toString());
 					try {
 						return String.valueOf(d.intValueExact());
 					} catch (ArithmeticException e) {
-						return "<TODO>"; // TODO : Change this
-						// return new Expr(Expr.SYM_REAL,
-						// new Expr[] { new Expr(d) });
+						int denominator = 1;
+						BigDecimal ten = new BigDecimal(10);
+						while (d.intValue() < d.doubleValue()) {
+							denominator *= 10;
+							d = d.multiply(ten);
+						}
+
+						// calculate the greatest common divisor of the
+						// fraction
+						int numerator = d.intValueExact();
+						int tmp = numerator;
+						int gcd = denominator;
+						int t;
+						while (tmp > 0) {
+							t = numerator;
+							tmp = gcd % tmp;
+							gcd = t;
+						}
+						numerator = numerator / gcd;
+						denominator = denominator / gcd;
+						return "( " + numerator + " / " + denominator + " )";
 					}
 				} catch (NumberFormatException e) {
 					String name = form.op().name().toString();
@@ -172,13 +258,27 @@ public class Term2QepCadConverter {
 			return "(" + name + ")";
 		} else if (form.op() instanceof Junctor) {
 			if (form.op() == Junctor.AND) {
-				return "[" + args[0] + "/\\" + args[1] + "]";
+				return "["
+						+ convert2String(form.sub(0), nss, eliminateFractions)
+						+ "/\\"
+						+ convert2String(form.sub(1), nss, eliminateFractions)
+						+ "]";
 			} else if (form.op() == Junctor.OR) {
-				return "[" + args[0] + "\\/" + args[1] + "]";
+				return "["
+						+ convert2String(form.sub(0), nss, eliminateFractions)
+						+ "\\/"
+						+ convert2String(form.sub(1), nss, eliminateFractions)
+						+ "]";
 			} else if (form.op() == Junctor.IMP) {
-				return "[" + args[0] + "==>" + args[1] + "]";
+				return "["
+						+ convert2String(form.sub(0), nss, eliminateFractions)
+						+ "==>"
+						+ convert2String(form.sub(1), nss, eliminateFractions)
+						+ "]";
 			} else if (form.op() == Junctor.NOT) {
-				return "[~[" + args[0] + "]]";
+				return "[~["
+						+ convert2String(form.sub(0), nss, eliminateFractions)
+						+ "]]";
 			}
 		} else if (form.op() instanceof Quantifier) {
 
@@ -198,9 +298,11 @@ public class Term2QepCadConverter {
 			}
 
 			if (form.op() == Quantifier.ALL) {
-				return "(A " + array2String(vars) + ")" + args[0];
+				return "(A " + array2String(vars) + ")"
+						+ convert2String(form.sub(0), nss, eliminateFractions);
 			} else if (form.op() == Quantifier.EX) {
-				return "(E " + array2String(vars) + ")" + args[0];
+				return "(E " + array2String(vars) + ")"
+						+ convert2String(form.sub(0), nss, eliminateFractions);
 			}
 		}
 		throw new IllegalArgumentException("Could not convert Term: " + form
@@ -239,7 +341,7 @@ public class Term2QepCadConverter {
 
 		ArrayList<String> freeVars = new ArrayList<String>();
 		List<String> quantified = new ArrayList<String>();
-		
+
 		for (QuantifiableVariable var : quantifiedVars) {
 			String name = var.name().toString();
 			if (name.contains("_")) {
@@ -257,8 +359,7 @@ public class Term2QepCadConverter {
 			freeVars.add(var);
 		}
 
-		String[] result = new String[allVariables.size()
-				+ quantified.size()];
+		String[] result = new String[allVariables.size() + quantified.size()];
 		for (int i = 0; i < freeVars.size(); i++) {
 			result[i] = freeVars.get(i);
 		}

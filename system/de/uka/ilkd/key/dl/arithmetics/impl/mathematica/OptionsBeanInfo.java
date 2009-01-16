@@ -64,6 +64,11 @@ public class OptionsBeanInfo extends SimpleBeanInfo {
 							"choose if the list of elimination variables should be passed to Mathematica's Reduce",
 							true, false),
 					createDescriptor(
+									"convertDecimalsToRationals",
+									"convert decimals",
+									"choose if decimal fraction entered by the user should be converted into a rational representation (q/r)",
+									true, false),
+					createDescriptor(
 							"memoryConstraint",
 							"memory limit",
 							"the maximum memory used by the Mathematica server [in bytes], -1 means no limit",

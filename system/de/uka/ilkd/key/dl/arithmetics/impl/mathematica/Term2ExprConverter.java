@@ -23,19 +23,13 @@
 package de.uka.ilkd.key.dl.arithmetics.impl.mathematica;
 
 import java.math.BigDecimal;
-import java.rmi.RemoteException;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
 import com.wolfram.jlink.Expr;
 
 import de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator.QuantifierType;
-import de.uka.ilkd.key.dl.arithmetics.exceptions.IncompleteEvaluationException;
-import de.uka.ilkd.key.dl.arithmetics.exceptions.UnableToConvertInputException;
-import de.uka.ilkd.key.gui.Main;
-import de.uka.ilkd.key.logic.Name;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.op.Function;
 import de.uka.ilkd.key.logic.op.Junctor;
@@ -55,217 +49,245 @@ import de.uka.ilkd.key.rule.updatesimplifier.AssignmentPair;
  */
 public class Term2ExprConverter implements ExprConstants {
 
-    /**
-     * Converts the given term into the Mathematica Expr format.
-     * 
-     * @param form
-     *                the term to convert
-     * @return the equivalant Expr
-     */
-    public static Expr convert2Expr(Term form) {
+	/**
+	 * Converts the given term into the Mathematica Expr format.
+	 * 
+	 * @param form
+	 *            the term to convert
+	 * @return the equivalant Expr
+	 */
+	public static Expr convert2Expr(Term form) {
 
-        Expr convert2ExprImpl = convert2ExprImpl(form);
-        // try {
-        // assert (form.equals(Expr2TermConverter.convertImpl(convert2ExprImpl,
-        // Main
-        // .getInstance().mediator().getServices().getNamespaces(),
-        // new HashMap<Name, LogicVariable>())));
-        // } catch (UnableToConvertInputException e) {
-        // // TODO Auto-generated catch block
-        // e.printStackTrace();
-        // } catch (IncompleteEvaluationException e) {
-        // // TODO Auto-generated catch block
-        // e.printStackTrace();
-        // } catch (RemoteException e) {
-        // // TODO Auto-generated catch block
-        // e.printStackTrace();
-        // }
-        return convert2ExprImpl;
-    }
+		Expr convert2ExprImpl = convert2ExprImpl(form);
+		// try {
+		// assert (form.equals(Expr2TermConverter.convertImpl(convert2ExprImpl,
+		// Main
+		// .getInstance().mediator().getServices().getNamespaces(),
+		// new HashMap<Name, LogicVariable>())));
+		// } catch (UnableToConvertInputException e) {
+		// // TODO Auto-generated catch block
+		// e.printStackTrace();
+		// } catch (IncompleteEvaluationException e) {
+		// // TODO Auto-generated catch block
+		// e.printStackTrace();
+		// } catch (RemoteException e) {
+		// // TODO Auto-generated catch block
+		// e.printStackTrace();
+		// }
+		return convert2ExprImpl;
+	}
 
-    static Expr convert2ExprImpl(Term form) {
-        Expr[] args = new Expr[form.arity()];
-        for (int i = 0; i < args.length; i++) {
-            args[i] = convert2Expr(form.sub(i));
-        }
-        if (form.op() == Op.FALSE) {
-            return FALSE;
-        } else if (form.op() == Op.TRUE) {
-            return TRUE;
-        } else if (form.op().name().toString().equals("equals")) {
-            return new Expr(EQUALS, args);
-        } else if (form.op() instanceof Function) {
-            Function f = (Function) form.op();
-            if (f.name().toString().equals("gt")) {
-                return new Expr(GREATER, args);
-            } else if (f.name().toString().equals("geq")) {
-                return new Expr(GREATER_EQUALS, args);
-            } else if (f.name().toString().equals("equals")) {
-                return new Expr(EQUALS, args);
-            } else if (f.name().toString().equals("neq")) {
-                return new Expr(UNEQUAL, args);
-            } else if (f.name().toString().equals("leq")) {
-                return new Expr(LESS_EQUALS, args);
-            } else if (f.name().toString().equals("lt")) {
-                return new Expr(LESS, args);
-            } else if (f.name().toString().equals("add")) {
-                return new Expr(PLUS, args);
-            } else if (f.name().toString().equals("sub")) {
-                return new Expr(MINUS, args);
-            } else if (f.name().toString().equals("neg")) {
-                return new Expr(MINUSSIGN, args);
-            } else if (f.name().toString().equals("mul")) {
-                return new Expr(MULT, args);
-            } else if (f.name().toString().equals("div")) {
-                for (Expr e : args) {
-                    boolean rational = e.numberQ();
-                    if (!rational) {
-                        return new Expr(DIV, args);
-                    }
-                }
-                return new Expr(RATIONAL, args);
-            } else if (f.name().toString().equals("exp")) {
-                return new Expr(EXP, args);
-            } else {
-                try {
-                    BigDecimal d = new BigDecimal(form.op().name().toString());
-                    try {
-                        return new Expr(d.intValueExact());
-                    } catch (ArithmeticException e) {
-                        return new Expr(Expr.SYM_REAL,
-                                new Expr[] { new Expr(d) });
-                    }
-                } catch (NumberFormatException e) {
-                    String name = form.op().name().toString();
-                    name = name.replaceAll("_", USCORE_ESCAPE);
-                    Expr expr = new Expr(Expr.SYMBOL, name);
-                    if (args.length == 0) {
-                        return expr;
-                    }
-                    return new Expr(expr, args);
-                }
-            }
-        } else if (form.op() instanceof LogicVariable
-                || form.op() instanceof de.uka.ilkd.key.logic.op.ProgramVariable
-                || form.op() instanceof Metavariable) {
-            String name = form.op().name().toString();
-            name = name.replaceAll("_", USCORE_ESCAPE);
-            return new Expr(Expr.SYMBOL, name);
-        } else if (form.op() instanceof Junctor) {
-            if (form.op() == Junctor.AND) {
-                return new Expr(AND, args);
-            } else if (form.op() == Junctor.OR) {
-                return new Expr(OR, args);
-            } else if (form.op() == Junctor.IMP) {
-                return new Expr(IMPL, args);
-            } else if (form.op() == Junctor.NOT) {
-                return new Expr(NOT, args);
-            }
-        } else if (form.op() instanceof Quantifier) {
-            Expr[] newArgs = new Expr[args.length + 1];
-            System.arraycopy(args, 0, newArgs, 1, args.length);
-            Expr[] vars = new Expr[form.varsBoundHere(0).size()];
-            for (int i = 0; i < vars.length; i++) {
-                vars[i] = new Expr(Expr.SYMBOL, form.varsBoundHere(0)
-                        .getQuantifiableVariable(i).name().toString()
-                        .replaceAll("_", USCORE_ESCAPE));
-            }
-            newArgs[0] = new Expr(LIST, vars);
-            if (form.op() == Quantifier.ALL) {
-                assert args.length == 1 : "'Unary' KeY quantifier \\forall x ("
-                        + Arrays.toString(args) + ")";
-                if (args[0].head() == FORALL) {
-                    assert args[0].args().length == 2 : "'Binary' quantifier with variables and formula";
-                    Expr kernel = args[0].args()[1];
-                    assert args[0].args()[0].head() == LIST : "Term2ExprConverter always builds list quantifiers";
-                    Expr[] innerVariables = args[0].args()[0].args();
-                    // allVariables = (outer)vars + innerVariables
-                    Expr[] allVariables = new Expr[innerVariables.length
-                            + vars.length];
-                    System.arraycopy(vars, 0, allVariables, 0, vars.length);
-                    System.arraycopy(innerVariables, 0, allVariables,
-                            vars.length, innerVariables.length);
-                    Expr[] mergedQuant = new Expr[args.length + 1];
-                    assert mergedQuant.length == 2;
-                    mergedQuant[0] = new Expr(LIST, allVariables);
-                    mergedQuant[1] = kernel;
-                    Expr expr = new Expr(FORALL, mergedQuant);
-                    assert equalsTranslateBack(QuantifierType.FORALL, expr, new Expr(FORALL, newArgs));
-                    return expr;
-                } else {
-                    return new Expr(FORALL, newArgs);
-                }
-            } else if (form.op() == Quantifier.EX) {
-                assert args.length == 1 : "'Unary' KeY quantifier \\exists x ("
-                        + Arrays.toString(args) + ")";
-                if (args[0].head() == EXISTS) {
-                    assert args[0].args().length == 2 : "'Binary' quantifier with variables and formula";
-                    Expr kernel = args[0].args()[1];
-                    assert args[0].args()[0].head() == LIST : "Term2ExprConverter always builds list quantifiers";
-                    Expr[] innerVariables = args[0].args()[0].args();
-                    // allVariables = (outer)vars + innerVariables
-                    Expr[] allVariables = new Expr[innerVariables.length
-                            + vars.length];
-                    System.arraycopy(vars, 0, allVariables, 0, vars.length);
-                    System.arraycopy(innerVariables, 0, allVariables,
-                            vars.length, innerVariables.length);
-                    Expr[] mergedQuant = new Expr[args.length + 1];
-                    assert mergedQuant.length == 2;
-                    mergedQuant[0] = new Expr(LIST, allVariables);
-                    mergedQuant[1] = kernel;
-                    Expr expr = new Expr(EXISTS, mergedQuant);
-                    assert equalsTranslateBack(QuantifierType.EXISTS, expr, new Expr(EXISTS, newArgs)) : "backtranslation identity";
-                    return expr;
-                } else {
-                    return new Expr(EXISTS, newArgs);
-                }
-            }
-        }
-        throw new IllegalArgumentException("Could not convert Term: " + form
-                + "Operator was: " + form.op());
-    }
+	static Expr convert2ExprImpl(Term form) {
+		Expr[] args = new Expr[form.arity()];
+		for (int i = 0; i < args.length; i++) {
+			args[i] = convert2Expr(form.sub(i));
+		}
+		if (form.op() == Op.FALSE) {
+			return FALSE;
+		} else if (form.op() == Op.TRUE) {
+			return TRUE;
+		} else if (form.op().name().toString().equals("equals")) {
+			return new Expr(EQUALS, args);
+		} else if (form.op() instanceof Function) {
+			Function f = (Function) form.op();
+			if (f.name().toString().equals("gt")) {
+				return new Expr(GREATER, args);
+			} else if (f.name().toString().equals("geq")) {
+				return new Expr(GREATER_EQUALS, args);
+			} else if (f.name().toString().equals("equals")) {
+				return new Expr(EQUALS, args);
+			} else if (f.name().toString().equals("neq")) {
+				return new Expr(UNEQUAL, args);
+			} else if (f.name().toString().equals("leq")) {
+				return new Expr(LESS_EQUALS, args);
+			} else if (f.name().toString().equals("lt")) {
+				return new Expr(LESS, args);
+			} else if (f.name().toString().equals("add")) {
+				return new Expr(PLUS, args);
+			} else if (f.name().toString().equals("sub")) {
+				return new Expr(MINUS, args);
+			} else if (f.name().toString().equals("neg")) {
+				return new Expr(MINUSSIGN, args);
+			} else if (f.name().toString().equals("mul")) {
+				return new Expr(MULT, args);
+			} else if (f.name().toString().equals("div")) {
+				for (Expr e : args) {
+					boolean rational = e.numberQ();
+					if (!rational) {
+						return new Expr(DIV, args);
+					}
+				}
+				return new Expr(RATIONAL, args);
+			} else if (f.name().toString().equals("exp")) {
+				return new Expr(EXP, args);
+			} else {
+				try {
+					BigDecimal d = new BigDecimal(form.op().name().toString());
+					try {
+						return new Expr(d.intValueExact());
+					} catch (ArithmeticException e) {
+						if (Options.INSTANCE.isConvertDecimalsToRationals()) {
+							// calculate fraction to pass to Mathematica, as
+							// decimal fractions are considered to be numeric
+							// values of a certain precision
+							int denominator = 1;
+							BigDecimal ten = new BigDecimal(10);
+							while (d.intValue() < d.doubleValue()) {
+								denominator *= 10;
+								d = d.multiply(ten);
+							}
 
-    /**
-     * TODO jdq documentation since Nov 22, 2007
-     * 
-     * @param expr
-     * @param expr2
-     * @return
-     */
-    private static boolean equalsTranslateBack(QuantifierType quantifier,
-            Expr expr, Expr expr2) {
-        Expr var = expr.args()[0].args()[0];
-        Expr form = expr.args()[1];
-        Expr[] vars = new Expr[expr.args()[0].args().length - 1];
-        System.arraycopy(expr.args()[0].args(), 1, vars, 0, vars.length);
-        Expr newExpr = new Expr(quantifier == QuantifierType.FORALL ? FORALL
-                : quantifier == QuantifierType.EXISTS ? EXISTS : null,
-                new Expr[] {
-                        new Expr(LIST, new Expr[] { var }),
-                        new Expr(quantifier == QuantifierType.FORALL ? FORALL
-                                : quantifier == QuantifierType.EXISTS ? EXISTS
-                                        : null, new Expr[] {
-                                new Expr(LIST, vars), form }) });
-        assert newExpr.equals(expr2) : "backtranslation of " + expr + " is "
-                + newExpr + ", which equals " + expr2;
-        return newExpr.equals(expr2);
-    }
+							// calculate the greatest common divisor of the
+							// fraction
+							int numerator = d.intValueExact();
+							int tmp = numerator;
+							int gcd = denominator;
+							int t;
+							while (tmp > 0) {
+								t = numerator;
+								tmp = gcd % tmp;
+								gcd = t;
+							}
+							numerator = numerator / gcd;
+							denominator = denominator / gcd;
+							return new Expr(RATIONAL,
+									new Expr[] { new Expr(numerator),
+											new Expr(denominator) });
+						} else {
+							return new Expr(Expr.SYM_REAL,
+									new Expr[] { new Expr(d) });
+						}
+					}
+				} catch (NumberFormatException e) {
+					String name = form.op().name().toString();
+					name = name.replaceAll("_", USCORE_ESCAPE);
+					Expr expr = new Expr(Expr.SYMBOL, name);
+					if (args.length == 0) {
+						return expr;
+					}
+					return new Expr(expr, args);
+				}
+			}
+		} else if (form.op() instanceof LogicVariable
+				|| form.op() instanceof de.uka.ilkd.key.logic.op.ProgramVariable
+				|| form.op() instanceof Metavariable) {
+			String name = form.op().name().toString();
+			name = name.replaceAll("_", USCORE_ESCAPE);
+			return new Expr(Expr.SYMBOL, name);
+		} else if (form.op() instanceof Junctor) {
+			if (form.op() == Junctor.AND) {
+				return new Expr(AND, args);
+			} else if (form.op() == Junctor.OR) {
+				return new Expr(OR, args);
+			} else if (form.op() == Junctor.IMP) {
+				return new Expr(IMPL, args);
+			} else if (form.op() == Junctor.NOT) {
+				return new Expr(NOT, args);
+			}
+		} else if (form.op() instanceof Quantifier) {
+			Expr[] newArgs = new Expr[args.length + 1];
+			System.arraycopy(args, 0, newArgs, 1, args.length);
+			Expr[] vars = new Expr[form.varsBoundHere(0).size()];
+			for (int i = 0; i < vars.length; i++) {
+				vars[i] = new Expr(Expr.SYMBOL, form.varsBoundHere(0)
+						.getQuantifiableVariable(i).name().toString()
+						.replaceAll("_", USCORE_ESCAPE));
+			}
+			newArgs[0] = new Expr(LIST, vars);
+			if (form.op() == Quantifier.ALL) {
+				assert args.length == 1 : "'Unary' KeY quantifier \\forall x ("
+						+ Arrays.toString(args) + ")";
+				if (args[0].head() == FORALL) {
+					assert args[0].args().length == 2 : "'Binary' quantifier with variables and formula";
+					Expr kernel = args[0].args()[1];
+					assert args[0].args()[0].head() == LIST : "Term2ExprConverter always builds list quantifiers";
+					Expr[] innerVariables = args[0].args()[0].args();
+					// allVariables = (outer)vars + innerVariables
+					Expr[] allVariables = new Expr[innerVariables.length
+							+ vars.length];
+					System.arraycopy(vars, 0, allVariables, 0, vars.length);
+					System.arraycopy(innerVariables, 0, allVariables,
+							vars.length, innerVariables.length);
+					Expr[] mergedQuant = new Expr[args.length + 1];
+					assert mergedQuant.length == 2;
+					mergedQuant[0] = new Expr(LIST, allVariables);
+					mergedQuant[1] = kernel;
+					Expr expr = new Expr(FORALL, mergedQuant);
+					assert equalsTranslateBack(QuantifierType.FORALL, expr,
+							new Expr(FORALL, newArgs));
+					return expr;
+				} else {
+					return new Expr(FORALL, newArgs);
+				}
+			} else if (form.op() == Quantifier.EX) {
+				assert args.length == 1 : "'Unary' KeY quantifier \\exists x ("
+						+ Arrays.toString(args) + ")";
+				if (args[0].head() == EXISTS) {
+					assert args[0].args().length == 2 : "'Binary' quantifier with variables and formula";
+					Expr kernel = args[0].args()[1];
+					assert args[0].args()[0].head() == LIST : "Term2ExprConverter always builds list quantifiers";
+					Expr[] innerVariables = args[0].args()[0].args();
+					// allVariables = (outer)vars + innerVariables
+					Expr[] allVariables = new Expr[innerVariables.length
+							+ vars.length];
+					System.arraycopy(vars, 0, allVariables, 0, vars.length);
+					System.arraycopy(innerVariables, 0, allVariables,
+							vars.length, innerVariables.length);
+					Expr[] mergedQuant = new Expr[args.length + 1];
+					assert mergedQuant.length == 2;
+					mergedQuant[0] = new Expr(LIST, allVariables);
+					mergedQuant[1] = kernel;
+					Expr expr = new Expr(EXISTS, mergedQuant);
+					assert equalsTranslateBack(QuantifierType.EXISTS, expr,
+							new Expr(EXISTS, newArgs)) : "backtranslation identity";
+					return expr;
+				} else {
+					return new Expr(EXISTS, newArgs);
+				}
+			}
+		}
+		throw new IllegalArgumentException("Could not convert Term: " + form
+				+ "Operator was: " + form.op());
+	}
 
-    public static Expr update2Expr(de.uka.ilkd.key.rule.updatesimplifier.Update update) {
-        List<Expr> rewrites = new LinkedList<Expr>();
-        ArrayOfAssignmentPair asss = update.getAllAssignmentPairs();
-        for (int i = 0; i < asss.size(); i++) {
-            AssignmentPair ass = asss.getAssignmentPair(i);
-            Term x = ass.locationAsTerm();
-            assert x.arity()==0 : "only works for atomic locations";
-            Term t = ass.value();
-            rewrites.add(new Expr(RULE,
-                    new Expr[] {
-                        convert2Expr(x), convert2Expr(t)
-            }));
-        }
-        return new Expr(LIST,
-                rewrites.toArray(new Expr[rewrites.size()])
-                );
-    }
+	/**
+	 * TODO jdq documentation since Nov 22, 2007
+	 * 
+	 * @param expr
+	 * @param expr2
+	 * @return
+	 */
+	private static boolean equalsTranslateBack(QuantifierType quantifier,
+			Expr expr, Expr expr2) {
+		Expr var = expr.args()[0].args()[0];
+		Expr form = expr.args()[1];
+		Expr[] vars = new Expr[expr.args()[0].args().length - 1];
+		System.arraycopy(expr.args()[0].args(), 1, vars, 0, vars.length);
+		Expr newExpr = new Expr(quantifier == QuantifierType.FORALL ? FORALL
+				: quantifier == QuantifierType.EXISTS ? EXISTS : null,
+				new Expr[] {
+						new Expr(LIST, new Expr[] { var }),
+						new Expr(quantifier == QuantifierType.FORALL ? FORALL
+								: quantifier == QuantifierType.EXISTS ? EXISTS
+										: null, new Expr[] {
+								new Expr(LIST, vars), form }) });
+		assert newExpr.equals(expr2) : "backtranslation of " + expr + " is "
+				+ newExpr + ", which equals " + expr2;
+		return newExpr.equals(expr2);
+	}
+
+	public static Expr update2Expr(
+			de.uka.ilkd.key.rule.updatesimplifier.Update update) {
+		List<Expr> rewrites = new LinkedList<Expr>();
+		ArrayOfAssignmentPair asss = update.getAllAssignmentPairs();
+		for (int i = 0; i < asss.size(); i++) {
+			AssignmentPair ass = asss.getAssignmentPair(i);
+			Term x = ass.locationAsTerm();
+			assert x.arity() == 0 : "only works for atomic locations";
+			Term t = ass.value();
+			rewrites.add(new Expr(RULE, new Expr[] { convert2Expr(x),
+					convert2Expr(t) }));
+		}
+		return new Expr(LIST, rewrites.toArray(new Expr[rewrites.size()]));
+	}
 }
