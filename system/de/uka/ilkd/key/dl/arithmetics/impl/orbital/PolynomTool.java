@@ -378,6 +378,8 @@ public abstract class PolynomTool {
 		final Sort r = RealLDT.getRealSort();
 		final Term zero = TermBuilder.DF.func(NumberCache.getNumber(
 				new BigDecimal(0), r));
+		final Term one = TermBuilder.DF.func(NumberCache.getNumber(
+				new BigDecimal(1), r));
 		final Function mult = RealLDT.getFunctionFor(Mult.class);
 		final Function exp = RealLDT.getFunctionFor(Exp.class);
 		final Function plus = RealLDT.getFunctionFor(Plus.class);
@@ -414,7 +416,11 @@ public abstract class PolynomTool {
 					System.out.println(next + " * " + blub);// XXX
 				}
 				if (result == null) {
-					result = summand;
+					if(summand == null && ((Arithmetic) next).isOne()) {
+						result = one;
+					} else {
+						result = summand;
+					}
 				} else {
 					result = TermBuilder.DF.func(plus, result, summand);
 				}
