@@ -165,23 +165,49 @@ public class BuiltInRuleAppIndex implements java.io.Serializable {
         final Proof proof = goal.proof();
         final Constraint userConstraint = proof.getUserConstraint().getConstraint();
         
+        scanSequentWideApps(goal, userConstraint);
+        
         scanAddedFormulas ( goal, true, sci, userConstraint );
         scanAddedFormulas ( goal, false, sci, userConstraint );
         
         scanModifiedFormulas ( goal, true, sci, userConstraint );
         scanModifiedFormulas ( goal, false, sci, userConstraint );
     }
+
+
+    private void scanSequentWideApps(Goal goal, Constraint userConstraint) {
+        final IteratorOfBuiltInRule ruleIt = index.rules().iterator();
+        while (ruleIt.hasNext()) {
+            BuiltInRule rule = ruleIt.next();
+            if (rule instanceof SequentWideBuiltInRule) {
+                final SequentWideBuiltInRule wideRule = (SequentWideBuiltInRule)rule;
+                if (wideRule.isApplicable(goal, userConstraint)) {
+                    // we need a PosInOccurrence and just select an arbitrary
+                    // formula in the sequent for that
+                    final Sequent seq = goal.sequent();
+                    assert !seq.isEmpty();
+                    final PosInOccurrence pos =
+                        new PosInOccurrence 
+                           ( seq.iterator().next(), PosInTerm.TOP_LEVEL,
+                             !seq.antecedent().isEmpty());
+                    BuiltInRuleApp app = new BuiltInRuleApp(rule, pos, userConstraint );                            
+                    getNewRulePropagator().ruleAdded ( app, pos );
+                }
+            }
+        }
+    }
     
     private void scanAddedFormulas ( Goal goal, boolean antec, SequentChangeInfo sci, final Constraint userConstraint ) {
-        final IteratorOfBuiltInRule ruleIt = index.rules().iterator();
         ListOfConstrainedFormula cfmas = sci.addedFormulas( antec );
         final NewRuleListener listener = getNewRulePropagator();
         while ( !cfmas.isEmpty() ) {
             final ConstrainedFormula cfma = cfmas.head();
+            final IteratorOfBuiltInRule ruleIt = index.rules().iterator();
             while (ruleIt.hasNext()) {
-                final BuiltInRule rule = ruleIt.next();            
-                scanSimplificationRule( rule, goal, antec, 
-                        userConstraint, cfma, listener );
+                final BuiltInRule rule = ruleIt.next();
+                if (!(rule instanceof SequentWideBuiltInRule))
+                  scanSimplificationRule( rule, goal, antec, 
+                          userConstraint, cfma, listener );
             }
             cfmas = cfmas.tail();
         }
@@ -189,17 +215,17 @@ public class BuiltInRuleAppIndex implements java.io.Serializable {
 
 
     private void scanModifiedFormulas ( Goal goal, boolean antec, SequentChangeInfo sci, final Constraint userConstraint ) {
-        final IteratorOfBuiltInRule ruleIt = index.rules().iterator();
-        
         final NewRuleListener listener = getNewRulePropagator();
         ListOfFormulaChangeInfo fcis = sci.modifiedFormulas( antec );
 
         while ( !fcis.isEmpty() ) {
             final FormulaChangeInfo fci = fcis.head();               
             final ConstrainedFormula cfma = fci.getNewFormula();
+            final IteratorOfBuiltInRule ruleIt = index.rules().iterator();
             while (ruleIt.hasNext()) {
                 final BuiltInRule rule = ruleIt.next();
-                scanSimplificationRule( rule, goal, antec, userConstraint, cfma, listener );
+                if (!(rule instanceof SequentWideBuiltInRule))
+                  scanSimplificationRule( rule, goal, antec, userConstraint, cfma, listener );
             }
             fcis = fcis.tail();
         }

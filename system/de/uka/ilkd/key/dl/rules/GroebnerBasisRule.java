@@ -54,6 +54,7 @@ import de.uka.ilkd.key.proof.SLListOfGoal;
 import de.uka.ilkd.key.rule.BuiltInRule;
 import de.uka.ilkd.key.rule.Rule;
 import de.uka.ilkd.key.rule.RuleApp;
+import de.uka.ilkd.key.rule.SequentWideBuiltInRule;
 
 /**
  * This class is used for the groebner basis backend
@@ -62,7 +63,7 @@ import de.uka.ilkd.key.rule.RuleApp;
  * @since 17.01.2008
  * 
  */
-public class GroebnerBasisRule implements BuiltInRule, RuleFilter {
+public class GroebnerBasisRule implements SequentWideBuiltInRule, RuleFilter {
 
 	public static final GroebnerBasisRule INSTANCE = new GroebnerBasisRule();
 
@@ -122,8 +123,7 @@ public class GroebnerBasisRule implements BuiltInRule, RuleFilter {
 	 *      de.uka.ilkd.key.logic.Constraint)
 	 */
 	/*@Override*/
-	public boolean isApplicable(Goal goal, PosInOccurrence pio,
-			Constraint userConstraint) {
+	public boolean isApplicable(Goal goal, Constraint userConstraint) {
 		// TODO jdq: insert application test
 		if(!MathSolverManager.isGroebnerBasisCalculatorSet()) {
 			return false;
@@ -147,6 +147,11 @@ public class GroebnerBasisRule implements BuiltInRule, RuleFilter {
 			}
 		}
 		return result[0];
+	}
+
+	public boolean isApplicable(Goal goal, PosInOccurrence pio,
+	                           Constraint userConstraint) {
+	    return isApplicable(goal, userConstraint);
 	}
 
 	/*
