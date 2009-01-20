@@ -12,7 +12,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 
 import de.uka.ilkd.key.dl.formulatools.SkolemSymbolWithMostParametersVisitor;
-import de.uka.ilkd.key.dl.rules.EliminateQuantifierRule;
 import de.uka.ilkd.key.dl.rules.ReduceRuleApp;
 import de.uka.ilkd.key.gui.nodeviews.BuiltInRuleMenuItem;
 import de.uka.ilkd.key.logic.Constraint;
@@ -71,11 +70,6 @@ public class ReduceRulesItem extends JMenuItem implements BuiltInRuleMenuItem {
      */
     public void openDialog(ActionEvent e) {
         String def = "";
-        if (connectedTo instanceof EliminateQuantifierRule) {
-            def = SkolemSymbolWithMostParametersVisitor
-                    .getSkolemSymbolWithMostParameters(pos.subTerm()).op()
-                    .name().toString();
-        }
         String variables = JOptionPane.showInputDialog(
                 "Optional elimination target variables", def);
         if (variables != null) {

@@ -26,10 +26,7 @@ import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.uka.ilkd.key.dl.arithmetics.exceptions.ConnectionProblemException;
-import de.uka.ilkd.key.dl.arithmetics.exceptions.ServerStatusProblemException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
-import de.uka.ilkd.key.dl.arithmetics.exceptions.UnableToConvertInputException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.UnsolveableException;
 import de.uka.ilkd.key.dl.strategy.RealtimeStrategy;
 import de.uka.ilkd.key.java.Services;
@@ -44,8 +41,8 @@ import de.uka.ilkd.key.logic.Visitor;
 import de.uka.ilkd.key.proof.Goal;
 import de.uka.ilkd.key.proof.ListOfGoal;
 import de.uka.ilkd.key.proof.SLListOfGoal;
-import de.uka.ilkd.key.rule.BuiltInRule;
 import de.uka.ilkd.key.rule.RuleApp;
+import de.uka.ilkd.key.rule.SequentWideBuiltInRule;
 
 /**
  * This class is used as super class for rules operating on a whole sequence.
@@ -55,7 +52,7 @@ import de.uka.ilkd.key.rule.RuleApp;
  * 
  */
 public abstract class RuleOperatingOnWholeSequence extends Visitor implements
-		BuiltInRule, TestableBuiltInRule {
+		SequentWideBuiltInRule, TestableBuiltInRule {
 
 	private static class PairOfTermAndChangeset {
 		public PairOfTermAndChangeset(Term resultTerm,

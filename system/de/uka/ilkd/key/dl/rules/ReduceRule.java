@@ -63,8 +63,7 @@ import de.uka.ilkd.key.rule.SequentWideBuiltInRule;
  * @since 01.02.2007
  * @see de.uka.ilkd.key.proof.DLProfile
  */
-public class ReduceRule extends RuleOperatingOnWholeSequence implements
-        SequentWideBuiltInRule, RuleFilter, UnknownProgressRule {
+public class ReduceRule extends RuleOperatingOnWholeSequence implements RuleFilter, UnknownProgressRule {
 
     private Set<Term> skolemSymbols;
 
