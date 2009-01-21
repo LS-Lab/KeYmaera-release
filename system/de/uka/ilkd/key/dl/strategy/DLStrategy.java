@@ -33,8 +33,6 @@ import de.uka.ilkd.key.dl.options.DLOptionBean.DiffSat;
 import de.uka.ilkd.key.dl.options.DLOptionBean.FirstOrderStrategy;
 import de.uka.ilkd.key.dl.rules.DebugRule;
 import de.uka.ilkd.key.dl.rules.EliminateExistentialQuantifierRule;
-import de.uka.ilkd.key.dl.rules.EliminateQuantifierRule;
-import de.uka.ilkd.key.dl.rules.EliminateQuantifierRuleWithContext;
 import de.uka.ilkd.key.dl.rules.FindInstanceRule;
 import de.uka.ilkd.key.dl.rules.FindTransitionRule;
 import de.uka.ilkd.key.dl.rules.GroebnerBasisRule;
@@ -375,7 +373,17 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 																	.isUseIterativeReduceRule() ? inftyConst()
 																	: new SwitchFeature(
 																			ContainsMetaVariableFeature.INSTANCE,
-																			new Case( // we got a metavar so the fallback is existential reduce
+																			new Case(
+																					// we
+																					// got
+																					// a
+																					// metavar
+																					// so
+																					// the
+																					// fallback
+																					// is
+																					// existential
+																					// reduce
 																					longConst(0),
 																					inftyConst()),
 																			new Case(
@@ -421,10 +429,6 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 							longConst(20000)));
 		}
 
-		final Feature eliminateQuantifier = ConditionalFeature
-				.createConditional(EliminateQuantifierRule.INSTANCE,
-						inftyConst());
-
 		// if the sequent is first order, we can try to apply the rule...
 		// the strat should still avoid applying it, if there is another
 		// goal containing a relevant MV that is not totally first order
@@ -432,12 +436,6 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 				.createConditional(EliminateExistentialQuantifierRule.INSTANCE,
 						SumFeature.createSum(new Feature[] { longConst(19000),
 								FOSequence.INSTANCE }));
-		// final Feature eliminateQuantifier = ConditionalFeature
-		// .createConditional(EliminateQuantifierRule.INSTANCE, add(
-		// longConst(5000), FOFormsContainingSymbol.INSTANCE));
-
-		final Feature contextElimRule = ConditionalFeature.createConditional(
-				EliminateQuantifierRuleWithContext.INSTANCE, inftyConst());
 
 		final Feature excludeRules = SumFeature.createSum(new Feature[] {
 				ConditionalFeature.createConditional(FindInstanceRule.INSTANCE,
@@ -479,9 +477,9 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 		completeF = SumFeature.createSum(new Feature[] {
 				AutomatedRuleFeature.INSTANCE, NotWithinMVFeature.INSTANCE,
 				simplifierF, duplicateF, ifMatchedF, d, AgeFeature.INSTANCE,
-				reduceSequence, contextElimRule, eliminateQuantifier,
-				excludeRules, noQuantifierInstantition,
-				eliminateExistentialQuantifier, iterative, groebnerBasisRule });
+				reduceSequence, excludeRules,
+				noQuantifierInstantition, eliminateExistentialQuantifier,
+				iterative, groebnerBasisRule });
 
 		approvalF = setupApprovalF(p_proof);
 
@@ -609,8 +607,8 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 		}
 	}
 
-	////////////////////////////////////////////////////////////////////////////
-	////////////////////////////////////////////////////////////////////////////
+	// //////////////////////////////////////////////////////////////////////////
+	// //////////////////////////////////////////////////////////////////////////
 	//
 	// Application of equations
 	//
@@ -1021,8 +1019,8 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 	// Feature terms that handle the instantiation of incomplete taclet
 	// applications
 	//
-	////////////////////////////////////////////////////////////////////////////
-	////////////////////////////////////////////////////////////////////////////
+	// //////////////////////////////////////////////////////////////////////////
+	// //////////////////////////////////////////////////////////////////////////
 
 	private RuleSetDispatchFeature setupInstantiationF(Proof p_proof) {
 		enableInstantiate();
@@ -1198,13 +1196,13 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 				inftyConst()));
 	}
 
-	////////////////////////////////////////////////////////////////////////////
-	////////////////////////////////////////////////////////////////////////////
+	// //////////////////////////////////////////////////////////////////////////
+	// //////////////////////////////////////////////////////////////////////////
 	//
 	// Feature terms that handle the approval of complete taclet applications
 	//
-	////////////////////////////////////////////////////////////////////////////
-	////////////////////////////////////////////////////////////////////////////
+	// //////////////////////////////////////////////////////////////////////////
+	// //////////////////////////////////////////////////////////////////////////
 
 	private Feature setupApprovalF(Proof p_proof) {
 		final RuleSetDispatchFeature d = RuleSetDispatchFeature.create();
@@ -1383,7 +1381,7 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 		return getFirstInCacheUntilBranch(node.parent(), cache);
 	}
 
-	/*@Override*/
+	/* @Override */
 	protected RuleAppCost instantiateApp(RuleApp app, PosInOccurrence pio,
 			Goal goal) {
 		if (veto(app, pio, goal)) {
@@ -1400,7 +1398,7 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 
 		}
 
-		/*@Override*/
+		/* @Override */
 		public Strategy create(Proof p_proof,
 				StrategyProperties strategyProperties) {
 			return new DLStrategy(p_proof);
@@ -1423,7 +1421,7 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 		}
 	}
 
-	/*@Override*/
+	/* @Override */
 	public long getTimeout(Goal goal, RuleApp app) {
 		return timeout;
 	}

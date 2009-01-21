@@ -27,7 +27,6 @@ import javax.swing.JOptionPane;
 import org.apache.log4j.Logger;
 
 import de.uka.ilkd.key.dl.rules.EliminateExistentialQuantifierRule;
-import de.uka.ilkd.key.dl.rules.EliminateQuantifierRule;
 import de.uka.ilkd.key.dl.rules.ReduceRule;
 import de.uka.ilkd.key.gui.KeYMediator;
 import de.uka.ilkd.key.gui.Main;
@@ -186,8 +185,7 @@ class TacletMenu extends JMenu {
     private void addBuiltInRuleItem(BuiltInRule builtInRule,
 				    MenuControl control) {
         JMenuItem item;
-        if (builtInRule instanceof EliminateQuantifierRule
-                || builtInRule instanceof ReduceRule
+        if (builtInRule instanceof ReduceRule
                 || builtInRule instanceof EliminateExistentialQuantifierRule) {
             item = new ReduceRulesItem(mediator.mainFrame(), builtInRule,
                     mediator.getSelectedProof(), pos.getPosInOccurrence());

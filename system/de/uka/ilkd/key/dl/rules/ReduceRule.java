@@ -24,8 +24,6 @@ package de.uka.ilkd.key.dl.rules;
 
 import java.rmi.RemoteException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -53,9 +51,9 @@ import de.uka.ilkd.key.logic.op.RigidFunction;
 import de.uka.ilkd.key.proof.Goal;
 import de.uka.ilkd.key.proof.ListOfGoal;
 import de.uka.ilkd.key.proof.RuleFilter;
-import de.uka.ilkd.key.rule.BuiltInRule;
 import de.uka.ilkd.key.rule.Rule;
 import de.uka.ilkd.key.rule.RuleApp;
+import de.uka.ilkd.key.rule.SequentWideBuiltInRule;
 
 /**
  * The ReduceRule is a Built-In Rule that is applied to a whole sequence. It is
@@ -65,8 +63,7 @@ import de.uka.ilkd.key.rule.RuleApp;
  * @since 01.02.2007
  * @see de.uka.ilkd.key.proof.DLProfile
  */
-public class ReduceRule extends RuleOperatingOnWholeSequence implements
-        BuiltInRule, RuleFilter, UnknownProgressRule {
+public class ReduceRule extends RuleOperatingOnWholeSequence implements RuleFilter, UnknownProgressRule {
 
     private Set<Term> skolemSymbols;
 
@@ -93,14 +90,18 @@ public class ReduceRule extends RuleOperatingOnWholeSequence implements
      *      de.uka.ilkd.key.logic.PosInOccurrence,
      *      de.uka.ilkd.key.logic.Constraint)
      */
-    public boolean isApplicable(Goal goal, PosInOccurrence pio,
-            Constraint userConstraint) {
+    public boolean isApplicable(Goal goal, Constraint userConstraint) {
         return MathSolverManager.isQuantifierEliminatorSet()
                 && ((DLOptionBean.INSTANCE.isSimplifyBeforeReduce() || DLOptionBean.INSTANCE
                         .isSimplifyAfterReduce()) ? MathSolverManager
                         .isSimplifierSet() : true);
     }
 
+    public boolean isApplicable(Goal goal, PosInOccurrence pio,
+                                Constraint userConstraint) {
+        return isApplicable(goal, userConstraint);
+    }
+        
     /*
      * (non-Javadoc)
      * 

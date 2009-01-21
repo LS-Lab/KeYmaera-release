@@ -10,7 +10,9 @@ grammar Qepcad;
 	import de.uka.ilkd.key.dl.logic.ldt.RealLDT;
 	import de.uka.ilkd.key.logic.NamespaceSet;
 	import de.uka.ilkd.key.logic.Name;
+	import de.uka.ilkd.key.logic.Named;
 	import de.uka.ilkd.key.logic.op.LogicVariable;
+	import de.uka.ilkd.key.logic.op.Metavariable;
 	import de.uka.ilkd.key.logic.op.Function;
 	import de.uka.ilkd.key.logic.op.Equality;
 	import java.math.BigDecimal;
@@ -45,9 +47,18 @@ grammar Qepcad;
 		if(f != null) {
 			return tb.func(f);
 		}
-       		 LogicVariable n = (LogicVariable)this.nss.variables().lookup(new Name(var));
-        		if( n != null ) {
-            		return tb.var(n);
+		Named named = this.nss.variables().lookup(new Name(var));
+				if( named != null ) {
+					if(named instanceof LogicVariable) {
+       		 			LogicVariable n = (LogicVariable)named;
+            			return tb.var(n);
+            		} else if(named instanceof Metavariable) {
+            			Metavariable n = (Metavariable)named;
+            			return tb.var(n);
+            		} else {
+            			throw new IllegalStateException("Found object of unknown type " + named.getClass()
+            				+ " in the variable namespace, named " + named);
+            		}
         		} else {
             		ProgramVariable p = (ProgramVariable)this.nss.programVariables().lookup(new Name(var));
             		if( p != null )
