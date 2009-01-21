@@ -720,6 +720,9 @@ public class DLStrategy extends AbstractFeatureStrategy implements
         bindRuleSet ( d, "polySimp_expandPow",
                       applyTF("expandExp", add(tf.intLiteral, tf.posLiteral)) );
 
+        bindRuleSet ( d, "polySimp_negatePow",
+                      applyTF("negateExp", tf.negLiteral) );
+
         bindRuleSet ( d, "polySimp_homo",
                 add ( applyTF ( "homoRight",
                                 add ( not ( tf.zeroLiteral ), tf.polynomial ) ),
