@@ -141,6 +141,29 @@ public class DLOptionBean implements Settings {
 		}
 	}
 
+        public static enum BuiltInArithmetic {
+            OFF("off"),
+            NORMALISE_EQUATIONS("normalise (in)equalities"),
+            REDUCTION("normalisation and reduction"),
+            FULL("full (incl. S-polynomials)");
+
+            private String string;
+
+            private BuiltInArithmetic(String str) {
+                    this.string = str;
+            }
+
+            /*
+             * (non-Javadoc)
+             * 
+             * @see java.lang.Enum#toString()
+             */
+            /*@Override*/
+            public String toString() {
+                    return string;
+            }
+        }
+
 	/**
 	 * 
 	 */
@@ -173,8 +196,6 @@ public class DLOptionBean implements Settings {
 	private static final String DLOPTIONS_SIMPLIFY_BEFORE_REDUCE = "[DLOptions]simplifyBeforeReduce";
 
 	private static final String DLOPTIONS_SIMPLIFY_AFTER_REDUCE = "[DLOptions]simplifyAfterReduce";
-
-	private static final String DLOPTIONS_NORMALIZE_EQUATIONS = "[DLOptions]normalizeEquations";
 
 	private static final String DLOPTIONS_APPLY_UPDATES_TO_MODALITIES = "[DLOptions]applyToModality";
 
@@ -211,6 +232,9 @@ public class DLOptionBean implements Settings {
 	private static final String DLOPTIONS_USE_POWERSET_ITERATIVE_REDUCE = "[DLOptions]usePowersetIterativeReduce";
 	private static final String DLOPTIONS_PERCENT_OF_POWERSET_FOR_ITERATIVE_REDUCE = "[DLOptions]percentOfPowersetForIterativeReduce";
 
+
+	private static final String DLOPTIONS_BUILT_IN_ARITHMETIC = "[DLOptions]BuiltInArithmetic";
+
 	private Set<Settings> subOptions;
 
 	private FirstOrderStrategy foStrategy;
@@ -234,8 +258,6 @@ public class DLOptionBean implements Settings {
 	private boolean simplifyBeforeReduce;
 
 	private boolean simplifyAfterReduce;
-
-	private boolean normalizeEquations;
 
 	private boolean applyUpdatesToModalities;
 
@@ -273,6 +295,8 @@ public class DLOptionBean implements Settings {
 
 	private int percentOfPowersetForReduce;
 
+	private BuiltInArithmetic builtInArithmetic;
+	
 	private DLOptionBean() {
 		subOptions = new LinkedHashSet<Settings>();
 		foStrategy = FirstOrderStrategy.IBC;
@@ -287,7 +311,6 @@ public class DLOptionBean implements Settings {
 		simplifyBeforeReduce = false;
 		simplifyAfterReduce = false;
 		simplifyAfterODESolve = false;
-		normalizeEquations = false;
 		applyUpdatesToModalities = false;
 		counterExampleGenerator = "";
 		odeSolver = "";
@@ -304,6 +327,7 @@ public class DLOptionBean implements Settings {
 		applyLocalReduce = false;
 		usePowersetIterativeReduce = true;
 		percentOfPowersetForReduce = 70;
+		builtInArithmetic = BuiltInArithmetic.OFF;
 
 		listeners = new HashSet<SettingsListener>();
 	}
@@ -479,10 +503,6 @@ public class DLOptionBean implements Settings {
 		if (property != null) {
 			simplifyAfterReduce = property.equals(TRUE);
 		}
-		property = props.getProperty(DLOPTIONS_NORMALIZE_EQUATIONS);
-		if (property != null) {
-			normalizeEquations = property.equals(TRUE);
-		}
 		property = props.getProperty(DLOPTIONS_APPLY_UPDATES_TO_MODALITIES);
 		if (property != null) {
 			applyUpdatesToModalities = property.equals(TRUE);
@@ -621,6 +641,10 @@ public class DLOptionBean implements Settings {
 			percentOfPowersetForReduce = Integer.valueOf(property);
 		}
 
+                property = props.getProperty(DLOPTIONS_BUILT_IN_ARITHMETIC);
+                if (property != null) {
+                        builtInArithmetic = BuiltInArithmetic.valueOf(property);
+                }
 	}
 
 	/*
@@ -648,8 +672,6 @@ public class DLOptionBean implements Settings {
 				simplifyBeforeReduce).toString());
 		props.setProperty(DLOPTIONS_SIMPLIFY_AFTER_REDUCE, Boolean.valueOf(
 				simplifyAfterReduce).toString());
-		props.setProperty(DLOPTIONS_NORMALIZE_EQUATIONS, Boolean.valueOf(
-				normalizeEquations).toString());
 		props.setProperty(DLOPTIONS_APPLY_UPDATES_TO_MODALITIES, Boolean
 				.valueOf(applyUpdatesToModalities).toString());
 		props.setProperty(DLOPTIONS_COUNTEREXAMPLE_TEST, counterexampleTest
@@ -700,6 +722,8 @@ public class DLOptionBean implements Settings {
 				.toString(usePowersetIterativeReduce));
 		props.setProperty(DLOPTIONS_PERCENT_OF_POWERSET_FOR_ITERATIVE_REDUCE,
 				"" + percentOfPowersetForReduce);
+                props.setProperty(DLOPTIONS_BUILT_IN_ARITHMETIC,
+                                  builtInArithmetic.name());
 	}
 
 	public void addSubOptionBean(Settings sub) {
@@ -813,25 +837,20 @@ public class DLOptionBean implements Settings {
 		firePropertyChanged();
 	}
 
-	/**
-	 * get the value of normalizeEquations
-	 * 
-	 * @return the value of normalizeEquations
-	 */
 	public boolean isNormalizeEquations() {
-		return normalizeEquations;
+	    return builtInArithmetic == BuiltInArithmetic.NORMALISE_EQUATIONS ||
+	           builtInArithmetic == BuiltInArithmetic.REDUCTION ||
+	           builtInArithmetic == BuiltInArithmetic.FULL;
 	}
 
-	/**
-	 * set a new value to normalizeEquations
-	 * 
-	 * @param normalizeEquations
-	 *            the new value to be used
-	 */
-	public void setNormalizeEquations(boolean normalizeEquations) {
-		this.normalizeEquations = normalizeEquations;
-		firePropertyChanged();
-	}
+        public boolean isArithmeticReduction() {
+            return builtInArithmetic == BuiltInArithmetic.REDUCTION ||
+                   builtInArithmetic == BuiltInArithmetic.FULL;
+        }
+
+        public boolean isArithmeticSaturation() {
+            return builtInArithmetic == BuiltInArithmetic.FULL;
+        }
 
 	/**
 	 * @return the applyUpdatesToModalities
@@ -1052,7 +1071,18 @@ public class DLOptionBean implements Settings {
 		}
 	}
 
-	/**
+	
+	
+	public BuiltInArithmetic getBuiltInArithmetic() {
+	    return builtInArithmetic;
+        }
+
+        public void setBuiltInArithmetic(BuiltInArithmetic builtInArithmetic) {
+            this.builtInArithmetic = builtInArithmetic;
+            firePropertyChanged();
+        }
+
+    /**
 	 * @return the termFactory
 	 */
 	public Class<? extends TermFactory> getTermFactoryClass() {

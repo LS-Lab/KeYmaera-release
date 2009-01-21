@@ -324,12 +324,6 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 				(MathSolverManager.isSimplifierSet()) ? longConst(0)
 						: inftyConst()));
 
-		if (DLOptionBean.INSTANCE.isNormalizeEquations()) {
-			bindRuleSet(d, "inequation_normalization", -4000);
-		} else {
-			bindRuleSet(d, "inequation_normalization", inftyConst());
-		}
-
 		// final Feature simplifierF = ifZero(selectSimplifier(-10000),
 		// EqNonDuplicateAppFeature.INSTANCE);
 		final Feature simplifierF = selectSimplifier(-10000);
@@ -616,6 +610,11 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 	////////////////////////////////////////////////////////////////////////////
 
 	private void setupApplyEq(RuleSetDispatchFeature d) {
+            if (!DLOptionBean.INSTANCE.isArithmeticReduction()) {
+                bindRuleSet ( d, "apply_equations", inftyConst());
+                return;
+            }
+            
 	    final TermBuffer equation = new TermBuffer ();
 	    final TermBuffer left = new TermBuffer (), right = new TermBuffer ();
 
@@ -664,21 +663,40 @@ public class DLStrategy extends AbstractFeatureStrategy implements
         // Buchberger's algorithmus for handling polynomial equations over
         // the integers
             
-        bindRuleSet ( d, "polySimp_expand", -4500 );
-        bindRuleSet ( d, "polySimp_directEquations", -3000 );
-        bindRuleSet ( d, "polySimp_pullOutGcd", -3500 );
-        bindRuleSet ( d, "polySimp_leftNonUnit", -2000 );
-        bindRuleSet ( d, "polySimp_saturate", 1000 );
+        if (DLOptionBean.INSTANCE.isNormalizeEquations()) {
+            bindRuleSet ( d, "polySimp_expand", -4500 );
+            bindRuleSet ( d, "polySimp_directEquations", -3000 );
+            bindRuleSet ( d, "polySimp_pullOutGcd", -3500 );
+        } else {
+            bindRuleSet ( d, "polySimp_expand", inftyConst() );
+            bindRuleSet ( d, "polySimp_directEquations", inftyConst() );
+            bindRuleSet ( d, "polySimp_pullOutGcd", inftyConst() );
+        }
+        if (DLOptionBean.INSTANCE.isArithmeticSaturation())
+            bindRuleSet ( d, "polySimp_saturate", 1000 );
+        else
+            bindRuleSet ( d, "polySimp_saturate", inftyConst() );
 
         // Fourier-Motzkin for handling linear arithmetic and inequalities over the
         // integers; cross-multiplication + case distinctions for nonlinear
         // inequalities
 
-        bindRuleSet ( d, "inEqSimp_expand", -4500 );
-        bindRuleSet ( d, "inEqSimp_directInEquations", -3000 );
-        bindRuleSet ( d, "inEqSimp_propagation", -2500 );
-        bindRuleSet ( d, "inEqSimp_pullOutGcd", -2250 );
-        bindRuleSet ( d, "inEqSimp_saturate", -2000 );
+        if (DLOptionBean.INSTANCE.isNormalizeEquations()) {
+            bindRuleSet ( d, "inEqSimp_expand", -4500 );
+            bindRuleSet ( d, "inEqSimp_directInEquations", -3000 );
+            bindRuleSet ( d, "inEqSimp_pullOutGcd", -2250 );
+        } else {
+            bindRuleSet ( d, "inEqSimp_expand", inftyConst() );
+            bindRuleSet ( d, "inEqSimp_directInEquations", inftyConst() );
+            bindRuleSet ( d, "inEqSimp_pullOutGcd", inftyConst() );
+        }
+        if (DLOptionBean.INSTANCE.isArithmeticReduction()) {
+            bindRuleSet ( d, "inEqSimp_propagation", -2500 );
+            bindRuleSet ( d, "inEqSimp_saturate", -2000 );
+        } else {
+            bindRuleSet ( d, "inEqSimp_propagation", inftyConst() );
+            bindRuleSet ( d, "inEqSimp_saturate", inftyConst() );
+        }
     }
 
     private void setupPolySimp( RuleSetDispatchFeature d) {
