@@ -840,18 +840,19 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 			System.out.println("Result is: " + expression);
 			if (expression.head().equals(LIST)) {
 				if (expression.args().length == 2) {
-					if (expression.args()[1].toString().equals("1")) {
-						if (expression.args()[0].head().equals(LIST)) {
-							boolean test = true;
-							for (int i = 0; i < expression.args()[0].args().length; i++) {
-								test = test
-										&& expression.args()[0].args()[i]
-												.toString().equals("0");
-							}
-							if (test) {
-								return true;
-							}
-						}
+					if (expression.args()[1].toString().equals("0")) {
+//						if (expression.args()[0].head().equals(LIST)) {
+//							boolean test = true;
+//							for (int i = 0; i < expression.args()[0].args().length; i++) {
+//								test = test
+//										&& expression.args()[0].args()[i]
+//												.toString().equals("0");
+//							}
+//							if (test) {
+//								return true;
+//							}
+//						}
+						return true;
 					}
 				}
 			}
@@ -870,18 +871,19 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 											.size()])), order })).expression;
 					if (reduce.head().equals(LIST)) {
 						if (reduce.args().length == 2) {
-							if (reduce.args()[1].toString().equals("1")) {
-								if (reduce.args()[0].head().equals(LIST)) {
-									boolean test = true;
-									for (int i = 0; i < reduce.args()[0].args().length; i++) {
-										test = test
-												&& reduce.args()[0].args()[i]
-														.toString().equals("0");
-									}
-									if (test) {
-										return true;
-									}
-								}
+							if (reduce.args()[1].toString().equals("0")) {
+//								if (reduce.args()[0].head().equals(LIST)) {
+//									boolean test = true;
+//									for (int i = 0; i < reduce.args()[0].args().length; i++) {
+//										test = test
+//												&& reduce.args()[0].args()[i]
+//														.toString().equals("0");
+//									}
+//									if (test) {
+//										return true;
+//									}
+//								}
+								return true;
 							}
 						}
 					}

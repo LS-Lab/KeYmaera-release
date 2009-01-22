@@ -61,6 +61,10 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 		for (Polynomial p : classify2.h) {
 			System.out.println(p);
 		}
+		System.out.println("G is: ");
+		for (Polynomial p : classify2.g) {
+			System.out.println(p);
+		}
 		// we try to get a contradiction by computing the groebner basis of all
 		// the equalities. if the common basis contains a constant part, the
 		// equality system is unsatisfiable, thus we can close this goal
@@ -69,8 +73,9 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 		System.out.println(groebnerBasis);
 		Polynomial apply = (Polynomial) groebnerBasis.apply(classify2.h
 				.iterator().next().one());
-
+		System.out.println(apply);//XXX
 		if (apply.equals(apply.zero())) {
+			System.out.println(apply + " is equal to " + apply.zero());
 			return true;
 		}
 		if (!classify2.g.isEmpty()) {
@@ -78,13 +83,15 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 			// variety \forall f \in h: f = 0. if it is, we get false on the
 			// left side of the sequent and can close this goal
 			for (Polynomial g : classify2.g) {
+				System.out.println("Testing " + g);
 				Polynomial reduce = (Polynomial) groebnerBasis.apply(g);
+				
+				// TODO 
 				if (reduce.equals(reduce.zero())) {
 					return true;
 				}
 			}
 		}
-
 		return false;
 	}
 

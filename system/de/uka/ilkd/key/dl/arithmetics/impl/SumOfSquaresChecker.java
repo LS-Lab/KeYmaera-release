@@ -312,29 +312,29 @@ public class SumOfSquaresChecker {
 
 		for (Term t : cla.f) {
 			Fraction p = PolynomTool.createFractionOfPolynomialsFromTerm(t.sub(0), vars);
-			if (p.numerator().isOne()) {
-				polyF.add((Polynomial) p.denominator());
+			if (p.denominator().isOne()) {
+				polyF.add((Polynomial) p.numerator());
 			} else {
-				polyF.add((Polynomial) p.denominator().multiply(p.numerator()));
-				polyG.add((Polynomial) p.numerator());
+				polyF.add((Polynomial) p.numerator().multiply(p.denominator()));
+				polyG.add((Polynomial) p.denominator());
 			}
 		}
 		for (Term t : cla.g) {
 			Fraction p = PolynomTool.createFractionOfPolynomialsFromTerm(t.sub(0), vars);
-			if (p.numerator().isOne()) {
+			if (p.denominator().isOne()) {
 				polyG.add((Polynomial) p.denominator());
 			} else {
-				polyG.add((Polynomial) p.denominator().multiply(p.numerator()));
-				polyG.add((Polynomial) p.numerator());
+				polyG.add((Polynomial) p.numerator().multiply(p.denominator()));
+				polyG.add((Polynomial) p.denominator());
 			}
 		}
 		for (Term t : cla.h) {
 			Fraction p = PolynomTool.createFractionOfPolynomialsFromTerm(t.sub(0), vars);
-			if (p.numerator().isOne()) {
-				polyH.add((Polynomial) p.denominator());
+			if (p.denominator().isOne()) {
+				polyH.add((Polynomial) p.numerator());
 			} else {
-				polyH.add((Polynomial) p.denominator().multiply(p.numerator()));
-				polyG.add((Polynomial) p.numerator());
+				polyH.add((Polynomial) p.numerator().multiply(p.denominator()));
+				polyG.add((Polynomial) p.denominator());
 			}
 		}
 		return new PolynomialClassification<Polynomial>(polyF, polyG, polyH);
