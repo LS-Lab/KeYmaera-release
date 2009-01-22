@@ -776,7 +776,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 	 * .PolynomialClassification)
 	 */
 	public boolean checkForConstantGroebnerBasis(
-			PolynomialClassification<Term> terms) {
+			PolynomialClassification<Term> terms, Services services) {
 		Set<Expr> f = new HashSet<Expr>();
 		Set<Expr> g = new HashSet<Expr>();
 		Set<Expr> h = new HashSet<Expr>();

@@ -329,8 +329,8 @@ public class Mathematica implements ICounterExampleGenerator, IODESolver,
 	 */
 	/*@Override*/
 	public boolean checkForConstantGroebnerBasis(
-			PolynomialClassification<Term> terms) throws RemoteException {
-		return bridge.checkForConstantGroebnerBasis(terms);
+			PolynomialClassification<Term> terms, Services services) throws RemoteException {
+		return bridge.checkForConstantGroebnerBasis(terms, services);
 	}
 
 	/* (non-Javadoc)

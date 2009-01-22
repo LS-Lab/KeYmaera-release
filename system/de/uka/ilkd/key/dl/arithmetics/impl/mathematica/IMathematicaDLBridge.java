@@ -225,5 +225,5 @@ public interface IMathematicaDLBridge extends Remote {
 	 * @param terms
 	 * TODO documentation since Jun 6, 2008
 	 */
-	boolean checkForConstantGroebnerBasis(PolynomialClassification<Term> terms) throws RemoteException;
+	boolean checkForConstantGroebnerBasis(PolynomialClassification<Term> terms, Services services) throws RemoteException;
 }

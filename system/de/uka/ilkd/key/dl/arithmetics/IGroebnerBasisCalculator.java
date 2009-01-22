@@ -22,6 +22,7 @@ package de.uka.ilkd.key.dl.arithmetics;
 import java.rmi.RemoteException;
 
 import de.uka.ilkd.key.dl.arithmetics.impl.SumOfSquaresChecker.PolynomialClassification;
+import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.logic.Term;
 
 /**
@@ -33,7 +34,8 @@ public interface IGroebnerBasisCalculator extends IMathSolver {
 	/**
 	 * @param terms
 	 * TODO documentation since Jun 6, 2008
+	 * @param services 
 	 * @throws RemoteException 
 	 */
-	boolean checkForConstantGroebnerBasis(PolynomialClassification<Term> terms) throws RemoteException;
+	boolean checkForConstantGroebnerBasis(PolynomialClassification<Term> terms, Services services) throws RemoteException;
 }

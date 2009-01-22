@@ -21,16 +21,18 @@ package de.uka.ilkd.key.dl.arithmetics.impl.orbital;
 
 import java.rmi.RemoteException;
 
-import org.w3c.dom.Node;
-
 import orbital.logic.functor.Function;
 import orbital.math.AlgebraicAlgorithms;
 import orbital.math.Polynomial;
+
+import org.w3c.dom.Node;
+
 import de.uka.ilkd.key.dl.arithmetics.IGroebnerBasisCalculator;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ConnectionProblemException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ServerStatusProblemException;
 import de.uka.ilkd.key.dl.arithmetics.impl.SumOfSquaresChecker;
 import de.uka.ilkd.key.dl.arithmetics.impl.SumOfSquaresChecker.PolynomialClassification;
+import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.logic.Term;
 
 /**
@@ -43,13 +45,16 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 	 */
 	public GroebnerBasisChecker(Node node) {
 	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see de.uka.ilkd.key.dl.arithmetics.IGroebnerBasisCalculator#checkForConstantGroebnerBasis()
+	 * @seede.uka.ilkd.key.dl.arithmetics.IGroebnerBasisCalculator#
+	 * checkForConstantGroebnerBasis()
 	 */
-	/*@Override*/
-	public boolean checkForConstantGroebnerBasis(PolynomialClassification<Term> terms) {
+	/* @Override */
+	public boolean checkForConstantGroebnerBasis(
+			PolynomialClassification<Term> terms, Services services) {
 		PolynomialClassification<Polynomial> classify2 = SumOfSquaresChecker.INSTANCE
 				.classify(terms);
 		System.out.println("H is: ");
@@ -64,8 +69,8 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 		System.out.println(groebnerBasis);
 		Polynomial apply = (Polynomial) groebnerBasis.apply(classify2.h
 				.iterator().next().one());
-		
-		if(apply.equals(apply.zero())) {
+
+		if (apply.equals(apply.zero())) {
 			return true;
 		}
 		if (!classify2.g.isEmpty()) {
@@ -79,85 +84,104 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 				}
 			}
 		}
-		
+
 		return false;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#abortCalculation()
 	 */
-	/*@Override*/
+	/* @Override */
 	public void abortCalculation() throws RemoteException {
 		// TODO Auto-generated method stub
-		
+
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#getCachedAnwserCount()
 	 */
-	/*@Override*/
+	/* @Override */
 	public long getCachedAnswerCount() throws RemoteException {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#getName()
 	 */
-	/*@Override*/
+	/* @Override */
 	public String getName() {
 		return "Orbital";
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#getQueryCount()
 	 */
-	/*@Override*/
+	/* @Override */
 	public long getQueryCount() throws RemoteException {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#getTimeStatistics()
 	 */
-	/*@Override*/
+	/* @Override */
 	public String getTimeStatistics() throws RemoteException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#getTotalCalculationTime()
 	 */
-	/*@Override*/
+	/* @Override */
 	public long getTotalCalculationTime() throws RemoteException {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#getTotalMemory()
 	 */
-	/*@Override*/
+	/* @Override */
 	public long getTotalMemory() throws RemoteException,
 			ServerStatusProblemException, ConnectionProblemException {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#resetAbortState()
 	 */
-	/*@Override*/
+	/* @Override */
 	public void resetAbortState() throws RemoteException {
 		// TODO Auto-generated method stub
-		
+
 	}
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#isConfigured()
 	 */
-	/*@Override*/
+	/* @Override */
 	public boolean isConfigured() {
 		return true;
 	}
