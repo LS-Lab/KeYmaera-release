@@ -22,20 +22,21 @@
  */
 package de.uka.ilkd.key.dl.rules;
 
+import java.math.BigDecimal;
 import java.rmi.RemoteException;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.Set;
 
-import orbital.logic.functor.Function;
-import orbital.math.AlgebraicAlgorithms;
-import orbital.math.Polynomial;
 import de.uka.ilkd.key.dl.arithmetics.IGroebnerBasisCalculator;
 import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
 import de.uka.ilkd.key.dl.arithmetics.impl.SumOfSquaresChecker;
 import de.uka.ilkd.key.dl.arithmetics.impl.SumOfSquaresChecker.PolynomialClassification;
-import de.uka.ilkd.key.dl.arithmetics.impl.mathematica.Mathematica;
-import de.uka.ilkd.key.dl.arithmetics.impl.orbital.GroebnerBasisChecker;
-import de.uka.ilkd.key.dl.formulatools.collector.AllCollector;
+import de.uka.ilkd.key.dl.logic.ldt.RealLDT;
+import de.uka.ilkd.key.dl.model.Exp;
+import de.uka.ilkd.key.dl.model.Minus;
+import de.uka.ilkd.key.dl.parser.NumberCache;
 import de.uka.ilkd.key.dl.strategy.features.FOSequence;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.logic.ConstrainedFormula;
@@ -44,14 +45,15 @@ import de.uka.ilkd.key.logic.IteratorOfConstrainedFormula;
 import de.uka.ilkd.key.logic.Name;
 import de.uka.ilkd.key.logic.PosInOccurrence;
 import de.uka.ilkd.key.logic.Term;
+import de.uka.ilkd.key.logic.TermBuilder;
 import de.uka.ilkd.key.logic.Visitor;
+import de.uka.ilkd.key.logic.op.LogicVariable;
 import de.uka.ilkd.key.logic.op.Op;
-import de.uka.ilkd.key.logic.op.Quantifier;
+import de.uka.ilkd.key.logic.sort.Sort;
 import de.uka.ilkd.key.proof.Goal;
 import de.uka.ilkd.key.proof.ListOfGoal;
 import de.uka.ilkd.key.proof.RuleFilter;
 import de.uka.ilkd.key.proof.SLListOfGoal;
-import de.uka.ilkd.key.rule.BuiltInRule;
 import de.uka.ilkd.key.rule.Rule;
 import de.uka.ilkd.key.rule.RuleApp;
 import de.uka.ilkd.key.rule.SequentWideBuiltInRule;
@@ -102,7 +104,38 @@ public class GroebnerBasisRule implements SequentWideBuiltInRule, RuleFilter {
 
 			if (m != null) {
 				try {
-					if (m.checkForConstantGroebnerBasis(classify)) {
+					// we will rewrite the terms of the form f(x) >= 0 to f(x) = z^2 and add
+					// them to h for this Groebner basis check
+
+					// first get |f| new names and construct their squares
+					int i = 0;
+					String basename = "neu";
+					Queue<Term> squares = new LinkedList<Term>();
+					Sort r = RealLDT.getRealSort();
+					Term zero = TermBuilder.DF.func(NumberCache.getNumber(new BigDecimal(0),
+							r));
+					Term two = TermBuilder.DF.func(NumberCache.getNumber(new BigDecimal(2),
+							r));
+					de.uka.ilkd.key.logic.op.Function exp = RealLDT
+							.getFunctionFor(Exp.class);
+					while (squares.size() < classify.f.size()) {
+						Name n = new Name(basename + i++);
+						while (services.getNamespaces().lookup(n) != null) {
+							n = new Name(basename + i++);
+						}
+						squares.add(TermBuilder.DF.func(exp, TermBuilder.DF
+								.var(new LogicVariable(n, r)), two));
+					}
+					de.uka.ilkd.key.logic.op.Function sub = RealLDT
+							.getFunctionFor(Minus.class);
+					
+					// now we add the new equations
+					for (Term t : classify.f) {
+						classify.h.add(TermBuilder.DF.equals(TermBuilder.DF.func(sub, t.sub(0), squares.poll()), zero));
+					}
+					// and clear all inequalities, as we do not need them anymore
+					classify.f.clear();
+					if (m.checkForConstantGroebnerBasis(classify, services)) {
 						return SLListOfGoal.EMPTY_LIST;
 					}
 				} catch (RemoteException e) {

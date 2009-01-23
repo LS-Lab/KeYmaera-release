@@ -187,22 +187,25 @@ public class SumOfSquaresChecker {
 		Set<Term> h = new HashSet<Term>();
 		for (Term t : conjunction) {
 			if (t.op() == Equality.EQUALS) {
+				// H is the set of equalities thus we just need to add this term
 				h.add(t);
 			} else if (t.op().equals(neq)) {
+				// G is the set of unequalities thus we just need to add this term
 				g.add(t);
 			} else if (t.op().equals(geq)) {
+				// F contains all inequalities of the form x >= y thus we just need to add this term
 				f.add(t);
 			} else if (t.op().equals(gt)) {
+				// the term is x > y thus we add x >= y to F and x != y to G 
 				f.add(TermBuilder.DF.func(geq, t.sub(0), t.sub(1)));
 				g.add(TermBuilder.DF.func(neq, t.sub(0), t.sub(1)));
 			} else if (t.op().equals(leq)) {
-				f.add(TermBuilder.DF.func(geq, TermBuilder.DF.func(
-						RealLDT.getFunctionFor(MinusSign.class), t.sub(0)), t.sub(1)));
-				g.add(TermBuilder.DF.func(neq, TermBuilder.DF.func(
-						RealLDT.getFunctionFor(MinusSign.class), t.sub(0)), t.sub(1)));
+				// switch arguments to turn x <= y into y >= x
+				f.add(TermBuilder.DF.func(geq, t.sub(1), t.sub(0)));
 			} else if (t.op().equals(lt)) {
-				f.add(TermBuilder.DF.func(geq, TermBuilder.DF.func(
-						RealLDT.getFunctionFor(MinusSign.class), t.sub(0)), t.sub(1)));
+				// the term is x < y thus we add y >= x to F and y != x to G
+				f.add(TermBuilder.DF.func(geq, t.sub(1), t.sub(0)));
+				g.add(TermBuilder.DF.func(neq, t.sub(1), t.sub(0)));
 			} else if (t.op().equals(TermBuilder.DF.tt().op())
 					|| t.op().equals(TermBuilder.DF.ff().op())) {
 				// TODO jdq: we need to do something useful with this
@@ -312,29 +315,23 @@ public class SumOfSquaresChecker {
 
 		for (Term t : cla.f) {
 			Fraction p = PolynomTool.createFractionOfPolynomialsFromTerm(t.sub(0), vars);
-			if (p.numerator().isOne()) {
-				polyF.add((Polynomial) p.denominator());
-			} else {
-				polyF.add((Polynomial) p.denominator().multiply(p.numerator()));
-				polyG.add((Polynomial) p.numerator());
+			polyF.add((Polynomial) p.numerator());
+			if (!p.denominator().isOne()) {
+				polyG.add((Polynomial) p.denominator());
 			}
 		}
 		for (Term t : cla.g) {
 			Fraction p = PolynomTool.createFractionOfPolynomialsFromTerm(t.sub(0), vars);
-			if (p.numerator().isOne()) {
-				polyG.add((Polynomial) p.denominator());
-			} else {
-				polyG.add((Polynomial) p.denominator().multiply(p.numerator()));
+			polyG.add((Polynomial) p.denominator());
+			if (!p.denominator().isOne()) {
 				polyG.add((Polynomial) p.numerator());
 			}
 		}
 		for (Term t : cla.h) {
 			Fraction p = PolynomTool.createFractionOfPolynomialsFromTerm(t.sub(0), vars);
-			if (p.numerator().isOne()) {
-				polyH.add((Polynomial) p.denominator());
-			} else {
-				polyH.add((Polynomial) p.denominator().multiply(p.numerator()));
-				polyG.add((Polynomial) p.numerator());
+			polyH.add((Polynomial) p.numerator());
+			if (!p.denominator().isOne()) {
+				polyG.add((Polynomial) p.denominator());
 			}
 		}
 		return new PolynomialClassification<Polynomial>(polyF, polyG, polyH);

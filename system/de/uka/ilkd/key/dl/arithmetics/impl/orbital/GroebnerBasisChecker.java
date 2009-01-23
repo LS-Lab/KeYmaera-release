@@ -21,16 +21,18 @@ package de.uka.ilkd.key.dl.arithmetics.impl.orbital;
 
 import java.rmi.RemoteException;
 
-import org.w3c.dom.Node;
-
 import orbital.logic.functor.Function;
 import orbital.math.AlgebraicAlgorithms;
 import orbital.math.Polynomial;
+
+import org.w3c.dom.Node;
+
 import de.uka.ilkd.key.dl.arithmetics.IGroebnerBasisCalculator;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ConnectionProblemException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ServerStatusProblemException;
 import de.uka.ilkd.key.dl.arithmetics.impl.SumOfSquaresChecker;
 import de.uka.ilkd.key.dl.arithmetics.impl.SumOfSquaresChecker.PolynomialClassification;
+import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.logic.Term;
 
 /**
@@ -43,17 +45,24 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 	 */
 	public GroebnerBasisChecker(Node node) {
 	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see de.uka.ilkd.key.dl.arithmetics.IGroebnerBasisCalculator#checkForConstantGroebnerBasis()
+	 * @seede.uka.ilkd.key.dl.arithmetics.IGroebnerBasisCalculator#
+	 * checkForConstantGroebnerBasis()
 	 */
-	/*@Override*/
-	public boolean checkForConstantGroebnerBasis(PolynomialClassification<Term> terms) {
+	/* @Override */
+	public boolean checkForConstantGroebnerBasis(
+			PolynomialClassification<Term> terms, Services services) {
 		PolynomialClassification<Polynomial> classify2 = SumOfSquaresChecker.INSTANCE
 				.classify(terms);
 		System.out.println("H is: ");
 		for (Polynomial p : classify2.h) {
+			System.out.println(p);
+		}
+		System.out.println("G is: ");
+		for (Polynomial p : classify2.g) {
 			System.out.println(p);
 		}
 		// we try to get a contradiction by computing the groebner basis of all
@@ -64,8 +73,9 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 		System.out.println(groebnerBasis);
 		Polynomial apply = (Polynomial) groebnerBasis.apply(classify2.h
 				.iterator().next().one());
-		
-		if(apply.equals(apply.zero())) {
+		System.out.println(apply);//XXX
+		if (apply.equals(apply.zero())) {
+			System.out.println(apply + " is equal to " + apply.zero());
 			return true;
 		}
 		if (!classify2.g.isEmpty()) {
@@ -73,91 +83,112 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 			// variety \forall f \in h: f = 0. if it is, we get false on the
 			// left side of the sequent and can close this goal
 			for (Polynomial g : classify2.g) {
+				System.out.println("Testing " + g);
 				Polynomial reduce = (Polynomial) groebnerBasis.apply(g);
+				
+				// TODO 
 				if (reduce.equals(reduce.zero())) {
 					return true;
 				}
 			}
 		}
-		
 		return false;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#abortCalculation()
 	 */
-	/*@Override*/
+	/* @Override */
 	public void abortCalculation() throws RemoteException {
 		// TODO Auto-generated method stub
-		
+
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#getCachedAnwserCount()
 	 */
-	/*@Override*/
+	/* @Override */
 	public long getCachedAnswerCount() throws RemoteException {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#getName()
 	 */
-	/*@Override*/
+	/* @Override */
 	public String getName() {
 		return "Orbital";
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#getQueryCount()
 	 */
-	/*@Override*/
+	/* @Override */
 	public long getQueryCount() throws RemoteException {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#getTimeStatistics()
 	 */
-	/*@Override*/
+	/* @Override */
 	public String getTimeStatistics() throws RemoteException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#getTotalCalculationTime()
 	 */
-	/*@Override*/
+	/* @Override */
 	public long getTotalCalculationTime() throws RemoteException {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#getTotalMemory()
 	 */
-	/*@Override*/
+	/* @Override */
 	public long getTotalMemory() throws RemoteException,
 			ServerStatusProblemException, ConnectionProblemException {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#resetAbortState()
 	 */
-	/*@Override*/
+	/* @Override */
 	public void resetAbortState() throws RemoteException {
 		// TODO Auto-generated method stub
-		
+
 	}
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#isConfigured()
 	 */
-	/*@Override*/
+	/* @Override */
 	public boolean isConfigured() {
 		return true;
 	}
