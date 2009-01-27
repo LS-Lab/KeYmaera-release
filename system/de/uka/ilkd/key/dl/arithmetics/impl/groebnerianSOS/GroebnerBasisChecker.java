@@ -27,12 +27,16 @@ import java.util.Set;
 import orbital.logic.functor.Function;
 import orbital.math.AlgebraicAlgorithms;
 import orbital.math.Polynomial;
+
+import org.w3c.dom.Node;
+
 import de.uka.ilkd.key.dl.arithmetics.IGroebnerBasisCalculator;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ConnectionProblemException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ServerStatusProblemException;
 import de.uka.ilkd.key.dl.arithmetics.impl.SumOfSquaresChecker;
 import de.uka.ilkd.key.dl.arithmetics.impl.SumOfSquaresChecker.PolynomialClassification;
 import de.uka.ilkd.key.dl.logic.ldt.RealLDT;
+import de.uka.ilkd.key.dl.model.Unequals;
 import de.uka.ilkd.key.dl.parser.NumberCache;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.logic.Name;
@@ -58,17 +62,23 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 	// we try to get a contradiction by computing the groebner basis of all
 	// the equalities. if the common basis contains a constant part, the
 	// equality system is unsatisfiable, thus we can close this goal
+	final Set<Polynomial> groebnerBasis =
+	    orbital.math.AlgebraicAlgorithms.groebnerBasis(polys,
+		     AlgebraicAlgorithms.DEGREE_REVERSE_LEXICOGRAPHIC);
 	final Function groebnerReducer =
 	    orbital.math.AlgebraicAlgorithms.reduce(
-		     polys, AlgebraicAlgorithms.DEGREE_REVERSE_LEXICOGRAPHIC);
+		     groebnerBasis, AlgebraicAlgorithms.DEGREE_REVERSE_LEXICOGRAPHIC);
 	
-	System.out.println("Groebner basis:");
-	System.out.println(groebnerReducer);
+	System.out.println("Groebner basis is: ");
+	for (Polynomial p : groebnerBasis) {
+	    System.out.println(p);
+	}
 	
 	final Polynomial oneReduced =
 	    (Polynomial) groebnerReducer.apply(polys.iterator().next().one());
+	System.out.println(oneReduced);
 	if (oneReduced.isZero()) {
-	    System.out.println("Groebner basis is trivial and contains 1");
+	    System.out.println("Groebner basis is trivial and contains a unit");
 	    return true;
 	}
 	
@@ -79,9 +89,11 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
     private Set<Polynomial> extractPolynomials(PolynomialClassification<Term> terms) {
 	final TermBuilder TB = TermBuilder.DF;
 	
-	final Term minus_one =
-	    TB.func(NumberCache.getNumber(new BigDecimal(-1), RealLDT.getRealSort()));
-        final TermSymbol plus = RealLDT.getFunctionFor(de.uka.ilkd.key.dl.model.Plus.class);
+	final Term zero =
+	    TB.func(NumberCache.getNumber(new BigDecimal(0), RealLDT.getRealSort()));
+	final Term one =
+	    TB.func(NumberCache.getNumber(new BigDecimal(1), RealLDT.getRealSort()));
+        final TermSymbol minus = RealLDT.getFunctionFor(de.uka.ilkd.key.dl.model.Minus.class);
         final TermSymbol mul = RealLDT.getFunctionFor(de.uka.ilkd.key.dl.model.Mult.class);
 
         final Set<Term> equations = new HashSet<Term> ();
@@ -94,9 +106,12 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 	// let's also get rid of the disequations: p != 0 <=> \exists x; p*x = 1
 	int i = 0;
 	for (Term g : terms.g) {
+	    assert (g.op() == RealLDT.getFunctionFor(Unequals.class));
+	    final Term diff = TB.func(minus, g.sub(0), g.sub(1));
 	    final LogicVariable x =
 		new LogicVariable(new Name("inv" + i), RealLDT.getRealSort());
-	    equations.add(TB.func(plus, TB.func(mul, g, TB.var(x)), minus_one));
+	    final Term lhs = TB.func(minus, TB.func(mul, diff, TB.var(x)), one);
+	    equations.add(TB.equals(lhs, zero));
 	}
 	
 	final PolynomialClassification<Term> equationsOnly =
@@ -114,6 +129,8 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
     }
 
 	
+	public GroebnerBasisChecker(Node node) {}
+
 	/*
 	 * (non-Javadoc)
 	 * 
