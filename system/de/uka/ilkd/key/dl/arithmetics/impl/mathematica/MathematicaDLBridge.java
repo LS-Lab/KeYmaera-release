@@ -791,7 +791,13 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 			}
 		}
 		for (Term t : terms.g) {
-			g.add(Term2ExprConverter.convert2Expr(t.sub(0)));
+			Expr left = Term2ExprConverter.convert2Expr(t.sub(0));
+			// as != is symetric we might need to add the right side of the inequality
+			if(left.toString().equals("0")) {
+				g.add(Term2ExprConverter.convert2Expr(t.sub(1)));
+			} else {
+				g.add(left);
+			}
 			Set<String> variables = AllCollector.getItemSet(t).filter(
 					new FilterVariableCollector(null)).getVariables();
 			for (String var : variables) {
@@ -800,7 +806,13 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 			}
 		}
 		for (Term t : terms.h) {
-			h.add(Term2ExprConverter.convert2Expr(t.sub(0)));
+			Expr left = Term2ExprConverter.convert2Expr(t.sub(0));
+			// as = is symetric we might need to add the right side of the inequality
+			if(left.toString().equals("0")) {
+				h.add(Term2ExprConverter.convert2Expr(t.sub(1)));
+			} else {
+				h.add(left);
+			}
 			Set<String> variables = AllCollector.getItemSet(t).filter(
 					new FilterVariableCollector(null)).getVariables();
 			for (String var : variables) {
@@ -837,9 +849,10 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 							groebnerBasis,
 							new Expr(LIST, vars.toArray(new Expr[vars.size()])),
 							order })).expression;
-			System.out.println("Result is: " + expression);
+			System.out.println("Result for reduce 1 is: " + expression);
 			if (expression.head().equals(LIST)) {
 				if (expression.args().length == 2) {
+					// check if the remainder is 0.
 					if (expression.args()[1].toString().equals("0")) {
 //						if (expression.args()[0].head().equals(LIST)) {
 //							boolean test = true;
@@ -861,6 +874,8 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 				// the
 				// variety \forall f \in h: f = 0. if it is, we get false on the
 				// left side of the sequent and can close this goal
+				
+				System.out.println("Checking g = " + classify2.g);
 				for (Expr curG : classify2.g) {
 					Expr reduce = evaluate(new Expr(new Expr(Expr.SYMBOL,
 							"PolynomialReduce"),
@@ -869,8 +884,10 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 									groebnerBasis,
 									new Expr(LIST, vars.toArray(new Expr[vars
 											.size()])), order })).expression;
+					System.out.println("Result for reduce " + curG + " is: " + reduce);
 					if (reduce.head().equals(LIST)) {
 						if (reduce.args().length == 2) {
+							// check if the remainder is 0.
 							if (reduce.args()[1].toString().equals("0")) {
 //								if (reduce.args()[0].head().equals(LIST)) {
 //									boolean test = true;
