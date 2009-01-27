@@ -187,7 +187,8 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 		collectDottedProgramVariables(form, vars, t);
 		Term invariant = form.getInvariant(services);
 		final Map<String, Expr> EMPTY = new HashMap<String, Expr>();
-		for (ProgramElement el : form.getDifferentialEquations(services.getNamespaces())) {
+		for (ProgramElement el : form.getDifferentialEquations(services
+				.getNamespaces())) {
 			args.add(DL2ExprConverter.convertDiffEquation(el, t, vars));
 		}
 		for (String name : vars.keySet()) {
@@ -205,7 +206,8 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 						new Expr[0])), new Expr(Expr.SYMBOL, name) });
 		Expr updateExpressions = evaluate(query).expression;
 
-		List<Update> updates = createUpdates(updateExpressions, services.getNamespaces());
+		List<Update> updates = createUpdates(updateExpressions, services
+				.getNamespaces());
 
 		List<Term> locations = new ArrayList<Term>();
 		List<Term> values = new ArrayList<Term>();
@@ -280,7 +282,8 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 		// insert 0 <= ts <= t
 		Term tsRange = convert(new Expr(INEQUALITY, new Expr[] { new Expr(0),
 				LESS_EQUALS, new Expr(Expr.SYMBOL, ts.name().toString()),
-				LESS_EQUALS, new Expr(Expr.SYMBOL, t.name().toString()) }), services.getNamespaces());
+				LESS_EQUALS, new Expr(Expr.SYMBOL, t.name().toString()) }),
+				services.getNamespaces());
 		invariant = TermBuilder.DF.imp(tsRange, invariant);
 		invariant = TermBuilder.DF.all(ts, invariant);
 		return new ODESolverResult(invariant,
@@ -322,7 +325,8 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 		final LogicVariable t = null;
 		Term invariant = form.getInvariant(services);
 		final Map<String, Expr> EMPTY = new HashMap<String, Expr>();
-		for (ProgramElement el : form.getDifferentialEquations(services.getNamespaces())) {
+		for (ProgramElement el : form.getDifferentialEquations(services
+				.getNamespaces())) {
 			args.add(DL2ExprConverter.convertDiffEquation(el, t, EMPTY));
 		}
 		if (Debug.ENABLE_DEBUG) {
@@ -353,7 +357,8 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 		}
 		Expr diffIndExpression = evaluate(diffCall).expression;
 
-		return TermBuilder.DF.imp(invariant, convert(diffIndExpression, services.getNamespaces()));
+		return TermBuilder.DF.imp(invariant, convert(diffIndExpression,
+				services.getNamespaces()));
 	}
 
 	public List<Update> createUpdates(Expr expr, NamespaceSet nss)
@@ -394,7 +399,8 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 			throw new UnsolveableException("Blacklisted conversion from "
 					+ expr.toString() + " to updates");
 		} else {
-			throw new IllegalStateException("unknown case " + expr.head() + " in\n" + expr);
+			throw new IllegalStateException("unknown case " + expr.head()
+					+ " in\n" + expr);
 		}
 		return result;
 	}
@@ -511,15 +517,17 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 			evaluate = wrapper.evaluate(expr, timeout, Options.INSTANCE
 					.getMemoryConstraint());
 		}
-		if(evaluate.messages != null) {
+		if (evaluate.messages != null) {
 			if (!evaluate.messages.toString().equals("{}")) {
 				System.err.println("Message while evaluating: " + expr
 						+ "\n Message was: " + evaluate.messages); // XXX
 			}
-			if (evaluate.messages.toString().matches(".*" + mBlistString + ".*")) {
+			if (evaluate.messages.toString()
+					.matches(".*" + mBlistString + ".*")) {
 				throw new UnsolveableException(
-						"Mathematica could not solve the given expression: " + expr
-								+ ". Reason: " + evaluate.messages.toString());
+						"Mathematica could not solve the given expression: "
+								+ expr + ". Reason: "
+								+ evaluate.messages.toString());
 			}
 		}
 		return evaluate;
@@ -702,9 +710,9 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 		return form;
 	}
 
-	/*@Override*/
-	public String findTransition(Term initial, Term modalForm, long timeout, Services services)
-			throws RemoteException, SolverException {
+	/* @Override */
+	public String findTransition(Term initial, Term modalForm, long timeout,
+			Services services) throws RemoteException, SolverException {
 		Term term = modalForm;
 		final de.uka.ilkd.key.rule.updatesimplifier.Update update = de.uka.ilkd.key.rule.updatesimplifier.Update
 				.createUpdate(term);
@@ -734,7 +742,8 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 		collectDottedProgramVariables(system, vars, t);
 		Term invariant = system.getInvariant(services);
 		final Map<String, Expr> EMPTY = new HashMap<String, Expr>();
-		for (ProgramElement el : system.getDifferentialEquations(services.getNamespaces())) {
+		for (ProgramElement el : system.getDifferentialEquations(services
+				.getNamespaces())) {
 			args.add(DL2ExprConverter.convertDiffEquation(el, t, vars));
 		}
 		Expr call = new Expr(new Expr(Expr.SYMBOL, "AMC`" + "IFindTransition"),
@@ -781,10 +790,12 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 		Set<Expr> g = new HashSet<Expr>();
 		Set<Expr> h = new HashSet<Expr>();
 		Set<Expr> vars = new HashSet<Expr>();
+		Set<String> varNames = new HashSet<String>();
 		for (Term t : terms.f) {
 			f.add(Term2ExprConverter.convert2Expr(t.sub(0)));
 			Set<String> variables = AllCollector.getItemSet(t).filter(
 					new FilterVariableCollector(null)).getVariables();
+			varNames.addAll(variables);
 			for (String var : variables) {
 				vars.add(new Expr(Expr.SYMBOL, var.replaceAll("_",
 						USCORE_ESCAPE)));
@@ -792,14 +803,16 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 		}
 		for (Term t : terms.g) {
 			Expr left = Term2ExprConverter.convert2Expr(t.sub(0));
-			// as != is symetric we might need to add the right side of the inequality
-			if(left.toString().equals("0")) {
+			// as != is symetric we might need to add the right side of the
+			// inequality
+			if (left.toString().equals("0")) {
 				g.add(Term2ExprConverter.convert2Expr(t.sub(1)));
 			} else {
 				g.add(left);
 			}
 			Set<String> variables = AllCollector.getItemSet(t).filter(
 					new FilterVariableCollector(null)).getVariables();
+			varNames.addAll(variables);
 			for (String var : variables) {
 				vars.add(new Expr(Expr.SYMBOL, var.replaceAll("_",
 						USCORE_ESCAPE)));
@@ -807,14 +820,16 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 		}
 		for (Term t : terms.h) {
 			Expr left = Term2ExprConverter.convert2Expr(t.sub(0));
-			// as = is symetric we might need to add the right side of the inequality
-			if(left.toString().equals("0")) {
+			// as = is symetric we might need to add the right side of the
+			// inequality
+			if (left.toString().equals("0")) {
 				h.add(Term2ExprConverter.convert2Expr(t.sub(1)));
 			} else {
 				h.add(left);
 			}
 			Set<String> variables = AllCollector.getItemSet(t).filter(
 					new FilterVariableCollector(null)).getVariables();
+			varNames.addAll(variables);
 			for (String var : variables) {
 				vars.add(new Expr(Expr.SYMBOL, var.replaceAll("_",
 						USCORE_ESCAPE)));
@@ -841,11 +856,11 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 
 			assert groebnerBasis.head().equals(LIST) : "The head of the returned groebner basis has to be a list";
 			System.out.println(groebnerBasis);
-			Expr poly = new Expr(1);
+			Expr one = new Expr(1);
 			Expr expression = evaluate(new Expr(
 					new Expr(Expr.SYMBOL, "PolynomialReduce"),
 					new Expr[] {
-							poly,
+							one,
 							groebnerBasis,
 							new Expr(LIST, vars.toArray(new Expr[vars.size()])),
 							order })).expression;
@@ -854,17 +869,6 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 				if (expression.args().length == 2) {
 					// check if the remainder is 0.
 					if (expression.args()[1].toString().equals("0")) {
-//						if (expression.args()[0].head().equals(LIST)) {
-//							boolean test = true;
-//							for (int i = 0; i < expression.args()[0].args().length; i++) {
-//								test = test
-//										&& expression.args()[0].args()[i]
-//												.toString().equals("0");
-//							}
-//							if (test) {
-//								return true;
-//							}
-//						}
 						return true;
 					}
 				}
@@ -874,7 +878,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 				// the
 				// variety \forall f \in h: f = 0. if it is, we get false on the
 				// left side of the sequent and can close this goal
-				
+
 				System.out.println("Checking g = " + classify2.g);
 				for (Expr curG : classify2.g) {
 					Expr reduce = evaluate(new Expr(new Expr(Expr.SYMBOL,
@@ -884,22 +888,57 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 									groebnerBasis,
 									new Expr(LIST, vars.toArray(new Expr[vars
 											.size()])), order })).expression;
-					System.out.println("Result for reduce " + curG + " is: " + reduce);
+					System.out.println("Result for reduce " + curG + " is: "
+							+ reduce);
 					if (reduce.head().equals(LIST)) {
 						if (reduce.args().length == 2) {
 							// check if the remainder is 0.
 							if (reduce.args()[1].toString().equals("0")) {
-//								if (reduce.args()[0].head().equals(LIST)) {
-//									boolean test = true;
-//									for (int i = 0; i < reduce.args()[0].args().length; i++) {
-//										test = test
-//												&& reduce.args()[0].args()[i]
-//														.toString().equals("0");
-//									}
-//									if (test) {
-//										return true;
-//									}
-//								}
+								return true;
+							}
+						}
+					}
+				}
+				// now we check if we can get a constant in a groebner base of
+				// the
+				// form {h1,...,hn,(g*t)-1}
+
+				// find a fresh variable name
+				String baseName = "t";
+				String name = "t";
+				int i = 0;
+				while (varNames.contains(name)) {
+					name = baseName + i++;
+				}
+				Expr freeVar = new Expr(Expr.SYMBOL, name);
+				vars.add(freeVar);
+				for (Expr curG : classify2.g) {
+					Expr curBase = evaluate(new Expr(new Expr(Expr.SYMBOL,
+							"GroebnerBasis"),
+							new Expr[] {
+									new Expr(LIST, compondArray(groebnerBasis
+											.args(), new Expr(MINUS,
+											new Expr[] {
+													new Expr(MULT, new Expr[] {
+															curG, freeVar }),
+													one }))),
+									new Expr(LIST, vars.toArray(new Expr[vars
+											.size()])), order })).expression;
+					// if (curBase.args().length == 1 &&
+					// curBase.args()[0].toString().equals("1")) {
+					// return true;
+					// }
+					Expr reduce = evaluate(new Expr(new Expr(Expr.SYMBOL,
+							"PolynomialReduce"),
+							new Expr[] {
+									one,
+									curBase,
+									new Expr(LIST, vars.toArray(new Expr[vars
+											.size()])), order })).expression;
+					if (reduce.head().equals(LIST)) {
+						if (reduce.args().length == 2) {
+							// check if the remainder is 0.
+							if (reduce.args()[1].toString().equals("0")) {
 								return true;
 							}
 						}
@@ -917,4 +956,15 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 		return false;
 	}
 
+	/**
+	 * @param args
+	 * @param expr
+	 * @return TODO documentation since Jan 27, 2009
+	 */
+	private Expr[] compondArray(Expr[] args, Expr expr) {
+		Expr[] result = new Expr[args.length + 1];
+		System.arraycopy(args, 0, result, 0, args.length);
+		result[args.length] = expr;
+		return result;
+	}
 }
