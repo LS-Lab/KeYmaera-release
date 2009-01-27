@@ -3,6 +3,7 @@
  */
 package de.uka.ilkd.key.dl.arithmetics.impl.orbital;
 
+import java.math.BigDecimal;
 import java.rmi.RemoteException;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -12,6 +13,8 @@ import java.util.Set;
 import org.w3c.dom.Node;
 
 import orbital.math.Arithmetic;
+import orbital.math.Integer;
+import orbital.math.Rational;
 import orbital.math.Values;
 import orbital.math.functional.Operations;
 import orbital.moon.math.ValuesImpl;
@@ -30,6 +33,7 @@ import de.uka.ilkd.key.dl.model.Minus;
 import de.uka.ilkd.key.dl.model.MinusSign;
 import de.uka.ilkd.key.dl.model.Mult;
 import de.uka.ilkd.key.dl.model.Unequals;
+import de.uka.ilkd.key.dl.parser.NumberCache;
 import de.uka.ilkd.key.logic.NamespaceSet;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.TermBuilder;
@@ -37,6 +41,7 @@ import de.uka.ilkd.key.logic.op.Equality;
 import de.uka.ilkd.key.logic.op.Function;
 import de.uka.ilkd.key.logic.op.Op;
 import de.uka.ilkd.key.logic.op.RigidFunction;
+import de.uka.ilkd.key.logic.sort.Sort;
 
 /**
  * @author jdq
@@ -87,15 +92,22 @@ public class OrbitalSimplifier implements ISimplifier {
 	public Term simplify(Term form, Set<Term> assumptions, NamespaceSet nss)
 			throws RemoteException, SolverException {
 		// TODO: use assumptions
-		try {
-			if (translate(form)) {
-				return TermBuilder.DF.tt();
-			} else {
-				return TermBuilder.DF.ff();
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+	        if (form.sort().equals(Sort.FORMULA)) {
+	            try {
+		            if (translate(form)) {
+		        	return TermBuilder.DF.tt();
+		            } else {
+		        	return TermBuilder.DF.ff();
+		            }
+	            } catch (Exception e) {
+			    e.printStackTrace();
+	            }
+	        } else if (form.sort().equals(RealLDT.getRealSort())) {
+	            return arithmetic2Term(translateArithmetic(form));
+	        } else {
+	            throw new IllegalArgumentException("Dont know how to simplify the term "
+	        	    + form + " of sort " + form.sort());
+	        }
 		return form;
 	}
 
@@ -182,12 +194,49 @@ public class OrbitalSimplifier implements ISimplifier {
 			return apply;
 		} else if (form.op() instanceof RigidFunction
 				&& ((RigidFunction) form.op()).arity() == 0) {
-			return ValuesImpl.getDefault().valueOf(form.op().name().toString());
+ 		        // translate everything into rationals so that subsequent
+		        // calculations are precise
+		        BigDecimal dec = new BigDecimal(form.op().name().toString());
+		        if (dec.scale() > 0) {
+		            Integer denom = ValuesImpl.getDefault().ONE();
+		            while (dec.scale() > 0) {
+		              dec = dec.movePointRight(1);
+		              denom = denom.multiply(ValuesImpl.getDefault().valueOf(10));
+		            }
+		            Integer num = ValuesImpl.getDefault().valueOf(dec.toBigIntegerExact());
+		            return ValuesImpl.getDefault().rational(num, denom);
+		        } else {
+		            return ValuesImpl.getDefault().valueOf(dec.toBigIntegerExact());
+		        }
 		}
 		throw new IllegalArgumentException("Dont know how to translate "
 				+ form.op() + " of class " + form.op().getClass());
 	}
 
+	////////////////////////////////////////////////////////////////////////
+	
+	public static Term arithmetic2Term(Arithmetic a) {
+	    // TODO: generalise this so that we do not have to casesplit over
+	    // the different kinds of Arithmetic
+	    if (a instanceof Integer) {
+		final Function num = NumberCache.getNumber(new BigDecimal (a.toString()),
+			                                   RealLDT.getRealSort());
+		return TermBuilder.DF.func(num);
+	    } else if (a instanceof Rational) {
+		final Rational norm = ((Rational)a).representative();
+		if (norm.denominator().isOne())
+		    return arithmetic2Term(norm.numerator());
+		final Term num = arithmetic2Term(norm.numerator());
+		final Term denom = arithmetic2Term(norm.denominator());
+		return TermBuilder.DF.func(RealLDT.getFunctionFor(Div.class),
+			                   num, denom);
+	    }
+            throw new IllegalArgumentException("Dont know how to translate the number "
+		 	+ a + " of class " + a.getClass() + " to a term");
+	}
+	
+	////////////////////////////////////////////////////////////////////////
+	
 	/*
 	 * (non-Javadoc)
 	 * 

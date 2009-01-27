@@ -227,6 +227,7 @@ GENERATED_LISTS=logic/SLListOfTerm \
         rule/encapsulation/SLListOfTypeSchemeConstraint \
 	logic/ldt/SLListOfLDT \
         rule/metaconstruct/arith/SLListOfMonomial \
+        dl/rules/metaconstruct/SLListOfMonomialReals \
 	strategy/feature/instantiator/SLListOfCPBranch \
 	java/SLListOfComment \
 	strategy/SetAsListOfStrategyFactory \

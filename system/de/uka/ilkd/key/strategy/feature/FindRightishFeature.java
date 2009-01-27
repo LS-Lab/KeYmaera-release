@@ -33,11 +33,15 @@ public class FindRightishFeature implements Feature {
     private final static RuleAppCost one = LongRuleAppCost.create ( 1 );
     
     public static Feature create(IntegerLDT numbers) {
-        return new FindRightishFeature ( numbers );
+        return create(numbers.getAdd());
+    }
+    
+    public static Feature create(Operator add) {
+        return new FindRightishFeature ( add );
     }
 
-    private FindRightishFeature(IntegerLDT numbers) {
-        add = numbers.getAdd();
+    private FindRightishFeature(Operator add) {
+        this.add = add;
     }
     
     public RuleAppCost compute ( RuleApp app, PosInOccurrence pos, Goal goal ) {

@@ -34,6 +34,7 @@ import java.util.Set;
 import orbital.awt.TaggedPropertyEditorSupport;
 import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
 import de.uka.ilkd.key.dl.options.DLOptionBean.ApplyRules;
+import de.uka.ilkd.key.dl.options.DLOptionBean.BuiltInArithmetic;
 import de.uka.ilkd.key.dl.options.DLOptionBean.CounterexampleTest;
 import de.uka.ilkd.key.dl.options.DLOptionBean.DiffSat;
 import de.uka.ilkd.key.dl.options.DLOptionBean.FirstOrderStrategy;
@@ -147,10 +148,6 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
 							"During quantifier elimination, re-add the quantfiers of previously quantified variables (i.e. Skolem symbols)",
 							true),
 					createDescriptor(
-							"normalizeEquations",
-							"normalize inqualities",
-							"normalize inequalities to greater than and greater equals on the antecedent of the sequent, i.e., to the form a>=b ==> or a>b ==>"),
-					createDescriptor(
 							"applyUpdatesToModalities",
 							"update modalities",
 							"apply updates to modalites e.g. to get simpler solutions for differential equations",
@@ -165,6 +162,12 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
 							"apply gamma rules",
 							"choose if and when gamma rules should be applied for existential quantifiers",
 							true, false, ApplyRulesPropertyEditor.class),
+					//
+					createDescriptor(
+					                "builtInArithmetic",
+					                "built-in arithmetic",
+					                "select to which degree built-in arithmetic rules should be used",
+					                false, false, BuiltInArithmeticPropertyEditor.class),
 					//
 					createDescriptor(
 							"quantifierEliminator",
@@ -401,6 +404,13 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
 			super(getNames(DiffSat.values()), DiffSat.values());
 		}
 	}
+
+        public static class BuiltInArithmeticPropertyEditor extends
+                        TaggedPropertyEditorSupport {
+                public BuiltInArithmeticPropertyEditor() {
+                    super(getNames(BuiltInArithmetic.values()), BuiltInArithmetic.values());
+                }
+        }
 
 	public static class InvariantRulePropertyEditor extends
 			TaggedPropertyEditorSupport {

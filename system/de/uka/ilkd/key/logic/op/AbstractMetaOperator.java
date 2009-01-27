@@ -25,6 +25,9 @@ import de.uka.ilkd.key.dl.rules.metaconstruct.DLUnwindLoop;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DNFTransformer;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DiffFin;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DiffInd;
+import de.uka.ilkd.key.dl.rules.metaconstruct.DivideLCRMonomialsReals;
+import de.uka.ilkd.key.dl.rules.metaconstruct.DivideMonomialsReals;
+import de.uka.ilkd.key.dl.rules.metaconstruct.Evaluate;
 import de.uka.ilkd.key.dl.rules.metaconstruct.FullSimplify;
 import de.uka.ilkd.key.dl.rules.metaconstruct.ImplicationIntroductor;
 import de.uka.ilkd.key.dl.rules.metaconstruct.ODESolve;
@@ -239,6 +242,12 @@ public abstract class AbstractMetaOperator extends Op implements MetaOperator {
 	public static final AbstractMetaOperator DL_WEAKNEGATE = new WeakNegation();
 
 	public static final AbstractMetaOperator DL_IMPLICATION = new ImplicationIntroductor();
+
+	public static final AbstractMetaOperator EVALUATE = new Evaluate ();
+	
+        public static final AbstractMetaOperator DIVIDE_MONOMIALS_REALS = new DivideMonomialsReals ();
+
+        public static final AbstractMetaOperator DIVIDE_LCR_MONOMIALS_REALS = new DivideLCRMonomialsReals ();
 
     protected TermFactory termFactory = TermFactory.DEFAULT;
 
