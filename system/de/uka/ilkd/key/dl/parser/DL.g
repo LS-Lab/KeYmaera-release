@@ -71,13 +71,16 @@ star: atomp (/*invariant?*/ STAR^ (annotation)*)?
 atomp options { k=3; } : itomp^ (annotation)*
 ;
 
-itomp options { k=3; } : quest | assign | LPAREN! stat RPAREN! | diffsystem | ifThenElse | vardec | {schemaMode}? sv
+itomp options { k=3; } : quest | assign | LPAREN! stat RPAREN! | diffsystem | ifThenElse | vardec | {schemaMode}? sv | whileSym
+;
+
+whileSym: WHILE^ LPAREN! form[false] RPAREN! stat (ELIHW!|END!)
 ;
 
 vardec: (type var (COMMA var)*) -> ^(VARDEC type var*)
 ;
 
-ifThenElse: IF^ LPAREN! form[false] RPAREN! THEN! stat (ELSE! stat)? FI!
+ifThenElse: IF^ LPAREN! form[false] RPAREN! THEN! stat (ELSE! stat)? (FI!|END!)
 ;
 
 diffeq: diff EQUALS^ expr[true]
@@ -204,6 +207,9 @@ AND		: '&' ;
 OR		: '|' ;
 LESS	: '<' ;
 GREATER	: '>' ;
+WHILE   : 'while';
+ELIHW   : 'elihw';
+END   : 'end';
 LESS_EQUALS : LESS EQUALS;
 GREATER_EQUALS : GREATER EQUALS;
 //WORD  	:   (('a'..'z'|'A'..'Z')('a'..'z'|'A'..'Z'|'0'..'9'|'_')+) ;
