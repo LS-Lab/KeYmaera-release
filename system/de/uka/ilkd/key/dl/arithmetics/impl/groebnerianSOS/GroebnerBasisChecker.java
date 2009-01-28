@@ -21,12 +21,19 @@ package de.uka.ilkd.key.dl.arithmetics.impl.groebnerianSOS;
 
 import java.math.BigDecimal;
 import java.rmi.RemoteException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import orbital.logic.functor.Function;
 import orbital.math.AlgebraicAlgorithms;
+import orbital.math.Arithmetic;
 import orbital.math.Polynomial;
+import orbital.math.Values;
+import orbital.math.Vector;
 
 import org.w3c.dom.Node;
 
@@ -35,6 +42,7 @@ import de.uka.ilkd.key.dl.arithmetics.exceptions.ConnectionProblemException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ServerStatusProblemException;
 import de.uka.ilkd.key.dl.arithmetics.impl.SumOfSquaresChecker;
 import de.uka.ilkd.key.dl.arithmetics.impl.SumOfSquaresChecker.PolynomialClassification;
+import de.uka.ilkd.key.dl.arithmetics.impl.csdp.CSDP;
 import de.uka.ilkd.key.dl.logic.ldt.RealLDT;
 import de.uka.ilkd.key.dl.model.Unequals;
 import de.uka.ilkd.key.dl.parser.NumberCache;
@@ -70,10 +78,10 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 		     groebnerBasis, AlgebraicAlgorithms.DEGREE_REVERSE_LEXICOGRAPHIC);
 	
 	System.out.println("Groebner basis is: ");
-	for (Polynomial p : groebnerBasis) {
+	for (Polynomial p : groebnerBasis)
 	    System.out.println(p);
-	}
 	
+	/*
 	final Polynomial oneReduced =
 	    (Polynomial) groebnerReducer.apply(polys.iterator().next().one());
 	System.out.println(oneReduced);
@@ -81,6 +89,13 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 	    System.out.println("Groebner basis is trivial and contains a unit");
 	    return true;
 	}
+	*/
+	
+	// enumerate sums of squares s and check whether some monomial 1+s is
+	// in the ideal
+	final Iterator<Vector> monomials =
+	    new SimpleMonomialIterator(indexNum(groebnerBasis), 2);
+	checkSOS(monomials, groebnerBasis, groebnerReducer);
 	
 	return false;
     }
@@ -122,12 +137,154 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 	    SumOfSquaresChecker.INSTANCE.classify(equationsOnly).h;
 	
 	System.out.println("Polynomials are: ");
-	for (Polynomial p : polys) {
+	for (Polynomial p : polys)
 	    System.out.println(p);
-	}
+
 	return polys;
     }
 
+    private int indexNum(Set<Polynomial> polys) {
+        int res = 0;
+        for (Polynomial p : polys) {
+            final Iterator<Vector> it = p.indices();
+            while (it.hasNext()) {
+                final Vector v = it.next();
+                res = Math.max(res, v.dimension());
+            }
+        }
+        return res;
+    }
+    
+    private boolean checkSOS(Iterator<Vector> monomials,
+                             Set<Polynomial> groebnerBasis,
+                             Function groebnerReducer) {
+        
+        final Arithmetic two = Values.getDefault().rational(2);
+        
+        final List<Vector> consideredMonomials = new ArrayList<Vector> ();
+        final SparsePolynomial reducedPoly = new SparsePolynomial ();
+        int currentParameter = 0;
+        
+        while (monomials.hasNext()) {
+            final Vector newMono = monomials.next();
+            consideredMonomials.add(newMono);
+            System.out.println("Adding a monomial: " + newMono);
+            
+            // consider all products of the new monomial with the monomials
+            // already considered
+            for (int i = 0; i < consideredMonomials.size(); ++i) {
+                final Vector oldMono = consideredMonomials.get(i);
+                final Vector combinedMonoExp = oldMono.add(newMono);
+                final Polynomial combinedMono;
+                
+                // all products but the product of <code>newMono</code> with
+                // itself have to be taken times two (the matrix is symmetric,
+                // and we only consider one half of it)
+                if (i < consideredMonomials.size() - 1)
+                    combinedMono = Values.getDefault().MONOMIAL(two, combinedMonoExp);
+                else
+                    combinedMono = Values.getDefault().MONOMIAL(combinedMonoExp);
+                
+                final Polynomial reducedMono =
+                    (Polynomial) groebnerReducer.apply(combinedMono);
+                System.out.println("Reduced " + combinedMono + " to " + reducedMono);
+                reducedPoly.addTerms(reducedMono, currentParameter);
+                
+                currentParameter = currentParameter + 1;
+            }
+            
+            System.out.println(reducedPoly);
+            
+            final double[] homo = reducedPoly.coefficientComparison(consideredMonomials.size());
+
+            // the inhomogeneous part of the system of equations
+            final double[] hetero = new double [reducedPoly.size()];
+            Arrays.fill(hetero, 0.0);
+            hetero[0] = -1.0; // we have to check that 1+s is in the ideal, hence a one
+            
+            if (CSDP.sdp(consideredMonomials.size(), reducedPoly.size(),
+                         hetero,
+                         homo)) {
+                System.out.println("Found a solution!");
+                return true;
+            } else {
+                System.out.println("No solution");
+            }
+            
+        }
+        
+        return false;
+    }
+    
+    
+    private static class SimpleMonomialIterator implements Iterator<Vector> {
+        private final int indexNum;
+        private final int maxTotalDegree;
+        
+        private final List<Vector> currentExps = new ArrayList<Vector> ();
+        private int currentTotalDegree = 0;
+        
+        private final Vector zeroMonomial;
+        private final List<Vector> linearMonomials = new ArrayList<Vector> ();
+        
+        public SimpleMonomialIterator(int indexNum, int maxTotalDegree) {
+            this.indexNum = indexNum;
+            this.maxTotalDegree = maxTotalDegree;
+            
+            final Arithmetic[] exps = new Arithmetic[indexNum];
+            Arrays.fill(exps, Values.getDefault().ZERO());
+            zeroMonomial = Values.getDefault().tensor(exps);
+            
+            for (int i = 0; i < indexNum; ++i) {
+                final Arithmetic[] exps2 = new Arithmetic[indexNum];
+                Arrays.fill(exps2, Values.getDefault().ZERO());
+                exps2[i] = Values.getDefault().ONE();
+                linearMonomials.add(Values.getDefault().tensor(exps2));
+            }
+
+            for (Vector v : linearMonomials) {
+                System.out.println(v);
+            }
+            
+            currentExps.add(zeroMonomial);
+        }
+
+        public boolean hasNext() {
+            return !currentExps.isEmpty() || currentTotalDegree < maxTotalDegree;
+        }
+
+        public Vector next() {
+            if (!currentExps.isEmpty())
+                return currentExps.remove(currentExps.size() - 1);
+            assert (currentTotalDegree < maxTotalDegree);
+            
+            currentTotalDegree = currentTotalDegree + 1;
+            genExps(zeroMonomial, 0, currentTotalDegree);
+            
+            assert (!currentExps.isEmpty());
+            return currentExps.remove(currentExps.size() - 1);
+        }
+
+        private void genExps(Vector currentExp, int startIndex, int degreesLeft) {
+            if (degreesLeft == 0) {
+                currentExps.add(currentExp);
+                return;
+            }
+            
+            assert (startIndex < indexNum);
+            
+            if (startIndex < indexNum - 1)
+                genExps(currentExp, startIndex + 1, degreesLeft);
+            
+            genExps(currentExp.add(linearMonomials.get(startIndex)),
+                    startIndex, degreesLeft - 1);
+        }
+        
+        public void remove() {
+            throw new UnsupportedOperationException();            
+        }
+    }
+    
 	
 	public GroebnerBasisChecker(Node node) {}
 
