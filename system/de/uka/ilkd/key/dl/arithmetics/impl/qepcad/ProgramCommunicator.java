@@ -5,6 +5,8 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import de.uka.ilkd.key.dl.arithmetics.exceptions.UnableToConvertInputException;
@@ -22,13 +24,22 @@ public class ProgramCommunicator {
 	public static String start(QepCadInput input)
 			throws UnableToConvertInputException {
 		try {
-			ProcessBuilder pb = new ProcessBuilder(
-					new String[] { Options.INSTANCE.getQepcadBinary().getAbsolutePath() });
+			List<String> query = new ArrayList<String>();
+			query.add(Options.INSTANCE.getQepcadBinary().getAbsolutePath());
+			int qepcadMemoryLimit = Options.INSTANCE
+					.getQepcadMemoryLimit();
+			if (qepcadMemoryLimit != -1) {
+				query.add("+N" + qepcadMemoryLimit);
+			}
+			ProcessBuilder pb = new ProcessBuilder(query
+					.toArray(new String[query.size()]));
 
 			Map<String, String> environment = pb.environment();
-			environment.put("qe", Options.INSTANCE.getQepcadPath().getAbsolutePath());
-			environment.put("saclib", Options.INSTANCE.getSaclibPath().getAbsolutePath());
-			
+			environment.put("qe", Options.INSTANCE.getQepcadPath()
+					.getAbsolutePath());
+			environment.put("saclib", Options.INSTANCE.getSaclibPath()
+					.getAbsolutePath());
+
 			Process process = pb.start();
 			BufferedReader stdout = new BufferedReader(new InputStreamReader(
 					process.getInputStream()));

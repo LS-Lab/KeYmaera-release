@@ -62,6 +62,11 @@ public class OptionsBeanInfo extends SimpleBeanInfo {
 //							"The Qepcad executable including the complete path name if it is not located in the system PATH",
 //							true, false, FilePropertyEditor.class),
 					createDescriptor(
+							"qepcadMemoryLimit",
+							"Memory Limit",
+							"The number of kilobytes qepcad may use for its computation. (set to -1 for default value)",
+							true, false),
+					createDescriptor(
 							"qepcadPath",
 							"Qepcad Path",
 							"The path to the qepcad installation needed to setup the correct environment for the tool (it must contain bin/qepcad binary)",

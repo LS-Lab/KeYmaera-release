@@ -46,8 +46,11 @@ public class Options implements Settings {
 	private static final String OPTIONS_QEPCAD_PATH = "[QepcadOptions]qepcadPath";
 	private static final String OPTIONS_SACLIB_PATH = "[QepcadOptions]saclibPath";
 
+	private static final String OPTIONS_QEPCAD_MEMORYLIMIT = "[QepcadOptions]qepcadMemoryLimit";
+
 	private File qepcadPath;
-	private File saclibPath;
+	private File saclibPath;	
+	private int qepcadMemoryLimit;
 
 	private List<SettingsListener> listeners;
 
@@ -64,6 +67,9 @@ public class Options implements Settings {
 			saclibPath = new File("/");
 		} else {
 			saclibPath = new File(spath);
+		}
+		if(qepcadMemoryLimit == 0) {
+			qepcadMemoryLimit = 2000000;
 		}
 	}
 
@@ -98,6 +104,10 @@ public class Options implements Settings {
 		if (property != null) {
 			saclibPath = new File(property);
 		}
+		property = props.getProperty(OPTIONS_QEPCAD_MEMORYLIMIT);
+		if (property != null) {
+			qepcadMemoryLimit = Integer.parseInt(property);
+		}
 	}
 
 	/*
@@ -108,6 +118,7 @@ public class Options implements Settings {
 	public void writeSettings(Properties props) {
 		props.setProperty(OPTIONS_QEPCAD_PATH, qepcadPath.getAbsolutePath());
 		props.setProperty(OPTIONS_SACLIB_PATH, saclibPath.getAbsolutePath());
+		props.setProperty(OPTIONS_QEPCAD_MEMORYLIMIT, "" + qepcadMemoryLimit);
 	}
 
 	/**
@@ -152,6 +163,24 @@ public class Options implements Settings {
 	public void setSaclibPath(File saclibPath) {
 		if (!this.saclibPath.equals(saclibPath)) {
 			this.saclibPath = saclibPath;
+			firePropertyChanged();
+		}
+	}
+	
+
+	/**
+	 * @return the qepcadMemoryLimit
+	 */
+	public int getQepcadMemoryLimit() {
+		return qepcadMemoryLimit;
+	}
+
+	/**
+	 * @param qepcadMemoryLimit the qepcadMemoryLimit to set
+	 */
+	public void setQepcadMemoryLimit(int qepcadMemoryLimit) {
+		if(this.qepcadMemoryLimit != qepcadMemoryLimit) {
+			this.qepcadMemoryLimit = qepcadMemoryLimit;
 			firePropertyChanged();
 		}
 	}
