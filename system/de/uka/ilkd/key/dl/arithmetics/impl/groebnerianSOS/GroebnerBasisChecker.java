@@ -81,7 +81,6 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 	for (Polynomial p : groebnerBasis)
 	    System.out.println(p);
 	
-	/*
 	final Polynomial oneReduced =
 	    (Polynomial) groebnerReducer.apply(polys.iterator().next().one());
 	System.out.println(oneReduced);
@@ -89,15 +88,12 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 	    System.out.println("Groebner basis is trivial and contains a unit");
 	    return true;
 	}
-	*/
 	
 	// enumerate sums of squares s and check whether some monomial 1+s is
 	// in the ideal
 	final Iterator<Vector> monomials =
 	    new SimpleMonomialIterator(indexNum(groebnerBasis), 2);
-	checkSOS(monomials, groebnerBasis, groebnerReducer);
-	
-	return false;
+	return checkSOS(monomials, groebnerBasis, groebnerReducer);
     }
 
 
@@ -168,7 +164,8 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
         while (monomials.hasNext()) {
             final Vector newMono = monomials.next();
             consideredMonomials.add(newMono);
-            System.out.println("Adding a monomial: " + newMono);
+            System.out.println("Adding a monomial: " + newMono + ", " +
+                               Values.getDefault().MONOMIAL(newMono));
             
             // consider all products of the new monomial with the monomials
             // already considered

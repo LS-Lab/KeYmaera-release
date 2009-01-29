@@ -7,13 +7,13 @@
 double *convert_jdoubleArray_to_double_range(JNIEnv * env, jdoubleArray array,
 											 int from, int count, int shift)
 {
-	printf("Converting an array from %d %d elements\n", from, count);
+  //	printf("Converting an array from %d %d elements\n", from, count);
 	jboolean isCopy;
 	jdouble *element =
 		(jdouble *) (*env)->GetDoubleArrayElements(env, array, &isCopy);
 	int size = (*env)->GetArrayLength(env, array);
 	assert(count + from <= size);
-	printf("Now allocating %d doubles\n", count + shift);
+	//	printf("Now allocating %d doubles\n", count + shift);
 	double *result = malloc(sizeof(double) * (count + shift));
 	if(result == NULL) {
 		printf("Could not allocate memory\n");
@@ -23,14 +23,14 @@ double *convert_jdoubleArray_to_double_range(JNIEnv * env, jdoubleArray array,
 	for (j = 0; j < count; j++) {
 		/* dont set anything to array element 0. fortran indexes (1..n) */
 		assert(j < count && from + j < size);
-		printf("Converting element %d\n", j + shift);
+		//		printf("Converting element %d\n", j + shift);
 		result[j + shift] = element[from + j];
 	}
-	printf("Finshed copying\n");
+	//	printf("Finshed copying\n");
 	if(isCopy == JNI_TRUE) {
 		(*env)->ReleaseDoubleArrayElements(env, array, element, JNI_ABORT);
 	}
-	printf("Returning result\n");
+	//	printf("Returning result\n");
 	return result;
 }
 
@@ -94,10 +94,10 @@ struct constraintmatrix *convert_double_array_to_constraintmatrix(JNIEnv *
 			}
 		}
 
-		block->iindices = malloc(sizeof(INDICES_TYPE) * nonzero + 1);
-		block->jindices = malloc(sizeof(INDICES_TYPE) * nonzero + 1);
+		block->iindices = malloc(sizeof(INDICES_TYPE) * (nonzero + 1));
+		block->jindices = malloc(sizeof(INDICES_TYPE) * (nonzero + 1));
 
-		block->entries = malloc(sizeof(double) * nonzero + 1);
+		block->entries = malloc(sizeof(double) * (nonzero + 1));
 
 		int curentry = 1;
 		for (ii = 0; ii < n * n; ii++) {
