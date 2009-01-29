@@ -29,6 +29,8 @@ import java.util.Set;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.TermFactory;
 import de.uka.ilkd.key.logic.op.ArrayOfQuantifiableVariable;
+import de.uka.ilkd.key.logic.op.Metavariable;
+import de.uka.ilkd.key.logic.op.Operator;
 import de.uka.ilkd.key.logic.op.RigidFunction;
 
 /**
@@ -42,12 +44,21 @@ public class TermRewriter {
 
 	public static class Match {
 		public Match(RigidFunction op, Term var) {
-			this.skolemFunction = op;
+			this.operatorToRewrite = op;
 			this.rewriteTo = var;
-			assert skolemFunction.isSkolem();
+			assert ((RigidFunction)operatorToRewrite).isSkolem();
 		}
 
-		RigidFunction skolemFunction;
+		/**
+		 * @param var
+		 * @param logicVariable
+		 */
+		public Match(Metavariable var, Term newVar) {
+			this.rewriteTo = newVar;
+			this.operatorToRewrite = var;
+		}
+
+		Operator operatorToRewrite;
 		Term rewriteTo;
 	}
 
@@ -58,7 +69,7 @@ public class TermRewriter {
 	private static Term replace(Term term, Set<Match> matches,
 			boolean[] hasChanged) {
 		for (Match m : matches) {
-			if (term.op() == m.skolemFunction) {
+			if (term.op() == m.operatorToRewrite) {
 				hasChanged[0] = true;
 				return m.rewriteTo;
 			}
