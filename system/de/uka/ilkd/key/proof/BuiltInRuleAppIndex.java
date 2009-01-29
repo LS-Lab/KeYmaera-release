@@ -10,8 +10,24 @@
 
 package de.uka.ilkd.key.proof;
 
-import de.uka.ilkd.key.logic.*;
-import de.uka.ilkd.key.rule.*;
+import de.uka.ilkd.key.logic.ConstrainedFormula;
+import de.uka.ilkd.key.logic.Constraint;
+import de.uka.ilkd.key.logic.FormulaChangeInfo;
+import de.uka.ilkd.key.logic.IteratorOfConstrainedFormula;
+import de.uka.ilkd.key.logic.ListOfConstrainedFormula;
+import de.uka.ilkd.key.logic.ListOfFormulaChangeInfo;
+import de.uka.ilkd.key.logic.PosInOccurrence;
+import de.uka.ilkd.key.logic.PosInTerm;
+import de.uka.ilkd.key.logic.Sequent;
+import de.uka.ilkd.key.logic.SequentChangeInfo;
+import de.uka.ilkd.key.rule.BuiltInRule;
+import de.uka.ilkd.key.rule.BuiltInRuleApp;
+import de.uka.ilkd.key.rule.IteratorOfBuiltInRule;
+import de.uka.ilkd.key.rule.ListOfRuleApp;
+import de.uka.ilkd.key.rule.RuleApp;
+import de.uka.ilkd.key.rule.SLListOfRuleApp;
+import de.uka.ilkd.key.rule.SequentWideBuiltInRule;
+import de.uka.ilkd.key.rule.SimplifyIntegerRule;
 
 public class BuiltInRuleAppIndex implements java.io.Serializable {
 
@@ -177,24 +193,26 @@ public class BuiltInRuleAppIndex implements java.io.Serializable {
 
     private void scanSequentWideApps(Goal goal, Constraint userConstraint) {
         final IteratorOfBuiltInRule ruleIt = index.rules().iterator();
-        while (ruleIt.hasNext()) {
-            BuiltInRule rule = ruleIt.next();
-            if (rule instanceof SequentWideBuiltInRule) {
-                final SequentWideBuiltInRule wideRule = (SequentWideBuiltInRule)rule;
-                if (wideRule.isApplicable(goal, userConstraint)) {
-                    // we need a PosInOccurrence and just select an arbitrary
-                    // formula in the sequent for that
-                    final Sequent seq = goal.sequent();
-                    assert !seq.isEmpty();
-                    final PosInOccurrence pos =
-                        new PosInOccurrence 
-                           ( seq.iterator().next(), PosInTerm.TOP_LEVEL,
-                             !seq.antecedent().isEmpty());
-                    BuiltInRuleApp app = new BuiltInRuleApp(rule, pos, userConstraint );                            
-                    getNewRulePropagator().ruleAdded ( app, pos );
-                }
-            }
-        }
+		final Sequent seq = goal.sequent();
+		if (!seq.isEmpty()) {
+			while (ruleIt.hasNext()) {
+				BuiltInRule rule = ruleIt.next();
+				if (rule instanceof SequentWideBuiltInRule) {
+					final SequentWideBuiltInRule wideRule = (SequentWideBuiltInRule) rule;
+					if (wideRule.isApplicable(goal, userConstraint)) {
+						// we need a PosInOccurrence and just select an
+						// arbitrary
+						// formula in the sequent for that
+						final PosInOccurrence pos = new PosInOccurrence(seq
+								.iterator().next(), PosInTerm.TOP_LEVEL, !seq
+								.antecedent().isEmpty());
+						BuiltInRuleApp app = new BuiltInRuleApp(rule, pos,
+								userConstraint);
+						getNewRulePropagator().ruleAdded(app, pos);
+					}
+				}
+			}
+		}
     }
     
     private void scanAddedFormulas ( Goal goal, boolean antec, SequentChangeInfo sci, final Constraint userConstraint ) {

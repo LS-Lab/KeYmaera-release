@@ -1,0 +1,5 @@
+./hybrid/dev/reduce-progress.key 18000
+./hybrid/dev/bouncing-ball-wrong.key 18000
+./hybrid/dev/exist-elim3.key 18000
+./hybrid/dev/ETCS-safety-lemma-wrong.key 18000
+./hybrid/dev/ETCS-safety-lemma-wrong2.key 18000

@@ -10,7 +10,7 @@ use POSIX ":sys_wait_h";
 use Sys::Hostname;
     
 my %option = ();
-getopts("hcmt:", \%option);
+getopts("hcmtr:", \%option);
 
 #system("limit memoryuse 4000"); #set memory limit to 4GB
 
@@ -20,6 +20,7 @@ my $path_to_pe = "../system/proofExamples/";
 my $path_to_automated = "index/";
 my $automaticdl_txt = "automaticDL.txt";
 my $not_provable_txt = "notProvableDL.txt";
+my $headerdl_txt = "headerDL.txt";
 my $interactive_txt = "interactiveDL.txt";
 my $quit_with_error_txt = "quitWithErrorDL.txt";
 chdir $bin_path;
@@ -28,6 +29,12 @@ my $statfile = $absolute_bin_path . "/" . $path_to_pe . "statistics-" . hostname
 print "$absolute_bin_path\n";
 chdir $path_to_pe;
 
+if ($option{r}) {
+	$automaticdl_txt = "regressionProvableDL.txt";
+	$not_provable_txt = "regressionNotProvableDL.txt";
+	$headerdl_txt = "regressionHeaderDL.txt";
+}
+
 if ($option{h}) {
   print "runs all proofs listed in the files: $automaticdl_txt, $interactive_txt, $not_provable_txt and $quit_with_error_txt .\n";
   print "They can be found in " .  $bin_path . "/" . $path_to_pe .  "\n\n";
@@ -35,12 +42,14 @@ if ($option{h}) {
   print "Use '-m email\@address.com' to send the report as an email to the specified address.\n";
   print "Use '-h' to get this text (very necessary this line).\n";
   print "Use '-c' to get the debug messages from the smtp part if there are email problems.\n";
+  print "Use '-r' for enabling the regression test mode.\n";
   exit;
 }
 
 
-open (HEADER_DL, $path_to_automated . "headerDL.txt") or
-  die $bin_path . "/" . $path_to_pe . "headerDL.txt" . " couldn't be opened.";
+
+open (HEADER_DL, $path_to_automated . $headerdl_txt) or
+  die $bin_path . "/" . $path_to_pe . $headerdl_txt . " couldn't be opened.";
 my @headerDL = <HEADER_DL>;
 close HEADER_DL;
 

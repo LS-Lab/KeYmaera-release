@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import de.uka.ilkd.key.dl.arithmetics.exceptions.IncompleteEvaluationException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.UnableToConvertInputException;
 import de.uka.ilkd.key.dl.gui.MessageWindow;
 
@@ -20,9 +21,29 @@ import de.uka.ilkd.key.dl.gui.MessageWindow;
  */
 public class ProgramCommunicator {
 	private static boolean debug = true;
+	
+	public static class Stopper {
+		private Process p;
+		
+		public boolean stop() {
+			if(p != null) {
+				p.destroy();
+				p = null;
+				return true;
+			}
+			return false;
+		}
 
-	public static String start(QepCadInput input)
-			throws UnableToConvertInputException {
+		/**
+		 * @param p the p to set
+		 */
+		public void setP(Process p) {
+			this.p = p;
+		}
+	}
+
+	public static String start(QepCadInput input, Stopper stopper)
+			throws UnableToConvertInputException, IncompleteEvaluationException {
 		try {
 			List<String> query = new ArrayList<String>();
 			query.add(Options.INSTANCE.getQepcadBinary().getAbsolutePath());
@@ -41,6 +62,7 @@ public class ProgramCommunicator {
 					.getAbsolutePath());
 
 			Process process = pb.start();
+			stopper.setP(process);
 			BufferedReader stdout = new BufferedReader(new InputStreamReader(
 					process.getInputStream()));
 			BufferedWriter stdin = new BufferedWriter(new OutputStreamWriter(
@@ -79,6 +101,9 @@ public class ProgramCommunicator {
 			return res;
 
 		} catch (IOException e) {
+			if(stopper.p == null) {
+				throw new IncompleteEvaluationException("The computation was aborted by the user.");
+			}
 			// Fehler...
 			e.printStackTrace();
 			return "";
@@ -148,5 +173,14 @@ public class ProgramCommunicator {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	/**
+	 * 
+	 * TODO documentation since Jan 28, 2009
+	 */
+	public static void stop() {
+		// TODO Auto-generated method stub
+		
 	}
 }
