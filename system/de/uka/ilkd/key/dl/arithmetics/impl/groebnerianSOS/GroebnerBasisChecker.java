@@ -199,9 +199,18 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
             Arrays.fill(hetero, 0.0);
             hetero[0] = -1.0; // we have to check that 1+s is in the ideal, hence a one
             
-            if (CSDP.sdp(consideredMonomials.size(), reducedPoly.size(),
-                         hetero,
-                         homo)) {
+            final boolean res1 = CSDP.sdp(consideredMonomials.size(), reducedPoly.size(),
+                    hetero,
+                    homo);
+            final boolean res2 = CSDP.sdp(consideredMonomials.size(), reducedPoly.size(),
+                    hetero,
+                    homo);
+            final boolean res3 = CSDP.sdp(consideredMonomials.size(), reducedPoly.size(),
+                    hetero,
+                    homo);
+            assert (res1 == res2 && res2 == res3);
+            
+            if (res1) {
                 System.out.println("Found a solution!");
                 return true;
             } else {
