@@ -185,14 +185,15 @@ public class BuiltInRuleAppIndex implements java.io.Serializable {
                     // we need a PosInOccurrence and just select an arbitrary
                     // formula in the sequent for that
                     final Sequent seq = goal.sequent();
-                    assert !seq.isEmpty();
-                    final PosInOccurrence pos =
-                        new PosInOccurrence 
-                           ( seq.iterator().next(), PosInTerm.TOP_LEVEL,
-                             !seq.antecedent().isEmpty());
-                    BuiltInRuleApp app = new BuiltInRuleApp(rule, pos, userConstraint );                            
-                    getNewRulePropagator().ruleAdded ( app, pos );
-                }
+                    if (!seq.isEmpty()) {
+						final PosInOccurrence pos = new PosInOccurrence(seq
+								.iterator().next(), PosInTerm.TOP_LEVEL, !seq
+								.antecedent().isEmpty());
+						BuiltInRuleApp app = new BuiltInRuleApp(rule, pos,
+								userConstraint);
+						getNewRulePropagator().ruleAdded(app, pos);
+					}
+				}
             }
         }
     }

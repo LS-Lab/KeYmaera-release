@@ -6,6 +6,7 @@ grammar Qepcad;
 	package de.uka.ilkd.key.dl.parser;
 	import de.uka.ilkd.key.logic.Term;
 	import de.uka.ilkd.key.logic.TermBuilder;
+	import de.uka.ilkd.key.logic.TermFactory;
 	import de.uka.ilkd.key.dl.parser.NumberCache;
 	import de.uka.ilkd.key.dl.logic.ldt.RealLDT;
 	import de.uka.ilkd.key.logic.NamespaceSet;
@@ -54,7 +55,7 @@ grammar Qepcad;
             			return tb.var(n);
             		} else if(named instanceof Metavariable) {
             			Metavariable n = (Metavariable)named;
-            			return tb.var(n);
+            			return TermFactory.DEFAULT.createFunctionTerm(n);
             		} else {
             			throw new IllegalStateException("Found object of unknown type " + named.getClass()
             				+ " in the variable namespace, named " + named);
