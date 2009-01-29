@@ -9,6 +9,8 @@ import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
+import de.uka.ilkd.key.gui.Main;
+
 /**
  * @author jdq
  *
@@ -34,8 +36,12 @@ public class MessageWindow extends JFrame {
 	}
 	
 	public void addMessage(String message) {
-		area.append(message + "\n");
-		setVisible(true);
+		if(!message.equals("")) {
+			area.append(message + "\n");
+			if(!Main.batchMode) {
+				setVisible(true);
+			}
+		}
 	}
 	
 }
