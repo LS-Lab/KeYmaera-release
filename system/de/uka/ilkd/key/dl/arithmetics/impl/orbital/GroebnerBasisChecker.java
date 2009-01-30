@@ -20,10 +20,13 @@
 package de.uka.ilkd.key.dl.arithmetics.impl.orbital;
 
 import java.rmi.RemoteException;
+import java.util.HashSet;
+import java.util.Set;
 
 import orbital.logic.functor.Function;
 import orbital.math.AlgebraicAlgorithms;
 import orbital.math.Polynomial;
+import orbital.math.Values;
 
 import org.w3c.dom.Node;
 
@@ -56,7 +59,7 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 	public boolean checkForConstantGroebnerBasis(
 			PolynomialClassification<Term> terms, Services services) {
 		PolynomialClassification<Polynomial> classify2 = SumOfSquaresChecker.INSTANCE
-				.classify(terms);
+				.classify(terms, true);
 		System.out.println("H is: ");
 		for (Polynomial p : classify2.h) {
 			System.out.println(p);
@@ -88,6 +91,28 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 				
 				// TODO 
 				if (reduce.equals(reduce.zero())) {
+					return true;
+				}
+			}
+		}
+		// now we try to not reduce one to zero in the groebner basis {h1,...,hn,(g*t)-1}
+		if (!classify2.g.isEmpty()) {
+			int[] size = new int[apply.rank()];
+			// the last variable is unused
+			size[size.length - 1] = 1;
+			Polynomial t = Values.getDefault().MONOMIAL(size);
+			for (Polynomial g : classify2.g) {
+				Set<Polynomial> curPolies = new HashSet<Polynomial>(classify2.h);
+				Polynomial ng = (Polynomial) g.multiply(t).subtract(t.one());
+				curPolies.add(ng);
+				System.out.println("Creating groebner basis for " + curPolies);//XXX
+				Function curGroebnerBasis = orbital.math.AlgebraicAlgorithms.reduce(
+						curPolies, AlgebraicAlgorithms.DEGREE_REVERSE_LEXICOGRAPHIC);
+				
+				Polynomial reduce = (Polynomial) curGroebnerBasis.apply(ng.one());
+				
+				if (!reduce.equals(reduce.zero())) {
+					System.out.println("We could not reduce 1 to 0 in the prior GB + " + ng);//XXX
 					return true;
 				}
 			}

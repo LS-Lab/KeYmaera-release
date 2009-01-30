@@ -252,6 +252,15 @@ public class SumOfSquaresChecker {
 	 */
 	public PolynomialClassification<Polynomial> classify(
 			PolynomialClassification<Term> cla) {
+		return classify(cla, false);
+	}
+	/**
+	 * Generate polynomials from the given term classification. The result
+	 * contains only the leftside polynomial of the inequalities, where for f
+	 * the omitted part is > 0, for g it is != 0 and for h it is = 0.
+	 */
+	public PolynomialClassification<Polynomial> classify(
+			PolynomialClassification<Term> cla, boolean addAddtionalVariable) {
 		System.out.println("Try to find monominals");// XXX
 		System.out.println("We check the following Terms:");// XXX
 		Set<String> variables = new HashSet<String>();
@@ -303,6 +312,9 @@ public class SumOfSquaresChecker {
 		System.out.println("-- end H");
 		List<String> vars = new ArrayList<String>();
 		vars.addAll(variables);
+		if(addAddtionalVariable) {
+			vars.add("newVariable$var$blub");
+		}
 		HashMap<String, String> hashMap = new HashMap<String, String>();
 		hashMap.put("orbital.math.UnivariatePolynomial.sparse", "true");
 		Values.getInstance(hashMap);
@@ -322,9 +334,9 @@ public class SumOfSquaresChecker {
 		}
 		for (Term t : cla.g) {
 			Fraction p = PolynomTool.createFractionOfPolynomialsFromTerm(t.sub(0), vars);
-			polyG.add((Polynomial) p.denominator());
+			polyG.add((Polynomial) p.numerator());
 			if (!p.denominator().isOne()) {
-				polyG.add((Polynomial) p.numerator());
+				polyG.add((Polynomial) p.denominator());
 			}
 		}
 		for (Term t : cla.h) {
