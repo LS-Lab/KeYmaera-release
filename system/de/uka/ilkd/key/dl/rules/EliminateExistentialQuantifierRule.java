@@ -224,6 +224,7 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
 		// sequents
 		Term query = TermBuilder.DF.tt();
 		Set<Term> skolemSymbols = new HashSet<Term>();
+		Set<Term> skolemSymbolsWithDependcies = new HashSet<Term>();
 		Set<Term> commonAnte = new HashSet<Term>();
 		Set<Term> commonSucc = new HashSet<Term>();
 		List<Goal> goalList = new ArrayList<Goal>(goals);
@@ -271,6 +272,7 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
 		Term ante = TermBuilder.DF.tt();
 		Set<Match> commonMatches = new HashSet<Match>();
 		Map<Term, LogicVariable> commonVars = new HashMap<Term, LogicVariable>();
+		Map<Term, LogicVariable> skolemSymbolWithDepsMap = new HashMap<Term, LogicVariable>();
 		for (Term t : commonAnte) {
 			ante = TermFactory.DEFAULT.createJunctorTermAndSimplify(Op.AND,
 					ante, t);
@@ -282,9 +284,10 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
 					LogicVariable logicVariable = new LogicVariable(new Name(s
 							.op().name()
 							+ "$sk"), s.op().sort(new Term[0]));
-					commonVars.put(s, logicVariable);
 					commonMatches.add(new Match((RigidFunction) s.op(),
 							TermBuilder.DF.var(logicVariable)));
+						skolemSymbolsWithDependcies.add(s);
+						skolemSymbolWithDepsMap.put(s, logicVariable);
 				} else {
 					skolemSymbols.add(s);
 				}
@@ -302,9 +305,11 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
 					LogicVariable logicVariable = new LogicVariable(new Name(s
 							.op().name()
 							+ "$sk"), s.op().sort(new Term[0]));
-					commonVars.put(s, logicVariable);
 					commonMatches.add(new Match((RigidFunction) s.op(),
 							TermBuilder.DF.var(logicVariable)));
+						skolemSymbolsWithDependcies.add(s);
+						skolemSymbolWithDepsMap.put(s, logicVariable);
+						commonMatches.add(new Match((RigidFunction) s.op(), TermBuilder.DF.var(logicVariable)));
 				} else {
 					skolemSymbols.add(s);
 				}
@@ -320,8 +325,6 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
 			Term succendent = TermTools.createJunctorTermNAry(TermBuilder.DF
 					.ff(), Op.OR, g.sequent().succedent().iterator(),
 					commonSucc);
-			Set<Match> matches = new HashSet<Match>();
-			List<LogicVariable> vars = new ArrayList<LogicVariable>();
 			Term imp = TermBuilder.DF.imp(antecendent, succendent);
 			List<Term> orderedList = SkolemfunctionTracker.INSTANCE
 					.getOrderedList(findSkolemSymbols);
@@ -331,20 +334,12 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
 						LogicVariable logicVariable = new LogicVariable(
 								new Name(sk.op().name() + "$sk"), sk.op().sort(
 										new Term[0]));
-						vars.add(logicVariable);
-						matches.add(new Match((RigidFunction) sk.op(),
-								TermBuilder.DF.var(logicVariable)));
+							skolemSymbolsWithDependcies.add(sk);
+							skolemSymbolWithDepsMap.put(sk, logicVariable);
+							commonMatches.add(new Match((RigidFunction) sk.op(), TermBuilder.DF.var(logicVariable)));
 					} else {
 						skolemSymbols.add(sk);
 					}
-				}
-			}
-			if (!matches.isEmpty()) {
-				imp = TermRewriter.replace(imp, matches);
-				for (QuantifiableVariable v : vars) {
-					// imp = TermBuilder.DF.all(v, imp);
-					imp = TermFactory.DEFAULT.createQuantifierTerm(Op.ALL, v,
-							imp);
 				}
 			}
 
@@ -353,8 +348,10 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
 
 		query = TermBuilder.DF.imp(ante, TermBuilder.DF.or(query, succ));
 
-		// List<PairOfTermAndQuantifierType> quantifiers = new
-		// LinkedList<PairOfTermAndQuantifierType>();
+		// TODO: we have to add the quantifiers for the skolem symbols with
+		// dependencies (as well as commonVars)in the outermost position that is
+		// still sound (so respecting the dependencies)
+
 		Map<Metavariable, LogicVariable> metavarReplacements = new HashMap<Metavariable, LogicVariable>();
 		for (Metavariable var : variables) {
 			LogicVariable logicVariable = new LogicVariable(new Name(var.name()
@@ -362,13 +359,11 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
 			metavarReplacements.put(var, logicVariable);
 			commonMatches
 					.add(new Match(var, TermBuilder.DF.var(logicVariable)));
-			// quantifiers.add(new PairOfTermAndQuantifierType(TermBuilder.DF
-			// .func(var), QuantifierType.EXISTS));
 		}
 
 		List<Term> topLevelSkolems = SkolemfunctionTracker.INSTANCE
 				.getOrderedList(skolemSymbols);
-		Map<Term, LogicVariable> topLevelSkolemReplacements= new HashMap<Term, LogicVariable>();
+		Map<Term, LogicVariable> topLevelSkolemReplacements = new HashMap<Term, LogicVariable>();
 		for (Term t : topLevelSkolems) {
 			LogicVariable logicVariable = new LogicVariable(new Name(t.op()
 					.name()
@@ -376,9 +371,6 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
 			topLevelSkolemReplacements.put(t, logicVariable);
 			commonMatches.add(new Match((RigidFunction) t.op(), TermBuilder.DF
 					.var(logicVariable)));
-			
-			// quantifiers.add(new PairOfTermAndQuantifierType(t,
-			// QuantifierType.FORALL));
 		}
 
 		// now we replace all those variables/skolem symbols be fresh variables
@@ -388,8 +380,37 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
 
 		// readd the quantifiers
 		List<String> variableNames = new ArrayList<String>();
-		for (Term sk : SkolemfunctionTracker.INSTANCE.getOrderedList(commonVars
-				.keySet())) {
+		commonVars.putAll(skolemSymbolWithDepsMap);
+		
+		List<Term> orderedList = SkolemfunctionTracker.INSTANCE
+				.getOrderedList(commonVars.keySet());
+		// now we built up a reference list for metavariables
+		Map<Metavariable, Integer> metavariablesDeps = new HashMap<Metavariable, Integer>();
+		for (Term sk : orderedList) {
+			for (int i = 0; i < sk.arity(); i++) {
+				assert (sk.sub(i).op() instanceof Metavariable) : "Skolem variables must only have metavariables as arguments!";
+				Metavariable m = (Metavariable) sk.sub(i).op();
+				Integer j = metavariablesDeps.get(m);
+				if (j == null) {
+					j = 0;
+				}
+				metavariablesDeps.put(m, ++j);
+			}
+		}
+		for (Metavariable metaVar : variables) {
+			if (!metavariablesDeps.containsKey(metaVar)) {
+				LogicVariable nvar = metavarReplacements.get(metaVar);
+				assert query.freeVars().contains(nvar);
+				query = TermFactory.DEFAULT.createQuantifierTerm(Op.EX, nvar,
+						query);
+				variableNames.add(nvar.name().toString());
+				// TODO: check if we can avoid adding these variables to the
+				// namespace...
+				services.getNamespaces().variables().add(nvar);
+			}
+		}
+
+		for (Term sk : orderedList) {
 			LogicVariable var = commonVars.get(sk);
 			assert query.freeVars().contains(var);
 			query = TermFactory.DEFAULT
@@ -398,19 +419,38 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
 			// TODO: check if we can avoid adding these variables to the
 			// namespace...
 			services.getNamespaces().variables().add(var);
+			for (int i = 0; i < sk.arity(); i++) {
+				assert (sk.sub(i).op() instanceof Metavariable) : "Skolem variables must only have metavariables as arguments!";
+				Metavariable m = (Metavariable) sk.sub(i).op();
+				Integer j = metavariablesDeps.get(m);
+				if (j == 1) {
+					metavariablesDeps.remove(m);
+					LogicVariable nvar = metavarReplacements.get(m);
+					assert query.freeVars().contains(nvar);
+					query = TermFactory.DEFAULT.createQuantifierTerm(Op.EX,
+							nvar, query);
+					variableNames.add(nvar.name().toString());
+					// TODO: check if we can avoid adding these variables to the
+					// namespace...
+					services.getNamespaces().variables().add(nvar);
+				} else {
+					metavariablesDeps.put(m, --j);
+				}
+			}
 		}
-		
-		for (Metavariable metaVar : variables) {
-			LogicVariable var = metavarReplacements.get(metaVar);
-			assert query.freeVars().contains(var);
-			query = TermFactory.DEFAULT
-					.createQuantifierTerm(Op.EX, var, query);
-			variableNames.add(var.name().toString());
-			// TODO: check if we can avoid adding these variables to the
-			// namespace...
-			services.getNamespaces().variables().add(var);
-		}
-		
+
+		assert metavariablesDeps.isEmpty() : "All metavariables should be transformed into existential quantifiers before adding skolem symbols that dont have any dependcies!";
+
+		// for (Metavariable metaVar : variables) {
+		// LogicVariable var = metavarReplacements.get(metaVar);
+		// assert query.freeVars().contains(var);
+		// query = TermFactory.DEFAULT.createQuantifierTerm(Op.EX, var, query);
+		// variableNames.add(var.name().toString());
+		// // TODO: check if we can avoid adding these variables to the
+		// // namespace...
+		// services.getNamespaces().variables().add(var);
+		// }
+
 		for (Term sk : topLevelSkolems) {
 			LogicVariable var = topLevelSkolemReplacements.get(sk);
 			assert query.freeVars().contains(var);
@@ -429,7 +469,8 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
 			}
 			Term resultTerm = MathSolverManager
 					.getCurrentQuantifierEliminator().reduce(query,
-							variableNames, new ArrayList<PairOfTermAndQuantifierType>(),
+							variableNames,
+							new ArrayList<PairOfTermAndQuantifierType>(),
 							services.getNamespaces());
 			if (DLOptionBean.INSTANCE.isSimplifyAfterReduce()) {
 				resultTerm = MathSolverManager.getCurrentSimplifier().simplify(
