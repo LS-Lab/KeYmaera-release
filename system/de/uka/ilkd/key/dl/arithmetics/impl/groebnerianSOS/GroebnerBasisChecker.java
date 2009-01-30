@@ -202,21 +202,8 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
             final double[] solution =
                 new double [consideredMonomials.size() * consideredMonomials.size()];
             
-            int res = -1;
-            int n = 0;
-            while (true) {
-                res = CSDP.sdp(consideredMonomials.size(), reducedPoly.size(),
+            int res = CSDP.sdp(consideredMonomials.size(), reducedPoly.size(),
                                hetero, homo, solution);
-                n = n + 1;
-                if (n == 5) {
-                    System.out.println("Giving up");
-                    break;
-                } else if (res != 0 && res != 1 && res != 2) {
-                    System.out.println("CSDP failed (result: " + res + "), trying again");
-                } else {
-                    break;
-                }
-            }
 
             if (res == 0) {
                 System.out.println("Found a solution!");
