@@ -20,6 +20,7 @@
 package de.uka.ilkd.key.dl.arithmetics.impl.csdp;
 
 import java.util.Arrays;
+import java.util.Random;
 
 /**
  * @author jdq
@@ -109,6 +110,30 @@ public class CSDP {
 		return result == 0;
 	}
 
+        public static int sdp(int n, int k, double[] a, double[] constraints, double[] solution) {
+            assert (solution.length == n*n);
+            double[] y = new double[a.length], Z = new double[n
+                            * n], pobj = new double[n], dobj = new double[a.length];
+            final double[] C = new double[n * n];
+            
+            fillRandomly(solution);
+            fillRandomly(y);
+            fillRandomly(Z);
+//            Arrays.fill(C, 1.0);
+            
+//          System.out.println("n is: " + n);// XXX
+//          System.out.println("a is: " + Arrays.toString(a));// XXX
+//          System.out.println("constraints is: " + Arrays.toString(constraints));// XXX
+            return easySDP(n, k, C, a, constraints, 0, solution, y, Z, pobj, dobj);
+        }
+
+        private static final Random random = new Random ();
+        
+        private static void fillRandomly(double[] ar) {
+            for (int i = 0; i < ar.length; ++i)
+                ar[i] = random.nextDouble() - 0.5;
+        }
+        
 	public static void main(String[] args) {
 		System.loadLibrary("lapack");
 		System.loadLibrary("blas");
