@@ -83,8 +83,8 @@ public abstract class PolynomTool {
 			List<String> variables) {
 		System.out.println(sub);// XXX
 		try {
-			int[] size = new int[variables.size()];
 			if (sub.arity() == 0) {
+				int[] size = new int[variables.size()];
 				if (variables.contains(sub.op().name().toString())) {
 					size[variables.indexOf(sub.op().name().toString())] = 1;
 					return Values.getDefault().fraction(
@@ -186,6 +186,10 @@ public abstract class PolynomTool {
 		for (FoundItem i : set2) {
 			variables.put(i.getName(), i.getTerm());
 			varList.add(i.getName());
+		}
+		if(varList.isEmpty()) {
+			// there are no variables, thus the fractions doesn't matter
+			return t;
 		}
 
 		// convert the left side of the term to a fraction

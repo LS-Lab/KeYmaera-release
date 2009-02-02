@@ -14,6 +14,7 @@ import de.uka.ilkd.key.dl.arithmetics.impl.qepcad.PrenexGenerator.PrenexGenerato
 import de.uka.ilkd.key.dl.arithmetics.impl.qepcad.ProgramCommunicator.Stopper;
 import de.uka.ilkd.key.logic.NamespaceSet;
 import de.uka.ilkd.key.logic.Term;
+import de.uka.ilkd.key.logic.TermBuilder;
 
 /**
  * Implements the QuantifierElimintor with an external program called qebcad.
@@ -56,12 +57,17 @@ public class QepCad implements IQuantifierEliminator {
 
 		// System.out.println("START  : Reduce called");
 		PrenexGeneratorResult result = PrenexGenerator.transform(form, nss);
-		
+
 		QepCadInput input = Term2QepCadConverter.convert(result.getTerm(),
 				result.getVariables());
-		 System.out.println("PRENEX : Formula send to QEPCAD: " +
-		 input.getFormula());
-
+		System.out.println("PRENEX : Formula send to QEPCAD: "
+				+ input.getFormula());
+		if (input.getFormula().equals("[ " + Term2QepCadConverter.TRUE + " ].")) {
+			return TermBuilder.DF.tt();
+		} else if (input.getFormula().equals(
+				"[ " + Term2QepCadConverter.FALSE + " ].")) {
+			return TermBuilder.DF.ff();
+		}
 		String res = ProgramCommunicator.start(input, stopper);
 		// System.out.println("QEPCAD : Result                : " + res);
 
@@ -121,7 +127,7 @@ public class QepCad implements IQuantifierEliminator {
 	 * 
 	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#isConfigured()
 	 */
-	/*@Override*/
+	/* @Override */
 	public boolean isConfigured() {
 		return Options.INSTANCE.getQepcadBinary().exists()
 				&& Options.INSTANCE.getSaclibPath().exists();
