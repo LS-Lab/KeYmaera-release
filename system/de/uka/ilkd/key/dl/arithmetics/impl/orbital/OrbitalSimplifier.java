@@ -194,24 +194,28 @@ public class OrbitalSimplifier implements ISimplifier {
 			return apply;
 		} else if (form.op() instanceof RigidFunction
 				&& ((RigidFunction) form.op()).arity() == 0) {
- 		        // translate everything into rationals so that subsequent
-		        // calculations are precise
-		        BigDecimal dec = new BigDecimal(form.op().name().toString());
-		        if (dec.scale() > 0) {
-		            Integer denom = ValuesImpl.getDefault().ONE();
-		            while (dec.scale() > 0) {
-		              dec = dec.movePointRight(1);
-		              denom = denom.multiply(ValuesImpl.getDefault().valueOf(10));
-		            }
-		            Integer num = ValuesImpl.getDefault().valueOf(dec.toBigIntegerExact());
-		            return ValuesImpl.getDefault().rational(num, denom);
-		        } else {
-		            return ValuesImpl.getDefault().valueOf(dec.toBigIntegerExact());
-		        }
+ 		        return term2Rational(form);
 		}
 		throw new IllegalArgumentException("Dont know how to translate "
 				+ form.op() + " of class " + form.op().getClass());
 	}
+
+    public static Arithmetic term2Rational(Term form) {
+        // translate everything into rationals so that subsequent
+        // calculations are precise
+        BigDecimal dec = new BigDecimal(form.op().name().toString());
+        if (dec.scale() > 0) {
+            Integer denom = ValuesImpl.getDefault().ONE();
+            while (dec.scale() > 0) {
+              dec = dec.movePointRight(1);
+              denom = denom.multiply(ValuesImpl.getDefault().valueOf(10));
+            }
+            Integer num = ValuesImpl.getDefault().valueOf(dec.toBigIntegerExact());
+            return ValuesImpl.getDefault().rational(num, denom);
+        } else {
+            return ValuesImpl.getDefault().valueOf(dec.toBigIntegerExact());
+        }
+    }
 
 	////////////////////////////////////////////////////////////////////////
 	

@@ -94,10 +94,7 @@ public abstract class PolynomTool {
 					return Values.getDefault().fraction(
 							Values.getDefault()
 									.MONOMIAL(
-											Values.getDefault().valueOf(
-													new BigDecimal(sub.op()
-															.name().toString())
-															.doubleValue()),
+									                OrbitalSimplifier.term2Rational(sub),
 											size),
 							Values.getDefault().MONOMIAL(size).one());
 				}
