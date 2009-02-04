@@ -114,6 +114,7 @@ public class SumOfSquaresChecker {
 		// handle succedent
 		Set<Term> conjunction = new HashSet<Term>();
 		for (Term t : succ) {
+			System.out.println("Checking " + t);
 			Term sub, sub2;
 			Operator op;
 			if (t.op().equals(Op.NOT)) {
@@ -126,11 +127,11 @@ public class SumOfSquaresChecker {
 				op = negationLookUp(t.op());
 			}
 			if (!(sub.equals(zero) || sub2.equals(zero))) {
-				sub = TermBuilder.DF.func(RealLDT.getFunctionFor(Minus.class), t.sub(0), t
-						.sub(1));
+				sub = TermBuilder.DF.func(RealLDT.getFunctionFor(Minus.class),
+						t.sub(0), t.sub(1));
 				sub2 = zero;
 			}
-			if (t.sub(0).equals(zero) && !t.sub(1).equals(zero)) {
+			if (sub.equals(zero) && !sub2.equals(zero)) {
 				Term hold = sub;
 				sub = sub2;
 				sub2 = hold;
@@ -160,11 +161,11 @@ public class SumOfSquaresChecker {
 				op = t.op();
 			}
 			if (!(sub.equals(zero) || sub2.equals(zero))) {
-				sub = TermBuilder.DF.func(RealLDT.getFunctionFor(Minus.class), t.sub(0), t
-						.sub(1));
+				sub = TermBuilder.DF.func(RealLDT.getFunctionFor(Minus.class),
+						t.sub(0), t.sub(1));
 				sub2 = zero;
 			}
-			if (t.sub(0).equals(zero) && !t.sub(1).equals(zero)) {
+			if (sub.equals(zero) && !sub2.equals(zero)) {
 				Term hold = sub;
 				sub = sub2;
 				sub2 = hold;
@@ -188,24 +189,49 @@ public class SumOfSquaresChecker {
 		for (Term t : conjunction) {
 			if (t.op() == Equality.EQUALS) {
 				// H is the set of equalities thus we just need to add this term
-				h.add(t);
+				h.add(TermBuilder.DF
+						.equals(TermBuilder.DF.func(RealLDT
+								.getFunctionFor(Minus.class), t.sub(0), t
+								.sub(1)), zero));
 			} else if (t.op().equals(neq)) {
-				// G is the set of unequalities thus we just need to add this term
-				g.add(t);
+				// G is the set of unequalities thus we just need to add this
+				// term
+				g.add(TermBuilder.DF
+						.func(neq, TermBuilder.DF.func(RealLDT
+								.getFunctionFor(Minus.class), t.sub(0), t
+								.sub(1)), zero));
 			} else if (t.op().equals(geq)) {
-				// F contains all inequalities of the form x >= y thus we just need to add this term
-				f.add(t);
+				// F contains all inequalities of the form x >= y thus we just
+				// need to add this term
+				f.add(TermBuilder.DF
+						.func(geq, TermBuilder.DF.func(RealLDT
+								.getFunctionFor(Minus.class), t.sub(0), t
+								.sub(1)), zero));
 			} else if (t.op().equals(gt)) {
-				// the term is x > y thus we add x >= y to F and x != y to G 
-				f.add(TermBuilder.DF.func(geq, t.sub(0), t.sub(1)));
-				g.add(TermBuilder.DF.func(neq, t.sub(0), t.sub(1)));
+				// the term is x > y thus we add x - y >= 0 to F and x - y != 0 to G
+				f.add(TermBuilder.DF
+						.func(geq, TermBuilder.DF.func(RealLDT
+								.getFunctionFor(Minus.class), t.sub(0), t
+								.sub(1)), zero));
+				g.add(TermBuilder.DF
+						.func(neq, TermBuilder.DF.func(RealLDT
+								.getFunctionFor(Minus.class), t.sub(0), t
+								.sub(1)), zero));
 			} else if (t.op().equals(leq)) {
-				// switch arguments to turn x <= y into y >= x
-				f.add(TermBuilder.DF.func(geq, t.sub(1), t.sub(0)));
+				// switch arguments to turn x <= y into y - x >= 0
+				f.add(TermBuilder.DF.func(geq, TermBuilder.DF.func(RealLDT
+						.getFunctionFor(Minus.class), t.sub(1), t
+						.sub(0)), zero));
 			} else if (t.op().equals(lt)) {
-				// the term is x < y thus we add y >= x to F and y != x to G
-				f.add(TermBuilder.DF.func(geq, t.sub(1), t.sub(0)));
-				g.add(TermBuilder.DF.func(neq, t.sub(1), t.sub(0)));
+				// the term is x < y thus we add y - x >= 0 to F and y - x != 0 to G
+				f.add(TermBuilder.DF
+						.func(geq, TermBuilder.DF.func(RealLDT
+								.getFunctionFor(Minus.class), t.sub(1), t
+								.sub(0)), zero));
+				g.add(TermBuilder.DF
+						.func(neq, TermBuilder.DF.func(RealLDT
+								.getFunctionFor(Minus.class), t.sub(1), t
+								.sub(0)), zero));
 			} else if (t.op().equals(TermBuilder.DF.tt().op())
 					|| t.op().equals(TermBuilder.DF.ff().op())) {
 				// TODO jdq: we need to do something useful with this
@@ -254,6 +280,7 @@ public class SumOfSquaresChecker {
 			PolynomialClassification<Term> cla) {
 		return classify(cla, false);
 	}
+
 	/**
 	 * Generate polynomials from the given term classification. The result
 	 * contains only the leftside polynomial of the inequalities, where for f
@@ -312,7 +339,7 @@ public class SumOfSquaresChecker {
 		System.out.println("-- end H");
 		List<String> vars = new ArrayList<String>();
 		vars.addAll(variables);
-		if(addAddtionalVariable) {
+		if (addAddtionalVariable) {
 			vars.add("newVariable$var$blub");
 		}
 		HashMap<String, String> hashMap = new HashMap<String, String>();
@@ -326,21 +353,24 @@ public class SumOfSquaresChecker {
 		HashSet<Polynomial> polyH = new HashSet<Polynomial>();
 
 		for (Term t : cla.f) {
-			Fraction p = PolynomTool.createFractionOfPolynomialsFromTerm(t.sub(0), vars);
+			Fraction p = PolynomTool.createFractionOfPolynomialsFromTerm(t
+					.sub(0), vars);
 			polyF.add((Polynomial) p.numerator());
 			if (!p.denominator().isOne()) {
 				polyG.add((Polynomial) p.denominator());
 			}
 		}
 		for (Term t : cla.g) {
-			Fraction p = PolynomTool.createFractionOfPolynomialsFromTerm(t.sub(0), vars);
+			Fraction p = PolynomTool.createFractionOfPolynomialsFromTerm(t
+					.sub(0), vars);
 			polyG.add((Polynomial) p.numerator());
 			if (!p.denominator().isOne()) {
 				polyG.add((Polynomial) p.denominator());
 			}
 		}
 		for (Term t : cla.h) {
-			Fraction p = PolynomTool.createFractionOfPolynomialsFromTerm(t.sub(0), vars);
+			Fraction p = PolynomTool.createFractionOfPolynomialsFromTerm(t
+					.sub(0), vars);
 			polyH.add((Polynomial) p.numerator());
 			if (!p.denominator().isOne()) {
 				polyG.add((Polynomial) p.denominator());
