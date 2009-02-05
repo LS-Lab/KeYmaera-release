@@ -242,14 +242,16 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 				comma = ", ";
 			}
 			final String msg = builder.toString();
-			SwingUtilities.invokeLater(new Runnable() {
+			if (!Main.getInstance().mediator().autoMode()) {
+				SwingUtilities.invokeLater(new Runnable() {
 
-				public void run() {
-					JOptionPane.showMessageDialog(Main.getInstance(), msg);
-				}
+					public void run() {
+						JOptionPane.showMessageDialog(Main.getInstance(), msg);
+					}
 
-			});
-			throw new IllegalStateException("No solution for variables "
+				});
+			}
+			throw new UnsolveableException("No solution for variables "
 					+ varNames + " in: " + updateExpressions);
 		} else if (!multipleSolutions.isEmpty()) {
 			StringBuilder builder = new StringBuilder();
