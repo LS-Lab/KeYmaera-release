@@ -22,7 +22,8 @@ import de.uka.ilkd.key.logic.Term;
  * Implements the QuantifierElimintor with an external program called
  * reduce/redlog.
  * 
- * source: http://www.cs.usna.edu/~qepcad/B/QEPCAD.html
+ * source: http://www.algebra.fim.uni-passau.de/~redlog/
+ * http://reduce-algebra.sourceforge.net/
  * 
  * @author jdq Jan-David Quesel
  * 
@@ -30,7 +31,7 @@ import de.uka.ilkd.key.logic.Term;
 public class Reduce implements IQuantifierEliminator {
 
 	public Reduce(Node n) {
-		// TODO: n beinhaltet Konfigurationseinstellungen in XML-Format
+		// TODO: n contains configuration from the XML files
 	}
 
 	public Term reduce(Term form, NamespaceSet nss) throws RemoteException,
@@ -78,7 +79,6 @@ public class Reduce implements IQuantifierEliminator {
 			try {
 				process.waitFor();
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			FileReader f = new FileReader(tmp);
@@ -93,13 +93,8 @@ public class Reduce implements IQuantifierEliminator {
 			Term parsedTerm = String2TermConverter.convert(res, nss);
 			return parsedTerm;
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		// System.out.println("QEPCAD : Result                : " + res);
-		//
-
-		// return parsedTerm;
 		return null;
 	}
 
