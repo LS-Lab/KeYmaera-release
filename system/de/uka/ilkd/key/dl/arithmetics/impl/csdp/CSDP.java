@@ -137,6 +137,7 @@ public class CSDP {
 //          System.out.println("constraints is: " + Arrays.toString(constraints));// XXX
             int res = easySDP(n, k, C, a, constraints, 0, solution, y, Z, pobj, dobj);
             
+            /*
             if (res == 0) {
                 // SUCCESS: try to find a nice solution that contains as small
                 // entries as possible
@@ -156,7 +157,7 @@ public class CSDP {
                         C[i] = 0.0;
                     }
                 }
-            }
+            } */
             
             return res;
         }

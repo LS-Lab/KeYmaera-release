@@ -31,6 +31,7 @@ import java.util.Set;
 import orbital.logic.functor.Function;
 import orbital.math.AlgebraicAlgorithms;
 import orbital.math.Arithmetic;
+import orbital.math.Matrix;
 import orbital.math.Polynomial;
 import orbital.math.Values;
 import orbital.math.Vector;
@@ -206,8 +207,24 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
                                hetero, homo, solution);
 
             if (res == 0) {
-                System.out.println("Found a solution!");
+                System.out.println("Found an approximate solution!");
                 System.out.println(Arrays.toString(solution));
+                
+                System.out.println("Trying to recover an exact solution ...");
+                final Matrix exactHomo =
+                    reducedPoly.exactCoefficientComparison(consideredMonomials.size());
+                
+                // we add further constraints to ensure that the found solution
+                // is a symmetric matrix
+                exactHomo.insertRows(symmetryConstraints(consideredMonomials.size()));
+
+                final Vector exactHetero =
+                    Values.getDefault().newInstance(exactHomo.dimensions()[0]);
+                for (int i = 0; i < exactHetero.dimension(); ++i)
+                    exactHetero.set(i, Values.getDefault().valueOf(i == 0 ? -1 : 0));
+
+                new FractionisingEquationSolver (exactHomo, exactHetero, solution);
+                
                 return true;
             } else {
                 System.out.println("No solution");
@@ -216,6 +233,34 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
         }
         
         return false;
+    }
+    
+    
+    private static Matrix symmetryConstraints(int matrixSize) {
+        final Arithmetic zero = Values.getDefault().ZERO();
+        final Arithmetic one = Values.getDefault().ONE();
+        final Arithmetic minus_one = one.minus();
+
+        final int height = matrixSize * (matrixSize - 1) / 2;
+        final int width = matrixSize * matrixSize;
+        final Matrix res = Values.getDefault().newInstance(height, width);
+        
+        // fill the matrix with zeroes
+        for (int i = 0; i < height; ++i)
+            for (int j = 0; j < width; ++j)
+                res.set(i, j, zero);
+        
+        // generate the constraints
+        int row = 0;
+        for (int i = 1; i < matrixSize; ++i)
+            for (int j = 0; j < i; ++j) {
+                res.set(row, i * matrixSize + j, one);
+                res.set(row, j * matrixSize + i, minus_one);
+                row = row + 1;
+            }
+        
+        assert (row == height);
+        return res;
     }
     
     
