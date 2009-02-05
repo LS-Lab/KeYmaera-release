@@ -26,6 +26,10 @@
 	<optionbean>de.uka.ilkd.key.dl.arithmetics.impl.qepcad.Options</optionbean>
   </MathSolver>
   <MathSolver> 
+	<class>de.uka.ilkd.key.dl.arithmetics.impl.reduce.Reduce</class>
+	<optionbean>de.uka.ilkd.key.dl.arithmetics.impl.reduce.Options</optionbean>
+  </MathSolver>
+  <MathSolver> 
 	<class>de.uka.ilkd.key.dl.arithmetics.impl.groebnerianSOS.GroebnerBasisChecker</class>
   </MathSolver>
 </MathSolvers>

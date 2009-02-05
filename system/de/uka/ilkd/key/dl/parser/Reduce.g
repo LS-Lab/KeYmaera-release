@@ -1,6 +1,6 @@
-grammar Qepcad;
+grammar Reduce;
 
-// by Timo Michelsen
+// by Jan-David Quesel
 
 @header {
 	package de.uka.ilkd.key.dl.parser;
@@ -86,14 +86,14 @@ logic_or returns [ Term t ]		: 	e = logic_and {t = e;} ( OR f = logic_or { t = t
 logic_and returns [Term t]		:	e = predicate{ t = e; } ( AND f = logic_and { t = tb.and(e,f); })?;
 
 					
-predicate returns [Term t]		:	( e = expression )  
+predicate returns [Term t]		:	( (expression (pred_func | EQ)) => (e = expression )  
 							((func = pred_func f = expression { t = tb.func( func, e, f );} ) |
-							(EQ f = expression { t = tb.equals( e, f ); }) )
+							(EQ f = expression { t = tb.equals( e, f ); }) ))
 						
-						| ( LB e = logic RB ) { t = e; }
-						| ( NOT e = predicate { t = tb.not(e); }) |
-						( TRUE { t = tb.tt(); } ) |
-						( FALSE { t = tb.ff(); } );	
+						| ( LP e = logic RP ) { t = e; }
+						| ( NOT e = predicate { t = tb.not(e); })
+						| (TRUE { t = tb.tt(); } ) 
+						| (FALSE { t = tb.ff(); } );	
 											
 pred_func returns [ Function f ]	:	GT { f = RealLDT.getFunctionFor(Greater.class);} |
 						LT { f = RealLDT.getFunctionFor(Less.class);} |
@@ -106,7 +106,8 @@ expression returns [ Term t ]	:	e = expr_add { t = e; }; // Lesbarkeit
 expr_add returns [Term t ]		:	e = expr_sub { t = e; } ( ADD f = expr_add { t = tb.func((Function)nss.functions().lookup( new Name("add")),e,f); } )?; 
 
 expr_sub returns [ Term t ]		:	e = expr_mul{ t = e; } ( SUB f = expr_sub {  t = tb.func((Function)nss.functions().lookup( new Name("sub")),e,f);} )?;
-expr_mul returns [ Term t ]		:	e = expr_pow{ t = e; } ( f = expr_mul {  t = tb.func((Function)nss.functions().lookup( new Name("mul")),e,f);} )?; 
+expr_mul returns [ Term t ]		:	e = expr_div{ t = e; } ( MUL f = expr_mul {  t = tb.func((Function)nss.functions().lookup( new Name("mul")),e,f);} )?; 
+expr_div returns [ Term t ]		:	e = expr_pow{ t = e; } ( DIV f = expr_div {  t = tb.func((Function)nss.functions().lookup( new Name("div")),e,f);} )?; 
 expr_pow returns [ Term t ]	:	e = expr_atom { t = e; } ( POW f = number { t = tb.func((Function)nss.functions().lookup( new Name("exp")), e, f);})?;
 expr_atom returns [Term t ]	:	( LP st = expression RP { t = st; }) |
 						( st = varOrNum { t = st; } ); 
@@ -120,35 +121,35 @@ number returns [ Term t]		:	n = NUM {t = tb.func(NumberCache.getNumber(BigDecima
 
 // Lexer-Rules
 
-TRUE :	'TRUE';
-FALSE:	'FALSE';
+TRUE :	'true';
+FALSE:	'false';
 
-AND	:	'/\\' ; // OK
-OR	:	'\\/'; // OK
+AND	:	'and' ; // OK
+OR	:	'or'; // OK
 BIMPL:	'<==>'; // Untested	
 IMPL_R:	'==>'; // Untested	
 IMPL_L:	'<=='; // Untested	
-NOT	:	 '~'; 
+NOT	:	 'not'; 
 
 GE	:	'>='; //OK
 GT	:	'>'; // OK
 LT	:	'<'; // OK
 LE	:	'<='; // OK
 EQ	:	'='; // OK
-NE	:	'/=' ; // OK
+NE	:	'<>' ; // OK
 
 ADD	:	'+'; // OK
 SUB	:	'-'; // OK
+MUL	:	'*'; // OK
+DIV	:	'/'; // OK
 
 LP 	:	 '('; //OK
 RP	:	')'; // OK
-LB 	:	 '['; // OK
-RB	:	']'; // OK
 
-POW	:	'^'; // OK
+POW	:	'**'; // OK
 
-WS 	:  	('\t' | ' ' | '\r' | '\n'| '\u000C' )+ { $channel = HIDDEN; };
-NUM 	:   	'0'..'9'* ('0'..'9'| ('.' '0'..'9'+)) ;
-VAR	:	(('a'..'z'|'A'..'Z')('a'..'z'|'A'..'Z'|'0'..'9'|'_')*);
+NUM 	:   '0'..'9'* ('0'..'9'| ('.' '0'..'9'+)) ;
+VAR  	:   ('a'..'z'|'A'..'Z'|'0'..'9'|'_')+ ;
+WS  	:   (' '|'\t'|'\r'|'\n')+ {skip();} ;
 
 
