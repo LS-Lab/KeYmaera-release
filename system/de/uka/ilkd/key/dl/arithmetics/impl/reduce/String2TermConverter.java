@@ -1,22 +1,19 @@
 package de.uka.ilkd.key.dl.arithmetics.impl.reduce;
 
-import de.uka.ilkd.key.dl.parser.ReduceLexer;
-import de.uka.ilkd.key.dl.parser.ReduceParser;
-
 import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
 
+import de.uka.ilkd.key.dl.parser.ReduceLexer;
+import de.uka.ilkd.key.dl.parser.ReduceParser;
 import de.uka.ilkd.key.logic.NamespaceSet;
 import de.uka.ilkd.key.logic.Term;
-import de.uka.ilkd.key.logic.TermBuilder;
-import de.uka.ilkd.key.strategy.termProjection.TermBuffer;
 
 /**
  * Converts an given String to a Term-Instance
- * using the Qepcad-Parser. (uses Grammar: Qepcad.g)
+ * using the Reduce-Parser. (uses Grammar: Reduce.g)
  * 
- * @author Timo Michelsen
+ * @author Jan-David Quesel
  *
  */
 public class String2TermConverter {
