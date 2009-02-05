@@ -30,9 +30,7 @@ public class String2TermConverter {
      */
     public static Term convert(String formula, NamespaceSet nss) {
     	// strip the dollar sign at the end of the file
-    	System.out.println("formula: " + formula);
     	formula = formula.replaceAll("\\$", "");
-    	System.out.println("formula now: " + formula);
     	formula = formula.replaceAll(Term2ReduceConverter.DOLLARESCAPE, "$");
     	System.out.println("replaced result is: " + formula);//XXX
         ReduceLexer lexer = new ReduceLexer(new ANTLRStringStream(formula));

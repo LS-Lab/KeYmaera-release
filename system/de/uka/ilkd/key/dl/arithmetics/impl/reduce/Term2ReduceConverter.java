@@ -211,17 +211,17 @@ public class Term2ReduceConverter {
 			return "(" + name + ")";
 		} else if (form.op() instanceof Junctor) {
 			if (form.op() == Junctor.AND) {
-				return "("
+				return "(("
 						+ convert2String(form.sub(0), nss, eliminateFractions)
-						+ "and"
+						+ " ) and ("
 						+ convert2String(form.sub(1), nss, eliminateFractions)
-						+ ")";
+						+ "))";
 			} else if (form.op() == Junctor.OR) {
-				return "("
+				return "(("
 						+ convert2String(form.sub(0), nss, eliminateFractions)
-						+ "or"
+						+ ") or ("
 						+ convert2String(form.sub(1), nss, eliminateFractions)
-						+ ")";
+						+ "))";
 			} else if (form.op() == Junctor.IMP) {
 				return "( not ("
 						+ convert2String(form.sub(0), nss, eliminateFractions)
@@ -229,7 +229,7 @@ public class Term2ReduceConverter {
 						+ convert2String(form.sub(1), nss, eliminateFractions)
 						+ "))";
 			} else if (form.op() == Junctor.NOT) {
-				return "(not ("
+				return "( not ("
 						+ convert2String(form.sub(0), nss, eliminateFractions)
 						+ " ))";
 			}
@@ -247,7 +247,7 @@ public class Term2ReduceConverter {
 			}
 			String firstArg = convert2String(form.sub(0), nss, eliminateFractions);
 			if (form.op() == Quantifier.ALL) {
-				String result = "";
+				String result = "(";
 				
 				for(String var: vars) {
 					result += "all(" + var + ", ";
@@ -256,9 +256,10 @@ public class Term2ReduceConverter {
 				for(String var: vars) {
 					result += ")";
 				}
+				result += ")";
 				return result;
 			} else if (form.op() == Quantifier.EX) {
-				String result = "";
+				String result = ")";
 				
 				for(String var: vars) {
 					result += "ex(" + var + ", ";
@@ -267,6 +268,7 @@ public class Term2ReduceConverter {
 				for(String var: vars) {
 					result += ")";
 				}
+				result += ")";
 				return result;
 			}
 		}
