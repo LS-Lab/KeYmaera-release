@@ -33,16 +33,18 @@ public class String2TermConverter {
     	formula = formula.replaceAll("\\$", "");
     	formula = formula.replaceAll(Term2ReduceConverter.DOLLARESCAPE, "$");
     	System.out.println("replaced result is: " + formula);//XXX
-        ReduceLexer lexer = new ReduceLexer(new ANTLRStringStream(formula));
+        ReduceLexer lexer = new ReduceLexer(new ANTLRStringStream("(" + formula + ")"));
         CommonTokenStream tok = new CommonTokenStream(lexer);
+        System.out.println("Tokenstream: " + tok);// XXX
         ReduceParser parser = new ReduceParser(tok);
         parser.setNamespaceSet(nss);
+        
 
         // TODO: implement better exeption-handling
         Term result = null;
         try {
             result = parser.predicate();
-            // System.out.println("PARSER: Parsing successful");
+            System.out.println("PARSER: Parsing successful: " + result);
         } catch (RecognitionException e) {
             e.printStackTrace();
         }

@@ -82,14 +82,14 @@ public class Reduce implements IQuantifierEliminator {
 				e.printStackTrace();
 			}
 			FileReader f = new FileReader(tmp);
-			
+
 			String res = "";
 			int next;
-			while((next = f.read()) != -1) {
+			while ((next = f.read()) != -1) {
 				res += (char) next;
 			}
 			tmp.delete();
-			System.out.println("Output of redlog is " + res);//XXX
+			System.out.println("Output of redlog is " + res);// XXX
 			Term parsedTerm = String2TermConverter.convert(res, nss);
 			return parsedTerm;
 		} catch (IOException e) {
@@ -98,17 +98,16 @@ public class Reduce implements IQuantifierEliminator {
 		}
 		// System.out.println("QEPCAD : Result                : " + res);
 		//
-		
 
 		// return parsedTerm;
 		return null;
 	}
 
 	private String generateInput(String input, File tmp) {
-		return "load_package redlog; off rlverbose; rlset R; redlog_phi := "
-				+ input + ";" + "off nat; out \"" + tmp.getAbsolutePath()
-				+ "\"; rlqe redlog_phi; shut \"" + tmp.getAbsolutePath()
-				+ "\"; quit;\n";
+		return "load_package redlog; off rlverbose; rlset R; "
+				+ "redlog_phi := " + input + ";" + "off nat; out \""
+				+ tmp.getAbsolutePath() + "\"; rlqe redlog_phi; shut \""
+				+ tmp.getAbsolutePath() + "\"; quit;\n";
 	}
 
 	public Term reduce(Term query,

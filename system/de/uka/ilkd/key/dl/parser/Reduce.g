@@ -70,6 +70,25 @@ grammar Reduce;
             		}
         		}     
     	}
+    	
+    	    // ensure the lexer does not silently skip over unrecognized tokens
+    protected void mismatch(IntStream input, int ttype, BitSet follow)
+    throws RecognitionException {
+        throw new MismatchedTokenException(ttype, input);
+    }
+
+    // ensure the lexer does not silently skip over unrecognized tokens
+    public Object recoverFromMismatchedSet(IntStream input, RecognitionException exe, BitSet follow)
+    throws RecognitionException {
+        throw exe;
+    }
+}
+
+@rulecatch {
+    // ensure the lexer does not silently skip over unrecognized tokens
+    catch (RecognitionException exe) {
+        throw exe;
+    }
 }
 
 // Parser Rules
@@ -78,22 +97,21 @@ formula returns [Term t ]		: 	(st = logic { t = st; }) EOF;
 
 /* Logical expressions */
 logic returns [ Term t ]		:	e = logic_biimpl { t = e; }; // Lesbarkeit
-logic_biimpl returns [ Term t ]	:	e = logic_impl { t = e; } ( BIMPL f = logic_biimpl { t = tb.equiv(e, f); })?;
+logic_biimpl returns [ Term t ]	:	e = logic_impl { t = e; } ( BIMPL f = logic_impl { t = tb.equiv(t, f); })*;
 logic_impl returns [ Term t ]	:	e = logic_or { t = e; } 
-							( (IMPL_R f = logic_impl {t = tb.imp(e,f); })|
-							( IMPL_L f = logic_impl { t = tb.imp(f,e); }) )?;
-logic_or returns [ Term t ]		: 	e = logic_and {t = e;} ( OR f = logic_or { t = tb.or(e,f); } )?;	
-logic_and returns [Term t]		:	e = predicate{ t = e; } ( AND f = logic_and { t = tb.and(e,f); })?;
+							( (IMPL_R f = logic_or {t = tb.imp(t,f); })|
+							( IMPL_L f = logic_or { t = tb.imp(f,t); }) )*;
+logic_or returns [ Term t ]		: 	e = logic_and {t = e;} ( OR f = logic_and { t = tb.or(t,f); } )*;	
+logic_and returns [Term t]		:	e = predicate{ t = e; } ( AND f = predicate { t = tb.and(t,f); })*;
 
 					
-predicate returns [Term t]		:	( (expression (pred_func | EQ)) => (e = expression )  
-							((func = pred_func f = expression { t = tb.func( func, e, f );} ) |
-							(EQ f = expression { t = tb.equals( e, f ); }) ))
-						
-						| ( LP e = logic RP ) { t = e; }
+predicate returns [Term t]		:	( LP e = logic RP ) { t = e; }
 						| ( NOT e = predicate { t = tb.not(e); })
 						| (TRUE { t = tb.tt(); } ) 
-						| (FALSE { t = tb.ff(); } );	
+						| (FALSE { t = tb.ff(); } )
+						| (expression (pred_func | EQ) expression) => ((e = expression )  
+							((func = pred_func f = expression { t = tb.func( func, e, f );} ) |
+							(EQ f = expression { t = tb.equals( e, f ); }) ));	
 											
 pred_func returns [ Function f ]	:	GT { f = RealLDT.getFunctionFor(Greater.class);} |
 						LT { f = RealLDT.getFunctionFor(Less.class);} |
@@ -126,9 +144,9 @@ FALSE:	'false';
 
 AND	:	'and' ; // OK
 OR	:	'or'; // OK
-BIMPL:	'<==>'; // Untested	
-IMPL_R:	'==>'; // Untested	
-IMPL_L:	'<=='; // Untested	
+BIMPL:	'equiv'; // Untested	
+IMPL_R:	'impl'; // Untested	
+IMPL_L:	'repl'; // Untested	
 NOT	:	 'not'; 
 
 GE	:	'>='; //OK

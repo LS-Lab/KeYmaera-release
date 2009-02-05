@@ -223,9 +223,9 @@ public class Term2ReduceConverter {
 						+ convert2String(form.sub(1), nss, eliminateFractions)
 						+ "))";
 			} else if (form.op() == Junctor.IMP) {
-				return "( not ("
+				return "(("
 						+ convert2String(form.sub(0), nss, eliminateFractions)
-						+ ") or ("
+						+ ") impl ("
 						+ convert2String(form.sub(1), nss, eliminateFractions)
 						+ "))";
 			} else if (form.op() == Junctor.NOT) {
