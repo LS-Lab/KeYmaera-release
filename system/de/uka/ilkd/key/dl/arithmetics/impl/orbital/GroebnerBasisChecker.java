@@ -71,12 +71,14 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 		// we try to get a contradiction by computing the groebner basis of all
 		// the equalities. if the common basis contains a constant part, the
 		// equality system is unsatisfiable, thus we can close this goal
-		Function groebnerBasis = orbital.math.AlgebraicAlgorithms.reduce(
-				classify2.h, AlgebraicAlgorithms.DEGREE_REVERSE_LEXICOGRAPHIC);
+		Set gB = AlgebraicAlgorithms.groebnerBasis(classify2.h,
+				AlgebraicAlgorithms.DEGREE_REVERSE_LEXICOGRAPHIC);
+		Function groebnerBasis = orbital.math.AlgebraicAlgorithms.reduce(gB,
+				AlgebraicAlgorithms.DEGREE_REVERSE_LEXICOGRAPHIC);
 		System.out.println(groebnerBasis);
 		Polynomial apply = (Polynomial) groebnerBasis.apply(classify2.h
 				.iterator().next().one());
-		System.out.println(apply);//XXX
+		System.out.println(apply);// XXX
 		if (apply.equals(apply.zero())) {
 			System.out.println(apply + " is equal to " + apply.zero());
 			return true;
@@ -88,14 +90,15 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 			for (Polynomial g : classify2.g) {
 				System.out.println("Testing " + g);
 				Polynomial reduce = (Polynomial) groebnerBasis.apply(g);
-				
-				// TODO 
+
+				// TODO
 				if (reduce.equals(reduce.zero())) {
 					return true;
 				}
 			}
 		}
-		// now we try to not reduce one to zero in the groebner basis {h1,...,hn,(g*t)-1}
+		// now we try to not reduce one to zero in the groebner basis
+		// {h1,...,hn,(g*t)-1}
 		if (!classify2.g.isEmpty()) {
 			int[] size = new int[apply.rank()];
 			// the last variable is unused
@@ -105,14 +108,21 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 				Set<Polynomial> curPolies = new HashSet<Polynomial>(classify2.h);
 				Polynomial ng = (Polynomial) g.multiply(t).subtract(t.one());
 				curPolies.add(ng);
-				System.out.println("Creating groebner basis for " + curPolies);//XXX
-				Function curGroebnerBasis = orbital.math.AlgebraicAlgorithms.reduce(
-						curPolies, AlgebraicAlgorithms.DEGREE_REVERSE_LEXICOGRAPHIC);
-				
-				Polynomial reduce = (Polynomial) curGroebnerBasis.apply(ng.one());
-				
+				System.out.println("Creating groebner basis for " + curPolies);// XXX
+				Set curgB = AlgebraicAlgorithms.groebnerBasis(curPolies,
+						AlgebraicAlgorithms.DEGREE_REVERSE_LEXICOGRAPHIC);
+				Function curGroebnerBasis = orbital.math.AlgebraicAlgorithms
+						.reduce(
+								curgB,
+								AlgebraicAlgorithms.DEGREE_REVERSE_LEXICOGRAPHIC);
+
+				Polynomial reduce = (Polynomial) curGroebnerBasis.apply(ng
+						.one());
+
 				if (!reduce.equals(reduce.zero())) {
-					System.out.println("We could not reduce 1 to 0 in the prior GB + " + ng);//XXX
+					System.out
+							.println("We could not reduce 1 to 0 in the prior GB + "
+									+ ng);// XXX
 					return true;
 				}
 			}

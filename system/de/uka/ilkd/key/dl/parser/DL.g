@@ -25,7 +25,7 @@ options {
     }
 
     // ensure the lexer does not silently skip over unrecognized tokens
-    public void recoverFromMismatchedSet(IntStream input, RecognitionException e, BitSet follow)
+    public Object recoverFromMismatchedSet(IntStream input, RecognitionException e, BitSet follow)
     throws RecognitionException {
         throw e;
     }

@@ -334,7 +334,8 @@ ANTLR_PARSER= \
 	$(GENERATED_SRC_PATH)$(PFX)util/keydoc/parser/KeYDocTreeWalker.java \
 	$(GENERATED_SRC_PATH)$(PFX)dl/parser/DLParser.java \
 	$(GENERATED_SRC_PATH)$(PFX)dl/parser/DLStage2.java \
-	$(GENERATED_SRC_PATH)$(PFX)dl/parser/QepcadParser.java 
+	$(GENERATED_SRC_PATH)$(PFX)dl/parser/QepcadParser.java \
+	$(GENERATED_SRC_PATH)$(PFX)dl/parser/ReduceParser.java 
 
 
 
@@ -662,6 +663,11 @@ $(DL_GEN_PFX)DLStage2.java: $(DL_PFX)DLStage2.g $(DL_GEN_PFX)DL.tokens
 
 $(DL_GEN_PFX)QepcadParser.java: $(DL_PFX)Qepcad.g $(DL_GEN_PFX)DL.tokens
 	@echo [creating Qepcad parser]
+	@mkdir -p $(DL_GEN_PFX)
+	@$(ANTLR3) -lib $(DL_GEN_PFX) -o $(GENERATED_SRC_PATH) $<
+
+$(DL_GEN_PFX)ReduceParser.java: $(DL_PFX)Reduce.g $(DL_GEN_PFX)DL.tokens
+	@echo [creating Reduce parser]
 	@mkdir -p $(DL_GEN_PFX)
 	@$(ANTLR3) -lib $(DL_GEN_PFX) -o $(GENERATED_SRC_PATH) $<
 

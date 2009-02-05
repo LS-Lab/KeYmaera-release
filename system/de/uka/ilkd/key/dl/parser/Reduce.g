@@ -1,6 +1,6 @@
-grammar Qepcad;
+grammar Reduce;
 
-// by Timo Michelsen
+// by Jan-David Quesel
 
 @header {
 	package de.uka.ilkd.key.dl.parser;
@@ -70,6 +70,25 @@ grammar Qepcad;
             		}
         		}     
     	}
+    	
+    	    // ensure the lexer does not silently skip over unrecognized tokens
+    protected void mismatch(IntStream input, int ttype, BitSet follow)
+    throws RecognitionException {
+        throw new MismatchedTokenException(ttype, input);
+    }
+
+    // ensure the lexer does not silently skip over unrecognized tokens
+    public Object recoverFromMismatchedSet(IntStream input, RecognitionException exe, BitSet follow)
+    throws RecognitionException {
+        throw exe;
+    }
+}
+
+@rulecatch {
+    // ensure the lexer does not silently skip over unrecognized tokens
+    catch (RecognitionException exe) {
+        throw exe;
+    }
 }
 
 // Parser Rules
@@ -78,22 +97,21 @@ formula returns [Term t ]		: 	(st = logic { t = st; }) EOF;
 
 /* Logical expressions */
 logic returns [ Term t ]		:	e = logic_biimpl { t = e; }; // Lesbarkeit
-logic_biimpl returns [ Term t ]	:	e = logic_impl { t = e; } ( BIMPL f = logic_biimpl { t = tb.equiv(e, f); })?;
+logic_biimpl returns [ Term t ]	:	e = logic_impl { t = e; } ( BIMPL f = logic_impl { t = tb.equiv(t, f); })*;
 logic_impl returns [ Term t ]	:	e = logic_or { t = e; } 
-							( (IMPL_R f = logic_impl {t = tb.imp(e,f); })|
-							( IMPL_L f = logic_impl { t = tb.imp(f,e); }) )?;
-logic_or returns [ Term t ]		: 	e = logic_and {t = e;} ( OR f = logic_or { t = tb.or(e,f); } )?;	
-logic_and returns [Term t]		:	e = predicate{ t = e; } ( AND f = logic_and { t = tb.and(e,f); })?;
+							( (IMPL_R f = logic_or {t = tb.imp(t,f); })|
+							( IMPL_L f = logic_or { t = tb.imp(f,t); }) )*;
+logic_or returns [ Term t ]		: 	e = logic_and {t = e;} ( OR f = logic_and { t = tb.or(t,f); } )*;	
+logic_and returns [Term t]		:	e = predicate{ t = e; } ( AND f = predicate { t = tb.and(t,f); })*;
 
 					
-predicate returns [Term t]		:	( e = expression )  
+predicate returns [Term t]		:	( LP e = logic RP ) { t = e; }
+						| ( NOT e = predicate { t = tb.not(e); })
+						| (TRUE { t = tb.tt(); } ) 
+						| (FALSE { t = tb.ff(); } )
+						| (expression (pred_func | EQ) expression) => ((e = expression )  
 							((func = pred_func f = expression { t = tb.func( func, e, f );} ) |
-							(EQ f = expression { t = tb.equals( e, f ); }) )
-						
-						| ( LB e = logic RB ) { t = e; }
-						| ( NOT e = predicate { t = tb.not(e); }) |
-						( TRUE { t = tb.tt(); } ) |
-						( FALSE { t = tb.ff(); } );	
+							(EQ f = expression { t = tb.equals( e, f ); }) ));	
 											
 pred_func returns [ Function f ]	:	GT { f = RealLDT.getFunctionFor(Greater.class);} |
 						LT { f = RealLDT.getFunctionFor(Less.class);} |
@@ -106,7 +124,8 @@ expression returns [ Term t ]	:	e = expr_add { t = e; }; // Lesbarkeit
 expr_add returns [Term t ]		:	e = expr_sub { t = e; } ( ADD f = expr_add { t = tb.func((Function)nss.functions().lookup( new Name("add")),e,f); } )?; 
 
 expr_sub returns [ Term t ]		:	e = expr_mul{ t = e; } ( SUB f = expr_sub {  t = tb.func((Function)nss.functions().lookup( new Name("sub")),e,f);} )?;
-expr_mul returns [ Term t ]		:	e = expr_pow{ t = e; } ( f = expr_mul {  t = tb.func((Function)nss.functions().lookup( new Name("mul")),e,f);} )?; 
+expr_mul returns [ Term t ]		:	e = expr_div{ t = e; } ( MUL f = expr_mul {  t = tb.func((Function)nss.functions().lookup( new Name("mul")),e,f);} )?; 
+expr_div returns [ Term t ]		:	e = expr_pow{ t = e; } ( DIV f = expr_div {  t = tb.func((Function)nss.functions().lookup( new Name("div")),e,f);} )?; 
 expr_pow returns [ Term t ]	:	e = expr_atom { t = e; } ( POW f = number { t = tb.func((Function)nss.functions().lookup( new Name("exp")), e, f);})?;
 expr_atom returns [Term t ]	:	( LP st = expression RP { t = st; }) |
 						( st = varOrNum { t = st; } ); 
@@ -120,35 +139,35 @@ number returns [ Term t]		:	n = NUM {t = tb.func(NumberCache.getNumber(BigDecima
 
 // Lexer-Rules
 
-TRUE :	'TRUE';
-FALSE:	'FALSE';
+TRUE :	'true';
+FALSE:	'false';
 
-AND	:	'/\\' ; // OK
-OR	:	'\\/'; // OK
-BIMPL:	'<==>'; // Untested	
-IMPL_R:	'==>'; // Untested	
-IMPL_L:	'<=='; // Untested	
-NOT	:	 '~'; 
+AND	:	'and' ; // OK
+OR	:	'or'; // OK
+BIMPL:	'equiv'; // Untested	
+IMPL_R:	'impl'; // Untested	
+IMPL_L:	'repl'; // Untested	
+NOT	:	 'not'; 
 
 GE	:	'>='; //OK
 GT	:	'>'; // OK
 LT	:	'<'; // OK
 LE	:	'<='; // OK
 EQ	:	'='; // OK
-NE	:	'/=' ; // OK
+NE	:	'<>' ; // OK
 
 ADD	:	'+'; // OK
 SUB	:	'-'; // OK
+MUL	:	'*'; // OK
+DIV	:	'/'; // OK
 
 LP 	:	 '('; //OK
 RP	:	')'; // OK
-LB 	:	 '['; // OK
-RB	:	']'; // OK
 
-POW	:	'^'; // OK
+POW	:	'**'; // OK
 
-WS 	:  	('\t' | ' ' | '\r' | '\n'| '\u000C' )+ { $channel = HIDDEN; };
-NUM 	:   	'0'..'9'* ('0'..'9'| ('.' '0'..'9'+)) ;
-VAR	:	(('a'..'z'|'A'..'Z')('a'..'z'|'A'..'Z'|'0'..'9'|'_')*);
+NUM 	:   '0'..'9'* ('0'..'9'| ('.' '0'..'9'+)) ;
+VAR  	:   ('a'..'z'|'A'..'Z'|'0'..'9'|'_')+ ;
+WS  	:   (' '|'\t'|'\r'|'\n')+ {skip();} ;
 
 

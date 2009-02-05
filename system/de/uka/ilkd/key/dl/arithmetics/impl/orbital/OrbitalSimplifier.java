@@ -111,7 +111,7 @@ public class OrbitalSimplifier implements ISimplifier {
 		return form;
 	}
 
-	private boolean translate(Term form) {
+	private static boolean translate(Term form) {
 		if (form.op() == Op.AND) {
 			for (int i = 0; i < form.arity(); i++) {
 				if (!translate(form.sub(i))) {
@@ -162,7 +162,7 @@ public class OrbitalSimplifier implements ISimplifier {
 				+ form.op() + " of class " + form.op().getClass());
 	}
 
-	private Arithmetic translateArithmetic(Term form) {
+	private static Arithmetic translateArithmetic(Term form) {
 		Arithmetic[] args = new Arithmetic[form.arity()];
 		for (int i = 0; i < form.arity(); i++) {
 			args[i] = translateArithmetic(form.sub(i));
