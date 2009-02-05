@@ -43,15 +43,55 @@ public class Options implements Settings {
 
 	public static final Options INSTANCE = new Options();
 
+	public static enum QuantifierEliminationMethod {
+		RLQE("rlqe", "Virtual Substitution"), RLCAD("rlcad", "Cylindrical algebraic decomposition");
+		
+		private final String method;
+		private final String display;
+		
+		private QuantifierEliminationMethod(String str, String display) {
+			this.method = str;
+			this.display = display;
+		}
+
+		/**
+		 * @return the method
+		 */
+		public String getMethod() {
+			return method;
+		}
+
+		/**
+		 * @return the display
+		 */
+		public String getDisplay() {
+			return display;
+		}
+		
+		/* (non-Javadoc)
+		 * @see java.lang.Enum#toString()
+		 */
+		@Override
+		public String toString() {
+			return display;
+		}
+		
+	}
+	
 	private static final String OPTIONS_REDUCE_BINARY = "[ReduceOptions]reduceBinary";
 
+	private static final String OPTIONS_REDUCE_QUANTIFIER_ELIMINATION_METHOD = "[ReduceOptions]quantifierEliminationMethod";
+
 	private File reduceBinary;
+	
+	private QuantifierEliminationMethod qeMethod;
 
 	private List<SettingsListener> listeners;
 
 	private Options() {
 		listeners = new LinkedList<SettingsListener>();
 		reduceBinary = new File("/");
+		qeMethod = QuantifierEliminationMethod.RLQE;
 	}
 
 	/*
@@ -81,6 +121,10 @@ public class Options implements Settings {
 		if (property != null) {
 			reduceBinary = new File(property);
 		}
+		property = props.getProperty(OPTIONS_REDUCE_QUANTIFIER_ELIMINATION_METHOD);
+		if (property != null) {
+			qeMethod = QuantifierEliminationMethod.valueOf(property);
+		}
 	}
 
 	/*
@@ -90,6 +134,7 @@ public class Options implements Settings {
 	 */
 	public void writeSettings(Properties props) {
 		props.setProperty(OPTIONS_REDUCE_BINARY, reduceBinary.getAbsolutePath());
+		props.setProperty(OPTIONS_REDUCE_QUANTIFIER_ELIMINATION_METHOD, qeMethod.name());
 	}
 
 	/**
@@ -107,6 +152,23 @@ public class Options implements Settings {
 		if (!this.reduceBinary.equals(qepcadPath)) {
 			System.out.println("Setting path to " + qepcadPath);//XXX
 			this.reduceBinary = qepcadPath;
+			firePropertyChanged();
+		}
+	}
+
+	/**
+	 * @return the qeMethod
+	 */
+	public QuantifierEliminationMethod getQeMethod() {
+		return qeMethod;
+	}
+
+	/**
+	 * @param qeMethod the qeMethod to set
+	 */
+	public void setQeMethod(QuantifierEliminationMethod qeMethod) {
+		if(qeMethod != this.qeMethod) {
+			this.qeMethod = qeMethod;
 			firePropertyChanged();
 		}
 	}

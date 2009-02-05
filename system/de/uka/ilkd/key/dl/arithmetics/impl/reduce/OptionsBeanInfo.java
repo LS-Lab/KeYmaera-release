@@ -26,7 +26,10 @@ import java.beans.BeanDescriptor;
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
 import java.beans.SimpleBeanInfo;
+import java.util.ArrayList;
 
+import orbital.awt.TaggedPropertyEditorSupport;
+import de.uka.ilkd.key.dl.arithmetics.impl.reduce.Options.QuantifierEliminationMethod;
 import de.uka.ilkd.key.dl.options.FilePropertyEditor;
 
 /**
@@ -46,7 +49,7 @@ public class OptionsBeanInfo extends SimpleBeanInfo {
 		return d;
 	}
 
-	/*@Override*/
+	/* @Override */
 	public PropertyDescriptor[] getPropertyDescriptors() {
 		try {
 
@@ -56,6 +59,11 @@ public class OptionsBeanInfo extends SimpleBeanInfo {
 							"Reduce Binary",
 							"The path to the reduce binary installation needed to setup the correct environment for the tool",
 							true, false, FilePropertyEditor.class),
+					createDescriptor(
+							"qeMethod",
+							"QuantifierElimination Method",
+							"The method to use for quantifier elimination (virtual substitution (rlqe), Cylindrical algebraic decomposition (rlcad)...)",
+							true, false, QeMethodPropertyEditor.class),
 
 			};
 			return pds;
@@ -100,5 +108,21 @@ public class OptionsBeanInfo extends SimpleBeanInfo {
 			result.setPropertyEditorClass(propertyEditor);
 		}
 		return result;
+	}
+
+	public static class QeMethodPropertyEditor extends
+			TaggedPropertyEditorSupport {
+		public QeMethodPropertyEditor() {
+			super(getNames(QuantifierEliminationMethod.values()),
+					QuantifierEliminationMethod.values());
+		}
+	}
+	
+	private static <E extends Enum<E>> String[] getNames(Enum<E> vals[]) {
+		java.util.List<String> names = new ArrayList<String>();
+		for (Enum<E> r : vals) {
+			names.add(r.toString());
+		}
+		return names.toArray(new String[0]);
 	}
 }

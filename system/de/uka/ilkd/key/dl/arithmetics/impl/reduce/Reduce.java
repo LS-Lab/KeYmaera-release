@@ -1,5 +1,7 @@
 package de.uka.ilkd.key.dl.arithmetics.impl.reduce;
 
+import jargs.gnu.CmdLineParser.Option;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
@@ -101,8 +103,10 @@ public class Reduce implements IQuantifierEliminator {
 	private String generateInput(String input, File tmp) {
 		return "load_package redlog; off rlverbose; rlset R; "
 				+ "redlog_phi := " + input + ";" + "off nat; out \""
-				+ tmp.getAbsolutePath() + "\"; rlqe redlog_phi; shut \""
-				+ tmp.getAbsolutePath() + "\"; quit;\n";
+				+ tmp.getAbsolutePath() + "\"; "
+				+ Options.INSTANCE.getQeMethod().getMethod()
+				+ " redlog_phi; shut \"" + tmp.getAbsolutePath()
+				+ "\"; quit;\n";
 	}
 
 	public Term reduce(Term query,
