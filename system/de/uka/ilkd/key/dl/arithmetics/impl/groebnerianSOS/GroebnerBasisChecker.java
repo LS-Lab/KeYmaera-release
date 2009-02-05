@@ -44,6 +44,7 @@ import de.uka.ilkd.key.dl.arithmetics.exceptions.ServerStatusProblemException;
 import de.uka.ilkd.key.dl.arithmetics.impl.SumOfSquaresChecker;
 import de.uka.ilkd.key.dl.arithmetics.impl.SumOfSquaresChecker.PolynomialClassification;
 import de.uka.ilkd.key.dl.arithmetics.impl.csdp.CSDP;
+import de.uka.ilkd.key.dl.arithmetics.impl.groebnerianSOS.PSDDecomposition.NotPSDException;
 import de.uka.ilkd.key.dl.logic.ldt.RealLDT;
 import de.uka.ilkd.key.dl.model.Unequals;
 import de.uka.ilkd.key.dl.parser.NumberCache;
@@ -193,39 +194,56 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
             
             System.out.println(reducedPoly);
             
-            final double[] homo = reducedPoly.coefficientComparison(consideredMonomials.size());
+            final int monoNum = consideredMonomials.size();
+            final double[] homo = reducedPoly.coefficientComparison(monoNum);
 
             // the inhomogeneous part of the system of equations
             final double[] hetero = new double [reducedPoly.size()];
             Arrays.fill(hetero, 0.0);
             hetero[0] = -1.0; // we have to check that 1+s is in the ideal, hence a one
             
-            final double[] solution =
-                new double [consideredMonomials.size() * consideredMonomials.size()];
+            final double[] approxSolution = new double [monoNum * monoNum];
             
-            int res = CSDP.sdp(consideredMonomials.size(), reducedPoly.size(),
-                               hetero, homo, solution);
+            int res = CSDP.sdp(monoNum, reducedPoly.size(), hetero, homo, approxSolution);
 
             if (res == 0) {
                 System.out.println("Found an approximate solution!");
-                System.out.println(Arrays.toString(solution));
+                System.out.println(Arrays.toString(approxSolution));
                 
                 System.out.println("Trying to recover an exact solution ...");
                 final Matrix exactHomo =
-                    reducedPoly.exactCoefficientComparison(consideredMonomials.size());
+                    reducedPoly.exactCoefficientComparison(monoNum);
                 
                 // we add further constraints to ensure that the found solution
                 // is a symmetric matrix
-                exactHomo.insertRows(symmetryConstraints(consideredMonomials.size()));
+                exactHomo.insertRows(symmetryConstraints(monoNum));
 
                 final Vector exactHetero =
                     Values.getDefault().newInstance(exactHomo.dimensions()[0]);
                 for (int i = 0; i < exactHetero.dimension(); ++i)
                     exactHetero.set(i, Values.getDefault().valueOf(i == 0 ? -1 : 0));
 
-                new FractionisingEquationSolver (exactHomo, exactHetero, solution);
+                final Vector exactSolution =
+                    new FractionisingEquationSolver (exactHomo,
+                                                     exactHetero,
+                                                     approxSolution).exactSolution;
                 
-                return true;
+                // check that the solution is positive semi-definite
+                final Matrix solutionMatrix =
+                    Values.getDefault().newInstance(monoNum, monoNum);
+                for (int i = 0; i < monoNum; ++i)
+                    for (int j = 0; j < monoNum; ++j)
+                        solutionMatrix.set(i, j, exactSolution.get(i * monoNum + j));
+                
+                try {
+                    final PSDDecomposition dec = new PSDDecomposition (solutionMatrix);
+                    System.out.println("Solution is positive semi-definite!");
+                    System.out.println(dec.T);
+                    System.out.println(dec.D);
+                    return true;
+                } catch (NotPSDException e) {
+                    System.out.println(e.getMessage());
+                }
             } else {
                 System.out.println("No solution");
             }
@@ -237,7 +255,6 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
     
     
     private static Matrix symmetryConstraints(int matrixSize) {
-        final Arithmetic zero = Values.getDefault().ZERO();
         final Arithmetic one = Values.getDefault().ONE();
         final Arithmetic minus_one = one.minus();
 
@@ -245,10 +262,7 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
         final int width = matrixSize * matrixSize;
         final Matrix res = Values.getDefault().newInstance(height, width);
         
-        // fill the matrix with zeroes
-        for (int i = 0; i < height; ++i)
-            for (int j = 0; j < width; ++j)
-                res.set(i, j, zero);
+        fill(res, Values.getDefault().ZERO());
         
         // generate the constraints
         int row = 0;
@@ -261,6 +275,14 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
         
         assert (row == height);
         return res;
+    }
+    
+    public static void fill(Matrix m, Arithmetic val) {
+        final int height = m.dimensions()[0];
+        final int width = m.dimensions()[1];
+        for (int i = 0; i < height; ++i)
+            for (int j = 0; j < width; ++j)
+                m.set(i, j, val);
     }
     
     

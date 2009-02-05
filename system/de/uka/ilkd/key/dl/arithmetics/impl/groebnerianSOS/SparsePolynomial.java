@@ -19,7 +19,6 @@
  ***************************************************************************/
 package de.uka.ilkd.key.dl.arithmetics.impl.groebnerianSOS;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -136,11 +135,7 @@ public class SparsePolynomial {
         final Matrix res =
             Values.getDefault().newInstance(polyTerms.size(), matrixLength);
         
-        // fill the matrix with zeroes
-        final Arithmetic zero = Values.getDefault().ZERO();
-        for (int i = 0; i < polyTerms.size(); ++i)
-            for (int j = 0; j < matrixLength; ++j)
-                res.set(i, j, zero);
+        GroebnerBasisChecker.fill(res, Values.getDefault().ZERO());
         
         int row = 1;
         for (Entry<Vector, CoefficientTerm> entry : polyTerms.entrySet()) {
