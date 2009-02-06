@@ -58,71 +58,84 @@ public class OptionsBeanInfo extends SimpleBeanInfo {
 					createDescriptor(
 							"reduceBinary",
 							"Reduce Binary",
-							"<html>The path to the reduce binary installation needed<br>" +
-							"to setup the correct environment for the tool</html>",
+							"<html>The path to the reduce binary installation needed<br>"
+									+ "to setup the correct environment for the tool</html>",
 							false, true, FilePropertyEditor.class),
 					createDescriptor(
 							"qeMethod",
 							"QuantifierElimination Method",
-							"<html>The method to use for quantifier elimination<br>" +
-							"(virtual substitution (rlqe), Cylindrical algebraic<br>" +
-							"decomposition (rlcad)...)</html>",
+							"<html>The method to use for quantifier elimination<br>"
+									+ "(virtual substitution (rlqe), Cylindrical algebraic<br>"
+									+ "decomposition (rlcad)...)</html>",
 							false, true, QeMethodPropertyEditor.class),
+					createDescriptor("rlall", "Use Universal Closure",
+							"If true the formula will be universally closed.",
+							false, false),
+					createDescriptor("rlsimpl", "Simplify formulas",
+									"<html>Simplify. By default this switch is off.<br>" +
+									"With this switch on, the function rlsimpl is applied at the expression<br>" +
+									"evaluation stage. See rlsimpl.<br>" +
+									"Automatically performing formula simplification at the evaluation stage<br>" +
+									"is very similar to the treatment of polynomials or rational functions,<br>" +
+									"which are converted to some normal form. For formulas, however, the<br>" +
+									"simplified equivalent is by no means canonical.</html>",
+									false, false,
+									ReduceSwitchPropertyEditor.class),
 					createDescriptor(
 							"rlqeqsc",
 							"rlqeqsc",
-							"<html>Quantifier elimination (super) quadratic special case.<br>" +
-							"By default these switches are off. They are relevant only in ofsf.<br>" +
-							"If turned on, alternative elimination sets are used for certain<br>" +
-							"special cases by rlqe/rlqea and rlgqe/rlgqea. (see Generic Quantifier<br>" +
-							"Elimination). They will possibly avoid violations of the degree<br>" +
-							"restrictions, but lead to larger results in general. Former versions<br>" +
-							"of redlog without these switches behaved as if rlqeqsc was on and<br>" +
-							"rlqesqsc was off.</html>",
-							true, false, ReduceSwitchPropertyEditor.class),
+							"<html>Quantifier elimination (super) quadratic special case.<br>"
+									+ "By default these switches are off. They are relevant only in ofsf.<br>"
+									+ "If turned on, alternative elimination sets are used for certain<br>"
+									+ "special cases by rlqe/rlqea and rlgqe/rlgqea. (see Generic Quantifier<br>"
+									+ "Elimination). They will possibly avoid violations of the degree<br>"
+									+ "restrictions, but lead to larger results in general. Former versions<br>"
+									+ "of redlog without these switches behaved as if rlqeqsc was on and<br>"
+									+ "rlqesqsc was off.</html>", true, false,
+							ReduceSwitchPropertyEditor.class),
 					createDescriptor(
 							"rlqesqsc",
 							"rlqesqsc",
-							"<html>Quantifier elimination (super) quadratic special case. By default<br>" +
-							"these switches are off. They are relevant only in ofsf. If turned on,<br>" +
-							"alternative elimination sets are used for certain special cases by<br>" +
-							"rlqe/rlqea and rlgqe/rlgqea. (see Generic Quantifier Elimination).<br>" +
-							"They will possibly avoid violations of the degree restrictions, but lead<br>" +
-							"to larger results in general. Former versions of redlog without these<br>" +
-							"switches behaved as if rlqeqsc was on and rlqesqsc was off.</html>",
+							"<html>Quantifier elimination (super) quadratic special case. By default<br>"
+									+ "these switches are off. They are relevant only in ofsf. If turned on,<br>"
+									+ "alternative elimination sets are used for certain special cases by<br>"
+									+ "rlqe/rlqea and rlgqe/rlgqea. (see Generic Quantifier Elimination).<br>"
+									+ "They will possibly avoid violations of the degree restrictions, but lead<br>"
+									+ "to larger results in general. Former versions of redlog without these<br>"
+									+ "switches behaved as if rlqeqsc was on and rlqesqsc was off.</html>",
 							true, false, ReduceSwitchPropertyEditor.class),
 					createDescriptor(
 							"rlqedfs",
 							"rlqedfs",
-							"<html>Quantifier elimination depth first search. By default this switch is off.<br>" +
-							"It is also ignored in the acfsf context. It is ignored with the switch<br>" +
-							"rlqeheu on, which is the default for ofsf. Turning rlqedfs on makes<br>" +
-							"rlqe/rlqea and rlgqe/rlgqea (see Generic Quantifier Elimination) work<br>" +
-							"in a depth first search manner instead of breadth first search. This saves<br>" +
-							"space, and with decision problems, where variable-free atomic formulas can<br>" +
-							"be evaluated to truth values, it might save time. In general, it leads to<br>" +
-							"larger results.</html>",
-							true, false, ReduceSwitchPropertyEditor.class),
+							"<html>Quantifier elimination depth first search. By default this switch is off.<br>"
+									+ "It is also ignored in the acfsf context. It is ignored with the switch<br>"
+									+ "rlqeheu on, which is the default for ofsf. Turning rlqedfs on makes<br>"
+									+ "rlqe/rlqea and rlgqe/rlgqea (see Generic Quantifier Elimination) work<br>"
+									+ "in a depth first search manner instead of breadth first search. This saves<br>"
+									+ "space, and with decision problems, where variable-free atomic formulas can<br>"
+									+ "be evaluated to truth values, it might save time. In general, it leads to<br>"
+									+ "larger results.</html>", true, false,
+							ReduceSwitchPropertyEditor.class),
 					createDescriptor(
 							"rlqeheu",
 							"rlqeheu",
-							"<html>Quantifier elimination search heuristic. By default this switch is on<br>" +
-							"in ofsf and off in dvfsf. It is ignored in acfsf. Turning rlqeheu on causes<br>" +
-							"the switch rlqedfs to be ignored. rlqe/rlqea and rlgqe/rlgqea (see Generic<br>" +
-							"Quantifier Elimination) will then decide between breadth first search and depth<br>" +
-							"first search for each quantifier block, where dfs is chosen when the problem<br>" +
-							"is a decision problem.</html>",
-							true, false, ReduceSwitchPropertyEditor.class),
+							"<html>Quantifier elimination search heuristic. By default this switch is on<br>"
+									+ "in ofsf and off in dvfsf. It is ignored in acfsf. Turning rlqeheu on causes<br>"
+									+ "the switch rlqedfs to be ignored. rlqe/rlqea and rlgqe/rlgqea (see Generic<br>"
+									+ "Quantifier Elimination) will then decide between breadth first search and depth<br>"
+									+ "first search for each quantifier block, where dfs is chosen when the problem<br>"
+									+ "is a decision problem.</html>", true,
+							false, ReduceSwitchPropertyEditor.class),
 					createDescriptor(
 							"rlqepnf",
 							"rlqepnf",
-							"<html>Quantifier elimination compute prenex normal form. By default this switch<br>" +
-							"is on, which causes that rlpnf (see Miscellaneous Normal Forms) is applied to formula<br>" +
-							"before starting the elimination process. If the argument formula to rlqe/rlqea or<br>" +
-							"rlgqe/rlgqea (see Generic Quantifier Elimination) is already prenex, this switch can<br>" +
-							"be turned off. This may be useful with formulas containing equiv since rlpnf applies rlnnf,<br>" +
-							"(see Miscellaneous Normal Forms), and resolving equivalences can double the size of a formula.<br>" +
-							"rlqepnf is ignored in acfsf, since nnf is necessary for elimination there.</html>",
+							"<html>Quantifier elimination compute prenex normal form. By default this switch<br>"
+									+ "is on, which causes that rlpnf (see Miscellaneous Normal Forms) is applied to formula<br>"
+									+ "before starting the elimination process. If the argument formula to rlqe/rlqea or<br>"
+									+ "rlgqe/rlgqea (see Generic Quantifier Elimination) is already prenex, this switch can<br>"
+									+ "be turned off. This may be useful with formulas containing equiv since rlpnf applies rlnnf,<br>"
+									+ "(see Miscellaneous Normal Forms), and resolving equivalences can double the size of a formula.<br>"
+									+ "rlqepnf is ignored in acfsf, since nnf is necessary for elimination there.</html>",
 							true, false, ReduceSwitchPropertyEditor.class),
 					createDescriptor("rlcadfac", "rlcadfac",
 							"Factorisation. This is on by default. ", true,
@@ -141,14 +154,14 @@ public class OptionsBeanInfo extends SimpleBeanInfo {
 							true, false, ReduceSwitchPropertyEditor.class),
 					createDescriptor("rlcadte", "rlcadte",
 							"<html>Trial evaluation, the first improvement to partial CAD.<br>"
-									+ " This is turned on by default.</html>", true,
-							false, ReduceSwitchPropertyEditor.class),
+									+ " This is turned on by default.</html>",
+							true, false, ReduceSwitchPropertyEditor.class),
 					createDescriptor(
 							"rlcadpbfvs",
 							"rlcadpbfvs",
 							"<html>Propagation below free variable space, the second improvement to partial CAD.<br>"
-									+ "This is turned on by default.</html>", true,
-							false, ReduceSwitchPropertyEditor.class),
+									+ "This is turned on by default.</html>",
+							true, false, ReduceSwitchPropertyEditor.class),
 					createDescriptor(
 							"rlcadfulldimonly",
 							"rlcadfulldimonly",
@@ -201,28 +214,28 @@ public class OptionsBeanInfo extends SimpleBeanInfo {
 					createDescriptor(
 							"rlcadhongproj",
 							"rlcadhongproj",
-							"<html>Hong projection. This is on by default.<br>" +
-							"If turned on, Hong's improvement for the projection operator is used.</html>",
+							"<html>Hong projection. This is on by default.<br>"
+									+ "If turned on, Hong's improvement for the projection operator is used.</html>",
 							true, false, ReduceSwitchPropertyEditor.class),
 					createDescriptor(
 							"rlanuexpsremseq",
 							"rlanuexpsremseq",
-							"<html>Pseudo remainder sequences. This is turned off by default.<br>" +
-							"This switch decides, whether division or pseudo division is used for<br>" +
-							"sturm chains.</html>",
-							true, false, ReduceSwitchPropertyEditor.class),
+							"<html>Pseudo remainder sequences. This is turned off by default.<br>"
+									+ "This switch decides, whether division or pseudo division is used for<br>"
+									+ "sturm chains.</html>", true, false,
+							ReduceSwitchPropertyEditor.class),
 					createDescriptor(
 							"rlanuexgcdnormalize",
 							"rlanuexgcdnormalize",
-							"<html>GCD normalize. This is turned on by default.<br>" +
-							"If turned on, the GCD is normalized to 1, if it is a constant polynomial.</html>",
+							"<html>GCD normalize. This is turned on by default.<br>"
+									+ "If turned on, the GCD is normalized to 1, if it is a constant polynomial.</html>",
 							true, false, ReduceSwitchPropertyEditor.class),
 					createDescriptor(
 							"rlanuexsgnopt",
 							"rlanuexsgnopt",
-							"<html>Sign optimization. This is turned off by default.<br>" +
-							"If turned on, it is tried to determine the sign of a constant polynomial<br>" +
-							"by calculating a containment.</html>",
+							"<html>Sign optimization. This is turned off by default.<br>"
+									+ "If turned on, it is tried to determine the sign of a constant polynomial<br>"
+									+ "by calculating a containment.</html>",
 							true, false, ReduceSwitchPropertyEditor.class),
 
 			};

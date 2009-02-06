@@ -83,8 +83,10 @@ public class Options implements Settings {
 
 	public static enum ReduceSwitch {
 		ON, OFF, DEFAULT;
-		
-		/* (non-Javadoc)
+
+		/*
+		 * (non-Javadoc)
+		 * 
 		 * @see java.lang.Enum#toString()
 		 */
 		@Override
@@ -96,6 +98,8 @@ public class Options implements Settings {
 	private static final String OPTIONS_REDUCE_BINARY = "[ReduceOptions]reduceBinary";
 
 	private static final String OPTIONS_REDUCE_QUANTIFIER_ELIMINATION_METHOD = "[ReduceOptions]quantifierEliminationMethod";
+
+	private static final String OPTIONS_REDUCE_RLALL = "[ReduceOptions]rlall";
 
 	private static final String OPTIONS_REDUCE_rlanuexsgnopt = "[ReduceOptions]rlanuexsgnopt";
 	private static final String OPTIONS_REDUCE_rlanuexgcdnormalize = "[ReduceOptions]ReduceSwitch rlanuexgcdnormalize";
@@ -119,9 +123,15 @@ public class Options implements Settings {
 	private static final String OPTIONS_REDUCE_rlqedfs = "[ReduceOptions]rlqedfs";
 	private static final String OPTIONS_REDUCE_rlqesqsc = "[ReduceOptions]rlqesqsc";
 	private static final String OPTIONS_REDUCE_rlqeqsc = "[ReduceOptions]rlqeqsc";
+
+	private static final String OPTIONS_REDUCE_RLSIMPL = "[ReduceOptions]rlsimpl";
 	private File reduceBinary;
 
 	private QuantifierEliminationMethod qeMethod;
+
+	private boolean rlall;
+
+	private ReduceSwitch rlsimpl;
 
 	private ReduceSwitch rlqeqsc;
 
@@ -173,6 +183,11 @@ public class Options implements Settings {
 		listeners = new LinkedList<SettingsListener>();
 		reduceBinary = new File("/");
 		qeMethod = QuantifierEliminationMethod.RLQE;
+
+		rlall = false;
+
+		rlsimpl = ReduceSwitch.ON;
+
 		rlqeqsc = ReduceSwitch.DEFAULT;
 
 		rlqesqsc = ReduceSwitch.DEFAULT;
@@ -249,6 +264,14 @@ public class Options implements Settings {
 				.getProperty(OPTIONS_REDUCE_QUANTIFIER_ELIMINATION_METHOD);
 		if (property != null) {
 			qeMethod = QuantifierEliminationMethod.valueOf(property);
+		}
+		property = props.getProperty(OPTIONS_REDUCE_RLALL);
+		if (property != null) {
+			rlall = Boolean.valueOf(property);
+		}
+		property = props.getProperty(OPTIONS_REDUCE_RLSIMPL);
+		if (property != null) {
+			rlsimpl = ReduceSwitch.valueOf(property);
 		}
 		property = props.getProperty(OPTIONS_REDUCE_rlanuexsgnopt);
 		if (property != null) {
@@ -351,6 +374,7 @@ public class Options implements Settings {
 						.getAbsolutePath());
 		props.setProperty(OPTIONS_REDUCE_QUANTIFIER_ELIMINATION_METHOD,
 				qeMethod.name());
+		props.setProperty(OPTIONS_REDUCE_RLALL, Boolean.toString(rlall));
 		props.setProperty(OPTIONS_REDUCE_rlanuexsgnopt, rlanuexsgnopt.name());
 		props.setProperty(OPTIONS_REDUCE_rlanuexgcdnormalize,
 				rlanuexgcdnormalize.name());
@@ -810,6 +834,42 @@ public class Options implements Settings {
 	public void setRlanuexsgnopt(ReduceSwitch rlanuexsgnopt) {
 		if (this.rlanuexsgnopt != rlanuexsgnopt) {
 			this.rlanuexsgnopt = rlanuexsgnopt;
+			firePropertyChanged();
+		}
+	}
+
+	/**
+	 * @return the rlall
+	 */
+	public boolean isRlall() {
+		return rlall;
+	}
+
+	/**
+	 * @param rlall
+	 *            the rlall to set
+	 */
+	public void setRlall(boolean rlall) {
+		if (rlall != this.rlall) {
+			this.rlall = rlall;
+			firePropertyChanged();
+		}
+	}
+
+	/**
+	 * @return the rlsimpl
+	 */
+	public ReduceSwitch getRlsimpl() {
+		return rlsimpl;
+	}
+
+	/**
+	 * @param rlsimpl
+	 *            the rlsimpl to set
+	 */
+	public void setRlsimpl(ReduceSwitch rlsimpl) {
+		if (this.rlsimpl != rlsimpl) {
+			this.rlsimpl = rlsimpl;
 			firePropertyChanged();
 		}
 	}

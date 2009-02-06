@@ -200,9 +200,14 @@ public class Reduce implements IQuantifierEliminator {
 			result += Options.INSTANCE.getRlqesqsc().name().toLowerCase()
 					+ " rlqesqsc; ";
 		}
+		if (Options.INSTANCE.getRlsimpl() != ReduceSwitch.DEFAULT) {
+			result += Options.INSTANCE.getRlsimpl().name().toLowerCase()
+					+ " rlsimpl; ";
+		}
 
-		return result + "redlog_phi := " + input + ";" + "off nat; out \""
-				+ tmp.getAbsolutePath() + "\"; "
+		return result + "redlog_phi := "
+				+ (Options.INSTANCE.isRlall() ? "rlall(" : "(") + input + ");"
+				+ "off nat; out \"" + tmp.getAbsolutePath() + "\"; "
 				+ Options.INSTANCE.getQeMethod().getMethod()
 				+ " redlog_phi; shut \"" + tmp.getAbsolutePath()
 				+ "\"; quit;\n";
