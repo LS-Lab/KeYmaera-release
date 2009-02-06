@@ -17,6 +17,7 @@ import de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ConnectionProblemException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ServerStatusProblemException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
+import de.uka.ilkd.key.dl.arithmetics.impl.reduce.Options.ReduceSwitch;
 import de.uka.ilkd.key.logic.NamespaceSet;
 import de.uka.ilkd.key.logic.Term;
 
@@ -93,6 +94,7 @@ public class Reduce implements IQuantifierEliminator {
 			tmp.delete();
 			System.out.println("Output of redlog is " + res);// XXX
 			Term parsedTerm = String2TermConverter.convert(res, nss);
+			process.destroy();
 			return parsedTerm;
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -101,8 +103,105 @@ public class Reduce implements IQuantifierEliminator {
 	}
 
 	private String generateInput(String input, File tmp) {
-		return "load_package redlog; off rlverbose; rlset R; "
-				+ "redlog_phi := " + input + ";" + "off nat; out \""
+		// TODO: use all those options
+		String result = "load_package redlog; off rlverbose; rlset R; ";
+
+		if (Options.INSTANCE.getRlanuexgcdnormalize() != ReduceSwitch.DEFAULT) {
+			result += Options.INSTANCE.getRlanuexgcdnormalize().name()
+					.toLowerCase()
+					+ " rlanuexgcdnormalize; ";
+		}
+		if (Options.INSTANCE.getRlanuexpsremseq() != ReduceSwitch.DEFAULT) {
+			result += Options.INSTANCE.getRlanuexpsremseq().name()
+					.toLowerCase()
+					+ " rlanuexpsremseq; ";
+		}
+		if (Options.INSTANCE.getRlanuexsgnopt() != ReduceSwitch.DEFAULT) {
+			result += Options.INSTANCE.getRlanuexsgnopt().name().toLowerCase()
+					+ " rlanuexsgnopt; ";
+		}
+		if (Options.INSTANCE.getRlcadaproj() != ReduceSwitch.DEFAULT) {
+			result += Options.INSTANCE.getRlcadaproj().name().toLowerCase()
+					+ " rlcadaproj; ";
+		}
+		if (Options.INSTANCE.getRlcadaprojalways() != ReduceSwitch.DEFAULT) {
+			result += Options.INSTANCE.getRlcadaprojalways().name()
+					.toLowerCase()
+					+ " rlcadaprojalways; ";
+		}
+		if (Options.INSTANCE.getRlcadbaseonly() != ReduceSwitch.DEFAULT) {
+			result += Options.INSTANCE.getRlcadbaseonly().name().toLowerCase()
+					+ " rlcadbaseonly; ";
+		}
+		if (Options.INSTANCE.getRlcadextonly() != ReduceSwitch.DEFAULT) {
+			result += Options.INSTANCE.getRlcadextonly().name().toLowerCase()
+					+ " rlcadextonly; ";
+		}
+		if (Options.INSTANCE.getRlcadfac() != ReduceSwitch.DEFAULT) {
+			result += Options.INSTANCE.getRlcadfac().name().toLowerCase()
+					+ " rlcadfac; ";
+		}
+		if (Options.INSTANCE.getRlcadfulldimonly() != ReduceSwitch.DEFAULT) {
+			result += Options.INSTANCE.getRlcadfulldimonly().name()
+					.toLowerCase()
+					+ " rlcadfulldimonly; ";
+		}
+		if (Options.INSTANCE.getRlcadhongproj() != ReduceSwitch.DEFAULT) {
+			result += Options.INSTANCE.getRlcadhongproj().name().toLowerCase()
+					+ " rlcadhongproj; ";
+		}
+		if (Options.INSTANCE.getRlcadisoallroots() != ReduceSwitch.DEFAULT) {
+			result += Options.INSTANCE.getRlcadisoallroots().name()
+					.toLowerCase()
+					+ " rlcadisoallroots; ";
+		}
+		if (Options.INSTANCE.getRlcadpartial() != ReduceSwitch.DEFAULT) {
+			result += Options.INSTANCE.getRlcadpartial().name().toLowerCase()
+					+ " rlcadpartial; ";
+		}
+		if (Options.INSTANCE.getRlcadpbfvs() != ReduceSwitch.DEFAULT) {
+			result += Options.INSTANCE.getRlcadpbfvs().name().toLowerCase()
+					+ " rlcadpbfvs; ";
+		}
+		if (Options.INSTANCE.getRlcadprojonly() != ReduceSwitch.DEFAULT) {
+			result += Options.INSTANCE.getRlcadprojonly().name().toLowerCase()
+					+ " rlcadprojonly; ";
+		}
+		if (Options.INSTANCE.getRlcadrawformula() != ReduceSwitch.DEFAULT) {
+			result += Options.INSTANCE.getRlcadrawformula().name()
+					.toLowerCase()
+					+ " rlcadrawformula; ";
+		}
+		if (Options.INSTANCE.getRlcadte() != ReduceSwitch.DEFAULT) {
+			result += Options.INSTANCE.getRlcadte().name().toLowerCase()
+					+ " rlcadte; ";
+		}
+		if (Options.INSTANCE.getRlcadtrimtree() != ReduceSwitch.DEFAULT) {
+			result += Options.INSTANCE.getRlcadtrimtree().name().toLowerCase()
+					+ " rlcadtrimtree; ";
+		}
+		if (Options.INSTANCE.getRlqedfs() != ReduceSwitch.DEFAULT) {
+			result += Options.INSTANCE.getRlqedfs().name().toLowerCase()
+					+ " rlqedfs; ";
+		}
+		if (Options.INSTANCE.getRlqeheu() != ReduceSwitch.DEFAULT) {
+			result += Options.INSTANCE.getRlqeheu().name().toLowerCase()
+					+ " rlqeheu; ";
+		}
+		if (Options.INSTANCE.getRlqepnf() != ReduceSwitch.DEFAULT) {
+			result += Options.INSTANCE.getRlqepnf().name().toLowerCase()
+					+ " rlqepnf; ";
+		}
+		if (Options.INSTANCE.getRlqeqsc() != ReduceSwitch.DEFAULT) {
+			result += Options.INSTANCE.getRlqeqsc().name().toLowerCase()
+					+ " rlqeqsc; ";
+		}
+		if (Options.INSTANCE.getRlqesqsc() != ReduceSwitch.DEFAULT) {
+			result += Options.INSTANCE.getRlqesqsc().name().toLowerCase()
+					+ " rlqesqsc; ";
+		}
+
+		return result + "redlog_phi := " + input + ";" + "off nat; out \""
 				+ tmp.getAbsolutePath() + "\"; "
 				+ Options.INSTANCE.getQeMethod().getMethod()
 				+ " redlog_phi; shut \"" + tmp.getAbsolutePath()
