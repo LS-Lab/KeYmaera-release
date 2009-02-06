@@ -48,11 +48,8 @@ import de.uka.ilkd.key.dl.model.GreaterEquals;
 import de.uka.ilkd.key.dl.model.Less;
 import de.uka.ilkd.key.dl.model.LessEquals;
 import de.uka.ilkd.key.dl.model.Minus;
-import de.uka.ilkd.key.dl.model.MinusSign;
 import de.uka.ilkd.key.dl.model.Unequals;
 import de.uka.ilkd.key.dl.parser.NumberCache;
-import de.uka.ilkd.key.gui.Main;
-import de.uka.ilkd.key.logic.Name;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.TermBuilder;
 import de.uka.ilkd.key.logic.op.Equality;
@@ -118,13 +115,24 @@ public class SumOfSquaresChecker {
 			Term sub, sub2;
 			Operator op;
 			if (t.op().equals(Op.NOT)) {
+				if (t.sub(0).arity() != 2) {
+					continue;
+				}
 				sub = t.sub(0).sub(0);
 				sub2 = t.sub(0).sub(1);
 				op = t.sub(0).op();
 			} else {
+				if (t.arity() != 2) {
+					continue;
+				}
 				sub = t.sub(0);
 				sub2 = t.sub(1);
 				op = negationLookUp(t.op());
+			}
+			if (!(t.op() == gt || t.op() == geq || t.op() == Equality.EQUALS
+					|| t.op() == leq || t.op() == lt || t.op() == neq)) {
+				// we can only handle arithmetic predicates
+				continue;
 			}
 			if (!(sub.equals(zero) || sub2.equals(zero))) {
 				sub = TermBuilder.DF.func(RealLDT.getFunctionFor(Minus.class),
@@ -159,6 +167,11 @@ public class SumOfSquaresChecker {
 				sub = t.sub(0);
 				sub2 = t.sub(1);
 				op = t.op();
+			}
+			if (!(t.op() == gt || t.op() == geq || t.op() == Equality.EQUALS
+					|| t.op() == leq || t.op() == lt || t.op() == neq)) {
+				// we can only handle arithmetic predicates
+				continue;
 			}
 			if (!(sub.equals(zero) || sub2.equals(zero))) {
 				sub = TermBuilder.DF.func(RealLDT.getFunctionFor(Minus.class),
@@ -208,7 +221,8 @@ public class SumOfSquaresChecker {
 								.getFunctionFor(Minus.class), t.sub(0), t
 								.sub(1)), zero));
 			} else if (t.op().equals(gt)) {
-				// the term is x > y thus we add x - y >= 0 to F and x - y != 0 to G
+				// the term is x > y thus we add x - y >= 0 to F and x - y != 0
+				// to G
 				f.add(TermBuilder.DF
 						.func(geq, TermBuilder.DF.func(RealLDT
 								.getFunctionFor(Minus.class), t.sub(0), t
@@ -219,11 +233,13 @@ public class SumOfSquaresChecker {
 								.sub(1)), zero));
 			} else if (t.op().equals(leq)) {
 				// switch arguments to turn x <= y into y - x >= 0
-				f.add(TermBuilder.DF.func(geq, TermBuilder.DF.func(RealLDT
-						.getFunctionFor(Minus.class), t.sub(1), t
-						.sub(0)), zero));
+				f.add(TermBuilder.DF
+						.func(geq, TermBuilder.DF.func(RealLDT
+								.getFunctionFor(Minus.class), t.sub(1), t
+								.sub(0)), zero));
 			} else if (t.op().equals(lt)) {
-				// the term is x < y thus we add y - x >= 0 to F and y - x != 0 to G
+				// the term is x < y thus we add y - x >= 0 to F and y - x != 0
+				// to G
 				f.add(TermBuilder.DF
 						.func(geq, TermBuilder.DF.func(RealLDT
 								.getFunctionFor(Minus.class), t.sub(1), t
