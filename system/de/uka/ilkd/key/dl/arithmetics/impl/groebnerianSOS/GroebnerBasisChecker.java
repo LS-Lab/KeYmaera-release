@@ -35,6 +35,7 @@ import orbital.math.Matrix;
 import orbital.math.Polynomial;
 import orbital.math.Values;
 import orbital.math.Vector;
+import orbital.math.functional.Operations;
 
 import org.w3c.dom.Node;
 
@@ -68,6 +69,7 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
     public boolean checkForConstantGroebnerBasis(PolynomialClassification<Term> terms,
 	                                         Services services) {
 	final Set<Polynomial> polys = extractPolynomials(terms);
+        final Polynomial one = (Polynomial)polys.iterator().next().one();
 	
 	// we try to get a contradiction by computing the groebner basis of all
 	// the equalities. if the common basis contains a constant part, the
@@ -83,8 +85,7 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 	for (Polynomial p : groebnerBasis)
 	    System.out.println(p);
 	
-	final Polynomial oneReduced =
-	    (Polynomial) groebnerReducer.apply(polys.iterator().next().one());
+        final Polynomial oneReduced = (Polynomial) groebnerReducer.apply(one);
 	System.out.println(oneReduced);
 	if (oneReduced.isZero()) {
 	    System.out.println("Groebner basis is trivial and contains a unit");
@@ -95,7 +96,29 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 	// in the ideal
 	final Iterator<Vector> monomials =
 	    new SimpleMonomialIterator(indexNum(groebnerBasis), 2);
-	return checkSOS(monomials, groebnerBasis, groebnerReducer);
+        final Square[] cert = checkSOS(monomials, groebnerBasis, groebnerReducer);
+        
+        if (cert != null) {
+            // check that the certificate is correct
+            
+            System.out.println("Certificate:");
+            System.out.println(" 1");
+            
+            Polynomial p = one;
+            for (int i = 0; i < cert.length; ++i) {
+                assert (Operations.greaterEqual.apply(cert[i].coefficient,
+                                                      Values.getDefault().ZERO()));
+                p = (Polynomial) p.add(cert[i].body.multiply(cert[i].body)
+                                                   .scale(cert[i].coefficient));
+                System.out.println(" + " + cert[i].coefficient + " * ( " + cert[i].body + " ) ^2");
+            }
+            System.out.println(" =");
+            System.out.println(" " + p);
+            assert (((Polynomial) groebnerReducer.apply(p)).isZero());
+            System.out.println("Certificate is correct");
+            return true;
+        }
+        return false;
     }
 
 
@@ -153,9 +176,9 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
         return res;
     }
     
-    private boolean checkSOS(Iterator<Vector> monomials,
-                             Set<Polynomial> groebnerBasis,
-                             Function groebnerReducer) {
+    private Square[] checkSOS(Iterator<Vector> monomials,
+                              Set<Polynomial> groebnerBasis,
+                              Function groebnerReducer) {
         
         final Arithmetic two = Values.getDefault().rational(2);
         
@@ -204,68 +227,105 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
             
             final double[] approxSolution = new double [monoNum * monoNum];
             
-            int res = CSDP.sdp(monoNum, reducedPoly.size(), hetero, homo, approxSolution);
+            int sdpRes =
+                CSDP.sdp(monoNum, reducedPoly.size(), hetero, homo, approxSolution);
 
-            if (res == 0) {
+            if (sdpRes == 0) {
                 System.out.println("Found an approximate solution!");
                 System.out.println(Arrays.toString(approxSolution));
                 
-                System.out.println("Trying to recover an exact solution ...");
-                final Matrix exactHomo =
-                    reducedPoly.exactCoefficientComparison(monoNum);
-                
-                // we add further constraints to ensure that the found solution
-                // is a symmetric matrix
-                exactHomo.insertRows(symmetryConstraints(monoNum));
-
-                final Vector exactHetero =
-                    Values.getDefault().newInstance(exactHomo.dimensions()[0]);
-                for (int i = 0; i < exactHetero.dimension(); ++i)
-                    exactHetero.set(i, Values.getDefault().valueOf(i == 0 ? -1 : 0));
-
-                double eps = 0.1;
-                
-                while (eps > 0.000000001) {
-                    System.out.println();
-                    System.out.println("Trying eps: " + eps);
-
-                    final Vector exactSolution = new FractionisingEquationSolver(
-                            exactHomo, exactHetero, approxSolution, eps).exactSolution;
-                    System.out.println(exactSolution);
-                    
-                    System.out.println("Difference to approx solution:");
-                    System.out.println(exactSolution.subtract(Values.getDefault().valueOf(approxSolution)));
-                    
-                    // check that the solution is positive semi-definite
-                    final Matrix solutionMatrix =
-                        Values.getDefault().newInstance(monoNum, monoNum);
-                    for (int i = 0; i < monoNum; ++i)
-                        for (int j = 0; j < monoNum; ++j)
-                            solutionMatrix.set(i, j,
-                                               exactSolution.get(i * monoNum + j));
-
-                    System.out.println(solutionMatrix);
-
-                    try {
-                        final PSDDecomposition dec =
-                            new PSDDecomposition(solutionMatrix);
-                        System.out.println("Solution is positive semi-definite");
-                        System.out.println(dec.T);
-                        System.out.println(dec.D);
-                        return true;
-                    } catch (NotPSDException e) {
-                        System.out.println(e.getMessage());
-                    }
-                    
-                    eps = eps / 10;
-                }
+                final Square[] squares =
+                    approx2Exact(reducedPoly, consideredMonomials, approxSolution);
+                if (squares != null)
+                    return squares;
             } else {
                 System.out.println("No solution");
             }
             
         }
         
-        return false;
+        return null;
+    }
+
+
+    private Square[] approx2Exact(SparsePolynomial reducedPoly,
+                                  List<Vector> consideredMonomials,
+                                  double[] approxSolution) {
+        final int monoNum = consideredMonomials.size();
+
+        System.out.println("Trying to recover an exact solution ...");
+        final Matrix exactHomo =
+            reducedPoly.exactCoefficientComparison(monoNum);
+        
+        // we add further constraints to ensure that the found solution
+        // is a symmetric matrix
+        exactHomo.insertRows(symmetryConstraints(monoNum));
+
+        final Vector exactHetero =
+            Values.getDefault().newInstance(exactHomo.dimensions()[0]);
+        for (int i = 0; i < exactHetero.dimension(); ++i)
+            exactHetero.set(i, Values.getDefault().valueOf(i == 0 ? -1 : 0));
+
+        double eps = 0.1;
+        
+        while (eps > 0.000000001) {
+            System.out.println();
+            System.out.println("Trying eps: " + eps);
+
+            final Vector exactSolution = new FractionisingEquationSolver(
+                    exactHomo, exactHetero, approxSolution, eps).exactSolution;
+            System.out.println(exactSolution);
+            
+            System.out.println("Difference to approx solution:");
+            System.out.println(exactSolution.subtract(Values.getDefault().valueOf(approxSolution)));
+            
+            // check that the solution is positive semi-definite
+            final Matrix solutionMatrix =
+                Values.getDefault().newInstance(monoNum, monoNum);
+            for (int i = 0; i < monoNum; ++i)
+                for (int j = 0; j < monoNum; ++j)
+                    solutionMatrix.set(i, j,
+                                       exactSolution.get(i * monoNum + j));
+
+            System.out.println(solutionMatrix);
+
+            try {
+                final PSDDecomposition dec =
+                    new PSDDecomposition(solutionMatrix);
+                System.out.println("Solution is positive semi-definite");
+                System.out.println(dec.T);
+                System.out.println(dec.D);
+                
+                // generate the certificate (actual squares of polynomials)
+                final Vector monomials =
+                    Values.getDefault().newInstance(monoNum);
+                for (int i = 0; i < monoNum; ++i) {
+                    final Polynomial mono =
+                        Values.getDefault().MONOMIAL(consideredMonomials.get(i));
+                    monomials.set(i, mono);
+                }
+
+                final Polynomial zero =
+                    Values.getDefault().MONOMIAL(Values.getDefault().ZERO(),
+                                                 consideredMonomials.get(0).zero());
+                
+                final Square[] res = new Square [monoNum];
+                for (int i = 0; i < monoNum; ++i) {
+                    Polynomial p = zero;
+                    for (int j = 0; j <= i; ++j)
+                        p = (Polynomial) p.add(monomials.get(j).scale(dec.T.get(j, i)));
+                    res[i] = new Square (dec.D.get(i, i), p);
+                }
+                
+                return res;
+            } catch (NotPSDException e) {
+                System.out.println(e.getMessage());
+            }
+            
+            eps = eps / 10;
+        }
+        
+        return null;
     }
     
     
@@ -292,12 +352,23 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
         return res;
     }
     
+    
     public static void fill(Matrix m, Arithmetic val) {
         final int height = m.dimensions()[0];
         final int width = m.dimensions()[1];
         for (int i = 0; i < height; ++i)
             for (int j = 0; j < width; ++j)
                 m.set(i, j, val);
+    }
+    
+    
+    private static class Square {
+        public final Arithmetic coefficient;
+        public final Polynomial body;
+        public Square(Arithmetic coefficient, Polynomial body) {
+            this.coefficient = coefficient;
+            this.body = body;
+        }
     }
     
     
