@@ -226,7 +226,8 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
             hetero[0] = -1.0; // we have to check that 1+s is in the ideal, hence a one
             
             final double[] approxSolution = new double [monoNum * monoNum];
-            
+            System.out.println(Arrays.toString(homo));
+            System.out.println(Arrays.toString(hetero));
             int sdpRes =
                 CSDP.sdp(monoNum, reducedPoly.size(), hetero, homo, approxSolution);
 
@@ -335,9 +336,7 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 
         final int height = matrixSize * (matrixSize - 1) / 2;
         final int width = matrixSize * matrixSize;
-        final Matrix res = Values.getDefault().newInstance(height, width);
-        
-        fill(res, Values.getDefault().ZERO());
+        final Matrix res = Values.getDefault().ZERO(height, width);
         
         // generate the constraints
         int row = 0;
@@ -350,15 +349,6 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
         
         assert (row == height);
         return res;
-    }
-    
-    
-    public static void fill(Matrix m, Arithmetic val) {
-        final int height = m.dimensions()[0];
-        final int width = m.dimensions()[1];
-        for (int i = 0; i < height; ++i)
-            for (int j = 0; j < width; ++j)
-                m.set(i, j, val);
     }
     
     

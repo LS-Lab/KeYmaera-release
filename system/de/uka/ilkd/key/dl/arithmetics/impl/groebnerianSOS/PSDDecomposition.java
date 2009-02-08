@@ -51,10 +51,8 @@ public class PSDDecomposition {
         inp.removeRow(0);
         
         // resulting matrices
-        final Matrix T = Values.getDefault().newInstance(width, width);
-        final Matrix D = Values.getDefault().newInstance(width, width);
-        GroebnerBasisChecker.fill(T, zero);
-        GroebnerBasisChecker.fill(D, zero);
+        final Matrix T = Values.getDefault().ZERO(width, width);
+        final Matrix D = Values.getDefault().ZERO(width, width);
 
         try {
             for (int i = 0; i < width; ++i) {
@@ -79,10 +77,12 @@ public class PSDDecomposition {
 
                         T.set(i, j, newCoeff);
 
-                        for (int k = i + 1; k <= j; ++k) {
-                            final Arithmetic summand =
-                                newCoeff.multiply(inp.get(i, k));
-                            inp.set(k, j, inp.get(k, j).subtract(summand));
+                        if (!newCoeff.isZero()) {
+                            for (int k = i + 1; k <= j; ++k) {
+                                final Arithmetic summand = newCoeff
+                                        .multiply(inp.get(i, k));
+                                inp.set(k, j, inp.get(k, j).subtract(summand));
+                            }
                         }
                     }
                 }

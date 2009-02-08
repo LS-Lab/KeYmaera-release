@@ -135,9 +135,7 @@ public class SparsePolynomial {
     public Matrix exactCoefficientComparison(int matrixSize) {
         final int matrixLength = matrixSize * matrixSize;
         final Matrix res =
-            Values.getDefault().newInstance(polyTerms.size(), matrixLength);
-        
-        GroebnerBasisChecker.fill(res, Values.getDefault().ZERO());
+            Values.getDefault().ZERO(polyTerms.size(), matrixLength);
         
         int row = 1;
         for (Entry<Vector, CoefficientTerm> entry : polyTerms.entrySet()) {
