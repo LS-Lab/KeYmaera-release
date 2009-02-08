@@ -24,6 +24,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import de.uka.ilkd.key.dl.arithmetics.impl.orbital.OrbitalSimplifier;
+
 import orbital.math.Arithmetic;
 import orbital.math.Matrix;
 import orbital.math.Polynomial;
@@ -103,8 +105,8 @@ public class SparsePolynomial {
         
         for (int i = 0; i < polyTerms.size(); ++i)
             for (int j = 0; j < matrixLength; ++j)
-                res[i * matrixLength + j] =  // HACK
-                    Double.parseDouble(constraints.get(i, j).toString());
+                res[i * matrixLength + j] =
+                    OrbitalSimplifier.toDouble(constraints.get(i, j));
         
         return res;
     }

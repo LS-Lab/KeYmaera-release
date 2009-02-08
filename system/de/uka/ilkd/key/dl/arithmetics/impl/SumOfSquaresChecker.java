@@ -36,6 +36,7 @@ import orbital.math.Real;
 import orbital.math.Values;
 import orbital.math.Vector;
 import de.uka.ilkd.key.dl.arithmetics.impl.csdp.CSDP;
+import de.uka.ilkd.key.dl.arithmetics.impl.orbital.OrbitalSimplifier;
 import de.uka.ilkd.key.dl.arithmetics.impl.orbital.PolynomTool;
 import de.uka.ilkd.key.dl.arithmetics.impl.sos.PolynomialOrder;
 import de.uka.ilkd.key.dl.arithmetics.impl.sos.SimpleOrder;
@@ -581,7 +582,7 @@ public class SumOfSquaresChecker {
 		double[] result = new double[constraints.size()];
 		int cnum = 0;
 		for (Constraint c : constraints) {
-			result[cnum++] = Double.parseDouble(c.pre.toString());
+			result[cnum++] = OrbitalSimplifier.toDouble(c.pre);
 		}
 		return result;
 	}

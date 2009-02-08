@@ -21,6 +21,8 @@ package de.uka.ilkd.key.dl.arithmetics.impl.groebnerianSOS;
 
 import java.util.Arrays;
 
+import de.uka.ilkd.key.dl.arithmetics.impl.orbital.OrbitalSimplifier;
+
 import orbital.math.Arithmetic;
 import orbital.math.LUDecomposition;
 import orbital.math.Matrix;
@@ -40,16 +42,18 @@ public class FractionisingEquationSolver {
     
     public FractionisingEquationSolver(Matrix eqCoefficients,
                                        Vector eqHeteros,
-                                       double[] approxSolution) {
+                                       double[] approxSolution,
+                                       double eps) {
         this.eqCoefficients = eqCoefficients;
         this.eqHeteros = eqHeteros;
 
         final ApproxSolutionEntry[] solEntries =
             new ApproxSolutionEntry [approxSolution.length];
         for (int i = 0; i < approxSolution.length; ++i)
-            solEntries[i] = new ApproxSolutionEntry (approxSolution[i], i);
+            solEntries[i] = new ApproxSolutionEntry (approxSolution[i], i, eps);
         
         Arrays.sort(solEntries);
+        System.out.println(Arrays.toString(solEntries));
         
         final Matrix permCoefficients =
             (Matrix)ValuesImpl.getDefault().newInstance(eqCoefficients.dimensions()[0],
@@ -70,10 +74,12 @@ public class FractionisingEquationSolver {
             exactSolution.set(solEntries[i].variable, permSolution.get(i));
         
         this.exactSolution = exactSolution;
-        System.out.println(exactSolution);
     }
 
     
+    /**
+     * Read of a solution from a matrix in row echelon form
+     */
     private static Vector solveEchelonMatrix(Matrix m,
                                              ApproxSolutionEntry[] approxSolutions) {
         final int height = m.dimensions()[0];
@@ -124,6 +130,9 @@ public class FractionisingEquationSolver {
     }
     
     
+    /**
+     * Turn a matrix into row echelon form
+     */
     private static void echelon(Matrix m) {
         final int height = m.dimensions()[0];
         final int width = m.dimensions()[1];
@@ -154,7 +163,7 @@ public class FractionisingEquationSolver {
             final Arithmetic pivot = m.get(row, col);
 
             // simplify the other rows using the row with the pivot element
-            i = row + 1;
+            i = i + 1;
             while (i < height) {
                 if (!m.get(i, col).isZero()) {
                     final Arithmetic factor = m.get(i, col).divide(pivot);
@@ -175,20 +184,30 @@ public class FractionisingEquationSolver {
     }
 
     
+    /**
+     * Helper class to manage the fractionised components of a floating-point
+     * solution returned by the PSD programming procedure
+     */
     private static class ApproxSolutionEntry implements Comparable<ApproxSolutionEntry> {
         public final Fractionised value;
         public final int variable;
 
-        public ApproxSolutionEntry(double val, int variable) {
-            this.value = new Fractionised (val);
+        public ApproxSolutionEntry(double val, int variable, double eps) {
+            this.value = new Fractionised (val, eps);
             this.variable = variable;
             assert (this.value.denominator.compareTo(this.value.denominator.zero()) > 0);
         }
 
         public int compareTo(ApproxSolutionEntry o) {
-            // we compare the denominators and consider those entries as big
-            // that have a small denominator
-            return o.value.denominator.compareTo(value.denominator);
+            return Double.compare(this.precision(), o.precision());
+        }
+        
+        private double precision() {
+            return Math.abs(value.fp) / OrbitalSimplifier.toDouble(value.denominator);
+        }
+
+        public String toString() {
+            return "" + variable + ": " + value;
         }
     }
 }

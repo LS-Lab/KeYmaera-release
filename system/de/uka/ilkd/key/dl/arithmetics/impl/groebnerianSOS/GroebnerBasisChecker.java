@@ -223,26 +223,41 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
                 for (int i = 0; i < exactHetero.dimension(); ++i)
                     exactHetero.set(i, Values.getDefault().valueOf(i == 0 ? -1 : 0));
 
-                final Vector exactSolution =
-                    new FractionisingEquationSolver (exactHomo,
-                                                     exactHetero,
-                                                     approxSolution).exactSolution;
+                double eps = 0.1;
                 
-                // check that the solution is positive semi-definite
-                final Matrix solutionMatrix =
-                    Values.getDefault().newInstance(monoNum, monoNum);
-                for (int i = 0; i < monoNum; ++i)
-                    for (int j = 0; j < monoNum; ++j)
-                        solutionMatrix.set(i, j, exactSolution.get(i * monoNum + j));
-                
-                try {
-                    final PSDDecomposition dec = new PSDDecomposition (solutionMatrix);
-                    System.out.println("Solution is positive semi-definite!");
-                    System.out.println(dec.T);
-                    System.out.println(dec.D);
-                    return true;
-                } catch (NotPSDException e) {
-                    System.out.println(e.getMessage());
+                while (eps > 0.000000001) {
+                    System.out.println();
+                    System.out.println("Trying eps: " + eps);
+
+                    final Vector exactSolution = new FractionisingEquationSolver(
+                            exactHomo, exactHetero, approxSolution, eps).exactSolution;
+                    System.out.println(exactSolution);
+                    
+                    System.out.println("Difference to approx solution:");
+                    System.out.println(exactSolution.subtract(Values.getDefault().valueOf(approxSolution)));
+                    
+                    // check that the solution is positive semi-definite
+                    final Matrix solutionMatrix =
+                        Values.getDefault().newInstance(monoNum, monoNum);
+                    for (int i = 0; i < monoNum; ++i)
+                        for (int j = 0; j < monoNum; ++j)
+                            solutionMatrix.set(i, j,
+                                               exactSolution.get(i * monoNum + j));
+
+                    System.out.println(solutionMatrix);
+
+                    try {
+                        final PSDDecomposition dec =
+                            new PSDDecomposition(solutionMatrix);
+                        System.out.println("Solution is positive semi-definite");
+                        System.out.println(dec.T);
+                        System.out.println(dec.D);
+                        return true;
+                    } catch (NotPSDException e) {
+                        System.out.println(e.getMessage());
+                    }
+                    
+                    eps = eps / 10;
                 }
             } else {
                 System.out.println("No solution");
