@@ -51,38 +51,44 @@ public class PSDDecomposition {
         inp.removeRow(0);
         
         // resulting matrices
-        final Matrix T = Values.getDefault().newInstance(width, width);
-        final Matrix D = Values.getDefault().newInstance(width, width);
-        GroebnerBasisChecker.fill(T, zero);
-        GroebnerBasisChecker.fill(D, zero);
+        final Matrix T = Values.getDefault().ZERO(width, width);
+        final Matrix D = Values.getDefault().ZERO(width, width);
 
-        for (int i = 0; i < width; ++i) {
-            final Arithmetic diagElem = inp.get(i, i);
-            
-            if (Operations.less.apply(diagElem, zero))
-                throw new NotPSDException ();
-            
-            if (diagElem.isZero()) {
-                for (int j = i + 1; j < width; ++j)
-                    if (!inp.get(i, j).isZero())
-                        throw new NotPSDException ();
-            } else {
-                D.set(i, i, diagElem);
-                T.set(i, i, one);
-                for (int j = i + 1; j < width; ++j) {
-                    final Arithmetic a_i_j = inp.get(i, j);
-                    final Arithmetic newCoeff = a_i_j.divide(diagElem);
+        try {
+            for (int i = 0; i < width; ++i) {
+                System.out.print('.');
+//                System.out.println(inp);
+//                System.out.println();
+                final Arithmetic diagElem = inp.get(i, i);
 
-                    T.set(i, j, newCoeff);
-                    
-                    for (int k = i + 1; k <= j; ++k) {
-                        final Arithmetic summand = newCoeff.multiply(inp.get(i, k));
-                        System.out.println("" + inp.get(k, j) + " " + inp.get(k, j).getClass());
-                        System.out.println("" + summand + " " + summand.getClass());
-                        inp.set(k, j, inp.get(k, j).subtract(summand));
+                if (Operations.less.apply(diagElem, zero))
+                    throw new NotPSDException();
+
+                if (diagElem.isZero()) {
+                    for (int j = i + 1; j < width; ++j)
+                        if (!inp.get(i, j).isZero())
+                            throw new NotPSDException();
+                } else {
+                    D.set(i, i, diagElem);
+                    T.set(i, i, one);
+                    for (int j = i + 1; j < width; ++j) {
+                        final Arithmetic a_i_j = inp.get(i, j);
+                        final Arithmetic newCoeff = a_i_j.divide(diagElem);
+
+                        T.set(i, j, newCoeff);
+
+                        if (!newCoeff.isZero()) {
+                            for (int k = i + 1; k <= j; ++k) {
+                                final Arithmetic summand = newCoeff
+                                        .multiply(inp.get(i, k));
+                                inp.set(k, j, inp.get(k, j).subtract(summand));
+                            }
+                        }
                     }
                 }
             }
+        } finally {
+            System.out.println();
         }
         
         this.T = T;

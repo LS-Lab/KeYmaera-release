@@ -15,6 +15,7 @@ import org.w3c.dom.Node;
 import orbital.math.Arithmetic;
 import orbital.math.Integer;
 import orbital.math.Rational;
+import orbital.math.Real;
 import orbital.math.Values;
 import orbital.math.functional.Operations;
 import orbital.moon.math.ValuesImpl;
@@ -237,6 +238,19 @@ public class OrbitalSimplifier implements ISimplifier {
 	    }
             throw new IllegalArgumentException("Dont know how to translate the number "
 		 	+ a + " of class " + a.getClass() + " to a term");
+	}
+
+	////////////////////////////////////////////////////////////////////////
+
+	public static double toDouble(Arithmetic a) {
+            if (a instanceof Integer || a instanceof Real) {
+                return Double.parseDouble(a.toString());
+            } else if (a instanceof Rational) {
+                final Rational norm = ((Rational)a).representative();
+                return toDouble(norm.numerator()) / toDouble(norm.denominator());
+            }
+            throw new IllegalArgumentException("Dont know how to translate the number "
+                    + a + " of class " + a.getClass() + " to a double");
 	}
 	
 	////////////////////////////////////////////////////////////////////////
