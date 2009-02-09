@@ -277,6 +277,8 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
                     exactHomo, exactHetero, approxSolution, eps).exactSolution;
             System.out.println(exactSolution);
             
+            assert (exactHomo.multiply(exactSolution).equals(exactHetero));
+            
             System.out.println("Difference to approx solution:");
             System.out.println(exactSolution.subtract(Values.getDefault().valueOf(approxSolution)));
             
@@ -313,8 +315,8 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
                 final Square[] res = new Square [monoNum];
                 for (int i = 0; i < monoNum; ++i) {
                     Polynomial p = zero;
-                    for (int j = 0; j <= i; ++j)
-                        p = (Polynomial) p.add(monomials.get(j).scale(dec.T.get(j, i)));
+                    for (int j = i; j < monoNum; ++j)
+                        p = (Polynomial) p.add(monomials.get(j).scale(dec.T.get(i, j)));
                     res[i] = new Square (dec.D.get(i, i), p);
                 }
                 

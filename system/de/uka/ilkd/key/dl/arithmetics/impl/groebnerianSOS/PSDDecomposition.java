@@ -93,6 +93,8 @@ public class PSDDecomposition {
         
         this.T = T;
         this.D = D;
+        
+        assert (T.transpose().multiply(D).multiply(T).equals(M));
     }
     
     public static final class NotPSDException extends Exception {
