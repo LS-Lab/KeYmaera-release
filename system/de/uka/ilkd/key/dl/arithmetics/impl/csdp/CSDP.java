@@ -122,6 +122,13 @@ public class CSDP {
                             * n], pobj = new double[n], dobj = new double[a.length];
             final double[] C = new double[n * n];
             
+            constraints = constraints.clone();
+            for (int i = 0; i < n; ++i)
+                for (int j = 0; j < n; ++j)
+                    if (i != j)
+                        for (int l = 0; l < k; ++l)
+                            constraints[l*n*n + i*n + j] *= 0.5;
+            
             Arrays.fill(solution, 0.1);
             Arrays.fill(y, 0.1);
             Arrays.fill(Z, 0.1);
@@ -158,7 +165,17 @@ public class CSDP {
                     }
                 }
             } */
-            
+  
+/*            if (res == 0) {
+                // we found a solution, but it has to be corrected due to
+                // CSDP's buggy result reporting
+                
+                for (int i = 0; i < n; ++i)
+                    for (int j = 0; j < n; ++j)
+                        if (i != j)
+                            solution[i*n + j] *= 2.0;
+            }
+  */          
             return res;
         }
 

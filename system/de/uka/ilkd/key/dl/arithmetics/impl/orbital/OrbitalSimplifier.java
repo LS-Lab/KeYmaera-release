@@ -243,11 +243,12 @@ public class OrbitalSimplifier implements ISimplifier {
 	////////////////////////////////////////////////////////////////////////
 
 	public static double toDouble(Arithmetic a) {
-            if (a instanceof Integer || a instanceof Real) {
-                return Double.parseDouble(a.toString());
+            if (a instanceof Integer) {
+                return ((Integer)a).doubleValue();
+            } else if (a instanceof Real) {
+                return ((Real)a).doubleValue();
             } else if (a instanceof Rational) {
-                final Rational norm = ((Rational)a).representative();
-                return toDouble(norm.numerator()) / toDouble(norm.denominator());
+                return ((Rational)a).doubleValue();
             }
             throw new IllegalArgumentException("Dont know how to translate the number "
                     + a + " of class " + a.getClass() + " to a double");

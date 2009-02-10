@@ -62,18 +62,19 @@ public class FractionisingEquationSolver {
         system.insertColumns(0, eqCoefficients);
         system.setColumn(eqCoefficients.dimensions()[1], eqHeteros);
 
-        System.out.println("System:\n" + system);
+//        System.out.println("System:\n" + system);
 
         // solve the equations using the Gaussian algorithm
         echelon(system);
+        jordan(system);
 
-        System.out.println("Solved system:\n" + system);
+//        System.out.println("Solved system:\n" + system);
 
         final Vector particularSol = particularSolution(system);
         final Matrix solutionSpace = homoSolutionSpace(system);
         
-        System.out.println("Particular:\n" + particularSol);
-        System.out.println("Space:\n" + solutionSpace);
+//        System.out.println("Particular:\n" + particularSol);
+//        System.out.println("Space:\n" + solutionSpace);
         
         // use the least-square-sum method to find the solution that is closest
         // to the approximate solution
@@ -92,7 +93,6 @@ public class FractionisingEquationSolver {
         
         final Vector perfectOffset =
             solutionSpace.multiply(particularSolution(leastSquareSystem));
-        System.out.println(perfectOffset);
         this.exactSolution = particularSol.add(perfectOffset);
     }
 
@@ -274,6 +274,52 @@ public class FractionisingEquationSolver {
         }
     }
 
+    
+    /**
+     * Clean up a matrix in row echelon form
+     * 
+     * TODO: better name for the method
+     */
+    private static void jordan(Matrix m) {
+        final int height = m.dimensions()[0];
+        final int width = m.dimensions()[1];
+
+        int row = height - 1;
+
+        while (row >= 0) {
+            // find the left-most column with a non-zero entry in the current row
+            int col = 0;
+            while (col < width && m.get(row, col).isZero())
+                col = col + 1;
+
+            if (col == width) {
+                // trivial row, go to the next one
+                row = row - 1;
+                continue;
+            }
+            
+            assert (m.get(row, col).isOne());
+            
+            // simplify this column by subtracting multiplies of this row from
+            // other rows
+            int i = row - 1;
+            while (i >= 0) {
+                if (!m.get(i, col).isZero()) {
+                    final Arithmetic factor = m.get(i, col);
+
+                    for (int j = col; j < width; ++j) {
+                        final Arithmetic newEl =
+                            m.get(i, j).subtract(m.get(row, j).multiply(factor));
+                        m.set(i, j, newEl);
+                    }
+                }
+                i = i - 1;
+            }
+            
+            row = row - 1;
+        }
+    }
+    
     
     /**
      * Helper class to manage the fractionised components of a floating-point

@@ -62,12 +62,12 @@ public class PSDDecomposition {
                 final Arithmetic diagElem = inp.get(i, i);
 
                 if (Operations.less.apply(diagElem, zero))
-                    throw new NotPSDException();
+                    throw new NotPSDException("diagonal element is " + diagElem);
 
                 if (diagElem.isZero()) {
                     for (int j = i + 1; j < width; ++j)
                         if (!inp.get(i, j).isZero())
-                            throw new NotPSDException();
+                            throw new NotPSDException("matrix element is " + inp.get(i, j));
                 } else {
                     D.set(i, i, diagElem);
                     T.set(i, i, one);
@@ -93,11 +93,13 @@ public class PSDDecomposition {
         
         this.T = T;
         this.D = D;
+        
+        assert (T.transpose().multiply(D).multiply(T).equals(M));
     }
     
     public static final class NotPSDException extends Exception {
-        public NotPSDException() {
-            super("Matrix is not positive semi-definite");
+        public NotPSDException(String msg) {
+            super("Matrix is not positive semi-definite: " + msg);
         }
     }
     

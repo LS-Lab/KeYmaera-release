@@ -226,12 +226,12 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
             hetero[0] = -1.0; // we have to check that 1+s is in the ideal, hence a one
             
             final double[] approxSolution = new double [monoNum * monoNum];
-            System.out.println(Arrays.toString(homo));
-            System.out.println(Arrays.toString(hetero));
+//            System.out.println(Arrays.toString(homo));
+//            System.out.println(Arrays.toString(hetero));
             int sdpRes =
                 CSDP.sdp(monoNum, reducedPoly.size(), hetero, homo, approxSolution);
 
-            if (sdpRes == 0) {
+            if (sdpRes == 0 || sdpRes == 3) {
                 System.out.println("Found an approximate solution!");
                 System.out.println(Arrays.toString(approxSolution));
                 
@@ -277,6 +277,8 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
                     exactHomo, exactHetero, approxSolution, eps).exactSolution;
             System.out.println(exactSolution);
             
+            assert (exactHomo.multiply(exactSolution).equals(exactHetero));
+            
             System.out.println("Difference to approx solution:");
             System.out.println(exactSolution.subtract(Values.getDefault().valueOf(approxSolution)));
             
@@ -313,8 +315,8 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
                 final Square[] res = new Square [monoNum];
                 for (int i = 0; i < monoNum; ++i) {
                     Polynomial p = zero;
-                    for (int j = 0; j <= i; ++j)
-                        p = (Polynomial) p.add(monomials.get(j).scale(dec.T.get(j, i)));
+                    for (int j = i; j < monoNum; ++j)
+                        p = (Polynomial) p.add(monomials.get(j).scale(dec.T.get(i, j)));
                     res[i] = new Square (dec.D.get(i, i), p);
                 }
                 
