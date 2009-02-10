@@ -19,6 +19,7 @@
  ***************************************************************************/
 package de.uka.ilkd.key.dl.arithmetics.impl.groebnerianSOS;
 
+import de.uka.ilkd.key.dl.arithmetics.impl.orbital.OrbitalSimplifier;
 import orbital.math.Arithmetic;
 import orbital.math.Matrix;
 import orbital.math.Values;
@@ -62,12 +63,14 @@ public class PSDDecomposition {
                 final Arithmetic diagElem = inp.get(i, i);
 
                 if (Operations.less.apply(diagElem, zero))
-                    throw new NotPSDException("diagonal element is " + diagElem);
+                    throw new NotPSDException("diagonal element is " +
+                                              OrbitalSimplifier.toDouble(diagElem));
 
                 if (diagElem.isZero()) {
                     for (int j = i + 1; j < width; ++j)
                         if (!inp.get(i, j).isZero())
-                            throw new NotPSDException("matrix element is " + inp.get(i, j));
+                            throw new NotPSDException("matrix element is " +
+                                                      OrbitalSimplifier.toDouble(inp.get(i, j)));
                 } else {
                     D.set(i, i, diagElem);
                     T.set(i, i, one);
