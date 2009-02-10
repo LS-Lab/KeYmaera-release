@@ -62,19 +62,19 @@ public class FractionisingEquationSolver {
         system.insertColumns(0, eqCoefficients);
         system.setColumn(eqCoefficients.dimensions()[1], eqHeteros);
 
-        System.out.println("System:\n" + system);
+//        System.out.println("System:\n" + system);
 
         // solve the equations using the Gaussian algorithm
         echelon(system);
         jordan(system);
 
-        System.out.println("Solved system:\n" + system);
+//        System.out.println("Solved system:\n" + system);
 
         final Vector particularSol = particularSolution(system);
         final Matrix solutionSpace = homoSolutionSpace(system);
         
-        System.out.println("Particular:\n" + particularSol);
-        System.out.println("Space:\n" + solutionSpace);
+//        System.out.println("Particular:\n" + particularSol);
+//        System.out.println("Space:\n" + solutionSpace);
         
         // use the least-square-sum method to find the solution that is closest
         // to the approximate solution
@@ -93,7 +93,6 @@ public class FractionisingEquationSolver {
         
         final Vector perfectOffset =
             solutionSpace.multiply(particularSolution(leastSquareSystem));
-        System.out.println(perfectOffset);
         this.exactSolution = particularSol.add(perfectOffset);
     }
 

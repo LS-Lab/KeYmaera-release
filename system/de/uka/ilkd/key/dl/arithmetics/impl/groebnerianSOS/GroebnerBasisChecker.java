@@ -226,12 +226,12 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
             hetero[0] = -1.0; // we have to check that 1+s is in the ideal, hence a one
             
             final double[] approxSolution = new double [monoNum * monoNum];
-            System.out.println(Arrays.toString(homo));
-            System.out.println(Arrays.toString(hetero));
+//            System.out.println(Arrays.toString(homo));
+//            System.out.println(Arrays.toString(hetero));
             int sdpRes =
                 CSDP.sdp(monoNum, reducedPoly.size(), hetero, homo, approxSolution);
 
-            if (sdpRes == 0) {
+            if (sdpRes == 0 || sdpRes == 3) {
                 System.out.println("Found an approximate solution!");
                 System.out.println(Arrays.toString(approxSolution));
                 
