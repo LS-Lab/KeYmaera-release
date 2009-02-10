@@ -14,8 +14,6 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import orbital.algorithm.Combinatorical;
-import orbital.math.AlgebraicAlgorithms;
 import orbital.math.Polynomial;
 import orbital.math.Real;
 import orbital.math.Values;
@@ -41,42 +39,34 @@ public class MaxPolynomPerDegreeOrder implements PolynomialOrder {
 		 */
 		/* @Override */
 		public int compare(Polynomial o1, Polynomial o2) {
-			for (int i = 0; i < o1.rank(); i++) {
-				int cur = o1.degrees()[i] - o2.degrees()[i];
-				if (cur != 0) {
-					return cur;
-				}
-			}
 			Iterator indices1 = o1.indices();
 			ListIterator coeff1 = o1.iterator();
 			Iterator indices2 = o2.indices();
 			ListIterator coeff2 = o2.iterator();
-			Comparator<Vector> vectorComparator = new Comparator<Vector>() {
+			Comparator<Vector> monomComparator = new Comparator<Vector>() {
 
 				@Override
 				public int compare(Vector arg0, Vector arg1) {
+					int left = 0;
+					int right = 0;
 					for (int i = 0; i < arg0.dimension(); i++) {
-						int cur = ((orbital.math.Integer) arg0.get(i))
-								.intValue()
-								- ((orbital.math.Integer) arg1.get(i))
-										.intValue();
-						if (cur != 0) {
-							return cur;
-						}
+						left += ((orbital.math.Integer) arg0.get(i)).intValue();
+						right += ((orbital.math.Integer) arg1.get(i))
+								.intValue();
 					}
-					return 0;
+					return left - right;
 				}
 
 			};
 			TreeMap<Vector, Real> in1 = new TreeMap<Vector, Real>(
-					vectorComparator);
+					monomComparator);
 			TreeMap<Vector, Real> in2 = new TreeMap<Vector, Real>(
-					vectorComparator);
+					monomComparator);
 			List<Vector> all = new ArrayList<Vector>();
 			while (indices1.hasNext()) {
 				Vector next2 = (Vector) indices1.next();
 				Real next3 = (Real) coeff1.next();
-				if (next3.doubleValue() != 0) {
+				if (!next3.equals(next3.zero())) {
 					in1.put(next2, next3);
 					all.add(next2);
 				}
@@ -84,14 +74,15 @@ public class MaxPolynomPerDegreeOrder implements PolynomialOrder {
 			while (indices2.hasNext()) {
 				Vector next2 = (Vector) indices2.next();
 				Real next3 = (Real) coeff2.next();
-				if (next3.doubleValue() != 0) {
+				if (!next3.equals(next3.zero())) {
 					in2.put(next2, next3);
 					if (!all.contains(next2)) {
 						all.add(next2);
 					}
 				}
 			}
-			Collections.sort(all, vectorComparator);
+			Collections.sort(all, monomComparator);
+			Collections.reverse(all);
 			for (Vector v : all) {
 				if (in1.containsKey(v) && !in2.containsKey(v)) {
 					return 1; // o1 > o2
@@ -99,7 +90,13 @@ public class MaxPolynomPerDegreeOrder implements PolynomialOrder {
 					return -1; // o1 < o2
 				}
 			}
-
+			// now we know that all vectors occur in both polynomials
+			for (Vector v : all) {
+				int result = in1.get(v).compareTo(in2.get(v));
+				if (result != 0) {
+					return result;
+				}
+			}
 			return 0;
 
 		}
@@ -132,8 +129,10 @@ public class MaxPolynomPerDegreeOrder implements PolynomialOrder {
 			 */
 			public MonoidIterator(List<Polynomial> generator, Polynomial one) {
 				this.generator = new ArrayList<Polynomial>(generator);
-				polynomComparator = AlgebraicAlgorithms
-						.INDUCED(AlgebraicAlgorithms.DEGREE_REVERSE_LEXICOGRAPHIC);
+				System.out.println("generator is " + generator);
+				// polynomComparator = AlgebraicAlgorithms
+				// .INDUCED(AlgebraicAlgorithms.DEGREE_REVERSE_LEXICOGRAPHIC);
+				polynomComparator = TotalPolynomialOrderComparator.INSTANCE;
 				Collections.sort(this.generator, polynomComparator);
 				s = new PriorityQueue<Polynomial>(100, polynomComparator);
 				p = new ArrayList<Polynomial>();
@@ -153,17 +152,34 @@ public class MaxPolynomPerDegreeOrder implements PolynomialOrder {
 			@Override
 			public Polynomial next() {
 				while (results.isEmpty()) {
-					Combinatorical combinations = Combinatorical
-							.getCombinations(2, p.size(), true);
-					while (combinations.hasNext()) {
-						int[] curComb = combinations.next();
-						s.add(p.get(curComb[0]).multiply(p.get(curComb[1])));
+//					System.out.println("P is " + p);// XXX
+					for (Polynomial pPoly : p) {
+						for (Polynomial pPoly2 : p) {
+							Polynomial multiply = pPoly.multiply(pPoly2);
+							if (!s.contains(multiply)) {
+								s.add(multiply);
+							}
+//							System.out.println("Adding to s: " + multiply);
+						}
 					}
-					p.add(s.poll());
+					Polynomial poll = s.poll();
+					while (p.contains(poll)) {
+						poll = s.poll();
+					}
+					p.add(poll);
+//					System.out.println("Added to p: " + poll);
 					Collections.sort(p, polynomComparator);
-					s.removeAll(p);
 					results.addAll(s);
-					results.removeAll(usedResults);
+//					System.out.println("Result: " + results);
+					for (Polynomial o : usedResults) {
+						if (results.contains(o)) {
+							results.remove(o);
+						}
+					}
+//					System.out.println("Used results: " + usedResults);
+//					System.out.println("results is now " + results);// XXX
+					s.removeAll(p);
+//					System.out.println("s is now " + s);// XXX
 				}
 				Polynomial res = results.poll();
 				usedResults.add(res);
@@ -209,14 +225,12 @@ public class MaxPolynomPerDegreeOrder implements PolynomialOrder {
 
 	private Polynomial next = null;
 
-	private int currentGTupelSize = 0;
-
-	private Combinatorical currentGCombinations;
 	private Polynomial currentF = null;
-	private Polynomial currentG;
+	private Polynomial currentG = null;
 	private Polynomial currentH = null;
 	private Polynomial one;
 	private Iterator<Polynomial> gIterator;
+	private ArrayList<Polynomial> fMonoidGenerator;
 
 	/**
 	 * 
@@ -241,7 +255,9 @@ public class MaxPolynomPerDegreeOrder implements PolynomialOrder {
 		assert (pg != null);
 		assert (result != null);
 		result.add((Polynomial) pg.power(Values.getDefault().valueOf(2)));
-		result = result.add(h);
+		if(h != null) {
+			result = result.add(h);
+		}
 		return result;
 	}
 
@@ -322,15 +338,41 @@ public class MaxPolynomPerDegreeOrder implements PolynomialOrder {
 			currentF = one;
 		}
 		int d = currentF.degreeValue();
-		while (currentF.degreeValue() <= degree) {
-			d++;
-			Iterator<Polynomial> it = f.iterator();
-			Polynomial next = it.next();
-			if (next.degreeValue() < d) {
-
-			}
-
+		System.out.println("fMonoidGenerator " + fMonoidGenerator);// XXX
+		assert fMonoidGenerator.size() != 0 || f.size() == 0;
+		if (f.size() == 0) {
+			return;
 		}
+		Monoid m = new Monoid(fMonoidGenerator, one);
+		Iterator<Polynomial> iterator = m.iterator();
+		Polynomial next2 = iterator.next();
+		d++;
+		while (computeDegree(next2) < d) {
+			next2 = iterator.next();
+			System.out.println("Testing " + next2);// XXX
+		}
+		while (computeDegree(currentF) <= degree) {
+			do {
+				currentF = currentF.add(next2);
+				System.out.println("Adding " + next2);// XXX
+				next2 = iterator.next();
+			} while (computeDegree(next2) == d);
+			System.out.println("currentF is now " + currentF);
+			d++;
+		}
+		System.out.println("New f is " + currentF);// XXX
+	}
+
+	/**
+	 * @param next2
+	 * @return TODO documentation since Feb 10, 2009
+	 */
+	private static int computeDegree(Polynomial next2) {
+		int result = 0;
+		for (int i = 0; i < next2.rank(); i++) {
+			result += next2.degrees()[i];
+		}
+		return result;
 	}
 
 	/**
@@ -339,6 +381,10 @@ public class MaxPolynomPerDegreeOrder implements PolynomialOrder {
 	 */
 	private int computeG(int degree) {
 		// multiply this by two as it will be g^2 in the result polynomial
+		if (g.isEmpty()) {
+			currentG = one;
+			return 0;
+		}
 		if (gIterator == null) {
 			Monoid m = new Monoid(g, one);
 			gIterator = m.iterator();
@@ -359,6 +405,20 @@ public class MaxPolynomPerDegreeOrder implements PolynomialOrder {
 	public void setF(Set<Polynomial> f) {
 		this.f = new ArrayList<Polynomial>(f);
 		Collections.sort(this.f, PolynomialComparator.INSTANCE);
+		fMonoidGenerator = new ArrayList<Polynomial>(f);
+		// add squares of all variables occurring in the cone
+		if (!f.isEmpty()) {
+			int rank = f.iterator().next().rank();
+			for (int i = 0; i < rank; i++) {
+				int[] var = new int[rank];
+				var[i] = 2;
+				Polynomial monomial = Values.getDefault().MONOMIAL(var);
+				if (!fMonoidGenerator.contains(monomial)) {
+					fMonoidGenerator.add(monomial);
+				}
+			}
+		}
+		Collections.sort(this.fMonoidGenerator, PolynomialComparator.INSTANCE);
 	}
 
 	/*

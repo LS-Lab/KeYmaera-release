@@ -38,6 +38,7 @@ import orbital.math.Vector;
 import de.uka.ilkd.key.dl.arithmetics.impl.csdp.CSDP;
 import de.uka.ilkd.key.dl.arithmetics.impl.orbital.OrbitalSimplifier;
 import de.uka.ilkd.key.dl.arithmetics.impl.orbital.PolynomTool;
+import de.uka.ilkd.key.dl.arithmetics.impl.sos.MaxPolynomPerDegreeOrder;
 import de.uka.ilkd.key.dl.arithmetics.impl.sos.PolynomialOrder;
 import de.uka.ilkd.key.dl.arithmetics.impl.sos.SimpleOrder;
 import de.uka.ilkd.key.dl.formulatools.collector.AllCollector;
@@ -419,17 +420,27 @@ public class SumOfSquaresChecker {
 	public FormulaStatus check(Set<Term> f, Set<Term> g, Set<Term> h) {
 		PolynomialClassification<Polynomial> classify = classify(new PolynomialClassification<Term>(
 				f, g, h));
-		PolynomialOrder order = new SimpleOrder();
-		order.setF(classify.f);
-		order.setG(classify.g);
-		order.setH(classify.h);
-		order.setMaxDegree(20);
-		while (order.hasNext()) {
-			System.out.println("searching");
-			Result searchSolution = searchSolution(order.getNext());
-			System.out.println("Result: " + searchSolution);
-			if (searchSolution == Result.SOLUTION_FOUND) {
-				return FormulaStatus.INVALID;
+		Polynomial one = null;
+		if (!classify.f.isEmpty()) {
+			one = (Polynomial) classify.f.iterator().next().one();
+		} else if (!classify.g.isEmpty()) {
+			one = (Polynomial) classify.g.iterator().next().one();
+		} else if (!classify.h.isEmpty()) {
+			one = (Polynomial) classify.h.iterator().next().one();
+		}
+		if (one != null) {
+			PolynomialOrder order = new MaxPolynomPerDegreeOrder(one);
+			order.setF(classify.f);
+			order.setG(classify.g);
+			order.setH(classify.h);
+			order.setMaxDegree(20);
+			while (order.hasNext()) {
+				System.out.println("searching");
+				Result searchSolution = searchSolution(order.getNext());
+				System.out.println("Result: " + searchSolution);
+				if (searchSolution == Result.SOLUTION_FOUND) {
+					return FormulaStatus.INVALID;
+				}
 			}
 		}
 		return FormulaStatus.UNKNOWN;
