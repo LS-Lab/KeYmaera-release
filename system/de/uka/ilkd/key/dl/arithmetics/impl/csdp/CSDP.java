@@ -137,7 +137,7 @@ public class CSDP {
 //            fillRandomly(y);
 //            fillRandomly(Z);
 //            fillRandomly(C);
-//            Arrays.fill(C, -1.0); // try to find solutions with small values
+            Arrays.fill(C, -1.0); // try to find solutions with small values
             
 //          System.out.println("n is: " + n);// XXX
 //          System.out.println("a is: " + Arrays.toString(a));// XXX

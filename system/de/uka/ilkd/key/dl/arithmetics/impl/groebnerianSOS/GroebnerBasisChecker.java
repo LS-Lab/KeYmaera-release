@@ -267,9 +267,9 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
         for (int i = 0; i < exactHetero.dimension(); ++i)
             exactHetero.set(i, Values.getDefault().valueOf(i == 0 ? -1 : 0));
 
-        double eps = 0.1;
+        double eps = 1;
         
-        while (eps > 0.000000001) {
+        while (eps > 1e-6) {
             System.out.println();
             System.out.println("Trying eps: " + eps);
 
