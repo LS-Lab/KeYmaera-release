@@ -110,24 +110,19 @@ public class CSDP {
 		return result == 0;
 	}
 
-	private static final double BIG_EPS = 0.00001;
-	
-	private static boolean isAlmostNothing(double x) {
-	    return x < BIG_EPS && x > -BIG_EPS;
-	}
-	
         public static int sdp(int n, int k, double[] a, double[] constraints, double[] solution) {
             assert (solution.length == n*n);
             double[] y = new double[a.length], Z = new double[n
                             * n], pobj = new double[n], dobj = new double[a.length];
             final double[] C = new double[n * n];
             
-            constraints = constraints.clone();
+            // make sure that the constraints are given as upper triangular
+            // matrices
+            final double[] inpConstraints = constraints.clone();
             for (int i = 0; i < n; ++i)
-                for (int j = 0; j < n; ++j)
-                    if (i != j)
-                        for (int l = 0; l < k; ++l)
-                            constraints[l*n*n + i*n + j] *= 0.5;
+                for (int j = 0; j < i; ++j)
+                    for (int l = 0; l < k; ++l)
+                        inpConstraints[l*n*n + i*n + j] = 0.0;
             
             Arrays.fill(solution, 0.1);
             Arrays.fill(y, 0.1);
@@ -142,7 +137,7 @@ public class CSDP {
 //          System.out.println("n is: " + n);// XXX
 //          System.out.println("a is: " + Arrays.toString(a));// XXX
 //          System.out.println("constraints is: " + Arrays.toString(constraints));// XXX
-            int res = easySDP(n, k, C, a, constraints, 0, solution, y, Z, pobj, dobj);
+            int res = easySDP(n, k, C, a, inpConstraints, 0, solution, y, Z, pobj, dobj);
             
             /*
             if (res == 0) {
@@ -166,16 +161,6 @@ public class CSDP {
                 }
             } */
   
-/*            if (res == 0) {
-                // we found a solution, but it has to be corrected due to
-                // CSDP's buggy result reporting
-                
-                for (int i = 0; i < n; ++i)
-                    for (int j = 0; j < n; ++j)
-                        if (i != j)
-                            solution[i*n + j] *= 2.0;
-            }
-  */          
             return res;
         }
 
