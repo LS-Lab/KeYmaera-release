@@ -109,7 +109,13 @@ public class CSDP {
 		// rounding errors
 		return result == 0;
 	}
-
+	
+	private static final double BIG_EPS = 0.00001;
+	       
+	private static boolean isAlmostNothing(double x) {
+	    return x < BIG_EPS && x > -BIG_EPS;
+	}
+	
         public static int sdp(int n, int k, double[] a, double[] constraints, double[] solution) {
             assert (solution.length == n*n);
             double[] y = new double[a.length], Z = new double[n
@@ -137,7 +143,30 @@ public class CSDP {
 //          System.out.println("n is: " + n);// XXX
 //          System.out.println("a is: " + Arrays.toString(a));// XXX
 //          System.out.println("constraints is: " + Arrays.toString(constraints));// XXX
-            return easySDP(n, k, C, a, inpConstraints, 0, solution, y, Z, pobj, dobj);
+            final int res = easySDP(n, k, C, a, inpConstraints, 0, solution, y, Z, pobj, dobj);
+            
+            if (res == 0 || res == 3) {
+                // SUCCESS: try to find a nice solution that contains as small
+                // entries as possible
+                for (int i = 0; i < C.length; ++i) {
+                    if (isAlmostNothing(solution[i])) {
+                        // nothing
+                        continue;
+                    } else if (solution[i] > 0) {
+                        C[i] = -1.0;
+                    } else {
+                        C[i] = 1.0;                        
+                    }
+                    // check that we still get the same result
+                    if (res != easySDP(n, k, C, a, inpConstraints, 0, solution,
+                                       y, Z, pobj, dobj)) {
+                        // go back to the previous solution
+                        C[i] = 0.0;
+                    }
+                }
+            }
+            
+            return res;
         }
 
         public static int robustSdp(int n, int k, double[] a, double[] constraints,

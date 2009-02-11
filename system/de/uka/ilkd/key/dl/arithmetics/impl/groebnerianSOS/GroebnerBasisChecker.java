@@ -229,7 +229,8 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 //            System.out.println(Arrays.toString(homo));
 //            System.out.println(Arrays.toString(hetero));
             int sdpRes =
-                CSDP.robustSdp(monoNum, reducedPoly.size(), hetero, homo, approxSolution);
+//                CSDP.robustSdp(monoNum, reducedPoly.size(), hetero, homo, approxSolution);
+               CSDP.sdp(monoNum, reducedPoly.size(), hetero, homo, approxSolution);
 
             if (sdpRes == 0 || sdpRes == 3) {
                 System.out.println("Found an approximate solution!");
