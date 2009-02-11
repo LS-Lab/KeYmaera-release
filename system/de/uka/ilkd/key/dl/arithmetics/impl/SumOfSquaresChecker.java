@@ -496,6 +496,8 @@ public class SumOfSquaresChecker {
 		}
 		// now we know the monominals and need to construct the constraints for
 		// the matrix
+		// This matrix encodes the indices of q_i_j (the positions of the
+		// parameters in the matrix).
 		Vector[][] matrix = new Vector[monominals.size()][monominals.size()];
 		for (int i = 0; i < monominals.size(); i++) {
 			for (int j = 0; j < monominals.size(); j++) {
@@ -504,6 +506,7 @@ public class SumOfSquaresChecker {
 								Values.getDefault().valueOf(j + 1) });
 			}
 		}
+		// The result of this multiplication is a polynomial
 		Poly multiplyVec = multiplyVec(multiplyMatrix(monominals, matrix),
 				monominals);
 		System.out.println("Polynom: " + multiplyVec);// XXX
@@ -559,8 +562,22 @@ public class SumOfSquaresChecker {
 	}
 
 	/**
+	 * <p>
+	 * Convert the given constraints into a CSDP input matrix. The indices in
+	 * the matrix are used to determine which positions in the matrix have to be
+	 * marked with 1.
+	 * </p>
+	 * <p>
+	 * &forall; c &isin; constraints: &forall; (i,j) &isin; c.indices:
+	 * result[position(c) &sdot; size<sup>2</sup> + i &sdot; size + j] = 1
+	 * </p>
+	 * <p>
+	 * The result is one double array of size (constraints.size() &times; size
+	 * &times; size).
+	 * </p>
+	 * 
 	 * @param constraints
-	 * @param i
+	 * @param size
 	 */
 	private double[] convertConstraintsToCSDP(List<Constraint> constraints,
 			int size) {
@@ -624,6 +641,18 @@ public class SumOfSquaresChecker {
 		}
 	}
 
+	/**
+	 * A constraint is a tupel containing 3 things. A vector v representing the
+	 * current monomial. A list of vectors indizes representing the sum of
+	 * q<sub>i</sub><sub>j</sub> coefficients, as well as an Arithmetic object
+	 * pre which represents the righthand side of the equation:
+	 * 
+	 * (X<sub>1</sub><sup>i<sub>1</sub></sup> &sdot;&sdot;&sdot;
+	 * X<sub>n</sub><sup>i<sub>n</sub></sup> &sdot; (&sum; <sub>(i,j) &isin;
+	 * indizes</sub> (q<sub>i</sub><sub>j</sub>))) = pre
+	 * 
+	 * @author jdq
+	 */
 	private class Constraint {
 
 		Constraint(Vector v, List<Vector> indizes, Arithmetic pre) {
@@ -646,19 +675,39 @@ public class SumOfSquaresChecker {
 		/* @Override */
 		public String toString() {
 			StringBuilder b = new StringBuilder();
-			b.append(pre + " = ");
+			String plus = "";
+			b.append(plus);
+			for (Vector w : indizes) {
+				b.append(plus + "q");
+				plus = "+";
+				for (int i = 0; i < w.dimension(); i++) {
+					b.append("_");
+					b.append(w.get(i));
+				}
+			}
+			plus = "+";
+			b.append("* (");
 			for (int i = 0; i < v.dimension(); i++) {
 				b.append(((char) ('a' + i)) + "^" + v.get(i));
 			}
-			b.append(" * (");
-			for (Vector vec : indizes) {
-				b.append("+" + vec);
-			}
-			b.append(")");
+			b.append(" ) = " + pre);
 			return b.toString();
 		}
 	}
 
+	/**
+	 * This class represents a polynomial. The {@link HashMap} vec contains a
+	 * key which encodes the monomial and the corresponding value in vec is the
+	 * coefficient. The coefficient is represented by a list of vectors encoding
+	 * the indices of the parameters. Thus the polynomial has the form:<br>
+	 * 
+	 * &sum; <sub>(i<sub>1</sub>,...,i<sub>n</sub>) &isin; vec</sub>
+	 * (X<sub>1</sub><sup>i<sub>1</sub></sup> &sdot;&sdot;&sdot;
+	 * X<sub>n</sub><sup>i<sub>n</sub></sup> &sdot; (&sum; <sub>(i,j) &isin;
+	 * vec.get(v)</sub> (q<sub>i</sub><sub>j</sub>)))
+	 * 
+	 * @author jdq
+	 */
 	private class Poly {
 		HashMap<Vector, List<Vector>> vec = new HashMap<Vector, List<Vector>>();
 
@@ -672,62 +721,75 @@ public class SumOfSquaresChecker {
 			StringBuilder b = new StringBuilder();
 			String plus = "";
 			for (Vector v : vec.keySet()) {
-				b.append(plus);
+				b.append(plus + "(");
+				plus = "";
+				for (Vector w : vec.get(v)) {
+					b.append(plus + " q");
+					plus = "+";
+					for (int i = 0; i < w.dimension(); i++) {
+						b.append("_");
+						b.append(w.get(i));
+					}
+				}
 				plus = "+";
+				b.append(" ) * ");
 				for (int i = 0; i < v.dimension(); i++) {
 					b.append(((char) ('a' + i)) + "^" + v.get(i));
 				}
-				b.append("* (");
-				for (Vector w : vec.get(v)) {
-					b.append(plus);
-					b.append(w);
-				}
-				b.append(")");
+
 			}
 			return b.toString();
 		}
 	}
 
 	/**
+	 * This function multiplies an array of polynomials with a list of
+	 * monomials. The result is a polynomial.
+	 * 
 	 * @param multiplyMatrix
 	 * @param monominals
 	 */
 	private Poly multiplyVec(Vec multiplyMatrix, List<Vector> monominals) {
 		Poly p = new Poly();
 		for (int i = 0; i < monominals.size(); i++) {
-			for (Vector vv : multiplyMatrix.vec[0].keySet()) {
-				Vector res = vv.add(monominals.get(i));
-				List<Vector> result = p.vec.get(res);
+			for (Vector qij : multiplyMatrix.vec[i].vec.keySet()) {
+				// add qij * monomial to the resulting polynomial
+				Vector monomial = qij.add(monominals.get(i));
+				List<Vector> result = p.vec.get(monomial);
 				if (result == null) {
 					result = new ArrayList<Vector>();
-					p.vec.put(res, result);
+					p.vec.put(monomial, result);
 				}
-				result.addAll(multiplyMatrix.vec[i].get(vv));
+				result.addAll(multiplyMatrix.vec[i].vec.get(qij));
 			}
 		}
 		return p;
 	}
 
 	private class Vec {
-		HashMap<Vector, List<Vector>>[] vec;
+		Poly[] vec;
 	}
 
 	/**
+	 * This function multiplies the vector of vectors (called monomials) with
+	 * the matrix of vectors (called matrix). The result is an array of
+	 * polynomials.
+	 * 
 	 * @param monominals
 	 * @param matrix
 	 */
 	private Vec multiplyMatrix(List<Vector> monominals, Vector[][] matrix) {
 		Vec p = new Vec();
-		p.vec = new HashMap[monominals.size()];
+		p.vec = new Poly[monominals.size()];
 		for (int i = 0; i < monominals.size(); i++) {
-			p.vec[i] = new HashMap<Vector, List<Vector>>();
+			p.vec[i] = new Poly();
 			for (int j = 0; j < monominals.size(); j++) {
-				List<Vector> list = p.vec[i].get(monominals.get(j));
+				List<Vector> list = p.vec[i].vec.get(monominals.get(j));
 				System.out.println("Multiplying: " + monominals.get(j)
 						+ " with " + matrix[i][j]);// XXX
 				if (list == null) {
 					list = new ArrayList<Vector>();
-					p.vec[i].put(monominals.get(j), list);
+					p.vec[i].vec.put(monominals.get(j), list);
 				}
 				list.add(matrix[i][j]);
 			}
