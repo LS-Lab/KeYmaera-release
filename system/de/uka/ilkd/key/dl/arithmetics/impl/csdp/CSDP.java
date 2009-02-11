@@ -132,38 +132,60 @@ public class CSDP {
 //            fillRandomly(y);
 //            fillRandomly(Z);
 //            fillRandomly(C);
-            Arrays.fill(C, -1.0); // try to find solutions with small values
+//            Arrays.fill(C, -1.0); // try to find solutions with small values
             
 //          System.out.println("n is: " + n);// XXX
 //          System.out.println("a is: " + Arrays.toString(a));// XXX
 //          System.out.println("constraints is: " + Arrays.toString(constraints));// XXX
-            int res = easySDP(n, k, C, a, inpConstraints, 0, solution, y, Z, pobj, dobj);
-            
-            /*
-            if (res == 0) {
-                // SUCCESS: try to find a nice solution that contains as small
-                // entries as possible
-                for (int i = 0; i < C.length; ++i) {
-                    if (isAlmostNothing(solution[i])) {
-                        // nothing
-                        continue;
-                    } else if (solution[i] > 0) {
-                        C[i] = -1.0;
-                    } else {
-                        C[i] = 1.0;                        
-                    }
-                    // check that we still get the same result
-                    if (res != easySDP(n, k, C, a, constraints, 0, solution,
-                                       y, Z, pobj, dobj)) {
-                        // go back to the previous solution
-                        C[i] = 0.0;
-                    }
-                }
-            } */
-  
-            return res;
+            return easySDP(n, k, C, a, inpConstraints, 0, solution, y, Z, pobj, dobj);
         }
 
+        public static int robustSdp(int n, int k, double[] a, double[] constraints,
+                                    double[] solution) {
+            int res = sdp(n, k, a, constraints, solution);
+            
+            if (res != 0 && res != 3)
+                return res;
+            
+            // otherwise, we found a solution and try to make it more robust
+            
+            // traces of the constraints
+            final double[] traces = new double[k];
+            Arrays.fill(traces, 0.0);
+            for (int l = 0; l < k; ++l)
+                for (int i = 0; i < n; ++i)
+                    traces[l] = traces[l] + constraints[l*n*n + i*(n+1)];
+            
+            double lambda = 1.0;
+            final double[] inpA = new double[k];
+            
+            while (lambda > 0.000000001) {
+                System.out.println("Robustification: Trying lambda = " + lambda);
+                
+                for (int l = 0; l < k; ++l)
+                    inpA[l] = a[l] - lambda*traces[l];
+                final int res2 = sdp(n, k, inpA, constraints, solution);
+                
+                if (res2 != 0 && res2 != 3) {
+                    lambda = lambda / 2.0;
+                    continue;
+                }
+                
+                // otherwise we have found a robust solution, but need to
+                // correct it
+                System.out.println("Robustification succeeded with lambda = " + lambda);
+                
+                for (int i = 0; i < n; ++i)
+                    solution[i*(n+1)] = solution[i*(n+1)] + lambda;
+                
+                return res2;
+            }
+            
+            // no robust solution could be found
+            System.out.println("Robustification failed");
+            return sdp(n, k, a, constraints, solution);
+        }
+            
         private static final Random random = new Random ();
         
         private static void fillRandomly(double[] ar) {
