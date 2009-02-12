@@ -90,25 +90,6 @@ public class CSDP {
 			double[] ppobj, double[] pdobj);
 
 	private static native int test();
-
-	public static boolean sdp(int n, int k, double[] a, double[] constraints) {
-		double[] X = new double[n * n], y = new double[a.length], Z = new double[n
-				* n], pobj = new double[n], dobj = new double[a.length];
-//		System.out.println("n is: " + n);// XXX
-//		System.out.println("a is: " + Arrays.toString(a));// XXX
-//		System.out.println("constraints is: " + Arrays.toString(constraints));// XXX
-		int result = easySDP(n, k, new double[n * n], a, constraints, 0, X, y,
-				Z, pobj, dobj);
-		// TODO: check that X is really an PSD matrix and that it yields a
-		// solution when using exact arithmetics
-
-		// check can either be checked by cholesky decomposition or by harrissions algorithm 
-		
-		
-		// TODO: guess fractions for those doubles, as they may be caused by
-		// rounding errors
-		return result == 0;
-	}
 	
 	private static final double BIG_EPS = 0.00001;
 	       

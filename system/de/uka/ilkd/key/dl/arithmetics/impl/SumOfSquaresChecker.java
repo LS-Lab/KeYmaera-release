@@ -35,7 +35,11 @@ import orbital.math.Polynomial;
 import orbital.math.Real;
 import orbital.math.Values;
 import orbital.math.Vector;
+import orbital.math.functional.Operations;
 import de.uka.ilkd.key.dl.arithmetics.impl.csdp.CSDP;
+import de.uka.ilkd.key.dl.arithmetics.impl.groebnerianSOS.GroebnerBasisChecker;
+import de.uka.ilkd.key.dl.arithmetics.impl.groebnerianSOS.SparsePolynomial;
+import de.uka.ilkd.key.dl.arithmetics.impl.groebnerianSOS.GroebnerBasisChecker.Square;
 import de.uka.ilkd.key.dl.arithmetics.impl.orbital.OrbitalSimplifier;
 import de.uka.ilkd.key.dl.arithmetics.impl.orbital.PolynomTool;
 import de.uka.ilkd.key.dl.arithmetics.impl.sos.MaxPolynomPerDegreeOrder;
@@ -447,21 +451,21 @@ public class SumOfSquaresChecker {
 	}
 
 	/**
-	 * @param result
+	 * @param inputPolynomial
 	 * @return
 	 */
-	private Result searchSolution(Polynomial result) {
+	private Result searchSolution(Polynomial inputPolynomial) {
 		// now we need to translate the polynominal into a matrix representation
 		// monominals are iterated x^0y^0, x^0y^1, x^0y^2, ..., x^1y^0, x^1y^1,
 		// x^1y^2,..., x^2y^0, x^2y^1,...
-		ListIterator mono = result.iterator();
-		System.out.println("Degree: " + result.degree());
-		System.out.println("Degree-Value: " + result.degreeValue());// XXX
-		Iterator indices = result.indices();
-		System.out.println("Rank: " + result.rank());// XXX
+		ListIterator coefficients = inputPolynomial.iterator();
+		System.out.println("Degree: " + inputPolynomial.degree());
+		System.out.println("Degree-Value: " + inputPolynomial.degreeValue());// XXX
+		Iterator indices = inputPolynomial.indices();
+		System.out.println("Rank: " + inputPolynomial.rank());// XXX
 		List<Vector> monominals = new ArrayList<Vector>();
-		while (mono.hasNext()) {
-			Object next = mono.next();
+		while (coefficients.hasNext()){
+			Object next = coefficients.next();
 			String blub = "";
 			Vector v = (Vector) indices.next();
 			for (int i = 0; i < v.dimension(); i++) {
@@ -510,12 +514,12 @@ public class SumOfSquaresChecker {
 		Poly multiplyVec = multiplyVec(multiplyMatrix(monominals, matrix),
 				monominals);
 		System.out.println("Polynom: " + multiplyVec);// XXX
-		mono = result.iterator();
-		indices = result.indices();
+		coefficients = inputPolynomial.iterator();
+		indices = inputPolynomial.indices();
 
 		List<Constraint> constraints = new ArrayList<Constraint>();
-		while (mono.hasNext()) {
-			Object next = mono.next();
+		while (coefficients.hasNext()) {
+			Object next = coefficients.next();
 			Vector v = (Vector) indices.next();
 			if (!Values.getDefault().ZERO().equals(next)) {
 				System.out.println("Checking: " + next + " and vector " + v);// XXX
@@ -531,12 +535,35 @@ public class SumOfSquaresChecker {
 		System.out.println(constraints);// XXX
 		// outputMatlab(monominals, constraints);
 
+		double[] solution = new double[monominals.size() * monominals.size()];
 		if (CSDP
 				.sdp(monominals.size(), constraints.size(),
 						convertConstraintsToResultVector(constraints,
 								monominals.size()), convertConstraintsToCSDP(
-								constraints, monominals.size()))) {
-			return Result.SOLUTION_FOUND;
+								constraints, monominals.size()), solution) == 0) {
+//			Square[] cert = GroebnerBasisChecker.approx2Exact(
+//					multiplyVec.toSparsePolynomial(), monominals, solution);
+//	        if (cert != null) {
+//	            // check that the certificate is correct
+//	            
+//	            System.out.println("Certificate:");
+//	            System.out.println(" 1");
+//	            
+//	            Polynomial p = (Polynomial) inputPolynomial.one();
+//	            for (int i = 0; i < cert.length; ++i) {
+//	                assert (Operations.greaterEqual.apply(cert[i].coefficient,
+//	                                                      Values.getDefault().ZERO()));
+//	                p = (Polynomial) p.add(cert[i].body.multiply(cert[i].body)
+//	                                                   .scale(cert[i].coefficient));
+//	                System.out.println(" + " + cert[i].coefficient + " * ( " + cert[i].body + " ) ^2");
+//	            }
+//	            System.out.println(" =");
+//	            System.out.println(" " + p);
+////	            assert (((Polynomial) groebnerReducer.apply(p)).isZero());
+//	            System.out.println("Certificate is correct");
+	            return Result.SOLUTION_FOUND;
+//	        }
+//	        return Result.UNKNOWN;
 		} else {
 			return Result.NO_SOLUTION_AVAILABLE;
 		}
@@ -740,6 +767,44 @@ public class SumOfSquaresChecker {
 			}
 			return b.toString();
 		}
+
+		public SparsePolynomial toSparsePolynomial() {
+			System.out.println("Converting " + this);//XXX
+			int maxX = 0;
+			int maxY = 0;
+			for (Vector mono : vec.keySet()) {
+				for (Vector coefficient : vec.get(mono)) {
+					assert coefficient.dimension() == 2;
+					int x = ((Integer) coefficient.get(0)).intValue();
+					if (x > maxX) {
+						maxX = x;
+					}
+					int y = ((Integer) coefficient.get(1)).intValue();
+					if (y > maxY) {
+						maxY = y;
+					}
+				}
+			}
+			assert maxX == maxY;
+			SparsePolynomial sparsePolynomial = new SparsePolynomial();
+			for(Vector mono: vec.keySet()) {
+				for (Vector coefficient : vec.get(mono)) {
+					int x = ((Integer) coefficient.get(0)).intValue();
+					int y = ((Integer) coefficient.get(1)).intValue();
+					if(x <= y) {
+						// we only need diagonal constraints here
+						int monoInts[] = new int[mono.rank()];
+						for(int i = 0; i < mono.rank(); i++) {
+							Real r = (Real) mono.get(i);
+							monoInts[i] = (int) r.doubleValue();
+						}
+						sparsePolynomial.addTerms(Values.getDefault().MONOMIAL(monoInts), x + y*maxX);
+					}
+				}
+			}
+			return sparsePolynomial;
+		}
+
 	}
 
 	/**

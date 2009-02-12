@@ -250,7 +250,7 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
     }
 
 
-    private Square[] approx2Exact(SparsePolynomial reducedPoly,
+    public static Square[] approx2Exact(SparsePolynomial reducedPoly,
                                   List<Vector> consideredMonomials,
                                   double[] approxSolution) {
         final int monoNum = consideredMonomials.size();
@@ -355,7 +355,7 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
     }
     
     
-    private static class Square {
+    public static class Square {
         public final Arithmetic coefficient;
         public final Polynomial body;
         public Square(Arithmetic coefficient, Polynomial body) {
