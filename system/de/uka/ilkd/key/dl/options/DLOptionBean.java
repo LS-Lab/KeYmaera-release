@@ -59,7 +59,7 @@ public class DLOptionBean implements Settings {
 		 * 
 		 * @see java.lang.Enum#toString()
 		 */
-		/*@Override*/
+		/* @Override */
 		public String toString() {
 			return string;
 		}
@@ -79,7 +79,7 @@ public class DLOptionBean implements Settings {
 		 * 
 		 * @see java.lang.Enum#toString()
 		 */
-		/*@Override*/
+		/* @Override */
 		public String toString() {
 			return string;
 		}
@@ -100,7 +100,7 @@ public class DLOptionBean implements Settings {
 		 * 
 		 * @see java.lang.Enum#toString()
 		 */
-		/*@Override*/
+		/* @Override */
 		public String toString() {
 			return string;
 		}
@@ -115,7 +115,7 @@ public class DLOptionBean implements Settings {
 			this.string = str;
 		}
 
-		/*@Override*/
+		/* @Override */
 		public String toString() {
 			return string;
 		}
@@ -135,34 +135,33 @@ public class DLOptionBean implements Settings {
 		 * 
 		 * @see java.lang.Enum#toString()
 		 */
-		/*@Override*/
+		/* @Override */
 		public String toString() {
 			return name;
 		}
 	}
 
-        public static enum BuiltInArithmetic {
-            OFF("off"),
-            NORMALISE_EQUATIONS("normalise (in)equalities"),
-            REDUCTION("normalisation and reduction"),
-            FULL("full (incl. S-polynomials)");
+	public static enum BuiltInArithmetic {
+		OFF("off"), NORMALISE_EQUATIONS("normalise (in)equalities"), REDUCTION(
+				"normalisation and reduction"), FULL(
+				"full (incl. S-polynomials)");
 
-            private String string;
+		private String string;
 
-            private BuiltInArithmetic(String str) {
-                    this.string = str;
-            }
+		private BuiltInArithmetic(String str) {
+			this.string = str;
+		}
 
-            /*
-             * (non-Javadoc)
-             * 
-             * @see java.lang.Enum#toString()
-             */
-            /*@Override*/
-            public String toString() {
-                    return string;
-            }
-        }
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see java.lang.Enum#toString()
+		 */
+		/* @Override */
+		public String toString() {
+			return string;
+		}
+	}
 
 	/**
 	 * 
@@ -232,7 +231,6 @@ public class DLOptionBean implements Settings {
 	private static final String DLOPTIONS_USE_POWERSET_ITERATIVE_REDUCE = "[DLOptions]usePowersetIterativeReduce";
 	private static final String DLOPTIONS_PERCENT_OF_POWERSET_FOR_ITERATIVE_REDUCE = "[DLOptions]percentOfPowersetForIterativeReduce";
 
-
 	private static final String DLOPTIONS_BUILT_IN_ARITHMETIC = "[DLOptions]BuiltInArithmetic";
 
 	private Set<Settings> subOptions;
@@ -296,7 +294,7 @@ public class DLOptionBean implements Settings {
 	private int percentOfPowersetForReduce;
 
 	private BuiltInArithmetic builtInArithmetic;
-	
+
 	private DLOptionBean() {
 		subOptions = new LinkedHashSet<Settings>();
 		foStrategy = FirstOrderStrategy.IBC;
@@ -330,62 +328,6 @@ public class DLOptionBean implements Settings {
 		builtInArithmetic = BuiltInArithmetic.OFF;
 
 		listeners = new HashSet<SettingsListener>();
-	}
-
-	/**
-	 * The init method is called from the DL initializer. It is necessary as
-	 * there may be dependencies from the MathSolverManager to the
-	 * DLOptionBean.INSTANCE, thus we cannot access the MathSolverManager from
-	 * the ctor.
-	 */
-	public void init() {
-		if ((counterExampleGenerator.equals(""))
-				|| !(MathSolverManager.getCounterExampleGenerators()
-						.contains(counterExampleGenerator))) {
-			if (!MathSolverManager.getCounterExampleGenerators().isEmpty()) {
-				counterExampleGenerator = MathSolverManager
-						.getCounterExampleGenerators().iterator().next();
-			} else {
-				counterExampleGenerator = "-";
-			}
-		}
-		if ((odeSolver.equals(""))
-				|| !(MathSolverManager.getODESolvers().contains(odeSolver))) {
-			if (!MathSolverManager.getODESolvers().isEmpty()) {
-				odeSolver = MathSolverManager.getODESolvers().iterator().next();
-			} else {
-				odeSolver = "-";
-			}
-		}
-		if ((quantifierEliminator.equals(""))
-				|| !(MathSolverManager.getQuantifierEliminators()
-						.contains(quantifierEliminator))) {
-			if (!MathSolverManager.getQuantifierEliminators().isEmpty()) {
-				quantifierEliminator = MathSolverManager
-						.getQuantifierEliminators().iterator().next();
-			} else {
-				quantifierEliminator = "-";
-			}
-		}
-		if ((simplifier.equals(""))
-				|| !(MathSolverManager.getSimplifiers().contains(simplifier))) {
-			if (!MathSolverManager.getSimplifiers().isEmpty()) {
-				simplifier = MathSolverManager.getSimplifiers().iterator()
-						.next();
-			} else {
-				simplifier = "-";
-			}
-		}
-		if ((groebnerBasisCalculator.equals(""))
-				|| !(MathSolverManager.getGroebnerBasisCalculators()
-						.contains(groebnerBasisCalculator))) {
-			if (!MathSolverManager.getGroebnerBasisCalculators().isEmpty()) {
-				groebnerBasisCalculator = MathSolverManager
-						.getGroebnerBasisCalculators().iterator().next();
-			} else {
-				groebnerBasisCalculator = "-";
-			}
-		}
 	}
 
 	/**
@@ -519,66 +461,69 @@ public class DLOptionBean implements Settings {
 		counterExampleGenerator = props
 				.getProperty(DLOPTIONS_COUNTEREXAMPLE_GENERATOR);
 		if (counterExampleGenerator == null) {
-			counterExampleGenerator = "";
+			setCounterExampleGenerator("-");
 		} else if (!(MathSolverManager.getCounterExampleGenerators()
 				.contains(counterExampleGenerator))
 				&& !counterExampleGenerator.equals("-")) {
 			if (!MathSolverManager.getCounterExampleGenerators().isEmpty()) {
-				counterExampleGenerator = MathSolverManager
-						.getCounterExampleGenerators().iterator().next();
+				setCounterExampleGenerator(MathSolverManager
+						.getCounterExampleGenerators().iterator().next());
 			} else {
-				counterExampleGenerator = "-";
+				setCounterExampleGenerator("-");
 			}
 		}
 		odeSolver = props.getProperty(DLOPTIONS_ODESOLVER);
 		if (odeSolver == null) {
-			odeSolver = "";
+			setOdeSolver("-");
 		} else if (!(MathSolverManager.getODESolvers().contains(odeSolver))
 				&& !odeSolver.equals("-")) {
 			if (!MathSolverManager.getODESolvers().isEmpty()) {
-				odeSolver = MathSolverManager.getODESolvers().iterator().next();
+				setOdeSolver(MathSolverManager.getODESolvers().iterator().next());
 			} else {
-				odeSolver = "-";
+				setOdeSolver("-");
 			}
 		}
 		quantifierEliminator = props
 				.getProperty(DLOPTIONS_QUANTIFIER_ELIMINATOR);
+		if (!quantifierEliminator.equals("-")) {
+			new Exception().printStackTrace();
+		}
 		if (quantifierEliminator == null) {
-			quantifierEliminator = "";
+			setQuantifierEliminator("-");
 		} else if (!(MathSolverManager.getQuantifierEliminators()
 				.contains(quantifierEliminator))
 				&& !quantifierEliminator.equals("-")) {
 			if (!MathSolverManager.getQuantifierEliminators().isEmpty()) {
-				quantifierEliminator = MathSolverManager
-						.getQuantifierEliminators().iterator().next();
+				setQuantifierEliminator(MathSolverManager
+						.getQuantifierEliminators().iterator().next());
 			} else {
-				quantifierEliminator = "-";
+				setQuantifierEliminator("-");
 			}
 		}
 		simplifier = props.getProperty(DLOPTIONS_SIMPLIFIER);
 		if (simplifier == null) {
-			simplifier = "";
+			setSimplifier("-");
 		} else if (!(MathSolverManager.getSimplifiers().contains(simplifier))
 				&& !simplifier.equals("-")) {
 			if (!MathSolverManager.getSimplifiers().isEmpty()) {
-				simplifier = MathSolverManager.getSimplifiers().iterator()
-						.next();
+				setSimplifier(MathSolverManager.getSimplifiers().iterator()
+						.next());
 			} else {
-				simplifier = "-";
+				setSimplifier("-");
 			}
 		}
 		groebnerBasisCalculator = props
 				.getProperty(DLOPTIONS_GROEBNER_BASIS_CALCULATOR);
 		if (groebnerBasisCalculator == null) {
-			groebnerBasisCalculator = "";
+			setGroebnerBasisCalculator("");
 		} else if (!(MathSolverManager.getGroebnerBasisCalculators()
 				.contains(groebnerBasisCalculator))
 				&& !groebnerBasisCalculator.equals("-")) {
 			if (!MathSolverManager.getGroebnerBasisCalculators().isEmpty()) {
-				groebnerBasisCalculator = MathSolverManager
-						.getGroebnerBasisCalculators().iterator().next();
+				setGroebnerBasisCalculator(MathSolverManager
+						.getGroebnerBasisCalculators().iterator().next());
 			} else {
-				groebnerBasisCalculator = "-";
+				setGroebnerBasisCalculator("-");
 			}
 		}
 		property = props.getProperty(DLOPTIONS_APPLY_GAMMA_RULES);
@@ -641,10 +586,10 @@ public class DLOptionBean implements Settings {
 			percentOfPowersetForReduce = Integer.valueOf(property);
 		}
 
-                property = props.getProperty(DLOPTIONS_BUILT_IN_ARITHMETIC);
-                if (property != null) {
-                        builtInArithmetic = BuiltInArithmetic.valueOf(property);
-                }
+		property = props.getProperty(DLOPTIONS_BUILT_IN_ARITHMETIC);
+		if (property != null) {
+			builtInArithmetic = BuiltInArithmetic.valueOf(property);
+		}
 	}
 
 	/*
@@ -687,13 +632,16 @@ public class DLOptionBean implements Settings {
 			props.setProperty(DLOPTIONS_ODESOLVER, odeSolver);
 		}
 		if (quantifierEliminator != null) {
+			System.out.println("Writing qe = " + quantifierEliminator);
 			props.setProperty(DLOPTIONS_QUANTIFIER_ELIMINATOR,
 					quantifierEliminator);
+		} else {
+			props.setProperty(DLOPTIONS_QUANTIFIER_ELIMINATOR, "-");
 		}
 		if (simplifier != null) {
 			props.setProperty(DLOPTIONS_SIMPLIFIER, simplifier);
 		}
-		if (simplifier != null) {
+		if (groebnerBasisCalculator != null) {
 			props.setProperty(DLOPTIONS_GROEBNER_BASIS_CALCULATOR,
 					groebnerBasisCalculator);
 		}
@@ -722,8 +670,8 @@ public class DLOptionBean implements Settings {
 				.toString(usePowersetIterativeReduce));
 		props.setProperty(DLOPTIONS_PERCENT_OF_POWERSET_FOR_ITERATIVE_REDUCE,
 				"" + percentOfPowersetForReduce);
-                props.setProperty(DLOPTIONS_BUILT_IN_ARITHMETIC,
-                                  builtInArithmetic.name());
+		props.setProperty(DLOPTIONS_BUILT_IN_ARITHMETIC, builtInArithmetic
+				.name());
 	}
 
 	public void addSubOptionBean(Settings sub) {
@@ -838,19 +786,19 @@ public class DLOptionBean implements Settings {
 	}
 
 	public boolean isNormalizeEquations() {
-	    return builtInArithmetic == BuiltInArithmetic.NORMALISE_EQUATIONS ||
-	           builtInArithmetic == BuiltInArithmetic.REDUCTION ||
-	           builtInArithmetic == BuiltInArithmetic.FULL;
+		return builtInArithmetic == BuiltInArithmetic.NORMALISE_EQUATIONS
+				|| builtInArithmetic == BuiltInArithmetic.REDUCTION
+				|| builtInArithmetic == BuiltInArithmetic.FULL;
 	}
 
-        public boolean isArithmeticReduction() {
-            return builtInArithmetic == BuiltInArithmetic.REDUCTION ||
-                   builtInArithmetic == BuiltInArithmetic.FULL;
-        }
+	public boolean isArithmeticReduction() {
+		return builtInArithmetic == BuiltInArithmetic.REDUCTION
+				|| builtInArithmetic == BuiltInArithmetic.FULL;
+	}
 
-        public boolean isArithmeticSaturation() {
-            return builtInArithmetic == BuiltInArithmetic.FULL;
-        }
+	public boolean isArithmeticSaturation() {
+		return builtInArithmetic == BuiltInArithmetic.FULL;
+	}
 
 	/**
 	 * @return the applyUpdatesToModalities
@@ -912,8 +860,11 @@ public class DLOptionBean implements Settings {
 	 *            the quantifierEliminator to set
 	 */
 	public void setQuantifierEliminator(String quantifierEliminator) {
-		this.quantifierEliminator = quantifierEliminator;
-		firePropertyChanged();
+		if (!(quantifierEliminator == null && this.quantifierEliminator == null)
+				|| !quantifierEliminator.equals(this.quantifierEliminator)) {
+			this.quantifierEliminator = quantifierEliminator;
+			firePropertyChanged();
+		}
 	}
 
 	/**
@@ -1071,18 +1022,16 @@ public class DLOptionBean implements Settings {
 		}
 	}
 
-	
-	
 	public BuiltInArithmetic getBuiltInArithmetic() {
-	    return builtInArithmetic;
-        }
+		return builtInArithmetic;
+	}
 
-        public void setBuiltInArithmetic(BuiltInArithmetic builtInArithmetic) {
-            this.builtInArithmetic = builtInArithmetic;
-            firePropertyChanged();
-        }
+	public void setBuiltInArithmetic(BuiltInArithmetic builtInArithmetic) {
+		this.builtInArithmetic = builtInArithmetic;
+		firePropertyChanged();
+	}
 
-    /**
+	/**
 	 * @return the termFactory
 	 */
 	public Class<? extends TermFactory> getTermFactoryClass() {

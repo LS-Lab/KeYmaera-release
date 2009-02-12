@@ -141,7 +141,6 @@ public abstract class MathSolverManager {
 	 */
 	private static void add(IMathSolver solver) {
 		if (solver instanceof ICounterExampleGenerator) {
-
 			COUNTEREXAMPLE_GENERATORS.put(solver.getName(),
 					(ICounterExampleGenerator) solver);
 		}

@@ -208,7 +208,6 @@ public class DLInitializer {
 					e.printStackTrace();
 				}
 			}
-			DLOptionBean.INSTANCE.init();
 			if (MathSolverManager.getQuantifierEliminators().isEmpty()) {
 				for (Settings s : DLOptionBean.INSTANCE.getSubOptions()) {
 					if (s == de.uka.ilkd.key.dl.arithmetics.impl.qepcad.Options.INSTANCE) {
