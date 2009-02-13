@@ -485,9 +485,6 @@ public class DLOptionBean implements Settings {
 		}
 		quantifierEliminator = props
 				.getProperty(DLOPTIONS_QUANTIFIER_ELIMINATOR);
-		if (!quantifierEliminator.equals("-")) {
-			new Exception().printStackTrace();
-		}
 		if (quantifierEliminator == null) {
 			setQuantifierEliminator("-");
 		} else if (!(MathSolverManager.getQuantifierEliminators()
@@ -632,7 +629,6 @@ public class DLOptionBean implements Settings {
 			props.setProperty(DLOPTIONS_ODESOLVER, odeSolver);
 		}
 		if (quantifierEliminator != null) {
-			System.out.println("Writing qe = " + quantifierEliminator);
 			props.setProperty(DLOPTIONS_QUANTIFIER_ELIMINATOR,
 					quantifierEliminator);
 		} else {
