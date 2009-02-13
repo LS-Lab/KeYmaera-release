@@ -45,7 +45,7 @@ public class MaxPolynomPerDegreeOrder implements PolynomialOrder {
 			ListIterator coeff2 = o2.iterator();
 			Comparator<Vector> monomComparator = new Comparator<Vector>() {
 
-				@Override
+				/*@Override*/
 				public int compare(Vector arg0, Vector arg1) {
 					int left = 0;
 					int right = 0;
@@ -144,12 +144,12 @@ public class MaxPolynomPerDegreeOrder implements PolynomialOrder {
 				this.one = one;
 			}
 
-			@Override
+			/*@Override*/
 			public boolean hasNext() {
 				return !generator.isEmpty();
 			}
 
-			@Override
+			/*@Override*/
 			public Polynomial next() {
 				while (results.isEmpty()) {
 					// System.out.println("P is " + p);// XXX
@@ -186,7 +186,7 @@ public class MaxPolynomPerDegreeOrder implements PolynomialOrder {
 				return res;
 			}
 
-			@Override
+			/*@Override*/
 			public void remove() {
 				throw new UnsupportedOperationException();
 			}
@@ -208,7 +208,7 @@ public class MaxPolynomPerDegreeOrder implements PolynomialOrder {
 		 * 
 		 * @see java.lang.Iterable#iterator()
 		 */
-		@Override
+		/*@Override*/
 		public Iterator<Polynomial> iterator() {
 			return new MonoidIterator(generator, one);
 		}
