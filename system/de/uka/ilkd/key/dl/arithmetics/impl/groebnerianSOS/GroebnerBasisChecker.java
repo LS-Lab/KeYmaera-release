@@ -23,6 +23,8 @@ import java.math.BigDecimal;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.BitSet;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -33,6 +35,7 @@ import orbital.math.AlgebraicAlgorithms;
 import orbital.math.Arithmetic;
 import orbital.math.Matrix;
 import orbital.math.Polynomial;
+import orbital.math.ValueFactory;
 import orbital.math.Values;
 import orbital.math.Vector;
 import orbital.math.functional.Operations;
@@ -68,7 +71,21 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 
     public boolean checkForConstantGroebnerBasis(PolynomialClassification<Term> terms,
 	                                         Services services) {
-	final Set<Polynomial> polys = extractPolynomials(terms);
+	final Set<Polynomial> rawPolys = extractPolynomials(terms);
+        System.out.println("Polynomials are: ");
+        for (Polynomial p : rawPolys)
+            System.out.println(p);
+
+        final Set<Polynomial> polys2 = eliminateLinearVariables(rawPolys);
+        System.out.println("Polynomials after eliminating linear variables are: ");
+        for (Polynomial p : polys2)
+            System.out.println(p);
+        
+        final Set<Polynomial> polys = eliminateUnusedVariables(polys2);
+        System.out.println("Polynomials after eliminating unused variables are: ");
+        for (Polynomial p : polys)
+            System.out.println(p);
+        
         final Polynomial one = (Polynomial)polys.iterator().next().one();
 	
 	// we try to get a contradiction by computing the groebner basis of all
@@ -95,7 +112,7 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 	// enumerate sums of squares s and check whether some monomial 1+s is
 	// in the ideal
 	final Iterator<Vector> monomials =
-	    new SimpleMonomialIterator(indexNum(groebnerBasis), 2);
+	    new SimpleMonomialIterator(indexNum(groebnerBasis), 3);
         final Square[] cert = checkSOS(monomials, groebnerBasis, groebnerReducer);
         
         if (cert != null) {
@@ -154,14 +171,7 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 	    new PolynomialClassification<Term>(new HashSet<Term> (),
 		                               new HashSet<Term> (),
 		                               equations);
-	final Set<Polynomial> polys =
-	    SumOfSquaresChecker.INSTANCE.classify(equationsOnly).h;
-	
-	System.out.println("Polynomials are: ");
-	for (Polynomial p : polys)
-	    System.out.println(p);
-
-	return polys;
+	return SumOfSquaresChecker.INSTANCE.classify(equationsOnly).h;
     }
 
     private int indexNum(Set<Polynomial> polys) {
@@ -174,6 +184,154 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
             }
         }
         return res;
+    }
+
+    private Set<Polynomial> eliminateUnusedVariables(Set<Polynomial> polys) {
+        final int varNum = indexNum(polys);
+        final BitSet occurring = new BitSet ();
+        
+        for (Polynomial p : polys) {
+            final Iterator<Vector> indexIt = p.indices();
+            final Iterator<Arithmetic> coeffIt = p.iterator();
+            while (indexIt.hasNext()) {
+                final Vector v = indexIt.next();
+                final Arithmetic coeff = coeffIt.next();
+                if (!coeff.isZero())
+                    for (int i = 0; i < v.dimension(); ++i)
+                        if (!v.get(i).isZero())
+                            occurring.set(i);
+            }
+        }
+        
+        System.out.println(occurring);
+
+        final Matrix conversion =
+            Values.getDefault().ZERO(occurring.cardinality(), varNum);
+        int j = 0;
+        for (int i = 0; i < varNum; ++i) {
+            if (occurring.get(i)) {
+                conversion.set(j, i, Values.getDefault().ONE());
+                j = j + 1;
+            }
+        }
+        
+        System.out.println(conversion);
+        
+        final Set<Polynomial> res = new HashSet<Polynomial> ();
+        for (Polynomial p : polys)
+            res.add(convertPoly(p, conversion, occurring.cardinality()));
+        
+        return res;
+    }
+
+    private Polynomial convertPoly(Polynomial p, Matrix conversion, int newVarNum) {
+        final ValueFactory vf = Values.getDefault();
+        Polynomial res = vf.MONOMIAL(vf.ZERO(), vf.ZERO(newVarNum));
+
+        final Iterator<Vector> indexIt = p.indices();
+        final Iterator<Arithmetic> coeffIt = p.iterator();
+        while (indexIt.hasNext()) {
+            final Vector v = indexIt.next();
+            final Arithmetic coeff = coeffIt.next();
+            
+            res = res.add(vf.MONOMIAL(coeff, conversion.multiply(v)));
+        }
+        
+        return res;
+    }
+    
+    private Set<Polynomial> eliminateLinearVariables(Set<Polynomial> polys) {
+        final int varNum = indexNum(polys);
+        Set<Polynomial> workPolys = new HashSet<Polynomial> (polys);
+        
+        while (true) {
+            // search for a polynomial that contains a variable only in a linear
+            // term
+        
+            int linVar = -1;
+            Polynomial polyWithLinVar = null;
+            for (Polynomial p : workPolys) {
+                linVar = findLinearVariable(p, varNum);
+                if (linVar >= 0) {
+                    polyWithLinVar = p;
+                    break;
+                }
+            }
+     
+            if (linVar < 0)
+                // we did not find any linear variable, bail out
+                return workPolys;
+        
+            System.out.println("eliminating " + linVar + " using " + polyWithLinVar);
+            
+            final List<Polynomial> reducePolys = new ArrayList<Polynomial> ();
+            reducePolys.add(polyWithLinVar);
+        
+            final Function reducer =
+                AlgebraicAlgorithms.reduce(reducePolys,
+                                           lexVariableOrder(linVar, varNum));
+        
+            final Iterator<Polynomial> allPolysIt = workPolys.iterator();
+            workPolys = new HashSet<Polynomial> ();
+            while (allPolysIt.hasNext()) {
+                final Polynomial reducedPoly =
+                    (Polynomial)reducer.apply(allPolysIt.next());
+                if (!reducedPoly.isZero())
+                    workPolys.add(reducedPoly);
+            }
+        }
+    }
+
+    /**
+     * Generate a lexicographic polynomial order in which the variable
+     * <code>linVar</code> is the biggest variable
+     */
+    private Comparator lexVariableOrder(int linVar, final int varNum) {
+        final int[] varOrderAr = new int[varNum];
+        varOrderAr[0] = linVar;
+        for (int i = 0; i < varNum; ++i) {
+            if (i < linVar)
+                varOrderAr[i+1] = i;
+            if (i > linVar)
+                varOrderAr[i] = i;
+        }
+        return AlgebraicAlgorithms.LEXICOGRAPHIC(varOrderAr);
+    }
+
+
+    private int findLinearVariable(Polynomial p, final int varNum) {
+        final BitSet linearVars = new BitSet();
+        final BitSet nonLinearVars = new BitSet();
+        final Vector oneVec =
+            Values.getDefault().CONST(varNum, Values.getDefault().ONE());
+        
+        final Iterator<Vector> indexIt = p.indices();
+        final Iterator<Arithmetic> coeffIt = p.iterator();
+        while (indexIt.hasNext()) {
+            final Vector v = indexIt.next();
+            final Arithmetic coeff = coeffIt.next();
+            
+            if (coeff.isZero())
+                continue;
+            
+            final Arithmetic degree = v.multiply(oneVec);
+            if (degree.isZero()) {
+                // nothing
+            } else if (degree.isOne()) {
+                // linear term
+                for (int i = 0; i < varNum; ++i)
+                    if (!v.get(i).isZero())
+                        linearVars.set(i);
+            } else {
+                // nonlinear term
+                for (int i = 0; i < varNum; ++i)
+                    if (!v.get(i).isZero())
+                        nonLinearVars.set(i);
+            }
+        }
+        
+        linearVars.andNot(nonLinearVars);
+        return linearVars.nextSetBit(0);
     }
     
     private Square[] checkSOS(Iterator<Vector> monomials,
