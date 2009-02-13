@@ -440,7 +440,7 @@ public class SumOfSquaresChecker {
 			order.setMaxDegree(20);
 			while (order.hasNext()) {
 				System.out.println("searching");
-				Result searchSolution = searchSolution(order.getNext());
+				Result searchSolution = testIfPolynomialIsSumOfSquares(order.getNext());
 				System.out.println("Result: " + searchSolution);
 				if (searchSolution == Result.SOLUTION_FOUND) {
 					return FormulaStatus.INVALID;
@@ -454,15 +454,12 @@ public class SumOfSquaresChecker {
 	 * @param inputPolynomial
 	 * @return
 	 */
-	private Result searchSolution(Polynomial inputPolynomial) {
+	private Result testIfPolynomialIsSumOfSquares(Polynomial inputPolynomial) {
 		// now we need to translate the polynominal into a matrix representation
 		// monominals are iterated x^0y^0, x^0y^1, x^0y^2, ..., x^1y^0, x^1y^1,
 		// x^1y^2,..., x^2y^0, x^2y^1,...
 		ListIterator coefficients = inputPolynomial.iterator();
-		System.out.println("Degree: " + inputPolynomial.degree());
-		System.out.println("Degree-Value: " + inputPolynomial.degreeValue());// XXX
 		Iterator indices = inputPolynomial.indices();
-		System.out.println("Rank: " + inputPolynomial.rank());// XXX
 		List<Vector> monominals = new ArrayList<Vector>();
 		while (coefficients.hasNext()){
 			Object next = coefficients.next();
@@ -482,7 +479,6 @@ public class SumOfSquaresChecker {
 						Real sqrt = in.divide(Values.getDefault().valueOf(2));
 						try {
 							new BigDecimal(sqrt.doubleValue()).intValueExact();
-							System.out.println("Found nice half: " + sqrt);// XXX
 							double[] d = new double[v.dimension()];
 							d[i] = in.divide(Values.getDefault().valueOf(2))
 									.doubleValue();
@@ -511,9 +507,9 @@ public class SumOfSquaresChecker {
 			}
 		}
 		// The result of this multiplication is a polynomial
-		Poly multiplyVec = multiplyVec(multiplyMatrix(monominals, matrix),
+		Poly quadraticForm = multiplyVec(multiplyMatrix(monominals, matrix),
 				monominals);
-		System.out.println("Polynom: " + multiplyVec);// XXX
+		System.out.println("Polynom: " + quadraticForm);// XXX
 		coefficients = inputPolynomial.iterator();
 		indices = inputPolynomial.indices();
 
@@ -523,9 +519,11 @@ public class SumOfSquaresChecker {
 			Vector v = (Vector) indices.next();
 			if (!Values.getDefault().ZERO().equals(next)) {
 				System.out.println("Checking: " + next + " and vector " + v);// XXX
-				List<Vector> list = multiplyVec.vec.get(v);
+				List<Vector> list = quadraticForm.vec.get(v);
 				if (list != null) {
-					constraints.add(new Constraint(v, list, (Arithmetic) next));
+					Constraint constraint = new Constraint(v, list, (Arithmetic) next);
+					System.out.println("Added constraint " + constraint);//XXX
+					constraints.add(constraint);
 				} else {
 					System.out.println("Cannot express: " + v);// XXX
 					return Result.UNKNOWN;
@@ -541,8 +539,9 @@ public class SumOfSquaresChecker {
 						convertConstraintsToResultVector(constraints,
 								monominals.size()), convertConstraintsToCSDP(
 								constraints, monominals.size()), solution) == 0) {
+//			System.out.println(quadraticForm.toSparsePolynomial());//XXX
 //			Square[] cert = GroebnerBasisChecker.approx2Exact(
-//					multiplyVec.toSparsePolynomial(), monominals, solution);
+//					quadraticForm.toSparsePolynomial(), monominals, solution);
 //	        if (cert != null) {
 //	            // check that the certificate is correct
 //	            
@@ -789,17 +788,17 @@ public class SumOfSquaresChecker {
 			SparsePolynomial sparsePolynomial = new SparsePolynomial();
 			for(Vector mono: vec.keySet()) {
 				for (Vector coefficient : vec.get(mono)) {
-					int x = ((Integer) coefficient.get(0)).intValue();
-					int y = ((Integer) coefficient.get(1)).intValue();
-					if(x <= y) {
+					int x = ((Integer) coefficient.get(0)).intValue() - 1;
+					int y = ((Integer) coefficient.get(1)).intValue() - 1;
+//					if(x <= y) {
 						// we only need diagonal constraints here
-						int monoInts[] = new int[mono.rank()];
-						for(int i = 0; i < mono.rank(); i++) {
+						int monoInts[] = new int[mono.dimension()];
+						for(int i = 0; i < mono.dimension(); i++) {
 							Real r = (Real) mono.get(i);
 							monoInts[i] = (int) r.doubleValue();
 						}
 						sparsePolynomial.addTerms(Values.getDefault().MONOMIAL(monoInts), x + y*maxX);
-					}
+//					}
 				}
 			}
 			return sparsePolynomial;
