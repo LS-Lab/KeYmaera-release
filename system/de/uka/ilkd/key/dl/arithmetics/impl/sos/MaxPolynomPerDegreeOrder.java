@@ -152,14 +152,14 @@ public class MaxPolynomPerDegreeOrder implements PolynomialOrder {
 			@Override
 			public Polynomial next() {
 				while (results.isEmpty()) {
-//					System.out.println("P is " + p);// XXX
+					// System.out.println("P is " + p);// XXX
 					for (Polynomial pPoly : p) {
 						for (Polynomial pPoly2 : p) {
 							Polynomial multiply = pPoly.multiply(pPoly2);
 							if (!s.contains(multiply)) {
 								s.add(multiply);
 							}
-//							System.out.println("Adding to s: " + multiply);
+							// System.out.println("Adding to s: " + multiply);
 						}
 					}
 					Polynomial poll = s.poll();
@@ -167,19 +167,19 @@ public class MaxPolynomPerDegreeOrder implements PolynomialOrder {
 						poll = s.poll();
 					}
 					p.add(poll);
-//					System.out.println("Added to p: " + poll);
+					// System.out.println("Added to p: " + poll);
 					Collections.sort(p, polynomComparator);
 					results.addAll(s);
-//					System.out.println("Result: " + results);
+					// System.out.println("Result: " + results);
 					for (Polynomial o : usedResults) {
 						if (results.contains(o)) {
 							results.remove(o);
 						}
 					}
-//					System.out.println("Used results: " + usedResults);
-//					System.out.println("results is now " + results);// XXX
+					// System.out.println("Used results: " + usedResults);
+					// System.out.println("results is now " + results);// XXX
 					s.removeAll(p);
-//					System.out.println("s is now " + s);// XXX
+					// System.out.println("s is now " + s);// XXX
 				}
 				Polynomial res = results.poll();
 				usedResults.add(res);
@@ -254,8 +254,9 @@ public class MaxPolynomPerDegreeOrder implements PolynomialOrder {
 		}
 		assert (pg != null);
 		assert (result != null);
-		result.add((Polynomial) pg.power(Values.getDefault().valueOf(2)));
-		if(h != null) {
+		result = result.add((Polynomial) pg.power(Values.getDefault()
+				.valueOf(2)));
+		if (h != null) {
 			result = result.add(h);
 		}
 		return result;
