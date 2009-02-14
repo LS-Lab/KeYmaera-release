@@ -527,7 +527,7 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
     }
     
     
-    private static class SimpleMonomialIterator implements Iterator<Vector> {
+    public static class SimpleMonomialIterator implements Iterator<Vector> {
         private final int indexNum;
         private final int maxTotalDegree;
         

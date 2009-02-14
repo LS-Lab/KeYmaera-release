@@ -119,9 +119,9 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 				Polynomial reduce = (Polynomial) curGroebnerBasis.apply(ng
 						.one());
 
-				if (!reduce.equals(reduce.zero())) {
+				if (reduce.equals(reduce.zero())) {
 					System.out
-							.println("We could not reduce 1 to 0 in the prior GB + "
+							.println("We could reduce 1 to 0 in the prior GB + "
 									+ ng);// XXX
 					return true;
 				}
