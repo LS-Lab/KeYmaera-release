@@ -73,18 +73,15 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 	                                         Services services) {
 	final Set<Polynomial> rawPolys = extractPolynomials(terms);
         System.out.println("Polynomials are: ");
-        for (Polynomial p : rawPolys)
-            System.out.println(p);
+        printPolys(rawPolys);
 
         final Set<Polynomial> polys2 = eliminateLinearVariables(rawPolys);
         System.out.println("Polynomials after eliminating linear variables are: ");
-        for (Polynomial p : polys2)
-            System.out.println(p);
+        printPolys(polys2);
         
         final Set<Polynomial> polys = eliminateUnusedVariables(polys2);
         System.out.println("Polynomials after eliminating unused variables are: ");
-        for (Polynomial p : polys)
-            System.out.println(p);
+        printPolys(polys);
         
         final Polynomial one = (Polynomial)polys.iterator().next().one();
 	
@@ -99,8 +96,7 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 		     groebnerBasis, AlgebraicAlgorithms.DEGREE_REVERSE_LEXICOGRAPHIC);
 	
 	System.out.println("Groebner basis is: ");
-	for (Polynomial p : groebnerBasis)
-	    System.out.println(p);
+	printPolys(groebnerBasis);
 	
         final Polynomial oneReduced = (Polynomial) groebnerReducer.apply(one);
 	System.out.println(oneReduced);
@@ -112,7 +108,7 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 	// enumerate sums of squares s and check whether some monomial 1+s is
 	// in the ideal
 	final Iterator<Vector> monomials =
-	    new SimpleMonomialIterator(indexNum(groebnerBasis), 3);
+	    new SimpleMonomialIterator(indexNum(groebnerBasis), 2);
         final Square[] cert = checkSOS(monomials, groebnerBasis, groebnerReducer);
         
         if (cert != null) {
@@ -136,6 +132,12 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
             return true;
         }
         return false;
+    }
+
+
+    private void printPolys(Set<Polynomial> rawPolys) {
+        for (Polynomial p : rawPolys)
+            System.out.println(p);
     }
 
 
@@ -245,6 +247,8 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
         Set<Polynomial> workPolys = new HashSet<Polynomial> (polys);
         
         while (true) {
+            System.out.println("Working set:");
+            printPolys(workPolys);
             // search for a polynomial that contains a variable only in a linear
             // term
         
@@ -263,13 +267,13 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
                 return workPolys;
         
             System.out.println("eliminating " + linVar + " using " + polyWithLinVar);
+            final Comparator order = lexVariableOrder(linVar, varNum);
             
-            final List<Polynomial> reducePolys = new ArrayList<Polynomial> ();
+            Set<Polynomial> reducePolys = new HashSet<Polynomial> ();
             reducePolys.add(polyWithLinVar);
         
-            final Function reducer =
-                AlgebraicAlgorithms.reduce(reducePolys,
-                                           lexVariableOrder(linVar, varNum));
+//            reducePolys = AlgebraicAlgorithms.groebnerBasis(reducePolys, order);
+            final Function reducer = AlgebraicAlgorithms.reduce(reducePolys, order);
         
             final Iterator<Polynomial> allPolysIt = workPolys.iterator();
             workPolys = new HashSet<Polynomial> ();
