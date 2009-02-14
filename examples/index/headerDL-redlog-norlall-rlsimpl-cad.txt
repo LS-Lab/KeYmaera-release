@@ -31,7 +31,7 @@
 [StrategyProperty]QUERY_OPTIONS_KEY=QUERY_NONE
 [StrategyProperty]QUANTIFIERS_OPTIONS_KEY=QUANTIFIERS_NON_SPLITTING_WITH_PROGS
 [DLOptions]simplifyAfterODESolve=false
-[ReduceOptions]rlall=true
+[ReduceOptions]rlall=false
 [DLOptions]diffSatTimeout=20000
 [DLOptions]linearTimeoutIncreaseFactor=2
 [ReduceOptions]rlqesqsc=DEFAULT
@@ -93,10 +93,10 @@
 [Strategy]ActiveStrategy=DLStrategy
 [DLOptions]usePowersetIterativeReduce=true
 [DLOptions]quadricTimeoutIncreaseFactor=0
-[DLOptions]FOStrategy=LAZY
+[DLOptions]FOStrategy=IBC
 [ReduceOptions]rlqepnf=DEFAULT
 [ReduceOptions]rlsimpl=ON
 [DLOptions]applyLocalReduce=false
-[DLOptions]quantifierEliminator=Mathematica
+[DLOptions]quantifierEliminator=Reduce
 "
 }

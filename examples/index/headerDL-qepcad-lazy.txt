@@ -97,6 +97,6 @@
 [ReduceOptions]rlqepnf=DEFAULT
 [ReduceOptions]rlsimpl=ON
 [DLOptions]applyLocalReduce=false
-[DLOptions]quantifierEliminator=Mathematica
+[DLOptions]quantifierEliminator=QepCad
 "
 }

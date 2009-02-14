@@ -19,6 +19,7 @@
 [ReduceOptions]rlqeqsc=DEFAULT
 [ReduceOptions]ReduceSwitch\ rlanuexgcdnormalize=DEFAULT
 [ReduceOptions]rlcadbaseonly=DEFAULT
+[ReduceOptions]rlsimpl=OFF
 [DLOptions]simplifyAfterReduce=false
 [View]HideIntermediateProofsteps=false
 [DLOptions]readdQuantifiers=true
@@ -93,10 +94,9 @@
 [Strategy]ActiveStrategy=DLStrategy
 [DLOptions]usePowersetIterativeReduce=true
 [DLOptions]quadricTimeoutIncreaseFactor=0
-[DLOptions]FOStrategy=LAZY
+[DLOptions]FOStrategy=IBC
 [ReduceOptions]rlqepnf=DEFAULT
-[ReduceOptions]rlsimpl=ON
 [DLOptions]applyLocalReduce=false
-[DLOptions]quantifierEliminator=Mathematica
+[DLOptions]quantifierEliminator=Reduce
 "
 }

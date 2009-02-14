@@ -1,30 +1,26 @@
-./hybrid/ETCS/controllability/ETCS-d-braking.key
-./hybrid/water_tank/water_tank.key
-./hybrid/ETCS/safety/ETCS-essentials.key
-./hybrid/dev/random-2.key
-./hybrid/dev/zero.key
-./hybrid/dev/zero-unique.key
-./hybrid/dev/random-zero.key
-./hybrid/dev/random-zero-unique.key
-./hybrid/moving-point.key
-./hybrid/bouncing-ball/bouncing-ball.key
-./hybrid/bouncing-ball/bouncing-ball-inv.key
-./hybrid/bouncing-ball/bouncing-ball-simple.key
-./hybrid/ETCS/safety/binary_driver-2007-10-09.key 18000
-./hybrid/ETCS/paper/rbc-controllability-lemma.key
-./hybrid/ETCS/paper/rbc-controllability-characterisation.key
-./hybrid/ETCS/paper/controllability-lemma.key
-./hybrid/ETCS/paper/safety-lemma.key 18000
-./hybrid/dev/exist-evolve.key
-./hybrid/dev/rotation.key
-./hybrid/dev/qode-test1.key
-./hybrid/dev/qode-test2.key
-./hybrid/ATC/roundabout/TRM-essentials.key
-./hybrid/ATC/roundabout/TRM-essentials-3.key 18000
-./hybrid/ATC/roundabout/bounded-speed-choice.key 18000
-./hybrid/ETCS/paper/reactivity-lemma.key 18000
-./hybrid/dev/diff-update.key 18000
-./hybrid/ATC/roundabout/TRM-essentials-4.key 18000
-./hybrid/ATC/roundabout/TRM-essentials-5.key 36000
-./hybrid/ETCS/paper/safety-lemma-ineq.key 18000
-./hybrid/ETCS/paper/safety-lemma-disturbance.key 18000
+./hybrid/aligator/consecutive_cubes_cohen.key 1800
+./hybrid/aligator/division_dijkstra.key 1800
+./hybrid/aligator/integer_cubic_root_knuth.key
+./hybrid/aligator/integer_square_root_kirchner.key
+./hybrid/aligator/integer_square_root_knuth.key
+./hybrid/aligator/simple_example_1.key
+./hybrid/aligator/simple_example_2.key
+./hybrid/aligator/simple_example_3.key
+./hybrid/aligator/simple_example_4.key
+./hybrid/aligator/sum_of_powers_5_petter.key 1800
+./hybrid/weispfennig/angle2.key 1800
+./hybrid/weispfennig/pedos_inequality.key 1800
+./hybrid/ETCS/controllability/ETCS-d-braking.key 1800
+./hybrid/water_tank/water_tank.key 1800
+./hybrid/ETCS/safety/ETCS-essentials.key 1800
+./hybrid/moving-point.key 1800
+./hybrid/bouncing-ball/bouncing-ball.key 1800
+./hybrid/bouncing-ball/bouncing-ball-inv.key 1800
+./hybrid/bouncing-ball/bouncing-ball-simple.key 1800
+./hybrid/ETCS/safety/binary_driver-2007-10-09.key 1800
+./hybrid/ETCS/paper/rbc-controllability-lemma.key 1800
+./hybrid/ETCS/paper/rbc-controllability-characterisation.key 1800
+./hybrid/ATC/roundabout/TRM-essentials.key 1800
+./hybrid/weispfennig/angle.key 1800
+#./hybrid/ATC/roundabout/bounded-speed-choice.key 18000
+#./hybrid/ETCS/paper/reactivity-lemma.key 18000

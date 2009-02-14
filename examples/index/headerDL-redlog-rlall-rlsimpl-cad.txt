@@ -93,10 +93,10 @@
 [Strategy]ActiveStrategy=DLStrategy
 [DLOptions]usePowersetIterativeReduce=true
 [DLOptions]quadricTimeoutIncreaseFactor=0
-[DLOptions]FOStrategy=LAZY
+[DLOptions]FOStrategy=LAZ
 [ReduceOptions]rlqepnf=DEFAULT
 [ReduceOptions]rlsimpl=ON
 [DLOptions]applyLocalReduce=false
-[DLOptions]quantifierEliminator=Mathematica
+[DLOptions]quantifierEliminator=Reduce
 "
 }
