@@ -519,6 +519,8 @@ public class SumOfSquaresChecker {
 				Set<Polynomial> monomials = new LinkedHashSet<Polynomial>();
 				SimpleMonomialIterator monomialIterator = new SimpleMonomialIterator(
 						one.rank(), Math.max(nextG.degreeValue(), d));
+				System.out.println("Degree of g is " + nextG.degreeValue());// XXX
+				System.out.println("g is " + nextG);// XXX
 				while (monomialIterator.hasNext()) {
 					monomials.add(Values.getDefault().MONOMIAL(
 							monomialIterator.next()));
@@ -563,20 +565,25 @@ public class SumOfSquaresChecker {
 
 				List<Vector> monomialsInFH = new ArrayList<Vector>(fh
 						.getMonomials());
-				Vector zeroMonomial = Values.getDefault().valueOf(one.degrees());
-				if(!monomialsInFH.contains(zeroMonomial)) {
+				Vector zeroMonomial = Values.getDefault()
+						.valueOf(new int[one.rank()]);
+				assert zeroMonomial.equals(zeroMonomial.zero()) : "Not 0 " + zeroMonomial;
+				if (!monomialsInFH.contains(zeroMonomial)) {
 					monomialsInFH.add(0, zeroMonomial);
 				}
 
 				Iterator indices = nextG.indices();
 				int mononum = monomialsInFH.size();
-				System.out.println(monomialsInFH);//XXX
+				System.out.println(monomialsInFH);// XXX
+				ListIterator iterator2 = nextG.iterator();
 				while (indices.hasNext()) {
 					Object next = indices.next();
-					assert monomialsInFH.contains(next) : "The polynomial g cannot contain monomials that are not in any p_i " + next;
+					Arithmetic next2 = (Arithmetic) iterator2.next();
+					assert next2.isZero() || monomialsInFH.contains(next) : "The polynomial g cannot contain monomials that are not in any p_i "
+							+ next + " * " + next2;
 				}
 
-				System.out.println("f+h = " + fh);//XXX
+				System.out.println("f+h = " + fh);// XXX
 				double[] homo = fh.coefficientComparison(mononum);
 				final double[] hetero = new double[fh.size()];
 
@@ -586,18 +593,23 @@ public class SumOfSquaresChecker {
 				// inverse of coefficient in g
 				Iterator gMonoms = nextG.indices();
 				ListIterator iterator = nextG.iterator();
-				while(gMonoms.hasNext()) {
+				while (gMonoms.hasNext()) {
 					int indexOf = monomialsInFH.indexOf(gMonoms.next());
-					hetero[indexOf] = OrbitalSimplifier.toDouble(((Arithmetic) iterator.next()).minus());
+					Arithmetic next = (Arithmetic) iterator.next();
+					if (!next.isZero()) {
+						hetero[indexOf] = OrbitalSimplifier.toDouble(next
+								.minus());
+					}
 				}
-//				if (nextG.equals(one)) {
-//					Arrays.fill(hetero, 0.0);
-//					hetero[0] = -1.0;
-//				} else {
-//					
-//					throw new IllegalStateException(
-//							"Inputs with != are not supported yet");
-//				}
+
+				// if (nextG.equals(one)) {
+				// Arrays.fill(hetero, 0.0);
+				// hetero[0] = -1.0;
+				// } else {
+				//					
+				// throw new IllegalStateException(
+				// "Inputs with != are not supported yet");
+				// }
 
 				int sdpRes =
 				// CSDP.robustSdp(monoNum, reducedPoly.size(), hetero, homo,
@@ -607,9 +619,14 @@ public class SumOfSquaresChecker {
 				if (sdpRes == 0 || sdpRes == 3) {
 					System.out.println("Found an approximate solution!");
 					System.out.println(Arrays.toString(approxSolution));
-
+			        final Vector exactHetero =
+			            Values.getDefault().newInstance(hetero.length);
+			        for (int i = 0; i < exactHetero.dimension(); ++i) {
+			        	exactHetero.set(i, Values.getDefault().valueOf(hetero[i]));
+			        }
+			        	
 					final Square[] cert = GroebnerBasisChecker.approx2Exact(fh,
-							monomialsInFH, approxSolution);
+							monomialsInFH, approxSolution, exactHetero);
 					if (cert != null) {
 						// check that the certificate is correct
 

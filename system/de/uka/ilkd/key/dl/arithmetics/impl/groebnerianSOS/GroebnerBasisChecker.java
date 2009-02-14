@@ -411,10 +411,19 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
         return null;
     }
 
+    private static Square[] approx2Exact(SparsePolynomial reducedPoly,
+            List<Vector> consideredMonomials,
+            double[] approxSolution) {
+        final Vector exactHetero =
+            Values.getDefault().newInstance(reducedPoly.size());
+        for (int i = 0; i < exactHetero.dimension(); ++i)
+            exactHetero.set(i, Values.getDefault().valueOf(i == 0 ? -1 : 0));
+        return approx2Exact(reducedPoly, consideredMonomials, approxSolution, exactHetero);
+    }
 
     public static Square[] approx2Exact(SparsePolynomial reducedPoly,
                                   List<Vector> consideredMonomials,
-                                  double[] approxSolution) {
+                                  double[] approxSolution, Vector inExactHetero) {
         final int monoNum = consideredMonomials.size();
 
         System.out.println("Trying to recover an exact solution ...");
@@ -427,9 +436,14 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 
         final Vector exactHetero =
             Values.getDefault().newInstance(exactHomo.dimensions()[0]);
-        for (int i = 0; i < exactHetero.dimension(); ++i)
-            exactHetero.set(i, Values.getDefault().valueOf(i == 0 ? -1 : 0));
-
+        for (int i = 0; i < exactHetero.dimension(); ++i) {
+            if(i < inExactHetero.dimension()) {
+            	exactHetero.set(i, inExactHetero.get(i));
+            } else {
+            	exactHetero.set(i, Values.getDefault().valueOf(0));	
+            }
+        }
+        
         double eps = 1;
         
         while (eps > 1e-6) {
