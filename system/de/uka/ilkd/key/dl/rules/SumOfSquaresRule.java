@@ -79,7 +79,7 @@ public class SumOfSquaresRule implements BuiltInRule, RuleFilter {
             succ.add(it.next().formula());
         }
         
-        if(SumOfSquaresChecker.INSTANCE.checkCombinedSetForEmptyness(SumOfSquaresChecker.INSTANCE.classify(ante, succ), 20)) {
+        if(SumOfSquaresChecker.INSTANCE.checkCombinedSetForEmptyness(SumOfSquaresChecker.INSTANCE.classify(ante, succ), 10)) {
             return SLListOfGoal.EMPTY_LIST;
         }
         return SLListOfGoal.EMPTY_LIST.append(goal);

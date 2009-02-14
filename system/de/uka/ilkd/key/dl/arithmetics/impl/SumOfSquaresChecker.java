@@ -67,6 +67,7 @@ import de.uka.ilkd.key.logic.op.Function;
 import de.uka.ilkd.key.logic.op.Op;
 import de.uka.ilkd.key.logic.op.Operator;
 import de.uka.ilkd.key.logic.op.TermSymbol;
+import de.uka.ilkd.key.rule.metaconstruct.arith.Monomial;
 
 /**
  * @author jdq
@@ -481,12 +482,14 @@ public class SumOfSquaresChecker {
 			while (d < degreeBound) {
 				// first we construct out g as product of all g_i^(2m) such that
 				// the degree of g is greater than or equal to d.
-				if (gIt.hasNext()) {
+				if (!classify.g.isEmpty() && gIt.hasNext()) {
 					// we at least advance by one in G
-					nextG = (Polynomial) gIt.next().power(two);
+					Polynomial gItNext = gIt.next();
+					nextG = (Polynomial) gItNext.multiply(gItNext);
 
 					while (nextG.degreeValue() < d) {
-						nextG = (Polynomial) gIt.next().power(two);
+						Polynomial next = (Polynomial) gItNext;
+						nextG = next.multiply(next);
 					}
 				}
 				// now we got g and have to compute the next f with a degree
@@ -508,14 +511,14 @@ public class SumOfSquaresChecker {
 								currentF = currentF.multiply(curF.get(j));
 							}
 						}
-						curF.add(currentF);
+						sumOfFs.add(currentF);
 					}
 				}
 				// now construct parametric polynomials of degree deg(g)
 				// We need sumOfFs.size() p_i's and classify.h.size() q_i's
 				Set<Polynomial> monomials = new LinkedHashSet<Polynomial>();
 				SimpleMonomialIterator monomialIterator = new SimpleMonomialIterator(
-						one.rank(), nextG.degreeValue());
+						one.rank(), Math.max(nextG.degreeValue(), d));
 				while (monomialIterator.hasNext()) {
 					monomials.add(Values.getDefault().MONOMIAL(
 							monomialIterator.next()));
@@ -560,13 +563,20 @@ public class SumOfSquaresChecker {
 
 				List<Vector> monomialsInFH = new ArrayList<Vector>(fh
 						.getMonomials());
+				Vector zeroMonomial = Values.getDefault().valueOf(one.degrees());
+				if(!monomialsInFH.contains(zeroMonomial)) {
+					monomialsInFH.add(0, zeroMonomial);
+				}
 
 				Iterator indices = nextG.indices();
 				int mononum = monomialsInFH.size();
+				System.out.println(monomialsInFH);//XXX
 				while (indices.hasNext()) {
-					assert !monomialsInFH.contains(indices.next()) : "The polynomial g cannot contain monomials that are not in any p_i";
+					Object next = indices.next();
+					assert monomialsInFH.contains(next) : "The polynomial g cannot contain monomials that are not in any p_i " + next;
 				}
 
+				System.out.println("f+h = " + fh);//XXX
 				double[] homo = fh.coefficientComparison(mononum);
 				final double[] hetero = new double[fh.size()];
 
@@ -574,13 +584,20 @@ public class SumOfSquaresChecker {
 				// the solution vector has to be zero except at those positions
 				// where g contains the same monomial it has to be the additive
 				// inverse of coefficient in g
-				if (nextG.equals(one)) {
-					Arrays.fill(hetero, 0.0);
-					hetero[0] = -1.0;
-				} else {
-					throw new IllegalStateException(
-							"Inputs with != are not supported yet");
+				Iterator gMonoms = nextG.indices();
+				ListIterator iterator = nextG.iterator();
+				while(gMonoms.hasNext()) {
+					int indexOf = monomialsInFH.indexOf(gMonoms.next());
+					hetero[indexOf] = OrbitalSimplifier.toDouble(((Arithmetic) iterator.next()).minus());
 				}
+//				if (nextG.equals(one)) {
+//					Arrays.fill(hetero, 0.0);
+//					hetero[0] = -1.0;
+//				} else {
+//					
+//					throw new IllegalStateException(
+//							"Inputs with != are not supported yet");
+//				}
 
 				int sdpRes =
 				// CSDP.robustSdp(monoNum, reducedPoly.size(), hetero, homo,
@@ -617,6 +634,7 @@ public class SumOfSquaresChecker {
 				} else {
 					System.out.println("No solution");
 				}
+				d++;
 			}
 
 		}
