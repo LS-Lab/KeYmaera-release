@@ -40,6 +40,7 @@ import orbital.math.Values;
 import orbital.math.Vector;
 import orbital.math.functional.Operations;
 import de.uka.ilkd.key.dl.arithmetics.impl.csdp.CSDP;
+import de.uka.ilkd.key.dl.arithmetics.impl.groebnerianSOS.Fractionised;
 import de.uka.ilkd.key.dl.arithmetics.impl.groebnerianSOS.GroebnerBasisChecker;
 import de.uka.ilkd.key.dl.arithmetics.impl.groebnerianSOS.SparsePolynomial;
 import de.uka.ilkd.key.dl.arithmetics.impl.groebnerianSOS.GroebnerBasisChecker.SimpleMonomialIterator;
@@ -565,9 +566,10 @@ public class SumOfSquaresChecker {
 
 				List<Vector> monomialsInFH = new ArrayList<Vector>(fh
 						.getMonomials());
-				Vector zeroMonomial = Values.getDefault()
-						.valueOf(new int[one.rank()]);
-				assert zeroMonomial.equals(zeroMonomial.zero()) : "Not 0 " + zeroMonomial;
+				Vector zeroMonomial = Values.getDefault().valueOf(
+						new int[one.rank()]);
+				assert zeroMonomial.equals(zeroMonomial.zero()) : "Not 0 "
+						+ zeroMonomial;
 				if (!monomialsInFH.contains(zeroMonomial)) {
 					monomialsInFH.add(0, zeroMonomial);
 				}
@@ -593,15 +595,18 @@ public class SumOfSquaresChecker {
 				// inverse of coefficient in g
 				Iterator gMonoms = nextG.indices();
 				ListIterator iterator = nextG.iterator();
+				final Vector exactHetero = Values.getDefault().ZERO(
+						hetero.length);
 				while (gMonoms.hasNext()) {
 					int indexOf = monomialsInFH.indexOf(gMonoms.next());
 					Arithmetic next = (Arithmetic) iterator.next();
 					if (!next.isZero()) {
+						exactHetero.set(indexOf, next.minus());
 						hetero[indexOf] = OrbitalSimplifier.toDouble(next
 								.minus());
 					}
 				}
-
+				
 				// if (nextG.equals(one)) {
 				// Arrays.fill(hetero, 0.0);
 				// hetero[0] = -1.0;
@@ -619,12 +624,7 @@ public class SumOfSquaresChecker {
 				if (sdpRes == 0 || sdpRes == 3) {
 					System.out.println("Found an approximate solution!");
 					System.out.println(Arrays.toString(approxSolution));
-			        final Vector exactHetero =
-			            Values.getDefault().newInstance(hetero.length);
-			        for (int i = 0; i < exactHetero.dimension(); ++i) {
-			        	exactHetero.set(i, Values.getDefault().valueOf(hetero[i]));
-			        }
-			        	
+
 					final Square[] cert = GroebnerBasisChecker.approx2Exact(fh,
 							monomialsInFH, approxSolution, exactHetero);
 					if (cert != null) {
