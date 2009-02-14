@@ -108,7 +108,7 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 	// enumerate sums of squares s and check whether some monomial 1+s is
 	// in the ideal
 	final Iterator<Vector> monomials =
-	    new SimpleMonomialIterator(indexNum(groebnerBasis), 2);
+	    new SimpleMonomialIterator(indexNum(groebnerBasis), 3);
         final Square[] cert = checkSOS(monomials, groebnerBasis, groebnerReducer);
         
         if (cert != null) {
@@ -188,6 +188,10 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
         return res;
     }
 
+    /**
+     * Turn a set of polynomials into an equivalent one that uses as few
+     * variables as possible
+     */
     private Set<Polynomial> eliminateUnusedVariables(Set<Polynomial> polys) {
         final int varNum = indexNum(polys);
         final BitSet occurring = new BitSet ();
@@ -205,7 +209,10 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
             }
         }
         
-        System.out.println(occurring);
+        // ensure that there is at least one variable, otherwise Orbital
+        // throws an exception later on
+        if (occurring.isEmpty())
+            occurring.set(0);
 
         final Matrix conversion =
             Values.getDefault().ZERO(occurring.cardinality(), varNum);
@@ -216,8 +223,6 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
                 j = j + 1;
             }
         }
-        
-        System.out.println(conversion);
         
         final Set<Polynomial> res = new HashSet<Polynomial> ();
         for (Polynomial p : polys)
