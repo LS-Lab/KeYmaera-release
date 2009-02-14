@@ -265,10 +265,11 @@ public class SparsePolynomial {
 				}
 				Map<Integer, Arithmetic> resultCoTermMap = new HashMap<Integer, Arithmetic>();
 				for (Integer i : thisCoTermMap.keySet()) {
-					Arithmetic coefficient = resultCoTermMap.get(i);
+					Arithmetic coefficient = thisCoTermMap.get(i);
 					if (sCoTermMap.containsKey(i)) {
 						coefficient = coefficient.add(sCoTermMap.get(i));
 					}
+					
 					resultCoTermMap.put(i, coefficient);
 				}
 				for (Integer i : sCoTermMap.keySet()) {
