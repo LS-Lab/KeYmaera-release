@@ -564,7 +564,7 @@ public class SumOfSquaresChecker {
 				// SparsePolynomial, as it is not parametric
 				SparsePolynomial fh = nextF.add(nextH);
 
-				List<Vector> monomialsInFH = new ArrayList<Vector>(fh
+				List<Arithmetic> monomialsInFH = new ArrayList<Arithmetic>(fh
 						.getMonomials());
 				Vector zeroMonomial = Values.getDefault().valueOf(
 						new int[one.rank()]);

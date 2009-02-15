@@ -31,7 +31,6 @@ import orbital.math.Arithmetic;
 import orbital.math.Matrix;
 import orbital.math.Polynomial;
 import orbital.math.Values;
-import orbital.math.Vector;
 import de.uka.ilkd.key.dl.arithmetics.impl.orbital.OrbitalSimplifier;
 
 /**
@@ -62,7 +61,8 @@ public class SparsePolynomial {
 	 * Mapping from the exponents <code>ij</code> to the coefficient term
 	 * <code>tj</code>
 	 */
-	private final Map<Vector, CoefficientTerm> polyTerms = new HashMap<Vector, CoefficientTerm>();
+	private final Map<Arithmetic, CoefficientTerm> polyTerms =
+	    new HashMap<Arithmetic, CoefficientTerm>();
 
 	/**
 	 * Add the polynomial <code>variable * p</code> to this object
@@ -71,10 +71,10 @@ public class SparsePolynomial {
 		if (p.isZero())
 			return;
 
-		final Iterator<Vector> expIt = p.indices();
+		final Iterator<Arithmetic> expIt = p.indices();
 		final Iterator<Arithmetic> coeffIt = p.iterator();
 		while (expIt.hasNext()) {
-			final Vector exponent = expIt.next();
+			final Arithmetic exponent = expIt.next();
 			final Arithmetic coeff = coeffIt.next();
 
 			if (coeff.isZero())
@@ -142,7 +142,7 @@ public class SparsePolynomial {
 				matrixLength);
 
 		int row = 1;
-		for (Entry<Vector, CoefficientTerm> entry : polyTerms.entrySet()) {
+		for (Entry<Arithmetic, CoefficientTerm> entry : polyTerms.entrySet()) {
 			if (entry.getKey().isZero()) {
 				// the constant term is always put in the first row
 				exactCopy2Array(entry.getValue(), res, matrixSize, 0);
@@ -202,7 +202,7 @@ public class SparsePolynomial {
 
 	public String toString() {
 		final StringBuffer res = new StringBuffer();
-		for (Entry<Vector, CoefficientTerm> entry : polyTerms.entrySet()) {
+		for (Entry<Arithmetic, CoefficientTerm> entry : polyTerms.entrySet()) {
 			res.append(entry.getKey());
 			res.append(": ");
 			CoefficientTerm term = entry.getValue();
@@ -226,10 +226,10 @@ public class SparsePolynomial {
 		ListIterator coefficients = nf.iterator();
 		SparsePolynomial result = new SparsePolynomial();
 		while (indices.hasNext()) {
-			Vector monom = (Vector) indices.next();
+			Arithmetic monom = (Arithmetic) indices.next();
 			Arithmetic coefficient = (Arithmetic) coefficients.next();
-			for (Vector c : polyTerms.keySet()) {
-				Vector newMonom = monom.add(c);
+			for (Arithmetic c : polyTerms.keySet()) {
+				Arithmetic newMonom = monom.add(c);
 				CoefficientTerm coefficientTerm = polyTerms.get(c);
 				Arithmetic newCoefficient = coefficientTerm.coefficient
 						.add(coefficient);
@@ -244,7 +244,7 @@ public class SparsePolynomial {
 
 	public SparsePolynomial add(SparsePolynomial s) {
 		SparsePolynomial result = new SparsePolynomial();
-		for (Vector m : s.polyTerms.keySet()) {
+		for (Arithmetic m : s.polyTerms.keySet()) {
 			CoefficientTerm thisCoTerms = polyTerms.get(m);
 			CoefficientTerm sCoTerms = s.polyTerms.get(m);
 
@@ -287,7 +287,7 @@ public class SparsePolynomial {
 		}
 
 		// add the remaining terms
-		for (Vector m : polyTerms.keySet()) {
+		for (Arithmetic m : polyTerms.keySet()) {
 			if (!result.polyTerms.containsKey(m)) {
 				result.polyTerms.put(m, polyTerms.get(m));
 			}
@@ -298,7 +298,7 @@ public class SparsePolynomial {
 	/**
 	 * @return
 	 */
-	public Set<Vector> getMonomials() {
+	public Set<Arithmetic> getMonomials() {
 		return polyTerms.keySet();
 	}
 }

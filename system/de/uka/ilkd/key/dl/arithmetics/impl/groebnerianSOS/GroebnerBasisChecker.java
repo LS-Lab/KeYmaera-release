@@ -99,7 +99,6 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 	printPolys(groebnerBasis);
 	
         final Polynomial oneReduced = (Polynomial) groebnerReducer.apply(one);
-	System.out.println(oneReduced);
 	if (oneReduced.isZero()) {
 	    System.out.println("Groebner basis is trivial and contains a unit");
 	    return true;
@@ -177,15 +176,18 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
     }
 
     private int indexNum(Set<Polynomial> polys) {
-        int res = 0;
         for (Polynomial p : polys) {
-            final Iterator<Vector> it = p.indices();
+            final Iterator it = p.indices();
             while (it.hasNext()) {
-                final Vector v = it.next();
-                res = Math.max(res, v.dimension());
+                final Object v = it.next();
+                if (v instanceof orbital.math.Integer)
+                    return 1;
+                if (v instanceof Vector)
+                    return ((Vector) v).dimension();
+                throw new IllegalArgumentException("Don't know how to handle " + p);
             }
         }
-        return res;
+        return 0;
     }
 
     /**
@@ -252,8 +254,6 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
         Set<Polynomial> workPolys = new HashSet<Polynomial> (polys);
         
         while (true) {
-            System.out.println("Working set:");
-            printPolys(workPolys);
             // search for a polynomial that contains a variable only in a linear
             // term
         
@@ -347,9 +347,11 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
                               Set<Polynomial> groebnerBasis,
                               Function groebnerReducer) {
         
+        System.out.println("============ Searching for SOSs in the ideal");
+
         final Arithmetic two = Values.getDefault().rational(2);
         
-        final List<Vector> consideredMonomials = new ArrayList<Vector> ();
+        final List<Arithmetic> consideredMonomials = new ArrayList<Arithmetic> ();
         final SparsePolynomial reducedPoly = new SparsePolynomial ();
         int currentParameter = 0;
         
@@ -362,8 +364,8 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
             // consider all products of the new monomial with the monomials
             // already considered
             for (int i = 0; i < consideredMonomials.size(); ++i) {
-                final Vector oldMono = consideredMonomials.get(i);
-                final Vector combinedMonoExp = oldMono.add(newMono);
+                final Arithmetic oldMono = consideredMonomials.get(i);
+                final Arithmetic combinedMonoExp = oldMono.add(newMono);
                 final Polynomial combinedMono;
                 
                 // all products but the product of <code>newMono</code> with
@@ -417,8 +419,8 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
     }
 
     private static Square[] approx2Exact(SparsePolynomial reducedPoly,
-            List<Vector> consideredMonomials,
-            double[] approxSolution) {
+                                         List<Arithmetic> consideredMonomials,
+                                         double[] approxSolution) {
         final Vector exactHetero =
             Values.getDefault().newInstance(reducedPoly.size());
         for (int i = 0; i < exactHetero.dimension(); ++i)
@@ -427,8 +429,8 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
     }
 
     public static Square[] approx2Exact(SparsePolynomial reducedPoly,
-                                  List<Vector> consideredMonomials,
-                                  double[] approxSolution, Vector inExactHetero) {
+                                        List<Arithmetic> consideredMonomials,
+                                        double[] approxSolution, Vector inExactHetero) {
         final int monoNum = consideredMonomials.size();
 
         System.out.println("Trying to recover an exact solution ...");
@@ -478,7 +480,9 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
                 final PSDDecomposition dec =
                     new PSDDecomposition(solutionMatrix);
                 System.out.println("Solution is positive semi-definite");
+                System.out.println("T-matrix:");
                 System.out.println(dec.T);
+                System.out.println("D-matrix:");
                 System.out.println(dec.D);
                 
                 // generate the certificate (actual squares of polynomials)

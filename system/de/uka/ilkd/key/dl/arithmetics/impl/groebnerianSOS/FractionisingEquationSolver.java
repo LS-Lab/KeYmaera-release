@@ -51,7 +51,6 @@ public class FractionisingEquationSolver {
             solEntries[i] = new ApproxSolutionEntry (approxSolution[i], i, eps);
         
         Arrays.sort(solEntries);
-        System.out.println(Arrays.toString(solEntries));
         
         final Matrix permCoefficients =
             (Matrix)ValuesImpl.getDefault().newInstance(eqCoefficients.dimensions()[0],
