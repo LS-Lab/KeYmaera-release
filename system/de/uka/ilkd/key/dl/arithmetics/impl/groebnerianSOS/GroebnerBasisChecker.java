@@ -35,6 +35,7 @@ import orbital.math.AlgebraicAlgorithms;
 import orbital.math.Arithmetic;
 import orbital.math.Matrix;
 import orbital.math.Polynomial;
+import orbital.math.Tensor;
 import orbital.math.ValueFactory;
 import orbital.math.Values;
 import orbital.math.Vector;
@@ -216,39 +217,84 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
         if (occurring.isEmpty())
             occurring.set(0);
 
-        final Matrix conversion =
-            Values.getDefault().ZERO(occurring.cardinality(), varNum);
+        final int newVarNum = occurring.cardinality();
+        assert (newVarNum <= varNum);
+        
+        if (newVarNum == varNum)
+            // nothing to be done
+            return polys;
+
+        final ValueFactory vf = Values.getDefault();
+        final int[] newCoord = new int [newVarNum];
+        final int[] oldCoord = new int [varNum];
+        final int[] newDimensions = new int [newVarNum];
+        
+        final Set<Polynomial> res = new HashSet<Polynomial> ();
+        for (Polynomial p : polys) {
+            final Tensor pTensor = vf.asTensor(p);
+            select(pTensor.dimensions(), newDimensions, occurring);
+            
+            final Tensor newTensor = vf.newInstance(newDimensions);
+            Arrays.fill(newCoord, 0);
+            
+            // iterate over all components of the new tensor/polynomial and
+            // fill it with the values from the old tensor
+            while (true) {
+                spread(newCoord, oldCoord, occurring);
+                newTensor.set(newCoord, pTensor.get(oldCoord));
+                
+                int i = 0;
+                for (; i < newVarNum; ++i) {
+                    if (newCoord[i] < newDimensions[i] - 1) {
+                        newCoord[i] = newCoord[i] + 1;
+                        break;
+                    } else {
+                        assert (newCoord[i] == newDimensions[i] - 1);
+                        newCoord[i] = 0;
+                    }
+                }
+                if (i == newVarNum)
+                    break;
+            }
+            
+            res.add(vf.asPolynomial(newTensor));
+        }
+        
+        return res;
+    }
+
+    private void spread(int[] input, int[] output, BitSet givenComponents) {
+        assert (input.length <= output.length);
+        
         int j = 0;
-        for (int i = 0; i < varNum; ++i) {
-            if (occurring.get(i)) {
-                conversion.set(j, i, Values.getDefault().ONE());
+        for (int i = 0; i < output.length; ++i) {
+            if (givenComponents.get(i)) {
+                output[i] = input[j];
+                j = j + 1;
+            } else {
+                output[i] = 0;
+            }
+        }
+    }
+    
+    private void select(int[] input, int[] output, BitSet selectedComponents) {
+        assert (output.length <= input.length);
+        
+        int j = 0;
+        for (int i = 0; i < input.length; ++i) {
+            if (selectedComponents.get(i)) {
+                output[j] = input[i];
                 j = j + 1;
             }
         }
-        
-        final Set<Polynomial> res = new HashSet<Polynomial> ();
-        for (Polynomial p : polys)
-            res.add(convertPoly(p, conversion, occurring.cardinality()));
-        
-        return res;
-    }
-
-    private Polynomial convertPoly(Polynomial p, Matrix conversion, int newVarNum) {
-        final ValueFactory vf = Values.getDefault();
-        Polynomial res = vf.MONOMIAL(vf.ZERO(), vf.ZERO(newVarNum));
-
-        final Iterator<Vector> indexIt = p.indices();
-        final Iterator<Arithmetic> coeffIt = p.iterator();
-        while (indexIt.hasNext()) {
-            final Vector v = indexIt.next();
-            final Arithmetic coeff = coeffIt.next();
-            
-            res = res.add(vf.MONOMIAL(coeff, conversion.multiply(v)));
-        }
-        
-        return res;
     }
     
+    /**
+     * Given a set of polynomials, search for polynomials of the form
+     * <code>a*x + t</code> (with <code>a</code> non-zero) and eliminate
+     * the <code>x</code> from all polynomials. This is repeated until no
+     * such linear variables are left.
+     */
     private Set<Polynomial> eliminateLinearVariables(Set<Polynomial> polys) {
         final int varNum = indexNum(polys);
         Set<Polynomial> workPolys = new HashSet<Polynomial> (polys);
