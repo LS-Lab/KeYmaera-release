@@ -79,7 +79,7 @@
 [OrbitalOptions]representation=big
 [SimultaneousUpdateSimplifier]EagerSimplification=true
 [Model]Source=1
-[DLOptions]BuiltInArithmetic=REDUCTION
+[DLOptions]BuiltInArithmetic=OFF
 [View]ShowWholeTaclet=false
 [DLOptions]counterexampleTest=ON
 [StrategyProperty]NON_LIN_ARITH_OPTIONS_KEY=NON_LIN_ARITH_NONE
@@ -93,7 +93,7 @@
 [Strategy]ActiveStrategy=DLStrategy
 [DLOptions]usePowersetIterativeReduce=true
 [DLOptions]quadricTimeoutIncreaseFactor=0
-[DLOptions]FOStrategy=LAZ
+[DLOptions]FOStrategy=LAZY
 [ReduceOptions]rlqepnf=DEFAULT
 [ReduceOptions]rlsimpl=ON
 [DLOptions]applyLocalReduce=false

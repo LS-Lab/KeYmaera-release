@@ -1,13 +1,24 @@
+./hybrid/aligator/conditional/lcm_gcd_dijkstra.key 1800
+./hybrid/aligator/conditional/simple_example_1.key 1800
+./hybrid/aligator/conditional/simple_example_2.key 1800
+./hybrid/aligator/conditional/simple_example_3.key 1800
+./hybrid/aligator/conditional/square_root_floor_dijkstra.key 1800
+./hybrid/aligator/conditional/square_root_zuse.key 1800
+./hybrid/aligator/conditional/wensey_division_wegbreit.key 1800
 ./hybrid/aligator/consecutive_cubes_cohen.key 1800
 ./hybrid/aligator/division_dijkstra.key 1800
-./hybrid/aligator/integer_cubic_root_knuth.key
-./hybrid/aligator/integer_square_root_kirchner.key
-./hybrid/aligator/integer_square_root_knuth.key
-./hybrid/aligator/simple_example_1.key
-./hybrid/aligator/simple_example_2.key
-./hybrid/aligator/simple_example_3.key
-./hybrid/aligator/simple_example_4.key
+./hybrid/aligator/fibonacci_knuth.key 1800
+./hybrid/aligator/fibonacci_stansley.key 1800
+./hybrid/aligator/HC_polyominoes_stansley.key 1800
+./hybrid/aligator/integer_cubic_root_knuth.key 1800
+./hybrid/aligator/integer_square_root_kirchner.key 1800
+./hybrid/aligator/integer_square_root_knuth.key 1800
+./hybrid/aligator/simple_example_1.key 1800
+./hybrid/aligator/simple_example_2.key 1800
+./hybrid/aligator/simple_example_3.key 1800
+./hybrid/aligator/simple_example_4.key 1800
 ./hybrid/aligator/sum_of_powers_5_petter.key 1800
+./hybrid/aligator/tribonacci_stansley.key 1800
 ./hybrid/weispfennig/angle2.key 1800
 ./hybrid/weispfennig/pedos_inequality.key 1800
 ./hybrid/ETCS/controllability/ETCS-d-braking.key 1800

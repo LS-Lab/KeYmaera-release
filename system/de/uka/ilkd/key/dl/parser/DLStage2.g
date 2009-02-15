@@ -10,6 +10,7 @@ options {
 	import de.uka.ilkd.key.dl.model.*;
 	import de.uka.ilkd.key.java.ProgramElement;
 	import java.util.ArrayList;
+	import java.math.BigDecimal;
 }
 
 @members {
@@ -71,6 +72,8 @@ form[boolean diff] returns [ Formula fe ] scope { ArrayList<Expression> params; 
 | ^(t = WORD (e = expr[diff] { $form::params.add(e); })* { fe = tf.createPredicateTerm(t, $form::params); $form::params.clear(); })
 | t = (WORD_DOLLAR | WORD) { fe = tf.createPredicateTerm(t); }
 | {schemaMode}? sv = svar { fe = tf.schemaTermVariable(sv, diff); }
+| ^(TRUE { fe = tf.createBinaryRelation(tf.createEquals(), tf.createConstant(new BigDecimal(0)), tf.createConstant(new BigDecimal(0))); })
+| ^(FALSE { fe = tf.createBinaryRelation(tf.createEquals(), tf.createConstant(new BigDecimal(0)), tf.createConstant(new BigDecimal(1))); })
 ;
 
 brel returns [ Comparsion bo ]: 
