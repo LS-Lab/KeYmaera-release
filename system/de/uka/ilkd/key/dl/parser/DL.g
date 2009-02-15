@@ -110,6 +110,8 @@ pred[boolean diffAllowed]:
 | NOT^ pred[diffAllowed]
 | (FORALL|EXISTS)^ vardec CHOP pred[diffAllowed]
 | {schemaMode}? sv
+| TRUE
+| FALSE
 ;
 
 list[boolean diffAllowed]: LPAREN! expr[diffAllowed] (COMMA! expr[diffAllowed])* RPAREN!
@@ -168,6 +170,8 @@ LBRACE form[true] (COMMA form[true])* RBRACE
 
 sv: SV^ WORD;
 
+TRUE		: 'true' ;
+FALSE		: 'false' ;
 SV		: '#' ;
 //INVARIANT: '@invariant' ;
 VARDEC	: '@decl@';
