@@ -21,13 +21,16 @@ package de.uka.ilkd.key.dl.arithmetics.impl;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Set;
 
+import orbital.algorithm.Combinatorical;
 import orbital.math.Arithmetic;
 import orbital.math.Fraction;
 import orbital.math.Integer;
@@ -39,12 +42,13 @@ import orbital.math.functional.Operations;
 import de.uka.ilkd.key.dl.arithmetics.impl.csdp.CSDP;
 import de.uka.ilkd.key.dl.arithmetics.impl.groebnerianSOS.GroebnerBasisChecker;
 import de.uka.ilkd.key.dl.arithmetics.impl.groebnerianSOS.SparsePolynomial;
+import de.uka.ilkd.key.dl.arithmetics.impl.groebnerianSOS.GroebnerBasisChecker.SimpleMonomialIterator;
 import de.uka.ilkd.key.dl.arithmetics.impl.groebnerianSOS.GroebnerBasisChecker.Square;
 import de.uka.ilkd.key.dl.arithmetics.impl.orbital.OrbitalSimplifier;
 import de.uka.ilkd.key.dl.arithmetics.impl.orbital.PolynomTool;
 import de.uka.ilkd.key.dl.arithmetics.impl.sos.MaxPolynomPerDegreeOrder;
 import de.uka.ilkd.key.dl.arithmetics.impl.sos.PolynomialOrder;
-import de.uka.ilkd.key.dl.arithmetics.impl.sos.SimpleOrder;
+import de.uka.ilkd.key.dl.arithmetics.impl.sos.MaxPolynomPerDegreeOrder.Monoid;
 import de.uka.ilkd.key.dl.formulatools.collector.AllCollector;
 import de.uka.ilkd.key.dl.formulatools.collector.FilterVariableSet;
 import de.uka.ilkd.key.dl.formulatools.collector.filter.FilterVariableCollector;
@@ -449,6 +453,208 @@ public class SumOfSquaresChecker {
 			}
 		}
 		return FormulaStatus.UNKNOWN;
+	}
+
+	public boolean checkCombinedSetForEmptyness(Set<Term> f, Set<Term> g,
+			Set<Term> h, int degreeBound) {
+		PolynomialClassification<Polynomial> classify = classify(new PolynomialClassification<Term>(
+				f, g, h));
+		Polynomial one = null;
+		if (!classify.f.isEmpty()) {
+			one = (Polynomial) classify.f.iterator().next().one();
+		} else if (!classify.g.isEmpty()) {
+			one = (Polynomial) classify.g.iterator().next().one();
+		} else if (!classify.h.isEmpty()) {
+			one = (Polynomial) classify.h.iterator().next().one();
+		}
+		int d = 1;
+		if (one != null) {
+			// now we built a SparsePolynomial based on Parrilo Theorem 5.1
+			Monoid gMonoid = new Monoid(new ArrayList<Polynomial>(classify.g),
+					one);
+
+			Iterator<Polynomial> gIt = gMonoid.iterator();
+
+			Polynomial two = one.add(one);
+			Polynomial nextG = one;
+
+			while (d < degreeBound) {
+				// first we construct out g as product of all g_i^(2m) such that
+				// the degree of g is greater than or equal to d.
+				if (!classify.g.isEmpty() && gIt.hasNext()) {
+					// we at least advance by one in G
+					Polynomial gItNext = gIt.next();
+					nextG = (Polynomial) gItNext.multiply(gItNext);
+
+					while (nextG.degreeValue() < d) {
+						Polynomial next = (Polynomial) gItNext;
+						nextG = next.multiply(next);
+					}
+				}
+				// now we got g and have to compute the next f with a degree
+				// greater than or equal to d as well as deg(g)
+
+				// therefore we construct all f combinations and add parametric
+				// polynomials as coefficients
+				Set<Polynomial> sumOfFs = new LinkedHashSet<Polynomial>();
+				sumOfFs.add(one);
+				List<Polynomial> curF = new ArrayList<Polynomial>(classify.f);
+				for (int i = 1; i < curF.size(); i++) {
+					Combinatorical combinations = Combinatorical
+							.getCombinations(i, curF.size(), true);
+					while (combinations.hasNext()) {
+						int[] com = combinations.next();
+						Polynomial currentF = one;
+						for (int j = 0; j < com.length; j++) {
+							if (com[j] == 1) {
+								currentF = currentF.multiply(curF.get(j));
+							}
+						}
+						sumOfFs.add(currentF);
+					}
+				}
+				// now construct parametric polynomials of degree deg(g)
+				// We need sumOfFs.size() p_i's and classify.h.size() q_i's
+				Set<Polynomial> monomials = new LinkedHashSet<Polynomial>();
+				SimpleMonomialIterator monomialIterator = new SimpleMonomialIterator(
+						one.rank(), Math.max(nextG.degreeValue(), d));
+				System.out.println("Degree of g is " + nextG.degreeValue());// XXX
+				System.out.println("g is " + nextG);// XXX
+				while (monomialIterator.hasNext()) {
+					monomials.add(Values.getDefault().MONOMIAL(
+							monomialIterator.next()));
+				}
+
+				// the next step is to construct all those parametric
+				// polynomials p_i (one per f in sumOfFs)
+
+				// in this step we construct the p_i as sparse polynomial and in
+				// the same iteration construct the resulting f polynomial by
+				// multiplication of the corresponding sumOfFs polynomial
+				List<SparsePolynomial> pis = new ArrayList<SparsePolynomial>();
+
+				int currentParameter = 0;
+				SparsePolynomial nextF = new SparsePolynomial();
+				for (Polynomial nF : sumOfFs) {
+					SparsePolynomial s = new SparsePolynomial();
+					for (Polynomial p : monomials) {
+						s.addTerms(p, currentParameter++);
+					}
+					pis.add(s);
+					nextF = nextF.add(s.multiply(nF));
+				}
+
+				// the next step is to construct all those parametric
+				// polynomials q_i (one per h in classify.h)
+
+				// TODO: maybe we need smaller polynomials here
+				SparsePolynomial nextH = new SparsePolynomial();
+				List<SparsePolynomial> qis = new ArrayList<SparsePolynomial>();
+				for (Polynomial hPoly : classify.h) {
+					SparsePolynomial s = new SparsePolynomial();
+					for (Polynomial p : monomials) {
+						s.addTerms(p, currentParameter++);
+					}
+					qis.add(s);
+					nextH = nextH.add(s.multiply(hPoly));
+				}
+				// now we can add nextF and nextH, we cannot represent nextG as
+				// SparsePolynomial, as it is not parametric
+				SparsePolynomial fh = nextF.add(nextH);
+
+				List<Arithmetic> monomialsInFH = new ArrayList<Arithmetic>(fh
+						.getMonomials());
+				Vector zeroMonomial = Values.getDefault().valueOf(
+						new int[one.rank()]);
+				assert zeroMonomial.equals(zeroMonomial.zero()) : "Not 0 "
+						+ zeroMonomial;
+				if (!monomialsInFH.contains(zeroMonomial)) {
+					monomialsInFH.add(0, zeroMonomial);
+				}
+
+				Iterator indices = nextG.indices();
+				int mononum = monomialsInFH.size();
+				System.out.println(monomialsInFH);// XXX
+				ListIterator iterator2 = nextG.iterator();
+				while (indices.hasNext()) {
+					Object next = indices.next();
+					Arithmetic next2 = (Arithmetic) iterator2.next();
+					assert next2.isZero() || monomialsInFH.contains(next) : "The polynomial g cannot contain monomials that are not in any p_i "
+							+ next + " * " + next2;
+				}
+
+				System.out.println("f+h = " + fh);// XXX
+				double[] homo = fh.coefficientComparison(mononum);
+				final double[] hetero = new double[fh.size()];
+
+				final double[] approxSolution = new double[mononum * mononum];
+				// the solution vector has to be zero except at those positions
+				// where g contains the same monomial it has to be the additive
+				// inverse of coefficient in g
+				Iterator gMonoms = nextG.indices();
+				ListIterator iterator = nextG.iterator();
+				final Vector exactHetero = Values.getDefault().ZERO(
+						hetero.length);
+				while (gMonoms.hasNext()) {
+					int indexOf = monomialsInFH.indexOf(gMonoms.next());
+					Arithmetic next = (Arithmetic) iterator.next();
+					if (!next.isZero()) {
+						exactHetero.set(indexOf, next.minus());
+						hetero[indexOf] = OrbitalSimplifier.toDouble(next
+								.minus());
+					}
+				}
+				
+				// if (nextG.equals(one)) {
+				// Arrays.fill(hetero, 0.0);
+				// hetero[0] = -1.0;
+				// } else {
+				//					
+				// throw new IllegalStateException(
+				// "Inputs with != are not supported yet");
+				// }
+
+				int sdpRes =
+				// CSDP.robustSdp(monoNum, reducedPoly.size(), hetero, homo,
+				// approxSolution);
+				CSDP.sdp(mononum, fh.size(), hetero, homo, approxSolution);
+
+				if (sdpRes == 0 || sdpRes == 3) {
+					System.out.println("Found an approximate solution!");
+					System.out.println(Arrays.toString(approxSolution));
+
+					final Square[] cert = GroebnerBasisChecker.approx2Exact(fh,
+							monomialsInFH, approxSolution, exactHetero);
+					if (cert != null) {
+						// check that the certificate is correct
+
+						System.out.println("Certificate:");
+						System.out.println(" 1");
+
+						Polynomial p = one;
+						for (int i = 0; i < cert.length; ++i) {
+							assert (Operations.greaterEqual.apply(
+									cert[i].coefficient, Values.getDefault()
+											.ZERO()));
+							p = (Polynomial) p.add(cert[i].body.multiply(
+									cert[i].body).scale(cert[i].coefficient));
+							System.out.println(" + " + cert[i].coefficient
+									+ " * ( " + cert[i].body + " ) ^2");
+						}
+						System.out.println(" =");
+						System.out.println(" " + p);
+						System.out.println("Certificate is correct");
+						return true;
+					}
+				} else {
+					System.out.println("No solution");
+				}
+				d++;
+			}
+
+		}
+
+		return false;
 	}
 
 	/**
@@ -881,5 +1087,16 @@ public class SumOfSquaresChecker {
 			}
 		}
 		return p;
+	}
+
+	/**
+	 * @param classify
+	 * @param i
+	 * @return
+	 */
+	public boolean checkCombinedSetForEmptyness(
+			PolynomialClassification<Term> classify, int degreeBound) {
+		return checkCombinedSetForEmptyness(classify.f, classify.g, classify.h,
+				degreeBound);
 	}
 }

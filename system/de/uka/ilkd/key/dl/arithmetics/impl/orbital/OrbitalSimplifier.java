@@ -190,8 +190,7 @@ public class OrbitalSimplifier implements ISimplifier {
 			return apply;
 		} else if (form.op() == RealLDT.getFunctionFor(Exp.class)) {
 			assert (form.arity() == 2);
-			Arithmetic apply = (Arithmetic) Operations.power.apply(args[0],
-					args[1]);
+			Arithmetic apply = args[0].power(tryToMakeInteger(args[1]));
 			return apply;
 		} else if (form.op() instanceof RigidFunction
 				&& ((RigidFunction) form.op()).arity() == 0) {
@@ -201,6 +200,17 @@ public class OrbitalSimplifier implements ISimplifier {
 				+ form.op() + " of class " + form.op().getClass());
 	}
 
+	private static Arithmetic tryToMakeInteger(Arithmetic a) {
+	    if (a instanceof Integer)
+	        return a;
+	    if (a instanceof Rational) {
+                final Rational norm = ((Rational)a).representative();
+                if (norm.denominator().isOne())
+                    return norm.numerator();
+	    }
+	    return a;
+	}
+	
     public static Arithmetic term2Rational(Term form) {
         // translate everything into rationals so that subsequent
         // calculations are precise

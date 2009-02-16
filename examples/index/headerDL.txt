@@ -1,5 +1,9 @@
-headerDL-eager.txt
-headerDL-IBC.txt
 headerDL-lazy.txt
-headerDL-IBC-auto.txt
-headerDL-lazy-auto.txt
+headerDL-qepcad-lazy.txt
+headerDL-groebner-builtin.txt
+headerDL-groebner-orbital.txt
+headerDL-groebner-mathematica.txt
+headerDL-groebner-orbital-sos.txt
+headerDL-redlog-rlall-rlsimpl-qe.txt
+headerDL-redlog-rlall-rlsimpl-cad.txt
+

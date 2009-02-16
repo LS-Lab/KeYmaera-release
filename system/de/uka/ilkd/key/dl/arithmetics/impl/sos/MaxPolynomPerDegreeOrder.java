@@ -15,6 +15,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import orbital.math.Integer;
+import orbital.math.AlgebraicAlgorithms;
 import orbital.math.Polynomial;
 import orbital.math.Real;
 import orbital.math.Values;
@@ -145,9 +146,9 @@ public class MaxPolynomPerDegreeOrder implements PolynomialOrder {
 			public MonoidIterator(List<Polynomial> generator, Polynomial one) {
 				this.generator = new ArrayList<Polynomial>(generator);
 				System.out.println("generator is " + generator);
-				// polynomComparator = AlgebraicAlgorithms
-				// .INDUCED(AlgebraicAlgorithms.DEGREE_REVERSE_LEXICOGRAPHIC);
-				polynomComparator = TotalPolynomialOrderComparator.INSTANCE;
+				 polynomComparator = AlgebraicAlgorithms
+				 .INDUCED(AlgebraicAlgorithms.DEGREE_REVERSE_LEXICOGRAPHIC);
+//				polynomComparator = TotalPolynomialOrderComparator.INSTANCE;
 				Collections.sort(this.generator, polynomComparator);
 				s = new PriorityQueue<Polynomial>(100, polynomComparator);
 				p = new ArrayList<Polynomial>();

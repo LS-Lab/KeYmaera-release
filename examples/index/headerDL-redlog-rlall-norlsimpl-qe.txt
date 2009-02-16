@@ -19,13 +19,14 @@
 [ReduceOptions]rlqeqsc=DEFAULT
 [ReduceOptions]ReduceSwitch\ rlanuexgcdnormalize=DEFAULT
 [ReduceOptions]rlcadbaseonly=DEFAULT
+[ReduceOptions]rlsimpl=OFF
 [DLOptions]simplifyAfterReduce=false
 [View]HideIntermediateProofsteps=false
 [DLOptions]readdQuantifiers=true
 [ReduceOptions]rlcadrawformula=DEFAULT
 [SimultaneousUpdateSimplifier]DeleteEffectLessLocations=true
 [ReduceOptions]reduceBinary=/home/user/jdq/space/local/src/reduce-algebra/bin/reduce
-[ReduceOptions]quantifierEliminationMethod=RLCAD
+[ReduceOptions]quantifierEliminationMethod=RLQE
 [DLOptions]DiffSat=AUTO
 [DLOptions]simplifier=Mathematica
 [StrategyProperty]QUERY_OPTIONS_KEY=QUERY_NONE
@@ -79,7 +80,7 @@
 [OrbitalOptions]representation=big
 [SimultaneousUpdateSimplifier]EagerSimplification=true
 [Model]Source=1
-[DLOptions]BuiltInArithmetic=OFF
+[DLOptions]BuiltInArithmetic=REDUCTION
 [View]ShowWholeTaclet=false
 [DLOptions]counterexampleTest=ON
 [StrategyProperty]NON_LIN_ARITH_OPTIONS_KEY=NON_LIN_ARITH_NONE
@@ -93,10 +94,9 @@
 [Strategy]ActiveStrategy=DLStrategy
 [DLOptions]usePowersetIterativeReduce=true
 [DLOptions]quadricTimeoutIncreaseFactor=0
-[DLOptions]FOStrategy=LAZY
+[DLOptions]FOStrategy=IBC
 [ReduceOptions]rlqepnf=DEFAULT
-[ReduceOptions]rlsimpl=ON
 [DLOptions]applyLocalReduce=false
-[DLOptions]quantifierEliminator=Mathematica
+[DLOptions]quantifierEliminator=Reduce
 "
 }

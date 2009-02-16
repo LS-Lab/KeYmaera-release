@@ -23,6 +23,8 @@ import java.math.BigDecimal;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.BitSet;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -34,6 +36,8 @@ import orbital.math.Arithmetic;
 import orbital.math.Integer;
 import orbital.math.Matrix;
 import orbital.math.Polynomial;
+import orbital.math.Tensor;
+import orbital.math.ValueFactory;
 import orbital.math.Values;
 import orbital.math.Vector;
 import orbital.math.functional.Operations;
@@ -69,7 +73,18 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 
     public boolean checkForConstantGroebnerBasis(PolynomialClassification<Term> terms,
 	                                         Services services) {
-	final Set<Polynomial> polys = extractPolynomials(terms);
+	final Set<Polynomial> rawPolys = extractPolynomials(terms);
+        System.out.println("Polynomials are: ");
+        printPolys(rawPolys);
+
+        final Set<Polynomial> polys2 = eliminateLinearVariables(rawPolys);
+        System.out.println("Polynomials after eliminating linear variables are: ");
+        printPolys(polys2);
+        
+        final Set<Polynomial> polys = eliminateUnusedVariables(polys2);
+        System.out.println("Polynomials after eliminating unused variables are: ");
+        printPolys(polys);
+        
         final Polynomial one = (Polynomial)polys.iterator().next().one();
 	
 	// we try to get a contradiction by computing the groebner basis of all
@@ -83,11 +98,9 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 		     groebnerBasis, AlgebraicAlgorithms.DEGREE_REVERSE_LEXICOGRAPHIC);
 	
 	System.out.println("Groebner basis is: ");
-	for (Polynomial p : groebnerBasis)
-	    System.out.println(p);
+	printPolys(groebnerBasis);
 	
         final Polynomial oneReduced = (Polynomial) groebnerReducer.apply(one);
-	System.out.println(oneReduced);
 	if (oneReduced.isZero()) {
 	    System.out.println("Groebner basis is trivial and contains a unit");
 	    return true;
@@ -96,7 +109,7 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 	// enumerate sums of squares s and check whether some monomial 1+s is
 	// in the ideal
 	final Iterator<Vector> monomials =
-	    new SimpleMonomialIterator(indexNum(groebnerBasis), 2);
+	    new SimpleMonomialIterator(indexNum(groebnerBasis), 3);
         final Square[] cert = checkSOS(monomials, groebnerBasis, groebnerReducer);
         
         if (cert != null) {
@@ -120,6 +133,12 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
             return true;
         }
         return false;
+    }
+
+
+    private void printPolys(Set<Polynomial> rawPolys) {
+        for (Polynomial p : rawPolys)
+            System.out.println(p);
     }
 
 
@@ -155,42 +174,231 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 	    new PolynomialClassification<Term>(new HashSet<Term> (),
 		                               new HashSet<Term> (),
 		                               equations);
-	final Set<Polynomial> polys =
-	    SumOfSquaresChecker.INSTANCE.classify(equationsOnly).h;
-	
-	System.out.println("Polynomials are: ");
-	for (Polynomial p : polys)
-	    System.out.println(p);
-
-	return polys;
+	return SumOfSquaresChecker.INSTANCE.classify(equationsOnly).h;
     }
 
     private int indexNum(Set<Polynomial> polys) {
-        int res = 0;
         for (Polynomial p : polys) {
-            final Iterator<Vector> it = p.indices();
+            final Iterator it = p.indices();
             while (it.hasNext()) {
-    			final Object nextVector = it.next();
-    			
-    			Vector monomialDegrees = null;
-    			if(nextVector instanceof Vector ) {
-    				monomialDegrees = (Vector) nextVector;
-    			} else {
-    				monomialDegrees = Values.getDefault().valueOf(new Integer[] { (Integer) nextVector });
-    			}
-                res = Math.max(res, monomialDegrees.dimension());
+                final Object v = it.next();
+                if (v instanceof orbital.math.Integer)
+                    return 1;
+                if (v instanceof Vector)
+                    return ((Vector) v).dimension();
+                throw new IllegalArgumentException("Don't know how to handle " + p);
             }
         }
+        return 0;
+    }
+
+    /**
+     * Turn a set of polynomials into an equivalent one that uses as few
+     * variables as possible
+     */
+    private Set<Polynomial> eliminateUnusedVariables(Set<Polynomial> polys) {
+        final int varNum = indexNum(polys);
+        final BitSet occurring = new BitSet ();
+        
+        for (Polynomial p : polys) {
+            final Iterator<Vector> indexIt = p.indices();
+            final Iterator<Arithmetic> coeffIt = p.iterator();
+            while (indexIt.hasNext()) {
+                final Vector v = indexIt.next();
+                final Arithmetic coeff = coeffIt.next();
+                if (!coeff.isZero())
+                    for (int i = 0; i < v.dimension(); ++i)
+                        if (!v.get(i).isZero())
+                            occurring.set(i);
+            }
+        }
+        
+        // ensure that there is at least one variable, otherwise Orbital
+        // throws an exception later on
+        if (occurring.isEmpty())
+            occurring.set(0);
+
+        final int newVarNum = occurring.cardinality();
+        assert (newVarNum <= varNum);
+        
+        if (newVarNum == varNum)
+            // nothing to be done
+            return polys;
+
+        final ValueFactory vf = Values.getDefault();
+        final int[] newCoord = new int [newVarNum];
+        final int[] oldCoord = new int [varNum];
+        final int[] newDimensions = new int [newVarNum];
+        
+        final Set<Polynomial> res = new HashSet<Polynomial> ();
+        for (Polynomial p : polys) {
+            final Tensor pTensor = vf.asTensor(p);
+            select(pTensor.dimensions(), newDimensions, occurring);
+            
+            final Tensor newTensor = vf.newInstance(newDimensions);
+            Arrays.fill(newCoord, 0);
+            
+            // iterate over all components of the new tensor/polynomial and
+            // fill it with the values from the old tensor
+            while (true) {
+                spread(newCoord, oldCoord, occurring);
+                newTensor.set(newCoord, pTensor.get(oldCoord));
+                
+                int i = 0;
+                for (; i < newVarNum; ++i) {
+                    if (newCoord[i] < newDimensions[i] - 1) {
+                        newCoord[i] = newCoord[i] + 1;
+                        break;
+                    } else {
+                        assert (newCoord[i] == newDimensions[i] - 1);
+                        newCoord[i] = 0;
+                    }
+                }
+                if (i == newVarNum)
+                    break;
+            }
+            
+            res.add(vf.asPolynomial(newTensor));
+        }
+        
         return res;
+    }
+
+    private void spread(int[] input, int[] output, BitSet givenComponents) {
+        assert (input.length <= output.length);
+        
+        int j = 0;
+        for (int i = 0; i < output.length; ++i) {
+            if (givenComponents.get(i)) {
+                output[i] = input[j];
+                j = j + 1;
+            } else {
+                output[i] = 0;
+            }
+        }
+    }
+    
+    private void select(int[] input, int[] output, BitSet selectedComponents) {
+        assert (output.length <= input.length);
+        
+        int j = 0;
+        for (int i = 0; i < input.length; ++i) {
+            if (selectedComponents.get(i)) {
+                output[j] = input[i];
+                j = j + 1;
+            }
+        }
+    }
+    
+    /**
+     * Given a set of polynomials, search for polynomials of the form
+     * <code>a*x + t</code> (with <code>a</code> non-zero) and eliminate
+     * the <code>x</code> from all polynomials. This is repeated until no
+     * such linear variables are left.
+     */
+    private Set<Polynomial> eliminateLinearVariables(Set<Polynomial> polys) {
+        final int varNum = indexNum(polys);
+        Set<Polynomial> workPolys = new HashSet<Polynomial> (polys);
+        
+        while (true) {
+            // search for a polynomial that contains a variable only in a linear
+            // term
+        
+            int linVar = -1;
+            Polynomial polyWithLinVar = null;
+            for (Polynomial p : workPolys) {
+                linVar = findLinearVariable(p, varNum);
+                if (linVar >= 0) {
+                    polyWithLinVar = p;
+                    break;
+                }
+            }
+     
+            if (linVar < 0)
+                // we did not find any linear variable, bail out
+                return workPolys;
+        
+            System.out.println("eliminating " + linVar + " using " + polyWithLinVar);
+            final Comparator order = lexVariableOrder(linVar, varNum);
+            
+            Set<Polynomial> reducePolys = new HashSet<Polynomial> ();
+            reducePolys.add(polyWithLinVar);
+        
+//            reducePolys = AlgebraicAlgorithms.groebnerBasis(reducePolys, order);
+            final Function reducer = AlgebraicAlgorithms.reduce(reducePolys, order);
+        
+            final Iterator<Polynomial> allPolysIt = workPolys.iterator();
+            workPolys = new HashSet<Polynomial> ();
+            while (allPolysIt.hasNext()) {
+                final Polynomial reducedPoly =
+                    (Polynomial)reducer.apply(allPolysIt.next());
+                if (!reducedPoly.isZero())
+                    workPolys.add(reducedPoly);
+            }
+        }
+    }
+
+    /**
+     * Generate a lexicographic polynomial order in which the variable
+     * <code>linVar</code> is the biggest variable
+     */
+    private Comparator lexVariableOrder(int linVar, final int varNum) {
+        final int[] varOrderAr = new int[varNum];
+        varOrderAr[0] = linVar;
+        for (int i = 0; i < varNum; ++i) {
+            if (i < linVar)
+                varOrderAr[i+1] = i;
+            if (i > linVar)
+                varOrderAr[i] = i;
+        }
+        return AlgebraicAlgorithms.LEXICOGRAPHIC(varOrderAr);
+    }
+
+
+    private int findLinearVariable(Polynomial p, final int varNum) {
+        final BitSet linearVars = new BitSet();
+        final BitSet nonLinearVars = new BitSet();
+        final Vector oneVec =
+            Values.getDefault().CONST(varNum, Values.getDefault().ONE());
+        
+        final Iterator<Vector> indexIt = p.indices();
+        final Iterator<Arithmetic> coeffIt = p.iterator();
+        while (indexIt.hasNext()) {
+            final Vector v = indexIt.next();
+            final Arithmetic coeff = coeffIt.next();
+            
+            if (coeff.isZero())
+                continue;
+            
+            final Arithmetic degree = v.multiply(oneVec);
+            if (degree.isZero()) {
+                // nothing
+            } else if (degree.isOne()) {
+                // linear term
+                for (int i = 0; i < varNum; ++i)
+                    if (!v.get(i).isZero())
+                        linearVars.set(i);
+            } else {
+                // nonlinear term
+                for (int i = 0; i < varNum; ++i)
+                    if (!v.get(i).isZero())
+                        nonLinearVars.set(i);
+            }
+        }
+        
+        linearVars.andNot(nonLinearVars);
+        return linearVars.nextSetBit(0);
     }
     
     private Square[] checkSOS(Iterator<Vector> monomials,
                               Set<Polynomial> groebnerBasis,
                               Function groebnerReducer) {
         
+        System.out.println("============ Searching for SOSs in the ideal");
+
         final Arithmetic two = Values.getDefault().rational(2);
         
-        final List<Vector> consideredMonomials = new ArrayList<Vector> ();
+        final List<Arithmetic> consideredMonomials = new ArrayList<Arithmetic> ();
         final SparsePolynomial reducedPoly = new SparsePolynomial ();
         int currentParameter = 0;
         
@@ -203,8 +411,8 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
             // consider all products of the new monomial with the monomials
             // already considered
             for (int i = 0; i < consideredMonomials.size(); ++i) {
-                final Vector oldMono = consideredMonomials.get(i);
-                final Vector combinedMonoExp = oldMono.add(newMono);
+                final Arithmetic oldMono = consideredMonomials.get(i);
+                final Arithmetic combinedMonoExp = oldMono.add(newMono);
                 final Polynomial combinedMono;
                 
                 // all products but the product of <code>newMono</code> with
@@ -257,10 +465,19 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
         return null;
     }
 
+    private static Square[] approx2Exact(SparsePolynomial reducedPoly,
+                                         List<Arithmetic> consideredMonomials,
+                                         double[] approxSolution) {
+        final Vector exactHetero =
+            Values.getDefault().newInstance(reducedPoly.size());
+        for (int i = 0; i < exactHetero.dimension(); ++i)
+            exactHetero.set(i, Values.getDefault().valueOf(i == 0 ? -1 : 0));
+        return approx2Exact(reducedPoly, consideredMonomials, approxSolution, exactHetero);
+    }
 
     public static Square[] approx2Exact(SparsePolynomial reducedPoly,
-                                  List<Vector> consideredMonomials,
-                                  double[] approxSolution) {
+                                        List<Arithmetic> consideredMonomials,
+                                        double[] approxSolution, Vector inExactHetero) {
         final int monoNum = consideredMonomials.size();
 
         System.out.println("Trying to recover an exact solution ...");
@@ -273,9 +490,14 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 
         final Vector exactHetero =
             Values.getDefault().newInstance(exactHomo.dimensions()[0]);
-        for (int i = 0; i < exactHetero.dimension(); ++i)
-            exactHetero.set(i, Values.getDefault().valueOf(i == 0 ? -1 : 0));
-
+        for (int i = 0; i < exactHetero.dimension(); ++i) {
+            if(i < inExactHetero.dimension()) {
+            	exactHetero.set(i, inExactHetero.get(i));
+            } else {
+            	exactHetero.set(i, Values.getDefault().valueOf(0));	
+            }
+        }
+        
         double eps = 1;
         
         while (eps > 1e-6) {
@@ -305,7 +527,9 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
                 final PSDDecomposition dec =
                     new PSDDecomposition(solutionMatrix);
                 System.out.println("Solution is positive semi-definite");
+                System.out.println("T-matrix:");
                 System.out.println(dec.T);
+                System.out.println("D-matrix:");
                 System.out.println(dec.D);
                 
                 // generate the certificate (actual squares of polynomials)
@@ -373,7 +597,7 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
     }
     
     
-    private static class SimpleMonomialIterator implements Iterator<Vector> {
+    public static class SimpleMonomialIterator implements Iterator<Vector> {
         private final int indexNum;
         private final int maxTotalDegree;
         
