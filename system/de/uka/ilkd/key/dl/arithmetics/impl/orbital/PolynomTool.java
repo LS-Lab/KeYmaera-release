@@ -33,6 +33,7 @@ import orbital.math.Arithmetic;
 import orbital.math.Fraction;
 import orbital.math.Integer;
 import orbital.math.Polynomial;
+import orbital.math.Real;
 import orbital.math.Values;
 import orbital.math.Vector;
 import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
@@ -385,24 +386,31 @@ public abstract class PolynomTool {
 		final Function exp = RealLDT.getFunctionFor(Exp.class);
 		final Function plus = RealLDT.getFunctionFor(Plus.class);
 
-		ListIterator mono = p.iterator();
+		ListIterator coefficients = p.iterator();
 		Iterator indices = p.indices();
 		Term result = null;
-		while (mono.hasNext()) {
-			Object next = mono.next();
-			Vector v = (Vector) indices.next();
-			if (!((Arithmetic) next).isZero()) {
+		while (coefficients.hasNext()) {
+			Object coefficient = coefficients.next();
+			Object nextVector = indices.next();
+			
+			Vector monomialDegrees = null;
+			if(nextVector instanceof Vector ) {
+				monomialDegrees = (Vector) nextVector;
+			} else {
+				monomialDegrees = Values.getDefault().valueOf(new Integer[] { (Integer) nextVector });
+			}
+			if (!((Arithmetic) coefficient).isZero()) {
 				Term summand = null;
-				if (!((Arithmetic) next).isOne()) {
-					summand = Orbital.convertOrbitalToTerm(r, zero, nss, next);
+				if (!((Arithmetic) coefficient).isOne()) {
+					summand = Orbital.convertOrbitalToTerm(r, zero, nss, coefficient);
 				}
 				String blub = "";
-				for (int i = 0; i < v.dimension(); i++) {
-					if (!v.get(i).isZero()) {
+				for (int i = 0; i < monomialDegrees.dimension(); i++) {
+					if (!monomialDegrees.get(i).isZero()) {
 						Term s2 = varMap.get(variables.get(i));
-						if (!v.get(i).isOne()) {
+						if (!monomialDegrees.get(i).isOne()) {
 							s2 = TermBuilder.DF.func(exp, s2, Orbital
-									.convertOrbitalToTerm(r, zero, nss, v
+									.convertOrbitalToTerm(r, zero, nss, monomialDegrees
 											.get(i)));
 						}
 						if (summand == null) {
@@ -410,14 +418,14 @@ public abstract class PolynomTool {
 						} else {
 							summand = TermBuilder.DF.func(mult, summand, s2);
 						}
-						blub += variables.get(i) + "^" + v.get(i);
+						blub += variables.get(i) + "^" + monomialDegrees.get(i);
 					}
 				}
 				if (!blub.equals("")) {
-					System.out.println(next + " * " + blub);// XXX
+					System.out.println(coefficient + " * " + blub);// XXX
 				}
 				if (result == null) {
-					if(summand == null && ((Arithmetic) next).isOne()) {
+					if(summand == null && ((Arithmetic) coefficient).isOne()) {
 						result = one;
 					} else {
 						result = summand;

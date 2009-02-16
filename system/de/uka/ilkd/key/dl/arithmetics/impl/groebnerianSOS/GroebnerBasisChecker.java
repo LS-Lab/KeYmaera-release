@@ -31,6 +31,7 @@ import java.util.Set;
 import orbital.logic.functor.Function;
 import orbital.math.AlgebraicAlgorithms;
 import orbital.math.Arithmetic;
+import orbital.math.Integer;
 import orbital.math.Matrix;
 import orbital.math.Polynomial;
 import orbital.math.Values;
@@ -169,8 +170,15 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
         for (Polynomial p : polys) {
             final Iterator<Vector> it = p.indices();
             while (it.hasNext()) {
-                final Vector v = it.next();
-                res = Math.max(res, v.dimension());
+    			final Object nextVector = it.next();
+    			
+    			Vector monomialDegrees = null;
+    			if(nextVector instanceof Vector ) {
+    				monomialDegrees = (Vector) nextVector;
+    			} else {
+    				monomialDegrees = Values.getDefault().valueOf(new Integer[] { (Integer) nextVector });
+    			}
+                res = Math.max(res, monomialDegrees.dimension());
             }
         }
         return res;

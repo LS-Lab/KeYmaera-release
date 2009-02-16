@@ -27,6 +27,7 @@ import java.util.Map.Entry;
 import de.uka.ilkd.key.dl.arithmetics.impl.orbital.OrbitalSimplifier;
 
 import orbital.math.Arithmetic;
+import orbital.math.Integer;
 import orbital.math.Matrix;
 import orbital.math.Polynomial;
 import orbital.math.Values;
@@ -67,10 +68,17 @@ public class SparsePolynomial {
         if (p.isZero())
             return;
         
-        final Iterator<Vector> expIt = p.indices();
+        final Iterator expIt = p.indices();
         final Iterator<Arithmetic> coeffIt = p.iterator();
         while (expIt.hasNext()) {
-            final Vector exponent = expIt.next();
+			final Object nextVector = expIt.next();
+			
+			Vector exponent = null;
+			if(nextVector instanceof Vector ) {
+				exponent = (Vector) nextVector;
+			} else {
+				exponent = Values.getDefault().valueOf(new Integer[] { (Integer) nextVector });
+			}
             final Arithmetic coeff = coeffIt.next();
             
             if (coeff.isZero())

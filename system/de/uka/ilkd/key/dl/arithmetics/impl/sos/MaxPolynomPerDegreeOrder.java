@@ -14,6 +14,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import orbital.math.Integer;
 import orbital.math.Polynomial;
 import orbital.math.Real;
 import orbital.math.Values;
@@ -64,7 +65,14 @@ public class MaxPolynomPerDegreeOrder implements PolynomialOrder {
 					monomComparator);
 			List<Vector> all = new ArrayList<Vector>();
 			while (indices1.hasNext()) {
-				Vector next2 = (Vector) indices1.next();
+				Object nextVector = indices1.next();
+				
+				Vector next2 = null;
+				if(nextVector instanceof Vector ) {
+					next2 = (Vector) nextVector;
+				} else {
+					next2 = Values.getDefault().valueOf(new Integer[] { (Integer) nextVector });
+				}
 				Real next3 = (Real) coeff1.next();
 				if (!next3.equals(next3.zero())) {
 					in1.put(next2, next3);
@@ -72,7 +80,14 @@ public class MaxPolynomPerDegreeOrder implements PolynomialOrder {
 				}
 			}
 			while (indices2.hasNext()) {
-				Vector next2 = (Vector) indices2.next();
+				Object nextVector = indices1.next();
+				
+				Vector next2 = null;
+				if(nextVector instanceof Vector ) {
+					next2 = (Vector) nextVector;
+				} else {
+					next2 = Values.getDefault().valueOf(new Integer[] { (Integer) nextVector });
+				}
 				Real next3 = (Real) coeff2.next();
 				if (!next3.equals(next3.zero())) {
 					in2.put(next2, next3);

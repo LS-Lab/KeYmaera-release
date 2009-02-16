@@ -440,7 +440,8 @@ public class SumOfSquaresChecker {
 			order.setMaxDegree(20);
 			while (order.hasNext()) {
 				System.out.println("searching");
-				Result searchSolution = testIfPolynomialIsSumOfSquares(order.getNext());
+				Result searchSolution = testIfPolynomialIsSumOfSquares(order
+						.getNext());
 				System.out.println("Result: " + searchSolution);
 				if (searchSolution == Result.SOLUTION_FOUND) {
 					return FormulaStatus.INVALID;
@@ -451,6 +452,8 @@ public class SumOfSquaresChecker {
 	}
 
 	/**
+	 * This method test whether a given polynomial is a sum of squares.
+	 * 
 	 * @param inputPolynomial
 	 * @return
 	 */
@@ -461,25 +464,32 @@ public class SumOfSquaresChecker {
 		ListIterator coefficients = inputPolynomial.iterator();
 		Iterator indices = inputPolynomial.indices();
 		List<Vector> monominals = new ArrayList<Vector>();
-		while (coefficients.hasNext()){
+		while (coefficients.hasNext()) {
 			Object next = coefficients.next();
 			String blub = "";
-			Vector v = (Vector) indices.next();
-			for (int i = 0; i < v.dimension(); i++) {
-				blub += ((char) ('a' + i)) + "^" + v.get(i);
+			Object nextVector = indices.next();
+			
+			Vector monomialDegrees = null;
+			if(nextVector instanceof Vector ) {
+				monomialDegrees = (Vector) nextVector;
+			} else {
+				monomialDegrees = Values.getDefault().valueOf(new Integer[] { (Integer) nextVector });
+			}
+			for (int i = 0; i < monomialDegrees.dimension(); i++) {
+				blub += ((char) ('a' + i)) + "^" + monomialDegrees.get(i);
 			}
 			System.out.println(next + "*" + blub);// XXX
 			if (!next.equals(Values.getDefault().ZERO())) {
 				boolean ok = true;
 				Vector div = Values.getDefault()
-						.valueOf(new int[v.dimension()]);
-				for (int i = 0; i < v.dimension(); i++) {
-					if (v.get(i) instanceof Real) {
-						Real in = (Real) v.get(i);
+						.valueOf(new int[monomialDegrees.dimension()]);
+				for (int i = 0; i < monomialDegrees.dimension(); i++) {
+					if (monomialDegrees.get(i) instanceof Real) {
+						Real in = (Real) monomialDegrees.get(i);
 						Real sqrt = in.divide(Values.getDefault().valueOf(2));
 						try {
 							new BigDecimal(sqrt.doubleValue()).intValueExact();
-							double[] d = new double[v.dimension()];
+							double[] d = new double[monomialDegrees.dimension()];
 							d[i] = in.divide(Values.getDefault().valueOf(2))
 									.doubleValue();
 							div = div.add(Values.getDefault().valueOf(d));
@@ -516,16 +526,24 @@ public class SumOfSquaresChecker {
 		List<Constraint> constraints = new ArrayList<Constraint>();
 		while (coefficients.hasNext()) {
 			Object next = coefficients.next();
-			Vector v = (Vector) indices.next();
+			Object nextVector = indices.next();
+			
+			Vector monomialDegrees = null;
+			if(nextVector instanceof Vector ) {
+				monomialDegrees = (Vector) nextVector;
+			} else {
+				monomialDegrees = Values.getDefault().valueOf(new Integer[] { (Integer) nextVector });
+			}
 			if (!Values.getDefault().ZERO().equals(next)) {
-				System.out.println("Checking: " + next + " and vector " + v);// XXX
-				List<Vector> list = quadraticForm.vec.get(v);
+				System.out.println("Checking: " + next + " and vector " + monomialDegrees);// XXX
+				List<Vector> list = quadraticForm.vec.get(monomialDegrees);
 				if (list != null) {
-					Constraint constraint = new Constraint(v, list, (Arithmetic) next);
-					System.out.println("Added constraint " + constraint);//XXX
+					Constraint constraint = new Constraint(monomialDegrees, list,
+							(Arithmetic) next);
+					System.out.println("Added constraint " + constraint);// XXX
 					constraints.add(constraint);
 				} else {
-					System.out.println("Cannot express: " + v);// XXX
+					System.out.println("Cannot express: " + monomialDegrees);// XXX
 					return Result.UNKNOWN;
 				}
 			}
@@ -534,35 +552,35 @@ public class SumOfSquaresChecker {
 		// outputMatlab(monominals, constraints);
 
 		double[] solution = new double[monominals.size() * monominals.size()];
-		if (CSDP
-				.sdp(monominals.size(), constraints.size(),
-						convertConstraintsToResultVector(constraints,
-								monominals.size()), convertConstraintsToCSDP(
-								constraints, monominals.size()), solution) == 0) {
-//			System.out.println(quadraticForm.toSparsePolynomial());//XXX
-//			Square[] cert = GroebnerBasisChecker.approx2Exact(
-//					quadraticForm.toSparsePolynomial(), monominals, solution);
-//	        if (cert != null) {
-//	            // check that the certificate is correct
-//	            
-//	            System.out.println("Certificate:");
-//	            System.out.println(" 1");
-//	            
-//	            Polynomial p = (Polynomial) inputPolynomial.one();
-//	            for (int i = 0; i < cert.length; ++i) {
-//	                assert (Operations.greaterEqual.apply(cert[i].coefficient,
-//	                                                      Values.getDefault().ZERO()));
-//	                p = (Polynomial) p.add(cert[i].body.multiply(cert[i].body)
-//	                                                   .scale(cert[i].coefficient));
-//	                System.out.println(" + " + cert[i].coefficient + " * ( " + cert[i].body + " ) ^2");
-//	            }
-//	            System.out.println(" =");
-//	            System.out.println(" " + p);
-////	            assert (((Polynomial) groebnerReducer.apply(p)).isZero());
-//	            System.out.println("Certificate is correct");
-	            return Result.SOLUTION_FOUND;
-//	        }
-//	        return Result.UNKNOWN;
+		if (CSDP.sdp(monominals.size(), constraints.size(),
+				convertConstraintsToResultVector(constraints),
+				convertConstraintsToCSDP(constraints, monominals.size()),
+				solution) == 0) {
+			// System.out.println(quadraticForm.toSparsePolynomial());//XXX
+			// Square[] cert = GroebnerBasisChecker.approx2Exact(
+			// quadraticForm.toSparsePolynomial(), monominals, solution);
+			// if (cert != null) {
+			// // check that the certificate is correct
+			//	            
+			// System.out.println("Certificate:");
+			// System.out.println(" 1");
+			//	            
+			// Polynomial p = (Polynomial) inputPolynomial.one();
+			// for (int i = 0; i < cert.length; ++i) {
+			// assert (Operations.greaterEqual.apply(cert[i].coefficient,
+			// Values.getDefault().ZERO()));
+			// p = (Polynomial) p.add(cert[i].body.multiply(cert[i].body)
+			// .scale(cert[i].coefficient));
+			// System.out.println(" + " + cert[i].coefficient + " * ( " +
+			// cert[i].body + " ) ^2");
+			// }
+			// System.out.println(" =");
+			// System.out.println(" " + p);
+			// // assert (((Polynomial) groebnerReducer.apply(p)).isZero());
+			// System.out.println("Certificate is correct");
+			return Result.SOLUTION_FOUND;
+			// }
+			// return Result.UNKNOWN;
 		} else {
 			return Result.NO_SOLUTION_AVAILABLE;
 		}
@@ -628,11 +646,14 @@ public class SumOfSquaresChecker {
 	}
 
 	/**
+	 * <p>
+	 * Extract the result vector part from the given list of constraints.
+	 * </p>
+	 * 
 	 * @param constraints
-	 * @param i
 	 */
 	private double[] convertConstraintsToResultVector(
-			List<Constraint> constraints, int size) {
+			List<Constraint> constraints) {
 		double[] result = new double[constraints.size()];
 		int cnum = 0;
 		for (Constraint c : constraints) {
@@ -768,7 +789,7 @@ public class SumOfSquaresChecker {
 		}
 
 		public SparsePolynomial toSparsePolynomial() {
-			System.out.println("Converting " + this);//XXX
+			System.out.println("Converting " + this);// XXX
 			int maxX = 0;
 			int maxY = 0;
 			for (Vector mono : vec.keySet()) {
@@ -786,19 +807,20 @@ public class SumOfSquaresChecker {
 			}
 			assert maxX == maxY;
 			SparsePolynomial sparsePolynomial = new SparsePolynomial();
-			for(Vector mono: vec.keySet()) {
+			for (Vector mono : vec.keySet()) {
 				for (Vector coefficient : vec.get(mono)) {
 					int x = ((Integer) coefficient.get(0)).intValue() - 1;
 					int y = ((Integer) coefficient.get(1)).intValue() - 1;
-//					if(x <= y) {
-						// we only need diagonal constraints here
-						int monoInts[] = new int[mono.dimension()];
-						for(int i = 0; i < mono.dimension(); i++) {
-							Real r = (Real) mono.get(i);
-							monoInts[i] = (int) r.doubleValue();
-						}
-						sparsePolynomial.addTerms(Values.getDefault().MONOMIAL(monoInts), x + y*maxX);
-//					}
+					// if(x <= y) {
+					// we only need diagonal constraints here
+					int monoInts[] = new int[mono.dimension()];
+					for (int i = 0; i < mono.dimension(); i++) {
+						Real r = (Real) mono.get(i);
+						monoInts[i] = (int) r.doubleValue();
+					}
+					sparsePolynomial.addTerms(Values.getDefault().MONOMIAL(
+							monoInts), x + y * maxX);
+					// }
 				}
 			}
 			return sparsePolynomial;
