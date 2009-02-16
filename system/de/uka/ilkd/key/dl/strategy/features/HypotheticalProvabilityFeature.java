@@ -443,9 +443,15 @@ public class HypotheticalProvabilityFeature implements Feature {
 		apply(hgoal, app);
 		Debug.out("HYPO: after first application");
 		goal.proof().getServices().setNamespaces(copy.copy());
-		System.out.println("We might have changed the original namespace... resetting"); // FIXME use asserting below instead 
-//		assert goal.proof().getServices().getNamespaces().equalContent(copy) : "no change in original namespaces\n"
-//				+ printDelta(copy, goal.proof().getServices().getNamespaces());
+		System.out
+				.println("We might have changed the original namespace... resetting"); // FIXME
+																						// use
+																						// asserting
+																						// below
+																						// instead
+		// assert goal.proof().getServices().getNamespaces().equalContent(copy)
+		// : "no change in original namespaces\n"
+		// + printDelta(copy, goal.proof().getServices().getNamespaces());
 		// continue hypothetic proof to see if it closes/has
 		// counterexamples
 		try {
@@ -598,8 +604,10 @@ public class HypotheticalProvabilityFeature implements Feature {
 			}
 		}
 		try {
-			MathSolverManager.getCurrentQuantifierEliminator()
-					.abortCalculation();
+			if (MathSolverManager.isQuantifierEliminatorSet()) {
+				MathSolverManager.getCurrentQuantifierEliminator()
+						.abortCalculation();
+			}
 		} catch (RemoteException ignore) {
 		}
 	}
@@ -757,7 +765,7 @@ public class HypotheticalProvabilityFeature implements Feature {
 		 * 
 		 * @see java.lang.Thread#run()
 		 */
-		/*@Override*/
+		/* @Override */
 		public void run() {
 			try {
 				this.result = proofEngine();
@@ -820,8 +828,8 @@ public class HypotheticalProvabilityFeature implements Feature {
 					for (Goal h : hypothesis.openGoals()) {
 						h.clearAndDetachRuleAppIndex();
 						h.setGoalStrategy(Main.getInstance().mediator()
-								.getProfile().getDefaultStrategyFactory().create(
-										hypothesis, null));
+								.getProfile().getDefaultStrategyFactory()
+								.create(hypothesis, null));
 					}
 					this.goalChooser = mediator.getProfile()
 							.getSelectedGoalChooserBuilder().create();
