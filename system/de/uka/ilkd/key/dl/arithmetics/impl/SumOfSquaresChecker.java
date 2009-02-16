@@ -564,12 +564,14 @@ public class SumOfSquaresChecker {
 
 				List<Arithmetic> monomialsInFH = new ArrayList<Arithmetic>(fh
 						.getMonomials());
-				Vector zeroMonomial = Values.getDefault().valueOf(
-						new int[one.rank()]);
-				assert zeroMonomial.equals(zeroMonomial.zero()) : "Not 0 "
-						+ zeroMonomial;
-				if (!monomialsInFH.contains(zeroMonomial)) {
-					monomialsInFH.add(0, zeroMonomial);
+//				Vector zeroMonomial = Values.getDefault().valueOf(
+//						new int[one.rank()]);
+//				assert zeroMonomial.equals(zeroMonomial.zero()) : "Not 0 "
+//						+ zeroMonomial;
+				if (!monomialsInFH.isEmpty()) {
+					Arithmetic zero = monomialsInFH.get(0).zero();
+					if(!monomialsInFH.contains(zero))
+					monomialsInFH.add(0, zero);
 				}
 
 				Iterator indices = nextG.indices();
@@ -600,8 +602,8 @@ public class SumOfSquaresChecker {
 					int indexOf = monomialsInFH.indexOf(gMonoms.next());
 					Arithmetic next = (Arithmetic) iterator.next();
 					if (!next.isZero()) {
-						exactHetero.set(indexOf-1, next.minus());
-						hetero[indexOf -1 ] = OrbitalSimplifier.toDouble(next
+						exactHetero.set(indexOf, next.minus());
+						hetero[indexOf ] = OrbitalSimplifier.toDouble(next
 								.minus());
 					}
 				}
