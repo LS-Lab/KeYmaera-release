@@ -485,9 +485,9 @@ public class SumOfSquaresChecker {
 					// we at least advance by one in G
 					Polynomial gItNext = gIt.next();
 					nextG = (Polynomial) gItNext.multiply(gItNext);
-
+					System.out.println("nextG is "+ nextG);//XXX
 					while (nextG.degreeValue() < d) {
-						Polynomial next = (Polynomial) gItNext;
+						Polynomial next = (Polynomial) gIt.next();
 						nextG = next.multiply(next);
 					}
 				}
@@ -596,11 +596,12 @@ public class SumOfSquaresChecker {
 				final Vector exactHetero = Values.getDefault().ZERO(
 						hetero.length);
 				while (gMonoms.hasNext()) {
+					// FIXME: is indexOf - 1 the correct index?
 					int indexOf = monomialsInFH.indexOf(gMonoms.next());
 					Arithmetic next = (Arithmetic) iterator.next();
 					if (!next.isZero()) {
-						exactHetero.set(indexOf, next.minus());
-						hetero[indexOf] = OrbitalSimplifier.toDouble(next
+						exactHetero.set(indexOf-1, next.minus());
+						hetero[indexOf -1 ] = OrbitalSimplifier.toDouble(next
 								.minus());
 					}
 				}

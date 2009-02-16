@@ -81,7 +81,7 @@ public class MaxPolynomPerDegreeOrder implements PolynomialOrder {
 				}
 			}
 			while (indices2.hasNext()) {
-				Object nextVector = indices1.next();
+				Object nextVector = indices2.next();
 				
 				Vector next2 = null;
 				if(nextVector instanceof Vector ) {
@@ -146,9 +146,15 @@ public class MaxPolynomPerDegreeOrder implements PolynomialOrder {
 			public MonoidIterator(List<Polynomial> generator, Polynomial one) {
 				this.generator = new ArrayList<Polynomial>(generator);
 				System.out.println("generator is " + generator);
-				 polynomComparator = AlgebraicAlgorithms
-				 .INDUCED(AlgebraicAlgorithms.DEGREE_REVERSE_LEXICOGRAPHIC);
-//				polynomComparator = TotalPolynomialOrderComparator.INSTANCE;
+//				 polynomComparator = AlgebraicAlgorithms
+//				 .INDUCED(AlgebraicAlgorithms.DEGREE_REVERSE_LEXICOGRAPHIC);
+				polynomComparator = new Comparator<Polynomial>() {
+
+					public int compare(Polynomial o1, Polynomial o2) {
+						return -TotalPolynomialOrderComparator.INSTANCE.compare(o1, o2);
+					}
+					
+				};
 				Collections.sort(this.generator, polynomComparator);
 				s = new PriorityQueue<Polynomial>(100, polynomComparator);
 				p = new ArrayList<Polynomial>();
@@ -167,7 +173,7 @@ public class MaxPolynomPerDegreeOrder implements PolynomialOrder {
 
 			/*@Override*/
 			public Polynomial next() {
-				while (results.isEmpty()) {
+				do {
 					// System.out.println("P is " + p);// XXX
 					for (Polynomial pPoly : p) {
 						for (Polynomial pPoly2 : p) {
@@ -196,9 +202,10 @@ public class MaxPolynomPerDegreeOrder implements PolynomialOrder {
 					// System.out.println("results is now " + results);// XXX
 					s.removeAll(p);
 					// System.out.println("s is now " + s);// XXX
-				}
+				} while(results.isEmpty());
 				Polynomial res = results.poll();
 				usedResults.add(res);
+				System.out.println(results);//XXX
 				return res;
 			}
 
