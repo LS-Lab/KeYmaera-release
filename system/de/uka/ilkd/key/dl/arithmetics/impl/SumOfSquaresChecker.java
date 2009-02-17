@@ -457,6 +457,7 @@ public class SumOfSquaresChecker {
 
 	public boolean checkCombinedSetForEmptyness(Set<Term> f, Set<Term> g,
 			Set<Term> h, int degreeBound) {
+//		degreeBound = 4;
 		PolynomialClassification<Polynomial> classify = classify(new PolynomialClassification<Term>(
 				f, g, h));
 		Polynomial one = null;
@@ -498,20 +499,21 @@ public class SumOfSquaresChecker {
 				Set<Polynomial> sumOfFs = new LinkedHashSet<Polynomial>();
 				sumOfFs.add(one);
 				List<Polynomial> curF = new ArrayList<Polynomial>(classify.f);
-				for (int i = 1; i < curF.size(); i++) {
+				System.out.println("curF " + curF);//XXX
+				for (int i = 0; i < curF.size(); i++) {
 					Combinatorical combinations = Combinatorical
-							.getCombinations(i, curF.size(), true);
+							.getCombinations(i + 1, curF.size(), true);
 					while (combinations.hasNext()) {
 						int[] com = combinations.next();
 						Polynomial currentF = one;
+						System.out.println(Arrays.toString(com));//XXX
 						for (int j = 0; j < com.length; j++) {
-							if (com[j] == 1) {
-								currentF = currentF.multiply(curF.get(j));
-							}
+							currentF = currentF.multiply(curF.get(com[j]));
 						}
 						sumOfFs.add(currentF);
 					}
 				}
+				System.out.println("sumOfFs: " + sumOfFs);//XXX
 				// now construct parametric polynomials of degree deg(g)
 				// We need sumOfFs.size() p_i's and classify.h.size() q_i's
 				Set<Polynomial> monomials = new LinkedHashSet<Polynomial>();
@@ -542,6 +544,8 @@ public class SumOfSquaresChecker {
 					pis.add(s);
 					nextF = nextF.add(s.multiply(nF));
 				}
+				
+				System.out.println("nextF is " + nextF);//XXX
 
 				// the next step is to construct all those parametric
 				// polynomials q_i (one per h in classify.h)
@@ -609,6 +613,7 @@ public class SumOfSquaresChecker {
 								.minus());
 					}
 				}
+				System.out.println("Result vector is " + exactHetero);//XXX
 
 				// if (nextG.equals(one)) {
 				// Arrays.fill(hetero, 0.0);
