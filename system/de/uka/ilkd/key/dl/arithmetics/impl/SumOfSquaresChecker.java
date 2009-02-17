@@ -485,7 +485,7 @@ public class SumOfSquaresChecker {
 					// we at least advance by one in G
 					Polynomial gItNext = gIt.next();
 					nextG = (Polynomial) gItNext.multiply(gItNext);
-					System.out.println("nextG is "+ nextG);//XXX
+					System.out.println("nextG is " + nextG);// XXX
 					while (nextG.degreeValue() < d) {
 						Polynomial next = (Polynomial) gIt.next();
 						nextG = next.multiply(next);
@@ -564,13 +564,16 @@ public class SumOfSquaresChecker {
 
 				List<Arithmetic> monomialsInFH = new ArrayList<Arithmetic>(fh
 						.getMonomials());
-//				Vector zeroMonomial = Values.getDefault().valueOf(
-//						new int[one.rank()]);
-//				assert zeroMonomial.equals(zeroMonomial.zero()) : "Not 0 "
-//						+ zeroMonomial;
+				// Vector zeroMonomial = Values.getDefault().valueOf(
+				// new int[one.rank()]);
+				// assert zeroMonomial.equals(zeroMonomial.zero()) : "Not 0 "
+				// + zeroMonomial;
 				if (!monomialsInFH.isEmpty()) {
 					Arithmetic zero = monomialsInFH.get(0).zero();
-					if(!monomialsInFH.contains(zero))
+					// we remove the zero and readd it in the first place as
+					// this corresponds to the order provided by
+					// SparsePolynomial.coefficientComparision()
+					monomialsInFH.remove(zero);
 					monomialsInFH.add(0, zero);
 				}
 
@@ -603,11 +606,11 @@ public class SumOfSquaresChecker {
 					Arithmetic next = (Arithmetic) iterator.next();
 					if (!next.isZero()) {
 						exactHetero.set(indexOf, next.minus());
-						hetero[indexOf ] = OrbitalSimplifier.toDouble(next
+						hetero[indexOf] = OrbitalSimplifier.toDouble(next
 								.minus());
 					}
 				}
-				
+
 				// if (nextG.equals(one)) {
 				// Arrays.fill(hetero, 0.0);
 				// hetero[0] = -1.0;
@@ -677,12 +680,13 @@ public class SumOfSquaresChecker {
 			Object next = coefficients.next();
 			String blub = "";
 			Object nextVector = indices.next();
-			
+
 			Vector monomialDegrees = null;
-			if(nextVector instanceof Vector ) {
+			if (nextVector instanceof Vector) {
 				monomialDegrees = (Vector) nextVector;
 			} else {
-				monomialDegrees = Values.getDefault().valueOf(new Integer[] { (Integer) nextVector });
+				monomialDegrees = Values.getDefault().valueOf(
+						new Integer[] { (Integer) nextVector });
 			}
 			for (int i = 0; i < monomialDegrees.dimension(); i++) {
 				blub += ((char) ('a' + i)) + "^" + monomialDegrees.get(i);
@@ -690,8 +694,8 @@ public class SumOfSquaresChecker {
 			System.out.println(next + "*" + blub);// XXX
 			if (!next.equals(Values.getDefault().ZERO())) {
 				boolean ok = true;
-				Vector div = Values.getDefault()
-						.valueOf(new int[monomialDegrees.dimension()]);
+				Vector div = Values.getDefault().valueOf(
+						new int[monomialDegrees.dimension()]);
 				for (int i = 0; i < monomialDegrees.dimension(); i++) {
 					if (monomialDegrees.get(i) instanceof Real) {
 						Real in = (Real) monomialDegrees.get(i);
@@ -736,19 +740,21 @@ public class SumOfSquaresChecker {
 		while (coefficients.hasNext()) {
 			Object next = coefficients.next();
 			Object nextVector = indices.next();
-			
+
 			Vector monomialDegrees = null;
-			if(nextVector instanceof Vector ) {
+			if (nextVector instanceof Vector) {
 				monomialDegrees = (Vector) nextVector;
 			} else {
-				monomialDegrees = Values.getDefault().valueOf(new Integer[] { (Integer) nextVector });
+				monomialDegrees = Values.getDefault().valueOf(
+						new Integer[] { (Integer) nextVector });
 			}
 			if (!Values.getDefault().ZERO().equals(next)) {
-				System.out.println("Checking: " + next + " and vector " + monomialDegrees);// XXX
+				System.out.println("Checking: " + next + " and vector "
+						+ monomialDegrees);// XXX
 				List<Vector> list = quadraticForm.vec.get(monomialDegrees);
 				if (list != null) {
-					Constraint constraint = new Constraint(monomialDegrees, list,
-							(Arithmetic) next);
+					Constraint constraint = new Constraint(monomialDegrees,
+							list, (Arithmetic) next);
 					System.out.println("Added constraint " + constraint);// XXX
 					constraints.add(constraint);
 				} else {
