@@ -467,7 +467,7 @@ public class SumOfSquaresChecker {
 		} else if (!classify.h.isEmpty()) {
 			one = (Polynomial) classify.h.iterator().next().one();
 		}
-		int d = 1;
+		int d = 0;
 		if (one != null) {
 			// now we built a SparsePolynomial based on Parrilo Theorem 5.1
 			Monoid gMonoid = new Monoid(new ArrayList<Polynomial>(classify.g),
@@ -475,7 +475,6 @@ public class SumOfSquaresChecker {
 
 			Iterator<Polynomial> gIt = gMonoid.iterator();
 
-			Polynomial two = one.add(one);
 			Polynomial nextG = one;
 
 			while (d < degreeBound) {
@@ -577,15 +576,15 @@ public class SumOfSquaresChecker {
 					monomialsInFH.add(0, zero);
 				}
 
-				Iterator indices = nextG.indices();
+				Iterator<Arithmetic> indices = nextG.indices();
 				int mononum = monomialsInFH.size();
 				System.out.println(monomialsInFH);// XXX
-				ListIterator iterator2 = nextG.iterator();
+				ListIterator<Arithmetic> iterator2 = nextG.iterator();
 				while (indices.hasNext()) {
-					Object next = indices.next();
-					Arithmetic next2 = (Arithmetic) iterator2.next();
-					assert next2.isZero() || monomialsInFH.contains(next) : "The polynomial g cannot contain monomials that are not in any p_i "
-							+ next + " * " + next2;
+					Arithmetic monomial = indices.next();
+					Arithmetic coefficient = (Arithmetic) iterator2.next();
+					assert coefficient.isZero() || monomialsInFH.contains(monomial) : "The polynomial g cannot contain monomials that are not in any p_i "
+							+ monomial + " * " + coefficient;
 				}
 
 				System.out.println("f+h = " + fh);// XXX
@@ -596,14 +595,14 @@ public class SumOfSquaresChecker {
 				// the solution vector has to be zero except at those positions
 				// where g contains the same monomial it has to be the additive
 				// inverse of coefficient in g
-				Iterator gMonoms = nextG.indices();
-				ListIterator iterator = nextG.iterator();
+				Iterator<Arithmetic> gMonoms = nextG.indices();
+				ListIterator<Arithmetic> iterator = nextG.iterator();
 				final Vector exactHetero = Values.getDefault().ZERO(
 						hetero.length);
 				while (gMonoms.hasNext()) {
 					// FIXME: is indexOf - 1 the correct index?
 					int indexOf = monomialsInFH.indexOf(gMonoms.next());
-					Arithmetic next = (Arithmetic) iterator.next();
+					Arithmetic next = iterator.next();
 					if (!next.isZero()) {
 						exactHetero.set(indexOf, next.minus());
 						hetero[indexOf] = OrbitalSimplifier.toDouble(next
