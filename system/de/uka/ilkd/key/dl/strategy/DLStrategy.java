@@ -311,18 +311,20 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 		bindRuleSet(d, "loop_invariant",
 				LoopInvariantRuleDispatchFeature.INSTANCE);
 
-		if (DLOptionBean.INSTANCE.isApplyLocalReduce()) {
+		if (DLOptionBean.INSTANCE.isApplyLocalReduce() &&
+		    MathSolverManager.isQuantifierEliminatorSet()) {
 			bindRuleSet(d, "mathematica_reduce",
-					add(ifZero(ReduceFeature.INSTANCE, longConst(4999),
-							inftyConst()), (MathSolverManager
-							.isQuantifierEliminatorSet()) ? longConst(0)
-							: inftyConst()));
+			            add(ReduceFeature.INSTANCE, longConst(4999)));
 		} else {
 			bindRuleSet(d, "mathematica_reduce", inftyConst());
 		}
-		bindRuleSet(d, "mathematica_simplify", add(SimplifyFeature.INSTANCE,
-				(MathSolverManager.isSimplifierSet()) ? longConst(0)
-						: inftyConst()));
+
+		if (DLOptionBean.INSTANCE.isApplyLocalSimplify() &&
+                    MathSolverManager.isSimplifierSet()) {
+		    bindRuleSet(d, "mathematica_simplify", SimplifyFeature.INSTANCE);
+                } else {
+                    bindRuleSet(d, "mathematica_simplify", inftyConst());
+                }
 
 		// final Feature simplifierF = ifZero(selectSimplifier(-10000),
 		// EqNonDuplicateAppFeature.INSTANCE);
@@ -338,7 +340,8 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 
 		Feature iterative = ConditionalFeature.createConditional(
 				IterativeReduceRule.INSTANCE, inftyConst());
-		if (MathSolverManager.isQuantifierEliminatorSet()) {
+		if (DLOptionBean.INSTANCE.isApplyGlobalReduce() &&
+		    MathSolverManager.isQuantifierEliminatorSet()) {
 			// call reduce is set if the value is not STOP or UNFOLD
 			if (DLOptionBean.INSTANCE.getFoStrategy().compareTo(
 					FirstOrderStrategy.UNFOLD) > 0) {

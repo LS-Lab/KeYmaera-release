@@ -154,9 +154,19 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
 							true, false),
 					createDescriptor(
 							"applyLocalReduce",
-							"standalone reductions",
-							"first try to eliminate quantifiers in single first-order subformulas before trying to reduce the complete sequent",
+							"local reductions",
+							"try to eliminate quantifiers in single first-order formulas (before trying to reduce the complete sequent)",
 							true, false),
+		                        createDescriptor(
+		                                        "applyLocalSimplify",
+		                                        "local simplifications",
+		                                        "try to simplify single first-order subformulas (before trying to reduce the complete sequent)",
+		                                        true, false),
+                                        createDescriptor(
+                                                        "applyGlobalReduce",
+                                                        "global reductions",
+                                                        "try to reduce the complete sequent if possible",
+                                                        true, false),
 					createDescriptor(
 							"applyGammaRules",
 							"apply gamma rules",

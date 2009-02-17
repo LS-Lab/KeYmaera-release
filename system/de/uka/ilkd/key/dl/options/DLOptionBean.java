@@ -224,6 +224,10 @@ public class DLOptionBean implements Settings {
 
 	private static final String DLOPTIONS_APPLY_LOCAL_REDUCE = "[DLOptions]applyLocalReduce";
 
+        private static final String DLOPTIONS_APPLY_LOCAL_SIMPLIFY = "[DLOptions]applyLocalSimplify";
+
+        private static final String DLOPTIONS_APPLY_GLOBAL_REDUCE = "[DLOptions]applyGlobalReduce";
+        
 	private static final String DLOPTIONS_SIMPLIFY_AFTER_ODESOLVE = "[DLOptions]simplifyAfterODESolve";
 
 	private static final String DLOPTIONS_GROEBNER_BASIS_CALCULATOR = "[DLOptions]groebnerBasisCalculator";
@@ -285,6 +289,10 @@ public class DLOptionBean implements Settings {
 
 	private boolean applyLocalReduce;
 
+        private boolean applyLocalSimplify;
+
+        private boolean applyGlobalReduce;
+
 	private boolean simplifyAfterODESolve;
 
 	private String groebnerBasisCalculator;
@@ -323,6 +331,8 @@ public class DLOptionBean implements Settings {
 		useIterativeReduceRule = false;
 		termFactoryClass = de.uka.ilkd.key.dl.model.impl.TermFactoryImpl.class;
 		applyLocalReduce = false;
+                applyLocalSimplify = false;
+                applyGlobalReduce = true;
 		usePowersetIterativeReduce = true;
 		percentOfPowersetForReduce = 70;
 		builtInArithmetic = BuiltInArithmetic.OFF;
@@ -567,6 +577,16 @@ public class DLOptionBean implements Settings {
 			applyLocalReduce = Boolean.valueOf(property);
 		}
 
+                property = props.getProperty(DLOPTIONS_APPLY_LOCAL_SIMPLIFY);
+                if (property != null) {
+                        applyLocalSimplify = Boolean.valueOf(property);
+                }
+
+                property = props.getProperty(DLOPTIONS_APPLY_GLOBAL_REDUCE);
+                if (property != null) {
+                        applyGlobalReduce = Boolean.valueOf(property);
+                }
+
 		property = props.getProperty(DLOPTIONS_SIMPLIFY_AFTER_ODESOLVE);
 		if (property != null) {
 			simplifyAfterODESolve = Boolean.valueOf(property);
@@ -660,6 +680,10 @@ public class DLOptionBean implements Settings {
 				.getName());
 		props.setProperty(DLOPTIONS_APPLY_LOCAL_REDUCE, Boolean
 				.toString(applyLocalReduce));
+                props.setProperty(DLOPTIONS_APPLY_LOCAL_SIMPLIFY, Boolean
+                                .toString(applyLocalSimplify));
+                props.setProperty(DLOPTIONS_APPLY_GLOBAL_REDUCE, Boolean
+                                .toString(applyGlobalReduce));
 		props.setProperty(DLOPTIONS_SIMPLIFY_AFTER_ODESOLVE, Boolean
 				.toString(simplifyAfterODESolve));
 		props.setProperty(DLOPTIONS_USE_POWERSET_ITERATIVE_REDUCE, Boolean
@@ -1062,6 +1086,42 @@ public class DLOptionBean implements Settings {
 			firePropertyChanged();
 		}
 	}
+
+        /**
+         * @return the applyLocalSimplify
+         */
+        public boolean isApplyLocalSimplify() {
+                return applyLocalSimplify;
+        }
+
+        /**
+         * @param applyLocalSimplify
+         *            the applyLocalSimplify to set
+         */
+        public void setApplyLocalSimplify(boolean applyLocalSimplify) {
+                if (applyLocalSimplify != this.applyLocalSimplify) {
+                        this.applyLocalSimplify = applyLocalSimplify;
+                        firePropertyChanged();
+                }
+        }
+
+        /**
+         * @return the applyGlobalReduce
+         */
+        public boolean isApplyGlobalReduce() {
+                return applyGlobalReduce;
+        }
+
+        /**
+         * @param applyGlobalReduce
+         *            the applyGlobalReduce to set
+         */
+        public void setApplyGlobalReduce(boolean applyGlobalReduce) {
+                if (applyGlobalReduce != this.applyGlobalReduce) {
+                        this.applyGlobalReduce = applyGlobalReduce;
+                        firePropertyChanged();
+                }
+        }
 
 	/**
 	 * @return the simplifyAfterODESolve
