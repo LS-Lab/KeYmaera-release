@@ -24,6 +24,7 @@ import java.util.Iterator;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.Map.Entry;
 
 import orbital.math.Arithmetic;
@@ -61,7 +62,7 @@ public class SparsePolynomial {
 	 * <code>tj</code>
 	 */
 	private final Map<Arithmetic, CoefficientTerm> polyTerms =
-	    new HashMap<Arithmetic, CoefficientTerm>();
+	    new TreeMap<Arithmetic, CoefficientTerm>();
 
 	/**
 	 * Add the polynomial <code>variable * p</code> to this object
@@ -221,8 +222,8 @@ public class SparsePolynomial {
 	 * @return
 	 */
 	public SparsePolynomial multiply(Polynomial nf) {
-		Iterator indices = nf.indices();
-		ListIterator coefficients = nf.iterator();
+		Iterator<Arithmetic> indices = nf.indices();
+		ListIterator<Arithmetic> coefficients = nf.iterator();
 		SparsePolynomial result = new SparsePolynomial();
 		while (indices.hasNext()) {
 			Arithmetic monom = (Arithmetic) indices.next();
@@ -231,7 +232,7 @@ public class SparsePolynomial {
 				Arithmetic newMonom = monom.add(c);
 				CoefficientTerm coefficientTerm = polyTerms.get(c);
 				Arithmetic newCoefficient = coefficientTerm.coefficient
-						.add(coefficient);
+						.multiply(coefficient);
 				result.polyTerms.put(newMonom, new CoefficientTerm(
 						newCoefficient, coefficientTerm.variable,
 						result.polyTerms.get(newMonom)));
