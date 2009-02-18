@@ -124,9 +124,39 @@ public class CSDP {
 //          System.out.println("n is: " + n);// XXX
 //          System.out.println("a is: " + Arrays.toString(a));// XXX
 //          System.out.println("constraints is: " + Arrays.toString(constraints));// XXX
+            return easySDP(n, k, C, a, inpConstraints, 0, solution, y, Z, pobj, dobj);
+        }
+
+        public static int minimalSdp(int n, int k, double[] a, double[] constraints, double[] solution) {
+            assert (solution.length == n*n);
+            double[] y = new double[a.length], Z = new double[n
+                            * n], pobj = new double[n], dobj = new double[a.length];
+            final double[] C = new double[n * n];
+            
+            // make sure that the constraints are given as upper triangular
+            // matrices
+            final double[] inpConstraints = constraints.clone();
+            for (int i = 0; i < n; ++i)
+                for (int j = 0; j < i; ++j)
+                    for (int l = 0; l < k; ++l)
+                        inpConstraints[l*n*n + i*n + j] = 0.0;
+            
+            Arrays.fill(solution, 0.1);
+            Arrays.fill(y, 0.1);
+            Arrays.fill(Z, 0.1);
+
+//            fillRandomly(solution);
+//            fillRandomly(y);
+//            fillRandomly(Z);
+//            fillRandomly(C);
+//            Arrays.fill(C, -1.0); // try to find solutions with small values
+            
+//          System.out.println("n is: " + n);// XXX
+//          System.out.println("a is: " + Arrays.toString(a));// XXX
+//          System.out.println("constraints is: " + Arrays.toString(constraints));// XXX
             final int res = easySDP(n, k, C, a, inpConstraints, 0, solution, y, Z, pobj, dobj);
             
-            if (res == 0 || res == 3) {
+	    if (res == 0 || res == 3) {
                 // SUCCESS: try to find a nice solution that contains as small
                 // entries as possible
                 for (int i = 0; i < C.length; ++i) {
@@ -145,7 +175,7 @@ public class CSDP {
                         C[i] = 0.0;
                     }
                 }
-            }
+	    }
             
             return res;
         }
@@ -168,7 +198,7 @@ public class CSDP {
             
             double lambda = 1.0;
             final double[] inpA = new double[k];
-            
+
             while (lambda > 0.000000001) {
                 System.out.println("Robustification: Trying lambda = " + lambda);
                 
@@ -190,7 +220,7 @@ public class CSDP {
                 
                 return res2;
             }
-            
+
             // no robust solution could be found
             System.out.println("Robustification failed");
             return sdp(n, k, a, constraints, solution);

@@ -80,11 +80,11 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
         final Set<Polynomial> polys2 = eliminateLinearVariables(rawPolys);
         System.out.println("Polynomials after eliminating linear variables are: ");
         printPolys(polys2);
-        
+	
         final Set<Polynomial> polys = eliminateUnusedVariables(polys2);
         System.out.println("Polynomials after eliminating unused variables are: ");
         printPolys(polys);
-        
+
         final Polynomial one = (Polynomial)polys.iterator().next().one();
 	
 	// we try to get a contradiction by computing the groebner basis of all
@@ -109,7 +109,7 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 	// enumerate sums of squares s and check whether some monomial 1+s is
 	// in the ideal
 	final Iterator<Vector> monomials =
-	    new SimpleMonomialIterator(indexNum(groebnerBasis), 3);
+	    new SimpleMonomialIterator(indexNum(groebnerBasis), 2);
         final Square[] cert = checkSOS(monomials, groebnerBasis, groebnerReducer);
         
         if (cert != null) {
@@ -444,9 +444,8 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
             final double[] approxSolution = new double [monoNum * monoNum];
 //            System.out.println(Arrays.toString(homo));
 //            System.out.println(Arrays.toString(hetero));
-            int sdpRes =
-//                CSDP.robustSdp(monoNum, reducedPoly.size(), hetero, homo, approxSolution);
-               CSDP.sdp(monoNum, reducedPoly.size(), hetero, homo, approxSolution);
+
+            int sdpRes = CSDP.sdp(monoNum, reducedPoly.size(), hetero, homo, approxSolution);
 
             if (sdpRes == 0 || sdpRes == 3) {
                 System.out.println("Found an approximate solution!");
@@ -459,6 +458,20 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
             } else {
                 System.out.println("No solution");
             }
+
+            sdpRes = CSDP.minimalSdp(monoNum, reducedPoly.size(), hetero, homo, approxSolution);
+
+            if (sdpRes == 0 || sdpRes == 3) {
+                System.out.println("Found an approximate solution!");
+                System.out.println(Arrays.toString(approxSolution));
+                
+                final Square[] squares =
+                    approx2Exact(reducedPoly, consideredMonomials, approxSolution);
+                if (squares != null)
+                    return squares;
+            } else {
+                System.out.println("No solution");
+            }	    
             
         }
         
