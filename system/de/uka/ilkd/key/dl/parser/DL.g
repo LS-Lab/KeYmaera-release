@@ -138,7 +138,8 @@ expexpr[diffAllowed] ((STAR|DIV)^ expexpr[diffAllowed])*
 ; 
 
 expexpr[boolean diffAllowed]: 
-atom[diffAllowed] (EXP^ expexpr[diffAllowed])?
+MINUS expexpr[diffAllowed] -> ^(MINUSSIGN expexpr)
+| atom[diffAllowed] (EXP^ expexpr[diffAllowed])?
 ;
 
 atom[boolean diffAllowed]: 
@@ -146,7 +147,6 @@ func[diffAllowed]
 | NUM
 | LPAREN! expr[diffAllowed] RPAREN!
 | { diffAllowed }? diff
-| MINUS atom[diffAllowed] -> ^(MINUSSIGN atom)
 | {schemaMode}? sv
 ;
 

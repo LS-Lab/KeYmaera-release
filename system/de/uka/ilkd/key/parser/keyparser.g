@@ -2672,21 +2672,6 @@ strong_arith_op returns [Function op = null]
    }
 ;
 
-very_strong_arith_op returns [Function op = null]
-{
-  String op_name = null;
-}
-:
- (
- DLEXP      	 { op_name = "exp"; }
- ) {
-     op = (Function) functions().lookup(new Name(op_name)); 
-     if(op == null) {
-       semanticError("Function symbol '"+op_name+"' not found.");
-     }
-   }
-;
-
 
 // term80
 logicTermReEntry returns [Term a = null]
@@ -2728,23 +2713,7 @@ term100 returns [Term a = null]
   Function op = null;
 }
 :
-   a = term101 ( op = strong_arith_op a1=term101 {
-                  a = tf.createFunctionTerm(op, a, a1);
-                })*
-; exception
-        catch [TermCreationException ex] {
-              keh.reportException
-		(new KeYSemanticException
-			(ex.getMessage(), getFilename(), getLine(), getColumn()));
-        }
-
-term101 returns [Term a = null]
-{
-  Term a1 = null;
-  Function op = null;
-}
-:
-   a = term110 ( op = very_strong_arith_op a1=term110 {
+   a = term110 ( op = strong_arith_op a1=term110 {
                   a = tf.createFunctionTerm(op, a, a1);
                 })*
 ; exception
@@ -3013,6 +2982,7 @@ static_query returns [Term result = null]
 accessterm returns [Term result = null] 
 {
     Sort s = null;
+  	Term exponent = null;
 }
     :
       (MINUS ~NUM_LITERAL) => MINUS result = term110
@@ -3024,6 +2994,16 @@ accessterm returns [Term result = null]
                 semanticError("Formula cannot be prefixed with '-'");
             }
         } 
+      |
+      (term130 DLEXP) => result = term130 DLEXP exponent = term130
+      	{
+     if (result.sort() != Sort.FORMULA) {
+     result = tf.createFunctionTerm
+                ((Function) functions().lookup(new Name("exp")), result, exponent); 
+     } else {
+       semanticError("There is no power operator for formulas");
+     }
+      	}
       |
       (LPAREN any_sortId_check[false] RPAREN term110)=> 
         LPAREN s = any_sortId_check[true] RPAREN result=term110 {
