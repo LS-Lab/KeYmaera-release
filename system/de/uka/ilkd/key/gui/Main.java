@@ -3247,7 +3247,8 @@ public class Main extends JFrame implements IMain {
         System.out.println("\nKeY Version " + VERSION);
 	System.out.println(COPYRIGHT+"\nKeY is protected by the " +
 	      	           "GNU General Public License\n");
-        
+     System.out.println("Librariy " + System.getProperty("java.library.path"));
+	
         // does no harm on non macs
         System.setProperty("apple.laf.useScreenMenuBar","true"); 
  	
