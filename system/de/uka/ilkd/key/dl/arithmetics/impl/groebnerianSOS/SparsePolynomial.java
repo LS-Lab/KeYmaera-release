@@ -61,8 +61,7 @@ public class SparsePolynomial {
 	 * Mapping from the exponents <code>ij</code> to the coefficient term
 	 * <code>tj</code>
 	 */
-	private final Map<Arithmetic, CoefficientTerm> polyTerms =
-	    new TreeMap<Arithmetic, CoefficientTerm>();
+	private final Map<Arithmetic, CoefficientTerm> polyTerms = new HashMap<Arithmetic, CoefficientTerm>();
 
 	/**
 	 * Add the polynomial <code>variable * p</code> to this object
@@ -233,12 +232,15 @@ public class SparsePolynomial {
 				CoefficientTerm coefficientTerm = polyTerms.get(c);
 				Arithmetic newCoefficient = coefficientTerm.coefficient
 						.multiply(coefficient);
-				result.polyTerms.put(newMonom, new CoefficientTerm(
-						newCoefficient, coefficientTerm.variable,
-						result.polyTerms.get(newMonom)));
+				if (!newCoefficient.isZero()) {
+					result.polyTerms.put(newMonom, new CoefficientTerm(
+							newCoefficient, coefficientTerm.variable,
+							result.polyTerms.get(newMonom)));
+				}
 			}
 
 		}
+		System.out.println("multiplying " + this + " * " + nf + " = " + result);// XXX
 		return result;
 	}
 
@@ -269,7 +271,7 @@ public class SparsePolynomial {
 					if (sCoTermMap.containsKey(i)) {
 						coefficient = coefficient.add(sCoTermMap.get(i));
 					}
-					
+
 					resultCoTermMap.put(i, coefficient);
 				}
 				for (Integer i : sCoTermMap.keySet()) {
@@ -292,6 +294,7 @@ public class SparsePolynomial {
 				result.polyTerms.put(m, polyTerms.get(m));
 			}
 		}
+		System.out.println("adding " + this + " + " + s + " = " + result);// XXX
 		return result;
 	}
 
