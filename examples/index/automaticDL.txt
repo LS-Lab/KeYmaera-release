@@ -1,3 +1,13 @@
+./hybrid/ETCS/decomposed/safety-lemma/initially-valid.key 1800
+./hybrid/ETCS/decomposed/safety-lemma/rbc_goal1.key 1800
+./hybrid/ETCS/decomposed/safety-lemma/rbc_goal2.key 1800
+./hybrid/ETCS/decomposed/safety-lemma/train_goal1.key 1800
+./hybrid/ETCS/decomposed/safety-lemma/train_goal2.key 1800
+./hybrid/ETCS/decomposed/safety-lemma/train_goal3.key 1800
+./hybrid/ETCS/decomposed/safety-lemma/train_goal4.key 1800
+./hybrid/ETCS/decomposed/safety-lemma/train_goal5.key 1800
+./hybrid/ETCS/decomposed/safety-lemma/train_goal6.key 1800
+./hybrid/ETCS/decomposed/safety-lemma/use-case.key 1800
 ./z3/nonlinear1/nl10.key 1800
 ./z3/nonlinear1/nl12.key 1800
 ./z3/nonlinear1/nl14.key 1800
