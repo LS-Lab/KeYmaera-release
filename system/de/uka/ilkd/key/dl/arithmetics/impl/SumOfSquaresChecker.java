@@ -627,7 +627,7 @@ public class SumOfSquaresChecker {
 				int sdpRes =
 				// CSDP.robustSdp(monoNum, reducedPoly.size(), hetero, homo,
 				// approxSolution);
-				CSDP.sdp(mononum, fh.size(), hetero, homo, approxSolution);
+				CSDP.sdp(mononum, homo, hetero, approxSolution);
 
 				if (sdpRes == 0 || sdpRes == 3) {
 					System.out.println("Found an approximate solution!");
@@ -771,9 +771,8 @@ public class SumOfSquaresChecker {
 		// outputMatlab(monominals, constraints);
 
 		double[] solution = new double[monominals.size() * monominals.size()];
-		if (CSDP.sdp(monominals.size(), constraints.size(),
+		if (CSDP.sdp(monominals.size(), convertConstraintsToCSDP(constraints, monominals.size()),
 				convertConstraintsToResultVector(constraints),
-				convertConstraintsToCSDP(constraints, monominals.size()),
 				solution) == 0) {
 			// System.out.println(quadraticForm.toSparsePolynomial());//XXX
 			// Square[] cert = GroebnerBasisChecker.approx2Exact(
