@@ -627,7 +627,7 @@ public class SumOfSquaresChecker {
 				int sdpRes =
 				// CSDP.robustSdp(monoNum, reducedPoly.size(), hetero, homo,
 				// approxSolution);
-				CSDP.sdp(mononum, homo, hetero, approxSolution);
+				CSDP.minimalSdp(mononum, homo, hetero, approxSolution);
 
 				if (sdpRes == 0 || sdpRes == 3) {
 					System.out.println("Found an approximate solution!");
