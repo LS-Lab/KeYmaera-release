@@ -186,7 +186,10 @@ public class Term2ExprConverter implements ExprConstants {
 				return new Expr(NOT, args);
 			}
 		} else if (form.op() instanceof Equality) {
-			return new Expr(BIIMPL, args);
+			// return new Expr(BIIMPL, args);
+			assert args.length == 2;
+			return new Expr(AND, new Expr[] { new Expr(IMPL, args),
+					new Expr(IMPL, new Expr[] { args[1], args[0] }) });
 		} else if (form.op() instanceof Quantifier) {
 			Expr[] newArgs = new Expr[args.length + 1];
 			System.arraycopy(args, 0, newArgs, 1, args.length);
