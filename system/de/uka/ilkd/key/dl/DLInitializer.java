@@ -287,7 +287,7 @@ public class DLInitializer {
 				/*
 				 * JTextPane tp = new JTextPane(); JScrollPane js = new
 				 * JScrollPane(); js.getViewport().add(tp); try { URL url = new
-				 * URL("http://www.functologic.com/info/KeYmaera-guide.html");
+				 * URL("http://symbolaris.com/info/KeYmaera-guide.html");
 				 * tp.setPage(url); JFrame jf = new JFrame();
 				 * jf.getContentPane().add(js); jf.pack(); jf.setVisible(true);
 				 * } catch (Exception react)
@@ -297,7 +297,7 @@ public class DLInitializer {
 							.showMessageDialog(
 									main,
 									"Information and documentation on using KeYmaera,\nthe syntax of its specification language, and\nits verification features, is available on the web:\n"
-											+ "see KeYmaera Tutorial at\n    http://www.functologic.com/info/KeYmaera-guide.html",
+											+ "see KeYmaera Tutorial at\n    http://symbolaris.com/info/KeYmaera-guide.html",
 									"KeYmaera Documentation",
 									JOptionPane.INFORMATION_MESSAGE);
 				}

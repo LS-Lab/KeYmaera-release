@@ -39,6 +39,7 @@ import de.uka.ilkd.key.dl.options.DLOptionBean.CounterexampleTest;
 import de.uka.ilkd.key.dl.options.DLOptionBean.DiffSat;
 import de.uka.ilkd.key.dl.options.DLOptionBean.FirstOrderStrategy;
 import de.uka.ilkd.key.dl.options.DLOptionBean.InvariantRule;
+import de.uka.ilkd.key.dl.options.DLOptionBean.LocalReduceOption;
 
 /**
  * @author jdq
@@ -156,17 +157,15 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
 							"applyLocalReduce",
 							"local reductions",
 							"try to eliminate quantifiers in single first-order formulas (before trying to reduce the complete sequent)",
+							true, false, LocalReducePropertyEditor.class),
+					createDescriptor(
+							"applyLocalSimplify",
+							"local simplifications",
+							"try to simplify single first-order subformulas (before trying to reduce the complete sequent)",
 							true, false),
-		                        createDescriptor(
-		                                        "applyLocalSimplify",
-		                                        "local simplifications",
-		                                        "try to simplify single first-order subformulas (before trying to reduce the complete sequent)",
-		                                        true, false),
-                                        createDescriptor(
-                                                        "applyGlobalReduce",
-                                                        "global reductions",
-                                                        "try to reduce the complete sequent if possible",
-                                                        true, false),
+					createDescriptor("applyGlobalReduce", "global reductions",
+							"try to reduce the complete sequent if possible",
+							true, false),
 					createDescriptor(
 							"applyGammaRules",
 							"apply gamma rules",
@@ -174,10 +173,10 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
 							true, false, ApplyRulesPropertyEditor.class),
 					//
 					createDescriptor(
-					                "builtInArithmetic",
-					                "built-in arithmetic",
-					                "select to which degree built-in arithmetic rules should be used",
-					                false, false, BuiltInArithmeticPropertyEditor.class),
+							"builtInArithmetic",
+							"built-in arithmetic",
+							"select to which degree built-in arithmetic rules should be used",
+							false, false, BuiltInArithmeticPropertyEditor.class),
 					//
 					createDescriptor(
 							"quantifierEliminator",
@@ -415,12 +414,13 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
 		}
 	}
 
-        public static class BuiltInArithmeticPropertyEditor extends
-                        TaggedPropertyEditorSupport {
-                public BuiltInArithmeticPropertyEditor() {
-                    super(getNames(BuiltInArithmetic.values()), BuiltInArithmetic.values());
-                }
-        }
+	public static class BuiltInArithmeticPropertyEditor extends
+			TaggedPropertyEditorSupport {
+		public BuiltInArithmeticPropertyEditor() {
+			super(getNames(BuiltInArithmetic.values()), BuiltInArithmetic
+					.values());
+		}
+	}
 
 	public static class InvariantRulePropertyEditor extends
 			TaggedPropertyEditorSupport {
@@ -433,6 +433,14 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
 			TaggedPropertyEditorSupport {
 		public FirstOrderStrategyPropertyEditor() {
 			super(getNames(FirstOrderStrategy.values()), FirstOrderStrategy
+					.values());
+		}
+	}
+
+	public static class LocalReducePropertyEditor extends
+			TaggedPropertyEditorSupport {
+		public LocalReducePropertyEditor() {
+			super(getNames(LocalReduceOption.values()), LocalReduceOption
 					.values());
 		}
 	}

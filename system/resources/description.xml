@@ -5,7 +5,7 @@
 		<path>/examples/hybrid/publish/water_tank.key</path>
 		<description>Standard water tank model, which regulates water level y between 1 and 12 by filling or emptying the water tank</description>
 		<img 
-href="http://www.functologic.com/info/fig-water-tank.png"/>
+href="http://symbolaris.com/info/fig-water-tank.png"/>
 		<requirements>
 			<some>
 				<quantifiereliminator>QepCad</quantifiereliminator>
@@ -18,7 +18,7 @@ href="http://www.functologic.com/info/fig-water-tank.png"/>
 		<path>/examples/hybrid/publish/bouncing-ball-random-H.key</path>
 		<description>A fully parametric version of the bouncing ball that jumps up and down while being bounced back from the ground.</description>
 		<img 
-href="http://www.functologic.com/info/fig-bouncing-ball.png"/>
+href="http://symbolaris.com/info/fig-bouncing-ball.png"/>
 		<requirements>
 			<some>
 				<quantifiereliminator>Mathematica</quantifiereliminator>
