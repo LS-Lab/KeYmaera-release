@@ -31,6 +31,7 @@ import de.uka.ilkd.key.dl.options.DLOptionBean.ApplyRules;
 import de.uka.ilkd.key.dl.options.DLOptionBean.CounterexampleTest;
 import de.uka.ilkd.key.dl.options.DLOptionBean.DiffSat;
 import de.uka.ilkd.key.dl.options.DLOptionBean.FirstOrderStrategy;
+import de.uka.ilkd.key.dl.options.DLOptionBean.LocalReduceOption;
 import de.uka.ilkd.key.dl.rules.DebugRule;
 import de.uka.ilkd.key.dl.rules.EliminateExistentialQuantifierRule;
 import de.uka.ilkd.key.dl.rules.FindInstanceRule;
@@ -311,7 +312,7 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 		bindRuleSet(d, "loop_invariant",
 				LoopInvariantRuleDispatchFeature.INSTANCE);
 
-		if (DLOptionBean.INSTANCE.isApplyLocalReduce() &&
+		if (DLOptionBean.INSTANCE.getApplyLocalReduce() != LocalReduceOption.OFF &&
 		    MathSolverManager.isQuantifierEliminatorSet()) {
 			bindRuleSet(d, "mathematica_reduce",
 			            add(ReduceFeature.INSTANCE, longConst(4999)));

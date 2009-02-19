@@ -44,6 +44,21 @@ import de.uka.ilkd.key.proof.Proof;
  */
 public class DLOptionBean implements Settings {
 
+	/**
+	 * @author jdq
+	 * TODO Documentation since Feb 19, 2009
+	 */
+	public enum LocalReduceOption {
+		OFF, EXISTENTIAL, ALWAYS;
+		/* (non-Javadoc)
+		 * @see java.lang.Enum#toString()
+		 */
+		@Override
+		public String toString() {
+			return super.toString().toLowerCase();
+		}
+	}
+
 	public static enum ApplyRules {
 		ALWAYS("Always"), NEVER("Never"), ONLY_TO_MODALITIES(
 				"Only to modalities");
@@ -287,7 +302,7 @@ public class DLOptionBean implements Settings {
 
 	private Class<? extends TermFactory> termFactoryClass;
 
-	private boolean applyLocalReduce;
+	private LocalReduceOption applyLocalReduce;
 
         private boolean applyLocalSimplify;
 
@@ -330,7 +345,7 @@ public class DLOptionBean implements Settings {
 		ignoreAnnotations = false;
 		useIterativeReduceRule = false;
 		termFactoryClass = de.uka.ilkd.key.dl.model.impl.TermFactoryImpl.class;
-		applyLocalReduce = false;
+		applyLocalReduce = LocalReduceOption.OFF;
                 applyLocalSimplify = false;
                 applyGlobalReduce = true;
 		usePowersetIterativeReduce = true;
@@ -574,7 +589,13 @@ public class DLOptionBean implements Settings {
 		}
 		property = props.getProperty(DLOPTIONS_APPLY_LOCAL_REDUCE);
 		if (property != null) {
-			applyLocalReduce = Boolean.valueOf(property);
+			if(property.equalsIgnoreCase("false")) {
+				applyLocalReduce = LocalReduceOption.OFF;
+			} else if(property.equalsIgnoreCase("true")) {
+				applyLocalReduce = LocalReduceOption.ALWAYS;
+			} else {
+				applyLocalReduce = LocalReduceOption.valueOf(property);
+			}
 		}
 
                 property = props.getProperty(DLOPTIONS_APPLY_LOCAL_SIMPLIFY);
@@ -678,8 +699,7 @@ public class DLOptionBean implements Settings {
 				.toString(useIterativeReduceRule));
 		props.setProperty(DLOPTIONS_TERM_FACTORY_CLASS, termFactoryClass
 				.getName());
-		props.setProperty(DLOPTIONS_APPLY_LOCAL_REDUCE, Boolean
-				.toString(applyLocalReduce));
+		props.setProperty(DLOPTIONS_APPLY_LOCAL_REDUCE, applyLocalReduce.name());
                 props.setProperty(DLOPTIONS_APPLY_LOCAL_SIMPLIFY, Boolean
                                 .toString(applyLocalSimplify));
                 props.setProperty(DLOPTIONS_APPLY_GLOBAL_REDUCE, Boolean
@@ -1072,7 +1092,7 @@ public class DLOptionBean implements Settings {
 	/**
 	 * @return the applyLocalReduce
 	 */
-	public boolean isApplyLocalReduce() {
+	public LocalReduceOption getApplyLocalReduce() {
 		return applyLocalReduce;
 	}
 
@@ -1080,7 +1100,7 @@ public class DLOptionBean implements Settings {
 	 * @param applyLocalReduce
 	 *            the applyLocalReduce to set
 	 */
-	public void setApplyLocalReduce(boolean applyLocalReduce) {
+	public void setApplyLocalReduce(LocalReduceOption applyLocalReduce) {
 		if (applyLocalReduce != this.applyLocalReduce) {
 			this.applyLocalReduce = applyLocalReduce;
 			firePropertyChanged();

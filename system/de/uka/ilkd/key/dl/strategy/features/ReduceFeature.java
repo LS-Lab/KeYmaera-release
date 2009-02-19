@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2007 by Jan David Quesel                                *
+ *   Copyright (C) 2007 by Jan-David Quesel                                *
  *   quesel@informatik.uni-oldenburg.de                                    *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -22,7 +22,9 @@
  */
 package de.uka.ilkd.key.dl.strategy.features;
 
+import de.uka.ilkd.key.dl.options.DLOptionBean;
 import de.uka.ilkd.key.logic.PosInOccurrence;
+import de.uka.ilkd.key.logic.op.Operator;
 import de.uka.ilkd.key.logic.op.Quantifier;
 import de.uka.ilkd.key.proof.Goal;
 import de.uka.ilkd.key.rule.RuleApp;
@@ -42,22 +44,36 @@ import de.uka.ilkd.key.strategy.feature.Feature;
  */
 public class ReduceFeature implements Feature {
 
-    public static final Feature INSTANCE = new ReduceFeature();
+	public static final Feature INSTANCE = new ReduceFeature();
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see de.uka.ilkd.key.strategy.feature.Feature#compute(de.uka.ilkd.key.rule.RuleApp,
-     *      de.uka.ilkd.key.logic.PosInOccurrence, de.uka.ilkd.key.proof.Goal)
-     */
-    public RuleAppCost compute(RuleApp app, PosInOccurrence pos, Goal goal) {
-        if (pos.constrainedFormula().formula().op() instanceof Quantifier) {
-            if (FOSequence.isFOFormula(pos.constrainedFormula()
-                    .formula())) {
-                return LongRuleAppCost.ZERO_COST;
-            }
-        }
-        return TopRuleAppCost.INSTANCE;
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.uka.ilkd.key.strategy.feature.Feature#compute(de.uka.ilkd.key.rule
+	 * .RuleApp, de.uka.ilkd.key.logic.PosInOccurrence,
+	 * de.uka.ilkd.key.proof.Goal)
+	 */
+	public RuleAppCost compute(RuleApp app, PosInOccurrence pos, Goal goal) {
+		Operator op = pos.constrainedFormula().formula().op();
+		switch (DLOptionBean.INSTANCE.getApplyLocalReduce()) {
+		case OFF:
+			break;
+		case EXISTENTIAL:
+			if (op instanceof Quantifier) {
+				if(!(pos.isInAntec() && op == Quantifier.ALL) && !(!pos.isInAntec() && op == Quantifier.EX)) {
+					break;
+				}
+			}
+		case ALWAYS:
+			if (op instanceof Quantifier) {
+				if (FOSequence.isFOFormula(pos.constrainedFormula().formula())) {
+					return LongRuleAppCost.ZERO_COST;
+				}
+			}
+			break;
+		}
+		return TopRuleAppCost.INSTANCE;
+	}
 
 }
