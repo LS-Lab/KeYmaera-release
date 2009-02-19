@@ -713,7 +713,7 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 	 */
 	/* @Override */
 	public String getName() {
-		return "Groebnerian SOS (via Orbital)";
+		return "Groebnerian SOS";
 	}
 
 	/*
