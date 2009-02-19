@@ -82,64 +82,49 @@ public abstract class PolynomTool {
 	 */
 	public static Fraction createFractionOfPolynomialsFromTerm(Term sub,
 			List<String> variables) {
-		System.out.println(sub);// XXX
-		try {
-			if (sub.arity() == 0) {
-				int[] size = new int[variables.size()];
-				if (variables.contains(sub.op().name().toString())) {
-					size[variables.indexOf(sub.op().name().toString())] = 1;
-					return Values.getDefault().fraction(
-							Values.getDefault().MONOMIAL(size),
-							Values.getDefault().MONOMIAL(size).one());
-				} else {
-					return Values.getDefault().fraction(
-							Values.getDefault()
-									.MONOMIAL(
-									                OrbitalSimplifier.term2Rational(sub),
-											size),
-							Values.getDefault().MONOMIAL(size).one());
-				}
+		if (sub.arity() == 0) {
+			int[] size = new int[variables.size()];
+			if (variables.contains(sub.op().name().toString())) {
+				size[variables.indexOf(sub.op().name().toString())] = 1;
+				return Values.getDefault().fraction(
+						Values.getDefault().MONOMIAL(size),
+						Values.getDefault().MONOMIAL(size).one());
 			} else {
-				if (sub.arity() == 2) {
-					Fraction p = createFractionOfPolynomialsFromTerm(
-							sub.sub(0), variables);
-					Fraction q = createFractionOfPolynomialsFromTerm(
-							sub.sub(1), variables);
-					System.out.println("p = " + p + " of type " + p.getClass());// XXX
-					System.out.println("with q = " + q + " of type "
-							+ q.getClass());// XXX
-					if (sub.op().equals(RealLDT.getFunctionFor(Plus.class))) {
-						return p.add(q);
-					} else if (sub.op().equals(
-							RealLDT.getFunctionFor(Minus.class))) {
-						return p.subtract(q);
-					} else if (sub.op().equals(
-							RealLDT.getFunctionFor(Mult.class))) {
-						return p.multiply(q);
-					} else if (sub.op().equals(
-							RealLDT.getFunctionFor(Div.class))) {
-						return (Fraction) p.divide(q);
-					} else if (sub.op().equals(
-							RealLDT.getFunctionFor(Exp.class))) {
-						try {
-							Integer number = Values.getDefault().valueOf(
-									new BigInteger(sub.sub(1).op().name()
-											.toString()));
-							return (Fraction) p.power(number);
-						} catch (NumberFormatException e) {
-							return (Fraction) p.power(q);
-						}
+				return Values.getDefault().fraction(
+						Values.getDefault().MONOMIAL(
+								OrbitalSimplifier.term2Rational(sub), size),
+						Values.getDefault().MONOMIAL(size).one());
+			}
+		} else {
+			if (sub.arity() == 2) {
+				Fraction p = createFractionOfPolynomialsFromTerm(sub.sub(0),
+						variables);
+				Fraction q = createFractionOfPolynomialsFromTerm(sub.sub(1),
+						variables);
+				if (sub.op().equals(RealLDT.getFunctionFor(Plus.class))) {
+					return p.add(q);
+				} else if (sub.op().equals(RealLDT.getFunctionFor(Minus.class))) {
+					return p.subtract(q);
+				} else if (sub.op().equals(RealLDT.getFunctionFor(Mult.class))) {
+					return p.multiply(q);
+				} else if (sub.op().equals(RealLDT.getFunctionFor(Div.class))) {
+					return (Fraction) p.divide(q);
+				} else if (sub.op().equals(RealLDT.getFunctionFor(Exp.class))) {
+					try {
+						Integer number = Values.getDefault().valueOf(
+								new BigInteger(sub.sub(1).op().name()
+										.toString()));
+						return (Fraction) p.power(number);
+					} catch (NumberFormatException e) {
+						return (Fraction) p.power(q);
 					}
-				} else if (sub.arity() == 1) {
-					if (sub.op()
-							.equals(RealLDT.getFunctionFor(MinusSign.class))) {
-						return (Fraction) createFractionOfPolynomialsFromTerm(
-								sub.sub(0), variables).minus();
-					}
+				}
+			} else if (sub.arity() == 1) {
+				if (sub.op().equals(RealLDT.getFunctionFor(MinusSign.class))) {
+					return (Fraction) createFractionOfPolynomialsFromTerm(
+							sub.sub(0), variables).minus();
 				}
 			}
-		} finally {
-			System.out.println("Finished: " + sub);// XXX
 		}
 		throw new IllegalArgumentException("Dont know what to do with"
 				+ sub.op());
@@ -185,7 +170,7 @@ public abstract class PolynomTool {
 			variables.put(i.getName(), i.getTerm());
 			varList.add(i.getName());
 		}
-		if(varList.isEmpty()) {
+		if (varList.isEmpty()) {
 			// there are no variables, thus the fractions doesn't matter
 			return t;
 		}
@@ -206,8 +191,6 @@ public abstract class PolynomTool {
 		Sort r = RealLDT.getRealSort();
 		Term zero = TermBuilder.DF.func(NumberCache.getNumber(
 				new BigDecimal(0), r));
-		System.out.println("Left is " + leftHandSide);// XXX
-		System.out.println("Right is " + rightHandSide);// XXX
 
 		Term leftDenominator = null;
 		if (!leftHandSide.denominator().isOne()) {
@@ -215,11 +198,11 @@ public abstract class PolynomTool {
 					.denominator(), varList, variables, nss);
 
 			// cross-multiply with the denominators
-			System.out.println("Now calculating " + rightHandSide + " * "
-					+ leftHandSide.denominator());// XXX
-			System.out.println("left is of type "
-					+ leftHandSide.denominator().getClass());// XXX
-			System.out.println("right is of type " + rightHandSide.getClass());// XXX
+//			System.out.println("Now calculating " + rightHandSide + " * "
+//					+ leftHandSide.denominator());// XXX
+//			System.out.println("left is of type "
+//					+ leftHandSide.denominator().getClass());// XXX
+//			System.out.println("right is of type " + rightHandSide.getClass());// XXX
 			if (!leftHandSide.denominator().isOne()) {
 				rightHandSide = (Fraction) rightHandSide.multiply(Values
 						.getDefault().fraction(leftHandSide.denominator(),
@@ -279,7 +262,7 @@ public abstract class PolynomTool {
 		}
 
 		// return the resulting terms
-		System.out.println("Converted " + t + " to " + result);// XXX
+//		System.out.println("Converted " + t + " to " + result);// XXX
 
 		boolean assertions = false;
 		assert assertions = true;
@@ -392,40 +375,42 @@ public abstract class PolynomTool {
 		while (coefficients.hasNext()) {
 			Object coefficient = coefficients.next();
 			Object nextVector = indices.next();
-			
+
 			Vector monomialDegrees = null;
-			if(nextVector instanceof Vector ) {
+			if (nextVector instanceof Vector) {
 				monomialDegrees = (Vector) nextVector;
 			} else {
-				monomialDegrees = Values.getDefault().valueOf(new Integer[] { (Integer) nextVector });
+				monomialDegrees = Values.getDefault().valueOf(
+						new Integer[] { (Integer) nextVector });
 			}
 			if (!((Arithmetic) coefficient).isZero()) {
 				Term summand = null;
 				if (!((Arithmetic) coefficient).isOne()) {
-					summand = Orbital.convertOrbitalToTerm(r, zero, nss, coefficient);
+					summand = Orbital.convertOrbitalToTerm(r, zero, nss,
+							coefficient);
 				}
-				String blub = "";
+//				String blub = "";
 				for (int i = 0; i < monomialDegrees.dimension(); i++) {
 					if (!monomialDegrees.get(i).isZero()) {
 						Term s2 = varMap.get(variables.get(i));
 						if (!monomialDegrees.get(i).isOne()) {
 							s2 = TermBuilder.DF.func(exp, s2, Orbital
-									.convertOrbitalToTerm(r, zero, nss, monomialDegrees
-											.get(i)));
+									.convertOrbitalToTerm(r, zero, nss,
+											monomialDegrees.get(i)));
 						}
 						if (summand == null) {
 							summand = s2;
 						} else {
 							summand = TermBuilder.DF.func(mult, summand, s2);
 						}
-						blub += variables.get(i) + "^" + monomialDegrees.get(i);
+//						blub += variables.get(i) + "^" + monomialDegrees.get(i);
 					}
 				}
-				if (!blub.equals("")) {
-					System.out.println(coefficient + " * " + blub);// XXX
-				}
+//				if (!blub.equals("")) {
+//					System.out.println(coefficient + " * " + blub);// XXX
+//				}
 				if (result == null) {
-					if(summand == null && ((Arithmetic) coefficient).isOne()) {
+					if (summand == null && ((Arithmetic) coefficient).isOne()) {
 						result = one;
 					} else {
 						result = summand;
