@@ -20,6 +20,7 @@
 package de.uka.ilkd.key.dl.arithmetics.impl.csdp;
 
 import java.util.Arrays;
+import java.util.BitSet;
 import java.util.Random;
 
 /**
@@ -110,7 +111,7 @@ public class CSDP {
                                   double[] goal) {
         assert (solution.length == matrixSize * matrixSize &&
                 goal.length == matrixSize * matrixSize);
-        final int k = constraints.length / (matrixSize * matrixSize);
+        final int constraintNum = constraints.length / (matrixSize * matrixSize);
         final double[] y = new double[constraintRhs.length];
         final double[] Z = emptyGoal(matrixSize);
         final double[] pobj = new double[matrixSize];
@@ -120,7 +121,7 @@ public class CSDP {
         Arrays.fill(y, 0.1);
         Arrays.fill(Z, 0.1);
 
-        return easySDP(matrixSize, k, goal, constraintRhs, constraints, 0,
+        return easySDP(matrixSize, constraintNum, goal, constraintRhs, constraints, 0,
                        solution, y, Z, pobj, dobj);
     }
 
@@ -180,6 +181,119 @@ public class CSDP {
 
         return res;
     }
+
+    public static int solveAndMinimiseSdp(int matrixSize,
+                                          double[] constraints, double[] constraintRhs,
+                                          double[] solution) {
+        assert (solution.length == matrixSize * matrixSize);
+
+        final double[] inpConstraints = makeTriangular(constraints, matrixSize);
+
+        final int res = easiestSDP(matrixSize, inpConstraints, constraintRhs,
+                                   solution, emptyGoal(matrixSize));
+        
+        if (res != 0 && res != 3)
+            return res;
+        
+        // we have found a solution, i.e., the optimisation problem solvable.
+        // we now try to simplify the problem and leave out irrelevant
+        // parameters, in the hope that this will make the obtained solution
+        // more robust
+        
+        System.out.println("Big solution: " + Arrays.toString(solution));        
+
+        final int constraintNum = constraints.length / (matrixSize * matrixSize);
+        final int matrixLength = matrixSize * matrixSize;
+
+        final double solutionNorm = maxAbs(solution);
+        
+        final BitSet removedRows = new BitSet ();
+        double[] smallSolution = null;
+        for (int rowCol = 0;
+             rowCol < matrixSize && removedRows.cardinality() < matrixSize - 1;
+             ++rowCol) {
+            // try to remove this row/column
+            removedRows.set(rowCol);
+            
+            System.out.println("Trying to remove: " + removedRows);
+            
+            final int newMatrixSize = matrixSize - removedRows.cardinality();
+            final int newMatrixLength = newMatrixSize*newMatrixSize;
+            final double[] newConstraints = new double [newMatrixLength * constraintNum];
+            
+            for (int k = 0; k < constraintNum; ++k)
+                for (int i = 0, newI = 0; i < matrixSize; ++i) {
+                    if (removedRows.get(i))
+                        continue;
+                  
+                    for (int j = 0, newJ = 0; j < matrixSize; ++j) {
+                        if (removedRows.get(j))
+                            continue;
+                        newConstraints[k*newMatrixLength + newI*newMatrixSize + newJ] =
+                            inpConstraints[k*matrixLength + i*matrixSize + j];
+                        newJ = newJ + 1;
+                    }
+                  
+                    newI = newI + 1;
+                }
+            
+            // check whether the problem is still solvable
+            final double[] newSolution = new double[newMatrixLength];
+            final int res2 = easiestSDP(newMatrixSize,
+                                        newConstraints, constraintRhs,
+                                        newSolution,
+                                        emptyGoal(newMatrixSize));
+            if ((res2 == 0 || res2 == res) && maxAbs(newSolution) < 10.0 * solutionNorm) {
+                System.out.println("Still solvable");
+                // store the small solution
+                smallSolution = newSolution;
+            } else {
+                System.out.println("No longer solvable");
+                removedRows.clear(rowCol);
+            }
+        }
+
+        if (removedRows.isEmpty())
+            // removed was not successful
+            return res;
+        
+        System.out.println("Maximum set of cols/rows removable: " + removedRows);        
+        System.out.println("Small solution: " + Arrays.toString(smallSolution));        
+        
+        // reconstruct a complete solution by filling up with zeroes
+        final int newMatrixSize = matrixSize - removedRows.cardinality();
+        final int newMatrixLength = newMatrixSize*newMatrixSize;
+
+        assert smallSolution != null && smallSolution.length == newMatrixLength;
+        
+        for (int i = 0, newI = 0; i < matrixSize; ++i) {
+            if (removedRows.get(i)) {
+                for (int j = 0; j < matrixSize; ++j)
+                    solution[i*matrixSize + j] = 0.0;
+                continue;
+            }
+                
+            for (int j = 0, newJ = 0; j < matrixSize; ++j) {
+                if (removedRows.get(j)) {
+                    solution[i*matrixSize + j] = 0.0;
+                    continue;
+                }
+                solution[i*matrixSize + j] = smallSolution[newI*newMatrixSize + newJ];
+                newJ = newJ + 1;
+            }
+            
+            newI = newI + 1;
+        }
+        
+        return res;
+    }
+
+    private static double maxAbs(double[] ar) {
+        double res = -1.0;
+        for (int i = 0; i < ar.length; ++i)
+            res = Math.max(res, Math.abs(ar[i]));
+        return res;
+    }    
 
     // make sure that the constraints are given as upper triangular
     // matrices
