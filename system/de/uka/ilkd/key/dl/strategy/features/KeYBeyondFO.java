@@ -52,7 +52,7 @@ public class KeYBeyondFO implements Feature {
 	 * de.uka.ilkd.key.proof.Goal)
 	 */
 	public RuleAppCost compute(RuleApp app, PosInOccurrence pos, Goal goal) {
-		if (DLOptionBean.INSTANCE.getFoStrategy() == FirstOrderStrategy.EAGER
+		if (DLOptionBean.INSTANCE.getFoStrategy() == FirstOrderStrategy.LAZY
 				|| DLOptionBean.INSTANCE.getFoStrategy() == FirstOrderStrategy.STOP) {
 			return LongRuleAppCost.create(10000);
 		}
