@@ -61,7 +61,7 @@ public class DLOptionBean implements Settings {
 
 	public static enum ApplyRules {
 		ALWAYS("Always"), NEVER("Never"), ONLY_TO_MODALITIES(
-				"Only to modalities");
+				"To modalities");
 
 		private String string;
 
@@ -158,8 +158,8 @@ public class DLOptionBean implements Settings {
 
 	public static enum BuiltInArithmetic {
 		OFF("off"), NORMALISE_EQUATIONS("normalise (in)equalities"), REDUCTION(
-				"normalisation and reduction"), FULL(
-				"full (incl. S-polynomials)");
+				"normalisation reduction"), FULL(
+				"full (S-polynomials)");
 
 		private String string;
 
