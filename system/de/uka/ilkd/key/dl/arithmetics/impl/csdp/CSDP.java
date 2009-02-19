@@ -151,37 +151,72 @@ public class CSDP {
         final int res = easiestSDP(matrixSize, inpConstraints, constraintRhs,
                                    solution, goal);
 
-        if (res == 0) {
+        if (res == 0 || res == 3) {
             // SUCCESS: try to find a nice solution that contains as small
             // entries as possible
-            for (int i = 0; i < matrixSize; ++i)
-                for (int j = i; j < matrixSize; ++j) {
-                    final int pos = i*matrixSize + j;
-                    if (isAlmostNothing(solution[pos])) {
-                        // nothing
-                        continue;
-                    } else if (solution[pos] > 0) {
-                        goal[pos] = -1.0;
-                    } else {
-                        goal[pos] = 1.0;
-                    }
-                    // check that we still get the same result
-                    if (res != easiestSDP(matrixSize, inpConstraints, constraintRhs,
-                                          solution, goal)) {
-                        // go back to the previous solution
-                        goal[pos] = 0.0;
-                    }
+            final SolutionEntry[] solEntryList =
+                sortSolutionEntries(solution, matrixSize);
+            
+            for (int k = solEntryList.length - 1;
+                 k >= 0 && !isAlmostNothing(solEntryList[k].value);
+                 --k) {
+                final int pos = solEntryList[k].row*matrixSize + solEntryList[k].col;
+                
+                if (solution[pos] > 0)
+                    goal[pos] = -1.0;
+                else
+                    goal[pos] = 1.0;
+
+                // check that we still get the same result
+                final int res2 = easiestSDP(matrixSize, inpConstraints, constraintRhs,
+                                            solution, goal);
+                if (!(res == res2 || res2 == 0)) {
+                    // go back to the previous solution
+                    goal[pos] = 0.0;
                 }
+            }
             
             // ensure that we get the right solution
-            final int res2 = easiestSDP(matrixSize, inpConstraints, constraintRhs,
-                                        solution, goal);
-            assert (res == res2);
+            int res2 = -1;
+            while (true) {
+                res2 = easiestSDP(matrixSize, inpConstraints, constraintRhs,
+                                  solution, goal);
+                // should really not happen that this has to be repeated ...
+                if (res == res2 || res2 == 0)
+                    break;
+                System.out.println("VERY BAD: am not able to restore a solution " +
+                                   "that was discovered earlier");
+            }
         }
 
         return res;
     }
 
+    private static SolutionEntry[] sortSolutionEntries(double[] solution, int matrixSize) {
+        final SolutionEntry[] res =
+            new SolutionEntry [matrixSize * (matrixSize + 1) / 2];
+        int k = 0;
+        for (int i = 0; i < matrixSize; ++i)
+            for (int j = i; j < matrixSize; ++j)
+                res[k++] = new SolutionEntry (i, j, solution[i*matrixSize + j]);
+        Arrays.sort(res);
+        return res;
+    }
+    
+    private static class SolutionEntry implements Comparable<SolutionEntry> {
+        public final int row;
+        public final int col;
+        public final double value;
+        public SolutionEntry(int row, int col, double value) {
+            this.row = row;
+            this.col = col;
+            this.value = value;
+        }
+        public int compareTo(SolutionEntry o) {
+            return Double.compare(Math.abs(this.value), Math.abs(o.value));
+        }
+    }
+    
     public static int solveAndMinimiseSdp(int matrixSize,
                                           double[] constraints, double[] constraintRhs,
                                           double[] solution) {

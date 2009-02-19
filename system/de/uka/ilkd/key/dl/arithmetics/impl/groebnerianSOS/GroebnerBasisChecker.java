@@ -460,7 +460,8 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
                 System.out.println("No solution");
             }
 */
-            int sdpRes = CSDP.solveAndMinimiseSdp(monoNum, homo, hetero, approxSolution);
+//            int sdpRes = CSDP.solveAndMinimiseSdp(monoNum, homo, hetero, approxSolution);
+            int sdpRes = CSDP.minimalSdp(monoNum, homo, hetero, approxSolution);
 //            int sdpRes = CSDP.sdp(monoNum, homo, hetero, approxSolution);
             
             if (sdpRes == 0 || sdpRes == 3) {
