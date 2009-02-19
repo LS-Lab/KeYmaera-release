@@ -1,3 +1,7 @@
+./hybrid/ETCS/decomposed/essentials/accelerating.key 1800
+./hybrid/ETCS/decomposed/essentials/breaking.key 1800
+./hybrid/ETCS/decomposed/essentials/invariant-initially-valid.key 1800
+./hybrid/ETCS/decomposed/essentials/use-case.key 1800
 ./hybrid/ETCS/decomposed/safety-lemma/initially-valid.key 1800
 ./hybrid/ETCS/decomposed/safety-lemma/rbc_goal1.key 1800
 ./hybrid/ETCS/decomposed/safety-lemma/rbc_goal2.key 1800
