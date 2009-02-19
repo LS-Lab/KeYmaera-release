@@ -21,6 +21,14 @@
 ./hybrid/aligator/tribonacci_stansley.key 1800
 ./hybrid/weispfennig/angle2.key 1800
 ./hybrid/weispfennig/pedos_inequality.key 1800
+./hybrid/groebner_basis/accel-simple.key 1800
+./hybrid/groebner_basis/magnetic_field.key 1800
+./hybrid/groebner_basis/magnetic_field-simplified.key 1800
+./hybrid/complicated_arithmetic/complicated-trivial.key 1800
+./hybrid/complicated_arithmetic/ETCS-essentials-surprise2.key 1800
+./hybrid/complicated_arithmetic/ETCS-essentials-surprise.key 1800
+./hybrid/complicated_arithmetic/FTRM-entry-separation.key 1800
+./hybrid/complicated_arithmetic/train.key 1800
 ./hybrid/ETCS/controllability/ETCS-d-braking.key 1800
 ./hybrid/water_tank/water_tank.key 1800
 ./hybrid/ETCS/safety/ETCS-essentials.key 1800

@@ -96,7 +96,9 @@
 [DLOptions]FOStrategy=LAZY
 [ReduceOptions]rlqepnf=DEFAULT
 [ReduceOptions]rlsimpl=ON
-[DLOptions]applyLocalReduce=false
+[DLOptions]applyLocalReduce=OFF
+[DLOptions]applyLocalSimplify=false
+[DLOptions]applyGlobalReduce=true
 [DLOptions]quantifierEliminator=Mathematica
 "
 }
