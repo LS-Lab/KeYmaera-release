@@ -788,6 +788,11 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 	 */
 	public boolean checkForConstantGroebnerBasis(
 			PolynomialClassification<Term> terms, Services services) {
+		// if h is empty the following proceedure might be unsound, so we just
+		// return false
+		if (terms.h.isEmpty()) {
+			return false;
+		}
 		Set<Expr> f = new HashSet<Expr>();
 		Set<Expr> g = new HashSet<Expr>();
 		Set<Expr> h = new HashSet<Expr>();
