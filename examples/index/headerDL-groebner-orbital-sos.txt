@@ -73,7 +73,7 @@
 [ReduceOptions]rlcadhongproj=DEFAULT
 [MathematicaOptions]memoryConstraint=-1
 [ReduceOptions]rlcadtrimtree=DEFAULT
-[DLOptions]groebnerBasisCalculator=Groebnerian SOS (via Orbital)
+[DLOptions]groebnerBasisCalculator=Groebnerian SOS
 [ReduceOptions]rlcadfac=DEFAULT
 [Strategy]Timeout=-1
 [OrbitalOptions]representation=big

@@ -131,12 +131,24 @@ public class CSDP {
         Arrays.fill(solution, 0.1);
 
         return easiestSDP(matrixSize, makeTriangular(constraints, matrixSize),
-                          constraintRhs, solution, emptyGoal(matrixSize));
+                          constraintRhs, solution, diaGoal(matrixSize));
     }
 
     private static double[] emptyGoal(int matrixSize) {
         final double[] res = new double [matrixSize*matrixSize];
         Arrays.fill(res, 0.0);
+        return res;
+    }
+
+    /**
+     * Genererate a diagonal matrix with <code>-1.0</code> entries on the
+     * diagonal
+     */
+    private static double[] diaGoal(int matrixSize) {
+        final double[] res = new double [matrixSize*matrixSize];
+        Arrays.fill(res, 0.0);
+        for (int i = 0; i < res.length; i = i + matrixSize + 1)
+            res[i] = -1.0;
         return res;
     }
 
@@ -156,6 +168,7 @@ public class CSDP {
             // entries as possible
             final SolutionEntry[] solEntryList =
                 sortSolutionEntries(solution, matrixSize);
+            double lastNorm = maxAbs(solution);
             
             for (int k = solEntryList.length - 1;
                  k >= 0 && !isAlmostNothing(solEntryList[k].value);
@@ -173,6 +186,14 @@ public class CSDP {
                 if (!(res == res2 || res2 == 0)) {
                     // go back to the previous solution
                     goal[pos] = 0.0;
+                } else {
+                    // check that the norm of the matrix has not gotten bigger
+                    final double newNorm = maxAbs(solution);
+                    if (newNorm > lastNorm + 1.0)
+                        // go back to the previous solution
+                        goal[pos] = 0.0;
+                    else
+                        lastNorm = newNorm;
                 }
             }
             
