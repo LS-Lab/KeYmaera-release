@@ -223,6 +223,16 @@ public class CSDP {
         Arrays.sort(res);
         return res;
     }
+
+    private static SolutionEntry[] sortDiagonalEntries(double[] solution, int matrixSize) {
+        final SolutionEntry[] res =
+            new SolutionEntry [matrixSize];
+        int k = 0;
+        for (int i = 0; i < matrixSize; ++i)
+            res[k++] = new SolutionEntry (i, i, solution[i * (matrixSize + 1)]);
+        Arrays.sort(res);
+        return res;
+    }
     
     private static class SolutionEntry implements Comparable<SolutionEntry> {
         public final int row;
@@ -246,12 +256,12 @@ public class CSDP {
         final double[] inpConstraints = makeTriangular(constraints, matrixSize);
 
         final int res = easiestSDP(matrixSize, inpConstraints, constraintRhs,
-                                   solution, emptyGoal(matrixSize));
+                                   solution, diaGoal(matrixSize));
         
         if (res != 0 && res != 3)
             return res;
         
-        // we have found a solution, i.e., the optimisation problem solvable.
+        // we have found a solution, i.e., the optimisation problem is solvable.
         // we now try to simplify the problem and leave out irrelevant
         // parameters, in the hope that this will make the obtained solution
         // more robust
@@ -263,11 +273,16 @@ public class CSDP {
 
         final double solutionNorm = maxAbs(solution);
         
+        // we try to remove rows/cols with small diagonal entries first
+        final SolutionEntry[] diaEntries = sortDiagonalEntries(solution, matrixSize);
+        
         final BitSet removedRows = new BitSet ();
         double[] smallSolution = null;
-        for (int rowCol = 0;
-             rowCol < matrixSize && removedRows.cardinality() < matrixSize - 1;
-             ++rowCol) {
+        for (int l = 0;
+             l < matrixSize && removedRows.cardinality() < matrixSize - 1;
+             ++l) {
+            final int rowCol = diaEntries[l].col;
+            
             // try to remove this row/column
             removedRows.set(rowCol);
             
@@ -298,8 +313,8 @@ public class CSDP {
             final int res2 = easiestSDP(newMatrixSize,
                                         newConstraints, constraintRhs,
                                         newSolution,
-                                        emptyGoal(newMatrixSize));
-            if ((res2 == 0 || res2 == res) && maxAbs(newSolution) < 10.0 * solutionNorm) {
+                                        diaGoal(newMatrixSize));
+            if ((res2 == 0 || res2 == res) && maxAbs(newSolution) < 5.0 * solutionNorm) {
                 System.out.println("Still solvable");
                 // store the small solution
                 smallSolution = newSolution;
