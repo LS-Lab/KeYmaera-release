@@ -85,6 +85,10 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
         System.out.println("Polynomials after eliminating unused variables are: ");
         printPolys(polys);
 
+        if (polys.isEmpty())
+            // well, then we probably won't get a contradiction
+            return false;
+        
         final Polynomial one = (Polynomial)polys.iterator().next().one();
 	
 	// we try to get a contradiction by computing the groebner basis of all
@@ -198,6 +202,10 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
      */
     private Set<Polynomial> eliminateUnusedVariables(Set<Polynomial> polys) {
         final int varNum = indexNum(polys);
+        if (varNum == 0)
+            // nothing to do
+            return polys;
+        
         final BitSet occurring = new BitSet ();
         
         for (Polynomial p : polys) {
