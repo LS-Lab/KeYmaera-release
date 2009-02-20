@@ -304,10 +304,23 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
             // search for a polynomial that contains a variable only in a linear
             // term
         
+            final BitSet badVars = findNonLinearVars(workPolys, varNum);
+            
             int linVar = -1;
             Polynomial polyWithLinVar = null;
             for (Polynomial p : workPolys) {
-                linVar = findLinearVariable(p, varNum);
+                if (p.degreeValue() == 1) {
+                    // we found a linear polynomial and are happy; just take
+                    // any variable in the polynomial and eliminate it
+                    linVar = findLinearVariable(p, new BitSet (), varNum);
+                    assert linVar >= 0;
+                } else {
+                    // otherwise, check whether the nonlinear polynomial contains
+                    // a linear variable that does not occur in nonlinear positions
+                    // in other polynomials
+                    linVar = findLinearVariable(p, badVars, varNum);
+                }
+                
                 if (linVar >= 0) {
                     polyWithLinVar = p;
                     break;
@@ -354,10 +367,35 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
         return AlgebraicAlgorithms.LEXICOGRAPHIC(varOrderAr);
     }
 
+    
+    private BitSet findNonLinearVars(Set<Polynomial> polys, int varNum) {
+        final BitSet res = new BitSet ();
+        
+        for (Polynomial p : polys) {
+            final Iterator<Vector> indexIt = p.indices();
+            final Iterator<Arithmetic> coeffIt = p.iterator();
+            while (indexIt.hasNext()) {
+                final Vector v = indexIt.next();
+                final Arithmetic coeff = coeffIt.next();
+                
+                if (coeff.isZero())
+                    continue;
 
-    private int findLinearVariable(Polynomial p, final int varNum) {
+                for (int i = 0; i < varNum; ++i) {
+                    if (!v.get(i).isZero() && !v.get(i).isOne())
+                        // nonlinear variable
+                        res.set(i);
+                }
+                
+            }
+        }
+        
+        return res;
+    }
+    
+
+    private int findLinearVariable(Polynomial p, BitSet badVars, int varNum) {
         final BitSet linearVars = new BitSet();
-        final BitSet nonLinearVars = new BitSet();
         final Vector oneVec =
             Values.getDefault().CONST(varNum, Values.getDefault().ONE());
         
@@ -371,22 +409,15 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
                 continue;
             
             final Arithmetic degree = v.multiply(oneVec);
-            if (degree.isZero()) {
-                // nothing
-            } else if (degree.isOne()) {
+            if (degree.isOne()) {
                 // linear term
                 for (int i = 0; i < varNum; ++i)
                     if (!v.get(i).isZero())
                         linearVars.set(i);
-            } else {
-                // nonlinear term
-                for (int i = 0; i < varNum; ++i)
-                    if (!v.get(i).isZero())
-                        nonLinearVars.set(i);
             }
         }
         
-        linearVars.andNot(nonLinearVars);
+        linearVars.andNot(badVars);
         return linearVars.nextSetBit(0);
     }
     
