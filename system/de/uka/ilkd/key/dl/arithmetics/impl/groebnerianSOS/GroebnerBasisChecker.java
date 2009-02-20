@@ -109,7 +109,7 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 	// enumerate sums of squares s and check whether some monomial 1+s is
 	// in the ideal
 	final Iterator<Vector> monomials =
-	    new SimpleMonomialIterator(indexNum(groebnerBasis), 2);
+	    new SimpleMonomialIterator(indexNum(groebnerBasis), 3);
         final Square[] cert = checkSOS(monomials, groebnerBasis, groebnerReducer);
         
         if (cert != null) {
@@ -304,23 +304,10 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
             // search for a polynomial that contains a variable only in a linear
             // term
         
-            final BitSet badVars = findNonLinearVars(workPolys, varNum);
-            
             int linVar = -1;
             Polynomial polyWithLinVar = null;
             for (Polynomial p : workPolys) {
-                if (p.degreeValue() == 1) {
-                    // we found a linear polynomial and are happy; just take
-                    // any variable in the polynomial and eliminate it
-                    linVar = findLinearVariable(p, new BitSet (), varNum);
-                    assert linVar >= 0;
-                } else {
-                    // otherwise, check whether the nonlinear polynomial contains
-                    // a linear variable that does not occur in nonlinear positions
-                    // in other polynomials
-                    linVar = findLinearVariable(p, badVars, varNum);
-                }
-                
+                linVar = findLinearVariable(p, varNum);
                 if (linVar >= 0) {
                     polyWithLinVar = p;
                     break;
@@ -367,35 +354,10 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
         return AlgebraicAlgorithms.LEXICOGRAPHIC(varOrderAr);
     }
 
-    
-    private BitSet findNonLinearVars(Set<Polynomial> polys, int varNum) {
-        final BitSet res = new BitSet ();
-        
-        for (Polynomial p : polys) {
-            final Iterator<Vector> indexIt = p.indices();
-            final Iterator<Arithmetic> coeffIt = p.iterator();
-            while (indexIt.hasNext()) {
-                final Vector v = indexIt.next();
-                final Arithmetic coeff = coeffIt.next();
-                
-                if (coeff.isZero())
-                    continue;
 
-                for (int i = 0; i < varNum; ++i) {
-                    if (!v.get(i).isZero() && !v.get(i).isOne())
-                        // nonlinear variable
-                        res.set(i);
-                }
-                
-            }
-        }
-        
-        return res;
-    }
-    
-
-    private int findLinearVariable(Polynomial p, BitSet badVars, int varNum) {
+    private int findLinearVariable(Polynomial p, final int varNum) {
         final BitSet linearVars = new BitSet();
+        final BitSet nonLinearVars = new BitSet();
         final Vector oneVec =
             Values.getDefault().CONST(varNum, Values.getDefault().ONE());
         
@@ -409,15 +371,22 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
                 continue;
             
             final Arithmetic degree = v.multiply(oneVec);
-            if (degree.isOne()) {
+            if (degree.isZero()) {
+                // nothing
+            } else if (degree.isOne()) {
                 // linear term
                 for (int i = 0; i < varNum; ++i)
                     if (!v.get(i).isZero())
                         linearVars.set(i);
+            } else {
+                // nonlinear term
+                for (int i = 0; i < varNum; ++i)
+                    if (!v.get(i).isZero())
+                        nonLinearVars.set(i);
             }
         }
         
-        linearVars.andNot(badVars);
+        linearVars.andNot(nonLinearVars);
         return linearVars.nextSetBit(0);
     }
     
@@ -462,7 +431,7 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
                 currentParameter = currentParameter + 1;
             }
             
-            System.out.println(reducedPoly);
+//            System.out.println(reducedPoly);
             
             final int monoNum = consideredMonomials.size();
             final double[] homo = reducedPoly.coefficientComparison(monoNum);
@@ -491,9 +460,9 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
                 System.out.println("No solution");
             }
 */
-//            int sdpRes = CSDP.solveAndMinimiseSdp(monoNum, homo, hetero, approxSolution);
+            int sdpRes = CSDP.solveAndMinimiseSdp(monoNum, homo, hetero, approxSolution);
 //            int sdpRes = CSDP.minimalSdp(monoNum, homo, hetero, approxSolution);
-            int sdpRes = CSDP.sdp(monoNum, homo, hetero, approxSolution);
+//            int sdpRes = CSDP.sdp(monoNum, homo, hetero, approxSolution);
             
             if (sdpRes == 0 || sdpRes == 3) {
                 System.out.println("Found an approximate solution!");

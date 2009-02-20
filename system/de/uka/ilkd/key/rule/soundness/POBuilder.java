@@ -147,9 +147,11 @@ public class POBuilder {
 	IteratorOfSkolemSet it = sb.build ();	
 
 	while ( it.hasNext () )
-	    buildStatements ( it.next () );
+//	    buildStatements ( it.next () );
+            buildExpressions ( it.next () );
+	    
     }
-
+/*
     private void buildStatements       ( SkolemSet p_ss ) {
 	SkolemBuilder       sb =
 	    new StatementSkolemBuilder ( p_ss,
@@ -161,7 +163,7 @@ public class POBuilder {
 	while ( it.hasNext () )
 	    buildExpressions ( it.next () );
     }
-
+*/
     private void buildExpressions      ( SkolemSet p_ss ) {
 	SkolemBuilder       sb =
 	    new ExpressionSkolemBuilder ( p_ss,
