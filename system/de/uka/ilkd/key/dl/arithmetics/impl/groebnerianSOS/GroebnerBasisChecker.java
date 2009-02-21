@@ -582,14 +582,35 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
         
         System.out.println("============ Searching for SOSs in the ideal");
 
-        final Arithmetic two = Values.getDefault().rational(2);
-        
-        final List<Arithmetic> consideredMonomials = new ArrayList<Arithmetic> ();
-        final SparsePolynomial reducedPoly = new SparsePolynomial ();
-        int currentParameter = 0;
+        final SOSChecker checker = new SOSChecker (groebnerReducer);
         
         while (monomials.hasNext()) {
-            final Vector newMono = monomials.next();
+            checker.addMonomial(monomials.next());
+            final Square[] squares = checker.check();
+            if (squares != null)
+                return squares;
+        }
+        
+        return null;
+    }
+    
+    ////////////////////////////////////////////////////////////////////////////
+    
+    private class SOSChecker {
+        
+        private final Function groebnerReducer;
+        
+        private final Arithmetic two = Values.getDefault().rational(2);
+
+        private final List<Arithmetic> consideredMonomials = new ArrayList<Arithmetic> ();
+        private final SparsePolynomial reducedPoly = new SparsePolynomial ();
+        private int currentParameter = 0;
+
+        public SOSChecker(Function groebnerReducer) {
+            this.groebnerReducer = groebnerReducer;
+        }
+        
+        public void addMonomial(Vector newMono) {
             consideredMonomials.add(newMono);
             System.out.println("Adding a monomial: " + newMono + ", " +
                                Values.getDefault().MONOMIAL(newMono));
@@ -618,7 +639,9 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
             }
             
 //            System.out.println(reducedPoly);
-            
+        }
+        
+        public Square[] check() {
             final int monoNum = consideredMonomials.size();
             final double[] homo = reducedPoly.coefficientComparison(monoNum);
 
@@ -654,18 +677,15 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
                 System.out.println("Found an approximate solution!");
                 System.out.println(Arrays.toString(approxSolution));
                 
-                final Square[] squares =
-                    approx2Exact(reducedPoly, consideredMonomials, approxSolution);
-                if (squares != null)
-                    return squares;
+                return approx2Exact(reducedPoly, consideredMonomials, approxSolution);
             } else {
                 System.out.println("No solution");
-            }	    
-            
+                return null;
+            }
         }
-        
-        return null;
     }
+    
+    ////////////////////////////////////////////////////////////////////////////
 
     private static Square[] approx2Exact(SparsePolynomial reducedPoly,
                                          List<Arithmetic> consideredMonomials,
