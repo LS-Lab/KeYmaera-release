@@ -81,7 +81,11 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
         System.out.println("Polynomials after eliminating linear variables are: ");
         printPolys(polys2);
 	
-        final Set<Polynomial> polys = eliminateUnusedVariables(polys2);
+        final Set<Polynomial> polys3 = eliminateInverses(polys2, indexNum(polys2));
+        System.out.println("Polynomials after eliminating inverses are: ");
+        printPolys(polys3);
+        
+        final Set<Polynomial> polys = eliminateUnusedVariables(polys3);
         System.out.println("Polynomials after eliminating unused variables are: ");
         printPolys(polys);
 
@@ -196,6 +200,21 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
         return 0;
     }
 
+    private BitSet occurringVars(Polynomial p) {
+        final BitSet res = new BitSet ();
+        final Iterator<Vector> indexIt = p.indices();
+        final Iterator<Arithmetic> coeffIt = p.iterator();
+        while (indexIt.hasNext()) {
+            final Vector v = indexIt.next();
+            final Arithmetic coeff = coeffIt.next();
+            if (!coeff.isZero())
+                for (int i = 0; i < v.dimension(); ++i)
+                    if (!v.get(i).isZero())
+                        res.set(i);
+        }
+        return res;
+    }
+    
     /**
      * Turn a set of polynomials into an equivalent one that uses as few
      * variables as possible
@@ -206,20 +225,9 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
             // nothing to do
             return polys;
         
-        final BitSet occurring = new BitSet ();
-        
-        for (Polynomial p : polys) {
-            final Iterator<Vector> indexIt = p.indices();
-            final Iterator<Arithmetic> coeffIt = p.iterator();
-            while (indexIt.hasNext()) {
-                final Vector v = indexIt.next();
-                final Arithmetic coeff = coeffIt.next();
-                if (!coeff.isZero())
-                    for (int i = 0; i < v.dimension(); ++i)
-                        if (!v.get(i).isZero())
-                            occurring.set(i);
-            }
-        }
+        final BitSet occurring = new BitSet ();        
+        for (Polynomial p : polys)
+            occurring.or(occurringVars(p));
         
         // ensure that there is at least one variable, otherwise Orbital
         // throws an exception later on
@@ -396,6 +404,176 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
         
         linearVars.andNot(nonLinearVars);
         return linearVars.nextSetBit(0);
+    }
+    
+    /**
+     * Eliminate polynomials of the form <code>x*y - a</code> (where
+     * <code>a</code> is a unit), provided that some other polynomial
+     * <code>t + x^n</code> exists.
+     */
+    private Set<Polynomial> eliminateInverses(Set<Polynomial> polys, int varNum) {
+
+        Set<Polynomial> workPolys = new HashSet<Polynomial> (polys);
+
+        while (true) {
+            final BitSet pureVars = findPureTerms(workPolys, varNum);
+            if (pureVars.isEmpty())
+                return workPolys;
+          
+            // check whether we have some polynomial x*y - a, where x or y
+            // is pure
+            Polynomial inversDef = null;
+            BitSet productVars = null;
+            int eliminableVar = -1;
+            for (Polynomial p : polys) {
+                productVars = isInversDefinition(p, varNum);
+                if (productVars == null)
+                    continue;
+                
+                final BitSet pureProductVar = (BitSet)productVars.clone();
+                pureProductVar.and(pureVars);
+                if (pureProductVar.isEmpty())
+                    continue;
+                
+                // we have found everything we need
+                eliminableVar = pureProductVar.nextSetBit(0);
+                inversDef = p;
+                break;
+            }
+            
+            if (productVars == null)
+                return workPolys;
+
+            // inversDef is now some polynomial x*y - a, and we know that
+            // eliminableVar occurs in some other polynomial t + eliminableVar^n
+            
+            productVars.clear(eliminableVar);
+            final int inversVar = productVars.nextSetBit(0);
+            final Vector inversVarExp = Values.getDefault().ZERO(varNum);
+            inversVarExp.set(inversVar, Values.getDefault().ONE());
+            final Polynomial inversVarPoly = Values.getDefault().MONOMIAL(inversVarExp);
+
+            final List<Polynomial> reducingPolys = new ArrayList<Polynomial> ();
+            reducingPolys.add(inversDef);
+            final Function reducer =
+                AlgebraicAlgorithms.reduce(reducingPolys,
+                                           AlgebraicAlgorithms.DEGREE_LEXICOGRAPHIC);
+            
+            final Iterator<Polynomial> allPolysIt = workPolys.iterator();
+            workPolys = new HashSet<Polynomial> ();
+            while (allPolysIt.hasNext()) {
+                final Polynomial p = allPolysIt.next();
+                
+                if (p == inversDef)
+                    // we can simple drop this polynomial
+                    continue;
+                
+                // eliminate the eliminable variable
+                Polynomial newP = p;
+                while (occurringVars(newP).get(eliminableVar)) {
+                    newP = newP.multiply(inversVarPoly);
+                    newP = (Polynomial) reducer.apply(newP);
+                }
+                
+                workPolys.add(newP);
+            }
+        }
+        
+    }
+    
+    /**
+     * Check whether <code>p<code> is a polynomial of the form <code>x*y-a</code>
+     * with <code>a</code> a unit. In this case, return the two variables
+     * contained in the polynomial; otherwise, return <code>null</code>
+     */
+    private BitSet isInversDefinition(Polynomial p, int varNum) {
+        final Vector oneVec =
+            Values.getDefault().CONST(varNum, Values.getDefault().ONE());
+
+        Arithmetic constantTerm = null;
+        int nonConstantNum = 0;
+        final BitSet productVars = new BitSet ();
+        
+        final Iterator<Vector> indexIt = p.indices();
+        final Iterator<Arithmetic> coeffIt = p.iterator();
+        while (indexIt.hasNext()) {
+            final Vector v = indexIt.next();
+            final Arithmetic coeff = coeffIt.next();
+
+            if (coeff.isZero())
+                continue;
+            
+            final Arithmetic degree = v.multiply(oneVec);
+            if (degree.isZero()) {
+                assert constantTerm == null;
+                constantTerm = coeff;
+            } else {
+                nonConstantNum = nonConstantNum + 1;
+            }
+            
+            if (degree.equals(Values.getDefault().valueOf(2))) {
+                for (int i = 0; i < v.dimension(); ++i) {
+                    if (v.get(i).isOne())
+                        productVars.set(i);
+                    else if (!v.get(i).isZero())
+                        break;
+                }
+            }
+        }
+        
+        if (constantTerm != null && !constantTerm.isZero() &&
+            nonConstantNum == 1 && !productVars.isEmpty()) {
+            assert productVars.cardinality() == 2;
+            return productVars;
+        }
+        
+        return null;
+    }
+    
+    /**
+     * Find variables <code>x</code> that occur as monomials <code>x^n</code>
+     * in some polynomial <code>t + x^n</code>, such that <code>x^n</code> does
+     * not divide any monomial in <code>t</code>
+     */
+    private BitSet findPureTerms(Set<Polynomial> polys, int varNum) {
+        final BitSet res = new BitSet ();
+        
+        for (Polynomial p : polys) {
+            final int[] pureMaxPowers = new int [varNum];
+            final int[] imPureMaxPowers = new int [varNum];
+            
+            final Iterator<Vector> indexIt = p.indices();
+            final Iterator<Arithmetic> coeffIt = p.iterator();
+            while (indexIt.hasNext()) {
+                final Vector v = indexIt.next();
+                final Arithmetic coeff = coeffIt.next();
+
+                if (coeff.isZero())
+                    continue;
+
+                // check how many different variables occur in this monomial
+                int num = 0;
+                for (int i = 0; i < v.dimension(); ++i)
+                    if (!v.get(i).isZero())
+                        num = num + 1;
+
+                if (num < 1)
+                    continue;
+                
+                final int[] relevantPowers = num == 1 ? pureMaxPowers : imPureMaxPowers;
+
+                for (int i = 0; i < varNum; ++i) {
+                    final int pow = ((Integer)v.get(i)).intValue();
+                    relevantPowers[i] = Math.max(relevantPowers[i], pow);
+                }
+            }
+            
+            for (int i = 0; i < varNum; ++i)
+                if (pureMaxPowers[i] > imPureMaxPowers[i])
+                    res.set(i);
+        }
+        
+        return res;
     }
     
     private Square[] checkSOS(Iterator<Vector> monomials,
