@@ -22,7 +22,7 @@ double *convert_jdoubleArray_to_double_range(JNIEnv * env, jdoubleArray array,
 	int j;
 	for (j = 0; j < count; j++) {
 		/* dont set anything to array element 0. fortran indexes (1..n) */
-		assert(j < count && from + j < size);
+	  //	assert(j < count && from + j < size);
 		//		printf("Converting element %d\n", j + shift);
 		result[j + shift] = element[from + j];
 	}
@@ -30,7 +30,7 @@ double *convert_jdoubleArray_to_double_range(JNIEnv * env, jdoubleArray array,
 	if(isCopy == JNI_TRUE) {
 		(*env)->ReleaseDoubleArrayElements(env, array, element, JNI_ABORT);
 	}
-	//	printf("Returning result\n");
+		printf("Returning result\n");
 	return result;
 }
 
@@ -58,16 +58,19 @@ struct blockmatrix convert_double_array_to_blockmatrix(JNIEnv * env,
 	return b;
 }
 
-struct constraintmatrix *convert_double_array_to_constraintmatrix(JNIEnv *
-																  env, int n,
-																  int k,
-																  jdoubleArray
-																  constraints)
+struct constraintmatrix *convert_double_array_to_constraintmatrix(JNIEnv * env, int n,
+								  int k,
+								  jdoubleArray constraints)
 {
 	/* again we need to allocate one more block */
 	struct constraintmatrix *result =
 		malloc((k + 1) * sizeof(struct constraintmatrix));
 	int l;
+	
+	jboolean isCopy;
+	jdouble *element =
+	  (jdouble *) (*env)->GetDoubleArrayElements(env, constraints, &isCopy);
+
 	struct sparseblock *block;
 	for (l = 1; l <= k; l++) {
 		result[l].blocks = NULL;
@@ -82,9 +85,8 @@ struct constraintmatrix *convert_double_array_to_constraintmatrix(JNIEnv *
 #else
 #define INDICES_TYPE int
 #endif
-		double *matrix_data =
-			convert_jdoubleArray_to_double_range(env, constraints,
-												 (l - 1) * n * n, n * n, 0);
+		jdouble *matrix_data = element + (l - 1) * n * n;
+
 		/* now we need to find out howmany non zero entries the matrix contains */
 		int ii;
 		int nonzero = 0;
@@ -110,7 +112,6 @@ struct constraintmatrix *convert_double_array_to_constraintmatrix(JNIEnv *
 				curentry++;
 			}
 		}
-		free(matrix_data);
 
 		block->blocknum = 1;
 		block->blocksize = n;
@@ -120,6 +121,11 @@ struct constraintmatrix *convert_double_array_to_constraintmatrix(JNIEnv *
 		block->next = NULL;
 		block->nextbyblock = NULL;
 	}
+
+	if(isCopy == JNI_TRUE) {
+	  (*env)->ReleaseDoubleArrayElements(env, constraints, element, JNI_ABORT);
+	}
+
 	return result;
 }
 
