@@ -43,6 +43,8 @@ public class Options implements Settings {
 
     private static final String OPTIONS_REPRESENTATION = "[OrbitalOptions]representation";
 
+    private static final String OPTIONS_SPARSEPOLYNOMIALS = "[OrbitalOptions]sparsePolynomials";
+
     private static final String OPTIONS_PRECISION = "[OrbitalOptions]precision";
 
     private List<SettingsListener> listeners;
@@ -81,6 +83,10 @@ public class Options implements Settings {
         if (property != null) {
              getDeferred().setPrecision(Integer.valueOf(property));
         }
+        property = props.getProperty(OPTIONS_SPARSEPOLYNOMIALS);
+        if (property != null) {
+             getDeferred().setSparsePolynomials(Boolean.valueOf(property));
+        }
     }
 
     /*
@@ -92,6 +98,7 @@ public class Options implements Settings {
         props.setProperty(OPTIONS_REPRESENTATION,
                 getRepresentation());
         props.setProperty(OPTIONS_PRECISION, "" + getPrecision());
+        props.setProperty(OPTIONS_SPARSEPOLYNOMIALS, "" + isSparsePolynomials());
     }
 
     public String getRepresentation() {
@@ -112,6 +119,16 @@ public class Options implements Settings {
         firePropertyChanged();
     }
 
+    public boolean isSparsePolynomials() {
+        return getDeferred().isSparsePolynomials();
+    }
+
+    public void setSparsePolynomials(boolean sparse) {
+        getDeferred().setSparsePolynomials(sparse);
+        firePropertyChanged();
+    }
+
+    
     private final ArithmeticValuesImpl getDeferred() {
 	return (ArithmeticValuesImpl)Values.getDefault();
     }

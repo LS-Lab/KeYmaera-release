@@ -20,6 +20,7 @@
 package de.uka.ilkd.key.dl.arithmetics.impl.orbital;
 
 import java.beans.*;
+
 import orbital.awt.TaggedPropertyEditorSupport;
 
 public class OptionsBeanInfo extends SimpleBeanInfo {
@@ -43,8 +44,11 @@ public class OptionsBeanInfo extends SimpleBeanInfo {
             PropertyDescriptor _precision = new PropertyDescriptor("precision", beanClass);
             _precision.setDisplayName("precision");
             _precision.setShortDescription("the number of digits to be used for a operations with results being rounded to this precision. 0 means unlimited");
+            PropertyDescriptor _sparse = new PropertyDescriptor("sparsePolynomials", beanClass);
+            _sparse.setDisplayName("sparse polynomials");
+            _sparse.setShortDescription("whether to use sparse or dense polynomial representations");
             PropertyDescriptor[] pds = new PropertyDescriptor[] {
-                _representation, _precision
+                _representation, _precision, _sparse
             };
             return pds;
         } catch (IntrospectionException ex) {
