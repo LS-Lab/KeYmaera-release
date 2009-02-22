@@ -24,10 +24,13 @@ import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.PriorityQueue;
 import java.util.Set;
 
 import orbital.logic.functor.Function;
@@ -71,6 +74,9 @@ import de.uka.ilkd.key.logic.op.TermSymbol;
  */
 public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 
+    private final ValueFactory vf = Values.getDefault();
+    private static final Comparator monomialOrder = AlgebraicAlgorithms.DEGREE_REVERSE_LEXICOGRAPHIC;
+    
     public boolean checkForConstantGroebnerBasis(PolynomialClassification<Term> terms,
 	                                         Services services) {
 	final Set<Polynomial> rawPolys = extractPolynomials(terms);
@@ -99,11 +105,9 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 	// the equalities. if the common basis contains a constant part, the
 	// equality system is unsatisfiable, thus we can close this goal
 	final Set<Polynomial> groebnerBasis =
-	    orbital.math.AlgebraicAlgorithms.groebnerBasis(polys,
-		     AlgebraicAlgorithms.DEGREE_REVERSE_LEXICOGRAPHIC);
+	    orbital.math.AlgebraicAlgorithms.groebnerBasis(polys, monomialOrder);
 	final Function groebnerReducer =
-	    orbital.math.AlgebraicAlgorithms.reduce(
-		     groebnerBasis, AlgebraicAlgorithms.DEGREE_REVERSE_LEXICOGRAPHIC);
+	    orbital.math.AlgebraicAlgorithms.reduce(groebnerBasis, monomialOrder);
 	
 	System.out.println("Groebner basis is: ");
 	printPolys(groebnerBasis);
@@ -118,6 +122,7 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 	// in the ideal
 	final Iterator<Vector> monomials =
 	    new SimpleMonomialIterator(indexNum(groebnerBasis), 3);
+//        final Square[] cert = checkSOS2(groebnerBasis, groebnerReducer);
         final Square[] cert = checkSOS(monomials, groebnerBasis, groebnerReducer);
         
         if (cert != null) {
@@ -128,8 +133,7 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
             
             Polynomial p = one;
             for (int i = 0; i < cert.length; ++i) {
-                assert (Operations.greaterEqual.apply(cert[i].coefficient,
-                                                      Values.getDefault().ZERO()));
+                assert (Operations.greaterEqual.apply(cert[i].coefficient, vf.ZERO()));
                 p = (Polynomial) p.add(cert[i].body.multiply(cert[i].body)
                                                    .scale(cert[i].coefficient));
                 System.out.println(" + " + cert[i].coefficient + " * ( " + cert[i].body + " ) ^2");
@@ -241,7 +245,6 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
             // nothing to be done
             return polys;
 
-        final ValueFactory vf = Values.getDefault();
         final int[] newCoord = new int [newVarNum];
         final int[] oldCoord = new int [varNum];
         final int[] newDimensions = new int [newVarNum];
@@ -374,8 +377,7 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
     private int findLinearVariable(Polynomial p, final int varNum) {
         final BitSet linearVars = new BitSet();
         final BitSet nonLinearVars = new BitSet();
-        final Vector oneVec =
-            Values.getDefault().CONST(varNum, Values.getDefault().ONE());
+        final Vector oneVec = vf.CONST(varNum, vf.ONE());
         
         final Iterator<Vector> indexIt = p.indices();
         final Iterator<Arithmetic> coeffIt = p.iterator();
@@ -449,15 +451,14 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
             
             productVars.clear(eliminableVar);
             final int inversVar = productVars.nextSetBit(0);
-            final Vector inversVarExp = Values.getDefault().ZERO(varNum);
-            inversVarExp.set(inversVar, Values.getDefault().ONE());
-            final Polynomial inversVarPoly = Values.getDefault().MONOMIAL(inversVarExp);
+            final Vector inversVarExp = vf.ZERO(varNum);
+            inversVarExp.set(inversVar, vf.ONE());
+            final Polynomial inversVarPoly = vf.MONOMIAL(inversVarExp);
 
             final List<Polynomial> reducingPolys = new ArrayList<Polynomial> ();
             reducingPolys.add(inversDef);
             final Function reducer =
-                AlgebraicAlgorithms.reduce(reducingPolys,
-                                           AlgebraicAlgorithms.DEGREE_LEXICOGRAPHIC);
+                AlgebraicAlgorithms.reduce(reducingPolys, monomialOrder);
             
             final Iterator<Polynomial> allPolysIt = workPolys.iterator();
             workPolys = new HashSet<Polynomial> ();
@@ -487,8 +488,7 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
      * contained in the polynomial; otherwise, return <code>null</code>
      */
     private BitSet isInversDefinition(Polynomial p, int varNum) {
-        final Vector oneVec =
-            Values.getDefault().CONST(varNum, Values.getDefault().ONE());
+        final Vector oneVec = vf.CONST(varNum, vf.ONE());
 
         Arithmetic constantTerm = null;
         int nonConstantNum = 0;
@@ -511,7 +511,7 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
                 nonConstantNum = nonConstantNum + 1;
             }
             
-            if (degree.equals(Values.getDefault().valueOf(2))) {
+            if (degree.equals(vf.valueOf(2))) {
                 for (int i = 0; i < v.dimension(); ++i) {
                     if (v.get(i).isOne())
                         productVars.set(i);
@@ -582,17 +582,145 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
         
         System.out.println("============ Searching for SOSs in the ideal");
 
-        final Arithmetic two = Values.getDefault().rational(2);
-        
-        final List<Arithmetic> consideredMonomials = new ArrayList<Arithmetic> ();
-        final SparsePolynomial reducedPoly = new SparsePolynomial ();
-        int currentParameter = 0;
+        final SOSChecker checker =
+            new SOSChecker (groebnerReducer,
+                            new AddedMonomialListener() {
+                                public void addedMonomial(Arithmetic v) {} });
         
         while (monomials.hasNext()) {
-            final Vector newMono = monomials.next();
+            checker.addMonomial(monomials.next());
+            final Square[] squares = checker.check();
+            if (squares != null) {
+                System.out.println("Considered " + checker.monomialsNum() + " monomials");
+                return squares;
+            }
+        }
+        
+        return null;
+    }
+    
+    private Square[] checkSOS2(Set<Polynomial> groebnerBasis, Function groebnerReducer) {
+
+        System.out.println("============ Searching for SOSs in the ideal");
+
+        final MonomialFactorQueue queue = new MonomialFactorQueue ();
+        for (Polynomial p : groebnerBasis) {
+            final Arithmetic leadingMono =
+                (Arithmetic)Collections.max(AlgebraicAlgorithms.occurringMonomials(p), monomialOrder);
+            queue.addFactors(leadingMono, 0);
+        }
+        
+        final int[] i = new int [1];
+        
+        final SOSChecker checker =
+            new SOSChecker(groebnerReducer,
+                           new AddedMonomialListener() {
+                               public void addedMonomial(Arithmetic v) {
+                                   queue.addFactors(v, i[0]);
+                               } });
+        
+        while (!queue.isEmpty()) {
+            final Vector mono = queue.poll();
+            checker.addMonomial(mono);
+            final Square[] squares = checker.check();
+            if (squares != null) {
+                System.out.println("Considered " + checker.monomialsNum() + " monomials");
+                return squares;
+            }
+            i[0] = i[0] + 1;
+        }
+
+        return null;
+    }
+
+    private static class MonomialFactorQueue {
+        final PriorityQueue<MonomialToDo> queue = new PriorityQueue<MonomialToDo> ();
+        
+        // set of all monomials that we have already put in the queue
+        // this set is closed under factors, i.e., if m is in the set then also
+        // all factors of m
+        final Set<Vector> putIntoQueue = new HashSet<Vector> ();
+
+        public void addFactors(Arithmetic x, int time) {
+            final Vector mono;
+            if (x instanceof Vector) {
+                mono = (Vector)x;
+            } else if (x instanceof Integer) {
+                mono = Values.getDefault().valueOf(new Arithmetic[] {x});
+            } else {
+                assert false;
+                mono = null;
+            }
+
+            if (putIntoQueue.contains(mono))
+                return;
+            
+            final Iterator<Vector> it = new MonomialFactorIterator (mono);
+            while (it.hasNext()) {
+                final Vector v = it.next();
+                if (!putIntoQueue.contains(v)) {
+                    putIntoQueue.add(v);
+                    queue.add(new MonomialToDo (v, time));
+                }
+            }
+        }
+        
+        public boolean isEmpty() {
+            return queue.isEmpty();
+        }
+        
+        public Vector poll() {
+            return queue.poll().monomial;
+        }
+    }
+    
+    private static class MonomialToDo implements Comparable<MonomialToDo> {
+        public final Vector monomial;
+        public final int cost;
+        public MonomialToDo(Vector monomial, int time) {
+            this.monomial = monomial;
+            Arithmetic degree = Values.getDefault().ZERO();
+            for (int i = 0; i < monomial.dimension(); ++i)
+                degree = degree.add(monomial.get(i));
+            this.cost = time + 10 * ((Integer)degree).intValue();
+        }
+        public int compareTo(MonomialToDo o) {
+            return this.cost - o.cost;
+        }
+    }
+    
+    ////////////////////////////////////////////////////////////////////////////
+    
+    private interface AddedMonomialListener {
+        void addedMonomial(Arithmetic v);
+    }
+    
+    private class SOSChecker {
+        
+        private final Function groebnerReducer;
+        
+        private final Arithmetic two = vf.rational(2);
+
+        private final AddedMonomialListener monoListener;
+        
+        private final List<Arithmetic> consideredMonomials = new ArrayList<Arithmetic> ();
+        private final SparsePolynomial reducedPoly = new SparsePolynomial ();
+        private int currentParameter = 0;
+
+        public SOSChecker(Function groebnerReducer,
+                          AddedMonomialListener monoListener) {
+            this.groebnerReducer = groebnerReducer;
+            this.monoListener = monoListener;
+        }
+        
+        public int monomialsNum() {
+            return consideredMonomials.size();
+        }
+        
+        public void addMonomial(Vector newMono) {
             consideredMonomials.add(newMono);
             System.out.println("Adding a monomial: " + newMono + ", " +
-                               Values.getDefault().MONOMIAL(newMono));
+                               vf.MONOMIAL(newMono));
             
             // consider all products of the new monomial with the monomials
             // already considered
@@ -605,20 +733,25 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
                 // itself have to be taken times two (the matrix is symmetric,
                 // and we only consider one half of it)
                 if (i < consideredMonomials.size() - 1)
-                    combinedMono = Values.getDefault().MONOMIAL(two, combinedMonoExp);
+                    combinedMono = vf.MONOMIAL(two, combinedMonoExp);
                 else
-                    combinedMono = Values.getDefault().MONOMIAL(combinedMonoExp);
+                    combinedMono = vf.MONOMIAL(combinedMonoExp);
                 
                 final Polynomial reducedMono =
                     (Polynomial) groebnerReducer.apply(combinedMono);
                 System.out.println("Reduced " + combinedMono + " to " + reducedMono);
+                for (Object v : AlgebraicAlgorithms.occurringMonomials(reducedMono))
+                    monoListener.addedMonomial((Arithmetic)v);
+                
                 reducedPoly.addTerms(reducedMono, currentParameter);
                 
                 currentParameter = currentParameter + 1;
             }
             
 //            System.out.println(reducedPoly);
-            
+        }
+        
+        public Square[] check() {
             final int monoNum = consideredMonomials.size();
             final double[] homo = reducedPoly.coefficientComparison(monoNum);
 
@@ -646,40 +779,39 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
                 System.out.println("No solution");
             }
 */
-            int sdpRes = CSDP.solveAndMinimiseSdp(monoNum, homo, hetero, approxSolution);
+//            int sdpRes = CSDP.solveAndMinimiseSdp(monoNum, homo, hetero, approxSolution);
 //            int sdpRes = CSDP.minimalSdp(monoNum, homo, hetero, approxSolution);
-//            int sdpRes = CSDP.sdp(monoNum, homo, hetero, approxSolution);
+            int sdpRes = CSDP.sdp(monoNum, homo, hetero, approxSolution);
             
-            if (sdpRes == 0 || sdpRes == 3) {
+            if (sdpRes == 0 //|| sdpRes == 3
+                            ) {
                 System.out.println("Found an approximate solution!");
                 System.out.println(Arrays.toString(approxSolution));
                 
-                final Square[] squares =
-                    approx2Exact(reducedPoly, consideredMonomials, approxSolution);
-                if (squares != null)
-                    return squares;
+                return approx2Exact(reducedPoly, consideredMonomials, approxSolution);
             } else {
                 System.out.println("No solution");
-            }	    
-            
+                return null;
+            }
         }
-        
-        return null;
     }
+    
+    ////////////////////////////////////////////////////////////////////////////
 
     private static Square[] approx2Exact(SparsePolynomial reducedPoly,
                                          List<Arithmetic> consideredMonomials,
                                          double[] approxSolution) {
-        final Vector exactHetero =
-            Values.getDefault().newInstance(reducedPoly.size());
+        final ValueFactory vf = Values.getDefault();
+        final Vector exactHetero = vf.newInstance(reducedPoly.size());
         for (int i = 0; i < exactHetero.dimension(); ++i)
-            exactHetero.set(i, Values.getDefault().valueOf(i == 0 ? -1 : 0));
+            exactHetero.set(i, vf.valueOf(i == 0 ? -1 : 0));
         return approx2Exact(reducedPoly, consideredMonomials, approxSolution, exactHetero);
     }
 
     public static Square[] approx2Exact(SparsePolynomial reducedPoly,
                                         List<Arithmetic> consideredMonomials,
                                         double[] approxSolution, Vector inExactHetero) {
+        final ValueFactory vf = Values.getDefault();
         final int monoNum = consideredMonomials.size();
 
         System.out.println("Trying to recover an exact solution ...");
@@ -690,13 +822,12 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
         // is a symmetric matrix
         exactHomo.insertRows(symmetryConstraints(monoNum));
 
-        final Vector exactHetero =
-            Values.getDefault().newInstance(exactHomo.dimensions()[0]);
+        final Vector exactHetero = vf.newInstance(exactHomo.dimensions()[0]);
         for (int i = 0; i < exactHetero.dimension(); ++i) {
             if(i < inExactHetero.dimension()) {
             	exactHetero.set(i, inExactHetero.get(i));
             } else {
-            	exactHetero.set(i, Values.getDefault().valueOf(0));	
+            	exactHetero.set(i, vf.valueOf(0));	
             }
         }
         
@@ -713,11 +844,11 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
             assert (exactHomo.multiply(exactSolution).equals(exactHetero));
             
             System.out.println("Difference to approx solution:");
-            System.out.println(exactSolution.subtract(Values.getDefault().valueOf(approxSolution)));
+            System.out.println(exactSolution.subtract(vf.valueOf(approxSolution)));
             
             // check that the solution is positive semi-definite
             final Matrix solutionMatrix =
-                Values.getDefault().newInstance(monoNum, monoNum);
+                vf.newInstance(monoNum, monoNum);
             for (int i = 0; i < monoNum; ++i)
                 for (int j = 0; j < monoNum; ++j)
                     solutionMatrix.set(i, j,
@@ -736,15 +867,15 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
                 
                 // generate the certificate (actual squares of polynomials)
                 final Vector monomials =
-                    Values.getDefault().newInstance(monoNum);
+                    vf.newInstance(monoNum);
                 for (int i = 0; i < monoNum; ++i) {
                     final Polynomial mono =
-                        Values.getDefault().MONOMIAL(consideredMonomials.get(i));
+                        vf.MONOMIAL(consideredMonomials.get(i));
                     monomials.set(i, mono);
                 }
 
                 final Polynomial zero =
-                    Values.getDefault().MONOMIAL(Values.getDefault().ZERO(),
+                    vf.MONOMIAL(vf.ZERO(),
                                                  consideredMonomials.get(0).zero());
                 
                 final Square[] res = new Square [monoNum];
@@ -768,12 +899,14 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
     
     
     private static Matrix symmetryConstraints(int matrixSize) {
-        final Arithmetic one = Values.getDefault().ONE();
+        final ValueFactory vf = Values.getDefault();
+
+        final Arithmetic one = vf.ONE();
         final Arithmetic minus_one = one.minus();
 
         final int height = matrixSize * (matrixSize - 1) / 2;
         final int width = matrixSize * matrixSize;
-        final Matrix res = Values.getDefault().ZERO(height, width);
+        final Matrix res = vf.ZERO(height, width);
         
         // generate the constraints
         int row = 0;
@@ -798,8 +931,48 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
         }
     }
     
+    ////////////////////////////////////////////////////////////////////////////
+
+    public static class MonomialFactorIterator implements Iterator<Vector> {
+        private final ValueFactory vf = Values.getDefault();
+
+        private final Vector degreeBounds;
+        private final Vector currentFactor;
+        private boolean finished = false;
+        
+        public MonomialFactorIterator(Vector degreeBounds) {
+            this.degreeBounds = degreeBounds;
+            this.currentFactor = (Vector)degreeBounds.zero();
+        }
+
+        public boolean hasNext() {
+            return !finished;
+        }
+
+        public Vector next() {
+            final Vector res = (Vector)currentFactor.clone();
+            for (int i = 0; i < degreeBounds.dimension(); ++i) {
+                if (Operations.less.apply(currentFactor.get(i), degreeBounds.get(i))) {
+                    currentFactor.set(i, currentFactor.get(i).add(vf.ONE()));
+                    return res;
+                }
+                assert currentFactor.get(i).equals(degreeBounds.get(i));
+                currentFactor.set(i, vf.ZERO());
+            }
+            finished = true;
+            return res;
+        }
+
+        public void remove() {
+            throw new UnsupportedOperationException();            
+        }
+    }
+        
+    ////////////////////////////////////////////////////////////////////////////
     
     public static class SimpleMonomialIterator implements Iterator<Vector> {
+        private final ValueFactory vf = Values.getDefault();
+
         private final int indexNum;
         private final int maxTotalDegree;
         
@@ -814,14 +987,14 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
             this.maxTotalDegree = maxTotalDegree;
             
             final Arithmetic[] exps = new Arithmetic[indexNum];
-            Arrays.fill(exps, Values.getDefault().ZERO());
-            zeroMonomial = Values.getDefault().tensor(exps);
+            Arrays.fill(exps, vf.ZERO());
+            zeroMonomial = vf.tensor(exps);
             
             for (int i = 0; i < indexNum; ++i) {
                 final Arithmetic[] exps2 = new Arithmetic[indexNum];
-                Arrays.fill(exps2, Values.getDefault().ZERO());
-                exps2[i] = Values.getDefault().ONE();
-                linearMonomials.add(Values.getDefault().tensor(exps2));
+                Arrays.fill(exps2, vf.ZERO());
+                exps2[i] = vf.ONE();
+                linearMonomials.add(vf.tensor(exps2));
             }
 
             for (Vector v : linearMonomials) {
@@ -867,6 +1040,7 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
         }
     }
     
+    ////////////////////////////////////////////////////////////////////////////
 	
 	public GroebnerBasisChecker(Node node) {}
 
