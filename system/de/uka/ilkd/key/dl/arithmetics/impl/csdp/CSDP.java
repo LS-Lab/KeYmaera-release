@@ -259,7 +259,8 @@ public class CSDP {
         final int res = easiestSDP(matrixSize, inpConstraints, constraintRhs,
                                    solution, diaGoal(matrixSize));
         
-        if (res != 0 && res != 3)
+        if (res != 0 //&& res != 3
+                )
             return res;
         
         // we have found a solution, i.e., the optimisation problem is solvable.
@@ -277,6 +278,7 @@ public class CSDP {
         // we try to remove rows/cols with small diagonal entries first
         final SolutionEntry[] diaEntries = sortDiagonalEntries(solution, matrixSize);
         
+        final BitSet removableConstraints = new BitSet ();
         double[] smallSolution = null;
         for (int l = 0;
              l < matrixSize && removedRows.cardinality() < matrixSize - 1;
@@ -290,9 +292,16 @@ public class CSDP {
             
             final int newMatrixSize = matrixSize - removedRows.cardinality();
             final int newMatrixLength = newMatrixSize*newMatrixSize;
-            final double[] newConstraints = new double [newMatrixLength * constraintNum];
+            final int newConstraintNum = constraintNum - removableConstraints.cardinality();
+            final double[] newConstraints = new double [newMatrixLength * newConstraintNum];
+            final double[] newConstraintRhs = new double [newConstraintNum];
             
-            for (int k = 0; k < constraintNum; ++k)
+            for (int inpK = 0, k = 0; inpK < constraintNum; ++inpK) {
+                if (removableConstraints.get(inpK))
+                    continue;
+                    
+                newConstraintRhs[k] = constraintRhs[inpK];
+                
                 for (int i = 0, newI = 0; i < matrixSize; ++i) {
                     if (removedRows.get(i))
                         continue;
@@ -301,23 +310,43 @@ public class CSDP {
                         if (removedRows.get(j))
                             continue;
                         newConstraints[k*newMatrixLength + newI*newMatrixSize + newJ] =
-                            inpConstraints[k*matrixLength + i*matrixSize + j];
+                            inpConstraints[inpK*matrixLength + i*matrixSize + j];
                         newJ = newJ + 1;
                     }
                   
                     newI = newI + 1;
                 }
+                
+                k = k + 1;
+            }
             
             // check whether the problem is still solvable
             final double[] newSolution = new double[newMatrixLength];
             final int res2 = easiestSDP(newMatrixSize,
-                                        newConstraints, constraintRhs,
+                                        newConstraints, newConstraintRhs,
                                         newSolution,
                                         diaGoal(newMatrixSize));
-            if ((res2 == 0 || res2 == res) && maxAbs(newSolution) < 5.0 * solutionNorm) {
+            if ((res2 == 0 || res2 == res) && maxAbs(newSolution) < 2.0 * solutionNorm) {
                 System.out.println("Still solvable");
                 // store the small solution
                 smallSolution = newSolution;
+                
+                // search for removable constraints (because all entries are 0.0)
+                for (int inpK = 0, k = 0; inpK < constraintNum; ++inpK) {
+                    if (removableConstraints.get(inpK))
+                        continue;
+                    
+                    if (newConstraintRhs[k] == 0.0) {
+                        int i = 0;
+                        for (;
+                             i < newMatrixLength && newConstraints[k*newMatrixLength + i] == 0.0;
+                             ++i);
+                        if (i == newMatrixLength)
+                            removableConstraints.set(inpK);
+                    }
+                    
+                    k = k + 1;
+                }                
             } else {
                 System.out.println("No longer solvable");
                 removedRows.clear(rowCol);
