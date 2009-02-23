@@ -42,7 +42,7 @@ public class FractionisingEquationSolver {
                                        Vector eqHeteros,
                                        double[] approxSolution,
                                        double eps) {
-        assert (eqCoefficients.dimensions()[1] == approxSolution.length);
+        assert (eqCoefficients.dimensions()[1] == approxSolution.length) : "Dimensions dont fit: " + eqCoefficients.dimensions()[1] + " != " + approxSolution.length;
         
         this.eqCoefficients = eqCoefficients;
         this.eqHeteros = eqHeteros;

@@ -691,10 +691,12 @@ public class SumOfSquaresChecker {
 				}
 
 				System.out.println("f+h = " + fh);// XXX
-				double[] homo = fh.coefficientComparison(mononum);
+				int matrixSize = monomials.size()*sumOfFs.size()+monomials.size()*classify.h.size();
+				System.out.println("matrix size: " + matrixSize);
+				double[] homo = fh.coefficientComparison(matrixSize);
 				final double[] hetero = new double[fh.size()];
 
-				final double[] approxSolution = new double[mononum * mononum];
+				final double[] approxSolution = new double[matrixSize * matrixSize];
 				// the solution vector has to be zero except at those positions
 				// where g contains the same monomial it has to be the additive
 				// inverse of coefficient in g
@@ -726,14 +728,14 @@ public class SumOfSquaresChecker {
 				int sdpRes =
 				// CSDP.robustSdp(monoNum, reducedPoly.size(), hetero, homo,
 				// approxSolution);
-				CSDP.sdp(mononum, homo, hetero, approxSolution);
+				CSDP.sdp(matrixSize, homo, hetero, approxSolution);
 
 				if (sdpRes == 0 || sdpRes == 3) {
 					System.out.println("Found an approximate solution!");
 					System.out.println(Arrays.toString(approxSolution));
 
 					final Square[] cert = GroebnerBasisChecker.approx2Exact(fh,
-							monomialsInFH, approxSolution, exactHetero);
+							convertToMonomList(monomials, sumOfFs.size() + classify.h.size()), approxSolution, exactHetero);
 					if (cert != null) {
 						// check that the certificate is correct
 
@@ -764,6 +766,19 @@ public class SumOfSquaresChecker {
 		}
 
 		return false;
+	}
+
+	/**
+	 * @param monomials
+	 * @return
+	 * TODO documentation since Feb 23, 2009
+	 */
+	private List<Arithmetic> convertToMonomList(List<Vector> monomials, int count) {
+		List<Arithmetic> result = new ArrayList<Arithmetic>();
+		for(int i = 0; i < count; i++) {
+			result.addAll(monomials);
+		}
+		return result;
 	}
 
 	/**
