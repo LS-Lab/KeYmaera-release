@@ -26,16 +26,19 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Set;
 
 import orbital.algorithm.Combinatorical;
+import orbital.math.AlgebraicAlgorithms;
 import orbital.math.Arithmetic;
 import orbital.math.Fraction;
 import orbital.math.Integer;
 import orbital.math.Polynomial;
 import orbital.math.Real;
+import orbital.math.ValueFactory;
 import orbital.math.Values;
 import orbital.math.Vector;
 import orbital.math.functional.Operations;
@@ -457,7 +460,7 @@ public class SumOfSquaresChecker {
 
 	public boolean checkCombinedSetForEmptyness(Set<Term> f, Set<Term> g,
 			Set<Term> h, int degreeBound) {
-//		degreeBound = 4;
+		// degreeBound = 4;
 		PolynomialClassification<Polynomial> classify = classify(new PolynomialClassification<Term>(
 				f, g, h));
 		Polynomial one = null;
@@ -499,31 +502,30 @@ public class SumOfSquaresChecker {
 				Set<Polynomial> sumOfFs = new LinkedHashSet<Polynomial>();
 				sumOfFs.add(one);
 				List<Polynomial> curF = new ArrayList<Polynomial>(classify.f);
-				System.out.println("curF " + curF);//XXX
+				System.out.println("curF " + curF);// XXX
 				for (int i = 0; i < curF.size(); i++) {
 					Combinatorical combinations = Combinatorical
 							.getCombinations(i + 1, curF.size(), true);
 					while (combinations.hasNext()) {
 						int[] com = combinations.next();
 						Polynomial currentF = one;
-						System.out.println(Arrays.toString(com));//XXX
+						System.out.println(Arrays.toString(com));// XXX
 						for (int j = 0; j < com.length; j++) {
 							currentF = currentF.multiply(curF.get(com[j]));
 						}
 						sumOfFs.add(currentF);
 					}
 				}
-				System.out.println("sumOfFs: " + sumOfFs);//XXX
+				System.out.println("sumOfFs: " + sumOfFs);// XXX
 				// now construct parametric polynomials of degree deg(g)
 				// We need sumOfFs.size() p_i's and classify.h.size() q_i's
-				Set<Polynomial> monomials = new LinkedHashSet<Polynomial>();
+				List<Vector> monomials = new ArrayList<Vector>();
 				SimpleMonomialIterator monomialIterator = new SimpleMonomialIterator(
-						one.rank(), Math.max(nextG.degreeValue(), d));
+						one.rank(), Math.max(nextG.degreeValue(), d) / 2);
 				System.out.println("Degree of g is " + nextG.degreeValue());// XXX
 				System.out.println("g is " + nextG);// XXX
 				while (monomialIterator.hasNext()) {
-					monomials.add(Values.getDefault().MONOMIAL(
-							monomialIterator.next()));
+					monomials.add(monomialIterator.next());
 				}
 
 				// the next step is to construct all those parametric
@@ -533,19 +535,45 @@ public class SumOfSquaresChecker {
 				// the same iteration construct the resulting f polynomial by
 				// multiplication of the corresponding sumOfFs polynomial
 				List<SparsePolynomial> pis = new ArrayList<SparsePolynomial>();
-
+				ValueFactory vf = Values.getDefault();
 				int currentParameter = 0;
+				int polynum = 1;
+				Arithmetic two = vf.rational(2);
 				SparsePolynomial nextF = new SparsePolynomial();
 				for (Polynomial nF : sumOfFs) {
 					SparsePolynomial s = new SparsePolynomial();
-					for (Polynomial p : monomials) {
-						s.addTerms(p, currentParameter++);
+					for (Vector p : monomials) {
+						for (int i = 0; i < monomials.size(); ++i) {
+							final Arithmetic oldMono = monomials.get(i);
+							final Arithmetic combinedMonoExp = oldMono.add(p);
+							final Polynomial combinedMono;
+							
+							// all products but the product of
+							// <code>newMono</code> with
+							// itself have to be taken times two (the matrix is
+							// symmetric,
+							// and we only consider one half of it)
+							if (i < monomials.size() - 1) {
+								combinedMono = vf
+										.MONOMIAL(two, combinedMonoExp);
+							} else {
+								combinedMono = vf.MONOMIAL(combinedMonoExp);
+							}
+
+							s.addTerms(combinedMono, currentParameter);
+
+							currentParameter = currentParameter + 1;
+						}
 					}
 					pis.add(s);
 					nextF = nextF.add(s.multiply(nF));
+					// now we have to shift the currentParameter such that we
+					// reach the next block on the diagonal
+					currentParameter += monomials.size() * polynum;
+					polynum++;
 				}
-				
-				System.out.println("nextF is " + nextF);//XXX
+
+				System.out.println("nextF is " + nextF);// XXX
 
 				// the next step is to construct all those parametric
 				// polynomials q_i (one per h in classify.h)
@@ -555,11 +583,32 @@ public class SumOfSquaresChecker {
 				List<SparsePolynomial> qis = new ArrayList<SparsePolynomial>();
 				for (Polynomial hPoly : classify.h) {
 					SparsePolynomial s = new SparsePolynomial();
-					for (Polynomial p : monomials) {
-						s.addTerms(p, currentParameter++);
+					for (Vector p : monomials) {
+						for (int i = 0; i < monomials.size(); ++i) {
+							final Arithmetic oldMono = monomials.get(i);
+							final Arithmetic combinedMonoExp = oldMono.add(p);
+							final Polynomial combinedMono;
+
+							// all products but the product of
+							// <code>newMono</code> with
+							// itself have to be taken times two (the matrix is
+							// symmetric,
+							// and we only consider one half of it)
+							if (i < monomials.size() - 1)
+								combinedMono = vf
+										.MONOMIAL(two, combinedMonoExp);
+							else
+								combinedMono = vf.MONOMIAL(combinedMonoExp);
+
+							s.addTerms(combinedMono, currentParameter);
+
+							currentParameter = currentParameter + 1;
+						}
 					}
 					qis.add(s);
 					nextH = nextH.add(s.multiply(hPoly));
+					currentParameter += 3 * polynum;
+					polynum++;
 				}
 				// now we can add nextF and nextH, we cannot represent nextG as
 				// SparsePolynomial, as it is not parametric
@@ -587,7 +636,8 @@ public class SumOfSquaresChecker {
 				while (indices.hasNext()) {
 					Arithmetic monomial = indices.next();
 					Arithmetic coefficient = (Arithmetic) iterator2.next();
-					assert coefficient.isZero() || monomialsInFH.contains(monomial) : "The polynomial g cannot contain monomials that are not in any p_i "
+					assert coefficient.isZero()
+							|| monomialsInFH.contains(monomial) : "The polynomial g cannot contain monomials that are not in any p_i "
 							+ monomial + " * " + coefficient;
 				}
 
@@ -613,7 +663,7 @@ public class SumOfSquaresChecker {
 								.minus());
 					}
 				}
-				System.out.println("Result vector is " + exactHetero);//XXX
+				System.out.println("Result vector is " + exactHetero);// XXX
 
 				// if (nextG.equals(one)) {
 				// Arrays.fill(hetero, 0.0);
@@ -771,9 +821,9 @@ public class SumOfSquaresChecker {
 		// outputMatlab(monominals, constraints);
 
 		double[] solution = new double[monominals.size() * monominals.size()];
-		if (CSDP.sdp(monominals.size(), convertConstraintsToCSDP(constraints, monominals.size()),
-				convertConstraintsToResultVector(constraints),
-				solution) == 0) {
+		if (CSDP.sdp(monominals.size(), convertConstraintsToCSDP(constraints,
+				monominals.size()),
+				convertConstraintsToResultVector(constraints), solution) == 0) {
 			// System.out.println(quadraticForm.toSparsePolynomial());//XXX
 			// Square[] cert = GroebnerBasisChecker.approx2Exact(
 			// quadraticForm.toSparsePolynomial(), monominals, solution);
