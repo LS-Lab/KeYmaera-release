@@ -779,16 +779,25 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
                 System.out.println("No solution");
             }
 */
-//            int sdpRes = CSDP.solveAndMinimiseSdp(monoNum, homo, hetero, approxSolution);
+            final BitSet removedMonomials = new BitSet ();
+            int sdpRes = CSDP.solveAndMinimiseSdp(monoNum, homo, hetero, approxSolution,
+                                                  removedMonomials);
+            final double[] smallApproxSolution =
+                new double [(monoNum - removedMonomials.cardinality()) *
+                            (monoNum - removedMonomials.cardinality())];
+            System.arraycopy(approxSolution, 0, smallApproxSolution, 0,
+                             smallApproxSolution.length);
+            
 //            int sdpRes = CSDP.minimalSdp(monoNum, homo, hetero, approxSolution);
-            int sdpRes = CSDP.sdp(monoNum, homo, hetero, approxSolution);
+//            int sdpRes = CSDP.sdp(monoNum, homo, hetero, approxSolution);
             
             if (sdpRes == 0 //|| sdpRes == 3
                             ) {
                 System.out.println("Found an approximate solution!");
-                System.out.println(Arrays.toString(approxSolution));
+                System.out.println(Arrays.toString(smallApproxSolution));
                 
-                return approx2Exact(reducedPoly, consideredMonomials, approxSolution);
+                return approx2Exact(reducedPoly, consideredMonomials,
+                                    removedMonomials, smallApproxSolution);
             } else {
                 System.out.println("No solution");
                 return null;
@@ -800,23 +809,47 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 
     private static Square[] approx2Exact(SparsePolynomial reducedPoly,
                                          List<Arithmetic> consideredMonomials,
+                                         BitSet removedMonomials,
                                          double[] approxSolution) {
         final ValueFactory vf = Values.getDefault();
         final Vector exactHetero = vf.newInstance(reducedPoly.size());
         for (int i = 0; i < exactHetero.dimension(); ++i)
             exactHetero.set(i, vf.valueOf(i == 0 ? -1 : 0));
-        return approx2Exact(reducedPoly, consideredMonomials, approxSolution, exactHetero);
+        return approx2Exact(reducedPoly, consideredMonomials, removedMonomials,
+                            approxSolution, exactHetero);
     }
 
     public static Square[] approx2Exact(SparsePolynomial reducedPoly,
                                         List<Arithmetic> consideredMonomials,
-                                        double[] approxSolution, Vector inExactHetero) {
+                                        double[] approxSolution,
+                                        Vector sideConstraintRhss) {
+        return approx2Exact(reducedPoly, consideredMonomials, new BitSet (), approxSolution);
+    }
+        
+    public static Square[] approx2Exact(SparsePolynomial reducedPoly,
+                                        List<Arithmetic> consideredMonomials,
+                                        BitSet removedMonomials,
+                                        double[] approxSolution,
+                                        Vector sideConstraintRhss) {
         final ValueFactory vf = Values.getDefault();
-        final int monoNum = consideredMonomials.size();
+        final int monoNum = consideredMonomials.size() - removedMonomials.cardinality();
 
         System.out.println("Trying to recover an exact solution ...");
         final Matrix exactHomo =
-            reducedPoly.exactCoefficientComparison(monoNum);
+            reducedPoly.exactCoefficientComparison(consideredMonomials.size());
+        
+        // remove all parameters that we have set to 0
+        final int originalMonoNum = consideredMonomials.size();
+        int k = 0;
+        for (int i = 0; i < originalMonoNum; ++i)
+            for (int j = 0; j < originalMonoNum; ++j) {
+                if (removedMonomials.get(i) || removedMonomials.get(j))
+                    exactHomo.removeColumn(k);
+                else
+                    k = k + 1;
+            }
+        
+        assert (exactHomo.dimensions()[1] == monoNum * monoNum);
         
         // we add further constraints to ensure that the found solution
         // is a symmetric matrix
@@ -824,8 +857,8 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 
         final Vector exactHetero = vf.newInstance(exactHomo.dimensions()[0]);
         for (int i = 0; i < exactHetero.dimension(); ++i) {
-            if(i < inExactHetero.dimension()) {
-            	exactHetero.set(i, inExactHetero.get(i));
+            if(i < sideConstraintRhss.dimension()) {
+            	exactHetero.set(i, sideConstraintRhss.get(i));
             } else {
             	exactHetero.set(i, vf.valueOf(0));	
             }
@@ -866,17 +899,16 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
                 System.out.println(dec.D);
                 
                 // generate the certificate (actual squares of polynomials)
-                final Vector monomials =
-                    vf.newInstance(monoNum);
-                for (int i = 0; i < monoNum; ++i) {
-                    final Polynomial mono =
-                        vf.MONOMIAL(consideredMonomials.get(i));
-                    monomials.set(i, mono);
+                final Vector monomials = vf.newInstance(monoNum);
+                for (int i = 0, j = 0; i < consideredMonomials.size(); ++i) {
+                    if (removedMonomials.get(i))
+                        continue;
+                    monomials.set(j, vf.MONOMIAL(consideredMonomials.get(i)));
+                    j = j + 1;
                 }
 
                 final Polynomial zero =
-                    vf.MONOMIAL(vf.ZERO(),
-                                                 consideredMonomials.get(0).zero());
+                    vf.MONOMIAL(vf.ZERO(), consideredMonomials.get(0).zero());
                 
                 final Square[] res = new Square [monoNum];
                 for (int i = 0; i < monoNum; ++i) {
@@ -906,6 +938,12 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 
         final int height = matrixSize * (matrixSize - 1) / 2;
         final int width = matrixSize * matrixSize;
+        
+        if (height == 0)
+            // just return a zero-matrix so that we don't have to come back
+            // empty-handed
+            return vf.ZERO(1, width);
+        
         final Matrix res = vf.ZERO(height, width);
         
         // generate the constraints

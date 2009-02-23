@@ -250,9 +250,10 @@ public class CSDP {
     
     public static int solveAndMinimiseSdp(int matrixSize,
                                           double[] constraints, double[] constraintRhs,
-                                          double[] solution) {
+                                          double[] solution, BitSet removedRows) {
         assert (solution.length == matrixSize * matrixSize);
 
+        removedRows.clear();
         final double[] inpConstraints = makeTriangular(constraints, matrixSize);
 
         final int res = easiestSDP(matrixSize, inpConstraints, constraintRhs,
@@ -276,7 +277,6 @@ public class CSDP {
         // we try to remove rows/cols with small diagonal entries first
         final SolutionEntry[] diaEntries = sortDiagonalEntries(solution, matrixSize);
         
-        final BitSet removedRows = new BitSet ();
         double[] smallSolution = null;
         for (int l = 0;
              l < matrixSize && removedRows.cardinality() < matrixSize - 1;
@@ -325,13 +325,17 @@ public class CSDP {
         }
 
         if (removedRows.isEmpty())
-            // removed was not successful
+            // removal was not successful
             return res;
         
         System.out.println("Maximum set of cols/rows removable: " + removedRows);        
         System.out.println("Small solution: " + Arrays.toString(smallSolution));        
         
+        System.arraycopy(smallSolution, 0, solution, 0, smallSolution.length);
+        Arrays.fill(solution, smallSolution.length, solution.length, 0.0);
+        
         // reconstruct a complete solution by filling up with zeroes
+        /*
         final int newMatrixSize = matrixSize - removedRows.cardinality();
         final int newMatrixLength = newMatrixSize*newMatrixSize;
 
@@ -355,6 +359,7 @@ public class CSDP {
             
             newI = newI + 1;
         }
+        */
         
         return res;
     }

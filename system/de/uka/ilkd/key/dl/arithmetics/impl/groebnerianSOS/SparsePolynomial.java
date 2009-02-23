@@ -137,8 +137,8 @@ public class SparsePolynomial {
 	 */
 	public Matrix exactCoefficientComparison(int matrixSize) {
 		final int matrixLength = matrixSize * matrixSize;
-		final Matrix res = Values.getDefault().ZERO(polyTerms.size(),
-				matrixLength);
+		final Matrix res =
+		    Values.getDefault().ZERO(polyTerms.size(), matrixLength);
 
 		int row = 1;
 		for (Entry<Arithmetic, CoefficientTerm> entry : polyTerms.entrySet()) {
@@ -156,26 +156,26 @@ public class SparsePolynomial {
 	}
 
 	private void exactCopy2Array(CoefficientTerm term, Matrix m,
-			int matrixSize, int mRow) {
-		while (term != null) {
-			assert (term.variable >= 0 && term.variable < m.dimensions()[1]);
+			             int matrixSize, int mRow) {
+	    while (term != null) {
+	        assert (term.variable >= 0 && term.variable < m.dimensions()[1]);
 
-			final int col = column(term.variable);
-			final int row = row(term.variable, col);
+	        final int col = column(term.variable);
+	        final int row = row(term.variable, col);
 
-			final Arithmetic val;
-			if (col == row)
-				val = term.coefficient;
-			else
-				// because such parameters occur twice in the matrix, the
-				// coefficients have to be divided by 2
-				val = term.coefficient.divide(Values.getDefault().valueOf(2));
+	        final Arithmetic val;
+	        if (col == row)
+	            val = term.coefficient;
+	        else
+	            // because such parameters occur twice in the matrix, the
+	            // coefficients have to be divided by 2
+	            val = term.coefficient.divide(Values.getDefault().valueOf(2));
 
-			m.set(mRow, row * matrixSize + col, val);
-			m.set(mRow, col * matrixSize + row, val);
+	        m.set(mRow, row * matrixSize + col, val);
+	        m.set(mRow, col * matrixSize + row, val);
 
-			term = term.next;
-		}
+	        term = term.next;
+	    }
 	}
 
 	// Compute the column and row number, given a variable index (within the
