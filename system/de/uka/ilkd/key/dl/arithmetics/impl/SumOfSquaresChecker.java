@@ -564,10 +564,12 @@ public class SumOfSquaresChecker {
 					}
 					int first = currentParameter;
 					Set<java.lang.Integer> usedParameters = new HashSet<java.lang.Integer>();
+					List<Vector> consideredMonomials = new ArrayList<Vector>();
 					for (Vector p : monomials) {
+						consideredMonomials.add(p);
 						System.out.println("CurJumps: " + curJumps);
-						for (int i = 0; i < monomials.size(); ++i) {
-							final Arithmetic oldMono = monomials.get(i);
+						for (int i = 0; i < consideredMonomials.size(); ++i) {
+							final Arithmetic oldMono = consideredMonomials.get(i);
 							final Arithmetic combinedMonoExp = oldMono.add(p);
 							final Polynomial combinedMono;
 							
@@ -576,7 +578,7 @@ public class SumOfSquaresChecker {
 							// itself have to be taken times two (the matrix is
 							// symmetric,
 							// and we only consider one half of it)
-							if (i < monomials.size() - 1) {
+							if (i < consideredMonomials.size() - 1) {
 								combinedMono = vf
 										.MONOMIAL(two, combinedMonoExp);
 							} else {
@@ -602,7 +604,7 @@ public class SumOfSquaresChecker {
 					// now we have to shift the currentParameter such that we
 					// reach the next block on the diagonal
 					polyNum ++;
-					offset = polyNum * monomials.size()*3/2;
+					offset = polyNum * monomials.size()*3/2 -1 ;
 					currentParameter += offset - 1;
 				}
 
