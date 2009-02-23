@@ -836,19 +836,9 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 
         System.out.println("Trying to recover an exact solution ...");
         final Matrix exactHomo =
-            reducedPoly.exactCoefficientComparison(consideredMonomials.size());
-        
-        // remove all parameters that we have set to 0
-        final int originalMonoNum = consideredMonomials.size();
-        int k = 0;
-        for (int i = 0; i < originalMonoNum; ++i)
-            for (int j = 0; j < originalMonoNum; ++j) {
-                if (removedMonomials.get(i) || removedMonomials.get(j))
-                    exactHomo.removeColumn(k);
-                else
-                    k = k + 1;
-            }
-        
+            reducedPoly.exactCoefficientComparison(consideredMonomials.size(),
+                                                   removedMonomials);
+
         assert (exactHomo.dimensions()[1] == monoNum * monoNum);
         
         // we add further constraints to ensure that the found solution
