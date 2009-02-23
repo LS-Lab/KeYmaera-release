@@ -604,7 +604,7 @@ public class SumOfSquaresChecker {
 					// now we have to shift the currentParameter such that we
 					// reach the next block on the diagonal
 					polyNum ++;
-					offset = polyNum * monomials.size()*3/2 -1 ;
+					offset = polyNum * monomials.size() + 1;
 					currentParameter += offset - 1;
 				}
 
@@ -655,7 +655,7 @@ public class SumOfSquaresChecker {
 					}
 					qis.add(s);
 					nextH = nextH.add(s.multiply(hPoly));
-					offset = polyNum * monomials.size()*3/2;
+					offset = polyNum * monomials.size() + 1;
 					currentParameter +=  offset - 1;
 					polyNum ++;
 				}
