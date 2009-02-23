@@ -19,6 +19,7 @@
  ***************************************************************************/
 package de.uka.ilkd.key.dl.arithmetics.impl.groebnerianSOS;
 
+import java.util.BitSet;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.ListIterator;
@@ -61,7 +62,8 @@ public class SparsePolynomial {
 	 * Mapping from the exponents <code>ij</code> to the coefficient term
 	 * <code>tj</code>
 	 */
-	private final Map<Arithmetic, CoefficientTerm> polyTerms = new HashMap<Arithmetic, CoefficientTerm>();
+	private final Map<Arithmetic, CoefficientTerm> polyTerms =
+	    new HashMap<Arithmetic, CoefficientTerm>();
 
 	/**
 	 * Add the polynomial <code>variable * p</code> to this object
@@ -102,7 +104,8 @@ public class SparsePolynomial {
 	 * always put in the first place of the resulting array.
 	 */
 	public double[] coefficientComparison(int matrixSize) {
-		final Matrix constraints = exactCoefficientComparison(matrixSize);
+		final Matrix constraints =
+		    exactCoefficientComparison(matrixSize, new BitSet ());
 		final int matrixLength = matrixSize * matrixSize;
 		final double[] res = new double[matrixLength * polyTerms.size()];
 
@@ -128,26 +131,46 @@ public class SparsePolynomial {
 	 * </pre>
 	 * 
 	 * In order to represent the constraints, this matrix is linearised to a
-	 * vector <code>Q' = ( 0  1  3  ...  1  2  4  ...  3  4  5 .... ) ^t</code>. Each constraint is then a (row) vector of the same
+	 * vector <code>Q' = ( 0  1  3  ...  1  2  4  ...  3  4  5 .... ) ^t</code>.
+	 * Each constraint is then a (row) vector of the same
 	 * length, and the system of all constraints is a matrix with all the row
 	 * vectors.
 	 * 
 	 * The constraint generated for the constant term of the polynomial is
 	 * always put in the first row of the matrix.
+	 * 
+	 * Using the parameter <code>removedRows</code>, it is possible to
+	 * specify that certain rows/columns of the Q-matrix are supposed to be
+	 * suppressed
 	 */
-	public Matrix exactCoefficientComparison(int matrixSize) {
-		final int matrixLength = matrixSize * matrixSize;
-		final Matrix res = Values.getDefault().ZERO(polyTerms.size(),
-				matrixLength);
+	public Matrix exactCoefficientComparison(int matrixSize,
+	                                         BitSet removedRows) {
+	    final int smallMatrixSize = matrixSize - removedRows.cardinality();
+	    final int matrixLength = smallMatrixSize * smallMatrixSize;
+		final Matrix res =
+		    Values.getDefault().ZERO(polyTerms.size(), matrixLength);
 
+		// mapping from rows/columns of the complete Q-matrix to the
+		// rows/columns of the reduced Q-matrix
+		final int[] conversionMapping = new int [matrixSize];
+		for (int i = 0, j = 0; i < matrixSize; ++i)
+		    if (removedRows.get(i)) {
+		        conversionMapping[i] = -1;
+		    } else {
+		        conversionMapping[i] = j;
+		        j = j + 1;
+		    }
+		
 		int row = 1;
 		for (Entry<Arithmetic, CoefficientTerm> entry : polyTerms.entrySet()) {
 			if (entry.getKey().isZero()) {
 				// the constant term is always put in the first row
-				exactCopy2Array(entry.getValue(), res, matrixSize, 0);
+				exactCopy2Array(entry.getValue(), res, smallMatrixSize,
+				                conversionMapping, 0);
 			} else {
 				assert (row < polyTerms.size()) : "It was (wrongly) assumed that polynomials always have a constant term";
-				exactCopy2Array(entry.getValue(), res, matrixSize, row);
+				exactCopy2Array(entry.getValue(), res, smallMatrixSize,
+				                conversionMapping, row);
 				row = row + 1;
 			}
 		}
@@ -156,26 +179,31 @@ public class SparsePolynomial {
 	}
 
 	private void exactCopy2Array(CoefficientTerm term, Matrix m,
-			int matrixSize, int mRow) {
-		while (term != null) {
-			assert (term.variable >= 0 && term.variable < m.dimensions()[1]);
+			             int matrixSize,
+			             int[] conversionMapping,
+			             int mRow) {
+	    while (term != null) {
+	        final int col = column(term.variable);
+	        final int row = row(term.variable, col);
 
-			final int col = column(term.variable);
-			final int row = row(term.variable, col);
+	        final int ncol = conversionMapping[col];
+                final int nrow = conversionMapping[row];
+	        
+	        if (ncol >= 0 && nrow >= 0) {
+	            final Arithmetic val;
+	            if (ncol == nrow)
+	                val = term.coefficient;
+	            else
+	                // because such parameters occur twice in the matrix, the
+	                // coefficients have to be divided by 2
+	                val = term.coefficient.divide(Values.getDefault().valueOf(2));
 
-			final Arithmetic val;
-			if (col == row)
-				val = term.coefficient;
-			else
-				// because such parameters occur twice in the matrix, the
-				// coefficients have to be divided by 2
-				val = term.coefficient.divide(Values.getDefault().valueOf(2));
+	            m.set(mRow, nrow * matrixSize + ncol, val);
+	            m.set(mRow, ncol * matrixSize + nrow, val);
+	        }
 
-			m.set(mRow, row * matrixSize + col, val);
-			m.set(mRow, col * matrixSize + row, val);
-
-			term = term.next;
-		}
+	        term = term.next;
+	    }
 	}
 
 	// Compute the column and row number, given a variable index (within the

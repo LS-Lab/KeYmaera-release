@@ -42,9 +42,14 @@ public class FractionisingEquationSolver {
                                        Vector eqHeteros,
                                        double[] approxSolution,
                                        double eps) {
+        assert (eqCoefficients.dimensions()[1] == approxSolution.length);
+        
         this.eqCoefficients = eqCoefficients;
         this.eqHeteros = eqHeteros;
 
+        System.out.println("Precision of approx solution: " +
+                           eqCoefficients.multiply(Values.getDefault().valueOf(approxSolution)));
+        
         final ApproxSolutionEntry[] solEntries =
             new ApproxSolutionEntry [approxSolution.length];
         for (int i = 0; i < approxSolution.length; ++i)
