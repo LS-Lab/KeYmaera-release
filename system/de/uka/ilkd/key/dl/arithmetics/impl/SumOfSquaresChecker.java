@@ -503,6 +503,7 @@ public class SumOfSquaresChecker {
 				sumOfFs.add(one);
 				List<Polynomial> curF = new ArrayList<Polynomial>(classify.f);
 				System.out.println("curF " + curF);// XXX
+				int maxFDegree = 0;
 				for (int i = 0; i < curF.size(); i++) {
 					Combinatorical combinations = Combinatorical
 							.getCombinations(i + 1, curF.size(), true);
@@ -513,6 +514,9 @@ public class SumOfSquaresChecker {
 						for (int j = 0; j < com.length; j++) {
 							currentF = currentF.multiply(curF.get(com[j]));
 						}
+						if(currentF.degreeValue() > maxFDegree) {
+							maxFDegree = currentF.degreeValue();
+						}
 						sumOfFs.add(currentF);
 					}
 				}
@@ -521,7 +525,7 @@ public class SumOfSquaresChecker {
 				// We need sumOfFs.size() p_i's and classify.h.size() q_i's
 				List<Vector> monomials = new ArrayList<Vector>();
 				SimpleMonomialIterator monomialIterator = new SimpleMonomialIterator(
-						one.rank(), Math.max(nextG.degreeValue(), d) / 2);
+						one.rank(), (Math.max(nextG.degreeValue(), d) / 2) );
 				System.out.println("Degree of g is " + nextG.degreeValue());// XXX
 				System.out.println("g is " + nextG);// XXX
 				while (monomialIterator.hasNext()) {
@@ -537,12 +541,31 @@ public class SumOfSquaresChecker {
 				List<SparsePolynomial> pis = new ArrayList<SparsePolynomial>();
 				ValueFactory vf = Values.getDefault();
 				int currentParameter = 0;
-				int polynum = 1;
+				int polyNum = 0;
 				Arithmetic two = vf.rational(2);
 				SparsePolynomial nextF = new SparsePolynomial();
+				System.out.println("sumOfFs size: " + sumOfFs.size());
+				System.out.println("monomials size: " + monomials.size());
+				int offset = 1;
 				for (Polynomial nF : sumOfFs) {
 					SparsePolynomial s = new SparsePolynomial();
+					List<java.lang.Integer> curJumps = new ArrayList<java.lang.Integer>();
+					int skip = 0;
+					int orgSkip = 0;
+					for(int i = 0; i < monomials.size()*monomials.size(); i++) {
+						if(skip == 0) {
+							curJumps.add(offset);
+							orgSkip++;
+							skip = orgSkip;
+						} else {
+							skip--;
+							curJumps.add(1);
+						}
+					}
+					int first = currentParameter;
+					Set<java.lang.Integer> usedParameters = new HashSet<java.lang.Integer>();
 					for (Vector p : monomials) {
+						System.out.println("CurJumps: " + curJumps);
 						for (int i = 0; i < monomials.size(); ++i) {
 							final Arithmetic oldMono = monomials.get(i);
 							final Arithmetic combinedMonoExp = oldMono.add(p);
@@ -561,16 +584,26 @@ public class SumOfSquaresChecker {
 							}
 
 							s.addTerms(combinedMono, currentParameter);
-
-							currentParameter = currentParameter + 1;
+							usedParameters.add(currentParameter);
+							System.out.println("currentParameter: " + currentParameter);//XXX
+							currentParameter += curJumps.remove(0);
 						}
 					}
+					// fill up missing terms with zero
+					for(int i = first; i < currentParameter -1; i++) {
+						if(!usedParameters.contains(i)) {
+							System.out.println("adding " + i);
+							s.addTerms(vf.polynomial(new int[one.rank()]), i);
+						}
+					}
+					
 					pis.add(s);
 					nextF = nextF.add(s.multiply(nF));
 					// now we have to shift the currentParameter such that we
 					// reach the next block on the diagonal
-					currentParameter += monomials.size() * polynum;
-					polynum++;
+					polyNum ++;
+					offset = polyNum * monomials.size()*3/2;
+					currentParameter += offset - 1;
 				}
 
 				System.out.println("nextF is " + nextF);// XXX
@@ -583,6 +616,19 @@ public class SumOfSquaresChecker {
 				List<SparsePolynomial> qis = new ArrayList<SparsePolynomial>();
 				for (Polynomial hPoly : classify.h) {
 					SparsePolynomial s = new SparsePolynomial();
+					List<java.lang.Integer> curJumps = new ArrayList<java.lang.Integer>();
+					int skip = 0;
+					int orgSkip = 0;
+					for(int i = 0; i < monomials.size(); i++) {
+						if(skip == 0) {
+							curJumps.add(offset);
+							orgSkip++;
+							skip = orgSkip;
+						} else {
+							skip--;
+							curJumps.add(1);
+						}
+					}
 					for (Vector p : monomials) {
 						for (int i = 0; i < monomials.size(); ++i) {
 							final Arithmetic oldMono = monomials.get(i);
@@ -607,8 +653,9 @@ public class SumOfSquaresChecker {
 					}
 					qis.add(s);
 					nextH = nextH.add(s.multiply(hPoly));
-					currentParameter += 3 * polynum;
-					polynum++;
+					offset = polyNum * monomials.size()*3/2;
+					currentParameter +=  offset - 1;
+					polyNum ++;
 				}
 				// now we can add nextF and nextH, we cannot represent nextG as
 				// SparsePolynomial, as it is not parametric

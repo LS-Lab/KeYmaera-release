@@ -28,6 +28,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.Map.Entry;
 
+import orbital.math.AlgebraicAlgorithms;
 import orbital.math.Arithmetic;
 import orbital.math.Matrix;
 import orbital.math.Polynomial;
@@ -63,7 +64,7 @@ public class SparsePolynomial {
 	 * <code>tj</code>
 	 */
 	private final Map<Arithmetic, CoefficientTerm> polyTerms =
-	    new HashMap<Arithmetic, CoefficientTerm>();
+	    new TreeMap<Arithmetic, CoefficientTerm>(AlgebraicAlgorithms.DEGREE_REVERSE_LEXICOGRAPHIC);
 
 	/**
 	 * Add the polynomial <code>variable * p</code> to this object
