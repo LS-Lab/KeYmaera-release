@@ -426,8 +426,8 @@ public class HypotheticalProvabilityFeature implements Feature {
 		// goal.proof().getServices().getNamespaces().startProtocol(); and
 		// introduce remove later on
 		// and use appropriate Services.setBackCounters.
-		NamespaceSet copy = null;
-		assert (copy = goal.proof().getServices().getNamespaces().copy()) != null;
+		NamespaceSet copy = goal.proof().getServices().getNamespaces().copy();
+		assert copy != null;
 		Proof hypothetic = newHypotheticalProofFor(goal, timeout);
 		Goal hgoal = hypothetic.getGoal(hypothetic.root());
 		if (!app.complete()) {
