@@ -368,7 +368,7 @@ public abstract class PolynomTool {
 		final Function mult = RealLDT.getFunctionFor(Mult.class);
 		final Function exp = RealLDT.getFunctionFor(Exp.class);
 		final Function plus = RealLDT.getFunctionFor(Plus.class);
-
+System.out.println("Converting " + p);
 		ListIterator coefficients = p.iterator();
 		Iterator indices = p.indices();
 		Term result = null;
@@ -416,6 +416,10 @@ public abstract class PolynomTool {
 						result = summand;
 					}
 				} else {
+					if (summand == null && ((Arithmetic) coefficient).isOne()) {
+						summand = one;
+					}
+					System.out.println("adding " + result + " + " + summand);
 					result = TermBuilder.DF.func(plus, result, summand);
 				}
 			}
