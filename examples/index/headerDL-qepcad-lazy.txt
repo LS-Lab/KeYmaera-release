@@ -100,5 +100,6 @@
 [DLOptions]applyLocalSimplify=false
 [DLOptions]applyGlobalReduce=true
 [DLOptions]quantifierEliminator=QepCad
+[OrbitalOptions]sparsePolynomials=true
 "
 }

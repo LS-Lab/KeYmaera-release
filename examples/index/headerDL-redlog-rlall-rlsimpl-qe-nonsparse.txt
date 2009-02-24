@@ -96,10 +96,10 @@
 [DLOptions]FOStrategy=LAZY
 [ReduceOptions]rlqepnf=DEFAULT
 [ReduceOptions]rlsimpl=ON
-[DLOptions]applyLocalReduce=EXISTENTIAL
+[DLOptions]applyLocalReduce=OFF
 [DLOptions]applyLocalSimplify=false
-[DLOptions]applyGlobalReduce=false
-[DLOptions]quantifierEliminator=Mathematica
-[OrbitalOptions]sparsePolynomials=true
+[DLOptions]applyGlobalReduce=true
+[DLOptions]quantifierEliminator=Reduce
+[OrbitalOptions]sparsePolynomials=false
 "
 }

@@ -73,7 +73,7 @@
 [ReduceOptions]rlcadhongproj=DEFAULT
 [MathematicaOptions]memoryConstraint=-1
 [ReduceOptions]rlcadtrimtree=DEFAULT
-[DLOptions]groebnerBasisCalculator=Mathematica
+[DLOptions]groebnerBasisCalculator=Groebnerian SOS
 [ReduceOptions]rlcadfac=DEFAULT
 [Strategy]Timeout=-1
 [OrbitalOptions]representation=big
@@ -100,6 +100,6 @@
 [DLOptions]applyLocalSimplify=false
 [DLOptions]applyGlobalReduce=false
 [DLOptions]quantifierEliminator=Mathematica
-[OrbitalOptions]sparsePolynomials=true
+[OrbitalOptions]sparsePolynomials=false
 "
 }
