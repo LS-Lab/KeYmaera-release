@@ -25,7 +25,7 @@
 [ReduceOptions]rlcadrawformula=DEFAULT
 [SimultaneousUpdateSimplifier]DeleteEffectLessLocations=true
 [ReduceOptions]reduceBinary=/home/user/jdq/space/local/src/reduce-algebra/bin/reduce
-[ReduceOptions]quantifierEliminationMethod=RLQE
+[ReduceOptions]quantifierEliminationMethod=RLCAD
 [DLOptions]DiffSat=AUTO
 [DLOptions]simplifier=Mathematica
 [StrategyProperty]QUERY_OPTIONS_KEY=QUERY_NONE
@@ -96,10 +96,10 @@
 [DLOptions]FOStrategy=LAZY
 [ReduceOptions]rlqepnf=DEFAULT
 [ReduceOptions]rlsimpl=ON
-[DLOptions]applyLocalReduce=EXISTENTIAL
+[DLOptions]applyLocalReduce=OFF
 [DLOptions]applyLocalSimplify=false
-[DLOptions]applyGlobalReduce=false
-[DLOptions]quantifierEliminator=Mathematica
-[OrbitalOptions]sparsePolynomials=true
+[DLOptions]applyGlobalReduce=true
+[DLOptions]quantifierEliminator=Reduce
+[OrbitalOptions]sparsePolynomials=false
 "
 }

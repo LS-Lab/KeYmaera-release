@@ -81,7 +81,7 @@
 [Model]Source=1
 [DLOptions]BuiltInArithmetic=FULL
 [View]ShowWholeTaclet=false
-[DLOptions]counterexampleTest=ON
+[DLOptions]counterexampleTest=OFF
 [StrategyProperty]NON_LIN_ARITH_OPTIONS_KEY=NON_LIN_ARITH_NONE
 [ReduceOptions]rlcadisoallroots=DEFAULT
 [MathematicaOptions]quantifierEliminationMethod=REDUCE
@@ -100,5 +100,6 @@
 [DLOptions]applyLocalSimplify=false
 [DLOptions]applyGlobalReduce=false
 [DLOptions]quantifierEliminator=Mathematica
+[OrbitalOptions]sparsePolynomials=true
 "
 }

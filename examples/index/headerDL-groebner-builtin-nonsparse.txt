@@ -73,13 +73,13 @@
 [ReduceOptions]rlcadhongproj=DEFAULT
 [MathematicaOptions]memoryConstraint=-1
 [ReduceOptions]rlcadtrimtree=DEFAULT
-[DLOptions]groebnerBasisCalculator=Mathematica
+[DLOptions]groebnerBasisCalculator=-
 [ReduceOptions]rlcadfac=DEFAULT
 [Strategy]Timeout=-1
 [OrbitalOptions]representation=big
 [SimultaneousUpdateSimplifier]EagerSimplification=true
 [Model]Source=1
-[DLOptions]BuiltInArithmetic=OFF
+[DLOptions]BuiltInArithmetic=FULL
 [View]ShowWholeTaclet=false
 [DLOptions]counterexampleTest=OFF
 [StrategyProperty]NON_LIN_ARITH_OPTIONS_KEY=NON_LIN_ARITH_NONE
@@ -100,6 +100,6 @@
 [DLOptions]applyLocalSimplify=false
 [DLOptions]applyGlobalReduce=false
 [DLOptions]quantifierEliminator=Mathematica
-[OrbitalOptions]sparsePolynomials=true
+[OrbitalOptions]sparsePolynomials=false
 "
 }
