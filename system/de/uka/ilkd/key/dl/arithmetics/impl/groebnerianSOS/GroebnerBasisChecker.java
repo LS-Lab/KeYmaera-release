@@ -823,7 +823,7 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
                                         List<Arithmetic> consideredMonomials,
                                         double[] approxSolution,
                                         Vector sideConstraintRhss) {
-        return approx2Exact(reducedPoly, consideredMonomials, new BitSet (), approxSolution);
+        return approx2Exact(reducedPoly, consideredMonomials, new BitSet (), approxSolution, sideConstraintRhss);
     }
         
     public static Square[] approx2Exact(SparsePolynomial reducedPoly,
@@ -845,6 +845,7 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
         // is a symmetric matrix
         exactHomo.insertRows(symmetryConstraints(monoNum));
 
+        System.out.println("sideConstraintRhss: " + sideConstraintRhss);//XXX
         final Vector exactHetero = vf.newInstance(exactHomo.dimensions()[0]);
         for (int i = 0; i < exactHetero.dimension(); ++i) {
             if(i < sideConstraintRhss.dimension()) {
@@ -853,7 +854,7 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
             	exactHetero.set(i, vf.valueOf(0));	
             }
         }
-        
+        System.out.println("hetero exact: " + exactHetero);//XXX
         double eps = 1;
         
         while (eps > 1e-6) {
