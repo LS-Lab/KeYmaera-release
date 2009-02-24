@@ -36,6 +36,7 @@ import de.uka.ilkd.key.dl.arithmetics.impl.SumOfSquaresChecker.PolynomialClassif
 import de.uka.ilkd.key.dl.logic.ldt.RealLDT;
 import de.uka.ilkd.key.dl.model.Exp;
 import de.uka.ilkd.key.dl.model.Minus;
+import de.uka.ilkd.key.dl.model.Mult;
 import de.uka.ilkd.key.dl.parser.NumberCache;
 import de.uka.ilkd.key.dl.strategy.features.FOSequence;
 import de.uka.ilkd.key.java.Services;
@@ -79,7 +80,7 @@ public class GroebnerBasisRule implements SequentWideBuiltInRule, RuleFilter {
 	 * (non-Javadoc)
 	 * 
 	 * @see de.uka.ilkd.key.rule.Rule#apply(de.uka.ilkd.key.proof.Goal,
-	 *      de.uka.ilkd.key.java.Services, de.uka.ilkd.key.rule.RuleApp)
+	 * de.uka.ilkd.key.java.Services, de.uka.ilkd.key.rule.RuleApp)
 	 */
 	public synchronized ListOfGoal apply(Goal goal, Services services,
 			RuleApp ruleApp) {
@@ -104,7 +105,8 @@ public class GroebnerBasisRule implements SequentWideBuiltInRule, RuleFilter {
 
 			if (m != null) {
 				try {
-					// we will rewrite the terms of the form f(x) >= 0 to f(x) = z^2 and add
+					// we will rewrite the terms of the form f(x) >= 0 to f(x) =
+					// z^2 and add
 					// them to h for this Groebner basis check
 
 					// first get |f| new names and construct their squares
@@ -112,10 +114,12 @@ public class GroebnerBasisRule implements SequentWideBuiltInRule, RuleFilter {
 					String basename = "neu";
 					Queue<Term> squares = new LinkedList<Term>();
 					Sort r = RealLDT.getRealSort();
-					Term zero = TermBuilder.DF.func(NumberCache.getNumber(new BigDecimal(0),
-							r));
-					Term two = TermBuilder.DF.func(NumberCache.getNumber(new BigDecimal(2),
-							r));
+					Term zero = TermBuilder.DF.func(NumberCache.getNumber(
+							new BigDecimal(0), r));
+					Term one = TermBuilder.DF.func(NumberCache.getNumber(
+							new BigDecimal(1), r));
+					Term two = TermBuilder.DF.func(NumberCache.getNumber(
+							new BigDecimal(2), r));
 					de.uka.ilkd.key.logic.op.Function exp = RealLDT
 							.getFunctionFor(Exp.class);
 					while (squares.size() < classify.f.size()) {
@@ -128,12 +132,18 @@ public class GroebnerBasisRule implements SequentWideBuiltInRule, RuleFilter {
 					}
 					de.uka.ilkd.key.logic.op.Function sub = RealLDT
 							.getFunctionFor(Minus.class);
-					
+					de.uka.ilkd.key.logic.op.Function mul = RealLDT
+							.getFunctionFor(Mult.class);
+
 					// now we add the new equations
 					for (Term t : classify.f) {
-						classify.h.add(TermBuilder.DF.equals(TermBuilder.DF.func(sub, t.sub(0), squares.poll()), zero));
+						 classify.h.add(TermBuilder.DF.equals(TermBuilder.DF.func(sub,
+						 t.sub(0), squares.poll()), zero));
+//						classify.h.add(TermBuilder.DF.equals(TermBuilder.DF
+//								.func(mul, t.sub(0), squares.poll()), one));
 					}
-					// and clear all inequalities, as we do not need them anymore
+					// and clear all inequalities, as we do not need them
+					// anymore
 					classify.f.clear();
 					if (m.checkForConstantGroebnerBasis(classify, services)) {
 						return SLListOfGoal.EMPTY_LIST;
@@ -151,31 +161,32 @@ public class GroebnerBasisRule implements SequentWideBuiltInRule, RuleFilter {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see de.uka.ilkd.key.rule.BuiltInRule#isApplicable(de.uka.ilkd.key.proof.Goal,
-	 *      de.uka.ilkd.key.logic.PosInOccurrence,
-	 *      de.uka.ilkd.key.logic.Constraint)
+	 * @see
+	 * de.uka.ilkd.key.rule.BuiltInRule#isApplicable(de.uka.ilkd.key.proof.Goal,
+	 * de.uka.ilkd.key.logic.PosInOccurrence, de.uka.ilkd.key.logic.Constraint)
 	 */
-	/*@Override*/
+	/* @Override */
 	public boolean isApplicable(Goal goal, Constraint userConstraint) {
 		// TODO jdq: insert application test
-		if(!MathSolverManager.isGroebnerBasisCalculatorSet()) {
+		if (!MathSolverManager.isGroebnerBasisCalculatorSet()) {
 			return false;
 		}
 		final boolean[] result = new boolean[1];
 		result[0] = true;
 		Visitor visitor = new Visitor() {
 
-			/*@Override*/
+			/* @Override */
 			public void visit(Term visited) {
-				if(visited.op() == Op.ALL || visited.op() == Op.EX || !FOSequence.isFOOperator(visited.op())) {
+				if (visited.op() == Op.ALL || visited.op() == Op.EX
+						|| !FOSequence.isFOOperator(visited.op())) {
 					result[0] = false;
 				}
 			}
-			
+
 		};
-		for(ConstrainedFormula f: goal.sequent()) {
+		for (ConstrainedFormula f : goal.sequent()) {
 			visitor.visit(f.formula());
-			if(!result[0]) {
+			if (!result[0]) {
 				return false;
 			}
 		}
@@ -183,8 +194,8 @@ public class GroebnerBasisRule implements SequentWideBuiltInRule, RuleFilter {
 	}
 
 	public boolean isApplicable(Goal goal, PosInOccurrence pio,
-	                           Constraint userConstraint) {
-	    return isApplicable(goal, userConstraint);
+			Constraint userConstraint) {
+		return isApplicable(goal, userConstraint);
 	}
 
 	/*
@@ -192,7 +203,7 @@ public class GroebnerBasisRule implements SequentWideBuiltInRule, RuleFilter {
 	 * 
 	 * @see de.uka.ilkd.key.rule.Rule#displayName()
 	 */
-	/*@Override*/
+	/* @Override */
 	public String displayName() {
 		return "Groebner Basis";
 	}
@@ -202,15 +213,17 @@ public class GroebnerBasisRule implements SequentWideBuiltInRule, RuleFilter {
 	 * 
 	 * @see de.uka.ilkd.key.rule.Rule#name()
 	 */
-	/*@Override*/
+	/* @Override */
 	public Name name() {
 		return new Name("Groebner Basis");
 	}
-	
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#toString()
 	 */
-	/*@Override*/
+	/* @Override */
 	public String toString() {
 		return displayName();
 	}
@@ -220,7 +233,7 @@ public class GroebnerBasisRule implements SequentWideBuiltInRule, RuleFilter {
 	 * 
 	 * @see de.uka.ilkd.key.proof.RuleFilter#filter(de.uka.ilkd.key.rule.Rule)
 	 */
-	/*@Override*/
+	/* @Override */
 	public boolean filter(Rule rule) {
 		return rule instanceof GroebnerBasisRule;
 	}

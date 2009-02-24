@@ -60,9 +60,6 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 			PolynomialClassification<Term> terms, Services services) {
 		PolynomialClassification<Polynomial> classify2 = SumOfSquaresChecker.INSTANCE
 				.classify(terms, true);
-		if(classify2.h.isEmpty()) {
-			return false;
-		}
 		System.out.println("H is: ");
 		for (Polynomial p : classify2.h) {
 			System.out.println(p);
@@ -70,6 +67,13 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 		System.out.println("G is: ");
 		for (Polynomial p : classify2.g) {
 			System.out.println(p);
+			if(p.isZero()) {
+				// we found a contradiction 0 != 0
+				return true;
+			}
+		}
+		if(classify2.h.isEmpty()) {
+			return false;
 		}
 		// we try to get a contradiction by computing the groebner basis of all
 		// the equalities. if the common basis contains a constant part, the

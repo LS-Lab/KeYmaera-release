@@ -810,6 +810,18 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 		}
 		for (Term t : terms.g) {
 			Expr left = Term2ExprConverter.convert2Expr(t.sub(0));
+			try {
+				if(simplify(t, new HashSet<Term>(), services.getNamespaces()).equals(TermBuilder.DF.ff())) {
+					// found a contradiction of the form 0 != 0
+					return true;
+				}
+			} catch (RemoteException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (SolverException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			// as != is symetric we might need to add the right side of the
 			// inequality
 			if (left.toString().equals("0")) {
