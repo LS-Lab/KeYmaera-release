@@ -23,14 +23,6 @@ import de.uka.ilkd.key.logic.op.Quantifier;
  */
 public class Term2QepCadConverter {
 
-	/**
-	 * 
-	 */
-	static final String TRUE = "TRUE";
-	/**
-	 * 
-	 */
-	static final String FALSE = "FALSE";
 	static final String USCOREESCAPE = "uscore";
 	static final String DOLLARESCAPE = "dollar";
 	private QepCadInput input = new QepCadInput(); // Result
@@ -107,9 +99,9 @@ public class Term2QepCadConverter {
 	private String convert2String(Term form, NamespaceSet nss,
 			boolean eliminateFractions) {
 		if (form.op() == Op.FALSE) {
-			return FALSE;
+			return "0 = 1";
 		} else if (form.op() == Op.TRUE) {
-			return TRUE;
+			return "0 = 0";
 		} else if (form.op().name().toString().equals("equals")) {
 			if (eliminateFractions) {
 				return convert2String(PolynomTool

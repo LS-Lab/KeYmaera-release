@@ -62,10 +62,10 @@ public class QepCad implements IQuantifierEliminator {
 				result.getVariables());
 		System.out.println("PRENEX : Formula send to QEPCAD: "
 				+ input.getFormula());
-		if (input.getFormula().equals("[ " + Term2QepCadConverter.TRUE + " ].")) {
+		if (input.getFormula().equals("[ TRUE ].")) {
 			return TermBuilder.DF.tt();
 		} else if (input.getFormula().equals(
-				"[ " + Term2QepCadConverter.FALSE + " ].")) {
+				"[ FALSE ].")) {
 			return TermBuilder.DF.ff();
 		}
 		String res = ProgramCommunicator.start(input, stopper);
