@@ -190,11 +190,11 @@ public class Term2QepCadConverter {
 						+ convert2String(form.sub(1), nss, eliminateFractions)
 						+ "))";
 			} else if (f.name().toString().equals("exp")) {
-				return "("
+				return "(("
 						+ convert2String(form.sub(0), nss, eliminateFractions)
-						+ ")^("
+						+ ")^"
 						+ convert2String(form.sub(1), nss, eliminateFractions)
-						+ "))";
+						+ ")";
 			} else {
 				String[] args = new String[form.arity()];
 				for (int i = 0; i < args.length; i++) {
