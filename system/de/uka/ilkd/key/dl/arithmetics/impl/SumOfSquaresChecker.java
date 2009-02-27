@@ -514,7 +514,7 @@ public class SumOfSquaresChecker {
 						for (int j = 0; j < com.length; j++) {
 							currentF = currentF.multiply(curF.get(com[j]));
 						}
-						if(currentF.degreeValue() > maxFDegree) {
+						if (currentF.degreeValue() > maxFDegree) {
 							maxFDegree = currentF.degreeValue();
 						}
 						sumOfFs.add(currentF);
@@ -525,7 +525,7 @@ public class SumOfSquaresChecker {
 				// We need sumOfFs.size() p_i's and classify.h.size() q_i's
 				List<Vector> monomials = new ArrayList<Vector>();
 				SimpleMonomialIterator monomialIterator = new SimpleMonomialIterator(
-						one.rank(), (Math.max(nextG.degreeValue(), d) / 2) );
+						one.rank(), (Math.max(nextG.degreeValue(), d) / 2));
 				System.out.println("Degree of g is " + nextG.degreeValue());// XXX
 				System.out.println("g is " + nextG);// XXX
 				while (monomialIterator.hasNext()) {
@@ -552,8 +552,8 @@ public class SumOfSquaresChecker {
 					List<java.lang.Integer> curJumps = new ArrayList<java.lang.Integer>();
 					int skip = 0;
 					int orgSkip = 0;
-					for(int i = 0; i < monomials.size()*monomials.size(); i++) {
-						if(skip == 0) {
+					for (int i = 0; i < monomials.size() * monomials.size(); i++) {
+						if (skip == 0) {
 							curJumps.add(offset);
 							orgSkip++;
 							skip = orgSkip;
@@ -563,16 +563,17 @@ public class SumOfSquaresChecker {
 						}
 					}
 					int first = currentParameter;
-					Set<java.lang.Integer> usedParameters = new HashSet<java.lang.Integer>();
+//					Set<java.lang.Integer> usedParameters = new HashSet<java.lang.Integer>();
 					List<Vector> consideredMonomials = new ArrayList<Vector>();
 					for (Vector p : monomials) {
 						consideredMonomials.add(p);
 						System.out.println("CurJumps: " + curJumps);
 						for (int i = 0; i < consideredMonomials.size(); ++i) {
-							final Arithmetic oldMono = consideredMonomials.get(i);
+							final Arithmetic oldMono = consideredMonomials
+									.get(i);
 							final Arithmetic combinedMonoExp = oldMono.add(p);
 							final Polynomial combinedMono;
-							
+
 							// all products but the product of
 							// <code>newMono</code> with
 							// itself have to be taken times two (the matrix is
@@ -586,24 +587,25 @@ public class SumOfSquaresChecker {
 							}
 
 							s.addTerms(combinedMono, currentParameter);
-							usedParameters.add(currentParameter);
-							System.out.println("currentParameter: " + currentParameter);//XXX
+//							usedParameters.add(currentParameter);
+//							System.out.println("currentParameter: "
+//									+ currentParameter);// XXX
 							currentParameter += curJumps.remove(0);
 						}
 					}
 					// fill up missing terms with zero
-					for(int i = first; i < currentParameter -1; i++) {
-						if(!usedParameters.contains(i)) {
-							System.out.println("adding " + i);
-							s.addTerms(vf.polynomial(new int[one.rank()]), i);
-						}
-					}
-					
+//					for (int i = first; i < currentParameter - 1; i++) {
+//						if (!usedParameters.contains(i)) {
+//							System.out.println("adding " + i);
+//							s.addTerms(vf.polynomial(new int[one.rank()]), i);
+//						}
+//					}
+
 					pis.add(s);
 					nextF = nextF.add(s.multiply(nF));
 					// now we have to shift the currentParameter such that we
 					// reach the next block on the diagonal
-					polyNum ++;
+					polyNum++;
 					offset = polyNum * monomials.size() + 1;
 					currentParameter += offset - 1;
 				}
@@ -621,8 +623,8 @@ public class SumOfSquaresChecker {
 					List<java.lang.Integer> curJumps = new ArrayList<java.lang.Integer>();
 					int skip = 0;
 					int orgSkip = 0;
-					for(int i = 0; i < monomials.size(); i++) {
-						if(skip == 0) {
+					for (int i = 0; i < monomials.size(); i++) {
+						if (skip == 0) {
 							curJumps.add(offset);
 							orgSkip++;
 							skip = orgSkip;
@@ -656,8 +658,8 @@ public class SumOfSquaresChecker {
 					qis.add(s);
 					nextH = nextH.add(s.multiply(hPoly));
 					offset = polyNum * monomials.size() + 1;
-					currentParameter +=  offset - 1;
-					polyNum ++;
+					currentParameter += offset - 1;
+					polyNum++;
 				}
 				// now we can add nextF and nextH, we cannot represent nextG as
 				// SparsePolynomial, as it is not parametric
@@ -691,12 +693,14 @@ public class SumOfSquaresChecker {
 				}
 
 				System.out.println("f+h = " + fh);// XXX
-				int matrixSize = monomials.size()*sumOfFs.size()+monomials.size()*classify.h.size();
+				int matrixSize = monomials.size() * sumOfFs.size()
+						+ monomials.size() * classify.h.size();
 				System.out.println("matrix size: " + matrixSize);
 				double[] homo = fh.coefficientComparison(matrixSize);
 				final double[] hetero = new double[fh.size()];
 
-				final double[] approxSolution = new double[matrixSize * matrixSize];
+				final double[] approxSolution = new double[matrixSize
+						* matrixSize];
 				// the solution vector has to be zero except at those positions
 				// where g contains the same monomial it has to be the additive
 				// inverse of coefficient in g
@@ -735,7 +739,9 @@ public class SumOfSquaresChecker {
 					System.out.println(Arrays.toString(approxSolution));
 
 					final Square[] cert = GroebnerBasisChecker.approx2Exact(fh,
-							convertToMonomList(monomials, sumOfFs.size() + classify.h.size()), approxSolution, exactHetero);
+							convertToMonomList(monomials, sumOfFs.size()
+									+ classify.h.size()), approxSolution,
+							exactHetero);
 					if (cert != null) {
 						// check that the certificate is correct
 
@@ -770,12 +776,12 @@ public class SumOfSquaresChecker {
 
 	/**
 	 * @param monomials
-	 * @return
-	 * TODO documentation since Feb 23, 2009
+	 * @return TODO documentation since Feb 23, 2009
 	 */
-	private List<Arithmetic> convertToMonomList(List<Vector> monomials, int count) {
+	private List<Arithmetic> convertToMonomList(List<Vector> monomials,
+			int count) {
 		List<Arithmetic> result = new ArrayList<Arithmetic>();
-		for(int i = 0; i < count; i++) {
+		for (int i = 0; i < count; i++) {
 			result.addAll(monomials);
 		}
 		return result;
