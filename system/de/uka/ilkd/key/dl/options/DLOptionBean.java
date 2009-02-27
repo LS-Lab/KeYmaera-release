@@ -178,6 +178,26 @@ public class DLOptionBean implements Settings {
 		}
 	}
 
+        public static enum BuiltInArithmeticIneqs {
+            OFF("off"), FOURIER_MOTZKIN("Fourier-Motzkin");
+
+            private String string;
+
+            private BuiltInArithmeticIneqs(String str) {
+                    this.string = str;
+            }
+
+            /*
+             * (non-Javadoc)
+             * 
+             * @see java.lang.Enum#toString()
+             */
+            /* @Override */
+            public String toString() {
+                    return string;
+            }
+    }
+
 	/**
 	 * 
 	 */
@@ -251,6 +271,7 @@ public class DLOptionBean implements Settings {
 	private static final String DLOPTIONS_PERCENT_OF_POWERSET_FOR_ITERATIVE_REDUCE = "[DLOptions]percentOfPowersetForIterativeReduce";
 
 	private static final String DLOPTIONS_BUILT_IN_ARITHMETIC = "[DLOptions]BuiltInArithmetic";
+        private static final String DLOPTIONS_BUILT_IN_ARITHMETIC_INEQS = "[DLOptions]BuiltInArithmeticIneqs";
 
 	private Set<Settings> subOptions;
 
@@ -317,6 +338,7 @@ public class DLOptionBean implements Settings {
 	private int percentOfPowersetForReduce;
 
 	private BuiltInArithmetic builtInArithmetic;
+        private BuiltInArithmeticIneqs builtInArithmeticIneqs;
 
 	private DLOptionBean() {
 		subOptions = new LinkedHashSet<Settings>();
@@ -351,6 +373,7 @@ public class DLOptionBean implements Settings {
 		usePowersetIterativeReduce = true;
 		percentOfPowersetForReduce = 70;
 		builtInArithmetic = BuiltInArithmetic.OFF;
+                builtInArithmeticIneqs = BuiltInArithmeticIneqs.OFF;
 
 		listeners = new HashSet<SettingsListener>();
 	}
@@ -536,7 +559,9 @@ public class DLOptionBean implements Settings {
 		}
 		groebnerBasisCalculator = props
 				.getProperty(DLOPTIONS_GROEBNER_BASIS_CALCULATOR);
-		if (groebnerBasisCalculator == null) {
+/*
+ *   HACK: this causes infinity loop
+ * 		if (groebnerBasisCalculator == null) {
 			setGroebnerBasisCalculator("");
 		} else if (!(MathSolverManager.getGroebnerBasisCalculators()
 				.contains(groebnerBasisCalculator))
@@ -547,7 +572,7 @@ public class DLOptionBean implements Settings {
 			} else {
 				setGroebnerBasisCalculator("-");
 			}
-		}
+		} */
 		property = props.getProperty(DLOPTIONS_APPLY_GAMMA_RULES);
 		if (property != null) {
 			applyGammaRules = ApplyRules.valueOf(property);
@@ -628,6 +653,11 @@ public class DLOptionBean implements Settings {
 		if (property != null) {
 			builtInArithmetic = BuiltInArithmetic.valueOf(property);
 		}
+
+                property = props.getProperty(DLOPTIONS_BUILT_IN_ARITHMETIC_INEQS);
+                if (property != null) {
+                        builtInArithmeticIneqs = BuiltInArithmeticIneqs.valueOf(property);
+                }
 	}
 
 	/*
@@ -712,6 +742,8 @@ public class DLOptionBean implements Settings {
 				"" + percentOfPowersetForReduce);
 		props.setProperty(DLOPTIONS_BUILT_IN_ARITHMETIC, builtInArithmetic
 				.name());
+                props.setProperty(DLOPTIONS_BUILT_IN_ARITHMETIC_INEQS, builtInArithmeticIneqs
+                                .name());
 	}
 
 	public void addSubOptionBean(Settings sub) {
@@ -828,7 +860,8 @@ public class DLOptionBean implements Settings {
 	public boolean isNormalizeEquations() {
 		return builtInArithmetic == BuiltInArithmetic.NORMALISE_EQUATIONS
 				|| builtInArithmetic == BuiltInArithmetic.REDUCTION
-				|| builtInArithmetic == BuiltInArithmetic.FULL;
+				|| builtInArithmetic == BuiltInArithmetic.FULL
+				|| builtInArithmeticIneqs == BuiltInArithmeticIneqs.FOURIER_MOTZKIN;
 	}
 
 	public boolean isArithmeticReduction() {
@@ -839,6 +872,10 @@ public class DLOptionBean implements Settings {
 	public boolean isArithmeticSaturation() {
 		return builtInArithmetic == BuiltInArithmetic.FULL;
 	}
+
+        public boolean isFourierMotzkin() {
+            return builtInArithmeticIneqs == BuiltInArithmeticIneqs.FOURIER_MOTZKIN;
+        }
 
 	/**
 	 * @return the applyUpdatesToModalities
@@ -1070,6 +1107,15 @@ public class DLOptionBean implements Settings {
 		this.builtInArithmetic = builtInArithmetic;
 		firePropertyChanged();
 	}
+
+        public BuiltInArithmeticIneqs getBuiltInArithmeticIneqs() {
+            return builtInArithmeticIneqs;
+        }
+
+        public void setBuiltInArithmeticIneqs(BuiltInArithmeticIneqs builtInArithmetic) {
+            this.builtInArithmeticIneqs = builtInArithmetic;
+            firePropertyChanged();
+        }
 
 	/**
 	 * @return the termFactory

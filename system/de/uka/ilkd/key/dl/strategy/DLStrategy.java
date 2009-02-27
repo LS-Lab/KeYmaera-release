@@ -694,7 +694,7 @@ public class DLStrategy extends AbstractFeatureStrategy implements
             bindRuleSet ( d, "inEqSimp_directInEquations", inftyConst() );
             bindRuleSet ( d, "inEqSimp_pullOutGcd", inftyConst() );
         }
-        if (DLOptionBean.INSTANCE.isArithmeticReduction()) {
+        if (DLOptionBean.INSTANCE.isFourierMotzkin()) {
             bindRuleSet ( d, "inEqSimp_propagation", -2500 );
             bindRuleSet ( d, "inEqSimp_saturate", -2000 );
         } else {
