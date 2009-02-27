@@ -10,6 +10,7 @@ import de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ConnectionProblemException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ServerStatusProblemException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
+import de.uka.ilkd.key.dl.arithmetics.impl.orbital.OrbitalSimplifier;
 import de.uka.ilkd.key.dl.arithmetics.impl.qepcad.PrenexGenerator.PrenexGeneratorResult;
 import de.uka.ilkd.key.dl.arithmetics.impl.qepcad.ProgramCommunicator.Stopper;
 import de.uka.ilkd.key.logic.NamespaceSet;
@@ -60,12 +61,18 @@ public class QepCad implements IQuantifierEliminator {
 
 		QepCadInput input = Term2QepCadConverter.convert(result.getTerm(),
 				result.getVariables());
+		if (result.getVariables().isEmpty()) {
+			if(OrbitalSimplifier.testForSimpleTautology(result.getTerm())) {
+				return TermBuilder.DF.tt();
+			} else {
+				return TermBuilder.DF.ff();
+			}
+		} 
 		System.out.println("PRENEX : Formula send to QEPCAD: "
 				+ input.getFormula());
 		if (input.getFormula().equals("[ TRUE ].")) {
 			return TermBuilder.DF.tt();
-		} else if (input.getFormula().equals(
-				"[ FALSE ].")) {
+		} else if (input.getFormula().equals("[ FALSE ].")) {
 			return TermBuilder.DF.ff();
 		}
 		String res = ProgramCommunicator.start(input, stopper);

@@ -95,7 +95,7 @@ public class OrbitalSimplifier implements ISimplifier {
 		// TODO: use assumptions
 	        if (form.sort().equals(Sort.FORMULA)) {
 	            try {
-		            if (translate(form)) {
+		            if (testForSimpleTautology(form)) {
 		        	return TermBuilder.DF.tt();
 		            } else {
 		        	return TermBuilder.DF.ff();
@@ -112,27 +112,27 @@ public class OrbitalSimplifier implements ISimplifier {
 		return form;
 	}
 
-	private static boolean translate(Term form) {
+	public static boolean testForSimpleTautology(Term form) {
 		if (form.op() == Op.AND) {
 			for (int i = 0; i < form.arity(); i++) {
-				if (!translate(form.sub(i))) {
+				if (!testForSimpleTautology(form.sub(i))) {
 					return false;
 				}
 			}
 			return true;
 		} else if (form.op() == Op.OR) {
 			for (int i = 0; i < form.arity(); i++) {
-				if (translate(form.sub(i))) {
+				if (testForSimpleTautology(form.sub(i))) {
 					return true;
 				}
 			}
 			return false;
 		} else if (form.op() == Op.IMP) {
 			assert (form.arity() == 2);
-			return (!translate(form.sub(0))) || translate(form.sub(1));
+			return (!testForSimpleTautology(form.sub(0))) || testForSimpleTautology(form.sub(1));
 		} else if (form.op() == Op.EQV) {
 			assert (form.arity() == 2);
-			return translate(form.sub(0)) == translate(form.sub(1));
+			return testForSimpleTautology(form.sub(0)) == testForSimpleTautology(form.sub(1));
 		} else if (form.op() instanceof Function
 				|| form.op() instanceof Equality) {
 			Arithmetic[] args = new Arithmetic[form.arity()];
