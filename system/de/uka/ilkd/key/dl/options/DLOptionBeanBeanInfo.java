@@ -35,6 +35,7 @@ import orbital.awt.TaggedPropertyEditorSupport;
 import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
 import de.uka.ilkd.key.dl.options.DLOptionBean.ApplyRules;
 import de.uka.ilkd.key.dl.options.DLOptionBean.BuiltInArithmetic;
+import de.uka.ilkd.key.dl.options.DLOptionBean.BuiltInArithmeticIneqs;
 import de.uka.ilkd.key.dl.options.DLOptionBean.CounterexampleTest;
 import de.uka.ilkd.key.dl.options.DLOptionBean.DiffSat;
 import de.uka.ilkd.key.dl.options.DLOptionBean.FirstOrderStrategy;
@@ -168,6 +169,12 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
                             "select to which degree built-in arithmetic rules should be used",
                             false, false, BuiltInArithmeticPropertyEditor.class),
                     //
+                    createDescriptor(
+                            "builtInArithmeticIneqs",
+                            "built-in inequality handling",
+                            "select whether built-in rules for inequalities are to be used",
+                            false, false, BuiltInArithmeticIneqsPropertyEditor.class),
+                            //
                     createDescriptor(
                             "quantifierEliminator",
                             "real arithmetic solver",
@@ -419,6 +426,13 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
         public BuiltInArithmeticPropertyEditor() {
             super(getNames(BuiltInArithmetic.values()), BuiltInArithmetic
                     .values());
+        }
+    }
+
+    public static class BuiltInArithmeticIneqsPropertyEditor extends
+            TaggedPropertyEditorSupport {
+        public BuiltInArithmeticIneqsPropertyEditor() {
+            super(getNames(BuiltInArithmeticIneqs.values()), BuiltInArithmeticIneqs.values());
         }
     }
 

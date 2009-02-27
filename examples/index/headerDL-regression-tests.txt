@@ -13,6 +13,7 @@
 [DLOptions]applyLocalReduce=false
 [DLOptions]applyToModality=false
 [DLOptions]BuiltInArithmetic=REDUCTION
+[DLOptions]BuiltInArithmeticIneqs=FOURIER_MOTZKIN
 [DLOptions]constantTimeoutIncreaseFactor=0
 [DLOptions]counterExampleGenerator=-
 [DLOptions]counterexampleTest=OFF

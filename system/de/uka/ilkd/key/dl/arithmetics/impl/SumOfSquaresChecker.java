@@ -119,11 +119,12 @@ public class SumOfSquaresChecker {
 		final Function geq = RealLDT.getFunctionFor(GreaterEquals.class);
 		final Function gt = RealLDT.getFunctionFor(Greater.class);
 		final Function neq = RealLDT.getFunctionFor(Unequals.class);
-		Term zero = TermBuilder.DF.func(NumberCache.getNumber(
+                final Function minus = RealLDT.getFunctionFor(Minus.class);
+		final Term zero = TermBuilder.DF.func(NumberCache.getNumber(
 				new BigDecimal(0), RealLDT.getRealSort()));
 		// handle succedent
 		Set<Term> conjunction = new HashSet<Term>();
-		for (Term t : succ) {
+                for (Term t : succ) {
 			System.out.println("Checking " + t);
 			Term sub, sub2;
 			Operator op;
@@ -147,23 +148,12 @@ public class SumOfSquaresChecker {
 				// we can only handle arithmetic predicates
 				continue;
 			}
-			if (!(sub.equals(zero) || sub2.equals(zero))) {
-				sub = TermBuilder.DF.func(RealLDT.getFunctionFor(Minus.class),
-						t.sub(0), t.sub(1));
-				sub2 = zero;
-			}
-			if (sub.equals(zero) && !sub2.equals(zero)) {
-				Term hold = sub;
-				sub = sub2;
-				sub2 = hold;
-			}
 			if (op instanceof Function) {
-				if (!op.equals(neq) && t.sub(0).equals(zero)
+		/*		if (!op.equals(neq) && t.sub(0).equals(zero)
 						&& !t.sub(1).equals(zero)) {
 					op = negationLookUp(op);
-				}
-				conjunction
-						.add(TermBuilder.DF.func((TermSymbol) op, sub, sub2));
+				} */
+				conjunction.add(TermBuilder.DF.func((TermSymbol) op, sub, sub2));
 			} else if (op instanceof Equality) {
 
 				conjunction.add(TermBuilder.DF.equals(sub, sub2));
@@ -186,21 +176,11 @@ public class SumOfSquaresChecker {
 				// we can only handle arithmetic predicates
 				continue;
 			}
-			if (!(sub.equals(zero) || sub2.equals(zero))) {
-				sub = TermBuilder.DF.func(RealLDT.getFunctionFor(Minus.class),
-						t.sub(0), t.sub(1));
-				sub2 = zero;
-			}
-			if (sub.equals(zero) && !sub2.equals(zero)) {
-				Term hold = sub;
-				sub = sub2;
-				sub2 = hold;
-			}
 			if (op instanceof Function) {
-				if (!op.equals(neq) && t.sub(0).equals(zero)
+			/*	if (!op.equals(neq) && t.sub(0).equals(zero)
 						&& !t.sub(1).equals(zero)) {
 					op = negationLookUp(op);
-				}
+				} */
 				conjunction
 						.add(TermBuilder.DF.func((TermSymbol) op, sub, sub2));
 			} else if (op instanceof Equality) {
@@ -216,50 +196,42 @@ public class SumOfSquaresChecker {
 			if (t.op() == Equality.EQUALS) {
 				// H is the set of equalities thus we just need to add this term
 				h.add(TermBuilder.DF
-						.equals(TermBuilder.DF.func(RealLDT
-								.getFunctionFor(Minus.class), t.sub(0), t
+						.equals(TermBuilder.DF.func(minus, t.sub(0), t
 								.sub(1)), zero));
 			} else if (t.op().equals(neq)) {
 				// G is the set of unequalities thus we just need to add this
 				// term
 				g.add(TermBuilder.DF
-						.func(neq, TermBuilder.DF.func(RealLDT
-								.getFunctionFor(Minus.class), t.sub(0), t
+						.func(neq, TermBuilder.DF.func(minus, t.sub(0), t
 								.sub(1)), zero));
 			} else if (t.op().equals(geq)) {
 				// F contains all inequalities of the form x >= y thus we just
 				// need to add this term
 				f.add(TermBuilder.DF
-						.func(geq, TermBuilder.DF.func(RealLDT
-								.getFunctionFor(Minus.class), t.sub(0), t
+						.func(geq, TermBuilder.DF.func(minus, t.sub(0), t
 								.sub(1)), zero));
 			} else if (t.op().equals(gt)) {
 				// the term is x > y thus we add x - y >= 0 to F and x - y != 0
 				// to G
 				f.add(TermBuilder.DF
-						.func(geq, TermBuilder.DF.func(RealLDT
-								.getFunctionFor(Minus.class), t.sub(0), t
+						.func(geq, TermBuilder.DF.func(minus, t.sub(0), t
 								.sub(1)), zero));
 				g.add(TermBuilder.DF
-						.func(neq, TermBuilder.DF.func(RealLDT
-								.getFunctionFor(Minus.class), t.sub(0), t
+						.func(neq, TermBuilder.DF.func(minus, t.sub(0), t
 								.sub(1)), zero));
 			} else if (t.op().equals(leq)) {
 				// switch arguments to turn x <= y into y - x >= 0
 				f.add(TermBuilder.DF
-						.func(geq, TermBuilder.DF.func(RealLDT
-								.getFunctionFor(Minus.class), t.sub(1), t
+						.func(geq, TermBuilder.DF.func(minus, t.sub(1), t
 								.sub(0)), zero));
 			} else if (t.op().equals(lt)) {
 				// the term is x < y thus we add y - x >= 0 to F and y - x != 0
 				// to G
 				f.add(TermBuilder.DF
-						.func(geq, TermBuilder.DF.func(RealLDT
-								.getFunctionFor(Minus.class), t.sub(1), t
+						.func(geq, TermBuilder.DF.func(minus, t.sub(1), t
 								.sub(0)), zero));
 				g.add(TermBuilder.DF
-						.func(neq, TermBuilder.DF.func(RealLDT
-								.getFunctionFor(Minus.class), t.sub(1), t
+						.func(neq, TermBuilder.DF.func(minus, t.sub(1), t
 								.sub(0)), zero));
 			} else if (t.op().equals(TermBuilder.DF.tt().op())
 					|| t.op().equals(TermBuilder.DF.ff().op())) {

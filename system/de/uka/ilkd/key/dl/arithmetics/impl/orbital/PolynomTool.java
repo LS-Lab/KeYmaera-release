@@ -36,6 +36,7 @@ import orbital.math.Polynomial;
 import orbital.math.Real;
 import orbital.math.Values;
 import orbital.math.Vector;
+import orbital.math.functional.Operations;
 import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
 import de.uka.ilkd.key.dl.formulatools.collector.AllCollector;
@@ -114,6 +115,8 @@ public abstract class PolynomTool {
 						Integer number = Values.getDefault().valueOf(
 								new BigInteger(sub.sub(1).op().name()
 										.toString()));
+						if (Operations.less.apply(number, Values.getDefault().ZERO()))
+						    return (Fraction) p.power(number.minus()).inverse();
 						return (Fraction) p.power(number);
 					} catch (NumberFormatException e) {
 						return (Fraction) p.power(q);
