@@ -80,6 +80,7 @@
 [SimultaneousUpdateSimplifier]EagerSimplification=true
 [Model]Source=1
 [DLOptions]BuiltInArithmetic=REDUCTION
+[DLOptions]BuiltInArithmeticIneqs=FOURIER_MOTZKIN
 [View]ShowWholeTaclet=false
 [DLOptions]counterexampleTest=ON
 [StrategyProperty]NON_LIN_ARITH_OPTIONS_KEY=NON_LIN_ARITH_NONE
