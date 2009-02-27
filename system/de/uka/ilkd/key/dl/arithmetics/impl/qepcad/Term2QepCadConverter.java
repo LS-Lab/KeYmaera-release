@@ -99,9 +99,9 @@ public class Term2QepCadConverter {
 	private String convert2String(Term form, NamespaceSet nss,
 			boolean eliminateFractions) {
 		if (form.op() == Op.FALSE) {
-			return "(0 = 1)";
+			return "[0 = 1]";
 		} else if (form.op() == Op.TRUE) {
-			return "(0 = 0)";
+			return "[0 = 0]";
 		} else if (form.op().name().toString().equals("equals")) {
 			if (eliminateFractions) {
 				return convert2String(PolynomTool
