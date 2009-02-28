@@ -40,6 +40,7 @@ import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.TermBuilder;
 import de.uka.ilkd.key.logic.op.Equality;
 import de.uka.ilkd.key.logic.op.Function;
+import de.uka.ilkd.key.logic.op.Junctor;
 import de.uka.ilkd.key.logic.op.Op;
 import de.uka.ilkd.key.logic.op.RigidFunction;
 import de.uka.ilkd.key.logic.sort.Sort;
@@ -158,6 +159,10 @@ public class OrbitalSimplifier implements ISimplifier {
 				assert (form.arity() == 2);
 				return Operations.equal.apply(args[0], args[1]);
 			}
+		} else if(form.op() == Junctor.TRUE) {
+			return true;
+		} else if(form.op() == Junctor.FALSE) {
+			return false;
 		}
 		throw new IllegalArgumentException("Dont know how to translate "
 				+ form.op() + " of class " + form.op().getClass());
