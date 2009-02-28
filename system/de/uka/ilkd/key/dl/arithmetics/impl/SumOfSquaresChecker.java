@@ -476,22 +476,31 @@ public class SumOfSquaresChecker {
 				List<Polynomial> curF = new ArrayList<Polynomial>(classify.f);
 				System.out.println("curF " + curF);// XXX
 				int maxFDegree = 0;
-				for (int i = 0; i < curF.size(); i++) {
-					Combinatorical combinations = Combinatorical
-							.getCombinations(i + 1, curF.size(), true);
-					while (combinations.hasNext()) {
-						int[] com = combinations.next();
-						Polynomial currentF = one;
-						System.out.println(Arrays.toString(com));// XXX
-						for (int j = 0; j < com.length; j++) {
-							currentF = currentF.multiply(curF.get(com[j]));
-						}
-						if (currentF.degreeValue() > maxFDegree) {
-							maxFDegree = currentF.degreeValue();
-						}
-						sumOfFs.add(currentF);
-					}
+				
+				final boolean[] combination = new boolean[curF.size()];
+				while (true) {
+                                    Polynomial currentF = one;
+                                    for (int i = 0; i < combination.length; ++i)
+                                        if (combination[i])
+                                            currentF = currentF.multiply(curF.get(i));
+                                    if (currentF.degreeValue() > maxFDegree) {
+                                            maxFDegree = currentF.degreeValue();
+                                    }
+                                    sumOfFs.add(currentF);
+                                    
+                                    int i = 0;
+                                    for (; i < combination.length; ++i) {
+                                        if (combination[i]) {
+                                            combination[i] = false;
+                                        } else {
+                                            combination[i] = true;
+                                            break;
+                                        }
+                                    }
+                                    if (i == combination.length)
+                                        break;
 				}
+				
 				System.out.println("sumOfFs: " + sumOfFs);// XXX
 				// now construct parametric polynomials of degree deg(g)
 				// We need sumOfFs.size() p_i's and classify.h.size() q_i's
@@ -512,75 +521,53 @@ public class SumOfSquaresChecker {
 				// multiplication of the corresponding sumOfFs polynomial
 				List<SparsePolynomial> pis = new ArrayList<SparsePolynomial>();
 				ValueFactory vf = Values.getDefault();
-				int currentParameter = 0;
+                                Arithmetic two = vf.rational(2);
+                                SparsePolynomial nextF = new SparsePolynomial();
+                                System.out.println("sumOfFs size: " + sumOfFs.size());
+                                System.out.println("monomials size: " + monomials.size());
+
+                                int currentParameter = 0;
+                                int totalMonomialNum = 0;
+                                int currentBlockOffset = 0;
+                                for (Polynomial nF : sumOfFs) {
+                                    SparsePolynomial s = new SparsePolynomial();
+
+                                    List<Vector> consideredMonomials = new ArrayList<Vector>();
+                                    for (Vector p : monomials) {
+                                        currentParameter = currentParameter + currentBlockOffset;
+                                        consideredMonomials.add(p);
+                                        for (int i = 0; i < consideredMonomials.size(); ++i) {
+                                            final Arithmetic oldMono = consideredMonomials.get(i);
+                                            final Arithmetic combinedMonoExp = oldMono.add(p);
+                                            final Polynomial combinedMono;
+
+                                            // all products but the product of
+                                            // <code>newMono</code> with
+                                            // itself have to be taken times two (the matrix is
+                                            // symmetric,
+                                            // and we only consider one half of it)
+                                            if (i < consideredMonomials.size() - 1)
+                                                combinedMono = vf.MONOMIAL(two, combinedMonoExp);
+                                            else
+                                                combinedMono = vf.MONOMIAL(combinedMonoExp);
+                                            
+                                            s.addTerms(combinedMono, currentParameter);
+                                            currentParameter = currentParameter + 1;
+                                        }                                            
+                                        totalMonomialNum = totalMonomialNum + 1;
+                                    }
+
+                                    pis.add(s);
+                                    nextF = nextF.add(s.multiply(nF));
+                                    
+                                    currentBlockOffset = totalMonomialNum;
+                                }
+                                
+                                
+				
+				
 				int polyNum = 0;
-				Arithmetic two = vf.rational(2);
-				SparsePolynomial nextF = new SparsePolynomial();
-				System.out.println("sumOfFs size: " + sumOfFs.size());
-				System.out.println("monomials size: " + monomials.size());
-				int offset = 1;
-				for (Polynomial nF : sumOfFs) {
-					SparsePolynomial s = new SparsePolynomial();
-					List<java.lang.Integer> curJumps = new ArrayList<java.lang.Integer>();
-					int skip = 0;
-					int orgSkip = 0;
-					for (int i = 0; i < monomials.size() * monomials.size(); i++) {
-						if (skip == 0) {
-							curJumps.add(offset);
-							orgSkip++;
-							skip = orgSkip;
-						} else {
-							skip--;
-							curJumps.add(1);
-						}
-					}
-					int first = currentParameter;
-//					Set<java.lang.Integer> usedParameters = new HashSet<java.lang.Integer>();
-					List<Vector> consideredMonomials = new ArrayList<Vector>();
-					for (Vector p : monomials) {
-						consideredMonomials.add(p);
-						System.out.println("CurJumps: " + curJumps);
-						for (int i = 0; i < consideredMonomials.size(); ++i) {
-							final Arithmetic oldMono = consideredMonomials
-									.get(i);
-							final Arithmetic combinedMonoExp = oldMono.add(p);
-							final Polynomial combinedMono;
-
-							// all products but the product of
-							// <code>newMono</code> with
-							// itself have to be taken times two (the matrix is
-							// symmetric,
-							// and we only consider one half of it)
-							if (i < consideredMonomials.size() - 1) {
-								combinedMono = vf
-										.MONOMIAL(two, combinedMonoExp);
-							} else {
-								combinedMono = vf.MONOMIAL(combinedMonoExp);
-							}
-
-							s.addTerms(combinedMono, currentParameter);
-//							usedParameters.add(currentParameter);
-//							System.out.println("currentParameter: "
-//									+ currentParameter);// XXX
-							currentParameter += curJumps.remove(0);
-						}
-					}
-					// fill up missing terms with zero
-//					for (int i = first; i < currentParameter - 1; i++) {
-//						if (!usedParameters.contains(i)) {
-//							System.out.println("adding " + i);
-//							s.addTerms(vf.polynomial(new int[one.rank()]), i);
-//						}
-//					}
-
-					pis.add(s);
-					nextF = nextF.add(s.multiply(nF));
-					// now we have to shift the currentParameter such that we
-					// reach the next block on the diagonal
-					polyNum++;
-					offset = polyNum * monomials.size() + 1;
-					currentParameter += offset - 1;
-				}
+				
 
 				System.out.println("nextF is " + nextF);// XXX
 
@@ -588,6 +575,10 @@ public class SumOfSquaresChecker {
 				// polynomials q_i (one per h in classify.h)
 
 				// TODO: maybe we need smaller polynomials here
+				
+				assert classify.h.isEmpty() : "cannot handle classify.h yet";
+				
+				/*
 				SparsePolynomial nextH = new SparsePolynomial();
 				List<SparsePolynomial> qis = new ArrayList<SparsePolynomial>();
 				for (Polynomial hPoly : classify.h) {
@@ -633,9 +624,11 @@ public class SumOfSquaresChecker {
 					currentParameter += offset - 1;
 					polyNum++;
 				}
+				*/
+				
 				// now we can add nextF and nextH, we cannot represent nextG as
 				// SparsePolynomial, as it is not parametric
-				SparsePolynomial fh = nextF.add(nextH);
+				SparsePolynomial fh = nextF; //.add(nextH);
 
 				List<Arithmetic> monomialsInFH = new ArrayList<Arithmetic>(fh
 						.getMonomials());
