@@ -83,41 +83,16 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
         System.out.println("Polynomials are: ");
         printPolys(rawPolys);
 
-        final Set<Polynomial> polys2 = eliminateLinearVariables(rawPolys);
-        System.out.println("Polynomials after eliminating linear variables are: ");
-        printPolys(polys2);
-	
-        final Set<Polynomial> polys3 = eliminateInverses(polys2, indexNum(polys2));
-        System.out.println("Polynomials after eliminating inverses are: ");
-        printPolys(polys3);
-        
-        final Set<Polynomial> polys = eliminateUnusedVariables(polys3);
-        System.out.println("Polynomials after eliminating unused variables are: ");
-        printPolys(polys);
-
-        if (polys.isEmpty())
-            // well, then we probably won't get a contradiction
+        final Set<Polynomial> groebnerBasis = createOptimiseGroebnerBasis(rawPolys, false);
+        if (groebnerBasis == null)
+            // this means we have already found a contradiction
+            return true;
+        if (groebnerBasis.isEmpty())
             return false;
         
-        final Polynomial one = (Polynomial)polys.iterator().next().one();
-	
-	// we try to get a contradiction by computing the groebner basis of all
-	// the equalities. if the common basis contains a constant part, the
-	// equality system is unsatisfiable, thus we can close this goal
-	final Set<Polynomial> groebnerBasis =
-	    orbital.math.AlgebraicAlgorithms.groebnerBasis(polys, monomialOrder);
-	final Function groebnerReducer =
-	    orbital.math.AlgebraicAlgorithms.reduce(groebnerBasis, monomialOrder);
-	
-	System.out.println("Groebner basis is: ");
-	printPolys(groebnerBasis);
-	
-        final Polynomial oneReduced = (Polynomial) groebnerReducer.apply(one);
-	if (oneReduced.isZero()) {
-	    System.out.println("Groebner basis is trivial and contains a unit");
-	    return true;
-	}
-	
+        final Function groebnerReducer =
+            orbital.math.AlgebraicAlgorithms.reduce(groebnerBasis, monomialOrder);
+
 	// enumerate sums of squares s and check whether some monomial 1+s is
 	// in the ideal
 	final Iterator<Vector> monomials =
@@ -131,7 +106,7 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
             System.out.println("Certificate:");
             System.out.println(" 1");
             
-            Polynomial p = one;
+            Polynomial p = (Polynomial)groebnerBasis.iterator().next().one();
             for (int i = 0; i < cert.length; ++i) {
                 assert (Operations.greaterEqual.apply(cert[i].coefficient, vf.ZERO()));
                 p = (Polynomial) p.add(cert[i].body.multiply(cert[i].body)
@@ -147,6 +122,52 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
         return false;
     }
 
+    
+    private Set<Polynomial> createOptimiseGroebnerBasis(Set<Polynomial> polys,
+                                                        boolean isGroebnerBasis) {
+        final Set<Polynomial> polys2 = eliminateInverses(polys, indexNum(polys));
+        System.out.println("Polynomials after eliminating inverses are: ");
+        printPolys(polys2);
+        
+        final Set<Polynomial> polys3 = eliminateLinearVariables(polys2);
+        System.out.println("Polynomials after eliminating linear variables are: ");
+        printPolys(polys3);
+        
+        final Set<Polynomial> polys4 = eliminateUnusedVariables(polys3);
+        System.out.println("Polynomials after eliminating unused variables are: ");
+        printPolys(polys4);
+
+        if (isGroebnerBasis && polys.equals(polys4))
+            // nothing has changed
+            return polys;
+        
+        if (polys4.isEmpty())
+            // well, then we probably won't get a contradiction
+            return polys4;
+        
+        final Polynomial one = (Polynomial)polys4.iterator().next().one();
+        
+        // we try to get a contradiction by computing the groebner basis of all
+        // the equalities. if the common basis contains a constant part, the
+        // equality system is unsatisfiable, thus we can close this goal
+        final Set<Polynomial> groebnerBasis =
+            orbital.math.AlgebraicAlgorithms.groebnerBasis(polys4, monomialOrder);
+        final Function groebnerReducer =
+            orbital.math.AlgebraicAlgorithms.reduce(groebnerBasis, monomialOrder);
+        
+        System.out.println("Groebner basis is: ");
+        printPolys(groebnerBasis);
+        
+        final Polynomial oneReduced = (Polynomial) groebnerReducer.apply(one);
+        if (oneReduced.isZero()) {
+            System.out.println("Groebner basis is trivial and contains a unit");
+            return null;
+        }
+
+        System.out.println("Iterating optimisation ...");        
+        return createOptimiseGroebnerBasis(groebnerBasis, true);
+    }
+    
 
     private void printPolys(Set<Polynomial> rawPolys) {
         for (Polynomial p : rawPolys)
@@ -172,16 +193,20 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 	assert (terms.f.isEmpty());
 	
 	// let's also get rid of the disequations: p != 0 <=> \exists x; p*x = 1
+	System.out.println("terms.g: " + terms.g);
+        System.out.println("equations: " + equations);
 	int i = 0;
 	for (Term g : terms.g) {
 	    assert (g.op() == RealLDT.getFunctionFor(Unequals.class));
 	    final Term diff = TB.func(minus, g.sub(0), g.sub(1));
 	    final LogicVariable x =
-		new LogicVariable(new Name("inv" + i), RealLDT.getRealSort());
+		new LogicVariable(new Name("invNobodyElseKnowsThisName" + i), RealLDT.getRealSort());
 	    final Term lhs = TB.func(minus, TB.func(mul, diff, TB.var(x)), one);
 	    equations.add(TB.equals(lhs, zero));
+	    i = i + 1;
 	}
 	
+        System.out.println("equations: " + equations);
 	final PolynomialClassification<Term> equationsOnly =
 	    new PolynomialClassification<Term>(new HashSet<Term> (),
 		                               new HashSet<Term> (),
@@ -206,10 +231,10 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 
     private BitSet occurringVars(Polynomial p) {
         final BitSet res = new BitSet ();
-        final Iterator<Vector> indexIt = p.indices();
+        final Iterator<Arithmetic> indexIt = p.indices();
         final Iterator<Arithmetic> coeffIt = p.iterator();
         while (indexIt.hasNext()) {
-            final Vector v = indexIt.next();
+            final Vector v = asVector(indexIt.next());
             final Arithmetic coeff = coeffIt.next();
             if (!coeff.isZero())
                 for (int i = 0; i < v.dimension(); ++i)
@@ -351,8 +376,15 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
             while (allPolysIt.hasNext()) {
                 final Polynomial reducedPoly =
                     (Polynomial)reducer.apply(allPolysIt.next());
-                if (!reducedPoly.isZero())
+                if (!reducedPoly.isZero()) {
+                    if (reducedPoly.degree().isZero()) {
+                        // we have found a unit and can stop
+                        workPolys.clear();
+                        workPolys.add(reducedPoly);
+                        return workPolys;
+                    }
                     workPolys.add(reducedPoly);
+                }
             }
         }
     }
@@ -379,10 +411,10 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
         final BitSet nonLinearVars = new BitSet();
         final Vector oneVec = vf.CONST(varNum, vf.ONE());
         
-        final Iterator<Vector> indexIt = p.indices();
+        final Iterator<Arithmetic> indexIt = p.indices();
         final Iterator<Arithmetic> coeffIt = p.iterator();
         while (indexIt.hasNext()) {
-            final Vector v = indexIt.next();
+            final Vector v = asVector(indexIt.next());
             final Arithmetic coeff = coeffIt.next();
             
             if (coeff.isZero())
@@ -427,7 +459,7 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
             Polynomial inversDef = null;
             BitSet productVars = null;
             int eliminableVar = -1;
-            for (Polynomial p : polys) {
+            for (Polynomial p : workPolys) {
                 productVars = isInversDefinition(p, varNum);
                 if (productVars == null)
                     continue;
@@ -494,10 +526,10 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
         int nonConstantNum = 0;
         final BitSet productVars = new BitSet ();
         
-        final Iterator<Vector> indexIt = p.indices();
+        final Iterator<Arithmetic> indexIt = p.indices();
         final Iterator<Arithmetic> coeffIt = p.iterator();
         while (indexIt.hasNext()) {
-            final Vector v = indexIt.next();
+            final Vector v = asVector(indexIt.next());
             final Arithmetic coeff = coeffIt.next();
 
             if (coeff.isZero())
@@ -542,10 +574,10 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
             final int[] pureMaxPowers = new int [varNum];
             final int[] imPureMaxPowers = new int [varNum];
             
-            final Iterator<Vector> indexIt = p.indices();
+            final Iterator<Arithmetic> indexIt = p.indices();
             final Iterator<Arithmetic> coeffIt = p.iterator();
             while (indexIt.hasNext()) {
-                final Vector v = indexIt.next();
+                final Vector v = asVector(indexIt.next());
                 final Arithmetic coeff = coeffIt.next();
 
                 if (coeff.isZero())
@@ -574,6 +606,17 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
         }
         
         return res;
+    }
+
+
+    private static Vector asVector(Arithmetic exp) {
+        if (exp instanceof Vector)
+            return (Vector)exp;
+        else if (exp instanceof Integer)
+            return Values.getDefault().valueOf(new Arithmetic [] {exp});
+        else
+            assert false;
+        return null;
     }
     
     private Square[] checkSOS(Iterator<Vector> monomials,
@@ -642,15 +685,7 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
         final Set<Vector> putIntoQueue = new HashSet<Vector> ();
 
         public void addFactors(Arithmetic x, int time) {
-            final Vector mono;
-            if (x instanceof Vector) {
-                mono = (Vector)x;
-            } else if (x instanceof Integer) {
-                mono = Values.getDefault().valueOf(new Arithmetic[] {x});
-            } else {
-                assert false;
-                mono = null;
-            }
+            final Vector mono = asVector(x);
 
             if (putIntoQueue.contains(mono))
                 return;
