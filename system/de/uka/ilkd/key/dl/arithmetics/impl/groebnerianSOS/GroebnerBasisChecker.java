@@ -96,7 +96,7 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 	// enumerate sums of squares s and check whether some monomial 1+s is
 	// in the ideal
 	final Iterator<Vector> monomials =
-	    new SimpleMonomialIterator(indexNum(groebnerBasis), 4);
+	    new SimpleMonomialIterator(indexNum(groebnerBasis), 6);
 //        final Square[] cert = checkSOS2(groebnerBasis, groebnerReducer);
         final Square[] cert = checkSOS(monomials, groebnerBasis, groebnerReducer);
         

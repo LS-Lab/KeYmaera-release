@@ -791,63 +791,6 @@ public class SumOfSquaresChecker {
         return monomialsInFH;
     }
 
-	/**
-	 * Decompose a matrix given back by
-	 * <code>SparsePolynomial.exactCoefficientComparison</code>, so that
-	 * all the constraint-entries on the right and bottom border are moved
-	 * to the beginning of the matrix. Also introduce symmetry constraints
-	 * for those columns. 
-	 */
-/*	private Matrix decomposeFHEquations(Matrix m, int matrixSize, int border) {
-	    final int oriHeight = m.dimensions()[0];
-            final int oriWidth = m.dimensions()[1];
-            final Matrix res = Values.getDefault().ZERO(oriHeight, oriWidth);
-	} */
-	
-	
-	/**
-	 * Transform the matrix so that the last <code>k</code> columns (not
-	 * counting and excluding the last column) are in row echelon form.
-	 */
-	private Matrix lastKEchelon(Matrix m, int k) {
-            final int height = m.dimensions()[0];
-            final int width = m.dimensions()[1];
-	    final Matrix temp = Values.getDefault().newInstance(height, width);
-	    
-	    copy(m, temp, 0, width - k - 1, 0, 0,         height, k);
-            copy(m, temp, 0, 0,             0, k,         height, width - k - 1);
-            copy(m, temp, 0, width - 1,     0, width - 1, height, 1);
-	            
-            FractionisingEquationSolver.echelon(temp, k);
-
-            final Matrix res = Values.getDefault().newInstance(height, width);
-
-            copy(temp, res, 0, 0,         0, width - k - 1, height, k);
-            copy(temp, res, 0, k,         0, 0,             height, width - k - 1);
-            copy(temp, res, 0, width - 1, 0, width - 1,     height, 1);
-            
-            return res;
-	}
-	
-	/**
-	 * Shrink the given matrix containing side constraints for
-	 * <code>oldMatrixSize^2</code> parameters to constraints for
-	 * <code>newMatrixSize^2</code> parameters
-	 */
-	private Matrix shrinkConstraints(Matrix m,
-	                                 int oldMatrixSize, int newMatrixSize) {
-            final int height = m.dimensions()[0];
-            final int newWidth = newMatrixSize*newMatrixSize;
-
-            final Matrix res = Values.getDefault().newInstance(height, newWidth);
-            for (int i = 0, j = 0;
-                 j < newWidth;
-                 i = i + oldMatrixSize, j = j + newMatrixSize)
-                copy(m, res, 0, i, 0, j, height, newMatrixSize);
-	    
-            return res;
-	}
-	
 	private static void copy(Matrix src, Matrix target,
 	                         int srcRow, int srcColumn,
 	                         int targetRow, int targetColumn,
@@ -969,16 +912,15 @@ public class SumOfSquaresChecker {
 	        final int height = m.dimensions()[0];
 	        final int width = m.dimensions()[1];
 
-	        final Matrix res = Values.getDefault().ZERO(width - 1, 1);
+	        final Matrix solutions = Values.getDefault().ZERO(width - 1, width - 1);
 	        
 	        int row = 0;
 	        int col = 0;
+	        int nextSolutionColumn = 0;
 	        
 	        while (row <= height && col < width - 1) {
 	            while (col < width - 1 && (row == height || m.get(row, col).isZero())) {
 	                // add a further vector to the solution matrix
-	                final Matrix solVec = Values.getDefault().ZERO(width - 1, 1);
-	                
 	                int vecPos = 0;
 	                int mPos = 0;
 	                int zeroRowsPos = 0;
@@ -987,7 +929,7 @@ public class SumOfSquaresChecker {
 	                        zeroRows.get(zeroRowsPos).equals(mPos)) {
 	                        zeroRowsPos = zeroRowsPos + 1;
 	                    } else {
-	                        solVec.set(vecPos, 0, m.get(mPos, col));
+	                        solutions.set(vecPos, nextSolutionColumn, m.get(mPos, col));
 	                        mPos = mPos + 1;
 	                    }
 	                    vecPos = vecPos + 1;
@@ -995,8 +937,8 @@ public class SumOfSquaresChecker {
 	                
 	                vecPos = vecPos + zeroRows.size() - zeroRowsPos;
 	                
-	                solVec.set(vecPos, 0, minus_one);
-	                res.insertColumns(solVec);
+	                solutions.set(vecPos, nextSolutionColumn, minus_one);
+	                nextSolutionColumn = nextSolutionColumn + 1;
 	                
 	                zeroRows.add(row);
 	                col = col + 1;
@@ -1011,8 +953,9 @@ public class SumOfSquaresChecker {
 	        // because Orbital does not like empty matrices, we return a matrix with
 	        // the zero-vector in case the solution space only contains a single
 	        // element
-	        if (res.dimensions()[1] > 1)
-	            res.removeColumn(0);
+                final int resWidth = Math.max(nextSolutionColumn, 1);
+	        final Matrix res = Values.getDefault().newInstance(width - 1, resWidth);
+	        copy(solutions, res, 0, 0, 0, 0, width - 1, resWidth);
 	        
 	        return res;
 	    }
