@@ -105,17 +105,17 @@ public class SparsePolynomial {
 	 * always put in the first place of the resulting array.
 	 */
 	public double[] coefficientComparison(int matrixSize) {
-		final Matrix constraints =
-		    exactCoefficientComparison(matrixSize, new BitSet ());
-		final int matrixLength = matrixSize * matrixSize;
-		final double[] res = new double[matrixLength * polyTerms.size()];
-
-		for (int i = 0; i < polyTerms.size(); ++i)
-			for (int j = 0; j < matrixLength; ++j)
-				res[i * matrixLength + j] = OrbitalSimplifier
-						.toDouble(constraints.get(i, j));
-
-		return res;
+	    return toDoubleArray(exactCoefficientComparison(matrixSize, new BitSet ()));
+	}
+	
+	public static double[] toDoubleArray(Matrix m) {
+	    final int height = m.dimensions()[0];
+            final int width = m.dimensions()[1];
+            final double[] res = new double [height * width];
+            for (int i = 0; i < height; ++i)
+                for (int j = 0; j < width; ++j)
+                    res[i*width + j] = OrbitalSimplifier.toDouble(m.get(i, j));
+            return res;
 	}
 
 	/**

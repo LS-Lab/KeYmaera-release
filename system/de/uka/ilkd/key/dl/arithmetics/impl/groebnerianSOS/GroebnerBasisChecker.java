@@ -856,35 +856,45 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 
     public static Square[] approx2Exact(SparsePolynomial reducedPoly,
                                         List<Arithmetic> consideredMonomials,
-                                        double[] approxSolution,
-                                        Vector sideConstraintRhss) {
-        return approx2Exact(reducedPoly, consideredMonomials, new BitSet (), approxSolution, sideConstraintRhss);
-    }
-        
-    public static Square[] approx2Exact(SparsePolynomial reducedPoly,
-                                        List<Arithmetic> consideredMonomials,
                                         BitSet removedMonomials,
                                         double[] approxSolution,
                                         Vector sideConstraintRhss) {
-        final ValueFactory vf = Values.getDefault();
-        final int monoNum = consideredMonomials.size() - removedMonomials.cardinality();
 
         System.out.println("Trying to recover an exact solution ...");
         final Matrix exactHomo =
             reducedPoly.exactCoefficientComparison(consideredMonomials.size(),
                                                    removedMonomials);
 
+        return approx2Exact(consideredMonomials, removedMonomials,
+                            approxSolution, exactHomo, sideConstraintRhss);
+    }
+
+    public static Square[] approx2Exact(List<Arithmetic> consideredMonomials,
+                                        double[] approxSolution,
+                                        Matrix exactHomo,
+                                        Vector sideConditionRhs) {
+        return approx2Exact(consideredMonomials, new BitSet (),
+                            approxSolution, exactHomo, sideConditionRhs);
+    }
+
+    private static Square[] approx2Exact(List<Arithmetic> consideredMonomials,
+                                         BitSet removedMonomials,
+                                         double[] approxSolution,
+                                         Matrix exactHomo,
+                                         Vector sideConditionRhs) {
+        final ValueFactory vf = Values.getDefault();
+        final int monoNum = consideredMonomials.size() - removedMonomials.cardinality();
         assert (exactHomo.dimensions()[1] == monoNum * monoNum);
         
         // we add further constraints to ensure that the found solution
         // is a symmetric matrix
         exactHomo.insertRows(symmetryConstraints(monoNum));
 
-        System.out.println("sideConstraintRhss: " + sideConstraintRhss);//XXX
+        System.out.println("sideConstraintRhss: " + sideConditionRhs);//XXX
         final Vector exactHetero = vf.newInstance(exactHomo.dimensions()[0]);
         for (int i = 0; i < exactHetero.dimension(); ++i) {
-            if(i < sideConstraintRhss.dimension()) {
-            	exactHetero.set(i, sideConstraintRhss.get(i));
+            if(i < sideConditionRhs.dimension()) {
+            	exactHetero.set(i, sideConditionRhs.get(i));
             } else {
             	exactHetero.set(i, vf.valueOf(0));	
             }

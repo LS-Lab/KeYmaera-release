@@ -22,6 +22,7 @@ package de.uka.ilkd.key.dl.arithmetics.impl;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.BitSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -36,6 +37,7 @@ import orbital.math.AlgebraicAlgorithms;
 import orbital.math.Arithmetic;
 import orbital.math.Fraction;
 import orbital.math.Integer;
+import orbital.math.Matrix;
 import orbital.math.Polynomial;
 import orbital.math.Real;
 import orbital.math.ValueFactory;
@@ -43,6 +45,7 @@ import orbital.math.Values;
 import orbital.math.Vector;
 import orbital.math.functional.Operations;
 import de.uka.ilkd.key.dl.arithmetics.impl.csdp.CSDP;
+import de.uka.ilkd.key.dl.arithmetics.impl.groebnerianSOS.FractionisingEquationSolver;
 import de.uka.ilkd.key.dl.arithmetics.impl.groebnerianSOS.GroebnerBasisChecker;
 import de.uka.ilkd.key.dl.arithmetics.impl.groebnerianSOS.SparsePolynomial;
 import de.uka.ilkd.key.dl.arithmetics.impl.groebnerianSOS.GroebnerBasisChecker.SimpleMonomialIterator;
@@ -446,10 +449,10 @@ public class SumOfSquaresChecker {
 		int d = 0;
 		if (one != null) {
 			// now we built a SparsePolynomial based on Parrilo Theorem 5.1
-			Monoid gMonoid = new Monoid(new ArrayList<Polynomial>(classify.g),
+			final Monoid gMonoid = new Monoid(new ArrayList<Polynomial>(classify.g),
 					one);
 
-			Iterator<Polynomial> gIt = gMonoid.iterator();
+			final Iterator<Polynomial> gIt = gMonoid.iterator();
 
 			Polynomial nextG = one;
 
@@ -471,48 +474,24 @@ public class SumOfSquaresChecker {
 
 				// therefore we construct all f combinations and add parametric
 				// polynomials as coefficients
-				Set<Polynomial> sumOfFs = new LinkedHashSet<Polynomial>();
-				sumOfFs.add(one);
-				List<Polynomial> curF = new ArrayList<Polynomial>(classify.f);
-				System.out.println("curF " + curF);// XXX
-				int maxFDegree = 0;
+				final Set<Polynomial> prodsOfFs = generateFProducts(classify, one);
 				
-				final boolean[] combination = new boolean[curF.size()];
-				while (true) {
-                                    Polynomial currentF = one;
-                                    for (int i = 0; i < combination.length; ++i)
-                                        if (combination[i])
-                                            currentF = currentF.multiply(curF.get(i));
-                                    if (currentF.degreeValue() > maxFDegree) {
-                                            maxFDegree = currentF.degreeValue();
-                                    }
-                                    sumOfFs.add(currentF);
-                                    
-                                    int i = 0;
-                                    for (; i < combination.length; ++i) {
-                                        if (combination[i]) {
-                                            combination[i] = false;
-                                        } else {
-                                            combination[i] = true;
-                                            break;
-                                        }
-                                    }
-                                    if (i == combination.length)
-                                        break;
-				}
-				
-				System.out.println("sumOfFs: " + sumOfFs);// XXX
+				System.out.println("prodsOfFs: " + prodsOfFs);// XXX
 				// now construct parametric polynomials of degree deg(g)
 				// We need sumOfFs.size() p_i's and classify.h.size() q_i's
-				List<Vector> monomials = new ArrayList<Vector>();
+				List<Vector> qMonomials = new ArrayList<Vector>();
+				{
 				SimpleMonomialIterator monomialIterator = new SimpleMonomialIterator(
-						one.rank(), (Math.max(nextG.degreeValue(), d) / 2));
+						one.rank(), (Math.max(nextG.degreeValue(), d) + 1) / 2);
 				System.out.println("Degree of g is " + nextG.degreeValue());// XXX
 				System.out.println("g is " + nextG);// XXX
 				while (monomialIterator.hasNext()) {
-					monomials.add(monomialIterator.next());
+					qMonomials.add(monomialIterator.next());
+				}
 				}
 
+				
+                                //////////////////////////////////////////////////////////////////////////
 				// the next step is to construct all those parametric
 				// polynomials p_i (one per f in sumOfFs)
 
@@ -523,17 +502,18 @@ public class SumOfSquaresChecker {
 				ValueFactory vf = Values.getDefault();
                                 Arithmetic two = vf.rational(2);
                                 SparsePolynomial nextF = new SparsePolynomial();
-                                System.out.println("sumOfFs size: " + sumOfFs.size());
-                                System.out.println("monomials size: " + monomials.size());
+                                System.out.println("prodsOfFs size: " + prodsOfFs.size());
+                                System.out.println("monomials size: " + qMonomials.size());
 
                                 int currentParameter = 0;
                                 int totalMonomialNum = 0;
+                                
                                 int currentBlockOffset = 0;
-                                for (Polynomial nF : sumOfFs) {
+                                for (Polynomial nF : prodsOfFs) {
                                     SparsePolynomial s = new SparsePolynomial();
 
                                     List<Vector> consideredMonomials = new ArrayList<Vector>();
-                                    for (Vector p : monomials) {
+                                    for (Vector p : qMonomials) {
                                         currentParameter = currentParameter + currentBlockOffset;
                                         consideredMonomials.add(p);
                                         for (int i = 0; i < consideredMonomials.size(); ++i) {
@@ -563,136 +543,124 @@ public class SumOfSquaresChecker {
                                     currentBlockOffset = totalMonomialNum;
                                 }
                                 
-                                
-				
-				
-				int polyNum = 0;
-				
+				final int piMonomialNum = totalMonomialNum;
 
 				System.out.println("nextF is " + nextF);// XXX
 
+				//////////////////////////////////////////////////////////////////////////
 				// the next step is to construct all those parametric
 				// polynomials q_i (one per h in classify.h)
 
-				// TODO: maybe we need smaller polynomials here
-				
-				assert classify.h.isEmpty() : "cannot handle classify.h yet";
-				
-				/*
 				SparsePolynomial nextH = new SparsePolynomial();
-				List<SparsePolynomial> qis = new ArrayList<SparsePolynomial>();
-				for (Polynomial hPoly : classify.h) {
-					SparsePolynomial s = new SparsePolynomial();
-					List<java.lang.Integer> curJumps = new ArrayList<java.lang.Integer>();
-					int skip = 0;
-					int orgSkip = 0;
-					for (int i = 0; i < monomials.size(); i++) {
-						if (skip == 0) {
-							curJumps.add(offset);
-							orgSkip++;
-							skip = orgSkip;
-						} else {
-							skip--;
-							curJumps.add(1);
-						}
-					}
-					for (Vector p : monomials) {
-						for (int i = 0; i < monomials.size(); ++i) {
-							final Arithmetic oldMono = monomials.get(i);
-							final Arithmetic combinedMonoExp = oldMono.add(p);
-							final Polynomial combinedMono;
+				
+				int lastTopParameter = currentParameter;
+                                for (Polynomial hPoly : classify.h) {
+                                    final SparsePolynomial s = new SparsePolynomial();
+                                    final SimpleMonomialIterator monomialIt =
+                                        new SimpleMonomialIterator(one.rank(),
+                                                                   Math.max(nextG.degreeValue(), d));
+                                    
+                                    while (monomialIt.hasNext()) {
+                                        final Vector monoExp = monomialIt.next();
+                                        final boolean diagonal =
+                                            (currentParameter == lastTopParameter + totalMonomialNum);
 
-							// all products but the product of
-							// <code>newMono</code> with
-							// itself have to be taken times two (the matrix is
-							// symmetric,
-							// and we only consider one half of it)
-							if (i < monomials.size() - 1)
-								combinedMono = vf
-										.MONOMIAL(two, combinedMonoExp);
-							else
-								combinedMono = vf.MONOMIAL(combinedMonoExp);
+                                        final Polynomial mono;
+                                        if (diagonal)
+                                            mono = vf.MONOMIAL(monoExp);
+                                        else
+                                            mono = vf.MONOMIAL(two, monoExp);
+                                        
+                                        s.addTerms(mono, currentParameter);
+                                        
+                                        currentParameter = currentParameter + 1;
+                                        if (diagonal) {
+                                            lastTopParameter = currentParameter;
+                                            totalMonomialNum = totalMonomialNum + 1;
+                                        }
+                                    }
 
-							s.addTerms(combinedMono, currentParameter);
+                                    nextH = nextH.add(s.multiply(hPoly));
+                                }
 
-							currentParameter = currentParameter + 1;
-						}
-					}
-					qis.add(s);
-					nextH = nextH.add(s.multiply(hPoly));
-					offset = polyNum * monomials.size() + 1;
-					currentParameter += offset - 1;
-					polyNum++;
-				}
-				*/
+                                // we might already have filled a further column
+                                // halfway
+                                final int bigMatrixSize;
+                                if (lastTopParameter == currentParameter)
+                                    bigMatrixSize = totalMonomialNum;
+                                else
+                                    bigMatrixSize = totalMonomialNum + 1;
+                                
+                                System.out.println("nextH is " + nextH);
 				
 				// now we can add nextF and nextH, we cannot represent nextG as
 				// SparsePolynomial, as it is not parametric
-				SparsePolynomial fh = nextF; //.add(nextH);
-
-				List<Arithmetic> monomialsInFH = new ArrayList<Arithmetic>(fh
-						.getMonomials());
-				// Vector zeroMonomial = Values.getDefault().valueOf(
-				// new int[one.rank()]);
-				// assert zeroMonomial.equals(zeroMonomial.zero()) : "Not 0 "
-				// + zeroMonomial;
-				if (!monomialsInFH.isEmpty()) {
-					Arithmetic zero = monomialsInFH.get(0).zero();
-					// we remove the zero and readd it in the first place as
-					// this corresponds to the order provided by
-					// SparsePolynomial.coefficientComparision()
-					monomialsInFH.remove(zero);
-					monomialsInFH.add(0, zero);
-				}
-
-				Iterator<Arithmetic> indices = nextG.indices();
-				int mononum = monomialsInFH.size();
-				System.out.println(monomialsInFH);// XXX
-				ListIterator<Arithmetic> iterator2 = nextG.iterator();
-				while (indices.hasNext()) {
-					Arithmetic monomial = indices.next();
-					Arithmetic coefficient = (Arithmetic) iterator2.next();
-					assert coefficient.isZero()
-							|| monomialsInFH.contains(monomial) : "The polynomial g cannot contain monomials that are not in any p_i "
-							+ monomial + " * " + coefficient;
-				}
+				SparsePolynomial fh = nextF.add(nextH);
+				List<Arithmetic> monomialsInFH = extractMonomialsInFH(fh, nextG);
 
 				System.out.println("f+h = " + fh);// XXX
-				int matrixSize = monomials.size() * sumOfFs.size()
-						+ monomials.size() * classify.h.size();
+
+				////////////////////////////////////////////////////////////////////////////
+				// Extract the side constraints and pre-process them
+				// (we need to eliminate all parameters that were introduced
+				// as part of the qi's, because they are not supposed to
+				// satisfy semi-definiteness)
+				
+				final Matrix rawEquations =
+				    fh.exactCoefficientComparison(bigMatrixSize, new BitSet());
+				
+//				System.out.println("rawEquations: " + rawEquations);
+
+                                final Vector rawExactHetero =
+                                    genExactHetero(fh, nextG, monomialsInFH);
+//                                System.out.println("Result vector is " + rawExactHetero);// XXX
+
+                                rawEquations.insertColumns(asMatrix(rawExactHetero));
+				
+                                // determine the columns that we have to eliminate
+                                final BitSet colsToEliminate = new BitSet ();
+                                for (int i = piMonomialNum; i < bigMatrixSize; ++i)
+                                    for (int j = 0; j <= i; ++j) {
+                                        colsToEliminate.set(j*bigMatrixSize + i);
+                                        colsToEliminate.set(i*bigMatrixSize + j);
+                                    }
+                                
+                                final Matrix rawSmallEquations =
+                                    project(rawEquations, colsToEliminate);
+                                
+                                assert rawSmallEquations.dimensions()[1] ==
+                                             piMonomialNum*piMonomialNum + 1;
+                                
+                                final Vector exactHetero =
+                                    rawSmallEquations.getColumn(piMonomialNum*piMonomialNum);
+                                final Matrix exactHomo =
+                                    vf.newInstance(rawSmallEquations.dimensions()[0],
+                                                   piMonomialNum*piMonomialNum);
+                                copy(rawSmallEquations, exactHomo,
+                                     0, 0, 0, 0,
+                                     rawSmallEquations.dimensions()[0],
+                                     piMonomialNum*piMonomialNum);
+
+//                                System.out.println("exactHomo is " + exactHomo);
+//                                System.out.println("exactHetero is " + exactHetero);
+                                
+                                // assert symmetry
+                                for (int i = 0; i < piMonomialNum; ++i)
+                                    for (int j = 0; j < piMonomialNum; ++j)
+                                        assert exactHomo.getColumn(i*piMonomialNum + j).equals(
+                                               exactHomo.getColumn(j*piMonomialNum + i));
+
+                                ////////////////////////////////////////////////////////////////////////////
+				// Let's have CSDP do the hard work for us
+				
+				final int matrixSize = piMonomialNum;
 				System.out.println("matrix size: " + matrixSize);
-				double[] homo = fh.coefficientComparison(matrixSize);
-				final double[] hetero = new double[fh.size()];
 
-				final double[] approxSolution = new double[matrixSize
-						* matrixSize];
-				// the solution vector has to be zero except at those positions
-				// where g contains the same monomial it has to be the additive
-				// inverse of coefficient in g
-				Iterator<Arithmetic> gMonoms = nextG.indices();
-				ListIterator<Arithmetic> iterator = nextG.iterator();
-				final Vector exactHetero = Values.getDefault().ZERO(
-						hetero.length);
-				while (gMonoms.hasNext()) {
-					// FIXME: is indexOf - 1 the correct index?
-					int indexOf = monomialsInFH.indexOf(gMonoms.next());
-					Arithmetic next = iterator.next();
-					if (!next.isZero()) {
-						exactHetero.set(indexOf, next.minus());
-						hetero[indexOf] = OrbitalSimplifier.toDouble(next
-								.minus());
-					}
-				}
-				System.out.println("Result vector is " + exactHetero);// XXX
-
-				// if (nextG.equals(one)) {
-				// Arrays.fill(hetero, 0.0);
-				// hetero[0] = -1.0;
-				// } else {
-				//					
-				// throw new IllegalStateException(
-				// "Inputs with != are not supported yet");
-				// }
+				final double[] homo = SparsePolynomial.toDoubleArray(exactHomo);
+				final double[] hetero = SparsePolynomial.toDoubleArray(asMatrix(exactHetero));
+				
+				final double[] approxSolution =
+				    new double[matrixSize * matrixSize];
 
 				int sdpRes =
 				// CSDP.robustSdp(monoNum, reducedPoly.size(), hetero, homo,
@@ -703,10 +671,13 @@ public class SumOfSquaresChecker {
 					System.out.println("Found an approximate solution!");
 					System.out.println(Arrays.toString(approxSolution));
 
-					final Square[] cert = GroebnerBasisChecker.approx2Exact(fh,
-							convertToMonomList(monomials, sumOfFs.size()
-									+ classify.h.size()), approxSolution,
-							exactHetero);
+					final List<Arithmetic> consideredMonomials =
+					    convertToMonomList(qMonomials, prodsOfFs.size());
+                                            final Square[] cert =
+                                                GroebnerBasisChecker.approx2Exact(consideredMonomials,
+                                                                                  approxSolution,
+                                                                                  exactHomo, exactHetero);
+					
 					if (cert != null) {
 						// check that the certificate is correct
 
@@ -739,6 +710,417 @@ public class SumOfSquaresChecker {
 		return false;
 	}
 
+    private Vector genExactHetero(SparsePolynomial fh, Polynomial nextG,
+                                  List<Arithmetic> monomialsInFH) {
+        final Vector exactHetero = Values.getDefault().ZERO(fh.size());
+        Iterator<Arithmetic> gMonoms = nextG.indices();
+        ListIterator<Arithmetic> iterator = nextG.iterator();
+        while (gMonoms.hasNext()) {
+            int indexOf = monomialsInFH.indexOf(gMonoms.next());
+            Arithmetic next = iterator.next();
+            if (!next.isZero())
+                exactHetero.set(indexOf, next.minus());
+        }
+        return exactHetero;
+    }
+
+    private Set<Polynomial> generateFProducts(
+                                              PolynomialClassification<Polynomial> classify,
+                                              Polynomial one) {
+        Set<Polynomial> prodsOfFs = new LinkedHashSet<Polynomial>();
+        prodsOfFs.add(one);
+        List<Polynomial> curF = new ArrayList<Polynomial>(classify.f);
+        System.out.println("curF " + curF);// XXX
+        int maxFDegree = 0;
+        
+        final boolean[] combination = new boolean[curF.size()];
+        while (true) {
+                            Polynomial currentF = one;
+                            for (int i = 0; i < combination.length; ++i)
+                                if (combination[i])
+                                    currentF = currentF.multiply(curF.get(i));
+                            if (currentF.degreeValue() > maxFDegree) {
+                                    maxFDegree = currentF.degreeValue();
+                            }
+                            prodsOfFs.add(currentF);
+                            
+                            int i = 0;
+                            for (; i < combination.length; ++i) {
+                                if (combination[i]) {
+                                    combination[i] = false;
+                                } else {
+                                    combination[i] = true;
+                                    break;
+                                }
+                            }
+                            if (i == combination.length)
+                                break;
+        }
+        return prodsOfFs;
+    }
+
+    private List<Arithmetic> extractMonomialsInFH(SparsePolynomial fh,
+                                                  Polynomial nextG) {
+        final List<Arithmetic> monomialsInFH =
+            new ArrayList<Arithmetic>(fh.getMonomials());
+        // Vector zeroMonomial = Values.getDefault().valueOf(
+        // new int[one.rank()]);
+        // assert zeroMonomial.equals(zeroMonomial.zero()) : "Not 0 "
+        // + zeroMonomial;
+        if (!monomialsInFH.isEmpty()) {
+        	Arithmetic zero = monomialsInFH.get(0).zero();
+        	// we remove the zero and readd it in the first place as
+        	// this corresponds to the order provided by
+        	// SparsePolynomial.coefficientComparision()
+        	monomialsInFH.remove(zero);
+        	monomialsInFH.add(0, zero);
+        }
+
+        Iterator<Arithmetic> indices = nextG.indices();
+        int mononum = monomialsInFH.size();
+        System.out.println(monomialsInFH);// XXX
+        ListIterator<Arithmetic> iterator2 = nextG.iterator();
+        while (indices.hasNext()) {
+        	Arithmetic monomial = indices.next();
+        	Arithmetic coefficient = (Arithmetic) iterator2.next();
+        	assert coefficient.isZero()
+        			|| monomialsInFH.contains(monomial) :
+                 "The polynomial g cannot contain monomials that are not in any p_i "
+        			+ monomial + " * " + coefficient;
+        }
+        return monomialsInFH;
+    }
+
+	/**
+	 * Decompose a matrix given back by
+	 * <code>SparsePolynomial.exactCoefficientComparison</code>, so that
+	 * all the constraint-entries on the right and bottom border are moved
+	 * to the beginning of the matrix. Also introduce symmetry constraints
+	 * for those columns. 
+	 */
+/*	private Matrix decomposeFHEquations(Matrix m, int matrixSize, int border) {
+	    final int oriHeight = m.dimensions()[0];
+            final int oriWidth = m.dimensions()[1];
+            final Matrix res = Values.getDefault().ZERO(oriHeight, oriWidth);
+	} */
+	
+	
+	/**
+	 * Transform the matrix so that the last <code>k</code> columns (not
+	 * counting and excluding the last column) are in row echelon form.
+	 */
+	private Matrix lastKEchelon(Matrix m, int k) {
+            final int height = m.dimensions()[0];
+            final int width = m.dimensions()[1];
+	    final Matrix temp = Values.getDefault().newInstance(height, width);
+	    
+	    copy(m, temp, 0, width - k - 1, 0, 0,         height, k);
+            copy(m, temp, 0, 0,             0, k,         height, width - k - 1);
+            copy(m, temp, 0, width - 1,     0, width - 1, height, 1);
+	            
+            FractionisingEquationSolver.echelon(temp, k);
+
+            final Matrix res = Values.getDefault().newInstance(height, width);
+
+            copy(temp, res, 0, 0,         0, width - k - 1, height, k);
+            copy(temp, res, 0, k,         0, 0,             height, width - k - 1);
+            copy(temp, res, 0, width - 1, 0, width - 1,     height, 1);
+            
+            return res;
+	}
+	
+	/**
+	 * Shrink the given matrix containing side constraints for
+	 * <code>oldMatrixSize^2</code> parameters to constraints for
+	 * <code>newMatrixSize^2</code> parameters
+	 */
+	private Matrix shrinkConstraints(Matrix m,
+	                                 int oldMatrixSize, int newMatrixSize) {
+            final int height = m.dimensions()[0];
+            final int newWidth = newMatrixSize*newMatrixSize;
+
+            final Matrix res = Values.getDefault().newInstance(height, newWidth);
+            for (int i = 0, j = 0;
+                 j < newWidth;
+                 i = i + oldMatrixSize, j = j + newMatrixSize)
+                copy(m, res, 0, i, 0, j, height, newMatrixSize);
+	    
+            return res;
+	}
+	
+	private static void copy(Matrix src, Matrix target,
+	                         int srcRow, int srcColumn,
+	                         int targetRow, int targetColumn,
+	                         int height, int width) {
+            for (int j = 0; j < height; ++j)
+                for (int i = 0; i < width; ++i)
+                    target.set(j + targetRow, i + targetColumn,
+                               src.get(j + srcRow, i + srcColumn));
+	}
+	
+	private static Matrix asMatrix(Vector v) {
+	    final Matrix res = Values.getDefault().newInstance(v.dimension(), 1);
+	    res.setColumn(0, v);
+	    return res;
+	}
+
+	
+	/**
+	 * Existentially quantify certain variables in a system of linear
+	 * equations and eliminate them.
+	 */
+	private static Matrix project(Matrix m, BitSet elimColumns) {
+	    // first solve the equations
+	    
+	    final Matrix echelon = (Matrix)m.clone();
+	    echelon(echelon);
+	    jordan(echelon);
+	    
+	    final Vector particular = particularSolution(echelon);
+	    final Matrix space = homoSolutionSpace(echelon);
+	    
+	    // then remove all variables that we want to eliminate
+	    for (int i = particular.dimension() - 1; i >= 0; --i)
+	        if (elimColumns.get(i)) {
+	            particular.remove(i);
+	            space.removeRow(i);
+	        }
+	    
+	    // and then convert back to equations
+	    final Matrix resEquations = space.transpose();
+	    final Matrix zeroRhs = Values.getDefault().ZERO(resEquations.dimensions()[0], 1);
+            resEquations.insertColumns(zeroRhs);
+	    
+            echelon(resEquations);
+            jordan(resEquations);
+
+            final Matrix res = homoSolutionSpace(resEquations).transpose();
+	    res.insertColumns(asMatrix(res.multiply(particular)));
+            return res;
+	}
+	
+	    /**
+	     * Read of an arbitrary particular solution from a matrix in echelon form
+	     * (it is assumed that the last column of the matrix is the RHS of a
+	     * system of equations)
+	     */
+	    private static Vector particularSolution(Matrix m) {
+	        final int height = m.dimensions()[0];
+	        final int width = m.dimensions()[1];
+
+	        final Vector res = Values.getDefault().ZERO(width - 1);
+	        
+	        int row = height - 1;
+	        int col = width - 2;
+
+	        while (row >= 0 && col >= 0) {
+	            // find the left-most column with a non-zero entry in the current row
+	            int i = 0;
+	            while (i < width && m.get(row, i).isZero())
+	                i = i + 1;
+
+	            if (i == width) {
+	                // trivial row, go to the next one
+	                row = row - 1;
+	                continue;
+	            } else if (i == width - 1) {
+	                // this system of equations is unsolvable
+	                throw new IllegalArgumentException
+	                          ("Tried to solve unsolvable system of equations");
+	            }
+	            
+	            assert (i <= col);
+	            while (i < col) {
+	                // these solution components can be chosen arbitrarily, we just
+	                // take zero
+	                res.set(col, Values.getDefault().ZERO());
+	                col = col - 1;
+	            }
+	            
+	            assert (m.get(row, col).isOne());
+
+	            Arithmetic val = m.get(row, width - 1);
+	            for (int j = col + 1; j < width - 1; ++j)
+	                val = val.subtract(res.get(j).multiply(m.get(row, j)));
+	            
+	            res.set(col, val);
+	            
+	            col = col - 1;
+	            row = row - 1;
+	        }
+	        
+	        return res;        
+	    }
+	    
+	    
+	    /**
+	     * Read of the space of homogeneous solutions of a system of linear
+	     * equations that is described by a matrix in echelon form (it is assumed
+	     * that the last column of the matrix is the RHS of the equations). The
+	     * columns of the returned matrix are the vectors generating the solution
+	     * space.
+	     */
+	    private static Matrix homoSolutionSpace(Matrix m) {
+	        final Integer minus_one = Values.getDefault().valueOf(-1);
+
+	        final List<java.lang.Integer> zeroRows =
+	            new ArrayList<java.lang.Integer> ();
+	        
+	        final int height = m.dimensions()[0];
+	        final int width = m.dimensions()[1];
+
+	        final Matrix res = Values.getDefault().ZERO(width - 1, 1);
+	        
+	        int row = 0;
+	        int col = 0;
+	        
+	        while (row <= height && col < width - 1) {
+	            while (col < width - 1 && (row == height || m.get(row, col).isZero())) {
+	                // add a further vector to the solution matrix
+	                final Matrix solVec = Values.getDefault().ZERO(width - 1, 1);
+	                
+	                int vecPos = 0;
+	                int mPos = 0;
+	                int zeroRowsPos = 0;
+	                while (mPos < row) {
+	                    if (zeroRowsPos < zeroRows.size() &&
+	                        zeroRows.get(zeroRowsPos).equals(mPos)) {
+	                        zeroRowsPos = zeroRowsPos + 1;
+	                    } else {
+	                        solVec.set(vecPos, 0, m.get(mPos, col));
+	                        mPos = mPos + 1;
+	                    }
+	                    vecPos = vecPos + 1;
+	                }
+	                
+	                vecPos = vecPos + zeroRows.size() - zeroRowsPos;
+	                
+	                solVec.set(vecPos, 0, minus_one);
+	                res.insertColumns(solVec);
+	                
+	                zeroRows.add(row);
+	                col = col + 1;
+	            }
+	            
+	            assert (col == width - 1 || m.get(row, col).isOne());
+	            
+	            row = row + 1;
+	            col = col + 1;
+	        }
+	        
+	        // because Orbital does not like empty matrices, we return a matrix with
+	        // the zero-vector in case the solution space only contains a single
+	        // element
+	        if (res.dimensions()[1] > 1)
+	            res.removeColumn(0);
+	        
+	        return res;
+	    }
+	    
+	    /**
+	     * Turn a matrix into row echelon form
+	     */
+	    private static void echelon(Matrix m) {
+	        final int height = m.dimensions()[0];
+	        final int width = m.dimensions()[1];
+	        
+	        int row = 0;
+	        int col = 0;
+
+	        while (row < height && col < width) {
+	            // search for the first non-zero element in the current column
+	            int i = row;
+	            while (i < height && m.get(i, col).isZero())
+	                i = i + 1;
+
+	            if (i == height) {
+	                // there is no pivot element in the current column, we try the
+	                // next one
+	                col = col + 1;
+	                continue;
+	            } else if (i != row) {
+	                // swap the current row with the row with the pivot element
+	                for (int j = col; j < width; ++j) {
+	                    final Arithmetic t = m.get(row, j);
+	                    m.set(row, j, m.get(i, j));
+	                    m.set(i, j, t);
+	                }
+	            }
+
+	            // turn the pivot element of this row into a one
+	            final Arithmetic pivot = m.get(row, col);
+	            if (!pivot.isOne()) {
+	                for (int j = col; j < width; ++j)
+	                    m.set(row, j, m.get(row, j).divide(pivot));
+	            }
+
+	            // simplify the other rows using the row with the pivot element
+	            i = i + 1;
+	            while (i < height) {
+	                if (!m.get(i, col).isZero()) {
+	                    final Arithmetic factor = m.get(i, col);
+
+	                    for (int j = col; j < width; ++j) {
+	                        final Arithmetic newEl =
+	                            m.get(i, j).subtract(m.get(row, j).multiply(factor));
+	                        m.set(i, j, newEl);
+	                    }
+	                }
+	                
+	                i = i + 1;
+	            }
+	            
+	            row = row + 1;
+	            col = col + 1;
+	        }
+	    }
+
+	    /**
+	     * Clean up a matrix in row echelon form
+	     * 
+	     * TODO: better name for the method
+	     */
+	    private static void jordan(Matrix m) {
+	        final int height = m.dimensions()[0];
+	        final int width = m.dimensions()[1];
+
+	        int row = height - 1;
+
+	        while (row >= 0) {
+	            // find the left-most column with a non-zero entry in the current row
+	            int col = 0;
+	            while (col < width && m.get(row, col).isZero())
+	                col = col + 1;
+
+	            if (col == width) {
+	                // trivial row, go to the next one
+	                row = row - 1;
+	                continue;
+	            }
+	            
+	            assert (m.get(row, col).isOne());
+	            
+	            // simplify this column by subtracting multiplies of this row from
+	            // other rows
+	            int i = row - 1;
+	            while (i >= 0) {
+	                if (!m.get(i, col).isZero()) {
+	                    final Arithmetic factor = m.get(i, col);
+
+	                    for (int j = col; j < width; ++j) {
+	                        final Arithmetic newEl =
+	                            m.get(i, j).subtract(m.get(row, j).multiply(factor));
+	                        m.set(i, j, newEl);
+	                    }
+	                }
+	                i = i - 1;
+	            }
+	            
+	            row = row - 1;
+	        }
+	    }
+
+	
 	/**
 	 * @param monomials
 	 * @return TODO documentation since Feb 23, 2009
