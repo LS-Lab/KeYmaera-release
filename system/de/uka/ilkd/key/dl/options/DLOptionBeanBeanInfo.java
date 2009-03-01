@@ -174,6 +174,11 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
                             "built-in inequality handling",
                             "select whether built-in rules for inequalities are to be used",
                             false, false, BuiltInArithmeticIneqsPropertyEditor.class),
+                    createDescriptor(
+                    		"useSOS",
+                            "use semi-definite programming",
+                            "select whether to use the sum of squares rule or some other toplevel rule",
+                            false, false),
                             //
                     createDescriptor(
                             "quantifierEliminator",

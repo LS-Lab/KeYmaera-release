@@ -45,12 +45,13 @@ import de.uka.ilkd.key.proof.Proof;
 public class DLOptionBean implements Settings {
 
 	/**
-	 * @author jdq
-	 * TODO Documentation since Feb 19, 2009
+	 * @author jdq TODO Documentation since Feb 19, 2009
 	 */
 	public enum LocalReduceOption {
 		OFF, EXISTENTIAL, ALWAYS;
-		/* (non-Javadoc)
+		/*
+		 * (non-Javadoc)
+		 * 
 		 * @see java.lang.Enum#toString()
 		 */
 		@Override
@@ -60,8 +61,7 @@ public class DLOptionBean implements Settings {
 	}
 
 	public static enum ApplyRules {
-		ALWAYS("Always"), NEVER("Never"), ONLY_TO_MODALITIES(
-				"To modalities");
+		ALWAYS("Always"), NEVER("Never"), ONLY_TO_MODALITIES("To modalities");
 
 		private String string;
 
@@ -158,8 +158,7 @@ public class DLOptionBean implements Settings {
 
 	public static enum BuiltInArithmetic {
 		OFF("off"), NORMALISE_EQUATIONS("normalise (in)equalities"), REDUCTION(
-				"normalisation reduction"), FULL(
-				"full (S-polynomials)");
+				"normalisation reduction"), FULL("full (S-polynomials)");
 
 		private String string;
 
@@ -178,25 +177,25 @@ public class DLOptionBean implements Settings {
 		}
 	}
 
-        public static enum BuiltInArithmeticIneqs {
-            OFF("off"), FOURIER_MOTZKIN("Fourier-Motzkin");
+	public static enum BuiltInArithmeticIneqs {
+		OFF("off"), FOURIER_MOTZKIN("Fourier-Motzkin");
 
-            private String string;
+		private String string;
 
-            private BuiltInArithmeticIneqs(String str) {
-                    this.string = str;
-            }
+		private BuiltInArithmeticIneqs(String str) {
+			this.string = str;
+		}
 
-            /*
-             * (non-Javadoc)
-             * 
-             * @see java.lang.Enum#toString()
-             */
-            /* @Override */
-            public String toString() {
-                    return string;
-            }
-    }
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see java.lang.Enum#toString()
+		 */
+		/* @Override */
+		public String toString() {
+			return string;
+		}
+	}
 
 	/**
 	 * 
@@ -259,10 +258,10 @@ public class DLOptionBean implements Settings {
 
 	private static final String DLOPTIONS_APPLY_LOCAL_REDUCE = "[DLOptions]applyLocalReduce";
 
-        private static final String DLOPTIONS_APPLY_LOCAL_SIMPLIFY = "[DLOptions]applyLocalSimplify";
+	private static final String DLOPTIONS_APPLY_LOCAL_SIMPLIFY = "[DLOptions]applyLocalSimplify";
 
-        private static final String DLOPTIONS_APPLY_GLOBAL_REDUCE = "[DLOptions]applyGlobalReduce";
-        
+	private static final String DLOPTIONS_APPLY_GLOBAL_REDUCE = "[DLOptions]applyGlobalReduce";
+
 	private static final String DLOPTIONS_SIMPLIFY_AFTER_ODESOLVE = "[DLOptions]simplifyAfterODESolve";
 
 	private static final String DLOPTIONS_GROEBNER_BASIS_CALCULATOR = "[DLOptions]groebnerBasisCalculator";
@@ -271,7 +270,8 @@ public class DLOptionBean implements Settings {
 	private static final String DLOPTIONS_PERCENT_OF_POWERSET_FOR_ITERATIVE_REDUCE = "[DLOptions]percentOfPowersetForIterativeReduce";
 
 	private static final String DLOPTIONS_BUILT_IN_ARITHMETIC = "[DLOptions]BuiltInArithmetic";
-        private static final String DLOPTIONS_BUILT_IN_ARITHMETIC_INEQS = "[DLOptions]BuiltInArithmeticIneqs";
+	private static final String DLOPTIONS_BUILT_IN_ARITHMETIC_INEQS = "[DLOptions]BuiltInArithmeticIneqs";
+	private static final String DLOPTIONS_USE_SOS = "[DLOptions]useSOS";
 
 	private Set<Settings> subOptions;
 
@@ -325,9 +325,9 @@ public class DLOptionBean implements Settings {
 
 	private LocalReduceOption applyLocalReduce;
 
-        private boolean applyLocalSimplify;
+	private boolean applyLocalSimplify;
 
-        private boolean applyGlobalReduce;
+	private boolean applyGlobalReduce;
 
 	private boolean simplifyAfterODESolve;
 
@@ -335,10 +335,12 @@ public class DLOptionBean implements Settings {
 
 	private boolean usePowersetIterativeReduce;
 
+	private boolean useSOS;
+
 	private int percentOfPowersetForReduce;
 
 	private BuiltInArithmetic builtInArithmetic;
-        private BuiltInArithmeticIneqs builtInArithmeticIneqs;
+	private BuiltInArithmeticIneqs builtInArithmeticIneqs;
 
 	private DLOptionBean() {
 		subOptions = new LinkedHashSet<Settings>();
@@ -368,12 +370,13 @@ public class DLOptionBean implements Settings {
 		useIterativeReduceRule = false;
 		termFactoryClass = de.uka.ilkd.key.dl.model.impl.TermFactoryImpl.class;
 		applyLocalReduce = LocalReduceOption.OFF;
-                applyLocalSimplify = false;
-                applyGlobalReduce = true;
+		applyLocalSimplify = false;
+		applyGlobalReduce = true;
 		usePowersetIterativeReduce = true;
 		percentOfPowersetForReduce = 70;
 		builtInArithmetic = BuiltInArithmetic.OFF;
-                builtInArithmeticIneqs = BuiltInArithmeticIneqs.OFF;
+		builtInArithmeticIneqs = BuiltInArithmeticIneqs.OFF;
+		useSOS = false;
 
 		listeners = new HashSet<SettingsListener>();
 	}
@@ -526,7 +529,8 @@ public class DLOptionBean implements Settings {
 		} else if (!(MathSolverManager.getODESolvers().contains(odeSolver))
 				&& !odeSolver.equals("-")) {
 			if (!MathSolverManager.getODESolvers().isEmpty()) {
-				setOdeSolver(MathSolverManager.getODESolvers().iterator().next());
+				setOdeSolver(MathSolverManager.getODESolvers().iterator()
+						.next());
 			} else {
 				setOdeSolver("-");
 			}
@@ -559,20 +563,17 @@ public class DLOptionBean implements Settings {
 		}
 		groebnerBasisCalculator = props
 				.getProperty(DLOPTIONS_GROEBNER_BASIS_CALCULATOR);
-/*
- *   HACK: this causes infinity loop
- * 		if (groebnerBasisCalculator == null) {
-			setGroebnerBasisCalculator("");
-		} else if (!(MathSolverManager.getGroebnerBasisCalculators()
-				.contains(groebnerBasisCalculator))
-				&& !groebnerBasisCalculator.equals("-")) {
-			if (!MathSolverManager.getGroebnerBasisCalculators().isEmpty()) {
-				setGroebnerBasisCalculator(MathSolverManager
-						.getGroebnerBasisCalculators().iterator().next());
-			} else {
-				setGroebnerBasisCalculator("-");
-			}
-		} */
+		/*
+		 * HACK: this causes infinity loop if (groebnerBasisCalculator == null)
+		 * { setGroebnerBasisCalculator(""); } else if
+		 * (!(MathSolverManager.getGroebnerBasisCalculators()
+		 * .contains(groebnerBasisCalculator)) &&
+		 * !groebnerBasisCalculator.equals("-")) { if
+		 * (!MathSolverManager.getGroebnerBasisCalculators().isEmpty()) {
+		 * setGroebnerBasisCalculator(MathSolverManager
+		 * .getGroebnerBasisCalculators().iterator().next()); } else {
+		 * setGroebnerBasisCalculator("-"); } }
+		 */
 		property = props.getProperty(DLOPTIONS_APPLY_GAMMA_RULES);
 		if (property != null) {
 			applyGammaRules = ApplyRules.valueOf(property);
@@ -614,24 +615,24 @@ public class DLOptionBean implements Settings {
 		}
 		property = props.getProperty(DLOPTIONS_APPLY_LOCAL_REDUCE);
 		if (property != null) {
-			if(property.equalsIgnoreCase("false")) {
+			if (property.equalsIgnoreCase("false")) {
 				applyLocalReduce = LocalReduceOption.OFF;
-			} else if(property.equalsIgnoreCase("true")) {
+			} else if (property.equalsIgnoreCase("true")) {
 				applyLocalReduce = LocalReduceOption.ALWAYS;
 			} else {
 				applyLocalReduce = LocalReduceOption.valueOf(property);
 			}
 		}
 
-                property = props.getProperty(DLOPTIONS_APPLY_LOCAL_SIMPLIFY);
-                if (property != null) {
-                        applyLocalSimplify = Boolean.valueOf(property);
-                }
+		property = props.getProperty(DLOPTIONS_APPLY_LOCAL_SIMPLIFY);
+		if (property != null) {
+			applyLocalSimplify = Boolean.valueOf(property);
+		}
 
-                property = props.getProperty(DLOPTIONS_APPLY_GLOBAL_REDUCE);
-                if (property != null) {
-                        applyGlobalReduce = Boolean.valueOf(property);
-                }
+		property = props.getProperty(DLOPTIONS_APPLY_GLOBAL_REDUCE);
+		if (property != null) {
+			applyGlobalReduce = Boolean.valueOf(property);
+		}
 
 		property = props.getProperty(DLOPTIONS_SIMPLIFY_AFTER_ODESOLVE);
 		if (property != null) {
@@ -641,6 +642,10 @@ public class DLOptionBean implements Settings {
 		property = props.getProperty(DLOPTIONS_USE_POWERSET_ITERATIVE_REDUCE);
 		if (property != null) {
 			usePowersetIterativeReduce = Boolean.valueOf(property);
+		}
+		property = props.getProperty(DLOPTIONS_USE_SOS);
+		if (property != null) {
+			useSOS = Boolean.valueOf(property);
 		}
 
 		property = props
@@ -654,10 +659,10 @@ public class DLOptionBean implements Settings {
 			builtInArithmetic = BuiltInArithmetic.valueOf(property);
 		}
 
-                property = props.getProperty(DLOPTIONS_BUILT_IN_ARITHMETIC_INEQS);
-                if (property != null) {
-                        builtInArithmeticIneqs = BuiltInArithmeticIneqs.valueOf(property);
-                }
+		property = props.getProperty(DLOPTIONS_BUILT_IN_ARITHMETIC_INEQS);
+		if (property != null) {
+			builtInArithmeticIneqs = BuiltInArithmeticIneqs.valueOf(property);
+		}
 	}
 
 	/*
@@ -729,21 +734,25 @@ public class DLOptionBean implements Settings {
 				.toString(useIterativeReduceRule));
 		props.setProperty(DLOPTIONS_TERM_FACTORY_CLASS, termFactoryClass
 				.getName());
-		props.setProperty(DLOPTIONS_APPLY_LOCAL_REDUCE, applyLocalReduce.name());
-                props.setProperty(DLOPTIONS_APPLY_LOCAL_SIMPLIFY, Boolean
-                                .toString(applyLocalSimplify));
-                props.setProperty(DLOPTIONS_APPLY_GLOBAL_REDUCE, Boolean
-                                .toString(applyGlobalReduce));
+		props
+				.setProperty(DLOPTIONS_APPLY_LOCAL_REDUCE, applyLocalReduce
+						.name());
+		props.setProperty(DLOPTIONS_APPLY_LOCAL_SIMPLIFY, Boolean
+				.toString(applyLocalSimplify));
+		props.setProperty(DLOPTIONS_APPLY_GLOBAL_REDUCE, Boolean
+				.toString(applyGlobalReduce));
 		props.setProperty(DLOPTIONS_SIMPLIFY_AFTER_ODESOLVE, Boolean
 				.toString(simplifyAfterODESolve));
 		props.setProperty(DLOPTIONS_USE_POWERSET_ITERATIVE_REDUCE, Boolean
 				.toString(usePowersetIterativeReduce));
+		props.setProperty(DLOPTIONS_USE_SOS, Boolean
+				.toString(useSOS));
 		props.setProperty(DLOPTIONS_PERCENT_OF_POWERSET_FOR_ITERATIVE_REDUCE,
 				"" + percentOfPowersetForReduce);
 		props.setProperty(DLOPTIONS_BUILT_IN_ARITHMETIC, builtInArithmetic
 				.name());
-                props.setProperty(DLOPTIONS_BUILT_IN_ARITHMETIC_INEQS, builtInArithmeticIneqs
-                                .name());
+		props.setProperty(DLOPTIONS_BUILT_IN_ARITHMETIC_INEQS,
+				builtInArithmeticIneqs.name());
 	}
 
 	public void addSubOptionBean(Settings sub) {
@@ -873,9 +882,9 @@ public class DLOptionBean implements Settings {
 		return builtInArithmetic == BuiltInArithmetic.FULL;
 	}
 
-        public boolean isFourierMotzkin() {
-            return builtInArithmeticIneqs == BuiltInArithmeticIneqs.FOURIER_MOTZKIN;
-        }
+	public boolean isFourierMotzkin() {
+		return builtInArithmeticIneqs == BuiltInArithmeticIneqs.FOURIER_MOTZKIN;
+	}
 
 	/**
 	 * @return the applyUpdatesToModalities
@@ -1108,14 +1117,15 @@ public class DLOptionBean implements Settings {
 		firePropertyChanged();
 	}
 
-        public BuiltInArithmeticIneqs getBuiltInArithmeticIneqs() {
-            return builtInArithmeticIneqs;
-        }
+	public BuiltInArithmeticIneqs getBuiltInArithmeticIneqs() {
+		return builtInArithmeticIneqs;
+	}
 
-        public void setBuiltInArithmeticIneqs(BuiltInArithmeticIneqs builtInArithmetic) {
-            this.builtInArithmeticIneqs = builtInArithmetic;
-            firePropertyChanged();
-        }
+	public void setBuiltInArithmeticIneqs(
+			BuiltInArithmeticIneqs builtInArithmetic) {
+		this.builtInArithmeticIneqs = builtInArithmetic;
+		firePropertyChanged();
+	}
 
 	/**
 	 * @return the termFactory
@@ -1153,41 +1163,41 @@ public class DLOptionBean implements Settings {
 		}
 	}
 
-        /**
-         * @return the applyLocalSimplify
-         */
-        public boolean isApplyLocalSimplify() {
-                return applyLocalSimplify;
-        }
+	/**
+	 * @return the applyLocalSimplify
+	 */
+	public boolean isApplyLocalSimplify() {
+		return applyLocalSimplify;
+	}
 
-        /**
-         * @param applyLocalSimplify
-         *            the applyLocalSimplify to set
-         */
-        public void setApplyLocalSimplify(boolean applyLocalSimplify) {
-                if (applyLocalSimplify != this.applyLocalSimplify) {
-                        this.applyLocalSimplify = applyLocalSimplify;
-                        firePropertyChanged();
-                }
-        }
+	/**
+	 * @param applyLocalSimplify
+	 *            the applyLocalSimplify to set
+	 */
+	public void setApplyLocalSimplify(boolean applyLocalSimplify) {
+		if (applyLocalSimplify != this.applyLocalSimplify) {
+			this.applyLocalSimplify = applyLocalSimplify;
+			firePropertyChanged();
+		}
+	}
 
-        /**
-         * @return the applyGlobalReduce
-         */
-        public boolean isApplyGlobalReduce() {
-                return applyGlobalReduce;
-        }
+	/**
+	 * @return the applyGlobalReduce
+	 */
+	public boolean isApplyGlobalReduce() {
+		return applyGlobalReduce;
+	}
 
-        /**
-         * @param applyGlobalReduce
-         *            the applyGlobalReduce to set
-         */
-        public void setApplyGlobalReduce(boolean applyGlobalReduce) {
-                if (applyGlobalReduce != this.applyGlobalReduce) {
-                        this.applyGlobalReduce = applyGlobalReduce;
-                        firePropertyChanged();
-                }
-        }
+	/**
+	 * @param applyGlobalReduce
+	 *            the applyGlobalReduce to set
+	 */
+	public void setApplyGlobalReduce(boolean applyGlobalReduce) {
+		if (applyGlobalReduce != this.applyGlobalReduce) {
+			this.applyGlobalReduce = applyGlobalReduce;
+			firePropertyChanged();
+		}
+	}
 
 	/**
 	 * @return the simplifyAfterODESolve
@@ -1257,6 +1267,24 @@ public class DLOptionBean implements Settings {
 	public void setPercentOfPowersetForReduce(int percentOfPowersetForReduce) {
 		if (this.percentOfPowersetForReduce != percentOfPowersetForReduce) {
 			this.percentOfPowersetForReduce = percentOfPowersetForReduce;
+			firePropertyChanged();
+		}
+	}
+
+	/**
+	 * @return the useSOS
+	 */
+	public boolean isUseSOS() {
+		return useSOS;
+	}
+
+	/**
+	 * @param useSOS
+	 *            the useSOS to set
+	 */
+	public void setUseSOS(boolean useSOS) {
+		if (this.useSOS != useSOS) {
+			this.useSOS = useSOS;
 			firePropertyChanged();
 		}
 	}
