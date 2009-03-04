@@ -66,6 +66,44 @@ public class SparsePolynomial {
 	private final Map<Arithmetic, CoefficientTerm> polyTerms =
 	    new TreeMap<Arithmetic, CoefficientTerm>(AlgebraicAlgorithms.DEGREE_REVERSE_LEXICOGRAPHIC);
 
+	private void addTerm(Arithmetic exp, int variable, Arithmetic coeff) {
+	    if (coeff.isZero())
+	        return;
+	    
+	    // check whether we already have an entry for this variable
+	    boolean present = false;
+            CoefficientTerm term = polyTerms.get(exp);
+	    while (term != null && !present) {
+	        if (term.variable == variable)
+	            present = true;
+	        term = term.next;
+	    }
+	    
+	    if (present) {
+	        // we must update this entry
+	        CoefficientTerm oldTerm = polyTerms.get(exp);
+	        CoefficientTerm newTerm = null;
+	    
+	        while (oldTerm != null) {
+	            if (oldTerm.variable == variable)
+	                newTerm = new CoefficientTerm (oldTerm.coefficient.add(coeff),
+	                                               variable, newTerm);
+	            else
+                        newTerm = new CoefficientTerm (oldTerm.coefficient,
+                                                       oldTerm.variable, newTerm);
+	            
+	            oldTerm = oldTerm.next;
+	        }
+	        
+	        polyTerms.put(exp, newTerm);
+            } else {
+                // we can just add a new entry
+                final CoefficientTerm newTerm =
+                    new CoefficientTerm(coeff, variable, polyTerms.get(exp));
+                polyTerms.put(exp, newTerm);
+            }
+	}
+	
 	/**
 	 * Add the polynomial <code>variable * p</code> to this object
 	 */
@@ -79,12 +117,7 @@ public class SparsePolynomial {
 			final Arithmetic exponent = expIt.next();
 			final Arithmetic coeff = coeffIt.next();
 
-			if (coeff.isZero())
-				continue;
-
-			final CoefficientTerm newCoeffTerm = new CoefficientTerm(coeff,
-					variable, polyTerms.get(exponent));
-			polyTerms.put(exponent, newCoeffTerm);
+			addTerm(exponent, variable, coeff);
 		}
 	}
 
@@ -250,27 +283,28 @@ public class SparsePolynomial {
 	 * @return
 	 */
 	public SparsePolynomial multiply(Polynomial nf) {
-		Iterator<Arithmetic> indices = nf.indices();
-		ListIterator<Arithmetic> coefficients = nf.iterator();
-		SparsePolynomial result = new SparsePolynomial();
-		while (indices.hasNext()) {
-			Arithmetic monom = (Arithmetic) indices.next();
-			Arithmetic coefficient = (Arithmetic) coefficients.next();
-			for (Arithmetic c : polyTerms.keySet()) {
-				Arithmetic newMonom = monom.add(c);
-				CoefficientTerm coefficientTerm = polyTerms.get(c);
-				Arithmetic newCoefficient = coefficientTerm.coefficient
-						.multiply(coefficient);
-				if (!newCoefficient.isZero()) {
-					result.polyTerms.put(newMonom, new CoefficientTerm(
-							newCoefficient, coefficientTerm.variable,
-							result.polyTerms.get(newMonom)));
-				}
-			}
-
+            final SparsePolynomial result = new SparsePolynomial();
+            
+            final Iterator<Arithmetic> indices = nf.indices();
+            final ListIterator<Arithmetic> coefficients = nf.iterator();
+            while (indices.hasNext()) {
+                final Arithmetic monom = (Arithmetic) indices.next();
+                final Arithmetic coefficient = (Arithmetic) coefficients.next();
+                for (Arithmetic c : polyTerms.keySet()) {
+                    Arithmetic newMonom = monom.add(c);
+				
+                    CoefficientTerm coefficientTerm = polyTerms.get(c);
+                    while (coefficientTerm != null) {
+                        final Arithmetic newCoefficient =
+                            coefficientTerm.coefficient.multiply(coefficient);
+                        result.addTerm(newMonom, coefficientTerm.variable, newCoefficient);
+                        coefficientTerm = coefficientTerm.next;
+                    }
 		}
-		System.out.println("multiplying " + this + " * " + nf + " = " + result);// XXX
-		return result;
+            }
+            
+//		System.out.println("multiplying " + this + " * " + nf + " = " + result);// XXX
+            return result;
 	}
 
 	public SparsePolynomial add(SparsePolynomial s) {
@@ -323,7 +357,7 @@ public class SparsePolynomial {
 				result.polyTerms.put(m, polyTerms.get(m));
 			}
 		}
-		System.out.println("adding " + this + " + " + s + " = " + result);// XXX
+//		System.out.println("adding " + this + " + " + s + " = " + result);// XXX
 		return result;
 	}
 

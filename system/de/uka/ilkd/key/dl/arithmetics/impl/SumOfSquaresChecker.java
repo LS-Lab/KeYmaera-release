@@ -503,7 +503,8 @@ public class SumOfSquaresChecker {
                                 Arithmetic two = vf.rational(2);
                                 SparsePolynomial nextF = new SparsePolynomial();
                                 System.out.println("prodsOfFs size: " + prodsOfFs.size());
-                                System.out.println("monomials size: " + qMonomials.size());
+                                System.out.println("qMonomials size: " + qMonomials.size());
+                                System.out.println("qMonomials are: " + qMonomials);
 
                                 int currentParameter = 0;
                                 int totalMonomialNum = 0;
@@ -555,6 +556,8 @@ public class SumOfSquaresChecker {
 				
 				int lastTopParameter = currentParameter;
                                 for (Polynomial hPoly : classify.h) {
+                                    System.out.println("h-polynomial: " + hPoly);
+                                    
                                     final SparsePolynomial s = new SparsePolynomial();
                                     final SimpleMonomialIterator monomialIt =
                                         new SimpleMonomialIterator(one.rank(),
@@ -616,17 +619,23 @@ public class SumOfSquaresChecker {
 //                                System.out.println("Result vector is " + rawExactHetero);// XXX
 
                                 rawEquations.insertColumns(asMatrix(rawExactHetero));
-				
-                                // determine the columns that we have to eliminate
-                                final BitSet colsToEliminate = new BitSet ();
-                                for (int i = piMonomialNum; i < bigMatrixSize; ++i)
-                                    for (int j = 0; j <= i; ++j) {
-                                        colsToEliminate.set(j*bigMatrixSize + i);
-                                        colsToEliminate.set(i*bigMatrixSize + j);
-                                    }
+
+                                final Matrix rawSmallEquations;
+
+                                if (piMonomialNum == bigMatrixSize) {
+                                    rawSmallEquations = rawEquations;
+                                } else {
+                                    // determine the columns that we have to eliminate
+                                    final BitSet colsToEliminate = new BitSet ();
+                                    for (int i = piMonomialNum; i < bigMatrixSize; ++i)
+                                        for (int j = 0; j <= i; ++j) {
+                                            colsToEliminate.set(j*bigMatrixSize + i);
+                                            colsToEliminate.set(i*bigMatrixSize + j);
+                                        }
                                 
-                                final Matrix rawSmallEquations =
-                                    project(rawEquations, colsToEliminate);
+                                    rawSmallEquations =
+                                        project(rawEquations, colsToEliminate);
+                                }
                                 
                                 assert rawSmallEquations.dimensions()[1] ==
                                              piMonomialNum*piMonomialNum + 1;

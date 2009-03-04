@@ -102,5 +102,6 @@
 [DLOptions]applyGlobalReduce=false
 [DLOptions]quantifierEliminator=Mathematica
 [OrbitalOptions]sparsePolynomials=true
+[DLOptions]useSOS=false
 "
 }
