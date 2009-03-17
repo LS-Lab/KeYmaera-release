@@ -176,7 +176,7 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
                             false, false, BuiltInArithmeticIneqsPropertyEditor.class),
                     createDescriptor(
                     		"useSOS",
-                            "use semi-definite programming",
+                            "semi-definite programming",
                             "select whether to use the sum of squares rule or some other toplevel rule",
                             false, false),
                             //
