@@ -2425,30 +2425,34 @@ public class Main extends JFrame implements IMain {
 				userConstraint.addConstraintTableListener(constraintListener);
 			setProofNodeDisplay();
 			makePrettyView();
-			// update label of autoModeButton and update decproc options list
-			updateDecisionProcedureButton();
-			DecisionProcedureSettings currentSetting = ProofSettings.DEFAULT_SETTINGS
-					.getDecisionProcedureSettings();
-			if (proof != null) {
-				currentSetting = proof.getSettings()
+			if (!(mediator.getProfile() instanceof DLProfile)) {
+				// update label of autoModeButton and update decproc options
+				// list
+				updateDecisionProcedureButton();
+				DecisionProcedureSettings currentSetting = ProofSettings.DEFAULT_SETTINGS
 						.getDecisionProcedureSettings();
-			}
-			simplifyButton.setSelected(currentSetting.useSimplify());
-			icsButton.setSelected(currentSetting.useICS());
-			cvcLiteButton.setSelected(currentSetting.useCVCLite());
-			cvc3Button.setSelected(currentSetting.useCVC3());
-			svcButton.setSelected(currentSetting.useSVC());
-			yicesButton.setSelected(currentSetting.useYices());
-			smtButton.setSelected(currentSetting.useSMT_Translation());
-			smtUseQuantifiersOption
-					.setSelected(currentSetting.useQuantifiers());
-			smtBenchmarkArchivingOption.setSelected(currentSetting
-					.doBenchmarkArchiving());
-			smtZipProblemDirOption
-					.setSelected(currentSetting.doZipProblemDir());
+				if (proof != null) {
+					currentSetting = proof.getSettings()
+							.getDecisionProcedureSettings();
+				}
+				simplifyButton.setSelected(currentSetting.useSimplify());
+				icsButton.setSelected(currentSetting.useICS());
+				cvcLiteButton.setSelected(currentSetting.useCVCLite());
+				cvc3Button.setSelected(currentSetting.useCVC3());
+				svcButton.setSelected(currentSetting.useSVC());
+				yicesButton.setSelected(currentSetting.useYices());
+				smtButton.setSelected(currentSetting.useSMT_Translation());
+				smtUseQuantifiersOption.setSelected(currentSetting
+						.useQuantifiers());
+				smtBenchmarkArchivingOption.setSelected(currentSetting
+						.doBenchmarkArchiving());
+				smtZipProblemDirOption.setSelected(currentSetting
+						.doZipProblemDir());
 
-			// Inform the decproc classes that the selected proof has changed!
-			DecisionProcedureSmtAuflia.fireSelectedProofChanged(proof);
+				// Inform the decproc classes that the selected proof has
+				// changed!
+				DecisionProcedureSmtAuflia.fireSelectedProofChanged(proof);
+			}
 		}
 
 		/**
