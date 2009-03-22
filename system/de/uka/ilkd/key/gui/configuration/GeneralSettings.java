@@ -46,8 +46,8 @@ public class GeneralSettings implements Settings {
     /** suggestive var names are off by default */
     private boolean suggestiveVarNames = false;
 
-    /** sound notification is on by default */
-    private boolean soundNotification = true;
+    /** sound notification is off by default */
+    private boolean soundNotification = false;
 
     /** is drag and drop instantiation direction sensitive */
     private boolean dndDirectionSensitive = true;
