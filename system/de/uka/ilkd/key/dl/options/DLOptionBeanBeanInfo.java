@@ -177,7 +177,7 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
                     createDescriptor(
                     		"useSOS",
                             "semi-definite programming",
-                            "select whether to use the sum of squares rule or some other toplevel rule",
+                            "select whether to use semi-definite programming and sum of squares rule",
                             false, false),
                             //
                     createDescriptor(
