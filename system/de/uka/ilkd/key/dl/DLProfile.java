@@ -42,6 +42,7 @@ import de.uka.ilkd.key.logic.op.DLWarySubstOp;
 import de.uka.ilkd.key.logic.op.Op;
 import de.uka.ilkd.key.proof.init.AbstractProfile;
 import de.uka.ilkd.key.rule.ListOfBuiltInRule;
+import de.uka.ilkd.key.rule.SLListOfBuiltInRule;
 import de.uka.ilkd.key.rule.UpdateSimplificationRule;
 import de.uka.ilkd.key.rule.UpdateSimplifier;
 import de.uka.ilkd.key.strategy.FOLStrategy;
@@ -78,7 +79,7 @@ public class DLProfile extends AbstractProfile {
 	 * 
 	 * @see de.uka.ilkd.key.proof.init.AbstractProfile#supportedStrategies()
 	 */
-	/*@Override*/
+	/* @Override */
 	protected SetOfStrategyFactory getStrategyFactories() {
 		SetOfStrategyFactory set = super.getStrategyFactories();
 		set = set.add(DEFAULT);
@@ -116,7 +117,9 @@ public class DLProfile extends AbstractProfile {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see de.uka.ilkd.key.proof.init.Profile#getProgramBlockProvider(de.uka.ilkd.key.java.Services,de.uka.ilkd.key.logic.NamespaceSet)
+	 * @see
+	 * de.uka.ilkd.key.proof.init.Profile#getProgramBlockProvider(de.uka.ilkd
+	 * .key.java.Services,de.uka.ilkd.key.logic.NamespaceSet)
 	 */
 	public ProgramBlockProvider getProgramBlockProvider(Services services,
 			NamespaceSet nss) {
@@ -128,17 +131,17 @@ public class DLProfile extends AbstractProfile {
 	 * 
 	 * @see de.uka.ilkd.key.proof.init.AbstractProfile#initBuiltInRules()
 	 */
-	/*@Override*/
+	/* @Override */
 	protected ListOfBuiltInRule initBuiltInRules() {
-		ListOfBuiltInRule rule = super.initBuiltInRules().prepend(
+		ListOfBuiltInRule rule = SLListOfBuiltInRule.EMPTY_LIST.prepend(
 				ReduceRule.INSTANCE).prepend(getUpdateSimplificationRule())
 				.prepend(FindInstanceRule.INSTANCE).prepend(
-						EliminateExistentialQuantifierRule.INSTANCE).prepend(
 						FindTransitionRule.INSTANCE);
-		rule = rule.prepend(VisualizationRule.INSTANCE).prepend(
+		rule = rule.append(VisualizationRule.INSTANCE).prepend(
 				SumOfSquaresRule.INSTANCE)
 				.prepend(IterativeReduceRule.INSTANCE).prepend(
-						GroebnerBasisRule.INSTANCE);
+						GroebnerBasisRule.INSTANCE).prepend(
+						EliminateExistentialQuantifierRule.INSTANCE);
 		if (Debug.ENABLE_DEBUG) {
 			rule = rule.prepend(DebugRule.INSTANCE);
 		}
@@ -152,9 +155,10 @@ public class DLProfile extends AbstractProfile {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see de.uka.ilkd.key.proof.init.AbstractProfile#getDefaultUpdateSimplifier()
+	 * @see
+	 * de.uka.ilkd.key.proof.init.AbstractProfile#getDefaultUpdateSimplifier()
 	 */
-	/*@Override*/
+	/* @Override */
 	public UpdateSimplifier getDefaultUpdateSimplifier() {
 		return new DLUpdateSimplifier();
 	}
