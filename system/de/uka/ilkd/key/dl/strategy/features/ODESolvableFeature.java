@@ -142,7 +142,7 @@ public class ODESolvableFeature implements Feature {
 								System.out.println("Visiting: " + visited);
 								if (visited.op().arity() == 0) {
 									try {
-										new BigDecimal(visited.op().toString());
+										new BigDecimal(visited.op().name().toString());
 									} catch (Exception e) {
 										algebraic[0] = false;
 									}
