@@ -85,7 +85,7 @@ public class Mathematica implements ICounterExampleGenerator, IODESolver,
 				String string = System.getProperty("key.home") + File.separator
 						+ "bin" + File.separator + "runAbortProgram "
 						+ abortProgramOptions;
-				System.out.println("Trying to execute: " + string);
+				System.out.println("(I) Trying to execute: " + string);
 				final Process process = Runtime.getRuntime().exec(string);
 				Runtime.getRuntime().addShutdownHook(new Thread() {
 					/*@Override*/
@@ -100,7 +100,7 @@ public class Mathematica implements ICounterExampleGenerator, IODESolver,
 				});
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			System.err.println("(W) Could not start server console.");
 		}
 
 		XPath xpath = XPathFactory.newInstance().newXPath();

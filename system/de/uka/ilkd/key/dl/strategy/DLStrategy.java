@@ -201,7 +201,7 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 		this.stopOnFirstCE = stopOnFirstCE;
 		this.timeout = timeout;
 
-	        this.tf = new ArithTermFeatures ();
+		this.tf = new ArithTermFeatures();
 
 		final RuleSetDispatchFeature d = RuleSetDispatchFeature.create();
 
@@ -272,17 +272,18 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 						ScaleFeature.createScaled(
 								CountMaxDPathFeature.INSTANCE, 10.0) }));
 
-/*		final TermBuffer equation = new TermBuffer();
-		bindRuleSet(d, "apply_equations", add(ifZero(MatchedIfFeature.INSTANCE,
-				add(CheckApplyEqFeature.INSTANCE, let(equation,
-						AssumptionProjection.create(0), TermSmallerThanFeature
-								.create(sub(equation, 1), sub(equation, 0))))),
-				ifZero(ConstraintStrengthenFeature.INSTANCE, add(ifZero(
-						SimplifyBetaCandidateFeature.INSTANCE, inftyConst()),
-						NotBelowQuantifierFeature.INSTANCE, ifZero(
-								ContainsQuantifierFeature.INSTANCE,
-								inftyConst()))), longConst(-4000)));
-*/
+		/*
+		 * final TermBuffer equation = new TermBuffer(); bindRuleSet(d,
+		 * "apply_equations", add(ifZero(MatchedIfFeature.INSTANCE,
+		 * add(CheckApplyEqFeature.INSTANCE, let(equation,
+		 * AssumptionProjection.create(0), TermSmallerThanFeature
+		 * .create(sub(equation, 1), sub(equation, 0))))),
+		 * ifZero(ConstraintStrengthenFeature.INSTANCE, add(ifZero(
+		 * SimplifyBetaCandidateFeature.INSTANCE, inftyConst()),
+		 * NotBelowQuantifierFeature.INSTANCE, ifZero(
+		 * ContainsQuantifierFeature.INSTANCE, inftyConst()))),
+		 * longConst(-4000)));
+		 */
 		bindRuleSet(d, "order_terms", add(TermSmallerThanFeature.create(
 				instOf("commEqLeft"), instOf("commEqRight")), longConst(-8000)));
 
@@ -312,22 +313,22 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 		bindRuleSet(d, "loop_invariant",
 				LoopInvariantRuleDispatchFeature.INSTANCE);
 
-		if (DLOptionBean.INSTANCE.getApplyLocalReduce() != LocalReduceOption.OFF &&
-		    MathSolverManager.isQuantifierEliminatorSet()) {
-//			bindRuleSet(d, "mathematica_reduce",
-//			            add(ReduceFeature.INSTANCE, longConst(4999)));
-			bindRuleSet(d, "mathematica_reduce",
-					add(ReduceFeature.INSTANCE, longConst(-10000)));
+		if (DLOptionBean.INSTANCE.getApplyLocalReduce() != LocalReduceOption.OFF
+				&& MathSolverManager.isQuantifierEliminatorSet()) {
+			// bindRuleSet(d, "mathematica_reduce",
+			// add(ReduceFeature.INSTANCE, longConst(4999)));
+			bindRuleSet(d, "mathematica_reduce", add(ReduceFeature.INSTANCE,
+					longConst(-10000)));
 		} else {
 			bindRuleSet(d, "mathematica_reduce", inftyConst());
 		}
 
-		if (DLOptionBean.INSTANCE.isApplyLocalSimplify() &&
-                    MathSolverManager.isSimplifierSet()) {
-		    bindRuleSet(d, "mathematica_simplify", SimplifyFeature.INSTANCE);
-                } else {
-                    bindRuleSet(d, "mathematica_simplify", inftyConst());
-                }
+		if (DLOptionBean.INSTANCE.isApplyLocalSimplify()
+				&& MathSolverManager.isSimplifierSet()) {
+			bindRuleSet(d, "mathematica_simplify", SimplifyFeature.INSTANCE);
+		} else {
+			bindRuleSet(d, "mathematica_simplify", inftyConst());
+		}
 
 		// final Feature simplifierF = ifZero(selectSimplifier(-10000),
 		// EqNonDuplicateAppFeature.INSTANCE);
@@ -338,13 +339,15 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 		Feature reduceSequence = null;
 		Feature groebnerBasisRule = ConditionalFeature.createConditional(
 				GroebnerBasisRule.INSTANCE, inftyConst());
+		Feature sumOfSquaresRule = ConditionalFeature.createConditional(
+				SumOfSquaresRule.INSTANCE, inftyConst());
 
 		setupDiffSatStrategy(d);
 
 		Feature iterative = ConditionalFeature.createConditional(
 				IterativeReduceRule.INSTANCE, inftyConst());
-		if (DLOptionBean.INSTANCE.isApplyGlobalReduce() &&
-		    MathSolverManager.isQuantifierEliminatorSet()) {
+		if (DLOptionBean.INSTANCE.isApplyGlobalReduce()
+				&& MathSolverManager.isQuantifierEliminatorSet()) {
 			// call reduce is set if the value is not STOP or UNFOLD
 			if (DLOptionBean.INSTANCE.getFoStrategy().compareTo(
 					FirstOrderStrategy.UNFOLD) > 0) {
@@ -417,16 +420,28 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 			} else {
 				reduceSequence = ConditionalFeature.createConditional(
 						ReduceRule.INSTANCE, inftyConst());
-				groebnerBasisRule = ConditionalFeature.createConditional(
-						GroebnerBasisRule.INSTANCE, add(FOSequence.INSTANCE,
-								longConst(20000)));
+				if (DLOptionBean.INSTANCE.isUseSOS()) {
+					sumOfSquaresRule = ConditionalFeature.createConditional(
+							SumOfSquaresRule.INSTANCE, add(FOSequence.INSTANCE,
+							longConst(20000)));
+				} else {
+					groebnerBasisRule = ConditionalFeature.createConditional(
+							GroebnerBasisRule.INSTANCE, add(
+									FOSequence.INSTANCE, longConst(20000)));
+				}
 			}
 		} else {
 			reduceSequence = ConditionalFeature.createConditional(
 					ReduceRule.INSTANCE, inftyConst());
-			groebnerBasisRule = ConditionalFeature.createConditional(
-					GroebnerBasisRule.INSTANCE, add(FOSequence.INSTANCE,
-							longConst(20000)));
+			if (DLOptionBean.INSTANCE.isUseSOS()) {
+				sumOfSquaresRule = ConditionalFeature.createConditional(
+						SumOfSquaresRule.INSTANCE, add(FOSequence.INSTANCE,
+						longConst(20000)));
+			} else {
+				groebnerBasisRule = ConditionalFeature.createConditional(
+						GroebnerBasisRule.INSTANCE, add(
+								FOSequence.INSTANCE, longConst(20000)));
+			}
 		}
 
 		// if the sequent is first order, we can try to apply the rule...
@@ -441,8 +456,6 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 				ConditionalFeature.createConditional(FindInstanceRule.INSTANCE,
 						inftyConst()),
 				ConditionalFeature.createConditional(DebugRule.INSTANCE,
-						inftyConst()),
-				ConditionalFeature.createConditional(SumOfSquaresRule.INSTANCE,
 						inftyConst()),
 				ConditionalFeature.createConditional(
 						VisualizationRule.INSTANCE, inftyConst()),
@@ -460,26 +473,26 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 		counterexampleF = FindTransitionTest.INSTANCE;
 
 		setupApplyEq(d);
-		
+
 		setupArithPrimaryCategories(d);
-                setupPolySimp(d);
-                setupInEqSimp(d);
-		
-                // For taclets that need instantiation, but where the instantiation is
-                // deterministic and does not have to be repeated at a later point, we
-                // setup the same feature terms as in the instantiation method. The
-                // definitions in <code>setupInstantiationWithoutRetry</code> should
-                // give cost infinity to those incomplete rule applications that will
-                // never be instantiated (so that these applications can be removed from
-                // the queue and do not have to be considered again).
-                setupInstantiationWithoutRetry ( d );
+		setupPolySimp(d);
+		setupInEqSimp(d);
+
+		// For taclets that need instantiation, but where the instantiation is
+		// deterministic and does not have to be repeated at a later point, we
+		// setup the same feature terms as in the instantiation method. The
+		// definitions in <code>setupInstantiationWithoutRetry</code> should
+		// give cost infinity to those incomplete rule applications that will
+		// never be instantiated (so that these applications can be removed from
+		// the queue and do not have to be considered again).
+		setupInstantiationWithoutRetry(d);
 
 		completeF = SumFeature.createSum(new Feature[] {
 				AutomatedRuleFeature.INSTANCE, NotWithinMVFeature.INSTANCE,
 				simplifierF, duplicateF, ifMatchedF, d, AgeFeature.INSTANCE,
-				reduceSequence, excludeRules,
-				noQuantifierInstantition, eliminateExistentialQuantifier,
-				iterative, groebnerBasisRule });
+				reduceSequence, excludeRules, noQuantifierInstantition,
+				eliminateExistentialQuantifier, iterative, groebnerBasisRule,
+				sumOfSquaresRule });
 
 		approvalF = setupApprovalF(p_proof);
 
@@ -607,8 +620,8 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 		}
 	}
 
-	// //////////////////////////////////////////////////////////////////////////
-	// //////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////
 	//
 	// Application of equations
 	//
@@ -616,44 +629,81 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 	////////////////////////////////////////////////////////////////////////////
 
 	private void setupApplyEq(RuleSetDispatchFeature d) {
-            if (!DLOptionBean.INSTANCE.isArithmeticReduction()) {
-                bindRuleSet ( d, "apply_equations", inftyConst());
-                return;
-            }
-            
-	    final TermBuffer equation = new TermBuffer ();
-	    final TermBuffer left = new TermBuffer (), right = new TermBuffer ();
+		if (!DLOptionBean.INSTANCE.isArithmeticReduction()) {
+			bindRuleSet(d, "apply_equations", inftyConst());
+			return;
+		}
 
-	    // applying equations less deep/less leftish in terms/formulas is preferred
-	    // this is important for reducing polynomials (start with the biggest
-	    // summands)
-	    bindRuleSet ( d, "apply_equations",
-	       SumFeature.createSum ( new Feature[] {
-	         ifZero ( applyTF ( FocusProjection.create ( 0 ), tf.realF ),
-	                  add ( applyTF ( FocusProjection.create ( 0 ),
-	                                  tf.monomial ),
-	                        ScaleFeature.createScaled
-	                        ( FindRightishFeature.create ( tf.add ), 5.0 ) ) ),
-	         ifZero ( MatchedIfFeature.INSTANCE,
-	           add (
-	           CheckApplyEqFeature.INSTANCE,
-	           let ( equation, AssumptionProjection.create ( 0 ),
-	                 add ( not ( applyTF ( equation,
-	                                       OperatorClassTF
-	                                       .create ( IUpdateOperator.class ) ) ),
-	                 // there might be updates in front of the assumption
-	                 // formula; in this case we wait until the updates have
-	                 // been applied
-	           let ( left, sub ( equation, 0 ),
-	           let ( right, sub ( equation, 1 ),
-	                 ifZero ( applyTF ( left, tf.realF ),
-	                          add ( applyTF ( left, tf.nonNegOrNonCoeffMonomial ),
-	                                applyTF ( right, tf.polynomial ),
-	                                MonomialsSmallerThanFeature
-	                                .create ( right, left ) ),
-	                          TermSmallerThanFeature.create ( right, left ) )
-	                   ) ) ) ) ) ),
-	         longConst ( -4000 ) } ) );
+		final TermBuffer equation = new TermBuffer();
+		final TermBuffer left = new TermBuffer(), right = new TermBuffer();
+
+		// applying equations less deep/less leftish in terms/formulas is
+		// preferred
+		// this is important for reducing polynomials (start with the biggest
+		// summands)
+		bindRuleSet(
+				d,
+				"apply_equations",
+				SumFeature
+						.createSum(new Feature[] {
+								ifZero(applyTF(FocusProjection.create(0),
+										tf.realF), add(applyTF(FocusProjection
+										.create(0), tf.monomial), ScaleFeature
+										.createScaled(FindRightishFeature
+												.create(tf.add), 5.0))),
+								ifZero(
+										MatchedIfFeature.INSTANCE,
+										add(
+												CheckApplyEqFeature.INSTANCE,
+												let(
+														equation,
+														AssumptionProjection
+																.create(0),
+														add(
+																not(applyTF(
+																		equation,
+																		OperatorClassTF
+																				.create(IUpdateOperator.class))),
+																// there might
+																// be updates in
+																// front of the
+																// assumption
+																// formula; in
+																// this case we
+																// wait until
+																// the updates
+																// have
+																// been applied
+																let(
+																		left,
+																		sub(
+																				equation,
+																				0),
+																		let(
+																				right,
+																				sub(
+																						equation,
+																						1),
+																				ifZero(
+																						applyTF(
+																								left,
+																								tf.realF),
+																						add(
+																								applyTF(
+																										left,
+																										tf.nonNegOrNonCoeffMonomial),
+																								applyTF(
+																										right,
+																										tf.polynomial),
+																								MonomialsSmallerThanFeature
+																										.create(
+																												right,
+																												left)),
+																						TermSmallerThanFeature
+																								.create(
+																										right,
+																										left)))))))),
+								longConst(-4000) }));
 	}
 
 	////////////////////////////////////////////////////////////////////////////
@@ -664,381 +714,381 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 	////////////////////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////////////
 
-    private void setupArithPrimaryCategories(RuleSetDispatchFeature d) {
-        // Gaussian elimination + Euclidian algorithm for linear equations;
-        // Buchberger's algorithmus for handling polynomial equations over
-        // the integers
-            
-        if (DLOptionBean.INSTANCE.isNormalizeEquations()) {
-            bindRuleSet ( d, "polySimp_expand", -4500 );
-            bindRuleSet ( d, "polySimp_directEquations", -3000 );
-            bindRuleSet ( d, "polySimp_pullOutGcd", -3500 );
-        } else {
-            bindRuleSet ( d, "polySimp_expand", inftyConst() );
-            bindRuleSet ( d, "polySimp_directEquations", inftyConst() );
-            bindRuleSet ( d, "polySimp_pullOutGcd", inftyConst() );
-        }
-        if (DLOptionBean.INSTANCE.isArithmeticSaturation())
-            bindRuleSet ( d, "polySimp_saturate", 1000 );
-        else
-            bindRuleSet ( d, "polySimp_saturate", inftyConst() );
+	private void setupArithPrimaryCategories(RuleSetDispatchFeature d) {
+		// Gaussian elimination + Euclidian algorithm for linear equations;
+		// Buchberger's algorithmus for handling polynomial equations over
+		// the integers
 
-        // Fourier-Motzkin for handling linear arithmetic and inequalities over the
-        // integers; cross-multiplication + case distinctions for nonlinear
-        // inequalities
+		if (DLOptionBean.INSTANCE.isNormalizeEquations()) {
+			bindRuleSet(d, "polySimp_expand", -4500);
+			bindRuleSet(d, "polySimp_directEquations", -3000);
+			bindRuleSet(d, "polySimp_pullOutGcd", -3500);
+		} else {
+			bindRuleSet(d, "polySimp_expand", inftyConst());
+			bindRuleSet(d, "polySimp_directEquations", inftyConst());
+			bindRuleSet(d, "polySimp_pullOutGcd", inftyConst());
+		}
+		if (DLOptionBean.INSTANCE.isArithmeticSaturation())
+			bindRuleSet(d, "polySimp_saturate", 1000);
+		else
+			bindRuleSet(d, "polySimp_saturate", inftyConst());
 
-        if (DLOptionBean.INSTANCE.isNormalizeEquations()) {
-            bindRuleSet ( d, "inEqSimp_expand", -4500 );
-            bindRuleSet ( d, "inEqSimp_directInEquations", -3000 );
-            bindRuleSet ( d, "inEqSimp_pullOutGcd", -2250 );
-        } else {
-            bindRuleSet ( d, "inEqSimp_expand", inftyConst() );
-            bindRuleSet ( d, "inEqSimp_directInEquations", inftyConst() );
-            bindRuleSet ( d, "inEqSimp_pullOutGcd", inftyConst() );
-        }
-        if (DLOptionBean.INSTANCE.isFourierMotzkin()) {
-            bindRuleSet ( d, "inEqSimp_propagation", -2500 );
-            bindRuleSet ( d, "inEqSimp_saturate", -2000 );
-        } else {
-            bindRuleSet ( d, "inEqSimp_propagation", inftyConst() );
-            bindRuleSet ( d, "inEqSimp_saturate", inftyConst() );
-        }
-    }
+		// Fourier-Motzkin for handling linear arithmetic and inequalities over
+		// the
+		// integers; cross-multiplication + case distinctions for nonlinear
+		// inequalities
 
-    private void setupPolySimp( RuleSetDispatchFeature d) {
-	    
-        // computations on concrete literals
-		
-        // this might be too slow ... and should maybe be written in native Java
-        final TermFeature literalTerm =
-            rec(any(), or(op(tf.add), op(tf.sub),
-                       or(op(tf.mul), opSub(tf.div, any(), not(tf.zeroLiteral)),
-                       or(op(tf.pow), op(tf.neg),
-                       or(tf.literal, DecimalLiteralFeature.INSTANCE)))));
-        
-        bindRuleSet(d, "eval_literals",
-                add(applyTF(FocusProjection.create(0),
-                            add(not(tf.literal),
-                                or(literalTerm,
-                                   opSub(tf.eq, literalTerm, literalTerm),
-                                or(opSub(tf.lt, literalTerm, literalTerm),
-                                   opSub(tf.gt, literalTerm, literalTerm),
-                                or(opSub(tf.leq, literalTerm, literalTerm),
-                                   opSub(tf.geq, literalTerm, literalTerm)))))),
-		    FindDepthFeature.INSTANCE,
-		    longConst(-8000)));
+		if (DLOptionBean.INSTANCE.isNormalizeEquations()) {
+			bindRuleSet(d, "inEqSimp_expand", -4500);
+			bindRuleSet(d, "inEqSimp_directInEquations", -3000);
+			bindRuleSet(d, "inEqSimp_pullOutGcd", -2250);
+		} else {
+			bindRuleSet(d, "inEqSimp_expand", inftyConst());
+			bindRuleSet(d, "inEqSimp_directInEquations", inftyConst());
+			bindRuleSet(d, "inEqSimp_pullOutGcd", inftyConst());
+		}
+		if (DLOptionBean.INSTANCE.isFourierMotzkin()) {
+			bindRuleSet(d, "inEqSimp_propagation", -2500);
+			bindRuleSet(d, "inEqSimp_saturate", -2000);
+		} else {
+			bindRuleSet(d, "inEqSimp_propagation", inftyConst());
+			bindRuleSet(d, "inEqSimp_saturate", inftyConst());
+		}
+	}
 
-        bindRuleSet(d, "eval_literals_right",
-                    add(applyTF("calcRight0", literalTerm),
-                        applyTF("calcRight1", literalTerm),
-                        longConst(-7900)));
+	private void setupPolySimp(RuleSetDispatchFeature d) {
 
-        // category "expansion" (normalising polynomial terms)
-        
-        bindRuleSet ( d, "polySimp_elimSubNeg", longConst ( -120 ) );
+		// computations on concrete literals
 
-        bindRuleSet ( d, "polySimp_elimOneLeft", -120 );
+		// this might be too slow ... and should maybe be written in native Java
+		final TermFeature literalTerm = rec(any(), or(op(tf.add), op(tf.sub),
+				or(op(tf.mul), opSub(tf.div, any(), not(tf.zeroLiteral)), or(
+						op(tf.pow), op(tf.neg), or(tf.literal,
+								DecimalLiteralFeature.INSTANCE)))));
 
-        bindRuleSet ( d, "polySimp_elimOneRight", -120 );
+		bindRuleSet(d, "eval_literals", add(applyTF(FocusProjection.create(0),
+				add(not(tf.literal), or(literalTerm, opSub(tf.eq, literalTerm,
+						literalTerm), or(
+						opSub(tf.lt, literalTerm, literalTerm), opSub(tf.gt,
+								literalTerm, literalTerm), or(opSub(tf.leq,
+								literalTerm, literalTerm), opSub(tf.geq,
+								literalTerm, literalTerm)))))),
+				FindDepthFeature.INSTANCE, longConst(-8000)));
 
-        bindRuleSet ( d, "polySimp_expandPow",
-                      applyTF("expandExp", add(tf.intLiteral, tf.posLiteral)) );
+		bindRuleSet(d, "eval_literals_right", add(applyTF("calcRight0",
+				literalTerm), applyTF("calcRight1", literalTerm),
+				longConst(-7900)));
 
-        bindRuleSet ( d, "polySimp_negatePow",
-                      applyTF("negateExp", tf.negLiteral) );
+		// category "expansion" (normalising polynomial terms)
 
-        bindRuleSet ( d, "polySimp_homo",
-                add ( applyTF ( "homoRight",
-                                add ( not ( tf.zeroLiteral ), tf.polynomial ) ),
-                      or ( applyTF ( "homoLeft", or ( tf.addF, tf.negMonomial ) ),
-                           not ( monSmallerThan ( "homoRight", "homoLeft") ) ),
-                      longConst ( -120 ) ) );
+		bindRuleSet(d, "polySimp_elimSubNeg", longConst(-120));
 
-        bindRuleSet ( d, "polySimp_pullOutFactor",
-                add ( applyTFNonStrict ( "pullOutLeft", tf.literal ),
-                      applyTFNonStrict ( "pullOutRight", tf.literal ),
-                      longConst ( -120 ) ) );
+		bindRuleSet(d, "polySimp_elimOneLeft", -120);
 
-        bindRuleSet ( d, "polySimp_mulOrder",
-                add ( applyTF ( "commRight", tf.monomial ),
-                      or ( applyTF ( "commLeft", tf.addF ),
-                           add ( applyTF ( "commLeft", tf.atom ),
-                                 atomSmallerThan ( "commLeft", "commRight" ) ) ),
-                      longConst ( -100 ) ) );
+		bindRuleSet(d, "polySimp_elimOneRight", -120);
 
-        bindRuleSet ( d, "polySimp_mulAssoc",
-                      SumFeature.createSum( new Feature[] {
-                        applyTF ( "mulAssocMono0", tf.monomial ),
-                        applyTF ( "mulAssocMono1", tf.monomial ),
-                        applyTF ( "mulAssocAtom", tf.atom ),
-                        longConst ( -80 ) } ) );
+		bindRuleSet(d, "polySimp_expandPow", applyTF("expandExp", add(
+				tf.intLiteral, tf.posLiteral)));
 
-        bindRuleSet ( d, "polySimp_addOrder",
-                      SumFeature.createSum( new Feature[] {
-                        applyTF ( "commLeft", tf.monomial ),
-                        applyTF ( "commRight", tf.polynomial ),
-                        monSmallerThan ( "commRight", "commLeft"),
-                        longConst ( -60 ) } ) );
+		bindRuleSet(d, "polySimp_negatePow",
+				applyTF("negateExp", tf.negLiteral));
 
-             
-        bindRuleSet ( d, "polySimp_addAssoc",
-                      SumFeature.createSum( new Feature[] {
-                        applyTF ( "addAssocPoly0", tf.polynomial ),
-                        applyTF ( "addAssocPoly1", tf.polynomial ),
-                        applyTF ( "addAssocMono", tf.monomial ),
-                        longConst ( -10 ) } ) );
+		bindRuleSet(d, "polySimp_homo", add(applyTF("homoRight", add(
+				not(tf.zeroLiteral), tf.polynomial)), or(applyTF("homoLeft",
+				or(tf.addF, tf.negMonomial)), not(monSmallerThan("homoRight",
+				"homoLeft"))), longConst(-120)));
 
-        bindRuleSet ( d, "polySimp_dist",
-                      SumFeature.createSum( new Feature[] {
-                        applyTF ( "distSummand0", tf.polynomial ),
-                        applyTF ( "distSummand1", tf.polynomial ),
-                        ifZero ( applyTF ( "distCoeff", tf.monomial ),
-                                 longConst ( -15 ),
-                                 applyTF ( "distCoeff", tf.polynomial ) ),
-                        applyTF ( "distSummand0", tf.polynomial ),
-                        applyTF ( "distSummand1", tf.polynomial ),
-                        longConst ( -35 ) } ) );
+		bindRuleSet(d, "polySimp_pullOutFactor", add(applyTFNonStrict(
+				"pullOutLeft", tf.literal), applyTFNonStrict("pullOutRight",
+				tf.literal), longConst(-120)));
 
-        bindRuleSet ( d, "polySimp_decompFract",
-           add ( not ( applyTF ( "fractNum", tf.oneLiteral ) ),
-                 not ( applyTF ( "fractDenom", tf.zeroLiteral ) ),
-                 ifZero ( applyTF ( "fractDenom", tf.literal ),
-                          add ( not ( applyTF ( "fractNum", tf.literal ) ),
-                                longConst ( -110 ) ),
-                          NotInScopeOfModalityFeature.INSTANCE ) ) );
-        
-        bindRuleSet ( d, "polySimp_decompFractMul",
-           add ( NotInScopeOfModalityFeature.INSTANCE,
-                 longConst ( -120 ) ) );
+		bindRuleSet(d, "polySimp_mulOrder", add(applyTF("commRight",
+				tf.monomial),
+				or(applyTF("commLeft", tf.addF), add(applyTF("commLeft",
+						tf.atom), atomSmallerThan("commLeft", "commRight"))),
+				longConst(-100)));
 
-        bindRuleSet ( d, "polySimp_divAxiom",
-                      add ( not ( applyTF ( "fractDenom", tf.literal ) ),
-                            NonDuplicateAppModPositionFeature.INSTANCE ) );
-                
-        // category "direct equations"
-        
-        bindRuleSet ( d, "polySimp_balance",
-           SumFeature.createSum ( new Feature[] {
-             applyTF ( "sepResidue", tf.polynomial ),
-             ifZero ( isInstantiated ( "sepPosMono" ),
-               add ( applyTF ( "sepPosMono", tf.nonNegMonomial ),
-                     monSmallerThan ( "sepResidue", "sepPosMono" ) ) ),
-             ifZero ( isInstantiated ( "sepNegMono" ),
-               add ( applyTF ( "sepNegMono", tf.negMonomial ),
-                     monSmallerThan ( "sepResidue", "sepNegMono" ) ) ),
-             longConst ( -30 )
-           } ) );
-        
-        bindRuleSet ( d, "polySimp_normalise",
-                      add ( applyTF ( "invertRight", tf.zeroLiteral ),
-                            applyTF ( "invertLeft", tf.negMonomial ),
-                            longConst ( -30 ) ) );
+		bindRuleSet(d, "polySimp_mulAssoc", SumFeature.createSum(new Feature[] {
+				applyTF("mulAssocMono0", tf.monomial),
+				applyTF("mulAssocMono1", tf.monomial),
+				applyTF("mulAssocAtom", tf.atom), longConst(-80) }));
 
-        // application of equations: some specialised rules that handle
-        // monomials and their coefficients properly
+		bindRuleSet(d, "polySimp_addOrder", SumFeature.createSum(new Feature[] {
+				applyTF("commLeft", tf.monomial),
+				applyTF("commRight", tf.polynomial),
+				monSmallerThan("commRight", "commLeft"), longConst(-60) }));
 
-        final TermBuffer eqLeft = new TermBuffer ();
-        final TermBuffer focus = new TermBuffer ();
+		bindRuleSet(d, "polySimp_addAssoc", SumFeature.createSum(new Feature[] {
+				applyTF("addAssocPoly0", tf.polynomial),
+				applyTF("addAssocPoly1", tf.polynomial),
+				applyTF("addAssocMono", tf.monomial), longConst(-10) }));
 
-        final Feature validEqApplication =
-            add ( not ( eq ( eqLeft, focus ) ),
-                  applyTF ( focus, not ( tf.literal ) ),
-                  // otherwise, the normal equation rules can and should be used
-                  ReducibleMonomialsFeature.createDivides ( focus, eqLeft ) );
-        
-        final Feature eq_monomial_feature =
-            add ( not ( DirectlyBelowSymbolFeature.create ( tf.mul ) ),
-                  ifZero ( MatchedIfFeature.INSTANCE,
-                           let ( focus, FocusProjection.create ( 0 ),
-                           let ( eqLeft,
-                                 sub ( AssumptionProjection.create ( 0 ), 0 ), 
-                                 validEqApplication ) ) ) );
-        
-        bindRuleSet ( d, "polySimp_applyEq",
-                      add ( eq_monomial_feature, longConst ( 1 ) ) );
+		bindRuleSet(d, "polySimp_dist", SumFeature.createSum(new Feature[] {
+				applyTF("distSummand0", tf.polynomial),
+				applyTF("distSummand1", tf.polynomial),
+				ifZero(applyTF("distCoeff", tf.monomial), longConst(-15),
+						applyTF("distCoeff", tf.polynomial)),
+				applyTF("distSummand0", tf.polynomial),
+				applyTF("distSummand1", tf.polynomial), longConst(-35) }));
 
-        bindRuleSet ( d, "polySimp_applyEqRigid",
-                      add ( eq_monomial_feature, longConst ( 2 ) ) );
+		bindRuleSet(d, "polySimp_decompFract", add(not(applyTF("fractNum",
+				tf.oneLiteral)), not(applyTF("fractDenom", tf.zeroLiteral)),
+				ifZero(applyTF("fractDenom", tf.literal), add(not(applyTF(
+						"fractNum", tf.literal)), longConst(-110)),
+						NotInScopeOfModalityFeature.INSTANCE)));
 
-        // category "saturate"
-        
-        bindRuleSet ( d, "polySimp_critPair",
-           ifZero ( MatchedIfFeature.INSTANCE,
-                    add ( monSmallerThan ( "cpLeft1", "cpLeft2" ),
-                          not ( TrivialMonomialLCRFeature
-                                .create ( instOf ( "cpLeft1" ),
-                                          instOf ( "cpLeft2" ) ) ) ) ) );
+		bindRuleSet(d, "polySimp_decompFractMul", add(
+				NotInScopeOfModalityFeature.INSTANCE, longConst(-120)));
 
-    }
+		bindRuleSet(d, "polySimp_divAxiom", add(not(applyTF("fractDenom",
+				tf.literal)), NonDuplicateAppModPositionFeature.INSTANCE));
 
-    // For taclets that need instantiation, but where the instantiation is
-    // deterministic and does not have to be repeated at a later point, we
-    // setup the same feature terms as in the instantiation method. The
-    // definitions in <code>setupInstantiationWithoutRetry</code> should
-    // give cost infinity to those incomplete rule applications that will
-    // never be instantiated (so that these applications can be removed from
-    // the queue and do not have to be considered again).
-    private void setupPolySimpInstantiationWithoutRetry(RuleSetDispatchFeature d) {
-        final TermBuffer gcd = new TermBuffer ();
+		// category "direct equations"
 
-        bindRuleSet ( d, "polySimp_pullOutGcd",
-                SumFeature.createSum ( new Feature[] {
-                 applyTF ( "elimGcdLeft", tf.nonNegMonomial ),
-                      applyTF ( "elimGcdRight", tf.polynomial ),
-                      let ( gcd,
-                            CoeffGcdProjection.create ( instOf ( "elimGcdLeft" ),
-                                                        instOf ( "elimGcdRight" ) ),
-                            add ( applyTF ( gcd, add ( not ( tf.oneLiteral ),
-                                                       not ( tf.zeroLiteral ) ) ),
-                                  instantiate ( "elimGcd", gcd ) ) ) } ) );
-    }
-        
-    private Feature monSmallerThan(String smaller, String bigger) {
-        return
-          MonomialsSmallerThanFeature.create ( instOf ( smaller ), instOf ( bigger ));
-    }
+		bindRuleSet(d, "polySimp_balance", SumFeature.createSum(new Feature[] {
+				applyTF("sepResidue", tf.polynomial),
+				ifZero(isInstantiated("sepPosMono"), add(applyTF("sepPosMono",
+						tf.nonNegMonomial), monSmallerThan("sepResidue",
+						"sepPosMono"))),
+				ifZero(isInstantiated("sepNegMono"), add(applyTF("sepNegMono",
+						tf.negMonomial), monSmallerThan("sepResidue",
+						"sepNegMono"))), longConst(-30) }));
 
-    private Feature atomSmallerThan(String smaller, String bigger) {
-        return
-          AtomsSmallerThanFeature.create ( instOf ( smaller ), instOf ( bigger ) );
-    }
+		bindRuleSet(d, "polySimp_normalise", add(applyTF("invertRight",
+				tf.zeroLiteral), applyTF("invertLeft", tf.negMonomial),
+				longConst(-30)));
 
-    private void setupInEqSimp(RuleSetDispatchFeature d) {
+		// application of equations: some specialised rules that handle
+		// monomials and their coefficients properly
 
-        // category "expansion" (normalising inequations)
+		final TermBuffer eqLeft = new TermBuffer();
+		final TermBuffer focus = new TermBuffer();
 
-        bindRuleSet ( d, "inEqSimp_moveLeft", -90 );
+		final Feature validEqApplication = add(not(eq(eqLeft, focus)), applyTF(
+				focus, not(tf.literal)),
+		// otherwise, the normal equation rules can and should be used
+				ReducibleMonomialsFeature.createDivides(focus, eqLeft));
 
-        bindRuleSet ( d, "inEqSimp_commute",
-           SumFeature.createSum ( new Feature[] {
-             applyTF ( "commRight", tf.monomial ),
-             applyTF ( "commLeft", tf.polynomial ),
-             monSmallerThan ( "commLeft", "commRight" ),
-             longConst ( -40 ) } ) );
+		final Feature eq_monomial_feature = add(not(DirectlyBelowSymbolFeature
+				.create(tf.mul)), ifZero(MatchedIfFeature.INSTANCE, let(focus,
+				FocusProjection.create(0), let(eqLeft, sub(AssumptionProjection
+						.create(0), 0), validEqApplication))));
 
-        // this is copied from "polySimp_homo"
-        bindRuleSet ( d, "inEqSimp_homo",
-           add ( applyTF ( "homoRight",
-                           add ( not ( tf.zeroLiteral ), tf.polynomial ) ),
-                 or ( applyTF ( "homoLeft", or ( tf.addF, tf.negMonomial ) ),
-                 not ( monSmallerThan ( "homoRight", "homoLeft") ) ) ) );
+		bindRuleSet(d, "polySimp_applyEq", add(eq_monomial_feature,
+				longConst(1)));
 
-        // category "direct inequations"
+		bindRuleSet(d, "polySimp_applyEqRigid", add(eq_monomial_feature,
+				longConst(2)));
 
-        // this is copied from "polySimp_balance"
-        bindRuleSet ( d, "inEqSimp_balance",
-           add (
-             applyTF ( "sepResidue", tf.polynomial ),
-             ifZero ( isInstantiated ( "sepPosMono" ),
-                add ( applyTF ( "sepPosMono", tf.nonNegMonomial ),
-                      monSmallerThan ( "sepResidue", "sepPosMono" ) ) ),
-             ifZero ( isInstantiated ( "sepNegMono" ),
-                add ( applyTF ( "sepNegMono", tf.negMonomial ),
-                      monSmallerThan ( "sepResidue", "sepNegMono" ) ) )
-             ) );
-        
-        // this is copied from "polySimp_normalise"
-        bindRuleSet ( d, "inEqSimp_normalise",
-                      add ( applyTF ( "invertRight", tf.zeroLiteral ),
-                            applyTF ( "invertLeft", tf.negMonomial ) ) );
+		// category "saturate"
 
-        // category "saturate"
-        
-        bindRuleSet ( d, "inEqSimp_antiSymm", longConst ( -20 ) );
+		bindRuleSet(d, "polySimp_critPair", ifZero(MatchedIfFeature.INSTANCE,
+				add(monSmallerThan("cpLeft1", "cpLeft2"),
+						not(TrivialMonomialLCRFeature.create(instOf("cpLeft1"),
+								instOf("cpLeft2"))))));
 
-        bindRuleSet ( d, "inEqSimp_exactShadow",
-                SumFeature.createSum ( new Feature[] {
-                  applyTF ( "esLeft", tf.nonCoeffMonomial ),
-                  applyTFNonStrict ( "esCoeff2", tf.nonNegLiteral ),
-                  applyTF ( "esRight2", tf.polynomial ),
-                  ifZero ( MatchedIfFeature.INSTANCE,
-                         SumFeature.createSum ( new Feature[] {
-                           applyTFNonStrict ( "esCoeff1", tf.nonNegLiteral ),
-                           applyTF ( "esRight1", tf.polynomial ),
-                           not ( PolynomialValuesCmpFeature
-                                 .leq ( instOf ( "esRight2" ),
-                                        instOf ( "esRight1" ),
-                                        instOfNonStrict ( "esCoeff1" ),
-                                        instOfNonStrict ( "esCoeff2" ) ))
-                         } ) ) } ) );
-        
-        // category "propagation"
+	}
 
-        setupContradictions(d, false);
-        setupContradictions(d, true);
+	// For taclets that need instantiation, but where the instantiation is
+	// deterministic and does not have to be repeated at a later point, we
+	// setup the same feature terms as in the instantiation method. The
+	// definitions in <code>setupInstantiationWithoutRetry</code> should
+	// give cost infinity to those incomplete rule applications that will
+	// never be instantiated (so that these applications can be removed from
+	// the queue and do not have to be considered again).
+	private void setupPolySimpInstantiationWithoutRetry(RuleSetDispatchFeature d) {
+		final TermBuffer gcd = new TermBuffer();
 
-        setupEqContradictions(d, false);
-        setupEqContradictions(d, true);
+		bindRuleSet(d, "polySimp_pullOutGcd", SumFeature
+				.createSum(new Feature[] {
+						applyTF("elimGcdLeft", tf.nonNegMonomial),
+						applyTF("elimGcdRight", tf.polynomial),
+						let(gcd, CoeffGcdProjection.create(
+								instOf("elimGcdLeft"), instOf("elimGcdRight")),
+								add(applyTF(gcd, add(not(tf.oneLiteral),
+										not(tf.zeroLiteral))), instantiate(
+										"elimGcd", gcd))) }));
+	}
 
-        bindRuleSet ( d, "inEqSimp_strengthen", longConst ( -30 ) );
+	private Feature monSmallerThan(String smaller, String bigger) {
+		return MonomialsSmallerThanFeature.create(instOf(smaller),
+				instOf(bigger));
+	}
 
-        setupSubsumption(d, false);
-        setupSubsumption(d, true);
+	private Feature atomSmallerThan(String smaller, String bigger) {
+		return AtomsSmallerThanFeature.create(instOf(smaller), instOf(bigger));
+	}
 
-    }
+	private void setupInEqSimp(RuleSetDispatchFeature d) {
 
-    private void setupEqContradictions(RuleSetDispatchFeature d, boolean strict) {
-        bindRuleSet ( d, strict ? "inEqSimp_strictContradEqs" : "inEqSimp_contradEqs",
-           add ( applyTF ( "contradLeft", tf.monomial ),
-                 ifZero ( MatchedIfFeature.INSTANCE,
-                   SumFeature.createSum ( new Feature[] {
-                     applyTF ( "contradRightSmaller", tf.polynomial ),
-                     applyTF ( "contradRightBigger", tf.polynomial ),
-                     strict ?
-                       PolynomialValuesCmpFeature
-                       .leq ( instOf ( "contradRightSmaller" ),
-                              instOf ( "contradRightBigger" ) )
-                     : PolynomialValuesCmpFeature
-                       .lt ( instOf ( "contradRightSmaller" ),
-                             instOf ( "contradRightBigger" ) ) } ) ),
-                 longConst ( -60 ) ) );
-    }
+		// category "expansion" (normalising inequations)
 
-    private void setupContradictions(RuleSetDispatchFeature d, boolean strict) {
-        bindRuleSet ( d, strict ? "inEqSimp_strictContradInEqs" : "inEqSimp_contradInEqs",
-           add ( applyTF ( "contradLeft", tf.monomial ),
-                 ifZero ( MatchedIfFeature.INSTANCE,
-                   SumFeature.createSum ( new Feature[] {
-                     DiffFindAndIfFeature.INSTANCE,
-                     applyTF ( "contradRightSmaller", tf.polynomial ),
-                     applyTF ( "contradRightBigger", tf.polynomial ),
-                     applyTFNonStrict ( "contradCoeffSmaller", tf.posLiteral ),
-                     applyTFNonStrict ( "contradCoeffBigger", tf.posLiteral ),
-                     strict ?
-                       PolynomialValuesCmpFeature
-                       .leq ( instOf ( "contradRightSmaller" ),
-                              instOf ( "contradRightBigger" ),
-                              instOfNonStrict ( "contradCoeffBigger" ),
-                              instOfNonStrict ( "contradCoeffSmaller" ) )
-                     : PolynomialValuesCmpFeature
-                       .lt ( instOf ( "contradRightSmaller" ),
-                             instOf ( "contradRightBigger" ),
-                             instOfNonStrict ( "contradCoeffBigger" ),
-                             instOfNonStrict ( "contradCoeffSmaller" ) )} ) ) ) );
-    }
+		bindRuleSet(d, "inEqSimp_moveLeft", -90);
 
-    private void setupSubsumption(RuleSetDispatchFeature d, boolean strict) {
-        bindRuleSet ( d, strict ? "inEqSimp_strictSubsumption" : "inEqSimp_subsumption",
-           add ( applyTF ( "subsumLeft", tf.monomial ),
-                 ifZero ( MatchedIfFeature.INSTANCE,
-                   SumFeature.createSum ( new Feature[] {
-                     DiffFindAndIfFeature.INSTANCE,
-                     applyTF ( "subsumRightSmaller", tf.polynomial ),
-                     applyTF ( "subsumRightBigger", tf.polynomial ),
-                     applyTFNonStrict ( "subsumCoeffSmaller", tf.posLiteral ),
-                     applyTFNonStrict ( "subsumCoeffBigger", tf.posLiteral ),
-                     strict ?
-                       PolynomialValuesCmpFeature
-                       .lt ( instOf ( "subsumRightSmaller" ),
-                             instOf ( "subsumRightBigger" ),
-                             instOfNonStrict ( "subsumCoeffBigger" ),
-                             instOfNonStrict ( "subsumCoeffSmaller" ) )
-                     : PolynomialValuesCmpFeature
-                       .leq ( instOf ( "subsumRightSmaller" ),
-                              instOf ( "subsumRightBigger" ),
-                              instOfNonStrict ( "subsumCoeffBigger" ),
-                              instOfNonStrict ( "subsumCoeffSmaller" ) ) } ) ) ) );
-    }
+		bindRuleSet(d, "inEqSimp_commute", SumFeature.createSum(new Feature[] {
+				applyTF("commRight", tf.monomial),
+				applyTF("commLeft", tf.polynomial),
+				monSmallerThan("commLeft", "commRight"), longConst(-40) }));
+
+		// this is copied from "polySimp_homo"
+		bindRuleSet(d, "inEqSimp_homo", add(applyTF("homoRight", add(
+				not(tf.zeroLiteral), tf.polynomial)), or(applyTF("homoLeft",
+				or(tf.addF, tf.negMonomial)), not(monSmallerThan("homoRight",
+				"homoLeft")))));
+
+		// category "direct inequations"
+
+		// this is copied from "polySimp_balance"
+		bindRuleSet(d, "inEqSimp_balance", add(applyTF("sepResidue",
+				tf.polynomial), ifZero(isInstantiated("sepPosMono"), add(
+				applyTF("sepPosMono", tf.nonNegMonomial), monSmallerThan(
+						"sepResidue", "sepPosMono"))), ifZero(
+				isInstantiated("sepNegMono"), add(applyTF("sepNegMono",
+						tf.negMonomial), monSmallerThan("sepResidue",
+						"sepNegMono")))));
+
+		// this is copied from "polySimp_normalise"
+		bindRuleSet(d, "inEqSimp_normalise", add(applyTF("invertRight",
+				tf.zeroLiteral), applyTF("invertLeft", tf.negMonomial)));
+
+		// category "saturate"
+
+		bindRuleSet(d, "inEqSimp_antiSymm", longConst(-20));
+
+		bindRuleSet(
+				d,
+				"inEqSimp_exactShadow",
+				SumFeature
+						.createSum(new Feature[] {
+								applyTF("esLeft", tf.nonCoeffMonomial),
+								applyTFNonStrict("esCoeff2", tf.nonNegLiteral),
+								applyTF("esRight2", tf.polynomial),
+								ifZero(
+										MatchedIfFeature.INSTANCE,
+										SumFeature
+												.createSum(new Feature[] {
+														applyTFNonStrict(
+																"esCoeff1",
+																tf.nonNegLiteral),
+														applyTF("esRight1",
+																tf.polynomial),
+														not(PolynomialValuesCmpFeature
+																.leq(
+																		instOf("esRight2"),
+																		instOf("esRight1"),
+																		instOfNonStrict("esCoeff1"),
+																		instOfNonStrict("esCoeff2"))) })) }));
+
+		// category "propagation"
+
+		setupContradictions(d, false);
+		setupContradictions(d, true);
+
+		setupEqContradictions(d, false);
+		setupEqContradictions(d, true);
+
+		bindRuleSet(d, "inEqSimp_strengthen", longConst(-30));
+
+		setupSubsumption(d, false);
+		setupSubsumption(d, true);
+
+	}
+
+	private void setupEqContradictions(RuleSetDispatchFeature d, boolean strict) {
+		bindRuleSet(
+				d,
+				strict ? "inEqSimp_strictContradEqs" : "inEqSimp_contradEqs",
+				add(
+						applyTF("contradLeft", tf.monomial),
+						ifZero(
+								MatchedIfFeature.INSTANCE,
+								SumFeature
+										.createSum(new Feature[] {
+												applyTF("contradRightSmaller",
+														tf.polynomial),
+												applyTF("contradRightBigger",
+														tf.polynomial),
+												strict ? PolynomialValuesCmpFeature
+														.leq(
+																instOf("contradRightSmaller"),
+																instOf("contradRightBigger"))
+														: PolynomialValuesCmpFeature
+																.lt(
+																		instOf("contradRightSmaller"),
+																		instOf("contradRightBigger")) })),
+						longConst(-60)));
+	}
+
+	private void setupContradictions(RuleSetDispatchFeature d, boolean strict) {
+		bindRuleSet(
+				d,
+				strict ? "inEqSimp_strictContradInEqs"
+						: "inEqSimp_contradInEqs",
+				add(
+						applyTF("contradLeft", tf.monomial),
+						ifZero(
+								MatchedIfFeature.INSTANCE,
+								SumFeature
+										.createSum(new Feature[] {
+												DiffFindAndIfFeature.INSTANCE,
+												applyTF("contradRightSmaller",
+														tf.polynomial),
+												applyTF("contradRightBigger",
+														tf.polynomial),
+												applyTFNonStrict(
+														"contradCoeffSmaller",
+														tf.posLiteral),
+												applyTFNonStrict(
+														"contradCoeffBigger",
+														tf.posLiteral),
+												strict ? PolynomialValuesCmpFeature
+														.leq(
+																instOf("contradRightSmaller"),
+																instOf("contradRightBigger"),
+																instOfNonStrict("contradCoeffBigger"),
+																instOfNonStrict("contradCoeffSmaller"))
+														: PolynomialValuesCmpFeature
+																.lt(
+																		instOf("contradRightSmaller"),
+																		instOf("contradRightBigger"),
+																		instOfNonStrict("contradCoeffBigger"),
+																		instOfNonStrict("contradCoeffSmaller")) }))));
+	}
+
+	private void setupSubsumption(RuleSetDispatchFeature d, boolean strict) {
+		bindRuleSet(
+				d,
+				strict ? "inEqSimp_strictSubsumption" : "inEqSimp_subsumption",
+				add(
+						applyTF("subsumLeft", tf.monomial),
+						ifZero(
+								MatchedIfFeature.INSTANCE,
+								SumFeature
+										.createSum(new Feature[] {
+												DiffFindAndIfFeature.INSTANCE,
+												applyTF("subsumRightSmaller",
+														tf.polynomial),
+												applyTF("subsumRightBigger",
+														tf.polynomial),
+												applyTFNonStrict(
+														"subsumCoeffSmaller",
+														tf.posLiteral),
+												applyTFNonStrict(
+														"subsumCoeffBigger",
+														tf.posLiteral),
+												strict ? PolynomialValuesCmpFeature
+														.lt(
+																instOf("subsumRightSmaller"),
+																instOf("subsumRightBigger"),
+																instOfNonStrict("subsumCoeffBigger"),
+																instOfNonStrict("subsumCoeffSmaller"))
+														: PolynomialValuesCmpFeature
+																.leq(
+																		instOf("subsumRightSmaller"),
+																		instOf("subsumRightBigger"),
+																		instOfNonStrict("subsumCoeffBigger"),
+																		instOfNonStrict("subsumCoeffSmaller")) }))));
+	}
 
 	////////////////////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////////////
@@ -1046,8 +1096,8 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 	// Feature terms that handle the instantiation of incomplete taclet
 	// applications
 	//
-	// //////////////////////////////////////////////////////////////////////////
-	// //////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////
 
 	private RuleSetDispatchFeature setupInstantiationF(Proof p_proof) {
 		enableInstantiate();
@@ -1064,14 +1114,14 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 	 * deterministic and does not have to be repeated at a later point, we setup
 	 * the same feature terms both in the cost computation method and in the
 	 * instantiation method. The definitions in
-	 * <code>setupInstantiationWithoutRetry</code> should give cost infinity
-	 * to those incomplete rule applications that will never be instantiated (so
+	 * <code>setupInstantiationWithoutRetry</code> should give cost infinity to
+	 * those incomplete rule applications that will never be instantiated (so
 	 * that these applications can be removed from the queue and do not have to
 	 * be considered again).
 	 */
 	private void setupInstantiationWithoutRetry(RuleSetDispatchFeature d) {
-	    setupPolySimpInstantiationWithoutRetry ( d );
-//	    setupInEqSimpInstantiationWithoutRetry ( d );
+		setupPolySimpInstantiationWithoutRetry(d);
+		// setupInEqSimpInstantiationWithoutRetry ( d );
 	}
 
 	private void setupAnnotationInstantiationStrategy(RuleSetDispatchFeature d) {
@@ -1223,23 +1273,23 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 				inftyConst()));
 	}
 
-	// //////////////////////////////////////////////////////////////////////////
-	// //////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////
 	//
 	// Feature terms that handle the approval of complete taclet applications
 	//
-	// //////////////////////////////////////////////////////////////////////////
-	// //////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////
 
 	private Feature setupApprovalF(Proof p_proof) {
 		final RuleSetDispatchFeature d = RuleSetDispatchFeature.create();
 		setupDiffSatApprovalStrategy(d);
-		
+
 		// do not introduce S-polynomials while programs are
 		// still present
 		bindRuleSet(d, "polySimp_saturate",
-		            not ( SeqContainsExecutableCodeFeature.PROGRAMS ));
-		
+				not(SeqContainsExecutableCodeFeature.PROGRAMS));
+
 		return SumFeature.createSum(new Feature[] { d,
 				EliminateExistentialApproveFeature.INSTANCE });
 	}
@@ -1464,115 +1514,109 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 		return de.uka.ilkd.key.dl.strategy.termProjection.SumFeature.create(x,
 				gen, body);
 	}
-	
-	////////////////////////////////////////////////////////////////////////
-	////////////////////////////////////////////////////////////////////////
+
+	// //////////////////////////////////////////////////////////////////////
+	// //////////////////////////////////////////////////////////////////////
 	//
 	// Termfeatures: characterisations of terms and formulas
 	//
-	////////////////////////////////////////////////////////////////////////
-	////////////////////////////////////////////////////////////////////////
+	// //////////////////////////////////////////////////////////////////////
+	// //////////////////////////////////////////////////////////////////////
 
 	private final ArithTermFeatures tf;
-	    
+
 	private class ArithTermFeatures {
 
-	    public ArithTermFeatures () {
-		add = RealLDT.getFunctionFor(de.uka.ilkd.key.dl.model.Plus.class);
-		sub = RealLDT.getFunctionFor(de.uka.ilkd.key.dl.model.Minus.class);
-		mul = RealLDT.getFunctionFor(de.uka.ilkd.key.dl.model.Mult.class);
-		div = RealLDT.getFunctionFor(de.uka.ilkd.key.dl.model.Div.class);
-		pow = RealLDT.getFunctionFor(de.uka.ilkd.key.dl.model.Exp.class);
-		neg = RealLDT.getFunctionFor(de.uka.ilkd.key.dl.model.MinusSign.class);
+		public ArithTermFeatures() {
+			add = RealLDT.getFunctionFor(de.uka.ilkd.key.dl.model.Plus.class);
+			sub = RealLDT.getFunctionFor(de.uka.ilkd.key.dl.model.Minus.class);
+			mul = RealLDT.getFunctionFor(de.uka.ilkd.key.dl.model.Mult.class);
+			div = RealLDT.getFunctionFor(de.uka.ilkd.key.dl.model.Div.class);
+			pow = RealLDT.getFunctionFor(de.uka.ilkd.key.dl.model.Exp.class);
+			neg = RealLDT
+					.getFunctionFor(de.uka.ilkd.key.dl.model.MinusSign.class);
 
-		addF = op(add);
-                subF = op(sub);
-		mulF = op(mul);
-		divF = op(div);
-                powF = op(pow);
+			addF = op(add);
+			subF = op(sub);
+			mulF = op(mul);
+			divF = op(div);
+			powF = op(pow);
 
-                realS = RealLDT.getRealSort();
-                
-                realF = extendsTrans ( realS );
+			realS = RealLDT.getRealSort();
 
-                eq = Op.EQUALS;
-                lt = RealLDT.getFunctionFor(de.uka.ilkd.key.dl.model.Less.class);
-                gt = RealLDT.getFunctionFor(de.uka.ilkd.key.dl.model.Greater.class);
-                leq = RealLDT.getFunctionFor(de.uka.ilkd.key.dl.model.LessEquals.class);
-                geq = RealLDT.getFunctionFor(de.uka.ilkd.key.dl.model.GreaterEquals.class);
+			realF = extendsTrans(realS);
 
-		atom = add ( not ( addF ), not ( mulF ), not ( powF ) );
+			eq = Op.EQUALS;
+			lt = RealLDT.getFunctionFor(de.uka.ilkd.key.dl.model.Less.class);
+			gt = RealLDT.getFunctionFor(de.uka.ilkd.key.dl.model.Greater.class);
+			leq = RealLDT
+					.getFunctionFor(de.uka.ilkd.key.dl.model.LessEquals.class);
+			geq = RealLDT
+					.getFunctionFor(de.uka.ilkd.key.dl.model.GreaterEquals.class);
 
-		// left-associatively arranged monomials, literals are only allowed
-		// as right-most term
-		monomial =
-		    or ( atom,
-		         opSub ( mul,
-		                 rec ( mulF, or ( opSub ( mul, any (), not ( mulF ) ),
-		                       add ( not ( addF ), not ( literal ) ) ) ),
-	                         atom ) );
+			atom = add(not(addF), not(mulF), not(powF));
 
+			// left-associatively arranged monomials, literals are only allowed
+			// as right-most term
+			monomial = or(atom, opSub(mul, rec(mulF, or(opSub(mul, any(),
+					not(mulF)), add(not(addF), not(literal)))), atom));
+
+			// left-associatively arranged polynomials
+			polynomial = rec(addF, or(opSub(add, any(), not(addF)), monomial));
+
+			nonNegMonomial = add(monomial, or(not(mulF), sub(any(),
+					not(negLiteral))));
+			posMonomial = opSub(mul, monomial, posLiteral);
+			negMonomial = opSub(mul, monomial, negLiteral);
+			nonCoeffMonomial = add(monomial, or(not(mulF), sub(any(),
+					not(literal))));
+			nonNegOrNonCoeffMonomial = add(monomial, or(not(mulF), sub(any(),
+					not(negLiteral))));
+		}
+
+		final Function add;
+		final Function sub;
+		final Function mul;
+		final Function div;
+		final Function pow;
+		final Function neg;
+
+		final Operator eq;
+		final Function lt;
+		final Function gt;
+		final Function leq;
+		final Function geq;
+
+		final Sort realS;
+
+		final TermFeature addF;
+		final TermFeature subF;
+		final TermFeature mulF;
+		final TermFeature divF;
+		final TermFeature powF;
+
+		final TermFeature realF;
+
+		final TermFeature atom;
+
+		// left-associatively arranged monomials
+		final TermFeature monomial;
 		// left-associatively arranged polynomials
-		polynomial = rec ( addF, or ( opSub ( add, any (), not ( addF ) ),
-		                   monomial ) );
+		final TermFeature polynomial;
 
-		nonNegMonomial = add ( monomial,
-		                       or ( not ( mulF ),
-                                            sub ( any (), not ( negLiteral ) ) ) );
-		posMonomial = opSub ( mul, monomial, posLiteral );            
-		negMonomial = opSub ( mul, monomial, negLiteral );            
-                nonCoeffMonomial = add ( monomial,
-                            or ( not ( mulF ),
-                                 sub ( any (), not ( literal ) ) ) );
-		nonNegOrNonCoeffMonomial =
-	            add ( monomial,
-	                  or ( not ( mulF ),
-	                       sub ( any (), not ( negLiteral ) ) ) );
-	    }
-	    
-	    final Function add;        
-	    final Function sub;
-	    final Function mul;
-	    final Function div;
-	    final Function pow;
-	    final Function neg;
+		final TermFeature nonNegMonomial;
+		final TermFeature posMonomial;
+		final TermFeature negMonomial;
+		final TermFeature nonNegOrNonCoeffMonomial;
+		final TermFeature nonCoeffMonomial;
 
-	    final Operator eq;
-	    final Function lt;
-	    final Function gt;
-            final Function leq;
-            final Function geq;
-
-            final Sort realS;
-
-	    final TermFeature addF;
-            final TermFeature subF;
-            final TermFeature mulF;
-            final TermFeature divF;
-            final TermFeature powF;
-
-            final TermFeature realF;
-            
-	    final TermFeature atom;
-
-	    // left-associatively arranged monomials
-	    final TermFeature monomial;
-	    // left-associatively arranged polynomials
-	    final TermFeature polynomial;
-
-	    final TermFeature nonNegMonomial;
-            final TermFeature posMonomial;
-            final TermFeature negMonomial;
-            final TermFeature nonNegOrNonCoeffMonomial;
-            final TermFeature nonCoeffMonomial;
-
-	    final TermFeature literal = QuasiRealLiteralFeature.ANY;
-            final TermFeature intLiteral = QuasiRealLiteralFeature.INTEGER;
-	    final TermFeature posLiteral = QuasiRealLiteralFeature.POSITIVE;
-	    final TermFeature negLiteral = QuasiRealLiteralFeature.NEGATIVE;
-	    final TermFeature nonNegLiteral = QuasiRealLiteralFeature.NON_NEGATIVE;
-	    final TermFeature nonPosLiteral = QuasiRealLiteralFeature.NON_POSITIVE;
-	    final TermFeature zeroLiteral = QuasiRealLiteralFeature.ZERO;
-	    final TermFeature oneLiteral = QuasiRealLiteralFeature.ONE;
+		final TermFeature literal = QuasiRealLiteralFeature.ANY;
+		final TermFeature intLiteral = QuasiRealLiteralFeature.INTEGER;
+		final TermFeature posLiteral = QuasiRealLiteralFeature.POSITIVE;
+		final TermFeature negLiteral = QuasiRealLiteralFeature.NEGATIVE;
+		final TermFeature nonNegLiteral = QuasiRealLiteralFeature.NON_NEGATIVE;
+		final TermFeature nonPosLiteral = QuasiRealLiteralFeature.NON_POSITIVE;
+		final TermFeature zeroLiteral = QuasiRealLiteralFeature.ZERO;
+		final TermFeature oneLiteral = QuasiRealLiteralFeature.ONE;
 	}
 }
