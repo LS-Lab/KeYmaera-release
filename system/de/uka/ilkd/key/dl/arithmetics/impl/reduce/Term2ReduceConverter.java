@@ -259,7 +259,7 @@ public class Term2ReduceConverter {
 				result += ")";
 				return result;
 			} else if (form.op() == Quantifier.EX) {
-				String result = ")";
+				String result = "(";
 				
 				for(String var: vars) {
 					result += "ex(" + var + ", ";
