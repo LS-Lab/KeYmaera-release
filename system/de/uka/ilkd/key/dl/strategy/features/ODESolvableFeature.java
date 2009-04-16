@@ -139,7 +139,6 @@ public class ODESolvableFeature implements Feature {
 						visited.sub(1).execPreOrder(new Visitor() {
 
 							public void visit(Term visited) {
-								System.out.println("Visiting: " + visited);
 								if (visited.op().arity() == 0) {
 									try {
 										new BigDecimal(visited.op().name().toString());
