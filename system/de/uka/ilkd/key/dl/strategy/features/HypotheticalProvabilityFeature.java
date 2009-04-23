@@ -445,10 +445,10 @@ public class HypotheticalProvabilityFeature implements Feature {
 		goal.proof().getServices().setNamespaces(copy.copy());
 		System.out
 				.println("We might have changed the original namespace... resetting"); // FIXME
-																						// use
-																						// asserting
-																						// below
-																						// instead
+		// use
+		// asserting
+		// below
+		// instead
 		// assert goal.proof().getServices().getNamespaces().equalContent(copy)
 		// : "no change in original namespaces\n"
 		// + printDelta(copy, goal.proof().getServices().getNamespaces());
@@ -553,12 +553,13 @@ public class HypotheticalProvabilityFeature implements Feature {
 					hypothesizer.interrupt();
 				}
 			}
-			if (hypothesizer.isAlive()) {
+			while (hypothesizer.isAlive()) {
 				try {
 					hypothesizer.giveUp = true;
 					hypothesizer.interrupt();
 					MathSolverManager.getCurrentQuantifierEliminator()
 							.abortCalculation();
+					MathSolverManager.getCurrentODESolver().abortCalculation();
 				} catch (RemoteException f) {
 					hypothesizer.interrupt();
 				}
@@ -566,8 +567,19 @@ public class HypotheticalProvabilityFeature implements Feature {
 			return result;
 		} finally {
 			if (hypothesizer != null && hypothesizer.isAlive()) {
-				hypothesizer.giveUp = true;
-				hypothesizer.interrupt();
+				while (hypothesizer.isAlive()) {
+					hypothesizer.giveUp = true;
+					hypothesizer.interrupt();
+					try {
+						MathSolverManager.getCurrentQuantifierEliminator()
+								.abortCalculation();
+						MathSolverManager.getCurrentODESolver()
+								.abortCalculation();
+					} catch (RemoteException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
 				synchronized (running) {
 					// @internal this synch is a bit pessimistic
 					running.remove(hypothesizer);

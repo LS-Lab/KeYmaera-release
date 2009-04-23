@@ -60,6 +60,7 @@ public class Reduce implements IQuantifierEliminator {
 
 		System.out.println("START  : Reduce called");
 		String input = Term2ReduceConverter.convert(form);
+		System.out.println("Input will be " + input);//XXX
 		ProcessBuilder pb = new ProcessBuilder(Options.INSTANCE
 				.getReduceBinary().getAbsolutePath());
 		Process process;
@@ -69,6 +70,7 @@ public class Reduce implements IQuantifierEliminator {
 			BufferedWriter out = new BufferedWriter(new OutputStreamWriter(
 					process.getOutputStream()));
 			File tmp = File.createTempFile("keymaera-reduce", ".txt");
+			System.out.println("Process started...");
 			String generateInput = generateInput(input, tmp);
 			System.out.println("Query is " + generateInput);
 			out.write(generateInput);

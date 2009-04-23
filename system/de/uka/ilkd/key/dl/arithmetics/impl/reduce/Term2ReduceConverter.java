@@ -28,6 +28,7 @@ public class Term2ReduceConverter {
 	 */
 	static final String FALSE = "false";
 	static final String DOLLARESCAPE = "dollar";
+	static final String UNDERSCOREESCAPE = "uscore";
 
 	/**
 	 * Standardconstructor.
@@ -195,6 +196,9 @@ public class Term2ReduceConverter {
 					if (name.contains("$")) {
 						name = name.replaceAll("\\$", DOLLARESCAPE);
 					}
+					if (name.contains("_")) {
+						name = name.replaceAll("_", UNDERSCOREESCAPE);
+					}
 					if (args.length == 0) {
 						return "(" + name + ")";
 					}
@@ -207,6 +211,9 @@ public class Term2ReduceConverter {
 			String name = form.op().name().toString();
 			if (name.contains("$")) {
 				name = name.replaceAll("\\$", DOLLARESCAPE);
+			}
+			if (name.contains("_")) {
+				name = name.replaceAll("_", UNDERSCOREESCAPE);
 			}
 			return "(" + name + ")";
 		} else if (form.op() instanceof Junctor) {
@@ -243,6 +250,9 @@ public class Term2ReduceConverter {
 				if (name.contains("$")) {
 					name = name.replaceAll("\\$", DOLLARESCAPE);
 				}
+				if (name.contains("_")) {
+					name = name.replaceAll("_", UNDERSCOREESCAPE);
+				}
 				vars[i] = name;
 			}
 			String firstArg = convert2String(form.sub(0), nss, eliminateFractions);
@@ -259,7 +269,7 @@ public class Term2ReduceConverter {
 				result += ")";
 				return result;
 			} else if (form.op() == Quantifier.EX) {
-				String result = ")";
+				String result = "(";
 				
 				for(String var: vars) {
 					result += "ex(" + var + ", ";

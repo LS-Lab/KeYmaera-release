@@ -128,6 +128,7 @@ public class Term2ExprConverter implements ExprConstants {
 						return new Expr(d.intValueExact());
 					} catch (ArithmeticException e) {
 						if (Options.INSTANCE.isConvertDecimalsToRationals()) {
+							try {
 							// calculate fraction to pass to Mathematica, as
 							// decimal fractions are considered to be numeric
 							// values of a certain precision
@@ -154,6 +155,10 @@ public class Term2ExprConverter implements ExprConstants {
 							return new Expr(RATIONAL,
 									new Expr[] { new Expr(numerator),
 											new Expr(denominator) });
+							} catch (ArithmeticException exe) {
+								return new Expr(Expr.SYM_REAL,
+										new Expr[] { new Expr(d) });
+							}
 						} else {
 							return new Expr(Expr.SYM_REAL,
 									new Expr[] { new Expr(d) });

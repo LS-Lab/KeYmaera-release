@@ -22,6 +22,7 @@
  */
 package de.uka.ilkd.key.dl.strategy.features;
 
+import java.math.BigDecimal;
 import java.rmi.RemoteException;
 import java.util.Arrays;
 import java.util.Collections;
@@ -35,6 +36,8 @@ import de.uka.ilkd.key.dl.arithmetics.exceptions.FailedComputationException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.UnsolveableException;
 import de.uka.ilkd.key.dl.model.DiffSystem;
+import de.uka.ilkd.key.dl.model.MetaVariable;
+import de.uka.ilkd.key.dl.parser.NumberCache;
 import de.uka.ilkd.key.dl.rules.metaconstruct.ODESolve;
 import de.uka.ilkd.key.java.ProgramElement;
 import de.uka.ilkd.key.java.Services;
@@ -46,7 +49,9 @@ import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.TermBuilder;
 import de.uka.ilkd.key.logic.Visitor;
 import de.uka.ilkd.key.logic.op.Function;
+import de.uka.ilkd.key.logic.op.LogicVariable;
 import de.uka.ilkd.key.logic.op.Modality;
+import de.uka.ilkd.key.logic.op.ProgramVariable;
 import de.uka.ilkd.key.logic.op.QuanUpdateOperator;
 import de.uka.ilkd.key.logic.sort.ProgramSVSort;
 import de.uka.ilkd.key.proof.Goal;
@@ -86,8 +91,10 @@ public class ODESolvableFeature implements Feature {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see de.uka.ilkd.key.strategy.feature.Feature#compute(de.uka.ilkd.key.rule.RuleApp,
-	 *      de.uka.ilkd.key.logic.PosInOccurrence, de.uka.ilkd.key.proof.Goal)
+	 * @see
+	 * de.uka.ilkd.key.strategy.feature.Feature#compute(de.uka.ilkd.key.rule
+	 * .RuleApp, de.uka.ilkd.key.logic.PosInOccurrence,
+	 * de.uka.ilkd.key.proof.Goal)
 	 */
 	public RuleAppCost compute(RuleApp app, PosInOccurrence pos, Goal goal) {
 		Term term = pos.subTerm();
@@ -122,11 +129,26 @@ public class ODESolvableFeature implements Feature {
 
 			final boolean[] algebraic = { true };
 			result.execPreOrder(new Visitor() {
-				/*@Override*/
+				/* @Override */
 				public void visit(Term visited) {
 					if (transcendentalList.contains(visited.op().name()
 							.toString())) {
 						algebraic[0] = false;
+					}
+					if (visited.op().name().toString().equals("exp")) {
+						visited.sub(1).execPreOrder(new Visitor() {
+
+							public void visit(Term visited) {
+								if (visited.op().arity() == 0) {
+									try {
+										new BigDecimal(visited.op().name().toString());
+									} catch (Exception e) {
+										algebraic[0] = false;
+									}
+								}
+							}
+
+						});
 					}
 				}
 			});
