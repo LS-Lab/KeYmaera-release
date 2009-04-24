@@ -84,8 +84,11 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 		IKernelLinkWrapper {
 	private static final boolean DEBUG = false;
 
+	public static KernelLinkWrapper INSTANCE;
+
 	public static final String[][] messageBlacklist = new String[][] {
-			{ "Reduce", "nsmet" }, { "FindInstance", "nsmet" }, { "Reduce", "ratnz" }};
+			{ "Reduce", "nsmet" }, { "FindInstance", "nsmet" },
+			{ "Reduce", "ratnz" } };
 
 	public static Expr mBlist;
 
@@ -261,7 +264,8 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 						throws MathLinkException {
 					if (evt.getPktType() == MathLink.TEXTPKT) {
 						KernelLink ml = (KernelLink) evt.getSource();
-						KernelLinkWrapper.this.log(Level.WARNING, link.getString());
+						KernelLinkWrapper.this.log(Level.WARNING, link
+								.getString());
 					}
 					return true;
 				}
@@ -378,6 +382,7 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 		final KernelLinkWrapper kernelLinkWrapper = new KernelLinkWrapper(port,
 				cache);
 		registry.rebind(IDENTITY, kernelLinkWrapper);
+		INSTANCE = kernelLinkWrapper;
 		// new Thread(new Runnable() {
 		//
 		// public void run() {
@@ -508,14 +513,13 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 			log(Level.FINEST, "New packet");
 			link.newPacket();
 			testForError(link);
-			/*log(Level.FINEST, "Checking for messages");
-			// link.evaluate("Messages[" + compute.head().toString() + "]");
-			link.evaluate("$MessageList");
-			link.waitForAnswer();
-			Expr msg = link.getExpr();
-			log(Level.INFO, msg.toString());
-			log(Level.FINEST, "New packet");
-			link.newPacket();*/
+			/*
+			 * log(Level.FINEST, "Checking for messages"); //
+			 * link.evaluate("Messages[" + compute.head().toString() + "]");
+			 * link.evaluate("$MessageList"); link.waitForAnswer(); Expr msg =
+			 * link.getExpr(); log(Level.INFO, msg.toString());
+			 * log(Level.FINEST, "New packet"); link.newPacket();
+			 */
 			Expr msg = null;
 			log(Level.FINEST, "Returning anwser...");
 			long newTime = System.currentTimeMillis();
@@ -545,10 +549,14 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 			synchronized (mutex) {
 				eval = false;
 			}
-			if (e.getErrCode() == 11) {
+			if (e.getErrCode() == 11 || e.getErrCode() == 1) {
 				// error code 11 indicates that the mathkernel has died
-				link.close();
-				createLink();
+				try {
+					link.close();
+				} catch (Throwable t) {
+				} finally {
+					createLink();
+				}
 			}
 			e.printStackTrace();
 			link.clearError();

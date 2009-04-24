@@ -914,8 +914,10 @@ public class DLOptionBean implements Settings {
 	 *            the counterExampleGenerator to set
 	 */
 	public void setCounterExampleGenerator(String counterExampleGenerator) {
-		this.counterExampleGenerator = counterExampleGenerator;
-		firePropertyChanged();
+		if(!this.counterExampleGenerator.equals(counterExampleGenerator)) {
+			this.counterExampleGenerator = counterExampleGenerator;
+			firePropertyChanged();
+		}
 	}
 
 	/**
