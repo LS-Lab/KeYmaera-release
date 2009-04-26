@@ -29,6 +29,7 @@ public class String2TermConverter {
     	// strip the dollar sign at the end of the file
     	formula = formula.replaceAll("\\$", "");
     	formula = formula.replaceAll(Term2ReduceConverter.DOLLARESCAPE, "$");
+    	formula = formula.replaceAll(Term2ReduceConverter.UNDERSCOREESCAPE, "_");
     	System.out.println("replaced result is: " + formula);//XXX
         ReduceLexer lexer = new ReduceLexer(new ANTLRStringStream("(" + formula + ")"));
         CommonTokenStream tok = new CommonTokenStream(lexer);
