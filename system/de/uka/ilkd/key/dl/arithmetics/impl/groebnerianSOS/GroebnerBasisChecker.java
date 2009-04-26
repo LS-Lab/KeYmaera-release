@@ -24,7 +24,6 @@ import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -44,6 +43,7 @@ import orbital.math.ValueFactory;
 import orbital.math.Values;
 import orbital.math.Vector;
 import orbital.math.functional.Operations;
+import orbital.util.KeyValuePair;
 
 import org.w3c.dom.Node;
 
@@ -138,10 +138,10 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 				.println("Polynomials after eliminating linear variables are: ");
 		printPolys(polys3);
 
-		final Set<Polynomial> polys3point1 = eliminateEvenDegreeVariables(polys3);
+		final Set<Polynomial> polys3point1 = /*eliminateEvenDegreeVariables(*/polys3/*);
 		System.out
 				.println("Polynomials after eliminating even degree variables are: ");
-		printPolys(polys3point1);
+		printPolys(polys3point1)*/;
 		
 		final Set<Polynomial> polys3point2 = eliminateSumsOfSquares(polys3point1,
 				varNum);
@@ -195,11 +195,11 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 		final Vector oneVec = vf.CONST(varNum, vf.ONE());
 
 		polyloop: for (Polynomial p : polys) {
-			Iterator<Arithmetic> indexIt = p.indices();
-			Iterator<Arithmetic> coeffIt = p.iterator();
-			while (indexIt.hasNext()) {
-				final Vector v = asVector(indexIt.next());
-				final Arithmetic coeff = coeffIt.next();
+			Iterator<KeyValuePair> monomialIt = p.monomials();
+			while (monomialIt.hasNext()) {
+				KeyValuePair nextMono = monomialIt.next();
+				final Vector v = asVector((Arithmetic) nextMono.getKey());
+				final Arithmetic coeff = (Arithmetic) nextMono.getValue();
 				if (coeff.isZero())
 					continue;
 				if (coeff instanceof Comparable) {
@@ -232,11 +232,11 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 			}
 			// at this point we know that we could reduce the degree of every
 			// monom by 2
-			indexIt = p.indices();
-			coeffIt = p.iterator();
-			while (indexIt.hasNext()) {
-				final Vector v = asVector(indexIt.next());
-				final Arithmetic coeff = coeffIt.next();
+			monomialIt = p.monomials();
+			while (monomialIt.hasNext()) {
+				final KeyValuePair nextMono = monomialIt.next();
+				final Vector v = asVector((Arithmetic) nextMono.getKey());
+				final Arithmetic coeff = (Arithmetic) nextMono.getValue();
 				if (coeff.isZero())
 					continue;
 				int[] mono = new int[varNum];
@@ -280,8 +280,7 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 			final Vector oneVec = vf.CONST(varNum, vf.ONE());
 			final Integer two = vf.ONE().add(vf.ONE());
 			outerloop: for (Polynomial p : workPolys) {
-				final Iterator<Arithmetic> indexIt = p.indices();
-				final Iterator<Arithmetic> coeffIt = p.iterator();
+				final Iterator<KeyValuePair> monomialIt = p.monomials();
 				boolean allOtherCoefficientsNegative = true;
 				boolean containsOnlySquares = true;
 				java.lang.Integer candidate = null;
@@ -290,9 +289,10 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 				// - does the polynomial only contain square monomials
 				// - does one of the square monomials only contain one variable
 				// - are all coefficients of the other monomials negative
-				while (indexIt.hasNext()) {
-					final Vector v = asVector(indexIt.next());
-					final Arithmetic coeff = coeffIt.next();
+				while (monomialIt.hasNext()) {
+					KeyValuePair nextMono = monomialIt.next();
+					final Vector v = asVector((Arithmetic) nextMono.getKey());
+					final Arithmetic coeff = (Arithmetic) nextMono.getValue();
 
 					if (coeff.isZero())
 						continue;
@@ -425,11 +425,11 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 
 	private BitSet occurringVars(Polynomial p) {
 		final BitSet res = new BitSet();
-		final Iterator<Arithmetic> indexIt = p.indices();
-		final Iterator<Arithmetic> coeffIt = p.iterator();
-		while (indexIt.hasNext()) {
-			final Vector v = asVector(indexIt.next());
-			final Arithmetic coeff = coeffIt.next();
+		final Iterator<KeyValuePair> monomialIt = p.monomials();
+		while (monomialIt.hasNext()) {
+			KeyValuePair nextMono = monomialIt.next();
+			final Vector v = asVector((Arithmetic) nextMono.getKey());
+			final Arithmetic coeff = (Arithmetic) nextMono.getValue();
 			if (!coeff.isZero())
 				for (int i = 0; i < v.dimension(); ++i)
 					if (!v.get(i).isZero())
@@ -607,11 +607,11 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 		final BitSet nonLinearVars = new BitSet();
 		final Vector oneVec = vf.CONST(varNum, vf.ONE());
 
-		final Iterator<Arithmetic> indexIt = p.indices();
-		final Iterator<Arithmetic> coeffIt = p.iterator();
-		while (indexIt.hasNext()) {
-			final Vector v = asVector(indexIt.next());
-			final Arithmetic coeff = coeffIt.next();
+		final Iterator<KeyValuePair> monomialIt = p.monomials();
+		while (monomialIt.hasNext()) {
+			KeyValuePair nextMono = monomialIt.next();
+			final Vector v = asVector((Arithmetic) nextMono.getKey());
+			final Arithmetic coeff = (Arithmetic) nextMono.getValue();
 
 			if (coeff.isZero())
 				continue;
@@ -643,11 +643,11 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 		final BitSet nonPurlyEvenVars = new BitSet();
 		final Vector oneVec = vf.CONST(varNum, vf.ONE());
 		for (Polynomial p : polys) {
-			final Iterator<Arithmetic> indexIt = p.indices();
-			final Iterator<Arithmetic> coeffIt = p.iterator();
-			while (indexIt.hasNext()) {
-				final Vector v = asVector(indexIt.next());
-				final Arithmetic coeff = coeffIt.next();
+			final Iterator<KeyValuePair> monomialIt = p.monomials();
+			while (monomialIt.hasNext()) {
+				KeyValuePair nextMono = monomialIt.next();
+				final Vector v = asVector((Arithmetic) nextMono.getKey());
+				final Arithmetic coeff = (Arithmetic) nextMono.getValue();
 
 				if (coeff.isZero())
 					continue;
@@ -760,11 +760,11 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 		int nonConstantNum = 0;
 		final BitSet productVars = new BitSet();
 
-		final Iterator<Arithmetic> indexIt = p.indices();
-		final Iterator<Arithmetic> coeffIt = p.iterator();
-		while (indexIt.hasNext()) {
-			final Vector v = asVector(indexIt.next());
-			final Arithmetic coeff = coeffIt.next();
+		final Iterator<KeyValuePair> monomialIt = p.monomials();
+		while (monomialIt.hasNext()) {
+			KeyValuePair nextMono = monomialIt.next();
+			final Vector v = asVector((Arithmetic) nextMono.getKey());
+			final Arithmetic coeff = (Arithmetic) nextMono.getValue();
 
 			if (coeff.isZero())
 				continue;
@@ -808,11 +808,11 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 			final int[] pureMaxPowers = new int[varNum];
 			final int[] imPureMaxPowers = new int[varNum];
 
-			final Iterator<Arithmetic> indexIt = p.indices();
-			final Iterator<Arithmetic> coeffIt = p.iterator();
-			while (indexIt.hasNext()) {
-				final Vector v = asVector(indexIt.next());
-				final Arithmetic coeff = coeffIt.next();
+			final Iterator<KeyValuePair> monomialIt = p.monomials();
+			while (monomialIt.hasNext()) {
+				KeyValuePair nextMono = monomialIt.next();
+				final Vector v = asVector((Arithmetic) nextMono.getKey());
+				final Arithmetic coeff = (Arithmetic) nextMono.getValue();
 
 				if (coeff.isZero())
 					continue;
