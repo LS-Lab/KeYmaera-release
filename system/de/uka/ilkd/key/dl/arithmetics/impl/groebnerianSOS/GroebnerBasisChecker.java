@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -46,6 +47,8 @@ import orbital.math.functional.Operations;
 import orbital.util.KeyValuePair;
 
 import org.w3c.dom.Node;
+
+import sun.management.counter.Variability;
 
 import de.uka.ilkd.key.dl.arithmetics.IGroebnerBasisCalculator;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ConnectionProblemException;
@@ -142,9 +145,9 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 		System.out
 				.println("Polynomials after eliminating even degree variables are: ");
 		printPolys(polys3point1)*/;
-		
-		final Set<Polynomial> polys3point2 = eliminateSumsOfSquares(polys3point1,
-				varNum);
+
+		final Set<Polynomial> polys3point2 = eliminateSumsOfSquares(
+				polys3point1, varNum);
 		System.out.println("Polynomials after eliminating sums of squares: ");
 		printPolys(polys3point2);
 
@@ -258,6 +261,12 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 	 * with even degree in polys, then x can be eliminated by rewriting and the
 	 * polynomial can be removed.
 	 * 
+	 * TODO: as we talk about an ideal a polynomial -
+	 * &alpha;<sub>0</sub>x<sup>2</sup> +
+	 * &alpha;<sub>1</sub>m<sub>1</sub><sup>2</sup> + ... - +
+	 * &alpha;<sub>n</sub>m<sub>n</sub><sup>2</sup> could also be used for
+	 * rewriting. This is not implemented yet.
+	 * 
 	 * @param polys
 	 *            the set of polynomials to be reduce (will not be modified)
 	 * @return the reduced set of polynomials
@@ -266,29 +275,116 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 		final int varNum = indexNum(polys);
 		Set<Polynomial> workPolys = new HashSet<Polynomial>(polys);
 
-//		while (true) {
-			// search for a variable that only contains with even degree
-			BitSet purlyEvenVariables = findPurlyEvenVariables(workPolys,
-					varNum);
+		// while (true) {
+		// search for a variable that only contains with even degree
+		BitSet purlyEvenVariables = findPurlyEvenVariables(workPolys, varNum);
 
-			if (purlyEvenVariables.isEmpty())
-				// we did not find any variable that is purly even, bail out
-				return workPolys;
+		if (purlyEvenVariables.isEmpty())
+			// we did not find any variable that is purly even, bail out
+			return workPolys;
 
-			// find a polynomial where the variable occurs in the form a*x^2
-			// -a_1*m_1^2 -...-a_n*m_n^2 with a,a_i>0
-			final Vector oneVec = vf.CONST(varNum, vf.ONE());
-			final Integer two = vf.ONE().add(vf.ONE());
-			outerloop: for (Polynomial p : workPolys) {
-				final Iterator<KeyValuePair> monomialIt = p.monomials();
-				boolean allOtherCoefficientsNegative = true;
-				boolean containsOnlySquares = true;
-				java.lang.Integer candidate = null;
-				Arithmetic candidateCoeff = null;
-				// the following loop has to collect the following informations:
-				// - does the polynomial only contain square monomials
-				// - does one of the square monomials only contain one variable
-				// - are all coefficients of the other monomials negative
+		// find a polynomial where the variable occurs in the form a*x^2
+		// -a_1*m_1^2 -...-a_n*m_n^2 with a,a_i>0
+		final Vector oneVec = vf.CONST(varNum, vf.ONE());
+		final Integer two = vf.ONE().add(vf.ONE());
+		final class ReplacementEntry {
+			/**
+			 * @param candidate
+			 * @param p
+			 * @param minus
+			 */
+			public ReplacementEntry(java.lang.Integer candidate, Polynomial p,
+					Polynomial minus) {
+				variableNumber = candidate;
+				polynomToRemove = p;
+				rewriteTo = minus;
+			}
+
+			java.lang.Integer variableNumber;
+			Polynomial polynomToRemove;
+			Polynomial rewriteTo;
+		}
+		final HashSet<ReplacementEntry> replacementMap = new HashSet<ReplacementEntry>();
+		final BitSet availableReplacements = new BitSet(varNum);
+		outerloop: for (Polynomial p : workPolys) {
+			Iterator<KeyValuePair> monomialIt = p.monomials();
+
+			// the following two variables store a monomial a*x^2
+			java.lang.Integer candidate = null;
+			Arithmetic candidateCoeff = null;
+			// the following loop has to collect the following informations:
+			// - does the polynomial only contain square monomials
+			// - does one of the square monomials only contain one variable
+			// - are all coefficients of the other monomials negative
+			while (monomialIt.hasNext()) {
+				KeyValuePair nextMono = monomialIt.next();
+				final Vector v = asVector((Arithmetic) nextMono.getKey());
+				final Arithmetic coeff = (Arithmetic) nextMono.getValue();
+
+				if (coeff.isZero())
+					continue;
+
+				final Arithmetic degree = v.multiply(oneVec);
+				if (degree.isZero()) {
+					// nothing
+				} else {
+					int varsInMonom = 0;
+					int possibleCandidate = -1;
+					boolean positive = false;
+					if (coeff instanceof Comparable) {
+						int smallerZero = ((Comparable) coeff).compareTo(vf
+								.ZERO());
+						if (smallerZero > 0) {
+							positive = true;
+						}
+					} else {
+						// we cannot do anything, as we cannot
+						// compare the coefficients
+						return workPolys;
+					}
+					for (int i = 0; i < varNum; i++) {
+						if (!v.get(i).isZero()) {
+							varsInMonom++;
+							if (v.get(i).equals(two)) {
+								// if the exponent is two, we might have a
+								// candidate if this is the only variable with
+								// non-zero exponent in this monomial
+								possibleCandidate = i;
+							}
+							if (!((Integer) v.get(i)).modulo(two).isZero()) {
+								// assure that every exponent is an event number
+								continue outerloop;
+							}
+
+						}
+					}
+					if (varsInMonom > 1 && positive) {
+						continue outerloop;
+					} else if (varsInMonom == 1 && positive) {
+						if (purlyEvenVariables.get(possibleCandidate)) {
+							if (candidate != null) {
+								continue outerloop;
+							} else {
+								candidate = possibleCandidate;
+								candidateCoeff = coeff;
+							}
+						}
+					}
+				}
+			}
+			if (candidate != null && candidate != -1) {
+				// we have found a candidate
+				System.out.println("Eliminate variable " + candidate
+						+ " of polynomial " + p);// XXX
+				// from this candidate we get a resulting rewriting of the form
+				// a_1/a*m_1^2 + ... + a_n/a*m_n^2
+
+				// Therefore, we need to assure that the variable only occurs in
+				// the monomial with positive coefficient. Otherwise, we would
+				// not be able to eliminate the variable.
+				monomialIt = p.monomials();
+				int occurencesOfCandidate = 0;
+				Polynomial replacement = (Polynomial) p.zero();
 				while (monomialIt.hasNext()) {
 					KeyValuePair nextMono = monomialIt.next();
 					final Vector v = asVector((Arithmetic) nextMono.getKey());
@@ -296,70 +392,104 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 
 					if (coeff.isZero())
 						continue;
-
-					final Arithmetic degree = v.multiply(oneVec);
-					if (degree.isZero()) {
-						// nothing
+					if (!v.get(candidate).isZero()) {
+						occurencesOfCandidate++;
 					} else {
-						int varsInMonom = 0;
-						int nonZeroVar = -1;
-						for (int i = 0; i < varNum; i++) {
-							if (!v.get(i).isZero()) {
-								varsInMonom++;
-								if(v.get(i).equals(two)) {
-									nonZeroVar = i;
-								}
-								if (!((Integer) v.get(i)).modulo(two).isZero()) {
-									containsOnlySquares = false;
-									continue outerloop;
-								}
-
-							}
-						}
-						if (varsInMonom > 1 && allOtherCoefficientsNegative) {
-							if (coeff instanceof Comparable) {
-								int smallerZero = ((Comparable) coeff)
-										.compareTo(vf.ZERO());
-								if (smallerZero > 0) {
-									allOtherCoefficientsNegative = false;
-									continue outerloop;
-								}
-							} else {
-								// we cannot do anything, as we cannot
-								// compare the coefficients
-								return workPolys;
-							}
-						} else if (varsInMonom == 1) {
-							if (purlyEvenVariables.get(nonZeroVar)) {
-								if (coeff instanceof Comparable) {
-									int greaterZero = ((Comparable) coeff)
-											.compareTo(vf.ZERO());
-									if (greaterZero > 0) {
-										if (candidate != null) {
-											continue outerloop;
-										} else {
-											candidate = nonZeroVar;
-											candidateCoeff = coeff;
-										}
-									}
-								} else {
-									// we cannot do anything, as we cannot
-									// compare the coefficients
-									return workPolys;
-								}
-							}
-						}
+						replacement = (Polynomial) replacement
+								.add(((Polynomial) nextMono.getKey())
+										.multiply(coeff.divide(candidateCoeff)));
 					}
 				}
-				if (candidate != null && candidate != -1) {
-					// we have found a candidate
-					System.out.println("Eliminate variable " + candidate + " of polynomial " + p);//XXX
-					// from this candidate we get a resulting rewriting of the form a_1/a*m_1^2 + ... + a_n/a*m_n^2 
+				if (occurencesOfCandidate > 1) {
+					// we cannot rewrite using this candidate, therefore
+					// continue the search
+					continue outerloop;
 				}
-
+				assert occurencesOfCandidate == 1 : "A variable in a polynomial cannot disappear.";
+				// now replacement contains the polynomial we use for rewriting
+				replacementMap.add(new ReplacementEntry(candidate, p,
+						(Polynomial) replacement.minus()));
+				availableReplacements.set(candidate);
 			}
-//		}
-			return workPolys;
+		}
+		// now we apply all those substitutions that we have collected in the
+		// replacementMap
+		// first we decide which rewrite to use if there is more than one
+		// candidate
+		// the current implementation just chooses a random one
+		// TODO: choose the best candidate if there is more than one available
+
+		final HashMap<java.lang.Integer, Polynomial> tmpSubstitute = new HashMap<java.lang.Integer, Polynomial>();
+		for (ReplacementEntry r : replacementMap) {
+			if (tmpSubstitute.get(r) == null) {
+				tmpSubstitute.put(r.variableNumber, r.rewriteTo);
+				workPolys.remove(r.polynomToRemove);
+			}
+		}
+		// we need to apply the substitutions one by one to the substitute set
+		// itself first, so that the polynomials we insert contain the minimal
+		// set of variables
+		// therefore we eliminate all variables, that are subject to rewrite within the following loop
+		final HashMap<java.lang.Integer, Polynomial> substitute = new HashMap<java.lang.Integer, Polynomial>(tmpSubstitute);
+		for(int variable: tmpSubstitute.keySet()){
+			final HashMap<java.lang.Integer, Polynomial> oneSubstitute = new HashMap<java.lang.Integer, Polynomial>();
+			oneSubstitute.put(variable, tmpSubstitute.get(variable));
+			final HashMap<java.lang.Integer, Polynomial> results = new HashMap<java.lang.Integer, Polynomial>();
+			for(int var: substitute.keySet()){
+				results.put(var, rewritePolynomial(variable, oneSubstitute, substitute.get(var)));
+			}
+			substitute.clear();
+			substitute.putAll(results);
+		}
+
+		// now that we got clean rewrites, we can apply them to the rest of the polynomials
+		final HashSet<Polynomial> result = new HashSet<Polynomial>();
+		for (Polynomial p : workPolys) {
+			result.add(rewritePolynomial(varNum, substitute, p));
+		}
+
+		// }
+		return workPolys;
+	}
+
+	/**
+	 * @param varNum
+	 * @param substitute
+	 * @param p
+	 */
+	private Polynomial rewritePolynomial(final int varNum,
+			final HashMap<java.lang.Integer, Polynomial> substitute,
+			Polynomial p) {
+		final Iterator<KeyValuePair> monomialIt = p.monomials();
+		Polynomial resultPoly = (Polynomial) p.zero();
+		while (monomialIt.hasNext()) {
+			KeyValuePair nextMono = monomialIt.next();
+			final Vector v = asVector((Arithmetic) nextMono.getKey());
+			final Arithmetic coeff = (Arithmetic) nextMono.getValue();
+
+			if (coeff.isZero())
+				continue;
+			Polynomial res = (Polynomial) p.zero().add(coeff);
+			for (int variable : substitute.keySet()) {
+				int varDegree = ((Integer) v.get(variable)).intValue();
+				assert varDegree % 2 == 0;
+				Polynomial rewritePoly = substitute.get(variable);
+				if (varDegree > 2) {
+					for (int i = 0; i < varDegree - 2; i++) {
+						rewritePoly = rewritePoly.multiply(rewritePoly);
+					}
+				}
+				v.set(variable, vf.ZERO());
+				res = res.multiply(rewritePoly);
+			}
+			int[] exponents = new int[varNum];
+			for(int i = 0; i < v.dimension(); i++) {
+				exponents[i] = ((Integer)v.get(i)).intValue();
+			}
+			res = res.multiply(vf.MONOMIAL(exponents));
+			resultPoly = resultPoly.add(res);
+		}
+		return resultPoly;
 	}
 
 	private void printPolys(Set<Polynomial> rawPolys) {
@@ -963,7 +1093,7 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 		}
 	}
 
-	// //////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////
 
 	private interface AddedMonomialListener {
 		void addedMonomial(Arithmetic v);
@@ -1079,7 +1209,7 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 		}
 	}
 
-	// //////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////
 
 	private static Square[] approx2Exact(SparsePolynomial reducedPoly,
 			List<Arithmetic> consideredMonomials, BitSet removedMonomials,
@@ -1237,7 +1367,7 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 		}
 	}
 
-	// //////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////
 
 	public static class MonomialFactorIterator implements Iterator<Vector> {
 		private final ValueFactory vf = Values.getDefault();
@@ -1275,7 +1405,7 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 		}
 	}
 
-	// //////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////
 
 	public static class SimpleMonomialIterator implements Iterator<Vector> {
 		private final ValueFactory vf = Values.getDefault();
@@ -1348,7 +1478,7 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 		}
 	}
 
-	// //////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////
 
 	public GroebnerBasisChecker(Node node) {
 	}
