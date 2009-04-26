@@ -138,20 +138,15 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 				.println("Polynomials after eliminating linear variables are: ");
 		printPolys(polys3);
 
-		final Set<Polynomial> polys3point1 = eliminateSumsOfSquares(polys3, varNum);
+		final Set<Polynomial> polys3point1 = eliminateEvenDegreeVariables(polys3);
 		System.out
-				.println("Polynomials after eliminating sums of squares: ");
+				.println("Polynomials after eliminating even degree variables are: ");
 		printPolys(polys3point1);
 		
-		final Set<Polynomial> polys3point2 = polys3point1;
-//		final Set<Polynomial> polys3point2 = eliminateEvenDegreeVariables(polys3point1);
-//		System.out
-//				.println("Polynomials after eliminating even degree variables are: ");
-//		printPolys(polys3point2);
-
-		// final Set<Polynomial> polys3 = eliminateLinearVariables(polys2);
-		// System.out.println("Polynomials after eliminating linear variables are: ");
-		// printPolys(polys3);
+		final Set<Polynomial> polys3point2 = eliminateSumsOfSquares(polys3point1,
+				varNum);
+		System.out.println("Polynomials after eliminating sums of squares: ");
+		printPolys(polys3point2);
 
 		final Set<Polynomial> polys4 = eliminateUnusedVariables(polys3point2);
 		System.out
@@ -191,14 +186,14 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 
 	/**
 	 * @param polys3
-	 * @return
-	 * TODO documentation since 24.04.2009
+	 * @return TODO documentation since 24.04.2009
 	 */
-	private Set<Polynomial> eliminateSumsOfSquares(Set<Polynomial> polys, int varNum) {
+	private Set<Polynomial> eliminateSumsOfSquares(Set<Polynomial> polys,
+			int varNum) {
 		final Set<Polynomial> workPolys = new HashSet<Polynomial>();
 		final Integer two = vf.ONE().add(vf.ONE());
 		final Vector oneVec = vf.CONST(varNum, vf.ONE());
-		
+
 		polyloop: for (Polynomial p : polys) {
 			Iterator<Arithmetic> indexIt = p.indices();
 			Iterator<Arithmetic> coeffIt = p.iterator();
@@ -207,15 +202,17 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 				final Arithmetic coeff = coeffIt.next();
 				if (coeff.isZero())
 					continue;
-				if(coeff instanceof Comparable) {
-					int compare = ((Comparable)coeff).compareTo(coeff.zero());
-					if(compare < 0) {
-						// we got a coefficient that is less than zero. Therefore this optimization is not applicable. 
+				if (coeff instanceof Comparable) {
+					int compare = ((Comparable) coeff).compareTo(coeff.zero());
+					if (compare < 0) {
+						// we got a coefficient that is less than zero.
+						// Therefore this optimization is not applicable.
 						workPolys.add(p);
 						continue polyloop;
 					}
 				} else {
-					// we cannot do anything, if the coefficients are not comparable
+					// we cannot do anything, if the coefficients are not
+					// comparable
 					return polys;
 				}
 
@@ -233,7 +230,8 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 					}
 				}
 			}
-			// at this point we know that we could reduce the degree of every monom by 2
+			// at this point we know that we could reduce the degree of every
+			// monom by 2
 			indexIt = p.indices();
 			coeffIt = p.iterator();
 			while (indexIt.hasNext()) {
@@ -243,7 +241,8 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 					continue;
 				int[] mono = new int[varNum];
 				for (int i = 0; i < varNum; ++i) {
-					mono[i] = ((Integer) ((Integer)v.get(i)).divide(two)).intValue();
+					mono[i] = ((Integer) ((Integer) v.get(i)).divide(two))
+							.intValue();
 				}
 				workPolys.add(vf.MONOMIAL(coeff, mono));
 			}
@@ -267,7 +266,7 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 		final int varNum = indexNum(polys);
 		Set<Polynomial> workPolys = new HashSet<Polynomial>(polys);
 
-		while (true) {
+//		while (true) {
 			// search for a variable that only contains with even degree
 			BitSet purlyEvenVariables = findPurlyEvenVariables(workPolys,
 					varNum);
@@ -280,16 +279,18 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 			// -a_1*m_1^2 -...-a_n*m_n^2 with a,a_i>0
 			final Vector oneVec = vf.CONST(varNum, vf.ONE());
 			final Integer two = vf.ONE().add(vf.ONE());
-			for (Polynomial p : workPolys) {
+			outerloop: for (Polynomial p : workPolys) {
 				final Iterator<Arithmetic> indexIt = p.indices();
 				final Iterator<Arithmetic> coeffIt = p.iterator();
 				boolean allOtherCoefficientsNegative = true;
 				boolean containsOnlySquares = true;
+				java.lang.Integer candidate = null;
+				Arithmetic candidateCoeff = null;
 				// the following loop has to collect the following informations:
 				// - does the polynomial only contain square monomials
 				// - does one of the square monomials only contain one variable
 				// - are all coefficients of the other monomials negative
-				innerloop: while (indexIt.hasNext()) {
+				while (indexIt.hasNext()) {
 					final Vector v = asVector(indexIt.next());
 					final Arithmetic coeff = coeffIt.next();
 
@@ -301,34 +302,64 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 						// nothing
 					} else {
 						int varsInMonom = 0;
+						int nonZeroVar = -1;
 						for (int i = 0; i < varNum; i++) {
 							if (!v.get(i).isZero()) {
 								varsInMonom++;
+								if(v.get(i).equals(two)) {
+									nonZeroVar = i;
+								}
 								if (!((Integer) v.get(i)).modulo(two).isZero()) {
 									containsOnlySquares = false;
-									break innerloop;
+									continue outerloop;
 								}
-								if (varsInMonom > 1 && allOtherCoefficientsNegative) {
-									if (coeff instanceof Comparable) {
-										int smallerZero = ((Comparable) coeff)
-												.compareTo(vf.ZERO());
-										if (smallerZero > 0) {
-											allOtherCoefficientsNegative = false;
-											break innerloop;
+
+							}
+						}
+						if (varsInMonom > 1 && allOtherCoefficientsNegative) {
+							if (coeff instanceof Comparable) {
+								int smallerZero = ((Comparable) coeff)
+										.compareTo(vf.ZERO());
+								if (smallerZero > 0) {
+									allOtherCoefficientsNegative = false;
+									continue outerloop;
+								}
+							} else {
+								// we cannot do anything, as we cannot
+								// compare the coefficients
+								return workPolys;
+							}
+						} else if (varsInMonom == 1) {
+							if (purlyEvenVariables.get(nonZeroVar)) {
+								if (coeff instanceof Comparable) {
+									int greaterZero = ((Comparable) coeff)
+											.compareTo(vf.ZERO());
+									if (greaterZero > 0) {
+										if (candidate != null) {
+											continue outerloop;
+										} else {
+											candidate = nonZeroVar;
+											candidateCoeff = coeff;
 										}
-									} else {
-										// we cannot do anything, as we cannot
-										// compare the coefficients
-										return workPolys;
 									}
+								} else {
+									// we cannot do anything, as we cannot
+									// compare the coefficients
+									return workPolys;
 								}
 							}
 						}
 					}
 				}
+				if (candidate != null && candidate != -1) {
+					// we have found a candidate
+					System.out.println("Eliminate variable " + candidate + " of polynomial " + p);//XXX
+					// from this candidate we get a resulting rewriting of the form a_1/a*m_1^2 + ... + a_n/a*m_n^2 
+				}
 
 			}
-		}
+//		}
+			return workPolys;
 	}
 
 	private void printPolys(Set<Polynomial> rawPolys) {
