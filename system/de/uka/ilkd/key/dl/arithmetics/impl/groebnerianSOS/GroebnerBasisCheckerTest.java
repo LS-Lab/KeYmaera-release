@@ -43,6 +43,7 @@ import org.w3c.dom.UserDataHandler;
 public class GroebnerBasisCheckerTest {
 
 	private ValueFactory vf;
+	private GroebnerBasisChecker gbChecker;
 
 	/**
 	 * @throws java.lang.Exception
@@ -51,25 +52,7 @@ public class GroebnerBasisCheckerTest {
 	@Before
 	public void setUp() throws Exception {
 		vf = Values.getDefault();
-	}
-
-	/**
-	 * Test method for
-	 * {@link de.uka.ilkd.key.dl.arithmetics.impl.groebnerianSOS.GroebnerBasisChecker#createOptimiseGroebnerBasis(java.util.Set, boolean)}
-	 * .
-	 */
-	@Test
-	public void testCreateOptimiseGroebnerBasis() {
-		// fail("Not yet implemented"); // TODO
-		Polynomial xsquare = vf.MONOMIAL(new int[] { 2, 0, 0 });
-		Polynomial ysquare = vf.MONOMIAL(new int[] { 0, 2, 0 });
-		Polynomial zsquare = vf.MONOMIAL(new int[] { 0, 0, 2 });
-		Polynomial combine = xsquare.multiply(xsquare).add(ysquare).subtract(
-				zsquare);
-		Polynomial combine2 = ysquare.multiply(ysquare);
-		Polynomial combine3 = xsquare.subtract(ysquare.multiply(zsquare))
-				.subtract(zsquare);
-		GroebnerBasisChecker gbChecker = new GroebnerBasisChecker(new Node() {
+		gbChecker = new GroebnerBasisChecker(new Node() {
 
 			@Override
 			public Node appendChild(Node arg0) throws DOMException {
@@ -295,6 +278,24 @@ public class GroebnerBasisCheckerTest {
 			}
 
 		});
+	}
+
+	/**
+	 * Test method for
+	 * {@link de.uka.ilkd.key.dl.arithmetics.impl.groebnerianSOS.GroebnerBasisChecker#createOptimiseGroebnerBasis(java.util.Set, boolean)}
+	 * .
+	 */
+	@Test
+	public void testCreateOptimiseGroebnerBasis() {
+		Polynomial xsquare = vf.MONOMIAL(new int[] { 2, 0, 0 });
+		Polynomial ysquare = vf.MONOMIAL(new int[] { 0, 2, 0 });
+		Polynomial zsquare = vf.MONOMIAL(new int[] { 0, 0, 2 });
+		Polynomial combine = xsquare.multiply(xsquare).add(ysquare).subtract(
+				zsquare);
+		Polynomial combine2 = ysquare.multiply(ysquare);
+		Polynomial combine3 = xsquare.subtract(ysquare.multiply(zsquare))
+				.subtract(zsquare);
+
 		HashSet<Polynomial> polys = new HashSet<Polynomial>();
 		polys.add(combine);
 		polys.add(combine2);
@@ -302,10 +303,48 @@ public class GroebnerBasisCheckerTest {
 		Set<Polynomial> createOptimiseGroebnerBasis = gbChecker
 				.createOptimiseGroebnerBasis(polys, false);
 		System.out.println(createOptimiseGroebnerBasis);
-		assert createOptimiseGroebnerBasis.size() == 1
+		assertTrue(createOptimiseGroebnerBasis.size() == 1
 				&& createOptimiseGroebnerBasis.iterator().next().equals(
 						vf.MONOMIAL(new int[] { 4 }).subtract(
-								vf.MONOMIAL(new int[] { 2 })));
+								vf.MONOMIAL(new int[] { 2 }))));
+	}
+	
+	/**
+	 * Test method for
+	 * {@link de.uka.ilkd.key.dl.arithmetics.impl.groebnerianSOS.GroebnerBasisChecker#createOptimiseGroebnerBasis(java.util.Set, boolean)}
+	 * .
+	 */
+	@Test
+	public void testCreateOptimiseGroebnerBasis2() {
+		Polynomial xsquare = vf.MONOMIAL(new int[] { 2, 0, 0 });
+		HashSet<Polynomial> polys = new HashSet<Polynomial>();
+		polys.add(xsquare);
+		Set<Polynomial> createOptimiseGroebnerBasis = gbChecker
+				.createOptimiseGroebnerBasis(polys, false);
+		System.out.println(createOptimiseGroebnerBasis);
+		assertTrue(createOptimiseGroebnerBasis.size() == 0);
+	}
+
+	/**
+	 * Test method for
+	 * {@link de.uka.ilkd.key.dl.arithmetics.impl.groebnerianSOS.GroebnerBasisChecker#createOptimiseGroebnerBasis(java.util.Set, boolean)}
+	 * .
+	 */
+	@Test
+	public void testCreateOptimiseGroebnerBasis3() {
+		Polynomial xsquare = vf.MONOMIAL(new int[] { 2, 0, 0 });
+		Polynomial xcube = vf.MONOMIAL(new int[] { 3, 0, 0 });
+		Polynomial ysquare = vf.MONOMIAL(new int[] { 0, 2, 0 });
+		Polynomial zsquare = vf.MONOMIAL(new int[] { 0, 0, 2 });
+		Polynomial combine = xsquare.subtract(ysquare);
+		Polynomial combine2 = zsquare.add(xsquare).subtract(xcube);
+		HashSet<Polynomial> polys = new HashSet<Polynomial>();
+		polys.add(combine);
+		polys.add(combine2);
+		Set<Polynomial> createOptimiseGroebnerBasis = gbChecker
+		.createOptimiseGroebnerBasis(polys, false);
+		System.out.println(createOptimiseGroebnerBasis);
+		assertEquals(createOptimiseGroebnerBasis, polys);
 	}
 
 }
