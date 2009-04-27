@@ -37,6 +37,7 @@ import orbital.math.Real;
 import orbital.math.Values;
 import orbital.math.Vector;
 import orbital.math.functional.Operations;
+import orbital.util.KeyValuePair;
 import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
 import de.uka.ilkd.key.dl.formulatools.collector.AllCollector;
@@ -372,12 +373,12 @@ public abstract class PolynomTool {
 		final Function exp = RealLDT.getFunctionFor(Exp.class);
 		final Function plus = RealLDT.getFunctionFor(Plus.class);
 System.out.println("Converting " + p);
-		ListIterator coefficients = p.iterator();
-		Iterator indices = p.indices();
+		final Iterator<KeyValuePair> monomials = p.monomials();
 		Term result = null;
-		while (coefficients.hasNext()) {
-			Object coefficient = coefficients.next();
-			Object nextVector = indices.next();
+		while (monomials.hasNext()) {
+			KeyValuePair next = monomials.next();
+			Object coefficient = next.getValue();
+			Object nextVector = next.getKey();
 
 			Vector monomialDegrees = null;
 			if (nextVector instanceof Vector) {

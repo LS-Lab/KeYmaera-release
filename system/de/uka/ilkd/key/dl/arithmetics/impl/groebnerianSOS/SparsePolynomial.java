@@ -33,6 +33,8 @@ import orbital.math.Arithmetic;
 import orbital.math.Matrix;
 import orbital.math.Polynomial;
 import orbital.math.Values;
+import orbital.math.Vector;
+import orbital.util.KeyValuePair;
 import de.uka.ilkd.key.dl.arithmetics.impl.orbital.OrbitalSimplifier;
 
 /**
@@ -111,13 +113,13 @@ public class SparsePolynomial {
 		if (p.isZero())
 			return;
 
-		final Iterator<Arithmetic> expIt = p.indices();
-		final Iterator<Arithmetic> coeffIt = p.iterator();
-		while (expIt.hasNext()) {
-			final Arithmetic exponent = expIt.next();
-			final Arithmetic coeff = coeffIt.next();
+		final Iterator<KeyValuePair> monomialIt = p.monomials();
+		while (monomialIt.hasNext()) {
+			KeyValuePair nextMono = monomialIt.next();
+			final Arithmetic v = (Arithmetic) nextMono.getKey();
+			final Arithmetic coeff = (Arithmetic) nextMono.getValue();
 
-			addTerm(exponent, variable, coeff);
+			addTerm(v, variable, coeff);
 		}
 	}
 
@@ -285,11 +287,11 @@ public class SparsePolynomial {
 	public SparsePolynomial multiply(Polynomial nf) {
             final SparsePolynomial result = new SparsePolynomial();
             
-            final Iterator<Arithmetic> indices = nf.indices();
-            final ListIterator<Arithmetic> coefficients = nf.iterator();
-            while (indices.hasNext()) {
-                final Arithmetic monom = (Arithmetic) indices.next();
-                final Arithmetic coefficient = (Arithmetic) coefficients.next();
+    		final Iterator<KeyValuePair> monomialIt = nf.monomials();
+    		while (monomialIt.hasNext()) {
+    			KeyValuePair nextMono = monomialIt.next();
+    			final Arithmetic monom = (Arithmetic) nextMono.getKey();
+    			final Arithmetic coefficient = (Arithmetic) nextMono.getValue();
                 for (Arithmetic c : polyTerms.keySet()) {
                     Arithmetic newMonom = monom.add(c);
 				

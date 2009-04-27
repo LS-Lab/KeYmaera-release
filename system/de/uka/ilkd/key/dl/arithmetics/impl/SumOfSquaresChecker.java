@@ -44,6 +44,7 @@ import orbital.math.ValueFactory;
 import orbital.math.Values;
 import orbital.math.Vector;
 import orbital.math.functional.Operations;
+import orbital.util.KeyValuePair;
 import de.uka.ilkd.key.dl.arithmetics.impl.csdp.CSDP;
 import de.uka.ilkd.key.dl.arithmetics.impl.groebnerianSOS.FractionisingEquationSolver;
 import de.uka.ilkd.key.dl.arithmetics.impl.groebnerianSOS.GroebnerBasisChecker;
@@ -722,11 +723,11 @@ public class SumOfSquaresChecker {
     private Vector genExactHetero(SparsePolynomial fh, Polynomial nextG,
                                   List<Arithmetic> monomialsInFH) {
         final Vector exactHetero = Values.getDefault().ZERO(fh.size());
-        Iterator<Arithmetic> gMonoms = nextG.indices();
-        ListIterator<Arithmetic> iterator = nextG.iterator();
-        while (gMonoms.hasNext()) {
-            int indexOf = monomialsInFH.indexOf(gMonoms.next());
-            Arithmetic next = iterator.next();
+        Iterator<KeyValuePair> monoms = nextG.monomials();
+        while (monoms.hasNext()) {
+            KeyValuePair nextMonom = monoms.next();
+			int indexOf = monomialsInFH.indexOf(nextMonom.getKey());
+            Arithmetic next = (Arithmetic) nextMonom.getValue();
             if (!next.isZero())
                 exactHetero.set(indexOf, next.minus());
         }
@@ -785,13 +786,13 @@ public class SumOfSquaresChecker {
         	monomialsInFH.add(0, zero);
         }
 
-        Iterator<Arithmetic> indices = nextG.indices();
+        Iterator<KeyValuePair> monomials = nextG.monomials();
         int mononum = monomialsInFH.size();
         System.out.println(monomialsInFH);// XXX
-        ListIterator<Arithmetic> iterator2 = nextG.iterator();
-        while (indices.hasNext()) {
-        	Arithmetic monomial = indices.next();
-        	Arithmetic coefficient = (Arithmetic) iterator2.next();
+        while (monomials.hasNext()) {
+        	KeyValuePair next = monomials.next();
+			Arithmetic monomial = (Arithmetic) next.getKey();
+        	Arithmetic coefficient = (Arithmetic) next.getValue();
         	assert coefficient.isZero()
         			|| monomialsInFH.contains(monomial) :
                  "The polynomial g cannot contain monomials that are not in any p_i "
@@ -1096,13 +1097,14 @@ public class SumOfSquaresChecker {
 		// now we need to translate the polynominal into a matrix representation
 		// monominals are iterated x^0y^0, x^0y^1, x^0y^2, ..., x^1y^0, x^1y^1,
 		// x^1y^2,..., x^2y^0, x^2y^1,...
-		ListIterator coefficients = inputPolynomial.iterator();
-		Iterator indices = inputPolynomial.indices();
+		Iterator<KeyValuePair> monomials = inputPolynomial.monomials();
 		List<Vector> monominals = new ArrayList<Vector>();
-		while (coefficients.hasNext()) {
-			Object next = coefficients.next();
+		
+		while (monomials.hasNext()) {
+			KeyValuePair nextMono = monomials.next();
+			Object nextVector = nextMono.getKey();
+			Object next = nextMono.getValue();
 			String blub = "";
-			Object nextVector = indices.next();
 
 			Vector monomialDegrees = null;
 			if (nextVector instanceof Vector) {
@@ -1156,13 +1158,13 @@ public class SumOfSquaresChecker {
 		Poly quadraticForm = multiplyVec(multiplyMatrix(monominals, matrix),
 				monominals);
 		System.out.println("Polynom: " + quadraticForm);// XXX
-		coefficients = inputPolynomial.iterator();
-		indices = inputPolynomial.indices();
+		monomials = inputPolynomial.monomials();
 
 		List<Constraint> constraints = new ArrayList<Constraint>();
-		while (coefficients.hasNext()) {
-			Object next = coefficients.next();
-			Object nextVector = indices.next();
+		while (monomials.hasNext()) {
+			KeyValuePair nextMono = monomials.next();
+			Object next = nextMono.getValue();
+			Object nextVector = nextMono.getKey();
 
 			Vector monomialDegrees = null;
 			if (nextVector instanceof Vector) {
