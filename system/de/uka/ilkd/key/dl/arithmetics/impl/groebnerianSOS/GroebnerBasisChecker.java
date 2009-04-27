@@ -129,7 +129,7 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 		return false;
 	}
 
-	private Set<Polynomial> createOptimiseGroebnerBasis(Set<Polynomial> polys,
+	Set<Polynomial> createOptimiseGroebnerBasis(Set<Polynomial> polys,
 			boolean isGroebnerBasis) {
 		int varNum = indexNum(polys);
 		final Set<Polynomial> polys2 = eliminateInverses(polys, varNum);
@@ -141,10 +141,10 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 				.println("Polynomials after eliminating linear variables are: ");
 		printPolys(polys3);
 
-		final Set<Polynomial> polys3point1 = /*eliminateEvenDegreeVariables(*/polys3/*);
+		final Set<Polynomial> polys3point1 = eliminateEvenDegreeVariables(polys3);
 		System.out
 				.println("Polynomials after eliminating even degree variables are: ");
-		printPolys(polys3point1)*/;
+		printPolys(polys3point1);
 
 		final Set<Polynomial> polys3point2 = eliminateSumsOfSquares(
 				polys3point1, varNum);
@@ -361,6 +361,9 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 					if (varsInMonom > 1 && positive) {
 						continue outerloop;
 					} else if (varsInMonom == 1 && positive) {
+						if (possibleCandidate == -1) {
+							continue outerloop;
+						}
 						if (purlyEvenVariables.get(possibleCandidate)) {
 							if (candidate != null) {
 								continue outerloop;
@@ -374,7 +377,9 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 			}
 			if (candidate != null && candidate != -1) {
 				// we have found a candidate
-				System.out.println("Eliminate variable " + candidate
+				int[] tmp = new int[varNum];
+				tmp[candidate] = 1;
+				System.out.println("Eliminate variable " + vf.MONOMIAL(tmp)
 						+ " of polynomial " + p);// XXX
 				// from this candidate we get a resulting rewriting of the form
 				// a_1/a*m_1^2 + ... + a_n/a*m_n^2
@@ -395,9 +400,11 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 					if (!v.get(candidate).isZero()) {
 						occurencesOfCandidate++;
 					} else {
-						replacement = (Polynomial) replacement
-								.add(((Polynomial) nextMono.getKey())
-										.multiply(coeff.divide(candidateCoeff)));
+						replacement = (Polynomial) replacement.add((vf
+								.MONOMIAL((Vector) nextMono.getKey()))
+								.multiply(vf.MONOMIAL(coeff
+										.divide(candidateCoeff),
+										new int[varNum])));
 					}
 				}
 				if (occurencesOfCandidate > 1) {
@@ -412,6 +419,9 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 				availableReplacements.set(candidate);
 			}
 		}
+		if (availableReplacements.isEmpty()) {
+			return polys;
+		}
 		// now we apply all those substitutions that we have collected in the
 		// replacementMap
 		// first we decide which rewrite to use if there is more than one
@@ -423,37 +433,47 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 		for (ReplacementEntry r : replacementMap) {
 			if (tmpSubstitute.get(r) == null) {
 				tmpSubstitute.put(r.variableNumber, r.rewriteTo);
+				int[] tmp = new int[varNum];
+				tmp[r.variableNumber] = 1;
+				System.out.println("Replace " + vf.MONOMIAL(tmp) + " with "
+						+ r.rewriteTo);
 				workPolys.remove(r.polynomToRemove);
 			}
 		}
 		// we need to apply the substitutions one by one to the substitute set
 		// itself first, so that the polynomials we insert contain the minimal
 		// set of variables
-		// therefore we eliminate all variables, that are subject to rewrite within the following loop
-		final HashMap<java.lang.Integer, Polynomial> substitute = new HashMap<java.lang.Integer, Polynomial>(tmpSubstitute);
-		for(int variable: tmpSubstitute.keySet()){
-			final HashMap<java.lang.Integer, Polynomial> oneSubstitute = new HashMap<java.lang.Integer, Polynomial>();
-			oneSubstitute.put(variable, tmpSubstitute.get(variable));
-			final HashMap<java.lang.Integer, Polynomial> results = new HashMap<java.lang.Integer, Polynomial>();
-			for(int var: substitute.keySet()){
-				results.put(var, rewritePolynomial(variable, oneSubstitute, substitute.get(var)));
+		// therefore we eliminate all variables, that are subject to rewrite
+		// within the following loop
+		final HashMap<java.lang.Integer, Polynomial> substitute = new HashMap<java.lang.Integer, Polynomial>(
+				tmpSubstitute);
+		if (tmpSubstitute.size() > 1) {
+			for (int variable : tmpSubstitute.keySet()) {
+				final HashMap<java.lang.Integer, Polynomial> oneSubstitute = new HashMap<java.lang.Integer, Polynomial>();
+				oneSubstitute.put(variable, tmpSubstitute.get(variable));
+				final HashMap<java.lang.Integer, Polynomial> results = new HashMap<java.lang.Integer, Polynomial>();
+				for (int var : substitute.keySet()) {
+					results.put(var, rewritePolynomial(varNum, oneSubstitute,
+							substitute.get(var)));
+				}
+				substitute.clear();
+				substitute.putAll(results);
 			}
-			substitute.clear();
-			substitute.putAll(results);
 		}
-
-		// now that we got clean rewrites, we can apply them to the rest of the polynomials
+		System.out.println("Substitutions are " + substitute);
+		// now that we got clean rewrites, we can apply them to the rest of the
+		// polynomials
 		final HashSet<Polynomial> result = new HashSet<Polynomial>();
 		for (Polynomial p : workPolys) {
 			result.add(rewritePolynomial(varNum, substitute, p));
 		}
 
 		// }
-		return workPolys;
+		return result;
 	}
 
 	/**
-	 * @param varNum
+	 * @param varToEliminate
 	 * @param substitute
 	 * @param p
 	 */
@@ -469,25 +489,45 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 
 			if (coeff.isZero())
 				continue;
-			Polynomial res = (Polynomial) p.zero().add(coeff);
+			Polynomial res = null;
 			for (int variable : substitute.keySet()) {
 				int varDegree = ((Integer) v.get(variable)).intValue();
 				assert varDegree % 2 == 0;
 				Polynomial rewritePoly = substitute.get(variable);
 				if (varDegree > 2) {
-					for (int i = 0; i < varDegree - 2; i++) {
+					System.out.print("(" + rewritePoly + ")^" + (varDegree - 2)
+							+ " = ");
+					for (int i = 0; i < varDegree - 3; i++) {
 						rewritePoly = rewritePoly.multiply(rewritePoly);
 					}
+					System.out.println(rewritePoly);
 				}
-				v.set(variable, vf.ZERO());
-				res = res.multiply(rewritePoly);
+				if (varDegree > 0) {
+					v.set(variable, vf.ZERO());
+					if (res == null) {
+						res = rewritePoly;
+					} else {
+						res = res.multiply(rewritePoly);
+					}
+				}
 			}
 			int[] exponents = new int[varNum];
-			for(int i = 0; i < v.dimension(); i++) {
-				exponents[i] = ((Integer)v.get(i)).intValue();
+			assert varNum == v.dimension();
+			for (int i = 0; i < v.dimension(); i++) {
+				Integer integer = (Integer) v.get(i);
+				exponents[i] = integer.intValue();
 			}
-			res = res.multiply(vf.MONOMIAL(exponents));
-			resultPoly = resultPoly.add(res);
+			if (res != null) {
+				res = res.multiply(vf.MONOMIAL(exponents));
+			} else {
+				res = vf.MONOMIAL(exponents);
+			}
+			res = (Polynomial) res
+					.multiply(vf.MONOMIAL(coeff, new int[varNum]));
+
+			System.out.println("Res is " + res);
+			System.out.println("ResultPoly is " + resultPoly);
+			resultPoly = (Polynomial) resultPoly.add(res);
 		}
 		return resultPoly;
 	}
@@ -769,8 +809,8 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 	private BitSet findPurlyEvenVariables(Set<Polynomial> polys,
 			final int varNum) {
 		final Integer two = vf.ONE().add(vf.ONE());
-		final BitSet purlyEvenVars = new BitSet();
-		final BitSet nonPurlyEvenVars = new BitSet();
+		final BitSet purlyEvenVars = new BitSet(varNum);
+		final BitSet nonPurlyEvenVars = new BitSet(varNum);
 		final Vector oneVec = vf.CONST(varNum, vf.ONE());
 		for (Polynomial p : polys) {
 			final Iterator<KeyValuePair> monomialIt = p.monomials();
@@ -1093,7 +1133,7 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 		}
 	}
 
-	////////////////////////////////////////////////////////////////////////////
+	// //////////////////////////////////////////////////////////////////////////
 
 	private interface AddedMonomialListener {
 		void addedMonomial(Arithmetic v);
@@ -1209,7 +1249,7 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 		}
 	}
 
-	////////////////////////////////////////////////////////////////////////////
+	// //////////////////////////////////////////////////////////////////////////
 
 	private static Square[] approx2Exact(SparsePolynomial reducedPoly,
 			List<Arithmetic> consideredMonomials, BitSet removedMonomials,
@@ -1367,7 +1407,7 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 		}
 	}
 
-	////////////////////////////////////////////////////////////////////////////
+	// //////////////////////////////////////////////////////////////////////////
 
 	public static class MonomialFactorIterator implements Iterator<Vector> {
 		private final ValueFactory vf = Values.getDefault();
@@ -1405,7 +1445,7 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 		}
 	}
 
-	////////////////////////////////////////////////////////////////////////////
+	// //////////////////////////////////////////////////////////////////////////
 
 	public static class SimpleMonomialIterator implements Iterator<Vector> {
 		private final ValueFactory vf = Values.getDefault();
@@ -1478,7 +1518,7 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 		}
 	}
 
-	////////////////////////////////////////////////////////////////////////////
+	// //////////////////////////////////////////////////////////////////////////
 
 	public GroebnerBasisChecker(Node node) {
 	}
