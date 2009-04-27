@@ -48,8 +48,6 @@ import orbital.util.KeyValuePair;
 
 import org.w3c.dom.Node;
 
-import sun.management.counter.Variability;
-
 import de.uka.ilkd.key.dl.arithmetics.IGroebnerBasisCalculator;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ConnectionProblemException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ServerStatusProblemException;
@@ -199,6 +197,8 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 
 		polyloop: for (Polynomial p : polys) {
 			Iterator<KeyValuePair> monomialIt = p.monomials();
+			int positiveCount = 0;
+			int negativeCount = 0;
 			while (monomialIt.hasNext()) {
 				KeyValuePair nextMono = monomialIt.next();
 				final Vector v = asVector((Arithmetic) nextMono.getKey());
@@ -208,10 +208,16 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 				if (coeff instanceof Comparable) {
 					int compare = ((Comparable) coeff).compareTo(coeff.zero());
 					if (compare < 0) {
-						// we got a coefficient that is less than zero.
-						// Therefore this optimization is not applicable.
-						workPolys.add(p);
-						continue polyloop;
+						if (positiveCount > 0) {
+							// we got a coefficient that is less than zero.
+							// Therefore this optimization is not applicable.
+							workPolys.add(p);
+							continue polyloop;
+						} else {
+							negativeCount++;
+						}
+					} else {
+						positiveCount++;
 					}
 				} else {
 					// we cannot do anything, if the coefficients are not
@@ -232,6 +238,14 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 						}
 					}
 				}
+			}
+			if(negativeCount > 0 && positiveCount > 0) {
+				continue polyloop;
+			}
+			assert positiveCount > 0 || negativeCount > 0;
+			// if -x^2 - y^2 is zero x^2 + y^2 is zero too
+			if(positiveCount == 0) {
+				p = (Polynomial) p.minus();
 			}
 			// at this point we know that we could reduce the degree of every
 			// monom by 2
