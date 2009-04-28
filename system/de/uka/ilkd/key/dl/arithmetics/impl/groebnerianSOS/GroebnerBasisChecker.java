@@ -255,7 +255,7 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 					workPolys.add(p);
 					continue polyloop;
 				}
-				assert positiveCount > 0 || negativeCount > 0;
+				assert positiveCount > 0 || negativeCount > 0 : "Polynomial " + p + " does neither contain positive nor negative coefficients";
 				// if -x^2 - y^2 is zero x^2 + y^2 is zero too
 				if (positiveCount == 0) {
 					p = (Polynomial) p.minus();
@@ -276,7 +276,7 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 				}
 			}
 			changed = !polys.equals(workPolys);
-			if(changed ) {
+			if(changed) {
 				System.out.println("Workpolys " + workPolys + " is not equal to " + polys);
 			}
 			polys = workPolys;
@@ -518,10 +518,7 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 					+ polynomial);
 			final Comparator order = lexVariableOrder(variable, varCount);
 
-			Set<Polynomial> reducePolys = new HashSet<Polynomial>();
-			reducePolys.add(polynomial);
-
-			final Function reducer = AlgebraicAlgorithms.reduce(reducePolys,
+			final Function reducer = AlgebraicAlgorithms.reduce(Collections.singleton(polynomial),
 					order);
 			for (Polynomial p : polys) {
 				p = (Polynomial) reducer.apply(p);
