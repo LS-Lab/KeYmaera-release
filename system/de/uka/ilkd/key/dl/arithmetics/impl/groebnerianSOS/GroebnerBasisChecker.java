@@ -468,7 +468,7 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 					Set<Polynomial> rewritePolynomials = rewritePolynomials(
 							varNum, oneSubstitute, Collections
 									.singleton(substitute.get(var)));
-					assert rewritePolynomials.size() == 1;
+					assert rewritePolynomials.size() == 1 : "The size of rewritePolynomials: " + rewritePolynomials + " should be one.";
 					results.put(var, rewritePolynomials.iterator().next());
 				}
 				substitute.clear();
