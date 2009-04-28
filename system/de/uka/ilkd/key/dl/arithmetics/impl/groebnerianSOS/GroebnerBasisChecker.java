@@ -766,9 +766,9 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 		while (monomialIt.hasNext()) {
 			KeyValuePair nextMono = monomialIt.next();
 			if(compare == null) {
-				compare = (Arithmetic) ((Arithmetic) vf.asPolynomial((Vector) nextMono.getKey())).multiply((Arithmetic) nextMono.getValue());
+				compare = (Arithmetic) vf.MONOMIAL((Arithmetic) nextMono.getValue(), (Arithmetic) nextMono.getKey());
 			} else {
-				compare = compare.add((Arithmetic) ((Arithmetic) vf.asPolynomial((Vector) nextMono.getKey())).multiply((Arithmetic) nextMono.getValue()));
+				compare = compare.add((Arithmetic) vf.MONOMIAL((Arithmetic) nextMono.getValue(), (Arithmetic) nextMono.getKey()));
 			}
 			final Vector v = asVector((Arithmetic) nextMono.getKey());
 			final Arithmetic coeff = (Arithmetic) nextMono.getValue();
