@@ -735,7 +735,7 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 
 			System.out.println("eliminating " + linVar + " using "
 					+ polyWithLinVar);
-			return rewritePolynomials(varNum, Collections.singletonMap(linVar,
+			workPolys = rewritePolynomials(varNum, Collections.singletonMap(linVar,
 					polyWithLinVar), workPolys);
 		}
 	}
