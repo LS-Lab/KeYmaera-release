@@ -24,12 +24,14 @@ import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Set;
 
@@ -130,30 +132,35 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 	Set<Polynomial> createOptimiseGroebnerBasis(Set<Polynomial> polys,
 			boolean isGroebnerBasis) {
 		int varNum = indexNum(polys);
+		System.out.println("Eliminating inverses...");
 		final Set<Polynomial> polys2 = eliminateInverses(polys, varNum);
 		System.out.println("Polynomials after eliminating inverses are: ");
 		printPolys(polys2);
-
+		System.out.println("Eliminating linear variables...");
 		final Set<Polynomial> polys3 = eliminateLinearVariables(polys2);
 		System.out
 				.println("Polynomials after eliminating linear variables are: ");
 		printPolys(polys3);
 
+		System.out.println("Eliminating even degree variables...");
 		final Set<Polynomial> polys3point1 = eliminateEvenDegreeVariables(polys3);
 		System.out
 				.println("Polynomials after eliminating even degree variables are: ");
 		printPolys(polys3point1);
 
+		System.out.println("Eliminating sums of squares...");
 		final Set<Polynomial> polys3point2 = eliminateSumsOfSquares(
 				polys3point1, varNum);
 		System.out.println("Polynomials after eliminating sums of squares: ");
 		printPolys(polys3point2);
 
+		System.out.println("Eliminating unused variables...");
 		final Set<Polynomial> polys4 = eliminateUnusedVariables(polys3point2);
 		System.out
 				.println("Polynomials after eliminating unused variables are: ");
 		printPolys(polys4);
 
+		System.out.println("Testing if there was progress...");
 		if (isGroebnerBasis && polys.equals(polys4))
 			// nothing has changed
 			return polys;
@@ -167,6 +174,7 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 		// we try to get a contradiction by computing the groebner basis of all
 		// the equalities. if the common basis contains a constant part, the
 		// equality system is unsatisfiable, thus we can close this goal
+		System.out.println("Computing groebner basis...");
 		final Set<Polynomial> groebnerBasis = orbital.math.AlgebraicAlgorithms
 				.groebnerBasis(polys4, monomialOrder);
 		final Function groebnerReducer = orbital.math.AlgebraicAlgorithms
@@ -191,80 +199,90 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 	 */
 	private Set<Polynomial> eliminateSumsOfSquares(Set<Polynomial> polys,
 			int varNum) {
-		final Set<Polynomial> workPolys = new HashSet<Polynomial>();
+		Set<Polynomial> workPolys = new HashSet<Polynomial>();
 		final Integer two = vf.ONE().add(vf.ONE());
 		final Vector oneVec = vf.CONST(varNum, vf.ONE());
-
-		polyloop: for (Polynomial p : polys) {
-			Iterator<KeyValuePair> monomialIt = p.monomials();
-			int positiveCount = 0;
-			int negativeCount = 0;
-			while (monomialIt.hasNext()) {
-				KeyValuePair nextMono = monomialIt.next();
-				final Vector v = asVector((Arithmetic) nextMono.getKey());
-				final Arithmetic coeff = (Arithmetic) nextMono.getValue();
-				if (coeff.isZero())
-					continue;
-				if (coeff instanceof Comparable) {
-					int compare = ((Comparable) coeff).compareTo(coeff.zero());
-					if (compare < 0) {
-						if (positiveCount > 0) {
-							// we got a coefficient that is less than zero.
-							// Therefore this optimization is not applicable.
-							workPolys.add(p);
-							continue polyloop;
-						} else {
-							negativeCount++;
-						}
-					} else {
-						positiveCount++;
-					}
-				} else {
-					// we cannot do anything, if the coefficients are not
-					// comparable
-					return polys;
-				}
-
-				final Arithmetic degree = v.multiply(oneVec);
-				if (degree.isZero()) {
-					// nothing
-				} else {
-					for (int i = 0; i < varNum; ++i) {
-						if (!v.get(i).isZero()) {
-							if (!((Integer) v.get(i)).modulo(two).isZero()) {
+		boolean changed = true;
+		while (changed) {
+			changed = false;
+			polyloop: for (Polynomial p : polys) {
+				Iterator<KeyValuePair> monomialIt = p.monomials();
+				int positiveCount = 0;
+				int negativeCount = 0;
+				while (monomialIt.hasNext()) {
+					KeyValuePair nextMono = monomialIt.next();
+					final Vector v = asVector((Arithmetic) nextMono.getKey());
+					final Arithmetic coeff = (Arithmetic) nextMono.getValue();
+					if (coeff.isZero())
+						continue;
+					if (coeff instanceof Comparable) {
+						int compare = ((Comparable) coeff).compareTo(coeff
+								.zero());
+						if (compare < 0) {
+							if (positiveCount > 0) {
+								// we got a coefficient that is less than zero.
+								// Therefore this optimization is not
+								// applicable.
 								workPolys.add(p);
 								continue polyloop;
+							} else {
+								negativeCount++;
+							}
+						} else {
+							positiveCount++;
+						}
+					} else {
+						// we cannot do anything, if the coefficients are not
+						// comparable
+						return polys;
+					}
+
+					final Arithmetic degree = v.multiply(oneVec);
+					if (degree.isZero()) {
+						// nothing
+					} else {
+						for (int i = 0; i < varNum; ++i) {
+							if (!v.get(i).isZero()) {
+								if (!((Integer) v.get(i)).modulo(two).isZero()) {
+									workPolys.add(p);
+									continue polyloop;
+								}
 							}
 						}
 					}
 				}
-			}
-			if(negativeCount > 0 && positiveCount > 0) {
-				continue polyloop;
-			}
-			assert positiveCount > 0 || negativeCount > 0;
-			// if -x^2 - y^2 is zero x^2 + y^2 is zero too
-			if(positiveCount == 0) {
-				p = (Polynomial) p.minus();
-			}
-			// at this point we know that we could reduce the degree of every
-			// monom by 2
-			monomialIt = p.monomials();
-			while (monomialIt.hasNext()) {
-				final KeyValuePair nextMono = monomialIt.next();
-				final Vector v = asVector((Arithmetic) nextMono.getKey());
-				final Arithmetic coeff = (Arithmetic) nextMono.getValue();
-				if (coeff.isZero())
-					continue;
-				int[] mono = new int[varNum];
-				for (int i = 0; i < varNum; ++i) {
-					mono[i] = ((Integer) ((Integer) v.get(i)).divide(two))
-							.intValue();
+				if (negativeCount > 0 && positiveCount > 0) {
+					workPolys.add(p);
+					continue polyloop;
 				}
-				workPolys.add(vf.MONOMIAL(coeff, mono));
+				assert positiveCount > 0 || negativeCount > 0;
+				// if -x^2 - y^2 is zero x^2 + y^2 is zero too
+				if (positiveCount == 0) {
+					p = (Polynomial) p.minus();
+				}
+				// at this point we know that we could reduce the degree of
+				// every
+				// monom by 2
+				monomialIt = p.monomials();
+				while (monomialIt.hasNext()) {
+					final KeyValuePair nextMono = monomialIt.next();
+					final Vector key = (Vector) asVector((Arithmetic) nextMono.getKey());
+					int[] mono = new int[varNum];
+					for(int i = 0; i < varNum; i++) {
+						mono[i] = ((Integer) key.get(i)).intValue()/2;
+					}
+					workPolys.add(vf.MONOMIAL((Arithmetic) nextMono.getValue(),
+							mono));
+				}
 			}
+			changed = !polys.equals(workPolys);
+			if(changed ) {
+				System.out.println("Workpolys " + workPolys + " is not equal to " + polys);
+			}
+			polys = workPolys;
+			workPolys = new HashSet<Polynomial>();
 		}
-		return workPolys;
+		return polys;
 	}
 
 	/**
@@ -307,16 +325,13 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 			 * @param p
 			 * @param minus
 			 */
-			public ReplacementEntry(java.lang.Integer candidate, Polynomial p,
-					Polynomial minus) {
+			public ReplacementEntry(java.lang.Integer candidate, Polynomial p) {
 				variableNumber = candidate;
 				polynomToRemove = p;
-				rewriteTo = minus;
 			}
 
 			java.lang.Integer variableNumber;
 			Polynomial polynomToRemove;
-			Polynomial rewriteTo;
 		}
 		final HashSet<ReplacementEntry> replacementMap = new HashSet<ReplacementEntry>();
 		final BitSet availableReplacements = new BitSet(varNum);
@@ -428,8 +443,7 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 				}
 				assert occurencesOfCandidate == 1 : "A variable in a polynomial cannot disappear.";
 				// now replacement contains the polynomial we use for rewriting
-				replacementMap.add(new ReplacementEntry(candidate, p,
-						(Polynomial) replacement.minus()));
+				replacementMap.add(new ReplacementEntry(candidate, p));
 				availableReplacements.set(candidate);
 			}
 		}
@@ -446,11 +460,11 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 		final HashMap<java.lang.Integer, Polynomial> tmpSubstitute = new HashMap<java.lang.Integer, Polynomial>();
 		for (ReplacementEntry r : replacementMap) {
 			if (tmpSubstitute.get(r) == null) {
-				tmpSubstitute.put(r.variableNumber, r.rewriteTo);
+				tmpSubstitute.put(r.variableNumber, r.polynomToRemove);
 				int[] tmp = new int[varNum];
 				tmp[r.variableNumber] = 1;
 				System.out.println("Replace " + vf.MONOMIAL(tmp) + " with "
-						+ r.rewriteTo);
+						+ r.polynomToRemove);
 				workPolys.remove(r.polynomToRemove);
 			}
 		}
@@ -463,12 +477,21 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 				tmpSubstitute);
 		if (tmpSubstitute.size() > 1) {
 			for (int variable : tmpSubstitute.keySet()) {
-				final HashMap<java.lang.Integer, Polynomial> oneSubstitute = new HashMap<java.lang.Integer, Polynomial>();
-				oneSubstitute.put(variable, tmpSubstitute.get(variable));
+				final Map<java.lang.Integer, Polynomial> oneSubstitute = Collections
+						.singletonMap(variable, tmpSubstitute.get(variable));
 				final HashMap<java.lang.Integer, Polynomial> results = new HashMap<java.lang.Integer, Polynomial>();
 				for (int var : substitute.keySet()) {
-					results.put(var, rewritePolynomial(varNum, oneSubstitute,
-							substitute.get(var)));
+					// for the case that var == variable the rewriting is a noop
+					if (var == variable) {
+						results.put(var, substitute.get(var));
+					} else {
+						Set<Polynomial> rewritePolynomials = rewritePolynomials(
+								varNum, oneSubstitute, Collections
+										.singleton(substitute.get(var)));
+						assert rewritePolynomials.size() == 1 : "The size of rewritePolynomials: "
+								+ rewritePolynomials + " should be one.";
+						results.put(var, rewritePolynomials.iterator().next());
+					}
 				}
 				substitute.clear();
 				substitute.putAll(results);
@@ -477,73 +500,44 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 		System.out.println("Substitutions are " + substitute);
 		// now that we got clean rewrites, we can apply them to the rest of the
 		// polynomials
-		final HashSet<Polynomial> result = new HashSet<Polynomial>();
-		for (Polynomial p : workPolys) {
-			result.add(rewritePolynomial(varNum, substitute, p));
-		}
-
-		// }
-		return result;
+		return rewritePolynomials(varNum, substitute, workPolys);
 	}
 
 	/**
 	 * @param varToEliminate
-	 * @param substitute
+	 * @param rewrite
 	 * @param p
 	 */
-	private Polynomial rewritePolynomial(final int varNum,
-			final HashMap<java.lang.Integer, Polynomial> substitute,
-			Polynomial p) {
-		final Iterator<KeyValuePair> monomialIt = p.monomials();
-		Polynomial resultPoly = (Polynomial) p.zero();
-		while (monomialIt.hasNext()) {
-			KeyValuePair nextMono = monomialIt.next();
-			final Vector v = asVector((Arithmetic) nextMono.getKey());
-			final Arithmetic coeff = (Arithmetic) nextMono.getValue();
+	private Set<Polynomial> rewritePolynomials(final int varCount,
+			final Map<java.lang.Integer, Polynomial> rewrite,
+			Set<Polynomial> polys) {
+		final HashSet<Polynomial> workPolys = new HashSet<Polynomial>();
+		for (int variable : rewrite.keySet()) {
+			Polynomial polynomial = rewrite.get(variable);
+			System.out.println("eliminating " + variable + " using "
+					+ polynomial);
+			final Comparator order = lexVariableOrder(variable, varCount);
 
-			if (coeff.isZero())
-				continue;
-			Polynomial res = null;
-			for (int variable : substitute.keySet()) {
-				int varDegree = ((Integer) v.get(variable)).intValue();
-				assert varDegree % 2 == 0;
-				Polynomial rewritePoly = substitute.get(variable);
-				if (varDegree > 2) {
-					System.out.print("(" + rewritePoly + ")^" + (varDegree - 2)
-							+ " = ");
-					for (int i = 0; i < varDegree - 3; i++) {
-						rewritePoly = rewritePoly.multiply(rewritePoly);
+			Set<Polynomial> reducePolys = new HashSet<Polynomial>();
+			reducePolys.add(polynomial);
+
+			final Function reducer = AlgebraicAlgorithms.reduce(reducePolys,
+					order);
+			for (Polynomial p : polys) {
+				p = (Polynomial) reducer.apply(p);
+				if (!p.isZero()) {
+					if (p.degree().isZero()) {
+						// we have found a unit and can stop
+						workPolys.clear();
+						workPolys.add(p);
+						return workPolys;
 					}
-					System.out.println(rewritePoly);
-				}
-				if (varDegree > 0) {
-					v.set(variable, vf.ZERO());
-					if (res == null) {
-						res = rewritePoly;
-					} else {
-						res = res.multiply(rewritePoly);
-					}
+					workPolys.add(p);
 				}
 			}
-			int[] exponents = new int[varNum];
-			assert varNum == v.dimension();
-			for (int i = 0; i < v.dimension(); i++) {
-				Integer integer = (Integer) v.get(i);
-				exponents[i] = integer.intValue();
-			}
-			if (res != null) {
-				res = res.multiply(vf.MONOMIAL(exponents));
-			} else {
-				res = vf.MONOMIAL(exponents);
-			}
-			res = (Polynomial) res
-					.multiply(vf.MONOMIAL(coeff, new int[varNum]));
-
-			System.out.println("Res is " + res);
-			System.out.println("ResultPoly is " + resultPoly);
-			resultPoly = (Polynomial) resultPoly.add(res);
+			polys = new HashSet<Polynomial>(workPolys);
 		}
-		return resultPoly;
+		return workPolys;
 	}
 
 	private void printPolys(Set<Polynomial> rawPolys) {
@@ -742,31 +736,8 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 
 			System.out.println("eliminating " + linVar + " using "
 					+ polyWithLinVar);
-			final Comparator order = lexVariableOrder(linVar, varNum);
-
-			Set<Polynomial> reducePolys = new HashSet<Polynomial>();
-			reducePolys.add(polyWithLinVar);
-
-			// reducePolys = AlgebraicAlgorithms.groebnerBasis(reducePolys,
-			// order);
-			final Function reducer = AlgebraicAlgorithms.reduce(reducePolys,
-					order);
-
-			final Iterator<Polynomial> allPolysIt = workPolys.iterator();
-			workPolys = new HashSet<Polynomial>();
-			while (allPolysIt.hasNext()) {
-				final Polynomial reducedPoly = (Polynomial) reducer
-						.apply(allPolysIt.next());
-				if (!reducedPoly.isZero()) {
-					if (reducedPoly.degree().isZero()) {
-						// we have found a unit and can stop
-						workPolys.clear();
-						workPolys.add(reducedPoly);
-						return workPolys;
-					}
-					workPolys.add(reducedPoly);
-				}
-			}
+			workPolys = rewritePolynomials(varNum, Collections.singletonMap(
+					linVar, polyWithLinVar), workPolys);
 		}
 	}
 
@@ -792,8 +763,17 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 		final Vector oneVec = vf.CONST(varNum, vf.ONE());
 
 		final Iterator<KeyValuePair> monomialIt = p.monomials();
+		Arithmetic compare = null;
 		while (monomialIt.hasNext()) {
 			KeyValuePair nextMono = monomialIt.next();
+			if (compare == null) {
+				compare = (Arithmetic) vf.MONOMIAL((Arithmetic) nextMono
+						.getValue(), (Arithmetic) nextMono.getKey());
+			} else {
+				compare = compare.add((Arithmetic) vf.MONOMIAL(
+						(Arithmetic) nextMono.getValue(), (Arithmetic) nextMono
+								.getKey()));
+			}
 			final Vector v = asVector((Arithmetic) nextMono.getKey());
 			final Arithmetic coeff = (Arithmetic) nextMono.getValue();
 
@@ -801,6 +781,7 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 				continue;
 
 			final Arithmetic degree = v.multiply(oneVec);
+			System.out.println("Degree of " + v + " is " + degree);
 			if (degree.isZero()) {
 				// nothing
 			} else if (degree.isOne()) {
@@ -815,7 +796,8 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 						nonLinearVars.set(i);
 			}
 		}
-
+		assert compare.equals(p) : "Polynomial " + compare
+				+ " is not equals to its creating polynomial " + p;
 		linearVars.andNot(nonLinearVars);
 		return linearVars.nextSetBit(0);
 	}

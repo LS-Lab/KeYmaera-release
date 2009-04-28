@@ -347,4 +347,25 @@ public class GroebnerBasisCheckerTest {
 		assertEquals(createOptimiseGroebnerBasis, polys);
 	}
 
+	/**
+	 * Test method for
+	 * {@link de.uka.ilkd.key.dl.arithmetics.impl.groebnerianSOS.GroebnerBasisChecker#createOptimiseGroebnerBasis(java.util.Set, boolean)}
+	 * .
+	 */
+	@Test
+	public void testCreateOptimiseGroebnerBasis4() {
+		Polynomial x = vf.MONOMIAL(new int[] { 1, 0, 0 });
+		Polynomial xcube = vf.MONOMIAL(new int[] { 3, 0, 0 });
+		Polynomial ysquare = vf.MONOMIAL(new int[] { 0, 2, 0 });
+		Polynomial zsquare = vf.MONOMIAL(new int[] { 0, 0, 2 });
+		Polynomial combine = x.subtract(ysquare.add(zsquare));
+		Polynomial combine2 = zsquare.add(x).subtract(xcube);
+		HashSet<Polynomial> polys = new HashSet<Polynomial>();
+		polys.add(combine);
+		polys.add(combine2);
+		Set<Polynomial> createOptimiseGroebnerBasis = gbChecker
+		.createOptimiseGroebnerBasis(polys, false);
+		System.out.println(createOptimiseGroebnerBasis);
+	}
+
 }
