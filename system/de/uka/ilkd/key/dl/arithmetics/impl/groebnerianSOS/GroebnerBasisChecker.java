@@ -266,23 +266,23 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 				monomialIt = p.monomials();
 				while (monomialIt.hasNext()) {
 					final KeyValuePair nextMono = monomialIt.next();
-					final Vector v = asVector((Arithmetic) nextMono.getKey());
-					final Arithmetic coeff = (Arithmetic) nextMono.getValue();
-					if (coeff.isZero())
-						continue;
+					final Vector key = (Vector) asVector((Arithmetic) nextMono.getKey());
 					int[] mono = new int[varNum];
-					for (int i = 0; i < varNum; ++i) {
-						mono[i] = ((Integer) ((Integer) v.get(i)).divide(two))
-								.intValue();
+					for(int i = 0; i < varNum; i++) {
+						mono[i] = ((Integer) key.get(i)).intValue()/2;
 					}
-					workPolys.add(vf.MONOMIAL(coeff, mono));
+					workPolys.add(vf.MONOMIAL((Arithmetic) nextMono.getValue(),
+							mono));
 				}
-				changed = true;
-				polys = workPolys;
-				workPolys = new HashSet<Polynomial>();
 			}
+			changed = !polys.equals(workPolys);
+			if(changed ) {
+				System.out.println("Workpolys " + workPolys + " is not equal to " + polys);
+			}
+			polys = workPolys;
+			workPolys = new HashSet<Polynomial>();
 		}
-		return workPolys;
+		return polys;
 	}
 
 	/**
@@ -477,7 +477,8 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 				tmpSubstitute);
 		if (tmpSubstitute.size() > 1) {
 			for (int variable : tmpSubstitute.keySet()) {
-				final Map<java.lang.Integer, Polynomial> oneSubstitute = Collections.singletonMap(variable, tmpSubstitute.get(variable));
+				final Map<java.lang.Integer, Polynomial> oneSubstitute = Collections
+						.singletonMap(variable, tmpSubstitute.get(variable));
 				final HashMap<java.lang.Integer, Polynomial> results = new HashMap<java.lang.Integer, Polynomial>();
 				for (int var : substitute.keySet()) {
 					// for the case that var == variable the rewriting is a noop
@@ -735,8 +736,8 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 
 			System.out.println("eliminating " + linVar + " using "
 					+ polyWithLinVar);
-			workPolys = rewritePolynomials(varNum, Collections.singletonMap(linVar,
-					polyWithLinVar), workPolys);
+			workPolys = rewritePolynomials(varNum, Collections.singletonMap(
+					linVar, polyWithLinVar), workPolys);
 		}
 	}
 
@@ -765,10 +766,13 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 		Arithmetic compare = null;
 		while (monomialIt.hasNext()) {
 			KeyValuePair nextMono = monomialIt.next();
-			if(compare == null) {
-				compare = (Arithmetic) vf.MONOMIAL((Arithmetic) nextMono.getValue(), (Arithmetic) nextMono.getKey());
+			if (compare == null) {
+				compare = (Arithmetic) vf.MONOMIAL((Arithmetic) nextMono
+						.getValue(), (Arithmetic) nextMono.getKey());
 			} else {
-				compare = compare.add((Arithmetic) vf.MONOMIAL((Arithmetic) nextMono.getValue(), (Arithmetic) nextMono.getKey()));
+				compare = compare.add((Arithmetic) vf.MONOMIAL(
+						(Arithmetic) nextMono.getValue(), (Arithmetic) nextMono
+								.getKey()));
 			}
 			final Vector v = asVector((Arithmetic) nextMono.getKey());
 			final Arithmetic coeff = (Arithmetic) nextMono.getValue();
@@ -792,7 +796,8 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 						nonLinearVars.set(i);
 			}
 		}
-		assert compare.equals(p) : "Polynomial " + compare + " is not equals to its creating polynomial " + p;
+		assert compare.equals(p) : "Polynomial " + compare
+				+ " is not equals to its creating polynomial " + p;
 		linearVars.andNot(nonLinearVars);
 		return linearVars.nextSetBit(0);
 	}
