@@ -206,6 +206,11 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 		while (changed) {
 			changed = false;
 			polyloop: for (Polynomial p : polys) {
+				if (p.isZero()) {
+					// we do not need the zero polynomial in our generating set
+					// for an ideal
+					continue polyloop;
+				}
 				Iterator<KeyValuePair> monomialIt = p.monomials();
 				int positiveCount = 0;
 				int negativeCount = 0;
@@ -255,7 +260,9 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 					workPolys.add(p);
 					continue polyloop;
 				}
-				assert positiveCount > 0 || negativeCount > 0 : "Polynomial " + p + " does neither contain positive nor negative coefficients";
+				assert positiveCount > 0 || negativeCount > 0 : "Polynomial "
+						+ p
+						+ " does neither contain positive nor negative coefficients";
 				// if -x^2 - y^2 is zero x^2 + y^2 is zero too
 				if (positiveCount == 0) {
 					p = (Polynomial) p.minus();
@@ -266,18 +273,20 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 				monomialIt = p.monomials();
 				while (monomialIt.hasNext()) {
 					final KeyValuePair nextMono = monomialIt.next();
-					final Vector key = (Vector) asVector((Arithmetic) nextMono.getKey());
+					final Vector key = (Vector) asVector((Arithmetic) nextMono
+							.getKey());
 					int[] mono = new int[varNum];
-					for(int i = 0; i < varNum; i++) {
-						mono[i] = ((Integer) key.get(i)).intValue()/2;
+					for (int i = 0; i < varNum; i++) {
+						mono[i] = ((Integer) key.get(i)).intValue() / 2;
 					}
 					workPolys.add(vf.MONOMIAL((Arithmetic) nextMono.getValue(),
 							mono));
 				}
 			}
 			changed = !polys.equals(workPolys);
-			if(changed) {
-				System.out.println("Workpolys " + workPolys + " is not equal to " + polys);
+			if (changed) {
+				System.out.println("Workpolys " + workPolys
+						+ " is not equal to " + polys);
 			}
 			polys = workPolys;
 			workPolys = new HashSet<Polynomial>();
@@ -518,8 +527,8 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 					+ polynomial);
 			final Comparator order = lexVariableOrder(variable, varCount);
 
-			final Function reducer = AlgebraicAlgorithms.reduce(Collections.singleton(polynomial),
-					order);
+			final Function reducer = AlgebraicAlgorithms.reduce(Collections
+					.singleton(polynomial), order);
 			for (Polynomial p : polys) {
 				p = (Polynomial) reducer.apply(p);
 				if (!p.isZero()) {
