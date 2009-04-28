@@ -762,8 +762,14 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 		final Vector oneVec = vf.CONST(varNum, vf.ONE());
 
 		final Iterator<KeyValuePair> monomialIt = p.monomials();
+		Arithmetic compare = null;
 		while (monomialIt.hasNext()) {
 			KeyValuePair nextMono = monomialIt.next();
+			if(compare == null) {
+				compare = (Arithmetic) ((Arithmetic) nextMono.getKey()).multiply((Arithmetic) nextMono.getValue());
+			} else {
+				compare = compare.add((Arithmetic) ((Arithmetic) nextMono.getKey()).multiply((Arithmetic) nextMono.getValue()));
+			}
 			final Vector v = asVector((Arithmetic) nextMono.getKey());
 			final Arithmetic coeff = (Arithmetic) nextMono.getValue();
 
@@ -771,6 +777,7 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 				continue;
 
 			final Arithmetic degree = v.multiply(oneVec);
+			System.out.println("Degree of " + v + " is " + degree);
 			if (degree.isZero()) {
 				// nothing
 			} else if (degree.isOne()) {
@@ -785,7 +792,7 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 						nonLinearVars.set(i);
 			}
 		}
-
+		assert compare.equals(p);
 		linearVars.andNot(nonLinearVars);
 		return linearVars.nextSetBit(0);
 	}
