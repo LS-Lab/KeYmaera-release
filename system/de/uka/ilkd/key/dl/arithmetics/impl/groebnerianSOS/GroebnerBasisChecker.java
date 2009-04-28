@@ -132,30 +132,35 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 	Set<Polynomial> createOptimiseGroebnerBasis(Set<Polynomial> polys,
 			boolean isGroebnerBasis) {
 		int varNum = indexNum(polys);
+		System.out.println("Eliminating inverses...");
 		final Set<Polynomial> polys2 = eliminateInverses(polys, varNum);
 		System.out.println("Polynomials after eliminating inverses are: ");
 		printPolys(polys2);
-
+		System.out.println("Eliminating linear variables...");
 		final Set<Polynomial> polys3 = eliminateLinearVariables(polys2);
 		System.out
 				.println("Polynomials after eliminating linear variables are: ");
 		printPolys(polys3);
 
+		System.out.println("Eliminating even degree variables...");
 		final Set<Polynomial> polys3point1 = eliminateEvenDegreeVariables(polys3);
 		System.out
 				.println("Polynomials after eliminating even degree variables are: ");
 		printPolys(polys3point1);
 
+		System.out.println("Eliminating sums of squares...");
 		final Set<Polynomial> polys3point2 = eliminateSumsOfSquares(
 				polys3point1, varNum);
 		System.out.println("Polynomials after eliminating sums of squares: ");
 		printPolys(polys3point2);
 
+		System.out.println("Eliminating unused variables...");
 		final Set<Polynomial> polys4 = eliminateUnusedVariables(polys3point2);
 		System.out
 				.println("Polynomials after eliminating unused variables are: ");
 		printPolys(polys4);
 
+		System.out.println("Testing if there was progress...");
 		if (isGroebnerBasis && polys.equals(polys4))
 			// nothing has changed
 			return polys;
@@ -169,6 +174,7 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 		// we try to get a contradiction by computing the groebner basis of all
 		// the equalities. if the common basis contains a constant part, the
 		// equality system is unsatisfiable, thus we can close this goal
+		System.out.println("Computing groebner basis...");
 		final Set<Polynomial> groebnerBasis = orbital.math.AlgebraicAlgorithms
 				.groebnerBasis(polys4, monomialOrder);
 		final Function groebnerReducer = orbital.math.AlgebraicAlgorithms
@@ -465,11 +471,16 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 				final HashMap<java.lang.Integer, Polynomial> results = new HashMap<java.lang.Integer, Polynomial>();
 				for (int var : substitute.keySet()) {
 					// for the case that var == variable the rewriting is a noop
-					Set<Polynomial> rewritePolynomials = rewritePolynomials(
-							varNum, oneSubstitute, Collections
-									.singleton(substitute.get(var)));
-					assert rewritePolynomials.size() == 1 : "The size of rewritePolynomials: " + rewritePolynomials + " should be one.";
-					results.put(var, rewritePolynomials.iterator().next());
+					if (var == variable) {
+						results.put(var, substitute.get(var));
+					} else {
+						Set<Polynomial> rewritePolynomials = rewritePolynomials(
+								varNum, oneSubstitute, Collections
+										.singleton(substitute.get(var)));
+						assert rewritePolynomials.size() == 1 : "The size of rewritePolynomials: "
+								+ rewritePolynomials + " should be one.";
+						results.put(var, rewritePolynomials.iterator().next());
+					}
 				}
 				substitute.clear();
 				substitute.putAll(results);
