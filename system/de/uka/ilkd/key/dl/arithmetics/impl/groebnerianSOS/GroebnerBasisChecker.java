@@ -199,77 +199,87 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 	 */
 	private Set<Polynomial> eliminateSumsOfSquares(Set<Polynomial> polys,
 			int varNum) {
-		final Set<Polynomial> workPolys = new HashSet<Polynomial>();
+		Set<Polynomial> workPolys = new HashSet<Polynomial>();
 		final Integer two = vf.ONE().add(vf.ONE());
 		final Vector oneVec = vf.CONST(varNum, vf.ONE());
-
-		polyloop: for (Polynomial p : polys) {
-			Iterator<KeyValuePair> monomialIt = p.monomials();
-			int positiveCount = 0;
-			int negativeCount = 0;
-			while (monomialIt.hasNext()) {
-				KeyValuePair nextMono = monomialIt.next();
-				final Vector v = asVector((Arithmetic) nextMono.getKey());
-				final Arithmetic coeff = (Arithmetic) nextMono.getValue();
-				if (coeff.isZero())
-					continue;
-				if (coeff instanceof Comparable) {
-					int compare = ((Comparable) coeff).compareTo(coeff.zero());
-					if (compare < 0) {
-						if (positiveCount > 0) {
-							// we got a coefficient that is less than zero.
-							// Therefore this optimization is not applicable.
-							workPolys.add(p);
-							continue polyloop;
-						} else {
-							negativeCount++;
-						}
-					} else {
-						positiveCount++;
-					}
-				} else {
-					// we cannot do anything, if the coefficients are not
-					// comparable
-					return polys;
-				}
-
-				final Arithmetic degree = v.multiply(oneVec);
-				if (degree.isZero()) {
-					// nothing
-				} else {
-					for (int i = 0; i < varNum; ++i) {
-						if (!v.get(i).isZero()) {
-							if (!((Integer) v.get(i)).modulo(two).isZero()) {
+		boolean changed = true;
+		while (changed) {
+			changed = false;
+			polyloop: for (Polynomial p : polys) {
+				Iterator<KeyValuePair> monomialIt = p.monomials();
+				int positiveCount = 0;
+				int negativeCount = 0;
+				while (monomialIt.hasNext()) {
+					KeyValuePair nextMono = monomialIt.next();
+					final Vector v = asVector((Arithmetic) nextMono.getKey());
+					final Arithmetic coeff = (Arithmetic) nextMono.getValue();
+					if (coeff.isZero())
+						continue;
+					if (coeff instanceof Comparable) {
+						int compare = ((Comparable) coeff).compareTo(coeff
+								.zero());
+						if (compare < 0) {
+							if (positiveCount > 0) {
+								// we got a coefficient that is less than zero.
+								// Therefore this optimization is not
+								// applicable.
 								workPolys.add(p);
 								continue polyloop;
+							} else {
+								negativeCount++;
+							}
+						} else {
+							positiveCount++;
+						}
+					} else {
+						// we cannot do anything, if the coefficients are not
+						// comparable
+						return polys;
+					}
+
+					final Arithmetic degree = v.multiply(oneVec);
+					if (degree.isZero()) {
+						// nothing
+					} else {
+						for (int i = 0; i < varNum; ++i) {
+							if (!v.get(i).isZero()) {
+								if (!((Integer) v.get(i)).modulo(two).isZero()) {
+									workPolys.add(p);
+									continue polyloop;
+								}
 							}
 						}
 					}
 				}
-			}
-			if (negativeCount > 0 && positiveCount > 0) {
-				continue polyloop;
-			}
-			assert positiveCount > 0 || negativeCount > 0;
-			// if -x^2 - y^2 is zero x^2 + y^2 is zero too
-			if (positiveCount == 0) {
-				p = (Polynomial) p.minus();
-			}
-			// at this point we know that we could reduce the degree of every
-			// monom by 2
-			monomialIt = p.monomials();
-			while (monomialIt.hasNext()) {
-				final KeyValuePair nextMono = monomialIt.next();
-				final Vector v = asVector((Arithmetic) nextMono.getKey());
-				final Arithmetic coeff = (Arithmetic) nextMono.getValue();
-				if (coeff.isZero())
-					continue;
-				int[] mono = new int[varNum];
-				for (int i = 0; i < varNum; ++i) {
-					mono[i] = ((Integer) ((Integer) v.get(i)).divide(two))
-							.intValue();
+				if (negativeCount > 0 && positiveCount > 0) {
+					workPolys.add(p);
+					continue polyloop;
 				}
-				workPolys.add(vf.MONOMIAL(coeff, mono));
+				assert positiveCount > 0 || negativeCount > 0;
+				// if -x^2 - y^2 is zero x^2 + y^2 is zero too
+				if (positiveCount == 0) {
+					p = (Polynomial) p.minus();
+				}
+				// at this point we know that we could reduce the degree of
+				// every
+				// monom by 2
+				monomialIt = p.monomials();
+				while (monomialIt.hasNext()) {
+					final KeyValuePair nextMono = monomialIt.next();
+					final Vector v = asVector((Arithmetic) nextMono.getKey());
+					final Arithmetic coeff = (Arithmetic) nextMono.getValue();
+					if (coeff.isZero())
+						continue;
+					int[] mono = new int[varNum];
+					for (int i = 0; i < varNum; ++i) {
+						mono[i] = ((Integer) ((Integer) v.get(i)).divide(two))
+								.intValue();
+					}
+					workPolys.add(vf.MONOMIAL(coeff, mono));
+				}
+				changed = true;
+				polys = workPolys;
+				workPolys = new HashSet<Polynomial>();
 			}
 		}
 		return workPolys;
