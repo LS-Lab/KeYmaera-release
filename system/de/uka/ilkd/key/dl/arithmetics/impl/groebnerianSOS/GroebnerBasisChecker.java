@@ -766,9 +766,9 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 		while (monomialIt.hasNext()) {
 			KeyValuePair nextMono = monomialIt.next();
 			if(compare == null) {
-				compare = (Arithmetic) ((Arithmetic) nextMono.getKey()).multiply((Arithmetic) nextMono.getValue());
+				compare = (Arithmetic) ((Arithmetic) vf.asPolynomial((Vector) nextMono.getKey())).multiply((Arithmetic) nextMono.getValue());
 			} else {
-				compare = compare.add((Arithmetic) ((Arithmetic) nextMono.getKey()).multiply((Arithmetic) nextMono.getValue()));
+				compare = compare.add((Arithmetic) ((Arithmetic) vf.asPolynomial((Vector) nextMono.getKey())).multiply((Arithmetic) nextMono.getValue()));
 			}
 			final Vector v = asVector((Arithmetic) nextMono.getKey());
 			final Arithmetic coeff = (Arithmetic) nextMono.getValue();
@@ -792,7 +792,7 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 						nonLinearVars.set(i);
 			}
 		}
-		assert compare.equals(p);
+		assert compare.equals(p) : "Polynomial " + compare + " is not equals to its creating polynomial " + p;
 		linearVars.andNot(nonLinearVars);
 		return linearVars.nextSetBit(0);
 	}
