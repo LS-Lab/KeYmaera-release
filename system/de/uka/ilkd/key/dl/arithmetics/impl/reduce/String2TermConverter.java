@@ -28,6 +28,9 @@ public class String2TermConverter {
     public static Term convert(String formula, NamespaceSet nss) {
     	// strip the dollar sign at the end of the file
     	formula = formula.replaceAll("\\$", "");
+		for(char c = 'a'; c <= 'z'; c++) {
+			formula = formula.replaceAll(c + "_", (c +"").toUpperCase());
+		}
     	formula = formula.replaceAll(Term2ReduceConverter.DOLLARESCAPE, "$");
     	formula = formula.replaceAll(Term2ReduceConverter.UNDERSCOREESCAPE, "_");
     	System.out.println("replaced result is: " + formula);//XXX
