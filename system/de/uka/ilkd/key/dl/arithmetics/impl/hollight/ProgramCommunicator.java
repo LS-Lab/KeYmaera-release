@@ -44,9 +44,9 @@ public class ProgramCommunicator {
 	public static String start(String input, Stopper stopper)
 			throws UnableToConvertInputException, IncompleteEvaluationException {
 		try {
-			ProcessBuilder pb = new ProcessBuilder(new String[] { "ocaml" });
+			ProcessBuilder pb = new ProcessBuilder(new String[] { Options.INSTANCE.getOcamlPath().getAbsolutePath() });
 
-			pb.directory(new File("/home/user/jdq/space/local/hol_light"));
+			pb.directory(Options.INSTANCE.getHollightPath());
 			Process process = pb.start();
 			stopper.setP(process);
 			BufferedReader stdout = new BufferedReader(new InputStreamReader(

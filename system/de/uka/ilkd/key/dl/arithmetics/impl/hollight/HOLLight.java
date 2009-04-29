@@ -171,7 +171,7 @@ public class HOLLight implements IQuantifierEliminator {
 	 */
 	@Override
 	public boolean isConfigured() {
-		return true;
+		return Options.INSTANCE.getOcamlPath().isFile() && Options.INSTANCE.getHollightPath().exists();
 	}
 
 	/* (non-Javadoc)
