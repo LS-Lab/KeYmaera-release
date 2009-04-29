@@ -199,6 +199,9 @@ public class Term2ReduceConverter {
 					if (name.contains("_")) {
 						name = name.replaceAll("_", UNDERSCOREESCAPE);
 					}
+					for(char c = 'A'; c <= 'Z'; c++) {
+						name = name.replaceAll("" + c, (c + "_").toLowerCase());
+					}
 					if (args.length == 0) {
 						return "(" + name + ")";
 					}
@@ -214,6 +217,9 @@ public class Term2ReduceConverter {
 			}
 			if (name.contains("_")) {
 				name = name.replaceAll("_", UNDERSCOREESCAPE);
+			}
+			for(char c = 'A'; c <= 'Z'; c++) {
+				name = name.replaceAll("" + c, (c + "_").toLowerCase());
 			}
 			return "(" + name + ")";
 		} else if (form.op() instanceof Junctor) {
@@ -252,6 +258,9 @@ public class Term2ReduceConverter {
 				}
 				if (name.contains("_")) {
 					name = name.replaceAll("_", UNDERSCOREESCAPE);
+				}
+				for(char c = 'A'; c <= 'Z'; c++) {
+					name = name.replaceAll("" + c, (c + "_").toLowerCase());
 				}
 				vars[i] = name;
 			}
