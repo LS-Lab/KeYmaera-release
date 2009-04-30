@@ -20,24 +20,31 @@
 package de.uka.ilkd.key.dl.arithmetics.impl.hollight;
 
 import java.rmi.RemoteException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.w3c.dom.Node;
 
+import de.uka.ilkd.key.dl.arithmetics.IGroebnerBasisCalculator;
 import de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ConnectionProblemException;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.IncompleteEvaluationException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ServerStatusProblemException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.UnableToConvertInputException;
+import de.uka.ilkd.key.dl.arithmetics.impl.SumOfSquaresChecker.PolynomialClassification;
 import de.uka.ilkd.key.dl.arithmetics.impl.qepcad.PrenexGenerator;
 import de.uka.ilkd.key.dl.arithmetics.impl.qepcad.PrenexGenerator.PrenexGeneratorResult;
+import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.logic.NamespaceSet;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.TermBuilder;
+import de.uka.ilkd.key.logic.op.QuantifiableVariable;
 
 /**
  * @author jdq TODO Documentation since 29.04.2009
  */
-public class HOLLight implements IQuantifierEliminator {
+public class HOLLight implements IQuantifierEliminator, IGroebnerBasisCalculator {
 
 	private ProgramCommunicator.Stopper stopper = new ProgramCommunicator.Stopper();
 
@@ -78,6 +85,36 @@ public class HOLLight implements IQuantifierEliminator {
 			break;
 		}
 		return null;
+	}
+	
+	/* (non-Javadoc)
+	 * @see de.uka.ilkd.key.dl.arithmetics.IGroebnerBasisCalculator#checkForConstantGroebnerBasis(de.uka.ilkd.key.dl.arithmetics.impl.SumOfSquaresChecker.PolynomialClassification, de.uka.ilkd.key.java.Services)
+	 */
+	@Override
+	public boolean checkForConstantGroebnerBasis(
+			PolynomialClassification<Term> terms, Services services)
+			throws RemoteException {
+		Term query = TermBuilder.DF.tt();
+		for(Term t: terms.f) {
+			query = TermBuilder.DF.and(query, t);
+		}
+		for(Term t: terms.g) {
+			query = TermBuilder.DF.and(query, t);
+		}
+		for(Term t: terms.h) {
+			query = TermBuilder.DF.and(query, t);
+		}
+		try {
+			String start = ProgramCommunicatorSOS.start(Term2HOLLightConverter.convert(query, new ArrayList<QuantifiableVariable>()), stopper);
+			System.out.println("Result is : " + start);//XXX
+		} catch (UnableToConvertInputException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IncompleteEvaluationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return false;
 	}
 
 	/*
