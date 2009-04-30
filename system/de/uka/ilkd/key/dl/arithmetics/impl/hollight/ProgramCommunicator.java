@@ -65,10 +65,11 @@ public class ProgramCommunicator {
 				writer.write("#!/bin/bash\n"
 						+ "FIFO=/tmp/keymara-ocaml-$$.fifo\n"
 						+ "OUTPUT=/tmp/keymara-ocaml-output-$$.fifo\n"
-						+ "trap \"rm -f $FIFO $OUTPUT\" 0\n" + "mkfifo $FIFO\n"
+						+ "mkfifo $FIFO\n"
 						+ "mkfifo $OUTPUT\n"
 						+ Options.INSTANCE.getOcamlPath().getAbsolutePath()
 						+ " < $FIFO > $OUTPUT & pid=$!\n" + "cat $OUTPUT &\n"
+						+ "trap \"rm -f $FIFO $OUTPUT; kill -9 $pid\" 0\n"
 						+ "MOEP=\"\"\n"
 						+ "(while read BLUB\n" + "do\n"
 						+ "echo $BLUB >> /tmp/log\n"
