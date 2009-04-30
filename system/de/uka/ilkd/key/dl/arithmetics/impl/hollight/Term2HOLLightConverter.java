@@ -160,13 +160,13 @@ public class Term2HOLLightConverter {
 			} else if (f.name().toString().equals("add")) {
 				return "("
 						+ convert2String(form.sub(0), nss, eliminateFractions)
-						+ "+"
+						+ " + "
 						+ convert2String(form.sub(1), nss, eliminateFractions)
 						+ ")";
 			} else if (f.name().toString().equals("sub")) {
 				return "("
 						+ convert2String(form.sub(0), nss, eliminateFractions)
-						+ "-"
+						+ " - "
 						+ convert2String(form.sub(1), nss, eliminateFractions)
 						+ ")";
 			} else if (f.name().toString().equals("neg")) {
@@ -176,7 +176,7 @@ public class Term2HOLLightConverter {
 			} else if (f.name().toString().equals("mul")) {
 				return "("
 						+ convert2String(form.sub(0), nss, eliminateFractions)
-						+ "*"
+						+ " * "
 						+ convert2String(form.sub(1), nss, eliminateFractions)
 						+ ")";
 			} else if (f.name().toString().equals("div")) {
