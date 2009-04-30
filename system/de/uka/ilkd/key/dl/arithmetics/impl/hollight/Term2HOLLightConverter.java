@@ -202,7 +202,7 @@ public class Term2HOLLightConverter {
 							intValueExact = Math.abs(intValueExact);
 							result = "-- ";
 						}
-						return (pow?"":"&") + String.valueOf(intValueExact);
+						return result + (pow?"":"&") + String.valueOf(intValueExact);
 					} catch (ArithmeticException e) {
 						int denominator = 1;
 						BigDecimal ten = new BigDecimal(10);
