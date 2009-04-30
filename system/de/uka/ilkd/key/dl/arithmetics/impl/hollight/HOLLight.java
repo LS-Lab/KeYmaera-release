@@ -60,7 +60,7 @@ public class HOLLight implements IQuantifierEliminator {
 			System.out.println("time REAL_QELIM_CONV`" + convert + "`;;");
 			String res = ProgramCommunicator.start(convert,
 					new ProgramCommunicator.Stopper());
-			if (res.contains("<=> T")) {
+			if (res.replaceAll(" ", "").replaceAll("\n", "").contains("<=>T")) {
 				return TermBuilder.DF.tt();
 			}
 			break;
