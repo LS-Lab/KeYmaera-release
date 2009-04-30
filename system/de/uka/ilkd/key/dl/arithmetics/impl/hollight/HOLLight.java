@@ -39,6 +39,8 @@ import de.uka.ilkd.key.logic.TermBuilder;
  */
 public class HOLLight implements IQuantifierEliminator {
 
+	private ProgramCommunicator.Stopper stopper = new ProgramCommunicator.Stopper();
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -59,7 +61,7 @@ public class HOLLight implements IQuantifierEliminator {
 					result.getVariables());
 			System.out.println("time REAL_QELIM_CONV`" + convert + "`;;");
 			String res = ProgramCommunicator.start(convert,
-					new ProgramCommunicator.Stopper());
+					stopper);
 			if (res.replaceAll(" ", "").replaceAll("\n", "").contains("<=>T")) {
 				return TermBuilder.DF.tt();
 			}
@@ -69,7 +71,7 @@ public class HOLLight implements IQuantifierEliminator {
 					result.getVariables());
 			System.out.println("time real_qelim <<" + convert + ">>;;");
 			res = ProgramCommunicator.start(convert,
-					new ProgramCommunicator.Stopper());
+					stopper);
 			if (res.contains("fol formula = <<true>>")) {
 				return TermBuilder.DF.tt();
 			}
@@ -157,8 +159,7 @@ public class HOLLight implements IQuantifierEliminator {
 	 */
 	@Override
 	public void abortCalculation() throws RemoteException {
-		// TODO Auto-generated method stub
-
+		stopper.stop();
 	}
 
 	/*
