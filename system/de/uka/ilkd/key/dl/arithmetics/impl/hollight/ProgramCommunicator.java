@@ -43,11 +43,21 @@ public class ProgramCommunicator {
 
 	public static String start(String input, Stopper stopper)
 			throws UnableToConvertInputException, IncompleteEvaluationException {
+		Process process = null;
 		try {
-			ProcessBuilder pb = new ProcessBuilder(new String[] { Options.INSTANCE.getOcamlPath().getAbsolutePath() });
+			ProcessBuilder pb = new ProcessBuilder(
+					new String[] { Options.INSTANCE.getOcamlPath()
+							.getAbsolutePath() });
 
-			pb.directory(Options.INSTANCE.getHollightPath());
-			Process process = pb.start();
+			switch (Options.INSTANCE.getMethod()) {
+			case ProofProducing:
+				pb.directory(Options.INSTANCE.getHollightPath());
+				break;
+			case Harrison:
+				pb.directory(Options.INSTANCE.getHarrisonqePath());
+				break;
+			}
+			process = pb.start();
 			stopper.setP(process);
 			BufferedReader stdout = new BufferedReader(new InputStreamReader(
 					process.getInputStream()));
@@ -61,13 +71,24 @@ public class ProgramCommunicator {
 			// readUntil(stdout, "#", null);
 			// writeText(stdin, "load_path := [\".\"; !hol_dir];;");
 
-			readUntil(stdout, "#", null);
-			writeText(stdin, "#use \"hol.ml\";;");
+			switch (Options.INSTANCE.getMethod()) {
+			case ProofProducing:
+				readUntil(stdout, "#", null);
+				writeText(stdin, "#use \"hol.ml\";;");
 
-			readUntil(stdout, "#", null);
-			writeText(stdin, "#use \"Rqe/make.ml\";;");
-			readUntil(stdout, "#", null);
-			writeText(stdin, "time REAL_QELIM_CONV `" + input + "`;;");
+				readUntil(stdout, "#", null);
+				writeText(stdin, "#use \"Rqe/make.ml\";;");
+				readUntil(stdout, "#", null);
+				writeText(stdin, "time REAL_QELIM_CONV `" + input + "`;;");
+				break;
+			case Harrison:
+				readUntil(stdout, "#", null);
+				writeText(stdin, "#use \"init.ml\";;");
+
+				readUntil(stdout, "#", null);
+				writeText(stdin, "time real_qelim <<" + input + ">>;;");
+				break;
+			}
 
 			String s = "";
 			String res = "";
@@ -88,6 +109,7 @@ public class ProgramCommunicator {
 
 			stdout.close();
 			stdin.close();
+			process.destroy();
 
 			return res;
 
@@ -99,6 +121,10 @@ public class ProgramCommunicator {
 			// Fehler...
 			e.printStackTrace();
 			return "";
+		} finally {
+			if (process != null) {
+				process.destroy();
+			}
 		}
 
 	}

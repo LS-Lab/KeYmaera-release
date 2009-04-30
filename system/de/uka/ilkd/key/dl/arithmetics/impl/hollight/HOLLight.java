@@ -32,87 +32,138 @@ import de.uka.ilkd.key.dl.arithmetics.impl.qepcad.PrenexGenerator;
 import de.uka.ilkd.key.dl.arithmetics.impl.qepcad.PrenexGenerator.PrenexGeneratorResult;
 import de.uka.ilkd.key.logic.NamespaceSet;
 import de.uka.ilkd.key.logic.Term;
+import de.uka.ilkd.key.logic.TermBuilder;
 
 /**
- * @author jdq
- * TODO Documentation since 29.04.2009
+ * @author jdq TODO Documentation since 29.04.2009
  */
 public class HOLLight implements IQuantifierEliminator {
 
-	/* (non-Javadoc)
-	 * @see de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator#reduce(de.uka.ilkd.key.logic.Term, de.uka.ilkd.key.logic.NamespaceSet)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator#reduce(de.uka.ilkd
+	 * .key.logic.Term, de.uka.ilkd.key.logic.NamespaceSet)
 	 */
 	@Override
 	public Term reduce(Term form, NamespaceSet nss) throws RemoteException,
 			SolverException {
-		// TODO: HOL Light does not need the prenex form, but we need the universal closure...
+		// TODO: HOL Light does not need the prenex form, but we need the
+		// universal closure...
 		PrenexGeneratorResult result = PrenexGenerator.transform(form, nss);
-		
-		String convert = Term2HOLLightConverter.convert(result.getTerm(), result.getVariables());
-		System.out.println("time REAL_QELIM_CONV`" + convert + "`;;");
-//		String start = ProgramCommunicator.start(convert, new ProgramCommunicator.Stopper());
+
+		switch (Options.INSTANCE.getMethod()) {
+		case ProofProducing:
+			String convert = Term2HOLLightConverter.convert(result.getTerm(),
+					result.getVariables());
+			System.out.println("time REAL_QELIM_CONV`" + convert + "`;;");
+			String res = ProgramCommunicator.start(convert,
+					new ProgramCommunicator.Stopper());
+			if (res.contains("<=> T")) {
+				return TermBuilder.DF.tt();
+			}
+			break;
+		case Harrison:
+			convert = Term2HarrisonConverter.convert(result.getTerm(),
+					result.getVariables());
+			System.out.println("time real_qelim <<" + convert + ">>;;");
+			res = ProgramCommunicator.start(convert,
+					new ProgramCommunicator.Stopper());
+			if (res.contains("fol formula = <<true>>")) {
+				return TermBuilder.DF.tt();
+			}
+			break;
+		}
 		return null;
 	}
 
-	/* (non-Javadoc)
-	 * @see de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator#reduce(de.uka.ilkd.key.logic.Term, de.uka.ilkd.key.logic.NamespaceSet, long)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator#reduce(de.uka.ilkd
+	 * .key.logic.Term, de.uka.ilkd.key.logic.NamespaceSet, long)
 	 */
 	@Override
 	public Term reduce(Term form, NamespaceSet nss, long timeout)
 			throws RemoteException, SolverException {
-		return reduce(form,nss);
+		return reduce(form, nss);
 	}
 
-	/* (non-Javadoc)
-	 * @see de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator#reduce(de.uka.ilkd.key.logic.Term, java.util.List, java.util.List, de.uka.ilkd.key.logic.NamespaceSet)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator#reduce(de.uka.ilkd
+	 * .key.logic.Term, java.util.List, java.util.List,
+	 * de.uka.ilkd.key.logic.NamespaceSet)
 	 */
 	@Override
 	public Term reduce(Term form, List<String> names,
 			List<PairOfTermAndQuantifierType> quantifiers, NamespaceSet nss)
 			throws RemoteException, SolverException {
-		return reduce(form,nss);
+		return reduce(form, nss);
 	}
 
-	/* (non-Javadoc)
-	 * @see de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator#reduce(de.uka.ilkd.key.logic.Term, java.util.List, java.util.List, de.uka.ilkd.key.logic.NamespaceSet, long)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator#reduce(de.uka.ilkd
+	 * .key.logic.Term, java.util.List, java.util.List,
+	 * de.uka.ilkd.key.logic.NamespaceSet, long)
 	 */
 	@Override
 	public Term reduce(Term form, List<String> names,
 			List<PairOfTermAndQuantifierType> quantifiers, NamespaceSet nss,
 			long timeout) throws RemoteException, SolverException {
-		return reduce(form,nss);
+		return reduce(form, nss);
 	}
 
-	/* (non-Javadoc)
-	 * @see de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator#reduce(de.uka.ilkd.key.logic.Term, java.util.List, de.uka.ilkd.key.logic.NamespaceSet)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator#reduce(de.uka.ilkd
+	 * .key.logic.Term, java.util.List, de.uka.ilkd.key.logic.NamespaceSet)
 	 */
 	@Override
 	public Term reduce(Term query,
 			List<PairOfTermAndQuantifierType> quantifiers, NamespaceSet nss)
 			throws RemoteException, SolverException {
-		return reduce(query,nss);
+		return reduce(query, nss);
 	}
 
-	/* (non-Javadoc)
-	 * @see de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator#reduce(de.uka.ilkd.key.logic.Term, java.util.List, de.uka.ilkd.key.logic.NamespaceSet, long)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator#reduce(de.uka.ilkd
+	 * .key.logic.Term, java.util.List, de.uka.ilkd.key.logic.NamespaceSet,
+	 * long)
 	 */
 	@Override
 	public Term reduce(Term query,
 			List<PairOfTermAndQuantifierType> quantifiers, NamespaceSet nss,
 			long timeout) throws RemoteException, SolverException {
-		return reduce(query,nss);
+		return reduce(query, nss);
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#abortCalculation()
 	 */
 	@Override
 	public void abortCalculation() throws RemoteException {
 		// TODO Auto-generated method stub
-		
+
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#getCachedAnswerCount()
 	 */
 	@Override
@@ -121,7 +172,9 @@ public class HOLLight implements IQuantifierEliminator {
 		return 0;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#getName()
 	 */
 	@Override
@@ -129,7 +182,9 @@ public class HOLLight implements IQuantifierEliminator {
 		return "HOL Light";
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#getQueryCount()
 	 */
 	@Override
@@ -138,7 +193,9 @@ public class HOLLight implements IQuantifierEliminator {
 		return 0;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#getTimeStatistics()
 	 */
 	@Override
@@ -147,7 +204,9 @@ public class HOLLight implements IQuantifierEliminator {
 		return null;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#getTotalCalculationTime()
 	 */
 	@Override
@@ -156,7 +215,9 @@ public class HOLLight implements IQuantifierEliminator {
 		return 0;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#getTotalMemory()
 	 */
 	@Override
@@ -166,21 +227,26 @@ public class HOLLight implements IQuantifierEliminator {
 		return 0;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#isConfigured()
 	 */
 	@Override
 	public boolean isConfigured() {
-		return Options.INSTANCE.getOcamlPath().isFile() && Options.INSTANCE.getHollightPath().exists();
+		return Options.INSTANCE.getOcamlPath().isFile()
+				&& Options.INSTANCE.getHollightPath().exists();
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#resetAbortState()
 	 */
 	@Override
 	public void resetAbortState() throws RemoteException {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	/**

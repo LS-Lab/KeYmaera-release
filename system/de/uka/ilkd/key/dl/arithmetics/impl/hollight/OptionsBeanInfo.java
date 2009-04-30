@@ -26,7 +26,12 @@ import java.beans.BeanDescriptor;
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
 import java.beans.SimpleBeanInfo;
+import java.util.ArrayList;
 
+import orbital.awt.TaggedPropertyEditorSupport;
+
+import de.uka.ilkd.key.dl.arithmetics.impl.hollight.Options.QuantifierEliminationMethod;
+import de.uka.ilkd.key.dl.arithmetics.impl.reduce.Options.ReduceSwitch;
 import de.uka.ilkd.key.dl.options.DirectoryPropertyEditor;
 import de.uka.ilkd.key.dl.options.FilePropertyEditor;
 
@@ -47,7 +52,7 @@ public class OptionsBeanInfo extends SimpleBeanInfo {
 		return d;
 	}
 
-	/*@Override*/
+	/* @Override */
 	public PropertyDescriptor[] getPropertyDescriptors() {
 		try {
 			// PropertyDescriptor _usage = new PropertyDescriptor("usage",
@@ -57,21 +62,28 @@ public class OptionsBeanInfo extends SimpleBeanInfo {
 			// _usage.setPropertyEditorClass(UsagePropertyEditor.class);
 
 			PropertyDescriptor[] pds = new PropertyDescriptor[] {
-//					createDescriptor(
-//							"qepcadBinary",
-//							"Qepcad Executable",
-//							"The Qepcad executable including the complete path name if it is not located in the system PATH",
-//							true, false, FilePropertyEditor.class),
+					// createDescriptor(
+					// "qepcadBinary",
+					// "Qepcad Executable",
+					// "The Qepcad executable including the complete path name if it is not located in the system PATH",
+					// true, false, FilePropertyEditor.class),
 					createDescriptor(
 							"hollightPath",
 							"HOL Light Path",
 							"The path to the hol light installation needed to setup the correct environment for the tool",
 							true, false, DirectoryPropertyEditor.class),
+					createDescriptor("ocamlPath", "Ocaml Path",
+							"The ocaml binary", true, false,
+							FilePropertyEditor.class),
 					createDescriptor(
-							"ocamlPath",
-							"Ocaml Path",
-							"The ocaml binary",
-							true, false, FilePropertyEditor.class),
+							"harrisonqePath",
+							"Harrison QE Path",
+							"The path to harrisons implementation of quantifier elimination",
+							true, false, DirectoryPropertyEditor.class),
+					createDescriptor("method", "QE Method",
+							"The quantifier elimination method to use", true,
+							false,
+							QuantifierEliminationMethodPropertyEditor.class),
 
 			};
 			return pds;
@@ -116,5 +128,21 @@ public class OptionsBeanInfo extends SimpleBeanInfo {
 			result.setPropertyEditorClass(propertyEditor);
 		}
 		return result;
+	}
+
+	public static class QuantifierEliminationMethodPropertyEditor extends
+			TaggedPropertyEditorSupport {
+		public QuantifierEliminationMethodPropertyEditor() {
+			super(getNames(QuantifierEliminationMethod.values()),
+					QuantifierEliminationMethod.values());
+		}
+	}
+
+	private static <E extends Enum<E>> String[] getNames(Enum<E> vals[]) {
+		java.util.List<String> names = new ArrayList<String>();
+		for (Enum<E> r : vals) {
+			names.add(r.toString());
+		}
+		return names.toArray(new String[0]);
 	}
 }

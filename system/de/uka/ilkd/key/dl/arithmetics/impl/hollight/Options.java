@@ -43,18 +43,32 @@ public class Options implements Settings {
 
 	public static final Options INSTANCE = new Options();
 
+	public static enum QuantifierEliminationMethod {
+		ProofProducing, Harrison;
+	}
+
 	private static final String OPTIONS_HOLLIGHT_PATH = "[HOLLightOptions]hollightPath";
 	private static final String OPTIONS_OCAML_PATH = "[HOLLightOptions]ocamlPath";
 
+	private static final String OPTIONS_HARRISON_QE_PATH = "[HOLLightOptions]harrisonqePath";
+
+	private static final String OPTIONS_QUANTIFIER_ELIMINATION_METHOD = "[HOLLightOptions]qeMethod";
+
 	private File hollightPath;
-	private File ocamlPath;	
+	private File ocamlPath;
+
+	private File harrisonqePath;
+
+	private QuantifierEliminationMethod method;
 
 	private List<SettingsListener> listeners;
 
 	private Options() {
 		listeners = new LinkedList<SettingsListener>();
 		hollightPath = new File("/");
+		harrisonqePath = new File("/");
 		ocamlPath = new File("/usr/bin/ocaml");
+		method = QuantifierEliminationMethod.ProofProducing;
 	}
 
 	/*
@@ -88,6 +102,14 @@ public class Options implements Settings {
 		if (property != null) {
 			ocamlPath = new File(property);
 		}
+		property = props.getProperty(OPTIONS_HARRISON_QE_PATH);
+		if (property != null) {
+			harrisonqePath = new File(property);
+		}
+		property = props.getProperty(OPTIONS_QUANTIFIER_ELIMINATION_METHOD);
+		if (property != null) {
+			method = QuantifierEliminationMethod.valueOf(property);
+		}
 	}
 
 	/*
@@ -96,8 +118,13 @@ public class Options implements Settings {
 	 * @see de.uka.ilkd.key.gui.Settings#writeSettings(java.util.Properties)
 	 */
 	public void writeSettings(Properties props) {
-		props.setProperty(OPTIONS_HOLLIGHT_PATH, hollightPath.getAbsolutePath());
+		props
+				.setProperty(OPTIONS_HOLLIGHT_PATH, hollightPath
+						.getAbsolutePath());
 		props.setProperty(OPTIONS_OCAML_PATH, ocamlPath.getAbsolutePath());
+		props.setProperty(OPTIONS_HARRISON_QE_PATH, harrisonqePath
+				.getAbsolutePath());
+		props.setProperty(OPTIONS_QUANTIFIER_ELIMINATION_METHOD, method.name());
 	}
 
 	/**
@@ -113,7 +140,7 @@ public class Options implements Settings {
 	 */
 	public void setHollightPath(File qepcadPath) {
 		if (!this.hollightPath.equals(qepcadPath)) {
-			System.out.println("Setting path to " + qepcadPath);//XXX
+			System.out.println("Setting path to " + qepcadPath);// XXX
 			new Exception().printStackTrace();
 			this.hollightPath = qepcadPath;
 			firePropertyChanged();
@@ -137,6 +164,41 @@ public class Options implements Settings {
 			firePropertyChanged();
 		}
 	}
-	
+
+	/**
+	 * @return the harrisonqePath
+	 */
+	public File getHarrisonqePath() {
+		return harrisonqePath;
+	}
+
+	/**
+	 * @param harrisonqePath
+	 *            the harrisonqePath to set
+	 */
+	public void setHarrisonqePath(File harrisonqePath) {
+		if (!this.harrisonqePath.equals(harrisonqePath)) {
+			this.harrisonqePath = harrisonqePath;
+			firePropertyChanged();
+		}
+	}
+
+	/**
+	 * @return the method
+	 */
+	public QuantifierEliminationMethod getMethod() {
+		return method;
+	}
+
+	/**
+	 * @param method
+	 *            the method to set
+	 */
+	public void setMethod(QuantifierEliminationMethod method) {
+		if (this.method != method) {
+			this.method = method;
+			firePropertyChanged();
+		}
+	}
 
 }
