@@ -70,15 +70,11 @@ public class ProgramCommunicator {
 						+ Options.INSTANCE.getOcamlPath().getAbsolutePath()
 						+ " < $FIFO > $OUTPUT & pid=$!\n" + "cat $OUTPUT &\n"
 						+ "trap \"rm -f $FIFO $OUTPUT; kill -9 $pid\" 0\n"
-						+ "MOEP=\"\"\n"
 						+ "(while read BLUB\n" + "do\n"
-						+ "echo $BLUB >> /tmp/log\n"
-						+ "if [ x\"${BLUB:0:10}\" = x\"##COMMIT##\" ]; then\n"
-						+ "echo \"$MOEP\"\n" + "MOEP=\"\"\n"
-						+ "elif [ x\"${BLUB:0:13}\" = x\"##INTERRUPT##\" ]; then\n"
+						+ "if [ x\"${BLUB:0:13}\" = x\"##INTERRUPT##\" ]; then\n"
 						+ "kill -2 $pid\n" 
 						+ "else\n"
-						+ "MOEP=\"$MOEP$BLUB\"\n"
+						+ "echo \"$BLUB\"\n"
 						+ "fi\n"
 						+ "done) > $FIFO");
 				writer.flush();
@@ -115,6 +111,10 @@ public class ProgramCommunicator {
 					readUntil(stdout, "#", null);
 					break;
 				}
+//			} else {
+//				OutputStreamWriter outputStreamWriter = new OutputStreamWriter(process.getOutputStream());
+//				outputStreamWriter.write("##INTERRUPT##\n");
+//				outputStreamWriter.flush();
 			}
 			stopper.setP(process);
 
@@ -168,7 +168,6 @@ public class ProgramCommunicator {
 		} finally {
 			if (tmpFile != null) {
 				tmpFile.delete();
-				stopper.stop();
 			}
 		}
 
@@ -247,9 +246,9 @@ public class ProgramCommunicator {
 			writer.write(text);
 			writer.newLine();
 			writer.flush();
-			writer.write("##COMMIT##");
-			writer.newLine();
-			writer.flush();
+//			writer.write("##COMMIT##");
+//			writer.newLine();
+//			writer.flush();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
