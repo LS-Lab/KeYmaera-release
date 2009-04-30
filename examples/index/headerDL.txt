@@ -1,12 +1,14 @@
 headerDL-lazy.txt
+headerDL-harrison.txt
 headerDL-qepcad-lazy.txt
 headerDL-qepcad-lazy-nonsparse.txt
 headerDL-redlog-rlall-rlsimpl-qe.txt
 headerDL-redlog-rlall-rlsimpl-qe-nonsparse.txt
+headerDL-redlog-rlall-norlsimpl-cad.txt
+headerDL-redlog-rlall-norlsimpl-cad-nonsparse.txt
 headerDL-groebner-builtin.txt
 headerDL-groebner-orbital.txt
-headerDL-groebner-orbital-nonsparse.txt
 headerDL-groebner-mathematica.txt
 headerDL-groebner-orbital-sos.txt
-headerDL-groebner-orbital-sos-nonsparse.txt
+headerDL-sos.txt
 
