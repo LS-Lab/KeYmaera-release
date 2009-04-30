@@ -79,7 +79,11 @@ public class Term2HarrisonConverter {
 	private String convertImpl(Term form) {
 		String formula = convert2String(form, null, true);
 		variables.removeAll(quantifiedVariables);
-		return "forall " + list2quantifiers(variables) + ". " + formula;
+		if(variables.isEmpty()) {
+			return formula;
+		} else {
+			return "forall " + list2quantifiers(variables) + ". " + formula;
+		}
 	}
 
 	private String convert2String(Term form, NamespaceSet nss,
