@@ -63,7 +63,7 @@ public class Reduce implements IQuantifierEliminator {
 		System.out.println("Input will be " + input);//XXX
 		ProcessBuilder pb = new ProcessBuilder(Options.INSTANCE
 				.getReduceBinary().getAbsolutePath());
-		Process process;
+		Process process = null;
 		try {
 			process = pb.start();
 
@@ -98,6 +98,10 @@ public class Reduce implements IQuantifierEliminator {
 			return parsedTerm;
 		} catch (IOException e) {
 			e.printStackTrace();
+		} finally {
+			if(process != null) {
+				process.destroy();
+			}
 		}
 		return null;
 	}
