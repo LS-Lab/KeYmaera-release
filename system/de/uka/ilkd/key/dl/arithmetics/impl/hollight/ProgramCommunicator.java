@@ -127,7 +127,7 @@ public class ProgramCommunicator {
 
 			switch (Options.INSTANCE.getMethod()) {
 			case ProofProducing:
-				writeText(stdin, "time REAL_QELIM_CONV `" + input + "`;;");
+				writeText(stdin, "time REAL_QELIM_CONV `" + input.replaceAll("\\\\", "\\\\\\\\") + "`;;");
 				break;
 			case Harrison:
 				writeText(stdin, "time real_qelim <<" + input.replaceAll("\\\\", "\\\\\\\\") + ">>;;");
