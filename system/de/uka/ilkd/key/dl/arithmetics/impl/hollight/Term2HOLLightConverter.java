@@ -170,7 +170,7 @@ public class Term2HOLLightConverter {
 						+ convert2String(form.sub(1), nss, eliminateFractions)
 						+ ")";
 			} else if (f.name().toString().equals("neg")) {
-				return "(-"
+				return "(-- "
 						+ convert2String(form.sub(0), nss, eliminateFractions)
 						+ ")";
 			} else if (f.name().toString().equals("mul")) {
@@ -196,7 +196,13 @@ public class Term2HOLLightConverter {
 				try {
 					BigDecimal d = new BigDecimal(form.op().name().toString());
 					try {
-						return (pow?"":"&") + String.valueOf(d.intValueExact());
+						String result = "";
+						int intValueExact = d.intValueExact();
+						if(intValueExact < 0) {
+							intValueExact = Math.abs(intValueExact);
+							result = "-- ";
+						}
+						return (pow?"":"&") + String.valueOf(intValueExact);
 					} catch (ArithmeticException e) {
 						int denominator = 1;
 						BigDecimal ten = new BigDecimal(10);
@@ -218,7 +224,20 @@ public class Term2HOLLightConverter {
 						}
 						numerator = numerator / gcd;
 						denominator = denominator / gcd;
-						return "( " + (pow?"":"&") + numerator + " / " + (pow?"":"&") + denominator + " )";
+						String result = "(";
+						if(numerator < 0) {
+							numerator = Math.abs(numerator);
+							result += "-- ";
+						}
+						result += (pow?"":"&") + numerator;
+						
+						result += " / ";
+						if(denominator < 0) {
+							denominator = Math.abs(denominator);
+							result+= "-- ";
+						}
+						result += (pow?"":"&") + denominator + " )";
+						return result;
 					}
 				} catch (NumberFormatException e) {
 					String name = form.op().name().toString();
