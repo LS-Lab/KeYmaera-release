@@ -157,8 +157,8 @@ public class DLOptionBean implements Settings {
 	}
 
 	public static enum BuiltInArithmetic {
-		OFF("off"), NORMALISE_EQUATIONS("normalise (in)equalities"), REDUCTION(
-				"normalisation reduction"), FULL("full (S-polynomials)");
+		OFF("off"), NORMALISE_EQUATIONS("normalise"), REDUCTION(
+				"normalise&reduce"), FULL("full S-polynomial");
 
 		private String string;
 

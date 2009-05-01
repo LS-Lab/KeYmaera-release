@@ -75,7 +75,7 @@ public class OptionsBeanInfo extends SimpleBeanInfo {
 							true, false),
 					createDescriptor(
 							"quantifierEliminationMethod",
-							"quantifier elimination procedure",
+							"quantifier elimination",
 							"the Mathematica method that is used to perform quantifier elimination",
 							true, false,
 							QuantifierEliminationMethodPropertyEditor.class)
