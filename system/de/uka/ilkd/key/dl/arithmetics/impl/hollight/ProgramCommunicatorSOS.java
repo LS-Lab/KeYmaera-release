@@ -10,6 +10,7 @@ import java.io.OutputStreamWriter;
 
 import de.uka.ilkd.key.dl.arithmetics.exceptions.IncompleteEvaluationException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.UnableToConvertInputException;
+import de.uka.ilkd.key.dl.arithmetics.impl.hollight.ProgramCommunicator.Stopper;
 import de.uka.ilkd.key.dl.gui.MessageWindow;
 
 /**
@@ -18,40 +19,11 @@ import de.uka.ilkd.key.dl.gui.MessageWindow;
  * 
  * @author Jan-David Quesel
  */
-public class ProgramCommunicator {
+public class ProgramCommunicatorSOS {
 	private static boolean debug = true;
 	private static Process process = null;
 	private static BufferedReader stdout;
 	private static BufferedWriter stdin;
-
-	public static class Stopper {
-		private Process p;
-
-		public boolean stop() {
-			if (p != null) {
-				System.out.println("Trying to stop HOL Light");
-				try {
-					OutputStreamWriter outputStreamWriter = new OutputStreamWriter(p.getOutputStream());
-					outputStreamWriter.write("##INTERRUPT##\n");
-					outputStreamWriter.flush();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				// p.destroy();
-				return true;
-			}
-			return false;
-		}
-
-		/**
-		 * @param p
-		 *            the p to set
-		 */
-		public void setP(Process p) {
-			this.p = p;
-		}
-	}
 
 	public static String start(String input, final Stopper stopper)
 			throws UnableToConvertInputException, IncompleteEvaluationException {
@@ -62,77 +34,43 @@ public class ProgramCommunicator {
 				tmpFile.createNewFile();
 				tmpFile.setExecutable(true);
 				FileWriter writer = new FileWriter(tmpFile);
-				writer.write("#!/bin/bash\n"
-						+ "FIFO=/tmp/keymara-ocaml-$$.fifo\n"
-						+ "OUTPUT=/tmp/keymara-ocaml-output-$$.fifo\n"
-						+ "mkfifo $FIFO\n"
-						+ "mkfifo $OUTPUT\n"
-						+ Options.INSTANCE.getOcamlPath().getAbsolutePath()
-						+ " < $FIFO > $OUTPUT & pid=$!\n" + "cat $OUTPUT &\n"
-						+ "trap \"rm -f $FIFO $OUTPUT; kill -9 $pid\" 0\n"
-						+ "(while read BLUB\n" + "do\n"
-						+ "if [ x\"${BLUB:0:13}\" = x\"##INTERRUPT##\" ]; then\n"
-						+ "kill -2 $pid\n" 
-						+ "else\n"
-						+ "echo \"$BLUB\"\n"
-						+ "fi\n"
-						+ "done) > $FIFO");
+				writer
+						.write("#!/bin/bash\n"
+								+ "FIFO=/tmp/keymara-ocaml-$$.fifo\n"
+								+ "OUTPUT=/tmp/keymara-ocaml-output-$$.fifo\n"
+								+ "mkfifo $FIFO\n"
+								+ "mkfifo $OUTPUT\n"
+								+ Options.INSTANCE.getOcamlPath()
+										.getAbsolutePath()
+								+ " < $FIFO > $OUTPUT & pid=$!\n"
+								+ "cat $OUTPUT &\n"
+								+ "trap \"rm -f $FIFO $OUTPUT; kill -9 $pid\" 0\n"
+								+ "(while read BLUB\n"
+								+ "do\n"
+								+ "if [ x\"${BLUB:0:13}\" = x\"##INTERRUPT##\" ]; then\n"
+								+ "kill -2 $pid\n" + "else\n"
+								+ "echo \"$BLUB\"\n" + "fi\n" + "done) > $FIFO");
 				writer.flush();
 				writer.close();
 				ProcessBuilder pb = new ProcessBuilder(new String[] { tmpFile
 						.getAbsolutePath() });
 
-				switch (Options.INSTANCE.getMethod()) {
-				case ProofProducing:
-					pb.directory(Options.INSTANCE.getHollightPath());
-					break;
-				case Harrison:
-					pb.directory(Options.INSTANCE.getHarrisonqePath());
-					break;
-				}
+				pb.directory(Options.INSTANCE.getHollightPath());
 				process = pb.start();
 				stdout = new BufferedReader(new InputStreamReader(process
 						.getInputStream()));
 				stdin = new BufferedWriter(new OutputStreamWriter(process
 						.getOutputStream()));
-				switch (Options.INSTANCE.getMethod()) {
-				case ProofProducing:
-					readUntil(stdout, "#", null);
-					writeText(stdin, "#use \"hol.ml\";;");
+				readUntil(stdout, "#", null);
+				writeText(stdin, "#use \"hol.ml\";;");
 
-					readUntil(stdout, "#", null);
-					writeText(stdin, "#use \"Rqe/make.ml\";;");
-					readUntil(stdout, "#", null);
-					break;
-				case Harrison:
-					readUntil(stdout, "#", null);
-					writeText(stdin, "#use \"init.ml\";;");
-
-					readUntil(stdout, "#", null);
-					break;
-				}
-//			} else {
-//				OutputStreamWriter outputStreamWriter = new OutputStreamWriter(process.getOutputStream());
-//				outputStreamWriter.write("##INTERRUPT##\n");
-//				outputStreamWriter.flush();
+				readUntil(stdout, "#", null);
+				writeText(stdin, "#use \"Examples/sos.ml\";;");
+				readUntil(stdout, "#", null);
 			}
 			stopper.setP(process);
 
-			// readUntil(stdout, "#", null);
-			// writeText(stdin,
-			// "hol_dir := \"/home/user/jdq/space/local/hol_light\";;");
-			//			
-			// readUntil(stdout, "#", null);
-			// writeText(stdin, "load_path := [\".\"; !hol_dir];;");
-
-			switch (Options.INSTANCE.getMethod()) {
-			case ProofProducing:
-				writeText(stdin, "time REAL_QELIM_CONV `" + input.replaceAll("\\\\", "\\\\\\\\") + "`;;");
-				break;
-			case Harrison:
-				writeText(stdin, "time real_qelim <<" + input.replaceAll("\\\\", "\\\\\\\\") + ">>;;");
-				break;
-			}
+			writeText(stdin, "time REAL_SOS `" + input.replaceAll("\\\\", "\\\\\\\\") + "`;;");
 
 			String s = "";
 			String res = "";
@@ -158,13 +96,11 @@ public class ProgramCommunicator {
 			return res;
 
 		} catch (IOException e) {
-			if (stopper.p == null) {
 				throw new IncompleteEvaluationException(
 						"The computation was aborted by the user.");
-			}
-			// Fehler...
-			e.printStackTrace();
-			return "";
+//			// Fehler...
+//			e.printStackTrace();
+//			return "";
 		} finally {
 			if (tmpFile != null) {
 				tmpFile.delete();
@@ -246,9 +182,9 @@ public class ProgramCommunicator {
 			writer.write(text);
 			writer.newLine();
 			writer.flush();
-//			writer.write("##COMMIT##");
-//			writer.newLine();
-//			writer.flush();
+			// writer.write("##COMMIT##");
+			// writer.newLine();
+			// writer.flush();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
