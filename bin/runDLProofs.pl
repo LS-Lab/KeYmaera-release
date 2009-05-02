@@ -258,7 +258,7 @@ sub runAuto {
   my $pid;
   eval {
 	  $pid = open(STATUS, "$absolute_bin_path/runProver $dk auto dl print_statistics $tmp 2>&1 |");
-	  local $SIG{ALRM} = sub { my @pids = ($pid); print "killing $pid\n"; kill 9, @pids; die "alarm\n"; };
+	  local $SIG{ALRM} = sub { my @pids = ($pid); print "killing $pid\n"; kill 15, @pids; sleep 5; kill 9, @pids; die "alarm\n"; };
 	  if ($timeout > 0) {
 		  print "timeout is $timeout\n"; 
 		  alarm $timeout;

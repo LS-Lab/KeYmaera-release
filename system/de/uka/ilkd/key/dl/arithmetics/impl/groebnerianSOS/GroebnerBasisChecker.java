@@ -686,8 +686,6 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 				// we did not find any linear variable, bail out
 				return workPolys;
 
-			System.out.println("eliminating " + linVar + " using "
-					+ polyWithLinVar);
 			workPolys = rewritePolynomials(varNum, Collections.singletonMap(
 					linVar, polyWithLinVar), workPolys);
 		}
@@ -733,7 +731,7 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 				continue;
 
 			final Arithmetic degree = v.multiply(oneVec);
-			System.out.println("Degree of " + v + " is " + degree);
+//			System.out.println("Degree of " + v + " is " + degree);
 			if (degree.isZero()) {
 				// nothing
 			} else if (degree.isOne()) {
