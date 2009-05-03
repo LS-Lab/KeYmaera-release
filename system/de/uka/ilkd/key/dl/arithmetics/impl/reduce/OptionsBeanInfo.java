@@ -63,7 +63,7 @@ public class OptionsBeanInfo extends SimpleBeanInfo {
 							false, true, FilePropertyEditor.class),
 					createDescriptor(
 							"qeMethod",
-							"QuantifierElimination Method",
+							"Quantifier Elimination",
 							"<html>The method to use for quantifier elimination<br>"
 									+ "(virtual substitution (rlqe), Cylindrical algebraic<br>"
 									+ "decomposition (rlcad)...)</html>",

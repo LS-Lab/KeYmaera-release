@@ -82,18 +82,18 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
                             false, true),
                     createDescriptor(
                             "usePowersetIterativeReduce",
-                            "Iterative Inflation Powerset",
+                            "Inflation Powerset",
                             "whether to use the powerset for iterative inflation or not",
                             false, true),
                     createDescriptor(
                             "percentOfPowersetForReduce",
-                            "Iterative Inflation Powerset%",
+                            "Inflation Percent",
                             "the percentage of the powerset to use for the iterative inflation",
                             false, true),
 
                     createDescriptor(
                             "counterexampleTest",
-                            "counterexample check",
+                            "counterexample",
                             "whether to check for counterexamples before trying to prove exhaustively",
                             false, true, CounterexampleTestPropertyEditor.class),
                     createDescriptor(
@@ -103,16 +103,16 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
                             false, true),
                     createDescriptor(
                             "linearTimeoutIncreaseFactor",
-                            "linear timeout increase",
+                            "linear timeout",
                             "the linear part of the IBC timeout. That is, the part c of t_new = a*t_old^2 + b*t_old + c (in seconds)"),
                     createDescriptor(
                             "constantTimeoutIncreaseFactor",
-                            "constant timeout increase",
+                            "constant timeout",
                             "the constant part of the IBC timeout. That is, the part c of t_new = a*t_old^2 + b*t_old + c (in seconds)",
                             false, false, true),
                     createDescriptor(
                             "quadraticTimeoutIncreaseFactor",
-                            "quadratic timeout increase",
+                            "quadratic timeout",
                             "the quadratic part of the IBC timeout. That is, the part c of t_new = a*t_old^2 + b*t_old + c (in seconds)",
                             false, false, true),
                     //
@@ -171,12 +171,12 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
                     //
                     createDescriptor(
                             "builtInArithmeticIneqs",
-                            "built-in inequality handling",
+                            "built-in inequalities",
                             "select whether built-in rules for inequalities are to be used",
                             false, false, BuiltInArithmeticIneqsPropertyEditor.class),
                     createDescriptor(
                     		"useSOS",
-                            "semi-definite programming",
+                            "semi-definite programs",
                             "select whether to use semi-definite programming and sum of squares rule",
                             false, false),
                             //
@@ -195,17 +195,17 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
                             GroebnerBasisCalculatorPropertyEditor.class),
                     createDescriptor(
                             "odeSolver",
-                            "differential equation solver",
+                            "differential equations",
                             "select the solver that should be used to solve differential equations or handle them by differential induction",
                             true, false, ODESolversPropertyEditor.class),
                     createDescriptor("counterExampleGenerator",
-                            "counterexample generator",
+                            "counterexample tool",
                             "select the tool for generating counterexamples",
                             true, false,
                             CounterExampleGeneratorPropertyEditor.class),
                     createDescriptor(
                             "simplifier",
-                            "real arithmetic simplifier",
+                            "arithmetic simplifier",
                             "select the simplification algorithm that should be used to simplify arithmetical expressions",
                             true, false, SimplifierPropertyEditor.class),
                     createDescriptor(

@@ -104,6 +104,7 @@ public class HOLLight implements IQuantifierEliminator, IGroebnerBasisCalculator
 		for(Term t: terms.h) {
 			query = TermBuilder.DF.and(query, t);
 		}
+		query = TermBuilder.DF.not(query);
 		try {
 			String start = ProgramCommunicatorSOS.start(Term2HOLLightConverter.convert(query, new ArrayList<QuantifiableVariable>()), stopper);
 			System.out.println("Result is : " + start);//XXX
