@@ -194,6 +194,12 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
                             true, false,
                             GroebnerBasisCalculatorPropertyEditor.class),
                     createDescriptor(
+                            "sosChecker",
+                            "sos checker",
+                            "select the solver for handling the universal fragment of real arithmetic",
+                            true, false,
+                            SOSCheckerPropertyEditor.class),
+                    createDescriptor(
                             "odeSolver",
                             "differential equations",
                             "select the solver that should be used to solve differential equations or handle them by differential induction",
@@ -402,6 +408,26 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
         public GroebnerBasisCalculatorPropertyEditor() {
             super(getNames(), getNames());
         }
+    }
+
+    public static class SOSCheckerPropertyEditor extends
+    TaggedPropertyEditorSupport {
+    	
+    	private static String[] getNames() {
+    		Set<String> names = MathSolverManager.getSOSCheckers();
+    		HashSet<String> values = new LinkedHashSet<String>();
+    		values.add("");
+    		values.add("-");
+    		for (String name : names) {
+    			values.add(MathSolverManager.getSOSChecker(name)
+    					.getName());
+    		}
+    		return values.toArray(new String[0]);
+    	}
+    	
+    	public SOSCheckerPropertyEditor() {
+    		super(getNames(), getNames());
+    	}
     }
 
     public static class ApplyRulesPropertyEditor extends

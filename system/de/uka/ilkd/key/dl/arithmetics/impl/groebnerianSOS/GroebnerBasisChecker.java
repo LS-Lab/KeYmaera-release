@@ -534,7 +534,7 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 		System.out.println("equations: " + equations);
 		final PolynomialClassification<Term> equationsOnly = new PolynomialClassification<Term>(
 				new HashSet<Term>(), new HashSet<Term>(), equations);
-		return SumOfSquaresChecker.INSTANCE.classify(equationsOnly).h;
+		return SumOfSquaresChecker.classify(equationsOnly).h;
 	}
 
 	private int indexNum(Set<Polynomial> polys) {

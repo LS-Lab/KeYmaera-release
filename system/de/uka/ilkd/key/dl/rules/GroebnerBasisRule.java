@@ -33,7 +33,6 @@ import de.uka.ilkd.key.dl.arithmetics.IGroebnerBasisCalculator;
 import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
 import de.uka.ilkd.key.dl.arithmetics.impl.SumOfSquaresChecker;
 import de.uka.ilkd.key.dl.arithmetics.impl.SumOfSquaresChecker.PolynomialClassification;
-import de.uka.ilkd.key.dl.arithmetics.impl.hollight.HOLLight;
 import de.uka.ilkd.key.dl.logic.ldt.RealLDT;
 import de.uka.ilkd.key.dl.model.Exp;
 import de.uka.ilkd.key.dl.model.Minus;
@@ -97,8 +96,8 @@ public class GroebnerBasisRule implements SequentWideBuiltInRule, RuleFilter {
 		while (it.hasNext()) {
 			succ.add(it.next().formula());
 		}
-		PolynomialClassification<Term> classify = SumOfSquaresChecker.INSTANCE
-				.classify(ante, succ);
+		PolynomialClassification<Term> classify = SumOfSquaresChecker.classify(
+				ante, succ);
 
 		if (MathSolverManager.isGroebnerBasisCalculatorSet()) {
 			IGroebnerBasisCalculator m = MathSolverManager
@@ -106,57 +105,49 @@ public class GroebnerBasisRule implements SequentWideBuiltInRule, RuleFilter {
 
 			if (m != null) {
 				try {
-					if (m instanceof HOLLight) {
-						if (m.checkForConstantGroebnerBasis(classify, services)) {
-							return SLListOfGoal.EMPTY_LIST;
-						}
-					} else {
-						// we will rewrite the terms of the form f(x) >= 0 to
-						// f(x) =
-						// z^2 and add
-						// them to h for this Groebner basis check
+					// we will rewrite the terms of the form f(x) >= 0 to
+					// f(x) =
+					// z^2 and add
+					// them to h for this Groebner basis check
 
-						// first get |f| new names and construct their squares
-						int i = 0;
-						String basename = "neu";
-						Queue<Term> squares = new LinkedList<Term>();
-						Sort r = RealLDT.getRealSort();
-						Term zero = TermBuilder.DF.func(NumberCache.getNumber(
-								new BigDecimal(0), r));
-						Term one = TermBuilder.DF.func(NumberCache.getNumber(
-								new BigDecimal(1), r));
-						Term two = TermBuilder.DF.func(NumberCache.getNumber(
-								new BigDecimal(2), r));
-						de.uka.ilkd.key.logic.op.Function exp = RealLDT
-								.getFunctionFor(Exp.class);
-						while (squares.size() < classify.f.size()) {
-							Name n = new Name(basename + i++);
-							while (services.getNamespaces().lookup(n) != null) {
-								n = new Name(basename + i++);
-							}
-							squares.add(TermBuilder.DF.func(exp, TermBuilder.DF
-									.var(new LogicVariable(n, r)), two));
+					// first get |f| new names and construct their squares
+					int i = 0;
+					String basename = "neu";
+					Queue<Term> squares = new LinkedList<Term>();
+					Sort r = RealLDT.getRealSort();
+					Term zero = TermBuilder.DF.func(NumberCache.getNumber(
+							new BigDecimal(0), r));
+//					Term one = TermBuilder.DF.func(NumberCache.getNumber(
+//							new BigDecimal(1), r));
+					Term two = TermBuilder.DF.func(NumberCache.getNumber(
+							new BigDecimal(2), r));
+					de.uka.ilkd.key.logic.op.Function exp = RealLDT
+							.getFunctionFor(Exp.class);
+					while (squares.size() < classify.f.size()) {
+						Name n = new Name(basename + i++);
+						while (services.getNamespaces().lookup(n) != null) {
+							n = new Name(basename + i++);
 						}
-						de.uka.ilkd.key.logic.op.Function sub = RealLDT
-								.getFunctionFor(Minus.class);
-						de.uka.ilkd.key.logic.op.Function mul = RealLDT
-								.getFunctionFor(Mult.class);
+						squares.add(TermBuilder.DF.func(exp, TermBuilder.DF
+								.var(new LogicVariable(n, r)), two));
+					}
+					de.uka.ilkd.key.logic.op.Function sub = RealLDT
+							.getFunctionFor(Minus.class);
+					de.uka.ilkd.key.logic.op.Function mul = RealLDT
+							.getFunctionFor(Mult.class);
 
-						// now we add the new equations
-						for (Term t : classify.f) {
-							classify.h
-									.add(TermBuilder.DF.equals(
-											TermBuilder.DF.func(sub, t.sub(0),
-													squares.poll()), zero));
-							// classify.h.add(TermBuilder.DF.equals(TermBuilder.DF
-							// .func(mul, t.sub(0), squares.poll()), one));
-						}
-						// and clear all inequalities, as we do not need them
-						// anymore
-						classify.f.clear();
-						if (m.checkForConstantGroebnerBasis(classify, services)) {
-							return SLListOfGoal.EMPTY_LIST;
-						}
+					// now we add the new equations
+					for (Term t : classify.f) {
+						classify.h.add(TermBuilder.DF.equals(TermBuilder.DF
+								.func(sub, t.sub(0), squares.poll()), zero));
+						// classify.h.add(TermBuilder.DF.equals(TermBuilder.DF
+						// .func(mul, t.sub(0), squares.poll()), one));
+					}
+					// and clear all inequalities, as we do not need them
+					// anymore
+					classify.f.clear();
+					if (m.checkForConstantGroebnerBasis(classify, services)) {
+						return SLListOfGoal.EMPTY_LIST;
 					}
 				} catch (RemoteException e) {
 					// TODO Auto-generated catch block

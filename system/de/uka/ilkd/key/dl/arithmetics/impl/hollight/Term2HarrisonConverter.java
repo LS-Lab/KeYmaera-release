@@ -53,9 +53,9 @@ public class Term2HarrisonConverter {
 	 * @param variables
 	 * @return QepCadInput-Instance of the given term.
 	 */
-	public static String convert(Term form, List<QuantifiableVariable> list) {
+	public static String convert(Term form, boolean universalClosure) {
 		Term2HarrisonConverter converter = new Term2HarrisonConverter();
-		return converter.convertImpl(form);
+		return converter.convertImpl(form, universalClosure);
 	}
 
 	/**
@@ -76,8 +76,11 @@ public class Term2HarrisonConverter {
 	 * 
 	 * @param variables
 	 */
-	private String convertImpl(Term form) {
+	private String convertImpl(Term form, boolean universalClosure) {
 		String formula = convert2String(form, null, true);
+		if(!universalClosure) {
+			return formula;
+		}
 		variables.removeAll(quantifiedVariables);
 		if(variables.isEmpty()) {
 			return formula;

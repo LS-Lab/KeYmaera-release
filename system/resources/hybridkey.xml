@@ -11,6 +11,9 @@
 	</server>
         <optionbean>de.uka.ilkd.key.dl.arithmetics.impl.mathematica.Options</optionbean>
 	</MathSolver>
+	<MathSolver>
+		<class>de.uka.ilkd.key.dl.arithmetics.impl.SumOfSquaresChecker</class>
+	</MathSolver>
   <MathSolver> 
 	<class>de.uka.ilkd.key.dl.arithmetics.impl.orbital.OrbitalSimplifier</class>
   </MathSolver>

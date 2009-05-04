@@ -20,6 +20,7 @@
 package de.uka.ilkd.key.dl.arithmetics.impl;
 
 import java.math.BigDecimal;
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
@@ -27,13 +28,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Set;
 
-import orbital.algorithm.Combinatorical;
-import orbital.math.AlgebraicAlgorithms;
 import orbital.math.Arithmetic;
 import orbital.math.Fraction;
 import orbital.math.Integer;
@@ -45,8 +42,13 @@ import orbital.math.Values;
 import orbital.math.Vector;
 import orbital.math.functional.Operations;
 import orbital.util.KeyValuePair;
+
+import org.w3c.dom.Node;
+
+import de.uka.ilkd.key.dl.arithmetics.ISOSChecker;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.ConnectionProblemException;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.ServerStatusProblemException;
 import de.uka.ilkd.key.dl.arithmetics.impl.csdp.CSDP;
-import de.uka.ilkd.key.dl.arithmetics.impl.groebnerianSOS.FractionisingEquationSolver;
 import de.uka.ilkd.key.dl.arithmetics.impl.groebnerianSOS.GroebnerBasisChecker;
 import de.uka.ilkd.key.dl.arithmetics.impl.groebnerianSOS.SparsePolynomial;
 import de.uka.ilkd.key.dl.arithmetics.impl.groebnerianSOS.GroebnerBasisChecker.SimpleMonomialIterator;
@@ -67,6 +69,7 @@ import de.uka.ilkd.key.dl.model.LessEquals;
 import de.uka.ilkd.key.dl.model.Minus;
 import de.uka.ilkd.key.dl.model.Unequals;
 import de.uka.ilkd.key.dl.parser.NumberCache;
+import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.TermBuilder;
 import de.uka.ilkd.key.logic.op.Equality;
@@ -79,7 +82,7 @@ import de.uka.ilkd.key.logic.op.TermSymbol;
  * @author jdq
  * 
  */
-public class SumOfSquaresChecker {
+public class SumOfSquaresChecker implements ISOSChecker {
 
 	private enum Result {
 		SOLUTION_FOUND, NO_SOLUTION_AVAILABLE, UNKNOWN;
@@ -101,7 +104,8 @@ public class SumOfSquaresChecker {
 		}
 	}
 
-	public static final SumOfSquaresChecker INSTANCE = new SumOfSquaresChecker();
+	public SumOfSquaresChecker(Node n) {
+	}
 
 	/**
 	 * Given a sequent seperated into antecedent and succedent this methods
@@ -115,7 +119,7 @@ public class SumOfSquaresChecker {
 	 *            the succedent of the sequent
 	 * @return a classification of the given terms
 	 */
-	public PolynomialClassification<Term> classify(Set<Term> ante,
+	public static PolynomialClassification<Term> classify(Set<Term> ante,
 			Set<Term> succ) {
 		System.out.println("Computing f, g^2 and h");// XXX
 		final Function lt = RealLDT.getFunctionFor(Less.class);
@@ -254,7 +258,7 @@ public class SumOfSquaresChecker {
 	 * @param op
 	 * @return
 	 */
-	private Operator negationLookUp(Operator op) {
+	private static Operator negationLookUp(Operator op) {
 		final Function lt = RealLDT.getFunctionFor(Less.class);
 		final Function leq = RealLDT.getFunctionFor(LessEquals.class);
 		final Function geq = RealLDT.getFunctionFor(GreaterEquals.class);
@@ -281,7 +285,7 @@ public class SumOfSquaresChecker {
 	 * contains only the leftside polynomial of the inequalities, where for f
 	 * the omitted part is > 0, for g it is != 0 and for h it is = 0.
 	 */
-	public PolynomialClassification<Polynomial> classify(
+	public static PolynomialClassification<Polynomial> classify(
 			PolynomialClassification<Term> cla) {
 		return classify(cla, false);
 	}
@@ -291,7 +295,7 @@ public class SumOfSquaresChecker {
 	 * contains only the leftside polynomial of the inequalities, where for f
 	 * the omitted part is > 0, for g it is != 0 and for h it is = 0.
 	 */
-	public PolynomialClassification<Polynomial> classify(
+	public static PolynomialClassification<Polynomial> classify(
 			PolynomialClassification<Term> cla, boolean addAddtionalVariable) {
 		System.out.println("Try to find monominals");// XXX
 		System.out.println("We check the following Terms:");// XXX
@@ -392,7 +396,7 @@ public class SumOfSquaresChecker {
 	 * @return true if a combination of f, g and h is found such that f+g^2+h =
 	 *         0.
 	 */
-	public FormulaStatus check(PolynomialClassification<Term> cla) {
+	public static FormulaStatus check(PolynomialClassification<Term> cla) {
 		return check(cla.f, cla.g, cla.h);
 	}
 
@@ -404,7 +408,7 @@ public class SumOfSquaresChecker {
 	 * @return true if a combination of f, g and h is found such that f+g^2+h =
 	 *         0.
 	 */
-	public FormulaStatus check(Set<Term> f, Set<Term> g, Set<Term> h) {
+	public static FormulaStatus check(Set<Term> f, Set<Term> g, Set<Term> h) {
 		PolynomialClassification<Polynomial> classify = classify(new PolynomialClassification<Term>(
 				f, g, h));
 		Polynomial one = null;
@@ -434,7 +438,9 @@ public class SumOfSquaresChecker {
 		return FormulaStatus.UNKNOWN;
 	}
 
-	public boolean checkCombinedSetForEmptyness(Set<Term> f, Set<Term> g,
+	
+	
+	public static boolean checkCombinedSetForEmptyness(Set<Term> f, Set<Term> g,
 			Set<Term> h, int degreeBound) {
 		// degreeBound = 4;
 		PolynomialClassification<Polynomial> classify = classify(new PolynomialClassification<Term>(
@@ -720,7 +726,7 @@ public class SumOfSquaresChecker {
 		return false;
 	}
 
-    private Vector genExactHetero(SparsePolynomial fh, Polynomial nextG,
+    private static Vector genExactHetero(SparsePolynomial fh, Polynomial nextG,
                                   List<Arithmetic> monomialsInFH) {
         final Vector exactHetero = Values.getDefault().ZERO(fh.size());
         Iterator<KeyValuePair> monoms = nextG.monomials();
@@ -734,7 +740,7 @@ public class SumOfSquaresChecker {
         return exactHetero;
     }
 
-    private Set<Polynomial> generateFProducts(
+    private static Set<Polynomial> generateFProducts(
                                               PolynomialClassification<Polynomial> classify,
                                               Polynomial one) {
         Set<Polynomial> prodsOfFs = new LinkedHashSet<Polynomial>();
@@ -769,7 +775,7 @@ public class SumOfSquaresChecker {
         return prodsOfFs;
     }
 
-    private List<Arithmetic> extractMonomialsInFH(SparsePolynomial fh,
+    private static List<Arithmetic> extractMonomialsInFH(SparsePolynomial fh,
                                                   Polynomial nextG) {
         final List<Arithmetic> monomialsInFH =
             new ArrayList<Arithmetic>(fh.getMonomials());
@@ -1078,7 +1084,7 @@ public class SumOfSquaresChecker {
 	 * @param monomials
 	 * @return TODO documentation since Feb 23, 2009
 	 */
-	private List<Arithmetic> convertToMonomList(List<Vector> monomials,
+	private static List<Arithmetic> convertToMonomList(List<Vector> monomials,
 			int count) {
 		List<Arithmetic> result = new ArrayList<Arithmetic>();
 		for (int i = 0; i < count; i++) {
@@ -1093,7 +1099,7 @@ public class SumOfSquaresChecker {
 	 * @param inputPolynomial
 	 * @return
 	 */
-	private Result testIfPolynomialIsSumOfSquares(Polynomial inputPolynomial) {
+	private static Result testIfPolynomialIsSumOfSquares(Polynomial inputPolynomial) {
 		// now we need to translate the polynominal into a matrix representation
 		// monominals are iterated x^0y^0, x^0y^1, x^0y^2, ..., x^1y^0, x^1y^1,
 		// x^1y^2,..., x^2y^0, x^2y^1,...
@@ -1229,7 +1235,7 @@ public class SumOfSquaresChecker {
 	 * @param monominals
 	 * @param constraints
 	 */
-	private void outputMatlab(List<Vector> monominals,
+	private static void outputMatlab(List<Vector> monominals,
 			List<Constraint> constraints) {
 		System.out.println("Matlab Input: ");// XXX
 		System.out.println("n = " + monominals.size() + ";");// XXX
@@ -1262,7 +1268,7 @@ public class SumOfSquaresChecker {
 	 * @param constraints
 	 * @param size
 	 */
-	private double[] convertConstraintsToCSDP(List<Constraint> constraints,
+	private static double[] convertConstraintsToCSDP(List<Constraint> constraints,
 			int size) {
 		double[] result = new double[constraints.size() * size * size];
 		int cnum = 0;
@@ -1291,7 +1297,7 @@ public class SumOfSquaresChecker {
 	 * 
 	 * @param constraints
 	 */
-	private double[] convertConstraintsToResultVector(
+	private static double[] convertConstraintsToResultVector(
 			List<Constraint> constraints) {
 		double[] result = new double[constraints.size()];
 		int cnum = 0;
@@ -1305,7 +1311,7 @@ public class SumOfSquaresChecker {
 	 * @param constraints
 	 * @param i
 	 */
-	private void convertConstraints(List<Constraint> constraints, int size) {
+	private static void convertConstraints(List<Constraint> constraints, int size) {
 		for (Constraint c : constraints) {
 			int[][] selectionMatrix = new int[size][size];
 			for (Vector v : c.indizes) {
@@ -1339,7 +1345,7 @@ public class SumOfSquaresChecker {
 	 * 
 	 * @author jdq
 	 */
-	private class Constraint {
+	private static class Constraint {
 
 		Constraint(Vector v, List<Vector> indizes, Arithmetic pre) {
 			this.v = v;
@@ -1394,7 +1400,7 @@ public class SumOfSquaresChecker {
 	 * 
 	 * @author jdq
 	 */
-	private class Poly {
+	private static class Poly {
 		HashMap<Vector, List<Vector>> vec = new HashMap<Vector, List<Vector>>();
 
 		/*
@@ -1474,7 +1480,7 @@ public class SumOfSquaresChecker {
 	 * @param multiplyMatrix
 	 * @param monominals
 	 */
-	private Poly multiplyVec(Vec multiplyMatrix, List<Vector> monominals) {
+	private static Poly multiplyVec(Vec multiplyMatrix, List<Vector> monominals) {
 		Poly p = new Poly();
 		for (int i = 0; i < monominals.size(); i++) {
 			for (Vector qij : multiplyMatrix.vec[i].vec.keySet()) {
@@ -1491,7 +1497,7 @@ public class SumOfSquaresChecker {
 		return p;
 	}
 
-	private class Vec {
+	private static class Vec {
 		Poly[] vec;
 	}
 
@@ -1503,7 +1509,7 @@ public class SumOfSquaresChecker {
 	 * @param monominals
 	 * @param matrix
 	 */
-	private Vec multiplyMatrix(List<Vector> monominals, Vector[][] matrix) {
+	private static Vec multiplyMatrix(List<Vector> monominals, Vector[][] matrix) {
 		Vec p = new Vec();
 		p.vec = new Poly[monominals.size()];
 		for (int i = 0; i < monominals.size(); i++) {
@@ -1527,9 +1533,98 @@ public class SumOfSquaresChecker {
 	 * @param i
 	 * @return
 	 */
-	public boolean checkCombinedSetForEmptyness(
+	public static boolean checkCombinedSetForEmptyness(
 			PolynomialClassification<Term> classify, int degreeBound) {
 		return checkCombinedSetForEmptyness(classify.f, classify.g, classify.h,
 				degreeBound);
+	}
+
+	/* (non-Javadoc)
+	 * @see de.uka.ilkd.key.dl.arithmetics.ISOSChecker#testForTautology(de.uka.ilkd.key.dl.arithmetics.impl.SumOfSquaresChecker.PolynomialClassification, de.uka.ilkd.key.java.Services)
+	 */
+	@Override
+	public boolean testForTautology(Set<Term> ante, Set<Term> succ,
+			Services services) throws RemoteException {
+		return checkCombinedSetForEmptyness(classify(ante, succ), 10); //FIXME: degree bound is hardcoded
+	}
+
+	/* (non-Javadoc)
+	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#abortCalculation()
+	 */
+	@Override
+	public void abortCalculation() throws RemoteException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	/* (non-Javadoc)
+	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#getCachedAnswerCount()
+	 */
+	@Override
+	public long getCachedAnswerCount() throws RemoteException {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	/* (non-Javadoc)
+	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#getName()
+	 */
+	@Override
+	public String getName() {
+		return "Internal SOS";
+	}
+
+	/* (non-Javadoc)
+	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#getQueryCount()
+	 */
+	@Override
+	public long getQueryCount() throws RemoteException {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	/* (non-Javadoc)
+	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#getTimeStatistics()
+	 */
+	@Override
+	public String getTimeStatistics() throws RemoteException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/* (non-Javadoc)
+	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#getTotalCalculationTime()
+	 */
+	@Override
+	public long getTotalCalculationTime() throws RemoteException {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	/* (non-Javadoc)
+	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#getTotalMemory()
+	 */
+	@Override
+	public long getTotalMemory() throws RemoteException,
+			ServerStatusProblemException, ConnectionProblemException {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	/* (non-Javadoc)
+	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#isConfigured()
+	 */
+	@Override
+	public boolean isConfigured() {
+		return true;
+	}
+
+	/* (non-Javadoc)
+	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#resetAbortState()
+	 */
+	@Override
+	public void resetAbortState() throws RemoteException {
+		// TODO Auto-generated method stub
+		
 	}
 }
