@@ -20,6 +20,7 @@
 package de.uka.ilkd.key.dl.arithmetics.impl.groebnerianSOS;
 
 import java.util.BitSet;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.ListIterator;
@@ -214,6 +215,22 @@ public class SparsePolynomial {
 		return res;
 	}
 
+        public Matrix exactCoefficientComparisonBlock(int[] blockSizes,
+                                                      Collection<Arithmetic> monomials) {
+            final int matrixLength = blockOffset(blockSizes.length, blockSizes);
+            final Matrix res =
+                Values.getDefault().ZERO(polyTerms.size(), matrixLength);
+
+            int row = 0;
+            for (Arithmetic mono : monomials) {
+                final CoefficientTerm term = polyTerms.get(mono);
+                exactCopy2BlockArray(term, res, blockSizes, row);
+                row = row + 1;
+            }
+            
+            return res;
+        }
+
 	private void exactCopy2Array(CoefficientTerm term, Matrix m,
 			             int matrixSize,
 			             int[] conversionMapping,
@@ -242,10 +259,36 @@ public class SparsePolynomial {
 	    }
 	}
 
+	/**
+	 * Similar as <code>exactCopy2Array</code>, but for block matrices
+	 */
+        private void exactCopy2BlockArray(CoefficientTerm term, Matrix m,
+                                          int[] blockSizes,
+                                          int mRow) {
+            while (term != null) {
+                final BlockMatrixPos pos = new BlockMatrixPos(term.variable, blockSizes);
+                
+                final Arithmetic val;
+                if (pos.column == pos.row)
+                    val = term.coefficient;
+                else
+                    // because such parameters occur twice in the matrix, the
+                    // coefficients have to be divided by 2
+                    val = term.coefficient.divide(Values.getDefault().valueOf(2));
+
+                final int offset = blockOffset(pos.block, blockSizes);
+                
+                m.set(mRow, offset + pos.row * blockSizes[pos.block] + pos.column, val);
+                m.set(mRow, offset + pos.column * blockSizes[pos.block] + pos.row, val);
+
+                term = term.next;
+            }
+        }
+
 	// Compute the column and row number, given a variable index (within the
 	// upper half of the matrix)
 
-	private int column(int variable) {
+	private static int column(int variable) {
 		int col = 0;
 		int maxVar = 0;
 		while (maxVar < variable) {
@@ -255,8 +298,39 @@ public class SparsePolynomial {
 		return col;
 	}
 
-	private int row(int variable, int column) {
+	private static int row(int variable, int column) {
 		return variable - (column * (column + 1)) / 2;
+	}
+
+	private static class BlockMatrixPos {
+	    public final int block;
+            public final int row;
+	    public final int column;
+
+	    public BlockMatrixPos(int variable, int[] blockSizes) {
+	        int offset = 0;
+	        for (int i = 0; true; ++i) {
+	            final int blockSize = blockSizes[i];
+                    final int blockLength = blockSize * (blockSize + 1) / 2;
+	            if (offset + blockLength > variable) {
+	                // we found the right block
+	                block = i;
+	                column = column(variable - offset);
+	                row = row(variable - offset, column);
+	                return;
+	            }
+	            offset = offset + blockLength;
+	        }
+	    }
+	}
+	
+	private int blockOffset(int blk, int blockSizes[]) {
+	    int res = 0;
+
+	    for (int i = 0; i < blk; ++i)
+	      res += blockSizes[i] * blockSizes[i];
+
+	    return res;
 	}
 
 	public int size() {

@@ -110,26 +110,38 @@ public class CSDP {
                                   double[] constraints, double[] constraintRhs,
                                   double[] solution,
                                   double[] goal) {
-        assert (solution.length == matrixSize * matrixSize &&
-                goal.length == matrixSize * matrixSize);
-        final int constraintNum = constraints.length / (matrixSize * matrixSize);
+        return easiestSDP(new int[] { matrixSize }, constraints,
+                          constraintRhs, solution, goal);
+    }
+
+    private static int easiestSDP(int[] blockSizes,
+                                  double[] constraints, double[] constraintRhs,
+                                  double[] solution,
+                                  double[] goal) {
+        final int matrixLength = matrixLength(blockSizes);
+        assert (solution.length == matrixLength &&
+                goal.length == matrixLength);
+        final int constraintNum = constraints.length / matrixLength;
         final double[] y = new double[constraintRhs.length];
-        final double[] Z = emptyGoal(matrixSize);
-        final double[] pobj = new double[matrixSize];
+        final double[] Z = new double [matrixLength];
+        final double[] pobj = new double[matrixSize(blockSizes)];
         final double[] dobj = new double[constraintRhs.length];
 
-        return easySDP(new int[] { matrixSize },
+        return easySDP(blockSizes,
                        constraintNum, goal, constraintRhs, constraints, 0,
                        solution, y, Z, pobj, dobj);
     }
 
     public static int sdp(int matrixSize, double[] constraints,
                           double[] constraintRhs, double[] solution) {
-
-        Arrays.fill(solution, 0.1);
-
         return easiestSDP(matrixSize, makeTriangular(constraints, matrixSize),
                           constraintRhs, solution, diaGoal(matrixSize));
+    }
+
+    public static int sdp(int[] blockSizes, double[] constraints,
+                          double[] constraintRhs, double[] solution) {
+        return easiestSDP(blockSizes, makeTriangular(constraints, blockSizes),
+                          constraintRhs, solution, diaGoal(blockSizes));
     }
 
     private static double[] emptyGoal(int matrixSize) {
@@ -143,10 +155,17 @@ public class CSDP {
      * diagonal
      */
     private static double[] diaGoal(int matrixSize) {
-        final double[] res = new double [matrixSize*matrixSize];
-        Arrays.fill(res, 0.0);
-        for (int i = 0; i < res.length; i = i + matrixSize + 1)
-            res[i] = -1.0;
+        return diaGoal(new int[] { matrixSize });
+    }
+
+    private static double[] diaGoal(int[] blockSizes) {
+        final double[] res = new double [matrixLength(blockSizes)];
+        int offset = 0;
+        for (int blockSize : blockSizes) {
+            for (int i = 0; i < blockSize * blockSize; i = i + blockSize + 1)
+                res[offset + i] = -1.0;
+            offset = offset + blockSize * blockSize;
+        }
         return res;
     }
 
@@ -421,6 +440,13 @@ public class CSDP {
     private static int matrixLength(int[] blockSizes) {
         int res = 0;
         for (int i = 0; i < blockSizes.length; ++i)
+            res = res + blockSizes[i] * blockSizes[i];
+        return res;
+    }
+
+    private static int matrixSize(int[] blockSizes) {
+        int res = 0;
+        for (int i = 0; i < blockSizes.length; ++i)
             res = res + blockSizes[i];
         return res;
     }
@@ -554,7 +580,7 @@ public class CSDP {
         double[] a = new double[] { 1, 2 };
         double[] X = new double[C.length],
                  y = new double[a.length], Z = new double[C.length],
-                 pobj = new double[matrixLength(blockSizes)],
+                 pobj = new double[matrixSize(blockSizes)],
                  dobj = new double[a.length];
 
         easySDP(blockSizes, 2, C, a, constraints, 0, X, y, Z, pobj, dobj);

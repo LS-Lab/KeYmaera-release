@@ -184,15 +184,6 @@ struct constraintmatrix *convert_double_array_to_constraintmatrix(JNIEnv * env,
   return result;
 }
 
-int blockOffset(int blk, int blockSizes[]) {
-  int res = 0;
-
-  for (int i = 0; i < blk; ++i)
-    res += blockSizes[i] * blockSizes[i];
-
-  return res;
-}
-
 void insert_results_bmatrix(JNIEnv * env, jdoubleArray out,
 			    struct blockmatrix *in)
 {
