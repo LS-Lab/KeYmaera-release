@@ -177,11 +177,22 @@ public class CSDPBinaryInterface {
 				int i = (int) Integer.parseInt(stok.next());
 				int j = (int) Integer.parseInt(stok.next());
 				if (matrixNumber == 1) {
-					blockmatrixpX[ijtok(i, j, n)] = Double.parseDouble(stok
-							.next());
+					String next = stok.next();
+					double value = Double.parseDouble(next);
+					blockmatrixpZ[ijtok(i, j, n)] = value;
+					if(i!=j) {
+						blockmatrixpZ[ijtok(j, i, n)] = value;	
+					}
 				} else if (matrixNumber == 2) {
-					blockmatrixpZ[ijtok(i, j, n)] = Double.parseDouble(stok
-							.next());
+					String next = stok.next();
+					double value = Double.parseDouble(next);
+					System.out.println("Next is " + next + " gets parsed to " + value);
+					System.out.println("(" + i + ", " + j + ", " + n + ") = " + (ijtok(i, j, n)));
+					blockmatrixpX[ijtok(i, j, n)] = value;
+					if(i!=j) {
+						// fill the other triangle as the input is a sparse format for a diagonal matrix
+						blockmatrixpX[ijtok(j, i, n)] = value;
+					}
 				} else {
 					throw new IllegalArgumentException(
 							"Dont know how to interpret matrix number "
