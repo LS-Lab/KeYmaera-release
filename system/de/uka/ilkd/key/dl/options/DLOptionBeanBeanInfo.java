@@ -219,16 +219,26 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
                             "apply gamma rules",
                             "choose if and when gamma rules should be applied for existential quantifiers",
                             true, false, ApplyRulesPropertyEditor.class),
-                            createDescriptor(
-                                    "applyUpdatesToModalities",
-                                    "update modalities",
-                                    "apply updates to modalites e.g. to get simpler solutions for differential equations",
-                                    true, false),
+                    createDescriptor(
+                    		"applyUpdatesToModalities",
+                            "update modalities",
+                            "apply updates to modalites e.g. to get simpler solutions for differential equations",
+                            true, false),
                     //
                     createDescriptor(
                             "ignoreAnnotations",
                             "ignore @annotations",
                             "Whether to ignore all proof skeleton @annotations, like @invariant etc.",
+                            true, false),
+                    createDescriptor(
+                    		"csdpBinary",
+                            "csdp binary",
+                            "The path to the csdp binary file. (Used by groebnerSOS and internal sos)",
+                            true, false, FilePropertyEditor.class),
+                    createDescriptor(
+                            "csdpForceInternal",
+                            "force libcsdp",
+                            "Force KeYmaerar to use the library version of csdp instead of the binary.",
                             true, false),
             // createDescriptor("invariantRule", "invariant rule",
             // "choose which invariant rule should be used", true,
