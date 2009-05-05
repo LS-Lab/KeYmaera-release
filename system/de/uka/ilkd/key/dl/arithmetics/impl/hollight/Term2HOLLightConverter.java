@@ -1,10 +1,8 @@
 package de.uka.ilkd.key.dl.arithmetics.impl.hollight;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
 
 import de.uka.ilkd.key.dl.arithmetics.impl.orbital.PolynomTool;
@@ -15,7 +13,6 @@ import de.uka.ilkd.key.logic.op.Junctor;
 import de.uka.ilkd.key.logic.op.LogicVariable;
 import de.uka.ilkd.key.logic.op.Metavariable;
 import de.uka.ilkd.key.logic.op.Op;
-import de.uka.ilkd.key.logic.op.QuantifiableVariable;
 import de.uka.ilkd.key.logic.op.Quantifier;
 
 /**
@@ -54,9 +51,9 @@ public class Term2HOLLightConverter {
 	 * @param variables
 	 * @return QepCadInput-Instance of the given term.
 	 */
-	public static String convert(Term form, List<QuantifiableVariable> list) {
+	public static String convert(Term form, boolean universalClosure) {
 		Term2HOLLightConverter converter = new Term2HOLLightConverter();
-		return converter.convertImpl(form);
+		return converter.convertImpl(form, universalClosure);
 	}
 
 	/**
@@ -77,9 +74,12 @@ public class Term2HOLLightConverter {
 	 * 
 	 * @param variables
 	 */
-	private String convertImpl(Term form) {
+	private String convertImpl(Term form, boolean universalClosure) {
 		String formula = convert2String(form, null, true);
 		
+		if(!universalClosure) {
+			return formula;
+		}
 		variables.removeAll(quantifiedVariables);
 		if(variables.isEmpty()) {
 			return formula;

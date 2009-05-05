@@ -56,6 +56,7 @@ import de.uka.ilkd.key.dl.arithmetics.exceptions.ServerStatusProblemException;
 import de.uka.ilkd.key.dl.arithmetics.impl.SumOfSquaresChecker;
 import de.uka.ilkd.key.dl.arithmetics.impl.SumOfSquaresChecker.PolynomialClassification;
 import de.uka.ilkd.key.dl.arithmetics.impl.csdp.CSDP;
+import de.uka.ilkd.key.dl.arithmetics.impl.csdp.CSDPInterface;
 import de.uka.ilkd.key.dl.arithmetics.impl.groebnerianSOS.PSDDecomposition.NotPSDException;
 import de.uka.ilkd.key.dl.logic.ldt.RealLDT;
 import de.uka.ilkd.key.dl.model.Unequals;
@@ -534,7 +535,7 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 		System.out.println("equations: " + equations);
 		final PolynomialClassification<Term> equationsOnly = new PolynomialClassification<Term>(
 				new HashSet<Term>(), new HashSet<Term>(), equations);
-		return SumOfSquaresChecker.INSTANCE.classify(equationsOnly).h;
+		return SumOfSquaresChecker.classify(equationsOnly).h;
 	}
 
 	private int indexNum(Set<Polynomial> polys) {
@@ -1169,7 +1170,7 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 			 * squares; } else { System.out.println("No solution"); }
 			 */
 			final BitSet removedMonomials = new BitSet();
-			int sdpRes = CSDP.solveAndMinimiseSdp(monoNum, homo, hetero,
+			int sdpRes = CSDPInterface.solveAndMinimiseSdp(monoNum, homo, hetero,
 					approxSolution, removedMonomials);
 			final double[] smallApproxSolution = new double[(monoNum - removedMonomials
 					.cardinality())

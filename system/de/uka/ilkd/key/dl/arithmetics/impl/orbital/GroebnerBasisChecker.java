@@ -58,7 +58,7 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 	/* @Override */
 	public boolean checkForConstantGroebnerBasis(
 			PolynomialClassification<Term> terms, Services services) {
-		PolynomialClassification<Polynomial> classify2 = SumOfSquaresChecker.INSTANCE
+		PolynomialClassification<Polynomial> classify2 = SumOfSquaresChecker
 				.classify(terms, true);
 		System.out.println("H is: ");
 		for (Polynomial p : classify2.h) {

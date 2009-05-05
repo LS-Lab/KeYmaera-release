@@ -22,11 +22,13 @@ package de.uka.ilkd.key.dl.arithmetics.impl.hollight;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.w3c.dom.Node;
 
 import de.uka.ilkd.key.dl.arithmetics.IGroebnerBasisCalculator;
 import de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator;
+import de.uka.ilkd.key.dl.arithmetics.ISOSChecker;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ConnectionProblemException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.IncompleteEvaluationException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ServerStatusProblemException;
@@ -44,7 +46,7 @@ import de.uka.ilkd.key.logic.op.QuantifiableVariable;
 /**
  * @author jdq TODO Documentation since 29.04.2009
  */
-public class HOLLight implements IQuantifierEliminator, IGroebnerBasisCalculator {
+public class HOLLight implements IQuantifierEliminator, ISOSChecker {
 
 	private ProgramCommunicator.Stopper stopper = new ProgramCommunicator.Stopper();
 
@@ -60,25 +62,21 @@ public class HOLLight implements IQuantifierEliminator, IGroebnerBasisCalculator
 			SolverException {
 		// TODO: HOL Light does not need the prenex form, but we need the
 		// universal closure...
-		PrenexGeneratorResult result = PrenexGenerator.transform(form, nss);
 
 		switch (Options.INSTANCE.getMethod()) {
 		case ProofProducing:
-			String convert = Term2HOLLightConverter.convert(result.getTerm(),
-					result.getVariables());
+			String convert = Term2HOLLightConverter.convert(form,
+					true);
 			System.out.println("time REAL_QELIM_CONV`" + convert + "`;;");
-			String res = ProgramCommunicator.start(convert,
-					stopper);
+			String res = ProgramCommunicator.start(convert, stopper);
 			if (res.replaceAll(" ", "").replaceAll("\n", "").contains("<=>T")) {
 				return TermBuilder.DF.tt();
 			}
 			break;
 		case Harrison:
-			convert = Term2HarrisonConverter.convert(result.getTerm(),
-					result.getVariables());
+			convert = Term2HarrisonConverter.convert(form, true);
 			System.out.println("time real_qelim <<" + convert + ">>;;");
-			res = ProgramCommunicator.start(convert,
-					stopper);
+			res = ProgramCommunicator.start(convert, stopper);
 			if (res.contains("fol formula = <<true>>")) {
 				return TermBuilder.DF.tt();
 			}
@@ -86,28 +84,37 @@ public class HOLLight implements IQuantifierEliminator, IGroebnerBasisCalculator
 		}
 		return null;
 	}
-	
-	/* (non-Javadoc)
-	 * @see de.uka.ilkd.key.dl.arithmetics.IGroebnerBasisCalculator#checkForConstantGroebnerBasis(de.uka.ilkd.key.dl.arithmetics.impl.SumOfSquaresChecker.PolynomialClassification, de.uka.ilkd.key.java.Services)
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @seede.uka.ilkd.key.dl.arithmetics.IGroebnerBasisCalculator#
+	 * checkForConstantGroebnerBasis
+	 * (de.uka.ilkd.key.dl.arithmetics.impl.SumOfSquaresChecker
+	 * .PolynomialClassification, de.uka.ilkd.key.java.Services)
 	 */
 	@Override
-	public boolean checkForConstantGroebnerBasis(
-			PolynomialClassification<Term> terms, Services services)
-			throws RemoteException {
-		Term query = TermBuilder.DF.tt();
-		for(Term t: terms.f) {
-			query = TermBuilder.DF.and(query, t);
+	public boolean testForTautology(Set<Term> ante, Set<Term> succ,
+			Services services) throws RemoteException {
+		Term anteT = TermBuilder.DF.tt();
+		for (Term t : ante) {
+			anteT = TermBuilder.DF.and(anteT, t);
 		}
-		for(Term t: terms.g) {
-			query = TermBuilder.DF.and(query, t);
+		Term succT = TermBuilder.DF.ff();
+		for (Term t : succ) {
+			succT = TermBuilder.DF.or(succT, t);
 		}
-		for(Term t: terms.h) {
-			query = TermBuilder.DF.and(query, t);
-		}
-		query = TermBuilder.DF.not(query);
+		final Term query = TermBuilder.DF.imp(anteT, succT);
 		try {
-			String start = ProgramCommunicatorSOS.start(Term2HOLLightConverter.convert(query, new ArrayList<QuantifiableVariable>()), stopper);
-			System.out.println("Result is : " + start);//XXX
+			String start = ProgramCommunicatorSOS.start(Term2HOLLightConverter
+					.convert(query, false),
+					stopper);
+			System.out.println("Result is : " + start);// XXX
+			if (start.contains("val it: thm =")) {
+				System.out
+						.println("We assume this means the test was successful");
+				return true;
+			}
 		} catch (UnableToConvertInputException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

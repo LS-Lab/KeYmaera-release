@@ -194,6 +194,12 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
                             true, false,
                             GroebnerBasisCalculatorPropertyEditor.class),
                     createDescriptor(
+                            "sosChecker",
+                            "sos checker",
+                            "select the solver for handling the universal fragment of real arithmetic",
+                            true, false,
+                            SOSCheckerPropertyEditor.class),
+                    createDescriptor(
                             "odeSolver",
                             "differential equations",
                             "select the solver that should be used to solve differential equations or handle them by differential induction",
@@ -213,16 +219,26 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
                             "apply gamma rules",
                             "choose if and when gamma rules should be applied for existential quantifiers",
                             true, false, ApplyRulesPropertyEditor.class),
-                            createDescriptor(
-                                    "applyUpdatesToModalities",
-                                    "update modalities",
-                                    "apply updates to modalites e.g. to get simpler solutions for differential equations",
-                                    true, false),
+                    createDescriptor(
+                    		"applyUpdatesToModalities",
+                            "update modalities",
+                            "apply updates to modalites e.g. to get simpler solutions for differential equations",
+                            true, false),
                     //
                     createDescriptor(
                             "ignoreAnnotations",
                             "ignore @annotations",
                             "Whether to ignore all proof skeleton @annotations, like @invariant etc.",
+                            true, false),
+                    createDescriptor(
+                    		"csdpBinary",
+                            "csdp binary",
+                            "The path to the csdp binary file. (Used by groebnerSOS and internal sos)",
+                            true, false, FilePropertyEditor.class),
+                    createDescriptor(
+                            "csdpForceInternal",
+                            "force libcsdp",
+                            "Force KeYmaerar to use the library version of csdp instead of the binary.",
                             true, false),
             // createDescriptor("invariantRule", "invariant rule",
             // "choose which invariant rule should be used", true,
@@ -402,6 +418,26 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
         public GroebnerBasisCalculatorPropertyEditor() {
             super(getNames(), getNames());
         }
+    }
+
+    public static class SOSCheckerPropertyEditor extends
+    TaggedPropertyEditorSupport {
+    	
+    	private static String[] getNames() {
+    		Set<String> names = MathSolverManager.getSOSCheckers();
+    		HashSet<String> values = new LinkedHashSet<String>();
+    		values.add("");
+    		values.add("-");
+    		for (String name : names) {
+    			values.add(MathSolverManager.getSOSChecker(name)
+    					.getName());
+    		}
+    		return values.toArray(new String[0]);
+    	}
+    	
+    	public SOSCheckerPropertyEditor() {
+    		super(getNames(), getNames());
+    	}
     }
 
     public static class ApplyRulesPropertyEditor extends

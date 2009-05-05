@@ -22,6 +22,7 @@
  */
 package de.uka.ilkd.key.dl.options;
 
+import java.io.File;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Properties;
@@ -266,12 +267,17 @@ public class DLOptionBean implements Settings {
 
 	private static final String DLOPTIONS_GROEBNER_BASIS_CALCULATOR = "[DLOptions]groebnerBasisCalculator";
 
+	private static final String DLOPTIONS_SOS_CHECKER = "[DLOptions]sosChecker";
+
 	private static final String DLOPTIONS_USE_POWERSET_ITERATIVE_REDUCE = "[DLOptions]usePowersetIterativeReduce";
 	private static final String DLOPTIONS_PERCENT_OF_POWERSET_FOR_ITERATIVE_REDUCE = "[DLOptions]percentOfPowersetForIterativeReduce";
 
 	private static final String DLOPTIONS_BUILT_IN_ARITHMETIC = "[DLOptions]BuiltInArithmetic";
 	private static final String DLOPTIONS_BUILT_IN_ARITHMETIC_INEQS = "[DLOptions]BuiltInArithmeticIneqs";
 	private static final String DLOPTIONS_USE_SOS = "[DLOptions]useSOS";
+	private static final String DLOPTIONS_CSDP_PATH = "[DLOptions]csdpPath";
+
+	private static final String DLOPTIONS_CSDP_FORCE_INTERNAL = "[DLOptions]csdpForceInternal";
 
 	private Set<Settings> subOptions;
 
@@ -311,6 +317,8 @@ public class DLOptionBean implements Settings {
 
 	private String simplifier;
 
+	private String sosChecker;
+
 	private ApplyRules applyGammaRules;
 
 	private InvariantRule invariantRule;
@@ -341,6 +349,8 @@ public class DLOptionBean implements Settings {
 
 	private BuiltInArithmetic builtInArithmetic;
 	private BuiltInArithmeticIneqs builtInArithmeticIneqs;
+	private File csdpBinary;
+	private boolean csdpForceInternal;
 
 	private DLOptionBean() {
 		subOptions = new LinkedHashSet<Settings>();
@@ -362,6 +372,7 @@ public class DLOptionBean implements Settings {
 		quantifierEliminator = "";
 		simplifier = "";
 		groebnerBasisCalculator = "";
+		sosChecker = "";
 		applyGammaRules = ApplyRules.ONLY_TO_MODALITIES;
 		counterexampleTest = CounterexampleTest.ON;
 		invariantRule = InvariantRule.QUANTIFIERS;
@@ -377,6 +388,8 @@ public class DLOptionBean implements Settings {
 		builtInArithmetic = BuiltInArithmetic.OFF;
 		builtInArithmeticIneqs = BuiltInArithmeticIneqs.OFF;
 		useSOS = false;
+		csdpBinary = new File("/usr/bin/csdp");
+		csdpForceInternal = false;
 
 		listeners = new HashSet<SettingsListener>();
 	}
@@ -563,6 +576,14 @@ public class DLOptionBean implements Settings {
 		}
 		groebnerBasisCalculator = props
 				.getProperty(DLOPTIONS_GROEBNER_BASIS_CALCULATOR);
+		if(groebnerBasisCalculator == null) {
+			groebnerBasisCalculator = "";
+		}
+		sosChecker = props
+			.getProperty(DLOPTIONS_SOS_CHECKER);
+		if(sosChecker == null) {
+			sosChecker = "";
+		}
 		/*
 		 * HACK: this causes infinity loop if (groebnerBasisCalculator == null)
 		 * { setGroebnerBasisCalculator(""); } else if
@@ -663,6 +684,14 @@ public class DLOptionBean implements Settings {
 		if (property != null) {
 			builtInArithmeticIneqs = BuiltInArithmeticIneqs.valueOf(property);
 		}
+		property = props.getProperty(DLOPTIONS_CSDP_PATH);
+		if (property != null) {
+			csdpBinary = new File(property);
+		}
+		property = props.getProperty(DLOPTIONS_CSDP_FORCE_INTERNAL);
+		if (property != null) {
+			csdpForceInternal = Boolean.valueOf(property);
+		}
 	}
 
 	/*
@@ -717,6 +746,10 @@ public class DLOptionBean implements Settings {
 			props.setProperty(DLOPTIONS_GROEBNER_BASIS_CALCULATOR,
 					groebnerBasisCalculator);
 		}
+		if (sosChecker != null) {
+			props.setProperty(DLOPTIONS_SOS_CHECKER,
+					sosChecker);
+		}
 
 		props.setProperty(DLOPTIONS_APPLY_GAMMA_RULES, applyGammaRules.name());
 		props.setProperty(DLOPTIONS_INVARIANT_RULE, invariantRule.name());
@@ -753,6 +786,8 @@ public class DLOptionBean implements Settings {
 				.name());
 		props.setProperty(DLOPTIONS_BUILT_IN_ARITHMETIC_INEQS,
 				builtInArithmeticIneqs.name());
+		props.setProperty(DLOPTIONS_CSDP_PATH, csdpBinary.getAbsolutePath());
+		props.setProperty(DLOPTIONS_CSDP_FORCE_INTERNAL, Boolean.toString(csdpForceInternal));
 	}
 
 	public void addSubOptionBean(Settings sub) {
@@ -1287,6 +1322,57 @@ public class DLOptionBean implements Settings {
 	public void setUseSOS(boolean useSOS) {
 		if (this.useSOS != useSOS) {
 			this.useSOS = useSOS;
+			firePropertyChanged();
+		}
+	}
+
+	/**
+	 * @return the sosChecker
+	 */
+	public String getSosChecker() {
+		return sosChecker;
+	}
+
+	/**
+	 * @param sosChecker the sosChecker to set
+	 */
+	public void setSosChecker(String sosChecker) {
+		if(!sosChecker.equals(this.sosChecker)) {
+			this.sosChecker = sosChecker;
+			firePropertyChanged();
+		}
+	}
+
+	/**
+	 * @return the csdpBinary
+	 */
+	public File getCsdpBinary() {
+		return csdpBinary;
+	}
+
+	/**
+	 * @param csdpBinary the csdpBinary to set
+	 */
+	public void setCsdpBinary(File csdpBinary) {
+		if(!csdpBinary.equals(this.csdpBinary)) {
+			this.csdpBinary = csdpBinary;
+			firePropertyChanged();
+		}
+	}
+
+	/**
+	 * @return the csdpForceInternal
+	 */
+	public boolean isCsdpForceInternal() {
+		return csdpForceInternal;
+	}
+
+	/**
+	 * @param csdpForceInternal the csdpForceInternal to set
+	 */
+	public void setCsdpForceInternal(boolean csdpForceInternal) {
+		if(this.csdpForceInternal != csdpForceInternal) {
+			this.csdpForceInternal = csdpForceInternal;
 			firePropertyChanged();
 		}
 	}
