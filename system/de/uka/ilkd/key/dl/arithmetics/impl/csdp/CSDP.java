@@ -35,8 +35,9 @@ public class CSDP {
     /**
      * Input Parameters:
      * 
-     * @param n
-     *            gives the dimension of the X, C, and Z matrices.
+     * @param blockSizes
+     *            array containing the sizes of the individual blocks of 
+     *            the X, C, and Z matrices.
      * @param k
      *            gives the number of constraints.
      * @param blockmatrixC
@@ -79,7 +80,7 @@ public class CSDP {
      *         <li>9: Failure. Detected NaN or Inf values.
      *         </ul>
      */
-    private static native int easySDP(int n, int k, double[] blockmatrixC,
+    private static native int easySDP(int[] blockSizes, int k, double[] blockmatrixC,
             double[] a, double[] constraints, double constant_offset,
             double[] blockmatrixpX, double[] py, double[] blockmatrixpZ,
             double[] ppobj, double[] pdobj);
@@ -117,11 +118,8 @@ public class CSDP {
         final double[] pobj = new double[matrixSize];
         final double[] dobj = new double[constraintRhs.length];
 
-        // not sure whether this helps
-        Arrays.fill(y, 0.1);
-        Arrays.fill(Z, 0.1);
-
-        return easySDP(matrixSize, constraintNum, goal, constraintRhs, constraints, 0,
+        return easySDP(new int[] { matrixSize },
+                       constraintNum, goal, constraintRhs, constraints, 0,
                        solution, y, Z, pobj, dobj);
     }
 
@@ -403,13 +401,28 @@ public class CSDP {
     // make sure that the constraints are given as upper triangular
     // matrices
     private static double[] makeTriangular(double[] constraints, int n) {
-        int k = constraints.length / (n * n);
+        return makeTriangular(constraints, new int[] {n});
+    }
+
+    private static double[] makeTriangular(double[] constraints, int[] blockSizes) {
         final double[] inpConstraints = constraints.clone();
-        for (int i = 0; i < n; ++i)
-            for (int j = 0; j < i; ++j)
-                for (int l = 0; l < k; ++l)
-                    inpConstraints[l * n * n + i * n + j] = 0.0;
+        int offset = 0;
+        while (offset < constraints.length) {
+            for (int blockSize : blockSizes) {
+                for (int i = 0; i < blockSize; ++i)
+                    for (int j = 0; j < i; ++j)
+                        inpConstraints[offset + i * blockSize + j] = 0.0;
+                offset = offset + blockSize * blockSize;
+            }
+        }
         return inpConstraints;
+    }
+
+    private static int matrixLength(int[] blockSizes) {
+        int res = 0;
+        for (int i = 0; i < blockSizes.length; ++i)
+            res = res + blockSizes[i];
+        return res;
     }
 
     public static int robustSdp(int n, int k, double[] a, double[] constraints,
@@ -475,23 +488,30 @@ public class CSDP {
 
         test();
 
+        testBigBlock();
+        testManyBlocks();
+    }
+
+    private static void testBigBlock() {
         int n = 7;
 
-        double[] constraints = new double[] { 3, 1, 0, 0, 0, 0, 0, 1, 3, 0, 0,
+        double[] constraints =
+            makeTriangular(new double[] { 3, 1, 0, 0, 0, 0, 0, 1, 3, 0, 0,
                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0,
 
                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 1, 0, 0,
                 0, 0, 0, 4, 0, 0, 0, 0, 0, 1, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                0, 0, 0, 0, 0, 0, 1 };
+                0, 0, 0, 0, 0, 0, 1 }, n);
         double[] C = new double[] { 2, 1, 0, 0, 0, 0, 0, 1, 2, 0, 0, 0, 0, 0,
                 0, 0, 3, 0, 1, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 1, 0, 3, 0, 0,
                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
         double[] a = new double[] { 1, 2 };
-        double[] X = new double[C.length], y = new double[a.length], Z = new double[C.length], pobj = new double[n], dobj = new double[a.length];
+        double[] X = new double[C.length],
+                 y = new double[a.length], Z = new double[C.length],
+                 pobj = new double[n], dobj = new double[a.length];
 
-        easySDP(7, 2, convertToFortranForm(C, 7), a, constraints, 0, X, y, Z,
-                pobj, dobj);
+        easySDP(new int[] { n }, 2, C, a, constraints, 0, X, y, Z, pobj, dobj);
         System.out.println("X: " + Arrays.toString(X));// XXX
         System.out.println("y: " + Arrays.toString(y));// XXX
         System.out.println("Z: " + Arrays.toString(Z));// XXX
@@ -499,23 +519,50 @@ public class CSDP {
         System.out.println("dobj: " + Arrays.toString(dobj));// XXX
     }
 
-    private static double[] convertToFortranForm(double[] array, int dim) {
-        double[][] tmp = new double[dim][dim];
-        double[] result = new double[array.length];
-        for (int i = 0; i < dim; i++) {
-            for (int j = 0; j < dim; j++) {
-                tmp[i][j] = array[j + i * dim];
-                System.out.println("Setting pos (" + i + ", " + j + ")"
-                        + " to value " + array[j + i * dim]);// XXX
-            }
-        }
+    private static void testManyBlocks() {
+        int[] blockSizes = new int[] { 2, 3, 1, 1 };
+        double[] constraints =
+            makeTriangular(new double[] {
+                /***** Constraint 1 */
+                // block 1
+                3, 1, 1, 3,
+                // block 2
+                0, 0, 0, 0, 0, 0, 0, 0, 0,
+                // block 3
+                1,
+                // block 4
+                0,
+                /***** Constraint 2 */
+                // block 1
+                0, 0, 0, 0,
+                // block 2
+                3, 0, 1, 0, 4, 0, 1, 0, 5,
+                // block 3
+                0,
+                // block 4
+                1}, blockSizes);
+        double[] C =
+            new double[] {
+                //block 1
+                2, 1, 1, 2,
+                // block 2
+                3, 0, 1, 0, 2, 0, 1, 0, 3,
+                // block 3
+                0,
+                // block 4
+                0};
+        double[] a = new double[] { 1, 2 };
+        double[] X = new double[C.length],
+                 y = new double[a.length], Z = new double[C.length],
+                 pobj = new double[matrixLength(blockSizes)],
+                 dobj = new double[a.length];
 
-        for (int i = 0; i < dim; i++) {
-            for (int j = 0; j < dim; j++) {
-                result[j + dim * i] = tmp[j][i];
-            }
-        }
-        return result;
+        easySDP(blockSizes, 2, C, a, constraints, 0, X, y, Z, pobj, dobj);
+        System.out.println("X: " + Arrays.toString(X));// XXX
+        System.out.println("y: " + Arrays.toString(y));// XXX
+        System.out.println("Z: " + Arrays.toString(Z));// XXX
+        System.out.println("pobj: " + Arrays.toString(pobj));// XXX
+        System.out.println("dobj: " + Arrays.toString(dobj));// XXX
     }
 
 }
