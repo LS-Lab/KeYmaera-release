@@ -50,6 +50,7 @@ import de.uka.ilkd.key.dl.arithmetics.exceptions.ConnectionProblemException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ServerStatusProblemException;
 import de.uka.ilkd.key.dl.arithmetics.impl.csdp.CSDP;
 import de.uka.ilkd.key.dl.arithmetics.impl.groebnerianSOS.FractionisingEquationSolver;
+import de.uka.ilkd.key.dl.arithmetics.impl.csdp.CSDPInterface;
 import de.uka.ilkd.key.dl.arithmetics.impl.groebnerianSOS.GroebnerBasisChecker;
 import de.uka.ilkd.key.dl.arithmetics.impl.groebnerianSOS.PSDDecomposition;
 import de.uka.ilkd.key.dl.arithmetics.impl.groebnerianSOS.SparsePolynomial;
@@ -704,7 +705,7 @@ public class SumOfSquaresChecker implements ISOSChecker {
 				    new double[prodsOfFs.size()*piBlockSize*piBlockSize];
 
 				final int sdpRes =
-				    CSDP.sdp(piBlockSizes, homo, hetero, approxSolution);
+				    CSDPInterface.sdp(piBlockSizes, homo, hetero, approxSolution);
 
 				if (sdpRes == 0 || sdpRes == 3) {
 					System.out.println("Found an approximate solution!");
@@ -1333,7 +1334,7 @@ public class SumOfSquaresChecker implements ISOSChecker {
 		// outputMatlab(monominals, constraints);
 
 		double[] solution = new double[monominals.size() * monominals.size()];
-		if (CSDP.sdp(monominals.size(), convertConstraintsToCSDP(constraints,
+		if (CSDPInterface.sdp(monominals.size(), convertConstraintsToCSDP(constraints,
 				monominals.size()),
 				convertConstraintsToResultVector(constraints), solution) == 0) {
 			// System.out.println(quadraticForm.toSparsePolynomial());//XXX

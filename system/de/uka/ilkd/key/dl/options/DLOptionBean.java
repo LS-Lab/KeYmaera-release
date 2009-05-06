@@ -22,6 +22,7 @@
  */
 package de.uka.ilkd.key.dl.options;
 
+import java.io.File;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Properties;
@@ -274,6 +275,9 @@ public class DLOptionBean implements Settings {
 	private static final String DLOPTIONS_BUILT_IN_ARITHMETIC = "[DLOptions]BuiltInArithmetic";
 	private static final String DLOPTIONS_BUILT_IN_ARITHMETIC_INEQS = "[DLOptions]BuiltInArithmeticIneqs";
 	private static final String DLOPTIONS_USE_SOS = "[DLOptions]useSOS";
+	private static final String DLOPTIONS_CSDP_PATH = "[DLOptions]csdpPath";
+
+	private static final String DLOPTIONS_CSDP_FORCE_INTERNAL = "[DLOptions]csdpForceInternal";
 
 	private Set<Settings> subOptions;
 
@@ -345,6 +349,8 @@ public class DLOptionBean implements Settings {
 
 	private BuiltInArithmetic builtInArithmetic;
 	private BuiltInArithmeticIneqs builtInArithmeticIneqs;
+	private File csdpBinary;
+	private boolean csdpForceInternal;
 
 	private DLOptionBean() {
 		subOptions = new LinkedHashSet<Settings>();
@@ -382,6 +388,8 @@ public class DLOptionBean implements Settings {
 		builtInArithmetic = BuiltInArithmetic.OFF;
 		builtInArithmeticIneqs = BuiltInArithmeticIneqs.OFF;
 		useSOS = false;
+		csdpBinary = new File("/usr/bin/csdp");
+		csdpForceInternal = false;
 
 		listeners = new HashSet<SettingsListener>();
 	}
@@ -676,6 +684,14 @@ public class DLOptionBean implements Settings {
 		if (property != null) {
 			builtInArithmeticIneqs = BuiltInArithmeticIneqs.valueOf(property);
 		}
+		property = props.getProperty(DLOPTIONS_CSDP_PATH);
+		if (property != null) {
+			csdpBinary = new File(property);
+		}
+		property = props.getProperty(DLOPTIONS_CSDP_FORCE_INTERNAL);
+		if (property != null) {
+			csdpForceInternal = Boolean.valueOf(property);
+		}
 	}
 
 	/*
@@ -770,6 +786,8 @@ public class DLOptionBean implements Settings {
 				.name());
 		props.setProperty(DLOPTIONS_BUILT_IN_ARITHMETIC_INEQS,
 				builtInArithmeticIneqs.name());
+		props.setProperty(DLOPTIONS_CSDP_PATH, csdpBinary.getAbsolutePath());
+		props.setProperty(DLOPTIONS_CSDP_FORCE_INTERNAL, Boolean.toString(csdpForceInternal));
 	}
 
 	public void addSubOptionBean(Settings sub) {
@@ -1321,6 +1339,40 @@ public class DLOptionBean implements Settings {
 	public void setSosChecker(String sosChecker) {
 		if(!sosChecker.equals(this.sosChecker)) {
 			this.sosChecker = sosChecker;
+			firePropertyChanged();
+		}
+	}
+
+	/**
+	 * @return the csdpBinary
+	 */
+	public File getCsdpBinary() {
+		return csdpBinary;
+	}
+
+	/**
+	 * @param csdpBinary the csdpBinary to set
+	 */
+	public void setCsdpBinary(File csdpBinary) {
+		if(!csdpBinary.equals(this.csdpBinary)) {
+			this.csdpBinary = csdpBinary;
+			firePropertyChanged();
+		}
+	}
+
+	/**
+	 * @return the csdpForceInternal
+	 */
+	public boolean isCsdpForceInternal() {
+		return csdpForceInternal;
+	}
+
+	/**
+	 * @param csdpForceInternal the csdpForceInternal to set
+	 */
+	public void setCsdpForceInternal(boolean csdpForceInternal) {
+		if(this.csdpForceInternal != csdpForceInternal) {
+			this.csdpForceInternal = csdpForceInternal;
 			firePropertyChanged();
 		}
 	}
