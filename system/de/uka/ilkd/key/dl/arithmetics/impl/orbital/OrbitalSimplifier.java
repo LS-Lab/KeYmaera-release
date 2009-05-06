@@ -105,7 +105,14 @@ public class OrbitalSimplifier implements ISimplifier {
 			    e.printStackTrace();
 	            }
 	        } else if (form.sort().equals(RealLDT.getRealSort())) {
-	            return arithmetic2Term(translateArithmetic(form));
+	            try {
+	                return arithmetic2Term(translateArithmetic(form));
+                    } catch (UnsupportedPOWException e) {
+                        System.out.println("Warning: " + e.getMessage());
+                        System.out.println("(occurred when evaluating " + form +
+                                           ", leaving it unchanged)");
+                        return form;
+                    }
 	        } else {
 	            throw new IllegalArgumentException("Dont know how to simplify the term "
 	        	    + form + " of sort " + form.sort());
@@ -138,7 +145,12 @@ public class OrbitalSimplifier implements ISimplifier {
 				|| form.op() instanceof Equality) {
 			Arithmetic[] args = new Arithmetic[form.arity()];
 			for (int i = 0; i < form.arity(); i++) {
-				args[i] = translateArithmetic(form.sub(i));
+			    try {
+			        args[i] = translateArithmetic(form.sub(i));
+                            } catch (UnsupportedPOWException e) {
+                                System.out.println("Warning: " + e.getMessage());
+                                return false;
+                            }
 			}
 			if (form.op() == RealLDT.getFunctionFor(Greater.class)) {
 				assert (form.arity() == 2);
@@ -168,7 +180,13 @@ public class OrbitalSimplifier implements ISimplifier {
 				+ form.op() + " of class " + form.op().getClass());
 	}
 
-	private static Arithmetic translateArithmetic(Term form) {
+	private static class UnsupportedPOWException extends Exception {
+	    public UnsupportedPOWException(String message) {
+                super("Exponentiation with exponent " + message + " is not supported");
+	    }
+	}
+	
+	private static Arithmetic translateArithmetic(Term form) throws UnsupportedPOWException {
 		Arithmetic[] args = new Arithmetic[form.arity()];
 		for (int i = 0; i < form.arity(); i++) {
 			args[i] = translateArithmetic(form.sub(i));
@@ -195,8 +213,10 @@ public class OrbitalSimplifier implements ISimplifier {
 			return apply;
 		} else if (form.op() == RealLDT.getFunctionFor(Exp.class)) {
 			assert (form.arity() == 2);
-			Arithmetic apply = args[0].power(tryToMakeInteger(args[1]));
-			return apply;
+			final Arithmetic exp = tryToMakeInteger(args[1]);
+			if (!(exp instanceof Integer))
+			    throw new UnsupportedPOWException ("" + exp);
+                        return args[0].power(exp);
 		} else if (form.op() instanceof RigidFunction
 				&& ((RigidFunction) form.op()).arity() == 0) {
  		        return term2Rational(form);
