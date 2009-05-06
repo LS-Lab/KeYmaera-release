@@ -110,7 +110,7 @@ public class HOLLight implements IQuantifierEliminator, ISOSChecker {
 					.convert(query, false),
 					stopper);
 			System.out.println("Result is : " + start);// XXX
-			if (start.contains("val it: thm =")) {
+			if (start.contains("val it : thm =")) {
 				System.out
 						.println("We assume this means the test was successful");
 				return true;

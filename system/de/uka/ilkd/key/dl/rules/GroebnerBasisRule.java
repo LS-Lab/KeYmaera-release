@@ -156,8 +156,8 @@ public class GroebnerBasisRule implements SequentWideBuiltInRule, RuleFilter {
 			}
 		}
 
-		if (true)
-			throw new IllegalArgumentException("gb does not work");
+//		if (true)
+//			throw new IllegalArgumentException("gb does not work");
 		return SLListOfGoal.EMPTY_LIST.append(goal);
 	}
 
