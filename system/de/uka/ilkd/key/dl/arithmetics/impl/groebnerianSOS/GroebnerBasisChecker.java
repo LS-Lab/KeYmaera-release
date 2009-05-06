@@ -435,7 +435,7 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 							occurencesOfCandidate++;
 						} else {
 							replacement = (Polynomial) replacement.add((vf
-									.MONOMIAL((Vector) nextMono.getKey()))
+									.MONOMIAL(asVector((Arithmetic)nextMono.getKey())))
 									.multiply(vf.MONOMIAL(coeff
 											.divide(candidateCoeff),
 											new int[varNum])));
