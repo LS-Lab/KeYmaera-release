@@ -1,11 +1,15 @@
 package de.uka.ilkd.key.dl.arithmetics.impl.hollight;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import sun.security.util.BigInt;
+
 import de.uka.ilkd.key.dl.arithmetics.impl.orbital.PolynomTool;
+import de.uka.ilkd.key.dl.arithmetics.impl.orbital.PolynomTool.BigFraction;
 import de.uka.ilkd.key.logic.NamespaceSet;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.op.Function;
@@ -35,7 +39,7 @@ public class Term2HOLLightConverter {
 
 	private Set<String> variables = new LinkedHashSet<String>();
 	private Set<String> quantifiedVariables = new LinkedHashSet<String>();
-	
+
 	/**
 	 * Standardconstructor.
 	 */
@@ -47,7 +51,7 @@ public class Term2HOLLightConverter {
 	 * 
 	 * @param form
 	 *            Term to convert
-	 * @param list 
+	 * @param list
 	 * @param variables
 	 * @return QepCadInput-Instance of the given term.
 	 */
@@ -58,12 +62,11 @@ public class Term2HOLLightConverter {
 
 	/**
 	 * @param list
-	 * @return
-	 * TODO documentation since 29.04.2009
+	 * @return TODO documentation since 29.04.2009
 	 */
 	private static String list2quantifiers(Collection<String> list) {
 		String result = "";
-		for(String v: list) {
+		for (String v : list) {
 			result += v.toString() + " ";
 		}
 		return result;
@@ -76,14 +79,14 @@ public class Term2HOLLightConverter {
 	 */
 	private String convertImpl(Term form, boolean universalClosure) {
 		String formula = convert2String(form, null, true);
-		
-		if(!universalClosure) {
+
+		if (!universalClosure) {
 			return formula;
 		}
 		variables.removeAll(quantifiedVariables);
-		if(variables.isEmpty()) {
+		if (variables.isEmpty()) {
 			return formula;
-		} else { 
+		} else {
 			return "!" + list2quantifiers(variables) + ". " + formula;
 		}
 	}
@@ -92,6 +95,7 @@ public class Term2HOLLightConverter {
 			boolean eliminateFractions) {
 		return convert2String(form, nss, eliminateFractions, false);
 	}
+
 	private String convert2String(Term form, NamespaceSet nss,
 			boolean eliminateFractions, boolean pow) {
 		if (form.op() == Op.FALSE) {
@@ -131,7 +135,7 @@ public class Term2HOLLightConverter {
 							false);
 				}
 				return "( " + convert2String(form.sub(0), nss, true) + " = "
-						+ convert2String(form.sub(1), nss, true) + " )"; 
+						+ convert2String(form.sub(1), nss, true) + " )";
 				// 2x EQUALS ?
 			} else if (f.name().toString().equals("neq")) {
 				if (eliminateFractions) {
@@ -180,13 +184,14 @@ public class Term2HOLLightConverter {
 						+ convert2String(form.sub(1), nss, eliminateFractions)
 						+ ")";
 			} else if (f.name().toString().equals("div")) {
-				throw new UnsupportedOperationException("HOL Light does not support fractions");
+				throw new UnsupportedOperationException(
+						"HOL Light does not support fractions");
 			} else if (f.name().toString().equals("exp")) {
 				return "("
 						+ convert2String(form.sub(0), nss, eliminateFractions)
 						+ " pow "
-						+ convert2String(form.sub(1), nss, eliminateFractions, true)
-						+ ")";
+						+ convert2String(form.sub(1), nss, eliminateFractions,
+								true) + ")";
 			} else {
 				String[] args = new String[form.arity()];
 				for (int i = 0; i < args.length; i++) {
@@ -194,49 +199,34 @@ public class Term2HOLLightConverter {
 							eliminateFractions);
 				}
 				try {
-					BigDecimal d = new BigDecimal(form.op().name().toString());
-					try {
+					String numberAsString = form.op().name().toString();
+					BigFraction frac = PolynomTool
+							.convertStringToFraction(numberAsString);
+					if (frac.getDenominator().equals(BigInteger.ONE)) {
 						String result = "";
-						int intValueExact = d.intValueExact();
-						if(intValueExact < 0) {
-							intValueExact = Math.abs(intValueExact);
+						BigInteger i = frac.getNumerator();
+						if (i.compareTo(BigInteger.ZERO) < 0) {
+							i = i.abs();
 							result = "-- ";
 						}
-						return result + (pow?"":"&") + String.valueOf(intValueExact);
-					} catch (ArithmeticException e) {
-						int denominator = 1;
-						BigDecimal ten = new BigDecimal(10);
-						while (d.intValue() < d.doubleValue()) {
-							denominator *= 10;
-							d = d.multiply(ten);
+						return result + (pow ? "" : "&") + i;
+					} else {
+						String result = "(";
+						if (frac.getNumerator().compareTo(BigInteger.ZERO) < 0) {
+							result += "-- " + (pow ? "" : "&")
+									+ frac.getNumerator();
+						} else {
+							result += (pow ? "" : "&") + frac.getNumerator();
 						}
 
-						// calculate the greatest common divisor of the
-						// fraction
-						int numerator = d.intValueExact();
-						int tmp = numerator;
-						int gcd = denominator;
-						int t;
-						while (tmp > 0) {
-							t = numerator;
-							tmp = gcd % tmp;
-							gcd = t;
-						}
-						numerator = numerator / gcd;
-						denominator = denominator / gcd;
-						String result = "(";
-						if(numerator < 0) {
-							numerator = Math.abs(numerator);
-							result += "-- ";
-						}
-						result += (pow?"":"&") + numerator;
-						
 						result += " / ";
-						if(denominator < 0) {
-							denominator = Math.abs(denominator);
-							result+= "-- ";
+						if (frac.getDenominator().compareTo(BigInteger.ZERO) < 0) {
+							result += "-- " + (pow ? "" : "&")
+									+ frac.getDenominator() + " )";
+						} else {
+							result += (pow ? "" : "&") + frac.getDenominator()
+									+ " )";
 						}
-						result += (pow?"":"&") + denominator + " )";
 						return result;
 					}
 				} catch (NumberFormatException e) {
@@ -306,11 +296,12 @@ public class Term2HOLLightConverter {
 				quantifiedVariables.add(name);
 				vars[i] = name;
 			}
-			String firstArg = convert2String(form.sub(0), nss, eliminateFractions);
+			String firstArg = convert2String(form.sub(0), nss,
+					eliminateFractions);
 			if (form.op() == Quantifier.ALL) {
 				String result = "(!";
-				
-				for(String var: vars) {
+
+				for (String var : vars) {
 					result += var + " ";
 				}
 				result += ". " + firstArg;
@@ -318,8 +309,8 @@ public class Term2HOLLightConverter {
 				return result;
 			} else if (form.op() == Quantifier.EX) {
 				String result = "(?";
-				
-				for(String var: vars) {
+
+				for (String var : vars) {
 					result += var + " ";
 				}
 				result += ". " + firstArg;

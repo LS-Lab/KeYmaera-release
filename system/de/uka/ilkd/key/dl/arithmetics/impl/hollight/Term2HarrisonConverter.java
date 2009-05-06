@@ -1,12 +1,14 @@
 package de.uka.ilkd.key.dl.arithmetics.impl.hollight;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
 import de.uka.ilkd.key.dl.arithmetics.impl.orbital.PolynomTool;
+import de.uka.ilkd.key.dl.arithmetics.impl.orbital.PolynomTool.BigFraction;
 import de.uka.ilkd.key.logic.NamespaceSet;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.op.Function;
@@ -37,7 +39,7 @@ public class Term2HarrisonConverter {
 
 	private Set<String> variables = new LinkedHashSet<String>();
 	private Set<String> quantifiedVariables = new LinkedHashSet<String>();
-	
+
 	/**
 	 * Standardconstructor.
 	 */
@@ -49,7 +51,7 @@ public class Term2HarrisonConverter {
 	 * 
 	 * @param form
 	 *            Term to convert
-	 * @param list 
+	 * @param list
 	 * @param variables
 	 * @return QepCadInput-Instance of the given term.
 	 */
@@ -60,12 +62,11 @@ public class Term2HarrisonConverter {
 
 	/**
 	 * @param list
-	 * @return
-	 * TODO documentation since 29.04.2009
+	 * @return TODO documentation since 29.04.2009
 	 */
 	private static String list2quantifiers(Collection<String> list) {
 		String result = "";
-		for(String v: list) {
+		for (String v : list) {
 			result += v.toString() + " ";
 		}
 		return result;
@@ -78,11 +79,11 @@ public class Term2HarrisonConverter {
 	 */
 	private String convertImpl(Term form, boolean universalClosure) {
 		String formula = convert2String(form, null, true);
-		if(!universalClosure) {
+		if (!universalClosure) {
 			return formula;
 		}
 		variables.removeAll(quantifiedVariables);
-		if(variables.isEmpty()) {
+		if (variables.isEmpty()) {
 			return formula;
 		} else {
 			return "forall " + list2quantifiers(variables) + ". " + formula;
@@ -93,6 +94,7 @@ public class Term2HarrisonConverter {
 			boolean eliminateFractions) {
 		return convert2String(form, nss, eliminateFractions, false);
 	}
+
 	private String convert2String(Term form, NamespaceSet nss,
 			boolean eliminateFractions, boolean pow) {
 		if (form.op() == Op.FALSE) {
@@ -132,7 +134,7 @@ public class Term2HarrisonConverter {
 							false);
 				}
 				return "( " + convert2String(form.sub(0), nss, true) + " = "
-						+ convert2String(form.sub(1), nss, true) + " )"; 
+						+ convert2String(form.sub(1), nss, true) + " )";
 				// 2x EQUALS ?
 			} else if (f.name().toString().equals("neq")) {
 				if (eliminateFractions) {
@@ -181,13 +183,14 @@ public class Term2HarrisonConverter {
 						+ convert2String(form.sub(1), nss, eliminateFractions)
 						+ ")";
 			} else if (f.name().toString().equals("div")) {
-				throw new UnsupportedOperationException("HOL Light does not support fractions");
+				throw new UnsupportedOperationException(
+						"HOL Light does not support fractions");
 			} else if (f.name().toString().equals("exp")) {
 				return "("
 						+ convert2String(form.sub(0), nss, eliminateFractions)
 						+ "^"
-						+ convert2String(form.sub(1), nss, eliminateFractions, true)
-						+ ")";
+						+ convert2String(form.sub(1), nss, eliminateFractions,
+								true) + ")";
 			} else {
 				String[] args = new String[form.arity()];
 				for (int i = 0; i < args.length; i++) {
@@ -195,31 +198,14 @@ public class Term2HarrisonConverter {
 							eliminateFractions);
 				}
 				try {
-					BigDecimal d = new BigDecimal(form.op().name().toString());
-					try {
-						return String.valueOf(d.intValueExact());
-					} catch (ArithmeticException e) {
-						int denominator = 1;
-						BigDecimal ten = new BigDecimal(10);
-						while (d.intValue() < d.doubleValue()) {
-							denominator *= 10;
-							d = d.multiply(ten);
-						}
-
-						// calculate the greatest common divisor of the
-						// fraction
-						int numerator = d.intValueExact();
-						int tmp = numerator;
-						int gcd = denominator;
-						int t;
-						while (tmp > 0) {
-							t = numerator;
-							tmp = gcd % tmp;
-							gcd = t;
-						}
-						numerator = numerator / gcd;
-						denominator = denominator / gcd;
-						return "( " + numerator + " / " + denominator + " )";
+					String numberAsString = form.op().name().toString();
+					BigFraction frac = PolynomTool
+							.convertStringToFraction(numberAsString);
+					if (frac.getDenominator().equals(BigInteger.ONE)) {
+						return frac.getNumerator().toString();
+					} else {
+						return "( " + frac.getNumerator() + " / "
+								+ frac.getDenominator() + " )";
 					}
 				} catch (NumberFormatException e) {
 					String name = form.op().name().toString();
@@ -288,11 +274,12 @@ public class Term2HarrisonConverter {
 				quantifiedVariables.add(name);
 				vars[i] = name;
 			}
-			String firstArg = convert2String(form.sub(0), nss, eliminateFractions);
+			String firstArg = convert2String(form.sub(0), nss,
+					eliminateFractions);
 			if (form.op() == Quantifier.ALL) {
 				String result = "(forall ";
-				
-				for(String var: vars) {
+
+				for (String var : vars) {
 					result += var + " ";
 				}
 				result += ". " + firstArg;
@@ -300,8 +287,8 @@ public class Term2HarrisonConverter {
 				return result;
 			} else if (form.op() == Quantifier.EX) {
 				String result = "(exists ";
-				
-				for(String var: vars) {
+
+				for (String var : vars) {
 					result += var + " ";
 				}
 				result += ". " + firstArg;

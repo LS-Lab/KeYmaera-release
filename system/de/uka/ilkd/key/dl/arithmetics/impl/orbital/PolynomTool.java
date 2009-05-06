@@ -116,8 +116,9 @@ public abstract class PolynomTool {
 						Integer number = Values.getDefault().valueOf(
 								new BigInteger(sub.sub(1).op().name()
 										.toString()));
-						if (Operations.less.apply(number, Values.getDefault().ZERO()))
-						    return (Fraction) p.power(number.minus()).inverse();
+						if (Operations.less.apply(number, Values.getDefault()
+								.ZERO()))
+							return (Fraction) p.power(number.minus()).inverse();
 						return (Fraction) p.power(number);
 					} catch (NumberFormatException e) {
 						return (Fraction) p.power(q);
@@ -202,11 +203,12 @@ public abstract class PolynomTool {
 					.denominator(), varList, variables, nss);
 
 			// cross-multiply with the denominators
-//			System.out.println("Now calculating " + rightHandSide + " * "
-//					+ leftHandSide.denominator());// XXX
-//			System.out.println("left is of type "
-//					+ leftHandSide.denominator().getClass());// XXX
-//			System.out.println("right is of type " + rightHandSide.getClass());// XXX
+			// System.out.println("Now calculating " + rightHandSide + " * "
+			// + leftHandSide.denominator());// XXX
+			// System.out.println("left is of type "
+			// + leftHandSide.denominator().getClass());// XXX
+			// System.out.println("right is of type " +
+			// rightHandSide.getClass());// XXX
 			if (!leftHandSide.denominator().isOne()) {
 				rightHandSide = (Fraction) rightHandSide.multiply(Values
 						.getDefault().fraction(leftHandSide.denominator(),
@@ -266,7 +268,7 @@ public abstract class PolynomTool {
 		}
 
 		// return the resulting terms
-//		System.out.println("Converted " + t + " to " + result);// XXX
+		// System.out.println("Converted " + t + " to " + result);// XXX
 
 		boolean assertions = false;
 		assert assertions = true;
@@ -279,22 +281,23 @@ public abstract class PolynomTool {
 			if (leftDenominator != null) {
 				prev = and(prev, func(neq, leftDenominator, zero));
 			}
-			if (MathSolverManager.getQuantifierElimantor("Mathematica") != null) {
-				try {
-					assert MathSolverManager.getQuantifierElimantor(
-							"Mathematica").reduce(
-							TermBuilder.DF.equiv(prev, result),
-							(nss == null) ? Main.getInstance().mediator()
-									.namespaces() : nss).equals(
-							TermBuilder.DF.tt());
-				} catch (RemoteException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (SolverException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
+			// if (MathSolverManager.getQuantifierElimantor("Mathematica") !=
+			// null) {
+			// try {
+			// assert MathSolverManager.getQuantifierElimantor(
+			// "Mathematica").reduce(
+			// TermBuilder.DF.equiv(prev, result),
+			// (nss == null) ? Main.getInstance().mediator()
+			// .namespaces() : nss).equals(
+			// TermBuilder.DF.tt());
+			// } catch (RemoteException e) {
+			// // TODO Auto-generated catch block
+			// e.printStackTrace();
+			// } catch (SolverException e) {
+			// // TODO Auto-generated catch block
+			// e.printStackTrace();
+			// }
+			// }
 
 		}
 
@@ -372,7 +375,7 @@ public abstract class PolynomTool {
 		final Function mult = RealLDT.getFunctionFor(Mult.class);
 		final Function exp = RealLDT.getFunctionFor(Exp.class);
 		final Function plus = RealLDT.getFunctionFor(Plus.class);
-System.out.println("Converting " + p);
+		System.out.println("Converting " + p);
 		final Iterator<KeyValuePair> monomials = p.monomials();
 		Term result = null;
 		while (monomials.hasNext()) {
@@ -393,7 +396,7 @@ System.out.println("Converting " + p);
 					summand = Orbital.convertOrbitalToTerm(r, zero, nss,
 							coefficient);
 				}
-//				String blub = "";
+				// String blub = "";
 				for (int i = 0; i < monomialDegrees.dimension(); i++) {
 					if (!monomialDegrees.get(i).isZero()) {
 						Term s2 = varMap.get(variables.get(i));
@@ -407,12 +410,13 @@ System.out.println("Converting " + p);
 						} else {
 							summand = TermBuilder.DF.func(mult, summand, s2);
 						}
-//						blub += variables.get(i) + "^" + monomialDegrees.get(i);
+						// blub += variables.get(i) + "^" +
+						// monomialDegrees.get(i);
 					}
 				}
-//				if (!blub.equals("")) {
-//					System.out.println(coefficient + " * " + blub);// XXX
-//				}
+				// if (!blub.equals("")) {
+				// System.out.println(coefficient + " * " + blub);// XXX
+				// }
 				if (result == null) {
 					if (summand == null && ((Arithmetic) coefficient).isOne()) {
 						result = one;
@@ -430,6 +434,61 @@ System.out.println("Converting " + p);
 		}
 		if (result == null) {
 			return zero;
+		}
+		return result;
+	}
+
+	public static class BigFraction {
+		private BigInteger numerator = BigInteger.ZERO;
+		private BigInteger denominator = BigInteger.ONE;
+
+		/**
+		 * @return the numerator
+		 */
+		public BigInteger getNumerator() {
+			return numerator;
+		}
+
+		/**
+		 * @return the denominator
+		 */
+		public BigInteger getDenominator() {
+			return denominator;
+		}
+
+	}
+
+	public static BigFraction convertStringToFraction(String numberAsString)
+			throws NumberFormatException, ArithmeticException {
+		BigFraction result = new BigFraction();
+		BigDecimal d = new BigDecimal(numberAsString);
+		try {
+			result.numerator = d.toBigIntegerExact();
+		} catch (ArithmeticException e) {
+			assert numberAsString.indexOf('.') != -1;
+			int numbersAfterComma = numberAsString.length()
+					- numberAsString.indexOf('.') - 1;
+			BigInteger denominator = BigInteger.TEN.pow(numbersAfterComma);
+			d = d.multiply(BigDecimal.TEN.pow(numbersAfterComma));
+
+			// calculate the greatest common divisor of the
+			// fraction
+			BigInteger numerator = d.toBigIntegerExact();
+			BigInteger tmp = d.toBigIntegerExact().abs();
+			BigInteger gcd = denominator;
+			BigInteger t;
+			while (tmp.compareTo(BigInteger.valueOf(0)) > 0) {
+				t = numerator;
+				tmp = gcd.mod(tmp);
+				gcd = t;
+			}
+			numerator = numerator.divide(gcd);
+			denominator = denominator.divide(gcd);
+			result.numerator = numerator;
+			result.denominator = denominator;
+			assert new BigDecimal(result.numerator).divide(
+					new BigDecimal(result.denominator)).equals(
+					new BigDecimal(numberAsString));
 		}
 		return result;
 	}
