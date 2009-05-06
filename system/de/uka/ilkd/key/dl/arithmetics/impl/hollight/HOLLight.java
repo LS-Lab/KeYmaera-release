@@ -280,6 +280,8 @@ public class HOLLight implements IQuantifierEliminator, ISOSChecker {
 	 */
 	@Override
 	public boolean isConfigured() {
+//            System.out.println("HOLLight: ocaml " + Options.INSTANCE.getOcamlPath() + " " + Options.INSTANCE.getOcamlPath().isFile());
+//            System.out.println("HOLLight: path  " + Options.INSTANCE.getHollightPath() + " " + Options.INSTANCE.getHollightPath().exists());
 		return Options.INSTANCE.getOcamlPath().isFile()
 				&& Options.INSTANCE.getHollightPath().exists();
 	}
