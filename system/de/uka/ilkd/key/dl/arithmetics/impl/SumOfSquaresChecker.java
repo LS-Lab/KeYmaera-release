@@ -641,11 +641,11 @@ public class SumOfSquaresChecker implements ISOSChecker {
 				    fh.exactCoefficientComparisonBlock(blockSizes,
 				                                       monomialsInFH);
 				
-				System.out.println("rawEquations: " + rawEquations);
+//				System.out.println("rawEquations: " + rawEquations);
 
                                 final Vector rawExactHetero =
                                     genExactHetero(fh, nextG, monomialsInFH);
-                                System.out.println("Result vector is " + rawExactHetero);// XXX
+//                                System.out.println("Result vector is " + rawExactHetero);// XXX
 
                                 rawEquations.insertColumns(asMatrix(rawExactHetero));
 
@@ -677,8 +677,8 @@ public class SumOfSquaresChecker implements ISOSChecker {
                                      rawSmallEquations.dimensions()[0],
                                      rawSmallEquations.dimensions()[1]-1);
 
-                                System.out.println("exactHomo is " + exactHomo);
-                                System.out.println("exactHetero is " + exactHetero);
+//                                System.out.println("exactHomo is " + exactHomo);
+//                                System.out.println("exactHetero is " + exactHetero);
                                 
                                 // assert symmetry
                                 {
@@ -696,7 +696,7 @@ public class SumOfSquaresChecker implements ISOSChecker {
 				// Let's have CSDP do the hard work for us
 				
                                 final int[] piBlockSizes = Arrays.copyOf(blockSizes, prodsOfFs.size());
-				System.out.println("matrix block sizes: " + Arrays.toString(piBlockSizes));
+//				System.out.println("matrix block sizes: " + Arrays.toString(piBlockSizes));
 
 				final double[] homo = SparsePolynomial.toDoubleArray(exactHomo);
 				final double[] hetero = SparsePolynomial.toDoubleArray(asMatrix(exactHetero));
@@ -821,6 +821,8 @@ public class SumOfSquaresChecker implements ISOSChecker {
                     System.out.println(e.getMessage());
                     break PSDcheck;
                 }
+                
+                offset = offset + blockSize * blockSize;
             }
             
             // all blocks are positive semidefinite
