@@ -1,12 +1,9 @@
 package de.uka.ilkd.key.dl.arithmetics.impl.hollight;
 
-import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
-
-import sun.security.util.BigInt;
 
 import de.uka.ilkd.key.dl.arithmetics.impl.orbital.PolynomTool;
 import de.uka.ilkd.key.dl.arithmetics.impl.orbital.PolynomTool.BigFraction;
