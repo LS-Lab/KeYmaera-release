@@ -181,8 +181,11 @@ public class Term2HOLLightConverter {
 						+ convert2String(form.sub(1), nss, eliminateFractions)
 						+ ")";
 			} else if (f.name().toString().equals("div")) {
-				throw new UnsupportedOperationException(
-						"HOL Light does not support fractions");
+				return "("
+				+ convert2String(form.sub(0), nss, eliminateFractions)
+				+ " / "
+				+ convert2String(form.sub(1), nss, eliminateFractions)
+				+ ")";
 			} else if (f.name().toString().equals("exp")) {
 				return "("
 						+ convert2String(form.sub(0), nss, eliminateFractions)
