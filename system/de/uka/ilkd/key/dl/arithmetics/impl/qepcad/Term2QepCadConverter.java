@@ -1,11 +1,12 @@
 package de.uka.ilkd.key.dl.arithmetics.impl.qepcad;
 
-import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import de.uka.ilkd.key.dl.arithmetics.impl.orbital.PolynomTool;
+import de.uka.ilkd.key.dl.arithmetics.impl.orbital.PolynomTool.BigFraction;
 import de.uka.ilkd.key.logic.NamespaceSet;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.op.Function;
@@ -135,7 +136,7 @@ public class Term2QepCadConverter {
 							false);
 				}
 				return "[ " + convert2String(form.sub(0), nss, true) + " = "
-						+ convert2String(form.sub(1), nss, true) + " ]"; 
+						+ convert2String(form.sub(1), nss, true) + " ]";
 				// 2x EQUALS ?
 			} else if (f.name().toString().equals("neq")) {
 				if (eliminateFractions) {
@@ -202,33 +203,16 @@ public class Term2QepCadConverter {
 							eliminateFractions);
 				}
 				try {
-					BigDecimal d = new BigDecimal(form.op().name().toString());
-					try {
-						return String.valueOf(d.intValueExact());
-					} catch (ArithmeticException e) {
-						int denominator = 1;
-						BigDecimal ten = new BigDecimal(10);
-						while (d.intValue() < d.doubleValue()) {
-							denominator *= 10;
-							d = d.multiply(ten);
-						}
-
-						// calculate the greatest common divisor of the
-						// fraction
-						int numerator = d.intValueExact();
-						int tmp = numerator;
-						int gcd = denominator;
-						int t;
-						while (tmp > 0) {
-							t = numerator;
-							tmp = gcd % tmp;
-							gcd = t;
-						}
-						numerator = numerator / gcd;
-						denominator = denominator / gcd;
-						return "( " + numerator + " / " + denominator + " )";
+					String numberAsString = form.op().name().toString();
+					BigFraction frac = PolynomTool
+							.convertStringToFraction(numberAsString);
+					if (frac.getDenominator().equals(BigInteger.ONE)) {
+						return frac.getNumerator().toString();
+					} else {
+						return "( " + frac.getNumerator() + " / "
+								+ frac.getDenominator() + " )";
 					}
-				} catch (NumberFormatException e) {
+				} catch (NumberFormatException nfe) {
 					String name = form.op().name().toString();
 					if (name.contains("_")) {
 						name = name.replaceAll("_", USCOREESCAPE);

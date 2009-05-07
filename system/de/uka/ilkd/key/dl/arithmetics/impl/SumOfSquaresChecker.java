@@ -49,11 +49,14 @@ import de.uka.ilkd.key.dl.arithmetics.ISOSChecker;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ConnectionProblemException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ServerStatusProblemException;
 import de.uka.ilkd.key.dl.arithmetics.impl.csdp.CSDP;
+import de.uka.ilkd.key.dl.arithmetics.impl.groebnerianSOS.FractionisingEquationSolver;
 import de.uka.ilkd.key.dl.arithmetics.impl.csdp.CSDPInterface;
 import de.uka.ilkd.key.dl.arithmetics.impl.groebnerianSOS.GroebnerBasisChecker;
+import de.uka.ilkd.key.dl.arithmetics.impl.groebnerianSOS.PSDDecomposition;
 import de.uka.ilkd.key.dl.arithmetics.impl.groebnerianSOS.SparsePolynomial;
 import de.uka.ilkd.key.dl.arithmetics.impl.groebnerianSOS.GroebnerBasisChecker.SimpleMonomialIterator;
 import de.uka.ilkd.key.dl.arithmetics.impl.groebnerianSOS.GroebnerBasisChecker.Square;
+import de.uka.ilkd.key.dl.arithmetics.impl.groebnerianSOS.PSDDecomposition.NotPSDException;
 import de.uka.ilkd.key.dl.arithmetics.impl.orbital.OrbitalSimplifier;
 import de.uka.ilkd.key.dl.arithmetics.impl.orbital.PolynomTool;
 import de.uka.ilkd.key.dl.arithmetics.impl.sos.MaxPolynomPerDegreeOrder;
@@ -506,10 +509,11 @@ public class SumOfSquaresChecker implements ISOSChecker {
 				// in this step we construct the p_i as sparse polynomial and in
 				// the same iteration construct the resulting f polynomial by
 				// multiplication of the corresponding sumOfFs polynomial
-				List<SparsePolynomial> pis = new ArrayList<SparsePolynomial>();
-				ValueFactory vf = Values.getDefault();
-                                Arithmetic two = vf.rational(2);
+				final List<SparsePolynomial> pis = new ArrayList<SparsePolynomial>();
+				final ValueFactory vf = Values.getDefault();
+                                final Arithmetic two = vf.rational(2);
                                 SparsePolynomial nextF = new SparsePolynomial();
+                                
                                 System.out.println("prodsOfFs size: " + prodsOfFs.size());
                                 System.out.println("qMonomials size: " + qMonomials.size());
                                 System.out.println("qMonomials are: " + qMonomials);
@@ -517,13 +521,11 @@ public class SumOfSquaresChecker implements ISOSChecker {
                                 int currentParameter = 0;
                                 int totalMonomialNum = 0;
                                 
-                                int currentBlockOffset = 0;
                                 for (Polynomial nF : prodsOfFs) {
                                     SparsePolynomial s = new SparsePolynomial();
 
                                     List<Vector> consideredMonomials = new ArrayList<Vector>();
                                     for (Vector p : qMonomials) {
-                                        currentParameter = currentParameter + currentBlockOffset;
                                         consideredMonomials.add(p);
                                         for (int i = 0; i < consideredMonomials.size(); ++i) {
                                             final Arithmetic oldMono = consideredMonomials.get(i);
@@ -548,21 +550,23 @@ public class SumOfSquaresChecker implements ISOSChecker {
 
                                     pis.add(s);
                                     nextF = nextF.add(s.multiply(nF));
-                                    
-                                    currentBlockOffset = totalMonomialNum;
                                 }
                                 
-				final int piMonomialNum = totalMonomialNum;
+				final int piBlockSize = qMonomials.size();
 
 				System.out.println("nextF is " + nextF);// XXX
 
 				//////////////////////////////////////////////////////////////////////////
-				// the next step is to construct all those parametric
-				// polynomials q_i (one per h in classify.h)
+				// The next step is to construct all those parametric
+				// polynomials q_i (one per h in classify.h). We
+				// put all the parameters/coefficients in a further
+				// block of the constructed block matrix
 
 				SparsePolynomial nextH = new SparsePolynomial();
 				
-				int lastTopParameter = currentParameter;
+				int blockRow = 0;
+				int blockColumn = 0;
+
                                 for (Polynomial hPoly : classify.h) {
                                     System.out.println("h-polynomial: " + hPoly);
                                     
@@ -570,12 +574,11 @@ public class SumOfSquaresChecker implements ISOSChecker {
                                     final SimpleMonomialIterator monomialIt =
                                         new SimpleMonomialIterator(one.rank(),
                                                                    Math.max(nextG.degreeValue(), d));
-                                    
+
                                     while (monomialIt.hasNext()) {
                                         final Vector monoExp = monomialIt.next();
-                                        final boolean diagonal =
-                                            (currentParameter == lastTopParameter + totalMonomialNum);
-
+                                        final boolean diagonal = (blockRow == blockColumn);
+                                        
                                         final Polynomial mono;
                                         if (diagonal)
                                             mono = vf.MONOMIAL(monoExp);
@@ -586,21 +589,31 @@ public class SumOfSquaresChecker implements ISOSChecker {
                                         
                                         currentParameter = currentParameter + 1;
                                         if (diagonal) {
-                                            lastTopParameter = currentParameter;
-                                            totalMonomialNum = totalMonomialNum + 1;
+                                            blockColumn = blockColumn + 1;
+                                            blockRow = 0;
+                                        } else {
+                                            blockRow = blockRow + 1;
                                         }
                                     }
 
                                     nextH = nextH.add(s.multiply(hPoly));
                                 }
 
-                                // we might already have filled a further column
-                                // halfway
+                                /*
                                 final int bigMatrixSize;
                                 if (lastTopParameter == currentParameter)
                                     bigMatrixSize = totalMonomialNum;
                                 else
                                     bigMatrixSize = totalMonomialNum + 1;
+                                */
+                                
+                                // we might already have filled a further column
+                                // halfway
+                                final int qiBlockSize;
+                                if (blockRow == 0)
+                                    qiBlockSize = blockColumn;
+                                else
+                                    qiBlockSize = blockColumn + 1;
                                 
                                 System.out.println("nextH is " + nextH);
 				
@@ -617,8 +630,16 @@ public class SumOfSquaresChecker implements ISOSChecker {
 				// as part of the qi's, because they are not supposed to
 				// satisfy semi-definiteness)
 				
-				final Matrix rawEquations =
-				    fh.exactCoefficientComparison(bigMatrixSize, new BitSet());
+                                // the blocks of the resulting block matrix (one
+                                // for each f polynomial coefficient)
+                                final int[] blockSizes = new int [prodsOfFs.size() + 1];
+                                Arrays.fill(blockSizes, piBlockSize);
+                                blockSizes[prodsOfFs.size()] = qiBlockSize;
+                                System.out.println("blockSizes: " + Arrays.toString(blockSizes));
+
+                                final Matrix rawEquations =
+				    fh.exactCoefficientComparisonBlock(blockSizes,
+				                                       monomialsInFH);
 				
 //				System.out.println("rawEquations: " + rawEquations);
 
@@ -630,64 +651,75 @@ public class SumOfSquaresChecker implements ISOSChecker {
 
                                 final Matrix rawSmallEquations;
 
-                                if (piMonomialNum == bigMatrixSize) {
+                                if (qiBlockSize == 0) {
                                     rawSmallEquations = rawEquations;
                                 } else {
                                     // determine the columns that we have to eliminate
                                     final BitSet colsToEliminate = new BitSet ();
-                                    for (int i = piMonomialNum; i < bigMatrixSize; ++i)
-                                        for (int j = 0; j <= i; ++j) {
-                                            colsToEliminate.set(j*bigMatrixSize + i);
-                                            colsToEliminate.set(i*bigMatrixSize + j);
-                                        }
-                                
+                                    final int lastBlockLength = qiBlockSize * qiBlockSize;
+                                    final int colNum = rawEquations.dimensions()[1] - 1;
+                                    colsToEliminate.set(colNum - lastBlockLength, colNum);
+                                    
                                     rawSmallEquations =
                                         project(rawEquations, colsToEliminate);
                                 }
                                 
                                 assert rawSmallEquations.dimensions()[1] ==
-                                             piMonomialNum*piMonomialNum + 1;
+                                    prodsOfFs.size()*piBlockSize*piBlockSize + 1;
                                 
                                 final Vector exactHetero =
-                                    rawSmallEquations.getColumn(piMonomialNum*piMonomialNum);
+                                    rawSmallEquations.getColumn(rawSmallEquations.dimensions()[1]-1);
                                 final Matrix exactHomo =
                                     vf.newInstance(rawSmallEquations.dimensions()[0],
-                                                   piMonomialNum*piMonomialNum);
+                                                   rawSmallEquations.dimensions()[1]-1);
                                 copy(rawSmallEquations, exactHomo,
                                      0, 0, 0, 0,
                                      rawSmallEquations.dimensions()[0],
-                                     piMonomialNum*piMonomialNum);
+                                     rawSmallEquations.dimensions()[1]-1);
 
 //                                System.out.println("exactHomo is " + exactHomo);
 //                                System.out.println("exactHetero is " + exactHetero);
                                 
                                 // assert symmetry
-                                for (int i = 0; i < piMonomialNum; ++i)
-                                    for (int j = 0; j < piMonomialNum; ++j)
-                                        assert exactHomo.getColumn(i*piMonomialNum + j).equals(
-                                               exactHomo.getColumn(j*piMonomialNum + i));
+                                {
+                                    int offset = 0;
+                                    while (offset < exactHomo.dimensions()[1]) {
+                                        for (int i = 0; i < piBlockSize; ++i)
+                                            for (int j = 0; j < i; ++j)
+                                                assert exactHomo.getColumn(offset + i*piBlockSize + j).equals(
+                                                       exactHomo.getColumn(offset + j*piBlockSize + i));
+                                        offset = offset + piBlockSize * piBlockSize;
+                                    }
+                                }
 
                                 ////////////////////////////////////////////////////////////////////////////
 				// Let's have CSDP do the hard work for us
 				
-				final int matrixSize = piMonomialNum;
-				System.out.println("matrix size: " + matrixSize);
+                                final int[] piBlockSizes = Arrays.copyOf(blockSizes, prodsOfFs.size());
+//				System.out.println("matrix block sizes: " + Arrays.toString(piBlockSizes));
 
 				final double[] homo = SparsePolynomial.toDoubleArray(exactHomo);
 				final double[] hetero = SparsePolynomial.toDoubleArray(asMatrix(exactHetero));
 				
 				final double[] approxSolution =
-				    new double[matrixSize * matrixSize];
+				    new double[prodsOfFs.size()*piBlockSize*piBlockSize];
 
-				int sdpRes =
-				// CSDP.robustSdp(monoNum, reducedPoly.size(), hetero, homo,
-				// approxSolution);
-				CSDPInterface.sdp(matrixSize, homo, hetero, approxSolution);
+				final int sdpRes =
+				    CSDPInterface.sdp(piBlockSizes, homo, hetero, approxSolution);
 
 				if (sdpRes == 0 || sdpRes == 3) {
 					System.out.println("Found an approximate solution!");
 					System.out.println(Arrays.toString(approxSolution));
-
+					
+					final Vector exactSolution =
+					    approx2Exact(piBlockSizes, approxSolution, exactHomo, exactHetero);
+					
+					if (exactSolution != null) {
+					    System.out.println("Found an exact solution");
+					    return true;
+					}
+					
+/*
 					final List<Arithmetic> consideredMonomials =
 					    convertToMonomList(qMonomials, prodsOfFs.size());
                                             final Square[] cert =
@@ -715,7 +747,7 @@ public class SumOfSquaresChecker implements ISOSChecker {
 						System.out.println(" " + p);
 						System.out.println("Certificate is correct");
 						return true;
-					}
+					} */
 				} else {
 					System.out.println("No solution");
 				}
@@ -726,6 +758,119 @@ public class SumOfSquaresChecker implements ISOSChecker {
 
 		return false;
 	}
+
+    private static Vector approx2Exact(int[] blockSizes,
+                                       double[] approxSolution,
+                                       Matrix exactHomo,
+                                       Vector sideConditionRhs) {
+        final ValueFactory vf = Values.getDefault();
+
+        // we add further constraints to ensure that the found solution
+        // is a symmetric matrix
+        exactHomo.insertRows(symmetryConstraints(blockSizes));
+
+        System.out.println("sideConstraintRhss: " + sideConditionRhs);// XXX
+        final Vector exactHetero = vf.newInstance(exactHomo.dimensions()[0]);
+        for (int i = 0; i < exactHetero.dimension(); ++i) {
+            if (i < sideConditionRhs.dimension()) {
+                exactHetero.set(i, sideConditionRhs.get(i));
+            } else {
+                exactHetero.set(i, vf.valueOf(0));
+            }
+        }
+        System.out.println("hetero exact: " + exactHetero);// XXX
+        double eps = 1;
+
+        while (eps > 1e-6) {
+            System.out.println();
+            System.out.println("Trying eps: " + eps);
+
+            final Vector exactSolution =
+                new FractionisingEquationSolver(exactHomo, exactHetero, approxSolution,
+                                                eps).exactSolution;
+            System.out.println("Exact solution candidate: " + exactSolution);
+
+            assert (exactHomo.multiply(exactSolution).equals(exactHetero));
+
+            System.out.println("Difference to approx solution:");
+            System.out.println(exactSolution.subtract(vf.valueOf(approxSolution)));
+
+            // check that the solution is positive semi-definite
+            // we check each of the matrix blocks independently
+            
+            PSDcheck: {
+                
+            int offset = 0;
+            for (int blockSize : blockSizes) {
+                final Matrix solutionMatrix = vf.newInstance(blockSize, blockSize);
+                for (int i = 0; i < blockSize; ++i)
+                    for (int j = 0; j < blockSize; ++j)
+                        solutionMatrix.set(i, j, exactSolution.get(offset + i * blockSize + j));
+                
+                System.out.println("checking block: " + solutionMatrix);
+                
+                try {
+                    final PSDDecomposition dec = new PSDDecomposition(solutionMatrix);
+                    System.out.println("Block is positive semi-definite");
+                    System.out.println("T-matrix:");
+                    System.out.println(dec.T);
+                    System.out.println("D-matrix:");
+                    System.out.println(dec.D);
+                    // TODO: generate a real certificate and check it
+                } catch (NotPSDException e) {
+                    System.out.println(e.getMessage());
+                    break PSDcheck;
+                }
+                
+                offset = offset + blockSize * blockSize;
+            }
+            
+            // all blocks are positive semidefinite
+            return exactSolution;
+            }
+
+            eps = eps / 10;
+        }
+
+        return null;
+    }
+
+    private static Matrix symmetryConstraints(int[] blockSizes) {
+        final ValueFactory vf = Values.getDefault();
+
+        final Arithmetic one = vf.ONE();
+        final Arithmetic minus_one = one.minus();
+
+        int height = 0;
+        int width = 0;
+        for (int blockSize : blockSizes) {
+            height = height + blockSize * (blockSize - 1) / 2;
+            width = width + blockSize * blockSize;
+        }
+        
+        if (height == 0)
+            // just return a zero-matrix so that we don't have to come back
+            // empty-handed
+            return vf.ZERO(1, width);
+
+        final Matrix res = vf.ZERO(height, width);
+
+        // generate the constraints
+        int row = 0;
+        int offset = 0;
+        for (int blockSize : blockSizes) {
+            for (int i = 1; i < blockSize; ++i)
+                for (int j = 0; j < i; ++j) {
+                    res.set(row, offset + i * blockSize + j, one);
+                    res.set(row, offset + j * blockSize + i, minus_one);
+                    row = row + 1;
+                }
+            offset = offset + blockSize * blockSize;
+        }
+
+        assert (row == height);
+        return res;
+    }
 
     private static Vector genExactHetero(SparsePolynomial fh, Polynomial nextG,
                                   List<Arithmetic> monomialsInFH) {
@@ -784,14 +929,6 @@ public class SumOfSquaresChecker implements ISOSChecker {
         // new int[one.rank()]);
         // assert zeroMonomial.equals(zeroMonomial.zero()) : "Not 0 "
         // + zeroMonomial;
-        if (!monomialsInFH.isEmpty()) {
-        	Arithmetic zero = monomialsInFH.get(0).zero();
-        	// we remove the zero and readd it in the first place as
-        	// this corresponds to the order provided by
-        	// SparsePolynomial.coefficientComparision()
-        	monomialsInFH.remove(zero);
-        	monomialsInFH.add(0, zero);
-        }
 
         Iterator<KeyValuePair> monomials = nextG.monomials();
         int mononum = monomialsInFH.size();

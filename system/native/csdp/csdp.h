@@ -10,10 +10,10 @@ extern "C" {
 /*
  * Class:     de_uka_ilkd_key_dl_arithmetics_impl_csdp_CSDP
  * Method:    easySDP
- * Signature: (II[D[D[DD[D[D[D[D[D)I
+ * Signature: ([II[D[D[DD[D[D[D[D[D)I
  */
 JNIEXPORT jint JNICALL Java_de_uka_ilkd_key_dl_arithmetics_impl_csdp_CSDP_easySDP
-  (JNIEnv *, jclass, jint, jint, jdoubleArray, jdoubleArray, jdoubleArray, jdouble, jdoubleArray, jdoubleArray, jdoubleArray, jdoubleArray, jdoubleArray);
+  (JNIEnv *, jclass, jintArray, jint, jdoubleArray, jdoubleArray, jdoubleArray, jdouble, jdoubleArray, jdoubleArray, jdoubleArray, jdoubleArray, jdoubleArray);
 
 /*
  * Class:     de_uka_ilkd_key_dl_arithmetics_impl_csdp_CSDP

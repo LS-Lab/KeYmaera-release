@@ -29,9 +29,7 @@ import java.beans.SimpleBeanInfo;
 import java.util.ArrayList;
 
 import orbital.awt.TaggedPropertyEditorSupport;
-
 import de.uka.ilkd.key.dl.arithmetics.impl.hollight.Options.QuantifierEliminationMethod;
-import de.uka.ilkd.key.dl.arithmetics.impl.reduce.Options.ReduceSwitch;
 import de.uka.ilkd.key.dl.options.DirectoryPropertyEditor;
 import de.uka.ilkd.key.dl.options.FilePropertyEditor;
 

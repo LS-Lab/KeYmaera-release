@@ -30,6 +30,104 @@ import de.uka.ilkd.key.dl.options.DLOptionBean;
  * @author jdq TODO Documentation since 05.05.2009
  */
 public class CSDPInterface {
+
+	private static boolean ASSERTIONS = false;
+	static {
+		boolean test = false;
+		assert test = true;
+		if(test) {
+			ASSERTIONS = true;
+		}
+	}
+
+	/**
+	 * Input Parameters:
+	 * 
+	 * @param blockSizes
+	 *            array containing the sizes of the individual blocks of the X,
+	 *            C, and Z matrices.
+	 * @param k
+	 *            gives the number of constraints.
+	 * @param blockmatrixC
+	 *            gives the C matrix and implicitly defines the block structure
+	 *            of the block diagonal matrices.
+	 * @param a
+	 *            gives the right hand side vector a.
+	 * @param constraints
+	 *            specifies the problem constraints.
+	 * @param constant_offset
+	 *            This scalar is added to the primal and dual objective values.
+	 * 
+	 * 
+	 * @param blockmatrixpX
+	 *            On input, this parameter gives the initial primal solution X.
+	 *            On output, it gives the optimal primal solution X
+	 * @param py
+	 *            On input, this parameter gives the initial dual solution y. On
+	 *            output, it gives the optimal dual solution y
+	 * @param blockmatrixpZ
+	 *            On input, this parameter gives the initial dual solution Z. On
+	 *            output, it gives the optimal dual solution Z
+	 * @param ppobj
+	 *            gives the optimal primal objective value
+	 * @param pdobj
+	 *            gives the optimal dual objective value
+	 * @return <ul>
+	 *         <li>0: Success. Problem is solvable
+	 *         <li>1: Success. The problem is primal infeasible.
+	 *         <li>2: Success. The problem is dual infeasible.
+	 *         <li>3: Partial Success: A solution has been found, but full
+	 *         accuracy was not achieved. One or more of primal infeasibility,
+	 *         dual infeasibility, or relative duality gap are larger than their
+	 *         tolerances, but by a factor of less than 1000.
+	 *         <li>4: Failure. Maximum iterations reached.
+	 *         <li>5: Failure. Stuck at edge of primal feasibility.
+	 *         <li>6: Failure. Stuck at edge of dual infeasibility.
+	 *         <li>7: Failure. Lack of progress.
+	 *         <li>8: Failure. X, Z, or O was singular.
+	 *         <li>9: Failure. Detected NaN or Inf values.
+	 *         </ul>
+	 */
+	private static int easySDP(int[] blockSizes, int k, double[] blockmatrixC,
+			double[] a, double[] constraints, double constant_offset,
+			double[] blockmatrixpX, double[] py, double[] blockmatrixpZ,
+			double[] ppobj, double[] pdobj) {
+		// if (DLOptionBean.INSTANCE.isCsdpForceInternal()) {
+		try {
+			System.loadLibrary("csdp");
+			double[] clone = blockmatrixpX.clone();
+			if (ASSERTIONS) {
+				int res = CSDP.easySDP(blockSizes, k, blockmatrixC.clone(), a
+						.clone(), constraints.clone(), constant_offset, clone,
+						py.clone(), blockmatrixpZ.clone(), ppobj.clone(), pdobj
+								.clone());
+				int res2 = CSDPBinaryInterface.easySDP(blockSizes, k,
+						blockmatrixC, a, constraints, constant_offset,
+						blockmatrixpX, py, blockmatrixpZ, ppobj, pdobj);
+				assert res == res2;
+				assert (res != 0 && res != 3)
+						|| Arrays.equals(clone, blockmatrixpX) : "Array "
+						+ Arrays.toString(clone) + "\n is not equal to \n"
+						+ Arrays.toString(blockmatrixpX);
+				return res;
+			} else {
+				if (DLOptionBean.INSTANCE.isCsdpForceInternal()) {
+					return CSDP.easySDP(blockSizes, k,
+							blockmatrixC, a, constraints, constant_offset,
+							blockmatrixpX, py, blockmatrixpZ, ppobj, pdobj);
+				} else {
+					return CSDPBinaryInterface.easySDP(blockSizes, k,
+							blockmatrixC, a, constraints, constant_offset,
+							blockmatrixpX, py, blockmatrixpZ, ppobj, pdobj);
+				}
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		throw new IllegalStateException("No csdp available");
+	}
+
 	private static final double BIG_EPS = 0.00001;
 
 	private static boolean isAlmostNothing(double x) {
@@ -46,49 +144,34 @@ public class CSDPInterface {
 	 */
 	private static int easiestSDP(int matrixSize, double[] constraints,
 			double[] constraintRhs, double[] solution, double[] goal) {
-		assert (solution.length == matrixSize * matrixSize && goal.length == matrixSize
-				* matrixSize);
-		final int constraintNum = constraints.length
-				/ (matrixSize * matrixSize);
+		return easiestSDP(new int[] { matrixSize }, constraints, constraintRhs,
+				solution, goal);
+	}
+
+	private static int easiestSDP(int[] blockSizes, double[] constraints,
+			double[] constraintRhs, double[] solution, double[] goal) {
+		final int matrixLength = matrixLength(blockSizes);
+		assert (solution.length == matrixLength && goal.length == matrixLength);
+		final int constraintNum = constraints.length / matrixLength;
 		final double[] y = new double[constraintRhs.length];
-		final double[] Z = emptyGoal(matrixSize);
-		final double[] pobj = new double[matrixSize];
+		final double[] Z = new double[matrixLength];
+		final double[] pobj = new double[matrixSize(blockSizes)];
 		final double[] dobj = new double[constraintRhs.length];
 
-		// not sure whether this helps
-		Arrays.fill(y, 0.1);
-		Arrays.fill(Z, 0.1);
-
-		if (DLOptionBean.INSTANCE.isCsdpForceInternal()) {
-			try {
-				System.loadLibrary("csdp");
-				return CSDP.easySDP(matrixSize, constraintNum, goal,
-						constraintRhs, constraints, 0, solution, y, Z, pobj,
-						dobj);
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		} else {
-			try {
-				return CSDPBinaryInterface.easySDP(matrixSize, constraintNum,
-						goal, constraintRhs, constraints, 0, solution, y, Z,
-						pobj, dobj);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-		throw new IllegalStateException("No csdp available");
-
+		return easySDP(blockSizes, constraintNum, goal, constraintRhs,
+				constraints, 0, solution, y, Z, pobj, dobj);
 	}
 
 	public static int sdp(int matrixSize, double[] constraints,
 			double[] constraintRhs, double[] solution) {
-
-		Arrays.fill(solution, 0.1);
-
 		return easiestSDP(matrixSize, makeTriangular(constraints, matrixSize),
 				constraintRhs, solution, diaGoal(matrixSize));
+	}
+
+	public static int sdp(int[] blockSizes, double[] constraints,
+			double[] constraintRhs, double[] solution) {
+		return easiestSDP(blockSizes, makeTriangular(constraints, blockSizes),
+				constraintRhs, solution, diaGoal(blockSizes));
 	}
 
 	private static double[] emptyGoal(int matrixSize) {
@@ -102,10 +185,17 @@ public class CSDPInterface {
 	 * diagonal
 	 */
 	private static double[] diaGoal(int matrixSize) {
-		final double[] res = new double[matrixSize * matrixSize];
-		Arrays.fill(res, 0.0);
-		for (int i = 0; i < res.length; i = i + matrixSize + 1)
-			res[i] = -1.0;
+		return diaGoal(new int[] { matrixSize });
+	}
+
+	private static double[] diaGoal(int[] blockSizes) {
+		final double[] res = new double[matrixLength(blockSizes)];
+		int offset = 0;
+		for (int blockSize : blockSizes) {
+			for (int i = 0; i < blockSize * blockSize; i = i + blockSize + 1)
+				res[offset + i] = -1.0;
+			offset = offset + blockSize * blockSize;
+		}
 		return res;
 	}
 
@@ -360,13 +450,36 @@ public class CSDPInterface {
 	// make sure that the constraints are given as upper triangular
 	// matrices
 	private static double[] makeTriangular(double[] constraints, int n) {
-		int k = constraints.length / (n * n);
+		return makeTriangular(constraints, new int[] { n });
+	}
+
+	private static double[] makeTriangular(double[] constraints,
+			int[] blockSizes) {
 		final double[] inpConstraints = constraints.clone();
-		for (int i = 0; i < n; ++i)
-			for (int j = 0; j < i; ++j)
-				for (int l = 0; l < k; ++l)
-					inpConstraints[l * n * n + i * n + j] = 0.0;
+		int offset = 0;
+		while (offset < constraints.length) {
+			for (int blockSize : blockSizes) {
+				for (int i = 0; i < blockSize; ++i)
+					for (int j = 0; j < i; ++j)
+						inpConstraints[offset + i * blockSize + j] = 0.0;
+				offset = offset + blockSize * blockSize;
+			}
+		}
 		return inpConstraints;
+	}
+
+	private static int matrixLength(int[] blockSizes) {
+		int res = 0;
+		for (int i = 0; i < blockSizes.length; ++i)
+			res = res + blockSizes[i] * blockSizes[i];
+		return res;
+	}
+
+	private static int matrixSize(int[] blockSizes) {
+		int res = 0;
+		for (int i = 0; i < blockSizes.length; ++i)
+			res = res + blockSizes[i];
+		return res;
 	}
 
 	public static int robustSdp(int n, int k, double[] a, double[] constraints,
@@ -422,4 +535,5 @@ public class CSDPInterface {
 		for (int i = 0; i < ar.length; ++i)
 			ar[i] = random.nextDouble() - 0.5;
 	}
+
 }

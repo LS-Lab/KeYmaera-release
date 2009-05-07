@@ -191,7 +191,7 @@ public class TermFactoryImpl extends TermFactory {
 				getNamespaces().variables().add(logicVar);
 			}
 			if (logicVar != null) {
-				assert getNamespaces().programVariables().lookup(logicVar.name()) == null;
+				assert getNamespaces().programVariables().lookup(logicVar.name()) == null : "Namespace lookup for " + logicVar.name() + " succeeds in program variables " + getNamespaces().programVariables();
 				if (logicVar instanceof LogicVariable) {
 					return LogicalVariableImpl.getLogicalVariable(logicVar.name());
 				} else if (logicVar instanceof Metavariable) {

@@ -19,7 +19,6 @@
  ***************************************************************************/
 package de.uka.ilkd.key.dl.arithmetics.impl.csdp;
 
-import java.io.BufferedOutputStream;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
@@ -27,9 +26,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.io.StreamTokenizer;
 import java.util.Arrays;
 import java.util.Scanner;
 
@@ -89,59 +86,69 @@ public class CSDPBinaryInterface {
 	 * @throws IOException
 	 *             if there is a problem creating temporary files
 	 */
-	public static int easySDP(int n, int k, double[] blockmatrixC, double[] a,
-			double[] constraints, double constant_offset,
+	public static int easySDP(int[] blocksizes, int k, double[] blockmatrixC,
+			double[] a, double[] constraints, double constant_offset,
 			double[] blockmatrixpX, double[] py, double[] blockmatrixpZ,
 			double[] ppobj, double[] pdobj) throws IOException {
-		int Cnblocks = 1;
-		File tempFile = File.createTempFile("keymaera-csdp", ".dat-s");
+		final File tempFile = File.createTempFile("keymaera-csdp", ".dat-s");
 		tempFile.deleteOnExit();
 		System.out.println("Writing to " + tempFile.getAbsolutePath());// XXX
-		PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(
-				tempFile)));
+		final PrintWriter writer = new PrintWriter(new BufferedWriter(
+				new FileWriter(tempFile)));
 		writer.printf("%d \n", k);
-		writer.printf("%d \n", Cnblocks); // number of blocks in C
-		// in our case we always use MATRIX with one block
-		writer.printf("%d \n", n);
+		writer.printf("%d \n", blocksizes.length);
+		for (int i = 0; i < blocksizes.length; i++) {
+			writer.printf("%d ", blocksizes[i]);
+		}
+		writer.printf("\n");
 		assert a.length == k;
 		for (int i = 0; i < k; i++) {
 			writer.printf("%.18e ", a[i]);
 		}
 		writer.write("\n");
-		for (int blk = 1; blk <= Cnblocks; blk++) {
-			for (int i = 1; i <= n; i++) {
-				for (int j = i; j <= n; j++) {
-					double token = blockmatrixC[ijtok(i, j, n)];
+		int offset = 0;
+		for (int blk = 1; blk <= blocksizes.length; blk++) {
+			int blkSize = blocksizes[blk - 1];
+			for (int i = 1; i <= blkSize; i++) {
+				for (int j = i; j <= blkSize; j++) {
+					final double token = blockmatrixC[ijtok(i, j, blkSize)
+							+ offset];
 					if (token != 0) {
 						writer.printf("0 %d %d %d %.18e \n", blk, i, j, token);
 					}
 				}
 			}
+			offset += blkSize * blkSize;
 		}
+		offset = 0;
 		for (int i = 0; i < k; i++) {
-			for (int j = i * n * n; j < (i + 1) * n * n; j++) {
-				double value = constraints[j];
-				// System.out.println(constraints.length + ": " + "constraint["
-				// + j + "] = " + value);
-				if (value != 0) {
-					// the 1 is the block number
-					writer.printf("%d %d %d %d %.18e \n", i + 1, 1, (j - i * n
-							* n)
-							/ n + 1, (j - i * n * n) % n + 1, value);
+			for (int blk = 1; blk <= blocksizes.length; blk++) {
+				int curBlockMatSize = blocksizes[blk - 1] * blocksizes[blk - 1];
+				for (int j = 0; j < curBlockMatSize; j++) {
+					final double value = constraints[j + offset];
+					// System.out.println(constraints.length + ": " +
+					// "constraint["
+					// + j + "] = " + value);
+					if (value != 0) {
+						writer.printf("%d %d %d %d %.18e \n", i + 1, blk, j
+								/ blocksizes[blk - 1] + 1, j
+								% blocksizes[blk - 1] + 1, value);
+					}
 				}
+				offset += curBlockMatSize;
 			}
 		}
 		writer.flush();
 		writer.close();
-		File output = File.createTempFile("keymaera-csdp-output", ".sol");
+		final File output = File.createTempFile("keymaera-csdp-output", ".sol");
 		output.deleteOnExit();
-		ProcessBuilder pb = new ProcessBuilder(DLOptionBean.INSTANCE
+		final ProcessBuilder pb = new ProcessBuilder(DLOptionBean.INSTANCE
 				.getCsdpBinary().getAbsolutePath(), tempFile.getAbsolutePath(),
 				output.getAbsolutePath());
-		Process start = pb.start();
+		final Process start = pb.start();
 
-		InputStream inputStream = start.getInputStream();
-		InputStreamReader reader = new InputStreamReader(inputStream);
+		final InputStream inputStream = start.getInputStream();
+		final InputStreamReader reader = new InputStreamReader(inputStream);
 		int read = 0;
 		while ((read = reader.read()) != -1) {
 			System.out.print((char) read);
@@ -153,8 +160,8 @@ public class CSDPBinaryInterface {
 			e.printStackTrace();
 		}
 		if (start.exitValue() == 0 || start.exitValue() == 3) {
-			FileReader fReader = new FileReader(output);
-			Scanner stok = new Scanner(fReader);
+			final FileReader fReader = new FileReader(output);
+			final Scanner stok = new Scanner(fReader);
 			Arrays.fill(blockmatrixpX, 0);
 			Arrays.fill(blockmatrixpZ, 0);
 
@@ -172,27 +179,10 @@ public class CSDPBinaryInterface {
 			while (stok.hasNext()) {
 				int matrixNumber = -1;
 				matrixNumber = (int) Integer.parseInt(stok.next());
-				int blockNum = Integer.parseInt(stok.next());
-				assert blockNum == 1 : "We can only handle result matrices with one block per matrix.";
-				int i = (int) Integer.parseInt(stok.next());
-				int j = (int) Integer.parseInt(stok.next());
 				if (matrixNumber == 1) {
-					String next = stok.next();
-					double value = Double.parseDouble(next);
-					blockmatrixpZ[ijtok(i, j, n)] = value;
-					if(i!=j) {
-						blockmatrixpZ[ijtok(j, i, n)] = value;	
-					}
+					addLineToMatrix(blockmatrixpZ, blocksizes, stok);
 				} else if (matrixNumber == 2) {
-					String next = stok.next();
-					double value = Double.parseDouble(next);
-					System.out.println("Next is " + next + " gets parsed to " + value);
-					System.out.println("(" + i + ", " + j + ", " + n + ") = " + (ijtok(i, j, n)));
-					blockmatrixpX[ijtok(i, j, n)] = value;
-					if(i!=j) {
-						// fill the other triangle as the input is a sparse format for a diagonal matrix
-						blockmatrixpX[ijtok(j, i, n)] = value;
-					}
+					addLineToMatrix(blockmatrixpX, blocksizes, stok);
 				} else {
 					throw new IllegalArgumentException(
 							"Dont know how to interpret matrix number "
@@ -200,9 +190,33 @@ public class CSDPBinaryInterface {
 				}
 			}
 			fReader.close();
-			
+
 		}
 		return start.exitValue();
+	}
+
+	/**
+	 * @param mat
+	 * @param stok
+	 *            TODO documentation since 06.05.2009
+	 */
+	private static void addLineToMatrix(double[] mat, int[] blocksizes,
+			Scanner stok) {
+		final int blockNum = Integer.parseInt(stok.next());
+		final int i = (int) Integer.parseInt(stok.next());
+		final int j = (int) Integer.parseInt(stok.next());
+		final String next = stok.next();
+		final double value = Double.parseDouble(next);
+		int offset = 0;
+		for (int off = 0; off < blockNum - 1; off++) {
+			offset += blocksizes[off] * blocksizes[off];
+		}
+		mat[ijtok(i, j, blocksizes[blockNum - 1]) + offset] = value;
+		if (i != j) {
+			// fill the other triangle as the input is a sparse
+			// format for a diagonal matrix
+			mat[ijtok(j, i, blocksizes[blockNum - 1]) + offset] = value;
+		}
 	}
 
 	/**
