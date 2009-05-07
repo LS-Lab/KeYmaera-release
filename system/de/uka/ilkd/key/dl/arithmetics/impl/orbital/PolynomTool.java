@@ -21,25 +21,20 @@ package de.uka.ilkd.key.dl.arithmetics.impl.orbital;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 
 import orbital.math.Arithmetic;
 import orbital.math.Fraction;
 import orbital.math.Integer;
 import orbital.math.Polynomial;
-import orbital.math.Real;
 import orbital.math.Values;
 import orbital.math.Vector;
 import orbital.math.functional.Operations;
 import orbital.util.KeyValuePair;
-import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
-import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
 import de.uka.ilkd.key.dl.formulatools.collector.AllCollector;
 import de.uka.ilkd.key.dl.formulatools.collector.FilterVariableSet;
 import de.uka.ilkd.key.dl.formulatools.collector.FoundItem;
@@ -57,7 +52,6 @@ import de.uka.ilkd.key.dl.model.Mult;
 import de.uka.ilkd.key.dl.model.Plus;
 import de.uka.ilkd.key.dl.model.Unequals;
 import de.uka.ilkd.key.dl.parser.NumberCache;
-import de.uka.ilkd.key.gui.Main;
 import de.uka.ilkd.key.logic.NamespaceSet;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.TermBuilder;
@@ -110,6 +104,25 @@ public abstract class PolynomTool {
 				} else if (sub.op().equals(RealLDT.getFunctionFor(Mult.class))) {
 					return p.multiply(q);
 				} else if (sub.op().equals(RealLDT.getFunctionFor(Div.class))) {
+					try {
+						if (p.denominator().isOne() && q.denominator().isOne()) {
+							BigInteger pInt = new BigInteger(p.numerator()
+									.toString());
+							BigInteger qInt = new BigInteger(q.numerator()
+									.toString());
+							int[] size = new int[variables.size()];
+							return Values.getDefault().fraction(
+									Values.getDefault().MONOMIAL(
+											Values.getDefault().rational(
+													Values.getDefault()
+															.valueOf(pInt),
+													Values.getDefault()
+															.valueOf(qInt)).representative(),
+											size),
+									Values.getDefault().MONOMIAL(size).one());
+						}
+					} catch (Exception e) {
+					}
 					return (Fraction) p.divide(q);
 				} else if (sub.op().equals(RealLDT.getFunctionFor(Exp.class))) {
 					try {
@@ -198,10 +211,10 @@ public abstract class PolynomTool {
 				new BigDecimal(0), r));
 
 		Term leftDenominator = null;
+		Polynomial leftPoly = (Polynomial) leftHandSide.numerator();
 		if (!leftHandSide.denominator().isOne()) {
 			leftDenominator = convertPolynomToTerm((Polynomial) leftHandSide
 					.denominator(), varList, variables, nss);
-
 			// cross-multiply with the denominators
 			// System.out.println("Now calculating " + rightHandSide + " * "
 			// + leftHandSide.denominator());// XXX
@@ -209,26 +222,21 @@ public abstract class PolynomTool {
 			// + leftHandSide.denominator().getClass());// XXX
 			// System.out.println("right is of type " +
 			// rightHandSide.getClass());// XXX
-			if (!leftHandSide.denominator().isOne()) {
-				rightHandSide = (Fraction) rightHandSide.multiply(Values
-						.getDefault().fraction(leftHandSide.denominator(),
-								leftHandSide.denominator().one()));
-			}
+			rightHandSide = (Fraction) rightHandSide.multiply(Values
+					.getDefault().fraction(leftHandSide.denominator(),
+							leftHandSide.denominator().one()));
 		}
-
-		Polynomial leftPoly = (Polynomial) leftHandSide.numerator();
 
 		// add terms stating that the denominators are unequal to zero
 		Term rightDenominator = null;
+		Polynomial rightPoly = (Polynomial) rightHandSide.numerator();
 		if (!rightHandSide.denominator().isOne()) {
 			rightDenominator = convertPolynomToTerm((Polynomial) rightHandSide
 					.denominator(), varList, variables, nss);
 			// cross-multiply with the denominators
-			leftPoly = (Polynomial) leftPoly.multiply(rightHandSide
+			rightPoly = (Polynomial) rightPoly.multiply(rightHandSide
 					.denominator());
 		}
-
-		Polynomial rightPoly = (Polynomial) rightHandSide.numerator();
 
 		// recalculate term structure
 		Term left = convertPolynomToTerm(leftPoly, varList, variables, nss);
