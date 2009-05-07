@@ -439,7 +439,7 @@ public abstract class PolynomTool {
 	}
 
 	public static class BigFraction {
-		private BigInteger numerator = BigInteger.ZERO;
+		private BigInteger numerator = null;
 		private BigInteger denominator = BigInteger.ONE;
 
 		/**

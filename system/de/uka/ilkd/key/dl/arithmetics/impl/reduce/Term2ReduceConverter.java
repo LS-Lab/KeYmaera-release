@@ -58,6 +58,7 @@ public class Term2ReduceConverter {
 	 */
 	private String convertImpl(Term form) {
 		String formula = convert2String(form, null, true);
+		System.out.println("Converted " + form + " to " + formula);
 		return formula;
 	}
 

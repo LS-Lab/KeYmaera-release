@@ -20,13 +20,11 @@
 package de.uka.ilkd.key.dl.arithmetics.impl.hollight;
 
 import java.rmi.RemoteException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
 import org.w3c.dom.Node;
 
-import de.uka.ilkd.key.dl.arithmetics.IGroebnerBasisCalculator;
 import de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator;
 import de.uka.ilkd.key.dl.arithmetics.ISOSChecker;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ConnectionProblemException;
@@ -34,14 +32,10 @@ import de.uka.ilkd.key.dl.arithmetics.exceptions.IncompleteEvaluationException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ServerStatusProblemException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.UnableToConvertInputException;
-import de.uka.ilkd.key.dl.arithmetics.impl.SumOfSquaresChecker.PolynomialClassification;
-import de.uka.ilkd.key.dl.arithmetics.impl.qepcad.PrenexGenerator;
-import de.uka.ilkd.key.dl.arithmetics.impl.qepcad.PrenexGenerator.PrenexGeneratorResult;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.logic.NamespaceSet;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.TermBuilder;
-import de.uka.ilkd.key.logic.op.QuantifiableVariable;
 
 /**
  * @author jdq TODO Documentation since 29.04.2009
