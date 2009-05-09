@@ -357,56 +357,51 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 						continue;
 
 					final Arithmetic degree = v.multiply(oneVec);
-					if (degree.isZero()) {
-						// nothing
+					int varsInMonom = 0;
+					int possibleCandidate = -1;
+					boolean positive = false;
+					if (coeff instanceof Comparable) {
+					    int smallerZero = ((Comparable) coeff).compareTo(vf.ZERO());
+					    if (smallerZero > 0) {
+					        positive = true;
+					    }
 					} else {
-						int varsInMonom = 0;
-						int possibleCandidate = -1;
-						boolean positive = false;
-						if (coeff instanceof Comparable) {
-							int smallerZero = ((Comparable) coeff).compareTo(vf
-									.ZERO());
-							if (smallerZero > 0) {
-								positive = true;
-							}
-						} else {
-							// we cannot do anything, as we cannot
-							// compare the coefficients
-							return workPolys;
-						}
-						for (int i = 0; i < varNum; i++) {
-							if (!v.get(i).isZero()) {
-								varsInMonom++;
-								if (v.get(i).equals(two)) {
-									// if the exponent is two, we might have a
-									// candidate if this is the only variable
-									// with
-									// non-zero exponent in this monomial
-									possibleCandidate = i;
-								}
-								if (!((Integer) v.get(i)).modulo(two).isZero()) {
-									// assure that every exponent is an event
-									// number
-									continue outerloop;
-								}
-
-							}
-						}
-						if (varsInMonom > 1 && positive) {
-							continue outerloop;
-						} else if (varsInMonom == 1 && positive) {
-							if (possibleCandidate == -1) {
-								continue outerloop;
-							}
-							if (purlyEvenVariables.get(possibleCandidate)) {
-								if (candidate != null) {
-									continue outerloop;
-								} else {
-									candidate = possibleCandidate;
-									candidateCoeff = coeff;
-								}
-							}
-						}
+					    // we cannot do anything, as we cannot
+					    // compare the coefficients
+					    return workPolys;
+					}
+					for (int i = 0; i < varNum; i++) {
+					    if (!v.get(i).isZero()) {
+					        varsInMonom++;
+					        if (v.get(i).equals(two)) {
+					            // if the exponent is two, we might have a
+					            // candidate if this is the only variable
+					            // with
+					            // non-zero exponent in this monomial
+					            possibleCandidate = i;
+					        }
+					        if (!((Integer) v.get(i)).modulo(two).isZero()) {
+					            // assure that every exponent is an event
+					            // number
+					            continue outerloop;
+					        }
+					    }
+					}
+					if (varsInMonom != 1 && positive) {
+					    continue outerloop;
+					}
+					if (varsInMonom == 1 && positive) {
+					    if (possibleCandidate == -1) {
+					        continue outerloop;
+					    }
+					    if (purlyEvenVariables.get(possibleCandidate)) {
+					        if (candidate != null) {
+					            continue outerloop;
+					        } else {
+					            candidate = possibleCandidate;
+					            candidateCoeff = coeff;
+					        }
+					    }
 					}
 				}
 				if (candidate != null && candidate != -1) {
