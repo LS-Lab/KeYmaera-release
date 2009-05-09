@@ -1426,7 +1426,7 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 
 		public SimpleMonomialIterator(int indexNum, int maxTotalDegree) {
 			this.indexNum = indexNum;
-			this.maxTotalDegree = maxTotalDegree;
+			this.maxTotalDegree = indexNum > 0 ? maxTotalDegree : 0;
 
 			final Arithmetic[] exps = new Arithmetic[indexNum];
 			Arrays.fill(exps, vf.ZERO());
