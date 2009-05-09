@@ -23,6 +23,7 @@
 package de.uka.ilkd.key.dl.arithmetics.impl.mathematica;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -30,6 +31,8 @@ import java.util.List;
 import com.wolfram.jlink.Expr;
 
 import de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator.QuantifierType;
+import de.uka.ilkd.key.dl.arithmetics.impl.orbital.PolynomTool;
+import de.uka.ilkd.key.dl.arithmetics.impl.orbital.PolynomTool.BigFraction;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.op.Equality;
 import de.uka.ilkd.key.logic.op.Function;
@@ -123,41 +126,20 @@ public class Term2ExprConverter implements ExprConstants {
 				return new Expr(EXP, args);
 			} else {
 				try {
-					BigDecimal d = new BigDecimal(form.op().name().toString());
-					try {
-						return new Expr(d.intValueExact());
-					} catch (ArithmeticException e) {
-						if (Options.INSTANCE.isConvertDecimalsToRationals()) {
-							// calculate fraction to pass to Mathematica, as
-							// decimal fractions are considered to be numeric
-							// values of a certain precision
-							int denominator = 1;
-							BigDecimal ten = new BigDecimal(10);
-							while (d.intValue() < d.doubleValue()) {
-								denominator *= 10;
-								d = d.multiply(ten);
-							}
-
-							// calculate the greatest common divisor of the
-							// fraction
-							int numerator = d.intValueExact();
-							int tmp = numerator;
-							int gcd = denominator;
-							int t;
-							while (tmp > 0) {
-								t = numerator;
-								tmp = gcd % tmp;
-								gcd = t;
-							}
-							numerator = numerator / gcd;
-							denominator = denominator / gcd;
-							return new Expr(RATIONAL,
-									new Expr[] { new Expr(numerator),
-											new Expr(denominator) });
+					if (Options.INSTANCE.isConvertDecimalsToRationals()) {
+						String numberAsString = form.op().name().toString();
+						BigFraction frac = PolynomTool
+								.convertStringToFraction(numberAsString);
+						if (frac.getDenominator().equals(BigInteger.ONE)) {
+							return new Expr(frac.getNumerator());
 						} else {
-							return new Expr(Expr.SYM_REAL,
-									new Expr[] { new Expr(d) });
+							return new Expr(RATIONAL, new Expr[] {
+									new Expr(frac.getNumerator()),
+									new Expr(frac.getDenominator()) });
 						}
+					} else {
+						return new Expr(Expr.SYM_REAL, new Expr[] { new Expr(
+								new BigDecimal(form.op().name().toString())) });
 					}
 				} catch (NumberFormatException e) {
 					String name = form.op().name().toString();

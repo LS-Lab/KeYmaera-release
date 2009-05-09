@@ -22,9 +22,11 @@
  */
 package de.uka.ilkd.key.dl.rules;
 
+import java.rmi.RemoteException;
 import java.util.HashSet;
 import java.util.Set;
 
+import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
 import de.uka.ilkd.key.dl.arithmetics.impl.SumOfSquaresChecker;
 import de.uka.ilkd.key.dl.arithmetics.impl.SumOfSquaresChecker.FormulaStatus;
 import de.uka.ilkd.key.java.Services;
@@ -50,92 +52,102 @@ import de.uka.ilkd.key.rule.RuleApp;
  */
 public class SumOfSquaresRule implements BuiltInRule, RuleFilter {
 
-    public static final SumOfSquaresRule INSTANCE = new SumOfSquaresRule();
+	public static final SumOfSquaresRule INSTANCE = new SumOfSquaresRule();
 
-    /**
+	/**
      * 
      */
-    public SumOfSquaresRule() {
-    }
+	public SumOfSquaresRule() {
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see de.uka.ilkd.key.rule.Rule#apply(de.uka.ilkd.key.proof.Goal,
-     *      de.uka.ilkd.key.java.Services, de.uka.ilkd.key.rule.RuleApp)
-     */
-    public synchronized ListOfGoal apply(Goal goal, Services services,
-            RuleApp ruleApp) {
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.uka.ilkd.key.rule.Rule#apply(de.uka.ilkd.key.proof.Goal,
+	 * de.uka.ilkd.key.java.Services, de.uka.ilkd.key.rule.RuleApp)
+	 */
+	public synchronized ListOfGoal apply(Goal goal, Services services,
+			RuleApp ruleApp) {
 
-        IteratorOfConstrainedFormula it = goal.sequent().antecedent()
-                .iterator();
-        Set<Term> ante = new HashSet<Term>(); 
-        while(it.hasNext()) {
-            ante.add(it.next().formula());
-        }
-        it = goal.sequent().succedent().iterator();
-        Set<Term> succ = new HashSet<Term>(); 
-        while(it.hasNext()) {
-            succ.add(it.next().formula());
-        }
-        
-        if(SumOfSquaresChecker.INSTANCE.checkCombinedSetForEmptyness(SumOfSquaresChecker.INSTANCE.classify(ante, succ), 10)) {
-            return SLListOfGoal.EMPTY_LIST;
-        }
-        return SLListOfGoal.EMPTY_LIST.append(goal);
-        
-        //return SLListOfGoal.EMPTY_LIST;
-    }
+		IteratorOfConstrainedFormula it = goal.sequent().antecedent()
+				.iterator();
+		Set<Term> ante = new HashSet<Term>();
+		while (it.hasNext()) {
+			ante.add(it.next().formula());
+		}
+		it = goal.sequent().succedent().iterator();
+		Set<Term> succ = new HashSet<Term>();
+		while (it.hasNext()) {
+			succ.add(it.next().formula());
+		}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see de.uka.ilkd.key.rule.BuiltInRule#isApplicable(de.uka.ilkd.key.proof.Goal,
-     *      de.uka.ilkd.key.logic.PosInOccurrence,
-     *      de.uka.ilkd.key.logic.Constraint)
-     */
-    /*@Override*/
-    public boolean isApplicable(Goal goal, PosInOccurrence pio,
-            Constraint userConstraint) {
-        // TODO jdq: insert application test
-        return true;
-    }
+		try {
+			if (MathSolverManager.getCurrentSOSChecker()
+					.testForTautology(
+							ante, succ,
+							services)) {
+				return SLListOfGoal.EMPTY_LIST;
+			}
+		} catch (RemoteException e) {
+			e.printStackTrace();
+		}
+		return SLListOfGoal.EMPTY_LIST.append(goal);
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see de.uka.ilkd.key.rule.Rule#displayName()
-     */
-    /*@Override*/
-    public String displayName() {
-        return "Sum of Squares";
-    }
+		// return SLListOfGoal.EMPTY_LIST;
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see de.uka.ilkd.key.rule.Rule#name()
-     */
-    /*@Override*/
-    public Name name() {
-        return new Name("Sum of Squares");
-    }
-    
-    /* (non-Javadoc)
-     * @see java.lang.Object#toString()
-     */
-    /*@Override*/
-    public String toString() {
-    	return displayName();
-    }
-    
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.uka.ilkd.key.rule.BuiltInRule#isApplicable(de.uka.ilkd.key.proof.Goal,
+	 * de.uka.ilkd.key.logic.PosInOccurrence, de.uka.ilkd.key.logic.Constraint)
+	 */
+	/* @Override */
+	public boolean isApplicable(Goal goal, PosInOccurrence pio,
+			Constraint userConstraint) {
+		// TODO jdq: insert application test
+		return true;
+	}
 
-    /* (non-Javadoc)
-     * @see de.uka.ilkd.key.proof.RuleFilter#filter(de.uka.ilkd.key.rule.Rule)
-     */
-    /*@Override*/
-    public boolean filter(Rule rule) {
-        return rule instanceof SumOfSquaresRule;
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.uka.ilkd.key.rule.Rule#displayName()
+	 */
+	/* @Override */
+	public String displayName() {
+		return "Sum of Squares";
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.uka.ilkd.key.rule.Rule#name()
+	 */
+	/* @Override */
+	public Name name() {
+		return new Name("Sum of Squares");
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#toString()
+	 */
+	/* @Override */
+	public String toString() {
+		return displayName();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.uka.ilkd.key.proof.RuleFilter#filter(de.uka.ilkd.key.rule.Rule)
+	 */
+	/* @Override */
+	public boolean filter(Rule rule) {
+		return rule instanceof SumOfSquaresRule;
+	}
 
 }

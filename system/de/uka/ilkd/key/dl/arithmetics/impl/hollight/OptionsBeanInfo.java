@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2007 by Jan David Quesel                                *
+ *   Copyright (C) 2008 by Jan David Quesel                                *
  *   quesel@informatik.uni-oldenburg.de                                    *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -20,7 +20,7 @@
 /**
  * 
  */
-package de.uka.ilkd.key.dl.arithmetics.impl.mathematica;
+package de.uka.ilkd.key.dl.arithmetics.impl.hollight;
 
 import java.beans.BeanDescriptor;
 import java.beans.IntrospectionException;
@@ -29,7 +29,9 @@ import java.beans.SimpleBeanInfo;
 import java.util.ArrayList;
 
 import orbital.awt.TaggedPropertyEditorSupport;
-import de.uka.ilkd.key.dl.arithmetics.impl.mathematica.Options.QuantifierEliminationMethod;
+import de.uka.ilkd.key.dl.arithmetics.impl.hollight.Options.QuantifierEliminationMethod;
+import de.uka.ilkd.key.dl.options.DirectoryPropertyEditor;
+import de.uka.ilkd.key.dl.options.FilePropertyEditor;
 
 /**
  * @author jdq
@@ -43,12 +45,12 @@ public class OptionsBeanInfo extends SimpleBeanInfo {
 
 	public BeanDescriptor getBeanDescriptor() {
 		BeanDescriptor d = new BeanDescriptor(beanClass);
-		d.setDisplayName("Mathematica Options");
-		d.setShortDescription("Adjusts values for the Mathematica interface");
+		d.setDisplayName("HOL Light Options");
+		d.setShortDescription("Adjusts values for the HOL Light interface");
 		return d;
 	}
 
-	/*@Override*/
+	/* @Override */
 	public PropertyDescriptor[] getPropertyDescriptors() {
 		try {
 			// PropertyDescriptor _usage = new PropertyDescriptor("usage",
@@ -58,27 +60,28 @@ public class OptionsBeanInfo extends SimpleBeanInfo {
 			// _usage.setPropertyEditorClass(UsagePropertyEditor.class);
 
 			PropertyDescriptor[] pds = new PropertyDescriptor[] {
+					// createDescriptor(
+					// "qepcadBinary",
+					// "Qepcad Executable",
+					// "The Qepcad executable including the complete path name if it is not located in the system PATH",
+					// true, false, FilePropertyEditor.class),
 					createDescriptor(
-							"useEliminateList",
-							"elimination list",
-							"choose if the list of elimination variables should be passed to Mathematica's Reduce",
-							true, false),
+							"hollightPath",
+							"HOL Light Path",
+							"The path to the hol light installation needed to setup the correct environment for the tool",
+							true, false, DirectoryPropertyEditor.class),
+					createDescriptor("ocamlPath", "Ocaml Path",
+							"The ocaml binary", true, false,
+							FilePropertyEditor.class),
 					createDescriptor(
-									"convertDecimalsToRationals",
-									"convert decimals",
-									"choose if decimal fraction entered by the user should be converted into a rational representation (q/r)",
-									true, false),
-					createDescriptor(
-							"memoryConstraint",
-							"memory limit",
-							"the maximum memory used by the Mathematica server [in bytes], -1 means no limit",
-							true, false),
-					createDescriptor(
-							"quantifierEliminationMethod",
-							"quantifier elimination",
-							"the Mathematica method that is used to perform quantifier elimination",
-							true, false,
-							QuantifierEliminationMethodPropertyEditor.class)
+							"harrisonqePath",
+							"Harrison QE Path",
+							"The path to harrisons implementation of quantifier elimination",
+							true, false, DirectoryPropertyEditor.class),
+					createDescriptor("method", "QE Method",
+							"The quantifier elimination method to use", true,
+							false,
+							QuantifierEliminationMethodPropertyEditor.class),
 
 			};
 			return pds;
@@ -127,18 +130,17 @@ public class OptionsBeanInfo extends SimpleBeanInfo {
 
 	public static class QuantifierEliminationMethodPropertyEditor extends
 			TaggedPropertyEditorSupport {
-
-		private static String[] getNames() {
-			java.util.List<String> names = new ArrayList<String>();
-			for (QuantifierEliminationMethod r : QuantifierEliminationMethod
-					.values()) {
-				names.add(r.toString());
-			}
-			return names.toArray(new String[0]);
-		}
-
 		public QuantifierEliminationMethodPropertyEditor() {
-			super(getNames(), QuantifierEliminationMethod.values());
+			super(getNames(QuantifierEliminationMethod.values()),
+					QuantifierEliminationMethod.values());
 		}
+	}
+
+	private static <E extends Enum<E>> String[] getNames(Enum<E> vals[]) {
+		java.util.List<String> names = new ArrayList<String>();
+		for (Enum<E> r : vals) {
+			names.add(r.toString());
+		}
+		return names.toArray(new String[0]);
 	}
 }

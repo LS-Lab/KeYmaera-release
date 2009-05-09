@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <MathSolvers> 
-  <MathSolver> 
+	<MathSolver> 
 	<class>de.uka.ilkd.key.dl.arithmetics.impl.mathematica.Mathematica</class>
 	<mathkernel>
 		-linkmode launch -linkname 'MathKernel -mathlink'
@@ -10,7 +10,10 @@
 		<port>23420</port>
 	</server>
         <optionbean>de.uka.ilkd.key.dl.arithmetics.impl.mathematica.Options</optionbean>
-  </MathSolver>
+	</MathSolver>
+	<MathSolver>
+		<class>de.uka.ilkd.key.dl.arithmetics.impl.SumOfSquaresChecker</class>
+	</MathSolver>
   <MathSolver> 
 	<class>de.uka.ilkd.key.dl.arithmetics.impl.orbital.OrbitalSimplifier</class>
   </MathSolver>
@@ -31,5 +34,9 @@
   </MathSolver>
   <MathSolver> 
 	<class>de.uka.ilkd.key.dl.arithmetics.impl.groebnerianSOS.GroebnerBasisChecker</class>
+  </MathSolver>
+  <MathSolver> 
+	<class>de.uka.ilkd.key.dl.arithmetics.impl.hollight.HOLLight</class>
+	<optionbean>de.uka.ilkd.key.dl.arithmetics.impl.hollight.Options</optionbean>
   </MathSolver>
 </MathSolvers>

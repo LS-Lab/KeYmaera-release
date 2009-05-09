@@ -129,7 +129,7 @@ public class DLInitializer {
 								.getCachedAnswers();
 						if (cachedAnwsers != -1) {
 							stats += "\n"
-									+ "CachedAnwsers/Queries: "
+									+ "CachedAnswers/Queries: "
 									+ cachedAnwsers
 									+ " / "
 									+ TimeStatisticGenerator.INSTANCE

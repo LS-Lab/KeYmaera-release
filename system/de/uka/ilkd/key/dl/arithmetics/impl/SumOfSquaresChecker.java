@@ -20,6 +20,7 @@
 package de.uka.ilkd.key.dl.arithmetics.impl;
 
 import java.math.BigDecimal;
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
@@ -27,13 +28,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Set;
 
-import orbital.algorithm.Combinatorical;
-import orbital.math.AlgebraicAlgorithms;
 import orbital.math.Arithmetic;
 import orbital.math.Fraction;
 import orbital.math.Integer;
@@ -44,12 +41,22 @@ import orbital.math.ValueFactory;
 import orbital.math.Values;
 import orbital.math.Vector;
 import orbital.math.functional.Operations;
+import orbital.util.KeyValuePair;
+
+import org.w3c.dom.Node;
+
+import de.uka.ilkd.key.dl.arithmetics.ISOSChecker;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.ConnectionProblemException;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.ServerStatusProblemException;
 import de.uka.ilkd.key.dl.arithmetics.impl.csdp.CSDP;
 import de.uka.ilkd.key.dl.arithmetics.impl.groebnerianSOS.FractionisingEquationSolver;
+import de.uka.ilkd.key.dl.arithmetics.impl.csdp.CSDPInterface;
 import de.uka.ilkd.key.dl.arithmetics.impl.groebnerianSOS.GroebnerBasisChecker;
+import de.uka.ilkd.key.dl.arithmetics.impl.groebnerianSOS.PSDDecomposition;
 import de.uka.ilkd.key.dl.arithmetics.impl.groebnerianSOS.SparsePolynomial;
 import de.uka.ilkd.key.dl.arithmetics.impl.groebnerianSOS.GroebnerBasisChecker.SimpleMonomialIterator;
 import de.uka.ilkd.key.dl.arithmetics.impl.groebnerianSOS.GroebnerBasisChecker.Square;
+import de.uka.ilkd.key.dl.arithmetics.impl.groebnerianSOS.PSDDecomposition.NotPSDException;
 import de.uka.ilkd.key.dl.arithmetics.impl.orbital.OrbitalSimplifier;
 import de.uka.ilkd.key.dl.arithmetics.impl.orbital.PolynomTool;
 import de.uka.ilkd.key.dl.arithmetics.impl.sos.MaxPolynomPerDegreeOrder;
@@ -66,6 +73,7 @@ import de.uka.ilkd.key.dl.model.LessEquals;
 import de.uka.ilkd.key.dl.model.Minus;
 import de.uka.ilkd.key.dl.model.Unequals;
 import de.uka.ilkd.key.dl.parser.NumberCache;
+import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.TermBuilder;
 import de.uka.ilkd.key.logic.op.Equality;
@@ -78,7 +86,7 @@ import de.uka.ilkd.key.logic.op.TermSymbol;
  * @author jdq
  * 
  */
-public class SumOfSquaresChecker {
+public class SumOfSquaresChecker implements ISOSChecker {
 
 	private enum Result {
 		SOLUTION_FOUND, NO_SOLUTION_AVAILABLE, UNKNOWN;
@@ -100,7 +108,8 @@ public class SumOfSquaresChecker {
 		}
 	}
 
-	public static final SumOfSquaresChecker INSTANCE = new SumOfSquaresChecker();
+	public SumOfSquaresChecker(Node n) {
+	}
 
 	/**
 	 * Given a sequent seperated into antecedent and succedent this methods
@@ -114,7 +123,7 @@ public class SumOfSquaresChecker {
 	 *            the succedent of the sequent
 	 * @return a classification of the given terms
 	 */
-	public PolynomialClassification<Term> classify(Set<Term> ante,
+	public static PolynomialClassification<Term> classify(Set<Term> ante,
 			Set<Term> succ) {
 		System.out.println("Computing f, g^2 and h");// XXX
 		final Function lt = RealLDT.getFunctionFor(Less.class);
@@ -253,7 +262,7 @@ public class SumOfSquaresChecker {
 	 * @param op
 	 * @return
 	 */
-	private Operator negationLookUp(Operator op) {
+	private static Operator negationLookUp(Operator op) {
 		final Function lt = RealLDT.getFunctionFor(Less.class);
 		final Function leq = RealLDT.getFunctionFor(LessEquals.class);
 		final Function geq = RealLDT.getFunctionFor(GreaterEquals.class);
@@ -280,7 +289,7 @@ public class SumOfSquaresChecker {
 	 * contains only the leftside polynomial of the inequalities, where for f
 	 * the omitted part is > 0, for g it is != 0 and for h it is = 0.
 	 */
-	public PolynomialClassification<Polynomial> classify(
+	public static PolynomialClassification<Polynomial> classify(
 			PolynomialClassification<Term> cla) {
 		return classify(cla, false);
 	}
@@ -290,7 +299,7 @@ public class SumOfSquaresChecker {
 	 * contains only the leftside polynomial of the inequalities, where for f
 	 * the omitted part is > 0, for g it is != 0 and for h it is = 0.
 	 */
-	public PolynomialClassification<Polynomial> classify(
+	public static PolynomialClassification<Polynomial> classify(
 			PolynomialClassification<Term> cla, boolean addAddtionalVariable) {
 		System.out.println("Try to find monominals");// XXX
 		System.out.println("We check the following Terms:");// XXX
@@ -391,7 +400,7 @@ public class SumOfSquaresChecker {
 	 * @return true if a combination of f, g and h is found such that f+g^2+h =
 	 *         0.
 	 */
-	public FormulaStatus check(PolynomialClassification<Term> cla) {
+	public static FormulaStatus check(PolynomialClassification<Term> cla) {
 		return check(cla.f, cla.g, cla.h);
 	}
 
@@ -403,7 +412,7 @@ public class SumOfSquaresChecker {
 	 * @return true if a combination of f, g and h is found such that f+g^2+h =
 	 *         0.
 	 */
-	public FormulaStatus check(Set<Term> f, Set<Term> g, Set<Term> h) {
+	public static FormulaStatus check(Set<Term> f, Set<Term> g, Set<Term> h) {
 		PolynomialClassification<Polynomial> classify = classify(new PolynomialClassification<Term>(
 				f, g, h));
 		Polynomial one = null;
@@ -433,7 +442,9 @@ public class SumOfSquaresChecker {
 		return FormulaStatus.UNKNOWN;
 	}
 
-	public boolean checkCombinedSetForEmptyness(Set<Term> f, Set<Term> g,
+	
+	
+	public static boolean checkCombinedSetForEmptyness(Set<Term> f, Set<Term> g,
 			Set<Term> h, int degreeBound) {
 		// degreeBound = 4;
 		PolynomialClassification<Polynomial> classify = classify(new PolynomialClassification<Term>(
@@ -498,10 +509,11 @@ public class SumOfSquaresChecker {
 				// in this step we construct the p_i as sparse polynomial and in
 				// the same iteration construct the resulting f polynomial by
 				// multiplication of the corresponding sumOfFs polynomial
-				List<SparsePolynomial> pis = new ArrayList<SparsePolynomial>();
-				ValueFactory vf = Values.getDefault();
-                                Arithmetic two = vf.rational(2);
+				final List<SparsePolynomial> pis = new ArrayList<SparsePolynomial>();
+				final ValueFactory vf = Values.getDefault();
+                                final Arithmetic two = vf.rational(2);
                                 SparsePolynomial nextF = new SparsePolynomial();
+                                
                                 System.out.println("prodsOfFs size: " + prodsOfFs.size());
                                 System.out.println("qMonomials size: " + qMonomials.size());
                                 System.out.println("qMonomials are: " + qMonomials);
@@ -509,13 +521,11 @@ public class SumOfSquaresChecker {
                                 int currentParameter = 0;
                                 int totalMonomialNum = 0;
                                 
-                                int currentBlockOffset = 0;
                                 for (Polynomial nF : prodsOfFs) {
                                     SparsePolynomial s = new SparsePolynomial();
 
                                     List<Vector> consideredMonomials = new ArrayList<Vector>();
                                     for (Vector p : qMonomials) {
-                                        currentParameter = currentParameter + currentBlockOffset;
                                         consideredMonomials.add(p);
                                         for (int i = 0; i < consideredMonomials.size(); ++i) {
                                             final Arithmetic oldMono = consideredMonomials.get(i);
@@ -540,21 +550,23 @@ public class SumOfSquaresChecker {
 
                                     pis.add(s);
                                     nextF = nextF.add(s.multiply(nF));
-                                    
-                                    currentBlockOffset = totalMonomialNum;
                                 }
                                 
-				final int piMonomialNum = totalMonomialNum;
+				final int piBlockSize = qMonomials.size();
 
 				System.out.println("nextF is " + nextF);// XXX
 
 				//////////////////////////////////////////////////////////////////////////
-				// the next step is to construct all those parametric
-				// polynomials q_i (one per h in classify.h)
+				// The next step is to construct all those parametric
+				// polynomials q_i (one per h in classify.h). We
+				// put all the parameters/coefficients in a further
+				// block of the constructed block matrix
 
 				SparsePolynomial nextH = new SparsePolynomial();
 				
-				int lastTopParameter = currentParameter;
+				int blockRow = 0;
+				int blockColumn = 0;
+
                                 for (Polynomial hPoly : classify.h) {
                                     System.out.println("h-polynomial: " + hPoly);
                                     
@@ -562,12 +574,11 @@ public class SumOfSquaresChecker {
                                     final SimpleMonomialIterator monomialIt =
                                         new SimpleMonomialIterator(one.rank(),
                                                                    Math.max(nextG.degreeValue(), d));
-                                    
+
                                     while (monomialIt.hasNext()) {
                                         final Vector monoExp = monomialIt.next();
-                                        final boolean diagonal =
-                                            (currentParameter == lastTopParameter + totalMonomialNum);
-
+                                        final boolean diagonal = (blockRow == blockColumn);
+                                        
                                         final Polynomial mono;
                                         if (diagonal)
                                             mono = vf.MONOMIAL(monoExp);
@@ -578,21 +589,31 @@ public class SumOfSquaresChecker {
                                         
                                         currentParameter = currentParameter + 1;
                                         if (diagonal) {
-                                            lastTopParameter = currentParameter;
-                                            totalMonomialNum = totalMonomialNum + 1;
+                                            blockColumn = blockColumn + 1;
+                                            blockRow = 0;
+                                        } else {
+                                            blockRow = blockRow + 1;
                                         }
                                     }
 
                                     nextH = nextH.add(s.multiply(hPoly));
                                 }
 
-                                // we might already have filled a further column
-                                // halfway
+                                /*
                                 final int bigMatrixSize;
                                 if (lastTopParameter == currentParameter)
                                     bigMatrixSize = totalMonomialNum;
                                 else
                                     bigMatrixSize = totalMonomialNum + 1;
+                                */
+                                
+                                // we might already have filled a further column
+                                // halfway
+                                final int qiBlockSize;
+                                if (blockRow == 0)
+                                    qiBlockSize = blockColumn;
+                                else
+                                    qiBlockSize = blockColumn + 1;
                                 
                                 System.out.println("nextH is " + nextH);
 				
@@ -609,8 +630,16 @@ public class SumOfSquaresChecker {
 				// as part of the qi's, because they are not supposed to
 				// satisfy semi-definiteness)
 				
-				final Matrix rawEquations =
-				    fh.exactCoefficientComparison(bigMatrixSize, new BitSet());
+                                // the blocks of the resulting block matrix (one
+                                // for each f polynomial coefficient)
+                                final int[] blockSizes = new int [prodsOfFs.size() + 1];
+                                Arrays.fill(blockSizes, piBlockSize);
+                                blockSizes[prodsOfFs.size()] = qiBlockSize;
+                                System.out.println("blockSizes: " + Arrays.toString(blockSizes));
+
+                                final Matrix rawEquations =
+				    fh.exactCoefficientComparisonBlock(blockSizes,
+				                                       monomialsInFH);
 				
 //				System.out.println("rawEquations: " + rawEquations);
 
@@ -622,64 +651,75 @@ public class SumOfSquaresChecker {
 
                                 final Matrix rawSmallEquations;
 
-                                if (piMonomialNum == bigMatrixSize) {
+                                if (qiBlockSize == 0) {
                                     rawSmallEquations = rawEquations;
                                 } else {
                                     // determine the columns that we have to eliminate
                                     final BitSet colsToEliminate = new BitSet ();
-                                    for (int i = piMonomialNum; i < bigMatrixSize; ++i)
-                                        for (int j = 0; j <= i; ++j) {
-                                            colsToEliminate.set(j*bigMatrixSize + i);
-                                            colsToEliminate.set(i*bigMatrixSize + j);
-                                        }
-                                
+                                    final int lastBlockLength = qiBlockSize * qiBlockSize;
+                                    final int colNum = rawEquations.dimensions()[1] - 1;
+                                    colsToEliminate.set(colNum - lastBlockLength, colNum);
+                                    
                                     rawSmallEquations =
                                         project(rawEquations, colsToEliminate);
                                 }
                                 
                                 assert rawSmallEquations.dimensions()[1] ==
-                                             piMonomialNum*piMonomialNum + 1;
+                                    prodsOfFs.size()*piBlockSize*piBlockSize + 1;
                                 
                                 final Vector exactHetero =
-                                    rawSmallEquations.getColumn(piMonomialNum*piMonomialNum);
+                                    rawSmallEquations.getColumn(rawSmallEquations.dimensions()[1]-1);
                                 final Matrix exactHomo =
                                     vf.newInstance(rawSmallEquations.dimensions()[0],
-                                                   piMonomialNum*piMonomialNum);
+                                                   rawSmallEquations.dimensions()[1]-1);
                                 copy(rawSmallEquations, exactHomo,
                                      0, 0, 0, 0,
                                      rawSmallEquations.dimensions()[0],
-                                     piMonomialNum*piMonomialNum);
+                                     rawSmallEquations.dimensions()[1]-1);
 
 //                                System.out.println("exactHomo is " + exactHomo);
 //                                System.out.println("exactHetero is " + exactHetero);
                                 
                                 // assert symmetry
-                                for (int i = 0; i < piMonomialNum; ++i)
-                                    for (int j = 0; j < piMonomialNum; ++j)
-                                        assert exactHomo.getColumn(i*piMonomialNum + j).equals(
-                                               exactHomo.getColumn(j*piMonomialNum + i));
+                                {
+                                    int offset = 0;
+                                    while (offset < exactHomo.dimensions()[1]) {
+                                        for (int i = 0; i < piBlockSize; ++i)
+                                            for (int j = 0; j < i; ++j)
+                                                assert exactHomo.getColumn(offset + i*piBlockSize + j).equals(
+                                                       exactHomo.getColumn(offset + j*piBlockSize + i));
+                                        offset = offset + piBlockSize * piBlockSize;
+                                    }
+                                }
 
                                 ////////////////////////////////////////////////////////////////////////////
 				// Let's have CSDP do the hard work for us
 				
-				final int matrixSize = piMonomialNum;
-				System.out.println("matrix size: " + matrixSize);
+                                final int[] piBlockSizes = Arrays.copyOf(blockSizes, prodsOfFs.size());
+//				System.out.println("matrix block sizes: " + Arrays.toString(piBlockSizes));
 
 				final double[] homo = SparsePolynomial.toDoubleArray(exactHomo);
 				final double[] hetero = SparsePolynomial.toDoubleArray(asMatrix(exactHetero));
 				
 				final double[] approxSolution =
-				    new double[matrixSize * matrixSize];
+				    new double[prodsOfFs.size()*piBlockSize*piBlockSize];
 
-				int sdpRes =
-				// CSDP.robustSdp(monoNum, reducedPoly.size(), hetero, homo,
-				// approxSolution);
-				CSDP.sdp(matrixSize, homo, hetero, approxSolution);
+				final int sdpRes =
+				    CSDPInterface.sdp(piBlockSizes, homo, hetero, approxSolution);
 
 				if (sdpRes == 0 || sdpRes == 3) {
 					System.out.println("Found an approximate solution!");
 					System.out.println(Arrays.toString(approxSolution));
-
+					
+					final Vector exactSolution =
+					    approx2Exact(piBlockSizes, approxSolution, exactHomo, exactHetero);
+					
+					if (exactSolution != null) {
+					    System.out.println("Found an exact solution");
+					    return true;
+					}
+					
+/*
 					final List<Arithmetic> consideredMonomials =
 					    convertToMonomList(qMonomials, prodsOfFs.size());
                                             final Square[] cert =
@@ -707,7 +747,7 @@ public class SumOfSquaresChecker {
 						System.out.println(" " + p);
 						System.out.println("Certificate is correct");
 						return true;
-					}
+					} */
 				} else {
 					System.out.println("No solution");
 				}
@@ -719,21 +759,134 @@ public class SumOfSquaresChecker {
 		return false;
 	}
 
-    private Vector genExactHetero(SparsePolynomial fh, Polynomial nextG,
+    private static Vector approx2Exact(int[] blockSizes,
+                                       double[] approxSolution,
+                                       Matrix exactHomo,
+                                       Vector sideConditionRhs) {
+        final ValueFactory vf = Values.getDefault();
+
+        // we add further constraints to ensure that the found solution
+        // is a symmetric matrix
+        exactHomo.insertRows(symmetryConstraints(blockSizes));
+
+        System.out.println("sideConstraintRhss: " + sideConditionRhs);// XXX
+        final Vector exactHetero = vf.newInstance(exactHomo.dimensions()[0]);
+        for (int i = 0; i < exactHetero.dimension(); ++i) {
+            if (i < sideConditionRhs.dimension()) {
+                exactHetero.set(i, sideConditionRhs.get(i));
+            } else {
+                exactHetero.set(i, vf.valueOf(0));
+            }
+        }
+        System.out.println("hetero exact: " + exactHetero);// XXX
+        double eps = 1;
+
+        while (eps > 1e-6) {
+            System.out.println();
+            System.out.println("Trying eps: " + eps);
+
+            final Vector exactSolution =
+                new FractionisingEquationSolver(exactHomo, exactHetero, approxSolution,
+                                                eps).exactSolution;
+            System.out.println("Exact solution candidate: " + exactSolution);
+
+            assert (exactHomo.multiply(exactSolution).equals(exactHetero));
+
+            System.out.println("Difference to approx solution:");
+            System.out.println(exactSolution.subtract(vf.valueOf(approxSolution)));
+
+            // check that the solution is positive semi-definite
+            // we check each of the matrix blocks independently
+            
+            PSDcheck: {
+                
+            int offset = 0;
+            for (int blockSize : blockSizes) {
+                final Matrix solutionMatrix = vf.newInstance(blockSize, blockSize);
+                for (int i = 0; i < blockSize; ++i)
+                    for (int j = 0; j < blockSize; ++j)
+                        solutionMatrix.set(i, j, exactSolution.get(offset + i * blockSize + j));
+                
+                System.out.println("checking block: " + solutionMatrix);
+                
+                try {
+                    final PSDDecomposition dec = new PSDDecomposition(solutionMatrix);
+                    System.out.println("Block is positive semi-definite");
+                    System.out.println("T-matrix:");
+                    System.out.println(dec.T);
+                    System.out.println("D-matrix:");
+                    System.out.println(dec.D);
+                    // TODO: generate a real certificate and check it
+                } catch (NotPSDException e) {
+                    System.out.println(e.getMessage());
+                    break PSDcheck;
+                }
+                
+                offset = offset + blockSize * blockSize;
+            }
+            
+            // all blocks are positive semidefinite
+            return exactSolution;
+            }
+
+            eps = eps / 10;
+        }
+
+        return null;
+    }
+
+    private static Matrix symmetryConstraints(int[] blockSizes) {
+        final ValueFactory vf = Values.getDefault();
+
+        final Arithmetic one = vf.ONE();
+        final Arithmetic minus_one = one.minus();
+
+        int height = 0;
+        int width = 0;
+        for (int blockSize : blockSizes) {
+            height = height + blockSize * (blockSize - 1) / 2;
+            width = width + blockSize * blockSize;
+        }
+        
+        if (height == 0)
+            // just return a zero-matrix so that we don't have to come back
+            // empty-handed
+            return vf.ZERO(1, width);
+
+        final Matrix res = vf.ZERO(height, width);
+
+        // generate the constraints
+        int row = 0;
+        int offset = 0;
+        for (int blockSize : blockSizes) {
+            for (int i = 1; i < blockSize; ++i)
+                for (int j = 0; j < i; ++j) {
+                    res.set(row, offset + i * blockSize + j, one);
+                    res.set(row, offset + j * blockSize + i, minus_one);
+                    row = row + 1;
+                }
+            offset = offset + blockSize * blockSize;
+        }
+
+        assert (row == height);
+        return res;
+    }
+
+    private static Vector genExactHetero(SparsePolynomial fh, Polynomial nextG,
                                   List<Arithmetic> monomialsInFH) {
         final Vector exactHetero = Values.getDefault().ZERO(fh.size());
-        Iterator<Arithmetic> gMonoms = nextG.indices();
-        ListIterator<Arithmetic> iterator = nextG.iterator();
-        while (gMonoms.hasNext()) {
-            int indexOf = monomialsInFH.indexOf(gMonoms.next());
-            Arithmetic next = iterator.next();
+        Iterator<KeyValuePair> monoms = nextG.monomials();
+        while (monoms.hasNext()) {
+            KeyValuePair nextMonom = monoms.next();
+			int indexOf = monomialsInFH.indexOf(nextMonom.getKey());
+            Arithmetic next = (Arithmetic) nextMonom.getValue();
             if (!next.isZero())
                 exactHetero.set(indexOf, next.minus());
         }
         return exactHetero;
     }
 
-    private Set<Polynomial> generateFProducts(
+    private static Set<Polynomial> generateFProducts(
                                               PolynomialClassification<Polynomial> classify,
                                               Polynomial one) {
         Set<Polynomial> prodsOfFs = new LinkedHashSet<Polynomial>();
@@ -768,7 +921,7 @@ public class SumOfSquaresChecker {
         return prodsOfFs;
     }
 
-    private List<Arithmetic> extractMonomialsInFH(SparsePolynomial fh,
+    private static List<Arithmetic> extractMonomialsInFH(SparsePolynomial fh,
                                                   Polynomial nextG) {
         final List<Arithmetic> monomialsInFH =
             new ArrayList<Arithmetic>(fh.getMonomials());
@@ -776,22 +929,14 @@ public class SumOfSquaresChecker {
         // new int[one.rank()]);
         // assert zeroMonomial.equals(zeroMonomial.zero()) : "Not 0 "
         // + zeroMonomial;
-        if (!monomialsInFH.isEmpty()) {
-        	Arithmetic zero = monomialsInFH.get(0).zero();
-        	// we remove the zero and readd it in the first place as
-        	// this corresponds to the order provided by
-        	// SparsePolynomial.coefficientComparision()
-        	monomialsInFH.remove(zero);
-        	monomialsInFH.add(0, zero);
-        }
 
-        Iterator<Arithmetic> indices = nextG.indices();
+        Iterator<KeyValuePair> monomials = nextG.monomials();
         int mononum = monomialsInFH.size();
         System.out.println(monomialsInFH);// XXX
-        ListIterator<Arithmetic> iterator2 = nextG.iterator();
-        while (indices.hasNext()) {
-        	Arithmetic monomial = indices.next();
-        	Arithmetic coefficient = (Arithmetic) iterator2.next();
+        while (monomials.hasNext()) {
+        	KeyValuePair next = monomials.next();
+			Arithmetic monomial = (Arithmetic) next.getKey();
+        	Arithmetic coefficient = (Arithmetic) next.getValue();
         	assert coefficient.isZero()
         			|| monomialsInFH.contains(monomial) :
                  "The polynomial g cannot contain monomials that are not in any p_i "
@@ -1077,7 +1222,7 @@ public class SumOfSquaresChecker {
 	 * @param monomials
 	 * @return TODO documentation since Feb 23, 2009
 	 */
-	private List<Arithmetic> convertToMonomList(List<Vector> monomials,
+	private static List<Arithmetic> convertToMonomList(List<Vector> monomials,
 			int count) {
 		List<Arithmetic> result = new ArrayList<Arithmetic>();
 		for (int i = 0; i < count; i++) {
@@ -1092,17 +1237,18 @@ public class SumOfSquaresChecker {
 	 * @param inputPolynomial
 	 * @return
 	 */
-	private Result testIfPolynomialIsSumOfSquares(Polynomial inputPolynomial) {
+	private static Result testIfPolynomialIsSumOfSquares(Polynomial inputPolynomial) {
 		// now we need to translate the polynominal into a matrix representation
 		// monominals are iterated x^0y^0, x^0y^1, x^0y^2, ..., x^1y^0, x^1y^1,
 		// x^1y^2,..., x^2y^0, x^2y^1,...
-		ListIterator coefficients = inputPolynomial.iterator();
-		Iterator indices = inputPolynomial.indices();
+		Iterator<KeyValuePair> monomials = inputPolynomial.monomials();
 		List<Vector> monominals = new ArrayList<Vector>();
-		while (coefficients.hasNext()) {
-			Object next = coefficients.next();
+		
+		while (monomials.hasNext()) {
+			KeyValuePair nextMono = monomials.next();
+			Object nextVector = nextMono.getKey();
+			Object next = nextMono.getValue();
 			String blub = "";
-			Object nextVector = indices.next();
 
 			Vector monomialDegrees = null;
 			if (nextVector instanceof Vector) {
@@ -1156,13 +1302,13 @@ public class SumOfSquaresChecker {
 		Poly quadraticForm = multiplyVec(multiplyMatrix(monominals, matrix),
 				monominals);
 		System.out.println("Polynom: " + quadraticForm);// XXX
-		coefficients = inputPolynomial.iterator();
-		indices = inputPolynomial.indices();
+		monomials = inputPolynomial.monomials();
 
 		List<Constraint> constraints = new ArrayList<Constraint>();
-		while (coefficients.hasNext()) {
-			Object next = coefficients.next();
-			Object nextVector = indices.next();
+		while (monomials.hasNext()) {
+			KeyValuePair nextMono = monomials.next();
+			Object next = nextMono.getValue();
+			Object nextVector = nextMono.getKey();
 
 			Vector monomialDegrees = null;
 			if (nextVector instanceof Vector) {
@@ -1190,7 +1336,7 @@ public class SumOfSquaresChecker {
 		// outputMatlab(monominals, constraints);
 
 		double[] solution = new double[monominals.size() * monominals.size()];
-		if (CSDP.sdp(monominals.size(), convertConstraintsToCSDP(constraints,
+		if (CSDPInterface.sdp(monominals.size(), convertConstraintsToCSDP(constraints,
 				monominals.size()),
 				convertConstraintsToResultVector(constraints), solution) == 0) {
 			// System.out.println(quadraticForm.toSparsePolynomial());//XXX
@@ -1227,7 +1373,7 @@ public class SumOfSquaresChecker {
 	 * @param monominals
 	 * @param constraints
 	 */
-	private void outputMatlab(List<Vector> monominals,
+	private static void outputMatlab(List<Vector> monominals,
 			List<Constraint> constraints) {
 		System.out.println("Matlab Input: ");// XXX
 		System.out.println("n = " + monominals.size() + ";");// XXX
@@ -1260,7 +1406,7 @@ public class SumOfSquaresChecker {
 	 * @param constraints
 	 * @param size
 	 */
-	private double[] convertConstraintsToCSDP(List<Constraint> constraints,
+	private static double[] convertConstraintsToCSDP(List<Constraint> constraints,
 			int size) {
 		double[] result = new double[constraints.size() * size * size];
 		int cnum = 0;
@@ -1289,7 +1435,7 @@ public class SumOfSquaresChecker {
 	 * 
 	 * @param constraints
 	 */
-	private double[] convertConstraintsToResultVector(
+	private static double[] convertConstraintsToResultVector(
 			List<Constraint> constraints) {
 		double[] result = new double[constraints.size()];
 		int cnum = 0;
@@ -1303,7 +1449,7 @@ public class SumOfSquaresChecker {
 	 * @param constraints
 	 * @param i
 	 */
-	private void convertConstraints(List<Constraint> constraints, int size) {
+	private static void convertConstraints(List<Constraint> constraints, int size) {
 		for (Constraint c : constraints) {
 			int[][] selectionMatrix = new int[size][size];
 			for (Vector v : c.indizes) {
@@ -1337,7 +1483,7 @@ public class SumOfSquaresChecker {
 	 * 
 	 * @author jdq
 	 */
-	private class Constraint {
+	private static class Constraint {
 
 		Constraint(Vector v, List<Vector> indizes, Arithmetic pre) {
 			this.v = v;
@@ -1392,7 +1538,7 @@ public class SumOfSquaresChecker {
 	 * 
 	 * @author jdq
 	 */
-	private class Poly {
+	private static class Poly {
 		HashMap<Vector, List<Vector>> vec = new HashMap<Vector, List<Vector>>();
 
 		/*
@@ -1472,7 +1618,7 @@ public class SumOfSquaresChecker {
 	 * @param multiplyMatrix
 	 * @param monominals
 	 */
-	private Poly multiplyVec(Vec multiplyMatrix, List<Vector> monominals) {
+	private static Poly multiplyVec(Vec multiplyMatrix, List<Vector> monominals) {
 		Poly p = new Poly();
 		for (int i = 0; i < monominals.size(); i++) {
 			for (Vector qij : multiplyMatrix.vec[i].vec.keySet()) {
@@ -1489,7 +1635,7 @@ public class SumOfSquaresChecker {
 		return p;
 	}
 
-	private class Vec {
+	private static class Vec {
 		Poly[] vec;
 	}
 
@@ -1501,7 +1647,7 @@ public class SumOfSquaresChecker {
 	 * @param monominals
 	 * @param matrix
 	 */
-	private Vec multiplyMatrix(List<Vector> monominals, Vector[][] matrix) {
+	private static Vec multiplyMatrix(List<Vector> monominals, Vector[][] matrix) {
 		Vec p = new Vec();
 		p.vec = new Poly[monominals.size()];
 		for (int i = 0; i < monominals.size(); i++) {
@@ -1525,9 +1671,98 @@ public class SumOfSquaresChecker {
 	 * @param i
 	 * @return
 	 */
-	public boolean checkCombinedSetForEmptyness(
+	public static boolean checkCombinedSetForEmptyness(
 			PolynomialClassification<Term> classify, int degreeBound) {
 		return checkCombinedSetForEmptyness(classify.f, classify.g, classify.h,
 				degreeBound);
+	}
+
+	/* (non-Javadoc)
+	 * @see de.uka.ilkd.key.dl.arithmetics.ISOSChecker#testForTautology(de.uka.ilkd.key.dl.arithmetics.impl.SumOfSquaresChecker.PolynomialClassification, de.uka.ilkd.key.java.Services)
+	 */
+	@Override
+	public boolean testForTautology(Set<Term> ante, Set<Term> succ,
+			Services services) throws RemoteException {
+		return checkCombinedSetForEmptyness(classify(ante, succ), 10); //FIXME: degree bound is hardcoded
+	}
+
+	/* (non-Javadoc)
+	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#abortCalculation()
+	 */
+	@Override
+	public void abortCalculation() throws RemoteException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	/* (non-Javadoc)
+	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#getCachedAnswerCount()
+	 */
+	@Override
+	public long getCachedAnswerCount() throws RemoteException {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	/* (non-Javadoc)
+	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#getName()
+	 */
+	@Override
+	public String getName() {
+		return "Internal SOS";
+	}
+
+	/* (non-Javadoc)
+	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#getQueryCount()
+	 */
+	@Override
+	public long getQueryCount() throws RemoteException {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	/* (non-Javadoc)
+	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#getTimeStatistics()
+	 */
+	@Override
+	public String getTimeStatistics() throws RemoteException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/* (non-Javadoc)
+	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#getTotalCalculationTime()
+	 */
+	@Override
+	public long getTotalCalculationTime() throws RemoteException {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	/* (non-Javadoc)
+	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#getTotalMemory()
+	 */
+	@Override
+	public long getTotalMemory() throws RemoteException,
+			ServerStatusProblemException, ConnectionProblemException {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	/* (non-Javadoc)
+	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#isConfigured()
+	 */
+	@Override
+	public boolean isConfigured() {
+		return true;
+	}
+
+	/* (non-Javadoc)
+	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#resetAbortState()
+	 */
+	@Override
+	public void resetAbortState() throws RemoteException {
+		// TODO Auto-generated method stub
+		
 	}
 }

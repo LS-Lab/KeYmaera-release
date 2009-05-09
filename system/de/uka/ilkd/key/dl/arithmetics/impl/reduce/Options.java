@@ -99,6 +99,8 @@ public class Options implements Settings {
 
 	private static final String OPTIONS_REDUCE_QUANTIFIER_ELIMINATION_METHOD = "[ReduceOptions]quantifierEliminationMethod";
 
+	private static final String OPTIONS_REDUCE_ELIMINATE_FRACTIONS = "[ReduceOptions]eliminateFractions";
+
 	private static final String OPTIONS_REDUCE_RLALL = "[ReduceOptions]rlall";
 
 	private static final String OPTIONS_REDUCE_rlanuexsgnopt = "[ReduceOptions]rlanuexsgnopt";
@@ -128,6 +130,8 @@ public class Options implements Settings {
 	private File reduceBinary;
 
 	private QuantifierEliminationMethod qeMethod;
+
+	private boolean eliminateFractions;
 
 	private boolean rlall;
 
@@ -185,6 +189,8 @@ public class Options implements Settings {
 		qeMethod = QuantifierEliminationMethod.RLQE;
 
 		rlall = false;
+		
+		eliminateFractions = false;
 
 		rlsimpl = ReduceSwitch.ON;
 
@@ -264,6 +270,10 @@ public class Options implements Settings {
 				.getProperty(OPTIONS_REDUCE_QUANTIFIER_ELIMINATION_METHOD);
 		if (property != null) {
 			qeMethod = QuantifierEliminationMethod.valueOf(property);
+		}
+		property = props.getProperty(OPTIONS_REDUCE_ELIMINATE_FRACTIONS);
+		if (property != null) {
+			eliminateFractions = Boolean.valueOf(property);
 		}
 		property = props.getProperty(OPTIONS_REDUCE_RLALL);
 		if (property != null) {
@@ -374,6 +384,7 @@ public class Options implements Settings {
 						.getAbsolutePath());
 		props.setProperty(OPTIONS_REDUCE_QUANTIFIER_ELIMINATION_METHOD,
 				qeMethod.name());
+		props.setProperty(OPTIONS_REDUCE_ELIMINATE_FRACTIONS, Boolean.toString(eliminateFractions));
 		props.setProperty(OPTIONS_REDUCE_RLALL, Boolean.toString(rlall));
 		props.setProperty(OPTIONS_REDUCE_rlanuexsgnopt, rlanuexsgnopt.name());
 		props.setProperty(OPTIONS_REDUCE_rlanuexgcdnormalize,
@@ -870,6 +881,23 @@ public class Options implements Settings {
 	public void setRlsimpl(ReduceSwitch rlsimpl) {
 		if (this.rlsimpl != rlsimpl) {
 			this.rlsimpl = rlsimpl;
+			firePropertyChanged();
+		}
+	}
+
+	/**
+	 * @return the eliminateFractions
+	 */
+	public boolean isEliminateFractions() {
+		return eliminateFractions;
+	}
+
+	/**
+	 * @param eliminateFractions the eliminateFractions to set
+	 */
+	public void setEliminateFractions(boolean eliminateFractions) {
+		if(this.eliminateFractions != eliminateFractions) {
+			this.eliminateFractions = eliminateFractions;
 			firePropertyChanged();
 		}
 	}

@@ -74,6 +74,8 @@ public abstract class MathSolverManager {
 
 	private static Map<String, IGroebnerBasisCalculator> GROEBNER_BASIS_CALCULATORS = new LinkedHashMap<String, IGroebnerBasisCalculator>();
 
+	private static Map<String, ISOSChecker> SOS_CHECKERS = new LinkedHashMap<String, ISOSChecker>();
+
 	private static Map<String, IMathSolver> UNCONFIGURED = new LinkedHashMap<String, IMathSolver>();
 
 	/**
@@ -158,6 +160,9 @@ public abstract class MathSolverManager {
 			GROEBNER_BASIS_CALCULATORS.put(solver.getName(),
 					(IGroebnerBasisCalculator) solver);
 		}
+		if (solver instanceof ISOSChecker) {
+			SOS_CHECKERS.put(solver.getName(), (ISOSChecker) solver);
+		}
 	}
 
 	public static void rehash() {
@@ -206,6 +211,12 @@ public abstract class MathSolverManager {
 						.containsKey(DLOptionBean.INSTANCE
 								.getGroebnerBasisCalculator())) {
 			DLOptionBean.INSTANCE.setGroebnerBasisCalculator("-");
+		}
+		removeIfNotConfigured(SOS_CHECKERS);
+		if (!DLOptionBean.INSTANCE.getSosChecker().equals("-")
+				&& !SOS_CHECKERS.containsKey(DLOptionBean.INSTANCE
+						.getSosChecker())) {
+			DLOptionBean.INSTANCE.setSosChecker("-");
 		}
 	}
 
@@ -277,6 +288,23 @@ public abstract class MathSolverManager {
 			}
 		}
 		return GROEBNER_BASIS_CALCULATORS.keySet();
+	}
+
+	/**
+	 * Returns the list of available mathsolvers
+	 * 
+	 * @return the list of available mathsolvers
+	 */
+	public static Set<String> getSOSCheckers() {
+		if (SOS_CHECKERS.isEmpty()) {
+			try {
+				initialize(CONFIG_XML);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return SOS_CHECKERS.keySet();
 	}
 
 	/**
@@ -505,17 +533,46 @@ public abstract class MathSolverManager {
 		}
 		return result;
 	}
-
+	
 	/**
-	 * @directed
+	 * Returns the MathInterface with the given name or null if it does not
+	 * exist
+	 * 
+	 * @param name
+	 *            the name of the interface to get
+	 * @return the MathInterface with the given name or null if it does not
+	 *         exist
 	 */
-	private XMLReader lnkXMLReader;
-
+	public static ISOSChecker getSOSChecker(
+			String name) {
+		if (SOS_CHECKERS.isEmpty()) {
+			try {
+				initialize(CONFIG_XML);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return SOS_CHECKERS.get(name);
+	}
+	
 	/**
-	 * @directed
-	 * @label creates
+	 * Get the {@link IMathSolver} that is chosen by the user for formula
+	 * deciding the universal fragment of real arithemtic
+	 * 
+	 * @return the current {@link ISimplifier}
 	 */
-	private IMathSolver lnkIMathSolver;
+	public static ISOSChecker getCurrentSOSChecker() {
+		ISOSChecker result = getSOSChecker(DLOptionBean.INSTANCE
+				.getSosChecker());
+		if (result == null) {
+			throw new IllegalStateException(
+					"Groebner basis calculator option is not set correctly. Could not find: "
+					+ DLOptionBean.INSTANCE
+					.getSosChecker());
+		}
+		return result;
+	}
 
 	/**
 	 * Call resetAbortState on all {@link IMathSolver}s

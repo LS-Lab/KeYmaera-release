@@ -5,7 +5,7 @@
 #include"csdp.h"
 
 double *convert_jdoubleArray_to_double_range(JNIEnv * env, jdoubleArray array,
-											 int from, int count, int shift)
+					     int from, int count, int shift)
 {
   //	printf("Converting an array from %d %d elements\n", from, count);
 	jboolean isCopy;
@@ -34,16 +34,15 @@ double *convert_jdoubleArray_to_double_range(JNIEnv * env, jdoubleArray array,
 	return result;
 }
 
-double *convert_jdoubleArray_to_double(JNIEnv * env, jdoubleArray array,
-									   int shift)
+double *convert_jdoubleArray_to_double(JNIEnv * env, jdoubleArray array, int shift)
 {
 	int size = (*env)->GetArrayLength(env, array);
 	return convert_jdoubleArray_to_double_range(env, array, 0, size, shift);
 }
 
-struct blockmatrix convert_double_array_to_blockmatrix(JNIEnv * env,
-													   jdoubleArray array,
-													   int n)
+struct blockmatrix convert_double_array_to_blockmatrix_single(JNIEnv * env,
+							      jdoubleArray array,
+							      int n)
 {
 	union blockdatarec data;
 	data.mat = convert_jdoubleArray_to_double(env, array, 0);
@@ -58,96 +57,155 @@ struct blockmatrix convert_double_array_to_blockmatrix(JNIEnv * env,
 	return b;
 }
 
-struct constraintmatrix *convert_double_array_to_constraintmatrix(JNIEnv * env, int n,
-								  int k,
-								  jdoubleArray constraints)
+struct blockmatrix convert_double_array_to_blockmatrix(JNIEnv * env,
+						       jdoubleArray array,
+						       int blockNum,
+						       int blockSizes[])
 {
-	/* again we need to allocate one more block */
-	struct constraintmatrix *result =
-		malloc((k + 1) * sizeof(struct constraintmatrix));
-	int l;
-	
-	jboolean isCopy;
-	jdouble *element =
-	  (jdouble *) (*env)->GetDoubleArrayElements(env, constraints, &isCopy);
+	struct blockmatrix b;
+	b.nblocks = blockNum;
+	/* CSDP ignores the first record, thus we have to allocate one
+	   additional block */
+	struct blockrec *rec = malloc((blockNum + 1) * sizeof(struct blockrec));
+	b.blocks = rec;
 
-	struct sparseblock *block;
-	for (l = 1; l <= k; l++) {
-		result[l].blocks = NULL;
-		block = malloc(sizeof(struct sparseblock));
-		if (l > 1) {
-			block->next = result[l].blocks;
-			block->nextbyblock = result[l].blocks;
-		}
-		result[l].blocks = block;
+	int offset = 0;
+	for (int i = 0; i < blockNum; ++i) {
+	  int blockLength = blockSizes[i] * blockSizes[i];
+
+	  union blockdatarec data;
+	  data.mat = convert_jdoubleArray_to_double_range(env, array,
+							  offset, blockLength, 0);
+	  rec[i+1].blockcategory = MATRIX;
+	  rec[i+1].data = data;
+	  rec[i+1].blocksize = blockSizes[i];
+
+	  offset += blockLength;
+	}
+	return b;
+}
+
+struct sparseblock *convert_array_to_sparseblock(int blockSize,
+						 jdouble *matrix_data) {
+  
+  int blockLength = blockSize * blockSize;
+
+  /* now we need to find out howmany non zero entries the matrix contains */
+  int ii;
+  int nonzero = 0;
+  for (ii = 0; ii < blockLength; ii++) {
+    if (matrix_data[ii] != 0) {
+      nonzero++;
+    }
+  }
+
+  if (nonzero == 0)
+    /* Then we can skip this block */
+    return NULL;
+
+  struct sparseblock *result = malloc(sizeof(struct sparseblock));
+
 #ifndef NOSHORTS
 #define INDICES_TYPE unsigned short
 #else
 #define INDICES_TYPE int
 #endif
-		jdouble *matrix_data = element + (l - 1) * n * n;
+  result->iindices = malloc(sizeof(INDICES_TYPE) * (nonzero + 1));
+  result->jindices = malloc(sizeof(INDICES_TYPE) * (nonzero + 1));
 
-		/* now we need to find out howmany non zero entries the matrix contains */
-		int ii;
-		int nonzero = 0;
-		for (ii = 0; ii < n * n; ii++) {
-			if (matrix_data[ii] != 0) {
-				nonzero++;
-			}
-		}
+  result->entries = malloc(sizeof(double) * (nonzero + 1));
 
-		block->iindices = malloc(sizeof(INDICES_TYPE) * (nonzero + 1));
-		block->jindices = malloc(sizeof(INDICES_TYPE) * (nonzero + 1));
+  int curentry = 1;
+  for (ii = 0; ii < blockLength; ii++) {
+    if (matrix_data[ii] != 0) {
+      result->entries[curentry] = matrix_data[ii];
+      result->iindices[curentry] = ii / blockSize + 1;
+      assert(result->iindices[curentry] <= blockSize);
+      result->jindices[curentry] = ii % blockSize + 1;
+      assert(result->jindices[curentry] <= blockSize);
+      curentry++;
+    }
+  }
 
-		block->entries = malloc(sizeof(double) * (nonzero + 1));
+  result->blocksize = blockSize;
+  result->numentries = nonzero;
+  result->issparse = 1;
+  result->nextbyblock = NULL;
 
-		int curentry = 1;
-		for (ii = 0; ii < n * n; ii++) {
-			if (matrix_data[ii] != 0) {
-				block->entries[curentry] = matrix_data[ii];
-				block->iindices[curentry] = ii / n + 1;
-				assert(block->iindices[curentry] <= n);
-				block->jindices[curentry] = ii % n + 1;
-				assert(block->jindices[curentry] <= n);
-				curentry++;
-			}
-		}
+  return result;
+}
 
-		block->blocknum = 1;
-		block->blocksize = n;
-		block->numentries = nonzero;
-		block->constraintnum = l;
-		block->issparse = 1;
-		block->next = NULL;
-		block->nextbyblock = NULL;
-	}
+struct constraintmatrix *convert_double_array_to_constraintmatrix(JNIEnv * env,
+								  int k,
+								  int blockNum,
+								  int blockSizes[],
+								  jdoubleArray constraints)
+{
+  /* again we need to allocate one more block */
+  struct constraintmatrix *result =
+    malloc((k + 1) * sizeof(struct constraintmatrix));
+	
+  jboolean isCopy;
+  jdouble *element =
+    (jdouble *) (*env)->GetDoubleArrayElements(env, constraints, &isCopy);
 
-	if(isCopy == JNI_TRUE) {
-	  (*env)->ReleaseDoubleArrayElements(env, constraints, element, JNI_ABORT);
-	}
+  int offset = 0;
+  /* Iterate over all constraints */
+  for (int constr = 1; constr <= k; constr++) {
 
-	return result;
+    result[constr].blocks = NULL;
+
+    /* Iterate over all blocks */
+    for (int blk = 0; blk < blockNum; ++blk) {
+      int blockSize = blockSizes[blk];
+
+      struct sparseblock *block =
+	convert_array_to_sparseblock(blockSize, element + offset);
+
+      if (block != NULL) {
+	block->blocknum = blk + 1;
+	block->constraintnum = constr;
+
+	/* Insert the new block into the list of blocks. The blocks
+	   will be generated in reversed order, which is hopefully not
+	   a problem for CSDP ...  */
+	block->next = result[constr].blocks;
+	result[constr].blocks = block;
+      }
+      
+      offset += blockSize * blockSize;
+    }
+  }
+
+  if(isCopy == JNI_TRUE) {
+    (*env)->ReleaseDoubleArrayElements(env, constraints, element, JNI_ABORT);
+  }
+
+  return result;
 }
 
 void insert_results_bmatrix(JNIEnv * env, jdoubleArray out,
-							struct blockmatrix *in)
+			    struct blockmatrix *in)
 {
     jboolean isCopy;
     jdouble* destArrayElems = 
-           (*env)->GetDoubleArrayElements(env, out, &isCopy);
-	int i,j;
-	int index = 0;
-	for(j=1; j <= in->nblocks; j++)
-	{
-		int size = in->blocks[j].blocksize;
-		for(i = 0; i < size*size; i++)
-		{
-			destArrayElems[index++] = in->blocks[j].data.mat[i];
-		}
-	}
-	if(isCopy == JNI_TRUE) {
-		(*env)->ReleaseDoubleArrayElements(env, out, destArrayElems, 0);
-	}
+      (*env)->GetDoubleArrayElements(env, out, &isCopy);
+    int i,j;
+    int index = 0;
+    for(j=1; j <= in->nblocks; j++)
+      {
+	struct blockrec block = in->blocks[j];
+	assert (block.blockcategory == MATRIX);
+	int size = block.blocksize;
+	int length = size * size;
+	for(i = 0; i < length; i++)
+	  {
+	    destArrayElems[index++] = block.data.mat[i];
+	  }
+      }
+    if(isCopy == JNI_TRUE) {
+      (*env)->ReleaseDoubleArrayElements(env, out, destArrayElems, 0);
+    }
 }
 
 void insert_results_array(JNIEnv * env, jdoubleArray out, double *in, int size)
@@ -168,15 +226,15 @@ void insert_results_array(JNIEnv * env, jdoubleArray out, double *in, int size)
 struct constraintmatrix *create_test_constraints();
 
 JNIEXPORT jint JNICALL
-	Java_de_uka_ilkd_key_dl_arithmetics_impl_csdp_CSDP_easySDP(env, clazz, n,
-															   k, C, a,
-															   constraints,
-															   constant_offset,
-															   pX, py, pZ,
-															   ppobj, pdobj)
+	Java_de_uka_ilkd_key_dl_arithmetics_impl_csdp_CSDP_easySDP(env, clazz, jBlockSizes,
+								   k, C, a,
+								   constraints,
+								   constant_offset,
+								   pX, py, pZ,
+								   ppobj, pdobj)
 	 JNIEnv *env;
 	 jclass clazz;
-	 jint n;
+	 jintArray jBlockSizes;
 	 jint k;
 	 jdoubleArray C;
 	 jdoubleArray a;
@@ -191,11 +249,24 @@ JNIEXPORT jint JNICALL
 
 	assert(sizeof(double) == sizeof(jdouble));
 	assert(sizeof(int) == sizeof(jint));
-	struct blockmatrix _C = convert_double_array_to_blockmatrix(env, C, n);
+
+	jboolean isCopy;
+	jint blockNum = (*env)->GetArrayLength(env, jBlockSizes);
+	jint* blockSizes = 
+	  (*env)->GetIntArrayElements(env, jBlockSizes, &isCopy);
+
+	int n = 0;
+	for (int i = 0; i < blockNum; ++i)
+	  n += blockSizes[i];
+
+	struct blockmatrix _C =
+	  convert_double_array_to_blockmatrix(env, C,
+					      blockNum, blockSizes);
 
 	struct constraintmatrix *_constraints =
-		convert_double_array_to_constraintmatrix(env, (int) n, (int) k,
-												 constraints);
+	  convert_double_array_to_constraintmatrix(env, (int) k,
+						   blockNum, blockSizes,
+						   constraints);
 
 	double *_a = convert_jdoubleArray_to_double(env, a, 1);
 
@@ -220,6 +291,10 @@ JNIEXPORT jint JNICALL
 	insert_results_array(env, pdobj, &dobj, k);
 
 	free_prob(n, k, _C, _a, _constraints, X, y, Z);
+
+	if(isCopy == JNI_TRUE) {
+	  (*env)->ReleaseIntArrayElements(env, jBlockSizes, blockSizes, 0);
+	}
 
 	return result;
 }
@@ -564,7 +639,7 @@ JNIEXPORT jint JNICALL
 	 jdoubleArray pdobj;
 {
 
-	struct blockmatrix _C = convert_double_array_to_blockmatrix(env, C, n);
+	struct blockmatrix _C = convert_double_array_to_blockmatrix_single(env, C, n);
 	/*struct blockmatrix _C = create_test_blockmatrix(); */
 
 	/*struct constraintmatrix *_constraints =

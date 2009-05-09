@@ -96,8 +96,8 @@ public class GroebnerBasisRule implements SequentWideBuiltInRule, RuleFilter {
 		while (it.hasNext()) {
 			succ.add(it.next().formula());
 		}
-		PolynomialClassification<Term> classify = SumOfSquaresChecker.INSTANCE
-				.classify(ante, succ);
+		PolynomialClassification<Term> classify = SumOfSquaresChecker.classify(
+				ante, succ);
 
 		if (MathSolverManager.isGroebnerBasisCalculatorSet()) {
 			IGroebnerBasisCalculator m = MathSolverManager
@@ -105,7 +105,8 @@ public class GroebnerBasisRule implements SequentWideBuiltInRule, RuleFilter {
 
 			if (m != null) {
 				try {
-					// we will rewrite the terms of the form f(x) >= 0 to f(x) =
+					// we will rewrite the terms of the form f(x) >= 0 to
+					// f(x) =
 					// z^2 and add
 					// them to h for this Groebner basis check
 
@@ -116,8 +117,8 @@ public class GroebnerBasisRule implements SequentWideBuiltInRule, RuleFilter {
 					Sort r = RealLDT.getRealSort();
 					Term zero = TermBuilder.DF.func(NumberCache.getNumber(
 							new BigDecimal(0), r));
-					Term one = TermBuilder.DF.func(NumberCache.getNumber(
-							new BigDecimal(1), r));
+//					Term one = TermBuilder.DF.func(NumberCache.getNumber(
+//							new BigDecimal(1), r));
 					Term two = TermBuilder.DF.func(NumberCache.getNumber(
 							new BigDecimal(2), r));
 					de.uka.ilkd.key.logic.op.Function exp = RealLDT
@@ -137,10 +138,10 @@ public class GroebnerBasisRule implements SequentWideBuiltInRule, RuleFilter {
 
 					// now we add the new equations
 					for (Term t : classify.f) {
-						 classify.h.add(TermBuilder.DF.equals(TermBuilder.DF.func(sub,
-						 t.sub(0), squares.poll()), zero));
-//						classify.h.add(TermBuilder.DF.equals(TermBuilder.DF
-//								.func(mul, t.sub(0), squares.poll()), one));
+						classify.h.add(TermBuilder.DF.equals(TermBuilder.DF
+								.func(sub, t.sub(0), squares.poll()), zero));
+						// classify.h.add(TermBuilder.DF.equals(TermBuilder.DF
+						// .func(mul, t.sub(0), squares.poll()), one));
 					}
 					// and clear all inequalities, as we do not need them
 					// anymore
@@ -155,6 +156,8 @@ public class GroebnerBasisRule implements SequentWideBuiltInRule, RuleFilter {
 			}
 		}
 
+//		if (true)
+//			throw new IllegalArgumentException("gb does not work");
 		return SLListOfGoal.EMPTY_LIST.append(goal);
 	}
 

@@ -21,24 +21,20 @@ package de.uka.ilkd.key.dl.arithmetics.impl.orbital;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 
 import orbital.math.Arithmetic;
 import orbital.math.Fraction;
 import orbital.math.Integer;
 import orbital.math.Polynomial;
-import orbital.math.Real;
 import orbital.math.Values;
 import orbital.math.Vector;
 import orbital.math.functional.Operations;
-import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
-import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
+import orbital.util.KeyValuePair;
 import de.uka.ilkd.key.dl.formulatools.collector.AllCollector;
 import de.uka.ilkd.key.dl.formulatools.collector.FilterVariableSet;
 import de.uka.ilkd.key.dl.formulatools.collector.FoundItem;
@@ -56,7 +52,6 @@ import de.uka.ilkd.key.dl.model.Mult;
 import de.uka.ilkd.key.dl.model.Plus;
 import de.uka.ilkd.key.dl.model.Unequals;
 import de.uka.ilkd.key.dl.parser.NumberCache;
-import de.uka.ilkd.key.gui.Main;
 import de.uka.ilkd.key.logic.NamespaceSet;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.TermBuilder;
@@ -109,14 +104,34 @@ public abstract class PolynomTool {
 				} else if (sub.op().equals(RealLDT.getFunctionFor(Mult.class))) {
 					return p.multiply(q);
 				} else if (sub.op().equals(RealLDT.getFunctionFor(Div.class))) {
+					try {
+						if (p.denominator().isOne() && q.denominator().isOne()) {
+							BigInteger pInt = new BigInteger(p.numerator()
+									.toString());
+							BigInteger qInt = new BigInteger(q.numerator()
+									.toString());
+							int[] size = new int[variables.size()];
+							return Values.getDefault().fraction(
+									Values.getDefault().MONOMIAL(
+											Values.getDefault().rational(
+													Values.getDefault()
+															.valueOf(pInt),
+													Values.getDefault()
+															.valueOf(qInt)).representative(),
+											size),
+									Values.getDefault().MONOMIAL(size).one());
+						}
+					} catch (Exception e) {
+					}
 					return (Fraction) p.divide(q);
 				} else if (sub.op().equals(RealLDT.getFunctionFor(Exp.class))) {
 					try {
 						Integer number = Values.getDefault().valueOf(
 								new BigInteger(sub.sub(1).op().name()
 										.toString()));
-						if (Operations.less.apply(number, Values.getDefault().ZERO()))
-						    return (Fraction) p.power(number.minus()).inverse();
+						if (Operations.less.apply(number, Values.getDefault()
+								.ZERO()))
+							return (Fraction) p.power(number.minus()).inverse();
 						return (Fraction) p.power(number);
 					} catch (NumberFormatException e) {
 						return (Fraction) p.power(q);
@@ -196,36 +211,32 @@ public abstract class PolynomTool {
 				new BigDecimal(0), r));
 
 		Term leftDenominator = null;
+		Polynomial leftPoly = (Polynomial) leftHandSide.numerator();
 		if (!leftHandSide.denominator().isOne()) {
 			leftDenominator = convertPolynomToTerm((Polynomial) leftHandSide
 					.denominator(), varList, variables, nss);
-
 			// cross-multiply with the denominators
-//			System.out.println("Now calculating " + rightHandSide + " * "
-//					+ leftHandSide.denominator());// XXX
-//			System.out.println("left is of type "
-//					+ leftHandSide.denominator().getClass());// XXX
-//			System.out.println("right is of type " + rightHandSide.getClass());// XXX
-			if (!leftHandSide.denominator().isOne()) {
-				rightHandSide = (Fraction) rightHandSide.multiply(Values
-						.getDefault().fraction(leftHandSide.denominator(),
-								leftHandSide.denominator().one()));
-			}
+			// System.out.println("Now calculating " + rightHandSide + " * "
+			// + leftHandSide.denominator());// XXX
+			// System.out.println("left is of type "
+			// + leftHandSide.denominator().getClass());// XXX
+			// System.out.println("right is of type " +
+			// rightHandSide.getClass());// XXX
+			rightHandSide = (Fraction) rightHandSide.multiply(Values
+					.getDefault().fraction(leftHandSide.denominator(),
+							leftHandSide.denominator().one()));
 		}
-
-		Polynomial leftPoly = (Polynomial) leftHandSide.numerator();
 
 		// add terms stating that the denominators are unequal to zero
 		Term rightDenominator = null;
+		Polynomial rightPoly = (Polynomial) rightHandSide.numerator();
 		if (!rightHandSide.denominator().isOne()) {
 			rightDenominator = convertPolynomToTerm((Polynomial) rightHandSide
 					.denominator(), varList, variables, nss);
 			// cross-multiply with the denominators
-			leftPoly = (Polynomial) leftPoly.multiply(rightHandSide
+			rightPoly = (Polynomial) rightPoly.multiply(rightHandSide
 					.denominator());
 		}
-
-		Polynomial rightPoly = (Polynomial) rightHandSide.numerator();
 
 		// recalculate term structure
 		Term left = convertPolynomToTerm(leftPoly, varList, variables, nss);
@@ -265,7 +276,7 @@ public abstract class PolynomTool {
 		}
 
 		// return the resulting terms
-//		System.out.println("Converted " + t + " to " + result);// XXX
+		// System.out.println("Converted " + t + " to " + result);// XXX
 
 		boolean assertions = false;
 		assert assertions = true;
@@ -278,22 +289,23 @@ public abstract class PolynomTool {
 			if (leftDenominator != null) {
 				prev = and(prev, func(neq, leftDenominator, zero));
 			}
-			if (MathSolverManager.getQuantifierElimantor("Mathematica") != null) {
-				try {
-					assert MathSolverManager.getQuantifierElimantor(
-							"Mathematica").reduce(
-							TermBuilder.DF.equiv(prev, result),
-							(nss == null) ? Main.getInstance().mediator()
-									.namespaces() : nss).equals(
-							TermBuilder.DF.tt());
-				} catch (RemoteException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (SolverException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
+			// if (MathSolverManager.getQuantifierElimantor("Mathematica") !=
+			// null) {
+			// try {
+			// assert MathSolverManager.getQuantifierElimantor(
+			// "Mathematica").reduce(
+			// TermBuilder.DF.equiv(prev, result),
+			// (nss == null) ? Main.getInstance().mediator()
+			// .namespaces() : nss).equals(
+			// TermBuilder.DF.tt());
+			// } catch (RemoteException e) {
+			// // TODO Auto-generated catch block
+			// e.printStackTrace();
+			// } catch (SolverException e) {
+			// // TODO Auto-generated catch block
+			// e.printStackTrace();
+			// }
+			// }
 
 		}
 
@@ -371,13 +383,13 @@ public abstract class PolynomTool {
 		final Function mult = RealLDT.getFunctionFor(Mult.class);
 		final Function exp = RealLDT.getFunctionFor(Exp.class);
 		final Function plus = RealLDT.getFunctionFor(Plus.class);
-System.out.println("Converting " + p);
-		ListIterator coefficients = p.iterator();
-		Iterator indices = p.indices();
+		System.out.println("Converting " + p);
+		final Iterator<KeyValuePair> monomials = p.monomials();
 		Term result = null;
-		while (coefficients.hasNext()) {
-			Object coefficient = coefficients.next();
-			Object nextVector = indices.next();
+		while (monomials.hasNext()) {
+			KeyValuePair next = monomials.next();
+			Object coefficient = next.getValue();
+			Object nextVector = next.getKey();
 
 			Vector monomialDegrees = null;
 			if (nextVector instanceof Vector) {
@@ -392,7 +404,7 @@ System.out.println("Converting " + p);
 					summand = Orbital.convertOrbitalToTerm(r, zero, nss,
 							coefficient);
 				}
-//				String blub = "";
+				// String blub = "";
 				for (int i = 0; i < monomialDegrees.dimension(); i++) {
 					if (!monomialDegrees.get(i).isZero()) {
 						Term s2 = varMap.get(variables.get(i));
@@ -406,12 +418,13 @@ System.out.println("Converting " + p);
 						} else {
 							summand = TermBuilder.DF.func(mult, summand, s2);
 						}
-//						blub += variables.get(i) + "^" + monomialDegrees.get(i);
+						// blub += variables.get(i) + "^" +
+						// monomialDegrees.get(i);
 					}
 				}
-//				if (!blub.equals("")) {
-//					System.out.println(coefficient + " * " + blub);// XXX
-//				}
+				// if (!blub.equals("")) {
+				// System.out.println(coefficient + " * " + blub);// XXX
+				// }
 				if (result == null) {
 					if (summand == null && ((Arithmetic) coefficient).isOne()) {
 						result = one;
@@ -429,6 +442,61 @@ System.out.println("Converting " + p);
 		}
 		if (result == null) {
 			return zero;
+		}
+		return result;
+	}
+
+	public static class BigFraction {
+		private BigInteger numerator = null;
+		private BigInteger denominator = BigInteger.ONE;
+
+		/**
+		 * @return the numerator
+		 */
+		public BigInteger getNumerator() {
+			return numerator;
+		}
+
+		/**
+		 * @return the denominator
+		 */
+		public BigInteger getDenominator() {
+			return denominator;
+		}
+
+	}
+
+	public static BigFraction convertStringToFraction(String numberAsString)
+			throws NumberFormatException, ArithmeticException {
+		BigFraction result = new BigFraction();
+		BigDecimal d = new BigDecimal(numberAsString);
+		try {
+			result.numerator = d.toBigIntegerExact();
+		} catch (ArithmeticException e) {
+			assert numberAsString.indexOf('.') != -1;
+			int numbersAfterComma = numberAsString.length()
+					- numberAsString.indexOf('.') - 1;
+			BigInteger denominator = BigInteger.TEN.pow(numbersAfterComma);
+			d = d.multiply(BigDecimal.TEN.pow(numbersAfterComma));
+
+			// calculate the greatest common divisor of the
+			// fraction
+			BigInteger numerator = d.toBigIntegerExact();
+			BigInteger tmp = d.toBigIntegerExact().abs();
+			BigInteger gcd = denominator;
+			BigInteger t;
+			while (tmp.compareTo(BigInteger.valueOf(0)) > 0) {
+				t = numerator;
+				tmp = gcd.mod(tmp);
+				gcd = t;
+			}
+			numerator = numerator.divide(gcd);
+			denominator = denominator.divide(gcd);
+			result.numerator = numerator;
+			result.denominator = denominator;
+			assert new BigDecimal(result.numerator).divide(
+					new BigDecimal(result.denominator)).equals(
+					new BigDecimal(numberAsString));
 		}
 		return result;
 	}

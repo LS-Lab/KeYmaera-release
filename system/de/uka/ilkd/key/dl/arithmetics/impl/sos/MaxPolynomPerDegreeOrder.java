@@ -20,6 +20,7 @@ import orbital.math.Polynomial;
 import orbital.math.Real;
 import orbital.math.Values;
 import orbital.math.Vector;
+import orbital.util.KeyValuePair;
 import de.uka.ilkd.key.dl.arithmetics.impl.sos.SimpleOrder.PolynomialComparator;
 
 /**
@@ -41,11 +42,9 @@ public class MaxPolynomPerDegreeOrder implements PolynomialOrder {
 		 */
 		/* @Override */
 		public int compare(Polynomial o1, Polynomial o2) {
-			Iterator indices1 = o1.indices();
-			ListIterator coeff1 = o1.iterator();
-			Iterator indices2 = o2.indices();
-			ListIterator coeff2 = o2.iterator();
-			Comparator<Vector> monomComparator = new Comparator<Vector>() {
+			final Iterator<KeyValuePair> monomials = o1.monomials();
+			final Iterator<KeyValuePair> monomials2 = o2.monomials();
+			final Comparator<Vector> monomComparator = new Comparator<Vector>() {
 
 				/*@Override*/
 				public int compare(Vector arg0, Vector arg1) {
@@ -60,13 +59,14 @@ public class MaxPolynomPerDegreeOrder implements PolynomialOrder {
 				}
 
 			};
-			TreeMap<Vector, Real> in1 = new TreeMap<Vector, Real>(
+			final TreeMap<Vector, Real> in1 = new TreeMap<Vector, Real>(
 					monomComparator);
-			TreeMap<Vector, Real> in2 = new TreeMap<Vector, Real>(
+			final TreeMap<Vector, Real> in2 = new TreeMap<Vector, Real>(
 					monomComparator);
-			List<Vector> all = new ArrayList<Vector>();
-			while (indices1.hasNext()) {
-				Object nextVector = indices1.next();
+			final List<Vector> all = new ArrayList<Vector>();
+			while (monomials.hasNext()) {
+				KeyValuePair nextMono = monomials.next();
+				Object nextVector = nextMono.getKey();
 				
 				Vector next2 = null;
 				if(nextVector instanceof Vector ) {
@@ -74,14 +74,15 @@ public class MaxPolynomPerDegreeOrder implements PolynomialOrder {
 				} else {
 					next2 = Values.getDefault().valueOf(new Integer[] { (Integer) nextVector });
 				}
-				Real next3 = (Real) coeff1.next();
+				Real next3 = (Real) nextMono.getValue();
 				if (!next3.equals(next3.zero())) {
 					in1.put(next2, next3);
 					all.add(next2);
 				}
 			}
-			while (indices2.hasNext()) {
-				Object nextVector = indices2.next();
+			while (monomials2.hasNext()) {
+				KeyValuePair nextMono = monomials2.next();
+				Object nextVector = nextMono.getKey();
 				
 				Vector next2 = null;
 				if(nextVector instanceof Vector ) {
@@ -89,7 +90,7 @@ public class MaxPolynomPerDegreeOrder implements PolynomialOrder {
 				} else {
 					next2 = Values.getDefault().valueOf(new Integer[] { (Integer) nextVector });
 				}
-				Real next3 = (Real) coeff2.next();
+				Real next3 = (Real) nextMono.getValue();
 				if (!next3.equals(next3.zero())) {
 					in2.put(next2, next3);
 					if (!all.contains(next2)) {
