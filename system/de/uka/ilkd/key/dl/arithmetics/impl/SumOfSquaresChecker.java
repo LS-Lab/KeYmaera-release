@@ -1737,7 +1737,7 @@ public class SumOfSquaresChecker implements ISOSChecker {
 	@Override
 	public boolean testForTautology(Set<Term> ante, Set<Term> succ,
 			Services services) throws RemoteException {
-		return checkCombinedSetForEmptyness(classify(ante, succ), 10); //FIXME: degree bound is hardcoded
+		return checkCombinedSetForEmptyness(classify(ante, succ), 15); //FIXME: degree bound is hardcoded
 	}
 
 	/* (non-Javadoc)
