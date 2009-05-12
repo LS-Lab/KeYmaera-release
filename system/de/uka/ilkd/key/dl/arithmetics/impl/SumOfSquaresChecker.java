@@ -443,9 +443,47 @@ public class SumOfSquaresChecker implements ISOSChecker {
 	}
 
 	
+	private static class DegreePair {
+	    final public int d;
+	    final public int d2;
+	    public DegreePair(int d, int d2) {
+                this.d = d;
+                this.d2 = d2;
+            }
+	    public boolean equals(Object obj) {
+	        if (!(obj instanceof DegreePair))
+	            return false;
+	        DegreePair that = (DegreePair)obj;
+                return this.d == that.d && this.d2 == that.d2;
+            }
+	    public int hashCode() {
+                return d * 101 + d2;
+            }
+	}
+	
+	
+	private static List<DegreePair> enumerateDegrees(int degreeBound) {
+	    final HashSet<DegreePair> degreesSeen = new HashSet<DegreePair> ();
+	    final List<DegreePair> res = new ArrayList<DegreePair> ();
+	    
+	    for (int rad = 0; rad <= degreeBound; ++rad) {
+	        for (int d = 0; d <= rad; ++d) {
+	            for (int d2 = 0; d*d + d2*d2 <= rad*rad; ++d2) {
+	                final DegreePair newPair = new DegreePair (d, d2);
+	                if (!degreesSeen.contains(newPair)) {
+	                    degreesSeen.add(newPair);
+	                    res.add(newPair);
+	                }
+	            }
+	        }
+	    }
+	    
+	    return res;
+	}
+	
 	
 	public static boolean checkCombinedSetForEmptyness(Set<Term> f, Set<Term> g,
-			Set<Term> h, int degreeBound) {
+	                                                   Set<Term> h, int degreeBound) {
 		// degreeBound = 4;
 		PolynomialClassification<Polynomial> classify = classify(new PolynomialClassification<Term>(
 				f, g, h));
@@ -457,51 +495,65 @@ public class SumOfSquaresChecker implements ISOSChecker {
 		} else if (!classify.h.isEmpty()) {
 			one = (Polynomial) classify.h.iterator().next().one();
 		}
-		int d = 0;
-		if (one != null) {
-			// now we built a SparsePolynomial based on Parrilo Theorem 5.1
-			final Monoid gMonoid = new Monoid(new ArrayList<Polynomial>(classify.g),
-					one);
+		if (one == null)
+		    return false;
+		    
+		if (classify.g.contains(one.zero()))
+		    // special case: the succedent contains an equation t=t
+		    return true;
+		
+		final Polynomial[] gPolys = classify.g.toArray(new Polynomial [0]);
+		
+                // therefore we construct all f combinations and add parametric
+                // polynomials as coefficients
+                final Set<Polynomial> prodsOfFs = generateFProducts(classify, one);
+                System.out.println("prodsOfFs: " + prodsOfFs);// XXX
 
-			final Iterator<Polynomial> gIt = gMonoid.iterator();
+                final List<DegreePair> degrees = enumerateDegrees(degreeBound);
+                
+                for (DegreePair pair : degrees) {
+                    final int d = pair.d;
+                    final int d2 = pair.d2;
+                
+		    System.out.println("====================================================");
+                    System.out.println("Now testing polynomials g of degree d=" + d);
+                    System.out.println("Now testing parametric pi-polynomials of degree d2=" + d2);
+                    
+		    final SimpleMonomialIterator gExponentIt =
+		        new SimpleMonomialIterator(classify.g.size(), d/2);
+		    
+		    while (gExponentIt.hasNext()) {
+		        final Vector gExponents = gExponentIt.next(); 
+                        Polynomial nextG = one;
+                        for (int i = 0; i < gExponents.dimension(); ++i) {
+                            int exp = ((Integer)gExponents.get(i)).intValue();
+                            while (exp > 0) {
+                                nextG = nextG.multiply(gPolys[i]);
+                                exp = exp - 1;
+                            }
+                        }
+                        
+                        // g has to be a square
+                        nextG = nextG.multiply(nextG);
+                        if (nextG.degree().intValue() != d)
+                            // wrong degree -> try the next g-product
+                            continue;
+		    
+                        System.out.println("nextG is: " + nextG);
+                        System.out.println("(degree: " + nextG.degreeValue() + ")");
+                        
+                        List<Vector> qMonomials = new ArrayList<Vector>();
+                        {
+                            SimpleMonomialIterator monomialIterator =
+                                new SimpleMonomialIterator(one.rank(), d2 / 2);
+                            while (monomialIterator.hasNext())
+                                qMonomials.add(monomialIterator.next());
+                        }
 
-			Polynomial nextG = one;
-
-			while (d < degreeBound) {
-				// first we construct out g as product of all g_i^(2m) such that
-				// the degree of g is greater than or equal to d.
-				if (!classify.g.isEmpty() && gIt.hasNext()) {
-					// we at least advance by one in G
-					Polynomial gItNext = gIt.next();
-					nextG = (Polynomial) gItNext.multiply(gItNext);
-					System.out.println("nextG is " + nextG);// XXX
-					while (nextG.degreeValue() < d) {
-						Polynomial next = (Polynomial) gIt.next();
-						nextG = next.multiply(next);
-					}
-				}
-				// now we got g and have to compute the next f with a degree
-				// greater than or equal to d as well as deg(g)
-
-				// therefore we construct all f combinations and add parametric
-				// polynomials as coefficients
-				final Set<Polynomial> prodsOfFs = generateFProducts(classify, one);
-				
-				System.out.println("prodsOfFs: " + prodsOfFs);// XXX
-				// now construct parametric polynomials of degree deg(g)
-				// We need sumOfFs.size() p_i's and classify.h.size() q_i's
-				List<Vector> qMonomials = new ArrayList<Vector>();
-				{
-				SimpleMonomialIterator monomialIterator = new SimpleMonomialIterator(
-						one.rank(), (Math.max(nextG.degreeValue(), d) + 1) / 2);
-				System.out.println("Degree of g is " + nextG.degreeValue());// XXX
-				System.out.println("g is " + nextG);// XXX
-				while (monomialIterator.hasNext()) {
-					qMonomials.add(monomialIterator.next());
-				}
-				}
-
-				
+                        final int qDegree = Math.max(d, d2);
+//                        for (int qDegree = 0; qDegree <= Math.max(d, d2); ++qDegree) 
+                        {
+                            System.out.println("Now testing parametric qi-polynomials of degree qDegree=" + qDegree);
                                 //////////////////////////////////////////////////////////////////////////
 				// the next step is to construct all those parametric
 				// polynomials p_i (one per f in sumOfFs)
@@ -572,8 +624,7 @@ public class SumOfSquaresChecker implements ISOSChecker {
                                     
                                     final SparsePolynomial s = new SparsePolynomial();
                                     final SimpleMonomialIterator monomialIt =
-                                        new SimpleMonomialIterator(one.rank(),
-                                                                   Math.max(nextG.degreeValue(), d));
+                                        new SimpleMonomialIterator(one.rank(), qDegree);
 
                                     while (monomialIt.hasNext()) {
                                         final Vector monoExp = monomialIt.next();
@@ -599,14 +650,6 @@ public class SumOfSquaresChecker implements ISOSChecker {
                                     nextH = nextH.add(s.multiply(hPoly));
                                 }
 
-                                /*
-                                final int bigMatrixSize;
-                                if (lastTopParameter == currentParameter)
-                                    bigMatrixSize = totalMonomialNum;
-                                else
-                                    bigMatrixSize = totalMonomialNum + 1;
-                                */
-                                
                                 // we might already have filled a further column
                                 // halfway
                                 final int qiBlockSize;
@@ -619,9 +662,12 @@ public class SumOfSquaresChecker implements ISOSChecker {
 				
 				// now we can add nextF and nextH, we cannot represent nextG as
 				// SparsePolynomial, as it is not parametric
-				SparsePolynomial fh = nextF.add(nextH);
-				List<Arithmetic> monomialsInFH = extractMonomialsInFH(fh, nextG);
+				final SparsePolynomial fh = nextF.add(nextH);
+				final List<Arithmetic> monomialsInFH = extractMonomialsInFH(fh, nextG);
 
+				if (monomialsInFH == null)
+				    continue;
+				
 				System.out.println("f+h = " + fh);// XXX
 
 				////////////////////////////////////////////////////////////////////////////
@@ -751,11 +797,9 @@ public class SumOfSquaresChecker implements ISOSChecker {
 				} else {
 					System.out.println("No solution");
 				}
-				d++;
-			}
-
+			}}
 		}
-
+		
 		return false;
 	}
 
@@ -886,9 +930,9 @@ public class SumOfSquaresChecker implements ISOSChecker {
         return exactHetero;
     }
 
-    private static Set<Polynomial> generateFProducts(
-                                              PolynomialClassification<Polynomial> classify,
-                                              Polynomial one) {
+    private static Set<Polynomial>
+                   generateFProducts(PolynomialClassification<Polynomial> classify,
+                                     Polynomial one) {
         Set<Polynomial> prodsOfFs = new LinkedHashSet<Polynomial>();
         prodsOfFs.add(one);
         List<Polynomial> curF = new ArrayList<Polynomial>(classify.f);
@@ -897,32 +941,32 @@ public class SumOfSquaresChecker implements ISOSChecker {
         
         final boolean[] combination = new boolean[curF.size()];
         while (true) {
-                            Polynomial currentF = one;
-                            for (int i = 0; i < combination.length; ++i)
-                                if (combination[i])
-                                    currentF = currentF.multiply(curF.get(i));
-                            if (currentF.degreeValue() > maxFDegree) {
-                                    maxFDegree = currentF.degreeValue();
-                            }
-                            prodsOfFs.add(currentF);
+            Polynomial currentF = one;
+            for (int i = 0; i < combination.length; ++i)
+                if (combination[i])
+                    currentF = currentF.multiply(curF.get(i));
+            if (currentF.degreeValue() > maxFDegree) {
+                maxFDegree = currentF.degreeValue();
+            }
+            prodsOfFs.add(currentF);
                             
-                            int i = 0;
-                            for (; i < combination.length; ++i) {
-                                if (combination[i]) {
-                                    combination[i] = false;
-                                } else {
-                                    combination[i] = true;
-                                    break;
-                                }
-                            }
-                            if (i == combination.length)
-                                break;
+            int i = 0;
+            for (; i < combination.length; ++i) {
+                if (combination[i]) {
+                    combination[i] = false;
+                } else {
+                    combination[i] = true;
+                    break;
+                }
+            }
+            if (i == combination.length)
+                break;
         }
         return prodsOfFs;
     }
 
     private static List<Arithmetic> extractMonomialsInFH(SparsePolynomial fh,
-                                                  Polynomial nextG) {
+                                                         Polynomial nextG) {
         final List<Arithmetic> monomialsInFH =
             new ArrayList<Arithmetic>(fh.getMonomials());
         // Vector zeroMonomial = Values.getDefault().valueOf(
@@ -931,16 +975,16 @@ public class SumOfSquaresChecker implements ISOSChecker {
         // + zeroMonomial;
 
         Iterator<KeyValuePair> monomials = nextG.monomials();
-        int mononum = monomialsInFH.size();
+
         System.out.println(monomialsInFH);// XXX
         while (monomials.hasNext()) {
         	KeyValuePair next = monomials.next();
-			Arithmetic monomial = (Arithmetic) next.getKey();
+        	Arithmetic monomial = (Arithmetic) next.getKey();
         	Arithmetic coefficient = (Arithmetic) next.getValue();
-        	assert coefficient.isZero()
-        			|| monomialsInFH.contains(monomial) :
-                 "The polynomial g cannot contain monomials that are not in any p_i "
-        			+ monomial + " * " + coefficient;
+        	if (!coefficient.isZero() && !monomialsInFH.contains(monomial)) {
+        	    // then we immediately now that there is no solution
+        	    return null;
+        	}
         }
         return monomialsInFH;
     }
@@ -974,6 +1018,16 @@ public class SumOfSquaresChecker implements ISOSChecker {
 	    jordan(echelon);
 	    
 	    final Vector particular = particularSolution(echelon);
+	    if (particular == null) {
+	        // the system is unsolvable. we can just remove the columns
+	        // for the eliminated variables
+	        final Matrix res = (Matrix)m.clone();
+	        for (int i = res.dimensions()[1] - 2; i >= 0; --i)
+	            if (elimColumns.get(i))
+	                res.removeColumn(i);
+	        return res;
+	    }
+	    
 	    final Matrix space = homoSolutionSpace(echelon);
 	    
 	    // then remove all variables that we want to eliminate
@@ -999,7 +1053,8 @@ public class SumOfSquaresChecker implements ISOSChecker {
 	    /**
 	     * Read of an arbitrary particular solution from a matrix in echelon form
 	     * (it is assumed that the last column of the matrix is the RHS of a
-	     * system of equations)
+	     * system of equations). If the system of equations is unsolvable,
+	     * return <code>null</code>
 	     */
 	    private static Vector particularSolution(Matrix m) {
 	        final int height = m.dimensions()[0];
@@ -1022,8 +1077,7 @@ public class SumOfSquaresChecker implements ISOSChecker {
 	                continue;
 	            } else if (i == width - 1) {
 	                // this system of equations is unsolvable
-	                throw new IllegalArgumentException
-	                          ("Tried to solve unsolvable system of equations");
+	                return null;
 	            }
 	            
 	            assert (i <= col);
@@ -1683,7 +1737,7 @@ public class SumOfSquaresChecker implements ISOSChecker {
 	@Override
 	public boolean testForTautology(Set<Term> ante, Set<Term> succ,
 			Services services) throws RemoteException {
-		return checkCombinedSetForEmptyness(classify(ante, succ), 10); //FIXME: degree bound is hardcoded
+		return checkCombinedSetForEmptyness(classify(ante, succ), 15); //FIXME: degree bound is hardcoded
 	}
 
 	/* (non-Javadoc)

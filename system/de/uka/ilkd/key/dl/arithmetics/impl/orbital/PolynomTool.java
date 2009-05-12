@@ -196,10 +196,12 @@ public abstract class PolynomTool {
 		// convert the left side of the term to a fraction
 		Fraction leftHandSide = createFractionOfPolynomialsFromTerm(t.sub(0),
 				varList);
+		System.out.println(t.sub(0) + " becomes " + leftHandSide);
 
 		// convert the right side of the term to a fraction
 		Fraction rightHandSide = createFractionOfPolynomialsFromTerm(t.sub(1),
 				varList);
+		System.out.println(t.sub(1) + " becomes " + rightHandSide);
 
 		// reduce the fractions
 
@@ -226,6 +228,7 @@ public abstract class PolynomTool {
 					.getDefault().fraction(leftHandSide.denominator(),
 							leftHandSide.denominator().one()));
 		}
+		System.out.println("leftDenominator: " + leftDenominator + " righthandside " + rightHandSide);
 
 		// add terms stating that the denominators are unequal to zero
 		Term rightDenominator = null;
@@ -234,7 +237,7 @@ public abstract class PolynomTool {
 			rightDenominator = convertPolynomToTerm((Polynomial) rightHandSide
 					.denominator(), varList, variables, nss);
 			// cross-multiply with the denominators
-			rightPoly = (Polynomial) rightPoly.multiply(rightHandSide
+			leftPoly = (Polynomial) leftPoly.multiply(rightHandSide
 					.denominator());
 		}
 
