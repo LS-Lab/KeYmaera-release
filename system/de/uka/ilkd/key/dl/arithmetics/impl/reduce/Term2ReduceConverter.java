@@ -56,8 +56,9 @@ public class Term2ReduceConverter {
 	 * @param variables
 	 */
 	private String convertImpl(Term form) {
-		String formula = convert2String(form, null, Options.INSTANCE
-				.isEliminateFractions());
+//		String formula = convert2String(form, null, Options.INSTANCE
+//				.isEliminateFractions());
+		String formula = convert2String(form, null, true);
 		System.out.println("Converted " + form + " to " + formula);
 		return formula;
 	}
