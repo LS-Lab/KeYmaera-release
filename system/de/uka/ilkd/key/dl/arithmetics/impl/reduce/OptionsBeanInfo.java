@@ -68,9 +68,9 @@ public class OptionsBeanInfo extends SimpleBeanInfo {
 									+ "(virtual substitution (rlqe), Cylindrical algebraic<br>"
 									+ "decomposition (rlcad)...)</html>",
 							false, true, QeMethodPropertyEditor.class),
-					createDescriptor("eliminateFractions", "Eliminate Fractions",
-							"Choose if KeYmaera should eliminate all fractions before calling reduce.",
-							false, false),
+//					createDescriptor("eliminateFractions", "Eliminate Fractions",
+//							"Choose if KeYmaera should eliminate all fractions before calling reduce.",
+//							false, false),
 				    createDescriptor("rlall", "Use Universal Closure",
 							"If true the formula will be universally closed.",
 							false, false),
