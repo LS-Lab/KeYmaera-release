@@ -60,7 +60,8 @@ public class Reduce implements IQuantifierEliminator {
 			long timeout) throws RemoteException, SolverException {
 
 		System.out.println("START  : Reduce called");
-		String input = Term2ReduceConverter.convert(form);
+		int[] variableCount = new int[1];
+		String input = Term2ReduceConverter.convert(form, variableCount);
 		System.out.println("Input will be " + input);//XXX
 		if(input.equals(Term2ReduceConverter.TRUE)) {
 			return TermBuilder.DF.tt();
@@ -77,7 +78,7 @@ public class Reduce implements IQuantifierEliminator {
 					process.getOutputStream()));
 			File tmp = File.createTempFile("keymaera-reduce", ".txt");
 			System.out.println("Process started...");
-			String generateInput = generateInput(input, tmp);
+			String generateInput = generateInput(input, tmp, variableCount);
 			System.out.println("Query is " + generateInput);
 			out.write(generateInput);
 			out.flush();
@@ -112,7 +113,7 @@ public class Reduce implements IQuantifierEliminator {
 		return null;
 	}
 
-	private String generateInput(String input, File tmp) {
+	private String generateInput(String input, File tmp, int[] variableCount) {
 		// TODO: use all those options
 		String result = "load_package redlog; off rlverbose; rlset R; ";
 
@@ -214,9 +215,9 @@ public class Reduce implements IQuantifierEliminator {
 			result += Options.INSTANCE.getRlsimpl().name().toLowerCase()
 					+ " rlsimpl; ";
 		}
-
+		// variableCount needs to be at least 1 to use rlall...
 		return result + "redlog_phi := "
-				+ (Options.INSTANCE.isRlall() ? "rlall(" : "(") + input + ");"
+				+ ((Options.INSTANCE.isRlall() && variableCount[0] > 0) ? "rlall(" : "(") + input + ");"
 				+ "off nat; out \"" + tmp.getAbsolutePath() + "\"; "
 				+ Options.INSTANCE.getQeMethod().getMethod()
 				+ " redlog_phi; shut \"" + tmp.getAbsolutePath()
