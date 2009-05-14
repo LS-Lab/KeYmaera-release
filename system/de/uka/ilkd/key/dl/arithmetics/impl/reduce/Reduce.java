@@ -15,9 +15,11 @@ import de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ConnectionProblemException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ServerStatusProblemException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
+import de.uka.ilkd.key.dl.arithmetics.impl.orbital.OrbitalSimplifier;
 import de.uka.ilkd.key.dl.arithmetics.impl.reduce.Options.ReduceSwitch;
 import de.uka.ilkd.key.logic.NamespaceSet;
 import de.uka.ilkd.key.logic.Term;
+import de.uka.ilkd.key.logic.TermBuilder;
 
 /**
  * Implements the QuantifierElimintor with an external program called
@@ -59,8 +61,19 @@ public class Reduce implements IQuantifierEliminator {
 			long timeout) throws RemoteException, SolverException {
 
 		System.out.println("START  : Reduce called");
-		String input = Term2ReduceConverter.convert(form);
+		int[] variableCount = new int[1];
+		String input = Term2ReduceConverter.convert(form, variableCount);
 		System.out.println("Input will be " + input);//XXX
+		if(input.equals(Term2ReduceConverter.TRUE)) {
+			return TermBuilder.DF.tt();
+		} else if(input.equals(Term2ReduceConverter.FALSE)) {
+			return TermBuilder.DF.ff();
+		} else if(variableCount[0] == 0) {
+			Term parsedTerm = String2TermConverter.convert(input, nss);
+			if(OrbitalSimplifier.testForSimpleTautology(parsedTerm)) {
+				return TermBuilder.DF.tt();
+			}
+		}
 		ProcessBuilder pb = new ProcessBuilder(Options.INSTANCE
 				.getReduceBinary().getAbsolutePath());
 		Process process = null;
@@ -210,7 +223,7 @@ public class Reduce implements IQuantifierEliminator {
 		}
 
 		return result + "redlog_phi := "
-				+ (Options.INSTANCE.isRlall() ? "rlall(" : "(") + input + ");"
+				+ ((Options.INSTANCE.isRlall()) ? "rlall(" : "(") + input + ");"
 				+ "off nat; out \"" + tmp.getAbsolutePath() + "\"; "
 				+ Options.INSTANCE.getQeMethod().getMethod()
 				+ " redlog_phi; shut \"" + tmp.getAbsolutePath()

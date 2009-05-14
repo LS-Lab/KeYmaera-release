@@ -45,9 +45,9 @@ public class Term2ReduceConverter {
 	 * @param variables
 	 * @return QepCadInput-Instance of the given term.
 	 */
-	public static String convert(Term form) {
+	public static String convert(Term form, int[] variableCount) {
 		Term2ReduceConverter converter = new Term2ReduceConverter();
-		return converter.convertImpl(form);
+		return converter.convertImpl(form, variableCount);
 	}
 
 	/**
@@ -55,16 +55,16 @@ public class Term2ReduceConverter {
 	 * 
 	 * @param variables
 	 */
-	private String convertImpl(Term form) {
+	private String convertImpl(Term form, int[] variableCount) {
 //		String formula = convert2String(form, null, Options.INSTANCE
 //				.isEliminateFractions());
-		String formula = convert2String(form, null, true);
+		String formula = convert2String(form, null, true, variableCount);
 		System.out.println("Converted " + form + " to " + formula);
 		return formula;
 	}
 
 	private String convert2String(Term form, NamespaceSet nss,
-			boolean eliminateFractions) {
+			boolean eliminateFractions, int[] variableCount) {
 		if (form.op() == Op.FALSE) {
 			return FALSE;
 		} else if (form.op() == Op.TRUE) {
@@ -73,100 +73,100 @@ public class Term2ReduceConverter {
 			if (eliminateFractions) {
 				return convert2String(PolynomTool
 						.eliminateFractionsFromInequality(form, nss), nss,
-						false);
+						false, variableCount);
 			}
-			return "( " + convert2String(form.sub(0), nss, true) + " = "
-					+ convert2String(form.sub(1), nss, true) + " )";
+			return "( " + convert2String(form.sub(0), nss, true, variableCount) + " = "
+					+ convert2String(form.sub(1), nss, true, variableCount) + " )";
 		} else if (form.op() instanceof Function) {
 			Function f = (Function) form.op();
 			if (f.name().toString().equals("gt")) {
 				if (eliminateFractions) {
 					return convert2String(PolynomTool
 							.eliminateFractionsFromInequality(form, nss), nss,
-							false);
+							false, variableCount);
 				}
-				return "( " + convert2String(form.sub(0), nss, true) + " > "
-						+ convert2String(form.sub(1), nss, true) + " )";
+				return "( " + convert2String(form.sub(0), nss, true, variableCount) + " > "
+						+ convert2String(form.sub(1), nss, true, variableCount) + " )";
 			} else if (f.name().toString().equals("geq")) {
 				if (eliminateFractions) {
 					return convert2String(PolynomTool
 							.eliminateFractionsFromInequality(form, nss), nss,
-							false);
+							false, variableCount);
 				}
-				return "( " + convert2String(form.sub(0), nss, true) + " >= "
-						+ convert2String(form.sub(1), nss, true) + " )";
+				return "( " + convert2String(form.sub(0), nss, true, variableCount) + " >= "
+						+ convert2String(form.sub(1), nss, true, variableCount) + " )";
 			} else if (f.name().toString().equals("equals")) {
 				if (eliminateFractions) {
 					return convert2String(PolynomTool
 							.eliminateFractionsFromInequality(form, nss), nss,
-							false);
+							false, variableCount);
 				}
-				return "( " + convert2String(form.sub(0), nss, true) + " = "
-						+ convert2String(form.sub(1), nss, true) + " )";
+				return "( " + convert2String(form.sub(0), nss, true, variableCount) + " = "
+						+ convert2String(form.sub(1), nss, true, variableCount) + " )";
 				// 2x EQUALS ?
 			} else if (f.name().toString().equals("neq")) {
 				if (eliminateFractions) {
 					return convert2String(PolynomTool
 							.eliminateFractionsFromInequality(form, nss), nss,
-							false);
+							false, variableCount);
 				}
-				return "( " + convert2String(form.sub(0), nss, true) + " <> "
-						+ convert2String(form.sub(1), nss, true) + " )";
+				return "( " + convert2String(form.sub(0), nss, true, variableCount) + " <> "
+						+ convert2String(form.sub(1), nss, true, variableCount) + " )";
 			} else if (f.name().toString().equals("leq")) {
 				if (eliminateFractions) {
 					return convert2String(PolynomTool
 							.eliminateFractionsFromInequality(form, nss), nss,
-							false);
+							false, variableCount);
 				}
-				return "( " + convert2String(form.sub(0), nss, true) + " <= "
-						+ convert2String(form.sub(1), nss, true) + " )";
+				return "( " + convert2String(form.sub(0), nss, true, variableCount) + " <= "
+						+ convert2String(form.sub(1), nss, true, variableCount) + " )";
 			} else if (f.name().toString().equals("lt")) {
 				if (eliminateFractions) {
 					return convert2String(PolynomTool
 							.eliminateFractionsFromInequality(form, nss), nss,
-							false);
+							false, variableCount);
 				}
-				return "( " + convert2String(form.sub(0), nss, true) + " < "
-						+ convert2String(form.sub(1), nss, true) + " )";
+				return "( " + convert2String(form.sub(0), nss, true, variableCount) + " < "
+						+ convert2String(form.sub(1), nss, true, variableCount) + " )";
 			} else if (f.name().toString().equals("add")) {
 				return "("
-						+ convert2String(form.sub(0), nss, eliminateFractions)
+						+ convert2String(form.sub(0), nss, eliminateFractions, variableCount)
 						+ "+"
-						+ convert2String(form.sub(1), nss, eliminateFractions)
+						+ convert2String(form.sub(1), nss, eliminateFractions, variableCount)
 						+ ")";
 			} else if (f.name().toString().equals("sub")) {
 				return "("
-						+ convert2String(form.sub(0), nss, eliminateFractions)
+						+ convert2String(form.sub(0), nss, eliminateFractions, variableCount)
 						+ "-"
-						+ convert2String(form.sub(1), nss, eliminateFractions)
+						+ convert2String(form.sub(1), nss, eliminateFractions, variableCount)
 						+ ")";
 			} else if (f.name().toString().equals("neg")) {
 				return "(-"
-						+ convert2String(form.sub(0), nss, eliminateFractions)
+						+ convert2String(form.sub(0), nss, eliminateFractions, variableCount)
 						+ ")";
 			} else if (f.name().toString().equals("mul")) {
 				return "("
-						+ convert2String(form.sub(0), nss, eliminateFractions)
+						+ convert2String(form.sub(0), nss, eliminateFractions, variableCount)
 						+ "*"
-						+ convert2String(form.sub(1), nss, eliminateFractions)
+						+ convert2String(form.sub(1), nss, eliminateFractions, variableCount)
 						+ ")";
 			} else if (f.name().toString().equals("div")) {
 				return "("
-						+ convert2String(form.sub(0), nss, eliminateFractions)
+						+ convert2String(form.sub(0), nss, eliminateFractions, variableCount)
 						+ "/"
-						+ convert2String(form.sub(1), nss, eliminateFractions)
+						+ convert2String(form.sub(1), nss, eliminateFractions, variableCount)
 						+ ")";
 			} else if (f.name().toString().equals("exp")) {
 				return "("
-						+ convert2String(form.sub(0), nss, eliminateFractions)
+						+ convert2String(form.sub(0), nss, eliminateFractions, variableCount)
 						+ "^"
-						+ convert2String(form.sub(1), nss, eliminateFractions)
+						+ convert2String(form.sub(1), nss, eliminateFractions, variableCount)
 						+ ")";
 			} else {
 				String[] args = new String[form.arity()];
 				for (int i = 0; i < args.length; i++) {
 					args[i] = convert2String(form.sub(i), nss,
-							eliminateFractions);
+							eliminateFractions, variableCount);
 				}
 				try {
 					String numberAsString = form.op().name().toString();
@@ -190,6 +190,7 @@ public class Term2ReduceConverter {
 						name = name.replaceAll("" + c, (c + "_").toLowerCase());
 					}
 					if (args.length == 0) {
+						variableCount[0]++;
 						return "(" + name + ")";
 					}
 					return "(" + name + "(" + array2String(args) + "))";
@@ -208,29 +209,30 @@ public class Term2ReduceConverter {
 			for (char c = 'A'; c <= 'Z'; c++) {
 				name = name.replaceAll("" + c, (c + "_").toLowerCase());
 			}
+			variableCount[0]++;
 			return "(" + name + ")";
 		} else if (form.op() instanceof Junctor) {
 			if (form.op() == Junctor.AND) {
 				return "(("
-						+ convert2String(form.sub(0), nss, eliminateFractions)
+						+ convert2String(form.sub(0), nss, eliminateFractions, variableCount)
 						+ " ) and ("
-						+ convert2String(form.sub(1), nss, eliminateFractions)
+						+ convert2String(form.sub(1), nss, eliminateFractions, variableCount)
 						+ "))";
 			} else if (form.op() == Junctor.OR) {
 				return "(("
-						+ convert2String(form.sub(0), nss, eliminateFractions)
+						+ convert2String(form.sub(0), nss, eliminateFractions, variableCount)
 						+ ") or ("
-						+ convert2String(form.sub(1), nss, eliminateFractions)
+						+ convert2String(form.sub(1), nss, eliminateFractions, variableCount)
 						+ "))";
 			} else if (form.op() == Junctor.IMP) {
 				return "(("
-						+ convert2String(form.sub(0), nss, eliminateFractions)
+						+ convert2String(form.sub(0), nss, eliminateFractions, variableCount)
 						+ ") impl ("
-						+ convert2String(form.sub(1), nss, eliminateFractions)
+						+ convert2String(form.sub(1), nss, eliminateFractions, variableCount)
 						+ "))";
 			} else if (form.op() == Junctor.NOT) {
 				return "( not ("
-						+ convert2String(form.sub(0), nss, eliminateFractions)
+						+ convert2String(form.sub(0), nss, eliminateFractions, variableCount)
 						+ " ))";
 			}
 		} else if (form.op() instanceof Quantifier) {
@@ -252,12 +254,13 @@ public class Term2ReduceConverter {
 				vars[i] = name;
 			}
 			String firstArg = convert2String(form.sub(0), nss,
-					eliminateFractions);
+					eliminateFractions, variableCount);
 			if (form.op() == Quantifier.ALL) {
 				String result = "(";
 
 				for (String var : vars) {
 					result += "all(" + var + ", ";
+					variableCount[0]++;
 				}
 				result += firstArg;
 				for (String var : vars) {
@@ -270,6 +273,7 @@ public class Term2ReduceConverter {
 
 				for (String var : vars) {
 					result += "ex(" + var + ", ";
+					variableCount[0]++;
 				}
 				result += firstArg;
 				for (String var : vars) {
