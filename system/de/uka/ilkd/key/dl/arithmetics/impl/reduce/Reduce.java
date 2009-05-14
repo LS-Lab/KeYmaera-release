@@ -15,6 +15,7 @@ import de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ConnectionProblemException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ServerStatusProblemException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
+import de.uka.ilkd.key.dl.arithmetics.impl.orbital.OrbitalSimplifier;
 import de.uka.ilkd.key.dl.arithmetics.impl.reduce.Options.ReduceSwitch;
 import de.uka.ilkd.key.logic.NamespaceSet;
 import de.uka.ilkd.key.logic.Term;
@@ -67,6 +68,11 @@ public class Reduce implements IQuantifierEliminator {
 			return TermBuilder.DF.tt();
 		} else if(input.equals(Term2ReduceConverter.FALSE)) {
 			return TermBuilder.DF.ff();
+		} else if(variableCount[0] == 0) {
+			Term parsedTerm = String2TermConverter.convert(input, nss);
+			if(OrbitalSimplifier.testForSimpleTautology(parsedTerm)) {
+				return TermBuilder.DF.tt();
+			}
 		}
 		ProcessBuilder pb = new ProcessBuilder(Options.INSTANCE
 				.getReduceBinary().getAbsolutePath());
@@ -78,7 +84,7 @@ public class Reduce implements IQuantifierEliminator {
 					process.getOutputStream()));
 			File tmp = File.createTempFile("keymaera-reduce", ".txt");
 			System.out.println("Process started...");
-			String generateInput = generateInput(input, tmp, variableCount);
+			String generateInput = generateInput(input, tmp);
 			System.out.println("Query is " + generateInput);
 			out.write(generateInput);
 			out.flush();
@@ -113,7 +119,7 @@ public class Reduce implements IQuantifierEliminator {
 		return null;
 	}
 
-	private String generateInput(String input, File tmp, int[] variableCount) {
+	private String generateInput(String input, File tmp) {
 		// TODO: use all those options
 		String result = "load_package redlog; off rlverbose; rlset R; ";
 
@@ -215,9 +221,9 @@ public class Reduce implements IQuantifierEliminator {
 			result += Options.INSTANCE.getRlsimpl().name().toLowerCase()
 					+ " rlsimpl; ";
 		}
-		// variableCount needs to be at least 1 to use rlall...
+
 		return result + "redlog_phi := "
-				+ ((Options.INSTANCE.isRlall() && variableCount[0] > 0) ? "rlall(" : "(") + input + ");"
+				+ ((Options.INSTANCE.isRlall()) ? "rlall(" : "(") + input + ");"
 				+ "off nat; out \"" + tmp.getAbsolutePath() + "\"; "
 				+ Options.INSTANCE.getQeMethod().getMethod()
 				+ " redlog_phi; shut \"" + tmp.getAbsolutePath()
