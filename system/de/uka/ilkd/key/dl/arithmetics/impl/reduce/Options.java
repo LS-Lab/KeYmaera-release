@@ -414,6 +414,7 @@ public class Options implements Settings {
 		props.setProperty(OPTIONS_REDUCE_rlqedfs, rlqedfs.name());
 		props.setProperty(OPTIONS_REDUCE_rlqesqsc, rlqesqsc.name());
 		props.setProperty(OPTIONS_REDUCE_rlqeqsc, rlqeqsc.name());
+		props.setProperty(OPTIONS_REDUCE_RLSIMPL, rlsimpl.name());
 	}
 
 	/**
