@@ -95,8 +95,8 @@ public class CSDPInterface {
 		// if (DLOptionBean.INSTANCE.isCsdpForceInternal()) {
 		try {
 			System.loadLibrary("csdp");
-			double[] clone = blockmatrixpX.clone();
 			if (ASSERTIONS) {
+				double[] clone = blockmatrixpX.clone();
 				int res = CSDP.easySDP(blockSizes, k, blockmatrixC.clone(), a
 						.clone(), constraints.clone(), constant_offset, clone,
 						py.clone(), blockmatrixpZ.clone(), ppobj.clone(), pdobj
@@ -121,9 +121,20 @@ public class CSDPInterface {
 							blockmatrixpX, py, blockmatrixpZ, ppobj, pdobj);
 				}
 			}
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} catch (java.lang.UnsatisfiedLinkError e) {
+			if (DLOptionBean.INSTANCE.isCsdpForceInternal()) {
+				e.printStackTrace();
+			} else {
+				try {
+					return CSDPBinaryInterface.easySDP(blockSizes, k,
+							blockmatrixC, a, constraints, constant_offset,
+							blockmatrixpX, py, blockmatrixpZ, ppobj, pdobj);
+				} catch (IOException f) {
+					f.printStackTrace();
+				}
+			}
+		} catch (IOException f) {
+			f.printStackTrace();
 		}
 		throw new IllegalStateException("No csdp available");
 	}
