@@ -18,6 +18,7 @@ import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
 import de.uka.ilkd.key.dl.arithmetics.impl.reduce.Options.ReduceSwitch;
 import de.uka.ilkd.key.logic.NamespaceSet;
 import de.uka.ilkd.key.logic.Term;
+import de.uka.ilkd.key.logic.TermBuilder;
 
 /**
  * Implements the QuantifierElimintor with an external program called
@@ -61,6 +62,11 @@ public class Reduce implements IQuantifierEliminator {
 		System.out.println("START  : Reduce called");
 		String input = Term2ReduceConverter.convert(form);
 		System.out.println("Input will be " + input);//XXX
+		if(input.equals(Term2ReduceConverter.TRUE)) {
+			return TermBuilder.DF.tt();
+		} else if(input.equals(Term2ReduceConverter.FALSE)) {
+			return TermBuilder.DF.ff();
+		}
 		ProcessBuilder pb = new ProcessBuilder(Options.INSTANCE
 				.getReduceBinary().getAbsolutePath());
 		Process process = null;
