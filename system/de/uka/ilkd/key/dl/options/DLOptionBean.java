@@ -525,53 +525,53 @@ public class DLOptionBean implements Settings {
 		counterExampleGenerator = props
 				.getProperty(DLOPTIONS_COUNTEREXAMPLE_GENERATOR);
 		if (counterExampleGenerator == null) {
-			setCounterExampleGenerator("-");
+			counterExampleGenerator = "-";
 		} else if (!(MathSolverManager.getCounterExampleGenerators()
 				.contains(counterExampleGenerator))
 				&& !counterExampleGenerator.equals("-")) {
 			if (!MathSolverManager.getCounterExampleGenerators().isEmpty()) {
-				setCounterExampleGenerator(MathSolverManager
-						.getCounterExampleGenerators().iterator().next());
+				counterExampleGenerator = MathSolverManager
+						.getCounterExampleGenerators().iterator().next();
 			} else {
-				setCounterExampleGenerator("-");
+				counterExampleGenerator = "-";
 			}
 		}
 		odeSolver = props.getProperty(DLOPTIONS_ODESOLVER);
 		if (odeSolver == null) {
-			setOdeSolver("-");
+			odeSolver = "-";
 		} else if (!(MathSolverManager.getODESolvers().contains(odeSolver))
 				&& !odeSolver.equals("-")) {
 			if (!MathSolverManager.getODESolvers().isEmpty()) {
-				setOdeSolver(MathSolverManager.getODESolvers().iterator()
-						.next());
+				odeSolver = MathSolverManager.getODESolvers().iterator()
+						.next();
 			} else {
-				setOdeSolver("-");
+				odeSolver = "-";
 			}
 		}
 		quantifierEliminator = props
 				.getProperty(DLOPTIONS_QUANTIFIER_ELIMINATOR);
 		if (quantifierEliminator == null) {
-			setQuantifierEliminator("-");
+			quantifierEliminator = "-";
 		} else if (!(MathSolverManager.getQuantifierEliminators()
 				.contains(quantifierEliminator))
 				&& !quantifierEliminator.equals("-")) {
 			if (!MathSolverManager.getQuantifierEliminators().isEmpty()) {
-				setQuantifierEliminator(MathSolverManager
-						.getQuantifierEliminators().iterator().next());
+				quantifierEliminator = MathSolverManager
+						.getQuantifierEliminators().iterator().next();
 			} else {
-				setQuantifierEliminator("-");
+				quantifierEliminator ="-";
 			}
 		}
 		simplifier = props.getProperty(DLOPTIONS_SIMPLIFIER);
 		if (simplifier == null) {
-			setSimplifier("-");
+			simplifier = "-";
 		} else if (!(MathSolverManager.getSimplifiers().contains(simplifier))
 				&& !simplifier.equals("-")) {
 			if (!MathSolverManager.getSimplifiers().isEmpty()) {
-				setSimplifier(MathSolverManager.getSimplifiers().iterator()
-						.next());
+				simplifier = MathSolverManager.getSimplifiers().iterator()
+						.next();
 			} else {
-				setSimplifier("-");
+				simplifier = "-";
 			}
 		}
 		groebnerBasisCalculator = props

@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <MathSolvers> 
+  <MathSolver> 
+	<class>de.uka.ilkd.key.dl.arithmetics.impl.groebnerianSOS.GroebnerBasisChecker</class>
+  </MathSolver>
 	<MathSolver> 
 	<class>de.uka.ilkd.key.dl.arithmetics.impl.mathematica.Mathematica</class>
 	<mathkernel>
@@ -11,7 +14,19 @@
 	</server>
         <optionbean>de.uka.ilkd.key.dl.arithmetics.impl.mathematica.Options</optionbean>
 	</MathSolver>
-	<MathSolver>
+  <MathSolver> 
+	<class>de.uka.ilkd.key.dl.arithmetics.impl.reduce.Reduce</class>
+	<optionbean>de.uka.ilkd.key.dl.arithmetics.impl.reduce.Options</optionbean>
+  </MathSolver>
+    <MathSolver> 
+	<class>de.uka.ilkd.key.dl.arithmetics.impl.qepcad.QepCad</class>
+	<optionbean>de.uka.ilkd.key.dl.arithmetics.impl.qepcad.Options</optionbean>
+  </MathSolver>
+  <MathSolver> 
+	<class>de.uka.ilkd.key.dl.arithmetics.impl.hollight.HOLLight</class>
+	<optionbean>de.uka.ilkd.key.dl.arithmetics.impl.hollight.Options</optionbean>
+  </MathSolver>
+  	<MathSolver>
 		<class>de.uka.ilkd.key.dl.arithmetics.impl.SumOfSquaresChecker</class>
 	</MathSolver>
   <MathSolver> 
@@ -23,20 +38,5 @@
   <MathSolver> 
 	<class>de.uka.ilkd.key.dl.arithmetics.impl.orbital.Orbital</class>
         <optionbean>de.uka.ilkd.key.dl.arithmetics.impl.orbital.Options</optionbean>
-  </MathSolver>
-  <MathSolver> 
-	<class>de.uka.ilkd.key.dl.arithmetics.impl.qepcad.QepCad</class>
-	<optionbean>de.uka.ilkd.key.dl.arithmetics.impl.qepcad.Options</optionbean>
-  </MathSolver>
-  <MathSolver> 
-	<class>de.uka.ilkd.key.dl.arithmetics.impl.reduce.Reduce</class>
-	<optionbean>de.uka.ilkd.key.dl.arithmetics.impl.reduce.Options</optionbean>
-  </MathSolver>
-  <MathSolver> 
-	<class>de.uka.ilkd.key.dl.arithmetics.impl.groebnerianSOS.GroebnerBasisChecker</class>
-  </MathSolver>
-  <MathSolver> 
-	<class>de.uka.ilkd.key.dl.arithmetics.impl.hollight.HOLLight</class>
-	<optionbean>de.uka.ilkd.key.dl.arithmetics.impl.hollight.Options</optionbean>
   </MathSolver>
 </MathSolvers>
