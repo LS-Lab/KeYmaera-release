@@ -8,4 +8,7 @@ public class ThreadListenerAdapter implements IThreadListener {
     @Override
     public void threadStarted(IThreadSender sender) {}
 
+    @Override
+    public void threadInterrupted(IThreadSender sender) {}
+
 }
