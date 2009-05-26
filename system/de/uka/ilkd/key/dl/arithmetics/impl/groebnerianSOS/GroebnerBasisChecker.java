@@ -314,6 +314,11 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 	 * @return the reduced set of polynomials
 	 */
 	private Set<Polynomial> eliminateEvenDegreeVariables(Set<Polynomial> polys) {
+		return eliminateEvenDegreeVariables(polys, true);
+	}
+
+	private Set<Polynomial> eliminateEvenDegreeVariables(Set<Polynomial> polys,
+			boolean reverse) {
 		final int varNum = indexNum(polys);
 		Set<Polynomial> workPolys = new HashSet<Polynomial>(polys);
 
@@ -352,56 +357,51 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 						continue;
 
 					final Arithmetic degree = v.multiply(oneVec);
-					if (degree.isZero()) {
-						// nothing
+					int varsInMonom = 0;
+					int possibleCandidate = -1;
+					boolean positive = false;
+					if (coeff instanceof Comparable) {
+					    int smallerZero = ((Comparable) coeff).compareTo(vf.ZERO());
+					    if (smallerZero > 0) {
+					        positive = true;
+					    }
 					} else {
-						int varsInMonom = 0;
-						int possibleCandidate = -1;
-						boolean positive = false;
-						if (coeff instanceof Comparable) {
-							int smallerZero = ((Comparable) coeff).compareTo(vf
-									.ZERO());
-							if (smallerZero > 0) {
-								positive = true;
-							}
-						} else {
-							// we cannot do anything, as we cannot
-							// compare the coefficients
-							return workPolys;
-						}
-						for (int i = 0; i < varNum; i++) {
-							if (!v.get(i).isZero()) {
-								varsInMonom++;
-								if (v.get(i).equals(two)) {
-									// if the exponent is two, we might have a
-									// candidate if this is the only variable
-									// with
-									// non-zero exponent in this monomial
-									possibleCandidate = i;
-								}
-								if (!((Integer) v.get(i)).modulo(two).isZero()) {
-									// assure that every exponent is an event
-									// number
-									continue outerloop;
-								}
-
-							}
-						}
-						if (varsInMonom > 1 && positive) {
-							continue outerloop;
-						} else if (varsInMonom == 1 && positive) {
-							if (possibleCandidate == -1) {
-								continue outerloop;
-							}
-							if (purlyEvenVariables.get(possibleCandidate)) {
-								if (candidate != null) {
-									continue outerloop;
-								} else {
-									candidate = possibleCandidate;
-									candidateCoeff = coeff;
-								}
-							}
-						}
+					    // we cannot do anything, as we cannot
+					    // compare the coefficients
+					    return workPolys;
+					}
+					for (int i = 0; i < varNum; i++) {
+					    if (!v.get(i).isZero()) {
+					        varsInMonom++;
+					        if (v.get(i).equals(two)) {
+					            // if the exponent is two, we might have a
+					            // candidate if this is the only variable
+					            // with
+					            // non-zero exponent in this monomial
+					            possibleCandidate = i;
+					        }
+					        if (!((Integer) v.get(i)).modulo(two).isZero()) {
+					            // assure that every exponent is an event
+					            // number
+					            continue outerloop;
+					        }
+					    }
+					}
+					if (varsInMonom != 1 && positive) {
+					    continue outerloop;
+					}
+					if (varsInMonom == 1 && positive) {
+					    if (possibleCandidate == -1) {
+					        continue outerloop;
+					    }
+					    if (purlyEvenVariables.get(possibleCandidate)) {
+					        if (candidate != null) {
+					            continue outerloop;
+					        } else {
+					            candidate = possibleCandidate;
+					            candidateCoeff = coeff;
+					        }
+					    }
 					}
 				}
 				if (candidate != null && candidate != -1) {
@@ -435,10 +435,10 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 							occurencesOfCandidate++;
 						} else {
 							replacement = (Polynomial) replacement.add((vf
-									.MONOMIAL(asVector((Arithmetic)nextMono.getKey())))
-									.multiply(vf.MONOMIAL(coeff
-											.divide(candidateCoeff),
-											new int[varNum])));
+									.MONOMIAL(asVector((Arithmetic) nextMono
+											.getKey()))).multiply(vf.MONOMIAL(
+									coeff.divide(candidateCoeff),
+									new int[varNum])));
 						}
 					}
 					if (occurencesOfCandidate > 1) {
@@ -454,6 +454,19 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 					changed = true;
 					break outerloop;
 				}
+			}
+		}
+		// try the same optimization for the additive inverses of the
+		// polynomials
+		if (reverse) {
+			Set<Polynomial> newWorkPolys = new HashSet<Polynomial>();
+			for (Polynomial p : workPolys) {
+				newWorkPolys.add((Polynomial) p.minus());
+			}
+			newWorkPolys = eliminateEvenDegreeVariables(newWorkPolys, false);
+			workPolys.clear();
+			for (Polynomial p : newWorkPolys) {
+				workPolys.add((Polynomial) p.minus());
 			}
 		}
 		return workPolys;
@@ -732,7 +745,7 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 				continue;
 
 			final Arithmetic degree = v.multiply(oneVec);
-//			System.out.println("Degree of " + v + " is " + degree);
+			// System.out.println("Degree of " + v + " is " + degree);
 			if (degree.isZero()) {
 				// nothing
 			} else if (degree.isOne()) {
@@ -1080,7 +1093,7 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 		}
 	}
 
-	////////////////////////////////////////////////////////////////////////////
+	// //////////////////////////////////////////////////////////////////////////
 
 	private interface AddedMonomialListener {
 		void addedMonomial(Arithmetic v);
@@ -1170,8 +1183,8 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 			 * squares; } else { System.out.println("No solution"); }
 			 */
 			final BitSet removedMonomials = new BitSet();
-			int sdpRes = CSDPInterface.solveAndMinimiseSdp(monoNum, homo, hetero,
-					approxSolution, removedMonomials);
+			int sdpRes = CSDPInterface.solveAndMinimiseSdp(monoNum, homo,
+					hetero, approxSolution, removedMonomials);
 			final double[] smallApproxSolution = new double[(monoNum - removedMonomials
 					.cardinality())
 					* (monoNum - removedMonomials.cardinality())];
@@ -1196,7 +1209,7 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 		}
 	}
 
-	////////////////////////////////////////////////////////////////////////////
+	// //////////////////////////////////////////////////////////////////////////
 
 	private static Square[] approx2Exact(SparsePolynomial reducedPoly,
 			List<Arithmetic> consideredMonomials, BitSet removedMonomials,
@@ -1354,7 +1367,7 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 		}
 	}
 
-	////////////////////////////////////////////////////////////////////////////
+	// //////////////////////////////////////////////////////////////////////////
 
 	public static class MonomialFactorIterator implements Iterator<Vector> {
 		private final ValueFactory vf = Values.getDefault();
@@ -1392,7 +1405,7 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 		}
 	}
 
-	////////////////////////////////////////////////////////////////////////////
+	// //////////////////////////////////////////////////////////////////////////
 
 	public static class SimpleMonomialIterator implements Iterator<Vector> {
 		private final ValueFactory vf = Values.getDefault();
@@ -1408,7 +1421,7 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 
 		public SimpleMonomialIterator(int indexNum, int maxTotalDegree) {
 			this.indexNum = indexNum;
-			this.maxTotalDegree = maxTotalDegree;
+			this.maxTotalDegree = indexNum > 0 ? maxTotalDegree : 0;
 
 			final Arithmetic[] exps = new Arithmetic[indexNum];
 			Arrays.fill(exps, vf.ZERO());
@@ -1465,7 +1478,7 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 		}
 	}
 
-	////////////////////////////////////////////////////////////////////////////
+	// //////////////////////////////////////////////////////////////////////////
 
 	public GroebnerBasisChecker(Node node) {
 	}

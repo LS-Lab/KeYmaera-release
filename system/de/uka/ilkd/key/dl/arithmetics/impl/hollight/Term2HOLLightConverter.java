@@ -1,12 +1,9 @@
 package de.uka.ilkd.key.dl.arithmetics.impl.hollight;
 
-import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
-
-import sun.security.util.BigInt;
 
 import de.uka.ilkd.key.dl.arithmetics.impl.orbital.PolynomTool;
 import de.uka.ilkd.key.dl.arithmetics.impl.orbital.PolynomTool.BigFraction;
@@ -184,8 +181,11 @@ public class Term2HOLLightConverter {
 						+ convert2String(form.sub(1), nss, eliminateFractions)
 						+ ")";
 			} else if (f.name().toString().equals("div")) {
-				throw new UnsupportedOperationException(
-						"HOL Light does not support fractions");
+				return "("
+				+ convert2String(form.sub(0), nss, eliminateFractions)
+				+ " / "
+				+ convert2String(form.sub(1), nss, eliminateFractions)
+				+ ")";
 			} else if (f.name().toString().equals("exp")) {
 				return "("
 						+ convert2String(form.sub(0), nss, eliminateFractions)
