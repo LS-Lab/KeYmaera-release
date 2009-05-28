@@ -1,3 +1,10 @@
+// This file is part of KeY - Integrated Deductive Software Design
+// Copyright (C) 2001-2009 Universitaet Karlsruhe, Germany
+//                         Universitaet Koblenz-Landau, Germany
+//                         Chalmers University of Technology, Sweden
+//
+// The KeY system is protected by the GNU General Public License. 
+// See LICENSE.TXT for details.
 //This file is part of KeY - Integrated Deductive Software Design
 //Copyright (C) 2001-2005 Universitaet Karlsruhe, Germany
 //                      Universitaet Koblenz-Landau, Germany
@@ -20,10 +27,10 @@ import de.uka.ilkd.key.util.Debug;
 
 class OCLParameters extends SLParameters {
     private final ListOfLogicVariable declaredVars;
-    private final ListOfOCLEntity entities;
+    private final ListOfOCLExpression entities;
             
     public OCLParameters(ListOfLogicVariable declaredVars,
-                         ListOfOCLEntity entities) {
+                         ListOfOCLExpression entities) {
         super(convertToListOfSLExpression(entities));
         Debug.assertTrue(declaredVars != null);
         Debug.assertTrue(entities != null);
@@ -32,10 +39,10 @@ class OCLParameters extends SLParameters {
     }
     
     
-    private static ListOfSLExpression convertToListOfSLExpression(ListOfOCLEntity list) {
+    private static ListOfSLExpression convertToListOfSLExpression(ListOfOCLExpression list) {
         ListOfSLExpression result = SLListOfSLExpression.EMPTY_LIST;
         
-        IteratorOfOCLEntity it = list.iterator();
+        IteratorOfOCLExpression it = list.iterator();
         
         while(it.hasNext()) {
             result = result.append(it.next());
@@ -45,7 +52,7 @@ class OCLParameters extends SLParameters {
     }
 
 
-    public ListOfOCLEntity getEntities() {
+    public ListOfOCLExpression getEntities() {
         return entities;
     }
         
@@ -66,7 +73,7 @@ class OCLParameters extends SLParameters {
             result = result.substring(0, result.length() - 1) + "|";
         }
         
-        IteratorOfOCLEntity it2 = entities.iterator();
+        IteratorOfOCLExpression it2 = entities.iterator();
         while(it2.hasNext()) {
             result += it2.next() + ",";
         }

@@ -1,5 +1,5 @@
 // This file is part of KeY - Integrated Deductive Software Design
-// Copyright (C) 2001-2005 Universitaet Karlsruhe, Germany
+// Copyright (C) 2001-2009 Universitaet Karlsruhe, Germany
 //                         Universitaet Koblenz-Landau, Germany
 //                         Chalmers University of Technology, Sweden
 //
@@ -39,7 +39,9 @@ header {
   import de.uka.ilkd.key.rule.conditions.*;
   import de.uka.ilkd.key.rule.metaconstruct.*;
  
+  import de.uka.ilkd.key.speclang.SetAsListOfClassInvariant;
   import de.uka.ilkd.key.speclang.SetAsListOfOperationContract;
+  import de.uka.ilkd.key.speclang.SetOfClassInvariant;
   import de.uka.ilkd.key.speclang.SetOfOperationContract;
   import de.uka.ilkd.key.speclang.dl.translation.DLSpecFactory;
 
@@ -87,6 +89,7 @@ options {
       prooflabel2tag.put("formula", new Character('f'));
       prooflabel2tag.put("inst", new Character('i'));
       prooflabel2tag.put("ifseqformula", new Character('q'));
+      prooflabel2tag.put("ifdirectformula", new Character('d'));
       prooflabel2tag.put("heur", new Character('h'));
       prooflabel2tag.put("builtin", new Character('n'));
       prooflabel2tag.put("keyLog", new Character('l'));
@@ -96,6 +99,10 @@ options {
       prooflabel2tag.put("contract", new Character('c'));	
       prooflabel2tag.put("reduceVariables", new Character('m'));
       prooflabel2tag.put("userinteraction", new Character('a'));
+      prooflabel2tag.put("userconstraint", new Character('o'));
+      prooflabel2tag.put("matchconstraint", new Character('m'));
+      prooflabel2tag.put("newnames", new Character('w'));
+      prooflabel2tag.put("autoModeTime", new Character('e'));
    }
 
     private NamespaceSet nss;
@@ -141,6 +148,7 @@ options {
 
     private SetOfTaclet taclets = SetAsListOfTaclet.EMPTY_SET; 
     private SetOfOperationContract contracts = SetAsListOfOperationContract.EMPTY_SET;
+    private SetOfClassInvariant invs = SetAsListOfClassInvariant.EMPTY_SET;
 
     private ParserConfig schemaConfig;
     private ParserConfig normalConfig;
@@ -420,6 +428,10 @@ options {
 
     public SetOfOperationContract getContracts(){
         return contracts;
+    }
+    
+    public SetOfClassInvariant getInvariants(){
+    	return invs;
     }
     
     public HashMap<String, String> getCategory2Default(){
@@ -750,12 +762,26 @@ options {
     private TermSymbol getAttribute(Sort prefixSort, String attributeName) 
            throws SemanticException {
         final JavaInfo javaInfo = getJavaInfo();
-        TermSymbol result = null;
 
-        if (!inSchemaMode()) {
-            if (attributeName.indexOf(':') != -1) {     
+        TermSymbol result = null;
+        
+        if (inSchemaMode()) {
+            // if we are currently reading taclets we look for schema variables first
+            result = (SortedSchemaVariable)variables().lookup(new Name(attributeName));
+        }
+        
+        assert inSchemaMode() || result == null; 
+        if (result == null) {
+            
+            final boolean unambigousAttributeName = attributeName.indexOf(':') != -1;
+
+            if (unambigousAttributeName) {     
                 result = javaInfo.getAttribute(attributeName);
             } else {
+                if (inSchemaMode()) {
+                    semanticError("Either undeclared schmema variable '" + 
+                                  attributeName + "' or a not fully qualified attribute in taclet.");
+                }
                 final KeYJavaType prefixKJT = javaInfo.getKeYJavaType(prefixSort);
                 if (prefixKJT == null) {
                     semanticError("Could not find type '"+prefixSort+"'. Maybe mispelled or "+
@@ -793,9 +819,8 @@ options {
                     }
                 }              
             }
-        }else{
-            result = (SortedSchemaVariable)variables().lookup(new Name(attributeName));
         }
+
         if ( result == null && !("length".equals(attributeName)) ) {
             throw new NotDeclException ("Attribute ", attributeName,
                 getFilename(), getLine(), getColumn());
@@ -805,25 +830,30 @@ options {
 
    
     public Term createAttributeTerm(Term prefix, TermSymbol attribute,
-              Term shadowNumber) {
+                                    Term shadowNumber) throws SemanticException {
         Term result = prefix;
-	if (!inSchemaMode()) {
-          if (((ProgramVariable)attribute).isStatic()){
-              result = tf.createVariableTerm((ProgramVariable)attribute);
-          } else {
-              if (shadowNumber != null) {
-                  result = tf.createShadowAttributeTerm((ProgramVariable)attribute, 
-                                                        result, shadowNumber);
-              } else {
-                  result = tf.createAttributeTerm((ProgramVariable)attribute, result);
-              }
-          }
-	} else {
-        if (shadowNumber != null) {
+
+        if (attribute instanceof SchemaVariable) {
+            if (!inSchemaMode()) {
+                semanticError("Schemavariables may only occur inside taclets.");
+            }
+            if (shadowNumber != null) {
                 result = tf.createShadowAttributeTerm((SchemaVariable)attribute, result, shadowNumber);
-	    } else
+            } else {
                 result = tf.createAttributeTerm((SchemaVariable)attribute, result);         
-	}
+            }
+        } else {
+            if (((ProgramVariable)attribute).isStatic()){
+                result = tf.createVariableTerm((ProgramVariable)attribute);
+            } else {
+                if (shadowNumber != null) {
+                    result = tf.createShadowAttributeTerm((ProgramVariable)attribute, 
+                                                          result, shadowNumber);
+                } else {
+                    result = tf.createAttributeTerm((ProgramVariable)attribute, result);
+                }
+            }
+        }
         return result;
     }
 
@@ -989,7 +1019,7 @@ options {
           return pvc.result();
         }else 
   	  if(!isDeclParser()) {
-            if ((isTermParser() || isProblemParser()) && jb==JavaBlock.EMPTY_JAVABLOCK) {
+            if ((isTermParser() || isProblemParser()) && jb.isEmpty()) {
               return new HashSet();
             }   
             DeclarationProgramVariableCollector pvc
@@ -1150,6 +1180,14 @@ options {
 	    		(LT(n+2).getText().length()==1 || 
 	    		 LT(n+2).getText().charAt(1)<='z' && LT(n+2).getText().charAt(1)>='a'))){  	   
                 if (LA(n+1) != DOT && LA(n+1) != EMPTYBRACKETS) return false;
+                // maybe still an attribute starting with an uppercase letter followed by a lowercase letter
+                if(getTypeByClassName(className.toString())!=null){
+                    ProgramVariable maybeAttr = 
+                    javaInfo.getAttribute(LT(n+2).getText(), getTypeByClassName(className.toString()));
+                    if(maybeAttr!=null){
+                        return true;
+                    }
+                }
                 className.append(".");	       
                 className.append(LT(n+2).getText());
                 n+=2;
@@ -1264,7 +1302,7 @@ options {
                 .setStateRestriction(stateRestriction);
         } else if ( find instanceof Sequent ) {
             Sequent findSeq = (Sequent) find;
-            if ( findSeq == Sequent.EMPTY_SEQUENT ) {
+            if ( findSeq.isEmpty() ) {
                 return new NoFindTacletBuilder();
             } else if (   findSeq.antecedent().size() == 1
                           && findSeq.succedent().size() == 0 ) {
@@ -1367,24 +1405,20 @@ options {
         return pm;
     }
 
-    public void addSort(Sort s) {
-	sorts().add(s);
-    }
-
-    private void addSortAdditionals(Sort s) {
+    public static void addSortAdditionals(Sort s, Namespace functions, Namespace sorts) {
         if (s instanceof NonCollectionSort) {
             NonCollectionSort ns = (NonCollectionSort)s;
             final Sort[] addsort = {
                 ns.getSetSort(), ns.getSequenceSort(), ns.getBagSort() 
             };
-
+	    
             for (int i = 0; i<addsort.length; i++) {
-                addSort(addsort[i]);
-                addSortAdditionals(addsort[i]);
+                sorts.add(addsort[i]);
+                addSortAdditionals(addsort[i], functions, sorts);
             }
         }
         if ( s instanceof SortDefiningSymbols ) {                        
-           ((SortDefiningSymbols)s).addDefinedSymbols(defaultChoice.funcNS(), sorts());
+           ((SortDefiningSymbols)s).addDefinedSymbols(functions, sorts);
         }
     }
 
@@ -1408,9 +1442,15 @@ options {
         }
         final Sort s = IntersectionSort.getIntersectionSort(compositeSorts, sorts(), functions());
         if (!(s instanceof IntersectionSort)) {
-            semanticError("Failed to create an intersection sort of " + composites + 
-                ". Usually intersection is not required in these cases as \n" + 
-                "it is equal to one composite. In this case " + s);            
+            String err = "Failed to create an intersection sort of " + composites;
+            if (s == null) {
+                err += " as the resulting intersection sort would be empty.";
+            } else {
+                err += ". Usually intersection is not required in these cases as \n" + 
+                "it is equal to one composite. In this case " + s;
+            }
+            semanticError(err);
+                            
         }        
         return s;
     }
@@ -1598,7 +1638,7 @@ sort_decls
      {
         final IteratorOfSort it = lsorts.iterator();
         while (it.hasNext()) {                   
-             addSortAdditionals ( it.next() ); 
+             addSortAdditionals ( it.next(), defaultChoice.funcNS(), sorts() ); 
          }
       }
 
@@ -1631,7 +1671,7 @@ one_sort_decl returns [ListOfSort createdSorts = SLListOfSort.EMPTY_LIST]
                 if (isIntersectionSort) {                    
                     final Sort sort = getIntersectionSort(sortIds);
                     createdSorts = createdSorts.append(sort);
-                    addSort(sort); 
+                    sorts().add(sort); 
                 } else {
                     IteratorOfString it = sortIds.iterator ();        
                     while ( it.hasNext () ) {
@@ -1678,7 +1718,7 @@ one_sort_decl returns [ListOfSort createdSorts = SLListOfSort.EMPTY_LIST]
                             } else {
                                 s = new PrimitiveSort(sort_name);
                             }
-                            addSort ( s ); 
+                            sorts().add ( s ); 
 
                             createdSorts = createdSorts.append(s);
                         }
@@ -2133,7 +2173,7 @@ func_decl
                         switch (location) {
                            case NORMAL_NONRIGID: f = new NonRigidFunction(fct_name, retSort, argSorts);
                               break;
-                           case LOCATION_MODIFIER: f = new NonRigidFunctionLocation(fct_name, retSort, argSorts);
+                           case LOCATION_MODIFIER: f = new NonRigidFunctionLocation(fct_name, retSort, argSorts, true);
                               break;
                  	  case HEAP_DEPENDENT: f = new NonRigidHeapDependentFunction(fct_name, retSort, argSorts);      
                  	      break;
@@ -2328,7 +2368,7 @@ array_set_decls[Sort p] returns [Sort s = null]
                 Sort last = s;
                 do {
                     final ArraySort as = (ArraySort) last;
-                    addSort(as);                        
+                    sorts().add(as);                        
                     last = as.elementSort();
                 } while (last instanceof ArraySort && sorts().lookup(last.name()) == null);
             } else {
@@ -2814,7 +2854,16 @@ staticAttributeOrQueryReference returns [String attrReference = ""]
             attrReference = id.getText(); 
             while (isPackage(attrReference) || LA(2)==NUM_LITERAL || 
                 (LT(2).getText().charAt(0)<='Z' && LT(2).getText().charAt(0)>='A' && 
-	    		(LT(2).getText().length()==1 || LT(2).getText().charAt(1)<='z' && LT(2).getText().charAt(1)>='a'))) {
+	    		(LT(2).getText().length()==1 || LT(2).getText().charAt(1)<='z' && LT(2).getText().charAt(1)>='a')) &&
+                LA(1) == DOT) {
+                if(getTypeByClassName(attrReference)!=null){
+                    ProgramVariable maybeAttr = 
+                    getJavaInfo().getAttribute(LT(2).getText(), getTypeByClassName(attrReference));
+                    if(maybeAttr!=null){
+                        break;
+                    }
+                }
+
                 match(DOT);
                 attrReference += "." + LT(1).getText();
                 if(LA(1)==NUM_LITERAL){
@@ -3114,6 +3163,8 @@ term130 returns [Term a = null]
     |   "false" { a = tf.createJunctorTerm(Op.FALSE); }
     |   a = ifThenElseTerm
     |   a = ifExThenElseTerm
+    |   a = sum_or_product_term
+    |   a = bounded_sum_term
     //Used for OCL Simplification.
     //WATCHOUT: Woj: some time we will need to have support for strings in Java DL too,
     // what then? This here is specific to OCL, isn't it?
@@ -3152,6 +3203,53 @@ abbreviation returns [Term a=null]
                 }                                
             }
         )
+    ;
+
+sum_or_product_term returns [Term result=null]
+{
+    Term cond, t;
+    NumericalQuantifier op=null;
+    ListOfQuantifiableVariable index = null;   
+}
+    :
+        (
+            SUM {op = Op.SUM;}
+        |
+            PRODUCT {op = Op.PRODUCT;}
+        )
+        index=bound_variables
+        LPAREN
+        cond=term 
+        SEMI t=term 
+        {
+            unbindVars();
+            result = tf.createNumericalQuantifierTerm(op, cond, t, 
+                new ArrayOfQuantifiableVariable(index.toArray()));
+        }
+        RPAREN
+    ;
+    
+bounded_sum_term returns [Term result=null]
+{
+    Term a, b, t;
+    BoundedNumericalQuantifier op=null;
+    ListOfQuantifiableVariable index = null;   
+}
+    :
+        BSUM {op = Op.BSUM;}
+        index=bound_variables
+        LPAREN
+        a=term 
+        SEMI
+        b=term 
+        SEMI
+        t=term 
+        {
+            unbindVars();
+            result = tf.createBoundedNumericalQuantifierTerm(op, a, b, t, 
+                new ArrayOfQuantifiableVariable(index.toArray()));
+        }
+        RPAREN
     ;
 
 ifThenElseTerm returns [Term result = null]
@@ -4447,6 +4545,31 @@ contracts[SetOfChoice choices, Namespace funcNSForSelectedChoices]
        }
 ;
 
+invariants[SetOfChoice choices, Namespace funcNSForSelectedChoices]
+{
+  Choice c = null;
+  QuantifiableVariable selfVar;
+}
+:
+   INVARIANTS LPAREN selfVar=one_logic_bound_variable RPAREN
+       LBRACE {
+	    switchToNormalMode();
+	    IteratorOfChoice it = choices.iterator();
+	    Namespace funcNSForRules = funcNSForSelectedChoices;
+	    while(it.hasNext()){
+		c=it.next();
+		funcNSForRules = 
+		    funcNSForRules.extended(c.funcNS().allElements());
+	    }
+	    namespaces().setFunctions(funcNSForRules); 
+       }
+       ( one_invariant[(ParsableVariable)selfVar] )*
+       RBRACE  {
+           unbindVars();
+       }
+;
+
+
 one_contract 
 {
   Term fma = null;
@@ -4488,6 +4611,29 @@ one_contract
    }
 ;
 
+one_invariant[ParsableVariable selfVar]
+{
+  Term fma = null;
+  String displayName = null;
+  String invName = null;
+}
+:
+     invName = simple_ident LBRACE 
+     fma = formula
+     (DISPLAYNAME displayName = string_literal)?
+     {
+       DLSpecFactory dsf = new DLSpecFactory(getServices());
+       try {
+         invs = invs.add(dsf.createDLClassInvariant(invName,
+                                                    displayName,
+                                                    selfVar,
+                                                    fma));
+       } catch(ProofInputException e) {
+         semanticError(e.getMessage());
+       }
+     } RBRACE SEMI
+;
+
 problem returns [ Term a = null ]
 {
     Taclet s = null;
@@ -4498,7 +4644,6 @@ problem returns [ Term a = null ]
     String pref = null;
 }
     :
-
 
 	{ if (capturer != null) capturer.mark(); }
         (pref = preferences)
@@ -4511,7 +4656,6 @@ problem returns [ Term a = null ]
           if(stlist != null && stlist.size() > 1)
             Debug.fail("Don't know what to do with multiple java source entries.");
 	    }
-        
         decls
         { 
             if(parse_includes || onlyWith) return null;
@@ -4531,6 +4675,7 @@ problem returns [ Term a = null ]
         // WATCHOUT: choices is always going to be an empty set here,
 	// isn't it?
 	( contracts[choices, funcNSForSelectedChoices] )*
+	( invariants[choices, funcNSForSelectedChoices] )*
         (  RULES (choices = option_list[choices])?
 	    LBRACE
             { 

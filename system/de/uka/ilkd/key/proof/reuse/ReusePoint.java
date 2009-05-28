@@ -1,5 +1,5 @@
 // This file is part of KeY - Integrated Deductive Software Design
-// Copyright (C) 2001-2005 Universitaet Karlsruhe, Germany
+// Copyright (C) 2001-2009 Universitaet Karlsruhe, Germany
 //                         Universitaet Koblenz-Landau, Germany
 //                         Chalmers University of Technology, Sweden
 //
@@ -118,6 +118,10 @@ public class ReusePoint implements Comparable {
       return reuseApp;
    }
    
+   public ListOfName getNameProposals() {
+       return templateNode.getNameRecorder().getProposals();
+   }
+
    public void setGoalLocal(boolean b) {
        goalLocalRule = b;
    }
@@ -413,7 +417,7 @@ public class ReusePoint implements Comparable {
       int localScore;
       JavaBlock jx = x.executableJavaBlock();
       JavaBlock jy = y.executableJavaBlock();
-      if (jx == JavaBlock.EMPTY_JAVABLOCK || jy == JavaBlock.EMPTY_JAVABLOCK) {
+      if (jx.isEmpty() || jy.isEmpty()) {
          
          // not a symbolic execution rule
          localScore = scoreLogicalFindEqualsMod(x,y);

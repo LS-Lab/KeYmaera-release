@@ -1,3 +1,10 @@
+// This file is part of KeY - Integrated Deductive Software Design
+// Copyright (C) 2001-2009 Universitaet Karlsruhe, Germany
+//                         Universitaet Koblenz-Landau, Germany
+//                         Chalmers University of Technology, Sweden
+//
+// The KeY system is protected by the GNU General Public License. 
+// See LICENSE.TXT for details.
 //This file is part of KeY - Integrated Deductive Software Design
 //Copyright (C) 2001-2005 Universitaet Karlsruhe, Germany
 //                      Universitaet Koblenz-Landau, Germany
@@ -16,6 +23,7 @@ import java.util.Map;
 import de.uka.ilkd.key.java.ArrayOfExpression;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.java.SourceElement;
+import de.uka.ilkd.key.java.abstraction.KeYJavaType;
 import de.uka.ilkd.key.java.statement.CatchAllStatement;
 import de.uka.ilkd.key.java.statement.MethodBodyStatement;
 import de.uka.ilkd.key.logic.BasicLocationDescriptor;
@@ -38,6 +46,8 @@ import de.uka.ilkd.key.logic.op.ProgramMethod;
 import de.uka.ilkd.key.logic.op.ProgramVariable;
 import de.uka.ilkd.key.logic.op.SLListOfParsableVariable;
 import de.uka.ilkd.key.proof.init.ProofInputException;
+import de.uka.ilkd.key.speclang.ClassInvariant;
+import de.uka.ilkd.key.speclang.ClassInvariantImpl;
 import de.uka.ilkd.key.speclang.FormulaWithAxioms;
 import de.uka.ilkd.key.speclang.OperationContract;
 import de.uka.ilkd.key.speclang.OperationContractImpl;
@@ -183,7 +193,33 @@ public class DLSpecFactory {
     //-------------------------------------------------------------------------
     //public interface
     //-------------------------------------------------------------------------
+    
+    /**
+     * Creates a class invariant from a formula and a designated "self".
+     */
+    public ClassInvariant createDLClassInvariant(String name, 
+                                                 String displayName,
+                                                 ParsableVariable selfVar,
+                                                 Term inv) 
+            throws ProofInputException {
+        assert name != null;
+        if(displayName == null) {
+            displayName = name;
+        }
+        assert selfVar != null;
+        assert inv != null;
+        
+        KeYJavaType kjt = services.getJavaInfo().getKeYJavaType(selfVar.sort());
+        assert kjt != null;
+        
+        return new ClassInvariantImpl(name, 
+                                      displayName, 
+                                      kjt, 
+                                      new FormulaWithAxioms(inv), 
+                                      selfVar);
+    }
   
+    
     /**
      * Creates an operation contract from an implication formula of the form
      * <code>pre -> \<p\> post</code> and a modifies clause (which is how

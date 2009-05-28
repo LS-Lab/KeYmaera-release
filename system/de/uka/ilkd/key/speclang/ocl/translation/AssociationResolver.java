@@ -1,3 +1,10 @@
+// This file is part of KeY - Integrated Deductive Software Design
+// Copyright (C) 2001-2009 Universitaet Karlsruhe, Germany
+//                         Universitaet Koblenz-Landau, Germany
+//                         Chalmers University of Technology, Sweden
+//
+// The KeY system is protected by the GNU General Public License. 
+// See LICENSE.TXT for details.
 //This file is part of KeY - Integrated Deductive Software Design
 //Copyright (C) 2001-2005 Universitaet Karlsruhe, Germany
 //                      Universitaet Koblenz-Landau, Germany
@@ -10,15 +17,15 @@
 
 package de.uka.ilkd.key.speclang.ocl.translation;
 
-import de.uka.ilkd.key.casetool.Association;
-import de.uka.ilkd.key.casetool.ListOfAssociation;
-import de.uka.ilkd.key.casetool.UMLInfo;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.java.abstraction.KeYJavaType;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.TermFactory;
 import de.uka.ilkd.key.logic.op.Function;
 import de.uka.ilkd.key.logic.sort.AbstractCollectionSort;
+import de.uka.ilkd.key.speclang.ocl.Association;
+import de.uka.ilkd.key.speclang.ocl.ListOfAssociation;
+import de.uka.ilkd.key.speclang.ocl.UMLInfo;
 import de.uka.ilkd.key.speclang.translation.SLResolverManager;
 import de.uka.ilkd.key.speclang.translation.SLExpression;
 import de.uka.ilkd.key.speclang.translation.SLExpressionResolver;
@@ -93,18 +100,18 @@ class AssociationResolver extends SLExpressionResolver {
                 if (assocFunc.sort() instanceof AbstractCollectionSort) {
                     // we have a binary association with multiplicity greater than 1
                     OCLCollection collection = new OCLCollection(recTerm,assoc,name);
-                    return new OCLEntity(collection);
+                    return new OCLExpression(collection);
                 } else {
                     // either the association-end has multiplicity 1 or it is no binary association
                     Term functionTerm = tf.createFunctionTerm(assocFunc,recTerm);
-                    return new OCLEntity(functionTerm);
+                    return new OCLExpression(functionTerm);
                 }
             } else if(recCollection != null) {
                 OCLCollection newCollection
                         = recCollection.collect(services,
                                                 assoc,
                                                 name);
-                return new OCLEntity(newCollection);
+                return new OCLExpression(newCollection);
             }
         } 
         

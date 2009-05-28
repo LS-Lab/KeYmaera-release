@@ -1,3 +1,10 @@
+// This file is part of KeY - Integrated Deductive Software Design
+// Copyright (C) 2001-2009 Universitaet Karlsruhe, Germany
+//                         Universitaet Koblenz-Landau, Germany
+//                         Chalmers University of Technology, Sweden
+//
+// The KeY system is protected by the GNU General Public License. 
+// See LICENSE.TXT for details.
 // Copyright (C) 2001-2005 Universitaet Karlsruhe, Germany
 //                         Universitaet Koblenz-Landau, Germany
 //                         Chalmers University of Technology, Sweden
@@ -44,7 +51,9 @@ public class EnsuresPostPO extends EnsuresPO {
     public EnsuresPostPO(InitConfig initConfig, OperationContract contract,
             SetOfClassInvariant assumedInvs) {
         this(initConfig, 
-             "EnsuresPost", 
+             "EnsuresPost (" 
+                 + contract.getProgramMethod() + ", " 
+                 + contract.getDisplayName() + ")", 
              contract, 
              assumedInvs);
     }
@@ -54,7 +63,8 @@ public class EnsuresPostPO extends EnsuresPO {
                               ListOfProgramVariable paramVars, 
                               ProgramVariable resultVar,
                               ProgramVariable exceptionVar,
-                              Map<Operator, Function/*atPre*/> atPreFunctions) throws ProofInputException {
+                              Map<Operator, Function/*atPre*/> atPreFunctions) 
+            throws ProofInputException {
         Term result = translatePre(contract, selfVar, toPV(paramVars));
         return result;
     }
@@ -64,7 +74,8 @@ public class EnsuresPostPO extends EnsuresPO {
                                ListOfProgramVariable paramVars, 
                                ProgramVariable resultVar,
                                ProgramVariable exceptionVar,
-                               Map<Operator, Function/*atPre*/> atPreFunctions) throws ProofInputException {        
+                               Map<Operator, Function/*atPre*/> atPreFunctions) 
+            throws ProofInputException {        
         Term result = translatePost(contract, 
                                     selfVar, 
                                     toPV(paramVars), 
@@ -72,34 +83,18 @@ public class EnsuresPostPO extends EnsuresPO {
                                     exceptionVar,
                                     atPreFunctions);
        
-        //add implicit postcondition (see discussion for Bug #789) 
-        /*
-        Term implicitPostTerm = TB.tt();
-        if(resultVar != null) {
-            if(resultVar.sort() instanceof ObjectSort) {       
-                implicitPostTerm 
-                   = createdFactory.createCreatedOrNullTerm(services, 
-                                                            TB.var(resultVar));
-            } else {
-        	LDT ldt 
-        	    = services.getTypeConverter().getModelFor(resultVar.sort());
-        	if(ldt instanceof AbstractIntegerLDT) {
-        	    Function inBoundsPredicate 
-        	    	= ((AbstractIntegerLDT)ldt).getInBoundsPredicate();
-        	    if(inBoundsPredicate != null) {
-        		implicitPostTerm = TB.func(inBoundsPredicate, 
-        					   TB.var(resultVar));
-        	    }
-        	}
-            }
-        }
-	Term excNotNullTerm = TB.not(TB.equals(TB.var(exceptionVar), 
-			                       TB.NULL(services)));
-        implicitPostTerm = TB.or(implicitPostTerm, excNotNullTerm);
-        result = TB.and(result, implicitPostTerm);
-        */
-
         return result;
+    }
+    
+    
+    public boolean implies(ProofOblInput po) {
+        if(!(po instanceof EnsuresPostPO)) {
+            return false;
+        }
+        EnsuresPostPO epPO = (EnsuresPostPO) po;
+        return specRepos.splitContract(epPO.contract)
+                        .subset(specRepos.splitContract(contract))
+               && assumedInvs.subset(epPO.assumedInvs);
     }
     
     

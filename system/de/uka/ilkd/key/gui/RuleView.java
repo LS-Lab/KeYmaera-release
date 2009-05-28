@@ -1,5 +1,5 @@
 // This file is part of KeY - Integrated Deductive Software Design
-// Copyright (C) 2001-2005 Universitaet Karlsruhe, Germany
+// Copyright (C) 2001-2009 Universitaet Karlsruhe, Germany
 //                         Universitaet Koblenz-Landau, Germany
 //                         Chalmers University of Technology, Sweden
 //
@@ -116,9 +116,14 @@ public class RuleView extends JPanel implements TreeSelectionListener, java.io.S
 	public void selectedProofChanged(KeYSelectionEvent e) {
             Runnable action = new Runnable () {
 		public void run () {
-		    if ( mediator != null && mediator.getSelectedProof()!=null)
-			setRuleTreeModel(new RuleTreeModel
-					 (mediator.getSelectedGoal()));
+		    if ( mediator != null){
+		        if( mediator.getSelectedProof()!=null){
+		            setRuleTreeModel(new RuleTreeModel
+                                    (mediator.getSelectedGoal()));
+		        }else{
+		            ruleViewModel.setSelectedGoal(null);
+		        }
+		    }
 		}
 	    };
         

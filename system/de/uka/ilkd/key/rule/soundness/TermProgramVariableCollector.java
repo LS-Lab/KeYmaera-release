@@ -1,5 +1,5 @@
 // This file is part of KeY - Integrated Deductive Software Design
-// Copyright (C) 2001-2005 Universitaet Karlsruhe, Germany
+// Copyright (C) 2001-2009 Universitaet Karlsruhe, Germany
 //                         Universitaet Koblenz-Landau, Germany
 //                         Chalmers University of Technology, Sweden
 //
@@ -53,7 +53,7 @@ public class TermProgramVariableCollector extends Visitor {
 	    result.add( (Location) t.op() );
 	}
 	
-	if ( t.javaBlock () != JavaBlock.EMPTY_JAVABLOCK ) {
+	if ( !t.javaBlock ().isEmpty() ) {
 	    ProgramVariableCollector pvc
 		= new ProgramVariableCollector ( t.javaBlock ().program (), services, collectFunctionLocations );
 	    pvc.start();

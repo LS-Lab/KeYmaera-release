@@ -1,5 +1,5 @@
 // This file is part of KeY - Integrated Deductive Software Design
-// Copyright (C) 2001-2005 Universitaet Karlsruhe, Germany
+// Copyright (C) 2001-2009 Universitaet Karlsruhe, Germany
 //                         Universitaet Koblenz-Landau, Germany
 //                         Chalmers University of Technology, Sweden
 //
@@ -14,11 +14,6 @@ import de.uka.ilkd.key.logic.Name;
 import de.uka.ilkd.key.rule.Rule;
 
 public class NameSV extends SchemaVariableAdapter {
-
-    public static final String NAME_PREFIX = "_NAME";
-    public static final String MV_NAME_PREFIX = NAME_PREFIX+"_MV_";
-    public static final String TACLET_NAME_PREFIX = NAME_PREFIX+"_T_";
-
 
     public NameSV(Name name) {
         super(name, Rule.class);

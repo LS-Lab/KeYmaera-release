@@ -1,3 +1,10 @@
+// This file is part of KeY - Integrated Deductive Software Design
+// Copyright (C) 2001-2009 Universitaet Karlsruhe, Germany
+//                         Universitaet Koblenz-Landau, Germany
+//                         Chalmers University of Technology, Sweden
+//
+// The KeY system is protected by the GNU General Public License. 
+// See LICENSE.TXT for details.
 package de.uka.ilkd.key.visualization;
 
 import java.util.*;
@@ -15,7 +22,6 @@ import de.uka.ilkd.key.logic.*;
 import de.uka.ilkd.key.logic.op.*;
 import de.uka.ilkd.key.logic.sort.AbstractSort;
 import de.uka.ilkd.key.logic.sort.Sort;
-import de.uka.ilkd.key.proof.IteratorOfNode;
 import de.uka.ilkd.key.proof.Node;
 import de.uka.ilkd.key.proof.ProgVarReplacer;
 import de.uka.ilkd.key.rule.*;
@@ -150,7 +156,14 @@ public class SimpleVisualizationStrategy implements VisualizationStrategy {
    
     private int countJavaBlocks(Term t) {
         int p = 0;
-        if (t.javaBlock() != JavaBlock.EMPTY_JAVABLOCK){
+        // mbender
+        // 'if (!t.javaBlock().isEmpty())' had to be switched back as it behaves
+        // differently than
+        // 'if (t.javaBlock() != JavaBlock.EMPTY_JAVABLOCK)'
+        // That is if a JavaBlock contains an empty StatementBlock
+        // 't.javaBlock() != JavaBlock.EMPTY_JAVABLOCK' is true but
+        // '!t.javaBlock().isEmpty()' is false
+        if (t.javaBlock() != JavaBlock.EMPTY_JAVABLOCK) {
             p++;
         }
         for (int i = 0; i < t.arity(); i++) {
@@ -337,7 +350,7 @@ public class SimpleVisualizationStrategy implements VisualizationStrategy {
     protected LinkedList findJavaBlocks(boolean ant, int cfm, Term t, int pos) {
         LinkedList ll = new LinkedList();
         int p = pos;
-        if (t.javaBlock() != JavaBlock.EMPTY_JAVABLOCK) {
+        if (!t.javaBlock().isEmpty()) {
             /*Occ objects additionally store the term with the javablock
              * that shall be traced. This information is important for the
              * implementation of extractExecutionTrace in class
@@ -852,7 +865,7 @@ public class SimpleVisualizationStrategy implements VisualizationStrategy {
     private int getSubformulaOccurrence(Term t, IntIterator it){
         int result = 0;
         if (it.hasNext()) {
-            if (t.javaBlock() != JavaBlock.EMPTY_JAVABLOCK){
+            if (!t.javaBlock().isEmpty()){
                 result++;
             }
             
@@ -1291,9 +1304,23 @@ public class SimpleVisualizationStrategy implements VisualizationStrategy {
                 print("Occurrence in Schema Variable: " + occInSV.sv
                         + "   occ ", occInSV.occ);
                 if (occInSV.isJavaBlock) {
-                    result.set(occOfFind.ant, occOfFind.cfm, 
-                            getOccurrenceOfJavaBlock(findTerm, inst),
-                            getTermWithJavaBlock(findTerm, inst));                   
+		    // author: mbender
+		    // Bugfix implemented by Christoph Gladisch caused an
+		    // exception (Cannot cast JavaBlock to Term) if the proof
+		    // tree contained the application of the invariant rule
+                    
+		    // result.set(occOfFind.ant, occOfFind.cfm,
+		    // getOccurrenceOfJavaBlock(findTerm, inst),
+		    // getTermWithJavaBlock(findTerm, inst));
+
+		    // This looks like a solution for the above mentioned bug,
+		    // but due to the complexity code we are not
+		    // sure if findTerm really equals the javablock-term in all
+		    // cases
+                    
+		    result.set(occOfFind.ant, occOfFind.cfm,
+			    getOccurrenceOfJavaBlock(findTerm, inst),
+			    findTerm);
                     return true;
                 } else {
                     occOfSV = getOccurrenceOfSV(findTerm, occInSV.sv, inst);

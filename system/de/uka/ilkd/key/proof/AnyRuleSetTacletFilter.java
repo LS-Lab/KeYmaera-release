@@ -1,5 +1,5 @@
 // This file is part of KeY - Integrated Deductive Software Design
-// Copyright (C) 2001-2005 Universitaet Karlsruhe, Germany
+// Copyright (C) 2001-2009 Universitaet Karlsruhe, Germany
 //                         Universitaet Koblenz-Landau, Germany
 //                         Chalmers University of Technology, Sweden
 //
@@ -27,7 +27,7 @@ public class AnyRuleSetTacletFilter extends TacletFilter {
      * result
      */
     public boolean filter ( Taclet taclet ) {
-	return taclet.getRuleSets () != SLListOfRuleSet.EMPTY_LIST;
+	return !taclet.getRuleSets ().isEmpty();
     }
 
     public final static TacletFilter INSTANCE = new AnyRuleSetTacletFilter ();

@@ -1,5 +1,3 @@
-keybase: TOGETHER_ENABLED=
-keybase: COMPILE_GF=
 # This file is part of KeY - Integrated Deductive Software Design 
 # Copyright (C) 2001-2004 Universitaet Karlsruhe, Germany
 #                         Universitaet Koblenz-Landau, Germany
@@ -23,9 +21,6 @@ export GENERATED_SRC_PATH=genSrc/
 
 #the path where the resources are put (images etc.)
 RESOURCEPATH=./resources/
-#the path where the GF grammars are
-GFGRAMMARPATH=de/uka/ilkd/key/ocl/gf/grammars2
-GRAMMARLIST=$(BINARYPATH)$(GFGRAMMARPATH)/grammars2list.txt
 
 #include configuration information
 sinclude ./Makefile.mk
@@ -51,7 +46,10 @@ endif
 GIT_REPOS_AVAILABLE=$(wildcard ../.git/objects)
 
 SHA1=ownVersion
-KEY_VERSION_SHORT=0.0.0
+
+ifeq "$(KEY_VERSION_SHORT)" "" 
+  KEY_VERSION_SHORT=0.0.0
+endif
 
 ifneq "$(GIT)" "" 
  ifneq "$(GIT_REPOS_AVAILABLE)" ""
@@ -60,7 +58,7 @@ ifneq "$(GIT)" ""
    ifeq "$(KEY_VERSION_SHORT)" "0.0.0" 
      KEY_VERSION_SHORT:=$(shell $(GIT) log --pretty=one | wc -l)
      KEY_VERSION_SHORT:=$(wordlist 1,1,$(KEY_VERSION_SHORT))
-     KEY_VERSION_SHORT:=1.3.$(KEY_VERSION_SHORT)
+     KEY_VERSION_SHORT:=1.5.$(KEY_VERSION_SHORT)
    endif
  endif
 endif
@@ -114,8 +112,6 @@ JAVADOC_OPTIONS=-use -quiet -breakiterator -linksource -J-Xmx512m
 ## KeY config
 PLUG_IN_FILTER?="(none)"
 export PLUG_IN_FILTER
-TOGETHER_ENABLED?=--with-together
-export TOGETHER_ENABLED
 COMPILE_GF?=--with-gf
 export COMPILE_GF
 
@@ -185,7 +181,6 @@ GENERATED_LISTS=logic/SLListOfTerm \
 	proof/proofevent/SLListOfNodeChangesHolder \
 	proof/incclosure/SLListOfSink \
 	proof/SLListOfProof \
-        proof/decproc/translation/SLListOfIOperatorTranslation \
 	logic/sort/SLListOfGenericSort \
 	rule/inst/SLListOfGenericSortCondition \
 	logic/op/SLListOfSortDependingSymbol \
@@ -206,8 +201,8 @@ GENERATED_LISTS=logic/SLListOfTerm \
 	proof/SLListOfInstantiationProposer \
         speclang/SLListOfOperationContract \
 	speclang/SLListOfClassInvariant \
-	casetool/SLListOfModelClass \
-	casetool/SLListOfModelMethod \
+	speclang/ocl/SLListOfModelClass \
+	speclang/ocl/SLListOfModelMethod \
 	proof/init/SLListOfProofOblInput \
 	logic/op/SLListOfNonRigidFunction \
 	rule/export/SLListOfTacletModelInfo \
@@ -216,9 +211,9 @@ GENERATED_LISTS=logic/SLListOfTerm \
 	rule/export/SLListOfDisplayNameModelInfo \
 	rule/export/SLListOfCategoryModelInfo \
 	logic/SLListOfNamespace \
-	casetool/SLListOfAssociation \
-	casetool/SLListOfAssociationEnd \
-        speclang/ocl/translation/SLListOfOCLEntity \
+	speclang/ocl/SLListOfAssociation \
+	speclang/ocl/SLListOfAssociationEnd \
+        speclang/ocl/translation/SLListOfOCLExpression \
 	speclang/translation/SLListOfSLExpression \
 	speclang/translation/SLListOfSLExpressionResolver \
 	speclang/SLListOfPositionedString \
@@ -266,7 +261,8 @@ GENERATED_SETS=logic/SetAsListOfTerm collection/SetAsListOfString \
 	java/statement/SetAsListOfLoopStatement \
         proof/SetAsListOfGoalChooserBuilder \
 	strategy/SetAsListOfStrategyFactory \
-	logic/op/SetAsListOfLocation
+	logic/op/SetAsListOfLocation \
+	speclang/SetAsListOfPositionedString
 
 GENERATED_MAPS=	collection/MapAsListFromIntegerToString \
 	logic/op/MapAsListFromQuantifiableVariableToInteger \
@@ -367,17 +363,9 @@ DIFF_PARSER= \
 ## generic java support
 JAVAFILES=$(GEN_FILES:%=$(PFX)%.java) 
 
-.PHONY: keybase
-keybase: TOGETHER_ENABLED=
-keybase: COMPILE_GF=
-keybase: PLUG_IN_FILTER='\(key/casetool\|key/ocl\|proof/init/OCL\|TestTermParserOCL\|TestTacletParserOCL\|TestOCLTaclets\|TestKey\)'
-keybase: javahomeset
-	@$(MAKE) -s all_gen
-
 .PHONY: all
 all:	javahomeset branding
 	@$(MAKE) -s all_gen
-
 
 
 ## create javadoc
@@ -432,7 +420,7 @@ dist:	branding all
 
 OPTIONS:=${OPTIONS} -target 1.5
 
-dist-keymaera:	branding keybase
+dist-keymaera:	branding all
 	@echo "[creating distribution directory structure]"
 	@mkdir -p ../dist
 	@mkdir -p dist/key/
@@ -524,7 +512,7 @@ all_gen: genericMakefile
 	@$(MAKE) -s all_hlp   	
 
 .PHONY: all_hlp
-all_hlp: argfile.normal $(JAVAFILES) $(ANTLR_PARSER) $(JAVACC_PARSER) $(PROOFJAVA_PARSER) $(KEYDOC_JAVAS) $(DIFF_PARSER) copyResources $(GRAMMARLIST)
+all_hlp: argfile.normal $(JAVAFILES) $(ANTLR_PARSER) $(JAVACC_PARSER) $(PROOFJAVA_PARSER) $(KEYDOC_JAVAS) $(DIFF_PARSER) copyResources
 ifeq "$(BRANDING)" ""
 # always update SHA1 hash in order to get useful bug reports		
 	@echo $(SHA1) > ${BINARYPATH}/de/uka/ilkd/key/util/sha1
@@ -550,19 +538,10 @@ endif
 	@./success
 
 .PHONY: copyResources
-copyResources: TOGETHER_ENABLED=
-copyResources: COMPILE_GF=
 copyResources: javahomeset
 	@echo "[copying resources]"
 	@cp -r $(RESOURCEPATH)/* $(BINARYPATH)
 
-$(GRAMMARLIST):
-ifeq ("$(COMPILE_GF)","--with-gf")
-	@echo [GF is being compiled]
-	@./"${BINARYPATH}/${GFGRAMMARPATH}/compileGrammars.sh" "${BINARYPATH}/${GFGRAMMARPATH}" "${PWD}/../key-ext-jars" > gf.msg
-else
-	@echo [GF skipped]
-endif
 
 branding:
 ifeq "$(BRANDING)" ""
@@ -791,11 +770,7 @@ help:
 	@echo " (g)make"
 	@echo "    help:      prints this message"
 	@echo
-	@echo "    all:       compiles the KeY-system and if necessary creates"
-	@echo "               a local Together installation (if the "
-	@echo "               configuration file config.mk does not exist)"  
-	@echo
-	@echo "    keybase:   compiles the KeY-system without the together plug-in"  
+	@echo "    all:       compiles the KeY-system"
 	@echo
 	@echo "    dist:      'all' + creates a binary distribution "
 	@echo "               (../KeY.tgz containing an installation script, "
@@ -819,7 +794,7 @@ help:
 
 .PHONY: javahomeset
 javahomeset:
-	@./checkEnvironment $(TOGETHER_ENABLED)
+	@./checkEnvironment
 	@mkdir -p $(BINARYPATH)
 
 # eclipse plug-in:

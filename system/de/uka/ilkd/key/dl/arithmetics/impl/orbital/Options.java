@@ -51,6 +51,7 @@ public class Options implements Settings {
 
     private Options() {
         listeners = new LinkedList<SettingsListener>();
+        getDeferred().setSparsePolynomials(true);
     }
 
     /*

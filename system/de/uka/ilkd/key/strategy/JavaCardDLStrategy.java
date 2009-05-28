@@ -1,5 +1,5 @@
 // This file is part of KeY - Integrated Deductive Software Design
-// Copyright (C) 2001-2005 Universitaet Karlsruhe, Germany
+// Copyright (C) 2001-2009 Universitaet Karlsruhe, Germany
 //                         Universitaet Koblenz-Landau, Germany
 //                         Chalmers University of Technology, Sweden
 //
@@ -193,6 +193,18 @@ public class JavaCardDLStrategy extends AbstractFeatureStrategy {
         bindRuleSet ( d, "simplify_instanceof_static",
                       add ( EqNonDuplicateAppFeature.INSTANCE,
                             longConst ( -500 ) ) );
+
+        bindRuleSet ( d, "comprehensions",
+                      add ( NonDuplicateAppModPositionFeature.INSTANCE,
+                            longConst ( 1000 ) ) );
+        
+        bindRuleSet ( d, "comprehensions_high_costs",
+                add ( NonDuplicateAppModPositionFeature.INSTANCE,
+                      longConst ( 10000 ) ) );
+
+        bindRuleSet ( d, "comprehensions_low_costs",
+                add ( NonDuplicateAppModPositionFeature.INSTANCE,
+                      longConst ( -5000 ) ) );
         
         bindRuleSet ( d, "evaluate_instanceof", longConst ( -500 ) );
         
@@ -345,12 +357,14 @@ public class JavaCardDLStrategy extends AbstractFeatureStrategy {
         // attention: usually this application is against the term order but
         // does not interfere as only applied below updates
         bindRuleSet ( d, "query_normalize", 
-               ifZero ( add ( DirectlyBelowOpClassFeature.create
-                              ( ProgramMethod.class ),
-                              applyTF (FocusProjection.create(2), ff.update),
-                              applyTF("t", IsNonRigidTermFeature.INSTANCE) ),
-                        longConst (-10),
-                        inftyConst () ) );
+	    SumFeature.createSum ( new Feature [] {
+                DirectlyBelowOpClassFeature.create ( ProgramMethod.class ),
+                applyTF(FocusProjection.create(2), ff.update),
+                applyTF("t", IsNonRigidTermFeature.INSTANCE),
+		// we actually have to be in the scope of an update,
+		// not only within an update
+		not(NotInScopeOfModalityFeature.INSTANCE),
+                longConst (-10) } ));
 
         if ( expandQueries () )
             bindRuleSet ( d, "queries",

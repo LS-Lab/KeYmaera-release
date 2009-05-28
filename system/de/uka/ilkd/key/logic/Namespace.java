@@ -1,5 +1,5 @@
 // This file is part of KeY - Integrated Deductive Software Design
-// Copyright (C) 2001-2005 Universitaet Karlsruhe, Germany
+// Copyright (C) 2001-2009 Universitaet Karlsruhe, Germany
 //                         Universitaet Koblenz-Landau, Germany
 //                         Chalmers University of Technology, Sweden
 //
@@ -32,7 +32,7 @@ public class Namespace implements java.io.Serializable {
     /** The hashmap that maps a name to a symbols of that name if it 
      * is defined in this Namespace. */
     protected HashMap<Name, Named> symbols=null;
-
+     
     /** One defined symbol.  Many Namespaces, e.g. those generated when 
      * a quantified formula is parsed, define only one new symbol,
      * and it would be a waste of time and space to create a hashmap for that.
@@ -78,16 +78,19 @@ public class Namespace implements java.io.Serializable {
 
     /** Adds the object <code>sym</code> to this Namespace. 
      * If an object with the same name is already there, it is quietly 
-     * replaced by <code>sym</code>. Use addSafely() instead if possible.*/
+     * replaced by <code>sym</code>. Use addSafely() instead if possible.
+     * TODO:The problem of saving to localSym, symbols, and symbolRefs is not solved yet.*/
     public void add(Named sym) {
 	if (numLocalSyms>0) {
-	    if (symbols==null) {
-		symbols=new HashMap<Name, Named>();
-		symbols.put(localSym.name(),localSym);
-		localSym=null;
-	    }
-	    symbols.put(sym.name(),sym);
-	}
+                if (symbols == null) {
+                    symbols = new HashMap<Name, Named>();
+                    if (localSym != null) {
+                        symbols.put(localSym.name(), localSym);
+                        localSym = null;
+                    }
+                }
+                symbols.put(sym.name(), sym);
+            }
 	else localSym=sym;
 	numLocalSyms++;
         if (protocol != null) {
@@ -125,7 +128,12 @@ public class Namespace implements java.io.Serializable {
 
     protected Named lookupLocally(Name name){
 	if (numLocalSyms==0) return null;
-	if (numLocalSyms>1) return symbols.get(name);
+	if (numLocalSyms > 1) {
+            if (symbols != null && symbols.containsKey(name)) {
+                return symbols.get(name);
+            } 
+            return null;
+        }
 	if (localSym.name().equals(name)) {
 	    return localSym;
 	}
@@ -174,13 +182,18 @@ public class Namespace implements java.io.Serializable {
 	ListOfNamed list = SLListOfNamed.EMPTY_LIST;
 
 	if (numLocalSyms == 1) {
-	    list = list.prepend(localSym);
-	} else if (numLocalSyms > 1) {
-	    Iterator<Named> it = symbols.values().iterator();
-	    while (it.hasNext()) {
-		list = list.prepend(it.next());
-	    }
-	}
+            list = list.prepend(localSym);
+        } else if (numLocalSyms > 1) {          
+            if (symbols != null) {
+                Iterator<Named> it = symbols.values().iterator();
+                while (it.hasNext()) {
+                    Named named = it.next();
+                    if (named != null) {
+                        list = list.prepend(named);
+                    }
+                }
+            }
+        }
 
 	return list;
     }
@@ -238,7 +251,7 @@ public class Namespace implements java.io.Serializable {
     
     public void reset() {
 	parent=null;
-	symbols=null;
+	symbols=null;	
 	localSym=null;
 	numLocalSyms=0;
     }

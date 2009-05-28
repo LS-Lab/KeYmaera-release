@@ -1,5 +1,5 @@
 // This file is part of KeY - Integrated Deductive Software Design
-// Copyright (C) 2001-2005 Universitaet Karlsruhe, Germany
+// Copyright (C) 2001-2009 Universitaet Karlsruhe, Germany
 //                         Universitaet Koblenz-Landau, Germany
 //                         Chalmers University of Technology, Sweden
 //
@@ -12,18 +12,20 @@ package de.uka.ilkd.key.java;
 
 import java.util.HashMap;
 
-import de.uka.ilkd.key.casetool.UMLInfo;
 import de.uka.ilkd.key.gui.Main;
 import de.uka.ilkd.key.java.recoderext.KeYCrossReferenceServiceConfiguration;
 import de.uka.ilkd.key.java.recoderext.SchemaCrossReferenceServiceConfiguration;
 import de.uka.ilkd.key.logic.InnerVariableNamer;
+import de.uka.ilkd.key.logic.Name;
 import de.uka.ilkd.key.logic.NamespaceSet;
 import de.uka.ilkd.key.logic.VariableNamer;
 import de.uka.ilkd.key.proof.Counter;
+import de.uka.ilkd.key.proof.NameRecorder;
 import de.uka.ilkd.key.proof.Node;
 import de.uka.ilkd.key.proof.init.ProgramBlockProvider;
 import de.uka.ilkd.key.proof.Proof;
 import de.uka.ilkd.key.proof.mgt.SpecificationRepository;
+import de.uka.ilkd.key.speclang.ocl.UMLInfo;
 import de.uka.ilkd.key.util.Debug;
 import de.uka.ilkd.key.util.KeYExceptionHandler;
 import de.uka.ilkd.key.util.KeYRecoderExcHandler;
@@ -86,7 +88,13 @@ public class Services{
      */
     private SpecificationRepository specRepos 
     	= new SpecificationRepository(this);
+    
+    /**
+     * 
+     */
+    private NameRecorder nameRecorder;
 
+    
     /**
      * creates a new Services object with a new TypeConverter and a new
      * JavaInfo object with no information stored at none of these.
@@ -101,6 +109,8 @@ public class Services{
 	}
         javainfo = new JavaInfo
         (new KeYProgModelInfo(typeconverter, this.exceptionHandler), this);
+
+        nameRecorder = new NameRecorder();
     }
 
     public Services(){
@@ -114,6 +124,7 @@ public class Services{
 	//	exceptionHandler = new KeYRecoderExcHandler();
 	javainfo = new JavaInfo
 	    (new KeYProgModelInfo(crsc, rec2key, typeconverter), this);
+        nameRecorder = new NameRecorder();
     }
 
 
@@ -165,6 +176,18 @@ public class Services{
         javainfo = ji;
     }
     
+    public NameRecorder getNameRecorder() {
+        return nameRecorder;
+    }
+
+    public void saveNameRecorder(Node n) {
+        n.setNameRecorder(nameRecorder);
+        nameRecorder = new NameRecorder();
+    }
+
+    public void addNameProposal(Name proposal) {
+        nameRecorder.addProposal(proposal);
+    }
     
     /**
      * Returns the UMLInfo associated with this Services object.
@@ -210,6 +233,7 @@ public class Services{
 	s.setExceptionHandler(getExceptionHandler());
 	s.setNamespaces(namespaces.copy());
         s.setUMLInfo(umlinfo);
+        nameRecorder = nameRecorder.copy();
 	return s;
     }
 
@@ -226,6 +250,7 @@ public class Services{
 	s.setTypeConverter(getTypeConverter().copy(s));
 	s.setNamespaces(namespaces.copy());
         s.setUMLInfo(umlinfo);
+        nameRecorder = nameRecorder.copy();
 	return s;
     }
     
@@ -238,6 +263,7 @@ public class Services{
         s.setExceptionHandler(getExceptionHandler());
         s.setNamespaces(namespaces.copy());
         s.setUMLInfo(umlinfo);
+        nameRecorder = nameRecorder.copy();
         return s;
     }
 

@@ -1,5 +1,5 @@
 // This file is part of KeY - Integrated Deductive Software Design
-// Copyright (C) 2001-2005 Universitaet Karlsruhe, Germany
+// Copyright (C) 2001-2009 Universitaet Karlsruhe, Germany
 //                         Universitaet Koblenz-Landau, Germany
 //                         Chalmers University of Technology, Sweden
 //
@@ -123,7 +123,8 @@ public class ApplyOnModality extends AbstractUpdateRule {
      */
     private boolean isHeapLocation(Location loc) {        
         return (!(loc instanceof ProgramVariable) || ((ProgramVariable)loc).isMember())
-               && !(loc instanceof NonRigidFunctionLocation);
+               && (!(loc instanceof NonRigidFunctionLocation) || 
+        	       ((NonRigidFunctionLocation)loc).isHeap());
     }
 
     /**
@@ -143,15 +144,15 @@ public class ApplyOnModality extends AbstractUpdateRule {
         if (targetOp instanceof ProgramVariable
             || targetOp instanceof NonRigidFunctionLocation) {
             foundProgVars.add(targetOp);
-        } else if (targetOp instanceof NonRigidHeapDependentFunction) {
+        } else if (targetOp instanceof NonRigidHeapDependentFunction ||
+        	targetOp instanceof ProgramMethod) {
             foundProgVars.add(PROTECT_HEAP);
-        } else if (targetOp instanceof NonRigidFunction && 
-                   !(targetOp instanceof ProgramMethod)) {
+        } else if (targetOp instanceof NonRigidFunction) {
             foundProgVars.add(PROTECT_ALL);
             return foundProgVars;
         }
         
-        if (target.javaBlock() != JavaBlock.EMPTY_JAVABLOCK) {
+        if (!target.javaBlock().isEmpty()) {
             ProgramVariableCollector pvc = 
                 new ProgramVariableCollector(target.javaBlock().program(), 
                                              services,
@@ -175,5 +176,9 @@ public class ApplyOnModality extends AbstractUpdateRule {
         // a modality is not a location
         assert false : "matchingCondition(...) must not be called for target " + target;
         return null; // unreachable
+    }
+
+    public static void clearCache(){
+        protectedVarsCache.clear();
     }
 }

@@ -1,5 +1,5 @@
 // This file is part of KeY - Integrated Deductive Software Design
-// Copyright (C) 2001-2005 Universitaet Karlsruhe, Germany
+// Copyright (C) 2001-2009 Universitaet Karlsruhe, Germany
 //                         Universitaet Koblenz-Landau, Germany
 //                         Chalmers University of Technology, Sweden
 //
@@ -783,7 +783,7 @@ public class TermTacletAppIndex {
                                                ListOfNoPosTacletApp taclets) {
         ListOfNoPosTacletApp result = SLListOfNoPosTacletApp.EMPTY_LIST;
 
-        while ( taclets != SLListOfNoPosTacletApp.EMPTY_LIST ) {
+        while ( !taclets.isEmpty() ) {
             final NoPosTacletApp app = taclets.head ();
             taclets = taclets.tail ();
             if ( p_filter.filter ( app.taclet () ) )

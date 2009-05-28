@@ -1,5 +1,5 @@
 // This file is part of KeY - Integrated Deductive Software Design
-// Copyright (C) 2001-2005 Universitaet Karlsruhe, Germany
+// Copyright (C) 2001-2009 Universitaet Karlsruhe, Germany
 //                         Universitaet Koblenz-Landau, Germany
 //                         Chalmers University of Technology, Sweden
 //
@@ -56,7 +56,7 @@ public class ModalOperatorSV extends OperatorSV  {
      * changed by modalities
      */
     public boolean isRigid (Term term) {
-	return (term.javaBlock () == JavaBlock.EMPTY_JAVABLOCK);
+	return (term.javaBlock ().isEmpty());
     }    
     
     /**

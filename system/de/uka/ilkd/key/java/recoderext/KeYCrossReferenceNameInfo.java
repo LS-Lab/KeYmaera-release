@@ -1,4 +1,11 @@
 // This file is part of KeY - Integrated Deductive Software Design
+// Copyright (C) 2001-2009 Universitaet Karlsruhe, Germany
+//                         Universitaet Koblenz-Landau, Germany
+//                         Chalmers University of Technology, Sweden
+//
+// The KeY system is protected by the GNU General Public License. 
+// See LICENSE.TXT for details.
+// This file is part of KeY - Integrated Deductive Software Design
 
 package de.uka.ilkd.key.java.recoderext;
 
@@ -9,6 +16,7 @@ import recoder.abstraction.*;
 import recoder.java.declaration.TypeDeclaration;
 import recoder.kit.UnitKit;
 import recoder.service.DefaultNameInfo;
+import recoder.service.KeYCrossReferenceSourceInfo;
 import de.uka.ilkd.key.java.ConvertException;
 
 
@@ -66,12 +74,12 @@ public class KeYCrossReferenceNameInfo extends DefaultNameInfo {
         }
         
         super.register(ct);
-        
+
         classtypes.put(name, ct);
     }
 
     /**
-     * unregister a class type. This happes for instance when removing an
+     * unregister a class type. This happens for instance when removing an
      * EnumDeclaration and inserting an EnumClassDeclaration instead
      * 
      * @param fullname

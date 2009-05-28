@@ -1,5 +1,5 @@
 // This file is part of KeY - Integrated Deductive Software Design
-// Copyright (C) 2001-2005 Universitaet Karlsruhe, Germany
+// Copyright (C) 2001-2009 Universitaet Karlsruhe, Germany
 //                         Universitaet Koblenz-Landau, Germany
 //                         Chalmers University of Technology, Sweden
 //
@@ -55,6 +55,7 @@ public class TestTermParser extends TestCase {
     public void setUp() {
 	nss = new NamespaceSet();
 	serv = TacletForTests.services ();
+	nss.sorts().add(Sort.NULL);
 	r2k = new Recoder2KeY(serv, nss);
 	r2k.parseSpecialClasses();	
 	parseDecls("\\sorts { boolean; elem; list; int; int_sort; numbers;  }\n" +
@@ -643,7 +644,8 @@ public class TestTermParser extends TestCase {
         r2k.parseSpecialClasses();
         r2k.readCompilationUnit("class Z { } " +
                                 "class SubZ extends Z {} " +
-                                "class AZ extends Z {} ");              
+                                "class AZ extends Z {} ");
+        
         boolean unneccessaryIntersectionSortDetected = false;
         try {
            parseDecls("\\sorts { \\inter(AZ,Z); }");

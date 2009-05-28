@@ -1,5 +1,5 @@
 // This file is part of KeY - Integrated Deductive Software Design
-// Copyright (C) 2001-2005 Universitaet Karlsruhe, Germany
+// Copyright (C) 2001-2009 Universitaet Karlsruhe, Germany
 //                         Universitaet Koblenz-Landau, Germany
 //                         Chalmers University of Technology, Sweden
 //
@@ -207,16 +207,10 @@ public class PrettyPrinter {
     protected Writer out;
 
     protected StringBuffer outBuf;
-
-    protected boolean noLinefeed = false;
-
-    protected boolean noSemicolons = false;
-
-    protected boolean fileWriterMode = false; // enfoces the output of real
-
-    // Java syntax that can be
-    // compiled.
-
+    protected boolean noLinefeed=false;
+    protected boolean noSemicolons=false;
+    /**Enforces the output of real Java syntax that can be compiled. See also {@link de.uka.ilkd.key.unittest.ppAndJavaASTExtension.CompilableJavaPP}*/
+    protected boolean fileWriterMode=false; 
     protected Type classToPrint = null;
 
     protected int firstStatementStart = -1;
@@ -338,13 +332,14 @@ public class PrettyPrinter {
      */
     private boolean isPrintingSingleLineComments = false;
 
-    private HashMap indentMap = new HashMap();
+
+    protected HashMap indentMap=new HashMap();
 
     /**
-     * Set a new stream to write to. Useful to redirect the output while
-     * retaining all other settings. Resets the current source positions and
-     * comments.
-     */
+       Set a new stream to write to. Useful to redirect the output
+       while retaining all other settings. Resets the current source
+       positions and comments.
+    */
     public void setWriter(Writer out) {
         this.out = out;
         column = 0;
@@ -545,24 +540,22 @@ public class PrettyPrinter {
         elem.prettyPrint(this);
     }
 
-    private Position getRelativePosition(SourceElement first) {
-        // System.out.println(indentMap);
-        if (indentMap.containsKey(first)) {
-            return (Position) indentMap.get(first);
-        } else {
-            if (first != null)
-                return first.getRelativePosition();
-            else
-                return Position.UNDEFINED;
-        }
+    protected Position getRelativePosition(SourceElement first) {
+	//	System.out.println(indentMap);
+	if (indentMap.containsKey(first)) {
+	    return (Position)indentMap.get(first);
+	} else {
+	    if (first!=null) return first.getRelativePosition();
+	    else return Position.UNDEFINED;
+	}
     }
 
     /**
-     * Writes an implicit terminal token of a NonTerminal, including its
-     * indentation. Sets the indentation if it is necessary or required.
-     * 
-     * @see SourceElement#prettyPrint
-     */
+       Writes an implicit terminal token of a NonTerminal, including
+       its indentation. Sets the indentation if it is necessary or
+       required.
+       @see SourceElement#prettyPrint
+    */    
     protected void writeToken(int lf, int blanks, String image,
             NonTerminalProgramElement parent) throws IOException {
         if (lf > 0) {
@@ -1255,6 +1248,7 @@ public class PrettyPrinter {
 
     public void printAssert(Assert x) throws java.io.IOException {
         printHeader(x);
+        writeInternalIndentation(x);
 
         // Mark statement start ...
         markStart(0, x);
@@ -1280,8 +1274,9 @@ public class PrettyPrinter {
 
         output();
         // Mark statement end ...
-        markEnd(0, x);
-
+        markEnd(0,x);
+        
+        printFooter(x);
     }
  
     public void printArrayDeclaration(ArrayDeclaration type) throws java.io.IOException {
