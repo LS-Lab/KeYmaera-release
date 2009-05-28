@@ -67,6 +67,9 @@ ifeq "$(KEY_VERSION_LONG)" ""
 KEY_VERSION_LONG=$(KEY_VERSION_SHORT)_$(SHA1)
 endif
 
+KEY_VERSION_SHORT=1.5
+KEY_VERSION_LONG=1.5
+
 export KEY_VERSION_LONG
 export KEY_VERSION_SHORT
 
@@ -427,6 +430,7 @@ dist-keymaera:	branding all
 	@cp -r $(BINARYPATH)/* dist/key/
 	@cp -r $(RESOURCEPATH)/* dist/key/
 	@mkdir -p dist/key/examples/hybrid
+	@mkdir -p dist/key/examples/hybrid/ETCS/safety
 	@cp -r ../examples/hybrid/groebner_basis dist/key/examples/hybrid
 	@cp -rH ../examples/hybrid/publish dist/key/examples/hybrid
 	@cp -rH ../examples/hybrid/ETCS/safety/ETCS-simple.key dist/key/examples/hybrid/ETCS/safety
