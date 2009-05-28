@@ -1,5 +1,5 @@
 // This file is part of KeY - Integrated Deductive Software Design
-// Copyright (C) 2001-2005 Universitaet Karlsruhe, Germany
+// Copyright (C) 2001-2009 Universitaet Karlsruhe, Germany
 //                         Universitaet Koblenz-Landau, Germany
 //                         Chalmers University of Technology, Sweden
 //
@@ -118,7 +118,7 @@ public class GenericSort extends AbstractNonCollectionSort
     public boolean isPossibleInstantiation ( Sort p_s ) {
 	return
 	    p_s != Sort.FORMULA &&
-	    ( oneOf == EMPTY_SORT_SET || oneOf.contains ( p_s ) ) &&
+	    ( oneOf.isEmpty() || oneOf.contains ( p_s ) ) &&
 	    checkNonGenericSupersorts ( p_s );
     }
 

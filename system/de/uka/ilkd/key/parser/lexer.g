@@ -1,5 +1,5 @@
 // This file is part of KeY - Integrated Deductive Software Design
-// Copyright (C) 2001-2005 Universitaet Karlsruhe, Germany
+// Copyright (C) 2001-2009 Universitaet Karlsruhe, Germany
 //                         Universitaet Koblenz-Landau, Germany
 //                         Chalmers University of Technology, Sweden
 //
@@ -101,6 +101,9 @@ tokens {
 	IF   = "\\if";
 	THEN = "\\then";
 	ELSE = "\\else";
+    SUM  = "\\sum";
+  	BSUM  = "\\bSum";
+    PRODUCT  = "\\product";
 	
 
         // inclusion and stuff, things that (usually) come at the beginnig 
@@ -157,6 +160,7 @@ tokens {
         CHOOSECONTRACT = "\\chooseContract";
         PROOF = "\\proof";
         CONTRACTS = "\\contracts";
+        INVARIANTS = "\\invariants";
 
         // The first two guys are not really meta operators, treated separately
 	IN_TYPE = "\\inType";

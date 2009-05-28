@@ -1,5 +1,5 @@
 // This file is part of KeY - Integrated Deductive Software Design
-// Copyright (C) 2001-2005 Universitaet Karlsruhe, Germany
+// Copyright (C) 2001-2009 Universitaet Karlsruhe, Germany
 //                         Universitaet Koblenz-Landau, Germany
 //                         Chalmers University of Technology, Sweden
 //
@@ -9,6 +9,9 @@
 //
 
 package de.uka.ilkd.key.proof;
+
+import de.uka.ilkd.key.logic.IteratorOfName;
+import de.uka.ilkd.key.logic.ListOfName;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -24,6 +27,8 @@ import de.uka.ilkd.key.gui.notification.events.GeneralFailureEvent;
 import de.uka.ilkd.key.java.ProgramElement;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.logic.ConstrainedFormula;
+import de.uka.ilkd.key.logic.Constraint;
+import de.uka.ilkd.key.logic.EqualityConstraint;
 import de.uka.ilkd.key.logic.LocationDescriptor;
 import de.uka.ilkd.key.logic.PosInOccurrence;
 import de.uka.ilkd.key.logic.PosInTerm;
@@ -31,6 +36,7 @@ import de.uka.ilkd.key.logic.Sequent;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.op.EntryOfSchemaVariableAndInstantiationEntry;
 import de.uka.ilkd.key.logic.op.IteratorOfEntryOfSchemaVariableAndInstantiationEntry;
+import de.uka.ilkd.key.logic.op.Metavariable;
 import de.uka.ilkd.key.logic.op.SchemaVariable;
 import de.uka.ilkd.key.pp.LogicPrinter;
 import de.uka.ilkd.key.pp.NotationInfo;
@@ -45,6 +51,7 @@ import de.uka.ilkd.key.rule.IteratorOfIfFormulaInstantiation;
 import de.uka.ilkd.key.rule.IteratorOfObject;
 import de.uka.ilkd.key.rule.ListOfIfFormulaInstantiation;
 import de.uka.ilkd.key.rule.ListOfObject;
+import de.uka.ilkd.key.rule.MatchConditions;
 import de.uka.ilkd.key.rule.RuleApp;
 import de.uka.ilkd.key.rule.TacletApp;
 import de.uka.ilkd.key.rule.UseOperationContractRule;
@@ -116,6 +123,8 @@ public class ProofSaver {
    //                ps.println(mediator.sort_ns());
           ps.println("\\proof {");
           ps.println(writeLog(proof));
+          ps.println("(autoModeTime \"" + proof.getAutoModeTime() + "\")\n");
+          printUserConstraints(ps);
           ps.println(node2Proof(proof.root()));
           ps.println("}");
 
@@ -139,7 +148,57 @@ public class ProofSaver {
       return errorMsg; // null if success
    }
    
+   private String mc2Proof(MatchConditions mc) {
+        if (mc != null) {
+            Constraint c = mc.getConstraint();
+            if (c instanceof EqualityConstraint && !c.isBottom()) {
+                Services s = mediator.getServices();
+                String res = "";
+                Iterator<Metavariable> it = ((EqualityConstraint) c)
+                        .restrictedMetavariables();
+                while (it.hasNext()) {
+                    Metavariable mv = it.next();
+                    res = res + " (matchconstraint \"" + mv.name() + "="
+                            + printTerm(c.getInstantiation(mv), s) + "\")";
+                }
+                return res;
+            }
+        }
+        return "";
+    }
 
+    private String newNames2Proof(Node n) {
+        String s = "";
+        NameRecorder rec = n.getNameRecorder();
+        if (rec == null) {
+            return s;
+        }
+        ListOfName proposals = rec.getProposals();
+        if (proposals.isEmpty()) {
+            return s;
+        }
+        for (IteratorOfName it = proposals.iterator(); it.hasNext();) {
+            s += "," + it.next();
+        }
+        return " (newnames \"" + s.substring(1) + "\")";
+    }
+
+    private void printUserConstraints(PrintStream ps) {
+        ConstraintTableModel uCons = proof.getUserConstraint();
+        Services s = mediator.getServices();
+
+        if (uCons.getRowCount() > 0) {
+
+            for (int i = 0; i < uCons.getRowCount(); i++) {
+                ps.println("(userconstraint \"" + printTerm((Term) uCons
+                        .getValueAt(i, 0), s)
+                        + "=" + printTerm((Term) uCons.getValueAt(i, 1), s)
+                        + "\")");
+            }
+
+        }
+
+    }
 
    private void printSingleNode(Node node, String prefix, StringBuffer tree) {
 
@@ -151,9 +210,7 @@ public class ProofSaver {
 	     createLogicPrinter(proof.getServices(), false);
 
          logicPrinter.printSequent(node.sequent());
-	 // WATCHOUT Woj: replaceAll... is necessary for the newly introduced backslash
-	 // notation in the parser
-         tree.append(printer.result().toString().replace('\n',' ').replaceAll("\\\\","\\\\\\\\"));
+         tree.append(escapeCharacters(printer.result().toString().replace('\n',' ')));
          tree.append("\")\n");
          return;
       }
@@ -165,6 +222,8 @@ public class ProofSaver {
          tree.append("\"");
          tree.append(posInOccurrence2Proof(node.sequent(),
                                            appliedRuleApp.posInOccurrence()));
+         tree.append(mc2Proof(((TacletApp)appliedRuleApp).matchConditions()));
+         tree.append(newNames2Proof(node));
          tree.append(getInteresting(((TacletApp)appliedRuleApp).instantiations()));
          ListOfIfFormulaInstantiation l =
             ((TacletApp)appliedRuleApp).ifFormulaInstantiations();
@@ -181,6 +240,7 @@ public class ProofSaver {
       	tree.append("\"");        
         tree.append(posInOccurrence2Proof(node.sequent(), 
                                           appliedRuleApp.posInOccurrence()));
+        tree.append(newNames2Proof(node));
 
         if (appliedRuleApp.rule() instanceof UseOperationContractRule) {
             RuleJustificationBySpec ruleJusti = (RuleJustificationBySpec) 
@@ -232,7 +292,7 @@ public class ProofSaver {
       while (childrenIt.hasNext()) {
          Node child = childrenIt.next();
          tree.append(prefix);            
-         tree.append("(branch \" "+child.getNodeInfo().getBranchLabel().replaceAll("\\\\","\\\\\\\\")+"\"\n");
+         tree.append("(branch \" " + escapeCharacters(child.getNodeInfo().getBranchLabel()) + "\"\n");
 	 collectProof(child, prefix+"   ", tree);
          tree.append(prefix+")\n");
       }
@@ -284,34 +344,37 @@ public class ProofSaver {
       while (pairIt.hasNext()) {
          EntryOfSchemaVariableAndInstantiationEntry pair = pairIt.next();
          SchemaVariable var = pair.key();
-	 s += " (inst \""+var.name()+"=";
+	 
+         String singleInstantiation = var.name()+ "="; 
 	 Object value = pair.value();
 	 if (value instanceof TermInstantiation) {
-	     s += printTerm(((TermInstantiation) value).getTerm(), 
+	     singleInstantiation += printTerm(((TermInstantiation) value).getTerm(), 
 	                    proof.getServices());
 	 }
          else
 	 if (value instanceof ProgramInstantiation) {
 	     ProgramElement pe = 
 		 ((ProgramInstantiation) value).getProgramElement();
-	     s += printProgramElement(pe);
+	     singleInstantiation += printProgramElement(pe);
 	 }
          else
 	 if (value instanceof NameInstantiationEntry) {
-	     s += ((NameInstantiationEntry) value).getInstantiation();
+	     singleInstantiation += ((NameInstantiationEntry) value).getInstantiation();
 	 }
          else 
          if (value instanceof ListInstantiation) {
              ListOfObject l = (ListOfObject) ((ListInstantiation) value).getInstantiation();
-             s += printListInstantiation(l, proof.getServices());
+             singleInstantiation += printListInstantiation(l, proof.getServices());
          }
          else
              throw new RuntimeException("Saving failed.\n"+
            "FIXME: Unhandled instantiation type: " +  value.getClass());
-	 s += "\")";
+	 
+	 singleInstantiation = escapeCharacters(singleInstantiation);
+	
+	 s += " (inst \"" + singleInstantiation + "\")";
       }
-      // WATCHOUT: Woj: again, quote backslashes
-      s = s.replaceAll("\\\\","\\\\\\\\");
+      
       return s;
    }
    
@@ -349,13 +412,35 @@ public class ProofSaver {
             }
             else
                 if (iff instanceof IfFormulaInstDirect) {
-                    throw new RuntimeException("IfFormulaInstDirect not yet supported");
+                    
+                    final String directInstantiation = printTerm(iff.getConstrainedFormula().formula(), 
+                            node.proof().getServices()).toString();
+
+                    s += " (ifdirectformula \"" + escapeCharacters(directInstantiation) + "\")";
                 }
                 else throw new RuntimeException("Unknown If-Seq-Formula type");
         }
+      
         return s;
     }
 
+
+    /**
+     * double escapes quotation marks and backslashes to be storeable in a text file 
+     * @param toEscape the String to double escape
+     * @return the escaped version of the string
+     */
+    public static String escapeCharacters(String toEscape) {
+	
+	String result = toEscape;	
+	
+	// first escape backslash
+	result = result.replaceAll("\\\\","\\\\\\\\");
+	// then escape quotation marks
+	result = result.replaceAll("\"", "\\\\\"");
+
+	return result;
+    }
 
     public static String printProgramElement(ProgramElement pe) {
         java.io.StringWriter sw = new java.io.StringWriter();

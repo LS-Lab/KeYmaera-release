@@ -1,5 +1,5 @@
 // This file is part of KeY - Integrated Deductive Software Design
-// Copyright (C) 2001-2005 Universitaet Karlsruhe, Germany
+// Copyright (C) 2001-2009 Universitaet Karlsruhe, Germany
 //                         Universitaet Koblenz-Landau, Germany
 //                         Chalmers University of Technology, Sweden
 //
@@ -16,6 +16,7 @@ import recoder.java.Reference;
 import recoder.java.declaration.VariableSpecification;
 import recoder.java.reference.TypeReference;
 import recoder.java.reference.UncollatedReferenceQualifier;
+import recoder.service.KeYCrossReferenceSourceInfo;
 
 public class SchemaCrossReferenceSourceInfo extends KeYCrossReferenceSourceInfo {
     

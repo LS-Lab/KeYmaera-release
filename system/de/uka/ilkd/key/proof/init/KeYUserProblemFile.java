@@ -1,5 +1,5 @@
 // This file is part of KeY - Integrated Deductive Software Design
-// Copyright (C) 2001-2005 Universitaet Karlsruhe, Germany
+// Copyright (C) 2001-2009 Universitaet Karlsruhe, Germany
 //                         Universitaet Koblenz-Landau, Germany
 //                         Chalmers University of Technology, Sweden
 //
@@ -56,7 +56,7 @@ public class KeYUserProblemFile extends KeYFile implements ProofOblInput{
     //-------------------------------------------------------------------------
     //public interface
     //-------------------------------------------------------------------------
-    
+        
     public boolean askUserForEnvironment() {
         return true;
     }
@@ -165,6 +165,11 @@ public class KeYUserProblemFile extends KeYFile implements ProofOblInput{
     }
     
     
+    public boolean implies(ProofOblInput po) {
+        return equals(po);
+    }
+    
+    
     /** 
      * Reads a saved proof of a .key file.
      */
@@ -175,7 +180,7 @@ public class KeYUserProblemFile extends KeYFile implements ProofOblInput{
             throw new ProofInputException(e);
         }
     }
-    
+        
     
     public boolean equals(Object o){
         if(!(o instanceof KeYUserProblemFile)) {

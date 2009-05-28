@@ -1,5 +1,5 @@
 // This file is part of KeY - Integrated Deductive Software Design
-// Copyright (C) 2001-2005 Universitaet Karlsruhe, Germany
+// Copyright (C) 2001-2009 Universitaet Karlsruhe, Germany
 //                         Universitaet Koblenz-Landau, Germany
 //                         Chalmers University of Technology, Sweden
 //
@@ -103,11 +103,6 @@ public class SchemaVariableFactory {
     public static SchemaVariable createListSV(Name name, Class matchType){
 	return new ListSV(name, matchType);
     }
-
-    public static SchemaVariable createNameSV(Name name){
-	return new NameSV(name);
-    }
-
 
     /** creates a SchemaVariable representing a program construct
      * @param name the ProgramElementName of the SchemaVariable

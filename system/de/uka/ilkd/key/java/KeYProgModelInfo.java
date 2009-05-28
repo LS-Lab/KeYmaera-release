@@ -1,5 +1,5 @@
 // This file is part of KeY - Integrated Deductive Software Design
-// Copyright (C) 2001-2005 Universitaet Karlsruhe, Germany
+// Copyright (C) 2001-2009 Universitaet Karlsruhe, Germany
 //                         Universitaet Koblenz-Landau, Germany
 //                         Chalmers University of Technology, Sweden
 //
@@ -811,13 +811,12 @@ public class KeYProgModelInfo{
 	    KeYJavaType r = (KeYJavaType)mapping.toKeY(ct);
 	    if (r==null) {
 		System.out.println("Type "+ct.getFullName()+":"+name+" not found");
-	    } else {
+	    } else if (!result.contains(r)){
 		result = result.prepend(r);
 	    }
         }
 
         List<recoder.abstraction.ClassType> classes = si.getSubtypes(ct);
-
 
         //alpha sorting to make order deterministic
         recoder.abstraction.ClassType[] classesArray = 

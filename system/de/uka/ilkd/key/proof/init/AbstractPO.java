@@ -1,4 +1,11 @@
 // This file is part of KeY - Integrated Deductive Software Design
+// Copyright (C) 2001-2009 Universitaet Karlsruhe, Germany
+//                         Universitaet Koblenz-Landau, Germany
+//                         Chalmers University of Technology, Sweden
+//
+// The KeY system is protected by the GNU General Public License. 
+// See LICENSE.TXT for details.
+// This file is part of KeY - Integrated Deductive Software Design
 // Copyright (C) 2001-2005 Universitaet Karlsruhe, Germany
 //                         Universitaet Koblenz-Landau, Germany
 //                         Chalmers University of Technology, Sweden
@@ -25,6 +32,7 @@ import de.uka.ilkd.key.logic.TermBuilder;
 import de.uka.ilkd.key.logic.TermFactory;
 import de.uka.ilkd.key.logic.UpdateFactory;
 import de.uka.ilkd.key.logic.op.*;
+import de.uka.ilkd.key.logic.sort.Sort;
 import de.uka.ilkd.key.proof.AtPreFactory;
 import de.uka.ilkd.key.proof.OpReplacer;
 import de.uka.ilkd.key.proof.Proof;
@@ -42,7 +50,7 @@ import de.uka.ilkd.key.speclang.*;
 public abstract class AbstractPO implements ProofOblInput {
 
     protected static final TermFactory TF = TermFactory.DEFAULT;
-    protected static final CreatedAttributeTermFactory createdFactory
+    protected static final CreatedAttributeTermFactory CATF
                                    = CreatedAttributeTermFactory.INSTANCE;
     protected static final TermBuilder TB = TermBuilder.DF;
     protected static final AtPreFactory APF = AtPreFactory.INSTANCE;
@@ -249,6 +257,13 @@ public abstract class AbstractPO implements ProofOblInput {
         }
     }
 
+    protected void registerInNamespaces(Function f) {
+        if(f != null) {
+            services.getNameRecorder().addProposal(f.name());
+            initConfig.funcNS().add(f);
+        }
+    }
+
 
     protected void registerInNamespaces(ListOfProgramVariable pvs) {
         final IteratorOfProgramVariable it = pvs.iterator();
@@ -327,8 +342,18 @@ public abstract class AbstractPO implements ProofOblInput {
         it = initConfig.funcNS().allElements().iterator();
         while(it.hasNext()) {
             Function f = (Function)it.next();
-            // only declare @pre-functions, others will be generated automat. (hack)
-            if(f.name().toString().indexOf("AtPre")!=-1) {
+            // only declare @pre-functions or anonymising functions, others will be generated automat. (hack)
+            if(f.sort() != Sort.FORMULA && (f.name().toString().indexOf("AtPre")!=-1 || services.getNameRecorder().
+                    getProposals().contains(f.name()))) {
+                header += f.proofToString();
+            }
+        }
+        header += "}\n\n\\predicates {\n";
+
+        it = initConfig.funcNS().allElements().iterator();
+        while(it.hasNext()) {
+            Function f = (Function)it.next();            
+            if(f.sort() == Sort.FORMULA && services.getNameRecorder().getProposals().contains(f.name())) {
                 header += f.proofToString();
             }
         }
@@ -422,5 +447,10 @@ public abstract class AbstractPO implements ProofOblInput {
         }
         
         return proofAggregate = ProofAggregate.createProofAggregate(proofs, name);
+    }
+    
+    
+    public boolean implies(ProofOblInput po) {
+        return equals(po);
     }
 }

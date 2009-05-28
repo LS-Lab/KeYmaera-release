@@ -1,3 +1,10 @@
+// This file is part of KeY - Integrated Deductive Software Design
+// Copyright (C) 2001-2009 Universitaet Karlsruhe, Germany
+//                         Universitaet Koblenz-Landau, Germany
+//                         Chalmers University of Technology, Sweden
+//
+// The KeY system is protected by the GNU General Public License. 
+// See LICENSE.TXT for details.
 //This file is part of KeY - Integrated Deductive Software Design
 //Copyright (C) 2001-2005 Universitaet Karlsruhe, Germany
 //                      Universitaet Koblenz-Landau, Germany
@@ -72,6 +79,18 @@ public interface OperationContract {
                                                ListOfParsableVariable paramVars,
                                                Services services);
     
+
+    /**
+     * Returns the union of this contract and those in the passed array. 
+     * Probably you want to use SpecificationRepository.combineContracts()
+     * instead, which additionally takes care that the combined contract can be 
+     * loaded later.
+     */
+    public OperationContract union(OperationContract[] others, 
+                                   String name, 
+                                   String displayName, 
+                                   Services services);
+        
     /**
      * Returns the contract in pretty HTML format.
      */

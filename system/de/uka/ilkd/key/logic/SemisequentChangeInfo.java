@@ -1,5 +1,5 @@
 // This file is part of KeY - Integrated Deductive Software Design
-// Copyright (C) 2001-2005 Universitaet Karlsruhe, Germany
+// Copyright (C) 2001-2009 Universitaet Karlsruhe, Germany
 //                         Universitaet Koblenz-Landau, Germany
 //                         Chalmers University of Technology, Sweden
 //
@@ -50,9 +50,9 @@ public class SemisequentChangeInfo implements java.io.Serializable {
      * returns true if the semisequent has changed
      */
     public boolean hasChanged() {
-	return added != SLListOfConstrainedFormula.EMPTY_LIST || 
-	       removed != SLListOfConstrainedFormula.EMPTY_LIST ||
-	       modified != SLListOfFormulaChangeInfo.EMPTY_LIST;
+	return !added.isEmpty() || 
+	       !removed.isEmpty() ||
+	       !modified.isEmpty();
     }
 
     /**
