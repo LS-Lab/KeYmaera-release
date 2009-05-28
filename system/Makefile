@@ -420,7 +420,7 @@ dist:	branding all
 
 OPTIONS:=${OPTIONS} -target 1.5
 
-dist-keymaera:	branding keybase
+dist-keymaera:	branding all
 	@echo "[creating distribution directory structure]"
 	@mkdir -p ../dist
 	@mkdir -p dist/key/
