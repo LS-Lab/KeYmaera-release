@@ -940,7 +940,8 @@ public class Main extends JFrame implements IMain {
     public void freezeExceptAutoModeButton() {
         if (!frozen) {
             frozen = true;
-            
+
+            autoModeAction.setStopIcon();
             Component glassPane = new BlockingGlassPane(getContentPane());
             setGlassPane(glassPane);
             glassPane.setVisible(true);
@@ -949,6 +950,7 @@ public class Main extends JFrame implements IMain {
     
     public void unfreezeExceptAutoModeButton() {
         if (frozen) {
+        	autoModeAction.setStartIcon();
             getGlassPane().setVisible(false);
             frozen = false;
         }
@@ -3118,6 +3120,14 @@ public class Main extends JFrame implements IMain {
         
         public void enable() {
             setEnabled(associatedProof != null && !associatedProof.closed());            
+        }
+        
+        public void setStopIcon() {
+        	putValue(Action.SMALL_ICON, stopLogo);
+        }
+
+        public void setStartIcon() {
+        	putValue(Action.SMALL_ICON, startLogo);
         }
         
         public AutoModeAction() {

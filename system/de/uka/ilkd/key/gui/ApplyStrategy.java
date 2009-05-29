@@ -19,7 +19,9 @@ package de.uka.ilkd.key.gui;
 
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import de.uka.ilkd.key.dl.DLProfile;
 import de.uka.ilkd.key.dl.arithmetics.IMathSolver;
@@ -286,13 +288,35 @@ public class ApplyStrategy {
     public void stop() {
         abortAutomode = true;
         if(mediator().getProfile() instanceof DLProfile) {
-        	for (IMathSolver solver : new IMathSolver[] {
-					MathSolverManager.getCurrentCounterExampleGenerator(),
-					MathSolverManager.getCurrentGroebnerBasisCalculator(),
-					MathSolverManager.getCurrentODESolver(),
-					MathSolverManager.getCurrentQuantifierEliminator(),
-					MathSolverManager.getCurrentSimplifier(),
-					MathSolverManager.getCurrentSOSChecker() }) {
+        	Set<IMathSolver> solvers = new HashSet<IMathSolver>();
+			try {
+				solvers.add(MathSolverManager
+						.getCurrentCounterExampleGenerator());
+			} catch (Exception e) {
+			}
+			try {
+				solvers.add(MathSolverManager
+						.getCurrentGroebnerBasisCalculator());
+			} catch (Exception e) {
+			}
+			try {
+				solvers.add(MathSolverManager.getCurrentODESolver());
+			} catch (Exception e) {
+			}
+			try {
+				solvers.add(MathSolverManager.getCurrentQuantifierEliminator());
+			} catch (Exception e) {
+			}
+			try {
+				solvers.add(MathSolverManager.getCurrentSimplifier());
+			} catch (Exception e) {
+			}
+			try {
+				solvers.add(MathSolverManager.getCurrentSOSChecker());
+			} catch (Exception e) {
+			}
+
+			for (IMathSolver solver : solvers) {
 				if (solver != null) {
 					try {
 						solver.abortCalculation();
