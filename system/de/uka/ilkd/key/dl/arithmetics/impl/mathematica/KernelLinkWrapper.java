@@ -156,7 +156,7 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 	 * @param cache
 	 * @throws RemoteException
 	 */
-	protected KernelLinkWrapper(int port, Map<Expr, ExprAndMessages> cache)
+	protected KernelLinkWrapper(int port, Map<Expr, ExprAndMessages> cache, String call)
 			throws RemoteException {
 		super(port);
 		this.cache = cache;
@@ -182,7 +182,8 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 			e.printStackTrace();
 		}
 		logger.setUseParentHandlers(false);
-		linkCall = readLinkCall();
+//		linkCall = readLinkCall();
+		linkCall = call;
 		createLink();
 		addTime = 0;
 		callCount = 0;
@@ -251,6 +252,7 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 	private void createLink() throws RemoteException {
 		try {
 			log(Level.FINE, "Creating mathlink");
+			System.out.println(linkCall);
 			link = MathLinkFactory.createKernelLink(linkCall);
 			testForError(link);
 			log(Level.FINE, "Connecting...");
@@ -358,6 +360,7 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 	 */
 	public static void main(String[] args) throws IOException {
 		Map<Expr, ExprAndMessages> cache = null;
+		String call = "-linkmode launch -linkname 'MathKernel -mathlink'";
 		for (int i = 0; i < args.length; i++) {
 			if (args[i].equalsIgnoreCase("--load-cache")) {
 				// if (args.length >= i)
@@ -371,6 +374,9 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 				} catch (ClassNotFoundException e) {
 					e.printStackTrace();
 				}
+			} 
+			if(args[i].equalsIgnoreCase("--mathcall")) {
+				call = args[++i];
 			}
 		}
 		if (cache == null) {
@@ -380,7 +386,7 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 		LocateRegistry.createRegistry(port);
 		Registry registry = LocateRegistry.getRegistry(port);
 		final KernelLinkWrapper kernelLinkWrapper = new KernelLinkWrapper(port,
-				cache);
+				cache, call);
 		registry.rebind(IDENTITY, kernelLinkWrapper);
 		INSTANCE = kernelLinkWrapper;
 		// new Thread(new Runnable() {

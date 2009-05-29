@@ -185,7 +185,12 @@ public class Options implements Settings {
 
 	private Options() {
 		listeners = new LinkedList<SettingsListener>();
-		reduceBinary = new File("/");
+		String home = System.getProperty("user.home");
+		if(home == null) {
+			reduceBinary = new File("/");
+		} else {
+			reduceBinary = new File(home);
+		}
 		qeMethod = QuantifierEliminationMethod.RLQE;
 
 		rlall = false;

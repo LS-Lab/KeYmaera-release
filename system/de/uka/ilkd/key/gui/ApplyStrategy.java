@@ -17,10 +17,13 @@
 
 package de.uka.ilkd.key.gui;
 
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 
 import de.uka.ilkd.key.dl.DLProfile;
+import de.uka.ilkd.key.dl.arithmetics.IMathSolver;
+import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ConnectionProblemException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ServerStatusProblemException;
 import de.uka.ilkd.key.dl.gui.AutomodeListener;
@@ -282,6 +285,24 @@ public class ApplyStrategy {
      */
     public void stop() {
         abortAutomode = true;
+        if(mediator().getProfile() instanceof DLProfile) {
+        	for (IMathSolver solver : new IMathSolver[] {
+					MathSolverManager.getCurrentCounterExampleGenerator(),
+					MathSolverManager.getCurrentGroebnerBasisCalculator(),
+					MathSolverManager.getCurrentODESolver(),
+					MathSolverManager.getCurrentQuantifierEliminator(),
+					MathSolverManager.getCurrentSimplifier(),
+					MathSolverManager.getCurrentSOSChecker() }) {
+				if (solver != null) {
+					try {
+						solver.abortCalculation();
+					} catch (RemoteException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}
+        }
         if(worker!=null){
         	worker.interrupt();
 		}

@@ -22,9 +22,6 @@
  */
 package de.uka.ilkd.key.dl.arithmetics.impl.mathematica;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.ServerSocket;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -44,13 +41,11 @@ import de.uka.ilkd.key.dl.arithmetics.IGroebnerBasisCalculator;
 import de.uka.ilkd.key.dl.arithmetics.IODESolver;
 import de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator;
 import de.uka.ilkd.key.dl.arithmetics.ISimplifier;
-import de.uka.ilkd.key.dl.arithmetics.abort.AbortBridge;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ConnectionProblemException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ServerStatusProblemException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
 import de.uka.ilkd.key.dl.arithmetics.impl.SumOfSquaresChecker.PolynomialClassification;
 import de.uka.ilkd.key.dl.model.DiffSystem;
-import de.uka.ilkd.key.gui.Main;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.logic.NamespaceSet;
 import de.uka.ilkd.key.logic.Term;
@@ -71,43 +66,6 @@ public class Mathematica implements ICounterExampleGenerator, IODESolver,
 	private IMathematicaDLBridge bridge;
 
 	public Mathematica(Node node) {
-
-		try {
-			ServerSocket serverSocket = new ServerSocket(0);
-			int port = serverSocket.getLocalPort();
-			AbortBridge bridge = new AbortBridge(serverSocket);
-			bridge.start();
-			// TODO get domain
-			// System.getenv("HOSTNAME")
-			if (!Main.batchMode) {
-				String abortProgramOptions = "key-host=" + "localhost"
-						+ " key-port=" + port;
-				// String string = System.getProperty("key.home") +
-				// File.separator
-				// + "bin" + File.separator + "runAbortProgram "
-				// + abortProgramOptions;
-				String string = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java -classpath "
-						+ System.getProperty("java.class.path")
-						+ " de.uka.ilkd.key.dl.arithmetics.abort.ServerConsole "
-						+ abortProgramOptions;
-				System.out.println("(I) Trying to execute: " + string);
-				final Process process = Runtime.getRuntime().exec(string);
-				Runtime.getRuntime().addShutdownHook(new Thread() {
-					/* @Override */
-					public void run() {
-						try {
-							process.getOutputStream().write('e');
-						} catch (IOException e) {
-							e.printStackTrace();
-						}
-						process.destroy();
-					}
-				});
-			}
-		} catch (IOException e) {
-			System.err.println("(W) Could not start server console.");
-		}
-
 		XPath xpath = XPathFactory.newInstance().newXPath();
 		String server = null;
 		int port = -1;
@@ -353,6 +311,7 @@ public class Mathematica implements ICounterExampleGenerator, IODESolver,
 	 */
 	/* @Override */
 	public boolean isConfigured() {
-		return true;
+		return Options.INSTANCE.getMathKernel().isFile()
+				&& Options.INSTANCE.getMathKernel().exists();
 	}
 }
