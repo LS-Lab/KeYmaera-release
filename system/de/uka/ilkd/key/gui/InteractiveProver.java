@@ -17,6 +17,9 @@ import java.util.List;
 
 import javax.swing.SwingUtilities;
 
+import de.uka.ilkd.key.gui.thread.ApplyThread;
+import de.uka.ilkd.key.gui.thread.IThreadSender;
+import de.uka.ilkd.key.gui.thread.ThreadListenerAdapter;
 import de.uka.ilkd.key.logic.Constraint;
 import de.uka.ilkd.key.logic.PIOPathIterator;
 import de.uka.ilkd.key.logic.PosInOccurrence;
@@ -143,28 +146,40 @@ public class InteractiveProver {
      * @param app
      * @param goal
      */
-    public void applyInteractive ( RuleApp app, Goal goal ) {
+    public void applyInteractive ( RuleApp app, final Goal goal ) {
         goal.node().getNodeInfo().setInteractiveRuleApplication(true);
+        
+        final ApplyThread thread = new ApplyThread( app, goal );
 
-        ListOfGoal goalList = goal.apply(app);
-        
-        
-        
-        if (!getProof ().closed ()) {
-            if ( resumeAutoMode () ) {
-                startAutoMode ();
-            } else {
-                ReuseListener rl = mediator().getReuseListener();
-                rl.removeRPConsumedGoal(goal);
-                rl.addRPOldMarkersNewGoals(goalList);
-                if (rl.reusePossible()) {
-                    mediator().indicateReuse(rl.getBestReusePoint());
-                } else {
-                    mediator().indicateNoReuse();
-                    Goal.applyUpdateSimplifier ( goalList );
+        thread.addThreadListener( new ThreadListenerAdapter() {
+            
+            @Override
+            public void threadFinished(IThreadSender sender) {
+                
+                ListOfGoal goalList = thread.getListOfGoal();
+                
+                if (!getProof ().closed ()) {
+                    if ( resumeAutoMode () ) {
+                        startAutoMode ();
+                    } else {
+                        ReuseListener rl = mediator().getReuseListener();
+                        rl.removeRPConsumedGoal(goal);
+                        rl.addRPOldMarkersNewGoals(goalList);
+                        if (rl.reusePossible()) {
+                            mediator().indicateReuse(rl.getBestReusePoint());
+                        } else {
+                            mediator().indicateNoReuse();
+                            Goal.applyUpdateSimplifier ( goalList );
+                        }
+                    }
                 }
+                System.out.println("THREAD FINISHED");
             }
-        }
+            
+        });
+        
+        thread.start();
+        System.out.println("THREAD STARTED!");
     }
 
 
