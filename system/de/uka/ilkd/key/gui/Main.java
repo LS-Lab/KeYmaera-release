@@ -174,7 +174,7 @@ public class Main extends JFrame implements IMain {
 
     private static final String COPYRIGHT="(C) Copyright 2001-2009 "
         +"Universit\u00e4t Karlsruhe, Universit\u00e4t Koblenz-Landau, "
-        +"and Chalmers University of Technology, and Universit\u00e4t Oldenburg";
+        +"and Chalmers University of Technology, Universit\u00e4t Oldenburg, and Carnegie Mellon University";
     
     /**
      * The maximum number of recent files displayed.
