@@ -22,11 +22,17 @@
  */
 package de.uka.ilkd.key.dl.arithmetics.impl.mathematica;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 
 import de.uka.ilkd.key.gui.GUIEvent;
+import de.uka.ilkd.key.gui.configuration.PathConfig;
 import de.uka.ilkd.key.gui.configuration.Settings;
 import de.uka.ilkd.key.gui.configuration.SettingsListener;
 
@@ -77,6 +83,10 @@ public class Options implements Settings {
 
 	private static final String OPTIONS_CONVERT_DECIMAL_FRACTIONS_TO_RATIONALS = "[MathematicaOptions]convertDecimalFractionsToRationals";
 
+	private static final String OPTIONS_MATHKERNEL= "[MathematicaOptions]mathKernel";
+
+	private static final String OPTIONS_JLINK_LIBDIR = "com.wolfram.jlink.libdir";
+
 	private QuantifierEliminationMethod quantifierEliminationMethod;
 
 	private boolean useEliminateList;
@@ -84,6 +94,10 @@ public class Options implements Settings {
 	private boolean convertDecimalsToRationals;
 
 	private List<SettingsListener> listeners;
+	
+	private File mathKernel;
+
+	private File jLinkLibDir;
 
 	private int memoryConstraint;
 
@@ -92,6 +106,18 @@ public class Options implements Settings {
 		quantifierEliminationMethod = QuantifierEliminationMethod.REDUCE;
 		useEliminateList = true;
 		convertDecimalsToRationals = true;
+		mathKernel = new File("MathKernel");
+		String libDirProp = System.getProperty(OPTIONS_JLINK_LIBDIR);
+		if(libDirProp != null) {
+			jLinkLibDir = new File(libDirProp);
+		} else {
+			String home = System.getProperty("user.home");
+			if(home != null) {
+				jLinkLibDir = new File(home);
+			} else {
+				jLinkLibDir = new File("/");
+			}
+		}
 		memoryConstraint = -1;
 	}
 
@@ -134,6 +160,24 @@ public class Options implements Settings {
 		if (property != null) {
 			memoryConstraint = Integer.valueOf(property);
 		}
+		property = props.getProperty(OPTIONS_MATHKERNEL);
+		if (property != null) {
+			mathKernel = new File(property);
+		}
+		File file = new File(PathConfig.KEY_CONFIG_DIR + File.separator
+				+ "webstart-math.props");
+		if (file.exists()) {
+			try {
+				System.getProperties().load(new FileInputStream(file));
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		jLinkLibDir = new File(System.getProperty(OPTIONS_JLINK_LIBDIR));
 	}
 
 	/*
@@ -147,6 +191,28 @@ public class Options implements Settings {
 		props.setProperty(OPTIONS_USE_ELIMINATE_LIST, Boolean
 				.toString(useEliminateList));
 		props.setProperty(OPTIONS_MEMORYCONSTRAINT, "" + memoryConstraint);
+
+		props.setProperty(OPTIONS_MATHKERNEL, mathKernel.getAbsolutePath());
+		
+		File file = new File(PathConfig.KEY_CONFIG_DIR + File.separator
+				+ "webstart-math.props");
+		
+		Properties properties = new Properties();
+		properties.setProperty(OPTIONS_JLINK_LIBDIR, jLinkLibDir.getAbsolutePath());
+		try {
+			if (!file.exists()) {
+				new File(PathConfig.KEY_CONFIG_DIR + File.separator)
+						.mkdirs();
+				file.createNewFile();
+			}
+			properties.store(new FileOutputStream(file), null);
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -217,6 +283,41 @@ public class Options implements Settings {
 	public void setConvertDecimalsToRationals(boolean convertDecimalsToRationals) {
 		if(convertDecimalsToRationals != this.convertDecimalsToRationals) {
 			this.convertDecimalsToRationals = convertDecimalsToRationals;
+			firePropertyChanged();
+		}
+	}
+
+	/**
+	 * @return the mathKernel
+	 */
+	public File getMathKernel() {
+		return mathKernel;
+	}
+
+	/**
+	 * @param mathKernel the mathKernel to set
+	 */
+	public void setMathKernel(File mathKernel) {
+		if(!this.mathKernel.equals(mathKernel)) {
+			this.mathKernel = mathKernel;
+			firePropertyChanged();
+		}
+	}
+
+	/**
+	 * @return the jLinkLibDir
+	 */
+	public File getJLinkLibDir() {
+		return jLinkLibDir;
+	}
+
+	/**
+	 * @param linkLibDir the jLinkLibDir to set
+	 */
+	public void setJLinkLibDir(File linkLibDir) {
+		if(!this.jLinkLibDir.equals(linkLibDir)) {
+			jLinkLibDir = linkLibDir;
+			System.setProperty(OPTIONS_JLINK_LIBDIR, linkLibDir.getAbsolutePath());
 			firePropertyChanged();
 		}
 	}

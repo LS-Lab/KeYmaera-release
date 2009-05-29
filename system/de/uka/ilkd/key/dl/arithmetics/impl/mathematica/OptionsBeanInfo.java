@@ -30,6 +30,8 @@ import java.util.ArrayList;
 
 import orbital.awt.TaggedPropertyEditorSupport;
 import de.uka.ilkd.key.dl.arithmetics.impl.mathematica.Options.QuantifierEliminationMethod;
+import de.uka.ilkd.key.dl.options.DirectoryPropertyEditor;
+import de.uka.ilkd.key.dl.options.FilePropertyEditor;
 
 /**
  * @author jdq
@@ -48,7 +50,7 @@ public class OptionsBeanInfo extends SimpleBeanInfo {
 		return d;
 	}
 
-	/*@Override*/
+	/* @Override */
 	public PropertyDescriptor[] getPropertyDescriptors() {
 		try {
 			// PropertyDescriptor _usage = new PropertyDescriptor("usage",
@@ -58,16 +60,24 @@ public class OptionsBeanInfo extends SimpleBeanInfo {
 			// _usage.setPropertyEditorClass(UsagePropertyEditor.class);
 
 			PropertyDescriptor[] pds = new PropertyDescriptor[] {
+					createDescriptor("mathKernel", "MathKernel path",
+							"the path to the MathKernel binary", true, false,
+							FilePropertyEditor.class),
+					createDescriptor(
+							"jLinkLibDir",
+							"J/Link native dir",
+							"the path where the J/Link natives are located. Restart is required when this setting is changed.",
+							true, false, DirectoryPropertyEditor.class),
 					createDescriptor(
 							"useEliminateList",
 							"elimination list",
 							"choose if the list of elimination variables should be passed to Mathematica's Reduce",
 							true, false),
 					createDescriptor(
-									"convertDecimalsToRationals",
-									"convert decimals",
-									"choose if decimal fraction entered by the user should be converted into a rational representation (q/r)",
-									true, false),
+							"convertDecimalsToRationals",
+							"convert decimals",
+							"choose if decimal fraction entered by the user should be converted into a rational representation (q/r)",
+							true, false),
 					createDescriptor(
 							"memoryConstraint",
 							"memory limit",
@@ -78,9 +88,7 @@ public class OptionsBeanInfo extends SimpleBeanInfo {
 							"quantifier elimination",
 							"the Mathematica method that is used to perform quantifier elimination",
 							true, false,
-							QuantifierEliminationMethodPropertyEditor.class)
-
-			};
+							QuantifierEliminationMethodPropertyEditor.class), };
 			return pds;
 		} catch (IntrospectionException ex) {
 			ex.printStackTrace();
