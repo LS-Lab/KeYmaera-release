@@ -1,5 +1,5 @@
 // This file is part of KeY - Integrated Deductive Software Design
-// Copyright (C) 2001-2005 Universitaet Karlsruhe, Germany
+// Copyright (C) 2001-2009 Universitaet Karlsruhe, Germany
 //                         Universitaet Koblenz-Landau, Germany
 //                         Chalmers University of Technology, Sweden
 //
@@ -29,6 +29,17 @@ public abstract class ProofTreeAdapter implements ProofTreeListener {
 	proofStructureChanged(e);
     }
 
+    /** The proof tree under the node mentioned in the ProofTreeEvent
+     * is in pruning phase. The subtree of node will be removed after this
+     * call but at this point the subtree can still be
+     * traversed (e.g. in order to free the nodes in caches).
+     * The method proofPruned is called, when the nodes are disconnect from
+     * node.
+     */
+    public void proofIsBeingPruned(ProofTreeEvent e){
+        
+    }
+    
     /** The proof tree has been pruned under the node mentioned in the
      * ProofTreeEvent.  In other words, that node should no longer
      * have any children now.  Any nodes that were not descendants of

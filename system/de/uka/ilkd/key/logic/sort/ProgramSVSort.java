@@ -1,5 +1,5 @@
 // This file is part of KeY - Integrated Deductive Software Design
-// Copyright (C) 2001-2005 Universitaet Karlsruhe, Germany
+// Copyright (C) 2001-2009 Universitaet Karlsruhe, Germany
 //                         Universitaet Koblenz-Landau, Germany
 //                         Chalmers University of Technology, Sweden
 //
@@ -1500,64 +1500,64 @@ public abstract class ProgramSVSort extends PrimitiveSort {
 
 	// -------------------helper methods ------------------------------------
 
-	static boolean methodConstrReference(ProgramElement pe) {
-		return ((pe instanceof MethodReference)
-				|| (pe instanceof ConstructorReference) || (pe instanceof SpecialConstructorReference));
-	}
-
-	public ProgramElement getSVWithSort(ExtList l, Class alternative) {
-		Iterator it = l.iterator();
-		while (it.hasNext()) {
-			Object o = it.next();
-			if (o instanceof SortedSchemaVariable
-					&& (((SortedSchemaVariable) o).sort() == this)) {
-				return (ProgramElement) o;
-			} else if ((alternative.isInstance(o))
-					&& (!(o instanceof SchemaVariable))) {
-				return (ProgramElement) o;
-			}
-		}
-		return null;
-	}
-
-	static KeYJavaType getKeYJavaType(ProgramElement pe, ExecutionContext ec,
-			Services services) {
-		return services.getTypeConverter().getKeYJavaType((Expression) pe, ec);
-	}
-
-	static boolean excludedMethodName(Name name) {
-		if (((MethodNameReferenceSort) JCMAKETRANSIENTARRAY).compareNames(name) >= 0)
-			return true;
-		return false;
-	}
-
-	static boolean implicit(ProgramElement pe) {
-		if (pe instanceof ProgramVariable) {
-			if (!((ProgramVariable) pe).isMember())
-				return false;
-		}
-
-		final String elemname;
-		if (pe instanceof NamedProgramElement) {
-			elemname = ((NamedProgramElement) pe).getProgramElementName()
-					.getProgramName();
-		} else if (pe instanceof Named) {
-			final Name n = ((Named) pe).name();
-			if (n instanceof ProgramElementName) {
-				elemname = ((ProgramElementName) n).getProgramName();
-			} else {
-				elemname = n.toString();
-			}
-		} else {
-			System.err.println("Please check implicit in ProgramSVSort");
-			return false;
-		}
-		return elemname.charAt(0) == '<';
-	}
-
-	public static HashMap<Name, ProgramSVSort> name2sort() {
-		return name2sort;
-	}
+//	static boolean methodConstrReference(ProgramElement pe) {
+//		return ((pe instanceof MethodReference)
+//				|| (pe instanceof ConstructorReference) || (pe instanceof SpecialConstructorReference));
+//	}
+//
+//	public ProgramElement getSVWithSort(ExtList l, Class alternative) {
+//		Iterator it = l.iterator();
+//		while (it.hasNext()) {
+//			Object o = it.next();
+//			if (o instanceof SortedSchemaVariable
+//					&& (((SortedSchemaVariable) o).sort() == this)) {
+//				return (ProgramElement) o;
+//			} else if ((alternative.isInstance(o))
+//					&& (!(o instanceof SchemaVariable))) {
+//				return (ProgramElement) o;
+//			}
+//		}
+//		return null;
+//	}
+//
+//	static KeYJavaType getKeYJavaType(ProgramElement pe, ExecutionContext ec,
+//			Services services) {
+//		return services.getTypeConverter().getKeYJavaType((Expression) pe, ec);
+//	}
+//
+//	static boolean excludedMethodName(Name name) {
+//		if (((MethodNameReferenceSort) JCMAKETRANSIENTARRAY).compareNames(name) >= 0)
+//			return true;
+//		return false;
+//	}
+//
+//	static boolean implicit(ProgramElement pe) {
+//		if (pe instanceof ProgramVariable) {
+//			if (!((ProgramVariable) pe).isMember())
+//				return false;
+//		}
+//
+//		final String elemname;
+//		if (pe instanceof NamedProgramElement) {
+//			elemname = ((NamedProgramElement) pe).getProgramElementName()
+//					.getProgramName();
+//		} else if (pe instanceof Named) {
+//			final Name n = ((Named) pe).name();
+//			if (n instanceof ProgramElementName) {
+//				elemname = ((ProgramElementName) n).getProgramName();
+//			} else {
+//				elemname = n.toString();
+//			}
+//		} else {
+//			System.err.println("Please check implicit in ProgramSVSort");
+//			return false;
+//		}
+//		return elemname.charAt(0) == '<';
+//	}
+//
+//	public static HashMap<Name, ProgramSVSort> name2sort() {
+//		return name2sort;
+//	}
 
 	// *******************************************************************//
 	// * DL ProgramSVTypes *//
@@ -2093,6 +2093,68 @@ public abstract class ProgramSVSort extends PrimitiveSort {
 		public boolean canStandFor(ProgramElement pe, Services services) {
 			return (pe instanceof de.uka.ilkd.key.dl.model.VariableDeclaration);
 		}
-	}
 
+
+    }
+ 
+    //-------------------helper methods ------------------------------------
+    
+    static boolean methodConstrReference(ProgramElement pe) {
+	return ((pe instanceof MethodReference)
+		|| (pe instanceof ConstructorReference)
+		|| (pe instanceof SpecialConstructorReference));
+    }
+
+    public ProgramElement getSVWithSort(ExtList l, Class alternative) {	
+	Iterator it=l.iterator();
+	while (it.hasNext()) {
+	    Object o=it.next();
+	    if (o instanceof SortedSchemaVariable
+		&& (((SortedSchemaVariable)o).sort()==this)) {
+		return (ProgramElement) o;
+	    }
+	    else if ((alternative.isInstance(o)) 
+		     && (! (o instanceof SchemaVariable))) {
+		return (ProgramElement) o;
+	    }
+	}
+	return null;
+    }
+
+    static KeYJavaType getKeYJavaType(ProgramElement pe, ExecutionContext ec, Services services) {
+	return services.getTypeConverter().getKeYJavaType((Expression)pe, ec);
+    }
+
+    static boolean excludedMethodName(Name name) {
+        if(((MethodNameReferenceSort)JCMAKETRANSIENTARRAY).compareNames(name) >= 0)
+	    return true;
+	return false;
+    }
+
+    static boolean implicit(ProgramElement pe) {
+	if (pe instanceof ProgramVariable) {
+	    if (!((ProgramVariable)pe).isMember()) return false;
+        }
+        
+	final String elemname;
+	if (pe instanceof NamedProgramElement) {
+	    elemname = ((NamedProgramElement)pe).getProgramElementName().getProgramName();
+	} else if (pe instanceof Named) {
+	    final Name n = ((Named)pe).name();
+	    if (n instanceof ProgramElementName) {
+		elemname = ((ProgramElementName)n).getProgramName();
+	    } else {
+		elemname = n.toString();
+	    }
+	} else {
+	    System.err.println("Please check implicit in ProgramSVSort");
+	    return false;
+	}
+	return elemname.charAt(0)=='<';
+    }
+
+    public static HashMap<Name, ProgramSVSort> name2sort() {
+        return name2sort;
+    }
+  
 }

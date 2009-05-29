@@ -1,4 +1,11 @@
 // This file is part of KeY - Integrated Deductive Software Design
+// Copyright (C) 2001-2009 Universitaet Karlsruhe, Germany
+//                         Universitaet Koblenz-Landau, Germany
+//                         Chalmers University of Technology, Sweden
+//
+// The KeY system is protected by the GNU General Public License. 
+// See LICENSE.TXT for details.
+// This file is part of KeY - Integrated Deductive Software Design
 // Copyright (C) 2001-2005 Universitaet Karlsruhe, Germany
 //                         Universitaet Koblenz-Landau, Germany
 //                         Chalmers University of Technology, Sweden
@@ -132,7 +139,7 @@ public abstract class VariableNamer implements InstantiationProposer {
      * (helper for getProgramFromPIO())
      */
     private Term findProgramInTerm(Term term) {
-        if(term.javaBlock() != JavaBlock.EMPTY_JAVABLOCK) {
+        if(!term.javaBlock().isEmpty()) {
     	    return term;
     	}
     	for(int i = 0; i < term.arity(); i++) {
@@ -349,14 +356,7 @@ public abstract class VariableNamer implements InstantiationProposer {
      */
     public abstract ProgramVariable rename(ProgramVariable var,
                                            Goal goal,
-                                           PosInOccurrence posOfFind,
-                                           Name proposal);
-
-    public ProgramVariable rename(ProgramVariable var,
-                                           Goal goal,
-                                           PosInOccurrence posOfFind) {
-        return rename(var, goal, posOfFind, null);
-    }
+                                           PosInOccurrence posOfFind);
 
     
     

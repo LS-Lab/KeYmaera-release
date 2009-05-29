@@ -1,5 +1,5 @@
 // This file is part of KeY - Integrated Deductive Software Design
-// Copyright (C) 2001-2005 Universitaet Karlsruhe, Germany
+// Copyright (C) 2001-2009 Universitaet Karlsruhe, Germany
 //                         Universitaet Koblenz-Landau, Germany
 //                         Chalmers University of Technology, Sweden
 //
@@ -52,6 +52,10 @@ public class CogentResult{
 	    return 3;
 	    //throw new CogentException("Term not found");
 	}
+    }
+    
+    public String toString(){
+	return "CogentResult: valid="+valid+" error="+error+" counterEx="+counterEx;
     }
 
 }

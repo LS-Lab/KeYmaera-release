@@ -1,3 +1,10 @@
+// This file is part of KeY - Integrated Deductive Software Design
+// Copyright (C) 2001-2009 Universitaet Karlsruhe, Germany
+//                         Universitaet Koblenz-Landau, Germany
+//                         Chalmers University of Technology, Sweden
+//
+// The KeY system is protected by the GNU General Public License. 
+// See LICENSE.TXT for details.
 //This file is part of KeY - Integrated Deductive Software Design
 //Copyright (C) 2001-2005 Universitaet Karlsruhe, Germany
 //                      Universitaet Koblenz-Landau, Germany
@@ -155,10 +162,10 @@ class FormulaBoolConverter {
      * Converts those terms in a list of OCLEntities which are formulas 
      * to boolean terms, and leaves the others unchanged.
      */
-    public ListOfTerm convertFormulasToBool(ListOfOCLEntity list) {
+    public ListOfTerm convertFormulasToBool(ListOfOCLExpression list) {
         ListOfTerm result = SLListOfTerm.EMPTY_LIST;
         
-        IteratorOfOCLEntity it = list.iterator();
+        IteratorOfOCLExpression it = list.iterator();
         while(it.hasNext()) {
             result = result.append(it.next().getTerm());
         }

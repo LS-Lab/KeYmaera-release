@@ -1,4 +1,11 @@
 // This file is part of KeY - Integrated Deductive Software Design
+// Copyright (C) 2001-2009 Universitaet Karlsruhe, Germany
+//                         Universitaet Koblenz-Landau, Germany
+//                         Chalmers University of Technology, Sweden
+//
+// The KeY system is protected by the GNU General Public License. 
+// See LICENSE.TXT for details.
+// This file is part of KeY - Integrated Deductive Software Design
 // Copyright (C) 2001-2005 Universitaet Karlsruhe, Germany
 //                         Universitaet Koblenz-Landau, Germany
 //                         Chalmers University of Technology, Sweden
@@ -14,116 +21,75 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.StringReader;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Stack;
 import java.util.Vector;
 
-import de.uka.ilkd.key.dl.rules.ReduceRuleApp;
-import de.uka.ilkd.key.gui.DefaultTaskFinishedInfo;
-import de.uka.ilkd.key.gui.IMain;
-import de.uka.ilkd.key.gui.KeYMediator;
-import de.uka.ilkd.key.gui.POBrowser;
-import de.uka.ilkd.key.gui.ProverTaskListener;
-import de.uka.ilkd.key.gui.SwingWorker;
-import de.uka.ilkd.key.gui.TaskFinishedInfo;
+import de.uka.ilkd.key.gui.*;
 import de.uka.ilkd.key.gui.configuration.ProofSettings;
 import de.uka.ilkd.key.java.ProgramElement;
 import de.uka.ilkd.key.java.Services;
-import de.uka.ilkd.key.logic.Constraint;
-import de.uka.ilkd.key.logic.Name;
-import de.uka.ilkd.key.logic.Namespace;
-import de.uka.ilkd.key.logic.NamespaceSet;
-import de.uka.ilkd.key.logic.PosInOccurrence;
-import de.uka.ilkd.key.logic.PosInTerm;
-import de.uka.ilkd.key.logic.Sequent;
-import de.uka.ilkd.key.logic.SetOfLocationDescriptor;
-import de.uka.ilkd.key.logic.Term;
-import de.uka.ilkd.key.logic.TermFactory;
-import de.uka.ilkd.key.logic.op.IteratorOfSchemaVariable;
-import de.uka.ilkd.key.logic.op.LogicVariable;
-import de.uka.ilkd.key.logic.op.NameSV;
-import de.uka.ilkd.key.logic.op.SchemaVariable;
-import de.uka.ilkd.key.logic.op.SetOfSchemaVariable;
-import de.uka.ilkd.key.parser.KeYLexer;
-import de.uka.ilkd.key.parser.KeYParser;
-import de.uka.ilkd.key.parser.ParserException;
-import de.uka.ilkd.key.parser.ParserMode;
-import de.uka.ilkd.key.parser.TermParserFactory;
+import de.uka.ilkd.key.logic.*;
+import de.uka.ilkd.key.logic.op.*;
+import de.uka.ilkd.key.parser.*;
 import de.uka.ilkd.key.pp.AbbrevMap;
-import de.uka.ilkd.key.proof.decproc.DecisionProcedureSmtAuflia;
-import de.uka.ilkd.key.proof.init.EnvInput;
-import de.uka.ilkd.key.proof.init.InitConfig;
-import de.uka.ilkd.key.proof.init.KeYFile;
-import de.uka.ilkd.key.proof.init.KeYUserProblemFile;
-import de.uka.ilkd.key.proof.init.ProblemInitializer;
-import de.uka.ilkd.key.proof.init.Profile;
-import de.uka.ilkd.key.proof.init.ProofOblInput;
+import de.uka.ilkd.key.proof.init.*;
 import de.uka.ilkd.key.proof.mgt.ContractWithInvs;
-import de.uka.ilkd.key.rule.BuiltInRule;
-import de.uka.ilkd.key.rule.BuiltInRuleApp;
-import de.uka.ilkd.key.rule.IfFormulaInstSeq;
-import de.uka.ilkd.key.rule.IteratorOfRuleApp;
-import de.uka.ilkd.key.rule.ListOfIfFormulaInstantiation;
-import de.uka.ilkd.key.rule.NoPosTacletApp;
-import de.uka.ilkd.key.rule.RuleApp;
-import de.uka.ilkd.key.rule.SLListOfIfFormulaInstantiation;
-import de.uka.ilkd.key.rule.SetOfRuleApp;
-import de.uka.ilkd.key.rule.Taclet;
-import de.uka.ilkd.key.rule.TacletApp;
-import de.uka.ilkd.key.rule.UseOperationContractRuleApp;
+import de.uka.ilkd.key.rule.*;
 import de.uka.ilkd.key.speclang.SLEnvInput;
 import de.uka.ilkd.key.util.Array;
 import de.uka.ilkd.key.util.ExceptionHandlerException;
 import de.uka.ilkd.key.util.KeYExceptionHandler;
 import de.uka.ilkd.key.util.ProgressMonitor;
 
+
 public class ProblemLoader implements Runnable {
 
     File file;
     private IMain main;    
-
     KeYMediator mediator;
 
     Proof proof = null;
     Iterator<Node> children = null;
 
     Node currNode = null;
-
     KeYExceptionHandler exceptionHandler = null;
-
     Goal currGoal = null;
-
     String currTacletName = null;
-
     int currFormula = 0;
-
     PosInTerm currPosInTerm = PosInTerm.TOP_LEVEL;
     ContractWithInvs currContract = null;
     Stack stack = new Stack();
-
     LinkedList loadedInsts = null;
+    ListOfIfFormulaInstantiation ifFormulaList =
+        SLListOfIfFormulaInstantiation.EMPTY_LIST;
+    Constraint matchConstraint = null;
 
-    ListOfIfFormulaInstantiation ifSeqFormulaList = SLListOfIfFormulaInstantiation.EMPTY_LIST;
+
+    /* Proofs with meta variables have a special issue.
+       When loading, rules are applied in an order different to the original
+       one, sometimes yielding shorter proofs. The goal we are looking
+       at might already have been closed. Then we need to ignore the
+       rest of the current branch in the proof script.
+    */
+    private int ignoreBranchRest;
+
 
     ProblemInitializer init;
-
     InitConfig iconfig;
 
-    /** if set uses the current problem instance instead of a new one */
+    /** if set, uses the current problem instance instead of a new one */
     boolean keepProblem;
 
     /** the profile to be used */
     private Profile profile;
-
+    
     private SwingWorker worker;
     private ProgressMonitor pm;
     private ProverTaskListener ptl;
-
-    private ArrayList<String> reduceVariables;
-
-     public ProblemLoader(File file, IMain main, Profile profile, 
+    
+    public ProblemLoader(File file, IMain main, Profile profile, 
             boolean keepProblem) {
         this.main = main;
         this.mediator  = main.mediator();        
@@ -174,11 +140,12 @@ public class ProblemLoader implements Runnable {
         }        
     }
 
+
     public void run() {
-        /*
-         * Invoking start() on the SwingWorker causes a new Thread to be created
-         * that will call construct(), and then finished(). Note that finished()
-         * is called even if the worker is interrupted because we catch the
+        /* Invoking start() on the SwingWorker causes a new Thread
+         * to be created that will call construct(), and then
+         * finished().  Note that finished() is called even if
+         * the worker is interrupted because we catch the
          * InterruptedException in doWork().
          */
         worker = new SwingWorker() {
@@ -207,14 +174,13 @@ public class ProblemLoader implements Runnable {
         worker.start();
     }
 
+
     /**
-     * @param file
-     *            the file or directory the user has chosen in the Open dialog
-     * @return the corresponding input object for the selected file/directory
-     * @throws FileNotFoundException
-     * @throws IllegalArgumentException
-     *             if the user has selected a file with an unsupported extension
-     *             an exception is thrown to indicate this
+     * @param file	the file or directory the user has chosen in the Open dialog
+     * @return 		the corresponding input object for the selected file/directory
+     * @throws FileNotFoundException 
+     * @throws IllegalArgumentException if the user has selected a file with an unsupported extension
+     *                          an exception is thrown to indicate this
      */
     protected EnvInput createEnvInput(File file) 
     throws FileNotFoundException {                
@@ -239,18 +205,17 @@ public class ProblemLoader implements Runnable {
             return new SLEnvInput(file.getPath());
         } else {
             if (filename.lastIndexOf('.') != -1) {
-                throw new IllegalArgumentException(
-                        "Unsupported file extension \'"
-                                + filename.substring(filename.lastIndexOf('.'))
-                                + "\' of read-in file "
-                                + filename
-                                + ". Allowed extensions are: .key, .proof, .java or "
-                                + "complete directories.");
+                throw new IllegalArgumentException
+                ("Unsupported file extension \'"+
+                        filename.substring(filename.lastIndexOf('.'))+
+                        "\' of read-in file " + filename +
+                        ". Allowed extensions are: .key, .proof, .java or "+
+                "complete directories."); 
             } else {
-                throw new FileNotFoundException("File or directory\n\t "
-                        + filename + "\n not found.");
+                throw new FileNotFoundException("File or directory\n\t "+
+                        filename + "\n not found.");
             }
-        }
+        }                
     }
 
    private Object doWork() {
@@ -287,30 +252,58 @@ public class ProblemLoader implements Runnable {
                currNode = proof.root(); // initialize loader
                children = currNode.childrenIterator(); // --"--
                iconfig = proof.env().getInitConfig();
-               if (!keepProblem) {
-                   init.tryReadProof(this, po);
-               } else {
-                   setStatusLine("Loading proof", (int)file.length());
-                   CountingBufferedInputStream cinp =
-                       new CountingBufferedInputStream(
-                           new FileInputStream(file),
-                           pm,
-                           (int)file.length()/100);
-                   KeYLexer lexer = new KeYLexer(cinp,
-                       proof.getServices().getExceptionHandler());
-                   KeYParser parser = new KeYParser(ParserMode.PROBLEM, lexer, 
-                                                    proof.getServices());
-                   antlr.Token t;
-                   do { t = lexer.getSelector().nextToken();
-                   } while (t.getType() != KeYLexer.PROOF);
-                   parser.proofBody(this);
+               try {
+                   if (!keepProblem) {
+                       init.tryReadProof(this, po);
+                   } else {
+                       setStatusLine("Loading proof", (int)file.length());
+                       CountingBufferedInputStream cinp =
+                           new CountingBufferedInputStream(
+                                   new FileInputStream(file),
+                                   pm,
+                                   (int)file.length()/100);
+                       KeYLexer lexer = new KeYLexer(cinp,
+                               proof.getServices().getExceptionHandler());
+                       KeYParser parser = new KeYParser(ParserMode.PROBLEM, lexer, 
+                               proof.getServices());
+                       antlr.Token t;
+                       do { t = lexer.getSelector().nextToken();
+                       } while (t.getType() != KeYLexer.PROOF);
+                       parser.proofBody(this);
+                   }
+               } finally {
+                    if (constraints.size() > 0) {
+                        Term left, right;
+                        for (Iterator<PairOfString> it = constraints.iterator(); it
+                                .hasNext();) {
+                            PairOfString p = it.next();
+                            left = parseTerm(p.left, proof);
+                            right = parseTerm(p.right, proof);
+
+                            if (left == null || right == null) {
+                                continue;
+                            }
+
+                            if (!(left.sort().extendsTrans(right.sort()) || right
+                                    .sort().extendsTrans(left.sort()))) {
+                                continue;
+                            }
+
+                            if (!Constraint.BOTTOM.unify(left, right, null)
+                                    .isSatisfiable()) {
+                                continue;
+                            }
+
+                            proof.getUserConstraint().addEquality(left, right);
+                        }
+                    }
                }
 	       setStandardStatusLine();
            
            // Inform the decproc classes that a new problem has been loaded
            // This is done here because all benchmarks resulting from one loaded problem should be
            // stored in the same directory
-           DecisionProcedureSmtAuflia.fireNewProblemLoaded( file, proof );
+           //DecisionProcedureSmtAuflia.fireNewProblemLoaded( file, proof );
            
 	   } catch (ExceptionHandlerException e) {
 	       throw e;
@@ -338,40 +331,50 @@ public class ProblemLoader implements Runnable {
         proofSettings.loadSettingsFromString(preferences);
     }
 
+    private Vector<PairOfString> constraints = new Vector<PairOfString>();
+
     // note: Expressions without parameters only emit the endExpr signal
     public void beginExpr(char id, String s) {
-        // System.out.println("start "+id+"="+s);
+        //System.out.println("start "+id+"="+s);
+        
+        //start no new commands until the ignored branch closes
+        //count sub-branches though
+        if ((ignoreBranchRest > 0)&&(id!='b')) return; 
         switch (id) {
-        case 'b':
+        case 'b' :
             stack.push(children);
-            if (children.hasNext())
-                currNode = children.next();
+            if (children.hasNext()) currNode = children.next();
             break;
-        case 'r':
-            if (currNode == null)
-                currNode = children.next();
+	case 'r' : 
+            if (currNode == null) currNode = children.next();
             // otherwise we already fetched the node at branch point
             currGoal      = proof.getGoal(currNode);
+            // the goal may already have been closed due to the metavariable
+            // issue described in the declaration of ignoreBranchRest
+            if (currGoal==null) {
+                ignoreBranchRest = stack.size();
+                break;
+            }
             mediator.getSelectionModel().setSelectedGoal(currGoal);
             currTacletName= s;
             // set default state
-            currFormula = 0;
+            currFormula   = 0;
             currPosInTerm = PosInTerm.TOP_LEVEL;
-            loadedInsts = null;
-            ifSeqFormulaList = SLListOfIfFormulaInstantiation.EMPTY_LIST;
+            loadedInsts   = null;
+            ifFormulaList = SLListOfIfFormulaInstantiation.EMPTY_LIST;
+            matchConstraint = Constraint.BOTTOM;
             break;
 
-        case 'f':
-            currFormula = Integer.parseInt(s);
+        case 'f' :
+            currFormula   = Integer.parseInt(s);
             break;
 
-        case 't':
+        case 't' :
             currPosInTerm = PosInTerm.parseReverseString(s);
             break;
 
-        case 'i':
-            if (loadedInsts == null)
-                loadedInsts = new LinkedList();
+        case 'i' :
+            if (loadedInsts == null) loadedInsts = new LinkedList();
             loadedInsts.add(s);
             break;
             
@@ -379,18 +382,14 @@ public class ProblemLoader implements Runnable {
 	    //             Debug.fail("Detected use of heuristics!");
 	    break;
 	case 'q' : // ifseqformula      
-	    // mu 2008-jan-09
-            // bugfix: without this if-check,
-	    // proofs with meta variables cannot be loaded.
-            // when loading, rules are applied in an order different to the original one
-            // Thus the goal might already have been closed.
-            // Just ignore this ifseqforumla then
-            if(currGoal != null) {
-                Sequent seq = currGoal.sequent();
-                ifSeqFormulaList = ifSeqFormulaList.append(
-                        new IfFormulaInstSeq(seq, Integer.parseInt(s)));    
-            }
-            
+            Sequent seq = currGoal.sequent();
+            ifFormulaList = ifFormulaList.append(
+                    new IfFormulaInstSeq(seq, Integer.parseInt(s)));    
+            break;
+        case 'd' : // ifdirectformula      
+            ifFormulaList = ifFormulaList.append(
+                new IfFormulaInstDirect(
+                    new ConstrainedFormula(parseTerm(s, proof))));
             break;
         case 'u' : //UserLog
             if(proof.userLog==null)
@@ -402,9 +401,9 @@ public class ProblemLoader implements Runnable {
                 proof.keyVersionLog = new Vector<String>();
             proof.keyVersionLog.add(s);
             break;
-        case 's': // ProofSettings
-            // System.out.println("---------------\n" + s + "------------\n");
-            // necessary for downward compatibility of the proof format
+        case 's' : //ProofSettings
+            //System.out.println("---------------\n" + s + "------------\n");
+            //necessary for downward compatibility of the proof format
             loadPreferences(s);
         break;
         case 'n' : //BuiltIn rules
@@ -413,15 +412,8 @@ public class ProblemLoader implements Runnable {
             mediator.getSelectionModel().setSelectedGoal(currGoal);
             currTacletName = s;
             // set default state
-            currFormula = 0;
+            currFormula   = 0;
             currPosInTerm = PosInTerm.TOP_LEVEL;
-            break;
-        case 'm': // reduce with parameters
-            System.out.println(s);// XXX
-            reduceVariables = new ArrayList<String>();
-            for (String m : s.trim().split(",")) {
-                reduceVariables.add(m.trim());
-            }
             break;
         case 'c' : //contract
             currContract = new ContractWithInvs(s, proof.getServices());
@@ -429,14 +421,61 @@ public class ProblemLoader implements Runnable {
                 throw new RuntimeException("Error loading proof: contract \"" + s + "\" not found.");
             }
             break;
+        case 'o' : //userconstraint
+            final int i = s.indexOf('=');
+
+            if (i < 0) {
+                break;
+            }
+
+            constraints.add(new PairOfString(s.substring(0, i),
+                    s.substring(i + 1)));
+            break;
+        case 'm' : //matchconstraint
+            final int index = s.indexOf('=');
+
+            if (index < 0) {
+                break;
+            }
+
+            final Term left = parseTerm(s.substring(0, index), proof);
+            final Term right = parseTerm(s.substring(index + 1), proof);
+
+            if (!(left.sort().extendsTrans(right.sort()) || right.sort()
+                    .extendsTrans(left.sort()))) {
+                break;
+            }
+
+            matchConstraint = matchConstraint.unify(left, right, null);
+            break;
+        case 'w' : //newnames
+            final String[] newNames = s.split(",");
+            ListOfName l = SLListOfName.EMPTY_LIST;
+            for (int in = 0; in < newNames.length; in++) {
+                l = l.append(new Name(newNames[in]));
+            }
+            proof.getServices().getNameRecorder().setProposals(l);
+            break;
+        case 'e': //autoModeTime
+            try {
+                proof.addAutoModeTime(Long.parseLong(s));
+            } catch (NumberFormatException e) {
+                // ignore
+            }
+            break;
         }
     }
 
+
     public void endExpr(char id, int linenr) {
-        // System.out.println("end "+id);
+        //System.out.println("end "+id);
+        //read no new commands until ignored branch closes
+        if ((ignoreBranchRest > 0)&&(id!='b')) return; 
         switch (id) {
         case 'b' :
             children = (Iterator<Node>) stack.pop();
+            // reached end of ignored branch?
+            if (stack.size() < ignoreBranchRest) ignoreBranchRest = 0;
             break;
         case 'a' :
             if (currNode != null) {
@@ -444,14 +483,6 @@ public class ProblemLoader implements Runnable {
             }
             break;
         case 'r' :
-            // mu 2008-jan-09
-            // bugfix: without this, proofs with meta variables cannot be loaded.
-            // when loading, rules are applied in an order different to the original one
-            // Thus the goal might already have been closed.
-            // Just ignore this rule then
-            if(currGoal == null)
-                break;
-            
             try{
                currGoal.apply(constructApp());
                children = currNode.childrenIterator();
@@ -462,21 +493,13 @@ public class ProblemLoader implements Runnable {
             }
             break;
         case 'n' :
-            // mu 2008-jan-09
-            // bugfix: without this, proofs with meta variables cannot be loaded.
-            // when loading, rules are applied in an order different to the original one
-            // Thus the goal might already have been closed.
-            // Just ignore this rule then
-            if(currGoal == null)
-                break;
-
             try {
                 currGoal.apply(constructBuiltinApp());
                 children = currNode.childrenIterator();
                 currNode = null;
             } catch (BuiltInConstructionException e) {
-                throw new RuntimeException("Error loading proof. Line "
-                        + linenr + " rule: " + currTacletName, e);
+                throw new RuntimeException("Error loading proof. Line "+
+                    linenr+" rule: "+currTacletName,e);
             }
             break;
         }
@@ -484,20 +507,21 @@ public class ProblemLoader implements Runnable {
     }
 
     /**
-     * Constructs rule application for UpdateSimplification from current parser
-     * information
-     * 
+     * Constructs rule application for UpdateSimplification from
+     * current parser information
+     *
      * @return current rule application for updateSimplification
      */
     private BuiltInRuleApp constructBuiltinApp()
-            throws BuiltInConstructionException {
+                               throws BuiltInConstructionException {
         BuiltInRuleApp ourApp = null;
-        // PosInSequent posInSeq = null;
+        //PosInSequent posInSeq = null;
         PosInOccurrence pos = null;
 
         if (currFormula != 0) { // otherwise we have no pos
             pos = PosInOccurrence.findInSequent(currGoal.sequent(),
-                    currFormula, currPosInTerm);
+                                                currFormula,
+                                                currPosInTerm);
         } else {
         }
 
@@ -512,8 +536,8 @@ public class ProblemLoader implements Runnable {
             return ourApp;
         }
 
-        final SetOfRuleApp ruleApps = mediator.getBuiltInRuleApplications(
-                currTacletName, pos);
+        final SetOfRuleApp ruleApps =
+            mediator.getBuiltInRuleApplications(currTacletName, pos);
 
         if (ruleApps.size() != 1) {
             if (ruleApps.size() < 1) {
@@ -523,31 +547,13 @@ public class ProblemLoader implements Runnable {
                     "for this built-in rule is not in your path or " +
                     "you do not have the permission to execute it.");
             } else {
-                IteratorOfRuleApp it = ruleApps.iterator();
-                RuleApp next = null;
-                while (it.hasNext()) {
-                    RuleApp old = next;
-                    next = it.next();
-                    if (old != null && !old.equals(next)) {
-                        System.err.println(currTacletName + ": found "
-                                + ruleApps.size()
-                                + " applications. Don't know what to do !\n"
-                                + "@ " + pos);
-                    }
-                }
-                // throw new BuiltInConstructionException
-                // (currTacletName + ": found " + ruleApps.size() +
-                // " applications. Don't know what to do !\n" +
-                // "@ " + pos);
-
+                throw new BuiltInConstructionException
+                (currTacletName + ": found " + ruleApps.size() +
+                    " applications. Don't know what to do !\n" +
+                    "@ " + pos);
             }
         }
         ourApp = (BuiltInRuleApp) ruleApps.iterator().next();
-        if (ourApp.rule() instanceof BuiltInRule && reduceVariables != null) {
-            ourApp = new ReduceRuleApp((BuiltInRule) ourApp.rule(), pos,
-                    Constraint.BOTTOM, reduceVariables);
-            reduceVariables = null;
-        }
         return ourApp;
     }
 
@@ -557,10 +563,16 @@ public class ProblemLoader implements Runnable {
         PosInOccurrence pos = null;
 
         Taclet t = iconfig.lookupActiveTaclet(new Name(currTacletName));
-        if (t == null) {
+        if (t==null) {
             ourApp = currGoal.indexOfTaclets().lookup(currTacletName);
         } else {
             ourApp = NoPosTacletApp.createNoPosTacletApp(t);
+        }
+
+        if (matchConstraint != Constraint.BOTTOM) {
+            ourApp = ourApp.setMatchConditions(new MatchConditions(ourApp
+                    .instantiations(), matchConstraint, ourApp
+                    .newMetavariables(), RenameTable.EMPTY_TABLE));
         }
 
         Constraint userC = mediator.getUserConstraint().getConstraint();
@@ -568,28 +580,27 @@ public class ProblemLoader implements Runnable {
 
         if (currFormula != 0) { // otherwise we have no pos
             pos = PosInOccurrence.findInSequent(currGoal.sequent(),
-                    currFormula, currPosInTerm);
-            // System.err.print("Want to apply "+currTacletName+" at
-            // "+currGoal);
-            // this is copied from TermTacletAppIndex :-/
+                                                currFormula,
+                                                currPosInTerm);
+//System.err.print("Want to apply "+currTacletName+" at "+currGoal);
+             //this is copied from TermTacletAppIndex :-/
 
             Constraint c = pos.constrainedFormula().constraint();
-            if (pos.termBelowMetavariable() != null) {
-                c = c.unify(pos.constrainedFormula().formula().subAt(
-                        pos.posInTerm()), pos.termBelowMetavariable(), mediator
-                        .getServices());
-                if (!c.isSatisfiable())
-                    return null;
+            if ( pos.termBelowMetavariable() != null ) {
+                c = c.unify(
+                   pos.constrainedFormula().formula().subAt(pos.posInTerm()),
+                   pos.termBelowMetavariable(), mediator.getServices());
+                if (!c.isSatisfiable()) return null;
             }
-            ourApp = ((NoPosTacletApp) ourApp).matchFind(pos, c, services,
-                    userC);
+            ourApp = ((NoPosTacletApp)ourApp).matchFind(pos, c, services, userC);
             ourApp = ourApp.setPosInOccurrence(pos);
         }
 
+
         ourApp = constructInsts(ourApp, services);
 
-        ourApp = ourApp.setIfFormulaInstantiations(ifSeqFormulaList, services,
-                userC);
+        ourApp = ourApp.setIfFormulaInstantiations(ifFormulaList,
+                                                   services, userC);
 
         if (!ourApp.sufficientlyComplete()) {
             ourApp = ourApp.tryToInstantiate(currGoal, proof.getServices());
@@ -598,18 +609,22 @@ public class ProblemLoader implements Runnable {
         return ourApp;
     }
 
+
+
     /** 1st pass: only VariableSV */
     public static TacletApp parseSV1(TacletApp app, SchemaVariable sv,
-            String value, Services services) {
-        LogicVariable lv = new LogicVariable(new Name(value), app.getRealSort(
-                sv, services));
+                                     String value, Services services) {
+        LogicVariable lv=new LogicVariable(new Name(value),
+                                           app.getRealSort(sv, services));
         Term instance = TermFactory.DEFAULT.createVariableTerm(lv);
-        return app.addCheckedInstantiation(sv, instance, services, true);
+        return app.addCheckedInstantiation(sv, instance, services,true);
     }
+
+
 
     /** 2nd pass: all other SV */
     public static TacletApp parseSV2(TacletApp app, SchemaVariable sv,
-            String value, Goal targetGoal) {
+                                     String value, Goal targetGoal) {        
         final Proof p = targetGoal.proof();
         final Services services = p.getServices();
         TacletApp result;
@@ -617,27 +632,30 @@ public class ProblemLoader implements Runnable {
             // ignore -- already done
             result = app;
         } else if (sv.isProgramSV()) {
-            final ProgramElement pe = TacletInstantiationsTableModel
-                    .getProgramElement(app, value, sv, services);
-            result = app.addCheckedInstantiation(sv, pe, services, true);
-        } else if (sv.isSkolemTermSV()) {
-            result = app.createSkolemConstant(value, sv, true, services);
+	    final ProgramElement pe = 
+	        TacletInstantiationsTableModel.getProgramElement(
+		    app, value, sv, services);
+	    result = app.addCheckedInstantiation(sv, pe, services, true);
+        } else if ( sv.isSkolemTermSV() ) {
+	    result = app.createSkolemConstant ( value, sv, true, services );
         } else if (sv.isListSV()) {
             SetOfLocationDescriptor s = parseLocationList(value, targetGoal);
             result = app.addInstantiation(sv, Array.reverse(s.toArray()), true);
         } else {
             Namespace varNS = p.getNamespaces().variables();
-            varNS = app.extendVarNamespaceForSV(varNS, sv);
-            Term instance = parseTerm(value, p, varNS, targetGoal
-                    .getVariableNamespace(varNS));
-            result = app.addCheckedInstantiation(sv, instance, services, true);
+	    varNS = app.extendVarNamespaceForSV(varNS, sv);
+	    Term instance = parseTerm(value, p, varNS, 
+	            targetGoal.getVariableNamespace(varNS));
+	    result = app.addCheckedInstantiation(sv, instance, services, true); 
         }
         return result;
     }
 
+
+
+
     private TacletApp constructInsts(TacletApp app, Services services) {
-        if (loadedInsts == null)
-            return app;
+        if (loadedInsts == null) return app;
         SetOfSchemaVariable uninsts = app.uninstantiatedVars();
 
         // first pass: add variables
@@ -646,19 +664,25 @@ public class ProblemLoader implements Runnable {
             String s = (String) it.next();
             int eq = s.indexOf('=');
             String varname = s.substring(0, eq);
-            String value = s.substring(eq + 1, s.length());
-            if (varname.startsWith(NameSV.NAME_PREFIX)) {
-                app = app
-                        .addInstantiation(new NameSV(varname), new Name(value));
+            String value = s.substring(eq+1, s.length());
+
+            // reklov
+            // START TEMPORARY DOWNWARD COMPATIBILITY
+
+            if (varname.startsWith("_NAME")) {
+                app = app.addInstantiation(de.uka.ilkd.key.rule.inst.
+                        SVInstantiations.EMPTY_SVINSTANTIATIONS.add(
+                        new NameSV(varname), new Name(value)));
                 continue;
             }
 
+            // END TEMPORARY DOWNWARD COMPATIBILITY
+
             SchemaVariable sv = lookupName(uninsts, varname);
-            if (sv == null) {
-                // throw new IllegalStateException(
-                // varname+" from \n"+loadedInsts+"\n is not in\n"+uninsts);
-                System.err.println(varname + " from " + app.rule().name()
-                        + " is not in uninsts");
+            if (sv==null) {
+//                throw new IllegalStateException(
+//                    varname+" from \n"+loadedInsts+"\n is not in\n"+uninsts);
+                System.err.println(varname+" from "+app.rule().name()+" is not in uninsts");
                 continue;
             }
 
@@ -674,18 +698,18 @@ public class ProblemLoader implements Runnable {
             String s = (String) it.next();
             int eq = s.indexOf('=');
             String varname = s.substring(0, eq);
-            String value = s.substring(eq + 1, s.length());
+            String value = s.substring(eq+1, s.length());
             SchemaVariable sv = lookupName(uninsts, varname);
-            if (sv == null)
-                continue;
+            if (sv==null) continue;
             app = parseSV2(app, sv, value, currGoal);
         }
 
         return app;
     }
 
-    public static Term parseTerm(String value, Proof proof, Namespace varNS,
-            Namespace progVar_ns) {
+
+    public static Term parseTerm(String value, Proof proof,
+            Namespace varNS, Namespace progVar_ns) {
         try {
             return TermParserFactory.createInstance().
                 parse(new StringReader(value), null,
@@ -721,36 +745,41 @@ public class ProblemLoader implements Runnable {
         SetOfLocationDescriptor result = null;
         Proof p = targetGoal.proof();
         Namespace varNS = p.getNamespaces().variables();
-        NamespaceSet nss = new NamespaceSet(varNS, p.getNamespaces()
-                .functions(), p.getNamespaces().sorts(), new Namespace(),
-                new Namespace(), targetGoal.getVariableNamespace(varNS));
+        NamespaceSet nss = new NamespaceSet(
+            varNS,
+            p.getNamespaces().functions(),
+            p.getNamespaces().sorts(),
+            new Namespace(),
+            new Namespace(),
+            targetGoal.getVariableNamespace(varNS));
         Services services = p.getServices();
-        try {
-            result = (new KeYParser(ParserMode.TERM, new KeYLexer(
-                    new StringReader(value), services.getExceptionHandler()),
-                    null, TermFactory.DEFAULT, null, services, nss,
-                    new AbbrevMap())).location_list();
+        try{
+            result = (new KeYParser(ParserMode.TERM,new KeYLexer(new StringReader(value),
+                                             services.getExceptionHandler()),
+                                null, TermFactory.DEFAULT, null, services,
+                                nss, new AbbrevMap())).
+                location_list();
         } catch (antlr.RecognitionException re) {
-            throw new RuntimeException("Cannot parse location list " + value,
-                    re);
+            throw new RuntimeException("Cannot parse location list "+value, re);
         } catch (antlr.TokenStreamException tse) {
-            throw new RuntimeException("Cannot parse location list " + value,
-                    tse);
+            throw new RuntimeException("Cannot parse location list "+value, tse);
         }
         return result;
     }
 
+
+
     public static Term parseTerm(String value, Proof proof) {
-        return parseTerm(value, proof, proof.getNamespaces().variables(), proof
-                .getNamespaces().programVariables());
+        return parseTerm(value, proof, proof.getNamespaces().variables(),
+                proof.getNamespaces().programVariables());
     }
+
 
     private SchemaVariable lookupName(SetOfSchemaVariable set, String name) {
         IteratorOfSchemaVariable it = set.iterator();
         while (it.hasNext()) {
             SchemaVariable v = it.next();
-            if (v.name().toString().equals(name))
-                return v;
+            if (v.name().toString().equals(name)) return v;
         }
         return null; // handle this better!
     }
@@ -775,11 +804,22 @@ public class ProblemLoader implements Runnable {
 
         BuiltInConstructionException(String s) {
             super(s);
-        }
+    }
     }
 
     public KeYExceptionHandler getExceptionHandler() {
         return exceptionHandler;
+    }
+
+    private static class PairOfString {
+        public String left;
+        public String right;
+
+        public PairOfString ( String p_left, String p_right ) {
+            left  = p_left;
+            right = p_right;
+        }
+
     }
 
 }

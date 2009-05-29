@@ -1,5 +1,5 @@
 // This file is part of KeY - Integrated Deductive Software Design
-// Copyright (C) 2001-2005 Universitaet Karlsruhe, Germany
+// Copyright (C) 2001-2009 Universitaet Karlsruhe, Germany
 //                         Universitaet Koblenz-Landau, Germany
 //                         Chalmers University of Technology, Sweden
 //
@@ -28,9 +28,11 @@ import de.uka.ilkd.key.proof.mgt.DefaultProofCorrectnessMgt;
 import de.uka.ilkd.key.proof.mgt.ProofCorrectnessMgt;
 import de.uka.ilkd.key.proof.mgt.ProofEnvironment;
 import de.uka.ilkd.key.rule.UpdateSimplifier;
+import de.uka.ilkd.key.rule.updatesimplifier.ApplyOnModality;
 import de.uka.ilkd.key.strategy.Strategy;
 import de.uka.ilkd.key.strategy.StrategyFactory;
 import de.uka.ilkd.key.strategy.StrategyProperties;
+import de.uka.ilkd.key.strategy.feature.AbstractBetaFeature;
 
 
 /**
@@ -107,11 +109,13 @@ public class Proof implements Named {
      */
     public Vector<String> keyVersionLog;
    
+    private long autoModeTime = 0;
     
     private Strategy activeStrategy;
 //    implemented by mbender for jmltest
     private SpecExtPO specExtPO;
     
+
     /** constructs a new empty proof with name */
     private Proof(Name name, Services services, ProofSettings settings) {
         this.name = name;
@@ -280,6 +284,14 @@ public class Proof implements Named {
        return services;
     }
 
+    public long getAutoModeTime() {
+        return autoModeTime;
+    }
+
+    public void addAutoModeTime(long time) {
+        autoModeTime += time;
+    }
+
     /** sets the variable, function, sort, heuristics namespaces */
     public void setNamespaces(NamespaceSet ns) {
         getServices().setNamespaces(ns);
@@ -366,7 +378,7 @@ public class Proof implements Named {
             });
     }
 
-    private void clearAndDetachRuleAppIndexes () {
+    public void clearAndDetachRuleAppIndexes () {
         // Taclet indices of the particular goals have to
         // be rebuilt
         final IteratorOfGoal it = openGoals ().iterator ();
@@ -429,6 +441,34 @@ public class Proof implements Named {
     public ListOfGoal openGoals() {
 	return openGoals;
     }
+    
+    /**
+     * return the list of open and enabled goals
+     * @return list of open and enabled goals, never null
+     * @author mulbrich
+     */
+    public ListOfGoal openEnabledGoals() {
+        return filterEnabledGoals(openGoals);
+    }
+
+    /**
+     * filter those goals from a list which are enabled
+     * 
+     * @param goals non-null list of goals
+     * @return sublist such that every goal in the list is enabled
+     * @see Goal#isAutomatic()
+     * @author mulbrich
+     */
+    private ListOfGoal filterEnabledGoals(ListOfGoal goals) {
+        ListOfGoal enabledGoals = SLListOfGoal.EMPTY_LIST;
+        for(Goal g : goals) {
+            if(g.isAutomatic()) {
+                enabledGoals = enabledGoals.prepend(g);
+            }
+        }
+        return enabledGoals;
+    }    
+
 
     /** 
      * removes the given goal and adds the new goals in list 
@@ -552,7 +592,7 @@ public class Proof implements Named {
     public boolean closed () {
 	if ( root ().getRootSink ().isSatisfiable () ) {
 	    Goal goal;
-	    while ( openGoals != SLListOfGoal.EMPTY_LIST ) {
+	    while ( !openGoals.isEmpty() ) {
 		goal      = openGoals.head ();
 		openGoals = openGoals.tail ();
 		fireProofGoalRemoved ( goal );
@@ -642,6 +682,14 @@ public class Proof implements Named {
 	    listenerList.get(i).proofExpanded(e);
 	}
     }
+
+    /** fires the event that the proof has been pruned at the given node */
+    protected void fireProofIsBeingPruned(Node node, Node removedNode) {
+        ProofTreeEvent e = new ProofTreeRemovedNodeEvent(this, node, removedNode);
+        for (int i = 0; i<listenerList.size(); i++) {
+            listenerList.get(i).proofIsBeingPruned(e);
+        }
+    } 
 
     /** fires the event that the proof has been pruned at the given node */
     protected void fireProofPruned(Node node, Node removedNode) {
@@ -756,6 +804,7 @@ public class Proof implements Named {
     }
 
     /** returns the list of goals of the subtree starting with node 
+     * 
      * @param node the Node where to start from
      * @return the list of goals of the subtree starting with node 
      */
@@ -772,6 +821,15 @@ public class Proof implements Named {
 	    }
 	}
 	return result;
+    }
+    
+    /**
+     * get the list of goals of the subtree starting with node which are enabled.
+     * @param node the Node where to start from
+     * @return the list of enabled goals of the subtree starting with node 
+     */
+    public ListOfGoal getSubtreeEnabledGoals(Node node) {
+        return filterEnabledGoals(getSubtreeGoals(node));
     }
 
     /** returns true iff the given node is found in the proof tree 
@@ -859,5 +917,6 @@ public class Proof implements Named {
      */
     public SpecExtPO getPO() {
         return specExtPO;
-    }    
+    }
+
 }

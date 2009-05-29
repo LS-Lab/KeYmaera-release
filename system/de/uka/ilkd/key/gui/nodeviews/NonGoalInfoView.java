@@ -1,5 +1,5 @@
 // This file is part of KeY - Integrated Deductive Software Design
-// Copyright (C) 2001-2005 Universitaet Karlsruhe, Germany
+// Copyright (C) 2001-2009 Universitaet Karlsruhe, Germany
 //                         Universitaet Koblenz-Landau, Germany
 //                         Chalmers University of Technology, Sweden
 //
@@ -24,9 +24,12 @@ import javax.swing.text.Highlighter;
 import javax.swing.text.Highlighter.HighlightPainter;
 
 import de.uka.ilkd.key.gui.KeYMediator;
+import de.uka.ilkd.key.gui.Main;
+import de.uka.ilkd.key.gui.MethodCallInfo;
 import de.uka.ilkd.key.gui.configuration.Config;
-import de.uka.ilkd.key.gui.configuration.ConfigChangeEvent;
+import de.uka.ilkd.key.gui.configuration.ConfigChangeAdapter;
 import de.uka.ilkd.key.gui.configuration.ConfigChangeListener;
+import de.uka.ilkd.key.gui.notification.events.GeneralFailureEvent;
 import de.uka.ilkd.key.logic.ListOfInteger;
 import de.uka.ilkd.key.logic.PosInOccurrence;
 import de.uka.ilkd.key.logic.PosInTerm;
@@ -43,8 +46,14 @@ public class NonGoalInfoView extends JTextArea {
     private LogicPrinter printer;	 
     private SequentPrintFilter filter;
     private InitialPositionTable posTable;
+    private ConfigChangeListener configChangeListener = new ConfigChangeAdapter(this);
     
     public NonGoalInfoView (Node node, KeYMediator mediator) {
+        if(MethodCallInfo.MethodCallCounterOn){
+            MethodCallInfo.Global.incForClass(this.getClass().toString(), MethodCallInfo.constructor);
+            MethodCallInfo.Local.incForClass(this.getClass().toString(), MethodCallInfo.constructor);
+        }
+
 	filter = new ConstraintSequentPrintFilter 
 	    ( node.sequent (), 
 	      mediator.getUserConstraint ().getConstraint () );
@@ -104,12 +113,7 @@ public class NonGoalInfoView extends JTextArea {
             s += "\n"+node.getReuseSource().scoringInfo();
         }
 
-	Config.DEFAULT.addConfigChangeListener(
-	    new ConfigChangeListener() {
-		    public void configChanged(ConfigChangeEvent e) {
-			updateUI();
-		    }
-		});
+	Config.DEFAULT.addConfigChangeListener(configChangeListener);
 
 	updateUI();
 	setText(s);
@@ -123,7 +127,43 @@ public class NonGoalInfoView extends JTextArea {
 	
 	setEditable(false);
     }
+    
+    public void addNotify() {
+        super.addNotify();
+        Config.DEFAULT.addConfigChangeListener(configChangeListener);
+    }
+    
+    public void removeNotify(){
+        super.removeNotify();
+        unregisterListener();
+        if(MethodCallInfo.MethodCallCounterOn){
+            MethodCallInfo.Local.incForClass(this.getClass().toString(), "removeNotify()");
+        }
+    }
 
+    public void unregisterListener(){
+        if(configChangeListener!=null){
+            Config.DEFAULT.removeConfigChangeListener(configChangeListener);            
+        }
+    }
+    
+    protected void finalize(){
+        try{
+            unregisterListener();
+            if(MethodCallInfo.MethodCallCounterOn){
+                MethodCallInfo.Global.incForClass(this.getClass().toString(), MethodCallInfo.finalize);
+                MethodCallInfo.Local.incForClass(this.getClass().toString(), MethodCallInfo.finalize);
+            }
+        } catch (Throwable e) {
+            Main.getInstance().notify(new GeneralFailureEvent(e.getMessage()));
+        }finally{
+                try {
+                    super.finalize();
+                } catch (Throwable e) {
+                    Main.getInstance().notify(new GeneralFailureEvent(e.getMessage()));
+                }
+        }
+    }
 
     static final Highlighter.HighlightPainter RULEAPP_HIGHLIGHTER =	 
 	new DefaultHighlighter	 

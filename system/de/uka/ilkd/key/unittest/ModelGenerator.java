@@ -1,3 +1,10 @@
+// This file is part of KeY - Integrated Deductive Software Design
+// Copyright (C) 2001-2009 Universitaet Karlsruhe, Germany
+//                         Universitaet Koblenz-Landau, Germany
+//                         Chalmers University of Technology, Sweden
+//
+// The KeY system is protected by the GNU General Public License. 
+// See LICENSE.TXT for details.
 package de.uka.ilkd.key.unittest;
 
 import de.uka.ilkd.key.logic.*;
@@ -5,8 +12,8 @@ import de.uka.ilkd.key.logic.op.*;
 import de.uka.ilkd.key.java.*;
 import de.uka.ilkd.key.java.abstraction.KeYJavaType;
 import de.uka.ilkd.key.proof.*;
-import de.uka.ilkd.key.proof.decproc.*;
 import de.uka.ilkd.key.unittest.simplify.*;
+import de.uka.ilkd.key.unittest.simplify.translation.DecisionProcedureSimplify;
 import de.uka.ilkd.key.unittest.cogent.*;
 import java.util.*;
 
@@ -17,7 +24,8 @@ public class ModelGenerator{
 
     public static final int COGENT = 0;
     public static final int SIMPLIFY = 1;
-    public static int decProdForTestGen=COGENT;
+    public static final int OLD_SIMPLIFY = 2;
+    public static int decProdForTestGen=OLD_SIMPLIFY;
 
     private ListOfTerm ante, succ;
     private HashMap term2class;
@@ -337,11 +345,15 @@ public class ModelGenerator{
 	    intModelSet = dmg.createModels();
 	}
 	if(decProdForTestGen == SIMPLIFY /*|| intModelSet.isEmpty()*/){
-	    dmg = new SimplifyModelGenerator(
-		new DecisionProcedureSimplify(
-		    node, userConstraint, 
-		    new JavaDecisionProcedureTranslationFactory(), serv), serv,
+	    dmg = new SimplifyModelGenerator(node, serv,
 		term2class, locations);
+	    intModelSet = dmg.createModels();
+	}
+	if (decProdForTestGen == OLD_SIMPLIFY /* || intModelSet.isEmpty() */) {
+	    dmg = new OldSimplifyModelGenerator(new DecisionProcedureSimplify(
+		    node, userConstraint,
+		     serv), serv,
+		    term2class, locations);
 	    intModelSet = dmg.createModels();
 	}
 	Set modelSet = new HashSet();

@@ -1,5 +1,5 @@
 // This file is part of KeY - Integrated Deductive Software Design
-// Copyright (C) 2001-2005 Universitaet Karlsruhe, Germany
+// Copyright (C) 2001-2009 Universitaet Karlsruhe, Germany
 //                         Universitaet Koblenz-Landau, Germany
 //                         Chalmers University of Technology, Sweden
 //
@@ -122,14 +122,14 @@ public class IfChoiceModel extends DefaultComboBoxModel {
  	    if (manualInput == null || "".equals(manualInput)) {
 		throw new MissingInstantiationException(
 		    "'\\assumes'-formula: " + 
-		    ProofSaver.printAnything(ifFma, services), pos+1, -1, true);
+		    ProofSaver.printAnything(ifFma, services), pos, -1, true);
 	    }
 
 	    return new IfFormulaInstDirect ( new ConstrainedFormula ( parseFormula(manualInput),
 								      Constraint.BOTTOM ) );
 	} catch (antlr.RecognitionException are) {
  	    throw new SVInstantiationParserException
- 		( manualInput, pos+are.getLine(), are.getColumn(), 
+ 		( manualInput, pos, are.getColumn(), 
 		  "Problem occured parsing a manual input"
  		  + " of an '\\assumes'-sequent.\n" +  are.getMessage(), true);
 	} catch (antlr.ANTLRException e) {

@@ -1,5 +1,5 @@
 // This file is part of KeY - Integrated Deductive Software Design
-// Copyright (C) 2001-2005 Universitaet Karlsruhe, Germany
+// Copyright (C) 2001-2009 Universitaet Karlsruhe, Germany
 //                         Universitaet Koblenz-Landau, Germany
 //                         Chalmers University of Technology, Sweden
 //
@@ -75,6 +75,9 @@ public class Goal  {
 
     /** goal listeners  */
     private List<GoalListener> listeners = new ArrayList<GoalListener>();
+
+    /** a goal has been excluded from automatic rule application iff automatic == false */
+    private boolean automatic = true;
     
     /** list of rule app listeners */
     private static List<RuleAppListener> ruleAppListenerList = 
@@ -352,6 +355,25 @@ public class Goal  {
     public Sequent sequent() {
 	return node().sequent();
     }
+    
+    /**
+     * Checks if is an automatic goal.
+     * 
+     * @return true, if is automatic
+     */
+    public boolean isAutomatic() {
+        return automatic;
+    }
+    
+    /**
+     * Sets the automatic status of this goal.
+     * 
+     * @param t
+     *                the new status: true for automatic, false for interactive
+     */
+    public void setEnabled(boolean t) {
+        automatic = t;
+    }
 
     
     /** 
@@ -475,6 +497,7 @@ public class Goal  {
 				ruleAppManager.copy () );
 	clone.listeners = (List<GoalListener>)
 	    ((ArrayList<GoalListener>) listeners).clone();
+	clone.automatic = this.automatic;
 	return clone;
     }
 
@@ -664,9 +687,13 @@ public class Goal  {
         addGoalListener(journal);
         
         final RuleApp ruleApp = completeRuleApp( p_ruleApp ); 
+
+        final Node n = node;
         
         final ListOfGoal goalList = ruleApp.execute(this,  
                 proof.getServices());
+
+        proof.getServices().saveNameRecorder(n);
         
         if ( goalList == null ) {
             // this happens for the simplify decision procedure
@@ -759,7 +786,7 @@ public class Goal  {
 	    ruleAppListenerList.add(p);
 	}
     }
-
+    
     public static void removeRuleAppListener(RuleAppListener p) { 
 	synchronized(ruleAppListenerList) {	
 	    ruleAppListenerList.remove(p);

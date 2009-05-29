@@ -1,5 +1,5 @@
 // This file is part of KeY - Integrated Deductive Software Design
-// Copyright (C) 2001-2005 Universitaet Karlsruhe, Germany
+// Copyright (C) 2001-2009 Universitaet Karlsruhe, Germany
 //                         Universitaet Koblenz-Landau, Germany
 //                         Chalmers University of Technology, Sweden
 //
@@ -30,7 +30,7 @@ import de.uka.ilkd.key.util.LRUCache;
  */
 public class IfThenElseMalusFeature implements Feature {
 
-    private static LRUCache<PosInOccurrence, RuleAppCost> cache = new LRUCache<PosInOccurrence, RuleAppCost>(1000); 
+    private  static LRUCache<PosInOccurrence, RuleAppCost> cache = new LRUCache<PosInOccurrence, RuleAppCost>(1000); 
 
     public static final Feature INSTANCE = new IfThenElseMalusFeature ();
     
@@ -60,4 +60,7 @@ public class IfThenElseMalusFeature implements Feature {
         return resInt;
     }
 
+    public static void clearCache(){
+        cache.clear();
+    }
 }

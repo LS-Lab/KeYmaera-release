@@ -1,5 +1,5 @@
 // This file is part of KeY - Integrated Deductive Software Design
-// Copyright (C) 2001-2005 Universitaet Karlsruhe, Germany
+// Copyright (C) 2001-2009 Universitaet Karlsruhe, Germany
 //                         Universitaet Koblenz-Landau, Germany
 //                         Chalmers University of Technology, Sweden
 //
@@ -60,8 +60,7 @@ public class TestLeftistHeapOfInteger extends junit.framework.TestCase {
 
 	h = h.deleteMin ();
 	assertTrue("Empty heap should be empty",
-		   h.isEmpty () && h.size () == 0 &&
-		   h == LeftistHeapOfInteger.EMPTY_HEAP);
+		   h.isEmpty () && h.size () == 0);
 
 	h = h.insert ( new Integer ( 1 ) ).insert ( new Integer ( 2 ) );
 	assertTrue("Heap should contain two elements",
@@ -73,8 +72,7 @@ public class TestLeftistHeapOfInteger extends junit.framework.TestCase {
 		   h.findMin ().intValue () == 2);
 	h = h.deleteMin ();
 	assertTrue("Empty heap should be empty",
-		   h.isEmpty () && h.size () == 0 &&
-		   h == LeftistHeapOfInteger.EMPTY_HEAP);
+		   h.isEmpty () && h.size () == 0);
     }
 
     private ListOfInteger removeFirst ( ListOfInteger list, Integer element ) {
@@ -83,7 +81,7 @@ public class TestLeftistHeapOfInteger extends junit.framework.TestCase {
 	
 	while ( true ) {
 	    assertTrue ( "Cannot remove element from list",
-			 list != SLListOfInteger.EMPTY_LIST );
+			 !list.isEmpty() );
 
 	    i    = list.head ();
 	    list = list.tail ();
@@ -167,8 +165,7 @@ public class TestLeftistHeapOfInteger extends junit.framework.TestCase {
 	h = h.insert ( SLListOfInteger.EMPTY_LIST.iterator () );
 	checkHeap ( SLListOfInteger.EMPTY_LIST, h );
 	assertTrue("Empty heap should be empty",
-		   h.isEmpty () && h.size () == 0 &&
-		   h == LeftistHeapOfInteger.EMPTY_HEAP);
+		   h.isEmpty () && h.size () == 0);
 	
 	h = h.insert ( a.iterator () );	
 	checkHeap ( a, h );

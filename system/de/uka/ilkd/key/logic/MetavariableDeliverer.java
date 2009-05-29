@@ -1,5 +1,5 @@
 // This file is part of KeY - Integrated Deductive Software Design
-// Copyright (C) 2001-2005 Universitaet Karlsruhe, Germany
+// Copyright (C) 2001-2009 Universitaet Karlsruhe, Germany
 //                         Universitaet Koblenz-Landau, Germany
 //                         Chalmers University of Technology, Sweden
 //
@@ -23,6 +23,7 @@ import de.uka.ilkd.key.logic.sort.Sort;
 import de.uka.ilkd.key.proof.Counter;
 import de.uka.ilkd.key.proof.Goal;
 import de.uka.ilkd.key.proof.Proof;
+import de.uka.ilkd.key.proof.VariableNameProposer;
 
 public class MetavariableDeliverer {
 
@@ -74,8 +75,11 @@ public class MetavariableDeliverer {
     public Metavariable createNewVariable ( String name,
 					    Sort   p_sort ) {
 	if ( !checkSort ( p_sort, proof.getServices() ) ) return null;
-	Metavariable var = new Metavariable(new Name(name), p_sort);
+	final Name newName = VariableNameProposer.DEFAULT.getNewName(proof
+                .getServices(), new Name(name));
+        Metavariable var = new Metavariable(newName, p_sort);
 	proof.getNamespaces ().variables ().add ( var );
+	proof.getServices().addNameProposal(var.name());
 	return var;
     }
 

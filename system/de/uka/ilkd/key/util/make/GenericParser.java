@@ -1,5 +1,5 @@
 // This file is part of KeY - Integrated Deductive Software Design
-// Copyright (C) 2001-2005 Universitaet Karlsruhe, Germany
+// Copyright (C) 2001-2009 Universitaet Karlsruhe, Germany
 //                         Universitaet Koblenz-Landau, Germany
 //                         Chalmers University of Technology, Sweden
 //
@@ -148,21 +148,21 @@ public class GenericParser {
 	if (t.id()==-1) { // no generic file
 	    return "";
 	} 
-	// first get rule
 	String tmpPath = path+t.toString()+".java";
- 	String makeStr=tmpPath+": "+generatedSrcPath+tmpPath+";\n";
- 	makeStr+=generatedSrcPath+path+makeRule(t.toString(),dependencies(t,path));
-	if (!ruleSet.contains(path+t.toString()+".java")) {
-	    ruleSet.add(path+t.toString()+".java");
+	// handle special extension of ArrayOf (delete Ext...)
+	String fileName=t.toString();
+	if (t.id()==matchGenClass("ArrayOf")) {
+	    fileName=fileName.substring(0,fileName.indexOf("Ext"));
+	}
+ 	String makeStr=tmpPath+": "+generatedSrcPath+path+fileName+".java;\n";
+	// first get rule
+ 	makeStr+=generatedSrcPath+path+makeRule(fileName,dependencies(t,path));
+	if (!ruleSet.contains(tmpPath)) {
+	    ruleSet.add(tmpPath);
 	    // append make generic action
 	    makeStr+="\n"+makeAction(t,path)+"\n";
 	    // append move name of created .java file to compileListFileName
 
-	    // handle special extension of ArrayOf (delete Ext...)
-	    String fileName=t.toString();
-	    if (t.id()==matchGenClass("ArrayOf")) {
-		fileName=fileName.substring(0,fileName.indexOf("Ext"));
-	    }
 	    if (path.startsWith("./")) {
 		path = path.substring(2);
 	    }

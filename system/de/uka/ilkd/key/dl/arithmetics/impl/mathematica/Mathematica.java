@@ -82,13 +82,18 @@ public class Mathematica implements ICounterExampleGenerator, IODESolver,
 			if (!Main.batchMode) {
 				String abortProgramOptions = "key-host=" + "localhost"
 						+ " key-port=" + port;
-				String string = System.getProperty("key.home") + File.separator
-						+ "bin" + File.separator + "runAbortProgram "
+				// String string = System.getProperty("key.home") +
+				// File.separator
+				// + "bin" + File.separator + "runAbortProgram "
+				// + abortProgramOptions;
+				String string = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java -classpath "
+						+ System.getProperty("java.class.path")
+						+ " de.uka.ilkd.key.dl.arithmetics.abort.ServerConsole "
 						+ abortProgramOptions;
 				System.out.println("(I) Trying to execute: " + string);
 				final Process process = Runtime.getRuntime().exec(string);
 				Runtime.getRuntime().addShutdownHook(new Thread() {
-					/*@Override*/
+					/* @Override */
 					public void run() {
 						try {
 							process.getOutputStream().write('e');
@@ -171,7 +176,7 @@ public class Mathematica implements ICounterExampleGenerator, IODESolver,
 	 * (non-Javadoc)
 	 * 
 	 * @see de.uka.ilkd.key.dl.IMathSolver#simplify(de.uka.ilkd.key.logic.Term,
-	 *      java.util.Set)
+	 * java.util.Set)
 	 */
 	public Term simplify(Term form, Set<Term> assumptions, NamespaceSet nss)
 			throws RemoteException, SolverException {
@@ -183,7 +188,8 @@ public class Mathematica implements ICounterExampleGenerator, IODESolver,
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see de.uka.ilkd.key.dl.IMathSolver#fullSimplify(de.uka.ilkd.key.logic.Term)
+	 * @see
+	 * de.uka.ilkd.key.dl.IMathSolver#fullSimplify(de.uka.ilkd.key.logic.Term)
 	 */
 	public Term fullSimplify(Term form, NamespaceSet nss)
 			throws RemoteException, SolverException {
@@ -211,7 +217,8 @@ public class Mathematica implements ICounterExampleGenerator, IODESolver,
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see de.uka.ilkd.key.dl.IMathSolver#findInstance(de.uka.ilkd.key.logic.Term)
+	 * @see
+	 * de.uka.ilkd.key.dl.IMathSolver#findInstance(de.uka.ilkd.key.logic.Term)
 	 */
 	public String findInstance(Term form, long timeout) throws RemoteException,
 			SolverException {
@@ -271,8 +278,9 @@ public class Mathematica implements ICounterExampleGenerator, IODESolver,
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator#reduce(de.uka.ilkd.key.logic.Term,
-	 *      java.util.List)
+	 * @see
+	 * de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator#reduce(de.uka.ilkd
+	 * .key.logic.Term, java.util.List)
 	 */
 	public Term reduce(Term query, List<String> additionalReduce,
 			List<PairOfTermAndQuantifierType> quantifiers, NamespaceSet nss,
@@ -290,8 +298,9 @@ public class Mathematica implements ICounterExampleGenerator, IODESolver,
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator#reduce(de.uka.ilkd.key.logic.Term,
-	 *      java.util.List)
+	 * @see
+	 * de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator#reduce(de.uka.ilkd
+	 * .key.logic.Term, java.util.List)
 	 */
 	public Term reduce(Term form,
 			List<PairOfTermAndQuantifierType> quantifiers, NamespaceSet nss,
@@ -305,9 +314,9 @@ public class Mathematica implements ICounterExampleGenerator, IODESolver,
 		return reduce(form, new LinkedList<String>(), quantifiers, nss, -1);
 	}
 
-	/*@Override*/
-	public String findTransition(Term initial, Term modalForm, long timeout, Services services)
-			throws RemoteException, SolverException {
+	/* @Override */
+	public String findTransition(Term initial, Term modalForm, long timeout,
+			Services services) throws RemoteException, SolverException {
 		return bridge.findTransition(initial, modalForm, timeout, services);
 	}
 
@@ -316,7 +325,7 @@ public class Mathematica implements ICounterExampleGenerator, IODESolver,
 		return bridge.findTransition(initial, modalForm, -1, services);
 	}
 
-	/*@Override*/
+	/* @Override */
 	public long getTotalMemory() throws RemoteException,
 			ServerStatusProblemException, ConnectionProblemException {
 		return bridge.getTotalMemory();
@@ -325,18 +334,24 @@ public class Mathematica implements ICounterExampleGenerator, IODESolver,
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see de.uka.ilkd.key.dl.arithmetics.IGroebnerBasisCalculator#checkForConstantGroebnerBasis(de.uka.ilkd.key.dl.arithmetics.impl.SumOfSquaresChecker.PolynomialClassification)
+	 * @seede.uka.ilkd.key.dl.arithmetics.IGroebnerBasisCalculator#
+	 * checkForConstantGroebnerBasis
+	 * (de.uka.ilkd.key.dl.arithmetics.impl.SumOfSquaresChecker
+	 * .PolynomialClassification)
 	 */
-	/*@Override*/
+	/* @Override */
 	public boolean checkForConstantGroebnerBasis(
-			PolynomialClassification<Term> terms, Services services) throws RemoteException {
+			PolynomialClassification<Term> terms, Services services)
+			throws RemoteException {
 		return bridge.checkForConstantGroebnerBasis(terms, services);
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#isConfigured()
 	 */
-	/*@Override*/
+	/* @Override */
 	public boolean isConfigured() {
 		return true;
 	}

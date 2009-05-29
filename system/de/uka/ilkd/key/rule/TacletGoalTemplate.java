@@ -1,5 +1,5 @@
 // This file is part of KeY - Integrated Deductive Software Design
-// Copyright (C) 2001-2005 Universitaet Karlsruhe, Germany
+// Copyright (C) 2001-2009 Universitaet Karlsruhe, Germany
 //                         Universitaet Koblenz-Landau, Germany
 //                         Chalmers University of Technology, Sweden
 //
@@ -157,9 +157,9 @@ public class TacletGoalTemplate {
     /** toString */
     public String toString() {
 	String result="";
-	if (sequent()!=Sequent.EMPTY_SEQUENT) result+="\\add "+sequent()+" "; 
-	if (rules()!=SLListOfTaclet.EMPTY_LIST) result+="\\addrules "+rules()+" ";
-	if (addedProgVars().size()>0) result+="\\addprogvars "+addedProgVars()+" ";	
+	if (!sequent().isEmpty()) result+="\\add "+sequent()+" "; 
+	if (!rules().isEmpty()) result+="\\addrules "+rules()+" ";
+	if (!addedProgVars().isEmpty()) result+="\\addprogvars "+addedProgVars()+" ";	
 	return result;
     }
 

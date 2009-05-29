@@ -1,5 +1,5 @@
 // This file is part of KeY - Integrated Deductive Software Design
-// Copyright (C) 2001-2005 Universitaet Karlsruhe, Germany
+// Copyright (C) 2001-2009 Universitaet Karlsruhe, Germany
 //                         Universitaet Koblenz-Landau, Germany
 //                         Chalmers University of Technology, Sweden
 //
@@ -675,6 +675,20 @@ TOKEN :
 |
   < LT: "<" >
 }
+
+// The following two productions are there to allow reading of UTF8 encoded
+// source files. The byte order marker (BOM) FEFF must be ignored and
+// any other unicode character results in a token that does not match anywhere. 
+SKIP :
+{
+  < UNICODE_BYTE_ORDER_MARKER : "\ufeff" >
+}
+
+TOKEN :
+{
+  < UNKNOWN_CHARACTER_SEQUENCE: [ "\u0000" - "\uffff" ] >
+}
+
 
 
 /*****************************************

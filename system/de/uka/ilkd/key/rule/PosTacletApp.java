@@ -1,5 +1,5 @@
 // This file is part of KeY - Integrated Deductive Software Design
-// Copyright (C) 2001-2005 Universitaet Karlsruhe, Germany
+// Copyright (C) 2001-2009 Universitaet Karlsruhe, Germany
 //                         Universitaet Koblenz-Landau, Germany
 //                         Chalmers University of Technology, Sweden
 //
@@ -326,7 +326,7 @@ public class PosTacletApp extends TacletApp {
      * instantiations, constraints and new metavariables given 
      * by the mc object and forget the old ones
      */
-    protected TacletApp setMatchConditions ( MatchConditions mc ) {
+    public TacletApp setMatchConditions ( MatchConditions mc ) {
 	return createPosTacletApp( (FindTaclet)taclet(),
 				   mc.getInstantiations   (),
 				   mc.getConstraint       (),
@@ -359,7 +359,7 @@ public class PosTacletApp extends TacletApp {
      */
     public boolean complete() {
 	return posInOccurrence() != null && 
-	    uninstantiatedVars() == SetAsListOfSchemaVariable.EMPTY_SET &&
+	    uninstantiatedVars().isEmpty() &&
 	    ifInstsComplete ();
     }
 

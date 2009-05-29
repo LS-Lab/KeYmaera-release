@@ -1,5 +1,5 @@
 // This file is part of KeY - Integrated Deductive Software Design
-// Copyright (C) 2001-2005 Universitaet Karlsruhe, Germany
+// Copyright (C) 2001-2009 Universitaet Karlsruhe, Germany
 //                         Universitaet Koblenz-Landau, Germany
 //                         Chalmers University of Technology, Sweden
 //
@@ -10,6 +10,8 @@
 
 
 package de.uka.ilkd.key.java.recoderext;
+
+import java.io.IOException;
 
 import recoder.java.*;
 import recoder.java.reference.*;
@@ -355,9 +357,9 @@ public class MethodBodyStatement extends JavaStatement implements
     }
 
     //don't think we need it
+    // we would actually - for "toSource" for instance ...
     public void accept(SourceVisitor v) {
-	throw new IllegalStateException("Not implemented in "
-					+"MethodBodyStatement");
+        // throw new IllegalStateException("Not implemented in MethodBodyStatement, visited by " + v.getClass());
     }
 
     //don't think we need it

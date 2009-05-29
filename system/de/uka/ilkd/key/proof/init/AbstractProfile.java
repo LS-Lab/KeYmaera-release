@@ -1,3 +1,10 @@
+// This file is part of KeY - Integrated Deductive Software Design
+// Copyright (C) 2001-2009 Universitaet Karlsruhe, Germany
+//                         Universitaet Koblenz-Landau, Germany
+//                         Chalmers University of Technology, Sweden
+//
+// The KeY system is protected by the GNU General Public License. 
+// See LICENSE.TXT for details.
 package de.uka.ilkd.key.proof.init;
 
 import de.uka.ilkd.key.collection.SetAsListOfString;
@@ -6,27 +13,21 @@ import de.uka.ilkd.key.gui.IMain;
 import de.uka.ilkd.key.gui.configuration.ProofSettings;
 import de.uka.ilkd.key.logic.Name;
 import de.uka.ilkd.key.proof.*;
-import de.uka.ilkd.key.proof.decproc.JavaDecisionProcedureTranslationFactory;
 import de.uka.ilkd.key.proof.mgt.AxiomJustification;
 import de.uka.ilkd.key.proof.mgt.RuleJustification;
-import de.uka.ilkd.key.rule.AbstractIntegerRule;
 import de.uka.ilkd.key.rule.ListOfBuiltInRule;
 import de.uka.ilkd.key.rule.Rule;
 import de.uka.ilkd.key.rule.SLListOfBuiltInRule;
+import de.uka.ilkd.key.smt.*;
 import de.uka.ilkd.key.rule.UpdateSimplifier;
 import de.uka.ilkd.key.strategy.IteratorOfStrategyFactory;
 import de.uka.ilkd.key.strategy.SetAsListOfStrategyFactory;
 import de.uka.ilkd.key.strategy.SetOfStrategyFactory;
 import de.uka.ilkd.key.strategy.StrategyFactory;
-import de.uka.ilkd.key.util.ProgressMonitor;
 
 public abstract class AbstractProfile implements Profile {
 
-    private IMain                       main;
-
-    private AbstractExecDecproc[] execDecprocs;
-
-    private final RuleCollection standardRules;
+    private final RuleCollection       standardRules;
 
     private final SetOfStrategyFactory strategies;
 
@@ -35,26 +36,10 @@ public abstract class AbstractProfile implements Profile {
     private final SetOfGoalChooserBuilder supportedGCB;
 
     private GoalChooserBuilder prototype;
-
-    protected AbstractProfile(String standardRuleFilename,
+            
+    protected AbstractProfile(String standardRuleFilename, 
             SetOfGoalChooserBuilder supportedGCB, IMain main) {
-
-        // First initialise execDecproc, because it is used in
-        // initBuiltInRules()!
-        int concreteDecprocs = ConcreteExecDecproc.getDecprocNumber();
-        execDecprocs = new AbstractExecDecproc[concreteDecprocs + 1]; // +1
-                                                                        // for
-                                                                        // later
-                                                                        // added
-                                                                        // dec
-                                                                        // procs!
-        for (int i = 0; i < concreteDecprocs; i++) {
-            execDecprocs[i] = new ConcreteExecDecproc(i);
-        }
-        // Add dec procs that cannot be treated uniformly within
-        // ConcreteExecDecproc
-        execDecprocs[concreteDecprocs++] = new ExecSVC();
-
+        
         standardRules = new RuleCollection(RuleSource
                 .initRuleFile(standardRuleFilename), initBuiltInRules());
         strategies = getStrategyFactories();
@@ -82,8 +67,10 @@ public abstract class AbstractProfile implements Profile {
     }
 
     public AbstractProfile(String standardRuleFilename, IMain main) {
-        this(standardRuleFilename, SetAsListOfGoalChooserBuilder.EMPTY_SET
-                .add(new DefaultGoalChooserBuilder()), main);
+        this(standardRuleFilename, 
+                SetAsListOfGoalChooserBuilder.EMPTY_SET.
+                add(new DefaultGoalChooserBuilder()).
+                add(new DepthFirstGoalChooserBuilder()), main);
     }
 
     public RuleCollection getStandardRules() {
@@ -96,37 +83,12 @@ public abstract class AbstractProfile implements Profile {
 
     protected ListOfBuiltInRule initBuiltInRules() {
         ListOfBuiltInRule builtInRules = SLListOfBuiltInRule.EMPTY_LIST;
-
-        final ProgressMonitor monitor = main == null ? null : main
-                .getProgressMonitor();
-        if (monitor != null) {
-            monitor.setMaximum(execDecprocs.length);
-        }
-        if (main != null) {
-            main.setStatusLine("Check for available decision procedures");
-        }
-
-        // check whether decisionProcedure is in $PATH. If not, the
-        // taclet "Run Decision Procedure" won't be available.
-
-        for (int i = 0; i < execDecprocs.length; i++) {
-
-            if (execDecprocs[i].isAvailable()) {
-                final AbstractIntegerRule iRule = execDecprocs[i].getRule();
-
-                builtInRules = builtInRules.prepend(iRule
-                        .clone(new JavaDecisionProcedureTranslationFactory()));
-                if (main != null) {
-                    main.setStatusLine("Found: " + execDecprocs[i].getCmd());
-                }
-            }
-            if (monitor != null) {
-                monitor.setProgress(i);
-            }
-        }
-        if (main != null) {
-            main.setStandardStatusLine();
-        }
+        
+        builtInRules = builtInRules.prepend(new SMTRule(new Z3Solver()));        
+        builtInRules = builtInRules.prepend(new SMTRule(new YicesSolver()));
+        builtInRules = builtInRules.prepend(new SMTRule(new SimplifySolver()));        
+        builtInRules = builtInRules.prepend(new SMTRule(new CVC3Solver()));
+        
         return builtInRules;
     }
 
@@ -213,25 +175,25 @@ public abstract class AbstractProfile implements Profile {
     }
 
     /**
-     * returns a copy of the selected goal choooser builder
-     */
-    public GoalChooserBuilder getSelectedGoalChooserBuilder() {
-        return prototype.copy();
-    }
+      * returns a copy of the selected goal chooser builder 
+      */
+     public GoalChooserBuilder getSelectedGoalChooserBuilder(){
+        return prototype.copy(); 
+     }
+    
+     /**
+      * any standard rule has is by default justified by an axiom rule 
+      * justification 
+      * @return the justification for the standard rules             
+      */
+     public RuleJustification getJustification(Rule r) {
+         return AxiomJustification.INSTANCE;
+     }
 
-    /**
-     * any standard rule has is by default justified by an axiom rule
-     * justification
-     * 
-     * @return the justification for the standardrules
-     */
-    public RuleJustification getJustification(Rule r) {
-        return AxiomJustification.INSTANCE;
-    }
-
-    /**
-     * sets the given settings to some default depending on the profile
-     */
-    public void updateSettings(ProofSettings settings) {
-    }
+     /**
+      * sets the given settings to some default depending on the profile
+      */
+     public void updateSettings(ProofSettings settings) {
+	 settings.getDecisionProcedureSettings().updateSMTRules(this);	 
+     }   
 }

@@ -1,5 +1,5 @@
 // This file is part of KeY - Integrated Deductive Software Design
-// Copyright (C) 2001-2005 Universitaet Karlsruhe, Germany
+// Copyright (C) 2001-2009 Universitaet Karlsruhe, Germany
 //                         Universitaet Koblenz-Landau, Germany
 //                         Chalmers University of Technology, Sweden
 //
@@ -16,11 +16,8 @@ header {
     import de.uka.ilkd.key.collection.ListOfString;
     import de.uka.ilkd.key.collection.SLListOfString;
     import de.uka.ilkd.key.java.Position;
-    import de.uka.ilkd.key.speclang.ListOfPositionedString;
-    import de.uka.ilkd.key.speclang.PositionedString;
-    import de.uka.ilkd.key.speclang.SLListOfPositionedString;
-    import de.uka.ilkd.key.speclang.translation.SLTranslationException;
-    import de.uka.ilkd.key.speclang.translation.SLTranslationExceptionManager;
+    import de.uka.ilkd.key.speclang.*;
+    import de.uka.ilkd.key.speclang.translation.*;
 }
 
 
@@ -37,6 +34,8 @@ options {
 {
     private KeYJMLPreLexer lexer;
     private SLTranslationExceptionManager excManager;
+    private SetOfPositionedString warnings 	
+    	= SetAsListOfPositionedString.EMPTY_SET;
     
     
     private KeYJMLPreParser(KeYJMLPreLexer lexer,
@@ -71,9 +70,10 @@ options {
     
     
     private void raiseNotSupported(String feature) 
-    		throws SLTranslationException {
-    	throw excManager.createException("JML feature not supported: " 
-    					 + feature);
+    		throws SLTranslationException {    		
+	PositionedString warning 
+		= excManager.createPositionedString(feature + " not supported");
+    	warnings = warnings.add(warning);
     }
         
     
@@ -94,7 +94,12 @@ options {
         } catch(ANTLRException e) {
 	    throw excManager.convertException(e);
         }
-    }   
+    }
+    
+    
+    public SetOfPositionedString getWarnings() {
+    	return warnings;
+    }
 }
 
 
@@ -142,6 +147,10 @@ classlevel_element[ListOfString mods]
     |   result=readable_if_clause[mods]
     |   result=writable_if_clause[mods]
     |   result=datagroup_clause[mods]
+    |   result=set_statement[mods]    //RecodeR workaround
+    |   result=assert_statement[mods] //RecodeR workaround
+    |   result=assume_statement[mods] //RecodeR workaround
+    |   result=nowarn_pragma[mods] 
     |   EOF
 ;
 
@@ -170,6 +179,9 @@ methodlevel_element[ListOfString mods]
         result=field_declaration[mods]
     |   result=set_statement[mods]
     |   result=loop_specification[mods]
+    |   result=assert_statement[mods]
+    |   result=assume_statement[mods]
+    |   result=nowarn_pragma[mods]
 ;
 
 
@@ -194,7 +206,8 @@ modifiers
 
 
 modifier returns [String result = null]:
-    fin:FINAL                   { result = fin.getText(); }
+        abs:ABSTRACT            { result = abs.getText(); }
+    |   fin:FINAL               { result = fin.getText(); }
     |   gho:GHOST               { result = gho.getText(); } 
     |   hel:HELPER              { result = hel.getText(); }
     |   ins:INSTANCE            { result = ins.getText(); }
@@ -510,6 +523,7 @@ simple_spec_body_clause[TextualJMLSpecCase sc, Behavior b]
 	|   ps=signals_clause        { sc.addSignals(ps); }
 	|   ps=signals_only_clause   { sc.addSignalsOnly(ps); }
 	|   ps=diverges_clause       { sc.addDiverges(ps); }
+	|   ps=name_clause           { sc.addName(ps);}
 	|   captures_clause 
 	|   when_clause
 	|   working_space_clause
@@ -632,6 +646,17 @@ captures_keyword
 :
     	CAPTURES 
     |   CAPTURES_RED
+;
+
+
+name_clause 
+	returns [PositionedString result = null]
+	throws SLTranslationException
+:
+    spec:SPEC_NAME name:STRING_LITERAL SEMICOLON 
+    {
+	result=createPositionedString(name.getText(), spec);
+    }    
 ;
 
 
@@ -762,6 +787,7 @@ history_constraint[ListOfString mods]
     constraint_keyword ps=expression
     {
     	raiseNotSupported("history constraints");
+    	result = SLListOfTextualJMLConstruct.EMPTY_LIST;
     } 
 ;
 
@@ -783,6 +809,7 @@ represents_clause[ListOfString mods]
     represents_keyword ps=expression
     {
     	raiseNotSupported("represents clauses");
+	result = SLListOfTextualJMLConstruct.EMPTY_LIST;
     }
 ;
 
@@ -804,6 +831,7 @@ initially_clause[ListOfString mods]
     INITIALLY ps=expression
     {
     	raiseNotSupported("initially clauses");
+    	result = SLListOfTextualJMLConstruct.EMPTY_LIST;
     }
 ;
     
@@ -818,6 +846,7 @@ monitors_for_clause[ListOfString mods]
     MONITORS_FOR ps=expression
     {
     	raiseNotSupported("monitors_for clauses");
+    	result = SLListOfTextualJMLConstruct.EMPTY_LIST;    	
     }    
 ;
     
@@ -832,6 +861,7 @@ readable_if_clause[ListOfString mods]
     READABLE ps=expression
     {
     	raiseNotSupported("readable-if clauses");
+    	result = SLListOfTextualJMLConstruct.EMPTY_LIST;    	
     }    
 ;
 
@@ -846,6 +876,7 @@ writable_if_clause[ListOfString mods]
     WRITABLE ps=expression
     {
     	raiseNotSupported("writable-if clauses");
+    	result = SLListOfTextualJMLConstruct.EMPTY_LIST;    	
     }   
 ;
 
@@ -893,6 +924,21 @@ maps_keyword
 :
     	MAPS 
     | 	MAPS_RED
+;
+
+
+nowarn_pragma[ListOfString mods] 
+	returns [ListOfTextualJMLConstruct result = null]
+	throws SLTranslationException
+{
+    PositionedString ps;
+}
+:
+    NOWARN ps=expression
+    {
+    	raiseNotSupported("nowarn pragmas");
+    	result = SLListOfTextualJMLConstruct.EMPTY_LIST;    	
+    }
 ;
 
 
@@ -985,6 +1031,55 @@ decreasing_keyword
 
 
 //-----------------------------------------------------------------------------
+//unsupported methodlevel stuff
+//-----------------------------------------------------------------------------
+
+assert_statement[ListOfString mods] 
+	returns [ListOfTextualJMLConstruct result = null] 
+	throws SLTranslationException
+{
+    PositionedString ps;
+}
+:
+    assert_keyword ps=expression
+    {
+        raiseNotSupported("JML assert statements");
+    	result = SLListOfTextualJMLConstruct.EMPTY_LIST;        
+    } 
+;
+
+
+assert_keyword
+:
+	ASSERT
+    |	ASSERT_REDUNDANTLY
+;
+
+
+assume_statement[ListOfString mods] 
+	returns [ListOfTextualJMLConstruct result = null] 
+	throws SLTranslationException
+{
+    PositionedString ps;
+}
+:
+    assume_keyword ps=expression
+    {
+        raiseNotSupported("assume statements");
+    	result = SLListOfTextualJMLConstruct.EMPTY_LIST;        
+    } 
+;
+
+
+assume_keyword
+:
+	ASSUME
+    |	ASSUME_REDUNDANTLY
+;
+
+
+
+//-----------------------------------------------------------------------------
 //expressions
 //-----------------------------------------------------------------------------
 
@@ -992,11 +1087,12 @@ decreasing_keyword
 expression returns [PositionedString result = null]
 {
     lexer.setExpressionMode(true);
+    LT(1);
+    lexer.setExpressionMode(false);
 }
 :
     t:EXPRESSION
     { 
-    	lexer.setExpressionMode(false);
     	result = createPositionedString(t.getText(), t);
     }
 ;

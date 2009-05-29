@@ -1,5 +1,5 @@
 // This file is part of KeY - Integrated Deductive Software Design
-// Copyright (C) 2001-2005 Universitaet Karlsruhe, Germany
+// Copyright (C) 2001-2009 Universitaet Karlsruhe, Germany
 //                         Universitaet Koblenz-Landau, Germany
 //                         Chalmers University of Technology, Sweden
 //
@@ -107,11 +107,10 @@ public class TestMapAsListFromIntegerToString extends junit.framework.TestCase {
 	MapFromIntegerToString map=MapAsListFromIntegerToString.EMPTY_MAP;
 	map = map.put(new Integer(0), "A");
 	assertTrue("Map should be empty and therefore equal to the EMPTY_MAP", 
-	       map.remove(new Integer(0)) == MapAsListFromIntegerToString.EMPTY_MAP);
+	       map.remove(new Integer(0)).isEmpty());
 	
 	assertTrue("Repeated key removal should not change anything", 
-		   map.remove(new Integer(0)).remove(new Integer(0)) 
-		   == MapAsListFromIntegerToString.EMPTY_MAP);
+		   map.remove(new Integer(0)).remove(new Integer(0)).isEmpty());
 
 
 	map = map.put(new Integer(0), "B");
@@ -120,8 +119,8 @@ public class TestMapAsListFromIntegerToString extends junit.framework.TestCase {
 
 
 	map = map.removeAll("B");
-	assertTrue("Map should be empty and therefore equal to the EMPTY_MAP", 
-		   map == MapAsListFromIntegerToString.EMPTY_MAP);
+	assertTrue("Map should be empty", 
+		   map.isEmpty());
 
 
 	map = map.put(new Integer(0), "B");

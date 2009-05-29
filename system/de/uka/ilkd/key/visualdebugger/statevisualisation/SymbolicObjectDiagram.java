@@ -1,3 +1,10 @@
+// This file is part of KeY - Integrated Deductive Software Design
+// Copyright (C) 2001-2009 Universitaet Karlsruhe, Germany
+//                         Universitaet Koblenz-Landau, Germany
+//                         Chalmers University of Technology, Sweden
+//
+// The KeY system is protected by the GNU General Public License. 
+// See LICENSE.TXT for details.
 package de.uka.ilkd.key.visualdebugger.statevisualisation;
 
 import java.util.*;
@@ -255,7 +262,7 @@ public class SymbolicObjectDiagram {
         if (t.op() == vd.getPostPredicate()) {
             return true; // TODO
         }
-        if (t.javaBlock() != JavaBlock.EMPTY_JAVABLOCK) {
+        if (!t.javaBlock().isEmpty()) {
             return true;
         }
         for (int i = 0; i < t.arity(); i++) {
