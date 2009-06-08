@@ -1,5 +1,5 @@
 // This file is part of KeY - Integrated Deductive Software Design
-// Copyright (C) 2001-2005 Universitaet Karlsruhe, Germany
+// Copyright (C) 2001-2009 Universitaet Karlsruhe, Germany
 //                         Universitaet Koblenz-Landau, Germany
 //                         Chalmers University of Technology, Sweden
 //
@@ -297,7 +297,7 @@ public class POBrowser extends JDialog {
 	pos = pos.append("PreservesInv");
 	
 	//PreservesOwnInv
-	if(specRepos.getClassInvariants(pm.getKeYJavaType()).size() > 0) {
+	if(specRepos.getClassInvariants(pm.getContainerType()).size() > 0) {
 	    pos = pos.append("PreservesOwnInv");
 	}
 	
@@ -442,6 +442,7 @@ public class POBrowser extends JDialog {
 						           pm,
 						           null,
 						           true,
+						           false,
 						           true,
 						           true);
 	if(cc.wasSuccessful()) {
@@ -460,7 +461,8 @@ public class POBrowser extends JDialog {
 						           services, 
 						           pm, 
 						           null, 
-						           false, 
+						           false,
+						           false,
 						           true, 
 						           true);
 	if(cc.wasSuccessful()) {
@@ -486,6 +488,7 @@ public class POBrowser extends JDialog {
 						           null, 
 						           true,
 						           true,
+						           true,
 						           false);
 	if(cc.wasSuccessful()) {
 	    return new EnsuresPostPO(initConfig, 
@@ -503,6 +506,7 @@ public class POBrowser extends JDialog {
 						           pm,
 						           null,
 						           true,
+						           false,
 						           true,
 						           false);
 	if(cc.wasSuccessful()) {
@@ -554,6 +558,7 @@ public class POBrowser extends JDialog {
                                                            services, 
                                                            pm, 
                                                            null, 
+                                                           true,
                                                            true,
                                                            true,
                                                            false);

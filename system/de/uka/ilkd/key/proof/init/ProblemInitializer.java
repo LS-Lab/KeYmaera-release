@@ -1,5 +1,5 @@
 // This file is part of KeY - Integrated Deductive Software Design
-// Copyright (C) 2001-2005 Universitaet Karlsruhe, Germany
+// Copyright (C) 2001-2009 Universitaet Karlsruhe, Germany
 //                         Universitaet Koblenz-Landau, Germany
 //                         Chalmers University of Technology, Sweden
 //
@@ -13,7 +13,6 @@ package de.uka.ilkd.key.proof.init;
 import java.io.File;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Vector;
@@ -25,10 +24,9 @@ import recoder.io.PathList;
 import recoder.io.ProjectSettings;
 import de.uka.ilkd.key.dl.DLProfile;
 import de.uka.ilkd.key.dl.formulatools.ProgramVariableDeclaratorVisitor;
-import de.uka.ilkd.key.collection.ListOfString;
 import de.uka.ilkd.key.gui.IMain;
 import de.uka.ilkd.key.gui.Main;
-import de.uka.ilkd.key.gui.configuration.LibrariesSettings;
+import de.uka.ilkd.key.gui.MethodCallInfo;
 import de.uka.ilkd.key.gui.configuration.ProofSettings;
 import de.uka.ilkd.key.java.CompilationUnit;
 import de.uka.ilkd.key.java.Recoder2KeY;
@@ -73,7 +71,7 @@ public class ProblemInitializer {
     
     private final ProgressMonitor pm;
     
-    private final HashSet alreadyParsed = new LinkedHashSet();
+    private final HashSet<EnvInput> alreadyParsed = new LinkedHashSet<EnvInput>();
     
     
     //-------------------------------------------------------------------------
@@ -172,8 +170,7 @@ public class ProblemInitializer {
      * Helper for readIncludes().
      */
     private void readLDTIncludes(Includes in, 
-				 InitConfig initConfig, 
-				 boolean readLibraries) 
+				 InitConfig initConfig) 
     		throws ProofInputException {
 	//avoid infinite recursion
 	if(in.getLDTIncludes().isEmpty()) {
@@ -182,16 +179,16 @@ public class ProblemInitializer {
 	
 	//collect all ldt includes into a single LDTInput
 	KeYFile[] keyFile = new KeYFile[in.getLDTIncludes().size()];
-	Iterator it = in.getLDTIncludes().iterator();
+	
 	int i = 0;
-	while(it.hasNext()){
-	    String name = (String) it.next();
+        for (String name : in.getLDTIncludes()) {
 	    keyFile[i++] = new KeYFile(name, in.get(name), pm);
 	}
-	LDTInput ldtInp = new LDTInput(keyFile, main);
+
+        LDTInput ldtInp = new LDTInput(keyFile, main);
 	
 	//read the LDTInput
-	readEnvInput(ldtInp, initConfig, readLibraries);
+	readEnvInput(ldtInp, initConfig);
 	
         setUpSorts(initConfig);
     }
@@ -201,53 +198,20 @@ public class ProblemInitializer {
      * Helper for readEnvInput().
      */
     private void readIncludes(EnvInput envInput, 
-			      InitConfig initConfig, 
-			      boolean readLibraries) 
+			      InitConfig initConfig) 
     		throws ProofInputException {
 	envInput.setInitConfig(initConfig);
-	Includes in = envInput.readIncludes();
-			
-	//read LDT includes
-	readLDTIncludes(in, initConfig, readLibraries);
 	
-	//read normal includes
-	Iterator it = in.getIncludes().iterator();
-	while(it.hasNext()){
-	    String fileName = (String) it.next();
-	    KeYFile keyFile = new KeYFile(fileName, in.get(fileName), pm);
-	    readEnvInput(keyFile, initConfig, readLibraries);
-	}
-    }
-    
-    
-    /** 
-     * Helper for readEnvInput().
-     */
-    private void readLibraries(EnvInput envInput, InitConfig initConfig) 
-            throws ProofInputException {
-        reportStatus("Loading Libraries");
+	Includes in = envInput.readIncludes();
         
-        HashMap libraries = envInput.readLibrariesSettings().getLibraries();
-        if (libraries.size()==0)
-            return;
-        String path = LibrariesSettings.getLibrariesPath();
-        Iterator it = libraries.entrySet().iterator();
-        while (it.hasNext()){
-            final Entry entry = (Entry) it.next();
-            final String fileName = (String) entry.getKey();
-            final Boolean  sel =  (Boolean) entry.getValue();
-            if (sel.booleanValue()) {
-                RuleSource rs;
-                if (!fileName.startsWith(File.separator)) {
-                    rs = RuleSource.initRuleFile(path+fileName);
-                } else {
-                    rs = RuleSource.initRuleFile(new File(fileName));
-                }
-                KeYFile keyFile = new KeYFile(fileName, rs, pm);
-                readEnvInput(keyFile, initConfig, true);
-            }
-        }
-        reportReady();
+        //read LDT includes
+        readLDTIncludes(in, initConfig);
+        
+	//read normal includes
+	for (String fileName : in.getIncludes()) {
+	    KeYFile keyFile = new KeYFile(fileName, in.get(fileName), pm);
+	    readEnvInput(keyFile, initConfig);
+	}
     }
     
         
@@ -256,9 +220,9 @@ public class ProblemInitializer {
      * in the cfile directory.
      * Helper for readJava().
      */
-    private Vector getClasses(String f) throws ProofInputException  {
+    private Vector<String> getClasses(String f) throws ProofInputException  {
 	File cfile = new File(f);
-	Vector v=new Vector();
+	Vector<String> v=new Vector<String>();
 	if (cfile.isDirectory()) {
 	    String[] list=cfile.list();
 	    // mu(2008-jan-28): if the directory is not readable for the current user
@@ -346,9 +310,15 @@ public class ProblemInitializer {
             //r2k.setKeYFile(envInput.)
             if (javaPath.length() == 0) {
                 r2k.parseSpecialClasses();
-                initConfig.getProofEnv().setJavaModel(JavaModel.NO_MODEL);
+                JavaModel jm = initConfig.getProofEnv().getJavaModel();
+                if(jm==null){ /*This condition is bug fix. After loading java files a model is setup. 
+                	However if later a .key file is loaded, then the existing model may be 
+                	overwritten by NO_MODEL. This check prevents this problem. The described situation
+                	may occur when using e.g. TacletLibraries from the Options menu.*/
+                    initConfig.getProofEnv().setJavaModel(JavaModel.NO_MODEL);
+                }
             } else {                 
-                String[] cus = (String[]) getClasses(javaPath).toArray(new String[]{});
+                String[] cus = getClasses(javaPath).toArray(new String[]{});
                 CompilationUnit[] compUnits = r2k.readCompilationUnitsAsFiles(cus);
                 initConfig.getServices().getJavaInfo().setJavaSourcePath(javaPath);               
 
@@ -368,26 +338,18 @@ public class ProblemInitializer {
     
     
     private void readEnvInput(EnvInput envInput, 
-			      InitConfig initConfig, 
-			      boolean readLibraries) 
+			      InitConfig initConfig) 
     		throws ProofInputException {
 	if(alreadyParsed.add(envInput)){
 	    //read includes
-	    readIncludes(envInput, initConfig, readLibraries);
-	    	    
-	    //read Java
-//	    readJava(envInput, initConfig);
-	    if(!(Main.getInstance().mediator().getProfile() instanceof DLProfile)) {
-	    //read libraries
-	    if(readLibraries) {
-	    	readLibraries(envInput, initConfig);
-	    }
-	    
+	    readIncludes(envInput, initConfig);
+	    if(!(Main.getInstance().mediator().getProfile() instanceof DLProfile)) {	    
             //read Java
-            readJava(envInput, initConfig);	
-	    } else {
-	    	initConfig.getProofEnv().setJavaModel(JavaModel.NO_MODEL);
-	    }
+            if (!(envInput instanceof LDTInput)) readJava(envInput, initConfig);	
+        } else {
+            initConfig.getProofEnv().setJavaModel(JavaModel.NO_MODEL);
+        }
+   
 	    //read envInput itself
 	    reportStatus("Reading "+envInput.name(), 
 		    	 envInput.getNumberOfChars());
@@ -402,7 +364,7 @@ public class ProblemInitializer {
 
 
     private void populateNamespaces(Term term, NamespaceSet namespaces) {
-        for(int i = 0; i < term.arity(); i++) {
+	for(int i = 0; i < term.arity(); i++) {
 	    populateNamespaces(term.sub(i), namespaces);
 	}
 	
@@ -411,15 +373,16 @@ public class ProblemInitializer {
 	} else if(term.op() instanceof ProgramVariable) {
 	    namespaces.programVariables().add(term.op());
 	}
-	 
+	
 	//TODO: consider Java blocks (should not be strictly necessary 
 	//for the moment, though)
-	if(Main.getInstance().mediator().getProfile() instanceof DLProfile) {
-	    if(term.op() instanceof Modality) {
-	        ProgramVariableDeclaratorVisitor.declareVariables(((StatementBlock) term.
-	                javaBlock().program()).getChildAt(0), namespaces);
-	    }
-	}
+    if(Main.getInstance().mediator().getProfile() instanceof DLProfile) {
+        if(term.op() instanceof Modality) {
+            ProgramVariableDeclaratorVisitor.declareVariables(((StatementBlock) term.
+                    javaBlock().program()).getChildAt(0), namespaces);
+        }
+    }
+
     }
     
     
@@ -525,7 +488,7 @@ public class ProblemInitializer {
     	    	    = new KeYFile("taclet base", 
     	    		          profile.getStandardRules().getTacletBase(),
 			          pm);
-    	    	readEnvInput(tacletBaseFile, lastBaseConfig, false);
+    	    	readEnvInput(tacletBaseFile, lastBaseConfig);
 	    }
 	}
 	
@@ -540,10 +503,24 @@ public class ProblemInitializer {
     	    initConfig.getProofEnv().registerRule(r, 
     		    				  profile.getJustification(r));
         }
-	
-	//read envInput
-	readEnvInput(envInput, initConfig, true);
-	
+		
+        //read envInput
+        readEnvInput(envInput, initConfig);
+        
+        // add includes for libraries
+        HashMap<String,Boolean> libraries 
+        = envInput.readLibrariesSettings().getLibraries();
+        final Includes in = envInput.readIncludes();
+        for(Entry<String, Boolean> entry : libraries.entrySet()) {
+            final String fileName = entry.getKey();
+            final Boolean  sel    = entry.getValue();
+            if (sel != null && sel.booleanValue()) {              
+                in.put(fileName, RuleSource.initRuleFile(new File(fileName)));                
+            }
+        }
+        // read in libraries as includes
+        readIncludes(envInput, initConfig);        
+        
 	startInterface();	
 	return initConfig;
     }
@@ -552,8 +529,7 @@ public class ProblemInitializer {
     public void startProver(InitConfig initConfig, ProofOblInput po) 
     		throws ProofInputException {
 	assert initConfig != null;
-	stopInterface();
-        
+	stopInterface();	
         try {
             //determine environment
             initConfig = determineEnvironment(po, initConfig);
@@ -570,6 +546,10 @@ public class ProblemInitializer {
             throw e;            
         } finally {
             startInterface();
+        }
+    
+        if(MethodCallInfo.MethodCallCounterOn){
+            MethodCallInfo.Local.reset();
         }
     }
     

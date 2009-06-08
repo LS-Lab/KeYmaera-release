@@ -1,5 +1,5 @@
 // This file is part of KeY - Integrated Deductive Software Design
-// Copyright (C) 2001-2005 Universitaet Karlsruhe, Germany
+// Copyright (C) 2001-2009 Universitaet Karlsruhe, Germany
 //                         Universitaet Koblenz-Landau, Germany
 //                         Chalmers University of Technology, Sweden
 //
@@ -496,6 +496,10 @@ public abstract class JavaASTVisitor extends JavaASTWalker
  
     public void performActionOnProgramVariable(ProgramVariable x) {
 	doDefaultAction(x);
+    }
+    
+    public void performActionOnIProgramVariable(IProgramVariable x) {
+        doDefaultAction(x);
     }
  
     public void performActionOnReturn(Return x) {

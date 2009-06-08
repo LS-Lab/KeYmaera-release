@@ -1,5 +1,5 @@
 // This file is part of KeY - Integrated Deductive Software Design
-// Copyright (C) 2001-2005 Universitaet Karlsruhe, Germany
+// Copyright (C) 2001-2009 Universitaet Karlsruhe, Germany
 //                         Universitaet Koblenz-Landau, Germany
 //                         Chalmers University of Technology, Sweden
 //
@@ -111,7 +111,9 @@ public class BinaryMerger implements Merger {
 	 *
 	 * Restrictions should not leave its branches
 	 */
-	public void       addRestriction     ( Metavariable p_mv ) {}
+	public void       addRestriction     ( Metavariable p_mv ) {
+	    parent.addRestriction(p_mv);
+        }
 
 	/**
 	 * @return a constraint that restores the current state of this

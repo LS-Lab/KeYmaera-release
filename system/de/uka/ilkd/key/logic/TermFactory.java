@@ -1,5 +1,5 @@
 // This file is part of KeY - Integrated Deductive Software Design
-// Copyright (C) 2001-2005 Universitaet Karlsruhe, Germany
+// Copyright (C) 2001-2009 Universitaet Karlsruhe, Germany
 //                         Universitaet Koblenz-Landau, Germany
 //                         Chalmers University of Technology, Sweden
 //
@@ -47,11 +47,15 @@ public class TermFactory {
         
         /**
          * the first key composite is compared by identity
-         * the second key composite is compared via equals
+         * the second key composite is compared via equals.
+         * It must not be null.
          * @param o1 the first key composite
          * @param o2 the second key composite (non null)
          */
         public CacheKey(Object o1, Object o2) {
+            assert o2 != null :
+                "CacheKey composites must not be null";
+            
             this.o1 = o1;
             this.o2 = o2;
             this.o3 = DUMMY_KEY_COMPOSITE;
@@ -59,12 +63,16 @@ public class TermFactory {
         
         /**
          * the first key composite is compared by identity
-         * the second and third key composite is compared via equals
+         * the second and third key composite is compared via equals.
+         * They must not be null.
          * @param o1 the first key composite
          * @param o2 the second key composite (non null)
          * @param o3 the third key composite (non null)
          */
         public CacheKey(Object o1, Object o2, Object o3) {
+            assert o2 != null && o3 != null :
+                "CacheKey composites must not be null";
+            
             this.o1 = o1;
             this.o2 = o2;
             this.o3 = o3;
@@ -72,7 +80,12 @@ public class TermFactory {
         
 
         public int hashCode() {
-            return o1.hashCode() + 17*o2.hashCode() + 7*o3.hashCode(); 
+            // fixed: o1.hashCode may only be called if o1 is not null.
+            int o1Hash = 0;
+            if(o1 != null) { 
+                o1Hash = o1.hashCode();
+            }
+            return o1Hash + 17*o2.hashCode() + 7*o3.hashCode(); 
         }
         
         public boolean equals(Object o) {
@@ -85,7 +98,7 @@ public class TermFactory {
         
     }
 
-    private static Map<Object, Term> cache = 
+    private  static Map<Object, Term> cache = 
         Collections.synchronizedMap(new LRUCache<Object, Term>(5000));
 
     
@@ -700,7 +713,25 @@ public class TermFactory {
 	    throw new IllegalArgumentException("null-Operator at TermFactory");
 	} else if (op instanceof Quantifier) {
 	    return createQuantifierTerm((Quantifier)op, bv[0], subTerms[0]);
-	} else if (op instanceof QuanUpdateOperator) {
+        } else if(op instanceof NumericalQuantifier){
+	    if(bv[0].size()!=1 || bv[1].size() != 1) {
+                throw new RuntimeException();
+	    }
+	    final Term[] resTerms = new Term [2];
+	    System.arraycopy ( subTerms, 0, resTerms, 0, 2 );
+	    final ArrayOfQuantifiableVariable exVars =
+		BoundVariableTools.DEFAULT.unifyBoundVariables (bv, resTerms, 
+								0, 1);
+	    return createNumericalQuantifierTerm((NumericalQuantifier) op, 
+						 resTerms[0],
+						 resTerms[1], 
+						 exVars); 
+	} else if(op instanceof BoundedNumericalQuantifier){
+            if(bv[2].size()!=1) throw new RuntimeException();
+            return createBoundedNumericalQuantifierTerm(
+		    (BoundedNumericalQuantifier) op, subTerms[0], 
+                    subTerms[1], subTerms[2], bv[2]);
+        } else if (op instanceof QuanUpdateOperator) {
 	    final QuanUpdateOperator updOp = (QuanUpdateOperator)op;
 	    if ( bv == null ) {
 	        bv = new ArrayOfQuantifiableVariable [subTerms.length];
@@ -883,6 +914,15 @@ public class TermFactory {
             .normalize ( boundVars, guards, locs, values, target );
     }
 
+    public Term createNumericalQuantifierTerm(NumericalQuantifier op, 
+            Term cond, Term t, ArrayOfQuantifiableVariable va){
+        return new NumericalQuantifierTerm(op, new Term[]{cond, t}, va).checked();
+    }
+    
+    public Term createBoundedNumericalQuantifierTerm(BoundedNumericalQuantifier op, 
+            Term a, Term b, Term t, ArrayOfQuantifiableVariable va){
+        return new BoundedNumericalQuantifierTerm(op, new Term[]{a, b, t}, va).checked();
+    } 
 
     /** 
      * creates a term consisting of the given variable.
@@ -954,4 +994,8 @@ public class TermFactory {
         return createFunctionTerm(sort.getCastSymbol(), with);
     }
     
+    
+    public static void clearCache(){
+        cache.clear();
+    }
 }

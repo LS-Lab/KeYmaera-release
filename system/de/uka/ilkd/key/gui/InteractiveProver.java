@@ -1,5 +1,5 @@
 // This file is part of KeY - Integrated Deductive Software Design
-// Copyright (C) 2001-2005 Universitaet Karlsruhe, Germany
+// Copyright (C) 2001-2009 Universitaet Karlsruhe, Germany
 //                         Universitaet Koblenz-Landau, Germany
 //                         Chalmers University of Technology, Sweden
 //
@@ -225,7 +225,7 @@ public class InteractiveProver {
                 // Nothing to be saved. Exit successfully.
                 System.exit ( 0 );
             } else {
-                mediator ().popupWarning ( "No (more) goals", "Oops..." );
+                mediator ().popupWarning ( "No enabled goals available", "Oops..." );
                 return;
             }
         }
@@ -549,6 +549,22 @@ public class InteractiveProver {
             }
 	}
 
+    }
+    
+    /**The purpose is to reset the interactiveProver to prevent memory leaking. This 
+     * method is used, e.g., by {@code TaskTree.removeTaskWithoutInteraction}. 
+     * An alternative would be to reset the InteractiveProver in 
+     * {@code InteractiveProverKeYSelectionListener.selectedProofChanged} but 
+     * there we don't know whether the proof has been abandoned or not. 
+     * @author gladisch */
+    public void clear(){
+        if(applyStrategy!=null){
+            applyStrategy.clear();
+        }
+        proof.clearAndDetachRuleAppIndexes();
+        proof = null;
+        focusedGoal = null;
+        //probably more clean up has to be done here.
     }
 
     /**

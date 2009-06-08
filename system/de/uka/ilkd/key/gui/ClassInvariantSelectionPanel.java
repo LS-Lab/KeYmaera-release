@@ -1,4 +1,11 @@
 // This file is part of KeY - Integrated Deductive Software Design
+// Copyright (C) 2001-2009 Universitaet Karlsruhe, Germany
+//                         Universitaet Koblenz-Landau, Germany
+//                         Chalmers University of Technology, Sweden
+//
+// The KeY system is protected by the GNU General Public License. 
+// See LICENSE.TXT for details.
+// This file is part of KeY - Integrated Deductive Software Design
 // Copyright (C) 2001-2005 Universitaet Karlsruhe, Germany
 //                         Universitaet Koblenz-Landau, Germany
 //                         Chalmers University of Technology, Sweden
@@ -213,7 +220,7 @@ class ClassInvariantSelectionPanel extends JPanel {
 		//set border
 		TitledBorder border = new TitledBorder(
 				BorderFactory.createEtchedBorder(),
-                                inv.getName());
+                                inv.getDisplayName());
 		border.setTitleFont(border.getTitleFont()
 					  .deriveFont(Font.BOLD));
 		result.setBorder(border);

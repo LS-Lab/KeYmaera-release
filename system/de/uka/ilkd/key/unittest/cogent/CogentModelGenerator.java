@@ -1,5 +1,5 @@
 // This file is part of KeY - Integrated Deductive Software Design
-// Copyright (C) 2001-2005 Universitaet Karlsruhe, Germany
+// Copyright (C) 2001-2009 Universitaet Karlsruhe, Germany
 //                         Universitaet Koblenz-Landau, Germany
 //                         Chalmers University of Technology, Sweden
 //
@@ -13,6 +13,7 @@ package de.uka.ilkd.key.unittest.cogent;
 import java.util.*;
 import java.io.*;
 
+import de.uka.ilkd.key.gui.Main;
 import de.uka.ilkd.key.java.*;
 import de.uka.ilkd.key.logic.*;
 import de.uka.ilkd.key.unittest.*;
@@ -34,9 +35,14 @@ public class CogentModelGenerator implements DecProdModelGenerator{
 	HashSet models = new HashSet();
 	Model model = new Model(term2class);
 	try{
+	    String trans = ct.translate();
 	    CogentResult response = 
-		DecisionProcedureCogent.execute(ct.translate());
+		DecisionProcedureCogent.execute(trans);
 	    if(response.valid()){
+		if(response.error()){
+		    Main.getInstance().mediator().popupInformationMessage("Cogent execution reports an error. Check, e.g., if cogent does execute on your machine, or if there is another bug in KeY.", "Error");
+		    //throw new CogentException();
+		}
 		return models;
 	    }
 	    IteratorOfTerm it = locations.iterator();

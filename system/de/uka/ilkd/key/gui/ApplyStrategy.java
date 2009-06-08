@@ -1,5 +1,5 @@
 // This file is part of KeY - Integrated Deductive Software Design
-// Copyright (C) 2001-2005 Universitaet Karlsruhe, Germany
+// Copyright (C) 2001-2009 Universitaet Karlsruhe, Germany
 //                         Universitaet Koblenz-Landau, Germany
 //                         Chalmers University of Technology, Sweden
 //
@@ -26,12 +26,20 @@ import de.uka.ilkd.key.dl.arithmetics.exceptions.ServerStatusProblemException;
 import de.uka.ilkd.key.dl.gui.AutomodeListener;
 import de.uka.ilkd.key.dl.gui.TimeStatisticGenerator;
 import de.uka.ilkd.key.gui.configuration.ProofSettings;
+import javax.swing.JDialog;
+import javax.swing.JOptionPane;
+
+import de.uka.ilkd.key.gui.configuration.ProofSettings;
+import de.uka.ilkd.key.gui.configuration.StrategySettings;
 import de.uka.ilkd.key.gui.notification.events.GeneralFailureEvent;
 import de.uka.ilkd.key.proof.*;
+import de.uka.ilkd.key.proof.init.JavaTestGenerationProfile;
 import de.uka.ilkd.key.proof.proofevent.IteratorOfNodeReplacement;
 import de.uka.ilkd.key.proof.proofevent.RuleAppInfo;
 import de.uka.ilkd.key.proof.reuse.ReusePoint;
 import de.uka.ilkd.key.rule.RuleApp;
+import de.uka.ilkd.key.strategy.StrategyProperties;
+import de.uka.ilkd.key.strategy.VBTStrategy;
 import de.uka.ilkd.key.util.Debug;
 
 /**
@@ -77,14 +85,15 @@ public class ApplyStrategy {
      * timeout
      */
     private long timeout = -1;
+    
+    private String usedCoalChooserOptionsKey="";
 
     // Please create this object beforehand and re-use it.
     // Otherwise the addition/removal of the InteractiveProofListener
     // can cause a ConcurrentModificationException during ongoing operation
     public ApplyStrategy(KeYMediator medi) {
 	this.medi = medi;
-        medi.addRuleAppListener( proofListener );
-        this.goalChooser = medi.getProfile().getSelectedGoalChooserBuilder().create();        
+        medi.addRuleAppListener( proofListener );        
     }
     
     
@@ -104,16 +113,37 @@ public class ApplyStrategy {
             g.node().setReuseSource(reusePoint);
             rl.removeRPConsumedMarker(reusePoint.source());
             rl.removeRPConsumedGoal(g);
+            proof.getServices().getNameRecorder().setProposals(
+                    reusePoint.getNameProposals());
             ListOfGoal goalList = g.apply(app);
             rl.addRPOldMarkersNewGoals(goalList);
             rl.addRPNewMarkersAllGoals(reusePoint.source());
         } else {
-            while ((g = goalChooser.getNextGoal()) != null) {
+            while ( ( g = goalChooser.getNextGoal () ) != null ) {
+                
                 app = g.getRuleAppManager().next();
 
-                if (app == null)
+                if (app == null) {
+                    if (medi.getProof().getSettings().getStrategySettings()
+                            .getActiveStrategyProperties().getProperty(
+                                    StrategyProperties.STOPMODE_OPTIONS_KEY)
+                            .equals(StrategyProperties.STOPMODE_NONCLOSE)) {
+                        // iff Stop on non-closeable Goal is selected a little
+                        // popup is generated and proof is stopped
+                        JOptionPane pane = new JOptionPane(
+                                "Couldn't close Goal Nr. "
+                                        + g.node().serialNr()
+                                        + " automatically",
+                                JOptionPane.INFORMATION_MESSAGE,
+                                JOptionPane.DEFAULT_OPTION);
+                        JDialog dialog = pane.createDialog(medi.mainFrame(),
+                                "The KeY Project");
+                        dialog.setVisible(true);
+			medi.goalChosen(g);
+			return false;
+                    }
                     goalChooser.removeGoal(g);
-                else
+                }else
                     break;
             }
             if (app == null)
@@ -170,12 +200,10 @@ public class ApplyStrategy {
     }
 
     /**
-     * returns if the maximum number of rule applications or the timeout has
-     * been reached
-     * 
-     * @return true if automatic rule application shall be stopped because the
-     *         maximal number of rules have been applied or the time out has
-     *         been reached
+     * returns if the maximum number of rule applications or
+     * the timeout has been reached
+     * @return true if automatic rule application shall be stopped because the maximal
+     * number of rules have been applied or the time out has been reached
      */
     private boolean maxRuleApplicationOrTimeoutExceeded() {
         return countApplied >= maxApplications || 
@@ -209,8 +237,23 @@ public class ApplyStrategy {
         this.proof = proof;
         maxApplications = maxSteps;
         this.timeout = timeout;
-        countApplied = 0;
-        goalChooser.init(proof, goals);
+        countApplied = 0; 
+        StrategySettings sSettings =medi.getProof().getSettings().getStrategySettings();
+        if(!(sSettings.getStrategy().toString().equals(VBTStrategy.VBTStrategy))){
+            if(usedCoalChooserOptionsKey.compareTo(sSettings.getActiveStrategyProperties().getProperty(StrategyProperties.GOALCHOOSER_OPTIONS_KEY))!=0){
+            	usedCoalChooserOptionsKey = sSettings.getActiveStrategyProperties().getProperty(StrategyProperties.GOALCHOOSER_OPTIONS_KEY);
+            	if(usedCoalChooserOptionsKey.equals(StrategyProperties.GOALCHOOSER_DEFAULT)){
+            		medi.getProfile().setSelectedGoalChooserBuilder(DefaultGoalChooserBuilder.NAME);
+            	}else if(usedCoalChooserOptionsKey.equals(StrategyProperties.GOALCHOOSER_DEPTH)){
+            		medi.getProfile().setSelectedGoalChooserBuilder(DepthFirstGoalChooserBuilder.NAME);
+            	}
+            }
+    	}else if(sSettings.getStrategy().toString().equals(VBTStrategy.VBTStrategy)){
+    	    medi.getProfile().setSelectedGoalChooserBuilder(VBTStrategy.preferedGoalChooser);
+    	}
+	this.goalChooser = medi.getProfile().getSelectedGoalChooserBuilder().create();//Use this independently of StrategyProperties.GOALCHOOSER_OPTIONS_KEY
+
+        goalChooser.init ( proof, goals );
         setAutoModeActive(true);
         startedAsInteractive = !mediator().autoMode();
         if (startedAsInteractive) {
@@ -239,7 +282,9 @@ public class ApplyStrategy {
      */
     public void stop() {
         abortAutomode = true;
-        worker.interrupt();
+        if(worker!=null){
+        	worker.interrupt();
+		}
         AutomodeListener.aborted = true;
     }
     
@@ -283,17 +328,29 @@ public class ApplyStrategy {
                         new GeneralFailureEvent("An exception occurred during"
                                 + " strategy execution.\n" + result.toString()));
             } else {
-                if (startedAsInteractive)
-                    mediator().startInterface(true);
+                if (startedAsInteractive){
+                    if (medi.getProof().getSettings().getStrategySettings()
+			.getActiveStrategyProperties().getProperty(
+			       StrategyProperties.STOPMODE_OPTIONS_KEY)
+			.equals(StrategyProperties.STOPMODE_NONCLOSE)){
+			Goal g = mediator().getSelectedGoal();
+			mediator().startInterface(true);
+			if(g != null) {
+			    mediator().goalChosen(g);
+			}
+		    }else{
+			mediator().startInterface(true);
+		    }
+		}
             }
-
+            proof.addAutoModeTime(time);
             fireTaskFinished (new DefaultTaskFinishedInfo(ApplyStrategy.this, result, 
                     proof, time, 
                     countApplied, mediator().getNrGoalsClosedByAutoMode()));	  
-            
+
             mediator().resetNrGoalsClosedByHeuristics();
             
-            mediator().setInteractive( true );            
+            mediator().setInteractive( true );  
         }
     }
 
@@ -333,4 +390,14 @@ public class ApplyStrategy {
         this.autoModeActive = autoModeActive;
     }
 
+    /**Used by, e.g., {@code InteractiveProver.clear()} in order to prevent memory leaking. 
+     * When a proof obligation is abandoned all references to the proof must be reset.
+     * @author gladisch */
+    public void clear(){
+        stop();
+        proof = null;
+        if(goalChooser!=null){
+            goalChooser.init(null, SLListOfGoal.EMPTY_LIST);
+        }
+    }
 }

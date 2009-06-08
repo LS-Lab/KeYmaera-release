@@ -1,5 +1,5 @@
 // This file is part of KeY - Integrated Deductive Software Design
-// Copyright (C) 2001-2005 Universitaet Karlsruhe, Germany
+// Copyright (C) 2001-2009 Universitaet Karlsruhe, Germany
 //                         Universitaet Koblenz-Landau, Germany
 //                         Chalmers University of Technology, Sweden
 //
@@ -51,24 +51,24 @@ public class GenericParser {
      * a dependency of SetOfString
      */
     public static String[][] dep={
-	{"HashMapFrom<S>To<T>.gjava","IteratorOf%1.java"},//,"IteratorOf%2.java"},
-	{"ListOf<T>.gjava","IteratorOf%1.java"},
-	{"SLListOf<T>.gjava","ListOf%1.java"},	
-	{"SetOf<T>.gjava"},
-	{"SetAsListOf<T>.gjava","SetOf%1.java","SLListOf%1.java"},
-	{"IteratorOf<T>.gjava"},
-	{"MapFrom<S>To<T>.gjava"},
-	{"EntryOf<S>And<T>.gjava"},
-	{"MapAsListFrom<S>To<T>.gjava","MapFrom%1To%2.java",
+	{"HashMapFrom(S)To(T).gjava","IteratorOf%1.java"},//,"IteratorOf%2.java"},
+	{"ListOf(T).gjava","IteratorOf%1.java"},
+	{"SLListOf(T).gjava","ListOf%1.java"},	
+	{"SetOf(T).gjava"},
+	{"SetAsListOf(T).gjava","SetOf%1.java","SLListOf%1.java"},
+	{"IteratorOf(T).gjava"},
+	{"MapFrom(S)To(T).gjava"},
+	{"EntryOf(S)And(T).gjava"},
+	{"MapAsListFrom(S)To(T).gjava","MapFrom%1To%2.java",
 	 "SLListOfEntryOf%1And%2.java", 
 	 "EntryOf%1And%2.java",//"SLListOf%1.java","SLListOf%2.java", disabled 
 	                       // because of distributed packages
 	 "IteratorOfEntryOf%1And%2.java"},
-	{"ArrayOf<S>.gjava"},
-	{"VectorOf<T>.gjava","IteratorOf%1.java"},
-	{"HeapOf<T>.gjava","IteratorOf%1.java"},
-	{"LeftistHeapOf<T>.gjava","HeapOf%1.java"},
-	{"SimpleStackOf<T>.gjava","IteratorOf%1.java"}
+	{"ArrayOf(S).gjava"},
+	{"VectorOf(T).gjava","IteratorOf%1.java"},
+	{"HeapOf(T).gjava","IteratorOf%1.java"},
+	{"LeftistHeapOf(T).gjava","HeapOf%1.java"},
+	{"SimpleStackOf(T).gjava","IteratorOf%1.java"}
     };
     
     public static String generatedSrcPath;
@@ -148,21 +148,21 @@ public class GenericParser {
 	if (t.id()==-1) { // no generic file
 	    return "";
 	} 
-	// first get rule
 	String tmpPath = path+t.toString()+".java";
- 	String makeStr=tmpPath+": "+generatedSrcPath+tmpPath+";\n";
- 	makeStr+=generatedSrcPath+path+makeRule(t.toString(),dependencies(t,path));
-	if (!ruleSet.contains(path+t.toString()+".java")) {
-	    ruleSet.add(path+t.toString()+".java");
+	// handle special extension of ArrayOf (delete Ext...)
+	String fileName=t.toString();
+	if (t.id()==matchGenClass("ArrayOf")) {
+	    fileName=fileName.substring(0,fileName.indexOf("Ext"));
+	}
+ 	String makeStr=tmpPath+": "+generatedSrcPath+path+fileName+".java;\n";
+	// first get rule
+ 	makeStr+=generatedSrcPath+path+makeRule(fileName,dependencies(t,path));
+	if (!ruleSet.contains(tmpPath)) {
+	    ruleSet.add(tmpPath);
 	    // append make generic action
 	    makeStr+="\n"+makeAction(t,path)+"\n";
 	    // append move name of created .java file to compileListFileName
 
-	    // handle special extension of ArrayOf (delete Ext...)
-	    String fileName=t.toString();
-	    if (t.id()==matchGenClass("ArrayOf")) {
-		fileName=fileName.substring(0,fileName.indexOf("Ext"));
-	    }
 	    if (path.startsWith("./")) {
 		path = path.substring(2);
 	    }
@@ -221,8 +221,8 @@ public class GenericParser {
 // 	}
 
 	// the char < has to be declared as \<
-	replaceAll(action,"<","\\<");
-	replaceAll(action,">","\\>");	
+	replaceAll(action,"(","\\(");
+	replaceAll(action,")","\\)");	
 	
 	return action.toString();
     }

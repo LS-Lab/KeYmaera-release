@@ -1,5 +1,5 @@
 // This file is part of KeY - Integrated Deductive Software Design
-// Copyright (C) 2001-2005 Universitaet Karlsruhe, Germany
+// Copyright (C) 2001-2009 Universitaet Karlsruhe, Germany
 //                         Universitaet Koblenz-Landau, Germany
 //                         Chalmers University of Technology, Sweden
 //
@@ -162,7 +162,7 @@ public class TacletIndex  {
 	ListOfNoPosTacletApp opList = map.get(op);	
 	if (opList != null) {
 	    opList = opList.removeAll(tacletApp);
-	    if (opList == SLListOfNoPosTacletApp.EMPTY_LIST) {
+	    if (opList.isEmpty()) {
 		map.remove(op);
 	    } else {
 		map.put(op, opList);

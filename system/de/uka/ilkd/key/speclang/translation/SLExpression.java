@@ -1,5 +1,5 @@
 // This file is part of KeY - Integrated Deductive Software Design
-// Copyright (C) 2001-2005 Universitaet Karlsruhe, Germany
+// Copyright (C) 2001-2009 Universitaet Karlsruhe, Germany
 //                         Universitaet Koblenz-Landau, Germany
 //                         Chalmers University of Technology, Sweden
 //
@@ -14,6 +14,7 @@ import de.uka.ilkd.key.java.abstraction.KeYJavaType;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.sort.Sort;
 import de.uka.ilkd.key.util.Debug;
+
 
 /**
  *  This class represents an expression of an arbitrary specification language.
