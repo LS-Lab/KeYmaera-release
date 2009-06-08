@@ -89,7 +89,7 @@ public class StrategySettings implements Settings {
         String timeoutString = props.getProperty(TIMEOUT_KEY);
     
         long localTimeout = -1;
-        int numSteps = 1000;
+        int numSteps = 2000;
     
         if (numString != null){
             try {
@@ -97,7 +97,7 @@ public class StrategySettings implements Settings {
             } catch(NumberFormatException e) { 
                 Debug.out("StrategySettings: failure while converting the string "+
                           "with the allowed steps of heuristics applications to int."+
-                          "Use default value 1000 instead."+
+                          "Use default value 2000 instead."+
                           "\nThe String that has been tried to convert was", numString);
             }
         }
@@ -135,7 +135,7 @@ public class StrategySettings implements Settings {
 	    setStrategy(SimpleJavaCardDLOptions.LOOPS_METHODS.name());
 	}
 	if (maxSteps<0) {
-	    setMaxSteps(1000);
+	    setMaxSteps(2000);
 	}
         props.setProperty(STRATEGY_KEY, getStrategy().toString());
         props.setProperty(STEPS_KEY,  String.valueOf(getMaxSteps()));

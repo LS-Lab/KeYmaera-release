@@ -502,7 +502,8 @@ public class KeYMediator {
         
 	RuleApp app = set.iterator().next();
 	if (app != null && app.rule() == rule) {
-	    goal.apply(app);
+//	    goal.apply(app);
+		applyInteractive(app, goal);
 	    return;
 	}
     }

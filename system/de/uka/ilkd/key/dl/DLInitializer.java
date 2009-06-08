@@ -55,6 +55,7 @@ import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
 import de.uka.ilkd.key.dl.arithmetics.abort.AbortBridge;
 import de.uka.ilkd.key.dl.arithmetics.abort.ServerConsole;
 import de.uka.ilkd.key.dl.arithmetics.impl.mathematica.KernelLinkWrapper;
+import de.uka.ilkd.key.dl.arithmetics.impl.mathematica.Options;
 import de.uka.ilkd.key.dl.gui.AutomodeListener;
 import de.uka.ilkd.key.dl.gui.TimeStatisticGenerator;
 import de.uka.ilkd.key.dl.options.DLOptionBean;
@@ -193,30 +194,50 @@ public class DLInitializer {
 			ProofSettings.DEFAULT_SETTINGS.setProfile(new DLProfile());
 			// call something in the MathSolverManager to force initialization
 			MathSolverManager.getQuantifierEliminators();
-			try {
-				// We just call a method to check if the server is alive
-				ISimplifier simplifier = MathSolverManager
-						.getSimplifier("Mathematica");
-				if (simplifier != null) {
-					simplifier.getQueryCount();
-				}
-			} catch (RemoteException e1) {
-				try {
-					KernelLinkWrapper.main(new String[0]);
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-			if (MathSolverManager.getQuantifierEliminators().isEmpty()) {
-				for (Settings s : DLOptionBean.INSTANCE.getSubOptions()) {
-					if (s == de.uka.ilkd.key.dl.arithmetics.impl.qepcad.Options.INSTANCE) {
-						new CustomizerViewController(Main.getInstance())
-								.showCustomizer(s, "QepCad Options");
+			// try {
+			// // We just call a method to check if the server is alive
+			// ISimplifier simplifier = MathSolverManager
+			// .getSimplifier("Mathematica");
+			// if (simplifier != null) {
+			// simplifier.getQueryCount();
+			// }
+			// } catch (RemoteException e1) {
+			// try {
+			// KernelLinkWrapper.main(new String[0]);
+			// } catch (IOException e) {
+			// // TODO Auto-generated catch block
+			// e.printStackTrace();
+			// }
+			// }
+			for (Settings s : DLOptionBean.INSTANCE.getSubOptions()) {
+				if (s == de.uka.ilkd.key.dl.arithmetics.impl.mathematica.Options.INSTANCE
+						&& !de.uka.ilkd.key.dl.arithmetics.impl.mathematica.Options.INSTANCE
+								.getMathKernel().isFile()) {
+					new CustomizerViewController(Main.getInstance())
+							.showCustomizer(s, "Mathematica Options");
 
-					}
+				} else if (s == de.uka.ilkd.key.dl.arithmetics.impl.qepcad.Options.INSTANCE
+						&& !de.uka.ilkd.key.dl.arithmetics.impl.qepcad.Options.INSTANCE
+								.getQepcadBinary().isFile()) {
+					new CustomizerViewController(Main.getInstance())
+							.showCustomizer(s, "QepCad Options");
+				} else if (s == de.uka.ilkd.key.dl.arithmetics.impl.reduce.Options.INSTANCE
+						&& !de.uka.ilkd.key.dl.arithmetics.impl.reduce.Options.INSTANCE
+								.getReduceBinary().isFile()) {
+					new CustomizerViewController(Main.getInstance())
+							.showCustomizer(s, "Redlog Options");
 				}
 			}
+			// if (MathSolverManager.getQuantifierEliminators().isEmpty()) {
+			// for (Settings s : DLOptionBean.INSTANCE.getSubOptions()) {
+			// if (s ==
+			// de.uka.ilkd.key.dl.arithmetics.impl.qepcad.Options.INSTANCE) {
+			// new CustomizerViewController(Main.getInstance())
+			// .showCustomizer(s, "QepCad Options");
+			//
+			// }
+			// }
+			// }
 			try {
 				customizerPane = new JTabbedPane(JTabbedPane.BOTTOM);
 				customizerPane
@@ -226,7 +247,7 @@ public class DLInitializer {
 
 				SwingUtilities.invokeAndWait(new Runnable() {
 
-					/*@Override*/
+					/* @Override */
 					public void run() {
 						Main.getInstance().addTab("Hybrid Strategy",
 								customizerPane,
@@ -264,13 +285,13 @@ public class DLInitializer {
 					new AutoModeListener() {
 
 						public void autoModeStarted(ProofEvent e) {
-							Main.autoModeAction.setEnabled(false);
+							//Main.autoModeAction.setEnabled(false);
 						}
 
 						public void autoModeStopped(ProofEvent e) {
 							MathSolverManager.resetAbortState();
 
-							Main.autoModeAction.enable();
+							//Main.autoModeAction.enable();
 						}
 
 					});
@@ -331,7 +352,7 @@ public class DLInitializer {
 		customizers.put(customizer, DLOptionBean.INSTANCE);
 		SettingsListener l = new SettingsListener() {
 
-			/*@Override*/
+			/* @Override */
 			public void settingsChanged(GUIEvent e) {
 				try {
 					updateCustomizers();

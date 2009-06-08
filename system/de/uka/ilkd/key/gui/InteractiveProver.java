@@ -61,6 +61,8 @@ public class InteractiveProver {
     
     private boolean resumeAutoMode = false;
 
+	private ApplyThread applyInteractiveThread;
+
  
     //private static Logger threadLogger = Logger.getLogger("key.threading");
     
@@ -149,14 +151,14 @@ public class InteractiveProver {
     public void applyInteractive ( RuleApp app, final Goal goal ) {
         goal.node().getNodeInfo().setInteractiveRuleApplication(true);
         
-        final ApplyThread thread = new ApplyThread( app, goal );
+        applyInteractiveThread = new ApplyThread( app, goal );
 
-        thread.addThreadListener( new ThreadListenerAdapter() {
+        applyInteractiveThread.addThreadListener( new ThreadListenerAdapter() {
             
             @Override
             public void threadFinished(IThreadSender sender) {
                 
-                ListOfGoal goalList = thread.getListOfGoal();
+                ListOfGoal goalList = applyInteractiveThread.getListOfGoal();
                 
                 if (!getProof ().closed ()) {
                     if ( resumeAutoMode () ) {
@@ -173,12 +175,13 @@ public class InteractiveProver {
                         }
                     }
                 }
+                Main.getInstance().unfreezeExceptAutoModeButton();
                 System.out.println("THREAD FINISHED");
             }
             
         });
-        
-        thread.start();
+        Main.getInstance().freezeExceptAutoModeButton();
+        applyInteractiveThread.start();
         System.out.println("THREAD STARTED!");
     }
 
@@ -240,6 +243,10 @@ public class InteractiveProver {
     /** stops the execution of rules */
     public void stopAutoMode () {
         applyStrategy.stop();
+        if(applyInteractiveThread != null) {
+        	applyInteractiveThread.interrupt();
+        }
+        Main.getInstance().unfreezeExceptAutoModeButton();
     }
     
     /**

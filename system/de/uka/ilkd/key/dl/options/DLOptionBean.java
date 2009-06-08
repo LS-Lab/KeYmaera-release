@@ -385,8 +385,8 @@ public class DLOptionBean implements Settings {
 		applyGlobalReduce = true;
 		usePowersetIterativeReduce = true;
 		percentOfPowersetForReduce = 70;
-		builtInArithmetic = BuiltInArithmetic.OFF;
-		builtInArithmeticIneqs = BuiltInArithmeticIneqs.OFF;
+		builtInArithmetic = BuiltInArithmetic.FULL;
+		builtInArithmeticIneqs = BuiltInArithmeticIneqs.FOURIER_MOTZKIN;
 		useSOS = false;
 		csdpBinary = new File("/usr/bin/csdp");
 		csdpForceInternal = false;
