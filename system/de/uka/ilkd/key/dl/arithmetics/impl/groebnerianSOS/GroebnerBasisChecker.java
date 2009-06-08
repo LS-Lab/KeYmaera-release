@@ -78,11 +78,14 @@ import de.uka.ilkd.key.logic.op.TermSymbol;
  */
 public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 
-	private final ValueFactory vf = Values.getDefault();
+	private ValueFactory vf;
 	private static final Comparator monomialOrder = AlgebraicAlgorithms.DEGREE_REVERSE_LEXICOGRAPHIC;
 
 	public boolean checkForConstantGroebnerBasis(
 			PolynomialClassification<Term> terms, Services services) {
+		// we need to get a new value factory here... the options might be
+		// changed so that we cannot use the initial one.
+		vf = Values.getDefault();
 		final Set<Polynomial> rawPolys = extractPolynomials(terms);
 		System.out.println("Polynomials are: ");
 		printPolys(rawPolys);
@@ -548,6 +551,7 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 		System.out.println("equations: " + equations);
 		final PolynomialClassification<Term> equationsOnly = new PolynomialClassification<Term>(
 				new HashSet<Term>(), new HashSet<Term>(), equations);
+		//TODO: the SumOfSquaresChecker might use another ValueFactory... this might cause trouble
 		return SumOfSquaresChecker.classify(equationsOnly).h;
 	}
 
