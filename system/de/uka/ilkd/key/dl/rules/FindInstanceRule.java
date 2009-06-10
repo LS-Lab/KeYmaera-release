@@ -131,6 +131,7 @@ public class FindInstanceRule extends Visitor implements BuiltInRule,
 
                         public void actionPerformed(ActionEvent arg0) {
                             frame.setVisible(false);
+							frame.dispose();
                         }
 
                     });
