@@ -11,6 +11,19 @@
 		<description>Magnetic field example provable with Groebner Basis backend.</description>
 	</example>
 	<example>
+		<name>Simple Roundabout</name>
+		<path>/examples/hybrid/ATC/roundabout/TRM-essentials.key</path>
+		<description>Essentials of the TRM case study. Please note, that this is the simplest possible version of the safety requirement for the TRM. The verification of the TRM system itself requires a much more advanced model.</description>
+		<img 
+			href="http://symbolaris.com/info/fig-tangential-roundabout.png"/>
+		<requirements>
+			<some>
+				<quantifiereliminator>Reduce</quantifiereliminator>
+				<quantifiereliminator>Mathematica</quantifiereliminator>
+			</some>
+		</requirements>
+	</example>
+	<example>
 		<name>Simple ETCS</name>
 		<path>/examples/hybrid/ETCS/safety/ETCS-simple.key</path>
 		<description>Essentials of the ETCS case study. Please note, that this is the simplest possible version of the safety requirement for the ETCS. The verification of the ETCS system itself requires a much more advanced model.</description>
