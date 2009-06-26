@@ -35,7 +35,7 @@
 [DLOptions]diffSatTimeout=20000
 [DLOptions]linearTimeoutIncreaseFactor=2
 [ReduceOptions]rlqesqsc=DEFAULT
-[QepcadOptions]qepcadPath=/home/jdq/local/src/qepcad/qesource
+[QepcadOptions]qepcadPath=/home/user/jdq/space/local/zola/local/src/qepcad/qesource
 [General]SoundNotification=false
 [Choice]DefaultChoices=throughout-throughout\:toutOn , transactions-transactions\:transactionsOn , intRules-intRules\:arithmeticSemanticsIgnoringOF , programRules-programRules\:Java , transactionAbort-transactionAbort\:abortOn , nullPointerPolicy-nullPointerPolicy\:nullCheck , javacard-javacard\:jcOff
 [ReduceOptions]rlcadextonly=DEFAULT
@@ -48,7 +48,7 @@
 [View]MaxTooltipLines=40
 [General]StupidMode=true
 [DLOptions]constantTimeoutIncreaseFactor=0
-[QepcadOptions]saclibPath=/home/jdq/local/src/qepcad/saclib2.2.0
+[QepcadOptions]saclibPath=/home/user/jdq/space/local/zola/local/src/qepcad/saclib2.2.0
 [StrategyProperty]METHOD_OPTIONS_KEY=METHOD_EXPAND
 [DLOptions]loopSatTimeout=2000000
 [DLOptions]odeSolver=Mathematica

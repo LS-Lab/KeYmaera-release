@@ -22,6 +22,7 @@
  */
 package de.uka.ilkd.key.dl.arithmetics.impl.mathematica;
 
+import java.io.IOException;
 import java.math.BigInteger;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
@@ -42,6 +43,8 @@ import javax.swing.SwingUtilities;
 import com.wolfram.jlink.Expr;
 import com.wolfram.jlink.ExprFormatException;
 
+import de.uka.ilkd.key.dl.arithmetics.ISimplifier;
+import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
 import de.uka.ilkd.key.dl.arithmetics.IODESolver.ODESolverResult;
 import de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator.PairOfTermAndQuantifierType;
 import de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator.QuantifierType;
@@ -159,7 +162,26 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 	}
 
 	private IKernelLinkWrapper getKernelWrapper() throws RemoteException {
-		if (kernelWrapper == null) {
+		if (kernelWrapper == null || !Options.INSTANCE.getMathKernel().isFile()) {
+//			try {
+//				// We just call a method to check if the server is alive
+//				ISimplifier simplifier = MathSolverManager
+//						.getSimplifier("Mathematica");
+//				if (simplifier != null) {
+//					simplifier.getQueryCount();
+//				}
+//			} catch (RemoteException e1) {
+				try {
+					KernelLinkWrapper.main(new String[] {
+							"--mathcall",
+							"-linkmode launch -linkname '"
+									+ Options.INSTANCE.getMathKernel()
+									+ " -mathlink'" });
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+//			}
 			Registry reg = LocateRegistry.getRegistry(serverIP, port);
 			try {
 				kernelWrapper = (IKernelLinkWrapper) reg
@@ -807,7 +829,8 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 		for (Term t : terms.g) {
 			Expr left = Term2ExprConverter.convert2Expr(t.sub(0));
 			try {
-				if(simplify(t, new HashSet<Term>(), services.getNamespaces()).equals(TermBuilder.DF.ff())) {
+				if (simplify(t, new HashSet<Term>(), services.getNamespaces())
+						.equals(TermBuilder.DF.ff())) {
 					// found a contradiction of the form 0 != 0
 					return true;
 				}

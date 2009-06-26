@@ -341,7 +341,6 @@ public class Main extends JFrame implements IMain {
         super(title);
         setIconImage(IconFactory.keyLogo());
         setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-        configureLogger();
         proofListener = new MainProofListener();
         guiListener = new MainGUIListener();
         constraintListener = new MainConstraintTableListener();
@@ -940,7 +939,8 @@ public class Main extends JFrame implements IMain {
     public void freezeExceptAutoModeButton() {
         if (!frozen) {
             frozen = true;
-            
+
+            autoModeAction.setStopIcon();
             Component glassPane = new BlockingGlassPane(getContentPane());
             setGlassPane(glassPane);
             glassPane.setVisible(true);
@@ -949,6 +949,7 @@ public class Main extends JFrame implements IMain {
     
     public void unfreezeExceptAutoModeButton() {
         if (frozen) {
+        	autoModeAction.setStartIcon();
             getGlassPane().setVisible(false);
             frozen = false;
         }
@@ -2451,10 +2452,11 @@ public class Main extends JFrame implements IMain {
             
             statPrinter.print ( fileName + ", " );
             if ("Error".equals ( result ) )
-                statPrinter.println ( "-1, -1" );
+                statPrinter.print ( "-1, -1" );
             else
-                statPrinter.println ( "" + appliedRules + ", " + time );
+                statPrinter.print ( "" + appliedRules + ", " + time );
             TimeStatisticGenerator.INSTANCE.print(statPrinter);
+            statPrinter.println();
             statPrinter.close();
         } catch ( IOException e ) {}
     }
@@ -3120,6 +3122,14 @@ public class Main extends JFrame implements IMain {
             setEnabled(associatedProof != null && !associatedProof.closed());            
         }
         
+        public void setStopIcon() {
+        	putValue(Action.SMALL_ICON, stopLogo);
+        }
+
+        public void setStartIcon() {
+        	putValue(Action.SMALL_ICON, startLogo);
+        }
+        
         public AutoModeAction() {
             putValue("hideActionText", Boolean.TRUE);
             putValue(Action.SHORT_DESCRIPTION, AUTO_MODE_TEXT);
@@ -3220,6 +3230,7 @@ public class Main extends JFrame implements IMain {
         // does no harm on non macs
         System.setProperty("apple.laf.useScreenMenuBar","true"); 
  	
+        configureLogger();
         Main.evaluateOptions(args);        
  	Main key = getInstance(visible);   
  	key.loadCommandLineFile();

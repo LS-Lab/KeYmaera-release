@@ -3506,7 +3506,7 @@ public class PrettyPrinter {
         writeElement(p.getChildAt(0));
 
         for (int i = 0; i < p.getOrder(); i++) {
-            write("`");
+            write("\'");
         }
 
         markEnd(0, p);
