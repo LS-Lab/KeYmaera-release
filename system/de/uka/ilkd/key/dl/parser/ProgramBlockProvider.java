@@ -90,7 +90,11 @@ public class ProgramBlockProvider implements
                 message += "\nwhile reading token: " + e.token.getText(); 
             }
             throw new IllegalStateException("Parse error: " + message
-                    + "\nwhile parsing: " + programBlock, e);
+                    + "\nwhile parsing program: " + programBlock, e);
+        } catch (IllegalStateException e) {
+            String message = e.getMessage();
+            throw new IllegalStateException(message
+                    + "\nwhile parsing program: " + programBlock, e);
         }
 
     }
