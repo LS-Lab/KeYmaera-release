@@ -92,6 +92,12 @@ public class WebstartWizard {
 		// Main.main(newArgs);
 		InputStream resourceAsStream = MainFrame.class
 				.getResourceAsStream("/examples/hybrid/groebner_basis/magnetic_field.key");
+		if (resourceAsStream == null) {
+			String[] newArgs = new String[args.length + 1];
+			System.arraycopy(args, 0, newArgs, 0, args.length);
+			newArgs[args.length] = "dL";
+			Main.main(newArgs);
+		} else
 		try {
 			File tempFile = File.createTempFile("magnetic_field", ".key");
 			tempFile.deleteOnExit();
