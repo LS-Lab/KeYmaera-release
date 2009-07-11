@@ -1,8 +1,13 @@
 /**
-	* @(#)MathLinkTest.java 1.0 2009-07-10 Andre Platzer
-	* 
-	* Copyright (c) 2009 Andre Platzer. All Rights Reserved.
-	*/
+ * Compile in key directory using:
+ *   javac -classpath /Applications/Mathematica.app/SystemFiles/Links/JLink/JLink.jar  -d system/binary/ system/de/uka/ilkd/key/dl/arithmetics/impl/mathematica/MathLinkTest.java
+ * 	Call in key directory using:
+ *   java -classpath system/binary:/Applications/Mathematica.app/SystemFiles/Links/JLink/JLink.jar -Dcom.wolfram.jlink.libdir=/Applications/Mathematica.app/SystemFiles/Links/JLink/SystemFiles/Libraries/MacOSX -Dcom.wolfram.jlink.kernel=/Applications/Mathematica.app/Contents/MacOS/MathKernel de.uka.ilkd.key.dl.arithmetics.impl.mathematica.MathLinkTest
+ *
+ * @(#)MathLinkTest.java 1.0 2009-07-10 Andre Platzer
+ * 
+ * Copyright (c) 2009 Andre Platzer. All Rights Reserved.
+ */
 
 package de.uka.ilkd.key.dl.arithmetics.impl.mathematica;
 
