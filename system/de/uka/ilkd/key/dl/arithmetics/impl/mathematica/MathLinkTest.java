@@ -19,8 +19,13 @@ import javax.swing.JOptionPane;
  * @author  Andr&eacute; Platzer
  */
 public class MathLinkTest {
+	private static final String usage = "\nCall in key directory using:\n"
+	+ "java -classpath system/binary:/Applications/Mathematica.app/SystemFiles/Links/JLink/JLink.jar -Dcom.wolfram.jlink.libdir=/Applications/Mathematica.app/SystemFiles/Links/JLink/SystemFiles/Libraries/MacOSX -Dcom.wolfram.jlink.kernel=/Applications/Mathematica.app/Contents/MacOS/MathKernel de.uka.ilkd.key.dl.arithmetics.impl.mathematica.MathLinkTest\n"
+    + "Be sure to set all those paths according to your system installation and platform";
 	public static void main(String[] argv) throws Exception {
 		System.out.println("MathLinkTest");
+		System.out.println("Usage: " + usage);
+		System.out.println();
 		System.out.println("Java Classpath =\t" + System.getProperty("java.class.path"));
 		System.out.println("... needs to contain JLink.jar");
 		System.out.println("JLink native:");
