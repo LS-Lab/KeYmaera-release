@@ -78,8 +78,14 @@ public class TimeoutTestApplicationFeature implements Feature {
 			return TopRuleAppCost.INSTANCE;
 		} else {
 			Long timeout = getLastTimeout(firstNodeAfterBranch);
+			if (timeout != null && timeout < 0 ) {
+			    throw new IllegalStateException("Negative Timeout " + timeout + " from last timeout " + " for " + app + " in " + goal);
+			}
 			if (timeout == null) {
 				timeout = DLOptionBean.INSTANCE.getInitialTimeout();
+				if (timeout != null && timeout < 0 ) {
+				    throw new IllegalStateException("Negative Timeout " + timeout + " from initial timeout " + " for " + app + " in " + goal);
+				}
 			} else {
 				final int a = DLOptionBean.INSTANCE
 						.getQuadraticTimeoutIncreaseFactor();
@@ -87,7 +93,11 @@ public class TimeoutTestApplicationFeature implements Feature {
 						.getLinearTimeoutIncreaseFactor();
 				final int c = DLOptionBean.INSTANCE
 						.getConstantTimeoutIncreaseFactor();
+				final Long lasttimeout = timeout;
 				timeout = a * timeout * timeout + b * timeout + c;
+				if (timeout != null && timeout < 0 ) {
+				    throw new IllegalStateException("Negative Timeout " + timeout + " = " + " from lasttimeout " + lasttimeout + " = " + a +"*" + timeout + "^2" + "+ " + b + "*" + timeout + "+ " + c + " for " + app + " in " + goal);
+				}
 			}
 			branchingNodesAlreadyTested.put(firstNodeAfterBranch, timeout);
 
