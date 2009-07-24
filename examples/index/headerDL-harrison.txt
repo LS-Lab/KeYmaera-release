@@ -73,7 +73,7 @@
 [ReduceOptions]rlcadhongproj=DEFAULT
 [MathematicaOptions]memoryConstraint=-1
 [ReduceOptions]rlcadtrimtree=DEFAULT
-[DLOptions]groebnerBasisCalculator=Mathematica
+[DLOptions]groebnerBasisCalculator=Groebnerian SOS
 [ReduceOptions]rlcadfac=DEFAULT
 [Strategy]Timeout=-1
 [OrbitalOptions]representation=big
@@ -100,8 +100,12 @@
 [DLOptions]applyLocalReduce=OFF
 [DLOptions]applyLocalSimplify=false
 [DLOptions]applyGlobalReduce=true
-[DLOptions]quantifierEliminator=Reduce
+[DLOptions]quantifierEliminator=HOL Light
 [OrbitalOptions]sparsePolynomials=true
 [DLOptions]useSOS=false
+[HOLLightOptions]ocamlPath=/usr/bin/ocaml
+[HOLLightOptions]hollightPath=/home/user/jdq/space/local/hol_light
+[HOLLightOptions]qeMethod=Harrison
+[HOLLightOptions]harrisonqePath=/home/user/jdq/space/local/OCaml
 "
 }
