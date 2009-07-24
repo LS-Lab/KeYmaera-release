@@ -95,6 +95,11 @@ public class TimeoutTestApplicationFeature implements Feature {
 						.getConstantTimeoutIncreaseFactor();
 				final Long lasttimeout = timeout;
 				timeout = a * timeout * timeout + b * timeout + c;
+				if (lasttimeout != null && lasttimeout > 0 && timeout < 0) {
+				    // long arithmetic overflow?
+				    // fix by setting to 0 which means indefinitely
+				    timeout = 0L;
+				}
 				if (timeout != null && timeout < 0 ) {
 				    throw new IllegalStateException("Negative Timeout " + timeout + " = " + " from lasttimeout " + lasttimeout + " = " + a +"*" + timeout + "^2" + "+ " + b + "*" + timeout + "+ " + c + " for " + app + " in " + goal);
 				}
