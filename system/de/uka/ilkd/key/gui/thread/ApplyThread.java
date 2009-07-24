@@ -48,9 +48,16 @@ public class ApplyThread implements Runnable, IThreadSender {
     
     @Override
     public void run() {
+	
         signalThreadStarted();
 
-        goals = goal.apply(app);
+        try {
+            goals = goal.apply(app);
+        } 
+        catch( Exception e ) {
+            signalThreadException(e);
+            return;
+        }
         
         signalThreadFinished();
     }
@@ -77,6 +84,17 @@ public class ApplyThread implements Runnable, IThreadSender {
             synchronized( listeners ) {
                 listeners.remove(listener);
             }
+        }
+    }
+    
+    private void signalThreadException( Exception ex ) {
+        if( listeners.isEmpty() )
+            return;
+        
+        synchronized( listeners ) {
+            for( IThreadListener listener : listeners ) 
+                if( listener != null )
+                    listener.threadException(this, ex);
         }
     }
     

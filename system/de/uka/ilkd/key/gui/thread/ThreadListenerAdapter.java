@@ -11,4 +11,7 @@ public class ThreadListenerAdapter implements IThreadListener {
     @Override
     public void threadInterrupted(IThreadSender sender) {}
 
+    @Override
+    public void threadException(IThreadSender sender, Exception ex ) {}
+
 }

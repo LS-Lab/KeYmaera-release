@@ -176,13 +176,26 @@ public class InteractiveProver {
                     }
                 }
                 Main.getInstance().unfreezeExceptAutoModeButton();
-                System.out.println("THREAD FINISHED");
+                System.out.println("InteractiveProver: THREAD FINISHED");
             }
+            
+            @Override
+            public void threadInterrupted(IThreadSender sender) {
+                System.out.println("InteractiveProver: THREAD INTERRUPTED");
+                Main.getInstance().unfreezeExceptAutoModeButton();
+           }
+            
+            @Override
+            public void threadException(IThreadSender sender, Exception ex) {
+                System.out.println("InteractiveProver: THREAD HAS EXCEPTION");
+                ex.printStackTrace();
+                Main.getInstance().unfreezeExceptAutoModeButton();
+           }
             
         });
         Main.getInstance().freezeExceptAutoModeButton();
         applyInteractiveThread.start();
-        System.out.println("THREAD STARTED!");
+        System.out.println("InteractiveProver: THREAD STARTED!");
     }
 
 
