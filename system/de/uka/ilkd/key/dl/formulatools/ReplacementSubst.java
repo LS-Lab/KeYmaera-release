@@ -13,6 +13,8 @@ package de.uka.ilkd.key.dl.formulatools;
 import java.util.Iterator;
 import java.util.Map;
 
+import de.uka.ilkd.key.dl.formulatools.collector.*;
+import de.uka.ilkd.key.dl.formulatools.collector.filter.*;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.TermFactory;
 import de.uka.ilkd.key.logic.op.*;
@@ -112,13 +114,29 @@ public class ReplacementSubst {
         	QuantifiableVariable var = varsBound.getQuantifiableVariable(k);
         	for (Iterator<Term> i = replacements.keySet().iterator(); i.hasNext(); ) {
         	    Term t = i.next();
-        	    if (t.freeVars().contains(var))
+        	    if (t.freeVars().contains(var)) {
         	        throw new UnsupportedOperationException("Quantifiers would need clash-resolving and alpha-renaming from ClashFreeSubst. Not yet implemented for quantified variable " + var + " of " + completeTerm + " @" + subtermIndex + " for replacement key " + t + " in " + this);
+				} else {
+					for(QuantifiableVariable v: t.freeVars()) {
+						if (v.name().toString().equals(var.name().toString())) {
+							throw new UnsupportedOperationException("Quantifiers would need clash-resolving and alpha-renaming from ClashFreeSubst. Not yet implemented for quantified variable " + var + " of " + completeTerm + " @" + subtermIndex + " for replacement key " + t + " in " + this);
+						}
+					}
+				}
+				assert !AllCollector.getItemSet(t).filter( new FilterVariableCollector()).getVariables().contains(var.name().toString()) : "We missed an occurrence of " + var + " in the term " + t;
         	}
         	for (Iterator<Term> i = replacements.values().iterator(); i.hasNext(); ) {
         	    Term t = i.next();
-        	    if (t.freeVars().contains(var))
+        	    if (t.freeVars().contains(var)) {
         	        throw new UnsupportedOperationException("Quantifiers would need clash-resolving and alpha-renaming from ClashFreeSubst. Not yet implemented for quantified variable " + var + " of " + completeTerm + " @" + subtermIndex + " for replacement value " + t + " in " + this);
+				} else {
+					for(QuantifiableVariable v: t.freeVars()) {
+						if (v.name().toString().equals(var.name().toString())) {
+							throw new UnsupportedOperationException("Quantifiers would need clash-resolving and alpha-renaming from ClashFreeSubst. Not yet implemented for quantified variable " + var + " of " + completeTerm + " @" + subtermIndex + " for replacement key " + t + " in " + this);
+						}
+					}
+				}
+				assert !AllCollector.getItemSet(t).filter( new FilterVariableCollector()).getVariables().contains(var.name().toString()) : "We missed an occurrence of " + var + " in the term " + t;
         	}
             }
             // fall-through to apply
