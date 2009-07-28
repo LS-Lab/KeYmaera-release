@@ -10,6 +10,7 @@
 
 package de.uka.ilkd.key.dl.formulatools;
 
+import java.util.Iterator;
 import java.util.Map;
 
 import de.uka.ilkd.key.logic.Term;
@@ -25,6 +26,13 @@ public class ReplacementSubst {
 
     private Map<Term,Term> replacements;
     
+    /**
+     * A replacement substitution, replacing every occurrence of keys in replacements
+     * by the respective value.
+     * This is only sound for wise choices of replacements.
+     * @param replacements a key-value pair (k,v) in replacements says that verbatim occurrences of
+     * k will be replaced by v.
+     */
     public static ReplacementSubst create(Map<Term,Term> replacements) {
         if (replacements.isEmpty()) {
             return new ReplacementSubst(null) {
@@ -97,12 +105,27 @@ public class ReplacementSubst {
                                    int subtermIndex,
                                    Term[] newSubterms,
                                    ArrayOfQuantifiableVariable[] newBoundVars) {
-        if ( completeTerm.varsBoundHere ( subtermIndex ).size() > 0) {
-            throw new UnsupportedOperationException("Quantifiers would need clash-resolving and alpha-renaming from ClashFreeSubst. Not yet implemented");
-        } else {
-            newBoundVars[subtermIndex] = completeTerm.varsBoundHere ( subtermIndex );
-            newSubterms[subtermIndex] = apply1(completeTerm.sub ( subtermIndex ));
+        final ArrayOfQuantifiableVariable varsBound = completeTerm.varsBoundHere ( subtermIndex );
+	if ( varsBound.size() > 0) {
+	    // check if any of the quantified variables occurs in the keys or values of the replacements
+            for (int k = 0; k < varsBound.size(); k++) {
+        	QuantifiableVariable var = varsBound.getQuantifiableVariable(k);
+        	for (Iterator<Term> i = replacements.keySet().iterator(); i.hasNext(); ) {
+        	    Term t = i.next();
+        	    if (t.freeVars().contains(var))
+        	        throw new UnsupportedOperationException("Quantifiers would need clash-resolving and alpha-renaming from ClashFreeSubst. Not yet implemented for quantified variable " + var + " of " + completeTerm + " @" + subtermIndex + " for replacement key " + t + " in " + this);
+        	}
+        	for (Iterator<Term> i = replacements.values().iterator(); i.hasNext(); ) {
+        	    Term t = i.next();
+        	    if (t.freeVars().contains(var))
+        	        throw new UnsupportedOperationException("Quantifiers would need clash-resolving and alpha-renaming from ClashFreeSubst. Not yet implemented for quantified variable " + var + " of " + completeTerm + " @" + subtermIndex + " for replacement value " + t + " in " + this);
+        	}
+            }
+            // fall-through to apply
+            System.out.println("ReplacementSubst fall-through to " + completeTerm + " " + this);
         }
+        newBoundVars[subtermIndex] = varsBound;
+        newSubterms[subtermIndex] = apply1(completeTerm.sub ( subtermIndex ));
     }
 
     

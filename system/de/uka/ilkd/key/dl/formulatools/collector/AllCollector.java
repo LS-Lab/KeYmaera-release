@@ -6,6 +6,9 @@ import de.uka.ilkd.key.logic.Visitor;
 /**
  * Visitor-Extension, which collects all variables, functions, etc.
  * 
+ * For instance, collect all variables:
+ * Set<Term> terms1 = AllCollector.getItemSet(o1).filter( new FilterVariableCollector()).getVariableTerms();
+ * 
  * @author Timo Michelsen
  *
  */
