@@ -489,7 +489,7 @@ public abstract class PolynomTool {
 			BigInteger gcd = denominator;
 			BigInteger t;
 			while (tmp.compareTo(BigInteger.valueOf(0)) > 0) {
-				t = numerator;
+				t = tmp;
 				tmp = gcd.mod(tmp);
 				gcd = t;
 			}
