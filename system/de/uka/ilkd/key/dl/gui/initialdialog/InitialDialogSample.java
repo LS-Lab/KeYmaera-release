@@ -3,9 +3,9 @@
  */
 package de.uka.ilkd.key.dl.gui.initialdialog;
 
-import javax.swing.*;
+import javax.swing.JFrame;
 
-import de.uka.ilkd.key.dl.gui.initialdialog.gui.ConfigurationMainFrame;
+import de.uka.ilkd.key.dl.gui.initialdialog.gui.InitialDialogBeans;
 
 /**
  * 
@@ -14,16 +14,15 @@ import de.uka.ilkd.key.dl.gui.initialdialog.gui.ConfigurationMainFrame;
  * 
  * @author zacho
  */
-public class initialDialogSample {
+public class InitialDialogSample {
 
     /**
      * @param args
      */
     public static void main(String[] args) {
         // TODO Auto-generated method stub
-
-        if (!ConfigurationMainFrame.INSTANCE.getCheckboxState()) {
-            final JFrame frame = ConfigurationMainFrame.INSTANCE.getPathPanel();
+	if (!InitialDialogBeans.INSTANCE.getCheckboxState()) {
+	            final JFrame frame = InitialDialogBeans.INSTANCE.getPathPanel();
             frame.setVisible(true);
         }
     }
