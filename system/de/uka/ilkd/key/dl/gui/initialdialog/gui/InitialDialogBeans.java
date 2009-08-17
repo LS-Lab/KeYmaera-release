@@ -20,10 +20,10 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-
 import javax.swing.border.TitledBorder;
 
 import de.uka.ilkd.key.dl.gui.initialdialog.propertyconfigurations.EPropertyConfigurations;
+import de.uka.ilkd.key.gui.Main;
 
 
 /**
@@ -33,16 +33,17 @@ import de.uka.ilkd.key.dl.gui.initialdialog.propertyconfigurations.EPropertyConf
  */
 public class InitialDialogBeans implements ActionListener {
 
-    public static final InitialDialogBeans INSTANCE = new InitialDialogBeans();
-
-    JFrame pathFrame;
+    private JFrame pathFrame;
     private JButton buttonOK;
     private JButton buttonApply;
 
     private JButton buttonExit;
     private LinkedHashMap<String, List<PropertyConfigurationBeans>> groupMap;
 
-    InitialDialogBeans() {
+	private String[] args;
+
+    public InitialDialogBeans(String[] argsForTheMainClass) {
+    	args = argsForTheMainClass;
         pathFrame = new JFrame("KeYmaera Settings");
         groupMap = new LinkedHashMap<String, List<PropertyConfigurationBeans>>();
 
@@ -158,6 +159,14 @@ public class InitialDialogBeans implements ActionListener {
         if (e.getSource().equals(buttonOK)) {
             writePropertyChanges();
             pathFrame.dispose();
+            final String[] args = this.args;
+            new Thread() {
+
+				@Override
+				public void run() {
+	            	Main.main(args);					
+				}
+            }.start();
         }
         if (e.getSource().equals(buttonApply))
             writePropertyChanges();
@@ -165,7 +174,7 @@ public class InitialDialogBeans implements ActionListener {
             final int option = JOptionPane
                     .showConfirmDialog(
                             pathFrame,
-                            "Settings will be ignored \nReally exit KeyMaera path setter?",
+                            "Settings will be ignored \nReally exit KeYmaera?",
                             "Warning", JOptionPane.YES_NO_OPTION);
             if (option == JOptionPane.YES_OPTION) {
                 pathFrame.dispose();

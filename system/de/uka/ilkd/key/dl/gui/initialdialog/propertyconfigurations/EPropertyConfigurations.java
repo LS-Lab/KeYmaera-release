@@ -27,7 +27,7 @@ public enum EPropertyConfigurations {
                                                             de.uka.ilkd.key.dl.options.DirectoryPropertyEditor.class, FileStringConverter.class),
     OPTIONS_REDUCE_BINARY("Redlog Properties","Reduce Binary :","[ReduceOptions]reduceBinary", EConfigurationFiles.KEY_PROPERTY_FILE, 
                                                              de.uka.ilkd.key.dl.options.FilePropertyEditor.class, FileStringConverter.class),  
-    CHECKBOX_PROPERTY("checkBox" ,null,"[checkBox]flag", EConfigurationFiles.KEY_PROPERTY_FILE, 
+    CHECKBOX_PROPERTY("checkBox" ,null,"[DLOptions]showInitialDialog", EConfigurationFiles.KEY_PROPERTY_FILE, 
                                                             de.uka.ilkd.key.dl.gui.initialdialog.propertyconfigurations.CheckBoxEditor.class, BooleanStringConverter.class);             
     private String group;
     private String key;

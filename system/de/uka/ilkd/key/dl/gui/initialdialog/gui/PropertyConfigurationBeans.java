@@ -233,7 +233,7 @@ public class PropertyConfigurationBeans {
             
             String currentProperty = converter.toStringValue(currentPropertyObject);
             
-            if (!oldPropsSetting.equals(currentProperty)|| USING_DEFAULT_PROPERTY) {
+            if (oldPropsSetting == null || !oldPropsSetting.equals(currentProperty)|| USING_DEFAULT_PROPERTY) {
                 props.setProperty(propertyIdentifier, currentProperty);
                 try {
                     if (!file.exists()) {

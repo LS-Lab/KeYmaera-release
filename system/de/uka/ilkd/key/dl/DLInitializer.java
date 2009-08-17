@@ -30,7 +30,6 @@ import java.beans.BeanInfo;
 import java.beans.Customizer;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
@@ -50,12 +49,9 @@ import javax.swing.SwingUtilities;
 
 import orbital.awt.CustomizerViewController;
 import orbital.moon.awt.DefaultCustomizer;
-import de.uka.ilkd.key.dl.arithmetics.ISimplifier;
 import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
 import de.uka.ilkd.key.dl.arithmetics.abort.AbortBridge;
 import de.uka.ilkd.key.dl.arithmetics.abort.ServerConsole;
-import de.uka.ilkd.key.dl.arithmetics.impl.mathematica.KernelLinkWrapper;
-import de.uka.ilkd.key.dl.arithmetics.impl.mathematica.Options;
 import de.uka.ilkd.key.dl.gui.AutomodeListener;
 import de.uka.ilkd.key.dl.gui.TimeStatisticGenerator;
 import de.uka.ilkd.key.dl.options.DLOptionBean;
@@ -194,50 +190,7 @@ public class DLInitializer {
 			ProofSettings.DEFAULT_SETTINGS.setProfile(new DLProfile());
 			// call something in the MathSolverManager to force initialization
 			MathSolverManager.getQuantifierEliminators();
-			// try {
-			// // We just call a method to check if the server is alive
-			// ISimplifier simplifier = MathSolverManager
-			// .getSimplifier("Mathematica");
-			// if (simplifier != null) {
-			// simplifier.getQueryCount();
-			// }
-			// } catch (RemoteException e1) {
-			// try {
-			// KernelLinkWrapper.main(new String[0]);
-			// } catch (IOException e) {
-			// // TODO Auto-generated catch block
-			// e.printStackTrace();
-			// }
-			// }
-			for (Settings s : DLOptionBean.INSTANCE.getSubOptions()) {
-				if (s == de.uka.ilkd.key.dl.arithmetics.impl.mathematica.Options.INSTANCE
-						&& !de.uka.ilkd.key.dl.arithmetics.impl.mathematica.Options.INSTANCE
-								.getMathKernel().isFile()) {
-					new CustomizerViewController(Main.getInstance())
-							.showCustomizer(s, "Mathematica Options");
 
-				} else if (s == de.uka.ilkd.key.dl.arithmetics.impl.qepcad.Options.INSTANCE
-						&& !de.uka.ilkd.key.dl.arithmetics.impl.qepcad.Options.INSTANCE
-								.getQepcadBinary().isFile()) {
-					new CustomizerViewController(Main.getInstance())
-							.showCustomizer(s, "QepCad Options");
-				} else if (s == de.uka.ilkd.key.dl.arithmetics.impl.reduce.Options.INSTANCE
-						&& !de.uka.ilkd.key.dl.arithmetics.impl.reduce.Options.INSTANCE
-								.getReduceBinary().isFile()) {
-					new CustomizerViewController(Main.getInstance())
-							.showCustomizer(s, "Redlog Options");
-				}
-			}
-			// if (MathSolverManager.getQuantifierEliminators().isEmpty()) {
-			// for (Settings s : DLOptionBean.INSTANCE.getSubOptions()) {
-			// if (s ==
-			// de.uka.ilkd.key.dl.arithmetics.impl.qepcad.Options.INSTANCE) {
-			// new CustomizerViewController(Main.getInstance())
-			// .showCustomizer(s, "QepCad Options");
-			//
-			// }
-			// }
-			// }
 			try {
 				customizerPane = new JTabbedPane(JTabbedPane.BOTTOM);
 				customizerPane
