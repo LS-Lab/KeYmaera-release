@@ -29,6 +29,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import de.uka.ilkd.key.collection.ImmutableArray;
+import de.uka.ilkd.key.collection.ImmutableList;
 import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
 import de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator.PairOfTermAndQuantifierType;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
@@ -43,17 +45,14 @@ import de.uka.ilkd.key.logic.Name;
 import de.uka.ilkd.key.logic.PosInOccurrence;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.TermBuilder;
-import de.uka.ilkd.key.logic.op.ArrayOfQuantifiableVariable;
 import de.uka.ilkd.key.logic.op.LogicVariable;
 import de.uka.ilkd.key.logic.op.QuantifiableVariable;
 import de.uka.ilkd.key.logic.op.Quantifier;
 import de.uka.ilkd.key.logic.op.RigidFunction;
 import de.uka.ilkd.key.proof.Goal;
-import de.uka.ilkd.key.proof.ListOfGoal;
 import de.uka.ilkd.key.proof.RuleFilter;
 import de.uka.ilkd.key.rule.Rule;
 import de.uka.ilkd.key.rule.RuleApp;
-import de.uka.ilkd.key.rule.SequentWideBuiltInRule;
 
 /**
  * The ReduceRule is a Built-In Rule that is applied to a whole sequence. It is
@@ -146,7 +145,7 @@ public class ReduceRule extends RuleOperatingOnWholeSequence implements RuleFilt
      *      de.uka.ilkd.key.java.Services, de.uka.ilkd.key.rule.RuleApp)
      */
     /*@Override*/
-    public synchronized ListOfGoal apply(Goal goal, Services services,
+    public synchronized ImmutableList<Goal> apply(Goal goal, Services services,
             RuleApp ruleApp) {
         quantifiedVariables = new HashSet<String>();
         skolemSymbols = new HashSet<Term>();
@@ -166,11 +165,11 @@ public class ReduceRule extends RuleOperatingOnWholeSequence implements RuleFilt
                 skolemSymbols.add(visited);
             }
         } else if (visited.op() instanceof Quantifier) {
-            ArrayOfQuantifiableVariable varsBoundHere = visited
+            ImmutableArray<QuantifiableVariable> varsBoundHere = visited
                     .varsBoundHere(0);
             for (int i = 0; i < varsBoundHere.size(); i++) {
                 quantifiedVariables.add(varsBoundHere
-                        .getQuantifiableVariable(i).name().toString());
+                        .get(i).name().toString());
             }
         }
         super.visit(visited);

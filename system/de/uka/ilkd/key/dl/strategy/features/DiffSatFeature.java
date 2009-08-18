@@ -23,12 +23,12 @@
 package de.uka.ilkd.key.dl.strategy.features;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
 
+import de.uka.ilkd.key.collection.ImmutableList;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.FailedComputationException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.UnsolveableException;
@@ -56,7 +56,6 @@ import de.uka.ilkd.key.pp.ProgramPrinter;
 import de.uka.ilkd.key.proof.Goal;
 import de.uka.ilkd.key.proof.Node;
 import de.uka.ilkd.key.proof.TacletFilter;
-import de.uka.ilkd.key.rule.ListOfTacletApp;
 import de.uka.ilkd.key.rule.RuleApp;
 import de.uka.ilkd.key.rule.Taclet;
 import de.uka.ilkd.key.rule.TacletApp;
@@ -386,7 +385,7 @@ public class DiffSatFeature implements Feature {
         // Main.getInstance().mediator().getInteractiveProver().getAppsForName(goal,
         // tacletname.toString(), pos);
         // goal.indexOfTaclets().lookup(name)
-        ListOfTacletApp l = goal.ruleAppIndex().getTacletAppAt(
+        ImmutableList<TacletApp> l = goal.ruleAppIndex().getTacletAppAt(
                 nameFilter(tacletname), pos, goal.proof().getServices(),
                 goal.getClosureConstraint());
         assert l.size() <= 1 : "Names are unique, hence there is at most one taclet app";

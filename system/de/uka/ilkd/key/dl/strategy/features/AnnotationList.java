@@ -4,21 +4,19 @@
 package de.uka.ilkd.key.dl.strategy.features;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
+import de.uka.ilkd.key.collection.ImmutableSLList;
 import de.uka.ilkd.key.dl.formulatools.Prog2LogicConverter;
 import de.uka.ilkd.key.dl.formulatools.TermTools;
 import de.uka.ilkd.key.dl.model.DLProgram;
-import de.uka.ilkd.key.dl.model.DLProgramElement;
 import de.uka.ilkd.key.dl.model.Formula;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.java.StatementBlock;
-import de.uka.ilkd.key.logic.IteratorOfTerm;
 import de.uka.ilkd.key.logic.JavaBlock;
 import de.uka.ilkd.key.logic.PosInOccurrence;
-import de.uka.ilkd.key.logic.SLListOfTerm;
 import de.uka.ilkd.key.logic.Term;
-import de.uka.ilkd.key.logic.TermBuilder;
 import de.uka.ilkd.key.logic.op.Modality;
 import de.uka.ilkd.key.logic.op.QuanUpdateOperator;
 import de.uka.ilkd.key.proof.Goal;
@@ -44,7 +42,7 @@ public class AnnotationList implements TermGenerator {
      * @see de.uka.ilkd.key.strategy.termgenerator.TermGenerator#generate(de.uka.ilkd.key.rule.RuleApp, de.uka.ilkd.key.logic.PosInOccurrence, de.uka.ilkd.key.proof.Goal)
      */
     /*@Override*/
-    public IteratorOfTerm generate(RuleApp app, PosInOccurrence pos, Goal goal) {
+    public Iterator<Term> generate(RuleApp app, PosInOccurrence pos, Goal goal) {
         Term term = pos.subTerm();
         // unbox from update prefix
         while (term.op() instanceof QuanUpdateOperator) {
@@ -64,7 +62,8 @@ public class AnnotationList implements TermGenerator {
                     "Did not find annotation "
                     + annotationKey + " that I was supposed to examine" +
                     " (taclet " + app.rule().name() + ")" );
-            return SLListOfTerm.EMPTY_LIST.iterator();
+            final ImmutableSLList<Term> nil = ImmutableSLList.nil();
+            return nil.iterator();
         }
         List<Term> converted = new ArrayList<Term>(annotationList.size());
         for (Formula f : annotationList) {

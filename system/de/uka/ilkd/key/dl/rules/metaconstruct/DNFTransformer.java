@@ -29,9 +29,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import de.uka.ilkd.key.collection.ImmutableArray;
 import de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator.QuantifierType;
 import de.uka.ilkd.key.dl.formulatools.ReplaceVisitor;
-import de.uka.ilkd.key.dl.formulatools.TermTools;
 import de.uka.ilkd.key.dl.logic.ldt.RealLDT;
 import de.uka.ilkd.key.dl.model.And;
 import de.uka.ilkd.key.dl.model.Biimplies;
@@ -69,7 +69,6 @@ import de.uka.ilkd.key.logic.Name;
 import de.uka.ilkd.key.logic.NamespaceSet;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.TermBuilder;
-import de.uka.ilkd.key.logic.op.ArrayOfQuantifiableVariable;
 import de.uka.ilkd.key.logic.op.LogicVariable;
 import de.uka.ilkd.key.logic.op.Modality;
 import de.uka.ilkd.key.logic.op.QuantifiableVariable;
@@ -164,7 +163,7 @@ public class DNFTransformer extends AbstractDLMetaOperator {
 			JavaBlock res = JavaBlock.createJavaBlock(new DLStatementBlock(s));
 			return de.uka.ilkd.key.logic.TermFactory.DEFAULT.createTerm(
 					modality, new Term[] { post },
-					new ArrayOfQuantifiableVariable[0], res);
+					new ImmutableArray[0], res);
 		} catch (Exception e) {
 			throw new IllegalArgumentException(e);
 		}

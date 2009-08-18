@@ -30,6 +30,7 @@ import java.util.List;
 
 import com.wolfram.jlink.Expr;
 
+import de.uka.ilkd.key.collection.ImmutableArray;
 import de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator.QuantifierType;
 import de.uka.ilkd.key.dl.arithmetics.impl.orbital.PolynomTool;
 import de.uka.ilkd.key.dl.arithmetics.impl.orbital.PolynomTool.BigFraction;
@@ -41,7 +42,6 @@ import de.uka.ilkd.key.logic.op.LogicVariable;
 import de.uka.ilkd.key.logic.op.Metavariable;
 import de.uka.ilkd.key.logic.op.Op;
 import de.uka.ilkd.key.logic.op.Quantifier;
-import de.uka.ilkd.key.rule.updatesimplifier.ArrayOfAssignmentPair;
 import de.uka.ilkd.key.rule.updatesimplifier.AssignmentPair;
 
 /**
@@ -178,7 +178,7 @@ public class Term2ExprConverter implements ExprConstants {
 			Expr[] vars = new Expr[form.varsBoundHere(0).size()];
 			for (int i = 0; i < vars.length; i++) {
 				vars[i] = new Expr(Expr.SYMBOL, form.varsBoundHere(0)
-						.getQuantifiableVariable(i).name().toString()
+						.get(i).name().toString()
 						.replaceAll("_", USCORE_ESCAPE));
 			}
 			newArgs[0] = new Expr(LIST, vars);
@@ -267,9 +267,9 @@ public class Term2ExprConverter implements ExprConstants {
 	public static Expr update2Expr(
 			de.uka.ilkd.key.rule.updatesimplifier.Update update) {
 		List<Expr> rewrites = new LinkedList<Expr>();
-		ArrayOfAssignmentPair asss = update.getAllAssignmentPairs();
+		ImmutableArray<AssignmentPair> asss = update.getAllAssignmentPairs();
 		for (int i = 0; i < asss.size(); i++) {
-			AssignmentPair ass = asss.getAssignmentPair(i);
+			AssignmentPair ass = asss.get(i);
 			Term x = ass.locationAsTerm();
 			assert x.arity() == 0 : "only works for atomic locations";
 			Term t = ass.value();

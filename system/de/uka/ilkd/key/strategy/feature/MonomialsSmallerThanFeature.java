@@ -11,7 +11,7 @@
 
 package de.uka.ilkd.key.strategy.feature;
 
-import de.uka.ilkd.key.logic.ListOfTerm;
+import de.uka.ilkd.key.collection.ImmutableList;
 import de.uka.ilkd.key.logic.PosInOccurrence;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.ldt.IntegerLDT;
@@ -21,7 +21,11 @@ import de.uka.ilkd.key.rule.TacletApp;
 import de.uka.ilkd.key.strategy.LongRuleAppCost;
 import de.uka.ilkd.key.strategy.TopRuleAppCost;
 import de.uka.ilkd.key.strategy.termProjection.ProjectionToTerm;
-import de.uka.ilkd.key.strategy.termfeature.*;
+import de.uka.ilkd.key.strategy.termfeature.BinarySumTermFeature;
+import de.uka.ilkd.key.strategy.termfeature.ConstTermFeature;
+import de.uka.ilkd.key.strategy.termfeature.OperatorTF;
+import de.uka.ilkd.key.strategy.termfeature.SubTermFeature;
+import de.uka.ilkd.key.strategy.termfeature.TermFeature;
 
 
 /**
@@ -98,8 +102,8 @@ public class MonomialsSmallerThanFeature extends AbstractMonomialSmallerThanFeat
             if ( v < 0 ) return true;
             if ( v > 0 ) return false;
         } else {
-            final ListOfTerm atoms1 = collectAtoms ( t1 );
-            final ListOfTerm atoms2 = collectAtoms ( t2 );
+            final ImmutableList<Term> atoms1 = collectAtoms ( t1 );
+            final ImmutableList<Term> atoms2 = collectAtoms ( t2 );
 
             if ( atoms1.size () < atoms2.size () ) return false;
             if ( atoms1.size () > atoms2.size () ) return true;
@@ -112,7 +116,7 @@ public class MonomialsSmallerThanFeature extends AbstractMonomialSmallerThanFeat
         return super.lessThan ( t1, t2 );
     }
 
-    private int compareLexNewSyms(ListOfTerm atoms1, ListOfTerm atoms2) {
+    private int compareLexNewSyms(ImmutableList<Term> atoms1, ImmutableList<Term> atoms2) {
         while ( !atoms1.isEmpty() ) {
             final Term t1 = atoms1.head ();
             final Term t2 = atoms2.head ();

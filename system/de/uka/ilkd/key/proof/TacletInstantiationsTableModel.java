@@ -18,23 +18,27 @@
 package de.uka.ilkd.key.proof;
 
 import java.io.StringReader;
+import java.util.Iterator;
 import java.util.Vector;
 
 import javax.swing.table.AbstractTableModel;
 
-import de.uka.ilkd.key.collection.ListOfString;
-import de.uka.ilkd.key.collection.SLListOfString;
 import de.uka.ilkd.key.dl.DLProfile;
 import de.uka.ilkd.key.gui.Main;
+import de.uka.ilkd.key.collection.ImmutableList;
+import de.uka.ilkd.key.collection.ImmutableSLList;
+import de.uka.ilkd.key.collection.ImmutableSet;
 import de.uka.ilkd.key.java.*;
 import de.uka.ilkd.key.java.abstraction.KeYJavaType;
 import de.uka.ilkd.key.logic.*;
-import de.uka.ilkd.key.logic.op.*;
+import de.uka.ilkd.key.logic.op.LocationVariable;
+import de.uka.ilkd.key.logic.op.LogicVariable;
+import de.uka.ilkd.key.logic.op.SchemaVariable;
+import de.uka.ilkd.key.logic.op.SortedSchemaVariable;
 import de.uka.ilkd.key.logic.sort.ArraySort;
 import de.uka.ilkd.key.logic.sort.ProgramSVSort;
 import de.uka.ilkd.key.logic.sort.Sort;
 import de.uka.ilkd.key.parser.*;
-import de.uka.ilkd.key.parser.Location;
 import de.uka.ilkd.key.pp.AbbrevMap;
 import de.uka.ilkd.key.rule.NewVarcond;
 import de.uka.ilkd.key.rule.TacletApp;
@@ -102,7 +106,7 @@ public class TacletInstantiationsTableModel extends AbstractTableModel {
     */
     private Vector createEntryArray(TacletApp tacletApp) {
         Vector rowVec = new Vector();
-        IteratorOfSchemaVariable it = tacletApp.instantiations().svIterator();
+        Iterator<SchemaVariable> it = tacletApp.instantiations().svIterator();
         int count = 0;
 
         while (it.hasNext()) {
@@ -118,8 +122,8 @@ public class TacletInstantiationsTableModel extends AbstractTableModel {
 
         noEditRow = count - 1;
 
-        IteratorOfSchemaVariable varIt = tacletApp.uninstantiatedVars().iterator();
-        ListOfString proposals = SLListOfString.EMPTY_LIST;
+        Iterator<SchemaVariable> varIt = tacletApp.uninstantiatedVars().iterator();
+        ImmutableList<String> proposals = ImmutableSLList.<String>nil();
 
         while (varIt.hasNext()) {
             Object[] column = new Object[2];
@@ -257,12 +261,12 @@ public class TacletInstantiationsTableModel extends AbstractTableModel {
         return getValueAt(irow, 1) != null && ((String)getValueAt(irow,1)).length() != 0;
     }
 
-    private SetOfLocationDescriptor parseLocationList(int irow) throws ParserException{
+    private ImmutableSet<LocationDescriptor> parseLocationList(int irow) throws ParserException{
         String instantiation = (String) getValueAt(irow, 1);
         if (instantiation == null) {
             instantiation = "";
         }
-        SetOfLocationDescriptor result = null;
+        ImmutableSet<LocationDescriptor> result = null;
         try{
             result = (new KeYParser(ParserMode.TERM, new KeYLexer(new StringReader(instantiation),
                                              services.getExceptionHandler()),
@@ -541,8 +545,8 @@ if (!(Main.getInstance().mediator().getProfile() instanceof DLProfile)) {
                     result = result.addCheckedInstantiation(sv, pe, services, true);
                 } else if (sv.isListSV()){
                     try{
-                        SetOfLocationDescriptor s = parseLocationList(irow);
-                        result = result.addInstantiation(sv, Array.reverse(s.toArray()), true);
+                        ImmutableSet<LocationDescriptor> s = parseLocationList(irow);
+                        result = result.addInstantiation(sv, Array.reverse(s.toArray(new LocationDescriptor[s.size()])), true);
                     }catch (ParserException pe) {
                         Location loc = pe.getLocation();
                         if (loc != null) {

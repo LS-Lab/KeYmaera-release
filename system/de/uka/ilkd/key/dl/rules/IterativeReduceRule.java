@@ -6,12 +6,14 @@ package de.uka.ilkd.key.dl.rules;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 
 import orbital.algorithm.Combinatorical;
+import de.uka.ilkd.key.collection.ImmutableList;
 import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
 import de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator.PairOfTermAndQuantifierType;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.IncompleteEvaluationException;
@@ -22,15 +24,14 @@ import de.uka.ilkd.key.dl.formulatools.TermTools.PairOfTermAndVariableList;
 import de.uka.ilkd.key.dl.options.DLOptionBean;
 import de.uka.ilkd.key.gui.Main;
 import de.uka.ilkd.key.java.Services;
+import de.uka.ilkd.key.logic.ConstrainedFormula;
 import de.uka.ilkd.key.logic.Constraint;
-import de.uka.ilkd.key.logic.IteratorOfConstrainedFormula;
 import de.uka.ilkd.key.logic.Name;
 import de.uka.ilkd.key.logic.PosInOccurrence;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.TermBuilder;
 import de.uka.ilkd.key.logic.op.Op;
 import de.uka.ilkd.key.proof.Goal;
-import de.uka.ilkd.key.proof.ListOfGoal;
 import de.uka.ilkd.key.proof.RuleFilter;
 import de.uka.ilkd.key.rule.BuiltInRule;
 import de.uka.ilkd.key.rule.Rule;
@@ -142,7 +143,7 @@ public class IterativeReduceRule implements BuiltInRule, RuleFilter {
 	 * de.uka.ilkd.key.java.Services, de.uka.ilkd.key.rule.RuleApp)
 	 */
 	/*@Override*/
-	public ListOfGoal apply(Goal goal, Services services, RuleApp ruleApp) {
+	public ImmutableList<Goal> apply(Goal goal, Services services, RuleApp ruleApp) {
 		long timeout = 2000;
 		final boolean automode = Main.getInstance().mediator().autoMode();
 
@@ -372,7 +373,7 @@ public class IterativeReduceRule implements BuiltInRule, RuleFilter {
 	 * @param iterator
 	 * @return
 	 */
-	private Set<Term> createList(IteratorOfConstrainedFormula iterator) {
+	private Set<Term> createList(Iterator<ConstrainedFormula> iterator) {
 		Set<Term> ante = new HashSet<Term>();
 		while (iterator.hasNext()) {
 			Term next = iterator.next().formula();

@@ -35,7 +35,6 @@ import de.uka.ilkd.key.logic.Visitor;
 import de.uka.ilkd.key.logic.op.IUpdateOperator;
 import de.uka.ilkd.key.logic.op.Metavariable;
 import de.uka.ilkd.key.logic.op.Modality;
-import de.uka.ilkd.key.logic.op.RigidFunction;
 
 /**
  * This class is a visitor implementation that checks if a given term is a first

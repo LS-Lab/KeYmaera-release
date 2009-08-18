@@ -22,6 +22,9 @@
  */
 package de.uka.ilkd.key.dl;
 
+import de.uka.ilkd.key.collection.ImmutableList;
+import de.uka.ilkd.key.collection.ImmutableSLList;
+import de.uka.ilkd.key.collection.ImmutableSet;
 import de.uka.ilkd.key.dl.parser.ProgramBlockProvider;
 import de.uka.ilkd.key.dl.rules.DLUpdateSimplifier;
 import de.uka.ilkd.key.dl.rules.DebugRule;
@@ -41,12 +44,10 @@ import de.uka.ilkd.key.logic.NamespaceSet;
 import de.uka.ilkd.key.logic.op.DLWarySubstOp;
 import de.uka.ilkd.key.logic.op.Op;
 import de.uka.ilkd.key.proof.init.AbstractProfile;
-import de.uka.ilkd.key.rule.ListOfBuiltInRule;
-import de.uka.ilkd.key.rule.SLListOfBuiltInRule;
+import de.uka.ilkd.key.rule.BuiltInRule;
 import de.uka.ilkd.key.rule.UpdateSimplificationRule;
 import de.uka.ilkd.key.rule.UpdateSimplifier;
 import de.uka.ilkd.key.strategy.FOLStrategy;
-import de.uka.ilkd.key.strategy.SetOfStrategyFactory;
 import de.uka.ilkd.key.strategy.StrategyFactory;
 import de.uka.ilkd.key.util.Debug;
 
@@ -80,8 +81,8 @@ public class DLProfile extends AbstractProfile {
 	 * @see de.uka.ilkd.key.proof.init.AbstractProfile#supportedStrategies()
 	 */
 	/* @Override */
-	protected SetOfStrategyFactory getStrategyFactories() {
-		SetOfStrategyFactory set = super.getStrategyFactories();
+	protected ImmutableSet<StrategyFactory> getStrategyFactories() {
+		ImmutableSet<StrategyFactory> set = super.getStrategyFactories();
 		set = set.add(DEFAULT);
 		set = set.add(new FOLStrategy.Factory());
 		return set;
@@ -132,8 +133,9 @@ public class DLProfile extends AbstractProfile {
 	 * @see de.uka.ilkd.key.proof.init.AbstractProfile#initBuiltInRules()
 	 */
 	/* @Override */
-	protected ListOfBuiltInRule initBuiltInRules() {
-		ListOfBuiltInRule rule = SLListOfBuiltInRule.EMPTY_LIST.prepend(
+	protected ImmutableList<BuiltInRule> initBuiltInRules() {
+		ImmutableList<BuiltInRule> rule = ImmutableSLList.nil();
+		rule = rule.prepend(
 				ReduceRule.INSTANCE).prepend(getUpdateSimplificationRule())
 				.prepend(FindInstanceRule.INSTANCE).prepend(
 						FindTransitionRule.INSTANCE);

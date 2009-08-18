@@ -16,7 +16,8 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.launching.JavaRuntime;
 
-import de.uka.ilkd.key.proof.ListOfNode;
+import de.uka.ilkd.key.collection.ImmutableList;
+import de.uka.ilkd.key.proof.Node;
 import de.uka.ilkd.key.unittest.ModelGenerator;
 import de.uka.ilkd.key.unittest.UnitTestBuilder;
 import de.uka.ilkd.key.visualdebugger.VisualDebugger;
@@ -24,7 +25,7 @@ import de.uka.ilkd.key.visualdebugger.VisualDebugger;
 public class VBTBuilder {
    
     VisualDebugger vd = VisualDebugger.getVisualDebugger();
-    ListOfNode nodes;
+    ImmutableList<Node> nodes;
     private boolean error=false;
     private String file=null;
     IProject testGenProject=null;
@@ -34,7 +35,7 @@ public class VBTBuilder {
     private int modelGenerator;
     
     
-    public VBTBuilder(ListOfNode nodes,int modelGenerator){
+    public VBTBuilder(ImmutableList<Node> nodes,int modelGenerator){
         this.nodes=nodes;
         this.modelGenerator=modelGenerator;
         this.createTestCase();
@@ -82,27 +83,27 @@ public class VBTBuilder {
         
     }
     
-    
-    
-public void createTestCase(){    
-    ModelGenerator.decProdForTestGen=this.modelGenerator;
-    UnitTestBuilder testBuilder = new UnitTestBuilder(vd.getMediator().getServices(), 
-             vd.getMediator().getProof());
 
-     try{
-         file = (testBuilder.createTestForNodes(nodes));
-     }catch(Exception e){
-         this.error=true;
-         e.printStackTrace();
-     }
-    if (file.lastIndexOf(File.separator)>0){
-        int last = file.lastIndexOf(File.separator);
-        fileName =file.substring(last,file.length());
-        path = file.substring(0, last);
+
+    public void createTestCase(){    
+	ModelGenerator.decProdForTestGen=this.modelGenerator;
+	UnitTestBuilder testBuilder = new UnitTestBuilder(vd.getMediator().getServices(), 
+		vd.getMediator().getProof());
+
+	try{
+	    file = testBuilder.createTestForNodes(nodes);
+	}catch(Exception e){
+	    this.error=true;
+	    e.printStackTrace();
+	}
+	if (file.lastIndexOf(File.separator)>0){
+	    int last = file.lastIndexOf(File.separator);
+	    fileName =file.substring(last,file.length());
+	    path = file.substring(0, last);
+	}
+
     }
-    
-}
-         
+
      
     private IProject createTestCaseProject(String testFilePath) throws URISyntaxException, CoreException{
         String projectName = "TestCases";

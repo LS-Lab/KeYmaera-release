@@ -32,8 +32,6 @@ import orbital.math.Values;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.sun.org.apache.xerces.internal.impl.xs.opti.DefaultNode;
-
 /**
  * @author jdq TODO Documentation since 27.04.2009
  */
@@ -49,7 +47,7 @@ public class GroebnerBasisCheckerTest {
 	@Before
 	public void setUp() throws Exception {
 		vf = Values.getDefault();
-		gbChecker = new GroebnerBasisChecker(new DefaultNode());	
+		gbChecker = new GroebnerBasisChecker(null);	
 	}
 
 	/**

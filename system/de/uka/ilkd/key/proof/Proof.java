@@ -13,6 +13,8 @@ package de.uka.ilkd.key.proof;
 import java.util.*;
 
 import de.uka.ilkd.key.dl.rules.IrrevocableRule;
+import de.uka.ilkd.key.collection.ImmutableList;
+import de.uka.ilkd.key.collection.ImmutableSLList;
 import de.uka.ilkd.key.gui.GUIEvent;
 import de.uka.ilkd.key.gui.configuration.ProofSettings;
 import de.uka.ilkd.key.gui.configuration.SettingsListener;
@@ -28,11 +30,9 @@ import de.uka.ilkd.key.proof.mgt.DefaultProofCorrectnessMgt;
 import de.uka.ilkd.key.proof.mgt.ProofCorrectnessMgt;
 import de.uka.ilkd.key.proof.mgt.ProofEnvironment;
 import de.uka.ilkd.key.rule.UpdateSimplifier;
-import de.uka.ilkd.key.rule.updatesimplifier.ApplyOnModality;
 import de.uka.ilkd.key.strategy.Strategy;
 import de.uka.ilkd.key.strategy.StrategyFactory;
 import de.uka.ilkd.key.strategy.StrategyProperties;
-import de.uka.ilkd.key.strategy.feature.AbstractBetaFeature;
 
 
 /**
@@ -64,7 +64,7 @@ public class Proof implements Named {
     private List<ProofTreeListener> listenerList = new ArrayList<ProofTreeListener>(10);
     
     /** list with the open goals of the proof */ 
-    private ListOfGoal openGoals = SLListOfGoal.EMPTY_LIST;
+    private ImmutableList<Goal> openGoals = ImmutableSLList.<Goal>nil();
 
     /** during closure this can be set by "subTreeCompletelyClosed" */
     private Node closedSubtree = null;
@@ -330,7 +330,7 @@ public class Proof implements Named {
     private void updateStrategyOnGoals() {
         Strategy ourStrategy = getActiveStrategy();
         
-        final IteratorOfGoal it = openGoals ().iterator ();
+        final Iterator<Goal> it = openGoals ().iterator ();
         while ( it.hasNext () )
             it.next ().setGoalStrategy(ourStrategy);
     }
@@ -381,7 +381,7 @@ public class Proof implements Named {
     public void clearAndDetachRuleAppIndexes () {
         // Taclet indices of the particular goals have to
         // be rebuilt
-        final IteratorOfGoal it = openGoals ().iterator ();
+        final Iterator<Goal> it = openGoals ().iterator ();
         while ( it.hasNext () )
             it.next ().clearAndDetachRuleAppIndex ();
     }
@@ -438,7 +438,7 @@ public class Proof implements Named {
      * returns the list of open goals
      * @return list with the open goals
      */
-    public ListOfGoal openGoals() {
+    public ImmutableList<Goal> openGoals() {
 	return openGoals;
     }
     
@@ -447,7 +447,7 @@ public class Proof implements Named {
      * @return list of open and enabled goals, never null
      * @author mulbrich
      */
-    public ListOfGoal openEnabledGoals() {
+    public ImmutableList<Goal> openEnabledGoals() {
         return filterEnabledGoals(openGoals);
     }
 
@@ -459,8 +459,8 @@ public class Proof implements Named {
      * @see Goal#isAutomatic()
      * @author mulbrich
      */
-    private ListOfGoal filterEnabledGoals(ListOfGoal goals) {
-        ListOfGoal enabledGoals = SLListOfGoal.EMPTY_LIST;
+    private ImmutableList<Goal> filterEnabledGoals(ImmutableList<Goal> goals) {
+        ImmutableList<Goal> enabledGoals = ImmutableSLList.<Goal>nil();
         for(Goal g : goals) {
             if(g.isAutomatic()) {
                 enabledGoals = enabledGoals.prepend(g);
@@ -473,10 +473,10 @@ public class Proof implements Named {
     /** 
      * removes the given goal and adds the new goals in list 
      * @param oldGoal the old goal that has to be removed from list
-     * @param newGoals the ListOfGoal with the new goals that were
+     * @param newGoals the IList<Goal> with the new goals that were
      * result of a rule application on goal
      */
-    public void replace(Goal oldGoal, ListOfGoal newGoals) {
+    public void replace(Goal oldGoal, ImmutableList<Goal> newGoals) {
 	openGoals = openGoals.removeAll(oldGoal);
 
 	if ( closed () )
@@ -537,7 +537,7 @@ public class Proof implements Named {
 	    if ( b )
 		// For the moment it is necessary to fire the message ALWAYS
 		// in order to detect branch closing.
-		fireProofGoalsAdded ( SLListOfGoal.EMPTY_LIST );		
+		fireProofGoalsAdded ( ImmutableSLList.<Goal>nil() );		
 	}
 
 	closedSubtree = null;
@@ -548,7 +548,7 @@ public class Proof implements Named {
      * @param goal the Goal to be removed
      */
     public void remove(Goal goal) {
-	ListOfGoal newOpenGoals = openGoals.removeAll(goal);
+	ImmutableList<Goal> newOpenGoals = openGoals.removeAll(goal);
 	if (newOpenGoals != openGoals) {
 	    openGoals = newOpenGoals;	
 	    if (closed()) {
@@ -563,7 +563,7 @@ public class Proof implements Named {
      * @param goal the Goal to be added 
      */
     public void add(Goal goal) {
-	ListOfGoal newOpenGoals = openGoals.prepend(goal);
+	ImmutableList<Goal> newOpenGoals = openGoals.prepend(goal);
 	if (openGoals != newOpenGoals) {
 	    openGoals = newOpenGoals;
 	    fireProofGoalsAdded(goal);
@@ -571,10 +571,10 @@ public class Proof implements Named {
     }
 
     /** adds a list with new goals to the list of open goals 
-     * @param goals the ListOfGoal to be prepended 
+     * @param goals the IList<Goal> to be prepended 
      */
-    public void add(ListOfGoal goals) {
-	ListOfGoal newOpenGoals = openGoals.prepend(goals);
+    public void add(ImmutableList<Goal> goals) {
+	ImmutableList<Goal> newOpenGoals = openGoals.prepend(goals);
 	if (openGoals != newOpenGoals) {
 	    openGoals = newOpenGoals;
 	}
@@ -631,15 +631,15 @@ public class Proof implements Named {
     public boolean setBack(final Node node) {
 	Goal goal = getGoal(node);
 	while (goal == null) {	
-	    final ListOfGoal goalList = getSubtreeGoals(node);
+	    final ImmutableList<Goal> goalList = getSubtreeGoals(node);
 	    if (!goalList.isEmpty()) {
 		// The subtree goals (goalList) are scanned for common
 		// direct ancestors (parents). Afterwards the remove
 		// list is the greatest subset of the subtree goals such
 		// that the parents of the goals are disjoint.
 		final HashSet<Node> parentSet = new HashSet<Node>();		
-		final IteratorOfGoal goalIt = goalList.iterator();
-                ListOfGoal removeList = SLListOfGoal.EMPTY_LIST;
+		final Iterator<Goal> goalIt = goalList.iterator();
+                ImmutableList<Goal> removeList = ImmutableSLList.<Goal>nil();
 		while (goalIt.hasNext()) {
 		    final Goal nextGoal = goalIt.next();
 		    if (!parentSet.contains(nextGoal.node().parent())) {
@@ -654,7 +654,7 @@ public class Proof implements Named {
 		}
 		//call setBack(Goal) on each element in the remove
 		//list. The former parents become the new goals
-		final IteratorOfGoal removeIt = removeList.iterator();
+		final Iterator<Goal> removeIt = removeList.iterator();
 		while (removeIt.hasNext()) {
 		    setBack(removeIt.next());
 		}
@@ -718,7 +718,7 @@ public class Proof implements Named {
     /** fires the event that new goals have been added to the list of
      * goals 
      */
-    protected void fireProofGoalsAdded(ListOfGoal goals) {
+    protected void fireProofGoalsAdded(ImmutableList<Goal> goals) {
 	ProofTreeEvent e = new ProofTreeEvent(this, goals);
 	for (int i = 0; i<listenerList.size(); i++) {
 	    listenerList.get(i).proofGoalsAdded(e);
@@ -729,7 +729,7 @@ public class Proof implements Named {
      * goals 
      */
     protected void fireProofGoalsAdded(Goal goal) {
-	fireProofGoalsAdded(SLListOfGoal.EMPTY_LIST.prepend(goal));
+	fireProofGoalsAdded(ImmutableSLList.<Goal>nil().prepend(goal));
     }
 
     /** fires the event that the proof has been restructured */
@@ -793,7 +793,7 @@ public class Proof implements Named {
      */
     public Goal getGoal(Node node) {	
 	Goal result = null;
-	IteratorOfGoal it = openGoals.iterator();
+	Iterator<Goal> it = openGoals.iterator();
 	while (it.hasNext()) {
 	    result = it.next();
 	    if (result.node() == node) {
@@ -808,9 +808,9 @@ public class Proof implements Named {
      * @param node the Node where to start from
      * @return the list of goals of the subtree starting with node 
      */
-    public ListOfGoal getSubtreeGoals(Node node) {	
-	ListOfGoal result = SLListOfGoal.EMPTY_LIST;
-	final IteratorOfGoal goalsIt  = openGoals.iterator();
+    public ImmutableList<Goal> getSubtreeGoals(Node node) {	
+	ImmutableList<Goal> result = ImmutableSLList.<Goal>nil();
+	final Iterator<Goal> goalsIt  = openGoals.iterator();
 	while (goalsIt.hasNext()) {
 	    final Goal goal = goalsIt.next();
 	    final Iterator<Node> leavesIt = node.leavesIterator();
@@ -828,7 +828,7 @@ public class Proof implements Named {
      * @param node the Node where to start from
      * @return the list of enabled goals of the subtree starting with node 
      */
-    public ListOfGoal getSubtreeEnabledGoals(Node node) {
+    public ImmutableList<Goal> getSubtreeEnabledGoals(Node node) {
         return filterEnabledGoals(getSubtreeGoals(node));
     }
 
@@ -858,14 +858,14 @@ public class Proof implements Named {
      * control the contents of the rule app index
      */
     public void setRuleAppIndexToAutoMode () {
-	IteratorOfGoal it = openGoals.iterator ();
+	Iterator<Goal> it = openGoals.iterator ();
 	while ( it.hasNext () ) {
 	    it.next ().ruleAppIndex ().autoModeStarted ();
 	}
     }
 
     public void setRuleAppIndexToInteractiveMode () {
-	IteratorOfGoal it = openGoals.iterator ();
+	Iterator<Goal> it = openGoals.iterator ();
 	while ( it.hasNext () ) {
 	    it.next ().ruleAppIndex ().autoModeStopped ();
 	}

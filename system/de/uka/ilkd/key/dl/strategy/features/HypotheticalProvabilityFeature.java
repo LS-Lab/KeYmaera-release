@@ -26,15 +26,15 @@ import java.rmi.RemoteException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 import java.util.Set;
 import java.util.WeakHashMap;
 
-import de.uka.ilkd.key.dl.DLProfile;
+import de.uka.ilkd.key.collection.ImmutableList;
+import de.uka.ilkd.key.collection.ImmutableMapEntry;
 import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.IncompleteEvaluationException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.UnsolveableException;
@@ -45,7 +45,6 @@ import de.uka.ilkd.key.gui.ApplyStrategy;
 import de.uka.ilkd.key.gui.KeYMediator;
 import de.uka.ilkd.key.gui.Main;
 import de.uka.ilkd.key.java.Services;
-import de.uka.ilkd.key.logic.IteratorOfNamed;
 import de.uka.ilkd.key.logic.Name;
 import de.uka.ilkd.key.logic.Named;
 import de.uka.ilkd.key.logic.Namespace;
@@ -53,14 +52,11 @@ import de.uka.ilkd.key.logic.NamespaceSet;
 import de.uka.ilkd.key.logic.PosInOccurrence;
 import de.uka.ilkd.key.logic.Sequent;
 import de.uka.ilkd.key.logic.Term;
-import de.uka.ilkd.key.logic.op.EntryOfSchemaVariableAndInstantiationEntry;
-import de.uka.ilkd.key.logic.op.IteratorOfEntryOfSchemaVariableAndInstantiationEntry;
+import de.uka.ilkd.key.logic.op.SchemaVariable;
 import de.uka.ilkd.key.pp.LogicPrinter;
 import de.uka.ilkd.key.pp.ProgramPrinter;
 import de.uka.ilkd.key.proof.Goal;
 import de.uka.ilkd.key.proof.IGoalChooser;
-import de.uka.ilkd.key.proof.IteratorOfGoal;
-import de.uka.ilkd.key.proof.ListOfGoal;
 import de.uka.ilkd.key.proof.Node;
 import de.uka.ilkd.key.proof.Proof;
 import de.uka.ilkd.key.proof.Goal.GoalStatus;
@@ -68,6 +64,7 @@ import de.uka.ilkd.key.proof.proofevent.NodeChangeJournal;
 import de.uka.ilkd.key.proof.proofevent.RuleAppInfo;
 import de.uka.ilkd.key.rule.RuleApp;
 import de.uka.ilkd.key.rule.TacletApp;
+import de.uka.ilkd.key.rule.inst.InstantiationEntry;
 import de.uka.ilkd.key.strategy.LongRuleAppCost;
 import de.uka.ilkd.key.strategy.RuleAppCost;
 import de.uka.ilkd.key.strategy.Strategy;
@@ -210,10 +207,10 @@ public class HypotheticalProvabilityFeature implements Feature {
 		if (app instanceof TacletApp) {
 			TacletApp tapp = (TacletApp) app;
 			String r = "";
-			for (IteratorOfEntryOfSchemaVariableAndInstantiationEntry i = tapp
+			for (Iterator<ImmutableMapEntry<SchemaVariable, InstantiationEntry>> i = tapp
 					.instantiations().interesting().entryIterator(); i
 					.hasNext();) {
-				EntryOfSchemaVariableAndInstantiationEntry e = i.next();
+				ImmutableMapEntry<SchemaVariable, InstantiationEntry> e = i.next();
 				r += "\n\t";
 				try {
 					final LogicPrinter lp = new LogicPrinter(
@@ -594,7 +591,7 @@ public class HypotheticalProvabilityFeature implements Feature {
 		// sets to make independent of order
 		List<Sequent> open = new ArrayList<Sequent>(hypothesis.openGoals()
 				.size() + 1);
-		for (IteratorOfGoal i = hypothesis.openGoals().iterator(); i.hasNext();) {
+		for (Iterator<Goal> i = hypothesis.openGoals().iterator(); i.hasNext();) {
 			open.add(i.next().sequent());
 		}
 		return open;
@@ -630,7 +627,7 @@ public class HypotheticalProvabilityFeature implements Feature {
 	 * @see Goal#apply without events, which would cause synchronization
 	 *      blocking
 	 */
-	private static ListOfGoal apply(Goal goal, RuleApp p_ruleApp) {
+	private static ImmutableList<Goal> apply(Goal goal, RuleApp p_ruleApp) {
 		// System.err.println(Thread.currentThread());
 		assert !goal.node().isClosed() : "cannot apply rule " + p_ruleApp
 				+ " to closed goal " + goal + " which has been closed by "
@@ -650,7 +647,7 @@ public class HypotheticalProvabilityFeature implements Feature {
 
 		final RuleApp ruleApp = completeRuleApp(goal, p_ruleApp);
 
-		final ListOfGoal goalList = ruleApp.execute(goal, proof.getServices());
+		final ImmutableList<Goal> goalList = ruleApp.execute(goal, proof.getServices());
 
 		if (goalList == null) {
 			System.err.println("WARNING: resulting goals after applying "
@@ -885,7 +882,7 @@ public class HypotheticalProvabilityFeature implements Feature {
 			if (app == null) {
 				return false;
 			}
-			ListOfGoal subgoals;
+			ImmutableList<Goal> subgoals;
 			try {
 				subgoals = apply(g, app);
 			} catch (IllegalStateException ex) {
@@ -1006,13 +1003,13 @@ public class HypotheticalProvabilityFeature implements Feature {
 	}
 
 	private static void printDelta(Namespace a, Namespace b) {
-		for (IteratorOfNamed it = a.elements().iterator(); it.hasNext();) {
+		for (Iterator<Named> it = a.elements().iterator(); it.hasNext();) {
 			Named n = it.next();
 			if (b.lookup(n.name()) == null) {
 				System.out.println("  A\\B: " + n);
 			}
 		}
-		for (IteratorOfNamed it = b.elements().iterator(); it.hasNext();) {
+		for (Iterator<Named> it = b.elements().iterator(); it.hasNext();) {
 			Named n = it.next();
 			if (a.lookup(n.name()) == null) {
 				System.out.println("  B\\A: " + n);

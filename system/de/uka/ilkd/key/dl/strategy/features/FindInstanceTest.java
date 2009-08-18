@@ -22,14 +22,13 @@ package de.uka.ilkd.key.dl.strategy.features;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
-import de.uka.ilkd.key.dl.formulatools.MetaVariableLocator;
 import de.uka.ilkd.key.logic.ConstrainedFormula;
-import de.uka.ilkd.key.logic.IteratorOfConstrainedFormula;
 import de.uka.ilkd.key.logic.PosInOccurrence;
 import de.uka.ilkd.key.logic.PosInTerm;
 import de.uka.ilkd.key.logic.Term;
@@ -52,7 +51,7 @@ public class FindInstanceTest implements Feature {
     	if(!MathSolverManager.isCounterExampleGeneratorSet()) {
     		return LongRuleAppCost.ZERO_COST;
     	}
-        IteratorOfConstrainedFormula it = goal.sequent().antecedent()
+        Iterator<ConstrainedFormula> it = goal.sequent().antecedent()
                 .iterator();
         Term resultTerm = TermBuilder.DF.tt();
         Map<Term, List<PosInOccurrence>> changes = iterate(goal, it,
@@ -108,7 +107,7 @@ public class FindInstanceTest implements Feature {
      *         sequence.
      */
     private Map<Term, List<PosInOccurrence>> iterate(Goal result,
-            IteratorOfConstrainedFormula it, Term resultTerm, boolean and) {
+            Iterator<ConstrainedFormula> it, Term resultTerm, boolean and) {
         List<PosInOccurrence> changes = new ArrayList<PosInOccurrence>();
         while (it.hasNext()) {
             ConstrainedFormula f = it.next();

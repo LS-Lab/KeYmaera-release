@@ -26,6 +26,8 @@ import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.uka.ilkd.key.collection.ImmutableList;
+import de.uka.ilkd.key.collection.ImmutableSLList;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.UnsolveableException;
 import de.uka.ilkd.key.dl.strategy.RealtimeStrategy;
@@ -39,8 +41,6 @@ import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.TermBuilder;
 import de.uka.ilkd.key.logic.Visitor;
 import de.uka.ilkd.key.proof.Goal;
-import de.uka.ilkd.key.proof.ListOfGoal;
-import de.uka.ilkd.key.proof.SLListOfGoal;
 import de.uka.ilkd.key.rule.RuleApp;
 import de.uka.ilkd.key.rule.SequentWideBuiltInRule;
 
@@ -94,7 +94,7 @@ public abstract class RuleOperatingOnWholeSequence extends Visitor implements
 	 * @see de.uka.ilkd.key.rule.Rule#apply(de.uka.ilkd.key.proof.Goal,
 	 *      de.uka.ilkd.key.java.Services, de.uka.ilkd.key.rule.RuleApp)
 	 */
-	public synchronized ListOfGoal apply(Goal goal, Services services,
+	public synchronized ImmutableList<Goal> apply(Goal goal, Services services,
 			RuleApp ruleApp) {
 		if (goal.getGoalStrategy() instanceof RealtimeStrategy) {
 			/*
@@ -111,7 +111,7 @@ public abstract class RuleOperatingOnWholeSequence extends Visitor implements
 		}
 	}
 
-	public synchronized ListOfGoal apply(Goal goal, Services services,
+	public synchronized ImmutableList<Goal> apply(Goal goal, Services services,
 			RuleApp ruleApp, long timeout) {
 		// reset the testmode instantaniously to ensure that it cannot be
 		// enabled accidently
@@ -158,7 +158,7 @@ public abstract class RuleOperatingOnWholeSequence extends Visitor implements
 				return goal.split(0);
 			}
 			// otherwise we got one child node
-			ListOfGoal result = goal.split(1);
+			ImmutableList<Goal> result = goal.split(1);
 			// remove all formulas from the antecendent
 			for (PosInOccurrence i : changes.changes) {
 				result.head().setSequent(
@@ -180,7 +180,7 @@ public abstract class RuleOperatingOnWholeSequence extends Visitor implements
 			return result;
 		}
 		// if we are in testmode we always return an empty list
-		return SLListOfGoal.EMPTY_LIST;
+		return ImmutableSLList.nil();
 	}
 
 	/**

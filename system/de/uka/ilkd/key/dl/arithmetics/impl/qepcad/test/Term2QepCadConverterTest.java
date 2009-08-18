@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import junit.framework.TestCase;
+import de.uka.ilkd.key.collection.ImmutableSet;
 import de.uka.ilkd.key.dl.arithmetics.impl.qepcad.QepCadInput;
 import de.uka.ilkd.key.dl.arithmetics.impl.qepcad.Term2QepCadConverter;
-
 import de.uka.ilkd.key.logic.Name;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.TermBuilder;
@@ -14,7 +14,6 @@ import de.uka.ilkd.key.logic.op.LogicVariable;
 import de.uka.ilkd.key.logic.op.QuantifiableVariable;
 import de.uka.ilkd.key.logic.op.RigidFunction;
 import de.uka.ilkd.key.logic.sort.AbstractNonCollectionSort;
-import de.uka.ilkd.key.logic.sort.SetOfSort;
 import de.uka.ilkd.key.logic.sort.Sort;
 
 class SortR extends AbstractNonCollectionSort {
@@ -25,10 +24,15 @@ class SortR extends AbstractNonCollectionSort {
 		super(name);
 	}
 
-	/*@Override*/
-	public SetOfSort extendsSorts() {
+	/* (non-Javadoc)
+	 * @see de.uka.ilkd.key.logic.sort.AbstractSort#extendsSorts()
+	 */
+	@Override
+	public ImmutableSet<Sort> extendsSorts() {
+		// TODO Auto-generated method stub
 		return null;
 	}
+
 }
 
 public class Term2QepCadConverterTest extends TestCase {

@@ -34,7 +34,6 @@ public class OldSimplifyModelGenerator implements DecProdModelGenerator {
     private String initialCounterExample;
 
     // first element has to be 0. Only positive values at even indices.
-    
 
     private static final int[] genericTestValues = new int[] { 0, -1, 1, -10,
 	    10, -1000, 1000, -1000000, 1000000, -2000000000, 2000000000 };
@@ -44,8 +43,7 @@ public class OldSimplifyModelGenerator implements DecProdModelGenerator {
     // time
     private HashSet<String> simplifyOutputs;
 
-    private ListOfString placeHoldersForClasses = SLListOfString.EMPTY_LIST;
-
+    private ImmutableList<String> placeHoldersForClasses = ImmutableSLList.<String>nil();
 
     public static int getModelLimit() {
 	return SimplifyModelGenerator.modelLimit;
@@ -53,7 +51,7 @@ public class OldSimplifyModelGenerator implements DecProdModelGenerator {
 
     public OldSimplifyModelGenerator(DecisionProcedureSimplify dps,
 	    Services serv, HashMap<Term, EquivalenceClass> term2class,
-	    SetOfTerm locations) {
+	    ImmutableSet<Term> locations) {
 
 	this.serv = serv;
 	this.term2class = term2class;
@@ -62,13 +60,13 @@ public class OldSimplifyModelGenerator implements DecProdModelGenerator {
 	initialCounterExample = res.getText();
 	this.simplifyOutputs = new HashSet<String>();
 	string2class = new HashMap<String, EquivalenceClass>();
-	IteratorOfTerm it = locations.iterator();
+	Iterator<Term> it = locations.iterator();
 	Vector<QuantifiableVariable> v = new Vector<QuantifiableVariable>();
 	SimplifyTranslation st = res.getTranslation();
 	try {
 	    while (it.hasNext()) {
 		de.uka.ilkd.key.logic.Term t = it.next();
-		String s = st.translate(t, v).toString();
+		String s = st.pretranslate(t, v).toString();
 		string2class.put(s, term2class.get(t));
 	    }
 	} catch (SimplifyException e) {
@@ -88,7 +86,7 @@ public class OldSimplifyModelGenerator implements DecProdModelGenerator {
 		    intClasses.add(ec);
 		    de.uka.ilkd.key.logic.Term loc = ec.getLocations()
 			    .iterator().next();
-		    String eq = "(EQ " + ph + " " + st.translate(loc, v)
+		    String eq = "(EQ " + ph + " " + st.pretranslate(loc, v)
 			    + ")\n";
 		    initialCounterExample = initialCounterExample.substring(0,
 			    index)
@@ -112,7 +110,7 @@ public class OldSimplifyModelGenerator implements DecProdModelGenerator {
 	return models;
     }
 
-    public Set<Model> createModelsHelp(String counterEx, Model model,
+    private Set<Model> createModelsHelp(String counterEx, Model model,
 	    int datCount) {
 	String counterExOLD = new String(counterEx);
 	Set<Model> models = new HashSet<Model>();
@@ -133,9 +131,11 @@ public class OldSimplifyModelGenerator implements DecProdModelGenerator {
 	try {
 	    c = parser.top();
 	} catch (Exception e) {
-	    String errMsg = e.getMessage()+ "\nThe input of the SimplifyParser that reads the output from simplify was (between the \"====\"):\n=====START======\n"+
-	    	counterEx + "\n=====END=======\nThe original output of simplify before cleanup was:\n=====START======\n"+
-	    	counterExOLD;
+	    String errMsg = e.getMessage()
+		    + "\nThe input of the SimplifyParser that reads the output from simplify was (between the \"====\"):\n=====START======\n"
+		    + counterEx
+		    + "\n=====END=======\nThe original output of simplify before cleanup was:\n=====START======\n"
+		    + counterExOLD;
 	    throw new RuntimeException(errMsg);
 	}
 	removeNegativeArrayIndices(c);

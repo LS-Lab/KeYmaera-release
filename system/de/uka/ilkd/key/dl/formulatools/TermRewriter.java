@@ -26,11 +26,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import de.uka.ilkd.key.collection.ImmutableArray;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.TermFactory;
-import de.uka.ilkd.key.logic.op.ArrayOfQuantifiableVariable;
 import de.uka.ilkd.key.logic.op.Metavariable;
 import de.uka.ilkd.key.logic.op.Operator;
+import de.uka.ilkd.key.logic.op.QuantifiableVariable;
 import de.uka.ilkd.key.logic.op.RigidFunction;
 
 /**
@@ -81,8 +82,8 @@ public class TermRewriter {
 		}
 		if (thisHasChanged[0]) {
 			hasChanged[0] = true;
-			ArrayOfQuantifiableVariable[] boundVars = 
-				new ArrayOfQuantifiableVariable[term.arity()];
+			ImmutableArray<QuantifiableVariable>[] boundVars = 
+				new ImmutableArray[term.arity()];
 			for (int i = 0, arity = term.arity(); i < arity; i++) { 
 				  boundVars[i] = term.varsBoundHere(i);
 			}

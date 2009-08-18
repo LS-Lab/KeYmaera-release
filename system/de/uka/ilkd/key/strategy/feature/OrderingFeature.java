@@ -10,11 +10,12 @@
 
 package de.uka.ilkd.key.strategy.feature;
 
+import java.util.Iterator;
+
 import de.uka.ilkd.key.logic.LexPathOrdering;
 import de.uka.ilkd.key.logic.PosInOccurrence;
 import de.uka.ilkd.key.logic.TermOrdering;
 import de.uka.ilkd.key.proof.Goal;
-import de.uka.ilkd.key.rule.IteratorOfVariableCondition;
 import de.uka.ilkd.key.rule.TacletApp;
 import de.uka.ilkd.key.rule.VariableCondition;
 import de.uka.ilkd.key.rule.conditions.OrderingCondition;
@@ -39,7 +40,7 @@ public class OrderingFeature extends BinaryTacletAppFeature {
     private OrderingFeature () {}
     
     protected boolean filter ( TacletApp app, PosInOccurrence pos, Goal goal ) {
-        final IteratorOfVariableCondition it = app.taclet ()
+         final Iterator<VariableCondition> it = app.taclet ()
                 .getVariableConditions ();
 
         while (it.hasNext ()) {

@@ -11,16 +11,16 @@
 
 package de.uka.ilkd.key.dl.strategy.features;
 
+import de.uka.ilkd.key.collection.ImmutableList;
 import de.uka.ilkd.key.dl.logic.ldt.RealLDT;
 import de.uka.ilkd.key.dl.model.Mult;
-import de.uka.ilkd.key.logic.ListOfTerm;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.strategy.feature.SmallerThanFeature;
 
 public abstract class AbstractMonomialSmallerThanFeature
                                          extends SmallerThanFeature {
     
-    protected ListOfTerm collectAtoms(Term t) {
+    protected ImmutableList<Term> collectAtoms(Term t) {
         final AtomCollector m = new AtomCollector ();
         m.collect ( t );
         return m.getResult ();

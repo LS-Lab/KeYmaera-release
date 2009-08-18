@@ -269,7 +269,7 @@ public class Term2QepCadConverter {
 			int varsNum = form.varsBoundHere(0).size();
 			String[] vars = new String[varsNum];
 			for (int i = 0; i < varsNum; i++) {
-				String name = form.varsBoundHere(0).getQuantifiableVariable(i)
+				String name = form.varsBoundHere(0).get(i)
 						.name().toString();
 				if (name.contains("_")) {
 					name = name.replaceAll("_", USCOREESCAPE);

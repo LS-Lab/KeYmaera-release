@@ -33,6 +33,7 @@ import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 
 import orbital.awt.UIUtilities;
+import de.uka.ilkd.key.collection.ImmutableList;
 import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
 import de.uka.ilkd.key.dl.formulatools.TermTools;
 import de.uka.ilkd.key.dl.model.DiffSystem;
@@ -50,7 +51,6 @@ import de.uka.ilkd.key.logic.op.Modality;
 import de.uka.ilkd.key.logic.op.Op;
 import de.uka.ilkd.key.logic.op.QuanUpdateOperator;
 import de.uka.ilkd.key.proof.Goal;
-import de.uka.ilkd.key.proof.ListOfGoal;
 import de.uka.ilkd.key.proof.RuleFilter;
 import de.uka.ilkd.key.rule.BuiltInRule;
 import de.uka.ilkd.key.rule.Rule;
@@ -106,11 +106,11 @@ public class FindTransitionRule implements BuiltInRule, RuleFilter {
      *      de.uka.ilkd.key.java.Services, de.uka.ilkd.key.rule.RuleApp)
      */
     @SuppressWarnings("unchecked")
-    public synchronized ListOfGoal apply(Goal goal, Services services,
+    public synchronized ImmutableList<Goal> apply(Goal goal, Services services,
             RuleApp ruleApp) {
         Term antecedent = TermTools.createJunctorTermNAry(TermBuilder.DF.tt(),
                 Op.AND, goal.sequent().antecedent().iterator(),
-                Collections.EMPTY_SET);
+                Collections.EMPTY_SET, true);
         // @todo ignore succedent?
 
         try {

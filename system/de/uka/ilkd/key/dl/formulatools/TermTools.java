@@ -17,16 +17,14 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import de.uka.ilkd.key.collection.ImmutableList;
+import de.uka.ilkd.key.collection.ImmutableSLList;
 import de.uka.ilkd.key.dl.formulatools.TermRewriter.Match;
 import de.uka.ilkd.key.java.PrettyPrinter;
 import de.uka.ilkd.key.java.ProgramElement;
 import de.uka.ilkd.key.logic.ConstrainedFormula;
-import de.uka.ilkd.key.logic.IteratorOfConstrainedFormula;
-import de.uka.ilkd.key.logic.IteratorOfTerm;
-import de.uka.ilkd.key.logic.ListOfTerm;
 import de.uka.ilkd.key.logic.Name;
 import de.uka.ilkd.key.logic.Named;
-import de.uka.ilkd.key.logic.SLListOfTerm;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.TermBuilder;
 import de.uka.ilkd.key.logic.TermFactory;
@@ -55,7 +53,7 @@ public class TermTools {
 	 * @see #createJunctorTermNAry(Term,Junctor,IteratorOfTerm)
 	 */
 	public static final Term createJunctorTermNAry(Term c, Junctor op,
-			IteratorOfConstrainedFormula i, Set<Term> skip) {
+			Iterator<ConstrainedFormula> i, Set<Term> skip, boolean constrainedFormulaIt) {
 		Term construct = c;
 		while (i.hasNext()) {
 			ConstrainedFormula f = i.next();
@@ -69,27 +67,6 @@ public class TermTools {
 					throw new IllegalArgumentException(
 							"there is a non-tautological constraint on " + f
 									+ ". lower constraints, first");
-				construct = TermFactory.DEFAULT.createJunctorTermAndSimplify(
-						op, construct, t);
-			}
-		}
-		return construct;
-	}
-
-	/**
-	 * Explicit n-ary-fied version of {@link
-	 * de.uka.ilkd.logic.TermFactory#createJunctorTerm(Junctor,Term[])}.
-	 * 
-	 * @see orbital.logic.functor.Functionals#foldRight
-	 * @internal almost identical to
-	 * @see #createJunctorTermNAry(Term,Junctor,IteratorOfTerm)
-	 */
-	public static final Term createJunctorTermNAry(Term c, Junctor op,
-			IteratorOfTerm i, Set<Term> skip) {
-		Term construct = c;
-		while (i.hasNext()) {
-			Term t = i.next();
-			if (!skip.contains(t)) {
 				construct = TermFactory.DEFAULT.createJunctorTermAndSimplify(
 						op, construct, t);
 			}
@@ -337,8 +314,8 @@ public class TermTools {
 		return r;
 	}
 
-	public static ListOfTerm genericToOld(Collection<Term> c) {
-		ListOfTerm r = SLListOfTerm.EMPTY_LIST;
+	public static ImmutableList<Term> genericToOld(Collection<Term> c) {
+		ImmutableList<Term> r = ImmutableSLList.nil();
 		for (Term s : c) {
 			r = r.append(s);
 		}
@@ -346,9 +323,9 @@ public class TermTools {
 		return r;
 	}
 
-	public static List<Term> oldToGeneric(ListOfTerm c) {
+	public static List<Term> oldToGeneric(ImmutableList<Term> c) {
 		List<Term> r = new java.util.ArrayList<Term>(c.size());
-		for (IteratorOfTerm i = c.iterator(); i.hasNext();) {
+		for (Iterator<Term> i = c.iterator(); i.hasNext();) {
 			r.add(i.next());
 		}
 		assert r.size() == c.size();

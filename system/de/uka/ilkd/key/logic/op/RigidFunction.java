@@ -9,8 +9,8 @@
 
 package de.uka.ilkd.key.logic.op;
 
+import de.uka.ilkd.key.collection.ImmutableArray;
 import de.uka.ilkd.key.logic.Name;
-import de.uka.ilkd.key.logic.sort.ArrayOfSort;
 import de.uka.ilkd.key.logic.sort.Sort;
 
 
@@ -51,7 +51,7 @@ public class RigidFunction extends Function {
 	 * @param sort
 	 * @param argSorts
 	 */
-	public RigidFunction(Name name, Sort sort, ArrayOfSort argSorts) {
+	public RigidFunction(Name name, Sort sort, ImmutableArray<Sort> argSorts) {
 	    super(name, sort, argSorts);            
 	}
 	
@@ -61,7 +61,7 @@ public class RigidFunction extends Function {
 	 * @param sort
 	 * @param argSorts
 	 */
-	public RigidFunction(Name name, Sort sort, ArrayOfSort argSorts, FunctionType type) {
+	public RigidFunction(Name name, Sort sort, ImmutableArray<Sort> argSorts, FunctionType type) {
 	    this(name, sort, argSorts);
 	    this.type = type;
 	}

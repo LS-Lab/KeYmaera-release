@@ -22,7 +22,7 @@
  */
 package de.uka.ilkd.key.dl.model;
 
-import de.uka.ilkd.key.java.ArrayOfStatement;
+import de.uka.ilkd.key.collection.ImmutableArray;
 import de.uka.ilkd.key.java.NonTerminalProgramElement;
 import de.uka.ilkd.key.java.ProgramElement;
 import de.uka.ilkd.key.java.Services;
@@ -62,7 +62,7 @@ public class DLStatementBlock extends StatementBlock {
 		super(body);
 	}
 
-	public DLStatementBlock(ArrayOfStatement array) {
+	public DLStatementBlock(ImmutableArray<Statement> array) {
 		super(array);
 	}
 
@@ -78,7 +78,7 @@ public class DLStatementBlock extends StatementBlock {
 	 */
 	/*@Override*/
 	public String reuseSignature(Services services, ExecutionContext ec) {
-		return ((DLProgramElement) getBody().getStatement(0)).reuseSignature(
+		return ((DLProgramElement) getBody().get(0)).reuseSignature(
 				services, ec);
 	}
 

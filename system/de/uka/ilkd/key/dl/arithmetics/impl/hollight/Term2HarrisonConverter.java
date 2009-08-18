@@ -266,7 +266,7 @@ public class Term2HarrisonConverter {
 			int varsNum = form.varsBoundHere(0).size();
 			String[] vars = new String[varsNum];
 			for (int i = 0; i < varsNum; i++) {
-				String name = form.varsBoundHere(0).getQuantifiableVariable(i)
+				String name = form.varsBoundHere(0).get(i)
 						.name().toString();
 				if (name.contains("$")) {
 					name = name.replaceAll("\\$", DOLLARESCAPE);

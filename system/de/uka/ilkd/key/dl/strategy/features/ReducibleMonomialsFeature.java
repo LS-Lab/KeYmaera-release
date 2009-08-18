@@ -12,7 +12,6 @@
 package de.uka.ilkd.key.dl.strategy.features;
 
 import de.uka.ilkd.key.dl.rules.metaconstruct.MonomialReals;
-import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.logic.PosInOccurrence;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.proof.Goal;

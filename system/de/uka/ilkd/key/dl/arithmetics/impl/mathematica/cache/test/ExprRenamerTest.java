@@ -1,7 +1,10 @@
 package de.uka.ilkd.key.dl.arithmetics.impl.mathematica.cache.test;
 
+import junit.framework.TestCase;
+
 import com.wolfram.jlink.Expr;
 
+import de.uka.ilkd.key.collection.ImmutableSet;
 import de.uka.ilkd.key.dl.arithmetics.impl.mathematica.Term2ExprConverter;
 import de.uka.ilkd.key.dl.arithmetics.impl.mathematica.cache.ExprRenamer;
 import de.uka.ilkd.key.dl.arithmetics.impl.mathematica.cache.RenameTable;
@@ -11,9 +14,7 @@ import de.uka.ilkd.key.logic.TermBuilder;
 import de.uka.ilkd.key.logic.op.LogicVariable;
 import de.uka.ilkd.key.logic.op.RigidFunction;
 import de.uka.ilkd.key.logic.sort.AbstractNonCollectionSort;
-import de.uka.ilkd.key.logic.sort.SetOfSort;
 import de.uka.ilkd.key.logic.sort.Sort;
-import junit.framework.TestCase;
 
 /**
  * Helper class.
@@ -28,10 +29,15 @@ class SortR extends AbstractNonCollectionSort {
         super(name);
     }
 
-    @Override
-    public SetOfSort extendsSorts() {
-        return null;
-    }
+	/* (non-Javadoc)
+	 * @see de.uka.ilkd.key.logic.sort.AbstractSort#extendsSorts()
+	 */
+	@Override
+	public ImmutableSet<Sort> extendsSorts() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }
 
 /**

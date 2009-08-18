@@ -21,15 +21,15 @@ package de.uka.ilkd.key.dl.formulatools;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.TreeSet;
 
-import de.uka.ilkd.key.logic.IteratorOfConstrainedFormula;
-import de.uka.ilkd.key.logic.Term;
-import de.uka.ilkd.key.dl.formulatools.collector.*;
+import de.uka.ilkd.key.dl.formulatools.collector.AllCollector;
 import de.uka.ilkd.key.dl.formulatools.collector.filter.FilterVariableCollector;
+import de.uka.ilkd.key.logic.ConstrainedFormula;
+import de.uka.ilkd.key.logic.Term;
 
 /**
  * @author jdq
@@ -172,7 +172,7 @@ public class VariableOrderCreator {
 	}
 
 	public static VariableOrder getVariableOrder(
-			IteratorOfConstrainedFormula iterator) {
+			Iterator<ConstrainedFormula> iterator) {
 		TreeMap<String, Integer> variables = new TreeMap<String, Integer>();
 
 		while (iterator.hasNext()) {

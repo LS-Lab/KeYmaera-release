@@ -15,6 +15,7 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -26,6 +27,8 @@ import javax.swing.JOptionPane;
 
 import org.apache.log4j.Logger;
 
+import de.uka.ilkd.key.collection.ImmutableList;
+import de.uka.ilkd.key.collection.ImmutableSLList;
 import de.uka.ilkd.key.dl.rules.EliminateExistentialQuantifierRule;
 import de.uka.ilkd.key.dl.rules.ReduceRule;
 import de.uka.ilkd.key.gui.KeYMediator;
@@ -36,9 +39,7 @@ import de.uka.ilkd.key.logic.JavaBlock;
 import de.uka.ilkd.key.logic.NameCreationInfo;
 import de.uka.ilkd.key.logic.PosInOccurrence;
 import de.uka.ilkd.key.logic.ProgramElementName;
-import de.uka.ilkd.key.logic.Sequent;
 import de.uka.ilkd.key.logic.Term;
-import de.uka.ilkd.key.logic.op.IteratorOfSchemaVariable;
 import de.uka.ilkd.key.logic.op.ProgramVariable;
 import de.uka.ilkd.key.logic.op.SchemaVariable;
 import de.uka.ilkd.key.logic.op.SortedSchemaVariable;
@@ -48,20 +49,15 @@ import de.uka.ilkd.key.pp.AbbrevMap;
 import de.uka.ilkd.key.pp.PosInSequent;
 import de.uka.ilkd.key.rule.BuiltInRule;
 import de.uka.ilkd.key.rule.FindTaclet;
-import de.uka.ilkd.key.rule.IteratorOfBuiltInRule;
-import de.uka.ilkd.key.rule.IteratorOfTacletApp;
-import de.uka.ilkd.key.rule.IteratorOfTacletGoalTemplate;
-import de.uka.ilkd.key.rule.ListOfBuiltInRule;
-import de.uka.ilkd.key.rule.ListOfTacletApp;
-import de.uka.ilkd.key.rule.ListOfTacletGoalTemplate;
 import de.uka.ilkd.key.rule.RewriteTaclet;
 import de.uka.ilkd.key.rule.RewriteTacletGoalTemplate;
-import de.uka.ilkd.key.rule.SLListOfBuiltInRule;
-import de.uka.ilkd.key.rule.SLListOfTacletApp;
 import de.uka.ilkd.key.rule.Taclet;
 import de.uka.ilkd.key.rule.TacletApp;
 import de.uka.ilkd.key.rule.TacletGoalTemplate;
 import de.uka.ilkd.key.rule.TacletSchemaVariableCollector;
+import de.uka.ilkd.key.smt.DecProcRunner;
+import de.uka.ilkd.key.smt.SMTRule;
+import de.uka.ilkd.key.smt.SMTRuleMulti;
 
 /**
  *  This class creates a menu with Taclets as entries. The invoker has
@@ -88,15 +84,15 @@ class TacletMenu extends JMenu {
     /** creates a new menu that displays all applicable rules at the given
      * position
      * @param sequentView the SequentView that is the parent of this menu
-     * @param findList ListOfTaclet with all applicable FindTaclets
-     * @param rewriteList ListOfTaclet with all applicable RewriteTaclets
-     * @param noFindList ListOfTaclet with all applicable noFindTaclets
-     * @param builtInList ListOfBuiltInRule with all applicable BuiltInRules
+     * @param findList IList<Taclet> with all applicable FindTaclets
+     * @param rewriteList IList<Taclet> with all applicable RewriteTaclets
+     * @param noFindList IList<Taclet> with all applicable noFindTaclets
+     * @param builtInList IList<BuiltInRule> with all applicable BuiltInRules
      * @param pos the PosInSequent
      */ 
     TacletMenu(SequentView sequentView,
-	       ListOfTacletApp findList, ListOfTacletApp rewriteList,
-	       ListOfTacletApp noFindList, ListOfBuiltInRule builtInList,
+	       ImmutableList<TacletApp> findList, ImmutableList<TacletApp> rewriteList,
+	       ImmutableList<TacletApp> noFindList, ImmutableList<BuiltInRule> builtInList,
 	       PosInSequent pos) {
         super();        
 	this.sequentView = sequentView;
@@ -110,13 +106,13 @@ class TacletMenu extends JMenu {
 
     
     /** removes RewriteTaclet from list
-     * @param list the ListOfTaclet from where the RewriteTaclet are
+     * @param list the IList<Taclet> from where the RewriteTaclet are
      * removed
      * @return list without RewriteTaclets
      */
-    private ListOfTacletApp removeRewrites(ListOfTacletApp list) {
-	ListOfTacletApp result = SLListOfTacletApp.EMPTY_LIST;
-	IteratorOfTacletApp it = list.iterator();
+    private ImmutableList<TacletApp> removeRewrites(ImmutableList<TacletApp> list) {
+	ImmutableList<TacletApp> result = ImmutableSLList.<TacletApp>nil();
+	Iterator<TacletApp> it = list.iterator();
 
 	while(it.hasNext()) {
 	    TacletApp tacletApp = it.next();
@@ -129,9 +125,9 @@ class TacletMenu extends JMenu {
 
 
     /** creates the menu by adding all submenus and items */
-    private void createTacletMenu(ListOfTacletApp find,
-				  ListOfTacletApp noFind,
-				  ListOfBuiltInRule builtInList,
+    private void createTacletMenu(ImmutableList<TacletApp> find,
+				  ImmutableList<TacletApp> noFind,
+				  ImmutableList<BuiltInRule> builtInList,
 				  MenuControl control) {	 
 	addActionListener(control);
 	boolean rulesAvailable=(addSection("Find", sort(find), control));
@@ -167,13 +163,13 @@ class TacletMenu extends JMenu {
 	}
     }
 
-    private void createBuiltInRuleMenu(ListOfBuiltInRule builtInList,
+    private void createBuiltInRuleMenu(ImmutableList<BuiltInRule> builtInList,
 				       MenuControl            control) {
 
 	if (!builtInList.isEmpty()) {
 	    addSeparator();	
-	    IteratorOfBuiltInRule it = builtInList.iterator();
-	    while (it.hasNext()) {                
+	    Iterator<BuiltInRule> it = builtInList.iterator();
+	    while (it.hasNext()) {
 		addBuiltInRuleItem(it.next(), control);
 	    }
 	}
@@ -205,8 +201,8 @@ class TacletMenu extends JMenu {
     }
     
 
-    private ListOfTacletApp sort(ListOfTacletApp finds) {
-	ListOfTacletApp result = SLListOfTacletApp.EMPTY_LIST;
+    private ImmutableList<TacletApp> sort(ImmutableList<TacletApp> finds) {
+	ImmutableList<TacletApp> result = ImmutableSLList.<TacletApp>nil();
 	
 	List<TacletApp> list = new ArrayList<TacletApp>(finds.size());
 
@@ -255,10 +251,10 @@ class TacletMenu extends JMenu {
     /** creates a non selectable label with the specified name and adds it to
      * the component followed by the entries of this section 
      * @param title a String the title of the section
-     * @param taclet ListOfTaclet that contains the Taclets belonging to this section
+     * @param taclet IList<Taclet> that contains the Taclets belonging to this section
      * @return true if section has been added (empty sections are not added)
      */ 
-    private boolean addSection(String title, ListOfTacletApp taclet, 
+    private boolean addSection(String title, ImmutableList<TacletApp> taclet, 
 			       MenuControl control) {
 	if (taclet.size() > 0) {
 	    //uncomment if you want submenus with subtitels
@@ -304,14 +300,14 @@ class TacletMenu extends JMenu {
 
     /** creates new TacletMenuItems for each taclet in the list and set
      * the given MenuControl as their ActionListener
-     * @param taclets ListOfTaclet with the Taclets the items represent
+     * @param taclets IList<Taclet> with the Taclets the items represent
      * @param control the ActionListener
      * @return the new MenuItems
      */
-    private TacletMenuItem[] createMenuItems(ListOfTacletApp taclets, 
+    private TacletMenuItem[] createMenuItems(ImmutableList<TacletApp> taclets, 
 					     MenuControl  control) {
 	List<TacletMenuItem> items = new LinkedList<TacletMenuItem>();
-	IteratorOfTacletApp it = taclets.iterator();
+	Iterator<TacletApp> it = taclets.iterator();
 	
         final InsertHiddenTacletMenuItem insHiddenItem = 
             new InsertHiddenTacletMenuItem(mediator.mainFrame(), 
@@ -380,9 +376,17 @@ class TacletMenu extends JMenu {
 		    .selectedTaclet(((TacletMenuItem) e.getSource()).connectedTo(), 
 				    pos);
             } else if (e.getSource() instanceof BuiltInRuleMenuItem) {
+        	if (((BuiltInRuleMenuItem) e.getSource()).connectedTo() instanceof SMTRule ||
+        	    ((BuiltInRuleMenuItem) e.getSource()).connectedTo() instanceof SMTRuleMulti) {
+        	    new DecProcRunner(Main.getInstance()
+        		, Main.getInstance().mediator().getProof()
+        		, Main.getInstance().mediator().getProof().getUserConstraint().getConstraint()
+        		, ((BuiltInRuleMenuItem) e.getSource()).connectedTo()).start();
+        	} else {
                         mediator.selectedBuiltInRule
                     (((BuiltInRuleMenuItem) e.getSource()).connectedTo(), 
                      pos.getPosInOccurrence());
+        	}
 	    } else if (e.getSource() instanceof FocussedRuleApplicationMenuItem) {
 	        mediator.getInteractiveProver ()
 	            .startFocussedAutoMode ( pos.getPosInOccurrence (),
@@ -511,7 +515,7 @@ class TacletMenu extends JMenu {
 
 	private int countFormulaSV(TacletSchemaVariableCollector c) {
 	    int formulaSV = 0;
-	    IteratorOfSchemaVariable it = c.varIterator();
+	    Iterator<SchemaVariable> it = c.varIterator();
 	    while (it.hasNext()) {
 		SchemaVariable sv = it.next();
 		if(sv instanceof SortedSchemaVariable) {
@@ -529,9 +533,9 @@ class TacletMenu extends JMenu {
 	 * If no such term exists we add a constant (may be refined in
 	 * future)
 	 */
-	private int measureGoalComplexity(ListOfTacletGoalTemplate l) {
+	private int measureGoalComplexity(ImmutableList<TacletGoalTemplate> l) {
 	    int result = 0;
-	    IteratorOfTacletGoalTemplate it = l.iterator();
+	    Iterator<TacletGoalTemplate> it = l.iterator();
 	    while (it.hasNext()) {
 		TacletGoalTemplate gt = it.next();
 		if (gt instanceof RewriteTacletGoalTemplate) {

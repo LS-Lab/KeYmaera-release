@@ -25,15 +25,10 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
-import com.wolfram.jlink.Expr;
-
 import orbital.util.Setops;
-
-import de.uka.ilkd.key.dl.arithmetics.impl.mathematica.MathematicaDLBridge;
 import de.uka.ilkd.key.dl.model.DLNonTerminalProgramElement;
 import de.uka.ilkd.key.dl.model.DLProgram;
 import de.uka.ilkd.key.dl.model.DiffSystem;
@@ -49,9 +44,7 @@ import de.uka.ilkd.key.dl.strategy.termProjection.Generator;
 import de.uka.ilkd.key.java.ProgramElement;
 import de.uka.ilkd.key.java.StatementBlock;
 import de.uka.ilkd.key.logic.JavaBlock;
-import de.uka.ilkd.key.logic.Named;
 import de.uka.ilkd.key.logic.PosInOccurrence;
-import de.uka.ilkd.key.logic.SetOfChoice;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.op.Modality;
 import de.uka.ilkd.key.logic.op.QuanUpdateOperator;

@@ -20,6 +20,7 @@
 
 package de.uka.ilkd.key.dl.strategy;
 
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
@@ -78,7 +79,7 @@ import de.uka.ilkd.key.dl.strategy.termProjection.UltimatePostProjection;
 import de.uka.ilkd.key.dl.strategy.termfeature.DecimalLiteralFeature;
 import de.uka.ilkd.key.dl.strategy.termfeature.QuasiRealLiteralFeature;
 import de.uka.ilkd.key.java.ProgramElement;
-import de.uka.ilkd.key.logic.IteratorOfConstrainedFormula;
+import de.uka.ilkd.key.logic.ConstrainedFormula;
 import de.uka.ilkd.key.logic.Name;
 import de.uka.ilkd.key.logic.PosInOccurrence;
 import de.uka.ilkd.key.logic.op.Function;
@@ -1418,7 +1419,7 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 					System.out.println("Found CE");// XXX
 					ceCache.put(goal.node(), CounterExample.CE);
 					boolean containsMetavariable = false;
-					for (IteratorOfConstrainedFormula i = goal.sequent()
+					for (Iterator<ConstrainedFormula> i = goal.sequent()
 							.iterator(); i.hasNext();) {
 						if (i.next().formula().metaVars().size() > 0) {
 							containsMetavariable = true;

@@ -15,24 +15,23 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
+import de.uka.ilkd.key.collection.DefaultImmutableSet;
+import de.uka.ilkd.key.collection.ImmutableArray;
+import de.uka.ilkd.key.collection.ImmutableSet;
 import de.uka.ilkd.key.dl.formulatools.ReplaceVisitor;
 import de.uka.ilkd.key.dl.model.DLNonTerminalProgramElement;
 import de.uka.ilkd.key.dl.model.DLProgram;
 import de.uka.ilkd.key.dl.model.DLStatementBlock;
 import de.uka.ilkd.key.dl.model.TermFactory;
-import de.uka.ilkd.key.dl.model.impl.TermFactoryImpl;
 import de.uka.ilkd.key.dl.options.DLOptionBean;
 import de.uka.ilkd.key.dl.rules.DLApplyOnModality;
 import de.uka.ilkd.key.gui.Main;
 import de.uka.ilkd.key.java.ProgramElement;
 import de.uka.ilkd.key.java.StatementBlock;
-import de.uka.ilkd.key.logic.op.ArrayOfQuantifiableVariable;
 import de.uka.ilkd.key.logic.op.Equality;
 import de.uka.ilkd.key.logic.op.LogicVariable;
 import de.uka.ilkd.key.logic.op.Modality;
 import de.uka.ilkd.key.logic.op.QuantifiableVariable;
-import de.uka.ilkd.key.logic.op.SetAsListOfQuantifiableVariable;
-import de.uka.ilkd.key.logic.sort.SetOfSort;
 import de.uka.ilkd.key.logic.sort.Sort;
 
 public class DLWaryClashFreeSubst extends WaryClashFreeSubst {
@@ -76,7 +75,7 @@ public class DLWaryClashFreeSubst extends WaryClashFreeSubst {
      * @returns true if <code>subTerm</code> bound by <code>boundVars</code>
      *          would change under application of this substitution
      */
-    protected boolean subTermChanges(ArrayOfQuantifiableVariable boundVars,
+    protected boolean subTermChanges(ImmutableArray<QuantifiableVariable> boundVars,
             Term subTerm) {
         if (!super.subTermChanges(boundVars, subTerm)) {
             DLVariableCollectVisitor vcv = new DLVariableCollectVisitor();
@@ -96,15 +95,10 @@ public class DLWaryClashFreeSubst extends WaryClashFreeSubst {
         super.findUsedVariables(t);
         DLVariableCollectVisitor vcv = new DLVariableCollectVisitor();
         getSubstitutedTerm().execPostOrder(vcv);
-        warysvars = SetAsListOfQuantifiableVariable.EMPTY_SET;
+        warysvars = DefaultImmutableSet.nil();
         // We only need the correct names of the variables
         for (Name name : vcv.vars()) {
             warysvars = warysvars.add(new LogicVariable(name, new Sort() {
-
-                public SetOfSort extendsSorts() {
-                    // TODO Auto-generated method stub
-                    return null;
-                }
 
                 public boolean extendsTrans(Sort s) {
                     // TODO Auto-generated method stub
@@ -120,6 +114,12 @@ public class DLWaryClashFreeSubst extends WaryClashFreeSubst {
                     // TODO Auto-generated method stub
                     return null;
                 }
+
+				@Override
+				public ImmutableSet<Sort> extendsSorts() {
+					// TODO Auto-generated method stub
+					return null;
+				}
 
             }));
         }
@@ -129,11 +129,6 @@ public class DLWaryClashFreeSubst extends WaryClashFreeSubst {
         for (Name name : vcv.vars()) {
             warysvars = warysvars.add(new LogicVariable(name, new Sort() {
 
-                public SetOfSort extendsSorts() {
-                    // TODO Auto-generated method stub
-                    return null;
-                }
-
                 public boolean extendsTrans(Sort s) {
                     // TODO Auto-generated method stub
                     return false;
@@ -148,6 +143,12 @@ public class DLWaryClashFreeSubst extends WaryClashFreeSubst {
                     // TODO Auto-generated method stub
                     return null;
                 }
+
+				@Override
+				public ImmutableSet<Sort> extendsSorts() {
+					// TODO Auto-generated method stub
+					return null;
+				}
 
             }));
         }
@@ -225,9 +226,9 @@ public class DLWaryClashFreeSubst extends WaryClashFreeSubst {
                 vars.add(((QuantifiableVariable) t.op()).name());
             } else {
                 for (int i = 0; i < t.arity(); i++) {
-                    ArrayOfQuantifiableVariable vbh = t.varsBoundHere(i);
+                    ImmutableArray<QuantifiableVariable> vbh = t.varsBoundHere(i);
                     for (int j = 0; j < vbh.size(); j++) {
-                        vars.add(vbh.getQuantifiableVariable(j).name());
+                        vars.add(vbh.get(j).name());
                     }
                 }
             }

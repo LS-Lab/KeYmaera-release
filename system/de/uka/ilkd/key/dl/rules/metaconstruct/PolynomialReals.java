@@ -11,10 +11,13 @@
 
 package de.uka.ilkd.key.dl.rules.metaconstruct;
 
-import orbital.math.Arithmetic;
-import orbital.moon.math.ValuesImpl;
-import orbital.math.functional.Operations;
+import java.util.Iterator;
 
+import orbital.math.Arithmetic;
+import orbital.math.functional.Operations;
+import orbital.moon.math.ValuesImpl;
+import de.uka.ilkd.key.collection.ImmutableList;
+import de.uka.ilkd.key.collection.ImmutableSLList;
 import de.uka.ilkd.key.dl.arithmetics.impl.orbital.OrbitalSimplifier;
 import de.uka.ilkd.key.dl.logic.ldt.RealLDT;
 import de.uka.ilkd.key.dl.strategy.termfeature.QuasiRealLiteralFeature;
@@ -30,9 +33,11 @@ import de.uka.ilkd.key.util.LRUCache;
 public class PolynomialReals {
 
     private final Arithmetic constantPart;
-    private final ListOfMonomialReals parts;
+    private final ImmutableList<MonomialReals> parts;
 
-    private PolynomialReals(ListOfMonomialReals parts, Arithmetic constantPart) {
+    private static final ImmutableList<MonomialReals> nil = ImmutableSLList.nil();
+    
+    private PolynomialReals(ImmutableList<MonomialReals> parts, Arithmetic constantPart) {
         this.parts = parts;
         this.constantPart = constantPart;
     }
@@ -41,10 +46,10 @@ public class PolynomialReals {
         new LRUCache<Term, PolynomialReals> ( 2000 );
 
     public final static PolynomialReals ZERO =
-        new PolynomialReals ( SLListOfMonomialReals.EMPTY_LIST,
+        new PolynomialReals ( nil,
         	              ValuesImpl.getDefault().ZERO());    
     public final static PolynomialReals ONE =
-        new PolynomialReals ( SLListOfMonomialReals.EMPTY_LIST,
+        new PolynomialReals ( nil,
         	              ValuesImpl.getDefault().ONE() );    
 
     public static PolynomialReals create(Term polyTerm) {
@@ -65,8 +70,8 @@ public class PolynomialReals {
     public PolynomialReals multiply(Arithmetic c) {
         if ( c.isZero () )
             return ZERO;
-        ListOfMonomialReals newParts = SLListOfMonomialReals.EMPTY_LIST;
-        final IteratorOfMonomialReals it = parts.iterator ();
+        ImmutableList<MonomialReals> newParts = ImmutableSLList.nil();
+        final Iterator<MonomialReals> it = parts.iterator ();
         while ( it.hasNext () )
             newParts = newParts.prepend ( it.next ().multiply ( c ) );
 
@@ -77,8 +82,8 @@ public class PolynomialReals {
         if ( m.getCoefficient ().isZero () )
             return ZERO;
         
-        ListOfMonomialReals newParts = SLListOfMonomialReals.EMPTY_LIST;
-        final IteratorOfMonomialReals it = parts.iterator ();
+        ImmutableList<MonomialReals> newParts = ImmutableSLList.nil();
+        final Iterator<MonomialReals> it = parts.iterator ();
         while ( it.hasNext () )
             newParts = newParts.prepend ( it.next ().multiply ( m ) );
 
@@ -97,8 +102,8 @@ public class PolynomialReals {
     public PolynomialReals sub(PolynomialReals p) {
         final Arithmetic newConst =
             getConstantTerm ().subtract ( p.getConstantTerm () );
-        ListOfMonomialReals newParts = parts;
-        final IteratorOfMonomialReals it = p.getParts ().iterator ();
+        ImmutableList<MonomialReals> newParts = parts;
+        final Iterator<MonomialReals> it = p.getParts ().iterator ();
         while ( it.hasNext () )
             newParts = addPart ( newParts, it.next ().multiply
         	                         ( ValuesImpl.getDefault().MINUS_ONE() ) );
@@ -116,8 +121,8 @@ public class PolynomialReals {
     public PolynomialReals add(PolynomialReals p) {
         final Arithmetic newConst =
             getConstantTerm ().add ( p.getConstantTerm () );
-        ListOfMonomialReals newParts = parts;
-        final IteratorOfMonomialReals it = p.getParts ().iterator ();
+        ImmutableList<MonomialReals> newParts = parts;
+        final Iterator<MonomialReals> it = p.getParts ().iterator ();
         while ( it.hasNext () )
             newParts = addPart ( newParts, it.next () );
         return new PolynomialReals ( newParts, newConst );
@@ -132,7 +137,7 @@ public class PolynomialReals {
      */
     public Arithmetic coeffGcd() {
         Arithmetic res = ValuesImpl.getDefault().ZERO();
-        final IteratorOfMonomialReals it = parts.iterator ();
+        final Iterator<MonomialReals> it = parts.iterator ();
         while ( it.hasNext () )
             res = MonomialReals.gcd ( res, it.next ().getCoefficient () );
         return res;
@@ -203,7 +208,7 @@ public class PolynomialReals {
             RealLDT.getFunctionFor(de.uka.ilkd.key.dl.model.Plus.class);
         Term res = null;
         
-        final IteratorOfMonomialReals it = parts.iterator ();
+        final Iterator<MonomialReals> it = parts.iterator ();
         if ( it.hasNext () ) {
             res = it.next ().toTerm ();
             while ( it.hasNext () )
@@ -225,7 +230,7 @@ public class PolynomialReals {
         final StringBuffer res = new StringBuffer ();
         res.append ( constantPart );
         
-        final IteratorOfMonomialReals it = parts.iterator ();
+        final Iterator<MonomialReals> it = parts.iterator ();
         while ( it.hasNext () )
             res.append ( " + " + it.next () );
 
@@ -234,7 +239,7 @@ public class PolynomialReals {
     
     private static class Analyser {
         public Arithmetic constantPart = ValuesImpl.getDefault().ZERO();
-        public ListOfMonomialReals parts = SLListOfMonomialReals.EMPTY_LIST;
+        public ImmutableList<MonomialReals> parts = nil;
         private final Operator add =
             RealLDT.getFunctionFor(de.uka.ilkd.key.dl.model.Plus.class);
 
@@ -257,32 +262,32 @@ public class PolynomialReals {
      *         in <code>b</code>. multiplicity is treated as well here, so
      *         this is really difference of multisets
      */
-    private static ListOfMonomialReals difference(ListOfMonomialReals a, ListOfMonomialReals b) {
-        ListOfMonomialReals res = a;
-        final IteratorOfMonomialReals it = b.iterator ();
+    private static ImmutableList<MonomialReals> difference(ImmutableList<MonomialReals> a, ImmutableList<MonomialReals> b) {
+        ImmutableList<MonomialReals> res = a;
+        final Iterator<MonomialReals> it = b.iterator ();
         while ( it.hasNext () && !res.isEmpty () )
             res = res.removeFirst ( it.next () );
         return res;
     }
 
-    private static ListOfMonomialReals addPart(ListOfMonomialReals oldParts, MonomialReals m) {
+    private static ImmutableList<MonomialReals> addPart(ImmutableList<MonomialReals> oldParts, MonomialReals m) {
         if ( m.getCoefficient ().isZero() ) return oldParts;
-        final ListOfMonomialReals newParts = addPartHelp ( oldParts, m );
+        final ImmutableList<MonomialReals> newParts = addPartHelp ( oldParts, m );
         if ( newParts != null ) return newParts;
         return oldParts.prepend ( m );
     }
 
-    private static ListOfMonomialReals addPartHelp(ListOfMonomialReals oldParts, MonomialReals m) {
+    private static ImmutableList<MonomialReals> addPartHelp(ImmutableList<MonomialReals> oldParts, MonomialReals m) {
         if ( oldParts.isEmpty () ) return null;
         final MonomialReals head = oldParts.head ();
-        final ListOfMonomialReals tail = oldParts.tail ();
+        final ImmutableList<MonomialReals> tail = oldParts.tail ();
         if ( head.variablesEqual ( m ) ) {
             final MonomialReals newHead =
                 head.addToCoefficient ( m.getCoefficient () );
             if ( newHead.getCoefficient ().isZero() ) return tail;
             return tail.prepend ( newHead );
         }
-        final ListOfMonomialReals res = addPartHelp ( tail, m );
+        final ImmutableList<MonomialReals> res = addPartHelp ( tail, m );
         if ( res == null ) return null;
         return res.prepend ( head );
     }    
@@ -291,7 +296,7 @@ public class PolynomialReals {
         return constantPart;
     }
 
-    public ListOfMonomialReals getParts() {
+    public ImmutableList<MonomialReals> getParts() {
         return parts;
     }
     
