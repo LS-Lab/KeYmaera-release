@@ -1,7 +1,7 @@
 /**
  * 
  */
-package de.uka.ilkd.key.dl.gui.initialdialog;
+package de.uka.ilkd.key.dl.gui;
 
 import javax.swing.JFrame;
 
@@ -10,12 +10,15 @@ import de.uka.ilkd.key.gui.Main;
 
 /**
  * 
- * The PropertyConfiguratorSample class create and instance of property
- * confirugration Frame, whereby the properties can be created or modified.
+ * This class serves as the Main class for KeYmaera. It shows an initial dialog
+ * that allows the configuration of several solvers. It is run before starting
+ * the original Main class to allow for example to set the location of the
+ * natives for some solvers like Mathematica and J/Link.
  * 
  * @author zacho
+ * @author jdq
  */
-public class MainWithInitialDialog {
+public class KeYmaera {
 
 	/**
 	 * @param args
