@@ -64,7 +64,7 @@ public class InitialDialogBeans implements ActionListener {
         GridBagConstraints c = new GridBagConstraints();
         c.anchor = GridBagConstraints.LINE_START;
         c.fill = GridBagConstraints.NONE;
-        c.insets = new Insets(5, 5, 20, 5);
+        c.insets = new Insets(5, 5, 5, 5);
         JPanel propertiesPanel = new JPanel();
         propertiesPanel.setLayout(new GridBagLayout());
         int y = 0;
