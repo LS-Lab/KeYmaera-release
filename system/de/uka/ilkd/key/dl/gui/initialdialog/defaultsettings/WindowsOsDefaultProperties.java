@@ -3,6 +3,7 @@
  */
 package de.uka.ilkd.key.dl.gui.initialdialog.defaultsettings;
 
+import java.io.File;
 import java.util.Properties;
 
 /**
@@ -26,6 +27,8 @@ public class WindowsOsDefaultProperties implements IOsDefaultProperties {
             initMathKernelDefault();
             initQepcadDefault();
             initSaclibDefault();
+            initHOLLight();
+            initcsdpPathDefault();
             initReduceBinaryDefault();
             initCheckBoxDefault();
         }
@@ -78,6 +81,32 @@ public class WindowsOsDefaultProperties implements IOsDefaultProperties {
         props.put("[ReduceOptions]reduceBinary", "C:\\");
     }
 
+
+    /**
+     * Initialise HOL light paths default values
+     */
+    public void  initHOLLight(){
+	String hol = System.getProperty("user.home");
+        if (hol == null)
+            hol = "C:\\";
+        props.put("[HOLLightOptions]harrisonqePath", hol);
+        props.put("[HOLLightOptions]hollightPath", hol);
+        
+        File olcam = new File("C:\\Program Files\\flyspeck\\hol_light");
+	if(!olcam.exists())
+	    olcam = new File("C:\\"); 
+        props.put("[HOLLightOptions]ocamlPath", olcam.getAbsolutePath());
+    }
+    /**
+     * Initialise csdp default value
+     */
+    public void  initcsdpPathDefault(){
+	
+	File csdp = new File("C:\\Program Files\\csdp\\bin\\csdp");	
+        if (!csdp.exists())
+            csdp = new File("C:\\");
+        props.put("[DLOptions]csdpPath", csdp.getAbsolutePath());
+    }
     /**
      * Initialise checkBox default value
      */

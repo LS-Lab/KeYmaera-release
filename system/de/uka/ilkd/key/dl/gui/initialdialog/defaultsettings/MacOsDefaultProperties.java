@@ -3,6 +3,7 @@
  */
 package de.uka.ilkd.key.dl.gui.initialdialog.defaultsettings;
 
+import java.io.File;
 import java.util.Properties;
 
 /** 
@@ -27,6 +28,8 @@ public class MacOsDefaultProperties implements IOsDefaultProperties {
             initQepcadDefault();
             initSaclibDefault();
             initReduceBinaryDefault();
+            initHOLLight();
+            initcsdpPathDefault();
             initCheckBoxDefault();
         }
         return props;
@@ -35,11 +38,9 @@ public class MacOsDefaultProperties implements IOsDefaultProperties {
     /**
      * Initialise jlink default path
      */
-    public void initJlinkDefault() {// Change name
-
-        String jlinkDir = System.getProperty("user.home");
-        if (jlinkDir == null)
-            jlinkDir = "/";
+    public void initJlinkDefault() {
+	
+	String jlinkDir = "/Applications/Mathematica.app/SystemFiles/Links/JLink/SystemFiles/Libraries/MacOSX-x86-64";
         props.put("com.wolfram.jlink.libdir", jlinkDir);
     }
 
@@ -49,7 +50,7 @@ public class MacOsDefaultProperties implements IOsDefaultProperties {
 
     public void initMathKernelDefault() {
         props.put("[MathematicaOptions]mathKernel",
-                "/Applications/Mathematica.app");
+                "/Applications/Mathematica.app/Contents/MacOS/MathKernel");
     }
 
     /**
@@ -57,8 +58,14 @@ public class MacOsDefaultProperties implements IOsDefaultProperties {
      */
 
     public void initQepcadDefault() {
+	String qpath = System.getenv("qe");
+        if (qpath == null) {
+            qpath = System.getProperty("user.home");
+            if (qpath == null)
+                qpath = "/";
+        }
+        props.put("[QepcadOptions]qepcadPath", qpath);
 
-        props.put("[QepcadOptions]qepcadPath", "/Applications/QEPCAD");
     }
 
     /**
@@ -67,7 +74,13 @@ public class MacOsDefaultProperties implements IOsDefaultProperties {
 
     public void initSaclibDefault() {
 
-        props.put("[QepcadOptions]saclibPath", "/Applications/Saclib");
+	 String spath = System.getenv("saclib");
+	        if (spath == null) {
+	            spath = System.getProperty("user.home");
+	            if (spath == null)
+	                spath = "/";
+	        }
+	 props.put("[QepcadOptions]saclibPath", spath);
     }
 
     /**
@@ -75,7 +88,31 @@ public class MacOsDefaultProperties implements IOsDefaultProperties {
      */
     public void initReduceBinaryDefault() {
 
-        props.put("[ReduceOptions]reduceBinary", "/Applications");
+	 String rpath = System.getProperty("user.home");
+	        if (rpath == null)
+	            rpath = "/";
+	        props.put("[ReduceOptions]reduceBinary", rpath);
+    }
+    /**
+     * Initialise HOL light paths default values
+     */
+    public void  initHOLLight(){
+	String hol = System.getProperty("user.home");
+        if (hol == null)
+            hol = "/";
+        props.put("[HOLLightOptions]harrisonqePath", hol);
+        props.put("[HOLLightOptions]hollightPath", hol);
+        props.put("[HOLLightOptions]ocamlPath", hol);
+    }
+    /**
+     * Initialise csdp default value
+     */
+    public void  initcsdpPathDefault(){
+	
+	File csdp = new File(System.getProperty("user.home"));
+        if (!csdp.exists()) 
+            csdp = new File("/");
+        props.put("[DLOptions]csdpPath", csdp.getAbsolutePath());
     }
 
     /**
