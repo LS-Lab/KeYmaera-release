@@ -112,6 +112,17 @@ public class PropertyConfigurationBeans {
             propertyEditor.addPropertyChangeListener(new PropertyChangeListener() {
                         public void propertyChange(PropertyChangeEvent evt) {
                             currentPropertyObject = propertyEditor.getValue();
+
+			    if (currentPropertyObject.toString().endsWith("/Mathematica.app")&& propertyIdentifier.equals("[MathematicaOptions]mathKernel") 
+                        	    &&de.uka.ilkd.key.dl.gui.initialdialog.defaultsettings.OSInfosDefault.INSTANCE.getOsName().contains("Mac")){
+				File file = new File("/Applications/Mathematica.app/SystemFiles/Links/JLink/SystemFiles/Libraries/MacOSX-x86-64");
+				if(file.exists()) 
+				    currentPropertyObject = (Object)file;
+				else{
+				    currentPropertyObject = (Object) new File("/Applications/Mathematica.app/SystemFiles/Links/JLink/SystemFiles/Libraries/MacOSX-x86");
+				}
+				propertyEditor.setValue(currentPropertyObject);
+			    }
                         }
                     });
 
@@ -154,7 +165,9 @@ public class PropertyConfigurationBeans {
      */
     public void readSettings(Properties props) {
         
+
         File file = new File(propsFileName);
+        
         if (file.exists()) {
             try {
                 props.load(new FileInputStream(file));
