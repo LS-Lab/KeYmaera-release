@@ -25,10 +25,18 @@ public enum EPropertyConfigurations {
                                                             de.uka.ilkd.key.dl.options.DirectoryPropertyEditor.class, FileStringConverter.class),
     OPTIONS_QEPCAD_PATH ("Qepcad Properties","Qepcad Path :","[QepcadOptions]qepcadPath", EConfigurationFiles.KEY_PROPERTY_FILE, 
                                                             de.uka.ilkd.key.dl.options.DirectoryPropertyEditor.class, FileStringConverter.class),
+    OPTIONS_CSDP_BINARY ("DL Properties","CSDP Binary :","[DLOptions]csdpPath", EConfigurationFiles.KEY_PROPERTY_FILE, 
+                                                            de.uka.ilkd.key.dl.options.FilePropertyEditor.class, FileStringConverter.class),
+    OPTIONS_OlCAM_PATH ("HOL Light Properties","Olcam Path :","[HOLLightOptions]ocamlPath", EConfigurationFiles.KEY_PROPERTY_FILE, 
+                                                            de.uka.ilkd.key.dl.options.FilePropertyEditor.class, FileStringConverter.class),
+    OPTIONS_HOL_LIGHT_PATH ("HOL Light Properties","HOL Light Path :","[HOLLightOptions]hollightPath", EConfigurationFiles.KEY_PROPERTY_FILE, 
+                                                            de.uka.ilkd.key.dl.options.DirectoryPropertyEditor.class, FileStringConverter.class),
+    OPTIONS_H_QE_PATH ("HOL Light Properties","Harrison QE Path :","[HOLLightOptions]harrisonqePath", EConfigurationFiles.KEY_PROPERTY_FILE, 
+                                                            de.uka.ilkd.key.dl.options.DirectoryPropertyEditor.class, FileStringConverter.class),                                                       
     OPTIONS_REDUCE_BINARY("Redlog Properties","Reduce Binary :","[ReduceOptions]reduceBinary", EConfigurationFiles.KEY_PROPERTY_FILE, 
-                                                             de.uka.ilkd.key.dl.options.FilePropertyEditor.class, FileStringConverter.class),  
+                                                            de.uka.ilkd.key.dl.options.FilePropertyEditor.class, FileStringConverter.class),  
     CHECKBOX_PROPERTY("checkBox" ,null,"[DLOptions]showInitialDialog", EConfigurationFiles.KEY_PROPERTY_FILE, 
-                                                            de.uka.ilkd.key.dl.gui.initialdialog.propertyconfigurations.CheckBoxEditor.class, BooleanStringConverter.class);             
+                                                            de.uka.ilkd.key.dl.gui.initialdialog.propertyconfigurations.CheckBoxEditor.class, BooleanStringConverter.class);
     private String group;
     private String key;
     private String label;

@@ -1,5 +1,6 @@
 package de.uka.ilkd.key.dl.gui.initialdialog.defaultsettings;
 
+import java.io.File;
 import java.util.Properties;
 
 /**
@@ -25,6 +26,8 @@ public class LinuxOsDefaultProperties implements IOsDefaultProperties {
             initQepcadDefault();
             initSaclibDefault();
             initReduceBinaryDefault();
+            initcsdpPathDefault();
+            initHOLLight();
             initCheckBoxDefault();
         }
         return props;
@@ -90,6 +93,35 @@ public class LinuxOsDefaultProperties implements IOsDefaultProperties {
         props.put("[ReduceOptions]reduceBinary", rpath);
     }
 
+    /**
+     * Initialise HOL light paths default values
+     */
+    public void  initHOLLight(){
+	String hol = System.getProperty("user.home");
+        if (hol == null)
+            hol = "/";
+        props.put("[HOLLightOptions]harrisonqePath", hol);
+        props.put("[HOLLightOptions]hollightPath", hol);
+        
+        File olcam = new File("/usr/bin/ocaml");
+	if(!olcam.exists())
+	    olcam = new File(System.getProperty("user.home")); 
+	if(!olcam.exists())
+	    olcam = new File("/"); 
+        props.put("[HOLLightOptions]ocamlPath", olcam.getAbsolutePath());
+    }
+    /**
+     * Initialise csdp default value
+     */
+    public void  initcsdpPathDefault(){
+	
+	File csdp = new File("user/bin/csdp");	
+        if (!csdp.exists())
+            csdp = new File(System.getProperty("user.home"));
+        if (!csdp.exists()) 
+            csdp = new File("/");
+        props.put("[DLOptions]csdpPath", csdp.getAbsolutePath());
+    }
     /**
      * Initialise checkBox default value
      */
