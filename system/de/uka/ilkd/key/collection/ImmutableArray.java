@@ -75,13 +75,14 @@ public class ImmutableArray<S> implements java.lang.Iterable<S>, java.io.Seriali
 	return false;
     }
 
-
     public int hashCode() {
 	if (hashCode == -1) {
-	    for (int i = 0; i < content.length; i++) {
-		hashCode += hashCode * 13;
+	    for(int i = 0; i < content.length; i++) {
+		hashCode += 17 * content[i].hashCode();
 	    }
-	    if (hashCode == -1) hashCode = -2;
+	    if(hashCode == -1) {
+		hashCode = -2;
+	    }
 	}
 	return hashCode;
     }
@@ -110,11 +111,11 @@ public class ImmutableArray<S> implements java.lang.Iterable<S>, java.io.Seriali
     }
 
     public String toString() {
-	StringBuffer sb = new StringBuffer();
+	StringBuilder sb = new StringBuilder();
 	sb.append("[");
-	for (int i = 0; i<size(); i++) {
+	for (int i = 0, sz = size(); i < sz; i++) {
 	    sb.append(""+content[i]);
-	    if (i<size()-1) sb.append(",");
+	    if (i<sz-1) sb.append(",");
 	}
 	sb.append("]");
 	return sb.toString();
