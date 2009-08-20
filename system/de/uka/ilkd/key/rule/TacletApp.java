@@ -1133,9 +1133,12 @@ public abstract class TacletApp implements RuleApp {
     }
 
     private Term[] toTermArray(ImmutableSet<Metavariable> mvs) {
-        final Metavariable[] mvArray = mvs.toArray(new Metavariable[mvs.size()]);
-        Arrays.sort(mvArray);
-
+        if (mvs.isEmpty()) {
+            return new Term[0];
+        }
+	final Metavariable[] mvArray = mvs.toArray (new Metavariable[mvs.size()]);
+        Arrays.sort ( mvArray );
+        
         // Create function with correct arguments
         final Term[] argTerms = new Term[mvArray.length];
 
