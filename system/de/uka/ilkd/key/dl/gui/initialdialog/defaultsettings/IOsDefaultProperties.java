@@ -18,5 +18,7 @@ public interface IOsDefaultProperties {
      * @return the initial properties list as a Property Object
      */
     public Properties getDefaultPropertyList();
-
+    public String getMathKernelSuffix(String actualPath);
+    public String getJLinkSuffix(String actualPath);
+  
 }

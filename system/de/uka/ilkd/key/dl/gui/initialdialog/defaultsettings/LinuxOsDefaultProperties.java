@@ -14,6 +14,8 @@ public class LinuxOsDefaultProperties implements IOsDefaultProperties {
 
     private Properties props;
 
+   
+    
     /**
      * @return the default Properties for linux Operating system
      */
@@ -49,8 +51,9 @@ public class LinuxOsDefaultProperties implements IOsDefaultProperties {
      */
 
     public void initMathKernelDefault() {
-        props.put("[MathematicaOptions]mathKernel",
-                "/usr/local/Wolfram/Mathematica/7.0");
+	
+	props.put("[MathematicaOptions]mathematicaPath", "/usr/local/Wolfram/Mathematica/7.0");
+        props.put("[MathematicaOptions]mathKernel","/usr/local/Wolfram/Mathematica/7.0");
     }
 
     /**
@@ -128,4 +131,29 @@ public class LinuxOsDefaultProperties implements IOsDefaultProperties {
     public void initCheckBoxDefault() {
         props.put("[checkBox]flag", "false");
     }
+    @Override
+    public String getJLinkSuffix(String actualPath) {
+	
+	if(actualPath.endsWith("SystemFiles/Links/JLink")) 
+	    return null;
+	
+	if(actualPath.endsWith("SystemFiles/Links")) 
+	    return "JLink";
+	
+	if(actualPath.endsWith("SystemFiles")) 
+	    return ("Links"+File.separator+"JLink");
+	
+	else
+	    return ("SystemFiles"+File.separator+"Links"+File.separator+"JLink");
+    }
+    @Override
+    public String getMathKernelSuffix(String actualPath) {
+	
+	if(actualPath.endsWith("Executables")) 
+	    return null;	
+	else
+	    return (File.separator+"Executables");
+    }
+
+
 }

@@ -5,7 +5,6 @@ package de.uka.ilkd.key.dl.gui.initialdialog.defaultsettings;
 
 import java.io.File;
 import java.util.Properties;
-
 /**
  *         The MacOsDefaultProperties class creates and instance of a Property Object containing all
  *         possible default properties for linux platform.
@@ -40,10 +39,7 @@ public class WindowsOsDefaultProperties implements IOsDefaultProperties {
      */
     public void initJlinkDefault() {// Change name
 
-        String jlinkDir = System.getProperty("user.home");
-        if (jlinkDir == null)
-            jlinkDir = "/";
-        props.put("com.wolfram.jlink.libdir", jlinkDir);
+        props.put("com.wolfram.jlink.libdir", "c:\\");
     }
 
     /**
@@ -51,6 +47,7 @@ public class WindowsOsDefaultProperties implements IOsDefaultProperties {
      */
 
     public void initMathKernelDefault() {
+	props.put("[MathematicaOptions]mathematicaPath", "C:\\Program Files\\Wolfram\\Mathematica\\7.0");
         props.put("[MathematicaOptions]mathKernel",
                 "C:\\Program Files\\Wolfram\\Mathematica\\7.0");
     }
@@ -112,5 +109,30 @@ public class WindowsOsDefaultProperties implements IOsDefaultProperties {
      */
     public void initCheckBoxDefault() {
         props.put("[checkBox]flag", "false"); 
+    }
+
+    @Override
+    public String getJLinkSuffix(String actualPath) {
+
+	if(actualPath.endsWith("SystemFiles\\Links\\JLink")) 
+	    return null;
+	
+	if(actualPath.endsWith("SystemFiles\\Links")) 
+	    return "JLink";
+	
+	if(actualPath.endsWith("SystemFiles")) 
+	    return ("Links"+File.separator+"JLink");
+	
+	else
+	    return ("SystemFiles"+File.separator+"Links"+File.separator+"JLink");
+    }
+
+    @Override
+    public String getMathKernelSuffix(String actualPath) {
+
+	if(actualPath.endsWith("Executables")) 
+	    return null;	
+	else
+	    return (File.separator+"Executables");
     }
 }

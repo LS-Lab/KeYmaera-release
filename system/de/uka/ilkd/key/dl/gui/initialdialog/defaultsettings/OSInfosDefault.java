@@ -3,6 +3,7 @@
  */
 package de.uka.ilkd.key.dl.gui.initialdialog.defaultsettings;
 
+import java.io.File;
 import java.util.Locale;
 import java.util.Properties;
 
@@ -20,6 +21,7 @@ public class OSInfosDefault {
     private String OsName;
     private Properties props;
     private Class<? extends IOsDefaultProperties> defaultPropertiesClass;
+    private IOsDefaultProperties defaultProperties;
 
     /**
      * Constructor initialises the defaultPropertyclass depending on the current
@@ -42,7 +44,6 @@ public class OSInfosDefault {
             defaultPropertiesClass = MacOsDefaultProperties.class;
         }
 
-        System.out.println("You are working on : \"" + OsName  + "\" Operating System."); // XXX
     }
 
     /**
@@ -50,19 +51,21 @@ public class OSInfosDefault {
      *         or "mac"
      */
     public String getOsName() {
+        System.out.println("You are working on : \"" + OsName  + "\" Operating System."); // XXX
         return OsName;
     }
+    public void setDefaultProperty(Properties props){
+	
+	setDefaultPropertiesClass();
+	props = defaultProperties.getDefaultPropertyList();
+	this.props = props;
+    }
 
-    /**
-     * @return the default property list as a Properties Object.
-     */
-    public Properties getDefaultProperty() {
+    public void setDefaultPropertiesClass() {
 
         try {
-            final IOsDefaultProperties defaultProperties = defaultPropertiesClass
+           defaultProperties = defaultPropertiesClass
                     .newInstance();
-
-            props = defaultProperties.getDefaultPropertyList();
 
         } catch (InstantiationException e) {
             // TODO Auto-generated catch block
@@ -71,7 +74,33 @@ public class OSInfosDefault {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-
+    }
+    /**
+     * @return the default property list as a Properties Object.
+     */
+    public Properties getDefaultProperty() {
+        setDefaultProperty(new Properties());
         return props;
     }
+    public String getDefaultProperty(String key){
+	 setDefaultProperty(new Properties());
+	return props.getProperty(key);
+    }
+    
+    public String getSuffixed(String propertyIdentifier, String actualPath){
+	setDefaultPropertiesClass();
+	String suffix = null; 
+	if(propertyIdentifier.equals("com.wolfram.jlink.libdir")){
+	    suffix = defaultProperties.getJLinkSuffix(actualPath); 
+	}
+	if(propertyIdentifier.equals("[MathematicaOptions]mathKernel")){
+	    suffix = defaultProperties.getMathKernelSuffix(actualPath); 
+	}
+	if(suffix == null)
+	    return actualPath;
+	else
+	    return actualPath.concat(File.separator + suffix);
+		
+    }
+    
 }

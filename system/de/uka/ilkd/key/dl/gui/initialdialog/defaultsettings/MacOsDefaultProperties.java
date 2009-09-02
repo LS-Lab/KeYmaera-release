@@ -16,6 +16,7 @@ public class MacOsDefaultProperties implements IOsDefaultProperties {
 
     private Properties props;
 
+
     /**
      * @return the default Properties for linux Operating system
      */
@@ -49,6 +50,7 @@ public class MacOsDefaultProperties implements IOsDefaultProperties {
      */
 
     public void initMathKernelDefault() {
+	props.put("[MathematicaOptions]mathematicaPath", "/Applications/Mathematica.app");
         props.put("[MathematicaOptions]mathKernel",
                 "/Applications/Mathematica.app/Contents/MacOS/MathKernel");
     }
@@ -120,5 +122,56 @@ public class MacOsDefaultProperties implements IOsDefaultProperties {
      */
     public void initCheckBoxDefault() {
         props.put("[checkBox]flag", "false"); 
+    }
+    
+    @Override
+    public String getJLinkSuffix(String actualPath) {
+	 String JavaVirtualmachineBit = "-64"; 
+	if (!System.getProperty("java.vm.name").contains("64-Bit")) 
+	    	JavaVirtualmachineBit = "";
+	if(actualPath.endsWith("SystemFiles/Links/JLink/SystemFiles/Libraries/MacOSX-x86-64")
+		||actualPath.endsWith("SystemFiles/Links/JLink/SystemFiles/Libraries/MacOSX-x86")) 
+	    return null;
+	
+	if(actualPath.endsWith("Mathematica.app/SystemFiles/Links/JLink/SystemFiles/Libraries")) 
+	    return ("MacOSX-x86"+JavaVirtualmachineBit); 
+	
+	if(actualPath.endsWith("Mathematica.app/SystemFiles/Links/JLink/SystemFiles")) 
+	    return ("Libraries"+File.separator+"MacOSX-x86"+JavaVirtualmachineBit);
+	
+	if(actualPath.endsWith("Mathematica.app/SystemFiles/Links/JLink"))
+	    return ("SystemFiles"+File.separator+"Libraries"+File.separator
+		    +"MacOSX-x86"+JavaVirtualmachineBit);
+	if(actualPath.endsWith("Mathematica.app/SystemFiles/Links"))
+	    return ("JLink"+File.separator+"SystemFiles"+File.separator+"Libraries"
+		    +File.separator+"MacOSX-x86"+JavaVirtualmachineBit);
+	if(actualPath.endsWith("Mathematica.app/SystemFiles"))
+	    return ("Links"+File.separator+"JLink"+File.separator+"SystemFiles"
+		    +File.separator+"Libraries"+File.separator+"MacOSX-x86"+JavaVirtualmachineBit);
+	if(actualPath.endsWith("Mathematica.app"))
+	    return ("SystemFiles"+File.separator+"Links"+File.separator+"JLink"+File.separator
+		    +"SystemFiles"+File.separator+"Libraries"+File.separator+"MacOSX-x86"+JavaVirtualmachineBit);
+	else
+	    return ("Mathematica.app"+File.separator+"SystemFiles"+File.separator+"Links"+File.separator+"JLink"+File.separator
+		    +"SystemFiles"+File.separator+"Libraries"+File.separator+"MacOSX-x86"+JavaVirtualmachineBit);
+	    
+    }
+    
+    @Override
+    public String getMathKernelSuffix(String actualPath) {
+
+	if(actualPath.endsWith("Mathematica.app/Contents/MacOS/MathKernel")) 
+	    return null;
+	
+	if(actualPath.endsWith("Mathematica.app/Contents/MacOS")) 
+	    return "MathKernel";
+	
+	if(actualPath.endsWith("Mathematica.app/Contents")) 
+	    return ("MacOS"+File.separator+"MathKernel");
+	
+	if(actualPath.endsWith("Mathematica.app")) 
+	    return ("Contents"+File.separator+"MacOS"+File.separator+"MathKernel");
+	else
+	    return ("Mathematica.app"+File.separator+"Contents"+File.separator+"MacOS"+File.separator+"MathKernel");
     }
 }

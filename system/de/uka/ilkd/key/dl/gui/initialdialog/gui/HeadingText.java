@@ -3,6 +3,7 @@
  */
 package de.uka.ilkd.key.dl.gui.initialdialog.gui;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
@@ -21,32 +22,50 @@ import javax.swing.JPanel;
 public class HeadingText {
 
     private JPanel panel;
+    private JLabel headerText;
+    private JLabel text1;
+    private Dimension d;
+    private Color col;
 
     /**
      * Initialises the GUI desciption text.
      */
-    HeadingText() {
+    HeadingText(String hText, String str1) {
         panel = new JPanel();
-        panel.setBackground(new java.awt.Color(255, 255, 255));
+        d = new Dimension(620, 18);
+        col = new java.awt.Color(255, 255, 255);
+        panel.setBackground(col);
         panel.setLayout(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
 
-        JLabel label1 = new JLabel(
-                "Select Solvers Properties and File Locations:");
-        JLabel label2 = new JLabel(
-                "KeYmaera stores the corresponding  paths and properties for the each solver");
-        label1.setPreferredSize(new Dimension(620, 18));
-        label1.setFont(new java.awt.Font("Dialog", Font.BOLD, 14));
-        label2.setFont(new java.awt.Font("Dialog", 0, 12));
+        this.headerText = new JLabel(hText);
+        this.text1 = new JLabel(str1);
+        headerText.setPreferredSize(d);
+        headerText.setFont(new java.awt.Font("Dialog", Font.BOLD, 14));
+        text1.setFont(new java.awt.Font("Dialog", 0, 12));
         c.fill = GridBagConstraints.NONE;
         c.anchor = GridBagConstraints.FIRST_LINE_START;
         c.gridy = 0;
         c.insets = new Insets(10, 3, 0, 10);
-        panel.add(label1, c);
+        panel.add(headerText, c);
         c.insets = new Insets(10, 10, 20, 10);
         c.gridy = 1;
-        panel.add(label2, c);
+        panel.add(text1, c);
 
+    }
+    /**
+     * @param d the d to set
+     */
+    public void setD(Dimension d) {
+        this.d = d;
+        headerText.setPreferredSize(d);
+    }
+    /**
+     * @param col the col to set
+     */
+    public void setCol(Color col) {
+        this.col = col;
+        panel.setBackground(col);
     }
     /**
      * @return the panel containing the GUI heading
