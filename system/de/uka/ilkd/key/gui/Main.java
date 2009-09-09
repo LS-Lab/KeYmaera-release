@@ -1540,7 +1540,7 @@ public class Main extends JFrame implements IMain {
         registerAtMenu(options, speclangItem);
         
         addSeparator(options);
-        
+	} 
         // minimize interaction
         final boolean stupidMode = 
             ProofSettings.DEFAULT_SETTINGS.getGeneralSettings().stupidMode();
@@ -1558,6 +1558,7 @@ public class Main extends JFrame implements IMain {
         
         registerAtMenu(options, stupidModeOption);
         
+	if (!(mediator.getProfile() instanceof DLProfile)) {
 	// dnd direction sensitive		
         final boolean dndDirectionSensitivity = 
             ProofSettings.DEFAULT_SETTINGS.getGeneralSettings().isDndDirectionSensitive();
