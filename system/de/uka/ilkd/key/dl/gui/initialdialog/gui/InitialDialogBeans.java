@@ -39,21 +39,14 @@ import de.uka.ilkd.key.gui.Main;
 public class InitialDialogBeans implements ActionListener {
 
     private JFrame pathFrame;
-
     private JButton buttonOK;
-
+    private JButton buttonDefault;
     private JButton buttonApply;
-
     private JPanel MathematicaHiddenPanel;
-
     PropertyConfigurationBeans MathematicaEditor;
-
     String currentMathematicaPath;
-
     private JButton buttonExit;
-
     private LinkedHashMap<String, List<PropertyConfigurationBeans>> groupMap;
-
     private String[] args;
 
     public InitialDialogBeans(String[] argsForTheMainClass) {
@@ -64,11 +57,18 @@ public class InitialDialogBeans implements ActionListener {
 	    PropertyConfigurationBeans editor = new PropertyConfigurationBeans();
 	    editor.setPathPane(k.getLabel(), k.getEditorClass(), k
 		    .getConverterClass(), k.getConfigFile(), k.getKey());
+	    editor.getPropertyEditor().addPropertyChangeListener(new PropertyChangeListener() {
+			public void propertyChange(PropertyChangeEvent evt) {
+					buttonApply.setEnabled(true);
+					buttonDefault.setEnabled(true);
+				}
+		    });
 	    List<PropertyConfigurationBeans> editorsInGroup = groupMap.get(k
 		    .getGroup());
 	    if (editorsInGroup == null) {
 		editorsInGroup = new LinkedList<PropertyConfigurationBeans>();
 		groupMap.put(k.getGroup(), editorsInGroup);
+		
 	    }
 	    editorsInGroup.add(editor);
 	}
@@ -99,11 +99,11 @@ public class InitialDialogBeans implements ActionListener {
 				"Select Solvers Properties and File Locations:",
 				"KeYmaera stores the corresponding  paths and properties for the each solver")
 				.getDescriptionText(), c);
-	c.insets = new Insets(5, 5, 5, 5);
+	c.insets = new Insets(10, 5, 5, 5);
 	c.gridy = 1;
 	pathFrame.add(propertiesPanel, c);
 	c.gridy = 2;
-	c.insets = new Insets(10, 5, 20, 20);
+	c.insets = new Insets(20, 1, 20, 15);
 	c.anchor = GridBagConstraints.LAST_LINE_END;
 	pathFrame.add(decisionPanel(), c);
 	pathFrame.setResizable(false);
@@ -116,16 +116,19 @@ public class InitialDialogBeans implements ActionListener {
     }
 
     private JPanel getGroupPaths(List<PropertyConfigurationBeans> group,
-	    String title) {
-
-	if (title.equals("checkBox")) // Ensures that the checkbox does not have
-	    // a border.
-	    return group.listIterator().next().getPathPane();
-
+			String title) {
+	
 	JPanel panel = new JPanel();
-	GridBagConstraints c = new GridBagConstraints();
-	c.insets = new Insets(5, 5, 5, 5);
 	panel.setLayout(new GridBagLayout());
+	GridBagConstraints c = new GridBagConstraints();
+	if (title.equals("checkBox")) { // Ensures that the checkbox does not
+					// have a border.
+	    c.insets = new Insets(20, 5, 5, 5);
+	    panel.add(group.listIterator().next().getPathPane(), c);
+	    return panel;
+	}
+
+	c.insets = new Insets(5, 5, 5, 5);
 	int y = 1;
 	ListIterator<PropertyConfigurationBeans> iter = group.listIterator();
 
@@ -140,37 +143,28 @@ public class InitialDialogBeans implements ActionListener {
 	    panel = new JPanel();
 	    panel.setLayout(new GridBagLayout());
 	    MathematicaEditor = new PropertyConfigurationBeans();
-	    MathematicaEditor.setPathPane("Mathematica Path :",
-		    de.uka.ilkd.key.dl.options.DirectoryPropertyEditor.class,
-		    FileStringConverter.class,
-		    EConfigurationFiles.KEY_PROPERTY_FILE,
-		    "[MathematicaOptions]mathematicaPath");
-	    currentMathematicaPath = MathematicaEditor
-		    .getCurrentPropertyObject().toString();
+	    MathematicaEditor.setPathPane("Mathematica Path :",de.uka.ilkd.key.dl.options.DirectoryPropertyEditor.class,
+	    							FileStringConverter.class,   EConfigurationFiles.KEY_PROPERTY_FILE,
+	    							"[MathematicaOptions]mathematicaPath");
+	    currentMathematicaPath = MathematicaEditor.getCurrentPropertyObject().toString();
 	    final String defaultMathematicaPath = currentMathematicaPath;
 	    final String mathKernelKey = "[MathematicaOptions]mathKernel";
 	    final String JLinkKey = "com.wolfram.jlink.libdir";
-	    MathematicaEditor.getPropertyEditor().addPropertyChangeListener(
-		    new PropertyChangeListener() {
+	    MathematicaEditor.getPropertyEditor().addPropertyChangeListener(new PropertyChangeListener() {
 			public void propertyChange(PropertyChangeEvent evt) {
-
-			    currentMathematicaPath = MathematicaEditor
-				    .getCurrentPropertyObject().toString();
-			    if (!MathematicaEditor.getCurrentPropertyObject()
-				    .toString().equals(defaultMathematicaPath)) {
-				setPropertyChanges(mathKernelKey,
-					OSInfosDefault.INSTANCE.getSuffixed(
-						mathKernelKey,
-						currentMathematicaPath));
-
-				setPropertyChanges(JLinkKey,
-					OSInfosDefault.INSTANCE.getSuffixed(
-						JLinkKey,
-						currentMathematicaPath));
+			    currentMathematicaPath = MathematicaEditor.getCurrentPropertyObject().toString();
+			    
+			    if (!MathematicaEditor.getCurrentPropertyObject().toString().equals(defaultMathematicaPath)) {
+				
 				MathematicaHiddenPanel.setVisible(true);
 				pathFrame.pack();
-			    }
-			}
+			    	}
+			    setPropertyChanges(mathKernelKey, OSInfosDefault.
+    					INSTANCE.getSuffixed(mathKernelKey, currentMathematicaPath));
+			    setPropertyChanges(JLinkKey, OSInfosDefault.
+				    	INSTANCE.getSuffixed(JLinkKey,currentMathematicaPath));
+				    
+				}
 		    });
 	    c.gridy = 1;
 	    panel.add(MathematicaEditor.getPathPane(), c);
@@ -190,15 +184,19 @@ public class InitialDialogBeans implements ActionListener {
 	buttonOK = new JButton("    Ok   ");
 	buttonApply = new JButton(" Apply ");
 	buttonExit = new JButton(" Cancel ");
+	buttonDefault = new JButton(" Restore Defaults ");
 
 	buttonOK.addActionListener(this);
 	buttonApply.addActionListener(this);
 	buttonExit.addActionListener(this);
+	buttonDefault.addActionListener(this);
 
 	panel.setLayout(new GridBagLayout());
 	GridBagConstraints c = new GridBagConstraints();
+	
+	c.insets = new Insets(0, 8, 3,  190);
+	panel.add(buttonDefault, c);
 	c.insets = new Insets(0, 3, 3, 3);
-
 	panel.add(buttonOK, c);
 	panel.add(buttonApply, c);
 	panel.add(buttonExit, c);
@@ -216,6 +214,8 @@ public class InitialDialogBeans implements ActionListener {
 		}
 	    }
 	}
+	if(PropertyKey.equals("[MathematicaOptions]mathematicaPath")) 
+	    MathematicaEditor.setPropertyPathObject(value);
 
     }
 
@@ -254,32 +254,29 @@ public class InitialDialogBeans implements ActionListener {
 	c.anchor = GridBagConstraints.FIRST_LINE_START;
 	c.fill = GridBagConstraints.NONE;
 	c.gridy = 0;
-	boolean AllExit = true; 
-	messagePane
-		.add(new JLabel("<html>The specified Directories Or Files do not exist : <br><br></html>"),
-			c);
+	boolean ALLEXIST = true;
+	messagePane.add(new JLabel("<html>The specified Directories Or Files do not exist : <br><br></html>"), c);
 	message.setEditable(false);
 	message.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
 	for (String name : directoriesAndFilesMap.keySet()) {
 
-	    if (!directoriesAndFilesMap.get(name).exists()) {
+	    if (!directoriesAndFilesMap.get(name).exists()) { 
 		message.setText(message.getText() + name + "  [ "
 			+ directoriesAndFilesMap.get(name) + "]\n");
-		AllExit = false;
+		 ALLEXIST = false;
 	    }
 	}
 	c.gridy = 1;
 	messagePane.add(message, c);
 	c.gridy = 2;
-	messagePane.add(new JLabel(
-		"<html><br>Do  you want to continue ?</html>"), c);
+	messagePane.add(new JLabel("<html><br>Do  you want to continue ?</html>"), c);
 
-	if (AllExit)
+	if(ALLEXIST)
 	    return JOptionPane.YES_OPTION;
 	else
-	    return JOptionPane.showConfirmDialog(pathFrame, messagePane,
-		    "Warning", JOptionPane.YES_NO_OPTION);
+	    return JOptionPane.showConfirmDialog(pathFrame, messagePane, "Warning",
+    			JOptionPane.YES_NO_OPTION);
 
     }
 
@@ -307,8 +304,21 @@ public class InitialDialogBeans implements ActionListener {
 	    }
 	}
 	if (e.getSource().equals(buttonApply)) {
-	    if (verifyDirectories() == JOptionPane.YES_OPTION)
-		writePropertyChanges();
+	    if (verifyDirectories() == JOptionPane.YES_OPTION){
+	    	writePropertyChanges();
+	    	buttonApply.setEnabled(false);
+	    }
+
+	}
+	if (e.getSource().equals(buttonDefault)) {
+		
+		 Properties props = de.uka.ilkd.key.dl.gui.initialdialog.defaultsettings.OSInfosDefault.INSTANCE
+		    .getDefaultProperty();
+		 for(EPropertyConfigurations k : EPropertyConfigurations.values()){
+			 setPropertyChanges(k.getKey(), props.getProperty(k.getKey())); 	
+		 } 
+		 setPropertyChanges("[MathematicaOptions]mathematicaPath", props.getProperty("[MathematicaOptions]mathematicaPath"));
+		 buttonDefault.setEnabled(false);
 
 	}
 	if (e.getSource().equals(buttonExit)) {
@@ -320,7 +330,7 @@ public class InitialDialogBeans implements ActionListener {
 	    }
 	}
     }
-
+	
     /**
      * @return the checkboxState
      */

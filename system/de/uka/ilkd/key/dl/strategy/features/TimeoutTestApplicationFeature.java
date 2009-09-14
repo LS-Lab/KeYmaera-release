@@ -32,7 +32,6 @@ import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
 import de.uka.ilkd.key.dl.options.DLOptionBean;
 import de.uka.ilkd.key.dl.rules.TestableBuiltInRule;
 import de.uka.ilkd.key.dl.rules.UnknownProgressRule;
-import de.uka.ilkd.key.gui.Main;
 import de.uka.ilkd.key.logic.PosInOccurrence;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.TermBuilder;

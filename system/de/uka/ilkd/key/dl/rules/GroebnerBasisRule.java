@@ -25,10 +25,13 @@ package de.uka.ilkd.key.dl.rules;
 import java.math.BigDecimal;
 import java.rmi.RemoteException;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Set;
 
+import de.uka.ilkd.key.collection.ImmutableList;
+import de.uka.ilkd.key.collection.ImmutableSLList;
 import de.uka.ilkd.key.dl.arithmetics.IGroebnerBasisCalculator;
 import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
 import de.uka.ilkd.key.dl.arithmetics.impl.SumOfSquaresChecker;
@@ -42,7 +45,6 @@ import de.uka.ilkd.key.dl.strategy.features.FOSequence;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.logic.ConstrainedFormula;
 import de.uka.ilkd.key.logic.Constraint;
-import de.uka.ilkd.key.logic.IteratorOfConstrainedFormula;
 import de.uka.ilkd.key.logic.Name;
 import de.uka.ilkd.key.logic.PosInOccurrence;
 import de.uka.ilkd.key.logic.Term;
@@ -52,9 +54,7 @@ import de.uka.ilkd.key.logic.op.LogicVariable;
 import de.uka.ilkd.key.logic.op.Op;
 import de.uka.ilkd.key.logic.sort.Sort;
 import de.uka.ilkd.key.proof.Goal;
-import de.uka.ilkd.key.proof.ListOfGoal;
 import de.uka.ilkd.key.proof.RuleFilter;
-import de.uka.ilkd.key.proof.SLListOfGoal;
 import de.uka.ilkd.key.rule.Rule;
 import de.uka.ilkd.key.rule.RuleApp;
 import de.uka.ilkd.key.rule.SequentWideBuiltInRule;
@@ -82,10 +82,10 @@ public class GroebnerBasisRule implements SequentWideBuiltInRule, RuleFilter {
 	 * @see de.uka.ilkd.key.rule.Rule#apply(de.uka.ilkd.key.proof.Goal,
 	 * de.uka.ilkd.key.java.Services, de.uka.ilkd.key.rule.RuleApp)
 	 */
-	public synchronized ListOfGoal apply(Goal goal, Services services,
+	public synchronized ImmutableList<Goal> apply(Goal goal, Services services,
 			RuleApp ruleApp) {
 
-		IteratorOfConstrainedFormula it = goal.sequent().antecedent()
+		Iterator<ConstrainedFormula> it = goal.sequent().antecedent()
 				.iterator();
 		Set<Term> ante = new HashSet<Term>();
 		while (it.hasNext()) {
@@ -147,7 +147,7 @@ public class GroebnerBasisRule implements SequentWideBuiltInRule, RuleFilter {
 					// anymore
 					classify.f.clear();
 					if (m.checkForConstantGroebnerBasis(classify, services)) {
-						return SLListOfGoal.EMPTY_LIST;
+						return ImmutableSLList.nil();
 					}
 				} catch (RemoteException e) {
 					// TODO Auto-generated catch block
@@ -158,7 +158,8 @@ public class GroebnerBasisRule implements SequentWideBuiltInRule, RuleFilter {
 
 //		if (true)
 //			throw new IllegalArgumentException("gb does not work");
-		return SLListOfGoal.EMPTY_LIST.append(goal);
+		final ImmutableSLList<Goal> nil = ImmutableSLList.nil();
+		return nil.append(goal);
 	}
 
 	/*

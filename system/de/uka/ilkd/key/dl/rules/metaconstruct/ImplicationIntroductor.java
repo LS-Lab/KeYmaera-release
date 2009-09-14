@@ -4,7 +4,6 @@
 package de.uka.ilkd.key.dl.rules.metaconstruct;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.List;
 
 import de.uka.ilkd.key.dl.formulatools.Prog2LogicConverter;
 import de.uka.ilkd.key.dl.model.DiffSystem;

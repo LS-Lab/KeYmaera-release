@@ -19,6 +19,8 @@
  ***************************************************************************/
 package de.uka.ilkd.key.dl.formulatools;
 
+import de.uka.ilkd.key.collection.DefaultImmutableSet;
+import de.uka.ilkd.key.collection.ImmutableSet;
 import de.uka.ilkd.key.dl.model.DLNonTerminalProgramElement;
 import de.uka.ilkd.key.dl.model.MetaVariable;
 import de.uka.ilkd.key.java.ProgramElement;
@@ -28,8 +30,6 @@ import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.Visitor;
 import de.uka.ilkd.key.logic.op.Metavariable;
 import de.uka.ilkd.key.logic.op.Modality;
-import de.uka.ilkd.key.logic.op.SetAsListOfMetavariable;
-import de.uka.ilkd.key.logic.op.SetOfMetavariable;
 
 /**
  * This visitor is used to search for MetaVariables
@@ -43,7 +43,7 @@ public class MetaVariableLocator {
 	public static final MetaVariableLocator INSTANCE = new MetaVariableLocator();
 
 	private class MVisitor extends Visitor {
-		private SetOfMetavariable result = SetAsListOfMetavariable.EMPTY_SET;
+		private ImmutableSet<Metavariable> result = DefaultImmutableSet.nil();
 		private NamespaceSet nss;
 
 		/**
@@ -77,7 +77,7 @@ public class MetaVariableLocator {
 	 * @return a SetOfMetavariable with all Metavariables that occur in the
 	 *         given Term
 	 */
-	public SetOfMetavariable find(Term dominantTerm, NamespaceSet nss) {
+	public ImmutableSet<Metavariable> find(Term dominantTerm, NamespaceSet nss) {
 		MVisitor vis = new MVisitor(nss);
 		dominantTerm.execPreOrder(vis);
 		return vis.result;
@@ -91,8 +91,8 @@ public class MetaVariableLocator {
 	 * @return a SetOfMetavariables that contains all Metavariables that occur
 	 *         in the program
 	 */
-	private SetOfMetavariable findInsideModality(ProgramElement programElement, NamespaceSet nss) {
-		SetOfMetavariable result = SetAsListOfMetavariable.EMPTY_SET;
+	private ImmutableSet<Metavariable> findInsideModality(ProgramElement programElement, NamespaceSet nss) {
+		ImmutableSet<Metavariable> result = DefaultImmutableSet.nil();
 		if (programElement instanceof DLNonTerminalProgramElement) {
 			DLNonTerminalProgramElement dlnpe = (DLNonTerminalProgramElement) programElement;
 			for (ProgramElement p : dlnpe) {

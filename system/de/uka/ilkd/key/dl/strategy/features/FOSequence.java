@@ -22,7 +22,9 @@
  */
 package de.uka.ilkd.key.dl.strategy.features;
 
-import de.uka.ilkd.key.logic.IteratorOfConstrainedFormula;
+import java.util.Iterator;
+
+import de.uka.ilkd.key.logic.ConstrainedFormula;
 import de.uka.ilkd.key.logic.PosInOccurrence;
 import de.uka.ilkd.key.logic.Sequent;
 import de.uka.ilkd.key.logic.Term;
@@ -91,7 +93,7 @@ public class FOSequence implements Feature {
      *         non-first-order operators
      */
     public static boolean isFOSequent(Sequent seq) {
-        IteratorOfConstrainedFormula it = seq.iterator();
+        Iterator<ConstrainedFormula> it = seq.iterator();
         while (it.hasNext()) {
             FOTestVisitor visitor = new FOTestVisitor();
             it.next().formula().execPreOrder(visitor);
@@ -112,8 +114,8 @@ public class FOSequence implements Feature {
      * @return false if one of the given terms contains any non-first-order
      *         operators
      */
-    public static boolean isFOFormulas(IteratorOfConstrainedFormula formulas) {
-        IteratorOfConstrainedFormula it = formulas;
+    public static boolean isFOFormulas(Iterator<ConstrainedFormula> formulas) {
+        Iterator<ConstrainedFormula> it = formulas;
         while (it.hasNext()) {
             FOTestVisitor visitor = new FOTestVisitor();
             it.next().formula().execPreOrder(visitor);

@@ -24,6 +24,7 @@ package de.uka.ilkd.key.dl.options;
 
 import java.io.File;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Properties;
 import java.util.Set;
@@ -36,7 +37,6 @@ import de.uka.ilkd.key.gui.Main;
 import de.uka.ilkd.key.gui.configuration.Settings;
 import de.uka.ilkd.key.gui.configuration.SettingsListener;
 import de.uka.ilkd.key.proof.Goal;
-import de.uka.ilkd.key.proof.IteratorOfGoal;
 import de.uka.ilkd.key.proof.Proof;
 
 /**
@@ -442,7 +442,7 @@ public class DLOptionBean implements Settings {
 		if (proof != null) {
 			proof.setActiveStrategy(mediator.getProfile()
 					.getDefaultStrategyFactory().create(proof, null));
-			IteratorOfGoal iterator = proof.openGoals().iterator();
+			 Iterator<Goal> iterator = proof.openGoals().iterator();
 			while (iterator.hasNext()) {
 				Goal next = iterator.next();
 				next.clearAndDetachRuleAppIndex();

@@ -3,8 +3,8 @@ package de.uka.ilkd.key.gui.thread;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import de.uka.ilkd.key.collection.ImmutableList;
 import de.uka.ilkd.key.proof.Goal;
-import de.uka.ilkd.key.proof.ListOfGoal;
 import de.uka.ilkd.key.rule.RuleApp;
 
 
@@ -15,7 +15,7 @@ public class ApplyThread implements Runnable, IThreadSender {
     private final RuleApp app;
     private final Goal goal;
     private final Collection<IThreadListener> listeners = new ArrayList<IThreadListener>();
-    private ListOfGoal goals;
+    private ImmutableList<Goal> goals;
     
     public ApplyThread( RuleApp app, final Goal goal ) {
         this.app = app;
@@ -42,7 +42,7 @@ public class ApplyThread implements Runnable, IThreadSender {
         }
     }
     
-    public final ListOfGoal getListOfGoal() {
+    public final ImmutableList<Goal> getListOfGoal() {
         return goals;
     }
     

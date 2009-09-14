@@ -27,12 +27,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import javax.swing.JOptionPane;
 
+import de.uka.ilkd.key.collection.ImmutableList;
 import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
 import de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator.PairOfTermAndQuantifierType;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
@@ -49,7 +51,6 @@ import de.uka.ilkd.key.gui.Main;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.logic.ConstrainedFormula;
 import de.uka.ilkd.key.logic.Constraint;
-import de.uka.ilkd.key.logic.IteratorOfConstrainedFormula;
 import de.uka.ilkd.key.logic.Name;
 import de.uka.ilkd.key.logic.PosInOccurrence;
 import de.uka.ilkd.key.logic.PosInTerm;
@@ -62,11 +63,8 @@ import de.uka.ilkd.key.logic.op.LogicVariable;
 import de.uka.ilkd.key.logic.op.Metavariable;
 import de.uka.ilkd.key.logic.op.Op;
 import de.uka.ilkd.key.logic.op.Operator;
-import de.uka.ilkd.key.logic.op.QuantifiableVariable;
 import de.uka.ilkd.key.logic.op.RigidFunction;
 import de.uka.ilkd.key.proof.Goal;
-import de.uka.ilkd.key.proof.IteratorOfGoal;
-import de.uka.ilkd.key.proof.ListOfGoal;
 import de.uka.ilkd.key.proof.Node;
 import de.uka.ilkd.key.proof.RuleFilter;
 import de.uka.ilkd.key.rule.BuiltInRule;
@@ -99,7 +97,7 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
 			return Constraint.BOTTOM;
 		}
 
-		public ListOfGoal execute(Goal goal, Services services) {
+		public ImmutableList<Goal> execute(Goal goal, Services services) {
 			return goal.split(0);
 		}
 
@@ -111,7 +109,7 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
 		public Rule rule() {
 			return new Rule() {
 
-				public ListOfGoal apply(Goal goal, Services services,
+				public ImmutableList<Goal> apply(Goal goal, Services services,
 						RuleApp ruleApp) {
 					// TODO Auto-generated method stub
 					return null;
@@ -148,7 +146,7 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
 	 * @see de.uka.ilkd.key.rule.Rule#apply(de.uka.ilkd.key.proof.Goal,
 	 * de.uka.ilkd.key.java.Services, de.uka.ilkd.key.rule.RuleApp)
 	 */
-	public synchronized ListOfGoal apply(Goal goal, Services services,
+	public synchronized ImmutableList<Goal> apply(Goal goal, Services services,
 			RuleApp ruleApp) {
 		// Operator op = ruleApp.posInOccurrence().subTerm().op();
 		List<Metavariable> variables = new ArrayList<Metavariable>();
@@ -160,7 +158,7 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
 		}
 		if (variables.isEmpty()) {
 			final List<Metavariable> ops = new ArrayList<Metavariable>();
-			IteratorOfConstrainedFormula seqIt = goal.sequent().iterator();
+			Iterator<ConstrainedFormula> seqIt = goal.sequent().iterator();
 			while (seqIt.hasNext()) {
 				seqIt.next().formula().execPreOrder(new Visitor() {
 
@@ -185,11 +183,11 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
 		// search the variable on all branches
 
 		Set<Goal> goals = new HashSet<Goal>();
-		ListOfGoal openGoals = goal.proof().openGoals();
-		IteratorOfGoal goalIt = openGoals.iterator();
+		ImmutableList<Goal> openGoals = goal.proof().openGoals();
+		Iterator<Goal> goalIt = openGoals.iterator();
 		while (goalIt.hasNext()) {
 			Goal curGoal = goalIt.next();
-			IteratorOfConstrainedFormula it = curGoal.sequent().iterator();
+			Iterator<ConstrainedFormula> it = curGoal.sequent().iterator();
 			Result result = Result.DOES_NOT_CONTAIN_VAR;
 			while (it.hasNext()) {
 				ConstrainedFormula next = it.next();
@@ -228,7 +226,7 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
 		Set<Term> commonAnte = new HashSet<Term>();
 		Set<Term> commonSucc = new HashSet<Term>();
 		List<Goal> goalList = new ArrayList<Goal>(goals);
-		IteratorOfConstrainedFormula iterator = goalList.get(0).sequent()
+		Iterator<ConstrainedFormula> iterator = goalList.get(0).sequent()
 				.antecedent().iterator();
 		while (iterator.hasNext()) {
 			commonAnte.add(iterator.next().formula());
@@ -239,7 +237,7 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
 		}
 		for (int i = 1; i < goals.size(); i++) {
 			if (!commonAnte.isEmpty()) {
-				IteratorOfConstrainedFormula it = goalList.get(i).sequent()
+				Iterator<ConstrainedFormula> it = goalList.get(i).sequent()
 						.antecedent().iterator();
 				Set<Term> forms = new HashSet<Term>();
 				while (it.hasNext()) {
@@ -254,7 +252,7 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
 				commonAnte.removeAll(remove);
 			}
 			if (!commonSucc.isEmpty()) {
-				IteratorOfConstrainedFormula it = goalList.get(i).sequent()
+				Iterator<ConstrainedFormula> it = goalList.get(i).sequent()
 						.succedent().iterator();
 				Set<Term> forms = new HashSet<Term>();
 				while (it.hasNext()) {
@@ -321,10 +319,10 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
 
 			Term antecendent = TermTools.createJunctorTermNAry(TermBuilder.DF
 					.tt(), Op.AND, g.sequent().antecedent().iterator(),
-					commonAnte);
+					commonAnte, true);
 			Term succendent = TermTools.createJunctorTermNAry(TermBuilder.DF
 					.ff(), Op.OR, g.sequent().succedent().iterator(),
-					commonSucc);
+					commonSucc, true);
 			Term imp = TermBuilder.DF.imp(antecendent, succendent);
 			List<Term> orderedList = SkolemfunctionTracker.INSTANCE
 					.getOrderedList(findSkolemSymbols);
@@ -487,7 +485,7 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
 			if (resultTerm.equals(TermBuilder.DF.tt())) {
 				return goal.split(0);
 			}
-			ListOfGoal result = goal.split(1);
+			ImmutableList<Goal> result = goal.split(1);
 			removeAllFormulas(result.head(), goal.sequent().succedent()
 					.iterator(), false);
 			removeAllFormulas(result.head(), goal.sequent().antecedent()
@@ -515,7 +513,7 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
 	 * @param iterator
 	 * @return
 	 */
-	private Set<Term> findSkolemSymbols(IteratorOfConstrainedFormula iterator) {
+	private Set<Term> findSkolemSymbols(Iterator<ConstrainedFormula> iterator) {
 		final Set<Term> result = new HashSet<Term>();
 		while (iterator.hasNext()) {
 			result.addAll(findSkolemSymbols(iterator.next().formula()));
@@ -568,7 +566,7 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
 	 * @param ante
 	 */
 	private void removeAllFormulas(Goal head,
-			IteratorOfConstrainedFormula iterator, boolean ante) {
+			Iterator<ConstrainedFormula> iterator, boolean ante) {
 		while (iterator.hasNext()) {
 			ConstrainedFormula next = iterator.next();
 			SequentChangeInfo removeFormula = head.sequent().removeFormula(

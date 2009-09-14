@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import de.uka.ilkd.key.collection.ImmutableArray;
 import de.uka.ilkd.key.dl.logic.ldt.RealLDT;
 import de.uka.ilkd.key.dl.model.And;
 import de.uka.ilkd.key.dl.model.Biimplies;
@@ -58,7 +59,6 @@ import de.uka.ilkd.key.logic.JavaBlock;
 import de.uka.ilkd.key.logic.Name;
 import de.uka.ilkd.key.logic.NamespaceSet;
 import de.uka.ilkd.key.logic.Term;
-import de.uka.ilkd.key.logic.op.ArrayOfQuantifiableVariable;
 import de.uka.ilkd.key.logic.sort.Sort;
 import de.uka.ilkd.key.rule.inst.SVInstantiations;
 
@@ -125,7 +125,7 @@ public class DLDiffInequalityRewrite extends AbstractDLMetaOperator {
 			program.setDLAnnotations(system1.getDLAnnotations());
 			return de.uka.ilkd.key.logic.TermFactory.DEFAULT.createTerm(term
 					.sub(0).op(), new Term[] { post },
-					new ArrayOfQuantifiableVariable[0], JavaBlock
+					new ImmutableArray[0], JavaBlock
 							.createJavaBlock(new DLStatementBlock(program)));
 		} catch (Exception e) {
 			throw new IllegalStateException(e);

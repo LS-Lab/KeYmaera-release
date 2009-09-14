@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.uka.ilkd.key.dl.formulatools.TermTools;
+import de.uka.ilkd.key.collection.ImmutableArray;
 import de.uka.ilkd.key.dl.model.DLStatementBlock;
 import de.uka.ilkd.key.dl.model.DiffSystem;
 import de.uka.ilkd.key.dl.model.Expression;
@@ -22,7 +22,6 @@ import de.uka.ilkd.key.logic.JavaBlock;
 import de.uka.ilkd.key.logic.Name;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.TermBuilder;
-import de.uka.ilkd.key.logic.op.ArrayOfQuantifiableVariable;
 import de.uka.ilkd.key.logic.op.Function;
 import de.uka.ilkd.key.logic.op.LogicVariable;
 import de.uka.ilkd.key.logic.op.Modality;
@@ -117,32 +116,32 @@ public class WeakNegation extends AbstractDLMetaOperator {
 		if (negated) {
 			if (post.op() == Op.ALL) {
 				List<Variable> vars = new ArrayList<Variable>();
-				ArrayOfQuantifiableVariable varsBoundHere = post
+				ImmutableArray<QuantifiableVariable> varsBoundHere = post
 						.varsBoundHere(0);
 				for (int i = 0; i < varsBoundHere.size(); i++) {
 					QuantifiableVariable var = varsBoundHere
-							.getQuantifiableVariable(i);
+							.get(i);
 					vars.add(tf.createLogicalVariable(var.name().toString()));
 				}
 				result = tf
 						.createExists(tf
 								.createVariableDeclaration(varsBoundHere
-										.getQuantifiableVariable(0).sort(),
+										.get(0).sort(),
 										vars), (Formula) weakNegate(
 								post.sub(0), services, tf, negated));
 			} else if (post.op() == Op.EX) {
 				List<Variable> vars = new ArrayList<Variable>();
-				ArrayOfQuantifiableVariable varsBoundHere = post
+				ImmutableArray<QuantifiableVariable> varsBoundHere = post
 						.varsBoundHere(0);
 				for (int i = 0; i < varsBoundHere.size(); i++) {
 					QuantifiableVariable var = varsBoundHere
-							.getQuantifiableVariable(i);
+							.get(i);
 					vars.add(tf.createLogicalVariable(var.name().toString()));
 				}
 				result = tf
 						.createForall(tf
 								.createVariableDeclaration(varsBoundHere
-										.getQuantifiableVariable(0).sort(),
+										.get(0).sort(),
 										vars), (Formula) weakNegate(
 								post.sub(0), services, tf, negated));
 			} else if (post.op() == Op.AND) {
@@ -193,32 +192,32 @@ public class WeakNegation extends AbstractDLMetaOperator {
 		} else {
 			if (post.op() == Op.ALL) {
 				List<Variable> vars = new ArrayList<Variable>();
-				ArrayOfQuantifiableVariable varsBoundHere = post
+				ImmutableArray<QuantifiableVariable> varsBoundHere = post
 						.varsBoundHere(0);
 				for (int i = 0; i < varsBoundHere.size(); i++) {
 					QuantifiableVariable var = varsBoundHere
-							.getQuantifiableVariable(i);
+							.get(i);
 					vars.add(tf.createLogicalVariable(var.name().toString()));
 				}
 				result = tf
 						.createForall(tf
 								.createVariableDeclaration(varsBoundHere
-										.getQuantifiableVariable(0).sort(),
+										.get(0).sort(),
 										vars), (Formula) weakNegate(
 								post.sub(0), services, tf, negated));
 			} else if (post.op() == Op.EX) {
 				List<Variable> vars = new ArrayList<Variable>();
-				ArrayOfQuantifiableVariable varsBoundHere = post
+				ImmutableArray<QuantifiableVariable> varsBoundHere = post
 						.varsBoundHere(0);
 				for (int i = 0; i < varsBoundHere.size(); i++) {
 					QuantifiableVariable var = varsBoundHere
-							.getQuantifiableVariable(i);
+							.get(i);
 					vars.add(tf.createLogicalVariable(var.name().toString()));
 				}
 				result = tf
 						.createExists(tf
 								.createVariableDeclaration(varsBoundHere
-										.getQuantifiableVariable(0).sort(),
+										.get(0).sort(),
 										vars), (Formula) weakNegate(
 								post.sub(0), services, tf, negated));
 			} else if (post.op() == Op.AND) {

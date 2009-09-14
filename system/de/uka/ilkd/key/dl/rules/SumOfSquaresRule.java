@@ -24,21 +24,20 @@ package de.uka.ilkd.key.dl.rules;
 
 import java.rmi.RemoteException;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
+import de.uka.ilkd.key.collection.ImmutableList;
+import de.uka.ilkd.key.collection.ImmutableSLList;
 import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
-import de.uka.ilkd.key.dl.arithmetics.impl.SumOfSquaresChecker;
-import de.uka.ilkd.key.dl.arithmetics.impl.SumOfSquaresChecker.FormulaStatus;
 import de.uka.ilkd.key.java.Services;
+import de.uka.ilkd.key.logic.ConstrainedFormula;
 import de.uka.ilkd.key.logic.Constraint;
-import de.uka.ilkd.key.logic.IteratorOfConstrainedFormula;
 import de.uka.ilkd.key.logic.Name;
 import de.uka.ilkd.key.logic.PosInOccurrence;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.proof.Goal;
-import de.uka.ilkd.key.proof.ListOfGoal;
 import de.uka.ilkd.key.proof.RuleFilter;
-import de.uka.ilkd.key.proof.SLListOfGoal;
 import de.uka.ilkd.key.rule.BuiltInRule;
 import de.uka.ilkd.key.rule.Rule;
 import de.uka.ilkd.key.rule.RuleApp;
@@ -66,10 +65,10 @@ public class SumOfSquaresRule implements BuiltInRule, RuleFilter {
 	 * @see de.uka.ilkd.key.rule.Rule#apply(de.uka.ilkd.key.proof.Goal,
 	 * de.uka.ilkd.key.java.Services, de.uka.ilkd.key.rule.RuleApp)
 	 */
-	public synchronized ListOfGoal apply(Goal goal, Services services,
+	public synchronized ImmutableList<Goal> apply(Goal goal, Services services,
 			RuleApp ruleApp) {
 
-		IteratorOfConstrainedFormula it = goal.sequent().antecedent()
+		Iterator<ConstrainedFormula> it = goal.sequent().antecedent()
 				.iterator();
 		Set<Term> ante = new HashSet<Term>();
 		while (it.hasNext()) {
@@ -86,12 +85,13 @@ public class SumOfSquaresRule implements BuiltInRule, RuleFilter {
 					.testForTautology(
 							ante, succ,
 							services)) {
-				return SLListOfGoal.EMPTY_LIST;
+				return ImmutableSLList.nil();
 			}
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
-		return SLListOfGoal.EMPTY_LIST.append(goal);
+		ImmutableSLList<Goal> nil = ImmutableSLList.nil();
+		return nil.append(goal);
 
 		// return SLListOfGoal.EMPTY_LIST;
 	}

@@ -22,15 +22,15 @@
  */
 package de.uka.ilkd.key.dl.gui;
 
+import java.util.Iterator;
 import java.util.Map;
 import java.util.WeakHashMap;
 
+import de.uka.ilkd.key.collection.ImmutableList;
 import de.uka.ilkd.key.gui.AutoModeListener;
 import de.uka.ilkd.key.gui.Main;
 import de.uka.ilkd.key.logic.PosInOccurrence;
 import de.uka.ilkd.key.proof.Goal;
-import de.uka.ilkd.key.proof.IteratorOfGoal;
-import de.uka.ilkd.key.proof.ListOfGoal;
 import de.uka.ilkd.key.proof.Node;
 import de.uka.ilkd.key.proof.Proof;
 import de.uka.ilkd.key.proof.ProofEvent;
@@ -124,9 +124,9 @@ public class AutomodeListener implements AutoModeListener {
 
         Proof proof = e.getSource();
         if (proof != null) {
-            ListOfGoal openGoals = proof.openGoals();
+             ImmutableList<Goal> openGoals = proof.openGoals();
             if (openGoals != null) {
-                IteratorOfGoal goals = openGoals.iterator();
+                Iterator<Goal> goals = openGoals.iterator();
                 while (goals.hasNext()) {
                     Goal next = goals.next();
                     if (next.getRuleAppManager() instanceof DummyRuleApplicationManager) {
@@ -163,7 +163,7 @@ public class AutomodeListener implements AutoModeListener {
     public void autoModeStopped(ProofEvent e) {
         Proof proof = Main.getInstance().mediator().getProof();
         if (proof != null) {
-            IteratorOfGoal goals = proof.openGoals().iterator();
+             Iterator<Goal> goals = proof.openGoals().iterator();
             while (goals.hasNext()) {
                 Goal next = goals.next();
                 if (next.getRuleAppManager() != null

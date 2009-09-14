@@ -10,9 +10,16 @@
 
 package de.uka.ilkd.key.strategy;
 
+import de.uka.ilkd.key.collection.ImmutableList;
+import de.uka.ilkd.key.collection.ImmutableSLList;
 import de.uka.ilkd.key.dl.strategy.features.AnnotatedFeature;
 import de.uka.ilkd.key.dl.strategy.termProjection.AnnotationProjection;
-import de.uka.ilkd.key.logic.*;
+import de.uka.ilkd.key.logic.Name;
+import de.uka.ilkd.key.logic.Named;
+import de.uka.ilkd.key.logic.Namespace;
+import de.uka.ilkd.key.logic.NamespaceSet;
+import de.uka.ilkd.key.logic.PosInOccurrence;
+import de.uka.ilkd.key.logic.PosInTerm;
 import de.uka.ilkd.key.logic.op.Operator;
 import de.uka.ilkd.key.logic.sort.Sort;
 import de.uka.ilkd.key.proof.Goal;
@@ -20,14 +27,44 @@ import de.uka.ilkd.key.proof.IHTacletFilter;
 import de.uka.ilkd.key.proof.Proof;
 import de.uka.ilkd.key.proof.TacletFilter;
 import de.uka.ilkd.key.proof.UpdateSimplificationRuleFilter;
-import de.uka.ilkd.key.rule.ListOfRuleSet;
 import de.uka.ilkd.key.rule.RuleApp;
 import de.uka.ilkd.key.rule.RuleSet;
-import de.uka.ilkd.key.rule.SLListOfRuleSet;
-import de.uka.ilkd.key.strategy.feature.*;
-import de.uka.ilkd.key.strategy.feature.instantiator.*;
-import de.uka.ilkd.key.strategy.termProjection.*;
-import de.uka.ilkd.key.strategy.termfeature.*;
+import de.uka.ilkd.key.strategy.feature.ApplyTFFeature;
+import de.uka.ilkd.key.strategy.feature.BinarySumFeature;
+import de.uka.ilkd.key.strategy.feature.CompareCostsFeature;
+import de.uka.ilkd.key.strategy.feature.ComprehendedSumFeature;
+import de.uka.ilkd.key.strategy.feature.ConditionalFeature;
+import de.uka.ilkd.key.strategy.feature.ConstFeature;
+import de.uka.ilkd.key.strategy.feature.Feature;
+import de.uka.ilkd.key.strategy.feature.ImplicitCastNecessary;
+import de.uka.ilkd.key.strategy.feature.InstantiatedSVFeature;
+import de.uka.ilkd.key.strategy.feature.LetFeature;
+import de.uka.ilkd.key.strategy.feature.RuleSetDispatchFeature;
+import de.uka.ilkd.key.strategy.feature.ShannonFeature;
+import de.uka.ilkd.key.strategy.feature.SortComparisionFeature;
+import de.uka.ilkd.key.strategy.feature.TernarySumFeature;
+import de.uka.ilkd.key.strategy.feature.instantiator.BackTrackingManager;
+import de.uka.ilkd.key.strategy.feature.instantiator.ForEachCP;
+import de.uka.ilkd.key.strategy.feature.instantiator.OneOfCP;
+import de.uka.ilkd.key.strategy.feature.instantiator.OpenRuleAppCP;
+import de.uka.ilkd.key.strategy.feature.instantiator.RuleAppBuffer;
+import de.uka.ilkd.key.strategy.feature.instantiator.SVInstantiationCP;
+import de.uka.ilkd.key.strategy.feature.instantiator.StoreRuleAppCP;
+import de.uka.ilkd.key.strategy.termProjection.ProjectionToTerm;
+import de.uka.ilkd.key.strategy.termProjection.SVInstantiationProjection;
+import de.uka.ilkd.key.strategy.termProjection.SubtermProjection;
+import de.uka.ilkd.key.strategy.termProjection.TermBuffer;
+import de.uka.ilkd.key.strategy.termProjection.TermConstructionProjection;
+import de.uka.ilkd.key.strategy.termfeature.BinarySumTermFeature;
+import de.uka.ilkd.key.strategy.termfeature.ConstTermFeature;
+import de.uka.ilkd.key.strategy.termfeature.EqTermFeature;
+import de.uka.ilkd.key.strategy.termfeature.OperatorTF;
+import de.uka.ilkd.key.strategy.termfeature.PrintTermFeature;
+import de.uka.ilkd.key.strategy.termfeature.RecSubTermFeature;
+import de.uka.ilkd.key.strategy.termfeature.ShannonTermFeature;
+import de.uka.ilkd.key.strategy.termfeature.SortExtendsTransTermFeature;
+import de.uka.ilkd.key.strategy.termfeature.SubTermFeature;
+import de.uka.ilkd.key.strategy.termfeature.TermFeature;
 import de.uka.ilkd.key.strategy.termgenerator.TermGenerator;
 
 
@@ -197,7 +234,7 @@ public abstract class AbstractFeatureStrategy implements Strategy {
     }
 
     protected TacletFilter getFilterFor (String[] p_names) {
-        ListOfRuleSet heur = SLListOfRuleSet.EMPTY_LIST;
+        ImmutableList<RuleSet> heur = ImmutableSLList.<RuleSet>nil();
         for ( int i = 0; i != p_names.length; ++i )
             heur = heur.prepend ( getHeuristic ( p_names[i] ) );
         return new IHTacletFilter ( false, heur );

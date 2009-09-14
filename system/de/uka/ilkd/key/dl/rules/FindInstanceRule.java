@@ -27,6 +27,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -35,11 +36,11 @@ import javax.swing.JFrame;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 
+import de.uka.ilkd.key.collection.ImmutableList;
 import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.logic.ConstrainedFormula;
 import de.uka.ilkd.key.logic.Constraint;
-import de.uka.ilkd.key.logic.IteratorOfConstrainedFormula;
 import de.uka.ilkd.key.logic.Name;
 import de.uka.ilkd.key.logic.PosInOccurrence;
 import de.uka.ilkd.key.logic.PosInTerm;
@@ -48,7 +49,6 @@ import de.uka.ilkd.key.logic.TermBuilder;
 import de.uka.ilkd.key.logic.Visitor;
 import de.uka.ilkd.key.logic.op.Op;
 import de.uka.ilkd.key.proof.Goal;
-import de.uka.ilkd.key.proof.ListOfGoal;
 import de.uka.ilkd.key.proof.RuleFilter;
 import de.uka.ilkd.key.rule.BuiltInRule;
 import de.uka.ilkd.key.rule.Rule;
@@ -87,9 +87,9 @@ public class FindInstanceRule extends Visitor implements BuiltInRule,
      * @see de.uka.ilkd.key.rule.Rule#apply(de.uka.ilkd.key.proof.Goal,
      *      de.uka.ilkd.key.java.Services, de.uka.ilkd.key.rule.RuleApp)
      */
-    public synchronized ListOfGoal apply(Goal goal, Services services,
+    public synchronized ImmutableList<Goal> apply(Goal goal, Services services,
             RuleApp ruleApp) {
-        IteratorOfConstrainedFormula it = goal.sequent().antecedent()
+        Iterator<ConstrainedFormula> it = goal.sequent().antecedent()
                 .iterator();
         Term resultTerm = TermBuilder.DF.tt();
         Map<Term, List<PosInOccurrence>> changes = iterate(goal, it,
@@ -166,7 +166,7 @@ public class FindInstanceRule extends Visitor implements BuiltInRule,
      *         sequence.
      */
     private Map<Term, List<PosInOccurrence>> iterate(Goal result,
-            IteratorOfConstrainedFormula it, Term resultTerm, boolean and) {
+            Iterator<ConstrainedFormula> it, Term resultTerm, boolean and) {
         List<PosInOccurrence> changes = new ArrayList<PosInOccurrence>();
         while (it.hasNext()) {
             ConstrainedFormula f = it.next();

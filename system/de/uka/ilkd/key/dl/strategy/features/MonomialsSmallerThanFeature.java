@@ -11,11 +11,11 @@
 
 package de.uka.ilkd.key.dl.strategy.features;
 
+import de.uka.ilkd.key.collection.ImmutableList;
 import de.uka.ilkd.key.dl.logic.ldt.RealLDT;
 import de.uka.ilkd.key.dl.model.Mult;
 import de.uka.ilkd.key.dl.model.Plus;
 import de.uka.ilkd.key.dl.strategy.termfeature.QuasiRealLiteralFeature;
-import de.uka.ilkd.key.logic.ListOfTerm;
 import de.uka.ilkd.key.logic.PosInOccurrence;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.op.Function;
@@ -87,8 +87,8 @@ public class MonomialsSmallerThanFeature extends AbstractMonomialSmallerThanFeat
         if ( t1Deg > t2Deg ) return false;
 
         if ( t1Deg != 0 ) {
-            final ListOfTerm atoms1 = collectAtoms ( t1 );
-            final ListOfTerm atoms2 = collectAtoms ( t2 );
+            final ImmutableList<Term> atoms1 = collectAtoms ( t1 );
+            final ImmutableList<Term> atoms2 = collectAtoms ( t2 );
 
             if ( atoms1.size () < atoms2.size () ) return false;
             if ( atoms1.size () > atoms2.size () ) return true;

@@ -15,14 +15,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import de.uka.ilkd.key.collection.ImmutableArray;
 import de.uka.ilkd.key.dl.model.DLBottom;
 import de.uka.ilkd.key.dl.model.DiffSystem;
 import de.uka.ilkd.key.dl.model.Formula;
-import de.uka.ilkd.key.java.ArrayOfExpression;
-import de.uka.ilkd.key.java.ArrayOfLoopInitializer;
-import de.uka.ilkd.key.java.ArrayOfProgramElement;
 import de.uka.ilkd.key.java.Comment;
 import de.uka.ilkd.key.java.Expression;
+import de.uka.ilkd.key.java.LoopInitializer;
 import de.uka.ilkd.key.java.Position;
 import de.uka.ilkd.key.java.PositionInfo;
 import de.uka.ilkd.key.java.PrettyPrinter;
@@ -53,8 +52,9 @@ import de.uka.ilkd.key.util.Debug;
 public class ProgramSV extends SortedSchemaVariable implements
         ProgramConstruct, DLBottom {
 
-    private static final ProgramList EMPTY_LIST_INSTANTIATION = new ProgramList(
-            new ArrayOfProgramElement(new ProgramElement[0]));
+    private static final ProgramList EMPTY_LIST_INSTANTIATION = 
+        new ProgramList
+        (new ImmutableArray<ProgramElement>(new ProgramElement[0]));
 
     /**
      * creates a new SchemaVariable used as a placeholder for program constructs
@@ -284,21 +284,11 @@ public class ProgramSV extends SortedSchemaVariable implements
         return 0;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see de.uka.ilkd.key.java.statement.IForUpdates#getUpdates()
-     */
-    public ArrayOfExpression getUpdates() {
+    public ImmutableArray<Expression> getUpdates() {
         return null;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see de.uka.ilkd.key.java.statement.ILoopInit#getInits()
-     */
-    public ArrayOfLoopInitializer getInits() {
+    public ImmutableArray<LoopInitializer> getInits() {
         return null;
     }
 
@@ -589,10 +579,9 @@ public class ProgramSV extends SortedSchemaVariable implements
         }
 
         Debug.out("Program list match: ", this, matchedElements);
-        return addProgramInstantiation(new ProgramList(
-                new ArrayOfProgramElement(matchedElements)), matchCond,
-                services);
-    }
+        return addProgramInstantiation(new ProgramList(new ImmutableArray<ProgramElement>(matchedElements)), 
+                matchCond, services);
+    }	
 
     /*
      * (non-Javadoc)

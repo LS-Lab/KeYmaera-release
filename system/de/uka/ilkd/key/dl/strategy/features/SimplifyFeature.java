@@ -24,6 +24,7 @@ package de.uka.ilkd.key.dl.strategy.features;
 
 import java.math.BigDecimal;
 
+import de.uka.ilkd.key.collection.ImmutableList;
 import de.uka.ilkd.key.logic.Name;
 import de.uka.ilkd.key.logic.PosInOccurrence;
 import de.uka.ilkd.key.logic.Term;
@@ -35,7 +36,6 @@ import de.uka.ilkd.key.logic.op.Modality;
 import de.uka.ilkd.key.logic.op.ProgramVariable;
 import de.uka.ilkd.key.logic.op.Quantifier;
 import de.uka.ilkd.key.proof.Goal;
-import de.uka.ilkd.key.rule.ListOfRuleApp;
 import de.uka.ilkd.key.rule.PosTacletApp;
 import de.uka.ilkd.key.rule.RuleApp;
 import de.uka.ilkd.key.rule.TacletApp;
@@ -82,7 +82,7 @@ public class SimplifyFeature extends Visitor implements Feature {
 			RuleApp cur = goal.appliedRuleApps().head();
 			int i = 1;
 			while (cur.rule() instanceof UpdateSimplificationRule) {
-				ListOfRuleApp take = goal.appliedRuleApps().take(i++);
+				ImmutableList<RuleApp> take = goal.appliedRuleApps().take(i++);
 				if(take.isEmpty()) {
 					return TopRuleAppCost.INSTANCE;
 				}

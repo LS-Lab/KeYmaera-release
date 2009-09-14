@@ -22,8 +22,9 @@
  */
 package de.uka.ilkd.key.dl.rules;
 
-import de.uka.ilkd.key.rule.ListOfIUpdateRule;
-import de.uka.ilkd.key.rule.SLListOfIUpdateRule;
+import de.uka.ilkd.key.collection.ImmutableList;
+import de.uka.ilkd.key.collection.ImmutableSLList;
+import de.uka.ilkd.key.rule.IUpdateRule;
 import de.uka.ilkd.key.rule.UpdateSimplifier;
 import de.uka.ilkd.key.rule.updatesimplifier.ApplyAnonymousUpdateOnNonRigid;
 import de.uka.ilkd.key.rule.updatesimplifier.ApplyOnAnonymousUpdate;
@@ -48,7 +49,8 @@ public class DLUpdateSimplifier extends UpdateSimplifier {
      * 
      */
     public DLUpdateSimplifier() {
-        ListOfIUpdateRule usRules = SLListOfIUpdateRule.EMPTY_LIST.append(
+        ImmutableList<IUpdateRule> usRules = ImmutableSLList.nil();
+        usRules = usRules.append(
                 new ApplyOnAnonymousUpdate(this)).append(
                 new ApplyAnonymousUpdateOnNonRigid(this)).append(
                 new ApplyOnUpdate(this)).append(

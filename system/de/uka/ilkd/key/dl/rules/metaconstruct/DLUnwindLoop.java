@@ -29,7 +29,6 @@ import de.uka.ilkd.key.dl.model.DLProgram;
 import de.uka.ilkd.key.dl.model.DLStatementBlock;
 import de.uka.ilkd.key.dl.model.Star;
 import de.uka.ilkd.key.dl.model.TermFactory;
-import de.uka.ilkd.key.dl.model.impl.TermFactoryImpl;
 import de.uka.ilkd.key.dl.options.DLOptionBean;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.java.StatementBlock;

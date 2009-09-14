@@ -37,6 +37,7 @@ import java.net.ServerSocket;
 import java.rmi.RemoteException;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -63,7 +64,6 @@ import de.uka.ilkd.key.gui.Main;
 import de.uka.ilkd.key.gui.configuration.ProofSettings;
 import de.uka.ilkd.key.gui.configuration.Settings;
 import de.uka.ilkd.key.gui.configuration.SettingsListener;
-import de.uka.ilkd.key.proof.IteratorOfNode;
 import de.uka.ilkd.key.proof.Node;
 import de.uka.ilkd.key.proof.Proof;
 import de.uka.ilkd.key.proof.ProofEvent;
@@ -150,7 +150,7 @@ public class DLInitializer {
 
 		private int computeInteractiveSteps(Node node) {
 			int steps = 0;
-			final IteratorOfNode it = node.childrenIterator();
+			final Iterator<Node> it = node.childrenIterator();
 			while (it.hasNext()) {
 				steps += computeInteractiveSteps(it.next());
 			}

@@ -11,6 +11,9 @@
 
 package de.uka.ilkd.key.strategy.feature.instantiator;
 
+import java.util.Iterator;
+
+import de.uka.ilkd.key.collection.ImmutableSLList;
 import de.uka.ilkd.key.logic.PosInOccurrence;
 import de.uka.ilkd.key.proof.Goal;
 import de.uka.ilkd.key.rule.RuleApp;
@@ -48,14 +51,15 @@ public class RuleAppBuffer implements Feature {
     }
     
     private final ChoicePoint cp = new ChoicePoint () {
-        public IteratorOfCPBranch getBranches(RuleApp oldApp) {
+    	public Iterator<CPBranch> getBranches(final RuleApp oldApp) {
             final CPBranch branch = new CPBranch () {
                 private final RuleApp app = storedRuleApp;
                 public void choose() {}
                 public RuleApp getRuleAppForBranch() { return app; }
             };
             
-            return SLListOfCPBranch.EMPTY_LIST.prepend ( branch ).iterator();
+            final ImmutableSLList<CPBranch> nil = ImmutableSLList.nil();
+			return nil.prepend ( branch ).iterator();
         }        
     };
 

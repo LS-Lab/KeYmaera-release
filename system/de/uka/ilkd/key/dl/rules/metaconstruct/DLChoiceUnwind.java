@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import de.uka.ilkd.key.collection.ImmutableArray;
 import de.uka.ilkd.key.dl.model.DLProgram;
 import de.uka.ilkd.key.dl.model.DLStatementBlock;
 import de.uka.ilkd.key.dl.model.DiffSystem;
@@ -35,7 +36,6 @@ import de.uka.ilkd.key.java.StatementBlock;
 import de.uka.ilkd.key.logic.JavaBlock;
 import de.uka.ilkd.key.logic.Name;
 import de.uka.ilkd.key.logic.Term;
-import de.uka.ilkd.key.logic.op.ArrayOfQuantifiableVariable;
 import de.uka.ilkd.key.logic.sort.Sort;
 import de.uka.ilkd.key.rule.inst.SVInstantiations;
 
@@ -89,7 +89,7 @@ public class DLChoiceUnwind extends AbstractDLMetaOperator {
 			program = tf.createStar(program);
 			return de.uka.ilkd.key.logic.TermFactory.DEFAULT.createTerm(term
 					.sub(0).op(), new Term[] { post },
-					new ArrayOfQuantifiableVariable[0], JavaBlock
+					new ImmutableArray[0], JavaBlock
 							.createJavaBlock(new DLStatementBlock(program)));
 		} catch (Exception e) {
 			throw new IllegalStateException(e);

@@ -58,7 +58,6 @@ import de.uka.ilkd.key.dl.model.RandomAssign;
 import de.uka.ilkd.key.dl.model.Star;
 import de.uka.ilkd.key.dl.model.TermFactory;
 import de.uka.ilkd.key.dl.model.VariableDeclaration;
-import de.uka.ilkd.key.dl.model.impl.TermFactoryImpl;
 import de.uka.ilkd.key.dl.options.DLOptionBean;
 import de.uka.ilkd.key.gui.Main;
 import de.uka.ilkd.key.java.ProgramElement;

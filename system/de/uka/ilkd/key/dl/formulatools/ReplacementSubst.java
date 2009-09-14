@@ -13,11 +13,12 @@ package de.uka.ilkd.key.dl.formulatools;
 import java.util.Iterator;
 import java.util.Map;
 
-import de.uka.ilkd.key.dl.formulatools.collector.*;
-import de.uka.ilkd.key.dl.formulatools.collector.filter.*;
+import de.uka.ilkd.key.collection.ImmutableArray;
+import de.uka.ilkd.key.dl.formulatools.collector.AllCollector;
+import de.uka.ilkd.key.dl.formulatools.collector.filter.FilterVariableCollector;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.TermFactory;
-import de.uka.ilkd.key.logic.op.*;
+import de.uka.ilkd.key.logic.op.QuantifiableVariable;
 
 /**
  * Performs arbitrary term replacements as substitutions even unsound replacements.
@@ -88,8 +89,8 @@ public class ReplacementSubst {
     private Term applyOnSubterms(Term t) {
 	final int arity = t.arity();
 	final Term[] newSubterms = new Term[arity];
-	final ArrayOfQuantifiableVariable[] newBoundVars =
-	    new ArrayOfQuantifiableVariable[arity];
+	final ImmutableArray<QuantifiableVariable>[] newBoundVars =
+	    new ImmutableArray[arity];
 	for ( int i=0; i<arity; i++ ) {
 	    applyOnSubterm ( t, i, newSubterms, newBoundVars );
         }
@@ -106,12 +107,12 @@ public class ReplacementSubst {
     private void applyOnSubterm (Term completeTerm,
                                    int subtermIndex,
                                    Term[] newSubterms,
-                                   ArrayOfQuantifiableVariable[] newBoundVars) {
-        final ArrayOfQuantifiableVariable varsBound = completeTerm.varsBoundHere ( subtermIndex );
+                                   ImmutableArray<QuantifiableVariable>[] newBoundVars) {
+        final ImmutableArray<QuantifiableVariable> varsBound = completeTerm.varsBoundHere ( subtermIndex );
 	if ( varsBound.size() > 0) {
 	    // check if any of the quantified variables occurs in the keys or values of the replacements
             for (int k = 0; k < varsBound.size(); k++) {
-        	QuantifiableVariable var = varsBound.getQuantifiableVariable(k);
+        	QuantifiableVariable var = varsBound.get(k);
         	for (Iterator<Term> i = replacements.keySet().iterator(); i.hasNext(); ) {
         	    Term t = i.next();
         	    if (t.freeVars().contains(var)) {

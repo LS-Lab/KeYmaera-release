@@ -35,12 +35,12 @@ import java.util.WeakHashMap;
 
 import orbital.util.SequenceIterator;
 import orbital.util.Setops;
+import de.uka.ilkd.key.collection.ImmutableArray;
 import de.uka.ilkd.key.dl.formulatools.Prog2LogicConverter;
 import de.uka.ilkd.key.dl.formulatools.ReplacementSubst;
 import de.uka.ilkd.key.dl.formulatools.TermTools;
 import de.uka.ilkd.key.dl.model.DLProgram;
 import de.uka.ilkd.key.dl.model.DiffSystem;
-import de.uka.ilkd.key.dl.model.Formula;
 import de.uka.ilkd.key.dl.model.NamedElement;
 import de.uka.ilkd.key.dl.model.Star;
 import de.uka.ilkd.key.dl.transitionmodel.DependencyStateGenerator;
@@ -48,8 +48,6 @@ import de.uka.ilkd.key.gui.Main;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.java.StatementBlock;
 import de.uka.ilkd.key.logic.ConstrainedFormula;
-import de.uka.ilkd.key.logic.IteratorOfConstrainedFormula;
-import de.uka.ilkd.key.logic.IteratorOfTerm;
 import de.uka.ilkd.key.logic.JavaBlock;
 import de.uka.ilkd.key.logic.Name;
 import de.uka.ilkd.key.logic.PosInOccurrence;
@@ -62,7 +60,6 @@ import de.uka.ilkd.key.pp.LogicPrinter;
 import de.uka.ilkd.key.pp.ProgramPrinter;
 import de.uka.ilkd.key.proof.Goal;
 import de.uka.ilkd.key.rule.RuleApp;
-import de.uka.ilkd.key.rule.updatesimplifier.ArrayOfAssignmentPair;
 import de.uka.ilkd.key.rule.updatesimplifier.AssignmentPair;
 import de.uka.ilkd.key.rule.updatesimplifier.Update;
 import de.uka.ilkd.key.strategy.termgenerator.TermGenerator;
@@ -84,7 +81,7 @@ public class DiffIndCandidates implements TermGenerator {
     private DiffIndCandidates() {
     }
 
-    public IteratorOfTerm generate(RuleApp app, PosInOccurrence pos, Goal goal) {
+    public Iterator<Term> generate(RuleApp app, PosInOccurrence pos, Goal goal) {
         Term term = pos.subTerm();
         // unbox from update prefix
         while (term.op() instanceof QuanUpdateOperator) {
@@ -118,7 +115,7 @@ public class DiffIndCandidates implements TermGenerator {
         final Iterator<Term> candidateGenerator = 
             indCandidates(goal.sequent(), pos, currentInvariant,
                         services);
-        return new IteratorOfTerm() {
+        return new Iterator<Term>() {
 
             /*@Override*/
             public boolean hasNext() {
@@ -379,9 +376,9 @@ public class DiffIndCandidates implements TermGenerator {
         // system.getInvariant() + " of " + system);
 
         Set<Term> matches = new LinkedHashSet<Term>();
-        ArrayOfAssignmentPair asss = update.getAllAssignmentPairs();
+        ImmutableArray<AssignmentPair> asss = update.getAllAssignmentPairs();
         for (int i = 0; i < asss.size(); i++) {
-            AssignmentPair ass = asss.getAssignmentPair(i);
+            AssignmentPair ass = asss.get(i);
             Term xhp = ass.locationAsTerm();
             assert xhp.arity() == 0 : "only works for atomic locations";
             assert ass.location() instanceof de.uka.ilkd.key.logic.op.ProgramVariable  : "expecting arity 0 program variables";
@@ -408,7 +405,7 @@ public class DiffIndCandidates implements TermGenerator {
             }
         }
         // @todo respect different update levels
-        for (IteratorOfConstrainedFormula i = seq.antecedent().iterator(); i
+        for (Iterator<ConstrainedFormula> i = seq.antecedent().iterator(); i
                 .hasNext();) {
             final ConstrainedFormula cf = i.next();
             Term fml = cf.formula();
@@ -429,9 +426,9 @@ public class DiffIndCandidates implements TermGenerator {
     private ReplacementSubst revertStateChange(Update update,
             Services services, Set<de.uka.ilkd.key.logic.op.ProgramVariable> modifieds) {
         Map<Term, Term> undos = new HashMap<Term, Term>();
-        ArrayOfAssignmentPair asss = update.getAllAssignmentPairs();
+        ImmutableArray<AssignmentPair> asss = update.getAllAssignmentPairs();
         for (int i = 0; i < asss.size(); i++) {
-            AssignmentPair ass = asss.getAssignmentPair(i);
+            AssignmentPair ass = asss.get(i);
             Term x = ass.locationAsTerm();
             assert x.arity() == 0 : "only works for atomic locations";
             assert ass.location() instanceof de.uka.ilkd.key.logic.op.ProgramVariable  : "expecting arity 0 program variables";

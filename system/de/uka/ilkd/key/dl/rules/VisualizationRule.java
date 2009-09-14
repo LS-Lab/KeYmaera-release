@@ -25,6 +25,7 @@ package de.uka.ilkd.key.dl.rules;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import de.uka.ilkd.key.collection.ImmutableList;
 import de.uka.ilkd.key.dl.model.DLProgram;
 import de.uka.ilkd.key.dl.transitionmodel.DottyStateGenerator;
 import de.uka.ilkd.key.java.Services;
@@ -35,7 +36,6 @@ import de.uka.ilkd.key.logic.PosInOccurrence;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.Visitor;
 import de.uka.ilkd.key.proof.Goal;
-import de.uka.ilkd.key.proof.ListOfGoal;
 import de.uka.ilkd.key.proof.RuleFilter;
 import de.uka.ilkd.key.rule.BuiltInRule;
 import de.uka.ilkd.key.rule.Rule;
@@ -72,7 +72,7 @@ public class VisualizationRule extends Visitor implements BuiltInRule,
      * @see de.uka.ilkd.key.rule.Rule#apply(de.uka.ilkd.key.proof.Goal,
      *      de.uka.ilkd.key.java.Services, de.uka.ilkd.key.rule.RuleApp)
      */
-    public synchronized ListOfGoal apply(Goal goal, Services services,
+    public synchronized ImmutableList<Goal> apply(Goal goal, Services services,
             RuleApp ruleApp) {
 //        IteratorOfConstrainedFormula it = goal.sequent().iterator();
         ruleApp.posInOccurrence().subTerm().execPostOrder(this);

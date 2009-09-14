@@ -10,16 +10,20 @@
 
 package de.uka.ilkd.key.dl.rules.metaconstruct;
 
+import java.util.Iterator;
+
 import orbital.math.AlgebraicAlgorithms;
 import orbital.math.Arithmetic;
 import orbital.math.Integer;
 import orbital.math.Rational;
 import orbital.moon.math.ValuesImpl;
-
+import de.uka.ilkd.key.collection.ImmutableList;
+import de.uka.ilkd.key.collection.ImmutableSLList;
 import de.uka.ilkd.key.dl.arithmetics.impl.orbital.OrbitalSimplifier;
 import de.uka.ilkd.key.dl.logic.ldt.RealLDT;
 import de.uka.ilkd.key.dl.strategy.termfeature.QuasiRealLiteralFeature;
-import de.uka.ilkd.key.logic.*;
+import de.uka.ilkd.key.logic.Term;
+import de.uka.ilkd.key.logic.TermFactory;
 import de.uka.ilkd.key.logic.op.Operator;
 import de.uka.ilkd.key.logic.op.TermSymbol;
 import de.uka.ilkd.key.util.Debug;
@@ -30,19 +34,21 @@ import de.uka.ilkd.key.util.LRUCache;
  */
 public class MonomialReals {
     
-    private final ListOfTerm parts;
+    private final ImmutableList<Term> parts;
     private final Arithmetic coefficient;
     
-    private MonomialReals(final ListOfTerm parts, final Arithmetic coefficient) {
+    private MonomialReals(final ImmutableList<Term> parts, final Arithmetic coefficient) {
         this.parts = parts;
         this.coefficient = coefficient;
     }
+    
+    private static final ImmutableList<Term> nil = ImmutableSLList.nil();
     
     private static final LRUCache<Term, MonomialReals> monomialCache = 
         new LRUCache<Term, MonomialReals> ( 2000 );
     
     public static final MonomialReals ONE =
-        new MonomialReals ( SLListOfTerm.EMPTY_LIST, ValuesImpl.getDefault().ONE() );
+        new MonomialReals ( nil, ValuesImpl.getDefault().ONE() );
     
     public static MonomialReals create(Term monoTerm) {
         MonomialReals res = monomialCache.get ( monoTerm );
@@ -113,7 +119,7 @@ public class MonomialReals {
      */
     public MonomialReals reduce(MonomialReals m) {
         if ( m.coefficient.isZero() || this.coefficient.isZero() )
-            return new MonomialReals ( SLListOfTerm.EMPTY_LIST,
+            return new MonomialReals ( nil,
                                        ValuesImpl.getDefault().ZERO() );
         
         return new MonomialReals ( difference ( m.parts, this.parts ),
@@ -129,7 +135,7 @@ public class MonomialReals {
         Debug.assertFalse ( coefficient.isZero() );
         Debug.assertFalse ( m.coefficient.isZero() );
         
-        final ListOfTerm newParts = difference ( m.parts, this.parts );
+        final ImmutableList<Term> newParts = difference ( m.parts, this.parts );
 
         final Arithmetic gcd;
         if (coefficient instanceof orbital.math.Integer &&
@@ -150,7 +156,7 @@ public class MonomialReals {
             RealLDT.getFunctionFor(de.uka.ilkd.key.dl.model.Mult.class);
         Term res = null;
         
-        final IteratorOfTerm it = parts.iterator ();
+        final Iterator<Term> it = parts.iterator ();
         if ( it.hasNext () ) {
             res = it.next ();
             while ( it.hasNext () )
@@ -171,7 +177,7 @@ public class MonomialReals {
         final StringBuffer res = new StringBuffer ();
         res.append ( coefficient );
         
-        final IteratorOfTerm it = parts.iterator ();
+        final Iterator<Term> it = parts.iterator ();
         while ( it.hasNext () )
             res.append ( " * " + it.next () );
 
@@ -180,7 +186,7 @@ public class MonomialReals {
     
     private static class Analyser {
         public Arithmetic coeff = ValuesImpl.getDefault().ONE();
-        public ListOfTerm parts = SLListOfTerm.EMPTY_LIST;
+        public ImmutableList<Term> parts = nil;
         private final Operator mul =
             RealLDT.getFunctionFor(de.uka.ilkd.key.dl.model.Mult.class);
         	
@@ -212,7 +218,7 @@ public class MonomialReals {
     
     public int hashCode() {
         int res = coefficient.hashCode ();
-        final IteratorOfTerm it = parts.iterator ();
+        final Iterator<Term> it = parts.iterator ();
         while ( it.hasNext () )
             res += it.next ().hashCode ();
         return res;
@@ -223,9 +229,9 @@ public class MonomialReals {
      *         <code>b</code>. multiplicity is treated as well here, so this
      *         is really difference of multisets
      */
-    private static ListOfTerm difference(ListOfTerm a, ListOfTerm b) {
-        ListOfTerm res = a;
-        final IteratorOfTerm it = b.iterator ();
+    private static ImmutableList<Term> difference(ImmutableList<Term> a, ImmutableList<Term> b) {
+        ImmutableList<Term> res = a;
+        final Iterator<Term> it = b.iterator ();
         while ( it.hasNext () && !res.isEmpty () )
             res = res.removeFirst ( it.next () );
         return res;
@@ -235,7 +241,7 @@ public class MonomialReals {
         return coefficient;
     }
 
-    public ListOfTerm getParts() {
+    public ImmutableList<Term> getParts() {
         return parts;
     }
 

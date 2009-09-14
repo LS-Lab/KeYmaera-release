@@ -20,13 +20,11 @@
 package de.uka.ilkd.key.dl.rules.metaconstruct;
 
 import java.io.StringWriter;
-import java.rmi.RemoteException;
 import java.util.Collections;
 
 import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.FailedComputationException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
-import de.uka.ilkd.key.dl.arithmetics.exceptions.UnableToConvertInputException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.UnsolveableException;
 import de.uka.ilkd.key.dl.model.DiffSystem;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DiffFin.RemoveQuantifiersResult;

@@ -2,11 +2,10 @@ package de.uka.ilkd.key.dl.arithmetics.impl.qepcad;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
+import de.uka.ilkd.key.collection.ImmutableArray;
 import de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator.QuantifierType;
 import de.uka.ilkd.key.dl.logic.ldt.RealLDT;
 import de.uka.ilkd.key.logic.Name;
@@ -14,7 +13,6 @@ import de.uka.ilkd.key.logic.NamespaceSet;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.TermBuilder;
 import de.uka.ilkd.key.logic.TermFactory;
-import de.uka.ilkd.key.logic.op.ArrayOfQuantifiableVariable;
 import de.uka.ilkd.key.logic.op.LogicVariable;
 import de.uka.ilkd.key.logic.op.Op;
 import de.uka.ilkd.key.logic.op.QuantifiableVariable;
@@ -119,7 +117,7 @@ public class PrenexGenerator {
 				Term nTerm = term.sub(0);
 				for (int i = 0; i < term.varsBoundHere(0).size(); i++) {
 					QuantifiableVariable quantifiableVariable = term
-							.varsBoundHere(0).getQuantifiableVariable(i);
+							.varsBoundHere(0).get(i);
 					LogicVariable newVariable = getNewVariable(
 							quantifiableVariable.name().toString(), nss);
 					quantifiers.add(new Pair(newVariable,
@@ -145,14 +143,14 @@ public class PrenexGenerator {
 							negated, nss);
 				}
 				return TermFactory.DEFAULT.createTerm(term.op(), args,
-						new ArrayOfQuantifiableVariable[0], term.javaBlock());
+						new ImmutableArray[0], term.javaBlock());
 			}
 		} else {
 			if (term.op() == Op.ALL || term.op() == Op.EX) {
 				Term nTerm = term.sub(0);
 				for (int i = 0; i < term.varsBoundHere(0).size(); i++) {
 					QuantifiableVariable quantifiableVariable = term
-							.varsBoundHere(0).getQuantifiableVariable(i);
+							.varsBoundHere(0).get(i);
 					LogicVariable newVariable = getNewVariable(
 							quantifiableVariable.name().toString(), nss);
 					quantifiers.add(new Pair(newVariable,
@@ -178,7 +176,7 @@ public class PrenexGenerator {
 							negated, nss);
 				}
 				return TermFactory.DEFAULT.createTerm(term.op(), args,
-						new ArrayOfQuantifiableVariable[0], term.javaBlock());
+						new ImmutableArray[0], term.javaBlock());
 			}
 		}
 	}

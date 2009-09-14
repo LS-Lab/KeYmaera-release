@@ -5,25 +5,22 @@ package de.uka.ilkd.key.dl.strategy.features;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import de.uka.ilkd.key.collection.ImmutableList;
 import de.uka.ilkd.key.dl.formulatools.ContainsMetaVariableVisitor;
 import de.uka.ilkd.key.dl.formulatools.ContainsMetaVariableVisitor.Result;
 import de.uka.ilkd.key.dl.rules.EliminateExistentialQuantifierRule;
 import de.uka.ilkd.key.dl.rules.ReduceRuleApp;
-import de.uka.ilkd.key.gui.Main;
 import de.uka.ilkd.key.logic.ConstrainedFormula;
-import de.uka.ilkd.key.logic.IteratorOfConstrainedFormula;
 import de.uka.ilkd.key.logic.Name;
 import de.uka.ilkd.key.logic.PosInOccurrence;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.Visitor;
 import de.uka.ilkd.key.logic.op.Metavariable;
-import de.uka.ilkd.key.logic.op.Operator;
 import de.uka.ilkd.key.proof.Goal;
-import de.uka.ilkd.key.proof.IteratorOfGoal;
-import de.uka.ilkd.key.proof.ListOfGoal;
 import de.uka.ilkd.key.proof.Goal.GoalStatus;
 import de.uka.ilkd.key.rule.RuleApp;
 import de.uka.ilkd.key.strategy.LongRuleAppCost;
@@ -80,12 +77,12 @@ public class EliminateExistentialApproveFeature implements Feature {
 				variables.addAll(vars);
 			}
 
-			ListOfGoal openGoals = goal.proof().openGoals();
-			IteratorOfGoal goalIt = openGoals.iterator();
+			ImmutableList<Goal> openGoals = goal.proof().openGoals();
+			Iterator<Goal> goalIt = openGoals.iterator();
 			System.out.println("Current goal is " + goal);//XXX
 			while (goalIt.hasNext()) {
 				Goal curGoal = goalIt.next();
-				IteratorOfConstrainedFormula it = curGoal.sequent().iterator();
+				Iterator<ConstrainedFormula> it = curGoal.sequent().iterator();
 				Result result = Result.DOES_NOT_CONTAIN_VAR;
 				while (it.hasNext()) {
 					ConstrainedFormula next = it.next();

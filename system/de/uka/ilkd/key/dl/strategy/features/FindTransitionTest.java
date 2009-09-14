@@ -56,7 +56,7 @@ public class FindTransitionTest implements Feature {
         }
         Term antecedent = TermTools.createJunctorTermNAry(TermBuilder.DF.tt(),
                 Op.AND, goal.sequent().antecedent().iterator(),
-                Collections.EMPTY_SET);
+                Collections.EMPTY_SET, true);
 
         TestThread thread = new TestThread(antecedent, pos.subTerm(), goal.proof().getServices());
         thread.start();

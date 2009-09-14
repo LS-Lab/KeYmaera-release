@@ -11,7 +11,8 @@
 
 package de.uka.ilkd.key.strategy.feature;
 
-import de.uka.ilkd.key.logic.IteratorOfTerm;
+import java.util.Iterator;
+
 import de.uka.ilkd.key.logic.PosInOccurrence;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.TermBuilder;
@@ -34,10 +35,10 @@ public class Enumerate1ToNEq implements TermGenerator {
         this.n = n;
     }
 
-    public IteratorOfTerm generate(RuleApp app,
+    public Iterator<Term> generate(RuleApp app,
                                    PosInOccurrence pos,
                                    final Goal goal) {
-        return new IteratorOfTerm () {
+        return new Iterator<Term> () {
             private int i = 0;
             public boolean hasNext() {
                 return i <= n;
