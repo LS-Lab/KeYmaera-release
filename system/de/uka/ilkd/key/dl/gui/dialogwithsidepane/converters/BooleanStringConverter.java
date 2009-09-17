@@ -15,21 +15,19 @@ public class BooleanStringConverter implements IPropertyConverter {
     public BooleanStringConverter() {
 
     }
-
     /**
      * @return the Boolean Object given a String agurment
      */
-    public Boolean toPropertyEditorValue(String string) {
-       
-        this.bool = Boolean.valueOf(string);
+    public Boolean toPropertyEditorValue(String string) {      
+       bool = Boolean.valueOf(string);
         return bool;
     }
 
     /**
      * @return the string value given a Bolean value
      */
-    public String toStringValue(Object bool) {
-        this.str = String.valueOf(bool);
+    public String toStringValue(Object inbool) {
+        str = String.valueOf(inbool);
         return str;
     }
 

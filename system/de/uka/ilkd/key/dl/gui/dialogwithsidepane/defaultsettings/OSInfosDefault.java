@@ -6,8 +6,6 @@ package de.uka.ilkd.key.dl.gui.dialogwithsidepane.defaultsettings;
 import java.util.Locale;
 import java.util.Properties;
 
-import javax.swing.JOptionPane;
-
 /**
  *         The OSInfosDefault Class represents default properties. The default
  *         properties are loaded in a Properties object with repect to which
@@ -23,7 +21,6 @@ public class OSInfosDefault {
     private Properties props;
     private Class<? extends IOsDefaultProperties> defaultPropertiesClass;
     private IOsDefaultProperties defaultProperties;
-    private Boolean isMathematicaPathDefaultBool;
 
     /**
      * Constructor initialises the defaultPropertyclass depending on the current
@@ -88,29 +85,5 @@ public class OSInfosDefault {
 	return props.getProperty(key);
     }
     
-    public String getSuffixed(String propertyIdentifier, String actualPath){
-	
-	setDefaultPropertiesClass();
-	String suffixedPath = null;
-	
-	if(propertyIdentifier.equals("com.wolfram.jlink.libdir")){
-	    suffixedPath = defaultProperties.getJLinkSuffixed(actualPath); 
-	    isMathematicaPathDefaultBool = defaultProperties.isMathematicaPathSetdefault();
-
-	}
-	if(propertyIdentifier.equals("[MathematicaOptions]mathKernel")){
-	    
-	    suffixedPath = defaultProperties.getMathKernelSuffixed(actualPath); 
-	        
-	}
-	
-	
- 
-	return suffixedPath;
-		
-    }
-    public Boolean isMathematicaPathDefault(){
-	return isMathematicaPathDefaultBool;
-    }
     
 }

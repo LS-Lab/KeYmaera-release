@@ -4,7 +4,10 @@
 package de.uka.ilkd.key.dl.gui.initialdialog.defaultsettings;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.Properties;
+
+import de.uka.ilkd.key.dl.gui.initialdialog.defaultsettings.Suffixes.MacSuffixes;
 
 /** 
  *         The MacOsDefaultProperties class creates and instance of a Property Object containing all
@@ -65,6 +68,9 @@ public class MacOsDefaultProperties implements IOsDefaultProperties {
             qpath = System.getProperty("user.home");
             if (qpath == null)
                 qpath = "/";
+            else
+        	qpath = qpath +File.separator + "Workspace"+File.separator+ "qepcad";
+        	
         }
         props.put("[QepcadOptions]qepcadPath", qpath);
 
@@ -81,6 +87,8 @@ public class MacOsDefaultProperties implements IOsDefaultProperties {
 	            spath = System.getProperty("user.home");
 	            if (spath == null)
 	                spath = "/";
+	            else
+	        	spath = spath +File.separator + "Workspace"+File.separator+ "qepcad";
 	        }
 	 props.put("[QepcadOptions]saclibPath", spath);
     }
@@ -93,6 +101,9 @@ public class MacOsDefaultProperties implements IOsDefaultProperties {
 	 String rpath = System.getProperty("user.home");
 	        if (rpath == null)
 	            rpath = "/";
+	        else
+	            rpath = rpath +File.separator + "Workspace"+File.separator
+	                   +"reduce-algebra"+File.separator+"bin";
 	        props.put("[ReduceOptions]reduceBinary", rpath);
     }
     /**
@@ -123,55 +134,54 @@ public class MacOsDefaultProperties implements IOsDefaultProperties {
     public void initCheckBoxDefault() {
         props.put("[checkBox]flag", "false"); 
     }
-    
-    @Override
-    public String getJLinkSuffix(String actualPath) {
-	 String JavaVirtualmachineBit = "-64"; 
-	if (!System.getProperty("java.vm.name").contains("64-Bit")) 
-	    	JavaVirtualmachineBit = "";
-	if(actualPath.endsWith("SystemFiles/Links/JLink/SystemFiles/Libraries/MacOSX-x86-64")
-		||actualPath.endsWith("SystemFiles/Links/JLink/SystemFiles/Libraries/MacOSX-x86")) 
-	    return null;
+  
+    public String getJLinkSuffixed(String actualPath) {
 	
-	if(actualPath.endsWith("Mathematica.app/SystemFiles/Links/JLink/SystemFiles/Libraries")) 
-	    return ("MacOSX-x86"+JavaVirtualmachineBit); 
+	HashMap <String, String> suffixList = MacSuffixes.INSTANCE.getJLinkSuffixesList();	
+	for(String path: suffixList.keySet()){
+	    if(actualPath.endsWith(path)){
+		return actualPath + File.separator + suffixList.get(path);
+	    }
+	}
 	
-	if(actualPath.endsWith("Mathematica.app/SystemFiles/Links/JLink/SystemFiles")) 
-	    return ("Libraries"+File.separator+"MacOSX-x86"+JavaVirtualmachineBit);
+	String sp = File.separator;
+	String actualTemp;
+	String suffix= null;
 	
-	if(actualPath.endsWith("Mathematica.app/SystemFiles/Links/JLink"))
-	    return ("SystemFiles"+File.separator+"Libraries"+File.separator
-		    +"MacOSX-x86"+JavaVirtualmachineBit);
-	if(actualPath.endsWith("Mathematica.app/SystemFiles/Links"))
-	    return ("JLink"+File.separator+"SystemFiles"+File.separator+"Libraries"
-		    +File.separator+"MacOSX-x86"+JavaVirtualmachineBit);
-	if(actualPath.endsWith("Mathematica.app/SystemFiles"))
-	    return ("Links"+File.separator+"JLink"+File.separator+"SystemFiles"
-		    +File.separator+"Libraries"+File.separator+"MacOSX-x86"+JavaVirtualmachineBit);
-	if(actualPath.endsWith("Mathematica.app"))
-	    return ("SystemFiles"+File.separator+"Links"+File.separator+"JLink"+File.separator
-		    +"SystemFiles"+File.separator+"Libraries"+File.separator+"MacOSX-x86"+JavaVirtualmachineBit);
-	else
-	    return ("Mathematica.app"+File.separator+"SystemFiles"+File.separator+"Links"+File.separator+"JLink"+File.separator
-		    +"SystemFiles"+File.separator+"Libraries"+File.separator+"MacOSX-x86"+JavaVirtualmachineBit);
-	    
-    }
-    
-    @Override
-    public String getMathKernelSuffix(String actualPath) {
+	if(actualPath.contains("Mathematica.app")){
+	    suffix ="Mathematica.app" +sp+suffixList.get("Mathematica.app");	
+	    actualTemp = actualPath.substring(0, actualPath.indexOf("Mathematica.app", 1));
+	    return actualTemp +sp + suffix;
 
-	if(actualPath.endsWith("Mathematica.app/Contents/MacOS/MathKernel")) 
-	    return null;
-	
-	if(actualPath.endsWith("Mathematica.app/Contents/MacOS")) 
-	    return "MathKernel";
-	
-	if(actualPath.endsWith("Mathematica.app/Contents")) 
-	    return ("MacOS"+File.separator+"MathKernel");
-	
-	if(actualPath.endsWith("Mathematica.app")) 
-	    return ("Contents"+File.separator+"MacOS"+File.separator+"MathKernel");
-	else
-	    return ("Mathematica.app"+File.separator+"Contents"+File.separator+"MacOS"+File.separator+"MathKernel");
+	        
+	    }
+	return actualPath;
+
     }
+
+    public String getMathKernelSuffixed(String actualPath) {
+	
+	HashMap <String, String> suffixList = MacSuffixes.INSTANCE.getMathKernelSuffixesList();	
+	for(String path: suffixList.keySet()){
+	    if(actualPath.endsWith(path)){
+		return actualPath + File.separator + suffixList.get(path);
+	    }
+	}
+	
+	String sp = File.separator;
+	String actualTemp;
+	String suffix= null;
+	
+
+	if(actualPath.contains("Mathematica.app")){
+	    suffix ="Mathematica.app" +sp+suffixList.get("Mathematica.app");	
+	    actualTemp = actualPath.substring(0, actualPath.indexOf("Mathematica.app", 1));
+	    return actualTemp +sp + suffix;
+	        
+	    }
+	return actualPath;
+	
+
+    }
+
 }

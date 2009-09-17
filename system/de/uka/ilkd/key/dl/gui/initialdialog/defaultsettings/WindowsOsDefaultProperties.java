@@ -4,7 +4,10 @@
 package de.uka.ilkd.key.dl.gui.initialdialog.defaultsettings;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.Properties;
+
+import de.uka.ilkd.key.dl.gui.initialdialog.defaultsettings.Suffixes.WindowsSuffixes;
 /**
  *         The MacOsDefaultProperties class creates and instance of a Property Object containing all
  *         possible default properties for linux platform.
@@ -110,29 +113,80 @@ public class WindowsOsDefaultProperties implements IOsDefaultProperties {
     public void initCheckBoxDefault() {
         props.put("[checkBox]flag", "false"); 
     }
+    
+ public String getJLinkSuffixed(String actualPath) {
+	
+	HashMap <String, String> suffixList = WindowsSuffixes.INSTANCE.getJLinkSuffixesList();	
+	for(String path: suffixList.keySet()){
+	    if(actualPath.endsWith(path)){
+		return actualPath + File.separator + suffixList.get(path);
+	    }
+	}
+	
+	String sp = File.separator;
+	String actualTemp;
+	String suffix= null;
+	
+	if(actualPath.contains("Mathematica"+File.separator+"7.0")){
+	    suffix ="Mathematica" +sp+"7.0"+sp+suffixList.get("Mathematica");	
+	    actualTemp = actualPath.substring(0, actualPath.indexOf("Mathematica", 1));
+	    return actualTemp +File.separator + suffix;
 
-    @Override
-    public String getJLinkSuffix(String actualPath) {
+	}
+	if(actualPath.contains("Mathematica"+File.separator+"6.0")){
+	    suffix ="Mathematica" +sp+"6.0"+sp+suffixList.get("Mathematica");	
+	    actualTemp = actualPath.substring(0, actualPath.indexOf("Mathematica", 1));
+	    return actualTemp +File.separator + suffix;
 
-	if(actualPath.endsWith("SystemFiles\\Links\\JLink")) 
-	    return null;
-	
-	if(actualPath.endsWith("SystemFiles\\Links")) 
-	    return "JLink";
-	
-	if(actualPath.endsWith("SystemFiles")) 
-	    return ("Links"+File.separator+"JLink");
-	
-	else
-	    return ("SystemFiles"+File.separator+"Links"+File.separator+"JLink");
+	}
+	if(actualPath.contains("Mathematica")){
+	    suffix ="Mathematica" +sp+suffixList.get("Mathematica");	
+	    actualTemp = actualPath.substring(0, actualPath.indexOf("Mathematica", 1));
+	    return actualTemp +sp + suffix;
+
+	        
+	    }
+	return actualPath;
+
     }
 
-    @Override
-    public String getMathKernelSuffix(String actualPath) {
+    public String getMathKernelSuffixed(String actualPath) {
+	
+	String tempPath;
+	HashMap <String, String> suffixList = WindowsSuffixes.INSTANCE.getMathKernelSuffixesList();	
+	for(String path: suffixList.keySet()){
+	    if(actualPath.endsWith(path)){
+		return actualPath + File.separator + suffixList.get(path);
+	    }
+	}
+	
 
-	if(actualPath.endsWith("Executables")) 
-	    return null;	
-	else
-	    return (File.separator+"Executables");
+	String sp = File.separator;
+	String suffix= null;
+	
+	if(actualPath.contains("Mathematica"+File.separator+"7.0")){
+	    suffix ="Mathematica" +sp+"7.0"+sp+suffixList.get("Mathematica");	
+	    tempPath = actualPath.substring(0, actualPath.indexOf("Mathematica", 1));
+	    return tempPath +File.separator + suffix;
+
+	}
+	if(actualPath.contains("Mathematica"+File.separator+"6.0")){
+	    suffix ="Mathematica" +sp+"6.0"+sp+suffixList.get("Mathematica");	
+	    tempPath = actualPath.substring(0, actualPath.indexOf("Mathematica", 1));
+	    return tempPath +File.separator + suffix;
+
+	}
+	if(actualPath.contains("Mathematica")){
+	    suffix ="Mathematica" +sp+suffixList.get("Mathematica");	
+	    tempPath = actualPath.substring(0, actualPath.indexOf("Mathematica", 1));
+	    return tempPath +sp + suffix;
+
+	        
+	    }
+	return actualPath;
+	
+
     }
+    
+ 
 }

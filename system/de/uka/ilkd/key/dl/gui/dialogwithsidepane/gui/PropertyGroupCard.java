@@ -212,7 +212,6 @@ public class PropertyGroupCard  implements ActionListener{
 				 setPropertyChanges(key, props.getProperty(key));
 				 }
 				buttonDefault.setEnabled(false); 	
-			 }	
-			
+			 }				
 		}
 }

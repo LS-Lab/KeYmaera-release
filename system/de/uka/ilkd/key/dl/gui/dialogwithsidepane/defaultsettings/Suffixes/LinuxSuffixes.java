@@ -1,80 +1,88 @@
+package de.uka.ilkd.key.dl.gui.dialogwithsidepane.defaultsettings.Suffixes;
+import java.util.regex.*;
+import java.io.File;
 /**
  * 
- */
-package de.uka.ilkd.key.dl.gui.dialogwithsidepane.defaultsettings.Suffixes;
-
-import java.io.File;
-import java.util.HashMap;
-/**
+ *    This Object implements ISuffixes in Linux Operating systems.
+ *    
  * @author zacho
  *
  */
-public class LinuxSuffixes{
-
-    public static final LinuxSuffixes INSTANCE = new LinuxSuffixes();
-    HashMap<String, String> jLinkSuffixesList; 
-    HashMap<String, String> mathKernelSuffixesList; 
+public class LinuxSuffixes implements ISuffixes{
     
-    public LinuxSuffixes(){
-	setjLinkSuffixesList();
-	setMathKernelSuffixesList();
-	
-    }
-    private void setjLinkSuffixesList(){
-	
-	jLinkSuffixesList = new HashMap<String, String>();	
-	String sp = File.separator;
-	
-	jLinkSuffixesList.put("SystemFiles"+sp+"Links",
-				"JLink");
-	jLinkSuffixesList.put("SystemFiles",
-				"Links"+sp+"JLink");	
-	jLinkSuffixesList.put("Mathematica",
-				"SystemFiles"+sp+"Links"+sp + "JLink");
-	jLinkSuffixesList.put("Wolfram",
-				"Mathematica"+sp+"SystemFiles"+sp+"Links"+sp + "JLink");
-	jLinkSuffixesList.put("[#DEFAULT#]",
-				"SystemFiles"+sp+"Links"+sp + "JLink");	
-	//Suffixes for differents mathematica versions
-	for (MathematicaVersions version: MathematicaVersions.values()){
-	    
-	    jLinkSuffixesList.put("Mathematica" + sp + version.getVersionEndString(),
-		    "SystemFiles"+ sp + "Links" + sp + "JLink");	    
-	}
-	
-	
-    }
-    public HashMap<String, String> getJLinkSuffixesList(){
-	return jLinkSuffixesList;
-    }
-    private void setMathKernelSuffixesList(){
-	
-	String sp = File.separator;
-	mathKernelSuffixesList = new HashMap<String, String>();	
-	mathKernelSuffixesList.put("Mathematica",
-		               "Executables");
-	mathKernelSuffixesList.put("Wolfram",
-		    		"Mathematica"+sp+"Executables");
-	mathKernelSuffixesList.put("[#DEFAULT#]",
-				"Executables");
-	//Suffixes for differents mathematica versions
-	for (MathematicaVersions version: MathematicaVersions.values()){
-	    
-	    mathKernelSuffixesList.put("Mathematica" + sp + version.getVersionEndString(),
-		    "Executables");	    
-	}
 
+    @Override
+    public Boolean isPossibleMathematicaPath(String mathematicaPath) {
+	// TODO Auto-generated method stub
+	return Pattern.matches(".*[Mm]athematica+.?[1-9]?+.?[0-9]?+.?[0-9]?",mathematicaPath);
     }
-    public String getMathkernelDefaultSuffix(){
+    @Override
+    public Boolean containsMathematicaPathPrefix(String mathematicaPath) {
+	// TODO Auto-generated method stub
+	return Pattern.matches(".*[Mm]athematica+.?[1-9]?+.?[0-9]?+.?[0-9]?.*",mathematicaPath);
+    }
+    @Override
+    public String getMathematicaPathPrefix(String mathematicaPath) {
+	// TODO Auto-generated method stub
+    	Pattern p = Pattern.compile(".*[Mm]athematica+.?[1-9]?+.?[0-9]?+.?[0-9]?");
+    	Matcher m = p.matcher(mathematicaPath); // get a matcher object
+    	String prefix = "";
+    	while (m.find()) {
+    	    prefix = m.group();
+    	}
+    	return prefix;
+    }
+    
+    @Override
+    public String getJLinkDefaultSuffix() {
+	// TODO Auto-generated method stub
+	  return "SystemFiles"+File.separator+"Links"+File.separator + "JLink"; 
+    }
+
+    @Override
+    public String getJLinkSuffix(String mathematicaPath) {
+	// TODO Auto-generated method stub
+
+	Pattern p = Pattern.compile(File.separator);
+	String[] values = p.split(mathematicaPath);
+	
+	if(values[values.length - 1].equals("JLink"))
+	    return "";
+	
+	Pattern p2 = Pattern.compile(values[values.length - 1] + ".*");
+	String suffix = "";
+	Matcher m = p2.matcher("SystemFiles" + File.separator + "Links" + File.separator + "JLink");
+	while (m.find()) {
+	    suffix = m.group();
+	}
+	if(suffix != null){
+	    values = p.split(suffix);
+	    suffix = "";
+	    for (int i =1; i <  values.length; i++){
+		if(i==1)
+		    suffix = values[i];
+		else
+		    suffix = suffix + File.separator+values[i];
+	    }
+	}
+	
+	return suffix;
+    }
+
+    
+    
+    
+    @Override
+    public String getMathKernelSuffix(String mathematicaPath) {
+	// TODO Auto-generated method stub
 	return "Executables";
-	
     }
-    public String getJLinkDefaultSuffix(){
-	return "SystemFiles"+File.separator+"Links"+File.separator + "JLink";
-	
-    }
-    public HashMap<String, String> getMathKernelSuffixesList(){
-	
-	return mathKernelSuffixesList;
+
+
+
+    @Override
+    public String getMathkernelDefaultSuffix() {
+	// TODO Auto-generated method stub
+	return "Executables";
     }
 }

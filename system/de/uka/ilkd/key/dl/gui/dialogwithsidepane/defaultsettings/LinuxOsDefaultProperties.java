@@ -1,15 +1,7 @@
 package de.uka.ilkd.key.dl.gui.dialogwithsidepane.defaultsettings;
 
 import java.io.File;
-import java.util.HashMap;
 import java.util.Properties;
-
-import javax.swing.JOptionPane;
-
-import de.uka.ilkd.key.dl.gui.dialogwithsidepane.defaultsettings.Suffixes.LinuxSuffixes;
-import de.uka.ilkd.key.dl.gui.dialogwithsidepane.defaultsettings.Suffixes.MathematicaVersions;
-
-
 /**
  *         The LinuxOsDefaultProperties class creates and instance of a Property
  *         Object containing all possible default properties for linux platform.
@@ -21,7 +13,6 @@ public class LinuxOsDefaultProperties implements IOsDefaultProperties {
 
     private Properties props;
     private String sp = File.separator;
-    private Boolean isMathematicaPathDefaultBool = false;
    
     
     /**
@@ -49,9 +40,7 @@ public class LinuxOsDefaultProperties implements IOsDefaultProperties {
      */
     public void initJlinkDefault() {// Change name
 
-        String jlinkDir = System.getProperty("user.home");
-        if (jlinkDir == null)
-            jlinkDir = sp+"usr"+sp+"local"+sp+"Wolfram"+sp+"Mathematica"+sp+
+       String jlinkDir = sp+"usr"+sp+"local"+sp+"Wolfram"+sp+"Mathematica"+sp+
         			"SystemFiles"+sp+"Links"+sp + "JLink";
         
         props.put("com.wolfram.jlink.libdir", jlinkDir);
@@ -142,93 +131,5 @@ public class LinuxOsDefaultProperties implements IOsDefaultProperties {
     public void initCheckBoxDefault() {
         props.put("[checkBox]flag", "false");
     }
-  
-    public String getJLinkSuffixed(String actualPath) {
-	
-	HashMap <String, String> suffixList = LinuxSuffixes.INSTANCE.getJLinkSuffixesList();	
-	for(String path: suffixList.keySet()){
-	    if(actualPath.endsWith(path)){
-		return actualPath + sp + suffixList.get(path);
-	    }
-	}
-	String tempPath = "";
-	String mostProbablePath = ""; 
-	String returnPath = actualPath; 
-	
-	for(String path: suffixList.keySet()){
-	    if(actualPath.contains(path)){
-		tempPath = actualPath.substring(0, actualPath.indexOf(path)+ path.length());
-		if (tempPath.length()>=mostProbablePath.length()){
-		    mostProbablePath = tempPath;	
-		    returnPath = mostProbablePath +  sp + suffixList.get(path);
-		};  
-	    }
-	}
-	
-	return returnPath;
-
-    }
-
-
-    public String getMathKernelSuffixed(String actualPath) {
-	
-//	if(!isMathematicaPossiblePath(actualPath)){
-//	    int flag; 
-//	    flag = JOptionPane.showConfirmDialog(null,"<html><br>The specified Directory was not recognised by KeYmaera<br>"+
-//		    					" as Possible Mathematica path. <br>"+
-//		    					"<br>Do  you want KeYmaera to search for possible locations?<br></html>",
-//		    "Warning", JOptionPane.YES_NO_OPTION);
-//	    
-//	    if(flag != JOptionPane.YES_OPTION)
-//		return actualPath + sp + LinuxSuffixes.INSTANCE.getMathkernelDefaultSuffix();
-//	    else
-//		isMathematicaPathDefaultBool = true;
-//	}
-
-	    
-	HashMap <String, String> suffixList = LinuxSuffixes.INSTANCE.getMathKernelSuffixesList();	
-	for(String path: suffixList.keySet()){
-	    if(actualPath.endsWith(path)){
-		return actualPath + sp + suffixList.get(path);
-	    }
-	}
-	
-	String tempPath = "";
-	String mostProbablePath = ""; 
-	String returnPath = actualPath; 
-	
-	for(String path: suffixList.keySet()){
-	    if(actualPath.contains(path)){
-		tempPath = actualPath.substring(0, actualPath.indexOf(path)+ path.length());
-		if (tempPath.length()>=mostProbablePath.length()){
-		    mostProbablePath = tempPath;	
-		    returnPath = mostProbablePath +  sp + suffixList.get(path);
-		}
-	    }
-	}
-	
-	return returnPath;
-
-    }
-    public Boolean isMathematicaPossiblePath(String path){
-	path = path.toLowerCase();
-	if(path.endsWith("mathematica"))
-	    return true;
-	String vers;
-	for (MathematicaVersions version: MathematicaVersions.values()){
-	    vers = version.getVersionEndString().toLowerCase();
-	    if(path.endsWith("mathematica"+File.separator+vers))
-		return true;
-	}	
-	return false;
-	
-    }
-    @Override
-    public Boolean isMathematicaPathSetdefault() {
-	// TODO Auto-generated method stub
-	return isMathematicaPathDefaultBool;
-    }
-    
-
 
 }

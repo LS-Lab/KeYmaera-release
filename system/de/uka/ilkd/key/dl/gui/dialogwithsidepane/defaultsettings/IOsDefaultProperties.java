@@ -18,8 +18,6 @@ public interface IOsDefaultProperties {
      * @return the initial properties list as a Property Object
      */
     public Properties getDefaultPropertyList();
-    public String getMathKernelSuffixed(String actualPath);
-    public String getJLinkSuffixed(String actualPath);
-    public Boolean isMathematicaPathSetdefault();
+
   
 }

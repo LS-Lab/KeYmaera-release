@@ -34,7 +34,6 @@ public class OSInfosDefault {
         str = str.toLowerCase(Locale.ENGLISH);
         if (str.contains("linux")) {
             OsName = "Linux";
-
             defaultPropertiesClass = LinuxOsDefaultProperties.class;
         } else if (str.contains("windows")) {
             OsName = "Windows";
@@ -88,18 +87,23 @@ public class OSInfosDefault {
     }
     
     public String getSuffixed(String propertyIdentifier, String actualPath){
+	
 	setDefaultPropertiesClass();
-	String suffix = null; 
+
 	if(propertyIdentifier.equals("com.wolfram.jlink.libdir")){
-	    suffix = defaultProperties.getJLinkSuffix(actualPath); 
+	    return defaultProperties.getJLinkSuffixed(actualPath); 
+
 	}
 	if(propertyIdentifier.equals("[MathematicaOptions]mathKernel")){
-	    suffix = defaultProperties.getMathKernelSuffix(actualPath); 
+	    
+	   return defaultProperties.getMathKernelSuffixed(actualPath); 
+	        
 	}
-	if(suffix == null)
-	    return actualPath;
 	else
-	    return actualPath.concat(File.separator + suffix);
+	    return actualPath;
+
+
+
 		
     }
     

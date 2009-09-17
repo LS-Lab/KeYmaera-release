@@ -33,7 +33,7 @@ import de.uka.ilkd.key.dl.gui.dialogwithsidepane.propertyconfigurations.EConfigu
  * 
  * @author zacho
  */
-public class PropertyConfigurationBeans {
+public class PropertyConfigurationBeans implements PropertyChangeListener{
 
     public static PropertyConfigurationBeans INSTANCE = new PropertyConfigurationBeans();
     private JPanel PropertyPane;
@@ -104,7 +104,6 @@ public class PropertyConfigurationBeans {
      * Sets up the property editor class and gets the customEditor.
      */
     private void setEditorPane() {
-
 	editorPane = new JPanel(new BorderLayout(5, 0));
 	editorPane.setPreferredSize(new Dimension(400, 25));
 	
@@ -115,12 +114,7 @@ public class PropertyConfigurationBeans {
 	    propertyEditor.setValue(converter
 		    .toPropertyEditorValue(propertyPathName));
 	    currentPropertyObject = propertyEditor.getValue();
-	    propertyEditor.addPropertyChangeListener(new PropertyChangeListener() {
-			public void propertyChange(PropertyChangeEvent evt) {
-			    currentPropertyObject = propertyEditor.getValue();
-			}
-		    });
-
+	    propertyEditor.addPropertyChangeListener(this);
 	} catch (InstantiationException e1) {
 	    // TODO Auto-generated catch block
 	    e1.printStackTrace();
@@ -129,6 +123,7 @@ public class PropertyConfigurationBeans {
 	    e1.printStackTrace();
 	}
     }
+
     /**
      * @return the propertyEditor
      */
@@ -175,8 +170,7 @@ public class PropertyConfigurationBeans {
      */
     public void setPropertyPathObject(String propertyPathObject) {
 	this.propertyPathName = propertyPathObject;
-	propertyEditor.setValue(converter
-		.toPropertyEditorValue(propertyPathObject));
+	propertyEditor.setValue(converter.toPropertyEditorValue(propertyPathObject));
 	currentPropertyObject = propertyEditor.getValue();
     }
 
@@ -323,6 +317,12 @@ public class PropertyConfigurationBeans {
 			    							+ props.getProperty(propertyIdentifier));// XXX
 	    }
 	
+    }
+
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+	// TODO Auto-generated method stub
+	 currentPropertyObject = propertyEditor.getValue();
     }
 
 }

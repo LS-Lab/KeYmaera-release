@@ -4,13 +4,7 @@
 package de.uka.ilkd.key.dl.gui.dialogwithsidepane.defaultsettings;
 
 import java.io.File;
-import java.util.HashMap;
 import java.util.Properties;
-
-import de.uka.ilkd.key.dl.gui.dialogwithsidepane.defaultsettings.Suffixes.MacSuffixes;
-
-
-
 /** 
  *         The MacOsDefaultProperties class creates and instance of a Property Object containing all
  *         possible default properties for linux platform
@@ -136,59 +130,6 @@ public class MacOsDefaultProperties implements IOsDefaultProperties {
     public void initCheckBoxDefault() {
         props.put("[checkBox]flag", "false"); 
     }
-  
-    public String getJLinkSuffixed(String actualPath) {
-	
-	String sp = File.separator;
-	HashMap <String, String> suffixList = MacSuffixes.INSTANCE.getJLinkSuffixesList();	
-	for(String path: suffixList.keySet()){
-	    if(actualPath.endsWith(path)){
-		return actualPath + sp + suffixList.get(path);
-	    }
-	}
-	
-	String tempPath = "";
-	String mostProbablePath = ""; 
-	String returnPath = actualPath; 
-	
-	for(String path: suffixList.keySet()){
-	    if(actualPath.contains(path)){
-		tempPath = actualPath.substring(0, actualPath.indexOf(path)+ path.length());
-		if (tempPath.length()>=mostProbablePath.length()){
-		    mostProbablePath = tempPath;	
-		    returnPath = mostProbablePath +  sp + suffixList.get(path);
-		};  
-	    }
-	}
-	
-	return returnPath;
-    }
-
-    public String getMathKernelSuffixed(String actualPath) {
-	String sp = File.separator;
-	HashMap <String, String> suffixList = MacSuffixes.INSTANCE.getMathKernelSuffixesList();	
-	for(String path: suffixList.keySet()){
-	    if(actualPath.endsWith(path)){
-		return actualPath + sp + suffixList.get(path);
-	    }
-	}
-
-	String tempPath = "";
-	String mostProbablePath = ""; 
-	String returnPath = actualPath; 
-	
-	for(String path: suffixList.keySet()){
-	    if(actualPath.contains(path)){
-		tempPath = actualPath.substring(0, actualPath.indexOf(path)+ path.length());
-		if (tempPath.length()>=mostProbablePath.length()){
-		    mostProbablePath = tempPath;	
-		    returnPath = mostProbablePath +  sp + suffixList.get(path);
-		};  
-	    }
-	}
-	
-	return returnPath;
-
-    }
+ 
 
 }

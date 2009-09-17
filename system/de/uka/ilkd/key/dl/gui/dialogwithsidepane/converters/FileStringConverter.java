@@ -23,15 +23,15 @@ public class FileStringConverter implements IPropertyConverter {
      */
     
     public File toPropertyEditorValue(String string) {
-        this.file = new File(string);
+        file = new File(string);
         return file;
     }
 
     /**
      * @return the string given a File Object
      */
-    public String toStringValue(Object file) {
-        this.str = ((File) file).getAbsolutePath();
+    public String toStringValue(Object infile) {
+        str = ((File) infile).getAbsolutePath();
         return str;
     }
 
