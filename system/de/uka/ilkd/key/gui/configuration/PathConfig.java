@@ -17,7 +17,7 @@ public interface PathConfig {
 
     /** directory where to find the KeY configuration files */ 
     public static final String KEY_CONFIG_DIR = System.getProperty("user.home")
-        + File.separator + ".key";
+        + File.separator + ".keymaera";
     
     /**
      * In which file to store the recent files.
