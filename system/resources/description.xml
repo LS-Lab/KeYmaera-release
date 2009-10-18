@@ -3,30 +3,35 @@
 	<example>
 		<name>Simple Acceleration</name>
 		<path>/examples/hybrid/groebner_basis/accel-simple.key</path>
-		<description>Simple example provable with Groebner Basis backend.</description>
+		<description>Simple example of an accelerating point.
+		    It is provable with Grobner Basis backend.</description>
 	</example>
 	<example>
 		<name>Magnetic Field</name>
 		<path>/examples/hybrid/groebner_basis/magnetic_field.key</path>
-		<description>Magnetic field example provable with Groebner Basis backend.</description>
+		<description>Magnetic field example.
+		    It is provable with Grobner Basis backend.</description>
 	</example>
+    	<example>
+    		<name>Bouncing Ball</name>
+    		<path>/examples/hybrid/publish/bouncing-ball-random-H.key</path>
+    		<description>A fully parametric version of the bouncing ball that jumps up and down but is bounced back from the ground.</description>
+    		<img 
+    href="http://symbolaris.com/info/fig-bouncing-ball.png"/>
+    		<requirements>
+    			<some>
+    				<quantifiereliminator>QepCad</quantifiereliminator>
+    				<quantifiereliminator>Reduce</quantifiereliminator>
+    				<quantifiereliminator>Mathematica</quantifiereliminator>
+    			</some>
+    		</requirements>
+    	</example>
 	<example>
-		<name>Simple Roundabout</name>
-		<path>/examples/hybrid/ATC/roundabout/TRM-essentials.key</path>
-		<description>Essentials of the TRM case study. Please note, that this is the simplest possible version of the safety requirement for the TRM. The verification of the TRM system itself requires a much more advanced model.</description>
-		<img 
-			href="http://symbolaris.com/info/fig-tangential-roundabout.png"/>
-		<requirements>
-			<some>
-				<quantifiereliminator>Reduce</quantifiereliminator>
-				<quantifiereliminator>Mathematica</quantifiereliminator>
-			</some>
-		</requirements>
-	</example>
-	<example>
-		<name>Simple ETCS</name>
+		<name>ETCS Train Control [simple]</name>
 		<path>/examples/hybrid/ETCS/safety/ETCS-simple.key</path>
-		<description>Essentials of the ETCS case study. Please note, that this is the simplest possible version of the safety requirement for the ETCS. The verification of the ETCS system itself requires a much more advanced model.</description>
+		<description>Essentials of the ETCS train control protocol.
+		    This example proves that a train never leaves its movement authority (MA=m) and, thus, cannot crash into other trains.
+		    Please note, that this is the simplest possible version of the safety requirement for the ETCS. The verification of the ETCS system itself requires a much more advanced model.</description>
 		<img 
 			href="http://symbolaris.com/info/ETCS-MAProtocol-c.gif"/>
 		<requirements>
@@ -38,25 +43,26 @@
 		</requirements>
 	</example>
 	<example>
-		<name>Water Tank</name>
-		<path>/examples/hybrid/publish/water_tank.key</path>
-		<description>Standard water tank model, which regulates water level y between 1 and 12 by filling or emptying the water tank</description>
+		<name>Aircraft Roundabout [simple]</name>
+		<path>/examples/hybrid/ATC/roundabout/TRM-essentials.key</path>
+		<description>Essentials of the tangential roundabout maneuver (TRM) for collision avoidance in air traffic control. This example proves that TRM always separates aircraft by at least the protected zone.
+		    Please note, that this is the simplest possible version of the safety requirement for the TRM. The verification of the TRM system itself requires a much more advanced model.</description>
 		<img 
-href="http://symbolaris.com/info/fig-water-tank.png"/>
+			href="http://symbolaris.com/info/fig-tangential-roundabout.png"/>
 		<requirements>
 			<some>
-				<quantifiereliminator>QepCad</quantifiereliminator>
 				<quantifiereliminator>Reduce</quantifiereliminator>
 				<quantifiereliminator>Mathematica</quantifiereliminator>
 			</some>
 		</requirements>
 	</example>
 	<example>
-		<name>Bouncing Ball</name>
-		<path>/examples/hybrid/publish/bouncing-ball-random-H.key</path>
-		<description>A fully parametric version of the bouncing ball that jumps up and down while being bounced back from the ground.</description>
+		<name>Water Tank</name>
+		<path>/examples/hybrid/publish/water_tank.key</path>
+		<description>Standard water tank model, which regulates water level y between 1 and 12 by filling or emptying the water tank.
+		    Changing valves has a delayed effect in this example.</description>
 		<img 
-href="http://symbolaris.com/info/fig-bouncing-ball.png"/>
+href="http://symbolaris.com/info/fig-water-tank.png"/>
 		<requirements>
 			<some>
 				<quantifiereliminator>QepCad</quantifiereliminator>
@@ -73,6 +79,62 @@ href="http://symbolaris.com/info/fig-bouncing-ball.png"/>
 			<some>
 				<quantifiereliminator>QepCad</quantifiereliminator>
 				<quantifiereliminator>Reduce</quantifiereliminator>
+				<quantifiereliminator>Mathematica</quantifiereliminator>
+			</some>
+		</requirements>
+	</example>
+	<example>
+		<name>ETCS Train Control [controllability]</name>
+		<path>/examples/hybrid/ETCS/paper/controllability-lemma.key</path>
+		<description>Proves safety of the ETCS train control protocol case study.
+		    This example proves that the train is always controllable safely by some control choice.
+        </description>
+		<img 
+			href="http://symbolaris.com/info/ETCS-MAProtocol-c.gif"/>
+		<requirements>
+			<some>
+				<quantifiereliminator>Mathematica</quantifiereliminator>
+			</some>
+		</requirements>
+	</example>
+	<example>
+		<name>ETCS Train Control [safety]</name>
+		<path>/examples/hybrid/ETCS/paper/safety-lemma.key</path>
+		<description>Proves safety of the ETCS train control protocol case study.
+		    This example proves that a train never leaves its movement authority (MA=m) and, thus, cannot crash into other trains.
+        </description>
+		<img 
+			href="http://symbolaris.com/info/ETCS-MAProtocol-c.gif"/>
+		<requirements>
+			<some>
+				<quantifiereliminator>Mathematica</quantifiereliminator>
+			</some>
+		</requirements>
+	</example>
+	<example>
+		<name>ETCS Train Control [liveness]</name>
+		<path>/examples/hybrid/ETCS/paper/liveness-lemma.key</path>
+		<description>Proves safety of the ETCS train control protocol case study.
+		    This example proves that the train can move beyond every position on the track.
+        </description>
+		<img 
+			href="http://symbolaris.com/info/ETCS-MAProtocol-c.gif"/>
+		<requirements>
+			<some>
+				<quantifiereliminator>Mathematica</quantifiereliminator>
+			</some>
+		</requirements>
+	</example>
+	<example>
+		<name>ETCS Train Control [reactivity]</name>
+		<path>/examples/hybrid/ETCS/paper/reactivity-lemma.key</path>
+		<description>Proves safety of the ETCS train control protocol case study.
+		    This example proves that the train can react to situation changes.
+        </description>
+		<img 
+			href="http://symbolaris.com/info/ETCS-MAProtocol-c.gif"/>
+		<requirements>
+			<some>
 				<quantifiereliminator>Mathematica</quantifiereliminator>
 			</some>
 		</requirements>
