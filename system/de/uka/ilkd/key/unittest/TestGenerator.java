@@ -1,6 +1,7 @@
 package de.uka.ilkd.key.unittest;
 
 import java.io.*;
+import java.lang.ref.WeakReference;
 import java.util.*;
 
 import de.uka.ilkd.key.collection.*;
@@ -69,6 +70,8 @@ public abstract class TestGenerator {
     private final HashMap<Term, Expression> translatedFormulas;
 
     private DataStorage data;
+    
+    public Thread modelGenThread=null;
 
     /**
      * creates a TestGenerator instance for the given compilation unit
@@ -143,10 +146,11 @@ public abstract class TestGenerator {
      * @return The string that show the path of the generated file
      */
     @SuppressWarnings("unchecked")
-    public String generateTestSuite(final Statement[] code, Term oracle,
+    synchronized public String  generateTestSuite(final Statement[] code, Term oracle,
 	    final List<ModelGenerator> mgs,
 	    ImmutableSet<ProgramVariable> programVars, final String methodName,
-	    final PackageReference pr) {
+	    final PackageReference pr,
+	    final int timeout) {
 	oracle = new UpdateSimplifier().simplify(oracle, serv);
 	for (final ModelGenerator mg : mgs) {
 	    programVars = programVars.union(mg.getProgramVariables());
@@ -161,36 +165,61 @@ public abstract class TestGenerator {
 	// used to increment a counter of the test methods for automatic
 	// unique naming.
 	final Vector<MethodDeclaration> testMethods = new Vector<MethodDeclaration>();
-	for (final ModelGenerator mg : mgs) {
-	    final Model[] models = mg.createModels();
-	    if (models.length == 0 && mgs.size() != 1) {
-		continue;
+	int count=0;
+	int totalCount= mgs.size();
+	
+	while(mgs.size()>0){//for (final ModelGenerator mg : mgs) {  
+	    ModelGenerator mg = mgs.get(0); //modelGenerators are removed from the list (and hopefully destroyed) in order to save memory.
+	    Model[] models=null;
+	    MethodDeclaration methDec=null;
+	    WeakReference<ModelGenerator> refMG = new WeakReference<ModelGenerator>(mg);
+	    WeakReference<Model[]> refModels =null;
+	    count++;
+	    try{
+        	    //Model generation. The threads implement a timeout-feature for model generation.
+        	    ModelGeneratorRunnable modelGeneration = new ModelGeneratorRunnable(mg);
+        	    generateTestSuite_progressNotification1(count,totalCount,refMG);
+        	    models = modelGeneration.createModels(timeout);
+        	    refModels = new WeakReference<Model[]>(models);
+        	    
+        	    //Read model
+        	    final boolean createModelsSuccess = models!=null && !(models.length == 0 && mgs.size() != 1);
+        	    generateTestSuite_progressNotification2(count,totalCount,refMG, refModels, createModelsSuccess, modelGeneration.wasInterrupted());
+        	    if (!createModelsSuccess) {
+        		mgs.remove(0);//This ModelGenerator has been used in this iteration and is not needed anymore
+        		continue;
+        	    }
+        	    final EquivalenceClass[] eqvArray = mg
+        		    .getPrimitiveLocationEqvClasses();
+        	    final Expression[][] testLocation = new Expression[eqvArray.length][];
+        	    final Expression[][] testData = new Expression[eqvArray.length][models.length];
+        	    for (int i = 0; i < eqvArray.length; i++) {
+        		final ImmutableSet<Term> locs = eqvArray[i].getLocations();
+        		testLocation[i] = new Expression[locs.size()];
+        		int k = 0;
+        		for (final Term testLoc : locs) {
+        		    testLocation[i][k++] = translateTerm(testLoc, null, null);
+        		}
+        		for (int j = 0; j < models.length; j++) {
+        		    testData[i][j] = models[j]
+        			    .getValueAsExpression(eqvArray[i]);
+        		}
+        	    }
+        	    // mbender: collect data for KeY junit tests (see
+        	    // TestTestGenerator,TestHelper)
+        	    data.addTestDat(testData);
+        	    data.addTestLoc(testLocation);
+        	    methDec = createTestMethod(code, oracle,
+        		    testLocation, testData, reducedPVSet, methodName
+        		            + (testMethods.size()), l, mg, eqvArray);
+        	    l.add(methDec);
+        	    testMethods.add(methDec);
+        	    generateTestSuite_progressNotification3(count,totalCount,refMG,refModels,methDec);
+	    }catch(Exception e){
+		generateTestSuite_progressNotification4(count,totalCount,e, refMG,refModels,methDec);
 	    }
-	    final EquivalenceClass[] eqvArray = mg
-		    .getPrimitiveLocationEqvClasses();
-	    final Expression[][] testLocation = new Expression[eqvArray.length][];
-	    final Expression[][] testData = new Expression[eqvArray.length][models.length];
-	    for (int i = 0; i < eqvArray.length; i++) {
-		final ImmutableSet<Term> locs = eqvArray[i].getLocations();
-		testLocation[i] = new Expression[locs.size()];
-		int k = 0;
-		for (final Term testLoc : locs) {
-		    testLocation[i][k++] = translateTerm(testLoc, null, null);
-		}
-		for (int j = 0; j < models.length; j++) {
-		    testData[i][j] = models[j]
-			    .getValueAsExpression(eqvArray[i]);
-		}
-	    }
-	    // mbender: collect data for KeY junit tests (see
-	    // TestTestGenerator,TestHelper)
-	    data.addTestDat(testData);
-	    data.addTestLoc(testLocation);
-	    final MethodDeclaration methDec = createTestMethod(code, oracle,
-		    testLocation, testData, reducedPVSet, methodName
-		            + (testMethods.size()), l, mg, eqvArray);
-	    l.add(methDec);
-	    testMethods.add(methDec);
+	//}//for
+	    mgs.remove(0);//This ModelGenerator has been used in this iteration and is not needed anymore
 	}
 
 	l = createMain(l, testMethods);// Create main() method. Required for
@@ -219,7 +248,7 @@ public abstract class TestGenerator {
 		    dir.mkdirs();
 		}
 		final File pcFile = new File(dir, fileName + ".java");
-		path = "\n" + pcFile.getAbsolutePath();
+		path = pcFile.getAbsolutePath();
 		final FileWriter fw = new FileWriter(pcFile);
 		final BufferedWriter bw = new BufferedWriter(fw);
 		bw.write(addImports(clean(w.toString()), pr));
@@ -229,6 +258,78 @@ public abstract class TestGenerator {
 	    exportCodeUnderTest();
 	}
 	return path;
+    }
+    
+    class ModelGeneratorRunnable implements Runnable {
+	/** stores the result of the model generation. 
+	 * If the result is null then either the thread has not finished computation or an error occurred. */
+	public Model[] models=null;
+	final ModelGenerator mg;
+	protected boolean interrupted=false;
+
+	ModelGeneratorRunnable(ModelGenerator mg){
+	    this.mg = mg;
+	    assert(mg!=null);
+	}
+	public void run(){
+	    models = mg.createModels();
+	}
+	
+	/**
+	 * @param timeout Seconds until the thread is terminated by a time out
+	 */
+	public Model[] createModels(int timeout)throws InterruptedException{
+	    if(modelGenThread!=null){
+		modelGenThread.stop();
+	    }
+	    modelGenThread = new Thread(this, "Model generation thread for node "+ mg.originalNode.serialNr());
+	    modelGenThread.start();
+	    final boolean timeoutActive = timeout>0;
+	    if(timeoutActive){
+		modelGenThread.join(((long)timeout) * 1000l);
+	    }else{
+		modelGenThread.join();
+	    }
+	    //models = modelGeneration.models; //read the generated model
+	    if(models==null && timeoutActive){
+		modelGenThread.stop();
+		interrupted = true;
+	    }
+	    modelGenThread=null;
+
+	    return models;
+	}
+	
+	public boolean wasInterrupted(){
+	    return interrupted;
+	}
+    }
+    
+    /**When generateTestSuite() is executed on a separate thread, then this notification method
+     * is called in order to report the progress of computation to other threads. This method
+     * is overwritten by TestGeneratorGUIInterface */
+    protected void generateTestSuite_progressNotification1(
+	    int count, int totalCount, WeakReference<ModelGenerator> refMG){return;}
+
+    /**When generateTestSuite() is executed on a separate thread, then this notification method
+     * is called in order to report the progress of computation to other threads. This method
+     * is overwritten by TestGeneratorGUIInterface */
+    protected void generateTestSuite_progressNotification2(
+	    int count, int totalCount, WeakReference<ModelGenerator> refMG, WeakReference<Model[]> models, 
+	    boolean createModelsSuccess, boolean terminated){	return;}
+
+    /**When generateTestSuite() is executed on a separate thread, then this notification method
+     * is called in order to report the progress of computation to other threads. This method
+     * is overwritten by TestGeneratorGUIInterface */
+    protected void generateTestSuite_progressNotification3(
+	    int count, int totalCount, WeakReference<ModelGenerator> refMG, WeakReference<Model[]> models, MethodDeclaration mDecl){return;}
+
+    /**When generateTestSuite() is executed on a separate thread, then this notification method
+     * is called in order to report the progress of computation to other threads. This method
+     * is overwritten by TestGeneratorGUIInterface */
+    protected void generateTestSuite_progressNotification4(
+	    int count, int totalCount, Exception e, WeakReference<ModelGenerator> refMG, WeakReference<Model[]> models, MethodDeclaration mDecl){
+	throw new RuntimeException(e);
     }
 
     /**
@@ -588,7 +689,7 @@ public abstract class TestGenerator {
 
 	return tm;
     }
-
+    
     protected Expression createCons(final Sort sort,
 	    final HashMap<String, NewArray> array2Cons, final Expression loc1,
 	    final KeYJavaType locKJT) {
@@ -1379,5 +1480,13 @@ public abstract class TestGenerator {
 	    result = tf.createTerm(t.op(), subTerms, quantVars, jb);
 	}
 	return result;
+    }
+
+    public void clean(){
+	if(modelGenThread!=null){
+	    modelGenThread.stop();
+	    System.out.println("Thread killed:"+modelGenThread.getName());
+	    modelGenThread=null;
+	}
     }
 }
