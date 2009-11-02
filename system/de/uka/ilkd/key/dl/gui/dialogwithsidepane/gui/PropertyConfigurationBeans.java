@@ -39,7 +39,7 @@ public class PropertyConfigurationBeans implements PropertyChangeListener{
     private JPanel PropertyPane;
     private Class<? extends PropertyEditor> propertyEditorClass; // Property
     private Class<? extends IPropertyConverter> converterClass;
-    private static Boolean USING_DEFAULT_PROPERTY = false;
+    private Boolean USING_DEFAULT_PROPERTY = false;
     private PropertyEditor propertyEditor;
     private IPropertyConverter converter;
     private String propsName;
@@ -282,7 +282,7 @@ public class PropertyConfigurationBeans implements PropertyChangeListener{
 		e.printStackTrace();
 	    }
 	}
-	oldPropsSetting = props.getProperty(propertyIdentifier);
+	oldPropsSetting = props.getProperty(propertyIdentifier);	
 	if (oldPropsSetting == null) {
 	    Properties defaultProps = new Properties();
 	    defaultProps = OSInfosDefault.INSTANCE
@@ -291,11 +291,11 @@ public class PropertyConfigurationBeans implements PropertyChangeListener{
 	    USING_DEFAULT_PROPERTY = true;
 	}
 	    String currentProperty = converter.toStringValue(currentPropertyObject);
-
-
 	    if (oldPropsSetting == null || !oldPropsSetting.equals(currentProperty)
 		    			|| USING_DEFAULT_PROPERTY) {
 		props.setProperty(propertyIdentifier, currentProperty);
+		
+		
 		try {
 		    if (!file.exists()) {
 			file.getParentFile().mkdirs();

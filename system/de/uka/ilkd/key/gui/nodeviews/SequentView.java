@@ -40,6 +40,8 @@ import de.uka.ilkd.key.gui.configuration.Config;
 import de.uka.ilkd.key.gui.configuration.ConfigChangeAdapter;
 import de.uka.ilkd.key.gui.configuration.ConfigChangeListener;
 import de.uka.ilkd.key.gui.notification.events.GeneralFailureEvent;
+import de.uka.ilkd.key.gui.syntaxhighlighting.ConvertPlain2Html;
+import de.uka.ilkd.key.gui.syntaxhighlighting.HighlightSyntax;
 import de.uka.ilkd.key.logic.Sequent;
 import de.uka.ilkd.key.pp.LogicPrinter;
 import de.uka.ilkd.key.pp.PosInSequent;
@@ -56,7 +58,7 @@ import de.uka.ilkd.key.util.Debug;
  */
 public class SequentView extends JEditorPane implements Autoscroll {
             
-    public static final Color DEFAULT_HIGHLIGHT_COLOR = Color.yellow;
+    public static final Color DEFAULT_HIGHLIGHT_COLOR = Color.YELLOW;
 
     public static final Color UPDATE_HIGHLIGHT_COLOR = new Color(255, 230, 230);
 
@@ -119,7 +121,7 @@ public class SequentView extends JEditorPane implements Autoscroll {
      */
     public SequentView(KeYMediator mediator) {
 	/* setting this to text/html causes the position tables to go wrong */
-	super("text/plain","");
+	super("text/html","");
 	setMediator(mediator);
 	// view cannot be edited
 	setEditable(false);
@@ -412,14 +414,16 @@ public class SequentView extends JEditorPane implements Autoscroll {
 	removeMouseListener(listener);
         
         lineWidth = computeLineWidth();
-        
+        String displayString ;
         if (printer != null) {
             printer.update(seq, filter, lineWidth);
 	    boolean errorocc;
 	    do {
 	        errorocc = false;
 	        try {
-		    setText(printer.toString());
+	            displayString= ConvertPlain2Html.convert2html(printer.toString());
+	            displayString = HighlightSyntax.Highlight(displayString);
+		    setText(displayString);
 	        } catch (Error e) {
 		    System.err.println("Error occurred while printing Sequent!");
 		    errorocc = true;
@@ -516,7 +520,7 @@ public class SequentView extends JEditorPane implements Autoscroll {
 	    if (range != null) {
 		getHighlighter()
 		    .changeHighlight(highlighter, 
-				     range.start(), range.end());
+				     range.start(), range.end()+1);// Added +1 By Zacharais Njam Mokom due to change of text type to text/html
 	    } else {
 		getHighlighter()
 		    .changeHighlight(highlighter, 0, 0);
