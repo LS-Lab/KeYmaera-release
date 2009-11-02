@@ -278,6 +278,7 @@ public class ProblemInitializer {
 	envInput.setInitConfig(initConfig);
 	String javaPath = envInput.readJavaPath();
 	List<File> classPath = envInput.readClassPath();
+	File bootClassPath = envInput.readBootClassPath();
 
 	if(javaPath != null) {
     	    //read Java
@@ -292,7 +293,7 @@ public class ProblemInitializer {
             }
             Recoder2KeY r2k = new Recoder2KeY(initConfig.getServices(),
                                               initConfig.namespaces());
-            r2k.setClassPath(classPath);
+            r2k.setClassPath(bootClassPath, classPath);
             //r2k.setKeYFile(envInput.)
             if (javaPath.length() == 0) {
                 r2k.parseSpecialClasses();

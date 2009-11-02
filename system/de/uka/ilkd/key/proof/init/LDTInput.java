@@ -97,9 +97,15 @@ public class LDTInput implements EnvInput {
     public String readJavaPath() throws ProofInputException {
 	return "";
     }
+    // no class path elements here
     public List<File> readClassPath() throws ProofInputException {
         return null;
     }
+    // no class path elements here
+    public File readBootClassPath() {
+        return null;
+    }
+
 
 
     /** reads all LDTs, i.e., all associated .key files with respect to
@@ -189,7 +195,5 @@ public class LDTInput implements EnvInput {
 	}
 	return result;
     }
-
-
 
 }

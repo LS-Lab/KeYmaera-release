@@ -90,6 +90,7 @@ tokens {
 	NOTISLOCALVARIABLE = "\\notIsLocalVariable";
 	ISFIRSTORDERFORMULA = "\\isFirstOrderFormula";
 	ISUPDATED = "\\isUpdated";
+	SAMEHEAPDEPPRED = "\\sameHeapDepPred";
 
 	// Quantifiers, binding, substitution
 	BIND   = "\\bind";
@@ -111,6 +112,7 @@ tokens {
 	INCLUDE="\\include";
 	INCLUDELDTS="\\includeLDTs";
 	CLASSPATH="\\classpath";
+	BOOTCLASSPATH="\\bootclasspath";
 	NODEFAULTCLASSES="\\noDefaultClasses";
 	JAVASOURCE="\\javaSource";
         NOJAVAMODEL ="\\noJavaModel";

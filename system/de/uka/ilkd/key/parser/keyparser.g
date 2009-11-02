@@ -3997,6 +3997,7 @@ varexp[TacletBuilder b]
     | varcond_enum_const[b]
     | varcond_inReachableState[b] 
     | varcond_isupdated[b]    
+    | varcond_sameheapdeppred[b]
   ) 
   | 
   ( (NOT {negated = true;} )? 
@@ -4342,6 +4343,16 @@ varcond_isupdated [TacletBuilder b]
         } 
 ;
 
+varcond_sameheapdeppred [TacletBuilder b]
+{
+  ParsableVariable x = null, y = null;
+}
+:
+   SAMEHEAPDEPPRED LPAREN x=varId COMMA y=varId RPAREN {
+     b.addVariableCondition(new SameHeapDependentPredicateVariableCondition(
+       (SchemaVariable) x, (SchemaVariable) y));          
+   }
+;
 
 varcond_freeLabelIn [TacletBuilder b, boolean negated]
 {
@@ -4637,6 +4648,7 @@ problem returns [ Term a = null ]
     ImmutableSet<Choice> choices=DefaultImmutableSet.<Choice>nil();
     Choice c = null;
     ImmutableList<String> stlist = null;
+    String string = null;
     Namespace funcNSForSelectedChoices = new Namespace();
     String pref = null;
 }
@@ -4645,6 +4657,9 @@ problem returns [ Term a = null ]
 	{ if (capturer != null) capturer.mark(); }
         (pref = preferences)
         { if ((pref!=null) && (capturer != null)) capturer.mark(); }
+        
+        string = bootClassPath
+        // the result is of no importance here (strange enough)        
         
         stlist = classPaths 
         // the result is not of importance here, so we use it twice
@@ -4717,6 +4732,9 @@ problem returns [ Term a = null ]
         }
    ;
    
+bootClassPath returns [String id = null] :
+  ( BOOTCLASSPATH id=string_literal SEMI )? ;
+   
 classPaths returns [ImmutableList<String> ids = ImmutableSLList.<String>nil()]
 {
   String s = null;
@@ -4732,7 +4750,7 @@ classPaths returns [ImmutableList<String> ids = ImmutableSLList.<String>nil()]
   | 
     (
     NODEFAULTCLASSES {
-      ids = ids.append((String)null);
+      throw new RecognitionException("\\noDefaultClasses is no longer supported. Use \\bootclasspath. See docs/README.classpath");
     }
     SEMI
     )
