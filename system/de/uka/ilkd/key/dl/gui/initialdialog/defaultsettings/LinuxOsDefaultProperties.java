@@ -1,11 +1,7 @@
 package de.uka.ilkd.key.dl.gui.initialdialog.defaultsettings;
 
 import java.io.File;
-import java.util.HashMap;
 import java.util.Properties;
-
-import de.uka.ilkd.key.dl.gui.initialdialog.defaultsettings.Suffixes.LinuxSuffixes;
-
 /**
  *         The LinuxOsDefaultProperties class creates and instance of a Property
  *         Object containing all possible default properties for linux platform.
@@ -16,13 +12,14 @@ import de.uka.ilkd.key.dl.gui.initialdialog.defaultsettings.Suffixes.LinuxSuffix
 public class LinuxOsDefaultProperties implements IOsDefaultProperties {
 
     private Properties props;
-
+    private String sp = File.separator;
    
     
     /**
      * @return the default Properties for linux Operating system
      */
     public Properties getDefaultPropertyList() {
+
 
         if (props == null) {
             props = new Properties();
@@ -43,9 +40,9 @@ public class LinuxOsDefaultProperties implements IOsDefaultProperties {
      */
     public void initJlinkDefault() {// Change name
 
-        String jlinkDir = System.getProperty("user.home");
-        if (jlinkDir == null)
-            jlinkDir = "/";
+       String jlinkDir = sp+"usr"+sp+"local"+sp+"Wolfram"+sp+"Mathematica"+sp+
+        			"SystemFiles"+sp+"Links"+sp + "JLink";
+        
         props.put("com.wolfram.jlink.libdir", jlinkDir);
     }
 
@@ -55,8 +52,8 @@ public class LinuxOsDefaultProperties implements IOsDefaultProperties {
 
     public void initMathKernelDefault() {
 	
-	props.put("[MathematicaOptions]mathematicaPath", "/usr/local/Wolfram/Mathematica/7.0");
-        props.put("[MathematicaOptions]mathKernel","/usr/local/Wolfram/Mathematica/7.0");
+	props.put("[MathematicaOptions]mathematicaPath", sp+"usr"+sp+"local"+sp+"Wolfram"+sp+"Mathematica");
+        props.put("[MathematicaOptions]mathKernel", sp+"usr"+sp+"local"+sp+"Wolfram"+sp+"Mathematica"+sp+"Executables");
     }
 
     /**
@@ -109,7 +106,7 @@ public class LinuxOsDefaultProperties implements IOsDefaultProperties {
         props.put("[HOLLightOptions]harrisonqePath", hol);
         props.put("[HOLLightOptions]hollightPath", hol);
         
-        File olcam = new File("/usr/bin/ocaml");
+        File olcam = new File(sp+"usr"+sp+"bin"+sp+"ocaml");
 	if(!olcam.exists())
 	    olcam = new File(System.getProperty("user.home")); 
 	if(!olcam.exists())
@@ -121,7 +118,7 @@ public class LinuxOsDefaultProperties implements IOsDefaultProperties {
      */
     public void  initcsdpPathDefault(){
 	
-	File csdp = new File("user/bin/csdp");	
+	File csdp = new File(sp+"user"+sp+"bin"+sp+"csdp");	
         if (!csdp.exists())
             csdp = new File(System.getProperty("user.home"));
         if (!csdp.exists()) 
@@ -134,81 +131,5 @@ public class LinuxOsDefaultProperties implements IOsDefaultProperties {
     public void initCheckBoxDefault() {
         props.put("[checkBox]flag", "false");
     }
-  
-    public String getJLinkSuffixed(String actualPath) {
-	
-	HashMap <String, String> suffixList = LinuxSuffixes.INSTANCE.getJLinkSuffixesList();	
-	for(String path: suffixList.keySet()){
-	    if(actualPath.endsWith(path)){
-		return actualPath + File.separator + suffixList.get(path);
-	    }
-	}
-	
-	String sp = File.separator;
-	String actualTemp;
-	String suffix= null;
-	
-	if(actualPath.contains("Mathematica"+File.separator+"7.0")){
-	    suffix ="Mathematica" +sp+"7.0"+sp+suffixList.get("Mathematica");	
-	    actualTemp = actualPath.substring(0, actualPath.indexOf("Mathematica", 1));
-	    return actualTemp +File.separator + suffix;
-
-	}
-	if(actualPath.contains("Mathematica"+File.separator+"6.0")){
-	    suffix ="Mathematica" +sp+"6.0"+sp+suffixList.get("Mathematica");	
-	    actualTemp = actualPath.substring(0, actualPath.indexOf("Mathematica", 1));
-	    return actualTemp +File.separator + suffix;
-
-	}
-	if(actualPath.contains("Mathematica")){
-	    suffix ="Mathematica" +sp+suffixList.get("Mathematica");	
-	    actualTemp = actualPath.substring(0, actualPath.indexOf("Mathematica", 1));
-	    return actualTemp +sp + suffix;
-
-	        
-	    }
-	return actualPath;
-
-    }
-
-    public String getMathKernelSuffixed(String actualPath) {
-	
-	String actualTemp;
-	HashMap <String, String> suffixList = LinuxSuffixes.INSTANCE.getMathKernelSuffixesList();	
-	for(String path: suffixList.keySet()){
-	    if(actualPath.endsWith(path)){
-		return actualPath + File.separator + suffixList.get(path);
-	    }
-	}
-	
-	String sp = File.separator;
-
-	String suffix= null;
-	
-	if(actualPath.contains("Mathematica"+File.separator+"7.0")){
-	    suffix ="Mathematica" +sp+"7.0"+sp+suffixList.get("Mathematica");	
-	    actualTemp = actualPath.substring(0, actualPath.indexOf("Mathematica", 1));
-	    return actualTemp +File.separator + suffix;
-
-	}
-	if(actualPath.contains("Mathematica"+File.separator+"6.0")){
-	    suffix ="Mathematica" +sp+"6.0"+sp+suffixList.get("Mathematica");	
-	    actualTemp = actualPath.substring(0, actualPath.indexOf("Mathematica", 1));
-	    return actualTemp +File.separator + suffix;
-
-	}
-	if(actualPath.contains("Mathematica")){
-	    suffix ="Mathematica" +sp+suffixList.get("Mathematica");	
-	    actualTemp = actualPath.substring(0, actualPath.indexOf("Mathematica", 1));
-	    return actualTemp +sp + suffix;
-
-	        
-	    }
-	return actualPath;
-	
-
-    }
-    
-
 
 }

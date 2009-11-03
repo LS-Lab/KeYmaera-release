@@ -1,6 +1,3 @@
-/**
- * 
- */
 package de.uka.ilkd.key.dl.gui.initialdialog.converters;
 
 /**
@@ -18,21 +15,21 @@ public class BooleanStringConverter implements IPropertyConverter {
     public BooleanStringConverter() {
 
     }
-
     /**
      * @return the Boolean Object given a String agurment
+     * @param string to be converted
      */
-    public Boolean toPropertyEditorValue(String str) {
-       
-        this.bool = Boolean.valueOf(str);
+    public Boolean toPropertyEditorValue(String string) {      
+       bool = Boolean.valueOf(string);
         return bool;
     }
 
     /**
-     * @return the string value given a Bolean value
+     * @return the corresponding string value 
+     * @param bool : Boolean to be converted
      */
     public String toStringValue(Object bool) {
-        this.str = String.valueOf(bool);
+        str = String.valueOf(bool);
         return str;
     }
 

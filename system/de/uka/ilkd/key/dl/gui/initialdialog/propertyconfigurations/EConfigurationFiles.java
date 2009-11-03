@@ -2,8 +2,6 @@ package de.uka.ilkd.key.dl.gui.initialdialog.propertyconfigurations;
 
 import java.io.File;
 
-import de.uka.ilkd.key.gui.configuration.PathConfig;
-
 /**
  * The EConfigurationFiles Enumeration describes the files where the properties
  * are stored

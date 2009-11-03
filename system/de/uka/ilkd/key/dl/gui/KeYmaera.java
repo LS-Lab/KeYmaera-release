@@ -1,6 +1,3 @@
-/**
- * 
- */
 package de.uka.ilkd.key.dl.gui;
 
 import javax.swing.JFrame;
@@ -24,12 +21,12 @@ public class KeYmaera {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		InitialDialogBeans dialog = new InitialDialogBeans(args);
+	    InitialDialogBeans dialog = new InitialDialogBeans(args);
 		if (!dialog.getCheckboxState()) {
-			final JFrame frame = dialog.getPathPanel();
+			final JFrame frame = dialog.getInitialDialogFrame();
 			frame.setVisible(true);
 		} else {
-			final JFrame frame = dialog.getPathPanel();
+			final JFrame frame = dialog.getInitialDialogFrame();
 			frame.dispose();
 			Main.main(args);
 		}

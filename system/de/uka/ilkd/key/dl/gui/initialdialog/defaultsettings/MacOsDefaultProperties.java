@@ -4,11 +4,7 @@
 package de.uka.ilkd.key.dl.gui.initialdialog.defaultsettings;
 
 import java.io.File;
-import java.util.HashMap;
 import java.util.Properties;
-
-import de.uka.ilkd.key.dl.gui.initialdialog.defaultsettings.Suffixes.MacSuffixes;
-
 /** 
  *         The MacOsDefaultProperties class creates and instance of a Property Object containing all
  *         possible default properties for linux platform
@@ -134,54 +130,6 @@ public class MacOsDefaultProperties implements IOsDefaultProperties {
     public void initCheckBoxDefault() {
         props.put("[checkBox]flag", "false"); 
     }
-  
-    public String getJLinkSuffixed(String actualPath) {
-	
-	HashMap <String, String> suffixList = MacSuffixes.INSTANCE.getJLinkSuffixesList();	
-	for(String path: suffixList.keySet()){
-	    if(actualPath.endsWith(path)){
-		return actualPath + File.separator + suffixList.get(path);
-	    }
-	}
-	
-	String sp = File.separator;
-	String actualTemp;
-	String suffix= null;
-	
-	if(actualPath.contains("Mathematica.app")){
-	    suffix ="Mathematica.app" +sp+suffixList.get("Mathematica.app");	
-	    actualTemp = actualPath.substring(0, actualPath.indexOf("Mathematica.app", 1));
-	    return actualTemp +sp + suffix;
-
-	        
-	    }
-	return actualPath;
-
-    }
-
-    public String getMathKernelSuffixed(String actualPath) {
-	
-	HashMap <String, String> suffixList = MacSuffixes.INSTANCE.getMathKernelSuffixesList();	
-	for(String path: suffixList.keySet()){
-	    if(actualPath.endsWith(path)){
-		return actualPath + File.separator + suffixList.get(path);
-	    }
-	}
-	
-	String sp = File.separator;
-	String actualTemp;
-	String suffix= null;
-	
-
-	if(actualPath.contains("Mathematica.app")){
-	    suffix ="Mathematica.app" +sp+suffixList.get("Mathematica.app");	
-	    actualTemp = actualPath.substring(0, actualPath.indexOf("Mathematica.app", 1));
-	    return actualTemp +sp + suffix;
-	        
-	    }
-	return actualPath;
-	
-
-    }
+ 
 
 }

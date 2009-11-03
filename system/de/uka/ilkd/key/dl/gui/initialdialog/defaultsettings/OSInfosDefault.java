@@ -1,9 +1,5 @@
-/**
- * 
- */
 package de.uka.ilkd.key.dl.gui.initialdialog.defaultsettings;
 
-import java.io.File;
 import java.util.Locale;
 import java.util.Properties;
 
@@ -33,10 +29,10 @@ public class OSInfosDefault {
         str = System.getProperty("os.name");
         str = str.toLowerCase(Locale.ENGLISH);
         if (str.contains("linux")) {
-            OsName = "Linux";
+            OsName = "linux";
             defaultPropertiesClass = LinuxOsDefaultProperties.class;
         } else if (str.contains("windows")) {
-            OsName = "Windows";
+            OsName = "windows";
             defaultPropertiesClass = WindowsOsDefaultProperties.class;
         } else if (str.contains("mac")) {
             OsName = "mac";
@@ -50,7 +46,7 @@ public class OSInfosDefault {
      *         or "mac"
      */
     public String getOsName() {
-        System.out.println("You are working on : \"" + OsName  + "\" Operating System."); // XXX
+        System.out.println("You are working on : " + OsName  + " Operating System."); // XXX
         return OsName;
     }
     public void setDefaultProperty(Properties props){
@@ -59,7 +55,9 @@ public class OSInfosDefault {
 	props = defaultProperties.getDefaultPropertyList();
 	this.props = props;
     }
-
+    /**
+     *  Sets the default properties
+     */
     public void setDefaultPropertiesClass() {
 
         try {
@@ -75,36 +73,21 @@ public class OSInfosDefault {
         }
     }
     /**
-     * @return the default property list as a Properties Object.
+     * @return <em> Properties </em> the default property list as a Properties Object.
      */
     public Properties getDefaultProperty() {
         setDefaultProperty(new Properties());
         return props;
     }
+    /**
+     * Gets the default property of a particular given Key
+     *  @param key <em> string </em>
+     *  @return <em> string </em> the default property value .
+     */
     public String getDefaultProperty(String key){
 	 setDefaultProperty(new Properties());
 	return props.getProperty(key);
     }
     
-    public String getSuffixed(String propertyIdentifier, String actualPath){
-	
-	setDefaultPropertiesClass();
-
-	if(propertyIdentifier.equals("com.wolfram.jlink.libdir")){
-	    return defaultProperties.getJLinkSuffixed(actualPath); 
-
-	}
-	if(propertyIdentifier.equals("[MathematicaOptions]mathKernel")){
-	    
-	   return defaultProperties.getMathKernelSuffixed(actualPath); 
-	        
-	}
-	else
-	    return actualPath;
-
-
-
-		
-    }
     
 }

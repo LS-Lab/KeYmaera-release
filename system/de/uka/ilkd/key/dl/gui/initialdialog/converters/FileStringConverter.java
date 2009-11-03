@@ -1,6 +1,3 @@
-/**
- * 
- */
 package de.uka.ilkd.key.dl.gui.initialdialog.converters;
 
 import java.io.File;
@@ -14,28 +11,25 @@ import java.io.File;
  */
 public class FileStringConverter implements IPropertyConverter {
 
-    private File file;
-    private String str;
-
     public FileStringConverter() {
 
     }
 
     /**
-     * @return the file Object given a String agurment
+     * @return the file Object
+     * @param string : String to be converted 
      */
     
     public File toPropertyEditorValue(String string) {
-        this.file = new File(string);
-        return file;
+        return new File(string);
     }
 
     /**
      * @return the string given a File Object
+     * @param inputFile : the file to be converted
      */
-    public String toStringValue(Object file) {
-        this.str = ((File) file).getAbsolutePath();
-        return str;
+    public String toStringValue(Object inputFile) {
+        return ((File) inputFile).getAbsolutePath();
     }
 
 }

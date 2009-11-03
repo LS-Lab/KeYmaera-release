@@ -1,298 +1,83 @@
 package de.uka.ilkd.key.dl.gui.initialdialog.gui;
 
+import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.io.File;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Properties;
 
-import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JTextPane;
-import javax.swing.border.TitledBorder;
 
-import de.uka.ilkd.key.dl.gui.initialdialog.converters.FileStringConverter;
-import de.uka.ilkd.key.dl.gui.initialdialog.defaultsettings.OSInfosDefault;
-import de.uka.ilkd.key.dl.gui.initialdialog.propertyconfigurations.EConfigurationFiles;
-import de.uka.ilkd.key.dl.gui.initialdialog.propertyconfigurations.EPropertyConfigurations;
+import de.uka.ilkd.key.dl.gui.initialdialog.gui.options.*;
 import de.uka.ilkd.key.gui.Main;
-
 /**
  * @author zacho
- * 
+  * 
  *         The ConfigurationMainFrame Class represents the main frame of the
- *         configuration GUI
+ *         initialdialog GUI
  */
 public class InitialDialogBeans implements ActionListener {
-
-    private JFrame pathFrame;
-    private JButton buttonOK;
-    private JButton buttonDefault;
-    private JButton buttonApply;
-    private JPanel MathematicaHiddenPanel;
-    PropertyConfigurationBeans MathematicaEditor;
-    String currentMathematicaPath;
-    private JButton buttonExit;
-    private LinkedHashMap<String, List<PropertyConfigurationBeans>> groupMap;
+    private JFrame InitialDialogFrame;
+    private DecisionPane decisionPanel;
+    private PropertiesCard propsCards;
     private String[] args;
-
+    
+    
+    private Dimension screen = java.awt.Toolkit.getDefaultToolkit()
+	    .getScreenSize();
+     
     public InitialDialogBeans(String[] argsForTheMainClass) {
+
 	args = argsForTheMainClass;
-	pathFrame = new JFrame(" - KeYmaera Settings -");
-	groupMap = new LinkedHashMap<String, List<PropertyConfigurationBeans>>();
-	for (EPropertyConfigurations k : EPropertyConfigurations.values()) {
-	    PropertyConfigurationBeans editor = new PropertyConfigurationBeans();
-	    editor.setPathPane(k.getLabel(), k.getEditorClass(), k
-		    .getConverterClass(), k.getConfigFile(), k.getKey());
-	    editor.getPropertyEditor().addPropertyChangeListener(new PropertyChangeListener() {
-			public void propertyChange(PropertyChangeEvent evt) {
-					buttonApply.setEnabled(true);
-					buttonDefault.setEnabled(true);
-				}
-		    });
-	    List<PropertyConfigurationBeans> editorsInGroup = groupMap.get(k
-		    .getGroup());
-	    if (editorsInGroup == null) {
-		editorsInGroup = new LinkedList<PropertyConfigurationBeans>();
-		groupMap.put(k.getGroup(), editorsInGroup);
-		
-	    }
-	    editorsInGroup.add(editor);
-	}
-
-	// loop over groupMap and actually create the groups
-
-	GridBagConstraints c = new GridBagConstraints();
-	c.anchor = GridBagConstraints.LINE_START;
-	c.fill = GridBagConstraints.NONE;
-	c.insets = new Insets(5, 5, 5, 5);
-	JPanel propertiesPanel = new JPanel();
-	propertiesPanel.setLayout(new GridBagLayout());
-	int y = 0;
-
-	for (String groupIdentifier : groupMap.keySet()) {
-	    c.gridy = y++;
-	    propertiesPanel.add(getGroupPaths(groupMap.get(groupIdentifier),
-		    groupIdentifier), c);
-
-	}
-
-	pathFrame.setLayout(new GridBagLayout());
-	c.insets = new Insets(10, 0, 5, 0);
-	c.gridy = 0;
-	pathFrame
-		.add(
-			new HeadingText(
-				"Select Solvers Properties and File Locations:",
-				"KeYmaera stores the corresponding  paths and properties for the each solver")
-				.getDescriptionText(), c);
-	c.insets = new Insets(10, 5, 5, 5);
-	c.gridy = 1;
-	pathFrame.add(propertiesPanel, c);
-	c.gridy = 2;
-	c.insets = new Insets(20, 1, 20, 15);
-	c.anchor = GridBagConstraints.LAST_LINE_END;
-	pathFrame.add(decisionPanel(), c);
-	pathFrame.setResizable(false);
-	Dimension screen = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
-
-	pathFrame.setLocation((int) (screen.getWidth() * 3 / 8), (int) (screen
-		.getHeight() * 2 / 8));
-	pathFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-	pathFrame.pack();
+	propsCards = new PropertiesCard();
+	decisionPanel = new DecisionPane();
+	decisionPanel.addActionListener(this);	
+	paintDialog();
     }
+   /**
+    * This method paints the initial dialog frame.
+    */
+    public void paintDialog(){
 
-    private JPanel getGroupPaths(List<PropertyConfigurationBeans> group,
-			String title) {
-	
-	JPanel panel = new JPanel();
-	panel.setLayout(new GridBagLayout());
-	GridBagConstraints c = new GridBagConstraints();
-	if (title.equals("checkBox")) { // Ensures that the checkbox does not
-					// have a border.
-	    c.insets = new Insets(20, 5, 5, 5);
-	    panel.add(group.listIterator().next().getPathPane(), c);
-	    return panel;
-	}
-
-	c.insets = new Insets(5, 5, 5, 5);
-	int y = 1;
-	ListIterator<PropertyConfigurationBeans> iter = group.listIterator();
-
-	while (iter.hasNext()) {
-	    c.gridy = y++;
-	    panel.add(iter.next().getPathPane(), c);
-	}
-
-	if (title.equals("Mathematica Properties")) {
-
-	    MathematicaHiddenPanel = panel;
-	    panel = new JPanel();
-	    panel.setLayout(new GridBagLayout());
-	    MathematicaEditor = new PropertyConfigurationBeans();
-	    MathematicaEditor.setPathPane("Mathematica Path :",de.uka.ilkd.key.dl.options.DirectoryPropertyEditor.class,
-	    							FileStringConverter.class,   EConfigurationFiles.KEY_PROPERTY_FILE,
-	    							"[MathematicaOptions]mathematicaPath");
-	    currentMathematicaPath = MathematicaEditor.getCurrentPropertyObject().toString();
-	    final String defaultMathematicaPath = currentMathematicaPath;
-	    final String mathKernelKey = "[MathematicaOptions]mathKernel";
-	    final String JLinkKey = "com.wolfram.jlink.libdir";
-	    MathematicaEditor.getPropertyEditor().addPropertyChangeListener(new PropertyChangeListener() {
-			public void propertyChange(PropertyChangeEvent evt) {
-			    currentMathematicaPath = MathematicaEditor.getCurrentPropertyObject().toString();
-			    
-			    if (!MathematicaEditor.getCurrentPropertyObject().toString().equals(defaultMathematicaPath)) {
-				
-				MathematicaHiddenPanel.setVisible(true);
-				pathFrame.pack();
-			    	}
-			    setPropertyChanges(mathKernelKey, OSInfosDefault.
-    					INSTANCE.getSuffixed(mathKernelKey, currentMathematicaPath));
-			    setPropertyChanges(JLinkKey, OSInfosDefault.
-				    	INSTANCE.getSuffixed(JLinkKey,currentMathematicaPath));
-				    
-				}
-		    });
-	    c.gridy = 1;
-	    panel.add(MathematicaEditor.getPathPane(), c);
-	    MathematicaHiddenPanel.setVisible(false);
-	    c.gridy = 2;
-	    panel.add(MathematicaHiddenPanel, c);
-	}
-	TitledBorder border = new TitledBorder(title);
-	border.setTitleColor(java.awt.Color.gray);
-	panel.setBorder(border);
-	return panel;
+    	InitialDialogFrame = new JFrame(" - KeYmaera Settings - ");	  	
+    	InitialDialogFrame.setLayout(new BorderLayout(5,5));
+    	
+    	InitialDialogFrame.add(
+    			new HeadingText(
+    				"Select Solvers Properties and File Locations:",
+    				"KeYmaera stores the corresponding  paths and properties for the each solver")
+    				.getDescriptionText(),BorderLayout.NORTH);
+    	
+    	InitialDialogFrame.add(propsCards.getPropertiesCardPane(),BorderLayout.CENTER ); 
+    	
+    	JPanel decisionPane = new JPanel();
+    	
+    	decisionPane.setLayout(new BorderLayout());
+    	decisionPane.add(propsCards.getCheckBoxEditor().getPathPane(),BorderLayout.LINE_START);
+	decisionPane.add(decisionPanel.getPane(),BorderLayout.EAST);
+    	InitialDialogFrame.add(decisionPane, BorderLayout.SOUTH);
+    	
+        //InitialDialogFrame.setPreferredSize(new Dimension(720,350));
+    	InitialDialogFrame.setResizable(false);
+    	InitialDialogFrame.setLocation((int) (screen.getWidth() * 2 / 8), (int) (screen.getHeight() * 1 / 30));
+    	InitialDialogFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    	InitialDialogFrame.pack();
     }
-
-    public JPanel decisionPanel() {
-
-	JPanel panel = new JPanel();
-	buttonOK = new JButton("    Ok   ");
-	buttonApply = new JButton(" Apply ");
-	buttonExit = new JButton(" Cancel ");
-	buttonDefault = new JButton(" Restore Defaults ");
-
-	buttonOK.addActionListener(this);
-	buttonApply.addActionListener(this);
-	buttonExit.addActionListener(this);
-	buttonDefault.addActionListener(this);
-
-	panel.setLayout(new GridBagLayout());
-	GridBagConstraints c = new GridBagConstraints();
-	
-	c.insets = new Insets(0, 8, 3,  190);
-	panel.add(buttonDefault, c);
-	c.insets = new Insets(0, 3, 3, 3);
-	panel.add(buttonOK, c);
-	panel.add(buttonApply, c);
-	panel.add(buttonExit, c);
-	return panel;
-    }
-
-    private void setPropertyChanges(String PropertyKey, String value) {
-	for (List<PropertyConfigurationBeans> group : groupMap.values()) {
-	    ListIterator<PropertyConfigurationBeans> iter = group
-		    .listIterator();
-	    while (iter.hasNext()) {
-		if (iter.next().getPropertyIdentifier().equals(PropertyKey)) {
-		    iter.previous().setPropertyPathObject(value);
-		    iter.next();
-		}
-	    }
-	}
-	if(PropertyKey.equals("[MathematicaOptions]mathematicaPath")) 
-	    MathematicaEditor.setPropertyPathObject(value);
-
-    }
-
-    private void writePropertyChanges() {
-	for (List<PropertyConfigurationBeans> property : groupMap.values()) {
-	    ListIterator<PropertyConfigurationBeans> iter = property
-		    .listIterator();
-	    while (iter.hasNext()) {
-		iter.next().writeSettings(new Properties());
-	    }
-	}
-	MathematicaEditor.writeSettings(new Properties());
-    }
-
-    private int verifyDirectories() {
-
-	HashMap<String, File> directoriesAndFilesMap = new HashMap<String, File>();
-
-	for (List<PropertyConfigurationBeans> property : groupMap.values()) {
-
-	    ListIterator<PropertyConfigurationBeans> iter = property
-		    .listIterator();
-	    while (iter.hasNext()) {
-		if (iter.next().isPropertyObjectAFile()) {
-		    directoriesAndFilesMap.put(iter.previous().getPropsName(),
-			    (File) iter.next().getCurrentPropertyObject());
-		}
-
-	    }
-	}
-
-	JPanel messagePane = new JPanel();
-	JTextPane message = new JTextPane();
-	messagePane.setLayout(new java.awt.GridBagLayout());
-	GridBagConstraints c = new GridBagConstraints();
-	c.anchor = GridBagConstraints.FIRST_LINE_START;
-	c.fill = GridBagConstraints.NONE;
-	c.gridy = 0;
-	boolean ALLEXIST = true;
-	messagePane.add(new JLabel("<html>The specified Directories Or Files do not exist : <br><br></html>"), c);
-	message.setEditable(false);
-	message.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-
-	for (String name : directoriesAndFilesMap.keySet()) {
-
-	    if (!directoriesAndFilesMap.get(name).exists()) { 
-		message.setText(message.getText() + name + "  [ "
-			+ directoriesAndFilesMap.get(name) + "]\n");
-		 ALLEXIST = false;
-	    }
-	}
-	c.gridy = 1;
-	messagePane.add(message, c);
-	c.gridy = 2;
-	messagePane.add(new JLabel("<html><br>Do  you want to continue ?</html>"), c);
-
-	if(ALLEXIST)
-	    return JOptionPane.YES_OPTION;
-	else
-	    return JOptionPane.showConfirmDialog(pathFrame, messagePane, "Warning",
-    			JOptionPane.YES_NO_OPTION);
-
-    }
-
+  
     /**
-     * @return the pathPanel
+     * @return the InitialDialogFrame
      */
-    public JFrame getPathPanel() {
-	return pathFrame;
+    public JFrame getInitialDialogFrame() {
+	return InitialDialogFrame;
     }
 
     public void actionPerformed(ActionEvent e) {
 
-	if (e.getSource().equals(buttonOK)) {
-	    if (verifyDirectories() == JOptionPane.YES_OPTION) {
-		writePropertyChanges();
-		pathFrame.dispose();
+	if (e.getSource().equals(decisionPanel.getButtonOK())) {
+
+	    if (WriteProperties.write(propsCards)) {
+		InitialDialogFrame.dispose();
 		final String[] args = this.args;
 		new Thread() {
 
@@ -303,46 +88,34 @@ public class InitialDialogBeans implements ActionListener {
 		}.start();
 	    }
 	}
-	if (e.getSource().equals(buttonApply)) {
-	    if (verifyDirectories() == JOptionPane.YES_OPTION){
-	    	writePropertyChanges();
-	    	buttonApply.setEnabled(false);
+
+	if (e.getSource().equals(decisionPanel.getButtonApply())) {
+	    if (WriteProperties.write(propsCards)) {
+		decisionPanel.getButtonApply().setEnabled(false);
 	    }
-
 	}
-	if (e.getSource().equals(buttonDefault)) {
-		
-		 Properties props = de.uka.ilkd.key.dl.gui.initialdialog.defaultsettings.OSInfosDefault.INSTANCE
-		    .getDefaultProperty();
-		 for(EPropertyConfigurations k : EPropertyConfigurations.values()){
-			 setPropertyChanges(k.getKey(), props.getProperty(k.getKey())); 	
-		 } 
-		 setPropertyChanges("[MathematicaOptions]mathematicaPath", props.getProperty("[MathematicaOptions]mathematicaPath"));
-		 buttonDefault.setEnabled(false);
 
-	}
-	if (e.getSource().equals(buttonExit)) {
-	    final int option = JOptionPane.showConfirmDialog(pathFrame,
+	if (e.getSource().equals(decisionPanel.getButtonExit())) {
+	    final int option = JOptionPane.showConfirmDialog(
+		    InitialDialogFrame,
 		    "Settings will be ignored \nReally exit KeYmaera?",
 		    "Warning", JOptionPane.YES_NO_OPTION);
 	    if (option == JOptionPane.YES_OPTION) {
-		pathFrame.dispose();
+		InitialDialogFrame.dispose();
 	    }
 	}
-    }
-	
-    /**
-     * @return the checkboxState
-     */
-    public Boolean getCheckboxState() {
-	Boolean checkboxState;
-	checkboxState = (Boolean) PropertyConfigurationBeans.INSTANCE
-		.getValueOfKey(EPropertyConfigurations.CHECKBOX_PROPERTY
-			.getConfigFile(),
-			EPropertyConfigurations.CHECKBOX_PROPERTY.getKey(),
-			EPropertyConfigurations.CHECKBOX_PROPERTY
-				.getConverterClass());
-	return checkboxState;
-    }
 
+    }
+    
+    /**
+     * Gets the current state of the checkboxState 
+     * @return <em> boolean </em> 
+     */
+    public boolean getCheckboxState(){
+	
+	return PropertiesCard.getCheckboxState();
+    }
+    
+    
+	
 }

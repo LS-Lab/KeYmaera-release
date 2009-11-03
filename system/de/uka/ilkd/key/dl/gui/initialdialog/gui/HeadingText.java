@@ -1,14 +1,8 @@
-/**
- * 
- */
 package de.uka.ilkd.key.dl.gui.initialdialog.gui;
 
-import java.awt.Color;
+import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -16,62 +10,45 @@ import javax.swing.JPanel;
 /**
  * @author zacho
  * 
- *         The HeadingText Class represents a heading panel. The panel will be
+ *         The HeadingText Class represents a heading headingPane. The headingPane will be
  *         placed above the GUI to indicate the gui's functions
  */
 public class HeadingText {
 
-    private JPanel panel;
-    private JLabel headerText;
-    private JLabel text1;
-    private Dimension d;
-    private Color col;
+    private JPanel headingPane;
+    private JLabel headerText1;
+    private JLabel headerText2;
+    private Dimension HeadingDimension;
 
     /**
      * Initialises the GUI desciption text.
      */
     HeadingText(String hText, String str1) {
-        panel = new JPanel();
-        d = new Dimension(620, 18);
-        col = new java.awt.Color(255, 255, 255);
-        panel.setBackground(col);
-        panel.setLayout(new GridBagLayout());
-        GridBagConstraints c = new GridBagConstraints();
-
-        this.headerText = new JLabel(hText);
-        this.text1 = new JLabel(str1);
-        headerText.setPreferredSize(d);
-        headerText.setFont(new java.awt.Font("Dialog", Font.BOLD, 14));
-        text1.setFont(new java.awt.Font("Dialog", 0, 12));
-        c.fill = GridBagConstraints.NONE;
-        c.anchor = GridBagConstraints.FIRST_LINE_START;
-        c.gridy = 0;
-        c.insets = new Insets(10, 3, 0, 10);
-        panel.add(headerText, c);
-        c.insets = new Insets(10, 10, 20, 10);
-        c.gridy = 1;
-        panel.add(text1, c);
-
+        headingPane = new JPanel();
+        HeadingDimension = new Dimension(600,35);
+        headingPane.setBackground(new java.awt.Color(255, 255, 255));
+        headingPane.setLayout(new BorderLayout());
+        this.headerText1 = new JLabel(" ".concat(hText));
+        this.headerText2 = new JLabel("          ".concat(str1));
+        headerText1.setPreferredSize(HeadingDimension);
+        headerText1.setFont(new java.awt.Font("Dialog", Font.BOLD, 14));
+        headerText2.setFont(new java.awt.Font("Dialog", 0, 12));
+        headingPane.add(headerText1, BorderLayout.NORTH);
+        headingPane.add(headerText2, BorderLayout.CENTER);
+        headingPane.add(new JLabel(" "), BorderLayout.SOUTH);
+        
     }
     /**
-     * @param d the d to set
+     * @param HeadingDimension the HeadingDimension to set
      */
-    public void setD(Dimension d) {
-        this.d = d;
-        headerText.setPreferredSize(d);
+    public void setD(Dimension HeadingDimension) {
+        this.HeadingDimension = HeadingDimension;
     }
     /**
-     * @param col the col to set
-     */
-    public void setCol(Color col) {
-        this.col = col;
-        panel.setBackground(col);
-    }
-    /**
-     * @return the panel containing the GUI heading
+     * @return the headingPane containing the GUI heading
      */
     public JPanel getDescriptionText() {
-        return this.panel;
+        return this.headingPane;
 
     }
 

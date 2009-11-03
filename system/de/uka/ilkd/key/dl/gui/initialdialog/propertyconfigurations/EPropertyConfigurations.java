@@ -3,40 +3,43 @@ package de.uka.ilkd.key.dl.gui.initialdialog.propertyconfigurations;
 import java.beans.PropertyEditor;
 
 import de.uka.ilkd.key.dl.gui.initialdialog.converters.*;
+import de.uka.ilkd.key.dl.gui.initialdialog.propertyeditors.*;
+
 
 /**
  * The EPropertyConfigurations Enumeration describes properties that are to be
  * configured and shown in the configuration frame. 
  * 
- *@NB To add a new property Option to be configured,
+ * <br> <b>NB</b> To add a new property Option to be configured,
  * all the parameters must be given and the default value must be added to the
- * all defaults property classes, that is Linux, Mac and WindowsOsDefaultProperties.class
+ * all defaults property classes, that is Linux, Mac and WindowsOsDefaultProperties.class</br>
  * 
  * @author zacho
  */
 public enum EPropertyConfigurations {
 
-  
-    OPTIONS_MATHKERNEL ("Mathematica Properties", "MathKernel Path :", "[MathematicaOptions]mathKernel", EConfigurationFiles.KEY_PROPERTY_FILE, 
-                                                            de.uka.ilkd.key.dl.options.FilePropertyEditor.class, FileStringConverter.class),
-    OPTIONS_JLINK_LIBDIR ("Mathematica Properties","J/Link Native Dir :" ,"com.wolfram.jlink.libdir", EConfigurationFiles.WEBSTART_FILE, 
-                                                            de.uka.ilkd.key.dl.options.DirectoryPropertyEditor.class, FileStringConverter.class),
-    OPTIONS_SACLIB_PATH ("Qepcad Properties","Saclib Path :", "[QepcadOptions]saclibPath",EConfigurationFiles.KEY_PROPERTY_FILE, 
-                                                            de.uka.ilkd.key.dl.options.DirectoryPropertyEditor.class, FileStringConverter.class),
-    OPTIONS_QEPCAD_PATH ("Qepcad Properties","Qepcad Path :","[QepcadOptions]qepcadPath", EConfigurationFiles.KEY_PROPERTY_FILE, 
-                                                            de.uka.ilkd.key.dl.options.DirectoryPropertyEditor.class, FileStringConverter.class),
-    OPTIONS_CSDP_BINARY ("CSDP Properties","CSDP Binary :","[DLOptions]csdpPath", EConfigurationFiles.KEY_PROPERTY_FILE, 
-                                                            de.uka.ilkd.key.dl.options.FilePropertyEditor.class, FileStringConverter.class),
-    OPTIONS_OCAML_PATH ("HOL Light Properties","Ocaml Path :","[HOLLightOptions]ocamlPath", EConfigurationFiles.KEY_PROPERTY_FILE, 
-                                                            de.uka.ilkd.key.dl.options.FilePropertyEditor.class, FileStringConverter.class),
-    OPTIONS_HOL_LIGHT_PATH ("HOL Light Properties","HOL Light Path :","[HOLLightOptions]hollightPath", EConfigurationFiles.KEY_PROPERTY_FILE, 
-                                                            de.uka.ilkd.key.dl.options.DirectoryPropertyEditor.class, FileStringConverter.class),
-    OPTIONS_H_QE_PATH ("HOL Light Properties","Harrison QE Path :","[HOLLightOptions]harrisonqePath", EConfigurationFiles.KEY_PROPERTY_FILE, 
-                                                            de.uka.ilkd.key.dl.options.DirectoryPropertyEditor.class, FileStringConverter.class),                                                       
-    OPTIONS_REDUCE_BINARY("Redlog Properties","Reduce Binary :","[ReduceOptions]reduceBinary", EConfigurationFiles.KEY_PROPERTY_FILE, 
-                                                            de.uka.ilkd.key.dl.options.FilePropertyEditor.class, FileStringConverter.class),  
+    OPTIONS_MATHEMATICA_PATH ("Mathematica Properties", "Mathematica Path","[MathematicaOptions]mathematicaPath", EConfigurationFiles.KEY_PROPERTY_FILE, 
+            										DirectoryPropertyEditor.class, FileStringConverter.class),
+    OPTIONS_MATHKERNEL ("Mathematica Properties", "MathKernel Path", "[MathematicaOptions]mathKernel", EConfigurationFiles.KEY_PROPERTY_FILE, 
+                                                            FilePropertyEditor.class, FileStringConverter.class),
+    OPTIONS_JLINK_LIBDIR ("Mathematica Properties","J/Link Native Dir" ,"com.wolfram.jlink.libdir", EConfigurationFiles.WEBSTART_FILE, 
+                                                            DirectoryPropertyEditor.class, FileStringConverter.class),
+    OPTIONS_SACLIB_PATH ("Qepcad Properties","Saclib Path", "[QepcadOptions]saclibPath",EConfigurationFiles.KEY_PROPERTY_FILE, 
+                                                            DirectoryPropertyEditor.class, FileStringConverter.class),
+    OPTIONS_QEPCAD_PATH ("Qepcad Properties","Qepcad Path","[QepcadOptions]qepcadPath", EConfigurationFiles.KEY_PROPERTY_FILE, 
+                                                            DirectoryPropertyEditor.class, FileStringConverter.class),
+    OPTIONS_CSDP_BINARY ("DL Properties","CSDP Binary","[DLOptions]csdpPath", EConfigurationFiles.KEY_PROPERTY_FILE, 
+                                                            FilePropertyEditor.class, FileStringConverter.class),
+    OPTIONS_OlCAM_PATH ("HOL Light Properties","Olcam Path","[HOLLightOptions]ocamlPath", EConfigurationFiles.KEY_PROPERTY_FILE, 
+                                                            FilePropertyEditor.class, FileStringConverter.class),
+    OPTIONS_HOL_LIGHT_PATH ("HOL Light Properties","HOL Light Path","[HOLLightOptions]hollightPath", EConfigurationFiles.KEY_PROPERTY_FILE, 
+                                                            DirectoryPropertyEditor.class, FileStringConverter.class),
+    OPTIONS_H_QE_PATH ("HOL Light Properties","Harrison QE Path","[HOLLightOptions]harrisonqePath", EConfigurationFiles.KEY_PROPERTY_FILE, 
+                                                            DirectoryPropertyEditor.class, FileStringConverter.class),                                                       
+    OPTIONS_REDUCE_BINARY("Redlog Properties","Reduce Binary","[ReduceOptions]reduceBinary", EConfigurationFiles.KEY_PROPERTY_FILE, 
+                                                            FilePropertyEditor.class, FileStringConverter.class),  
     CHECKBOX_PROPERTY("checkBox" ,null,"[DLOptions]showInitialDialog", EConfigurationFiles.KEY_PROPERTY_FILE, 
-                                                            de.uka.ilkd.key.dl.gui.initialdialog.propertyconfigurations.CheckBoxEditor.class, BooleanStringConverter.class);
+                                                            CheckBoxEditor.class, BooleanStringConverter.class);
     private String group;
     private String key;
     private String label;
