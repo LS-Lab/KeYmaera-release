@@ -110,7 +110,7 @@ public class MathematicaSuffixFinder  implements PropertyChangeListener {
 
 	String osName = OSInfosDefault.INSTANCE.getOsName();
 	if (osName.equals("linux"))
-	    suffixesClass = WindowsSuffixes.class;
+	    suffixesClass = LinuxSuffixes.class;
 	if (osName.equals("mac"))
 	    suffixesClass = MacSuffixes.class;
 	if (osName.equals("Windows"))

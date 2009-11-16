@@ -39,7 +39,8 @@ public class WindowsOsDefaultProperties implements IOsDefaultProperties {
      */
     public void initJlinkDefault() {
 
-        props.put("com.wolfram.jlink.libdir", "c:\\");
+	String jlinkDir = "c:\\usrlocal\\Wolfram\\Mathematica\\7.0\\SystemFiles\\Link\\JLink\\SystemFiles\\Libraries\\Windows-x86-64";
+        props.put("com.wolfram.jlink.libdir", jlinkDir);
     }
 
     /**
@@ -49,7 +50,7 @@ public class WindowsOsDefaultProperties implements IOsDefaultProperties {
     public void initMathKernelDefault() {
 	props.put("[MathematicaOptions]mathematicaPath", "C:\\Program Files\\Wolfram\\Mathematica\\7.0");
         props.put("[MathematicaOptions]mathKernel",
-                "C:\\Program Files\\Wolfram\\Mathematica\\7.0");
+                "C:\\Program Files\\Wolfram\\Mathematica\\7.0\\Executables\\MathKernel");
     }
 
     /**

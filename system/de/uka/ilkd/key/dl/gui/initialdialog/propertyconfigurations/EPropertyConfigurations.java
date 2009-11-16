@@ -3,7 +3,9 @@ package de.uka.ilkd.key.dl.gui.initialdialog.propertyconfigurations;
 import java.beans.PropertyEditor;
 
 import de.uka.ilkd.key.dl.gui.initialdialog.converters.*;
-import de.uka.ilkd.key.dl.gui.initialdialog.propertyeditors.*;
+import de.uka.ilkd.key.dl.gui.initialdialog.propertyeditors.CheckBoxEditor;
+import de.uka.ilkd.key.dl.options.DirectoryPropertyEditor;
+import de.uka.ilkd.key.dl.options.FilePropertyEditor;
 
 
 /**

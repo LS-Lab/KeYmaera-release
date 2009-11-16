@@ -36,7 +36,7 @@ public class LinuxSuffixes implements ISuffixes{
     @Override
     public String getJLinkDefaultSuffix() {
 	// TODO Auto-generated method stub
-	  return "SystemFiles"+File.separator+"Links"+File.separator + "JLink"; 
+	  return "SystemFiles"+File.separator+"Links"+File.separator + "JLink"+ File.separator + "SystemFiles" + File.separator + "Libraries"+ File.separator +"Linux-x86-64"; 
     }
 
     @Override
@@ -46,12 +46,12 @@ public class LinuxSuffixes implements ISuffixes{
 	Pattern p = Pattern.compile(File.separator);
 	String[] values = p.split(mathematicaPath);
 	
-	if(values[values.length - 1].equals("JLink"))
+	if(values[values.length - 1].equals("Linux-x86-64")||values[values.length - 1].equals("Linux-x86")) // Still to verify for 32 bit computers
 	    return "";
 	
 	Pattern p2 = Pattern.compile(values[values.length - 1] + ".*");
 	String suffix = "";
-	Matcher m = p2.matcher("SystemFiles" + File.separator + "Links" + File.separator + "JLink");
+	Matcher m = p2.matcher("SystemFiles" + File.separator + "Links" + File.separator + "JLink"+ File.separator + "SystemFiles" + File.separator + "Libraries"+ File.separator +"Linux-x86-64");
 	while (m.find()) {
 	    suffix = m.group();
 	}
@@ -75,7 +75,7 @@ public class LinuxSuffixes implements ISuffixes{
     @Override
     public String getMathKernelSuffix(String mathematicaPath) {
 	// TODO Auto-generated method stub
-	return "Executables";
+	return "Executables"+File.separator+"MathKernel";
     }
 
 
@@ -83,6 +83,6 @@ public class LinuxSuffixes implements ISuffixes{
     @Override
     public String getMathkernelDefaultSuffix() {
 	// TODO Auto-generated method stub
-	return "Executables";
+	return "Executables"+File.separator+"MathKernel";
     }
 }

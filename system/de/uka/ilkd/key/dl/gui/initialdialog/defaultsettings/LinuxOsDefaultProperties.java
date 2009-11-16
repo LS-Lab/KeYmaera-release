@@ -40,8 +40,8 @@ public class LinuxOsDefaultProperties implements IOsDefaultProperties {
      */
     public void initJlinkDefault() {// Change name
 
-       String jlinkDir = sp+"usr"+sp+"local"+sp+"Wolfram"+sp+"Mathematica"+sp+
-        			"SystemFiles"+sp+"Links"+sp + "JLink";
+       String jlinkDir = sp+"usr"+sp+"local"+sp+"Wolfram"+sp+"Mathematica"+sp+"7.0"+sp+
+        			"SystemFiles"+sp+"Links"+sp + "JLink" +sp+ "SystemFiles" + sp+ "Libraries"+sp+"Linux-x86-64";
         
         props.put("com.wolfram.jlink.libdir", jlinkDir);
     }
@@ -52,8 +52,8 @@ public class LinuxOsDefaultProperties implements IOsDefaultProperties {
 
     public void initMathKernelDefault() {
 	
-	props.put("[MathematicaOptions]mathematicaPath", sp+"usr"+sp+"local"+sp+"Wolfram"+sp+"Mathematica");
-        props.put("[MathematicaOptions]mathKernel", sp+"usr"+sp+"local"+sp+"Wolfram"+sp+"Mathematica"+sp+"Executables");
+	props.put("[MathematicaOptions]mathematicaPath", sp+"usr"+sp+"local"+sp+"Wolfram"+sp+"Mathematica"+sp+"7.0");
+        props.put("[MathematicaOptions]mathKernel", sp+"usr"+sp+"local"+sp+"Wolfram"+sp+"Mathematica"+sp+"7.0"+sp+"Executables"+sp+"MathKernel");
     }
 
     /**
