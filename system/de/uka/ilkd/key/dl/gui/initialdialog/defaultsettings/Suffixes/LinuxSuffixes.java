@@ -1,6 +1,7 @@
 package de.uka.ilkd.key.dl.gui.initialdialog.defaultsettings.Suffixes;
 import java.util.regex.*;
 import java.io.File;
+import java.io.FileFilter;
 /**
  * 
  *    This Object implements ISuffixes for the Linux Operating systems platform.
@@ -26,13 +27,55 @@ public class LinuxSuffixes implements ISuffixes{
 	// TODO Auto-generated method stub
     	Pattern p = Pattern.compile(".*[Mm]athematica+.?[1-9]?+.?[0-9]?+.?[0-9]?");
     	Matcher m = p.matcher(mathematicaPath); // get a matcher object
-    	String prefix = "";
+    	String prefix = null;
     	while (m.find()) {
     	    prefix = m.group();
     	}
+    	if (prefix != null)
+    	    prefix = getMathematicaCompletePath(prefix);
+    	else{
+    	    if(mathematicaPath.contains("Wolfram")||mathematicaPath.contains("wolfram")){
+    		prefix = getMathematicaCompletePath(mathematicaPath+File.separator+"Mathematica");
+    	    }
+    	}
     	return prefix;
     }
-    
+    public File[] getsubDirList(File dir){
+	 
+	    // This filter only returns directories
+	    FileFilter fileFilter = new FileFilter() {
+	        public boolean accept(File file) {
+	            return file.isDirectory();
+	        }
+	    };
+	    if(dir.exists())
+		return  dir.listFiles(fileFilter);
+	    else
+		return null;
+	
+    }
+    public String getMathematicaCompletePath(String currentPath){
+	
+
+	File[] file = getsubDirList(new File(currentPath));
+	
+	
+	java.util.Arrays.sort(file);
+	
+	String tempPath = null;
+	if (file != null){
+	    for (int i= 0; i < file.length; i++){
+		Pattern p = Pattern.compile(".*[Mm]athematica+.?[1-9]+.?[0-9]?+.?[0-9]?");
+		Matcher m = p.matcher(file[i].toString()); // get a matcher object
+		while (m.find()) {
+		    tempPath = m.group();
+		}
+	    }
+	   return  tempPath;
+	}
+	else
+	    return null;
+    }
     @Override
     public String getJLinkDefaultSuffix() {
 	// TODO Auto-generated method stub
@@ -65,7 +108,7 @@ public class LinuxSuffixes implements ISuffixes{
 		    suffix = suffix + File.separator+values[i];
 	    }
 	}
-	
+	System.out.println(suffix);
 	return suffix;
     }
 

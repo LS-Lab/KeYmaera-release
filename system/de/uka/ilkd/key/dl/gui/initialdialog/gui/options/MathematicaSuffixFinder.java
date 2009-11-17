@@ -78,9 +78,9 @@ public class MathematicaSuffixFinder  implements PropertyChangeListener {
 
 	if (suffixesClassInstance.isPossibleMathematicaPath(currentMathematicaPath)) {
 	    
-	    mathematica = currentMathematicaPath;
-	    mathkernel = currentMathematicaPath + File.separator + suffixesClassInstance.getMathkernelDefaultSuffix();
-	    Jlink = currentMathematicaPath + File.separator + suffixesClassInstance.getJLinkDefaultSuffix();
+	    mathematica = suffixesClassInstance.getMathematicaPath(currentMathematicaPath);
+	    mathkernel = mathematica + File.separator + suffixesClassInstance.getMathkernelDefaultSuffix();
+	    Jlink = mathematica + File.separator + suffixesClassInstance.getJLinkDefaultSuffix();
 	    
 	} else if (showConfirnPathSearch()) {
 	    
