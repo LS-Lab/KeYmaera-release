@@ -2,6 +2,10 @@
  * 
  */
 package de.uka.ilkd.key.gui.syntaxhighlighting;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * @author zacho
  *
@@ -26,6 +30,22 @@ public class ConvertPlain2Html {
 	inputString = inputString.replace("\"", "&quot;");
 	inputString = inputString.replace("<", "&lt");
 	
+//	StringBuffer myStringBuffer = new StringBuffer();
+//	Pattern pattern = Pattern.compile("(\\s)?\\^(\\s)?(\\d+)");
+//	
+//	Matcher matcher = pattern.matcher(inputString);
+//	
+//	while (matcher.find()) {
+//	    Pattern p1 = Pattern.compile("\\d+");
+//            Matcher m1 = p1.matcher(matcher.group());
+//            if (m1.find())
+//        	matcher.appendReplacement(myStringBuffer,"<sup>"+m1.group()+"</sup>");	 
+//	    System.out.println(matcher.group());
+//	}
+//	
+//	myStringBuffer = matcher.appendTail(myStringBuffer);
+//	inputString = myStringBuffer.toString();
+//	
 //	StringBuffer myStringBuffer = new StringBuffer();
 //	Pattern pattern = Pattern.compile(".*[\n|\r]");
 //	

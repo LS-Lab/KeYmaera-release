@@ -1,7 +1,10 @@
 package de.uka.ilkd.key.dl.gui.initialdialog.defaultsettings;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 /**
  *         The LinuxOsDefaultProperties class creates and instance of a Property
  *         Object containing all possible default properties for linux platform.
@@ -13,16 +16,18 @@ public class LinuxOsDefaultProperties implements IOsDefaultProperties {
 
     private Properties props;
     private String sp = File.separator;
-   
+    private String mathematicaDefaultPath = sp+"usr"+sp+"local"+sp+"Wolfram"+sp+"Mathematica";
     
     /**
      * @return the default Properties for linux Operating system
      */
     public Properties getDefaultPropertyList() {
 
-
         if (props == null) {
             props = new Properties();
+            String temp = getMathematicaCompletePath(mathematicaDefaultPath);
+            if(temp != null)
+           	mathematicaDefaultPath = temp;
             initJlinkDefault();
             initMathKernelDefault();
             initQepcadDefault();
@@ -35,13 +40,46 @@ public class LinuxOsDefaultProperties implements IOsDefaultProperties {
         return props;
     }
 
+    public File[] getsubDirList(File dir){
+	 
+	    // This filter only returns directories
+	    FileFilter fileFilter = new FileFilter() {
+	        public boolean accept(File file) {
+	            return file.isDirectory();
+	        }
+	    };
+	    if(dir.exists())
+		return  dir.listFiles(fileFilter);
+	    else
+		return null;
+	
+    }
+    public String getMathematicaCompletePath(String currentPath){
+	
+	File[] file = getsubDirList(new File(currentPath));
+	
+	java.util.Arrays.sort(file);
+	
+	String tempPath = null;
+	if (file != null){
+	    for (int i= 0; i < file.length; i++){
+		Pattern p = Pattern.compile(".*[Mm]athematica+.?[1-9]+.?[0-9]?+.?[0-9]?");
+		Matcher m = p.matcher(file[i].toString()); // get a matcher object
+		while (m.find()) {
+		    tempPath = m.group();
+		}
+	    }
+	   return  tempPath;
+	}
+	else
+	    return null;
+    }
     /**
      * Initialise jlink default path
      */
-    public void initJlinkDefault() {// Change name
+    public void initJlinkDefault() {
 
-       String jlinkDir = sp+"usr"+sp+"local"+sp+"Wolfram"+sp+"Mathematica"+sp+
-        			"SystemFiles"+sp+"Links"+sp + "JLink";
+       String jlinkDir = mathematicaDefaultPath+sp+"SystemFiles"+sp+"Links"+sp + "JLink" +sp+ "SystemFiles" + sp+ "Libraries"+sp+"Linux-x86-64";
         
         props.put("com.wolfram.jlink.libdir", jlinkDir);
     }
@@ -52,8 +90,8 @@ public class LinuxOsDefaultProperties implements IOsDefaultProperties {
 
     public void initMathKernelDefault() {
 	
-	props.put("[MathematicaOptions]mathematicaPath", sp+"usr"+sp+"local"+sp+"Wolfram"+sp+"Mathematica");
-        props.put("[MathematicaOptions]mathKernel", sp+"usr"+sp+"local"+sp+"Wolfram"+sp+"Mathematica"+sp+"Executables");
+	props.put("[MathematicaOptions]mathematicaPath", mathematicaDefaultPath);
+        props.put("[MathematicaOptions]mathKernel", mathematicaDefaultPath+sp+"Executables"+sp+"MathKernel");
     }
 
     /**

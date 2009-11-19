@@ -4,7 +4,10 @@
 package de.uka.ilkd.key.dl.gui.initialdialog.defaultsettings;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 /**
  *         The MacOsDefaultProperties class creates and instance of a Property Object containing all
  *         possible default properties for linux platform.
@@ -14,7 +17,8 @@ import java.util.Properties;
 public class WindowsOsDefaultProperties implements IOsDefaultProperties {
 
     private Properties props;
-
+    private String sp = File.separator;
+    private String mathematicaDefaultPath = "C:"+sp+"Program Files"+sp+"Wolfram"+sp+"Mathematica"+sp+"7.0";
     /**
      * @return the default Properties for linux Operating system
      */
@@ -22,6 +26,9 @@ public class WindowsOsDefaultProperties implements IOsDefaultProperties {
 
         if (props == null) {
             props = new Properties();
+            String temp = getMathematicaCompletePath(mathematicaDefaultPath);
+            if(temp != null)
+           	mathematicaDefaultPath = temp;
             initJlinkDefault();
             initMathKernelDefault();
             initQepcadDefault();
@@ -33,13 +40,48 @@ public class WindowsOsDefaultProperties implements IOsDefaultProperties {
         }
         return props;
     }
+    public File[] getsubDirList(File dir){
+	 
+	    // This filter only returns directories
+	    FileFilter fileFilter = new FileFilter() {
+	        public boolean accept(File file) {
+	            return file.isDirectory();
+	        }
+	    };
+	    if(dir.exists())
+		return  dir.listFiles(fileFilter);
+	    else
+		return null;
+	
+    }
+    public String getMathematicaCompletePath(String currentPath){
+	
+	File[] file = getsubDirList(new File(currentPath));
+	System.out.println(currentPath);
+	java.util.Arrays.sort(file);
+	
+	String tempPath = null;
+	if (file != null){
+	    for (int i= 0; i < file.length; i++){
+		Pattern p = Pattern.compile(".*[Mm]athematica+.?[1-9]+.?[0-9]?+.?[0-9]?");
+		Matcher m = p.matcher(file[i].toString()); // get a matcher object
+		while (m.find()) {
+		    tempPath = m.group();
+		}
+	    }
+	   return  tempPath;
+	}
+	else
+	    return null;
+    }
 
     /**
      * Initialise jlink default path
      */
     public void initJlinkDefault() {
 
-        props.put("com.wolfram.jlink.libdir", "c:\\");
+	String jlinkDir = mathematicaDefaultPath+sp+"SystemFiles"+sp+"Link"+sp+"JLink"+sp+"SystemFiles"+sp+"Libraries"+sp+"Windows-x86-64";
+        props.put("com.wolfram.jlink.libdir", jlinkDir);
     }
 
     /**
@@ -47,9 +89,8 @@ public class WindowsOsDefaultProperties implements IOsDefaultProperties {
      */
 
     public void initMathKernelDefault() {
-	props.put("[MathematicaOptions]mathematicaPath", "C:\\Program Files\\Wolfram\\Mathematica\\7.0");
-        props.put("[MathematicaOptions]mathKernel",
-                "C:\\Program Files\\Wolfram\\Mathematica\\7.0");
+	props.put("[MathematicaOptions]mathematicaPath", mathematicaDefaultPath);
+        props.put("[MathematicaOptions]mathKernel",mathematicaDefaultPath+sp+"Executables"+sp+"MathKernel");
     }
 
     /**
@@ -58,7 +99,7 @@ public class WindowsOsDefaultProperties implements IOsDefaultProperties {
 
     public void initQepcadDefault() {
 
-        props.put("[QepcadOptions]qepcadPath", "C:\\Program Files\\QEPCAD");
+        props.put("[QepcadOptions]qepcadPath", "C:"+sp+"Program Files"+sp+"QEPCAD");
     }
 
     /**
@@ -67,7 +108,7 @@ public class WindowsOsDefaultProperties implements IOsDefaultProperties {
 
     public void initSaclibDefault() {
 
-        props.put("[QepcadOptions]saclibPath", "C:\\Program Files\\Saclib");
+        props.put("[QepcadOptions]saclibPath", "C:"+sp+"Program Files"+sp+"Saclib");
     }
 
     /**
@@ -75,7 +116,7 @@ public class WindowsOsDefaultProperties implements IOsDefaultProperties {
      */
     public void initReduceBinaryDefault() {
 
-        props.put("[ReduceOptions]reduceBinary", "C:\\");
+        props.put("[ReduceOptions]reduceBinary", "C:"+sp);
     }
 
 
@@ -89,9 +130,9 @@ public class WindowsOsDefaultProperties implements IOsDefaultProperties {
         props.put("[HOLLightOptions]harrisonqePath", hol);
         props.put("[HOLLightOptions]hollightPath", hol);
         
-        File olcam = new File("C:\\Program Files\\flyspeck\\hol_light");
+        File olcam = new File("C:"+sp+"Program Files"+sp+"flyspeck"+sp+"hol_light");
 	if(!olcam.exists())
-	    olcam = new File("C:\\"); 
+	    olcam = new File("C:"+sp); 
         props.put("[HOLLightOptions]ocamlPath", olcam.getAbsolutePath());
     }
     /**
@@ -99,9 +140,9 @@ public class WindowsOsDefaultProperties implements IOsDefaultProperties {
      */
     public void  initcsdpPathDefault(){
 	
-	File csdp = new File("C:\\Program Files\\csdp\\bin\\csdp");	
+	File csdp = new File("C:"+sp+"Program Files"+sp+"csdp"+sp+"bin"+sp+"csdp");	
         if (!csdp.exists())
-            csdp = new File("C:\\");
+            csdp = new File("C:"+sp);
         props.put("[DLOptions]csdpPath", csdp.getAbsolutePath());
     }
     /**

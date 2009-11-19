@@ -4,7 +4,10 @@
 package de.uka.ilkd.key.dl.gui.initialdialog.defaultsettings;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 /** 
  *         The MacOsDefaultProperties class creates and instance of a Property Object containing all
  *         possible default properties for linux platform
@@ -14,7 +17,8 @@ import java.util.Properties;
 public class MacOsDefaultProperties implements IOsDefaultProperties {
 
     private Properties props;
-
+    private String sp = File.separator;
+    private String mathematicaDefaultPath = sp+"Applications"+sp+"Mathematica.app";
 
     /**
      * @return the default Properties for linux Operating system
@@ -23,6 +27,9 @@ public class MacOsDefaultProperties implements IOsDefaultProperties {
 
         if (props == null) {
             props = new Properties();
+            String temp = getMathematicaCompletePath(mathematicaDefaultPath);
+            if(temp != null)
+           	mathematicaDefaultPath = temp;
             initJlinkDefault();
             initMathKernelDefault();
             initQepcadDefault();
@@ -35,12 +42,46 @@ public class MacOsDefaultProperties implements IOsDefaultProperties {
         return props;
     }
 
+    public File[] getsubDirList(File dir){
+	 
+	    // This filter only returns directories
+	    FileFilter fileFilter = new FileFilter() {
+	        public boolean accept(File file) {
+	            return file.isDirectory();
+	        }
+	    };
+	    if(dir.exists())
+		return  dir.listFiles(fileFilter);
+	    else
+		return null;
+	
+    }
+    public String getMathematicaCompletePath(String currentPath){
+	
+	File[] file = getsubDirList(new File(currentPath));
+	
+	java.util.Arrays.sort(file);
+	
+	String tempPath = null;
+	if (file != null){
+	    for (int i= 0; i < file.length; i++){
+		Pattern p = Pattern.compile(".*[Mm]athematica+.?[1-9]+.?[0-9]?+.?[0-9]?(.app)?");
+		Matcher m = p.matcher(file[i].toString()); // get a matcher object
+		while (m.find()) {
+		    tempPath = m.group();
+		}
+	    }
+	   return  tempPath;
+	}
+	else
+	    return null;
+    }
     /**
      * Initialise jlink default path
      */
     public void initJlinkDefault() {
 	
-	String jlinkDir = "/Applications/Mathematica.app/SystemFiles/Links/JLink/SystemFiles/Libraries/MacOSX-x86-64";
+	String jlinkDir = mathematicaDefaultPath+sp+"SystemFiles"+sp+"Links"+sp+"JLink"+sp+"SystemFiles"+sp+"Libraries"+sp+"MacOSX-x86-64";
         props.put("com.wolfram.jlink.libdir", jlinkDir);
     }
 
@@ -49,9 +90,9 @@ public class MacOsDefaultProperties implements IOsDefaultProperties {
      */
 
     public void initMathKernelDefault() {
-	props.put("[MathematicaOptions]mathematicaPath", "/Applications/Mathematica.app");
+	props.put("[MathematicaOptions]mathematicaPath", mathematicaDefaultPath);
         props.put("[MathematicaOptions]mathKernel",
-                "/Applications/Mathematica.app/Contents/MacOS/MathKernel");
+        	mathematicaDefaultPath+sp+"Contents"+sp+"MacOS"+sp+"MathKernel");
     }
 
     /**
@@ -65,7 +106,7 @@ public class MacOsDefaultProperties implements IOsDefaultProperties {
             if (qpath == null)
                 qpath = "/";
             else
-        	qpath = qpath +File.separator + "Workspace"+File.separator+ "qepcad";
+        	qpath = qpath + sp + "Workspace"+sp+ "qepcad";
         	
         }
         props.put("[QepcadOptions]qepcadPath", qpath);
@@ -98,8 +139,8 @@ public class MacOsDefaultProperties implements IOsDefaultProperties {
 	        if (rpath == null)
 	            rpath = "/";
 	        else
-	            rpath = rpath +File.separator + "Workspace"+File.separator
-	                   +"reduce-algebra"+File.separator+"bin";
+	            rpath = rpath +sp + "Workspace"+sp
+	                   +"reduce-algebra"+sp+"bin";
 	        props.put("[ReduceOptions]reduceBinary", rpath);
     }
     /**

@@ -1,6 +1,7 @@
 package de.uka.ilkd.key.dl.gui.initialdialog.defaultsettings.Suffixes;
 import java.util.regex.*;
 import java.io.File;
+import java.io.FileFilter;
 /**
  * 
  *    This Object implements ISuffixes for the Linux Operating systems platform.
@@ -26,17 +27,59 @@ public class LinuxSuffixes implements ISuffixes{
 	// TODO Auto-generated method stub
     	Pattern p = Pattern.compile(".*[Mm]athematica+.?[1-9]?+.?[0-9]?+.?[0-9]?");
     	Matcher m = p.matcher(mathematicaPath); // get a matcher object
-    	String prefix = "";
+    	String prefix = null;
     	while (m.find()) {
     	    prefix = m.group();
     	}
+    	if (prefix != null)
+    	    prefix = getMathematicaCompletePath(prefix);
+    	else{
+    	    if(mathematicaPath.contains("Wolfram")||mathematicaPath.contains("wolfram")){
+    		prefix = getMathematicaCompletePath(mathematicaPath+File.separator+"Mathematica");
+    	    }
+    	}
     	return prefix;
     }
-    
+    public File[] getsubDirList(File dir){
+	 
+	    // This filter only returns directories
+	    FileFilter fileFilter = new FileFilter() {
+	        public boolean accept(File file) {
+	            return file.isDirectory();
+	        }
+	    };
+	    if(dir.exists())
+		return  dir.listFiles(fileFilter);
+	    else
+		return null;
+	
+    }
+    public String getMathematicaCompletePath(String currentPath){
+	
+
+	File[] file = getsubDirList(new File(currentPath));
+	
+	
+	java.util.Arrays.sort(file);
+	
+	String tempPath = null;
+	if (file != null){
+	    for (int i= 0; i < file.length; i++){
+		Pattern p = Pattern.compile(".*[Mm]athematica+.?[1-9]+.?[0-9]?+.?[0-9]?");
+		Matcher m = p.matcher(file[i].toString()); // get a matcher object
+		while (m.find()) {
+		    tempPath = m.group();
+		}
+	    }
+	   return  tempPath;
+	}
+	else
+	    return null;
+    }
     @Override
     public String getJLinkDefaultSuffix() {
 	// TODO Auto-generated method stub
-	  return "SystemFiles"+File.separator+"Links"+File.separator + "JLink"; 
+	  return "SystemFiles"+File.separator+"Links"+File.separator + "JLink"+ File.separator + "SystemFiles" + File.separator + "Libraries"+ File.separator +"Linux-x86-64"; 
     }
 
     @Override
@@ -46,12 +89,12 @@ public class LinuxSuffixes implements ISuffixes{
 	Pattern p = Pattern.compile(File.separator);
 	String[] values = p.split(mathematicaPath);
 	
-	if(values[values.length - 1].equals("JLink"))
+	if(values[values.length - 1].equals("Linux-x86-64")||values[values.length - 1].equals("Linux-x86")) // Still to verify for 32 bit computers
 	    return "";
 	
 	Pattern p2 = Pattern.compile(values[values.length - 1] + ".*");
 	String suffix = "";
-	Matcher m = p2.matcher("SystemFiles" + File.separator + "Links" + File.separator + "JLink");
+	Matcher m = p2.matcher("SystemFiles" + File.separator + "Links" + File.separator + "JLink"+ File.separator + "SystemFiles" + File.separator + "Libraries"+ File.separator +"Linux-x86-64");
 	while (m.find()) {
 	    suffix = m.group();
 	}
@@ -65,7 +108,7 @@ public class LinuxSuffixes implements ISuffixes{
 		    suffix = suffix + File.separator+values[i];
 	    }
 	}
-	
+	System.out.println(suffix);
 	return suffix;
     }
 
@@ -75,7 +118,7 @@ public class LinuxSuffixes implements ISuffixes{
     @Override
     public String getMathKernelSuffix(String mathematicaPath) {
 	// TODO Auto-generated method stub
-	return "Executables";
+	return "Executables"+File.separator+"MathKernel";
     }
 
 
@@ -83,6 +126,6 @@ public class LinuxSuffixes implements ISuffixes{
     @Override
     public String getMathkernelDefaultSuffix() {
 	// TODO Auto-generated method stub
-	return "Executables";
+	return "Executables"+File.separator+"MathKernel";
     }
 }
