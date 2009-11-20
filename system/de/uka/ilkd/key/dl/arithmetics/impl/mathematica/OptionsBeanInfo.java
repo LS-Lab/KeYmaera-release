@@ -32,12 +32,13 @@ import orbital.awt.TaggedPropertyEditorSupport;
 import de.uka.ilkd.key.dl.arithmetics.impl.mathematica.Options.QuantifierEliminationMethod;
 import de.uka.ilkd.key.dl.options.DirectoryPropertyEditor;
 import de.uka.ilkd.key.dl.options.FilePropertyEditor;
+import de.uka.ilkd.key.dl.options.PropertyConstants;
 
 /**
  * @author jdq
  * 
  */
-public class OptionsBeanInfo extends SimpleBeanInfo {
+public class OptionsBeanInfo extends SimpleBeanInfo implements PropertyConstants {
 	private static final Class<Options> beanClass = Options.class;
 
 	public OptionsBeanInfo() {
@@ -60,13 +61,13 @@ public class OptionsBeanInfo extends SimpleBeanInfo {
 			// _usage.setPropertyEditorClass(UsagePropertyEditor.class);
 
 			PropertyDescriptor[] pds = new PropertyDescriptor[] {
-					createDescriptor("mathKernel", "MathKernel path",
-							"the path to the MathKernel binary", true, false,
+					createDescriptor("mathKernel", MATHEMATICA_OPTIONS_MATHKERNEL_LABEL,
+							MATHEMATICA_OPTIONS_MATHKERNEL_TOOLTIP, true, false,
 							FilePropertyEditor.class),
 					createDescriptor(
 							"jLinkLibDir",
-							"J/Link native dir",
-							"the path where the J/Link natives are located. Restart is required when this setting is changed.",
+							MATHEMATICA_OPTIONS_JLINK_LIBDIR_LABEL,
+							MATHEMATICA_OPTIONS_JLINK_LIBDIR_TOOLTIP,
 							true, false, DirectoryPropertyEditor.class),
 					createDescriptor(
 							"useEliminateList",

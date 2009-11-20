@@ -28,6 +28,7 @@ import java.util.Properties;
 
 import orbital.math.Values;
 import orbital.moon.math.ArithmeticValuesImpl;
+import de.uka.ilkd.key.dl.options.PropertyConstants;
 import de.uka.ilkd.key.gui.GUIEvent;
 import de.uka.ilkd.key.gui.configuration.Settings;
 import de.uka.ilkd.key.gui.configuration.SettingsListener;
@@ -37,15 +38,9 @@ import de.uka.ilkd.key.gui.configuration.SettingsListener;
  * @author ap
  * 
  */
-public class Options implements Settings {
+public class Options implements Settings, PropertyConstants {
 
-    public static final Options INSTANCE = new Options();
-
-    private static final String OPTIONS_REPRESENTATION = "[OrbitalOptions]representation";
-
-    private static final String OPTIONS_SPARSEPOLYNOMIALS = "[OrbitalOptions]sparsePolynomials";
-
-    private static final String OPTIONS_PRECISION = "[OrbitalOptions]precision";
+    public static final PropertyConstants INSTANCE = new Options();
 
     private List<SettingsListener> listeners;
 
@@ -76,15 +71,15 @@ public class Options implements Settings {
      */
     public void readSettings(Properties props) {
         String property = props
-                .getProperty(OPTIONS_REPRESENTATION);
+                .getProperty(ORBITAL_OPTIONS_REPRESENTATION);
         if (property != null) {
             getDeferred().setRepresentation(property);
         }
-        property = props.getProperty(OPTIONS_PRECISION);
+        property = props.getProperty(ORBITAL_OPTIONS_PRECISION);
         if (property != null) {
              getDeferred().setPrecision(Integer.valueOf(property));
         }
-        property = props.getProperty(OPTIONS_SPARSEPOLYNOMIALS);
+        property = props.getProperty(ORBITAL_OPTIONS_SPARSEPOLYNOMIALS);
         if (property != null) {
              getDeferred().setSparsePolynomials(Boolean.valueOf(property));
         }
@@ -96,10 +91,10 @@ public class Options implements Settings {
      * @see de.uka.ilkd.key.gui.Settings#writeSettings(java.util.Properties)
      */
     public void writeSettings(Properties props) {
-        props.setProperty(OPTIONS_REPRESENTATION,
+        props.setProperty(ORBITAL_OPTIONS_REPRESENTATION,
                 getRepresentation());
-        props.setProperty(OPTIONS_PRECISION, "" + getPrecision());
-        props.setProperty(OPTIONS_SPARSEPOLYNOMIALS, "" + isSparsePolynomials());
+        props.setProperty(ORBITAL_OPTIONS_PRECISION, "" + getPrecision());
+        props.setProperty(ORBITAL_OPTIONS_SPARSEPOLYNOMIALS, "" + isSparsePolynomials());
     }
 
     public String getRepresentation() {

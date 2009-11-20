@@ -32,12 +32,13 @@ import orbital.awt.TaggedPropertyEditorSupport;
 import de.uka.ilkd.key.dl.arithmetics.impl.reduce.Options.QuantifierEliminationMethod;
 import de.uka.ilkd.key.dl.arithmetics.impl.reduce.Options.ReduceSwitch;
 import de.uka.ilkd.key.dl.options.FilePropertyEditor;
+import de.uka.ilkd.key.dl.options.PropertyConstants;
 
 /**
  * @author jdq
  * 
  */
-public class OptionsBeanInfo extends SimpleBeanInfo {
+public class OptionsBeanInfo extends SimpleBeanInfo implements PropertyConstants {
 	private static final Class<Options> beanClass = Options.class;
 
 	public OptionsBeanInfo() {
@@ -57,9 +58,8 @@ public class OptionsBeanInfo extends SimpleBeanInfo {
 			PropertyDescriptor[] pds = new PropertyDescriptor[] {
 					createDescriptor(
 							"reduceBinary",
-							"Reduce Binary",
-							"<html>The path to the reduce binary installation needed<br>"
-									+ "to setup the correct environment for the tool</html>",
+							OPTIONS_REDUCE_BINARY_LABEL,
+							OPTIONS_REDUCE_BINARY_TOOLTIP,
 							false, true, FilePropertyEditor.class),
 					createDescriptor(
 							"qeMethod",

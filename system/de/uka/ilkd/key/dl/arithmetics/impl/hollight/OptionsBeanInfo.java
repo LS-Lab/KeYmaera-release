@@ -32,12 +32,14 @@ import orbital.awt.TaggedPropertyEditorSupport;
 import de.uka.ilkd.key.dl.arithmetics.impl.hollight.Options.QuantifierEliminationMethod;
 import de.uka.ilkd.key.dl.options.DirectoryPropertyEditor;
 import de.uka.ilkd.key.dl.options.FilePropertyEditor;
+import de.uka.ilkd.key.dl.options.PropertyConstants;
 
 /**
  * @author jdq
  * 
  */
-public class OptionsBeanInfo extends SimpleBeanInfo {
+public class OptionsBeanInfo extends SimpleBeanInfo implements
+		PropertyConstants {
 	private static final Class<Options> beanClass = Options.class;
 
 	public OptionsBeanInfo() {
@@ -65,19 +67,17 @@ public class OptionsBeanInfo extends SimpleBeanInfo {
 					// "Qepcad Executable",
 					// "The Qepcad executable including the complete path name if it is not located in the system PATH",
 					// true, false, FilePropertyEditor.class),
-					createDescriptor(
-							"hollightPath",
-							"HOL Light Path",
-							"The path to the hol light installation needed to setup the correct environment for the tool",
-							true, false, DirectoryPropertyEditor.class),
-					createDescriptor("ocamlPath", "Ocaml Path",
-							"The ocaml binary", true, false,
+					createDescriptor("hollightPath",
+							HOL_OPTIONS_HOLLIGHT_PATH_LABEL,
+							HOL_OPTIONS_HOLLIGHT_PATH_TOOLTIP, true, false,
+							DirectoryPropertyEditor.class),
+					createDescriptor("ocamlPath", HOL_OPTIONS_OCAML_PATH_LABEL,
+							HOL_OPTIONS_OCAML_PATH_TOOLTIP, true, false,
 							FilePropertyEditor.class),
-					createDescriptor(
-							"harrisonqePath",
-							"Harrison QE Path",
-							"The path to harrisons implementation of quantifier elimination",
-							true, false, DirectoryPropertyEditor.class),
+					createDescriptor("harrisonqePath",
+							HOL_OPTIONS_HARRISON_QE_PATH_LABEL,
+							HOL_OPTIONS_HARRISON_QE_PATH_TOOLTIP, true, false,
+							DirectoryPropertyEditor.class),
 					createDescriptor("method", "QE Method",
 							"The quantifier elimination method to use", true,
 							false,

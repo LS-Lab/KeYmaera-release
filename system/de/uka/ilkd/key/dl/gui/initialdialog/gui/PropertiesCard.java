@@ -52,12 +52,12 @@ public class PropertiesCard implements ActionListener, ChangeListener {
 	for (EPropertyConfigurations k : EPropertyConfigurations.values()) {
 	    if(k.getLabel()== null){		
 		checkBoxEditor = new PropertyConfigurationBeans();
-		checkBoxEditor.setPathPane(k.getLabel(), k.getEditorClass(), k
+		checkBoxEditor.setPathPane(k.getLabel(), k.getToolTip(), k.getEditorClass(), k
 			    .getConverterClass(), k.getConfigFile(), k.getKey());
 		continue;
 	    }
 	    final PropertyConfigurationBeans editor = new PropertyConfigurationBeans();
-	    editor.setPathPane(k.getLabel(), k.getEditorClass(), k
+	    editor.setPathPane(k.getLabel(), k.getToolTip(), k.getEditorClass(), k
 		    .getConverterClass(), k.getConfigFile(), k.getKey());
 	    List<PropertyConfigurationBeans> editorsInGroup = groupMap.get(k
 		    .getGroup());

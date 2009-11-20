@@ -46,7 +46,7 @@ import de.uka.ilkd.key.dl.options.DLOptionBean.LocalReduceOption;
  * @author jdq
  * 
  */
-public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
+public class DLOptionBeanBeanInfo extends SimpleBeanInfo implements PropertyConstants {
 	public static final String DESCRIPTION = "Adjusts KeYmaera proof strategy options";
 
 	private static final Class<DLOptionBean> beanClass = DLOptionBean.class;
@@ -232,8 +232,8 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
 							false, false),
 					createDescriptor(
 							"csdpBinary",
-							"csdp binary",
-							"The path to the csdp binary file. (Used by groebnerSOS and internal sos)",
+							DLOPTIONS_CSDP_PATH_LABEL,
+							DLOPTIONS_CSDP_PATH_TOOLTIP,
 							true, false, FilePropertyEditor.class),
 					createDescriptor(
 							"csdpForceInternal",

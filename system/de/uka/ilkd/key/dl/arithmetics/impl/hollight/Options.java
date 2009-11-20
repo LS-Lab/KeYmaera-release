@@ -27,6 +27,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 
+import de.uka.ilkd.key.dl.options.PropertyConstants;
 import de.uka.ilkd.key.gui.GUIEvent;
 import de.uka.ilkd.key.gui.configuration.Settings;
 import de.uka.ilkd.key.gui.configuration.SettingsListener;
@@ -39,20 +40,13 @@ import de.uka.ilkd.key.gui.configuration.SettingsListener;
  * @TODO somehow, the values are written from default even before they are read
  *       from disk.
  */
-public class Options implements Settings {
+public class Options implements Settings, PropertyConstants {
 
 	public static final Options INSTANCE = new Options();
 
 	public static enum QuantifierEliminationMethod {
 		ProofProducing, Harrison;
 	}
-
-	private static final String OPTIONS_HOLLIGHT_PATH = "[HOLLightOptions]hollightPath";
-	private static final String OPTIONS_OCAML_PATH = "[HOLLightOptions]ocamlPath";
-
-	private static final String OPTIONS_HARRISON_QE_PATH = "[HOLLightOptions]harrisonqePath";
-
-	private static final String OPTIONS_QUANTIFIER_ELIMINATION_METHOD = "[HOLLightOptions]qeMethod";
 
 	private File hollightPath;
 	private File ocamlPath;
@@ -94,19 +88,19 @@ public class Options implements Settings {
 	 * @see de.uka.ilkd.key.gui.Settings#readSettings(java.util.Properties)
 	 */
 	public void readSettings(Properties props) {
-		String property = props.getProperty(OPTIONS_HOLLIGHT_PATH);
+		String property = props.getProperty(HOL_OPTIONS_HOLLIGHT_PATH);
 		if (property != null) {
 			hollightPath = new File(property);
 		}
-		property = props.getProperty(OPTIONS_OCAML_PATH);
+		property = props.getProperty(HOL_OPTIONS_OCAML_PATH);
 		if (property != null) {
 			ocamlPath = new File(property);
 		}
-		property = props.getProperty(OPTIONS_HARRISON_QE_PATH);
+		property = props.getProperty(HOL_OPTIONS_HARRISON_QE_PATH);
 		if (property != null) {
 			harrisonqePath = new File(property);
 		}
-		property = props.getProperty(OPTIONS_QUANTIFIER_ELIMINATION_METHOD);
+		property = props.getProperty(HOL_OPTIONS_QUANTIFIER_ELIMINATION_METHOD);
 		if (property != null) {
 			method = QuantifierEliminationMethod.valueOf(property);
 		}
@@ -119,12 +113,12 @@ public class Options implements Settings {
 	 */
 	public void writeSettings(Properties props) {
 		props
-				.setProperty(OPTIONS_HOLLIGHT_PATH, hollightPath
+				.setProperty(HOL_OPTIONS_HOLLIGHT_PATH, hollightPath
 						.getAbsolutePath());
-		props.setProperty(OPTIONS_OCAML_PATH, ocamlPath.getAbsolutePath());
-		props.setProperty(OPTIONS_HARRISON_QE_PATH, harrisonqePath
+		props.setProperty(HOL_OPTIONS_OCAML_PATH, ocamlPath.getAbsolutePath());
+		props.setProperty(HOL_OPTIONS_HARRISON_QE_PATH, harrisonqePath
 				.getAbsolutePath());
-		props.setProperty(OPTIONS_QUANTIFIER_ELIMINATION_METHOD, method.name());
+		props.setProperty(HOL_OPTIONS_QUANTIFIER_ELIMINATION_METHOD, method.name());
 	}
 
 	/**

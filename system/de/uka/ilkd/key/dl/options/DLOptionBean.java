@@ -43,7 +43,7 @@ import de.uka.ilkd.key.proof.Proof;
  * @author jdq
  * 
  */
-public class DLOptionBean implements Settings {
+public class DLOptionBean implements Settings, PropertyConstants {
 
 	/**
 	 * @author jdq TODO Documentation since Feb 19, 2009
@@ -203,81 +203,7 @@ public class DLOptionBean implements Settings {
 	 */
 	private static final String TRUE = Boolean.valueOf(true).toString();
 
-	/**
-	 * 
-	 */
-	private static final String DLOPTIONS_INITIAL_TIMEOUT = "[DLOptions]initialTimeout";
-
-	private static final String DLOPTIONS_DIFFSAT_TIMEOUT = "[DLOptions]diffSatTimeout";
-
-	private static final String DLOPTIONS_LOOPSAT_TIMEOUT = "[DLOptions]loopSatTimeout";
-
-	/**
-	 * 
-	 */
-	private static final String DLOPTIONS_FO_STRATEGY = "[DLOptions]FOStrategy";
-
 	public static final DLOptionBean INSTANCE = new DLOptionBean();
-
-	private static final String DLOPTIONS_QUADRIC = "[DLOptions]quadricTimeoutIncreaseFactor";
-
-	private static final String DLOPTIONS_LINEAR = "[DLOptions]linearTimeoutIncreaseFactor";
-
-	private static final String DLOPTIONS_CONSTANT = "[DLOptions]constantTimeoutIncreaseFactor";
-
-	private static final String DLOPTIONS_READD_QUANTIFIERS = "[DLOptions]readdQuantifiers";
-
-	private static final String DLOPTIONS_SIMPLIFY_BEFORE_REDUCE = "[DLOptions]simplifyBeforeReduce";
-
-	private static final String DLOPTIONS_SIMPLIFY_AFTER_REDUCE = "[DLOptions]simplifyAfterReduce";
-
-	private static final String DLOPTIONS_APPLY_UPDATES_TO_MODALITIES = "[DLOptions]applyToModality";
-
-	private static final String DLOPTIONS_COUNTEREXAMPLE_GENERATOR = "[DLOptions]counterExampleGenerator";
-
-	private static final String DLOPTIONS_ODESOLVER = "[DLOptions]odeSolver";
-
-	private static final String DLOPTIONS_QUANTIFIER_ELIMINATOR = "[DLOptions]quantifierEliminator";
-
-	private static final String DLOPTIONS_SIMPLIFIER = "[DLOptions]simplifier";
-
-	private static final String DLOPTIONS_APPLY_GAMMA_RULES = "[DLOptions]applyGammaRules";
-
-	private static final String DLOPTIONS_COUNTEREXAMPLE_TEST = "[DLOptions]counterexampleTest";
-
-	private static final String DLOPTIONS_INVARIANT_RULE = "[DLOptions]invariantRule";
-
-	private static final String DLOPTIONS_USE_DIFF_SAT = "[DLOptions]DiffSat";
-
-	private static final String DLOPTIONS_IGNORE_ANNOTATIONS = "[DLOptions]ignoreAnnotations";
-
-	private static final String DLOPTIONS_SIMPLIFY_TIMEOUT = "[DLOptions]simplifyTimeout";
-
-	private static final String DLOPTIONS_ITERATIVE_REDUCE_RULE = "[DLOptions]useIterativeReduceRule";
-
-	private static final String DLOPTIONS_TERM_FACTORY_CLASS = "[DLOptions]termFactoryClass";
-
-	private static final String DLOPTIONS_APPLY_LOCAL_REDUCE = "[DLOptions]applyLocalReduce";
-
-	private static final String DLOPTIONS_APPLY_LOCAL_SIMPLIFY = "[DLOptions]applyLocalSimplify";
-
-	private static final String DLOPTIONS_APPLY_GLOBAL_REDUCE = "[DLOptions]applyGlobalReduce";
-
-	private static final String DLOPTIONS_SIMPLIFY_AFTER_ODESOLVE = "[DLOptions]simplifyAfterODESolve";
-
-	private static final String DLOPTIONS_GROEBNER_BASIS_CALCULATOR = "[DLOptions]groebnerBasisCalculator";
-
-	private static final String DLOPTIONS_SOS_CHECKER = "[DLOptions]sosChecker";
-
-	private static final String DLOPTIONS_USE_POWERSET_ITERATIVE_REDUCE = "[DLOptions]usePowersetIterativeReduce";
-	private static final String DLOPTIONS_PERCENT_OF_POWERSET_FOR_ITERATIVE_REDUCE = "[DLOptions]percentOfPowersetForIterativeReduce";
-
-	private static final String DLOPTIONS_BUILT_IN_ARITHMETIC = "[DLOptions]BuiltInArithmetic";
-	private static final String DLOPTIONS_BUILT_IN_ARITHMETIC_INEQS = "[DLOptions]BuiltInArithmeticIneqs";
-	private static final String DLOPTIONS_USE_SOS = "[DLOptions]useSOS";
-	private static final String DLOPTIONS_CSDP_PATH = "[DLOptions]csdpPath";
-
-	private static final String DLOPTIONS_CSDP_FORCE_INTERNAL = "[DLOptions]csdpForceInternal";
 
 	private Set<Settings> subOptions;
 

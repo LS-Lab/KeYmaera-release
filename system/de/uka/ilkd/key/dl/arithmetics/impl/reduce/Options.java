@@ -27,6 +27,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 
+import de.uka.ilkd.key.dl.options.PropertyConstants;
 import de.uka.ilkd.key.gui.GUIEvent;
 import de.uka.ilkd.key.gui.configuration.Settings;
 import de.uka.ilkd.key.gui.configuration.SettingsListener;
@@ -39,7 +40,7 @@ import de.uka.ilkd.key.gui.configuration.SettingsListener;
  * @TODO somehow, the values are written from default even before they are read
  *       from disk.
  */
-public class Options implements Settings {
+public class Options implements Settings, PropertyConstants {
 
 	public static final Options INSTANCE = new Options();
 
@@ -95,38 +96,6 @@ public class Options implements Settings {
 		}
 	}
 
-	private static final String OPTIONS_REDUCE_BINARY = "[ReduceOptions]reduceBinary";
-
-	private static final String OPTIONS_REDUCE_QUANTIFIER_ELIMINATION_METHOD = "[ReduceOptions]quantifierEliminationMethod";
-
-	private static final String OPTIONS_REDUCE_ELIMINATE_FRACTIONS = "[ReduceOptions]eliminateFractions";
-
-	private static final String OPTIONS_REDUCE_RLALL = "[ReduceOptions]rlall";
-
-	private static final String OPTIONS_REDUCE_rlanuexsgnopt = "[ReduceOptions]rlanuexsgnopt";
-	private static final String OPTIONS_REDUCE_rlanuexgcdnormalize = "[ReduceOptions]ReduceSwitch rlanuexgcdnormalize";
-	private static final String OPTIONS_REDUCE_rlanuexpsremseq = "[ReduceOptions]rlanuexpsremseq";
-	private static final String OPTIONS_REDUCE_rlcadhongproj = "[ReduceOptions]rlcadhongproj";
-	private static final String OPTIONS_REDUCE_rlcadaprojalways = "[ReduceOptions]rlcadaprojalways";
-	private static final String OPTIONS_REDUCE_rlcadaproj = "[ReduceOptions]rlcadaproj";
-	private static final String OPTIONS_REDUCE_rlcadisoallroots = "[ReduceOptions]rlcadisoallroots";
-	private static final String OPTIONS_REDUCE_rlcadrawformula = "[ReduceOptions]rlcadrawformula";
-	private static final String OPTIONS_REDUCE_rlcadtrimtree = "[ReduceOptions]rlcadtrimtree";
-	private static final String OPTIONS_REDUCE_rlcadfulldimonly = "[ReduceOptions]rlcadfulldimonly";
-	private static final String OPTIONS_REDUCE_rlcadpbfvs = "[ReduceOptions]rlcadpbfvs";
-	private static final String OPTIONS_REDUCE_rlcadte = "[ReduceOptions]rlcadte";
-	private static final String OPTIONS_REDUCE_rlcadpartial = "[ReduceOptions]rlcadpartial";
-	private static final String OPTIONS_REDUCE_rlcadextonly = "[ReduceOptions]rlcadextonly";
-	private static final String OPTIONS_REDUCE_rlcadprojonly = "[ReduceOptions]rlcadprojonly";
-	private static final String OPTIONS_REDUCE_rlcadbaseonly = "[ReduceOptions]rlcadbaseonly";
-	private static final String OPTIONS_REDUCE_rlcadfac = "[ReduceOptions]rlcadfac";
-	private static final String OPTIONS_REDUCE_rlqepnf = "[ReduceOptions]rlqepnf";
-	private static final String OPTIONS_REDUCE_rlqeheu = "[ReduceOptions]rlqeheu";
-	private static final String OPTIONS_REDUCE_rlqedfs = "[ReduceOptions]rlqedfs";
-	private static final String OPTIONS_REDUCE_rlqesqsc = "[ReduceOptions]rlqesqsc";
-	private static final String OPTIONS_REDUCE_rlqeqsc = "[ReduceOptions]rlqeqsc";
-
-	private static final String OPTIONS_REDUCE_RLSIMPL = "[ReduceOptions]rlsimpl";
 	private File reduceBinary;
 
 	private QuantifierEliminationMethod qeMethod;

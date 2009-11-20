@@ -28,12 +28,13 @@ import java.beans.PropertyDescriptor;
 import java.beans.SimpleBeanInfo;
 
 import de.uka.ilkd.key.dl.options.DirectoryPropertyEditor;
+import de.uka.ilkd.key.dl.options.PropertyConstants;
 
 /**
  * @author jdq
  * 
  */
-public class OptionsBeanInfo extends SimpleBeanInfo {
+public class OptionsBeanInfo extends SimpleBeanInfo implements PropertyConstants {
 	private static final Class<Options> beanClass = Options.class;
 
 	public OptionsBeanInfo() {
@@ -68,13 +69,13 @@ public class OptionsBeanInfo extends SimpleBeanInfo {
 							true, false),
 					createDescriptor(
 							"qepcadPath",
-							"Qepcad Path",
-							"The path to the qepcad installation needed to setup the correct environment for the tool (it must contain bin/qepcad binary)",
+							QEPCAD_OPTIONS_QEPCAD_PATH_LABEL,
+							QEPCAD_OPTIONS_QEPCAD_PATH_TOOLTIP,
 							true, false, DirectoryPropertyEditor.class),
 					createDescriptor(
 							"saclibPath",
-							"Saclib Path",
-							"The path to the saclib installation needed to setup the correct environment for Qepcad",
+							QEPCAD_OPTIONS_SACLIB_PATH_LABEL,
+							QEPCAD_OPTIONS_SACLIB_PATH_TOOLTIP,
 							true, false, DirectoryPropertyEditor.class),
 
 			};
