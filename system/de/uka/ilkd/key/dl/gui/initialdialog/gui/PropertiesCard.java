@@ -26,16 +26,16 @@ import de.uka.ilkd.key.dl.gui.initialdialog.propertyconfigurations.EPropertyConf
 public class PropertiesCard implements ActionListener, ChangeListener { 
     
     private LinkedHashMap<String, List<PropertyConfigurationBeans>> groupMap;
-    private HashMap<String, PropertyGroupCard> groupCardMap;
-    private PropertyGroupCard currentCard;
+    private HashMap<String, PropertyGroupCardBeans> groupCardMap;
+    private PropertyGroupCardBeans currentCard;
     private JTabbedPane propertiesCardPane;
     private static PropertyConfigurationBeans checkBoxEditor;
     
     PropertiesCard(){
 	
 	    groupMap = new LinkedHashMap<String, List<PropertyConfigurationBeans>>();
-	    groupCardMap = new HashMap<String, PropertyGroupCard>();
-	    currentCard = new PropertyGroupCard();
+	    groupCardMap = new HashMap<String, PropertyGroupCardBeans>();
+	    currentCard = new PropertyGroupCardBeans();
 	    propertiesCardPane = new JTabbedPane();
 	    propertiesCardPane.setTabPlacement(SwingConstants.LEFT);
 	    setCardProperties();
@@ -69,7 +69,7 @@ public class PropertiesCard implements ActionListener, ChangeListener {
 	}
 	int index = 0;
 	for (String groupIdentifier : groupMap.keySet()) {
-	    PropertyGroupCard card = new PropertyGroupCard();
+	    PropertyGroupCardBeans card = new PropertyGroupCardBeans();
 	    card.setPropertiesFields(groupMap.get(groupIdentifier), groupIdentifier, index++);
 	    card.addButtonListeners(this);
 	    groupCardMap.put(groupIdentifier, card);   
@@ -128,13 +128,13 @@ public class PropertiesCard implements ActionListener, ChangeListener {
     /**
      * @return the groupCardMap
      */
-    public HashMap<String, PropertyGroupCard> getGroupCardMap() {
+    public HashMap<String, PropertyGroupCardBeans> getGroupCardMap() {
         return groupCardMap;
     }
     /**
      * @return the currentCard
      */
-    public PropertyGroupCard getCurrentCard() {
+    public PropertyGroupCardBeans getCurrentCard() {
         return currentCard;
     }
     public static Boolean getCheckboxState() {

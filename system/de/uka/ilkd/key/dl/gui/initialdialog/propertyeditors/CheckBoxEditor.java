@@ -26,15 +26,20 @@ public class CheckBoxEditor extends PropertyEditorSupport implements
      */
     public CheckBoxEditor() {
         checkBoxState = false;
-        checkBox = new JCheckBox(" Always use these settings as default",
+        checkBox = new JCheckBox(" Always use these settings as default.",
                 checkBoxState);
         checkBox.setFont(new java.awt.Font("Dialog", 0, 12));
+        setTooltip("Check to skip this dialog in the future.");
         checkBox.addActionListener(this);
         panel = new JPanel(new BorderLayout());
         panel.add(checkBox, BorderLayout.LINE_START);
 
     }
 
+    /** Set tooltip for the checkbox */
+    public void setTooltip(String tooltip){	
+	checkBox.setToolTipText(tooltip);
+    }
     /*
      * (non-Javadoc) @see
      * java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)

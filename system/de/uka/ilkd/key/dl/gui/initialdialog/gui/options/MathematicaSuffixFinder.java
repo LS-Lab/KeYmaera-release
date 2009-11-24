@@ -10,7 +10,7 @@ import javax.swing.JOptionPane;
 import de.uka.ilkd.key.dl.gui.initialdialog.defaultsettings.OSInfosDefault;
 import de.uka.ilkd.key.dl.gui.initialdialog.defaultsettings.Suffixes.*;
 import de.uka.ilkd.key.dl.gui.initialdialog.gui.PropertyConfigurationBeans;
-import de.uka.ilkd.key.dl.gui.initialdialog.gui.PropertyGroupCard;
+import de.uka.ilkd.key.dl.gui.initialdialog.gui.PropertyGroupCardBeans;
 
 /**
  * 
@@ -20,7 +20,7 @@ import de.uka.ilkd.key.dl.gui.initialdialog.gui.PropertyGroupCard;
  */
 public class MathematicaSuffixFinder  implements PropertyChangeListener {
 
-    PropertyGroupCard mathematicaGroup;
+    PropertyGroupCardBeans mathematicaGroup;
     String MathematicaPath;
     String currentMathematicaPath;
     String mathematicaKey;
@@ -47,9 +47,9 @@ public class MathematicaSuffixFinder  implements PropertyChangeListener {
 
     /**
      * This method sets the property group to be evaluated by the suffixFinder.
-     * @param group <em> PropertyGroupCard <em>
+     * @param group <em> PropertyGroupCardBeans <em>
      */
-    public void setMathematicaSuffixFinder(PropertyGroupCard group) {
+    public void setMathematicaSuffixFinder(PropertyGroupCardBeans group) {
 
 	mathematicaGroup = group;
 	ListIterator<PropertyConfigurationBeans> iter = mathematicaGroup

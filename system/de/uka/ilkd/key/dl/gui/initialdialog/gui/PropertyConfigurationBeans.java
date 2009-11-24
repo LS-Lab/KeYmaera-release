@@ -98,7 +98,6 @@ public class PropertyConfigurationBeans implements PropertyChangeListener {
 		addEditorPane(editorPane);
 		if (labelName != null)
 			addLabel(labelName, toolTipText);
-
 	}
 
 	/**

@@ -9,7 +9,7 @@ import javax.swing.JPanel;
 
 import de.uka.ilkd.key.dl.gui.initialdialog.gui.PropertiesCard;
 import de.uka.ilkd.key.dl.gui.initialdialog.gui.PropertyConfigurationBeans;
-import de.uka.ilkd.key.dl.gui.initialdialog.gui.PropertyGroupCard;
+import de.uka.ilkd.key.dl.gui.initialdialog.gui.PropertyGroupCardBeans;
 
 /**
  * 
@@ -26,8 +26,8 @@ public class WriteProperties {
     }
 
     /**
-     * This method writes the changes done on the input paramter <em> PropertyGroupCard <em>
-     * @param group <em> PropertyGroupCard <em>
+     * This method writes the changes done on the input paramter <em> PropertyGroupCardBeans <em>
+     * @param group <em> PropertyGroupCardBeans <em>
      */
     
     public static void write(List<PropertyConfigurationBeans> group) {
@@ -43,14 +43,14 @@ public class WriteProperties {
      */
     public static Boolean  write(PropertiesCard cardMap) {
 
-	for (PropertyGroupCard card : cardMap.getGroupCardMap().values()) {
+	for (PropertyGroupCardBeans card : cardMap.getGroupCardMap().values()) {
 	    if(list == null)
 		list  = card.getGroup();
 	    else
 		list.addAll(card.getGroup());
 	}
 	if (FileExistenceVerification.verifyDirectories(list, new JPanel()) == JOptionPane.YES_OPTION) {
-	    for (PropertyGroupCard card : cardMap.getGroupCardMap().values()) {
+	    for (PropertyGroupCardBeans card : cardMap.getGroupCardMap().values()) {
 		card.writePropertyChanges();
 	    }
 	    cardMap.getCheckBoxEditor().writeSettings(new Properties());
