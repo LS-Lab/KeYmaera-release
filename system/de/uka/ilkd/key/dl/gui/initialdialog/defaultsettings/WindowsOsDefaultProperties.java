@@ -4,8 +4,8 @@
 package de.uka.ilkd.key.dl.gui.initialdialog.defaultsettings;
 
 import java.io.File;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+
+import de.uka.ilkd.key.dl.gui.initialdialog.defaultsettings.Suffixes.WindowsSuffixes;
 
 /**
  * The MacOsDefaultProperties class creates and instance of a Property Object
@@ -24,25 +24,7 @@ public class WindowsOsDefaultProperties extends OsDefaultProperties {
 	}
 	
 	public String getMathematicaCompletePath(String currentPath) {
-
-		File[] file = getsubDirList(new File(currentPath));
-		System.out.println(currentPath);
-		java.util.Arrays.sort(file);
-
-		String tempPath = null;
-		if (file != null) {
-			for (int i = 0; i < file.length; i++) {
-				Pattern p = Pattern
-						.compile(".*[Mm]athematica+.?[1-9]+.?[0-9]?+.?[0-9]?");
-				Matcher m = p.matcher(file[i].toString()); // get a matcher
-				// object
-				while (m.find()) {
-					tempPath = m.group();
-				}
-			}
-			return tempPath;
-		} else
-			return null;
+		return WindowsSuffixes.INSTANCE.getMathematicaPath(currentPath);
 	}
 	
 	/*

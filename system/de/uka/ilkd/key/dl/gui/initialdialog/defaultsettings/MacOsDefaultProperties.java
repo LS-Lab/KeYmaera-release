@@ -4,8 +4,8 @@
 package de.uka.ilkd.key.dl.gui.initialdialog.defaultsettings;
 
 import java.io.File;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+
+import de.uka.ilkd.key.dl.gui.initialdialog.defaultsettings.Suffixes.MacSuffixes;
 
 /**
  * The MacOsDefaultProperties class creates and instance of a Property Object
@@ -21,28 +21,6 @@ public class MacOsDefaultProperties extends LinuxOsDefaultProperties implements
 	 */
 	public MacOsDefaultProperties() {
 		setMathematicaDefaultPath(sp + "Applications" + sp + "Mathematica.app");
-	}
-
-	public String getMathematicaCompletePath(String currentPath) {
-
-		File[] file = getsubDirList(new File(currentPath));
-
-		java.util.Arrays.sort(file);
-
-		String tempPath = null;
-		if (file != null) {
-			for (int i = 0; i < file.length; i++) {
-				Pattern p = Pattern
-						.compile(".*[Mm]athematica+.?[1-9]+.?[0-9]?+.?[0-9]?(.app)?");
-				Matcher m = p.matcher(file[i].toString()); // get a matcher
-				// object
-				while (m.find()) {
-					tempPath = m.group();
-				}
-			}
-			return tempPath;
-		} else
-			return null;
 	}
 
 	/*
@@ -121,6 +99,14 @@ public class MacOsDefaultProperties extends LinuxOsDefaultProperties implements
 					+ "bin/reduce";
 		}
 		return rpath;
+	}
+	
+	/* (non-Javadoc)
+	 * @see de.uka.ilkd.key.dl.gui.initialdialog.defaultsettings.LinuxOsDefaultProperties#getMathematicaCompletePath(java.lang.String)
+	 */
+	@Override
+	protected String getMathematicaCompletePath(String mathematicaDefaultPath2) {
+		return MacSuffixes.INSTANCE.getMathematicaPath(mathematicaDefaultPath2);
 	}
 
 }

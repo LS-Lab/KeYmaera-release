@@ -15,6 +15,8 @@ import java.util.regex.Pattern;
 
 public class WindowsSuffixes extends LinuxSuffixes implements ISuffixes{
 
+	public static final WindowsSuffixes INSTANCE = new WindowsSuffixes();
+	
     /**
      * Initialise jlink default path
      * 
