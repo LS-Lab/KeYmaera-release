@@ -37,9 +37,9 @@ public class WindowsOsDefaultProperties extends OsDefaultProperties {
 	@Override
 	protected String getCSDPPathDefault() {
 		File csdp = new File("C:" + sp + "Program Files" + sp + "csdp" + sp
-				+ "bin" + sp + "csdp");
+				+ "bin" + sp + "csdp.exe");
 		if (!csdp.exists())
-			csdp = new File("C:" + sp);
+			csdp = new File("C:" + sp + "csdp.exe");
 		return csdp.getAbsolutePath();
 	}
 
@@ -136,7 +136,7 @@ public class WindowsOsDefaultProperties extends OsDefaultProperties {
 	 */
 	@Override
 	public String getReduceBinaryDefault() {
-		return "C:" + sp + "reduce";
+		return "C:" + sp + "reduce.exe";
 	}
 
 	/*
@@ -148,6 +148,6 @@ public class WindowsOsDefaultProperties extends OsDefaultProperties {
 	 */
 	@Override
 	public String getSaclibDefault() {
-		return "C:" + sp + "Program Files" + sp + "Qepcad" + sp + "Saclib";
+		return "C:" + sp + "Program Files" + sp + "qepcad" + sp + "saclib";
 	}
 }

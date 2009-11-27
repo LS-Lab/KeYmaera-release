@@ -49,7 +49,7 @@ public class MacOsDefaultProperties extends LinuxOsDefaultProperties implements
 		return getMathematicaDefaultPath() + sp + "Contents" + sp + "MacOS"
 				+ sp + "MathKernel";
 	}
-	
+
 	/**
 	 * Initialise quepcad default path
 	 */
@@ -93,16 +93,20 @@ public class MacOsDefaultProperties extends LinuxOsDefaultProperties implements
 		String rpath = System.getProperty("user.home");
 
 		if (rpath == null) {
-			rpath = "/usr/bin/reduce";
+			rpath = sp + "usr" + sp + "bin" + sp + "reduce";
 		} else {
 			rpath = rpath + sp + "Workspace" + sp + "reduce-algebra" + sp
 					+ "bin/reduce";
 		}
 		return rpath;
 	}
-	
-	/* (non-Javadoc)
-	 * @see de.uka.ilkd.key.dl.gui.initialdialog.defaultsettings.LinuxOsDefaultProperties#getMathematicaCompletePath(java.lang.String)
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.uka.ilkd.key.dl.gui.initialdialog.defaultsettings.LinuxOsDefaultProperties
+	 * #getMathematicaCompletePath(java.lang.String)
 	 */
 	@Override
 	protected String getMathematicaCompletePath(String mathematicaDefaultPath2) {

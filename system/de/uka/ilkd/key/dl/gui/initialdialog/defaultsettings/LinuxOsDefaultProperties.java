@@ -30,9 +30,9 @@ public class LinuxOsDefaultProperties extends OsDefaultProperties implements
 	protected String getCSDPPathDefault() {
 		File csdp = new File(sp + "user" + sp + "bin" + sp + "csdp");
 		if (!csdp.exists())
-			csdp = new File(System.getProperty("user.home"));
+			csdp = new File(System.getProperty("user.home") + sp + "bin" + "csdp");
 		if (!csdp.exists())
-			csdp = new File("/");
+			csdp = new File(sp + "usr" + sp + "bin" + sp + "csdp");
 		return csdp.getAbsolutePath();
 	}
 
@@ -142,7 +142,7 @@ public class LinuxOsDefaultProperties extends OsDefaultProperties implements
 	public String getReduceBinaryDefault() {
 		String rpath = System.getProperty("user.home");
 		if (rpath == null) {
-			rpath = "/usr/bin/reduce";
+			rpath = sp + "usr" + sp + "bin" + sp + "reduce";
 		} else {
 			rpath += sp + "bin" + sp + "reduce";
 		}
