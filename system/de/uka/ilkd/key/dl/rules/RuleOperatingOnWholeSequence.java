@@ -270,6 +270,7 @@ public abstract class RuleOperatingOnWholeSequence extends Visitor implements
 		testMode = true;
 		try {
 			// try to apply the rule... if no exception occurs it was successful
+		    //@todo shouldn't we pass timeout as a parameter?
 			apply(goal, services, app);
 			return true;
 		} catch (Exception e) {
