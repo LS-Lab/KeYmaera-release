@@ -46,7 +46,7 @@ import de.uka.ilkd.key.dl.options.DLOptionBean.LocalReduceOption;
  * @author jdq
  * 
  */
-public class DLOptionBeanBeanInfo extends SimpleBeanInfo implements PropertyConstants {
+public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
 	public static final String DESCRIPTION = "Adjusts KeYmaera proof strategy options";
 
 	private static final Class<DLOptionBean> beanClass = DLOptionBean.class;
@@ -66,179 +66,92 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo implements PropertyCons
 			PropertyDescriptor[] pds = new PropertyDescriptor[] {
 					// expert, preferred, hidden
 					createDescriptor(
-							"diffSat",
-							"Differential Saturation",
-							"select the desired automation degree of Differential Saturation for automatic differential induction",
-							false, false, DiffSatPropertyEditor.class),
+							"diffSat", EPropertyConstant.DLOPTIONS_USE_DIFF_SAT,false, false, DiffSatPropertyEditor.class),
 					createDescriptor(
-							"foStrategy",
-							"First Order Strategy",
-							"choose the strategy for first order goals. either STOP or completely UNFOLD, perform EAGER quantifier elimination or LAZY, or activate the Iterative Background Closure (IBC) strategy with incremental timeouts.",
-							false, true, FirstOrderStrategyPropertyEditor.class),
+							"foStrategy", EPropertyConstant.DLOPTIONS_FO_STRATEGY,false, true, FirstOrderStrategyPropertyEditor.class),
 					createDescriptor(
-							"useIterativeReduceRule",
-							"Iterative Inflation",
-							"whether to activate the Iterative Inflation Order (IIO) with increasingly bigger formulas.",
-							false, true),
+							"useIterativeReduceRule", EPropertyConstant.DLOPTIONS_ITERATIVE_REDUCE_RULE,false, true),
 					createDescriptor(
-							"usePowersetIterativeReduce",
-							"Inflation Powerset",
-							"whether to use the powerset for iterative inflation or not",
-							false, true),
+							"usePowersetIterativeReduce", EPropertyConstant.DLOPTIONS_USE_POWERSET_ITERATIVE_REDUCE,false, true),
 					createDescriptor(
-							"percentOfPowersetForReduce",
-							"Inflation Percent",
-							"the percentage of the powerset to use for the iterative inflation",
-							false, true),
-
+							"percentOfPowersetForReduce", EPropertyConstant.DLOPTIONS_PERCENT_OF_POWERSET_FOR_ITERATIVE_REDUCE,false, true),
 					createDescriptor(
-							"counterexampleTest",
-							"counterexample",
-							"whether to check for counterexamples before trying to prove exhaustively",
-							false, true, CounterexampleTestPropertyEditor.class),
+							"counterexampleTest",EPropertyConstant.DLOPTIONS_COUNTEREXAMPLE_TEST,false, true, CounterexampleTestPropertyEditor.class),
 					createDescriptor(
-							"initialTimeout",
-							"initial timeout",
-							"the timeout used in the first iteration of the IBC strategy (in seconds)",
-							false, true),
+							"initialTimeout", EPropertyConstant.DLOPTIONS_INITIAL_TIMEOUT,false, true),
 					createDescriptor(
-							"linearTimeoutIncreaseFactor",
-							"linear timeout",
-							"the linear part of the IBC timeout. That is, the part c of t_new = a*t_old^2 + b*t_old + c (in seconds)"),
+							"linearTimeoutIncreaseFactor",EPropertyConstant.DLOPTIONS_LINEAR),					
 					createDescriptor(
-							"constantTimeoutIncreaseFactor",
-							"constant timeout",
-							"the constant part of the IBC timeout. That is, the part c of t_new = a*t_old^2 + b*t_old + c (in seconds)",
-							false, false, true),
+							"constantTimeoutIncreaseFactor", EPropertyConstant.DLOPTIONS_CONSTANT, false, false, true),
 					createDescriptor(
-							"quadraticTimeoutIncreaseFactor",
-							"quadratic timeout",
-							"the quadratic part of the IBC timeout. That is, the part c of t_new = a*t_old^2 + b*t_old + c (in seconds)",
-							false, false, true),
-					//
+							"quadraticTimeoutIncreaseFactor", EPropertyConstant.DLOPTIONS_QUADRIC,false, false, true),
 					createDescriptor(
-							"diffSatTimeout",
-							"initial DiffSat timeout",
-							"the timeout used in the first iteration of the DiffSat strategy (in seconds)",
-							false, false),
+							"diffSatTimeout", EPropertyConstant.DLOPTIONS_DIFFSAT_TIMEOUT,false, false),
 					createDescriptor(
-							"loopSatTimeout",
-							"initial LoopSat timeout",
-							"the timeout used in the first iteration of the LoopSat strategy (in seconds)",
-							false, false),
+							"loopSatTimeout", EPropertyConstant.DLOPTIONS_LOOPSAT_TIMEOUT,false, false),
 					createDescriptor(
-							"simplifyTimeout",
-							"simplify timeout",
-							"the timeout used for calls to the simplifier (in seconds)",
+							"simplifyTimeout", EPropertyConstant.DLOPTIONS_SIMPLIFY_TIMEOUT,
 							// @TODO what does 0 mean?
 							false, false),
 					//
-					createDescriptor("simplifyBeforeReduce",
-							"simplify before reduce",
-							"simplify formulas passed to the reduce function of the arithmetic solver"),
+					createDescriptor("simplifyBeforeReduce", EPropertyConstant.DLOPTIONS_SIMPLIFY_BEFORE_REDUCE),
 					createDescriptor(
-							"simplifyAfterReduce",
-							"simplify after reduce",
-							"simplify the results generated by the reduce function of the arithmetic solver"),
+							"simplifyAfterReduce", EPropertyConstant.DLOPTIONS_SIMPLIFY_AFTER_REDUCE),
 					createDescriptor(
-							"simplifyAfterODESolve",
-							"simplify after ODESolve",
-							"simplify the results generated by the ODESolve function of the arithmetic solver"),
+							"simplifyAfterODESolve",EPropertyConstant.DLOPTIONS_SIMPLIFY_AFTER_ODESOLVE),
 					createDescriptor(
-							"applyLocalSimplify",
-							"local simplifications",
-							"try to simplify single first-order subformulas (before trying to reduce the complete sequent)",
-							true, false),
+							"applyLocalSimplify", EPropertyConstant.DLOPTIONS_APPLY_LOCAL_SIMPLIFY,true, false),
 					createDescriptor(
-							"applyLocalReduce",
-							"local reductions",
-							"try to eliminate quantifiers in single first-order formulas (before trying to reduce the complete sequent)",
-							true, false, LocalReducePropertyEditor.class),
-					createDescriptor("applyGlobalReduce", "global reductions",
-							"try to reduce the complete sequent if possible",
-							true, false),
+							"applyLocalReduce", EPropertyConstant.DLOPTIONS_APPLY_LOCAL_REDUCE,true, false, LocalReducePropertyEditor.class),
+					createDescriptor("applyGlobalReduce", EPropertyConstant.DLOPTIONS_APPLY_GLOBAL_REDUCE,true, false),
 					createDescriptor(
-							"readdQuantifiers",
-							"re-add quantifiers",
-							"During quantifier elimination, re-add the quantfiers of previously quantified variables (i.e. Skolem symbols)",
-							true),
+							"readdQuantifiers", EPropertyConstant.DLOPTIONS_READD_QUANTIFIERS,true),
 					//
 					createDescriptor(
-							"builtInArithmetic",
-							"built-in arithmetic",
-							"select to which degree built-in arithmetic rules should be used",
+							"builtInArithmetic", EPropertyConstant.DLOPTIONS_BUILT_IN_ARITHMETIC, 
 							false, false, BuiltInArithmeticPropertyEditor.class),
 					//
 					createDescriptor(
-							"builtInArithmeticIneqs",
-							"built-in inequalities",
-							"select whether built-in rules for inequalities are to be used",
-							false, false,
-							BuiltInArithmeticIneqsPropertyEditor.class),
+							"builtInArithmeticIneqs", EPropertyConstant.DLOPTIONS_BUILT_IN_ARITHMETIC_INEQS,
+							false, false, BuiltInArithmeticIneqsPropertyEditor.class),
 					//
 					createDescriptor(
-							"quantifierEliminator",
-							"real arithmetic solver",
-							"select the solver for real arithmetic that should be used to eliminate quantifiers",
-							true, false,
-							QuantifierEliminatorPropertyEditor.class),
+							"quantifierEliminator", EPropertyConstant.DLOPTIONS_QUANTIFIER_ELIMINATOR,
+							true, false, QuantifierEliminatorPropertyEditor.class),
 
 					createDescriptor(
-							"groebnerBasisCalculator",
-							"equation solver",
-							"select the solver for handling equational theories, e.g., by Groebner bases",
-							true, false,
-							GroebnerBasisCalculatorPropertyEditor.class),
+							"groebnerBasisCalculator", EPropertyConstant.DLOPTIONS_GROEBNER_BASIS_CALCULATOR,
+							true, false, GroebnerBasisCalculatorPropertyEditor.class),
 					createDescriptor(
-							"sosChecker",
-							"sos checker",
-							"select the solver for handling the universal fragment of real arithmetic",
+							"sosChecker", EPropertyConstant.DLOPTIONS_SOS_CHECKER,
 							true, false, SOSCheckerPropertyEditor.class),
 					createDescriptor(
-							"odeSolver",
-							"differential equations",
-							"select the solver that should be used to solve differential equations or handle them by differential induction",
+							"odeSolver", EPropertyConstant.DLOPTIONS_ODESOLVER,
 							true, false, ODESolversPropertyEditor.class),
-					createDescriptor("counterExampleGenerator",
-							"counterexample tool",
-							"select the tool for generating counterexamples",
-							true, false,
-							CounterExampleGeneratorPropertyEditor.class),
 					createDescriptor(
-							"simplifier",
-							"arithmetic simplifier",
-							"select the simplification algorithm that should be used to simplify arithmetical expressions",
+							"counterExampleGenerator", EPropertyConstant.DLOPTIONS_COUNTEREXAMPLE_GENERATOR,
+							true, false, CounterExampleGeneratorPropertyEditor.class),
+					createDescriptor(
+							"simplifier", EPropertyConstant.DLOPTIONS_SIMPLIFIER,
 							true, false, SimplifierPropertyEditor.class),
 					createDescriptor(
-							"applyGammaRules",
-							"apply gamma rules",
-							"choose if and when gamma rules should be applied for existential quantifiers",
+							"applyGammaRules", EPropertyConstant.DLOPTIONS_APPLY_GAMMA_RULES,
 							true, false, ApplyRulesPropertyEditor.class),
 					createDescriptor(
-							"applyUpdatesToModalities",
-							"update modalities",
-							"apply updates to modalites e.g. to get simpler solutions for differential equations",
+							"applyUpdatesToModalities", EPropertyConstant.DLOPTIONS_APPLY_UPDATES_TO_MODALITIES,
 							true, false),
 					//
 					createDescriptor(
-							"ignoreAnnotations",
-							"ignore @annotations",
-							"Whether to ignore all proof skeleton @annotations, like @invariant etc.",
+							"ignoreAnnotations", EPropertyConstant.DLOPTIONS_IGNORE_ANNOTATIONS,
 							true, false),
 					createDescriptor(
-							"useSOS",
-							"semi-definite programs",
-							"select whether to use semi-definite programming and sum of squares rule, or instead use groebner basis or quantifier elimination rules.",
+							"useSOS", EPropertyConstant.DLOPTIONS_USE_SOS,
 							false, false),
 					createDescriptor(
-							"csdpBinary",
-							DLOPTIONS_CSDP_PATH_LABEL,
-							DLOPTIONS_CSDP_PATH_TOOLTIP,
+							"csdpBinary", EPropertyConstant.DLOPTIONS_CSDP_PATH,
 							true, false, FilePropertyEditor.class),
 					createDescriptor(
-							"csdpForceInternal",
-							"force libcsdp",
-							"Force KeYmaera to use the library version of csdp instead of the binary. This does lead to CSDP being unusable if the natives are not available.",
+							"csdpForceInternal", EPropertyConstant.DLOPTIONS_CSDP_FORCE_INTERNAL,
 							true, false),
 			// createDescriptor("invariantRule", "invariant rule",
 			// "choose which invariant rule should be used", true,
@@ -252,57 +165,86 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo implements PropertyCons
 		}
 	}
 
-	private static PropertyDescriptor createDescriptor(String propertyName,
-			String displayName, String shortDescription)
+//	private static PropertyDescriptor createDescriptor(String propertyName,
+//			String displayName, String shortDescription)
+//			throws IntrospectionException {
+//		return createDescriptor(propertyName, displayName, shortDescription,
+//				false);
+//	}
+//
+//	private static PropertyDescriptor createDescriptor(String propertyName,
+//			String displayName, String shortDescription, boolean expert)
+//			throws IntrospectionException {
+//		return createDescriptor(propertyName, displayName, shortDescription,
+//				expert, false);
+//	}
+//
+//	private static PropertyDescriptor createDescriptor(String propertyName,
+//			String displayName, String shortDescription, boolean expert,
+//			boolean preferred) throws IntrospectionException {
+//		return createDescriptor(propertyName, displayName, shortDescription,
+//				expert, preferred, null);
+//	}
+//
+//	private static PropertyDescriptor createDescriptor(String propertyName,
+//			String displayName, String shortDescription, boolean expert,
+//			boolean preferred, boolean hidden) throws IntrospectionException {
+//		return createDescriptor(propertyName, displayName, shortDescription,
+//				expert, preferred, hidden, null);
+//	}
+//
+//	private static PropertyDescriptor createDescriptor(String propertyName,
+//			String displayName, String shortDescription, boolean expert,
+//			boolean preferred, Class<?> propertyEditor)
+//			throws IntrospectionException {
+//		return createDescriptor(propertyName, displayName, shortDescription,
+//				expert, preferred, false, propertyEditor);
+//	}
+//
+	private static PropertyDescriptor createDescriptor(String propertyName,EPropertyConstant propertyConstant)
 			throws IntrospectionException {
-		return createDescriptor(propertyName, displayName, shortDescription,
-				false);
+	    	return createDescriptor(propertyName, propertyConstant,
+	    		false);
 	}
 
-	private static PropertyDescriptor createDescriptor(String propertyName,
-			String displayName, String shortDescription, boolean expert)
+	private static PropertyDescriptor createDescriptor(String propertyName,EPropertyConstant propertyConstant, boolean expert)
 			throws IntrospectionException {
-		return createDescriptor(propertyName, displayName, shortDescription,
-				expert, false);
+	    	return createDescriptor(propertyName, propertyConstant,
+	    		expert, false);
 	}
 
-	private static PropertyDescriptor createDescriptor(String propertyName,
-			String displayName, String shortDescription, boolean expert,
+	private static PropertyDescriptor createDescriptor(String propertyName,EPropertyConstant propertyConstant, boolean expert,
 			boolean preferred) throws IntrospectionException {
-		return createDescriptor(propertyName, displayName, shortDescription,
-				expert, preferred, null);
-	}
+	    		return createDescriptor(propertyName, propertyConstant,
+	    		        expert, preferred, null);
+	}	
 
-	private static PropertyDescriptor createDescriptor(String propertyName,
-			String displayName, String shortDescription, boolean expert,
+	private static PropertyDescriptor createDescriptor(String propertyName,EPropertyConstant propertyConstant, boolean expert,
 			boolean preferred, boolean hidden) throws IntrospectionException {
-		return createDescriptor(propertyName, displayName, shortDescription,
-				expert, preferred, hidden, null);
+	    	return createDescriptor(propertyName, propertyConstant,
+	    			expert, preferred, hidden, null);
 	}
 
-	private static PropertyDescriptor createDescriptor(String propertyName,
-			String displayName, String shortDescription, boolean expert,
+	private static PropertyDescriptor createDescriptor(String propertyName,EPropertyConstant propertyConstant, boolean expert,
 			boolean preferred, Class<?> propertyEditor)
 			throws IntrospectionException {
-		return createDescriptor(propertyName, displayName, shortDescription,
-				expert, preferred, false, propertyEditor);
+	    	return createDescriptor(propertyName, propertyConstant,
+	    			expert, preferred, false, propertyEditor);
 	}
 
-	private static PropertyDescriptor createDescriptor(String propertyName,
-			String displayName, String shortDescription, boolean expert,
-			boolean preferred, boolean hidden, Class<?> propertyEditor)
-			throws IntrospectionException {
-		PropertyDescriptor result = new PropertyDescriptor(propertyName,
-				beanClass);
-		result.setDisplayName(displayName);
-		result.setShortDescription(shortDescription);
-		result.setExpert(expert);
-		result.setPreferred(preferred);
-		result.setHidden(hidden);
-		if (propertyEditor != null) {
-			result.setPropertyEditorClass(propertyEditor);
-		}
-		return result;
+	private static PropertyDescriptor createDescriptor(String propertyName,EPropertyConstant propertyConstant, boolean expert,
+							boolean preferred, boolean hidden, Class<?> propertyEditor)
+								throws IntrospectionException {
+	    		PropertyDescriptor result = new PropertyDescriptor(propertyName,beanClass);
+	    		result.setDisplayName(propertyConstant.getLabel());
+	    		result.setShortDescription(propertyConstant.getToolTip());
+	    		result.setExpert(expert);
+	    		result.setPreferred(preferred);
+	    		result.setHidden(hidden);
+	    		if (propertyEditor != null) {
+	    		    result.setPropertyEditorClass(propertyEditor);
+	    		}
+	    		return result;
 	}
 
 	// public static class UsagePropertyEditor extends

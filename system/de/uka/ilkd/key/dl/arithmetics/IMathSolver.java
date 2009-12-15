@@ -99,6 +99,7 @@ public interface IMathSolver {
     
     
     /**
+     * If the mathsolver is configured by the initial dialog you have to as well implement this check in ...
      * @return true, if the tool is probably configured
      */
     public boolean isConfigured();

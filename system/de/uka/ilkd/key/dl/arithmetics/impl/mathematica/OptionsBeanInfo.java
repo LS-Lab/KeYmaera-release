@@ -32,13 +32,13 @@ import orbital.awt.TaggedPropertyEditorSupport;
 import de.uka.ilkd.key.dl.arithmetics.impl.mathematica.Options.QuantifierEliminationMethod;
 import de.uka.ilkd.key.dl.options.DirectoryPropertyEditor;
 import de.uka.ilkd.key.dl.options.FilePropertyEditor;
-import de.uka.ilkd.key.dl.options.PropertyConstants;
+import  de.uka.ilkd.key.dl.options.EPropertyConstant;
 
 /**
  * @author jdq
  * 
  */
-public class OptionsBeanInfo extends SimpleBeanInfo implements PropertyConstants {
+public class OptionsBeanInfo extends SimpleBeanInfo {
 	private static final Class<Options> beanClass = Options.class;
 
 	public OptionsBeanInfo() {
@@ -61,33 +61,22 @@ public class OptionsBeanInfo extends SimpleBeanInfo implements PropertyConstants
 			// _usage.setPropertyEditorClass(UsagePropertyEditor.class);
 
 			PropertyDescriptor[] pds = new PropertyDescriptor[] {
-					createDescriptor("mathKernel", MATHEMATICA_OPTIONS_MATHKERNEL_LABEL,
-							MATHEMATICA_OPTIONS_MATHKERNEL_TOOLTIP, true, false,
+					createDescriptor("mathKernel", EPropertyConstant.MATHEMATICA_OPTIONS_MATHKERNEL, true, false,
 							FilePropertyEditor.class),
 					createDescriptor(
-							"jLinkLibDir",
-							MATHEMATICA_OPTIONS_JLINK_LIBDIR_LABEL,
-							MATHEMATICA_OPTIONS_JLINK_LIBDIR_TOOLTIP,
+							"jLinkLibDir",EPropertyConstant.MATHEMATICA_OPTIONS_JLINK_LIBDIR,
 							true, false, DirectoryPropertyEditor.class),
 					createDescriptor(
-							"useEliminateList",
-							"elimination list",
-							"choose if the list of elimination variables should be passed to Mathematica's Reduce",
+							"useEliminateList",EPropertyConstant.MATHEMATICA_OPTIONS_USE_ELIMINATE_LIST,
 							true, false),
 					createDescriptor(
-							"convertDecimalsToRationals",
-							"convert decimals",
-							"choose if decimal fraction entered by the user should be converted into a rational representation (q/r)",
+							"convertDecimalsToRationals",EPropertyConstant.MATHEMATICA_OPTIONS_CONVERT_DECIMAL_FRACTIONS_TO_RATIONALS,						
 							true, false),
 					createDescriptor(
-							"memoryConstraint",
-							"memory limit",
-							"the maximum memory used by the Mathematica server [in bytes], -1 means no limit",
+							"memoryConstraint",EPropertyConstant.MATHEMATICA_OPTIONS_MEMORYCONSTRAINT,							
 							true, false),
 					createDescriptor(
-							"quantifierEliminationMethod",
-							"quantifier elimination",
-							"the Mathematica method that is used to perform quantifier elimination",
+							"quantifierEliminationMethod",EPropertyConstant.MATHEMATICA_OPTIONS_QUANTIFIER_ELIMINATION_METHOD,
 							true, false,
 							QuantifierEliminationMethodPropertyEditor.class), };
 			return pds;
@@ -97,35 +86,31 @@ public class OptionsBeanInfo extends SimpleBeanInfo implements PropertyConstants
 		}
 	}
 
-	private static PropertyDescriptor createDescriptor(String propertyName,
-			String displayName, String shortDescription)
+
+
+	private static PropertyDescriptor createDescriptor(String propertyName,EPropertyConstant propertyConstants)
 			throws IntrospectionException {
-		return createDescriptor(propertyName, displayName, shortDescription,
-				false);
+		return createDescriptor(propertyName, propertyConstants,false);
 	}
 
-	private static PropertyDescriptor createDescriptor(String propertyName,
-			String displayName, String shortDescription, boolean expert)
+	private static PropertyDescriptor createDescriptor(String propertyName,EPropertyConstant propertyConstants, boolean expert)
 			throws IntrospectionException {
-		return createDescriptor(propertyName, displayName, shortDescription,
-				expert, false);
+		return createDescriptor(propertyName, propertyConstants,expert, false);
 	}
 
-	private static PropertyDescriptor createDescriptor(String propertyName,
-			String displayName, String shortDescription, boolean expert,
-			boolean preferred) throws IntrospectionException {
-		return createDescriptor(propertyName, displayName, shortDescription,
-				expert, preferred, null);
+	private static PropertyDescriptor createDescriptor(String propertyName,EPropertyConstant propertyConstants, boolean expert,
+		boolean preferred) throws IntrospectionException {
+	return createDescriptor(propertyName, propertyConstants,expert, preferred, null);
 	}
-
+	
 	private static PropertyDescriptor createDescriptor(String propertyName,
-			String displayName, String shortDescription, boolean expert,
+		  EPropertyConstant propertyConstants, boolean expert,
 			boolean preferred, Class<?> propertyEditor)
 			throws IntrospectionException {
 		PropertyDescriptor result = new PropertyDescriptor(propertyName,
 				beanClass);
-		result.setDisplayName(displayName);
-		result.setShortDescription(shortDescription);
+		result.setDisplayName(propertyConstants.getLabel());
+		result.setShortDescription(propertyConstants.getToolTip());
 		result.setExpert(expert);
 		result.setPreferred(preferred);
 		if (propertyEditor != null) {

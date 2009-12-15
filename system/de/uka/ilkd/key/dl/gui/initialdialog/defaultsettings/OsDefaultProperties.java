@@ -22,14 +22,11 @@ package de.uka.ilkd.key.dl.gui.initialdialog.defaultsettings;
 import java.io.File;
 import java.io.FileFilter;
 import java.util.Properties;
-
-import de.uka.ilkd.key.dl.options.PropertyConstants;
-
+import  de.uka.ilkd.key.dl.options.EPropertyConstant;
 /**
  * @author jdq TODO Documentation since Nov 27, 2009
  */
-public abstract class OsDefaultProperties implements IOsDefaultProperties,
-		PropertyConstants {
+public abstract class OsDefaultProperties implements IOsDefaultProperties {
 
 	private Properties props;
 	protected String sp = File.separator;
@@ -47,15 +44,15 @@ public abstract class OsDefaultProperties implements IOsDefaultProperties,
 				setMathematicaDefaultPath(temp);
 			props.put("[MathematicaOptions]mathematicaPath",
 					getMathematicaDefaultPath());
-			props.put(MATHEMATICA_OPTIONS_MATHKERNEL, getMathKernelDefault());
-			props.put(MATHEMATICA_OPTIONS_JLINK_LIBDIR, getJLinkDefault());
-			props.put(QEPCAD_OPTIONS_QEPCAD_PATH, getQepCadDefault());
-			props.put(QEPCAD_OPTIONS_SACLIB_PATH, getSaclibDefault());
-			props.put(OPTIONS_REDUCE_BINARY, getReduceBinaryDefault());
-			props.put(DLOPTIONS_CSDP_PATH, getCSDPPathDefault());
-			props.put(HOL_OPTIONS_HARRISON_QE_PATH, getHarrisionQEPath());
-			props.put(HOL_OPTIONS_HOLLIGHT_PATH, getHOLLightPath());
-			props.put(HOL_OPTIONS_OCAML_PATH, getOCAMLPath());
+			props.put(EPropertyConstant.MATHEMATICA_OPTIONS_MATHKERNEL.getKey(), getMathKernelDefault());
+			props.put(EPropertyConstant.MATHEMATICA_OPTIONS_JLINK_LIBDIR.getKey(), getJLinkDefault());
+			props.put(EPropertyConstant.QEPCAD_OPTIONS_QEPCAD_PATH.getKey(), getQepCadDefault());
+			props.put(EPropertyConstant.QEPCAD_OPTIONS_SACLIB_PATH.getKey(), getSaclibDefault());
+			props.put(EPropertyConstant.OPTIONS_REDUCE_BINARY.getKey(), getReduceBinaryDefault());
+			props.put(EPropertyConstant.DLOPTIONS_CSDP_PATH.getKey(), getCSDPPathDefault());
+			props.put(EPropertyConstant.HOL_OPTIONS_HARRISON_QE_PATH.getKey(), getHarrisionQEPath());
+			props.put(EPropertyConstant.HOL_OPTIONS_HOLLIGHT_PATH.getKey(), getHOLLightPath());
+			props.put(EPropertyConstant.HOL_OPTIONS_OCAML_PATH.getKey(), getOCAMLPath());
 			props.put("[checkBox]flag", "false");
 		}
 		return props;

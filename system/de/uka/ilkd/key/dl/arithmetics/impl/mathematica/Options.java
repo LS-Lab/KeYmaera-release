@@ -31,7 +31,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 
-import de.uka.ilkd.key.dl.options.PropertyConstants;
+import  de.uka.ilkd.key.dl.options.EPropertyConstant;
 import de.uka.ilkd.key.gui.GUIEvent;
 import de.uka.ilkd.key.gui.configuration.PathConfig;
 import de.uka.ilkd.key.gui.configuration.Settings;
@@ -44,7 +44,7 @@ import de.uka.ilkd.key.gui.configuration.SettingsListener;
  * @since Aug 31, 2007
  * @TODO somehow, the values are written from default even before they are read from disk.
  */
-public class Options implements Settings, PropertyConstants {
+public class Options implements Settings{
 
 	public static enum QuantifierEliminationMethod {
 		REDUCE("Reduce", true), RESOLVE("Resolve", false);
@@ -96,7 +96,7 @@ public class Options implements Settings, PropertyConstants {
 		useEliminateList = true;
 		convertDecimalsToRationals = true;
 		mathKernel = new File("MathKernel");
-		String libDirProp = System.getProperty(MATHEMATICA_OPTIONS_JLINK_LIBDIR);
+		String libDirProp = System.getProperty(EPropertyConstant.MATHEMATICA_OPTIONS_JLINK_LIBDIR.getKey());
 		if(libDirProp != null) {
 			jLinkLibDir = new File(libDirProp);
 		} else {
@@ -131,25 +131,24 @@ public class Options implements Settings, PropertyConstants {
 	 * @see de.uka.ilkd.key.gui.Settings#readSettings(java.util.Properties)
 	 */
 	public void readSettings(Properties props) {
-		String property = props
-				.getProperty(MATHEMATICA_OPTIONS_QUANTIFIER_ELIMINATION_METHOD);
+		String property = props.getProperty(EPropertyConstant.MATHEMATICA_OPTIONS_QUANTIFIER_ELIMINATION_METHOD.getKey());
 		if (property != null) {
 			quantifierEliminationMethod = QuantifierEliminationMethod
 					.valueOf(property);
 		}
-		property = props.getProperty(MATHEMATICA_OPTIONS_USE_ELIMINATE_LIST);
+		property = props.getProperty(EPropertyConstant.MATHEMATICA_OPTIONS_USE_ELIMINATE_LIST.getKey());
 		if (property != null) {
 			useEliminateList = Boolean.valueOf(property);
 		}
-		property = props.getProperty(MATHEMATICA_OPTIONS_CONVERT_DECIMAL_FRACTIONS_TO_RATIONALS);
+		property = props.getProperty(EPropertyConstant.MATHEMATICA_OPTIONS_CONVERT_DECIMAL_FRACTIONS_TO_RATIONALS.getKey());
 		if (property != null) {
 			convertDecimalsToRationals = Boolean.valueOf(property);
 		}
-		property = props.getProperty(MATHEMATICA_OPTIONS_MEMORYCONSTRAINT);
+		property = props.getProperty(EPropertyConstant.MATHEMATICA_OPTIONS_MEMORYCONSTRAINT.getKey());
 		if (property != null) {
 			memoryConstraint = Integer.valueOf(property);
 		}
-		property = props.getProperty(MATHEMATICA_OPTIONS_MATHKERNEL);
+		property = props.getProperty(EPropertyConstant.MATHEMATICA_OPTIONS_MATHKERNEL.getKey());
 		if (property != null) {
 			mathKernel = new File(property);
 		}
@@ -166,7 +165,7 @@ public class Options implements Settings, PropertyConstants {
 				e.printStackTrace();
 			}
 		}
-		jLinkLibDir = new File(System.getProperty(MATHEMATICA_OPTIONS_JLINK_LIBDIR));
+		jLinkLibDir = new File(System.getProperty(EPropertyConstant.MATHEMATICA_OPTIONS_JLINK_LIBDIR.getKey()));
 	}
 
 	/*
@@ -175,19 +174,19 @@ public class Options implements Settings, PropertyConstants {
 	 * @see de.uka.ilkd.key.gui.Settings#writeSettings(java.util.Properties)
 	 */
 	public void writeSettings(Properties props) {
-		props.setProperty(MATHEMATICA_OPTIONS_QUANTIFIER_ELIMINATION_METHOD,
+		props.setProperty(EPropertyConstant.MATHEMATICA_OPTIONS_QUANTIFIER_ELIMINATION_METHOD.getKey(),
 				quantifierEliminationMethod.name());
-		props.setProperty(MATHEMATICA_OPTIONS_USE_ELIMINATE_LIST, Boolean
+		props.setProperty(EPropertyConstant.MATHEMATICA_OPTIONS_USE_ELIMINATE_LIST.getKey(), Boolean
 				.toString(useEliminateList));
-		props.setProperty(MATHEMATICA_OPTIONS_MEMORYCONSTRAINT, "" + memoryConstraint);
+		props.setProperty(EPropertyConstant.MATHEMATICA_OPTIONS_MEMORYCONSTRAINT.getKey(), "" + memoryConstraint);
 
-		props.setProperty(MATHEMATICA_OPTIONS_MATHKERNEL, mathKernel.getAbsolutePath());
+		props.setProperty(EPropertyConstant.MATHEMATICA_OPTIONS_MATHKERNEL.getKey(), mathKernel.getAbsolutePath());
 		
 		File file = new File(PathConfig.KEY_CONFIG_DIR + File.separator
 				+ "webstart-math.props");
 		
 		Properties properties = new Properties();
-		properties.setProperty(MATHEMATICA_OPTIONS_JLINK_LIBDIR, jLinkLibDir.getAbsolutePath());
+		properties.setProperty(EPropertyConstant.MATHEMATICA_OPTIONS_JLINK_LIBDIR.getKey(), jLinkLibDir.getAbsolutePath());
 		try {
 			if (!file.exists()) {
 				new File(PathConfig.KEY_CONFIG_DIR + File.separator)
@@ -306,7 +305,7 @@ public class Options implements Settings, PropertyConstants {
 	public void setJLinkLibDir(File linkLibDir) {
 		if(!this.jLinkLibDir.equals(linkLibDir)) {
 			jLinkLibDir = linkLibDir;
-			System.setProperty(MATHEMATICA_OPTIONS_JLINK_LIBDIR, linkLibDir.getAbsolutePath());
+			System.setProperty(EPropertyConstant.MATHEMATICA_OPTIONS_JLINK_LIBDIR.getKey(), linkLibDir.getAbsolutePath());
 			firePropertyChanged();
 		}
 	}

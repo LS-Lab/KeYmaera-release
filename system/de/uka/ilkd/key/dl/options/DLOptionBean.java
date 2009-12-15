@@ -43,7 +43,7 @@ import de.uka.ilkd.key.proof.Proof;
  * @author jdq
  * 
  */
-public class DLOptionBean implements Settings, PropertyConstants {
+public class DLOptionBean implements Settings {
 
 	/**
 	 * @author jdq TODO Documentation since Feb 19, 2009
@@ -402,54 +402,54 @@ public class DLOptionBean implements Settings, PropertyConstants {
 		for (Settings sub : subOptions) {
 			sub.readSettings(props);
 		}
-		String property = props.getProperty(DLOPTIONS_FO_STRATEGY);
+		String property = props.getProperty(EPropertyConstant.DLOPTIONS_FO_STRATEGY.getKey());
 		if (property != null) {
 			foStrategy = FirstOrderStrategy.valueOf(property);
 		}
-		property = props.getProperty(DLOPTIONS_INITIAL_TIMEOUT);
+		property = props.getProperty(EPropertyConstant.DLOPTIONS_INITIAL_TIMEOUT.getKey());
 		if (property != null) {
 			initialTimeout = Math
 					.round(((float) Integer.parseInt(property)) / 1000f);
 		}
-		property = props.getProperty(DLOPTIONS_QUADRIC);
+		property = props.getProperty(EPropertyConstant.DLOPTIONS_QUADRIC.getKey());
 		if (property != null) {
 			quadraticTimeoutIncreaseFactor = Integer.parseInt(property);
 		}
-		property = props.getProperty(DLOPTIONS_LINEAR);
+		property = props.getProperty(EPropertyConstant.DLOPTIONS_LINEAR.getKey());
 		if (property != null) {
 			linearTimeoutIncreaseFactor = Integer.parseInt(property);
 		}
-		property = props.getProperty(DLOPTIONS_CONSTANT);
+		property = props.getProperty(EPropertyConstant.DLOPTIONS_CONSTANT.getKey());
 		if (property != null) {
 			constantTimeoutIncreaseFactor = Integer.parseInt(property);
 		}
-		property = props.getProperty(DLOPTIONS_READD_QUANTIFIERS);
+		property = props.getProperty(EPropertyConstant.DLOPTIONS_READD_QUANTIFIERS.getKey());
 		if (property != null) {
 			readdQuantifiers = property.equals(TRUE);
 		}
-		property = props.getProperty(DLOPTIONS_SIMPLIFY_BEFORE_REDUCE);
+		property = props.getProperty(EPropertyConstant.DLOPTIONS_SIMPLIFY_BEFORE_REDUCE.getKey());
 		if (property != null) {
 			simplifyBeforeReduce = property.equals(TRUE);
 		}
-		property = props.getProperty(DLOPTIONS_SIMPLIFY_AFTER_REDUCE);
+		property = props.getProperty(EPropertyConstant.DLOPTIONS_SIMPLIFY_AFTER_REDUCE.getKey());
 		if (property != null) {
 			simplifyAfterReduce = property.equals(TRUE);
 		}
-		property = props.getProperty(DLOPTIONS_APPLY_UPDATES_TO_MODALITIES);
+		property = props.getProperty(EPropertyConstant.DLOPTIONS_APPLY_UPDATES_TO_MODALITIES.getKey());
 		if (property != null) {
 			applyUpdatesToModalities = property.equals(TRUE);
 		}
-		property = props.getProperty(DLOPTIONS_COUNTEREXAMPLE_TEST);
+		property = props.getProperty(EPropertyConstant.DLOPTIONS_COUNTEREXAMPLE_TEST.getKey());
 		if (property != null) {
 			counterexampleTest = CounterexampleTest.valueOf(property);
 		}
-		property = props.getProperty(DLOPTIONS_IGNORE_ANNOTATIONS);
+		property = props.getProperty(EPropertyConstant.DLOPTIONS_IGNORE_ANNOTATIONS.getKey());
 		if (property != null) {
 			ignoreAnnotations = property.equals(TRUE);
 		}
 
 		counterExampleGenerator = props
-				.getProperty(DLOPTIONS_COUNTEREXAMPLE_GENERATOR);
+				.getProperty(EPropertyConstant.DLOPTIONS_COUNTEREXAMPLE_GENERATOR.getKey());
 		if (counterExampleGenerator == null) {
 			counterExampleGenerator = "-";
 		} else if (!(MathSolverManager.getCounterExampleGenerators()
@@ -462,7 +462,7 @@ public class DLOptionBean implements Settings, PropertyConstants {
 				counterExampleGenerator = "-";
 			}
 		}
-		odeSolver = props.getProperty(DLOPTIONS_ODESOLVER);
+		odeSolver = props.getProperty(EPropertyConstant.DLOPTIONS_ODESOLVER.getKey());
 		if (odeSolver == null) {
 			odeSolver = "-";
 		} else if (!(MathSolverManager.getODESolvers().contains(odeSolver))
@@ -475,7 +475,7 @@ public class DLOptionBean implements Settings, PropertyConstants {
 			}
 		}
 		quantifierEliminator = props
-				.getProperty(DLOPTIONS_QUANTIFIER_ELIMINATOR);
+				.getProperty(EPropertyConstant.DLOPTIONS_QUANTIFIER_ELIMINATOR.getKey());
 		if (quantifierEliminator == null) {
 			quantifierEliminator = "-";
 		} else if (!(MathSolverManager.getQuantifierEliminators()
@@ -488,7 +488,7 @@ public class DLOptionBean implements Settings, PropertyConstants {
 				quantifierEliminator ="-";
 			}
 		}
-		simplifier = props.getProperty(DLOPTIONS_SIMPLIFIER);
+		simplifier = props.getProperty(EPropertyConstant.DLOPTIONS_SIMPLIFIER.getKey());
 		if (simplifier == null) {
 			simplifier = "-";
 		} else if (!(MathSolverManager.getSimplifiers().contains(simplifier))
@@ -501,12 +501,12 @@ public class DLOptionBean implements Settings, PropertyConstants {
 			}
 		}
 		groebnerBasisCalculator = props
-				.getProperty(DLOPTIONS_GROEBNER_BASIS_CALCULATOR);
+				.getProperty(EPropertyConstant.DLOPTIONS_GROEBNER_BASIS_CALCULATOR.getKey());
 		if(groebnerBasisCalculator == null) {
 			groebnerBasisCalculator = "";
 		}
 		sosChecker = props
-			.getProperty(DLOPTIONS_SOS_CHECKER);
+			.getProperty(EPropertyConstant.DLOPTIONS_SOS_CHECKER.getKey());
 		if(sosChecker == null) {
 			sosChecker = "";
 		}
@@ -521,37 +521,37 @@ public class DLOptionBean implements Settings, PropertyConstants {
 		 * .getGroebnerBasisCalculators().iterator().next()); } else {
 		 * setGroebnerBasisCalculator("-"); } }
 		 */
-		property = props.getProperty(DLOPTIONS_APPLY_GAMMA_RULES);
+		property = props.getProperty(EPropertyConstant.DLOPTIONS_APPLY_GAMMA_RULES.getKey());
 		if (property != null) {
 			applyGammaRules = ApplyRules.valueOf(property);
 		}
-		property = props.getProperty(DLOPTIONS_INVARIANT_RULE);
+		property = props.getProperty(EPropertyConstant.DLOPTIONS_INVARIANT_RULE.getKey());
 		if (property != null) {
 			invariantRule = InvariantRule.valueOf(property);
 		}
-		property = props.getProperty(DLOPTIONS_USE_DIFF_SAT);
+		property = props.getProperty(EPropertyConstant.DLOPTIONS_USE_DIFF_SAT.getKey());
 		if (property != null) {
 			diffSatStrategy = DiffSat.valueOf(property);
 		}
-		property = props.getProperty(DLOPTIONS_DIFFSAT_TIMEOUT);
+		property = props.getProperty(EPropertyConstant.DLOPTIONS_DIFFSAT_TIMEOUT.getKey());
 		if (property != null) {
 			diffSatTimeout = Math
 					.round(((float) Integer.parseInt(property)) / 1000f);
 		}
-		property = props.getProperty(DLOPTIONS_LOOPSAT_TIMEOUT);
+		property = props.getProperty(EPropertyConstant.DLOPTIONS_LOOPSAT_TIMEOUT.getKey());
 		if (property != null) {
 			loopSatTimeout = Math
 					.round(((float) Integer.parseInt(property)) / 1000f);
 		}
-		property = props.getProperty(DLOPTIONS_SIMPLIFY_TIMEOUT);
+		property = props.getProperty(EPropertyConstant.DLOPTIONS_SIMPLIFY_TIMEOUT.getKey());
 		if (property != null) {
 			simplifyTimeout = Integer.parseInt(property);
 		}
-		property = props.getProperty(DLOPTIONS_ITERATIVE_REDUCE_RULE);
+		property = props.getProperty(EPropertyConstant.DLOPTIONS_ITERATIVE_REDUCE_RULE.getKey());
 		if (property != null) {
 			useIterativeReduceRule = Boolean.valueOf(property);
 		}
-		property = props.getProperty(DLOPTIONS_TERM_FACTORY_CLASS);
+		property = props.getProperty(EPropertyConstant.DLOPTIONS_TERM_FACTORY_CLASS.getKey());
 		if (property != null) {
 			try {
 				termFactoryClass = (Class<? extends TermFactory>) getClass()
@@ -560,7 +560,7 @@ public class DLOptionBean implements Settings, PropertyConstants {
 				e.printStackTrace();
 			}
 		}
-		property = props.getProperty(DLOPTIONS_APPLY_LOCAL_REDUCE);
+		property = props.getProperty(EPropertyConstant.DLOPTIONS_APPLY_LOCAL_REDUCE.getKey());
 		if (property != null) {
 			if (property.equalsIgnoreCase("false")) {
 				applyLocalReduce = LocalReduceOption.OFF;
@@ -571,50 +571,50 @@ public class DLOptionBean implements Settings, PropertyConstants {
 			}
 		}
 
-		property = props.getProperty(DLOPTIONS_APPLY_LOCAL_SIMPLIFY);
+		property = props.getProperty(EPropertyConstant.DLOPTIONS_APPLY_LOCAL_SIMPLIFY.getKey());
 		if (property != null) {
 			applyLocalSimplify = Boolean.valueOf(property);
 		}
 
-		property = props.getProperty(DLOPTIONS_APPLY_GLOBAL_REDUCE);
+		property = props.getProperty(EPropertyConstant.DLOPTIONS_APPLY_GLOBAL_REDUCE.getKey());
 		if (property != null) {
 			applyGlobalReduce = Boolean.valueOf(property);
 		}
 
-		property = props.getProperty(DLOPTIONS_SIMPLIFY_AFTER_ODESOLVE);
+		property = props.getProperty(EPropertyConstant.DLOPTIONS_SIMPLIFY_AFTER_ODESOLVE.getKey());
 		if (property != null) {
 			simplifyAfterODESolve = Boolean.valueOf(property);
 		}
 
-		property = props.getProperty(DLOPTIONS_USE_POWERSET_ITERATIVE_REDUCE);
+		property = props.getProperty(EPropertyConstant.DLOPTIONS_USE_POWERSET_ITERATIVE_REDUCE.getKey());
 		if (property != null) {
 			usePowersetIterativeReduce = Boolean.valueOf(property);
 		}
-		property = props.getProperty(DLOPTIONS_USE_SOS);
+		property = props.getProperty(EPropertyConstant.DLOPTIONS_USE_SOS.getKey());
 		if (property != null) {
 			useSOS = Boolean.valueOf(property);
 		}
 
 		property = props
-				.getProperty(DLOPTIONS_PERCENT_OF_POWERSET_FOR_ITERATIVE_REDUCE);
+				.getProperty(EPropertyConstant.DLOPTIONS_PERCENT_OF_POWERSET_FOR_ITERATIVE_REDUCE.getKey());
 		if (property != null) {
 			percentOfPowersetForReduce = Integer.valueOf(property);
 		}
 
-		property = props.getProperty(DLOPTIONS_BUILT_IN_ARITHMETIC);
+		property = props.getProperty(EPropertyConstant.DLOPTIONS_BUILT_IN_ARITHMETIC.getKey());
 		if (property != null) {
 			builtInArithmetic = BuiltInArithmetic.valueOf(property);
 		}
 
-		property = props.getProperty(DLOPTIONS_BUILT_IN_ARITHMETIC_INEQS);
+		property = props.getProperty(EPropertyConstant.DLOPTIONS_BUILT_IN_ARITHMETIC_INEQS.getKey());
 		if (property != null) {
 			builtInArithmeticIneqs = BuiltInArithmeticIneqs.valueOf(property);
 		}
-		property = props.getProperty(DLOPTIONS_CSDP_PATH);
+		property = props.getProperty(EPropertyConstant.DLOPTIONS_CSDP_PATH.getKey());
 		if (property != null) {
 			csdpBinary = new File(property);
 		}
-		property = props.getProperty(DLOPTIONS_CSDP_FORCE_INTERNAL);
+		property = props.getProperty(EPropertyConstant.DLOPTIONS_CSDP_FORCE_INTERNAL.getKey());
 		if (property != null) {
 			csdpForceInternal = Boolean.valueOf(property);
 		}
@@ -629,91 +629,91 @@ public class DLOptionBean implements Settings, PropertyConstants {
 		for (Settings sub : subOptions) {
 			sub.writeSettings(props);
 		}
-		props.setProperty(DLOPTIONS_FO_STRATEGY, foStrategy.name());
+		props.setProperty(EPropertyConstant.DLOPTIONS_FO_STRATEGY.getKey(), foStrategy.name());
 		props
-				.setProperty(DLOPTIONS_INITIAL_TIMEOUT, "" + initialTimeout
+				.setProperty(EPropertyConstant.DLOPTIONS_INITIAL_TIMEOUT.getKey(), "" + initialTimeout
 						* 1000);
-		props.setProperty(DLOPTIONS_QUADRIC, ""
+		props.setProperty(EPropertyConstant.DLOPTIONS_QUADRIC.getKey(), ""
 				+ quadraticTimeoutIncreaseFactor);
-		props.setProperty(DLOPTIONS_LINEAR, "" + linearTimeoutIncreaseFactor);
-		props.setProperty(DLOPTIONS_CONSTANT, ""
+		props.setProperty(EPropertyConstant.DLOPTIONS_LINEAR.getKey(), "" + linearTimeoutIncreaseFactor);
+		props.setProperty(EPropertyConstant.DLOPTIONS_CONSTANT.getKey(), ""
 				+ constantTimeoutIncreaseFactor);
 
-		props.setProperty(DLOPTIONS_READD_QUANTIFIERS, Boolean.valueOf(
+		props.setProperty(EPropertyConstant.DLOPTIONS_READD_QUANTIFIERS.getKey(), Boolean.valueOf(
 				readdQuantifiers).toString());
-		props.setProperty(DLOPTIONS_SIMPLIFY_BEFORE_REDUCE, Boolean.valueOf(
+		props.setProperty(EPropertyConstant.DLOPTIONS_SIMPLIFY_BEFORE_REDUCE.getKey(), Boolean.valueOf(
 				simplifyBeforeReduce).toString());
-		props.setProperty(DLOPTIONS_SIMPLIFY_AFTER_REDUCE, Boolean.valueOf(
+		props.setProperty(EPropertyConstant.DLOPTIONS_SIMPLIFY_AFTER_REDUCE.getKey(), Boolean.valueOf(
 				simplifyAfterReduce).toString());
-		props.setProperty(DLOPTIONS_APPLY_UPDATES_TO_MODALITIES, Boolean
+		props.setProperty(EPropertyConstant.DLOPTIONS_APPLY_UPDATES_TO_MODALITIES.getKey(), Boolean
 				.valueOf(applyUpdatesToModalities).toString());
-		props.setProperty(DLOPTIONS_COUNTEREXAMPLE_TEST, counterexampleTest
+		props.setProperty(EPropertyConstant.DLOPTIONS_COUNTEREXAMPLE_TEST.getKey(), counterexampleTest
 				.name());
-		props.setProperty(DLOPTIONS_IGNORE_ANNOTATIONS, Boolean
+		props.setProperty(EPropertyConstant.DLOPTIONS_IGNORE_ANNOTATIONS.getKey(), Boolean
 				.toString(ignoreAnnotations));
 
 		if (counterExampleGenerator != null) {
-			props.setProperty(DLOPTIONS_COUNTEREXAMPLE_GENERATOR,
+			props.setProperty(EPropertyConstant.DLOPTIONS_COUNTEREXAMPLE_GENERATOR.getKey(),
 					counterExampleGenerator);
 		}
 		if (odeSolver != null) {
-			props.setProperty(DLOPTIONS_ODESOLVER, odeSolver);
+			props.setProperty(EPropertyConstant.DLOPTIONS_ODESOLVER.getKey(), odeSolver);
 		}
 		if (quantifierEliminator != null) {
-			props.setProperty(DLOPTIONS_QUANTIFIER_ELIMINATOR,
+			props.setProperty(EPropertyConstant.DLOPTIONS_QUANTIFIER_ELIMINATOR.getKey(),
 					quantifierEliminator);
 		} else {
-			props.setProperty(DLOPTIONS_QUANTIFIER_ELIMINATOR, "-");
+			props.setProperty(EPropertyConstant.DLOPTIONS_QUANTIFIER_ELIMINATOR.getKey(), "-");
 		}
 		if (simplifier != null) {
-			props.setProperty(DLOPTIONS_SIMPLIFIER, simplifier);
+			props.setProperty(EPropertyConstant.DLOPTIONS_SIMPLIFIER.getKey(), simplifier);
 		}
 		if (groebnerBasisCalculator != null) {
-			props.setProperty(DLOPTIONS_GROEBNER_BASIS_CALCULATOR,
+			props.setProperty(EPropertyConstant.DLOPTIONS_GROEBNER_BASIS_CALCULATOR.getKey(),
 					groebnerBasisCalculator);
 		}
 		if (sosChecker != null) {
-			props.setProperty(DLOPTIONS_SOS_CHECKER,
+			props.setProperty(EPropertyConstant.DLOPTIONS_SOS_CHECKER.getKey(),
 					sosChecker);
 		}
 
-		props.setProperty(DLOPTIONS_APPLY_GAMMA_RULES, applyGammaRules.name());
-		props.setProperty(DLOPTIONS_INVARIANT_RULE, invariantRule.name());
+		props.setProperty(EPropertyConstant.DLOPTIONS_APPLY_GAMMA_RULES.getKey(), applyGammaRules.name());
+		props.setProperty(EPropertyConstant.DLOPTIONS_INVARIANT_RULE.getKey(), invariantRule.name());
 
-		props.setProperty(DLOPTIONS_USE_DIFF_SAT, diffSatStrategy.name());
+		props.setProperty(EPropertyConstant.DLOPTIONS_USE_DIFF_SAT.getKey(), diffSatStrategy.name());
 		props
-				.setProperty(DLOPTIONS_DIFFSAT_TIMEOUT, "" + diffSatTimeout
+				.setProperty(EPropertyConstant.DLOPTIONS_DIFFSAT_TIMEOUT.getKey(), "" + diffSatTimeout
 						* 1000);
 		props
-				.setProperty(DLOPTIONS_LOOPSAT_TIMEOUT, "" + loopSatTimeout
+				.setProperty(EPropertyConstant.DLOPTIONS_LOOPSAT_TIMEOUT.getKey(), "" + loopSatTimeout
 						* 1000);
-		props.setProperty(DLOPTIONS_SIMPLIFY_TIMEOUT, "" + simplifyTimeout);
+		props.setProperty(EPropertyConstant.DLOPTIONS_SIMPLIFY_TIMEOUT.getKey(), "" + simplifyTimeout);
 
-		props.setProperty(DLOPTIONS_ITERATIVE_REDUCE_RULE, Boolean
+		props.setProperty(EPropertyConstant.DLOPTIONS_ITERATIVE_REDUCE_RULE.getKey(), Boolean
 				.toString(useIterativeReduceRule));
-		props.setProperty(DLOPTIONS_TERM_FACTORY_CLASS, termFactoryClass
+		props.setProperty(EPropertyConstant.DLOPTIONS_TERM_FACTORY_CLASS.getKey(), termFactoryClass
 				.getName());
 		props
-				.setProperty(DLOPTIONS_APPLY_LOCAL_REDUCE, applyLocalReduce
+				.setProperty(EPropertyConstant.DLOPTIONS_APPLY_LOCAL_REDUCE.getKey(), applyLocalReduce
 						.name());
-		props.setProperty(DLOPTIONS_APPLY_LOCAL_SIMPLIFY, Boolean
+		props.setProperty(EPropertyConstant.DLOPTIONS_APPLY_LOCAL_SIMPLIFY.getKey(), Boolean
 				.toString(applyLocalSimplify));
-		props.setProperty(DLOPTIONS_APPLY_GLOBAL_REDUCE, Boolean
+		props.setProperty(EPropertyConstant.DLOPTIONS_APPLY_GLOBAL_REDUCE.getKey(), Boolean
 				.toString(applyGlobalReduce));
-		props.setProperty(DLOPTIONS_SIMPLIFY_AFTER_ODESOLVE, Boolean
+		props.setProperty(EPropertyConstant.DLOPTIONS_SIMPLIFY_AFTER_ODESOLVE.getKey(), Boolean
 				.toString(simplifyAfterODESolve));
-		props.setProperty(DLOPTIONS_USE_POWERSET_ITERATIVE_REDUCE, Boolean
+		props.setProperty(EPropertyConstant.DLOPTIONS_USE_POWERSET_ITERATIVE_REDUCE.getKey(), Boolean
 				.toString(usePowersetIterativeReduce));
-		props.setProperty(DLOPTIONS_USE_SOS, Boolean
+		props.setProperty(EPropertyConstant.DLOPTIONS_USE_SOS.getKey(), Boolean
 				.toString(useSOS));
-		props.setProperty(DLOPTIONS_PERCENT_OF_POWERSET_FOR_ITERATIVE_REDUCE,
+		props.setProperty(EPropertyConstant.DLOPTIONS_PERCENT_OF_POWERSET_FOR_ITERATIVE_REDUCE.getKey(),
 				"" + percentOfPowersetForReduce);
-		props.setProperty(DLOPTIONS_BUILT_IN_ARITHMETIC, builtInArithmetic
+		props.setProperty(EPropertyConstant.DLOPTIONS_BUILT_IN_ARITHMETIC.getKey(), builtInArithmetic
 				.name());
-		props.setProperty(DLOPTIONS_BUILT_IN_ARITHMETIC_INEQS,
+		props.setProperty(EPropertyConstant.DLOPTIONS_BUILT_IN_ARITHMETIC_INEQS.getKey(),
 				builtInArithmeticIneqs.name());
-		props.setProperty(DLOPTIONS_CSDP_PATH, csdpBinary.getAbsolutePath());
-		props.setProperty(DLOPTIONS_CSDP_FORCE_INTERNAL, Boolean.toString(csdpForceInternal));
+		props.setProperty(EPropertyConstant.DLOPTIONS_CSDP_PATH.getKey(), csdpBinary.getAbsolutePath());
+		props.setProperty(EPropertyConstant.DLOPTIONS_CSDP_FORCE_INTERNAL.getKey(), Boolean.toString(csdpForceInternal));
 	}
 
 	public void addSubOptionBean(Settings sub) {

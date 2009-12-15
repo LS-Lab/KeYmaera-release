@@ -27,7 +27,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 
-import de.uka.ilkd.key.dl.options.PropertyConstants;
+import de.uka.ilkd.key.dl.options.EPropertyConstant;
 import de.uka.ilkd.key.gui.GUIEvent;
 import de.uka.ilkd.key.gui.configuration.Settings;
 import de.uka.ilkd.key.gui.configuration.SettingsListener;
@@ -40,7 +40,7 @@ import de.uka.ilkd.key.gui.configuration.SettingsListener;
  * @TODO somehow, the values are written from default even before they are read
  *       from disk.
  */
-public class Options implements Settings, PropertyConstants {
+public class Options implements Settings {
 
 	public static final Options INSTANCE = new Options();
 
@@ -236,112 +236,112 @@ public class Options implements Settings, PropertyConstants {
 	 * @see de.uka.ilkd.key.gui.Settings#readSettings(java.util.Properties)
 	 */
 	public void readSettings(Properties props) {
-		String property = props.getProperty(OPTIONS_REDUCE_BINARY);
+		String property = props.getProperty(EPropertyConstant.OPTIONS_REDUCE_BINARY.getKey());
 		if (property != null) {
 			reduceBinary = new File(property);
 		}
 		property = props
-				.getProperty(OPTIONS_REDUCE_QUANTIFIER_ELIMINATION_METHOD);
+				.getProperty(EPropertyConstant.OPTIONS_REDUCE_QUANTIFIER_ELIMINATION_METHOD.getKey());
 		if (property != null) {
 			qeMethod = QuantifierEliminationMethod.valueOf(property);
 		}
-		property = props.getProperty(OPTIONS_REDUCE_ELIMINATE_FRACTIONS);
+		property = props.getProperty(EPropertyConstant.OPTIONS_REDUCE_ELIMINATE_FRACTIONS.getKey());
 		if (property != null) {
 			eliminateFractions = Boolean.valueOf(property);
 		}
-		property = props.getProperty(OPTIONS_REDUCE_RLALL);
+		property = props.getProperty(EPropertyConstant.OPTIONS_REDUCE_RLALL.getKey());
 		if (property != null) {
 			rlall = Boolean.valueOf(property);
 		}
-		property = props.getProperty(OPTIONS_REDUCE_RLSIMPL);
+		property = props.getProperty(EPropertyConstant.OPTIONS_REDUCE_RLSIMPL.getKey());
 		if (property != null) {
 			rlsimpl = ReduceSwitch.valueOf(property);
 		}
-		property = props.getProperty(OPTIONS_REDUCE_rlanuexsgnopt);
+		property = props.getProperty(EPropertyConstant.OPTIONS_REDUCE_rlanuexsgnopt.getKey());
 		if (property != null) {
 			rlanuexsgnopt = ReduceSwitch.valueOf(property);
 		}
-		property = props.getProperty(OPTIONS_REDUCE_rlanuexgcdnormalize);
+		property = props.getProperty(EPropertyConstant.OPTIONS_REDUCE_rlanuexgcdnormalize.getKey());
 		if (property != null) {
 			rlanuexgcdnormalize = ReduceSwitch.valueOf(property);
 		}
-		property = props.getProperty(OPTIONS_REDUCE_rlanuexpsremseq);
+		property = props.getProperty(EPropertyConstant.OPTIONS_REDUCE_rlanuexpsremseq.getKey());
 		if (property != null) {
 			rlanuexpsremseq = ReduceSwitch.valueOf(property);
 		}
-		property = props.getProperty(OPTIONS_REDUCE_rlcadhongproj);
+		property = props.getProperty(EPropertyConstant.OPTIONS_REDUCE_rlcadhongproj.getKey());
 		if (property != null) {
 			rlcadhongproj = ReduceSwitch.valueOf(property);
 		}
-		property = props.getProperty(OPTIONS_REDUCE_rlcadaprojalways);
+		property = props.getProperty(EPropertyConstant.OPTIONS_REDUCE_rlcadaprojalways.getKey());
 		if (property != null) {
 			rlcadaprojalways = ReduceSwitch.valueOf(property);
 		}
-		property = props.getProperty(OPTIONS_REDUCE_rlcadaproj);
+		property = props.getProperty(EPropertyConstant.OPTIONS_REDUCE_rlcadaproj.getKey());
 		if (property != null) {
 			rlcadaproj = ReduceSwitch.valueOf(property);
 		}
-		property = props.getProperty(OPTIONS_REDUCE_rlcadisoallroots);
+		property = props.getProperty(EPropertyConstant.OPTIONS_REDUCE_rlcadisoallroots.getKey());
 		if (property != null) {
 			rlcadisoallroots = ReduceSwitch.valueOf(property);
 		}
-		property = props.getProperty(OPTIONS_REDUCE_rlcadrawformula);
+		property = props.getProperty(EPropertyConstant.OPTIONS_REDUCE_rlcadrawformula.getKey());
 		if (property != null) {
 			rlcadrawformula = ReduceSwitch.valueOf(property);
 		}
-		property = props.getProperty(OPTIONS_REDUCE_rlcadtrimtree);
+		property = props.getProperty(EPropertyConstant.OPTIONS_REDUCE_rlcadtrimtree.getKey());
 		if (property != null) {
 			rlcadtrimtree = ReduceSwitch.valueOf(property);
 		}
-		property = props.getProperty(OPTIONS_REDUCE_rlcadfulldimonly);
+		property = props.getProperty(EPropertyConstant.OPTIONS_REDUCE_rlcadfulldimonly.getKey());
 		if (property != null) {
 			rlcadfulldimonly = ReduceSwitch.valueOf(property);
 		}
-		property = props.getProperty(OPTIONS_REDUCE_rlcadpbfvs);
+		property = props.getProperty(EPropertyConstant.OPTIONS_REDUCE_rlcadpbfvs.getKey());
 		if (property != null) {
 			rlcadpbfvs = ReduceSwitch.valueOf(property);
 		}
-		property = props.getProperty(OPTIONS_REDUCE_rlcadte);
+		property = props.getProperty(EPropertyConstant.OPTIONS_REDUCE_rlcadte.getKey());
 		if (property != null) {
 			rlcadte = ReduceSwitch.valueOf(property);
 		}
-		property = props.getProperty(OPTIONS_REDUCE_rlcadpartial);
+		property = props.getProperty(EPropertyConstant.OPTIONS_REDUCE_rlcadpartial.getKey());
 		if (property != null) {
 			rlcadpartial = ReduceSwitch.valueOf(property);
 		}
-		property = props.getProperty(OPTIONS_REDUCE_rlcadextonly);
+		property = props.getProperty(EPropertyConstant.OPTIONS_REDUCE_rlcadextonly.getKey());
 		if (property != null) {
 			rlcadextonly = ReduceSwitch.valueOf(property);
 		}
-		property = props.getProperty(OPTIONS_REDUCE_rlcadprojonly);
+		property = props.getProperty(EPropertyConstant.OPTIONS_REDUCE_rlcadprojonly.getKey());
 		if (property != null) {
 			rlcadprojonly = ReduceSwitch.valueOf(property);
 		}
-		property = props.getProperty(OPTIONS_REDUCE_rlcadbaseonly);
+		property = props.getProperty(EPropertyConstant.OPTIONS_REDUCE_rlcadbaseonly.getKey());
 		if (property != null) {
 			rlcadbaseonly = ReduceSwitch.valueOf(property);
 		}
-		property = props.getProperty(OPTIONS_REDUCE_rlcadfac);
+		property = props.getProperty(EPropertyConstant.OPTIONS_REDUCE_rlcadfac.getKey());
 		if (property != null) {
 			rlcadfac = ReduceSwitch.valueOf(property);
 		}
-		property = props.getProperty(OPTIONS_REDUCE_rlqepnf);
+		property = props.getProperty(EPropertyConstant.OPTIONS_REDUCE_rlqepnf.getKey());
 		if (property != null) {
 			rlqepnf = ReduceSwitch.valueOf(property);
 		}
-		property = props.getProperty(OPTIONS_REDUCE_rlqeheu);
+		property = props.getProperty(EPropertyConstant.OPTIONS_REDUCE_rlqeheu.getKey());
 		if (property != null) {
 			rlqeheu = ReduceSwitch.valueOf(property);
 		}
-		property = props.getProperty(OPTIONS_REDUCE_rlqedfs);
+		property = props.getProperty(EPropertyConstant.OPTIONS_REDUCE_rlqedfs.getKey());
 		if (property != null) {
 			rlqedfs = ReduceSwitch.valueOf(property);
 		}
-		property = props.getProperty(OPTIONS_REDUCE_rlqesqsc);
+		property = props.getProperty(EPropertyConstant.OPTIONS_REDUCE_rlqesqsc.getKey());
 		if (property != null) {
 			rlqesqsc = ReduceSwitch.valueOf(property);
 		}
-		property = props.getProperty(OPTIONS_REDUCE_rlqeqsc);
+		property = props.getProperty(EPropertyConstant.OPTIONS_REDUCE_rlqeqsc.getKey());
 		if (property != null) {
 			rlqeqsc = ReduceSwitch.valueOf(property);
 		}
@@ -354,41 +354,41 @@ public class Options implements Settings, PropertyConstants {
 	 */
 	public void writeSettings(Properties props) {
 		props
-				.setProperty(OPTIONS_REDUCE_BINARY, reduceBinary
+				.setProperty(EPropertyConstant.OPTIONS_REDUCE_BINARY.getKey(), reduceBinary
 						.getAbsolutePath());
-		props.setProperty(OPTIONS_REDUCE_QUANTIFIER_ELIMINATION_METHOD,
+		props.setProperty(EPropertyConstant.OPTIONS_REDUCE_QUANTIFIER_ELIMINATION_METHOD.getKey(),
 				qeMethod.name());
-		props.setProperty(OPTIONS_REDUCE_ELIMINATE_FRACTIONS, Boolean.toString(eliminateFractions));
-		props.setProperty(OPTIONS_REDUCE_RLALL, Boolean.toString(rlall));
-		props.setProperty(OPTIONS_REDUCE_rlanuexsgnopt, rlanuexsgnopt.name());
-		props.setProperty(OPTIONS_REDUCE_rlanuexgcdnormalize,
+		props.setProperty(EPropertyConstant.OPTIONS_REDUCE_ELIMINATE_FRACTIONS.getKey(), Boolean.toString(eliminateFractions));
+		props.setProperty(EPropertyConstant.OPTIONS_REDUCE_RLALL.getKey(), Boolean.toString(rlall));
+		props.setProperty(EPropertyConstant.OPTIONS_REDUCE_rlanuexsgnopt.getKey(), rlanuexsgnopt.name());
+		props.setProperty(EPropertyConstant.OPTIONS_REDUCE_rlanuexgcdnormalize.getKey(),
 				rlanuexgcdnormalize.name());
-		props.setProperty(OPTIONS_REDUCE_rlanuexpsremseq, rlanuexpsremseq
+		props.setProperty(EPropertyConstant.OPTIONS_REDUCE_rlanuexpsremseq.getKey(), rlanuexpsremseq
 				.name());
-		props.setProperty(OPTIONS_REDUCE_rlcadhongproj, rlcadhongproj.name());
-		props.setProperty(OPTIONS_REDUCE_rlcadaprojalways, rlcadaprojalways
+		props.setProperty(EPropertyConstant.OPTIONS_REDUCE_rlcadhongproj.getKey(), rlcadhongproj.name());
+		props.setProperty(EPropertyConstant.OPTIONS_REDUCE_rlcadaprojalways.getKey(), rlcadaprojalways
 				.name());
-		props.setProperty(OPTIONS_REDUCE_rlcadaproj, rlcadaproj.name());
-		props.setProperty(OPTIONS_REDUCE_rlcadisoallroots, rlcadisoallroots
+		props.setProperty(EPropertyConstant.OPTIONS_REDUCE_rlcadaproj.getKey(), rlcadaproj.name());
+		props.setProperty(EPropertyConstant.OPTIONS_REDUCE_rlcadisoallroots.getKey(), rlcadisoallroots
 				.name());
-		props.setProperty(OPTIONS_REDUCE_rlcadrawformula, rlcadrawformula
+		props.setProperty(EPropertyConstant.OPTIONS_REDUCE_rlcadrawformula.getKey(), rlcadrawformula
 				.name());
-		props.setProperty(OPTIONS_REDUCE_rlcadtrimtree, rlcadtrimtree.name());
-		props.setProperty(OPTIONS_REDUCE_rlcadfulldimonly, rlcadfulldimonly
+		props.setProperty(EPropertyConstant.OPTIONS_REDUCE_rlcadtrimtree.getKey(), rlcadtrimtree.name());
+		props.setProperty(EPropertyConstant.OPTIONS_REDUCE_rlcadfulldimonly.getKey(), rlcadfulldimonly
 				.name());
-		props.setProperty(OPTIONS_REDUCE_rlcadpbfvs, rlcadpbfvs.name());
-		props.setProperty(OPTIONS_REDUCE_rlcadte, rlcadte.name());
-		props.setProperty(OPTIONS_REDUCE_rlcadpartial, rlcadpartial.name());
-		props.setProperty(OPTIONS_REDUCE_rlcadextonly, rlcadextonly.name());
-		props.setProperty(OPTIONS_REDUCE_rlcadprojonly, rlcadprojonly.name());
-		props.setProperty(OPTIONS_REDUCE_rlcadbaseonly, rlcadbaseonly.name());
-		props.setProperty(OPTIONS_REDUCE_rlcadfac, rlcadfac.name());
-		props.setProperty(OPTIONS_REDUCE_rlqepnf, rlqepnf.name());
-		props.setProperty(OPTIONS_REDUCE_rlqeheu, rlqeheu.name());
-		props.setProperty(OPTIONS_REDUCE_rlqedfs, rlqedfs.name());
-		props.setProperty(OPTIONS_REDUCE_rlqesqsc, rlqesqsc.name());
-		props.setProperty(OPTIONS_REDUCE_rlqeqsc, rlqeqsc.name());
-		props.setProperty(OPTIONS_REDUCE_RLSIMPL, rlsimpl.name());
+		props.setProperty(EPropertyConstant.OPTIONS_REDUCE_rlcadpbfvs.getKey(), rlcadpbfvs.name());
+		props.setProperty(EPropertyConstant.OPTIONS_REDUCE_rlcadte.getKey(), rlcadte.name());
+		props.setProperty(EPropertyConstant.OPTIONS_REDUCE_rlcadpartial.getKey(), rlcadpartial.name());
+		props.setProperty(EPropertyConstant.OPTIONS_REDUCE_rlcadextonly.getKey(), rlcadextonly.name());
+		props.setProperty(EPropertyConstant.OPTIONS_REDUCE_rlcadprojonly.getKey(), rlcadprojonly.name());
+		props.setProperty(EPropertyConstant.OPTIONS_REDUCE_rlcadbaseonly.getKey(), rlcadbaseonly.name());
+		props.setProperty(EPropertyConstant.OPTIONS_REDUCE_rlcadfac.getKey(), rlcadfac.name());
+		props.setProperty(EPropertyConstant.OPTIONS_REDUCE_rlqepnf.getKey(), rlqepnf.name());
+		props.setProperty(EPropertyConstant.OPTIONS_REDUCE_rlqeheu.getKey(), rlqeheu.name());
+		props.setProperty(EPropertyConstant.OPTIONS_REDUCE_rlqedfs.getKey(), rlqedfs.name());
+		props.setProperty(EPropertyConstant.OPTIONS_REDUCE_rlqesqsc.getKey(), rlqesqsc.name());
+		props.setProperty(EPropertyConstant.OPTIONS_REDUCE_rlqeqsc.getKey(), rlqeqsc.name());
+		props.setProperty(EPropertyConstant.OPTIONS_REDUCE_RLSIMPL.getKey(), rlsimpl.name());
 	}
 
 	/**

@@ -32,14 +32,13 @@ import orbital.awt.TaggedPropertyEditorSupport;
 import de.uka.ilkd.key.dl.arithmetics.impl.hollight.Options.QuantifierEliminationMethod;
 import de.uka.ilkd.key.dl.options.DirectoryPropertyEditor;
 import de.uka.ilkd.key.dl.options.FilePropertyEditor;
-import de.uka.ilkd.key.dl.options.PropertyConstants;
+import  de.uka.ilkd.key.dl.options.EPropertyConstant;
 
 /**
  * @author jdq
  * 
  */
-public class OptionsBeanInfo extends SimpleBeanInfo implements
-		PropertyConstants {
+public class OptionsBeanInfo extends SimpleBeanInfo{
 	private static final Class<Options> beanClass = Options.class;
 
 	public OptionsBeanInfo() {
@@ -68,21 +67,15 @@ public class OptionsBeanInfo extends SimpleBeanInfo implements
 					// "The Qepcad executable including the complete path name if it is not located in the system PATH",
 					// true, false, FilePropertyEditor.class),
 					createDescriptor("hollightPath",
-							HOL_OPTIONS_HOLLIGHT_PATH_LABEL,
-							HOL_OPTIONS_HOLLIGHT_PATH_TOOLTIP, true, false,
+							EPropertyConstant.HOL_OPTIONS_HOLLIGHT_PATH, true, false,
 							DirectoryPropertyEditor.class),
-					createDescriptor("ocamlPath", HOL_OPTIONS_OCAML_PATH_LABEL,
-							HOL_OPTIONS_OCAML_PATH_TOOLTIP, true, false,
+					createDescriptor("ocamlPath", EPropertyConstant.HOL_OPTIONS_OCAML_PATH, true, false,
 							FilePropertyEditor.class),
 					createDescriptor("harrisonqePath",
-							HOL_OPTIONS_HARRISON_QE_PATH_LABEL,
-							HOL_OPTIONS_HARRISON_QE_PATH_TOOLTIP, true, false,
+							EPropertyConstant.HOL_OPTIONS_HARRISON_QE_PATH, true, false,
 							DirectoryPropertyEditor.class),
-					createDescriptor("method", "QE Method",
-							"The quantifier elimination method to use", true,
-							false,
-							QuantifierEliminationMethodPropertyEditor.class),
-
+					createDescriptor("method", EPropertyConstant.HOL_OPTIONS_QUANTIFIER_ELIMINATION_METHOD,
+							 true,false,QuantifierEliminationMethodPropertyEditor.class),
 			};
 			return pds;
 		} catch (IntrospectionException ex) {
@@ -91,35 +84,51 @@ public class OptionsBeanInfo extends SimpleBeanInfo implements
 		}
 	}
 
-	private static PropertyDescriptor createDescriptor(String propertyName,
-			String displayName, String shortDescription)
-			throws IntrospectionException {
-		return createDescriptor(propertyName, displayName, shortDescription,
-				false);
+//	private static PropertyDescriptor createDescriptor(String propertyName,
+//			String displayName, String shortDescription)
+//			throws IntrospectionException {
+//		return createDescriptor(propertyName, displayName, shortDescription,
+//				false);
+//	}
+//
+//	private static PropertyDescriptor createDescriptor(String propertyName,
+//			String displayName, String shortDescription, boolean expert)
+//			throws IntrospectionException {
+//		return createDescriptor(propertyName, displayName, shortDescription,
+//				expert, false);
+//	}
+//
+//	private static PropertyDescriptor createDescriptor(String propertyName,
+//			String displayName, String shortDescription, boolean expert,
+//			boolean preferred) throws IntrospectionException {
+//		return createDescriptor(propertyName, displayName, shortDescription,
+//				expert, preferred, null);
+//	}
+	private static PropertyDescriptor createDescriptor(String propertyName,EPropertyConstant propertyConstants)
+		throws IntrospectionException {
+	return createDescriptor(propertyName, propertyConstants,
+			false);
 	}
 
-	private static PropertyDescriptor createDescriptor(String propertyName,
-			String displayName, String shortDescription, boolean expert)
-			throws IntrospectionException {
-		return createDescriptor(propertyName, displayName, shortDescription,
-				expert, false);
+	private static PropertyDescriptor createDescriptor(String propertyName,EPropertyConstant propertyConstants, boolean expert)
+		throws IntrospectionException {
+	return createDescriptor(propertyName, propertyConstants,
+			expert, false);
 	}
 
-	private static PropertyDescriptor createDescriptor(String propertyName,
-			String displayName, String shortDescription, boolean expert,
-			boolean preferred) throws IntrospectionException {
-		return createDescriptor(propertyName, displayName, shortDescription,
-				expert, preferred, null);
+	private static PropertyDescriptor createDescriptor(String propertyName,EPropertyConstant propertyConstants, boolean expert,
+		boolean preferred) throws IntrospectionException {
+	return createDescriptor(propertyName, propertyConstants,
+			expert, preferred, null);
 	}
 
-	private static PropertyDescriptor createDescriptor(String propertyName,
-			String displayName, String shortDescription, boolean expert,
+	private static PropertyDescriptor createDescriptor(String propertyName,EPropertyConstant propertyConstants, boolean expert,
 			boolean preferred, Class<?> propertyEditor)
 			throws IntrospectionException {
 		PropertyDescriptor result = new PropertyDescriptor(propertyName,
 				beanClass);
-		result.setDisplayName(displayName);
-		result.setShortDescription(shortDescription);
+		result.setDisplayName(propertyConstants.getLabel());
+		result.setShortDescription(propertyConstants.getToolTip());
 		result.setExpert(expert);
 		result.setPreferred(preferred);
 		if (propertyEditor != null) {

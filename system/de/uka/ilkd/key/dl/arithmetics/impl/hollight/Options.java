@@ -27,11 +27,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 
-import de.uka.ilkd.key.dl.options.PropertyConstants;
 import de.uka.ilkd.key.gui.GUIEvent;
 import de.uka.ilkd.key.gui.configuration.Settings;
 import de.uka.ilkd.key.gui.configuration.SettingsListener;
-
+import  de.uka.ilkd.key.dl.options.EPropertyConstant;
 /**
  * This class serves options specific for the HOL Light interface
  * 
@@ -40,7 +39,7 @@ import de.uka.ilkd.key.gui.configuration.SettingsListener;
  * @TODO somehow, the values are written from default even before they are read
  *       from disk.
  */
-public class Options implements Settings, PropertyConstants {
+public class Options implements Settings {
 
 	public static final Options INSTANCE = new Options();
 
@@ -88,19 +87,19 @@ public class Options implements Settings, PropertyConstants {
 	 * @see de.uka.ilkd.key.gui.Settings#readSettings(java.util.Properties)
 	 */
 	public void readSettings(Properties props) {
-		String property = props.getProperty(HOL_OPTIONS_HOLLIGHT_PATH);
+		String property = props.getProperty(EPropertyConstant.HOL_OPTIONS_HOLLIGHT_PATH.getKey());
 		if (property != null) {
 			hollightPath = new File(property);
 		}
-		property = props.getProperty(HOL_OPTIONS_OCAML_PATH);
+		property = props.getProperty(EPropertyConstant.HOL_OPTIONS_OCAML_PATH.getKey());
 		if (property != null) {
 			ocamlPath = new File(property);
 		}
-		property = props.getProperty(HOL_OPTIONS_HARRISON_QE_PATH);
+		property = props.getProperty(EPropertyConstant.HOL_OPTIONS_HARRISON_QE_PATH.getKey());
 		if (property != null) {
 			harrisonqePath = new File(property);
 		}
-		property = props.getProperty(HOL_OPTIONS_QUANTIFIER_ELIMINATION_METHOD);
+		property = props.getProperty(EPropertyConstant.HOL_OPTIONS_QUANTIFIER_ELIMINATION_METHOD.getKey());
 		if (property != null) {
 			method = QuantifierEliminationMethod.valueOf(property);
 		}
@@ -113,12 +112,12 @@ public class Options implements Settings, PropertyConstants {
 	 */
 	public void writeSettings(Properties props) {
 		props
-				.setProperty(HOL_OPTIONS_HOLLIGHT_PATH, hollightPath
+				.setProperty(EPropertyConstant.HOL_OPTIONS_HOLLIGHT_PATH.getKey(), hollightPath
 						.getAbsolutePath());
-		props.setProperty(HOL_OPTIONS_OCAML_PATH, ocamlPath.getAbsolutePath());
-		props.setProperty(HOL_OPTIONS_HARRISON_QE_PATH, harrisonqePath
+		props.setProperty(EPropertyConstant.HOL_OPTIONS_OCAML_PATH.getKey(), ocamlPath.getAbsolutePath());
+		props.setProperty(EPropertyConstant.HOL_OPTIONS_HARRISON_QE_PATH.getKey(), harrisonqePath
 				.getAbsolutePath());
-		props.setProperty(HOL_OPTIONS_QUANTIFIER_ELIMINATION_METHOD, method.name());
+		props.setProperty(EPropertyConstant.HOL_OPTIONS_QUANTIFIER_ELIMINATION_METHOD.getKey(), method.name());
 	}
 
 	/**

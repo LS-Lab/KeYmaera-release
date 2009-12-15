@@ -28,13 +28,12 @@ import java.beans.PropertyDescriptor;
 import java.beans.SimpleBeanInfo;
 
 import de.uka.ilkd.key.dl.options.DirectoryPropertyEditor;
-import de.uka.ilkd.key.dl.options.PropertyConstants;
-
+import de.uka.ilkd.key.dl.options.EPropertyConstant;
 /**
  * @author jdq
  * 
  */
-public class OptionsBeanInfo extends SimpleBeanInfo implements PropertyConstants {
+public class OptionsBeanInfo extends SimpleBeanInfo {
 	private static final Class<Options> beanClass = Options.class;
 
 	public OptionsBeanInfo() {
@@ -63,19 +62,13 @@ public class OptionsBeanInfo extends SimpleBeanInfo implements PropertyConstants
 //							"The Qepcad executable including the complete path name if it is not located in the system PATH",
 //							true, false, FilePropertyEditor.class),
 					createDescriptor(
-							"qepcadMemoryLimit",
-							"Memory Limit",
-							"The number of kilobytes qepcad may use for its computation. (set to -1 for default value)",
+							"qepcadMemoryLimit",EPropertyConstant.QEPCAD_OPTIONS_QEPCAD_MEMORYLIMIT,
 							true, false),
 					createDescriptor(
-							"qepcadPath",
-							QEPCAD_OPTIONS_QEPCAD_PATH_LABEL,
-							QEPCAD_OPTIONS_QEPCAD_PATH_TOOLTIP,
+							"qepcadPath",EPropertyConstant.QEPCAD_OPTIONS_QEPCAD_PATH,
 							true, false, DirectoryPropertyEditor.class),
 					createDescriptor(
-							"saclibPath",
-							QEPCAD_OPTIONS_SACLIB_PATH_LABEL,
-							QEPCAD_OPTIONS_SACLIB_PATH_TOOLTIP,
+							"saclibPath",EPropertyConstant.QEPCAD_OPTIONS_SACLIB_PATH,
 							true, false, DirectoryPropertyEditor.class),
 
 			};
@@ -86,35 +79,28 @@ public class OptionsBeanInfo extends SimpleBeanInfo implements PropertyConstants
 		}
 	}
 
-	private static PropertyDescriptor createDescriptor(String propertyName,
-			String displayName, String shortDescription)
+	private static PropertyDescriptor createDescriptor(String propertyName,EPropertyConstant propertyConstants)
 			throws IntrospectionException {
-		return createDescriptor(propertyName, displayName, shortDescription,
-				false);
+		return createDescriptor(propertyName, propertyConstants,false);
 	}
 
-	private static PropertyDescriptor createDescriptor(String propertyName,
-			String displayName, String shortDescription, boolean expert)
+	private static PropertyDescriptor createDescriptor(String propertyName, EPropertyConstant propertyConstants,boolean expert)
 			throws IntrospectionException {
-		return createDescriptor(propertyName, displayName, shortDescription,
-				expert, false);
+		return createDescriptor(propertyName,propertyConstants,expert, false);
 	}
 
-	private static PropertyDescriptor createDescriptor(String propertyName,
-			String displayName, String shortDescription, boolean expert,
+	private static PropertyDescriptor createDescriptor(String propertyName,EPropertyConstant propertyConstants, boolean expert,
 			boolean preferred) throws IntrospectionException {
-		return createDescriptor(propertyName, displayName, shortDescription,
-				expert, preferred, null);
+		return createDescriptor(propertyName, propertyConstants, expert, preferred, null);
 	}
 
-	private static PropertyDescriptor createDescriptor(String propertyName,
-			String displayName, String shortDescription, boolean expert,
+	private static PropertyDescriptor createDescriptor(String propertyName,EPropertyConstant propertyConstants, boolean expert,
 			boolean preferred, Class<?> propertyEditor)
 			throws IntrospectionException {
 		PropertyDescriptor result = new PropertyDescriptor(propertyName,
 				beanClass);
-		result.setDisplayName(displayName);
-		result.setShortDescription(shortDescription);
+		result.setDisplayName(propertyConstants.getLabel());
+		result.setShortDescription(propertyConstants.getToolTip());
 		result.setExpert(expert);
 		result.setPreferred(preferred);
 		if (propertyEditor != null) {

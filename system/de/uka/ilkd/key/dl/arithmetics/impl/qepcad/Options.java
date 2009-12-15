@@ -27,7 +27,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 
-import de.uka.ilkd.key.dl.options.PropertyConstants;
+import de.uka.ilkd.key.dl.options.EPropertyConstant;
 import de.uka.ilkd.key.gui.GUIEvent;
 import de.uka.ilkd.key.gui.configuration.Settings;
 import de.uka.ilkd.key.gui.configuration.SettingsListener;
@@ -40,7 +40,7 @@ import de.uka.ilkd.key.gui.configuration.SettingsListener;
  * @TODO somehow, the values are written from default even before they are read
  *       from disk.
  */
-public class Options implements Settings,PropertyConstants {
+public class Options implements Settings {
 
 	public static final Options INSTANCE = new Options();
 
@@ -102,15 +102,15 @@ public class Options implements Settings,PropertyConstants {
 	 * @see de.uka.ilkd.key.gui.Settings#readSettings(java.util.Properties)
 	 */
 	public void readSettings(Properties props) {
-		String property = props.getProperty(QEPCAD_OPTIONS_QEPCAD_PATH);
+		String property = props.getProperty(EPropertyConstant.QEPCAD_OPTIONS_QEPCAD_PATH.getKey());
 		if (property != null) {
 			qepcadPath = new File(property);
 		}
-		property = props.getProperty(QEPCAD_OPTIONS_SACLIB_PATH);
+		property = props.getProperty(EPropertyConstant.QEPCAD_OPTIONS_SACLIB_PATH.getKey());
 		if (property != null) {
 			saclibPath = new File(property);
 		}
-		property = props.getProperty(QEPCAD_OPTIONS_QEPCAD_MEMORYLIMIT);
+		property = props.getProperty(EPropertyConstant.QEPCAD_OPTIONS_QEPCAD_MEMORYLIMIT.getKey());
 		if (property != null) {
 			qepcadMemoryLimit = Integer.parseInt(property);
 		}
@@ -122,9 +122,9 @@ public class Options implements Settings,PropertyConstants {
 	 * @see de.uka.ilkd.key.gui.Settings#writeSettings(java.util.Properties)
 	 */
 	public void writeSettings(Properties props) {
-		props.setProperty(QEPCAD_OPTIONS_QEPCAD_PATH, qepcadPath.getAbsolutePath());
-		props.setProperty(QEPCAD_OPTIONS_SACLIB_PATH, saclibPath.getAbsolutePath());
-		props.setProperty(QEPCAD_OPTIONS_QEPCAD_MEMORYLIMIT, "" + qepcadMemoryLimit);
+		props.setProperty(EPropertyConstant.QEPCAD_OPTIONS_QEPCAD_PATH.getKey(), qepcadPath.getAbsolutePath());
+		props.setProperty(EPropertyConstant.QEPCAD_OPTIONS_SACLIB_PATH.getKey(), saclibPath.getAbsolutePath());
+		props.setProperty(EPropertyConstant.QEPCAD_OPTIONS_QEPCAD_MEMORYLIMIT.getKey(), "" + qepcadMemoryLimit);
 	}
 
 	/**
