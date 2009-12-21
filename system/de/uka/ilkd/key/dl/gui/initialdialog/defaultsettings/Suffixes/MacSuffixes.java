@@ -22,7 +22,7 @@ public class MacSuffixes implements ISuffixes {
 	public Boolean isPossibleMathematicaPath(String mathematicaPath) {
 		// TODO Auto-generated method stub
 		return Pattern.matches(
-				".*[Mm]athematica+.?[1-9]?+.?[0-9]?+.?[0-9]?(.app)?",
+				".*[Mm]athematica+.?[1-9]?+.?[0-9]?+.?[0-9]?(.app)",
 				mathematicaPath);
 	}
 
@@ -30,20 +30,22 @@ public class MacSuffixes implements ISuffixes {
 	public Boolean containsMathematicaPathPrefix(String mathematicaPath) {
 		// TODO Auto-generated method stub
 		return Pattern.matches(
-				".*[Mm]athematica+.?[1-9]?+.?[0-9]?+.?[0-9]?(.app)?.*",
+				".*[Mm]athematica+.?[1-9]?+.?[0-9]?+.?[0-9]?(.app).*",
 				mathematicaPath);
 	}
 
 	@Override
 	public String getMathematicaPath(String mathematicaPath) {
 		// TODO Auto-generated method stub
+	    
 		Pattern p = Pattern
-				.compile(".*[Mm]athematica+.?[1-9]?+.?[0-9]?+.?[0-9]?(.app)?");
+				.compile(".*[Mm]athematica+.?[1-9]?+.?[0-9]?+.?[0-9]?(.app)");
 		Matcher m = p.matcher(mathematicaPath); // get a matcher object
 		String prefix = null;
 		while (m.find()) {
 			prefix = m.group();
 		}
+		
 		return prefix;
 	}
 

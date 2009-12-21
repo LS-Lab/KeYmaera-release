@@ -251,7 +251,7 @@ public class PropertyGroupCardBeans implements ActionListener {
 	    ListIterator<PropertyConfigurationBeans> iter = group
 		    .listIterator();
 	    String key;
-	    while (iter.hasNext()) {
+	    while (iter.hasNext()) {	 
 		key = iter.next().getPropertyIdentifier();
 		setPropertyChanges(key, props.getProperty(key));
 	    }

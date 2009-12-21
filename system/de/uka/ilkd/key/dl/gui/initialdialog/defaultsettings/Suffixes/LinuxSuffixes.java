@@ -68,12 +68,13 @@ public class LinuxSuffixes implements ISuffixes {
 
 	private String getMathematicaCompletePath(String currentPath) {
 
+	    
 		File[] file = getsubDirList(new File(currentPath));
 
-		java.util.Arrays.sort(file);
-
-		String tempPath = null;
+		
 		if (file != null) {
+		    java.util.Arrays.sort(file);
+		    String tempPath = null;
 			for (int i = 0; i < file.length; i++) {
 				Pattern p = Pattern
 						.compile(".*[Mm]athematica+.?[1-9]+.?[0-9]?+.?[0-9]?");

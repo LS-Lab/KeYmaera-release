@@ -76,6 +76,7 @@ public class MathematicaSuffixFinder  implements PropertyChangeListener {
      */
     public void setPathChanges() {
 
+	
 	if (suffixesClassInstance.isPossibleMathematicaPath(currentMathematicaPath)) {
 	    
 	    mathematica = suffixesClassInstance.getMathematicaPath(currentMathematicaPath);
@@ -147,7 +148,7 @@ public class MathematicaSuffixFinder  implements PropertyChangeListener {
     public void propertyChange(PropertyChangeEvent evt) {
 	// TODO Auto-generated method stub
 	
-        currentMathematicaPath = MathematicaGroup.get(mathematicaKey).getCurrentPropertyObject().toString();		        
+        currentMathematicaPath = MathematicaGroup.get(mathematicaKey).getCurrentPropertyObject().toString();
         MathematicaGroup.get(mathKernelKey).getPathPane().setVisible(true);
         MathematicaGroup.get(JLinkKey).getPathPane().setVisible(true);
         setPathChanges();
