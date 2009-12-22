@@ -101,6 +101,34 @@ public class MacOsDefaultProperties extends LinuxOsDefaultProperties implements
 		return rpath;
 	}
 
+	@Override
+	public String getHOLLightPath() {
+		String rpath = System.getProperty("user.home");
+
+		if (rpath == null) {
+			rpath = sp + "usr" + sp + "bin" + sp + "reduce";
+		} else {
+			rpath = rpath + sp + "Workspace" + sp + "hol_light";
+		}
+		return rpath;
+	}
+
+	@Override
+	public String getOCAMLPath() {
+		File ocaml = new File(sp + "opt" + sp + "local" + sp + "bin" + sp + "ocaml");
+		if (!ocaml.exists()) {
+			ocaml = new File(sp + "usr" + sp + "bin" + sp + "ocaml");
+		}
+		if (!ocaml.exists()) {
+			ocaml = new File(System.getProperty("user.home") + sp + "bin" + sp
+					+ "ocaml");
+		}
+		if (!ocaml.exists()) {
+			ocaml = new File("/usr/bin/ocaml");
+		}
+		return ocaml.getAbsolutePath();
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
