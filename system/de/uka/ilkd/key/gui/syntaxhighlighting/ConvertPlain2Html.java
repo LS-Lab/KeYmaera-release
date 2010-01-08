@@ -3,6 +3,7 @@
  */
 package de.uka.ilkd.key.gui.syntaxhighlighting;
 
+import java.awt.Font;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -30,21 +31,20 @@ public class ConvertPlain2Html {
 	inputString = inputString.replace("\"", "&quot;");
 	inputString = inputString.replace("<", "&lt");
 	
-//	StringBuffer myStringBuffer = new StringBuffer();
-//	Pattern pattern = Pattern.compile("(\\s)?\\^(\\s)?(\\d+)");
-//	
-//	Matcher matcher = pattern.matcher(inputString);
-//	
-//	while (matcher.find()) {
-//	    Pattern p1 = Pattern.compile("\\d+");
-//            Matcher m1 = p1.matcher(matcher.group());
-//            if (m1.find())
-//        	matcher.appendReplacement(myStringBuffer,"<sup>"+m1.group()+"</sup>");	 
-//	    System.out.println(matcher.group());
-//	}
-//	
-//	myStringBuffer = matcher.appendTail(myStringBuffer);
-//	inputString = myStringBuffer.toString();
+	StringBuffer myStringBuffer = new StringBuffer();
+	Pattern pattern = Pattern.compile("(\\s)?\\^(\\s)?(\\d+)");
+	
+	Matcher matcher = pattern.matcher(inputString);
+	
+	while (matcher.find()) {
+	    Pattern p1 = Pattern.compile("\\d+");
+            Matcher m1 = p1.matcher(matcher.group());
+            if (m1.find())
+        	matcher.appendReplacement(myStringBuffer,"<sup>"+m1.group()+"</sup>");	 
+	}
+	
+	myStringBuffer = matcher.appendTail(myStringBuffer);
+	inputString = myStringBuffer.toString();
 //	
 //	StringBuffer myStringBuffer = new StringBuffer();
 //	Pattern pattern = Pattern.compile(".*[\n|\r]");
@@ -58,9 +58,21 @@ public class ConvertPlain2Html {
 //	matcher.appendTail(myStringBuffer);
 		
 
-	return "<pre>"+inputString+"</pre>";	
+	return addPre(inputString);	
     }
 
-   
-
-}
+    private static String addPre(String htmlText){
+	
+	return "<pre>"+htmlText+"</pre>";
+    }
+    public static String changeFont(String text, Font font){
+	
+	if (font != null){
+	    text = "<font face=\""+font.getFamily()+"\"size=\""+(font.getSize()/2 - 4)+"\">" + text +"</font>";
+	    
+	}
+	
+	return "<pre>"+text+"</pre>";
+    }
+     	
+	}
