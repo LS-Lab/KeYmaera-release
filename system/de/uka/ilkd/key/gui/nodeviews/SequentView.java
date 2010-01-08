@@ -122,6 +122,7 @@ public class SequentView extends JEditorPane implements Autoscroll {
     public SequentView(KeYMediator mediator) {
 	/* setting this to text/html causes the position tables to go wrong */
 	super("text/html","");
+	//super("text/plain","");
 	setMediator(mediator);
 	// view cannot be edited
 	setEditable(false);
@@ -374,6 +375,7 @@ public class SequentView extends JEditorPane implements Autoscroll {
     private void setSequentViewFont() {
 	Font myFont = UIManager.getFont(Config.KEY_FONT_CURRENT_GOAL_VIEW);
         if (myFont != null) {
+	   putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, Boolean.TRUE);  // Allow font to changed in JEditorPane when set to "text/html"
 	    setFont(myFont);
 	} else {
 	    Debug.out("KEY_FONT_CURRENT_GOAL_VIEW not available. Use standard font.");
@@ -421,9 +423,11 @@ public class SequentView extends JEditorPane implements Autoscroll {
 	    do {
 	        errorocc = false;
 	        try {
-	            displayString= ConvertPlain2Html.convert2html(printer.toString());
+	           displayString= ConvertPlain2Html.convert2html(printer.toString());
 	            displayString = HighlightSyntax.Highlight(displayString);
+	           // displayString = ConvertPlain2Html.changeFont(displayString, UIManager.getFont(Config.KEY_FONT_CURRENT_GOAL_VIEW));
 		    setText(displayString);
+		    //setText(printer.toString());
 	        } catch (Error e) {
 		    System.err.println("Error occurred while printing Sequent!");
 		    errorocc = true;
@@ -520,7 +524,7 @@ public class SequentView extends JEditorPane implements Autoscroll {
 	    if (range != null) {
 		getHighlighter()
 		    .changeHighlight(highlighter, 
-				     range.start(), range.end()+1);// Added +1 By Zacharais Njam Mokom due to change of text type to text/html
+				     range.start(), range.end());// Added +1 By Zacharais Njam Mokom due to change of text type to text/html
 	    } else {
 		getHighlighter()
 		    .changeHighlight(highlighter, 0, 0);
@@ -619,7 +623,6 @@ public class SequentView extends JEditorPane implements Autoscroll {
 	String seqText = getText();
 	if (seqText.length() > 0) {
 	    int characterIndex = correctedViewToModel(p);
-	    
 	    return printer().getPositionTable().
 		firstStatementRangeForIndex(characterIndex);
 	} else {
@@ -653,7 +656,6 @@ public class SequentView extends JEditorPane implements Autoscroll {
 	int characterIndex = viewToModel
 	    (new Point( (int)p.getX() - (previousCharacterWidth/2), 
 			    (int)p.getY())); 
-
 	return characterIndex;
     }
     
