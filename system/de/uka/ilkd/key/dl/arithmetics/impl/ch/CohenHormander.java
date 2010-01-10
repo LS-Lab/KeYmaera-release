@@ -4,6 +4,9 @@ import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 
+//import cohenhormander.*;
+
+
 import org.w3c.dom.Node;
 
 import de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator;
@@ -17,11 +20,15 @@ import de.uka.ilkd.key.dl.arithmetics.impl.orbital.OrbitalSimplifier;
 import de.uka.ilkd.key.logic.NamespaceSet;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.TermBuilder;
+import de.uka.ilkd.key.logic.op.Op;
+
+
+/* All of the boilerplate code here was copied from the qepcad wrapper.
+ */
 
 public class CohenHormander implements IQuantifierEliminator {
 
 	private Stopper stopper = new Stopper();
-
 	
 	public CohenHormander(Node n) {
 		// TODO: n beinhaltet Konfigurationseinstellungen in XML-Format
@@ -53,32 +60,33 @@ public class CohenHormander implements IQuantifierEliminator {
 		// System.out.println("START  : Reduce called");
 		PrenexGeneratorResult result = PrenexGenerator.transform(form, nss);
 
-		QepCadInput input = Term2QepCadConverter.convert(result.getTerm(),
+		
+		cohenhormander.Formula fm = Term2CHConverter.convert(result.getTerm(),
 				result.getVariables());
-		if (input.getVariableList().equals("()")) {
-			if (OrbitalSimplifier.testForSimpleTautology(String2TermConverter
-					.convert(input.getFormula(), nss))) {
-				return TermBuilder.DF.tt();
-			} else {
-				return TermBuilder.DF.ff();
-			}
+
+			
+		System.out.println("here is what we are passing to quantifier elimination:");
+		cohenhormander.P.print_fol_formula().apply(fm);
+		System.out.println();
+		cohenhormander.Formula fm1 = cohenhormander.AM.real_elim(fm); 
+		System.out.println("here is the result of quantifier elimination:");
+		cohenhormander.P.print_fol_formula().apply(fm1);
+		System.out.println();
+		
+		Term res;
+
+
+		if(fm1 instanceof cohenhormander.True){
+			res = TermBuilder.DF.tt();
+		} else if (fm1 instanceof cohenhormander.False){
+			res = TermBuilder.DF.ff();
+		} else{
+		    res = form;
 		}
-
-		System.out.println("PRENEX : Formula send to QEPCAD: "
-				+ input.getFormula());
-		if (input.getFormula().equals("[ TRUE ].")) {
-			return TermBuilder.DF.tt();
-		} else if (input.getFormula().equals("[ FALSE ].")) {
-			return TermBuilder.DF.ff();
-		}
-		String res = ProgramCommunicator.start(input, stopper);
-		// System.out.println("QEPCAD : Result                : " + res);
-
-		Term parsedTerm = String2TermConverter.convert(res, nss);
-		// System.out.println("PARSER : Result: " +
-		// Term2QepCadConverter.convert(parsedTerm).getFormula()); // DEBUG
-
-		return parsedTerm;
+			
+		
+		
+		return res;
 	}
 
 	public Term reduce(Term query,
@@ -132,8 +140,8 @@ public class CohenHormander implements IQuantifierEliminator {
 	 */
 	/* @Override */
 	public boolean isConfigured() {
-		return Options.INSTANCE.getQepcadBinary().exists()
-				&& Options.INSTANCE.getSaclibPath().exists();
+		return true;
+		
 	}
 	
 

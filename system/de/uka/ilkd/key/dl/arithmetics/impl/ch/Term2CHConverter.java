@@ -2,6 +2,7 @@ package de.uka.ilkd.key.dl.arithmetics.impl.ch;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.HashMap;
@@ -21,6 +22,7 @@ import cohenhormander.Imp;
 import cohenhormander.Iff;
 import cohenhormander.Forall;
 import cohenhormander.Exists;
+
 
 
 import de.uka.ilkd.key.dl.arithmetics.impl.orbital.PolynomTool;
@@ -44,7 +46,7 @@ public class Term2CHConverter {
 
 	static final String USCOREESCAPE = "uscore";
 	static final String DOLLARESCAPE = "dollar";
-	private QepCadInput input = new QepCadInput(); // Result
+	//private QepCadInput input = new QepCadInput(); // Result
 	private ArrayList<String> existingVars = new ArrayList<String>(); // List of
 
 	private static HashMap<String,String> key2ScalaCmpNames = new HashMap<String,String>();
@@ -91,15 +93,17 @@ public class Term2CHConverter {
 
 		// Getting the string-representation
 		// String formula = "(" + convert2String( form ) + ")";
+		
+		System.out.println("free vars: " + variables);
 		cohenhormander.Formula formula = convert2ScalaFormula(form, null, true);
 
 		// extracts additional information for qepcad
 		List<String> freeVarlist = new ArrayList<String>(existingVars);
 
 		// the first parameter is changed by the function
-		this.input.setVariableList("("
-				+ array2String(getVariableList(freeVarlist, variables)) + ")");
-		this.input.setFreeVariableNum(freeVarlist.size());
+		//this.input.setVariableList("("
+		//		+ array2String(getVariableList(freeVarlist, variables)) + ")");
+		//this.input.setFreeVariableNum(freeVarlist.size());
 
 		return formula;
 		
@@ -107,9 +111,18 @@ public class Term2CHConverter {
 //		return this.input;
 	}
 
-
+	
+	private static scala.List<cohenhormander.Term> listOfArray(cohenhormander.Term[] args){
+		scala.List<cohenhormander.Term> result = cohenhormander.AM.nil();
+		for(int i = args.length-1; i >= 0; i--){
+			result = result.$colon$colon(args[i]);
+		}
+		return result;
+	}
+	
+		
 	private static scala.List<cohenhormander.Term> list(cohenhormander.Term... args){
-		return scala.List$.MODULE$.fromArray(args);
+		return listOfArray(args);	
 	}
 	
 	private cohenhormander.Term convert2ScalaTerm(Term form, NamespaceSet nss,
@@ -154,18 +167,12 @@ public class Term2CHConverter {
 					}
 				} catch (NumberFormatException nfe) {
 					String name = form.op().name().toString();
-					if (name.contains("_")) {
-						name = name.replaceAll("_", USCOREESCAPE);
 
-					}
-					if (name.contains("$")) {
-						name = name.replaceAll("\\$", DOLLARESCAPE);
-					}
 					addExistingVariable(name);
 					if (args.length == 0) {
 						return new Var( name );
 					}
-					return new Fn( name, scala.List$.MODULE$.fromArray(args));
+					return new Fn( name, listOfArray(args));
 				}
 			}
 
@@ -173,12 +180,7 @@ public class Term2CHConverter {
 				|| form.op() instanceof de.uka.ilkd.key.logic.op.ProgramVariable
 				|| form.op() instanceof Metavariable) {
 			String name = form.op().name().toString();
-			if (name.contains("_")) {
-				name = name.replaceAll("_", USCOREESCAPE);
-			}
-			if (name.contains("$")) {
-				name = name.replaceAll("\\$", DOLLARESCAPE);
-			}
+
 			addExistingVariable(name);
 			return new cohenhormander.Var(name);
 		}
@@ -204,6 +206,18 @@ public class Term2CHConverter {
 			}
 			return new Atom(new R("=", list(convert2ScalaTerm(form.sub(0),nss,true), 
                     convert2ScalaTerm(form.sub(1),nss,true))));
+		} else if (form.op().name().toString().equals("neq")) {
+			if (eliminateFractions) {
+				return convert2ScalaFormula(PolynomTool
+						.eliminateFractionsFromInequality(form, nss), nss,
+						false);
+			}
+			return new Not(new Atom(new R("=", list(convert2ScalaTerm(form.sub(0),nss,true), 
+                                                                convert2ScalaTerm(form.sub(1),nss,true)))));
+		} else if (form.op().name().toString().equals("equiv")) {
+			return new Iff( convert2ScalaFormula(form.sub(0), nss, eliminateFractions),
+			        convert2ScalaFormula(form.sub(1), nss, eliminateFractions));	
+
 		} else if (form.op() instanceof Function) {
 			Function f = (Function) form.op();
 			String nm = f.name().toString();
@@ -222,24 +236,19 @@ public class Term2CHConverter {
 				|| form.op() instanceof de.uka.ilkd.key.logic.op.ProgramVariable
 				|| form.op() instanceof Metavariable) {
 			String name = form.op().name().toString();
-			if (name.contains("_")) {
-				name = name.replaceAll("_", USCOREESCAPE);
-			}
-			if (name.contains("$")) {
-				name = name.replaceAll("\\$", DOLLARESCAPE);
-			}
+
 			addExistingVariable(name);
 			return new Atom(new R(name, list()));
 		} else if (form.op() instanceof Junctor) {
 			if (form.op() == Junctor.AND) {
 				return new And( convert2ScalaFormula(form.sub(0), nss, eliminateFractions),
-				        convert2ScalaFormula(form.sub(0), nss, eliminateFractions));	
+				        convert2ScalaFormula(form.sub(1), nss, eliminateFractions));	
 			} else if (form.op() == Junctor.OR) {
 				return new Or( convert2ScalaFormula(form.sub(0), nss, eliminateFractions),
-				        convert2ScalaFormula(form.sub(0), nss, eliminateFractions));	
+				        convert2ScalaFormula(form.sub(1), nss, eliminateFractions));	
 			} else if (form.op() == Junctor.IMP) {
 				return new Imp( convert2ScalaFormula(form.sub(0), nss, eliminateFractions),
-				        convert2ScalaFormula(form.sub(0), nss, eliminateFractions));	
+				        convert2ScalaFormula(form.sub(1), nss, eliminateFractions));	
 			} else if (form.op() == Junctor.NOT) {
 				return new Not( convert2ScalaFormula(form.sub(0), nss, eliminateFractions));
 			}
@@ -249,12 +258,7 @@ public class Term2CHConverter {
 			for (int i = 0; i < varsNum; i++) {
 				String name = form.varsBoundHere(0).get(i)
 						.name().toString();
-				if (name.contains("_")) {
-					name = name.replaceAll("_", USCOREESCAPE);
-				}
-				if (name.contains("$")) {
-					name = name.replaceAll("\\$", DOLLARESCAPE);
-				}
+
 				vars[i] = name;
 				addExistingVariable(name);
 			}
@@ -274,7 +278,7 @@ public class Term2CHConverter {
 			return result;
 
 		}
-		throw new IllegalArgumentException("Could not convert Term: " + form
+		throw 	new IllegalArgumentException("Could not convert Term: " + form
 				+ "Operator was: " + form.op());
 	}
 

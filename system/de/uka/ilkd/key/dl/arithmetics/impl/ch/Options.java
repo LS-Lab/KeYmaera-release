@@ -43,44 +43,10 @@ public class Options implements Settings {
 
 	public static final Options INSTANCE = new Options();
 
-	private static final String OPTIONS_QEPCAD_PATH = "[QepcadOptions]qepcadPath";
-	private static final String OPTIONS_SACLIB_PATH = "[QepcadOptions]saclibPath";
-
-	private static final String OPTIONS_QEPCAD_MEMORYLIMIT = "[QepcadOptions]qepcadMemoryLimit";
-
-	private File qepcadPath;
-	private File saclibPath;	
-	private int qepcadMemoryLimit;
-
 	private List<SettingsListener> listeners;
 
 	private Options() {
 		listeners = new LinkedList<SettingsListener>();
-		String qpath = System.getenv("qe");
-		if (qpath == null) {
-			qpath = System.getProperty("user.home");
-			if(qpath == null) {
-				qepcadPath = new File("/");
-			} else {
-				qepcadPath = new File(qpath);
-			}
-		} else {
-			qepcadPath = new File(qpath);
-		}
-		String spath = System.getenv("saclib");
-		if (spath == null) {
-			spath = System.getProperty("user.home");
-			if(spath == null) {
-				saclibPath = new File("/");
-			} else {
-				saclibPath = new File(qpath);
-			}
-		} else {
-			saclibPath = new File(spath);
-		}
-		if(qepcadMemoryLimit == 0) {
-			qepcadMemoryLimit = 2000000;
-		}
 	}
 
 	/*
@@ -106,18 +72,6 @@ public class Options implements Settings {
 	 * @see de.uka.ilkd.key.gui.Settings#readSettings(java.util.Properties)
 	 */
 	public void readSettings(Properties props) {
-		String property = props.getProperty(OPTIONS_QEPCAD_PATH);
-		if (property != null) {
-			qepcadPath = new File(property);
-		}
-		property = props.getProperty(OPTIONS_SACLIB_PATH);
-		if (property != null) {
-			saclibPath = new File(property);
-		}
-		property = props.getProperty(OPTIONS_QEPCAD_MEMORYLIMIT);
-		if (property != null) {
-			qepcadMemoryLimit = Integer.parseInt(property);
-		}
 	}
 
 	/*
@@ -126,72 +80,9 @@ public class Options implements Settings {
 	 * @see de.uka.ilkd.key.gui.Settings#writeSettings(java.util.Properties)
 	 */
 	public void writeSettings(Properties props) {
-		props.setProperty(OPTIONS_QEPCAD_PATH, qepcadPath.getAbsolutePath());
-		props.setProperty(OPTIONS_SACLIB_PATH, saclibPath.getAbsolutePath());
-		props.setProperty(OPTIONS_QEPCAD_MEMORYLIMIT, "" + qepcadMemoryLimit);
-	}
-
-	/**
-	 * @return the qepcadBinary
-	 */
-	public File getQepcadBinary() {
-		return new File(qepcadPath + File.separator + "bin" + File.separator
-				+ "qepcad");
-	}
-
-	/**
-	 * @return the qepcadPath
-	 */
-	public File getQepcadPath() {
-		return qepcadPath;
-	}
-
-	/**
-	 * @param qepcadPath
-	 *            the qepcadPath to set
-	 */
-	public void setQepcadPath(File qepcadPath) {
-		if (!this.qepcadPath.equals(qepcadPath)) {
-			System.out.println("Setting path to " + qepcadPath);//XXX
-			this.qepcadPath = qepcadPath;
-			firePropertyChanged();
-		}
-	}
-
-	/**
-	 * @return the saclibPath
-	 */
-	public File getSaclibPath() {
-		return saclibPath;
-	}
-
-	/**
-	 * @param saclibPath
-	 *            the saclibPath to set
-	 */
-	public void setSaclibPath(File saclibPath) {
-		if (!this.saclibPath.equals(saclibPath)) {
-			this.saclibPath = saclibPath;
-			firePropertyChanged();
-		}
-	}
-	
-
-	/**
-	 * @return the qepcadMemoryLimit
-	 */
-	public int getQepcadMemoryLimit() {
-		return qepcadMemoryLimit;
-	}
-
-	/**
-	 * @param qepcadMemoryLimit the qepcadMemoryLimit to set
-	 */
-	public void setQepcadMemoryLimit(int qepcadMemoryLimit) {
-		if(this.qepcadMemoryLimit != qepcadMemoryLimit) {
-			this.qepcadMemoryLimit = qepcadMemoryLimit;
-			firePropertyChanged();
-		}
+		//props.setProperty(OPTIONS_QEPCAD_PATH, qepcadPath.getAbsolutePath());
+		//props.setProperty(OPTIONS_SACLIB_PATH, saclibPath.getAbsolutePath());
+		//props.setProperty(OPTIONS_QEPCAD_MEMORYLIMIT, "" + qepcadMemoryLimit);
 	}
 
 }

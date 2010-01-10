@@ -29,10 +29,6 @@ import java.beans.SimpleBeanInfo;
 
 import de.uka.ilkd.key.dl.options.DirectoryPropertyEditor;
 
-/**
- * @author jdq
- * 
- */
 public class OptionsBeanInfo extends SimpleBeanInfo {
 	private static final Class<Options> beanClass = Options.class;
 
@@ -41,48 +37,15 @@ public class OptionsBeanInfo extends SimpleBeanInfo {
 
 	public BeanDescriptor getBeanDescriptor() {
 		BeanDescriptor d = new BeanDescriptor(beanClass);
-		d.setDisplayName("C-H Options");
-		d.setShortDescription("Adjusts values for the C-H interface");
+		d.setDisplayName("Cohen-Hormander Options");
+		d.setShortDescription("Adjusts values for the Cohen-Hormander interface");
 		return d;
 	}
 
 	/*@Override*/
 	public PropertyDescriptor[] getPropertyDescriptors() {
-		try {
-			// PropertyDescriptor _usage = new PropertyDescriptor("usage",
-			// beanClass, "getUsage", "setUsage");
-			// _usage.setDisplayName("usage");
-			// _usage.setShortDescription("primary usage descriptor");
-			// _usage.setPropertyEditorClass(UsagePropertyEditor.class);
-
-			PropertyDescriptor[] pds = new PropertyDescriptor[] {
-//					createDescriptor(
-//							"qepcadBinary",
-//							"Qepcad Executable",
-//							"The Qepcad executable including the complete path name if it is not located in the system PATH",
-//							true, false, FilePropertyEditor.class),
-					createDescriptor(
-							"qepcadMemoryLimit",
-							"Memory Limit",
-							"The number of kilobytes qepcad may use for its computation. (set to -1 for default value)",
-							true, false),
-					createDescriptor(
-							"qepcadPath",
-							"Qepcad Path",
-							"The path to the qepcad installation needed to setup the correct environment for the tool (it must contain bin/qepcad binary)",
-							true, false, DirectoryPropertyEditor.class),
-					createDescriptor(
-							"saclibPath",
-							"Saclib Path",
-							"The path to the saclib installation needed to setup the correct environment for Qepcad",
-							true, false, DirectoryPropertyEditor.class),
-
-			};
+			PropertyDescriptor[] pds = new PropertyDescriptor[] {};
 			return pds;
-		} catch (IntrospectionException ex) {
-			ex.printStackTrace();
-			return null;
-		}
 	}
 
 	private static PropertyDescriptor createDescriptor(String propertyName,

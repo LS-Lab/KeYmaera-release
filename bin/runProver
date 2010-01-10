@@ -70,7 +70,7 @@ fi
 # KeY CLASSPATH
 #
 
-key_ext_jars="antlr.jar antlr3.jar stringtemplate.jar recoderKey.jar log4j.jar JLink/JLink.jar orbital-ext.jar orbital-core.jar"
+key_ext_jars="antlr.jar antlr3.jar stringtemplate.jar recoderKey.jar log4j.jar JLink/JLink.jar orbital-ext.jar orbital-core.jar CohenHormander.jar scala-library.jar"
 
 keyclasspath="$KEY_HOME/system/binary/"
 

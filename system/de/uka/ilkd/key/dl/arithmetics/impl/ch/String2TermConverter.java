@@ -29,8 +29,8 @@ public class String2TermConverter {
      * @return Terminstance
      */
     public static Term convert(String formula, NamespaceSet nss) {
-    	formula = formula.replaceAll(Term2QepCadConverter.USCOREESCAPE, "_");
-    	formula = formula.replaceAll(Term2QepCadConverter.DOLLARESCAPE, "$");
+    	formula = formula.replaceAll(Term2CHConverter.USCOREESCAPE, "_");
+    	formula = formula.replaceAll(Term2CHConverter.DOLLARESCAPE, "$");
     	System.out.println("replaced result is: " + formula);//XXX
     	if(formula.equalsIgnoreCase("TRUE")) {
     		return TermBuilder.DF.tt();

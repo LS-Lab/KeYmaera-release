@@ -39,4 +39,8 @@
 	<class>de.uka.ilkd.key.dl.arithmetics.impl.orbital.Orbital</class>
         <optionbean>de.uka.ilkd.key.dl.arithmetics.impl.orbital.Options</optionbean>
   </MathSolver>
+    <MathSolver> 
+	<class>de.uka.ilkd.key.dl.arithmetics.impl.ch.CohenHormander</class>
+	<optionbean>de.uka.ilkd.key.dl.arithmetics.impl.ch.Options</optionbean>
+  </MathSolver>
 </MathSolvers>
