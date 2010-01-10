@@ -38,9 +38,8 @@ import de.uka.ilkd.key.logic.op.QuantifiableVariable;
 import de.uka.ilkd.key.logic.op.Quantifier;
 
 /**
- * Converts a term to a QepcadInput readable for the Qepcad-Program.
+ * Converts a term into Cohen-Hormander abstract syntax.
  * 
- * @author Timo Michelsen
  */
 public class Term2CHConverter {
 
