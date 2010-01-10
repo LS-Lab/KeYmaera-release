@@ -15,7 +15,6 @@ import de.uka.ilkd.key.dl.arithmetics.exceptions.ConnectionProblemException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ServerStatusProblemException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
 import de.uka.ilkd.key.dl.arithmetics.impl.ch.PrenexGenerator.PrenexGeneratorResult;
-import de.uka.ilkd.key.dl.arithmetics.impl.ch.ProgramCommunicator.Stopper;
 import de.uka.ilkd.key.dl.arithmetics.impl.orbital.OrbitalSimplifier;
 import de.uka.ilkd.key.logic.NamespaceSet;
 import de.uka.ilkd.key.logic.Term;
@@ -28,7 +27,7 @@ import de.uka.ilkd.key.logic.op.Op;
 
 public class CohenHormander implements IQuantifierEliminator {
 
-	private Stopper stopper = new Stopper();
+	//private Stopper stopper = new Stopper();
 	
 	public CohenHormander(Node n) {
 		// TODO: n beinhaltet Konfigurationseinstellungen in XML-Format
@@ -102,7 +101,8 @@ public class CohenHormander implements IQuantifierEliminator {
 	}
 
 	public void abortCalculation() throws RemoteException {
-		stopper.stop();
+	    // TODO	
+		//stopper.stop();
 	}
 
 	public long getCachedAnswerCount() throws RemoteException {
