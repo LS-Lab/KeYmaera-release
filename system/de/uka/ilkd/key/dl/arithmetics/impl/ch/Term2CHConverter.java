@@ -43,11 +43,6 @@ import de.uka.ilkd.key.logic.op.Quantifier;
  */
 public class Term2CHConverter {
 
-	static final String USCOREESCAPE = "uscore";
-	static final String DOLLARESCAPE = "dollar";
-	//private QepCadInput input = new QepCadInput(); // Result
-	private ArrayList<String> existingVars = new ArrayList<String>(); // List of
-
 	private static HashMap<String,String> key2ScalaCmpNames = new HashMap<String,String>();
 	
 	static{
@@ -59,8 +54,6 @@ public class Term2CHConverter {
 	}
 	
 	
-	// existing
-	// Variables
 
 	/**
 	 * Standardconstructor.
@@ -76,10 +69,9 @@ public class Term2CHConverter {
 	 * @param variables
 	 * @return QepCadInput-Instance of the given term.
 	 */
-	public static cohenhormander.Formula convert(Term form,
-			List<QuantifiableVariable> variables) {
+	public static cohenhormander.Formula convert(Term form) {
 		Term2CHConverter converter = new Term2CHConverter();
-		return converter.convertImpl(form, variables);
+		return converter.convertImpl(form);
 	}
 
 	/**
@@ -87,27 +79,16 @@ public class Term2CHConverter {
 	 * 
 	 * @param variables
 	 */
-	private cohenhormander.Formula convertImpl(Term form,
-			List<QuantifiableVariable> variables) {
+	private cohenhormander.Formula convertImpl(Term form){
+			
 
 		// Getting the string-representation
 		// String formula = "(" + convert2String( form ) + ")";
 		
-		System.out.println("free vars: " + variables);
 		cohenhormander.Formula formula = convert2ScalaFormula(form, null, true);
-
-		// extracts additional information for qepcad
-		List<String> freeVarlist = new ArrayList<String>(existingVars);
-
-		// the first parameter is changed by the function
-		//this.input.setVariableList("("
-		//		+ array2String(getVariableList(freeVarlist, variables)) + ")");
-		//this.input.setFreeVariableNum(freeVarlist.size());
 
 		return formula;
 		
-//		this.input.setFormula(formula);
-//		return this.input;
 	}
 
 	
@@ -166,8 +147,6 @@ public class Term2CHConverter {
 					}
 				} catch (NumberFormatException nfe) {
 					String name = form.op().name().toString();
-
-					addExistingVariable(name);
 					if (args.length == 0) {
 						return new Var( name );
 					}
@@ -179,8 +158,6 @@ public class Term2CHConverter {
 				|| form.op() instanceof de.uka.ilkd.key.logic.op.ProgramVariable
 				|| form.op() instanceof Metavariable) {
 			String name = form.op().name().toString();
-
-			addExistingVariable(name);
 			return new cohenhormander.Var(name);
 		}
 		
@@ -235,8 +212,6 @@ public class Term2CHConverter {
 				|| form.op() instanceof de.uka.ilkd.key.logic.op.ProgramVariable
 				|| form.op() instanceof Metavariable) {
 			String name = form.op().name().toString();
-
-			addExistingVariable(name);
 			return new Atom(new R(name, list()));
 		} else if (form.op() instanceof Junctor) {
 			if (form.op() == Junctor.AND) {
@@ -259,7 +234,6 @@ public class Term2CHConverter {
 						.name().toString();
 
 				vars[i] = name;
-				addExistingVariable(name);
 			}
 			cohenhormander.Formula result = convert2ScalaFormula(form.sub(0),nss,eliminateFractions);
 			
@@ -281,17 +255,9 @@ public class Term2CHConverter {
 				+ "Operator was: " + form.op());
 	}
 
-	
+
 	
 
-	// Inserts a new variable in the list of existing variables,
-	// if is not in the list
-	private void addExistingVariable(String varName) {
-		if (!existingVars.contains(varName)) {
-			this.existingVars.add(varName);
-		}
-
-	}
 
 
 }

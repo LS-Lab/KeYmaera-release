@@ -14,7 +14,6 @@ import de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator.PairOfTermAndQuantif
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ConnectionProblemException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ServerStatusProblemException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
-import de.uka.ilkd.key.dl.arithmetics.impl.ch.PrenexGenerator.PrenexGeneratorResult;
 import de.uka.ilkd.key.dl.arithmetics.impl.orbital.OrbitalSimplifier;
 import de.uka.ilkd.key.logic.NamespaceSet;
 import de.uka.ilkd.key.logic.Term;
@@ -56,18 +55,20 @@ public class CohenHormander implements IQuantifierEliminator {
 			List<PairOfTermAndQuantifierType> quantifiers, NamespaceSet nss,
 			long timeout) throws RemoteException, SolverException {
 
-		// System.out.println("START  : Reduce called");
-		PrenexGeneratorResult result = PrenexGenerator.transform(form, nss);
+		
+		
+		//PrenexGeneratorResult result = PrenexGenerator.transform(form, nss);
 
 		
-		cohenhormander.Formula fm = Term2CHConverter.convert(result.getTerm(),
-				result.getVariables());
+		cohenhormander.Formula fm = Term2CHConverter.convert(form);
 
 			
 		System.out.println("here is what we are passing to quantifier elimination:");
 		cohenhormander.P.print_fol_formula().apply(fm);
 		System.out.println();
-		cohenhormander.Formula fm1 = cohenhormander.AM.real_elim(fm); 
+		
+		cohenhormander.Formula fm1 = cohenhormander.AM.real_elim2(fm); 
+
 		System.out.println("here is the result of quantifier elimination:");
 		cohenhormander.P.print_fol_formula().apply(fm1);
 		System.out.println();
