@@ -1,0 +1,1 @@
+forall a b c d. ( ~(a = 0) ==> (exists x. a * x^3 + b * x^2 + c * x + d  = 0))

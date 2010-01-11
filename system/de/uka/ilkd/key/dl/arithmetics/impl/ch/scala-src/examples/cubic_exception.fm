@@ -1,0 +1,4 @@
+forall a. 
+ (~(a = 0) <=>
+  (exists x. a * x^3  + x^2 + x  + 1 = 0))
+  

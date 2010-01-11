@@ -1,0 +1,1 @@
+forall a f k. (forall e. k < e ==> f < a * e) ==> f <= a * k

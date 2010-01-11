@@ -1,0 +1,1 @@
+forall a b c. ((exists x. a * x^2 + b * x + c = 0) <=> b^2 >= 4 * a * c)
