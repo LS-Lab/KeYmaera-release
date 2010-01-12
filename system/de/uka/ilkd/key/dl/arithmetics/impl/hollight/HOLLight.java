@@ -50,6 +50,7 @@ public class HOLLight implements IQuantifierEliminator, ISOSChecker {
 	 * @see
 	 * de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator#reduce(de.uka.ilkd
 	 * .key.logic.Term, de.uka.ilkd.key.logic.NamespaceSet)
+	 * @todo recognize false as a return value
 	 */
 	@Override
 	public Term reduce(Term form, NamespaceSet nss) throws RemoteException,

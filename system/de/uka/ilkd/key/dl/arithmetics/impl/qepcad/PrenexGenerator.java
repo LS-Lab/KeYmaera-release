@@ -136,6 +136,8 @@ public class PrenexGenerator {
 			} else if (term.op() == Op.NOT) {
 				return TermBuilder.DF.not(createPrenexForm(quantifiers, term.sub(0),
 						!negated, nss));
+			} else if (term.op() == Op.EQV) {
+			    throw new UnsupportedOperationException("not yet implemented for equivalence " + Op.EQV + " in "+ term);
 			} else {
 				Term[] args = new Term[term.arity()];
 				for (int i = 0; i < term.arity(); i++) {
@@ -169,6 +171,8 @@ public class PrenexGenerator {
 			} else if (term.op() == Op.NOT) {
 				return TermBuilder.DF.not(createPrenexForm(quantifiers, term.sub(0),
 						!negated, nss));
+			} else if (term.op() == Op.EQV) {
+			    throw new UnsupportedOperationException("not yet implemented for equivalence " + Op.EQV + " in "+ term);
 			} else {
 				Term[] args = new Term[term.arity()];
 				for (int i = 0; i < term.arity(); i++) {

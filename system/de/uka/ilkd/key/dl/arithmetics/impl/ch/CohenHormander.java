@@ -12,6 +12,7 @@ import org.w3c.dom.Node;
 import de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator;
 import de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator.PairOfTermAndQuantifierType;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ConnectionProblemException;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.FailedComputationException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ServerStatusProblemException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
 import de.uka.ilkd.key.dl.arithmetics.impl.orbital.OrbitalSimplifier;
@@ -51,7 +52,7 @@ public class CohenHormander implements IQuantifierEliminator {
 	}
 
 	// Main-implementation
-	public Term reduce(Term form, List<String> names,
+	public Term reduce(final Term form, List<String> names,
 			List<PairOfTermAndQuantifierType> quantifiers, NamespaceSet nss,
 			long timeout) throws RemoteException, SolverException {
 
@@ -81,7 +82,9 @@ public class CohenHormander implements IQuantifierEliminator {
 		} else if (fm1 instanceof cohenhormander.False){
 			res = TermBuilder.DF.ff();
 		} else{
-		    res = form;
+		    //@todo backtranslation rather than saying don't know
+		    //return null;
+		    throw new FailedComputationException("CohenHormander gave a complicated formula back which we have to translate " + fm1);
 		}
 			
 		
