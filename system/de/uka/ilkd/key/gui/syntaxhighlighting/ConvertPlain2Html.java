@@ -31,6 +31,9 @@ public class ConvertPlain2Html {
 	inputString = inputString.replace("\"", "&quot;");
 	inputString = inputString.replace("<", "&lt");
 	
+	/*FIXME: Commented out the following part because there is an issue
+	 * with the cursor position and thus the manual application of rules
+	 
 	StringBuffer myStringBuffer = new StringBuffer();
 	Pattern pattern = Pattern.compile("(\\s)?\\^(\\s)?(\\d+)");
 	
@@ -44,7 +47,7 @@ public class ConvertPlain2Html {
 	}
 	
 	myStringBuffer = matcher.appendTail(myStringBuffer);
-	inputString = myStringBuffer.toString();
+	inputString = myStringBuffer.toString();*/
 //	
 //	StringBuffer myStringBuffer = new StringBuffer();
 //	Pattern pattern = Pattern.compile(".*[\n|\r]");
