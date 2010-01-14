@@ -17,29 +17,27 @@
 
 package de.uka.ilkd.key.gui;
 
-import java.rmi.RemoteException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
-import de.uka.ilkd.key.dl.DLProfile;
-import de.uka.ilkd.key.dl.arithmetics.IMathSolver;
-import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
-import de.uka.ilkd.key.dl.arithmetics.exceptions.ConnectionProblemException;
-import de.uka.ilkd.key.dl.arithmetics.exceptions.ServerStatusProblemException;
-import de.uka.ilkd.key.dl.gui.AutomodeListener;
-import de.uka.ilkd.key.dl.gui.TimeStatisticGenerator;
-import de.uka.ilkd.key.gui.configuration.ProofSettings;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 
 import de.uka.ilkd.key.collection.ImmutableList;
 import de.uka.ilkd.key.collection.ImmutableSLList;
+import de.uka.ilkd.key.dl.DLProfile;
+import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
+import de.uka.ilkd.key.dl.gui.AutomodeListener;
 import de.uka.ilkd.key.gui.configuration.StrategySettings;
 import de.uka.ilkd.key.gui.notification.events.GeneralFailureEvent;
-import de.uka.ilkd.key.proof.*;
+import de.uka.ilkd.key.proof.DefaultGoalChooserBuilder;
+import de.uka.ilkd.key.proof.DepthFirstGoalChooserBuilder;
+import de.uka.ilkd.key.proof.Goal;
+import de.uka.ilkd.key.proof.IGoalChooser;
+import de.uka.ilkd.key.proof.Node;
+import de.uka.ilkd.key.proof.Proof;
+import de.uka.ilkd.key.proof.ProofEvent;
 import de.uka.ilkd.key.proof.proofevent.NodeReplacement;
 import de.uka.ilkd.key.proof.proofevent.RuleAppInfo;
 import de.uka.ilkd.key.proof.reuse.ReusePoint;
@@ -289,44 +287,7 @@ public class ApplyStrategy {
     public void stop() {
         abortAutomode = true;
         if(mediator().getProfile() instanceof DLProfile) {
-        	Set<IMathSolver> solvers = new HashSet<IMathSolver>();
-			try {
-				solvers.add(MathSolverManager
-						.getCurrentCounterExampleGenerator());
-			} catch (Exception e) {
-			}
-			try {
-				solvers.add(MathSolverManager
-						.getCurrentGroebnerBasisCalculator());
-			} catch (Exception e) {
-			}
-			try {
-				solvers.add(MathSolverManager.getCurrentODESolver());
-			} catch (Exception e) {
-			}
-			try {
-				solvers.add(MathSolverManager.getCurrentQuantifierEliminator());
-			} catch (Exception e) {
-			}
-			try {
-				solvers.add(MathSolverManager.getCurrentSimplifier());
-			} catch (Exception e) {
-			}
-			try {
-				solvers.add(MathSolverManager.getCurrentSOSChecker());
-			} catch (Exception e) {
-			}
-
-			for (IMathSolver solver : solvers) {
-				if (solver != null) {
-					try {
-						solver.abortCalculation();
-					} catch (RemoteException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}
-			}
+        	MathSolverManager.abortCurrentCalculations();
         }
         if(worker!=null){
         	worker.interrupt();

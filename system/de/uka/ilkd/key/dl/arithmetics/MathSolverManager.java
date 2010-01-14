@@ -648,4 +648,47 @@ public abstract class MathSolverManager {
 				&& getCurrentGroebnerBasisCalculator().isConfigured();
 	}
 
+	/**
+	 * This methods sends an abort calculation signal to all current calculations
+	 * 
+	 */
+	public static void abortCurrentCalculations() {
+		Set<IMathSolver> solvers = new HashSet<IMathSolver>();
+		try {
+			solvers.add(getCurrentCounterExampleGenerator());
+		} catch (Exception e) {
+		}
+		try {
+			solvers.add(getCurrentGroebnerBasisCalculator());
+		} catch (Exception e) {
+		}
+		try {
+			solvers.add(getCurrentODESolver());
+		} catch (Exception e) {
+		}
+		try {
+			solvers.add(getCurrentQuantifierEliminator());
+		} catch (Exception e) {
+		}
+		try {
+			solvers.add(getCurrentSimplifier());
+		} catch (Exception e) {
+		}
+		try {
+			solvers.add(getCurrentSOSChecker());
+		} catch (Exception e) {
+		}
+
+		for (IMathSolver solver : solvers) {
+			if (solver != null) {
+				try {
+					solver.abortCalculation();
+				} catch (RemoteException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+
 }
