@@ -67,12 +67,12 @@ public class OptionsBeanInfo extends SimpleBeanInfo{
 					// "The Qepcad executable including the complete path name if it is not located in the system PATH",
 					// true, false, FilePropertyEditor.class),
 					createDescriptor("hollightPath",
-							EPropertyConstant.HOL_OPTIONS_HOLLIGHT_PATH, true, false,
+							EPropertyConstant.HOL_OPTIONS_HOLLIGHT_PATH, true, false,true,
 							DirectoryPropertyEditor.class),
-					createDescriptor("ocamlPath", EPropertyConstant.HOL_OPTIONS_OCAML_PATH, true, false,
+					createDescriptor("ocamlPath", EPropertyConstant.HOL_OPTIONS_OCAML_PATH, true, false,true,
 							FilePropertyEditor.class),
 					createDescriptor("harrisonqePath",
-							EPropertyConstant.HOL_OPTIONS_HARRISON_QE_PATH, true, false,
+							EPropertyConstant.HOL_OPTIONS_HARRISON_QE_PATH, true, false,true,
 							DirectoryPropertyEditor.class),
 					createDescriptor("method", EPropertyConstant.HOL_OPTIONS_QUANTIFIER_ELIMINATION_METHOD,
 							 true,false,QuantifierEliminationMethodPropertyEditor.class),
@@ -152,4 +152,24 @@ public class OptionsBeanInfo extends SimpleBeanInfo{
 		}
 		return names.toArray(new String[0]);
 	}
+	private static PropertyDescriptor createDescriptor(String propertyName,EPropertyConstant propertyConstants, boolean expert,
+		boolean preferred, boolean hidden) throws IntrospectionException {
+	return createDescriptor(propertyName, propertyConstants, expert, preferred, hidden, null);
+        }
+
+	private static PropertyDescriptor createDescriptor(String propertyName,EPropertyConstant propertyConstants, boolean expert,
+		boolean preferred, boolean hidden, Class<?> propertyEditor)
+		throws IntrospectionException {
+	PropertyDescriptor result = new PropertyDescriptor(propertyName,
+			beanClass);
+	result.setDisplayName(propertyConstants.getLabel());
+	result.setShortDescription(propertyConstants.getToolTip());
+	result.setExpert(expert);
+	result.setHidden(hidden);
+	result.setPreferred(preferred);
+	if (propertyEditor != null) {
+		result.setPropertyEditorClass(propertyEditor);
+	}
+	return result;
+}
 }

@@ -66,10 +66,10 @@ public class OptionsBeanInfo extends SimpleBeanInfo {
 							true, false),
 					createDescriptor(
 							"qepcadPath",EPropertyConstant.QEPCAD_OPTIONS_QEPCAD_PATH,
-							true, false, DirectoryPropertyEditor.class),
+							true, false, true, DirectoryPropertyEditor.class),
 					createDescriptor(
 							"saclibPath",EPropertyConstant.QEPCAD_OPTIONS_SACLIB_PATH,
-							true, false, DirectoryPropertyEditor.class),
+							true, false, true, DirectoryPropertyEditor.class),
 
 			};
 			return pds;
@@ -97,15 +97,26 @@ public class OptionsBeanInfo extends SimpleBeanInfo {
 	private static PropertyDescriptor createDescriptor(String propertyName,EPropertyConstant propertyConstants, boolean expert,
 			boolean preferred, Class<?> propertyEditor)
 			throws IntrospectionException {
-		PropertyDescriptor result = new PropertyDescriptor(propertyName,
-				beanClass);
-		result.setDisplayName(propertyConstants.getLabel());
-		result.setShortDescription(propertyConstants.getToolTip());
-		result.setExpert(expert);
-		result.setPreferred(preferred);
-		if (propertyEditor != null) {
-			result.setPropertyEditorClass(propertyEditor);
-		}
-		return result;
+		return createDescriptor(propertyName, propertyConstants, expert, preferred, false, null);
 	}
+	private static PropertyDescriptor createDescriptor(String propertyName,EPropertyConstant propertyConstants, boolean expert,
+		boolean preferred, boolean hidden) throws IntrospectionException {
+	return createDescriptor(propertyName, propertyConstants, expert, preferred, hidden, null);
+        }
+
+	private static PropertyDescriptor createDescriptor(String propertyName,EPropertyConstant propertyConstants, boolean expert,
+		boolean preferred, boolean hidden, Class<?> propertyEditor)
+		throws IntrospectionException {
+	PropertyDescriptor result = new PropertyDescriptor(propertyName,
+			beanClass);
+	result.setDisplayName(propertyConstants.getLabel());
+	result.setShortDescription(propertyConstants.getToolTip());
+	result.setExpert(expert);
+	result.setHidden(hidden);
+	result.setPreferred(preferred);
+	if (propertyEditor != null) {
+		result.setPropertyEditorClass(propertyEditor);
+	}
+	return result;
+}
 }
