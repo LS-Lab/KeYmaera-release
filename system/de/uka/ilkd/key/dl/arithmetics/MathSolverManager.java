@@ -23,6 +23,7 @@
 package de.uka.ilkd.key.dl.arithmetics;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.rmi.RemoteException;
@@ -120,12 +121,17 @@ public abstract class MathSolverManager {
 					Settings object = (Settings) options.getDeclaredField(
 							"INSTANCE").get(options);
 					DLOptionBean.INSTANCE.addSubOptionBean(object);
+					try {
 					FileInputStream in = new FileInputStream(
 							ProofSettings.PROVER_CONFIG_FILE);
 					Properties props = new Properties();
 					props.load(in);
 					object.readSettings(props);
 					in.close();
+					}
+					catch (FileNotFoundException ex) {
+					    System.out.println("Default settings");
+					}
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
