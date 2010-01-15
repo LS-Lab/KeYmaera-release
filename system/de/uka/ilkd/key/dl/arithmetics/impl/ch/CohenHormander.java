@@ -82,9 +82,10 @@ public class CohenHormander implements IQuantifierEliminator {
 		} else if (fm1 instanceof cohenhormander.False){
 			res = TermBuilder.DF.ff();
 		} else{
-		    //@todo backtranslation rather than saying don't know
+		    //@todo backtranslation rather than saying don't know.
 		    //return null;
-		    throw new FailedComputationException("CohenHormander gave a complicated formula back which we have to translate " + fm1);
+		    //throw new FailedComputationException("CohenHormander gave a complicated formula back which we have to translate " + fm1);
+			res = form;
 		}
 			
 		

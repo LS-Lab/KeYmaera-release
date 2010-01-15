@@ -67,7 +67,6 @@ public class Term2CHConverter {
 	 * @param form
 	 *            Term to convert
 	 * @param variables
-	 * @return QepCadInput-Instance of the given term.
 	 */
 	public static cohenhormander.Formula convert(Term form) {
 		Term2CHConverter converter = new Term2CHConverter();
