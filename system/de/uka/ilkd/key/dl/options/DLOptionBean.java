@@ -311,8 +311,10 @@ public class DLOptionBean implements Settings {
 		applyGlobalReduce = true;
 		usePowersetIterativeReduce = true;
 		percentOfPowersetForReduce = 70;
-		builtInArithmetic = BuiltInArithmetic.FULL;
-		builtInArithmeticIneqs = BuiltInArithmeticIneqs.FOURIER_MOTZKIN;
+		//builtInArithmetic = BuiltInArithmetic.FULL;
+		//builtInArithmeticIneqs = BuiltInArithmeticIneqs.FOURIER_MOTZKIN;
+		builtInArithmetic = BuiltInArithmetic.OFF;
+		builtInArithmeticIneqs = BuiltInArithmeticIneqs.OFF;
 		useSOS = false;
 		csdpBinary = new File("/usr/bin/csdp");
 		csdpForceInternal = false;
