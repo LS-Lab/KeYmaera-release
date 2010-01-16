@@ -35,7 +35,7 @@ public enum EPropertyConstant {
 	    DLOPTIONS_USE_DIFF_SAT("[DLOptions]DiffSat", "Differential Saturation", "select the desired automation degree of Differential " 
 	    									  + "Saturation for automatic differential induction", "DL Properties"),
 	    DLOPTIONS_IGNORE_ANNOTATIONS("[DLOptions]ignoreAnnotations", "ignore @annotations", "Whether to ignore all proof skeleton @annotations, like @invariant etc.", "DL Properties"),
-	    DLOPTIONS_SIMPLIFY_TIMEOUT("[DLOptions]simplifyTimeout", "simplify timeout", "the timeout used for calls to the simplifier (in seconds)", "DL Properties"),
+	    DLOPTIONS_SIMPLIFY_TIMEOUT("[DLOptions]simplifyTimeout", "simplify timeout", "the timeout used for calls to the simplifier (in seconds), <=0 means no timeout", "DL Properties"),
 	    DLOPTIONS_ITERATIVE_REDUCE_RULE("[DLOptions]useIterativeReduceRule", "Iterative Inflation", "whether to activate the Iterative Inflation " 
 	    								                              + "Order (IIO) with increasingly bigger formulas.", "DL Properties"),
 	    DLOPTIONS_TERM_FACTORY_CLASS("[DLOptions]termFactoryClass", null, null, "DL Properties"),

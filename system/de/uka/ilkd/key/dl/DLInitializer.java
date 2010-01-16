@@ -41,6 +41,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
@@ -55,6 +56,7 @@ import de.uka.ilkd.key.dl.arithmetics.abort.AbortBridge;
 import de.uka.ilkd.key.dl.arithmetics.abort.ServerConsole;
 import de.uka.ilkd.key.dl.gui.AutomodeListener;
 import de.uka.ilkd.key.dl.gui.TimeStatisticGenerator;
+import de.uka.ilkd.key.dl.gui.initialdialog.gui.InitialDialogBeans;
 import de.uka.ilkd.key.dl.options.DLOptionBean;
 import de.uka.ilkd.key.dl.options.DLOptionBeanBeanInfo;
 import de.uka.ilkd.key.gui.AutoModeListener;

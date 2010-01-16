@@ -75,7 +75,7 @@ public class OptionsBeanInfo extends SimpleBeanInfo{
 							EPropertyConstant.HOL_OPTIONS_HARRISON_QE_PATH, true, false,true,
 							DirectoryPropertyEditor.class),
 					createDescriptor("method", EPropertyConstant.HOL_OPTIONS_QUANTIFIER_ELIMINATION_METHOD,
-							 true,false,QuantifierEliminationMethodPropertyEditor.class),
+							 false,false,QuantifierEliminationMethodPropertyEditor.class),
 			};
 			return pds;
 		} catch (IntrospectionException ex) {

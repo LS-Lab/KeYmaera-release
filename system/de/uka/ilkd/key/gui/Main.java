@@ -92,6 +92,7 @@ import de.uka.ilkd.key.dl.DLInitializer;
 import de.uka.ilkd.key.dl.DLProfile;
 import de.uka.ilkd.key.dl.gui.ProjectManager;
 import de.uka.ilkd.key.dl.gui.TimeStatisticGenerator;
+import de.uka.ilkd.key.dl.gui.initialdialog.gui.InitialDialogBeans;
 import de.uka.ilkd.key.gui.DecisionProcedureSettings.RuleDescriptor;
 import de.uka.ilkd.key.gui.assistant.ProofAssistant;
 import de.uka.ilkd.key.gui.assistant.ProofAssistantAI;
@@ -1493,7 +1494,17 @@ public class Main extends JFrame implements IMain {
     protected JMenu createOptionsMenu() {
 	JMenu options = new JMenu("Options");
 	options.setMnemonic(KeyEvent.VK_O);
-	if (!(mediator.getProfile() instanceof DLProfile)) {
+	if (mediator.getProfile() instanceof DLProfile) {
+		JMenuItem paths = new JMenuItem("Tool Paths...");
+		paths.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+			        InitialDialogBeans dialog = new InitialDialogBeans(new String[] {}, true);
+				final JFrame frame = dialog.getInitialDialogFrame();
+				frame.setVisible(true);
+			}
+		});
+		options.add(paths);
+	} else {
 	// default taclet options
 	JMenuItem choiceItem = new JMenuItem("Default Taclet Options...");
 	choiceItem.setAccelerator(KeyStroke.getKeyStroke
@@ -1579,7 +1590,7 @@ public class Main extends JFrame implements IMain {
 	final boolean soundNotification = 
 	    ProofSettings.DEFAULT_SETTINGS.getGeneralSettings().soundNotification();
 	final JMenuItem soundNotificationOption =
-	    new JCheckBoxMenuItem("Sound", soundNotification);
+	    new JCheckBoxMenuItem("Audio", soundNotification);
 	if (notificationManager!=null) {
             notificationManager.setDefaultNotification(soundNotification);
         }
@@ -1839,7 +1850,7 @@ public class Main extends JFrame implements IMain {
 	tools.setMnemonic(KeyEvent.VK_T);
 	getJMenuBar().add(tools);
 
-	JMenuItem extractSpecification = new JMenuItem("Extract Specification");
+        JMenuItem extractSpecification = new JMenuItem("Extract Specification");
 	extractSpecification.setAccelerator(KeyStroke.getKeyStroke
 			    (KeyEvent.VK_E, ActionEvent.CTRL_MASK));
 

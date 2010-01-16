@@ -63,7 +63,7 @@ public class OptionsBeanInfo extends SimpleBeanInfo {
 //							true, false, FilePropertyEditor.class),
 					createDescriptor(
 							"qepcadMemoryLimit",EPropertyConstant.QEPCAD_OPTIONS_QEPCAD_MEMORYLIMIT,
-							true, false),
+							false, false),
 					createDescriptor(
 							"qepcadPath",EPropertyConstant.QEPCAD_OPTIONS_QEPCAD_PATH,
 							true, false, true, DirectoryPropertyEditor.class),
