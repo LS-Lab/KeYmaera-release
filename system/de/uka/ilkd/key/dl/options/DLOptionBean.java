@@ -41,7 +41,7 @@ import de.uka.ilkd.key.proof.Proof;
 
 /**
  * @author jdq
- * 
+ * @see DLOptionBean#INSTANCE
  */
 public class DLOptionBean implements Settings {
 
@@ -203,6 +203,9 @@ public class DLOptionBean implements Settings {
 	 */
 	private static final String TRUE = Boolean.valueOf(true).toString();
 
+	/**
+	 * Singleton storage for options
+	 */
 	public static final DLOptionBean INSTANCE = new DLOptionBean();
 
 	private Set<Settings> subOptions;
