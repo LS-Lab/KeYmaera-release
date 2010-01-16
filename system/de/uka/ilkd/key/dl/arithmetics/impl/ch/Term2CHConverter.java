@@ -27,6 +27,8 @@ import cohenhormander.Exists;
 
 import de.uka.ilkd.key.dl.arithmetics.impl.orbital.PolynomTool;
 import de.uka.ilkd.key.dl.arithmetics.impl.orbital.PolynomTool.BigFraction;
+import de.uka.ilkd.key.logic.Name;
+import de.uka.ilkd.key.logic.Named;
 import de.uka.ilkd.key.logic.NamespaceSet;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.op.Function;
@@ -68,9 +70,9 @@ public class Term2CHConverter {
 	 *            Term to convert
 	 * @param variables
 	 */
-	public static cohenhormander.Formula convert(Term form) {
+	public static cohenhormander.Formula convert(Term form, NamespaceSet nss) {
 		Term2CHConverter converter = new Term2CHConverter();
-		return converter.convertImpl(form);
+		return converter.convertImpl(form, nss);
 	}
 
 	/**
@@ -78,13 +80,13 @@ public class Term2CHConverter {
 	 * 
 	 * @param variables
 	 */
-	private cohenhormander.Formula convertImpl(Term form){
+	private cohenhormander.Formula convertImpl(Term form, NamespaceSet nss){
 			
 
 		// Getting the string-representation
 		// String formula = "(" + convert2String( form ) + ")";
 		
-		cohenhormander.Formula formula = convert2ScalaFormula(form, null, true);
+		cohenhormander.Formula formula = convert2ScalaFormula(form, nss, true);
 
 		return formula;
 		
@@ -145,7 +147,12 @@ public class Term2CHConverter {
 								new scala.BigInt( frac.getDenominator()))); 
 					}
 				} catch (NumberFormatException nfe) {
+					System.out.println(form + " (a function) is of type " + form.getClass().toString());
 					String name = form.op().name().toString();
+					System.out.println("and of name " + name);
+					Named nmd = nss.lookup(new Name(name));
+					if(nmd != null)
+						System.out.println("and its lookup has type " + nmd.getClass().toString());
 					if (args.length == 0) {
 						return new Var( name );
 					}
@@ -156,7 +163,13 @@ public class Term2CHConverter {
 		}else if (form.op() instanceof LogicVariable
 				|| form.op() instanceof de.uka.ilkd.key.logic.op.ProgramVariable
 				|| form.op() instanceof Metavariable) {
+			System.out.println(form + " is of type " + form.getClass().toString());
 			String name = form.op().name().toString();
+			System.out.println("and of name " + name);
+			Named nmd = nss.lookup(new Name(name));
+			if(nmd != null)
+				System.out.println("and its lookup has type " + nmd.getClass().toString());
+
 			return new cohenhormander.Var(name);
 		}
 		

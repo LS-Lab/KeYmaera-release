@@ -57,11 +57,13 @@ public class CohenHormander implements IQuantifierEliminator {
 			long timeout) throws RemoteException, SolverException {
 
 		
+		System.out.println("here's my NamespaceSet:");
+		System.out.println(nss);
 		
 		//PrenexGeneratorResult result = PrenexGenerator.transform(form, nss);
 
 		
-		cohenhormander.Formula fm = Term2CHConverter.convert(form);
+		cohenhormander.Formula fm = Term2CHConverter.convert(form,nss);
 
 			
 		System.out.println("here is what we are passing to quantifier elimination:");

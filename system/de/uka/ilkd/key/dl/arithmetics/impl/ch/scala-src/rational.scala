@@ -1,7 +1,7 @@
 package cohenhormander;
 
 
-// TODO: exact nums that are either rationals or integers. Is this worth it?
+// exact nums are either rationals or integers. Is this worth it?
 
 trait ExactNum {
   def +(that: ExactNum): ExactNum 
