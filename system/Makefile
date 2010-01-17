@@ -357,6 +357,12 @@ ifneq ("$(GIT)","")
 	@$(GIT) ls-files | grep "\.java" | grep -v "aspects" | grep -v "gjava" | grep -v "\.java\." | grep -v "resources/" | sort > javaFiles
 endif
 
+scalaFiles:
+ifneq ("$(GIT)","")
+	@$(GIT) ls-files | grep "\.scala"  | sort > scalaFiles
+endif
+
+
 argfile.normal: javaFiles
 	@echo [Collecting Java files to compile]
 	@cat javaFiles > argfile.normal
@@ -575,3 +581,13 @@ eclipse-plug-in: dist
 	@cp  ../eclipse/ProofVisualization/ProofVisualization_*.jar $(BINARYPATH)$(PFX)casetool/eclipse/KeY_Feature/plugins
 	@cp  ../eclipse/org.key-project.core/org.key_project.core_* $(BINARYPATH)$(PFX)casetool/eclipse/KeY_Feature/plugins
 	@cp  ../eclipse/KeYExternalLibraries/KeYExternalLibraries_1* $(BINARYPATH)$(PFX)casetool/eclipse/KeY_Feature/plugins
+
+
+CHPATH = $(PFX)dl/arithmetics/impl/ch/scala-src/
+
+SCALAC = scalac
+SCALAOPTIONS =  -d $(BINARYPATH) #-optimise
+
+
+cohenhormander : scalaFiles
+	$(SCALAC) $(SCALAOPTIONS)  @scalaFiles
