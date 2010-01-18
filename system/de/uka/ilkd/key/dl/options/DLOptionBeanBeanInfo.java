@@ -66,28 +66,28 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
 			PropertyDescriptor[] pds = new PropertyDescriptor[] {
 					// expert, preferred, hidden
 					createDescriptor(
+						"diffSat", EPropertyConstant.DLOPTIONS_USE_DIFF_SAT,false, false, DiffSatPropertyEditor.class),
+					createDescriptor(
 							"foStrategy", EPropertyConstant.DLOPTIONS_FO_STRATEGY,false, true, FirstOrderStrategyPropertyEditor.class),
-							createDescriptor(
-								"diffSat", EPropertyConstant.DLOPTIONS_USE_DIFF_SAT,false, false, DiffSatPropertyEditor.class),
 							createDescriptor(
 								"counterexampleTest",EPropertyConstant.DLOPTIONS_COUNTEREXAMPLE_TEST,false, true, CounterexampleTestPropertyEditor.class),
 							//
 							createDescriptor(
 									"quantifierEliminator", EPropertyConstant.DLOPTIONS_QUANTIFIER_ELIMINATOR,
-									true, false, QuantifierEliminatorPropertyEditor.class),
+									false, false, QuantifierEliminatorPropertyEditor.class),
 
 							createDescriptor(
 									"groebnerBasisCalculator", EPropertyConstant.DLOPTIONS_GROEBNER_BASIS_CALCULATOR,
-									true, false, GroebnerBasisCalculatorPropertyEditor.class),
+									false, false, GroebnerBasisCalculatorPropertyEditor.class),
 							createDescriptor(
 									"odeSolver", EPropertyConstant.DLOPTIONS_ODESOLVER,
-									true, false, ODESolversPropertyEditor.class),
+									false, false, ODESolversPropertyEditor.class),
 							createDescriptor(
 									"counterExampleGenerator", EPropertyConstant.DLOPTIONS_COUNTEREXAMPLE_GENERATOR,
-									true, false, CounterExampleGeneratorPropertyEditor.class),
+									false, false, CounterExampleGeneratorPropertyEditor.class),
 							createDescriptor(
 									"simplifier", EPropertyConstant.DLOPTIONS_SIMPLIFIER,
-									true, false, SimplifierPropertyEditor.class),
+									false, false, SimplifierPropertyEditor.class),
 									createDescriptor(
 										"builtInArithmetic", EPropertyConstant.DLOPTIONS_BUILT_IN_ARITHMETIC, 
 										false, false, BuiltInArithmeticPropertyEditor.class),
@@ -108,11 +108,11 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
 					createDescriptor(
 							"initialTimeout", EPropertyConstant.DLOPTIONS_INITIAL_TIMEOUT,false, true),
 					createDescriptor(
-							"linearTimeoutIncreaseFactor",EPropertyConstant.DLOPTIONS_LINEAR),					
+							"linearTimeoutIncreaseFactor",EPropertyConstant.DLOPTIONS_LINEAR, true),					
 					createDescriptor(
-							"constantTimeoutIncreaseFactor", EPropertyConstant.DLOPTIONS_CONSTANT, false, false, true),
+							"constantTimeoutIncreaseFactor", EPropertyConstant.DLOPTIONS_CONSTANT, true, false, true),
 					createDescriptor(
-							"quadraticTimeoutIncreaseFactor", EPropertyConstant.DLOPTIONS_QUADRIC,false, false, true),
+							"quadraticTimeoutIncreaseFactor", EPropertyConstant.DLOPTIONS_QUADRIC,true, false, true),
 					createDescriptor(
 							"diffSatTimeout", EPropertyConstant.DLOPTIONS_DIFFSAT_TIMEOUT,false, false),
 					createDescriptor(
@@ -120,15 +120,15 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
 					createDescriptor(
 							"simplifyTimeout", EPropertyConstant.DLOPTIONS_SIMPLIFY_TIMEOUT,
 							// @TODO what does 0 mean?
-							false, false),
+							true, false),
 					//
-					createDescriptor("simplifyBeforeReduce", EPropertyConstant.DLOPTIONS_SIMPLIFY_BEFORE_REDUCE),
+					createDescriptor("simplifyBeforeReduce", EPropertyConstant.DLOPTIONS_SIMPLIFY_BEFORE_REDUCE, true),
 					createDescriptor(
-							"simplifyAfterReduce", EPropertyConstant.DLOPTIONS_SIMPLIFY_AFTER_REDUCE),
+							"simplifyAfterReduce", EPropertyConstant.DLOPTIONS_SIMPLIFY_AFTER_REDUCE, true),
 					createDescriptor(
-							"simplifyAfterODESolve",EPropertyConstant.DLOPTIONS_SIMPLIFY_AFTER_ODESOLVE),
+							"simplifyAfterODESolve",EPropertyConstant.DLOPTIONS_SIMPLIFY_AFTER_ODESOLVE, true),
 					createDescriptor(
-							"applyLocalSimplify", EPropertyConstant.DLOPTIONS_APPLY_LOCAL_SIMPLIFY,true, false),
+							"applyLocalSimplify", EPropertyConstant.DLOPTIONS_APPLY_LOCAL_SIMPLIFY,true),
 					createDescriptor(
 							"applyLocalReduce", EPropertyConstant.DLOPTIONS_APPLY_LOCAL_REDUCE,true, false, LocalReducePropertyEditor.class),
 					createDescriptor("applyGlobalReduce", EPropertyConstant.DLOPTIONS_APPLY_GLOBAL_REDUCE,true, false),
@@ -146,7 +146,7 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
 							true, false),
 					createDescriptor(
 							"useSOS", EPropertyConstant.DLOPTIONS_USE_SOS,
-							false, false),
+							true, false),
 					createDescriptor(
 							"csdpBinary", EPropertyConstant.DLOPTIONS_CSDP_PATH,
 							true, false, true, FilePropertyEditor.class),
