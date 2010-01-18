@@ -7,26 +7,17 @@ import java.util.Collections;
 import java.util.List;
 import java.util.HashMap;
 
-import cohenhormander.Rational;
-import cohenhormander.Num;
-import cohenhormander.Fn;
-import cohenhormander.Var;
-import cohenhormander.R;
-import cohenhormander.True;
-import cohenhormander.False;
-import cohenhormander.Atom;
-import cohenhormander.Not;
-import cohenhormander.And;
-import cohenhormander.Or;
-import cohenhormander.Imp;
-import cohenhormander.Iff;
-import cohenhormander.Forall;
-import cohenhormander.Exists;
+
+import de.uka.ilkd.key.dl.arithmetics.impl.ch.cohenhormander.*;
+
+
 
 
 
 import de.uka.ilkd.key.dl.arithmetics.impl.orbital.PolynomTool;
 import de.uka.ilkd.key.dl.arithmetics.impl.orbital.PolynomTool.BigFraction;
+import de.uka.ilkd.key.logic.Name;
+import de.uka.ilkd.key.logic.Named;
 import de.uka.ilkd.key.logic.NamespaceSet;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.op.Function;
@@ -59,6 +50,7 @@ public class Term2CHConverter {
 	 * Standardconstructor.
 	 */
 	public Term2CHConverter() {
+		
 	}
 
 	/**
@@ -67,11 +59,10 @@ public class Term2CHConverter {
 	 * @param form
 	 *            Term to convert
 	 * @param variables
-	 * @return QepCadInput-Instance of the given term.
 	 */
-	public static cohenhormander.Formula convert(Term form) {
+	public static CHFormula convert(Term form, NamespaceSet nss) {
 		Term2CHConverter converter = new Term2CHConverter();
-		return converter.convertImpl(form);
+		return converter.convertImpl(form, nss);
 	}
 
 	/**
@@ -79,21 +70,21 @@ public class Term2CHConverter {
 	 * 
 	 * @param variables
 	 */
-	private cohenhormander.Formula convertImpl(Term form){
+	private CHFormula convertImpl(Term form, NamespaceSet nss){
 			
 
 		// Getting the string-representation
 		// String formula = "(" + convert2String( form ) + ")";
 		
-		cohenhormander.Formula formula = convert2ScalaFormula(form, null, true);
+		CHFormula formula = convert2ScalaFormula(form, nss, true);
 
 		return formula;
 		
 	}
 
 	
-	private static scala.List<cohenhormander.Term> listOfArray(cohenhormander.Term[] args){
-		scala.List<cohenhormander.Term> result = cohenhormander.AM.nil();
+	private static scala.List<CHTerm> listOfArray(CHTerm[] args){
+		scala.List<CHTerm> result = de.uka.ilkd.key.dl.arithmetics.impl.ch.cohenhormander.AM.nil();
 		for(int i = args.length-1; i >= 0; i--){
 			result = result.$colon$colon(args[i]);
 		}
@@ -101,16 +92,16 @@ public class Term2CHConverter {
 	}
 	
 		
-	private static scala.List<cohenhormander.Term> list(cohenhormander.Term... args){
+	private static scala.List<CHTerm> list(CHTerm... args){
 		return listOfArray(args);	
 	}
 	
-	private cohenhormander.Term convert2ScalaTerm(Term form, NamespaceSet nss,
+	private CHTerm convert2ScalaTerm(Term form, NamespaceSet nss,
 				boolean eliminateFractions){
 		if (form.op() instanceof Function){
 			Function f = (Function) form.op();
 			if (f.name().toString().equals("add")) {
-				return new cohenhormander.Fn("+", list( 
+				return new Fn("+", list( 
 						convert2ScalaTerm(form.sub(0), nss, eliminateFractions),
 						convert2ScalaTerm(form.sub(1), nss, eliminateFractions)));	
 			} else if (f.name().toString().equals("sub")) {
@@ -129,7 +120,7 @@ public class Term2CHConverter {
 				return new Fn("^", list( convert2ScalaTerm(form.sub(0), nss, eliminateFractions),
 						convert2ScalaTerm(form.sub(1), nss, eliminateFractions)));	
 			} else {
-				cohenhormander.Term[] args = new cohenhormander.Term[form.arity()];
+				CHTerm[] args = new CHTerm[form.arity()];
 				for (int i = 0; i < args.length; i++) {
 					args[i] = convert2ScalaTerm(form.sub(i), nss,
 							eliminateFractions);
@@ -146,7 +137,12 @@ public class Term2CHConverter {
 								new scala.BigInt( frac.getDenominator()))); 
 					}
 				} catch (NumberFormatException nfe) {
+					//System.out.println(form + " (a function) is of type " + form.getClass().toString());
 					String name = form.op().name().toString();
+					//System.out.println("and of name " + name);
+					Named nmd = nss.lookup(new Name(name));
+					//if(nmd != null)
+					//	System.out.println("and its lookup has type " + nmd.getClass().toString());
 					if (args.length == 0) {
 						return new Var( name );
 					}
@@ -157,18 +153,24 @@ public class Term2CHConverter {
 		}else if (form.op() instanceof LogicVariable
 				|| form.op() instanceof de.uka.ilkd.key.logic.op.ProgramVariable
 				|| form.op() instanceof Metavariable) {
+			//System.out.println(form + " is of type " + form.getClass().toString());
 			String name = form.op().name().toString();
-			return new cohenhormander.Var(name);
+			//System.out.println("and of name " + name);
+			Named nmd = nss.lookup(new Name(name));
+			//if(nmd != null)
+			//	System.out.println("and its lookup has type " + nmd.getClass().toString());
+
+			return new Var(name);
 		}
 		
-		return new cohenhormander.Num(new cohenhormander.Rational(1));
+		return new Num(new Rational(1));
 
 	}
 	
 		
 		
 		
-	private cohenhormander.Formula convert2ScalaFormula(Term form, NamespaceSet nss,
+	private CHFormula convert2ScalaFormula(Term form, NamespaceSet nss,
 			boolean eliminateFractions) {
 		if (form.op() == Op.FALSE) {
 			return new False();
@@ -235,7 +237,7 @@ public class Term2CHConverter {
 
 				vars[i] = name;
 			}
-			cohenhormander.Formula result = convert2ScalaFormula(form.sub(0),nss,eliminateFractions);
+			CHFormula result = convert2ScalaFormula(form.sub(0),nss,eliminateFractions);
 			
 			
 			if (form.op() == Quantifier.ALL){

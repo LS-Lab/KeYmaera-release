@@ -283,7 +283,7 @@ public class DLOptionBean implements Settings {
 
 	private DLOptionBean() {
 		subOptions = new LinkedHashSet<Settings>();
-		foStrategy = FirstOrderStrategy.IBC;
+		foStrategy = FirstOrderStrategy.LAZY;
 		initialTimeout = 2;
 		diffSatTimeout = 4;
 		loopSatTimeout = 2000;
@@ -455,11 +455,9 @@ public class DLOptionBean implements Settings {
 
 		counterExampleGenerator = props
 				.getProperty(EPropertyConstant.DLOPTIONS_COUNTEREXAMPLE_GENERATOR.getKey());
-		if (counterExampleGenerator == null) {
-			counterExampleGenerator = "-";
-		} else if (!(MathSolverManager.getCounterExampleGenerators()
+		if (counterExampleGenerator == null || (!(MathSolverManager.getCounterExampleGenerators()
 				.contains(counterExampleGenerator))
-				&& !counterExampleGenerator.equals("-")) {
+				&& !counterExampleGenerator.equals("-"))) {
 			if (!MathSolverManager.getCounterExampleGenerators().isEmpty()) {
 				counterExampleGenerator = MathSolverManager
 						.getCounterExampleGenerators().iterator().next();
@@ -468,10 +466,8 @@ public class DLOptionBean implements Settings {
 			}
 		}
 		odeSolver = props.getProperty(EPropertyConstant.DLOPTIONS_ODESOLVER.getKey());
-		if (odeSolver == null) {
-			odeSolver = "-";
-		} else if (!(MathSolverManager.getODESolvers().contains(odeSolver))
-				&& !odeSolver.equals("-")) {
+		if (odeSolver == null || (!(MathSolverManager.getODESolvers().contains(odeSolver))
+				&& !odeSolver.equals("-"))) {
 			if (!MathSolverManager.getODESolvers().isEmpty()) {
 				odeSolver = MathSolverManager.getODESolvers().iterator()
 						.next();
@@ -481,11 +477,9 @@ public class DLOptionBean implements Settings {
 		}
 		quantifierEliminator = props
 				.getProperty(EPropertyConstant.DLOPTIONS_QUANTIFIER_ELIMINATOR.getKey());
-		if (quantifierEliminator == null) {
-			quantifierEliminator = "-";
-		} else if (!(MathSolverManager.getQuantifierEliminators()
+		if (quantifierEliminator == null || (!(MathSolverManager.getQuantifierEliminators()
 				.contains(quantifierEliminator))
-				&& !quantifierEliminator.equals("-")) {
+				&& !quantifierEliminator.equals("-"))) {
 			if (!MathSolverManager.getQuantifierEliminators().isEmpty()) {
 				quantifierEliminator = MathSolverManager
 						.getQuantifierEliminators().iterator().next();
@@ -494,10 +488,8 @@ public class DLOptionBean implements Settings {
 			}
 		}
 		simplifier = props.getProperty(EPropertyConstant.DLOPTIONS_SIMPLIFIER.getKey());
-		if (simplifier == null) {
-			simplifier = "-";
-		} else if (!(MathSolverManager.getSimplifiers().contains(simplifier))
-				&& !simplifier.equals("-")) {
+		if (simplifier == null || (!(MathSolverManager.getSimplifiers().contains(simplifier))
+				&& !simplifier.equals("-"))) {
 			if (!MathSolverManager.getSimplifiers().isEmpty()) {
 				simplifier = MathSolverManager.getSimplifiers().iterator()
 						.next();
@@ -507,13 +499,25 @@ public class DLOptionBean implements Settings {
 		}
 		groebnerBasisCalculator = props
 				.getProperty(EPropertyConstant.DLOPTIONS_GROEBNER_BASIS_CALCULATOR.getKey());
-		if(groebnerBasisCalculator == null) {
-			groebnerBasisCalculator = "";
+		if (groebnerBasisCalculator  == null || (!(MathSolverManager.getGroebnerBasisCalculators().contains(groebnerBasisCalculator))
+				&& !groebnerBasisCalculator.equals("-"))) {
+			if (!MathSolverManager.getGroebnerBasisCalculators().isEmpty()) {
+				groebnerBasisCalculator = MathSolverManager.getGroebnerBasisCalculators().iterator()
+						.next();
+			} else {
+				groebnerBasisCalculator = "-";
+			}
 		}
 		sosChecker = props
 			.getProperty(EPropertyConstant.DLOPTIONS_SOS_CHECKER.getKey());
-		if(sosChecker == null) {
-			sosChecker = "";
+		if (sosChecker == null || (!(MathSolverManager.getSOSCheckers().contains(sosChecker))
+				&& !sosChecker.equals("-"))) {
+			if (!MathSolverManager.getSOSCheckers().isEmpty()) {
+				sosChecker = MathSolverManager.getSOSCheckers().iterator()
+						.next();
+			} else {
+				sosChecker = "-";
+			}
 		}
 		/*
 		 * HACK: this causes infinity loop if (groebnerBasisCalculator == null)

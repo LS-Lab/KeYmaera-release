@@ -68,16 +68,16 @@ public class OptionsBeanInfo extends SimpleBeanInfo {
 							true, false, true, DirectoryPropertyEditor.class),
 					createDescriptor(
 							"useEliminateList",EPropertyConstant.MATHEMATICA_OPTIONS_USE_ELIMINATE_LIST,
-							true, false, true),
+							false, false, true),
 					createDescriptor(
 							"convertDecimalsToRationals",EPropertyConstant.MATHEMATICA_OPTIONS_CONVERT_DECIMAL_FRACTIONS_TO_RATIONALS,						
-							true, false),
+							false, false),
 					createDescriptor(
 							"memoryConstraint",EPropertyConstant.MATHEMATICA_OPTIONS_MEMORYCONSTRAINT,							
-							true, false),
+							false, false),
 					createDescriptor(
 							"quantifierEliminationMethod",EPropertyConstant.MATHEMATICA_OPTIONS_QUANTIFIER_ELIMINATION_METHOD,
-							true, false,
+							false, false,
 							QuantifierEliminationMethodPropertyEditor.class), };
 			return pds;
 		} catch (IntrospectionException ex) {

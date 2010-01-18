@@ -4,8 +4,8 @@ import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 
-//import cohenhormander.*;
 
+import de.uka.ilkd.key.dl.arithmetics.impl.ch.cohenhormander.*;
 
 import org.w3c.dom.Node;
 
@@ -57,36 +57,41 @@ public class CohenHormander implements IQuantifierEliminator {
 			long timeout) throws RemoteException, SolverException {
 
 		
+		//System.out.println("here's my NamespaceSet:");
+		//System.out.println(nss);
 		
 		//PrenexGeneratorResult result = PrenexGenerator.transform(form, nss);
 
 		
-		cohenhormander.Formula fm = Term2CHConverter.convert(form);
+		CHFormula fm = Term2CHConverter.convert(form,nss);
 
 			
 		System.out.println("here is what we are passing to quantifier elimination:");
-		cohenhormander.P.print_fol_formula().apply(fm);
+		P.print_fol_formula().apply(fm);
 		System.out.println();
 		
-		cohenhormander.Formula fm1 = cohenhormander.AM.real_elim2(fm); 
+		CHFormula fm1 = AM.real_elim2(fm); 
 
 		System.out.println("here is the result of quantifier elimination:");
-		cohenhormander.P.print_fol_formula().apply(fm1);
+		P.print_fol_formula().apply(fm1);
 		System.out.println();
 		
-		Term res;
+		CHFormula fm2 = AM.elim_fractional_literals(fm1);
+		//System.out.println(fm2);
+		Term res = CH2TermConverter.convertFormula(fm2, nss);
 
-
-		if(fm1 instanceof cohenhormander.True){
+/*
+		if(fm1 instanceof True){
 			res = TermBuilder.DF.tt();
-		} else if (fm1 instanceof cohenhormander.False){
+		} else if (fm1 instanceof False){
 			res = TermBuilder.DF.ff();
 		} else{
-		    //@todo backtranslation rather than saying don't know
+		    //@todo backtranslation rather than saying don't know.
 		    //return null;
-		    throw new FailedComputationException("CohenHormander gave a complicated formula back which we have to translate " + fm1);
+		    //throw new FailedComputationException("CohenHormander gave a complicated formula back which we have to translate " + fm1);
+			res = form;
 		}
-			
+	*/		
 		
 		
 		return res;
