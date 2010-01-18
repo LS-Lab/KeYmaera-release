@@ -156,7 +156,7 @@ DIFF_PARSER= \
 
 
 .PHONY: all
-all:	javahomeset branding
+all:	javahomeset branding 
 	@$(MAKE) -s all_gen
 
 
@@ -303,8 +303,10 @@ distclean: realclean
 all_gen: 
 	@$(MAKE) -s all_hlp   	
 
+COHENHORMANDERCLASS = $(BINARYPATH)$(PFX)dl/arithmetics/impl/ch/cohenhormander/AM.class
+
 .PHONY: all_hlp
-all_hlp: argfile.normal $(ANTLR_PARSER) $(JAVACC_PARSER) $(PROOFJAVA_PARSER) $(KEYDOC_JAVAS) $(DIFF_PARSER) copyResources
+all_hlp: argfile.normal $(ANTLR_PARSER) $(JAVACC_PARSER) $(PROOFJAVA_PARSER) $(KEYDOC_JAVAS) $(DIFF_PARSER) copyResources $(COHENHORMANDERCLASS)  #cohenhormander
 ifeq "$(BRANDING)" ""
 # always update SHA1 hash in order to get useful bug reports		
 	@echo $(SHA1) > ${BINARYPATH}/de/uka/ilkd/key/util/sha1
@@ -355,11 +357,6 @@ endif
 javaFiles: 
 ifneq ("$(GIT)","")
 	@$(GIT) ls-files | grep "\.java" | grep -v "aspects" | grep -v "gjava" | grep -v "\.java\." | grep -v "resources/" | sort > javaFiles
-endif
-
-scalaFiles:
-ifneq ("$(GIT)","")
-	@$(GIT) ls-files | grep "\.scala"  | sort > scalaFiles
 endif
 
 
@@ -583,11 +580,17 @@ eclipse-plug-in: dist
 	@cp  ../eclipse/KeYExternalLibraries/KeYExternalLibraries_1* $(BINARYPATH)$(PFX)casetool/eclipse/KeY_Feature/plugins
 
 
-CHPATH = $(PFX)dl/arithmetics/impl/ch/scala-src/
-
 SCALAC = scalac
-SCALAOPTIONS =  -d $(BINARYPATH) #-optimise
+SCALAOPTIONS =  -optimise -d $(BINARYPATH) 
+
+COHENHORMANDER = $(PFX)dl/arithmetics/impl/ch/cohenhormander
+
+SCALAFILES = $(COHENHORMANDER)/parallel.scala $(COHENHORMANDER)/parse.scala \
+	$(COHENHORMANDER)/rational.scala $(COHENHORMANDER)/arithmetic.scala 
 
 
-cohenhormander : scalaFiles
-	$(SCALAC) $(SCALAOPTIONS)  @scalaFiles
+$(COHENHORMANDERCLASS) ch : $(SCALAFILES)
+	@echo [compiling scala cohenhormander implementation]
+	@$(SCALAC) $(SCALAOPTIONS)  $(SCALAFILES)
+
+

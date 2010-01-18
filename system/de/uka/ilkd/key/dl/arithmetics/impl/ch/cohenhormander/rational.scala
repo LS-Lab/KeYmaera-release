@@ -112,7 +112,7 @@ case class Rational(p: BigInt, q: BigInt) extends ExactNum  {
   }
 
   override def toString = {
-    if(q == BigInt(1)) p.toString
+    if(q == BigInt(1)) p.toString 
     else {p.toString + "/" + q.toString}
   }
 

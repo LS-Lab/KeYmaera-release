@@ -1,25 +1,25 @@
 package de.uka.ilkd.key.dl.arithmetics.impl.ch.cohenhormander;
 //package cohenhormander;
 
-abstract class Term
-case class Var(s: String) extends Term
-case class Fn(f: String, ps: List[Term]) extends Term
-case class Num(n: ExactNum) extends Term
+abstract class CHTerm
+case class Var(s: String) extends CHTerm
+case class Fn(f: String, ps: List[CHTerm]) extends CHTerm
+case class Num(n: ExactNum) extends CHTerm
 
 abstract class Fol
-case class R(s: String, ps: List[Term]) extends Fol
+case class R(s: String, ps: List[CHTerm]) extends Fol
 
-abstract class Formula
-case class False() extends Formula
-case class True() extends Formula
-case class Atom(a: Fol) extends Formula
-case class Not(f: Formula) extends Formula
-case class And(f1: Formula, f2: Formula) extends Formula
-case class Or(f1: Formula, f2: Formula) extends Formula
-case class Imp(f1: Formula, f2: Formula) extends Formula
-case class Iff(f1: Formula, f2: Formula) extends Formula
-case class Forall(x: String, f: Formula) extends Formula
-case class Exists(x: String, f: Formula) extends Formula
+abstract class CHFormula
+case class False() extends CHFormula
+case class True() extends CHFormula
+case class Atom(a: Fol) extends CHFormula
+case class Not(f: CHFormula) extends CHFormula
+case class And(f1: CHFormula, f2: CHFormula) extends CHFormula
+case class Or(f1: CHFormula, f2: CHFormula) extends CHFormula
+case class Imp(f1: CHFormula, f2: CHFormula) extends CHFormula
+case class Iff(f1: CHFormula, f2: CHFormula) extends CHFormula
+case class Forall(x: String, f: CHFormula) extends CHFormula
+case class Exists(x: String, f: CHFormula) extends CHFormula
 
 
 class Failure() extends Exception
@@ -144,10 +144,10 @@ object P {
 
 
 
-  def parse_atomic_formula(fns: ((Tokens,Tokens)=>(Formula,Tokens), 
-                                 (Tokens,Tokens)=>(Formula,Tokens)),
+  def parse_atomic_formula(fns: ((Tokens,Tokens)=>(CHFormula,Tokens), 
+                                 (Tokens,Tokens)=>(CHFormula,Tokens)),
                            vs: Tokens):
-                           Tokens => (Formula,Tokens) = {
+                           Tokens => (CHFormula,Tokens) = {
     (inp:Tokens) => {
       val (ifn,afn) = fns;
       inp match {
@@ -159,41 +159,41 @@ object P {
                 parse_bracketed (inp => parse_formula(fns, vs, inp),
                                  ")", rest)
                                        }
-        case "~"::rest => papply( (p:Formula) => Not(p), 
+        case "~"::rest => papply( (p:CHFormula) => Not(p), 
                                  parse_atomic_formula(fns,vs)(rest))
         case "forall"::x::rest =>
           parse_quant(fns, x::vs, 
-                      ((y:Token,p:Formula) => Forall(y,p)), x, rest)
+                      ((y:Token,p:CHFormula) => Forall(y,p)), x, rest)
         case "exists"::x::rest =>
           parse_quant(fns, x::vs, 
-                      ((y:Token,p:Formula) => Exists(y,p)), x, rest)
+                      ((y:Token,p:CHFormula) => Exists(y,p)), x, rest)
         case _ => afn(vs,inp)
       }
         
     }
   }
   
-  def parse_quant(fns:  ((Tokens,Tokens)=>(Formula,Tokens), 
-                         (Tokens,Tokens)=>(Formula,Tokens)),
+  def parse_quant(fns:  ((Tokens,Tokens)=>(CHFormula,Tokens), 
+                         (Tokens,Tokens)=>(CHFormula,Tokens)),
                   vs: Tokens,
-                  qcon: (Token,Formula) => Formula,
+                  qcon: (Token,CHFormula) => CHFormula,
                   x: Token,
-                  inp: Tokens): (Formula, Tokens) = inp match {
+                  inp: Tokens): (CHFormula, Tokens) = inp match {
     case Nil => throw new ParseFailure("Body of quantified term expected.")
     case y :: rest =>
-      papply((fm:Formula) => qcon(x,fm),
+      papply((fm:CHFormula) => qcon(x,fm),
              if(y==".") parse_formula(fns,vs,rest)
              else parse_quant(fns,y::vs,qcon,y,rest))
   }
 
-  def parse_formula(fns: ((Tokens,Tokens)=>(Formula,Tokens), 
-                          (Tokens,Tokens)=>(Formula,Tokens)),
+  def parse_formula(fns: ((Tokens,Tokens)=>(CHFormula,Tokens), 
+                          (Tokens,Tokens)=>(CHFormula,Tokens)),
                     vs: Tokens,
-                    inp: Tokens): (Formula,Tokens) = {
-    parse_right_infix("<=>",  ((p:Formula,q:Formula) => Iff(p,q)),
-      parse_right_infix("==>", ((p:Formula,q:Formula) => Imp(p,q)),
-        parse_right_infix("\\/", ((p:Formula,q:Formula) => Or(p,q)),
-          parse_right_infix("/\\", ((p:Formula,q:Formula) => And(p,q)),
+                    inp: Tokens): (CHFormula,Tokens) = {
+    parse_right_infix("<=>",  ((p:CHFormula,q:CHFormula) => Iff(p,q)),
+      parse_right_infix("==>", ((p:CHFormula,q:CHFormula) => Imp(p,q)),
+        parse_right_infix("\\/", ((p:CHFormula,q:CHFormula) => Or(p,q)),
+          parse_right_infix("/\\", ((p:CHFormula,q:CHFormula) => And(p,q)),
             parse_atomic_formula(fns, vs)))))(inp)
   }
 
@@ -202,15 +202,15 @@ object P {
     (explode(s).forall(numeric)) //|| (s == "nil")
   }
 
-  def parse_atomic_term(vs: Tokens): Tokens => (Term, Tokens) = {
+  def parse_atomic_term(vs: Tokens): Tokens => (CHTerm, Tokens) = {
     (inp:Tokens) => inp match {
       case Nil => throw new ParseFailure("term expected")
       case "("::rest => parse_bracketed(parse_term(vs), ")", rest)
-      case "-"::rest => papply ((t:Term) => Fn("-",List(t)),
+      case "-"::rest => papply ((t:CHTerm) => Fn("-",List(t)),
                                 parse_atomic_term(vs)(rest))
       case f::"("::")"::rest => (Fn(f,Nil),rest)
       case f::"("::rest =>
-        papply ((args:List[Term]) => Fn(f,args),
+        papply ((args:List[CHTerm]) => Fn(f,args),
                 parse_bracketed(parse_list(",",parse_term(vs)),
                                 ")",rest))
       case a::rest => 
@@ -220,13 +220,13 @@ object P {
     }
   }
 
-  def parse_term(vs: Tokens): Tokens => (Term,Tokens) = {
-    parse_right_infix("::",((e1:Term,e2:Term) => Fn("::",List(e1,e2))),
-     parse_right_infix("+",((e1:Term,e2:Term) => Fn("+",List(e1,e2))),
-      parse_left_infix("-",((e1:Term,e2:Term) => Fn("-",List(e1,e2))),
-       parse_right_infix("*",((e1:Term,e2:Term) => Fn("*",List(e1,e2))),
-        parse_left_infix("/",((e1:Term,e2:Term) => Fn("/",List(e1,e2))),
-         parse_left_infix("^",((e1:Term,e2:Term) => Fn("^",List(e1,e2))),
+  def parse_term(vs: Tokens): Tokens => (CHTerm,Tokens) = {
+    parse_right_infix("::",((e1:CHTerm,e2:CHTerm) => Fn("::",List(e1,e2))),
+     parse_right_infix("+",((e1:CHTerm,e2:CHTerm) => Fn("+",List(e1,e2))),
+      parse_left_infix("-",((e1:CHTerm,e2:CHTerm) => Fn("-",List(e1,e2))),
+       parse_right_infix("*",((e1:CHTerm,e2:CHTerm) => Fn("*",List(e1,e2))),
+        parse_left_infix("/",((e1:CHTerm,e2:CHTerm) => Fn("/",List(e1,e2))),
+         parse_left_infix("^",((e1:CHTerm,e2:CHTerm) => Fn("^",List(e1,e2))),
           parse_atomic_term(vs)))))))
   }
 
@@ -234,15 +234,15 @@ object P {
 
   val comparators = List("=","<","<=",">",">=");
 
-  def parse_infix_atom(vs: Tokens, inp: Tokens): (Formula, Tokens) = {
+  def parse_infix_atom(vs: Tokens, inp: Tokens): (CHFormula, Tokens) = {
     val (tm,rest) = parse_term(vs)(inp);
     if(comparators.exists( x => nextin(rest,x)))
-      papply((tm1:Term) => Atom(R(rest.head,List(tm,tm1))),
+      papply((tm1:CHTerm) => Atom(R(rest.head,List(tm,tm1))),
              parse_term(vs) (rest.tail))
     else throw new ParseFailure("")
   }
 
-  def parse_atom(vs: Tokens, inp: Tokens): (Formula, Tokens) = {
+  def parse_atom(vs: Tokens, inp: Tokens): (CHFormula, Tokens) = {
     try {
       parse_infix_atom(vs,inp)
     } catch {
@@ -250,7 +250,7 @@ object P {
         inp match {
           case p::"("::")"::rest => (Atom(R(p,Nil)),rest)
           case p::"("::rest =>
-            papply ((args:List[Term]) => Atom(R(p,args)),
+            papply ((args:List[CHTerm]) => Atom(R(p,args)),
                     parse_bracketed(parse_list(",",parse_term(vs)),")",rest))
           case p::rest if p != "(" => (Atom(R(p,Nil)),rest)
           case _ => throw new ParseFailure("parse_atom")
@@ -273,7 +273,7 @@ object P {
         if( p ) print(")") else ();
       }
 
-  def strip_quant: Formula => (Tokens, Formula) = fm => fm match {
+  def strip_quant: CHFormula => (Tokens, CHFormula) = fm => fm match {
     case Forall(x,yp@Forall(y,p))=> 
       val (xs,q) = strip_quant(yp);
       (x::xs,q)
@@ -286,8 +286,8 @@ object P {
   }
   
 
-  def print_formula: (Int => Fol => Unit) => Formula => Unit = pfn => {
-    def print_formula1: Int => Formula => Unit = pr => fm => fm match {
+  def print_formula: (Int => Fol => Unit) => CHFormula => Unit = pfn => {
+    def print_formula1: Int => CHFormula => Unit = pr => fm => fm match {
       case False() => print("false")
       case True() => print("true")
       case Atom(pargs) => pfn(pr)(pargs)
@@ -301,20 +301,20 @@ object P {
       case Exists(x,p) => 
         bracket(pr>0)(2)(print_qnt)("exists")(strip_quant(fm))
     }
-    def print_qnt: Token => ((Tokens,Formula)) => Unit = qname => b => {
+    def print_qnt: Token => ((Tokens,CHFormula)) => Unit = qname => b => {
       val (bvs, bod) = b;
       print(qname);
       bvs.foreach(v => print(" " + v));
       print(". ");
       print_formula1(0)(bod)
     }
-    def print_prefix: Int => Token => Formula => Unit = newpr => sym => p => {
+    def print_prefix: Int => Token => CHFormula => Unit = newpr => sym => p => {
       print(sym); 
       print("(");
       print_formula1(newpr+1)(p);
       print(")");
     }
-    def print_infix: Int => Token => Formula => Formula => Unit =
+    def print_infix: Int => Token => CHFormula => CHFormula => Unit =
       newpr => sym => p => q => {
         print_formula1(newpr+1)(p);
         print(" "+sym+" ");
@@ -323,13 +323,13 @@ object P {
     print_formula1(0)
   }
 
-  def print_qformula: (Int => Fol => Unit) => Formula => Unit = pfn => fm => {
+  def print_qformula: (Int => Fol => Unit) => CHFormula => Unit = pfn => fm => {
     print("<<");
     print_formula(pfn)(fm);
     print(">>");
   }
 
-  def print_term: Int => Term => Unit = prec => fm => fm match {
+  def print_term: Int => CHTerm => Unit = prec => fm => fm match {
     case Var(x) => print(x)
     case Num(n) => print(n.toString)
     case Fn("^",List(tm1,tm2)) => 
@@ -346,7 +346,7 @@ object P {
       print_infix_term(false)(prec)(14)(" +")(tm1)(tm2)
     case Fn(f,args) => print_fargs(f)(args)
   }
-  def print_fargs: Token => List[Term] => Unit = f => args => {
+  def print_fargs: Token => List[CHTerm] => Unit = f => args => {
     print(f);
     if(args == Nil) () else {
       print("(");
@@ -355,7 +355,7 @@ object P {
       print(")");
     }
   }
-  def print_infix_term: Boolean => Int => Int => Token => Term => Term => Unit =
+  def print_infix_term: Boolean => Int => Int => Token => CHTerm => CHTerm => Unit =
     isleft => oldprec => newprec => sym => p => q => {
       if(oldprec>newprec) print("(") else ();
       print_term(if(isleft) newprec else (newprec + 1))(p);
@@ -365,7 +365,7 @@ object P {
       if (oldprec > newprec) print(")") else ();
     }
 
-  def printert(tm: Term): Unit = {
+  def printert(tm: CHTerm): Unit = {
     print_term(0)(tm)
   }
 
@@ -377,7 +377,7 @@ object P {
     case _ => throw new Error("print_atom: nonatomic input")
   }
 
-  val print_fol_formula: Formula => Unit = print_qformula(print_atom);
+  val print_fol_formula: CHFormula => Unit = print_qformula(print_atom);
 
 
   
