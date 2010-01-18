@@ -280,7 +280,7 @@ public class DLOptionBean implements Settings {
 
 	private DLOptionBean() {
 		subOptions = new LinkedHashSet<Settings>();
-		foStrategy = FirstOrderStrategy.IBC;
+		foStrategy = FirstOrderStrategy.LAZY;
 		initialTimeout = 2;
 		diffSatTimeout = 4;
 		loopSatTimeout = 2000;
