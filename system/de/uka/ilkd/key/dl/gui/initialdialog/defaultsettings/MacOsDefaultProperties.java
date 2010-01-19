@@ -129,6 +129,16 @@ public class MacOsDefaultProperties extends LinuxOsDefaultProperties implements
 		return ocaml.getAbsolutePath();
 	}
 
+	@Override
+	protected String getCSDPPathDefault() {
+		File csdp = new File(sp + "usr" + sp + "bin" + sp + "csdp");
+		if (!csdp.exists())
+			csdp = new File(System.getProperty("user.home") + sp + "bin" + "csdp");
+		if (!csdp.exists())
+			csdp = new File(sp + "usr" + sp + "local" + sp + "bin" + sp + "csdp");
+		return csdp.getAbsolutePath();
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
