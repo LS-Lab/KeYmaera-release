@@ -20,6 +20,13 @@ import java.awt.FlowLayout;
 import java.awt.Frame;
 import java.awt.Point;
 import java.awt.TextArea;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
+import java.awt.dnd.DropTarget;
+import java.awt.dnd.DropTargetAdapter;
+import java.awt.dnd.DropTargetDropEvent;
+import java.awt.dnd.DropTargetListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
@@ -40,6 +47,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
@@ -109,7 +117,9 @@ import de.uka.ilkd.key.gui.configuration.SettingsListener;
 import de.uka.ilkd.key.gui.configuration.SimultaneousUpdateSimplifierConfiguration;
 import de.uka.ilkd.key.gui.configuration.StrategySettings;
 import de.uka.ilkd.key.gui.configuration.ViewSelector;
+import de.uka.ilkd.key.gui.nodeviews.DragNDropInstantiator;
 import de.uka.ilkd.key.gui.nodeviews.NonGoalInfoView;
+import de.uka.ilkd.key.gui.nodeviews.PosInSequentTransferable;
 import de.uka.ilkd.key.gui.nodeviews.SequentView;
 import de.uka.ilkd.key.gui.notification.NotificationManager;
 import de.uka.ilkd.key.gui.notification.events.ExitKeYEvent;
@@ -177,7 +187,7 @@ public class Main extends JFrame implements IMain {
 	KeYResourceManager.getManager().getVersion() + 
 	" (internal: "+INTERNAL_VERSION+")";
 
-    private static final String COPYRIGHT="(C) Copyright 2001-2009 "
+    private static final String COPYRIGHT="(C) Copyright 2001-2010 "
         +"Universit\u00e4t Karlsruhe, Universit\u00e4t Koblenz-Landau, "
         +"and Chalmers University of Technology, Universit\u00e4t Oldenburg, and Carnegie Mellon University";
     
@@ -712,6 +722,44 @@ public class Main extends JFrame implements IMain {
         
         proofListView.setPreferredSize(new java.awt.Dimension(250, 100));
         paintEmptyViewComponent(proofListView, "Tasks");
+        
+        final DropTargetListener fileOpener = new DropTargetAdapter() {
+	    
+	    public void drop(DropTargetDropEvent event) {
+	        try {
+	            Transferable transferable = event.getTransferable();
+	            if (transferable
+	                    .isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
+	        	try {
+	                	event.acceptDrop(event.getSourceActions());
+	        	List files = (List) transferable.getTransferData(DataFlavor.javaFileListFlavor);
+	        	for (Iterator i = files.iterator(); i.hasNext(); ) {
+	        	    File f = (File) i.next();
+	        	    loadProblem(f);
+	        	}
+	        	event.dropComplete(true);
+	        	}
+	        	catch (ClassCastException ex) {
+	        	    event.rejectDrop();
+	        	}
+	            } else {
+	                event.rejectDrop();
+	            }
+	        } catch (IOException exception) {
+	            // just reject drop do not bother the user
+	            event.rejectDrop();
+	        } catch (UnsupportedFlavorException ufException) {
+	            // just reject drop do not bother the user
+	            event.rejectDrop();
+	        }
+		
+	    }
+	};
+        final DropTarget fileDropTarget =  
+	    new DropTarget(this, 
+                    fileOpener);
+	this.setDropTarget(fileDropTarget);
+        
         
         JSplitPane leftPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, proofListView, tabbedPane) {
             public void setUI(javax.swing.plaf.SplitPaneUI ui) {
@@ -2064,7 +2112,11 @@ public class Main extends JFrame implements IMain {
     }
     
     public void loadProblem(File file) {
-	recentFiles.addRecentFile(file.getAbsolutePath());
+	if (file == null)
+	    return;
+	if (recentFiles != null) {
+	    recentFiles.addRecentFile(file.getAbsolutePath());
+	}
         if(unitKeY!=null){
             unitKeY.recent.addRecentFile(file.getAbsolutePath());
         }
