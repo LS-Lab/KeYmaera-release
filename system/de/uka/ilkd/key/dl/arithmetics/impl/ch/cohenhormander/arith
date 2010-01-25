@@ -1,0 +1,2 @@
+#!/bin/sh
+java -Xmx1000M -classpath .:scala-library.jar cohenhormander/AM $1 $2

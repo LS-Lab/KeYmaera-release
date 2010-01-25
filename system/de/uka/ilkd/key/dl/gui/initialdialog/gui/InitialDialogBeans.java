@@ -22,18 +22,23 @@ public class InitialDialogBeans implements ActionListener {
     private DecisionPane decisionPanel;
     private PropertiesCard propsCards;
     private String[] args;
+    private boolean reinit;
     
     
     private Dimension screen = java.awt.Toolkit.getDefaultToolkit()
 	    .getScreenSize();
      
-    public InitialDialogBeans(String[] argsForTheMainClass) {
+    public InitialDialogBeans(String[] argsForTheMainClass, boolean reinit) {
 
 	args = argsForTheMainClass;
 	propsCards = new PropertiesCard();
 	decisionPanel = new DecisionPane();
-	decisionPanel.addActionListener(this);	
+	decisionPanel.addActionListener(this);
+	this.reinit = reinit;
 	paintDialog();
+    }
+    public InitialDialogBeans(String[] argsForTheMainClass) {
+	this(argsForTheMainClass, false);
     }
    /**
     * This method paints the initial dialog frame.
@@ -79,6 +84,14 @@ public class InitialDialogBeans implements ActionListener {
 	    if (WriteProperties.write(propsCards)) {
 		InitialDialogFrame.dispose();
 		final String[] args = this.args;
+		if (reinit) {
+		        int result = JOptionPane.showConfirmDialog(null, "Note that you may have to restart KeYmaera for some options to take effect.\n"
+		        	+ "In particular, KeYmaera needs to be restarted after changing the Mathematica JLink path.\n\n"
+		        	+ "Do you want to exit KeYmaera without saving?", "Possible Restart", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+		        if (result == JOptionPane.YES_OPTION) {
+		            System.exit(5);
+		        }
+		} else {
 		new Thread() {
 
 		    @Override
@@ -86,6 +99,7 @@ public class InitialDialogBeans implements ActionListener {
 			Main.main(args);
 		    }
 		}.start();
+		}
 	    }
 	}
 

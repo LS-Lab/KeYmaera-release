@@ -81,7 +81,7 @@ public class MacOsDefaultProperties extends LinuxOsDefaultProperties implements
 				spath = "/";
 			else
 				spath = spath + File.separator + "Workspace" + File.separator
-						+ "qepcad/saclib";
+						+ "qepcad/saclib2.1";
 		}
 		return spath;
 	}
@@ -99,6 +99,44 @@ public class MacOsDefaultProperties extends LinuxOsDefaultProperties implements
 					+ "bin/reduce";
 		}
 		return rpath;
+	}
+
+	@Override
+	public String getHOLLightPath() {
+		String rpath = System.getProperty("user.home");
+
+		if (rpath == null) {
+			rpath = sp + "usr" + sp + "bin" + sp + "reduce";
+		} else {
+			rpath = rpath + sp + "Workspace" + sp + "hol_light";
+		}
+		return rpath;
+	}
+
+	@Override
+	public String getOCAMLPath() {
+		File ocaml = new File(sp + "opt" + sp + "local" + sp + "bin" + sp + "ocaml");
+		if (!ocaml.exists()) {
+			ocaml = new File(sp + "usr" + sp + "bin" + sp + "ocaml");
+		}
+		if (!ocaml.exists()) {
+			ocaml = new File(System.getProperty("user.home") + sp + "bin" + sp
+					+ "ocaml");
+		}
+		if (!ocaml.exists()) {
+			ocaml = new File("/usr/bin/ocaml");
+		}
+		return ocaml.getAbsolutePath();
+	}
+
+	@Override
+	protected String getCSDPPathDefault() {
+		File csdp = new File(sp + "usr" + sp + "bin" + sp + "csdp");
+		if (!csdp.exists())
+			csdp = new File(System.getProperty("user.home") + sp + "bin" + "csdp");
+		if (!csdp.exists())
+			csdp = new File(sp + "usr" + sp + "local" + sp + "bin" + sp + "csdp");
+		return csdp.getAbsolutePath();
 	}
 
 	/*

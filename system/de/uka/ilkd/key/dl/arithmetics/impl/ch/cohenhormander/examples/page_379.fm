@@ -1,0 +1,5 @@
+forall d . 
+(exists c . 
+  (forall a .
+   ( forall b. (((a = d /\ b = c) \/ (a=c /\ b = 1)) ==> a^2 = b)))
+ <=> d^4 = 1)

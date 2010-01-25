@@ -1,0 +1,1 @@
+forall x y z. ( (x >= y /\ z >= 0) ==> x * z >= y * z)

@@ -53,11 +53,10 @@ public class OptionsBeanInfo extends SimpleBeanInfo {
 	/* @Override */
 	public PropertyDescriptor[] getPropertyDescriptors() {
 		try {
-
 			PropertyDescriptor[] pds = new PropertyDescriptor[] {
 					createDescriptor(
 							"reduceBinary",EPropertyConstant.OPTIONS_REDUCE_BINARY,
-							false, true, FilePropertyEditor.class),
+							true, true, true, FilePropertyEditor.class),
 					createDescriptor(
 							"qeMethod",EPropertyConstant.OPTIONS_REDUCE_QUANTIFIER_ELIMINATION_METHOD,
 							false, true, QeMethodPropertyEditor.class),
@@ -202,4 +201,23 @@ public class OptionsBeanInfo extends SimpleBeanInfo {
 		}
 		return names.toArray(new String[0]);
 	}
-}
+	private static PropertyDescriptor createDescriptor(String propertyName,EPropertyConstant propertyConstants, boolean expert,
+		boolean preferred, boolean hidden) throws IntrospectionException {
+	return createDescriptor(propertyName, propertyConstants, expert, preferred, hidden, null);
+        }
+
+	private static PropertyDescriptor createDescriptor(String propertyName,EPropertyConstant propertyConstants, boolean expert,
+		boolean preferred, boolean hidden, Class<?> propertyEditor)
+		throws IntrospectionException {
+	PropertyDescriptor result = new PropertyDescriptor(propertyName,
+			beanClass);
+	result.setDisplayName(propertyConstants.getLabel());
+	result.setShortDescription(propertyConstants.getToolTip());
+	result.setExpert(expert);
+	result.setHidden(hidden);
+	result.setPreferred(preferred);
+	if (propertyEditor != null) {
+		result.setPropertyEditorClass(propertyEditor);
+	}
+	return result;
+}}

@@ -41,6 +41,7 @@ public class OptionsBeanInfo extends SimpleBeanInfo {
             _representation.setDisplayName("number representation");
             _representation.setShortDescription("the internal representation of numbers.");
             _representation.setPropertyEditorClass(RepresentationPropertyEditor.class);
+            _representation.setHidden(true);
             PropertyDescriptor _precision = new PropertyDescriptor("precision", beanClass);
             _precision.setDisplayName("precision");
             _precision.setShortDescription("the number of digits to be used for a operations with results being rounded to this precision. 0 means unlimited");

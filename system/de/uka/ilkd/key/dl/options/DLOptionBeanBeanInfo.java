@@ -66,25 +66,53 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
 			PropertyDescriptor[] pds = new PropertyDescriptor[] {
 					// expert, preferred, hidden
 					createDescriptor(
-							"diffSat", EPropertyConstant.DLOPTIONS_USE_DIFF_SAT,false, false, DiffSatPropertyEditor.class),
+						"diffSat", EPropertyConstant.DLOPTIONS_USE_DIFF_SAT,false, false, DiffSatPropertyEditor.class),
 					createDescriptor(
 							"foStrategy", EPropertyConstant.DLOPTIONS_FO_STRATEGY,false, true, FirstOrderStrategyPropertyEditor.class),
+							createDescriptor(
+								"counterexampleTest",EPropertyConstant.DLOPTIONS_COUNTEREXAMPLE_TEST,false, true, CounterexampleTestPropertyEditor.class),
+							//
+							createDescriptor(
+									"quantifierEliminator", EPropertyConstant.DLOPTIONS_QUANTIFIER_ELIMINATOR,
+									false, false, QuantifierEliminatorPropertyEditor.class),
+
+							createDescriptor(
+									"groebnerBasisCalculator", EPropertyConstant.DLOPTIONS_GROEBNER_BASIS_CALCULATOR,
+									false, false, GroebnerBasisCalculatorPropertyEditor.class),
+							createDescriptor(
+									"odeSolver", EPropertyConstant.DLOPTIONS_ODESOLVER,
+									false, false, ODESolversPropertyEditor.class),
+							createDescriptor(
+									"counterExampleGenerator", EPropertyConstant.DLOPTIONS_COUNTEREXAMPLE_GENERATOR,
+									false, false, CounterExampleGeneratorPropertyEditor.class),
+							createDescriptor(
+									"simplifier", EPropertyConstant.DLOPTIONS_SIMPLIFIER,
+									false, false, SimplifierPropertyEditor.class),
+									createDescriptor(
+										"builtInArithmetic", EPropertyConstant.DLOPTIONS_BUILT_IN_ARITHMETIC, 
+										false, false, BuiltInArithmeticPropertyEditor.class),
+								//
+								createDescriptor(
+										"builtInArithmeticIneqs", EPropertyConstant.DLOPTIONS_BUILT_IN_ARITHMETIC_INEQS,
+										false, false, BuiltInArithmeticIneqsPropertyEditor.class),
+								//
+										createDescriptor(
+											"sosChecker", EPropertyConstant.DLOPTIONS_SOS_CHECKER,
+											true, false, SOSCheckerPropertyEditor.class),
 					createDescriptor(
-							"useIterativeReduceRule", EPropertyConstant.DLOPTIONS_ITERATIVE_REDUCE_RULE,false, true),
+							"useIterativeReduceRule", EPropertyConstant.DLOPTIONS_ITERATIVE_REDUCE_RULE,false, true, true),
 					createDescriptor(
-							"usePowersetIterativeReduce", EPropertyConstant.DLOPTIONS_USE_POWERSET_ITERATIVE_REDUCE,false, true),
+							"usePowersetIterativeReduce", EPropertyConstant.DLOPTIONS_USE_POWERSET_ITERATIVE_REDUCE,false, true, true),
 					createDescriptor(
-							"percentOfPowersetForReduce", EPropertyConstant.DLOPTIONS_PERCENT_OF_POWERSET_FOR_ITERATIVE_REDUCE,false, true),
-					createDescriptor(
-							"counterexampleTest",EPropertyConstant.DLOPTIONS_COUNTEREXAMPLE_TEST,false, true, CounterexampleTestPropertyEditor.class),
+							"percentOfPowersetForReduce", EPropertyConstant.DLOPTIONS_PERCENT_OF_POWERSET_FOR_ITERATIVE_REDUCE,false, true, true),
 					createDescriptor(
 							"initialTimeout", EPropertyConstant.DLOPTIONS_INITIAL_TIMEOUT,false, true),
 					createDescriptor(
-							"linearTimeoutIncreaseFactor",EPropertyConstant.DLOPTIONS_LINEAR),					
+							"linearTimeoutIncreaseFactor",EPropertyConstant.DLOPTIONS_LINEAR, true),					
 					createDescriptor(
-							"constantTimeoutIncreaseFactor", EPropertyConstant.DLOPTIONS_CONSTANT, false, false, true),
+							"constantTimeoutIncreaseFactor", EPropertyConstant.DLOPTIONS_CONSTANT, true, false, true),
 					createDescriptor(
-							"quadraticTimeoutIncreaseFactor", EPropertyConstant.DLOPTIONS_QUADRIC,false, false, true),
+							"quadraticTimeoutIncreaseFactor", EPropertyConstant.DLOPTIONS_QUADRIC,true, false, true),
 					createDescriptor(
 							"diffSatTimeout", EPropertyConstant.DLOPTIONS_DIFFSAT_TIMEOUT,false, false),
 					createDescriptor(
@@ -92,51 +120,23 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
 					createDescriptor(
 							"simplifyTimeout", EPropertyConstant.DLOPTIONS_SIMPLIFY_TIMEOUT,
 							// @TODO what does 0 mean?
-							false, false),
+							true, false),
 					//
-					createDescriptor("simplifyBeforeReduce", EPropertyConstant.DLOPTIONS_SIMPLIFY_BEFORE_REDUCE),
+					createDescriptor("simplifyBeforeReduce", EPropertyConstant.DLOPTIONS_SIMPLIFY_BEFORE_REDUCE, true),
 					createDescriptor(
-							"simplifyAfterReduce", EPropertyConstant.DLOPTIONS_SIMPLIFY_AFTER_REDUCE),
+							"simplifyAfterReduce", EPropertyConstant.DLOPTIONS_SIMPLIFY_AFTER_REDUCE, true),
 					createDescriptor(
-							"simplifyAfterODESolve",EPropertyConstant.DLOPTIONS_SIMPLIFY_AFTER_ODESOLVE),
+							"simplifyAfterODESolve",EPropertyConstant.DLOPTIONS_SIMPLIFY_AFTER_ODESOLVE, true),
 					createDescriptor(
-							"applyLocalSimplify", EPropertyConstant.DLOPTIONS_APPLY_LOCAL_SIMPLIFY,true, false),
+							"applyLocalSimplify", EPropertyConstant.DLOPTIONS_APPLY_LOCAL_SIMPLIFY,true),
 					createDescriptor(
 							"applyLocalReduce", EPropertyConstant.DLOPTIONS_APPLY_LOCAL_REDUCE,true, false, LocalReducePropertyEditor.class),
 					createDescriptor("applyGlobalReduce", EPropertyConstant.DLOPTIONS_APPLY_GLOBAL_REDUCE,true, false),
 					createDescriptor(
-							"readdQuantifiers", EPropertyConstant.DLOPTIONS_READD_QUANTIFIERS,true),
-					//
-					createDescriptor(
-							"builtInArithmetic", EPropertyConstant.DLOPTIONS_BUILT_IN_ARITHMETIC, 
-							false, false, BuiltInArithmeticPropertyEditor.class),
-					//
-					createDescriptor(
-							"builtInArithmeticIneqs", EPropertyConstant.DLOPTIONS_BUILT_IN_ARITHMETIC_INEQS,
-							false, false, BuiltInArithmeticIneqsPropertyEditor.class),
-					//
-					createDescriptor(
-							"quantifierEliminator", EPropertyConstant.DLOPTIONS_QUANTIFIER_ELIMINATOR,
-							true, false, QuantifierEliminatorPropertyEditor.class),
-
-					createDescriptor(
-							"groebnerBasisCalculator", EPropertyConstant.DLOPTIONS_GROEBNER_BASIS_CALCULATOR,
-							true, false, GroebnerBasisCalculatorPropertyEditor.class),
-					createDescriptor(
-							"sosChecker", EPropertyConstant.DLOPTIONS_SOS_CHECKER,
-							true, false, SOSCheckerPropertyEditor.class),
-					createDescriptor(
-							"odeSolver", EPropertyConstant.DLOPTIONS_ODESOLVER,
-							true, false, ODESolversPropertyEditor.class),
-					createDescriptor(
-							"counterExampleGenerator", EPropertyConstant.DLOPTIONS_COUNTEREXAMPLE_GENERATOR,
-							true, false, CounterExampleGeneratorPropertyEditor.class),
-					createDescriptor(
-							"simplifier", EPropertyConstant.DLOPTIONS_SIMPLIFIER,
-							true, false, SimplifierPropertyEditor.class),
+							"readdQuantifiers", EPropertyConstant.DLOPTIONS_READD_QUANTIFIERS,true, false, true),
 					createDescriptor(
 							"applyGammaRules", EPropertyConstant.DLOPTIONS_APPLY_GAMMA_RULES,
-							true, false, ApplyRulesPropertyEditor.class),
+							true, false, true, ApplyRulesPropertyEditor.class),
 					createDescriptor(
 							"applyUpdatesToModalities", EPropertyConstant.DLOPTIONS_APPLY_UPDATES_TO_MODALITIES,
 							true, false),
@@ -146,10 +146,10 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
 							true, false),
 					createDescriptor(
 							"useSOS", EPropertyConstant.DLOPTIONS_USE_SOS,
-							false, false),
+							true, false),
 					createDescriptor(
 							"csdpBinary", EPropertyConstant.DLOPTIONS_CSDP_PATH,
-							true, false, FilePropertyEditor.class),
+							true, false, true, FilePropertyEditor.class),
 					createDescriptor(
 							"csdpForceInternal", EPropertyConstant.DLOPTIONS_CSDP_FORCE_INTERNAL,
 							true, false),
@@ -246,6 +246,7 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
 	    		}
 	    		return result;
 	}
+
 
 	// public static class UsagePropertyEditor extends
 	// TaggedPropertyEditorSupport {
@@ -449,5 +450,4 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
 		}
 		return names.toArray(new String[0]);
 	}
-
 }

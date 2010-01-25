@@ -61,23 +61,23 @@ public class OptionsBeanInfo extends SimpleBeanInfo {
 			// _usage.setPropertyEditorClass(UsagePropertyEditor.class);
 
 			PropertyDescriptor[] pds = new PropertyDescriptor[] {
-					createDescriptor("mathKernel", EPropertyConstant.MATHEMATICA_OPTIONS_MATHKERNEL, true, false,
+					createDescriptor("mathKernel", EPropertyConstant.MATHEMATICA_OPTIONS_MATHKERNEL, true, false, true,
 							FilePropertyEditor.class),
 					createDescriptor(
 							"jLinkLibDir",EPropertyConstant.MATHEMATICA_OPTIONS_JLINK_LIBDIR,
-							true, false, DirectoryPropertyEditor.class),
+							true, false, true, DirectoryPropertyEditor.class),
 					createDescriptor(
 							"useEliminateList",EPropertyConstant.MATHEMATICA_OPTIONS_USE_ELIMINATE_LIST,
-							true, false),
+							false, false, true),
 					createDescriptor(
 							"convertDecimalsToRationals",EPropertyConstant.MATHEMATICA_OPTIONS_CONVERT_DECIMAL_FRACTIONS_TO_RATIONALS,						
-							true, false),
+							false, false),
 					createDescriptor(
 							"memoryConstraint",EPropertyConstant.MATHEMATICA_OPTIONS_MEMORYCONSTRAINT,							
-							true, false),
+							false, false),
 					createDescriptor(
 							"quantifierEliminationMethod",EPropertyConstant.MATHEMATICA_OPTIONS_QUANTIFIER_ELIMINATION_METHOD,
-							true, false,
+							false, false,
 							QuantifierEliminationMethodPropertyEditor.class), };
 			return pds;
 		} catch (IntrospectionException ex) {
@@ -135,4 +135,23 @@ public class OptionsBeanInfo extends SimpleBeanInfo {
 			super(getNames(), QuantifierEliminationMethod.values());
 		}
 	}
-}
+	private static PropertyDescriptor createDescriptor(String propertyName,EPropertyConstant propertyConstants, boolean expert,
+		boolean preferred, boolean hidden) throws IntrospectionException {
+	return createDescriptor(propertyName, propertyConstants, expert, preferred, hidden, null);
+        }
+
+	private static PropertyDescriptor createDescriptor(String propertyName,EPropertyConstant propertyConstants, boolean expert,
+		boolean preferred, boolean hidden, Class<?> propertyEditor)
+		throws IntrospectionException {
+	PropertyDescriptor result = new PropertyDescriptor(propertyName,
+			beanClass);
+	result.setDisplayName(propertyConstants.getLabel());
+	result.setShortDescription(propertyConstants.getToolTip());
+	result.setExpert(expert);
+	result.setHidden(hidden);
+	result.setPreferred(preferred);
+	if (propertyEditor != null) {
+		result.setPropertyEditorClass(propertyEditor);
+	}
+	return result;
+}}

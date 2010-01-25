@@ -1,0 +1,9 @@
+
+forall v b m z eps s. 
+((v^2 <= 2 * b * ( m - z) /\ b > 0 /\ eps > 0 
+  /\ v^2 <= 2 * b * (s - eps * v)  /\ m - z >= s)
+ ==> v^2 <= 2 * b * (m - eps * v - z))
+
+
+
+  
