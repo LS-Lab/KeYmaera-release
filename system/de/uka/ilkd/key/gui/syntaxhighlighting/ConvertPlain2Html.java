@@ -29,39 +29,29 @@ public class ConvertPlain2Html {
 	inputString = inputString.replace("<", "&lt;");
 	inputString = inputString.replace(">", "&gt;");
 	inputString = inputString.replace("\"", "&quot;");
-	inputString = inputString.replace("<", "&lt");
+	inputString = inputString.replace("<", "&lt;");
+	
 	
 
 	/*FIXME: Commented out the following part because there is an issue
-	 * with the cursor position and thus the manual application of rules
+	 * with the cursor position and thus the manual application of rules*/
 	 
 	StringBuffer myStringBuffer = new StringBuffer();
 	Pattern pattern = Pattern.compile("(\\s)?\\^(\\s)?(\\d+)");
 	
 	Matcher matcher = pattern.matcher(inputString);
-	
 	while (matcher.find()) {
 	    Pattern p1 = Pattern.compile("\\d+");
             Matcher m1 = p1.matcher(matcher.group());
             if (m1.find())
-        	matcher.appendReplacement(myStringBuffer,"<sup>"+m1.group()+"</sup>");	 
+        	matcher.appendReplacement(myStringBuffer,"&nbsp;<sup>&nbsp;"+m1.group()+"&nbsp;</sup>");	
 	}
 	
 	myStringBuffer = matcher.appendTail(myStringBuffer);
-	inputString = myStringBuffer.toString();*/
-//	
-//	StringBuffer myStringBuffer = new StringBuffer();
-//	Pattern pattern = Pattern.compile(".*[\n|\r]");
-//	
-//	Matcher matcher = pattern.matcher(inputStream);
-//	
-//	while (matcher.find()) {
-//	    matcher.appendReplacement(myStringBuffer,"<br>"+matcher.group()+"</br>");	  
-//	}
-//	
-//	matcher.appendTail(myStringBuffer);
+	
+	inputString = myStringBuffer.toString();
+	inputString = inputString.replace(" ", "&nbsp;");
 		
-
 	return addPre(inputString);	
     }
 
@@ -79,4 +69,4 @@ public class ConvertPlain2Html {
 	return "<pre>"+text+"</pre>";
     }
      	
-	}
+}

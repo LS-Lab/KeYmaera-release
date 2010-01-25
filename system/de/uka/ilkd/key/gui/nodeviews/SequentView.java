@@ -524,7 +524,7 @@ public class SequentView extends JEditorPane implements Autoscroll {
 	    if (range != null) {
 		getHighlighter()
 		    .changeHighlight(highlighter, 
-				     range.start(), range.end());// Added +1 By Zacharais Njam Mokom due to change of text type to text/html
+				     range.start(), range.end()+1);// Added +1 By Zacharais Njam Mokom due to change of text type to text/html
 	    } else {
 		getHighlighter()
 		    .changeHighlight(highlighter, 0, 0);
@@ -607,7 +607,7 @@ public class SequentView extends JEditorPane implements Autoscroll {
     synchronized Range getHighlightRange(Point p) {
 	String seqText = getText();
 	if (seqText.length() > 0) {
-	    int characterIndex = correctedViewToModel(p);	    
+	    int characterIndex = correctedViewToModel(p);
 	    return printer().getPositionTable().
 		rangeForIndex(characterIndex);
 	} else {
