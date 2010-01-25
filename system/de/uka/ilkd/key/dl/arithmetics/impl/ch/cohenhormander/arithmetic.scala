@@ -9,8 +9,26 @@ case class Positive() extends Sign
 case class Negative() extends Sign
 
 
+object CV {  
+  var lock = new Object();
+  var keepGoing = true;
+  def start() : Unit = {
+    lock.synchronized{
+       keepGoing = true;
+    }
+  }
+  def stop() : Unit = {
+    lock.synchronized{
+       keepGoing = false;
+    }
+  }
+}
 
 
+
+
+
+class CHAbort() extends Exception
 
 final object AM {
 
@@ -620,7 +638,7 @@ final object AM {
     val (ycjs, ncjs) = cjs.partition(c => fv(c).contains(x));
     if(ycjs == Nil) p else {
       val q = bfn(Exists(x, list_conj(ycjs)));
-      println("done with a qelim!");
+      print("|");
       ncjs.foldLeft(q)(mk_and)
     }
   }
@@ -641,8 +659,14 @@ final object AM {
       case Exists(x,p) => 
         val djs = disjuncts(nfn(qelift(x::vars,p)));
         println("in qelift. Number of disjunctions = " + djs.length);
-//        list_disj(djs.map(p1 => qelim(qfn(vars), x, p1)))
-        list_disj(Parallel.pmap(djs, ((p1:CHFormula) => qelim(qfn(vars), x, p1))))
+        print("["); 
+        for(i <- 0 until djs.length){ print(".");}
+        print("]\u0008");
+        for(i <- 0 until djs.length){ print("\u0008");}
+        val djs2 = djs.map(p1 => qelim(qfn(vars), x, p1));
+        println("");
+        list_disj(djs2)
+//        list_disj(Parallel.pmap(djs, ((p1:CHFormula) => qelim(qfn(vars), x, p1))))
       case _ => fm
     }
     fm => {
@@ -1121,6 +1145,10 @@ final object AM {
              pols: List[CHTerm],
              cont: List[List[Sign]] => CHFormula,
              sgns: List[(CHTerm,Sign)]): CHFormula = {
+    CV.lock.synchronized{
+      if(CV.keepGoing == false) throw new CHAbort();
+    }
+
     if(pols == Nil) try { cont(List(Nil)) } catch {case e => False()} else {
     /* find the polynomial of highest degree */
     val (p,_) = pols.foldLeft[(CHTerm,Int)](zero,-1)(
@@ -1157,6 +1185,7 @@ final object AM {
   }
 
 
+
   def real_elim(fm: CHFormula): CHFormula = {
     simplify(evalc(lift_qelim(polyatom,
                               fm1 => simplify(evalc(fm1)),
@@ -1170,6 +1199,24 @@ final object AM {
                               fm1 => dnf(cnnf( (x:CHFormula)=>x)(evalc(fm1))),
                               basic_real_qelim)(fm)))
   }
+
+  def univ_close(fm: CHFormula): CHFormula = {
+    val fvs = fv(fm);
+    fvs.foldRight(fm) ((v,fm1) => Forall(v,fm1))
+  }
+
+  @throws(classOf[CHAbort])
+  def real_elim_try_universal_closure(fm: CHFormula): CHFormula = {
+    val fm1 =  real_elim2(fm);
+    if(fv(fm1).length < fv(fm).length)
+      fm1
+      else {
+        val fm2 = real_elim2(univ_close(fm))
+        if(fm2 == True()) True() else fm1
+      }
+
+  }
+  
 
   def elim_fractional_literals(fm: CHFormula): CHFormula = {
     def elim_fraction_term : CHTerm => CHTerm = tm => tm match {

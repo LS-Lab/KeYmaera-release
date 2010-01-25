@@ -108,7 +108,7 @@ public class Term2CHConverter {
 				return new Fn("-", list( convert2ScalaTerm(form.sub(0), nss, eliminateFractions),
                                          convert2ScalaTerm(form.sub(1), nss, eliminateFractions)));	
 			} else if (f.name().toString().equals("neg")) {
-				return new Fn("*", list( new Num(new Rational(-1)),
+				return new Fn("*", list( new Num(new ExactInt(-1)),
                                          convert2ScalaTerm(form.sub(0), nss, eliminateFractions)));	
 			} else if (f.name().toString().equals("mul")) {
 				return new Fn("*", list( convert2ScalaTerm(form.sub(0), nss, eliminateFractions),
