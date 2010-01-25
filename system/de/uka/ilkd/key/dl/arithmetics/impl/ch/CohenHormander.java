@@ -13,6 +13,7 @@ import de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator;
 import de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator.PairOfTermAndQuantifierType;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ConnectionProblemException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.FailedComputationException;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.IncompleteEvaluationException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ServerStatusProblemException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
 import de.uka.ilkd.key.dl.arithmetics.impl.orbital.OrbitalSimplifier;
@@ -27,7 +28,9 @@ import de.uka.ilkd.key.logic.op.Op;
 
 public class CohenHormander implements IQuantifierEliminator {
 
-	//private Stopper stopper = new Stopper();
+	private Thread workerThread;
+	
+	
 	
 	public CohenHormander(Node n) {
 		// TODO: n beinhaltet Konfigurationseinstellungen in XML-Format
@@ -65,12 +68,22 @@ public class CohenHormander implements IQuantifierEliminator {
 		
 		CHFormula fm = Term2CHConverter.convert(form,nss);
 
-			
+		workerThread = Thread.currentThread();
+
 		System.out.println("here is what we are passing to quantifier elimination:");
 		P.print_fol_formula().apply(fm);
 		System.out.println();
 		
-		CHFormula fm1 = AM.real_elim2(fm); 
+		CHFormula fm1;
+		
+		try{
+			CV.start();
+			fm1 = AM.real_elim_try_universal_closure(fm);
+		}catch(CHAbort e){
+			System.out.println("caught aborted qelim");
+			throw new IncompleteEvaluationException("Quantifier elimination aborted!");
+		}
+		
 
 		System.out.println("here is the result of quantifier elimination:");
 		P.print_fol_formula().apply(fm1);
@@ -111,7 +124,9 @@ public class CohenHormander implements IQuantifierEliminator {
 
 	public void abortCalculation() throws RemoteException {
 	    // TODO	
-		//stopper.stop();
+			CV.stop();
+		System.out.println("Stop signal sent!");
+		//workerThread.interrupt();
 	}
 
 	public long getCachedAnswerCount() throws RemoteException {

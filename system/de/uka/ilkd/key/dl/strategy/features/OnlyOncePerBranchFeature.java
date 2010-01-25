@@ -22,6 +22,8 @@
  */
 package de.uka.ilkd.key.dl.strategy.features;
 
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.WeakHashMap;
 
 import de.uka.ilkd.key.logic.PosInOccurrence;
@@ -44,7 +46,7 @@ public class OnlyOncePerBranchFeature implements Feature {
 
 	public static final OnlyOncePerBranchFeature INSTANCE = new OnlyOncePerBranchFeature();
 	
-	private WeakHashMap<RuleApp, Rule> applied = new WeakHashMap<RuleApp, Rule>();
+	//private WeakHashMap<RuleApp, Rule> applied = new WeakHashMap<RuleApp, Rule>();
 
 	/*
 	 * (non-Javadoc)
@@ -53,18 +55,21 @@ public class OnlyOncePerBranchFeature implements Feature {
 	 *      de.uka.ilkd.key.logic.PosInOccurrence, de.uka.ilkd.key.proof.Goal)
 	 */
 	public RuleAppCost compute(RuleApp app, PosInOccurrence pos, Goal goal) {
-		if(applied.containsKey(app)) {
-			return TopRuleAppCost.INSTANCE;
-		}
-		applied.put(app, app.rule());
-//		IteratorOfRuleApp it = goal.appliedRuleApps().iterator();
-//		while (it.hasNext()) {
-//			RuleApp next = it.next();
-//			if (next.rule() == app.rule()) {
-//				return TopRuleAppCost.INSTANCE;
-//			}
+		//if(applied.containsKey(app)) {
+		//	return TopRuleAppCost.INSTANCE;
+
+		//}
+		//applied.put(app, app.rule());
+		
+
+		Iterator<RuleApp> it = goal.appliedRuleApps().iterator();
+		while (it.hasNext()) {
+			RuleApp next = it.next();
+			if (next.rule() == app.rule()) {
+				return TopRuleAppCost.INSTANCE;
+			}
 			
-//		}
+		}
 		return LongRuleAppCost.ZERO_COST;
 	}
 }

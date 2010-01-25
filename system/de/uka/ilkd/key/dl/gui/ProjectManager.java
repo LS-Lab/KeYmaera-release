@@ -39,6 +39,7 @@ import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -198,8 +199,11 @@ public class ProjectManager extends JFrame {
 					Object nodeInfo = lastSelectedPathComponent.getUserObject();
 					if (lastSelectedPathComponent.isLeaf()) {
 						ExampleInfo info = (ExampleInfo) nodeInfo;
-						Main.getInstance().loadProblem(
-								createTmpFileToLoad(info.getUrl()));
+						File tmpfile = createTmpFileToLoad(info.getUrl());
+						if (tmpfile == null) {
+						    JOptionPane.showMessageDialog(ProjectManager.this, "Could not find project " + info.getName() + " at URL " + info.getUrl(), "Project Not Found", JOptionPane.ERROR_MESSAGE);
+						}
+						Main.getInstance().loadProblem(tmpfile);
 						setVisible(false);
 						dispose();
 					}
