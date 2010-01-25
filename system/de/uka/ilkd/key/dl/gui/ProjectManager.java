@@ -28,6 +28,8 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -201,7 +203,7 @@ public class ProjectManager extends JFrame {
 						ExampleInfo info = (ExampleInfo) nodeInfo;
 						File tmpfile = createTmpFileToLoad(info.getUrl());
 						if (tmpfile == null) {
-						    JOptionPane.showMessageDialog(ProjectManager.this, "Could not find project " + info.getName() + " at URL " + info.getUrl(), "Project Not Found", JOptionPane.ERROR_MESSAGE);
+						    JOptionPane.showMessageDialog(ProjectManager.this, "Could not find project " + info.getName() + "\nat resource " + info.getUrl(), "Project Not Found", JOptionPane.ERROR_MESSAGE);
 						}
 						Main.getInstance().loadProblem(tmpfile);
 						setVisible(false);
@@ -388,7 +390,7 @@ public class ProjectManager extends JFrame {
 	}
 
 	private File createTmpFileToLoad(String url) {
-		System.out.println("Trying to open " + url);// XXX
+		System.out.println("Trying to open resource " + url);// XXX
 		File file = new File(url.substring(1));
 		if (file.exists()) {
 			return file;
@@ -396,7 +398,18 @@ public class ProjectManager extends JFrame {
 		InputStream resourceAsStream = ProjectManager.class
 				.getResourceAsStream(url);
 		if (resourceAsStream == null) {
-			return null;
+		    try {
+	                resourceAsStream = new FileInputStream(url.substring(1));
+                    } catch (FileNotFoundException e) {
+    		    try {
+	                resourceAsStream = new FileInputStream(".." + url);
+                    } catch (FileNotFoundException e2) {
+                    }
+                    }
+		}
+		if (resourceAsStream == null) {
+		    System.err.println("Could not find resource " + url + " from working directory or JAR");
+		    return null;
 		}
 		try {
 			File tempFile = File.createTempFile(url.substring(url.lastIndexOf('/') + 1, url.lastIndexOf('.')), ".key");
