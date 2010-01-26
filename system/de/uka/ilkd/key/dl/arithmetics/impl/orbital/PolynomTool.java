@@ -476,6 +476,7 @@ public abstract class PolynomTool {
 		try {
 			result.numerator = d.toBigIntegerExact();
 		} catch (ArithmeticException e) {
+		    try {
 			assert numberAsString.indexOf('.') != -1;
 			int numbersAfterComma = numberAsString.length()
 					- numberAsString.indexOf('.') - 1;
@@ -500,6 +501,9 @@ public abstract class PolynomTool {
 			assert new BigDecimal(result.numerator).divide(
 					new BigDecimal(result.denominator)).equals(
 					new BigDecimal(numberAsString));
+		    } catch (ArithmeticException e2) {
+			throw (InternalError) new InternalError("Do not know how to convert string to fraction: " + numberAsString + "\nrewritten as " + d + "\nbecause of " + e2).initCause(e2);
+		    }
 		}
 		return result;
 	}
