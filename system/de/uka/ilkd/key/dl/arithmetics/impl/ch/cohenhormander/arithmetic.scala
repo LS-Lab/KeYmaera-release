@@ -1220,7 +1220,10 @@ final object AM {
 
   def elim_fractional_literals(fm: CHFormula): CHFormula = {
     def elim_fraction_term : CHTerm => CHTerm = tm => tm match {
-      case Num(Rational(p,q)) => Fn("/", List(Num(ExactInt(p)), Num(ExactInt(q))))
+      case Num(Rational(p,q)) => 
+        if(p == BigInt(0)) Num(ExactInt(0))
+        else if (q == BigInt(1)) Num(ExactInt(p))
+	else  Fn("/", List(Num(ExactInt(p)), Num(ExactInt(q))))
       case Fn(f,args) => Fn(f, args.map(elim_fraction_term))
       case _ => tm
     }
