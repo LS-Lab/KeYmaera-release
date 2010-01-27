@@ -26,8 +26,14 @@ import java.beans.BeanDescriptor;
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
 import java.beans.SimpleBeanInfo;
+import java.util.ArrayList;
 
+import orbital.awt.TaggedPropertyEditorSupport;
+import de.uka.ilkd.key.dl.arithmetics.impl.ch.Options.CHMode;
+import de.uka.ilkd.key.dl.arithmetics.impl.reduce.OptionsBeanInfo.ReduceSwitchPropertyEditor;
 import de.uka.ilkd.key.dl.options.DirectoryPropertyEditor;
+import de.uka.ilkd.key.dl.options.EPropertyConstant;
+import de.uka.ilkd.key.dl.options.FilePropertyEditor;
 
 public class OptionsBeanInfo extends SimpleBeanInfo {
 	private static final Class<Options> beanClass = Options.class;
@@ -41,42 +47,46 @@ public class OptionsBeanInfo extends SimpleBeanInfo {
 		d.setShortDescription("Adjusts values for the Cohen-Hormander interface");
 		return d;
 	}
-
+	
 	/*@Override*/
 	public PropertyDescriptor[] getPropertyDescriptors() {
-			PropertyDescriptor[] pds = new PropertyDescriptor[] {};
+		try{
+			PropertyDescriptor[] pds = new PropertyDescriptor[] {
+					createDescriptor(
+							"eliminatorMode",EPropertyConstant.COHENHORMANDER_OPTIONS_MODE,
+							true, false, CHModePropertyEditor.class)
+					
+			};
 			return pds;
+		} catch (IntrospectionException ex) {
+			ex.printStackTrace();
+			return null;
+		}	
+			
 	}
 
-	private static PropertyDescriptor createDescriptor(String propertyName,
-			String displayName, String shortDescription)
-			throws IntrospectionException {
-		return createDescriptor(propertyName, displayName, shortDescription,
-				false);
+	private static PropertyDescriptor createDescriptor(String propertyName,EPropertyConstant propertyConstants)
+	throws IntrospectionException {
+		return createDescriptor(propertyName, propertyConstants,false);
 	}
 
-	private static PropertyDescriptor createDescriptor(String propertyName,
-			String displayName, String shortDescription, boolean expert)
-			throws IntrospectionException {
-		return createDescriptor(propertyName, displayName, shortDescription,
-				expert, false);
+	private static PropertyDescriptor createDescriptor(String propertyName,EPropertyConstant propertyConstants, boolean expert)
+	throws IntrospectionException {
+		return createDescriptor(propertyName,propertyConstants, expert, false);
 	}
 
-	private static PropertyDescriptor createDescriptor(String propertyName,
-			String displayName, String shortDescription, boolean expert,
+	private static PropertyDescriptor createDescriptor(String propertyName,EPropertyConstant propertyConstants, boolean expert,
 			boolean preferred) throws IntrospectionException {
-		return createDescriptor(propertyName, displayName, shortDescription,
-				expert, preferred, null);
+		return createDescriptor(propertyName, propertyConstants,expert, preferred, null);
 	}
 
-	private static PropertyDescriptor createDescriptor(String propertyName,
-			String displayName, String shortDescription, boolean expert,
+	private static PropertyDescriptor createDescriptor(String propertyName,EPropertyConstant propertyConstants, boolean expert,
 			boolean preferred, Class<?> propertyEditor)
-			throws IntrospectionException {
+	throws IntrospectionException {
 		PropertyDescriptor result = new PropertyDescriptor(propertyName,
 				beanClass);
-		result.setDisplayName(displayName);
-		result.setShortDescription(shortDescription);
+		result.setDisplayName(propertyConstants.getLabel());
+		result.setShortDescription(propertyConstants.getToolTip());
 		result.setExpert(expert);
 		result.setPreferred(preferred);
 		if (propertyEditor != null) {
@@ -84,4 +94,41 @@ public class OptionsBeanInfo extends SimpleBeanInfo {
 		}
 		return result;
 	}
+
+	public static class CHModePropertyEditor extends
+	TaggedPropertyEditorSupport {
+		public CHModePropertyEditor() {
+			super(getNames(CHMode.values()), CHMode.values());
+		}
+	}
+
+	private static <E extends Enum<E>> String[] getNames(Enum<E> vals[]) {
+		java.util.List<String> names = new ArrayList<String>();
+		for (Enum<E> r : vals) {
+			names.add(r.toString());
+		}
+		return names.toArray(new String[0]);
+	}
+	private static PropertyDescriptor createDescriptor(String propertyName,EPropertyConstant propertyConstants, boolean expert,
+			boolean preferred, boolean hidden) throws IntrospectionException {
+		return createDescriptor(propertyName, propertyConstants, expert, preferred, hidden, null);
+	}
+
+	private static PropertyDescriptor createDescriptor(String propertyName,EPropertyConstant propertyConstants, boolean expert,
+			boolean preferred, boolean hidden, Class<?> propertyEditor)
+	throws IntrospectionException {
+		PropertyDescriptor result = new PropertyDescriptor(propertyName,
+				beanClass);
+		result.setDisplayName(propertyConstants.getLabel());
+		result.setShortDescription(propertyConstants.getToolTip());
+		result.setExpert(expert);
+		result.setHidden(hidden);
+		result.setPreferred(preferred);
+		if (propertyEditor != null) {
+			result.setPropertyEditorClass(propertyEditor);
+		}
+		return result;
+	}
+
+	
 }

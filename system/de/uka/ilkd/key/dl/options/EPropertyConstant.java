@@ -74,6 +74,8 @@ public enum EPropertyConstant {
 	    QEPCAD_OPTIONS_QEPCAD_PATH("[QepcadOptions]qepcadPath", "Qepcad Path", "The path to the qepcad installation needed to setup the correct environment for the tool (it must contain bin/qepcad binary)","Qepcad Properties"),
 	    QEPCAD_OPTIONS_SACLIB_PATH("[QepcadOptions]saclibPath", "Saclib Path", "The path to the saclib installation needed to setup the correct environment for Qepcad","Qepcad Properties"),
 	    QEPCAD_OPTIONS_QEPCAD_MEMORYLIMIT("[QepcadOptions]qepcadMemoryLimit", "Memory Limit", "The number of kilobytes qepcad may use for its computation. (set to -1 for default value)","Qepcad Properties"),
+	    
+	    COHENHORMANDER_OPTIONS_MODE("[CohenhormanderOptions]eliminatorMode", "eliminatorMode", "what","CohenHormander Properties"),
 
 	    OPTIONS_REDUCE_BINARY("[ReduceOptions]reduceBinary", "Reduce Binary", "<html>The path to the reduce binary installation needed<br>"
 										+ "to setup the correct environment for the tool</html>","Redlog Properties"), 
