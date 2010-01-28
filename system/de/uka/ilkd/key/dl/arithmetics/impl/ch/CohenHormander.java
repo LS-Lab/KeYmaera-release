@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
+import de.uka.ilkd.key.dl.arithmetics.impl.ch.Options.CHMode;
 import de.uka.ilkd.key.dl.arithmetics.impl.ch.cohenhormander.*;
 
 import org.w3c.dom.Node;
@@ -76,9 +77,14 @@ public class CohenHormander implements IQuantifierEliminator {
 		
 		CHFormula fm1;
 		
+		int mode = 1;
+		if(Options.INSTANCE.getEliminatorMode() == CHMode.DNF){
+			mode = 2;
+		}
+		
 		try{
 			CV.start();
-			fm1 = AM.real_elim_try_universal_closure(fm);
+			fm1 = AM.real_elim_try_universal_closure(fm,mode);
 		}catch(CHAbort e){
 			System.out.println("caught aborted qelim");
 			throw new IncompleteEvaluationException("Quantifier elimination aborted!");
