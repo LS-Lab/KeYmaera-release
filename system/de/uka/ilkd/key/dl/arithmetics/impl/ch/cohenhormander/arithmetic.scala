@@ -1206,12 +1206,13 @@ final object AM {
   }
 
   @throws(classOf[CHAbort])
-  def real_elim_try_universal_closure(fm: CHFormula): CHFormula = {
-    val fm1 =  real_elim2(fm);
+  def real_elim_try_universal_closure(fm: CHFormula, opt: Int): CHFormula = {
+    val re = if(opt == 1) real_elim _ else real_elim2 _ ;
+    val fm1 =  re(fm);
     if(fv(fm1).length < fv(fm).length)
       fm1
       else {
-        val fm2 = real_elim2(univ_close(fm))
+        val fm2 = re(univ_close(fm))
         if(fm2 == True()) True() else fm1
       }
 

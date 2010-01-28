@@ -27,12 +27,14 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 
+import de.uka.ilkd.key.dl.arithmetics.impl.reduce.Options.ReduceSwitch;
+import de.uka.ilkd.key.dl.options.EPropertyConstant;
 import de.uka.ilkd.key.gui.GUIEvent;
 import de.uka.ilkd.key.gui.configuration.Settings;
 import de.uka.ilkd.key.gui.configuration.SettingsListener;
 
 /**
- * This class serves options specific for the Qepcad interface
+ * This class serves options specific for the CohenHormander interface
  * 
  * @author jdq
  * @since Aug 20, 2008
@@ -43,10 +45,16 @@ public class Options implements Settings {
 
 	public static final Options INSTANCE = new Options();
 
+	
+	public static enum CHMode {NO_DNF, DNF};
+	
+	private CHMode eliminatorMode;
+	
 	private List<SettingsListener> listeners;
 
 	private Options() {
 		listeners = new LinkedList<SettingsListener>();
+		eliminatorMode = CHMode.DNF;
 	}
 
 	/*
@@ -72,6 +80,11 @@ public class Options implements Settings {
 	 * @see de.uka.ilkd.key.gui.Settings#readSettings(java.util.Properties)
 	 */
 	public void readSettings(Properties props) {
+		String property;
+		property = props.getProperty(EPropertyConstant.COHENHORMANDER_OPTIONS_MODE.getKey());
+		if (property != null) {
+			eliminatorMode = CHMode.valueOf(property);
+		}
 	}
 
 	/*
@@ -80,9 +93,23 @@ public class Options implements Settings {
 	 * @see de.uka.ilkd.key.gui.Settings#writeSettings(java.util.Properties)
 	 */
 	public void writeSettings(Properties props) {
+		props.setProperty(EPropertyConstant.COHENHORMANDER_OPTIONS_MODE.getKey(), eliminatorMode.name());
 		//props.setProperty(OPTIONS_QEPCAD_PATH, qepcadPath.getAbsolutePath());
 		//props.setProperty(OPTIONS_SACLIB_PATH, saclibPath.getAbsolutePath());
 		//props.setProperty(OPTIONS_QEPCAD_MEMORYLIMIT, "" + qepcadMemoryLimit);
+	}
+	
+	
+	public void setEliminatorMode(CHMode m){
+		if(this.eliminatorMode != m){
+			this.eliminatorMode = m;
+			firePropertyChanged();
+		}
+	}
+	
+	public CHMode getEliminatorMode(){
+		
+		return eliminatorMode;
 	}
 
 }
