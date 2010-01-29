@@ -133,7 +133,7 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
 							"applyLocalReduce", EPropertyConstant.DLOPTIONS_APPLY_LOCAL_REDUCE,true, false, LocalReducePropertyEditor.class),
 					createDescriptor("applyGlobalReduce", EPropertyConstant.DLOPTIONS_APPLY_GLOBAL_REDUCE,true, false),
 					createDescriptor(
-							"readdQuantifiers", EPropertyConstant.DLOPTIONS_READD_QUANTIFIERS,true, false, true),
+							"readdQuantifiers", EPropertyConstant.DLOPTIONS_READD_QUANTIFIERS,true, false, false),
 					createDescriptor(
 							"applyGammaRules", EPropertyConstant.DLOPTIONS_APPLY_GAMMA_RULES,
 							true, false, true, ApplyRulesPropertyEditor.class),

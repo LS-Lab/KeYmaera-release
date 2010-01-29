@@ -789,7 +789,7 @@ public class Main extends JFrame implements IMain {
         getContentPane().add(splitPane, BorderLayout.CENTER);
         
         statusLine = new MainStatusLine("<html>" + PARA + COPYRIGHT + PARA
-                + "KeY is free software and comes with ABSOLUTELY NO WARRANTY."
+                + "KeYmaera is free software and comes with ABSOLUTELY NO WARRANTY."
                 + " See About | License.", getFont());
         getContentPane().add(statusLine, BorderLayout.SOUTH);
         setupInternalInspection();
@@ -3408,8 +3408,8 @@ public class Main extends JFrame implements IMain {
     }
     
     public static void main(String[] args) {
-        System.out.println("\nKeY Version " + VERSION);
-	System.out.println(COPYRIGHT+"\nKeY is protected by the " +
+        System.out.println("\nKeYmaera Version " + VERSION);
+	System.out.println(COPYRIGHT+"\nKeYmaera is protected by the " +
 	      	           "GNU General Public License\n");
         
         // does no harm on non macs
