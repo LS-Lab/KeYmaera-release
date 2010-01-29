@@ -37,7 +37,7 @@ public class HighlightSyntax {
      * @return the regex for KeYmaera specific types
      */
     static String getKeymaeraSpecificTypes(){
-	return "\\b((if)|(then)|(fi)|(else)|(while)|(end)|(exist)|R|(forall)|(problem))\\b";  
+	return "\\b((if)|(then)|(fi)|(else)|(while)|(end)|(exists)|R|(forall)|(problem))\\b";  
     }
 
     /**

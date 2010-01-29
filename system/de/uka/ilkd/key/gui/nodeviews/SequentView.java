@@ -524,7 +524,7 @@ public class SequentView extends JEditorPane implements Autoscroll {
 	    if (range != null) {
 		getHighlighter()
 		    .changeHighlight(highlighter, 
-				     range.start(), range.end());// Added +1 By Zacharais Njam Mokom due to change of text type to text/html
+				     range.start(), range.end()+1);// Added +1 By Zacharais Njam Mokom due to change of text type to text/html
 	    } else {
 		getHighlighter()
 		    .changeHighlight(highlighter, 0, 0);
