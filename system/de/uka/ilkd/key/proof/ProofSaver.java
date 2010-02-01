@@ -94,7 +94,7 @@ public class ProofSaver {
    }
 
    public String writeSettings(ProofSettings ps){
-    	return new String ("\\settings {\n\""+ps.settingsToString()+"\"\n}\n");
+    	return new String ("\\settings {\n\""+escapeCharacters(ps.settingsToString())+"\"\n}\n");
    }
    public String save() {
       String errorMsg = null;
@@ -172,8 +172,8 @@ public class ProofSaver {
         if (proposals.isEmpty()) {
             return s;
         }
-        for (Iterator<Name> it = proposals.iterator(); it.hasNext();) {
-            s += "," + it.next();
+        for (Name proposal : proposals) {
+            s += "," + proposal;
         }
         return " (newnames \"" + s.substring(1) + "\")";
     }
@@ -395,26 +395,22 @@ public class ProofSaver {
 
    public String ifFormulaInsts(Node node, ImmutableList<IfFormulaInstantiation> l) {
       String s ="";
-      Iterator<IfFormulaInstantiation> it = l.iterator();
-      while (it.hasNext()) {
-         IfFormulaInstantiation iff = it.next();
-         if (iff instanceof IfFormulaInstSeq) {
-            ConstrainedFormula f = iff.getConstrainedFormula();
-            s+= " (ifseqformula \"" + 
-                node.sequent().formulaNumberInSequent(
-                        ((IfFormulaInstSeq)iff).inAntec(),f) + 
-                        "\")";
-            }
-            else
-                if (iff instanceof IfFormulaInstDirect) {
-                    
-                    final String directInstantiation = printTerm(iff.getConstrainedFormula().formula(), 
-                            node.proof().getServices()).toString();
+       for (IfFormulaInstantiation aL : l) {
+           IfFormulaInstantiation iff = aL;
+           if (iff instanceof IfFormulaInstSeq) {
+               ConstrainedFormula f = iff.getConstrainedFormula();
+               s += " (ifseqformula \"" +
+                       node.sequent().formulaNumberInSequent(
+                               ((IfFormulaInstSeq) iff).inAntec(), f) +
+                       "\")";
+           } else if (iff instanceof IfFormulaInstDirect) {
 
-                    s += " (ifdirectformula \"" + escapeCharacters(directInstantiation) + "\")";
-                }
-                else throw new RuntimeException("Unknown If-Seq-Formula type");
-        }
+               final String directInstantiation = printTerm(iff.getConstrainedFormula().formula(),
+                       node.proof().getServices()).toString();
+
+               s += " (ifdirectformula \"" + escapeCharacters(directInstantiation) + "\")";
+           } else throw new RuntimeException("Unknown If-Seq-Formula type");
+       }
       
         return s;
     }

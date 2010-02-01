@@ -11,9 +11,13 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowStateListener;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.html.HTMLDocument;
 
@@ -21,11 +25,14 @@ import de.uka.ilkd.key.collection.DefaultImmutableSet;
 import de.uka.ilkd.key.collection.ImmutableSet;
 import de.uka.ilkd.key.java.declaration.MethodDeclaration;
 import de.uka.ilkd.key.logic.op.ProgramMethod;
+import de.uka.ilkd.key.proof.Node;
 import de.uka.ilkd.key.unittest.ModelGenerator;
+import de.uka.ilkd.key.unittest.ModelGeneratorGUIInterface;
 import de.uka.ilkd.key.unittest.TestGenFac;
+import de.uka.ilkd.key.unittest.TestGenerator;
 import de.uka.ilkd.key.unittest.UnitTestBuilder;
 import de.uka.ilkd.key.unittest.UnitTestBuilderGUIInterface;
-import de.uka.ilkd.key.unittest.simplify.SimplifyModelGenerator;
+import de.uka.ilkd.key.unittest.simplify.*;
 
 @SuppressWarnings("serial")
 public class TestGenerationDialog extends JDialog {
@@ -36,27 +43,37 @@ public class TestGenerationDialog extends JDialog {
 
     public JList methodList;
 
-    final static String OLD_SIMPLIFY = "Simplify (old interface)";
+    final static String OLD_SIMPLIFY = "Simplify";
 
     final static String SIMPLIFY = "Simplify (new interface)";
 
     final static String COGENT = "Cogent";
 
     final JComboBox solverChoice = new JComboBox(new String[] { OLD_SIMPLIFY,
-	    SIMPLIFY, COGENT });
+	    /* SIMPLIFY , */ COGENT });
 
     final JComboBox testGenChoice = new JComboBox(new String[] {
-	    TestGenFac.TG_JAVACARD, TestGenFac.TG_JAVA });
+	    TestGenFac.TG_USE_SETGET, TestGenFac.TG_USE_REFL });
 
     final JCheckBox completeEx = new JCheckBox("Only completely executed traces");
     
+    final JCheckBox allowNonTraceNodes = new JCheckBox("Allow deriving path conditions from non-program-nodes");
+    
+    /**The proof view is shows the current node which is progressed by test generation */
     final public JCheckBox trackProgressInViewport = new JCheckBox("Track progress in proof view");
+
+    final public JCheckBox inspectModelGeneration = new JCheckBox("Inspect model generation (for debugging)");
 
     final JTextField simplifyDataTupleNumber;
     
     final JTextField modelGenTimeout;
+
+    /**Comma separated list of integers. Used for model generation. */
+    final JTextField testData;
     
-    //final JEditorPane msgEditorPane = new JEditorPane();
+    final JTextField iterativeDeepeningStartValue;
+
+    /**Displays messages during test generation */
     final JList msgList = new JList();
     
     static TestGenerationDialog instance = null;
@@ -64,13 +81,22 @@ public class TestGenerationDialog extends JDialog {
     //private StringBuffer latestTests = new StringBuffer();
 
     private TestGenerationDialog(final KeYMediator mediator) {
-	super(mediator.mainFrame(), "Method selection dialog");
+	super(mediator.mainFrame(), "Test generation dialog");
 	this.mediator = mediator;
-	simplifyDataTupleNumber = new JTextField(""
-	        + SimplifyModelGenerator.modelLimit, 2);
-	assert(UnitTestBuilder.modelCreationTimeout<Integer.MAX_VALUE);
-	modelGenTimeout = new JTextField(Integer.toString((int)UnitTestBuilder.modelCreationTimeout),7);
+	simplifyDataTupleNumber = new JTextField("" + SimplifyModelGenerator.modelLimit, 2);
+	assert(TestGenerator.modelCreationTimeout<Integer.MAX_VALUE);
+	modelGenTimeout = new JTextField(Integer.toString(TestGenerator.modelCreationTimeout),7);
+	testData = new JTextField(OLDSimplifyMG_GUIInterface.getTestData(),40);
+	iterativeDeepeningStartValue = new JTextField(""+OLDSimplifyMG_GUIInterface.iterativeDeepeningStart,3);
 	layoutMethodSelectionDialog();
+	this.addWindowStateListener(new WindowStateListener(){
+	    public void windowStateChanged(WindowEvent arg0) {
+	        // TODO Auto-generated method stub
+	        if(arg0.getNewState()==WindowEvent.WINDOW_CLOSED){
+	            msgList.removeAll();
+	        }
+            }
+	});
 	pack();
 	setLocation(70, 70);
 	setVisible(true);
@@ -100,16 +126,19 @@ public class TestGenerationDialog extends JDialog {
 	    throw new RuntimeException(
 		    "Unhandled case in MethodSelecitonDialog.");
 	}
-	instance.completeEx
-	        .setSelected(UnitTestBuilder.requireCompleteExecution);
+	instance.completeEx.setSelected(UnitTestBuilder.requireCompleteExecution);
+	instance.allowNonTraceNodes.setSelected(UnitTestBuilder.allowNonTraceNodeAsPathCond);
 	instance.simplifyDataTupleNumber.setText(Integer
 	        .toString(SimplifyModelGenerator.modelLimit));
-	instance.modelGenTimeout.setText(Integer.toString((int)UnitTestBuilder.modelCreationTimeout));
-	assert (TestGenFac.testGenMode == TestGenFac.TG_JAVACARD || TestGenFac.testGenMode == TestGenFac.TG_JAVA) : "Unhandled case in MethodSelectionDialog.";
-	if (TestGenFac.testGenMode == TestGenFac.TG_JAVACARD) {
-	    instance.testGenChoice.setSelectedItem(TestGenFac.TG_JAVACARD);
+	instance.modelGenTimeout.setText(Integer.toString(TestGenerator.modelCreationTimeout));
+	instance.testData.setText(OLDSimplifyMG_GUIInterface.getTestData());
+	instance.iterativeDeepeningStartValue.setText(""+OLDSimplifyMG_GUIInterface.iterativeDeepeningStart);
+
+	assert (TestGenFac.testGenMode == TestGenFac.TG_USE_SETGET || TestGenFac.testGenMode == TestGenFac.TG_USE_REFL) : "Unhandled case in MethodSelectionDialog.";
+	if (TestGenFac.testGenMode == TestGenFac.TG_USE_SETGET) {
+	    instance.testGenChoice.setSelectedItem(TestGenFac.TG_USE_SETGET);
 	} else {
-	    instance.testGenChoice.setSelectedItem(TestGenFac.TG_JAVA);
+	    instance.testGenChoice.setSelectedItem(TestGenFac.TG_USE_REFL);
 	}
 	return instance;
     }
@@ -130,10 +159,19 @@ public class TestGenerationDialog extends JDialog {
 	    // do nothing
 	}
     }
-    
+
+    public void setIterativeDeepeningStart(final String s) {
+	try {
+	    OldSimplifyModelGenerator.iterativeDeepeningStart = Integer.parseInt(s);
+	} catch (final NumberFormatException ex) {
+	    System.out.println(ex);
+	    // do nothing
+	}
+    }
+
     public void setModelGenTimeout(final String s) {
 	try {
-	    UnitTestBuilder.modelCreationTimeout = Integer.parseInt(s);
+	    TestGenerator.modelCreationTimeout = Integer.parseInt(s);
 	} catch (final NumberFormatException ex) {
 	    System.out.println(ex);
 	    // do nothing
@@ -208,8 +246,10 @@ public class TestGenerationDialog extends JDialog {
 	getContentPane().add(methodListScroll);//,BorderLayout.CENTER
 
 	// buttons
-	final JPanel controlPanel = new JPanel();
-	controlPanel.setLayout(new BoxLayout(controlPanel, BoxLayout.Y_AXIS));
+	final JPanel settingsPanel = new JPanel();
+	settingsPanel.setLayout(new BoxLayout(settingsPanel, BoxLayout.Y_AXIS));
+	settingsPanel.setBorder(new TitledBorder("Settings"));
+	//controlPanel.setMaximumSize(new java.awt.Dimension(350, 300));
 	
 	completeEx.addActionListener(new ActionListener() {
 	    public void actionPerformed(final ActionEvent e) {
@@ -217,14 +257,28 @@ public class TestGenerationDialog extends JDialog {
 		        .isSelected();
 	    }
 	});
+	
+	allowNonTraceNodes.addActionListener(new ActionListener() {
+	    public void actionPerformed(final ActionEvent e) {
+		UnitTestBuilder.allowNonTraceNodeAsPathCond = allowNonTraceNodes.isSelected();
+	    }
+	});
+	allowNonTraceNodes.setToolTipText("<html>Controls which node to select for deriving the path condition.<br>" +
+		"When generating tests for a proof branch, a program trace is computed on that branch.<br>" +
+		"If this item unselected, then the latest node on the program trace is selected as<br>" +
+		"the path condition. This is a node occurring during symbolic execution.<br>" +
+		"If this item is selected, then the node selected by the user (possibly end-node of <br>" +
+		"the proof branch) will be used as the path condition. In this way information from<br>" +
+		"the post condition will be used for test generation as well other information obtained <br>" +
+		"after symbolic execution. Use this option when using invariants and contracts</html>");
+	
 	final JButton exit = new JButton("Exit");
 	exit.addActionListener(new ActionListener() {
 	    public void actionPerformed(final ActionEvent e) {
 		if(testBuilder!=null){
 		    testBuilder.stopThreads();
 		}
-		setSimplifyCount(simplifyDataTupleNumber.getText());
-		setModelGenTimeout(modelGenTimeout.getText());
+		updateFromUserSettings();
 		setVisible(false);
 		dispose();
 		instance = null;
@@ -261,10 +315,10 @@ public class TestGenerationDialog extends JDialog {
         
         	testGenChoice.addActionListener(new ActionListener() {
         	    public void actionPerformed(final ActionEvent e) {
-        		if (testGenChoice.getSelectedItem() == TestGenFac.TG_JAVACARD) {
-        		    TestGenFac.testGenMode = TestGenFac.TG_JAVACARD;
-        		} else if (testGenChoice.getSelectedItem() == TestGenFac.TG_JAVA) {
-        		    TestGenFac.testGenMode = TestGenFac.TG_JAVA;
+        		if (testGenChoice.getSelectedItem() == TestGenFac.TG_USE_SETGET) {
+        		    TestGenFac.testGenMode = TestGenFac.TG_USE_SETGET;
+        		} else if (testGenChoice.getSelectedItem() == TestGenFac.TG_USE_REFL) {
+        		    TestGenFac.testGenMode = TestGenFac.TG_USE_REFL;
         		} else {
         		    throw new RuntimeException(
         			    "Not implemented case in MethodSelectionDialog");
@@ -273,19 +327,51 @@ public class TestGenerationDialog extends JDialog {
         	});
 	choisePanel.add(testGenChoice);
 
-	final JPanel buttonPanel = new JPanel();
-		//buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));
-
-        	final JButton testAll = new JButton("Create Test For Proof");
-        	testAll.addActionListener(new ActionListener() {
-        	    public void actionPerformed(final ActionEvent e) {
-        		setSimplifyCount(simplifyDataTupleNumber.getText());
-        		setModelGenTimeout(modelGenTimeout.getText());
-        		createTest(null);
-        	    }
-        	});
 	
-	buttonPanel.add(testAll);
+	settingsPanel.add(choisePanel);
+		JPanel timeoutPanel = new JPanel();
+		timeoutPanel.add(new JLabel("Test data generation timeout per node (sec.):"));
+		timeoutPanel.add(modelGenTimeout);
+	settingsPanel.add(timeoutPanel);
+	settingsPanel.add(completeEx);
+	settingsPanel.add(allowNonTraceNodes);
+	//controlPanel.add(Box.createVerticalGlue());
+	settingsPanel.add(trackProgressInViewport);
+		trackProgressInViewport.setSelected(false);
+		
+		inspectModelGeneration.addActionListener(new ActionListener(){
+		    public void actionPerformed(ActionEvent arg0) {
+			JCheckBox box = (JCheckBox)arg0.getSource();
+			ModelGeneratorGUIInterface.dialogIsActivated = box.isSelected();
+                    }
+		});
+	settingsPanel.add(inspectModelGeneration);
+		inspectModelGeneration.setSelected(false);
+		
+		
+		JPanel depthPanel= new JPanel();
+		depthPanel.add(new JLabel("Starting depth of iterative deepening"));
+		depthPanel.add(iterativeDeepeningStartValue);
+	settingsPanel.add(depthPanel);
+		JPanel tdPanel= new JPanel();
+		tdPanel.add(new JLabel("Test data"));
+		tdPanel.add(testData);
+	settingsPanel.add(tdPanel);
+		
+	getContentPane().add(settingsPanel);//,BorderLayout.EAST
+
+	final JPanel buttonPanel = new JPanel();
+	//buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));
+
+	final JButton testAll = new JButton("Create Test For Proof");
+	testAll.addActionListener(new ActionListener() {
+	    public void actionPerformed(final ActionEvent e) {
+		updateFromUserSettings();
+		createTest(null);
+	    }
+	});
+
+        buttonPanel.add(testAll);
         	final JButton testSel = new JButton(
         	        "Create Test For Selected Method(s)");
         	testSel.addActionListener(new ActionListener() {
@@ -295,58 +381,92 @@ public class TestGenerationDialog extends JDialog {
         			    "Please select the method(s) first!",
         			    "No Methods Selected", JOptionPane.ERROR_MESSAGE);
         		} else {
-        		    setSimplifyCount(simplifyDataTupleNumber.getText());
-        		    setModelGenTimeout(modelGenTimeout.getText());
+        		    updateFromUserSettings();
         		    createTest(methodList.getSelectedValues());
         		}
         	    }
         	});
-	buttonPanel.add(testSel);
-	
-	controlPanel.add(choisePanel);
-		JPanel timeoutPanel = new JPanel();
-		timeoutPanel.add(new JLabel("Test data generation timeout per node (sec.):"));
-		timeoutPanel.add(modelGenTimeout);
-	controlPanel.add(timeoutPanel);
-	controlPanel.add(completeEx);
-	//controlPanel.add(Box.createVerticalGlue());
-	controlPanel.add(trackProgressInViewport);
-		trackProgressInViewport.setSelected(false);
-	controlPanel.add(buttonPanel);
+        buttonPanel.add(testSel);
+        buttonPanel.add(exit);
 
-	controlPanel.add(exit);
-	getContentPane().add(controlPanel);//,BorderLayout.EAST
+        getContentPane().add(buttonPanel);
 	
-        	final JScrollPane messageScroll = new JScrollPane(
-        	        ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
-        	        ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        	msgList.setModel(new DefaultListModel());
-        	messageScroll.getViewport().setView(msgList);
-        	messageScroll.setBorder(new TitledBorder("Progress Notification"));
-        	messageScroll.setPreferredSize(new java.awt.Dimension(250, 200));
+	final JScrollPane messageScroll = new JScrollPane(
+	        ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+	        ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+	msgList.setModel(new DefaultListModel());
+	msgList.addListSelectionListener(new ListSelectionListener(){
+	    public void valueChanged(ListSelectionEvent arg0) {
+		JList list = (JList)arg0.getSource();
+		int idx = list.getSelectedIndex();
+		if(0<=idx ){
+		    Object data = list.getModel().getElementAt(idx);
+		    if(Main.isVisibleMode() &&  data instanceof MessageForNode){
+			MessageForNode msg = (MessageForNode)data;
+			if(msg.n!=null && mediator.getSelectionModel().getSelectedNode()!=msg.n){
+			    mediator.getSelectionModel().setSelectedNode(msg.n);
+			}
+		    }
+		}
+            }
+	});
+	messageScroll.getViewport().setView(msgList);
+	messageScroll.setBorder(new TitledBorder("Progress Notification"));
+	messageScroll.setPreferredSize(new java.awt.Dimension(250, 200));
+	//messageScroll.setMinimumSize(new java.awt.Dimension(250, 200));
+	
+
 	getContentPane().add(messageScroll);//,BorderLayout.CENTER
+	//controlPanel.add(messageScroll);//,BorderLayout.CENTER
+	
+    }
+    
+    protected void updateFromUserSettings(){
+	    setSimplifyCount(simplifyDataTupleNumber.getText());
+	    setModelGenTimeout(modelGenTimeout.getText());
+	    setIterativeDeepeningStart(iterativeDeepeningStartValue.getText());
+	    OLDSimplifyMG_GUIInterface.setTestData(testData.getText());
+    }
+
+
+    public class MessageForNode{
+	public String msg;
+	public Node n;
+	public Object data;
+	public MessageForNode(String msg,Node n, Object data){
+	    this.msg = msg;
+	    this.n = n;
+	    this.data = data;
+	}
+	public String toString(){
+	    return msg;
+	}
     }
     
     public void msg(String msg){
-	printMessage("<html><body><p>"+msg+"</p></body></html>");
+	printMessage(msg, null, null);
     }
     
-    public void error(String msg){
-	printMessage("<html><body><p style=\"color:red;\">"+msg+"</p></body></html>");
+    public void msg(String msg, Node n, Object data){
+	printMessage("<html><body><p>"+msg+"</p></body></html>",n, data);
+    }
+    
+    public void error(String msg, Node n, Object data){
+	printMessage("<html><body><p style=\"color:red;\">"+msg+"</p></body></html>",n, data);
     }
 
-    public void goodMsg(String msg){
-	printMessage("<html><body><p style=\"color:green;\">"+msg+"</p></body></html>");
+    public void goodMsg(String msg, Node n, Object data){
+	printMessage("<html><body><p style=\"color:green;\">"+msg+"</p></body></html>",n, data);
     }
 
-    public void badMsg(String msg){
-	printMessage("<html><body><p style=\"color:rgb(200,100,30);\">"+msg+"</p></body></html>");
+    public void badMsg(String msg, Node n, Object data){
+	printMessage("<html><body><p style=\"color:rgb(200,100,30);\">"+msg+"</p></body></html>",n, data);
     }
 
-    protected void printMessage(String msg){
+    protected void printMessage(String msg, Node n, Object data){
 	try {
 	    DefaultListModel model = (DefaultListModel)msgList.getModel();
-	    model.addElement(msg);
+	    model.addElement(new MessageForNode(msg,n,data));
 	    msgList.ensureIndexIsVisible(model.size()-1);
         } catch (Exception e) {
 	    // TODO Auto-generated catch block

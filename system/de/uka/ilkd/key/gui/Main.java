@@ -10,16 +10,7 @@
 
 package de.uka.ilkd.key.gui;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.Cursor;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Frame;
-import java.awt.Point;
-import java.awt.TextArea;
+import java.awt.*;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
@@ -27,22 +18,8 @@ import java.awt.dnd.DropTarget;
 import java.awt.dnd.DropTargetAdapter;
 import java.awt.dnd.DropTargetDropEvent;
 import java.awt.dnd.DropTargetListener;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.InputEvent;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.awt.event.*;
+import java.io.*;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -51,40 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.ButtonGroup;
-import javax.swing.Icon;
-import javax.swing.JButton;
-import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JComponent;
-import javax.swing.JDialog;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.JRadioButtonMenuItem;
-import javax.swing.JScrollPane;
-import javax.swing.JSeparator;
-import javax.swing.JSlider;
-import javax.swing.JSplitPane;
-import javax.swing.JTabbedPane;
-import javax.swing.JTextArea;
-import javax.swing.JToolBar;
-import javax.swing.JViewport;
-import javax.swing.KeyStroke;
-import javax.swing.ScrollPaneConstants;
-import javax.swing.SwingUtilities;
-import javax.swing.ToolTipManager;
-import javax.swing.WindowConstants;
+import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -157,6 +101,7 @@ import de.uka.ilkd.key.proof.ProofTreeListener;
 import de.uka.ilkd.key.proof.init.DebuggerProfile;
 import de.uka.ilkd.key.proof.init.JavaProfile;
 import de.uka.ilkd.key.proof.init.JavaTestGenerationProfile;
+import de.uka.ilkd.key.proof.init.JavaTestGenerationProfile2;
 import de.uka.ilkd.key.proof.init.ProblemInitializer;
 import de.uka.ilkd.key.proof.init.Profile;
 import de.uka.ilkd.key.proof.init.ProofInputException;
@@ -169,7 +114,6 @@ import de.uka.ilkd.key.proof.mgt.TaskTreeNode;
 import de.uka.ilkd.key.proof.reuse.ReusePoint;
 import de.uka.ilkd.key.smt.DecProcRunner;
 import de.uka.ilkd.key.strategy.VBTStrategy;
-import de.uka.ilkd.key.unittest.TestExecuter;
 import de.uka.ilkd.key.unittest.UnitTestBuilder;
 import de.uka.ilkd.key.unittest.UnitTestBuilderGUIInterface;
 import de.uka.ilkd.key.util.Debug;
@@ -348,7 +292,9 @@ public class Main extends JFrame implements IMain {
     private final ArrayList<JRadioButtonMenuItem> showndecProcRadioItems = new ArrayList<JRadioButtonMenuItem>();
     
     /** The menu for the decproc options */
-    private final JMenu decProcOptions = new JMenu("Decision Procedures");
+    public final JMenu decProcOptions = new JMenu("Decision Procedures");
+    
+    public SMTResultsAndBugDetectionDialog decProcResDialog;
     
     
     /**
@@ -365,9 +311,8 @@ public class Main extends JFrame implements IMain {
         guiListener = new MainGUIListener();
         constraintListener = new MainConstraintTableListener();
         
-        taskListener = (Main.batchMode ? (ProverTaskListener)
-                new MainTaskListenerBatchMode() : 
-            (ProverTaskListener) new MainTaskListener());
+        taskListener = (Main.batchMode ? new MainTaskListenerBatchMode() :
+                new MainTaskListener());
         
         setMediator(new KeYMediator(this));
         
@@ -376,6 +321,7 @@ public class Main extends JFrame implements IMain {
         layoutMain();
         initGoalList();
         initGUIProofTree();
+        decProcResDialog = SMTResultsAndBugDetectionDialog.getInstance(mediator);
         
         SwingUtilities.updateComponentTreeUI(this);
         ToolTipManager.sharedInstance().setDismissDelay(30000);
@@ -433,7 +379,7 @@ public class Main extends JFrame implements IMain {
 				instance = new Main("KeY -- Prover");
 			}
 		}
-        if (!instance.isVisible()) {
+        if (!instance.isVisible() && instance.isVisibleMode()) {
             if (SwingUtilities.isEventDispatchThread()) {
                 instance.setVisible(visible); // XXX: enough?
             } else {
@@ -732,10 +678,8 @@ public class Main extends JFrame implements IMain {
 	                    .isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
 	        	try {
 	                	event.acceptDrop(event.getSourceActions());
-	        	List files = (List) transferable.getTransferData(DataFlavor.javaFileListFlavor);
-	        	for (Iterator i = files.iterator(); i.hasNext(); ) {
-	        	    File f = (File) i.next();
-	        	    loadProblem(f);
+	        	for (Object file : (List) transferable.getTransferData(DataFlavor.javaFileListFlavor)) {
+	        	    loadProblem((File) file);
 	        	}
 	        	event.dropComplete(true);
 	        	}
@@ -1718,8 +1662,12 @@ public class Main extends JFrame implements IMain {
 	}
     }
     
+    JCheckBoxMenuItem showSMTResDialog;
     JCheckBoxMenuItem saveSMTFile;
     private JCheckBoxMenuItem waitForAllProvers;
+    /**@see {@link de.uka.ilkd.key.smt.SmtLibTranslatorWeaker} */
+    JCheckBoxMenuItem weakerSMTTranslation;
+
     
     /**
      * creates a menu allowing to choose the external prover to be used
@@ -1792,6 +1740,26 @@ public class Main extends JFrame implements IMain {
 	//dpButtonGroup.add(setButton);
 	
 	//add a checkbox for saving a created problem file
+	showSMTResDialog = new JCheckBoxMenuItem("Show SMT Progress Dialog");
+	showSMTResDialog.setSelected(dps.getShowSMTResDialog());
+	showSMTResDialog.setToolTipText("<html>If activated, then a dialog with a table containing <br>" +
+					"SMT-solver results will be displayed when an SMT-solver is run.</html>");
+	showSMTResDialog.addActionListener(new ActionListener() {
+	   public void actionPerformed(ActionEvent e) {
+	       boolean b = showSMTResDialog.isSelected();
+	       dps.setSMTResDialog(b);
+	       SMTResultsAndBugDetectionDialog dia =SMTResultsAndBugDetectionDialog.getInstance(null);
+	       if(dia!=null){
+		   if(b){
+		       dia.rebuildTableForProof();
+		   }
+		   dia.setVisible(b);
+	       }
+	   }
+	});
+	decProcOptions.add(showSMTResDialog);
+
+	//add a checkbox for saving a created problem file
 	saveSMTFile = new JCheckBoxMenuItem("Save created problemfile");
 	saveSMTFile.setSelected(dps.getSaveFile());
 	saveSMTFile.addActionListener(new ActionListener() {
@@ -1811,6 +1779,21 @@ public class Main extends JFrame implements IMain {
 		});
 	decProcOptions.add(waitForAllProvers);
 	
+	weakerSMTTranslation = new JCheckBoxMenuItem("Weaken Typesystem Translation");
+	weakerSMTTranslation.setSelected(dps.weakenSMTTranslation);
+	weakerSMTTranslation.setToolTipText("<html>When activated, the axiomatization of KeY's type system<br>" +
+						"is weakend during export to the SMT format. In particular<br>"+
+						"axioms with quantifiers are removed or instantiated.<br>" +
+						"This does not destroy soundness for verification, however,<br>" +
+						"counter examples generated by SMT solvers may not fully satisfy<br>" +
+						"the type system.</html>");
+	weakerSMTTranslation.addActionListener(new ActionListener() {
+		   public void actionPerformed(ActionEvent e) {
+		       dps.weakenSMTTranslation = weakerSMTTranslation.isSelected();
+		   }
+		});
+
+	decProcOptions.add(weakerSMTTranslation);
 	
 	return decProcOptions;
     }    
@@ -2117,13 +2100,13 @@ public class Main extends JFrame implements IMain {
 	if (recentFiles != null) {
 	    recentFiles.addRecentFile(file.getAbsolutePath());
 	}
-        if(unitKeY!=null){
-            unitKeY.recent.addRecentFile(file.getAbsolutePath());
-        }
-        final ProblemLoader pl = 
-            new ProblemLoader(file, this, mediator.getProfile(), false);
-        pl.addTaskListener(getProverTaskListener());
-        pl.run();
+	if(unitKeY!=null){
+	    unitKeY.recent.addRecentFile(file.getAbsolutePath());
+	}
+	final ProblemLoader pl = 
+	    new ProblemLoader(file, this, mediator.getProfile(), false);
+	pl.addTaskListener(getProverTaskListener());
+	pl.run();
     }
     
     protected void closeTask() {
@@ -2548,7 +2531,7 @@ public class Main extends JFrame implements IMain {
         
         /** invoked when the strategy of a proof has been changed */
         public synchronized void settingsChanged ( GUIEvent e ) {
-            if ( proof.getSettings().getStrategySettings() == (StrategySettings) e.getSource() ) {
+            if ( proof.getSettings().getStrategySettings() == e.getSource()) {
                 // updateAutoModeConfigButton();
             }         
         }
@@ -2778,12 +2761,24 @@ public class Main extends JFrame implements IMain {
 			Profile p = ProofSettings.DEFAULT_SETTINGS.getProfile();
 			p.setSelectedGoalChooserBuilder(DepthFirstGoalChooserBuilder.NAME);  
 			VBTStrategy.preferedGoalChooser = DepthFirstGoalChooserBuilder.NAME; 
-		} else if (opt[index].equals("TESTING") || opt[index].equals("UNIT")) {
-                    if(opt[index].equals("TESTING")){
+		} else if (opt[index].equals("TESTING") || opt[index].equals("UNIT") || opt[index].equals("UNIT2")) {
+		    int mode=-1;
+		    if(opt[index].equals("TESTING")){
+			mode=1;
+		    } else if(opt[index].equals("UNIT")) {
+			mode=2;
+		    } else if(opt[index].equals("UNIT2")){
+			mode=3;
+		    }
+                    if(mode==1){
                         testStandalone = true;
                         setVisibleMode(false);//Problem:Mixed semantics
                     }
-                    System.out.println("VBT optimizations enabled ...");                    
+                    if(mode==1||mode==2){
+                	System.out.println("VBT optimizations enabled ...");
+                    }else{
+                	System.out.println("VBT 2 optimizations enabled ...");
+                    }
                     
                     //Parameters of JavaTestGenerationProfile
                     boolean loop=false;
@@ -2805,8 +2800,13 @@ public class Main extends JFrame implements IMain {
                         if(loopBound>=0)System.out.println("Bounded loop unwinding. Unwinding bound:"+loopBound);
                         index++;
                     }
-                    ProofSettings.DEFAULT_SETTINGS.setProfile(
-                	    new JavaTestGenerationProfile(null,loop,loopBound));                   
+                    if(mode==1||mode==2){
+                	ProofSettings.DEFAULT_SETTINGS.setProfile(
+                	    new JavaTestGenerationProfile(null,loop,loopBound));
+                    } else if(mode==3){
+                	ProofSettings.DEFAULT_SETTINGS.setProfile(
+                    	    new JavaTestGenerationProfile2(null,loop,loopBound));                	
+                    }
                     testMode = true;
                     
 		} else if (opt[index].equals("DEBUGGER")) {                                     
@@ -2873,6 +2873,9 @@ public class Main extends JFrame implements IMain {
         	           "                    unit test generation mode. Optional arguments:\n"+
         	           "                    loop: to enable balanced loop unwinding\n"+
         	           "                    loopX: to allow at most X loop iterations");
+        System.out.println("  unit2 [loop] [loop0|loop1|loop2|loop3|loop4]: \n"+
+	           	   "                    unit test generation mode that is compatible with\n"+
+	           	   "                    the normal verification mode.");
 	System.out.println("  depthfirst      : constructs the proof tree in a depth first manner. Recommended for large proofs");
         System.out.println("  auto	          : start prove procedure after initialisation");
         System.out.println("  testing         : starts the prover with a simple test generation oriented user interface");

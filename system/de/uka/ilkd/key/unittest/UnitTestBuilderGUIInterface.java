@@ -1,38 +1,20 @@
 package de.uka.ilkd.key.unittest;
 
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Vector;
 
 import javax.swing.JList;
 
 import de.uka.ilkd.key.collection.DefaultImmutableSet;
-import de.uka.ilkd.key.collection.ImmutableList;
 import de.uka.ilkd.key.collection.ImmutableSet;
 import de.uka.ilkd.key.gui.ExceptionDialog;
 import de.uka.ilkd.key.gui.KeYMediator;
 import de.uka.ilkd.key.gui.Main;
 import de.uka.ilkd.key.gui.TestGenerationDialog;
-import de.uka.ilkd.key.java.Position;
 import de.uka.ilkd.key.java.Services;
-import de.uka.ilkd.key.java.Statement;
-import de.uka.ilkd.key.java.StatementBlock;
-import de.uka.ilkd.key.java.reference.PackageReference;
-import de.uka.ilkd.key.java.statement.MethodFrame;
-import de.uka.ilkd.key.java.visitor.JavaASTCollector;
-import de.uka.ilkd.key.logic.Constraint;
-import de.uka.ilkd.key.logic.Namespace;
-import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.op.ProgramMethod;
-import de.uka.ilkd.key.logic.op.ProgramVariable;
 import de.uka.ilkd.key.proof.Node;
 import de.uka.ilkd.key.proof.Proof;
-import de.uka.ilkd.key.unittest.AssGenFac.AssignmentGenerator;
-import de.uka.ilkd.key.unittest.testing.DataStorage;
 import de.uka.ilkd.key.visualization.ExecutionTraceModel;
-import de.uka.ilkd.key.visualization.ProofVisualization;
-import de.uka.ilkd.key.visualization.TraceElement;
-import de.uka.ilkd.key.visualization.VisualizationStrategyForTesting;
 
 /** Extends the UnitTestBuilder with methods that send and receive message from the GUI.
  * This is to give the user a better feedback and control over the test generation progress.
@@ -90,7 +72,7 @@ public class UnitTestBuilderGUIInterface extends UnitTestBuilder {
     	   list[i++]=pm.getName();
            }
            dialog.methodList.setListData(list);
-           Thread.currentThread().yield();
+           Thread.yield();
        }else if(Main.isVisibleMode() || Main.testStandalone){
 	   String txt = finished? "Computation of traces has finished" :"Traces are being computed...";
 	   Main.getInstance().setStatusLine(txt);
@@ -109,7 +91,7 @@ public class UnitTestBuilderGUIInterface extends UnitTestBuilder {
    protected void createTestForNodes_progressNotification0(int nodeCounter, Node n){
        String txt = "("+nodeCounter+") Compute an execution trace for node:"+n.serialNr();
        if(dialog!=null && Main.isVisibleMode()){
-	   dialog.msg(txt);
+	   dialog.msg(txt, n, null);
        }
        if(Main.testStandalone){
 	   Main.getInstance().setStatusLine(txt);
@@ -119,9 +101,12 @@ public class UnitTestBuilderGUIInterface extends UnitTestBuilder {
    }
 
    /** called by createTestForNodes.*/
-   protected void createTestForNodes_progressNotification1(ExecutionTraceModel etm, Node n){
+   protected void createTestForNodes_progressNotification1(ExecutionTraceModel etm, Node pathConditionNode, Node originalNode){
        if(dialog!=null && Main.isVisibleMode())
-	   dialog.goodMsg("     Selected execution trace for node:"+n.serialNr());
+	   dialog.goodMsg("Selected execution trace for "+originalNode.serialNr()+
+		   ". Using path condition from "+pathConditionNode.serialNr(), 
+		   pathConditionNode, 
+		   null);
        //System.out.println("Selected execution trace for node:"+n.serialNr()+ "  Last node of execution trace is: "+etm.getLastNode().serialNr());
 //       if(dialog!=null && dialog.trackProgressInViewport.isSelected()){
 //	   mediator.getSelectionModel().setSelectedNode(n);
@@ -133,7 +118,7 @@ public class UnitTestBuilderGUIInterface extends UnitTestBuilder {
    protected void createTestForNodes_progressNotification2(UnitTestException e){
        String msg="Problem Occured:"+e.toString()+ "\n Continuing despite the exception";
        if(dialog!=null && Main.isVisibleMode()){
-	   dialog.error(msg);
+	   dialog.error(msg, null, null);
        }
    }
 
@@ -231,5 +216,11 @@ public class UnitTestBuilderGUIInterface extends UnitTestBuilder {
 	  super.run();
        }
    }
+   
+   protected ModelGenerator getModelGenerator(final String executionTraceModel, final Node node,
+	    final Node originalNode) {
+	return new ModelGeneratorGUIInterface(serv, uc, node, executionTraceModel, originalNode);
+   }
+
 
 }
