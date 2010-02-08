@@ -65,7 +65,7 @@ import de.uka.ilkd.key.util.pp.UnbalancedBlocksException;
 public class LogicPrinter {
 
     /**
-     * The default and minimal value o fthe
+     * The default and minimal value of the
      * max. number of characters to put in one line
      */
     public static final int DEFAULT_LINE_WIDTH = 55;
@@ -80,7 +80,7 @@ public class LogicPrinter {
     protected ProgramPrinter prgPrinter;
 
     /** Contains information on the concrete syntax of operators. */
-    private final NotationInfo notationInfo;
+    protected final NotationInfo notationInfo;
 
     /** the services object */
     protected final Services services;
@@ -100,7 +100,7 @@ public class LogicPrinter {
     Constraint formulaConstraint = null;
 
     /**If pure is true the PositionTable will not be calculated */
-    private boolean pure = false;
+    protected boolean pure = false;
 
     protected SVInstantiations instantiations = 
         SVInstantiations.EMPTY_SVINSTANTIATIONS;
@@ -2098,27 +2098,27 @@ public class LogicPrinter {
     }
 
     /** Mark the start of a subterm.  Needed for PositionTable construction.*/
-    private static final Object MARK_START_SUB = new Object();
+    protected static final Object MARK_START_SUB = new Object();
     /** Mark the end of a subterm.  Needed for PositionTable construction.*/
-    private static final Object MARK_END_SUB = new Object();
+    protected static final Object MARK_END_SUB = new Object();
     /** Mark the start of a term with a number of subterms.
      * Needed for PositionTable construction.*/
     private static final Object MARK_START_TERM = new Object();
     /** Mark the start of the first executable statement.
      * Needed for PositionTable construction.*/
-    private static final Object MARK_START_FIRST_STMT = new Object();
+    protected static final Object MARK_START_FIRST_STMT = new Object();
     /** Mark the end of the first executable statement.
      * Needed for PositionTable construction.*/
-    private static final Object MARK_END_FIRST_STMT = new Object();
+    protected static final Object MARK_END_FIRST_STMT = new Object();
     /** Mark the need for a ModalityPositionTable.  The next
      * startTerm mark will construct a ModalityPositionTable
      * instead of the usual PositionTable.
      * Needed for PositionTable construction.*/
-    private static final Object MARK_MODPOSTBL = new Object();
+    protected static final Object MARK_MODPOSTBL = new Object();
     /** Mark the start of an update.*/
-    private static final Object MARK_START_UPDATE = new Object();
+    protected static final Object MARK_START_UPDATE = new Object();
     /** Mark the end of an update.*/
-    private static final Object MARK_END_UPDATE = new Object();
+    protected static final Object MARK_END_UPDATE = new Object();
 
     private boolean createPositionTable = true;
 
@@ -2213,7 +2213,6 @@ public class LogicPrinter {
      */
     public static String escapeHTML(String text) {
          StringBuffer sb = new StringBuffer();
-        
          for (int i = 0, sz = text.length(); i < sz; i++) {
              char c = text.charAt(i); 
              switch (c) {
@@ -2284,7 +2283,7 @@ public class LogicPrinter {
 
     /** Utility class for stack entries containing the position table
      * and the position of the start of the subterm in the result.  */
-    private class StackEntry {
+    protected class StackEntry {
 
         PositionTable posTbl;
         int p;
@@ -2311,7 +2310,7 @@ public class LogicPrinter {
      * layouter with the various static <code>MARK_</code> objects
      * declared {@link LogicPrinter}.
      */
-    private class PosTableStringBackend extends StringBackend {
+    protected class PosTableStringBackend extends StringBackend {
 
         /** The top PositionTable */
         private InitialPositionTable initPosTbl =
