@@ -23,6 +23,7 @@ import de.uka.ilkd.key.logic.Semisequent;
 import de.uka.ilkd.key.logic.Sequent;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.pp.LogicPrinter;
+import de.uka.ilkd.key.pp.LogicPrinterHTML;
 import de.uka.ilkd.key.pp.ProgramPrinter;
 import de.uka.ilkd.key.util.Debug;
 
@@ -114,7 +115,7 @@ public class ComputeSpecificationView {
 	    Debug.out("\nalias:\n", spec2);
 	    final SequentView view = new SequentView(mediator);
 	    view.setPreferredSize(new Dimension(800, 600));
-	    view.setPrinter(new LogicPrinter(new ProgramPrinter(null), 
+	    view.setPrinter(new LogicPrinterHTML(new ProgramPrinter(null), 
                                              mediator.getNotationInfo(),
                                              mediator.getServices()), spec2);
 	    view.printSequent();
