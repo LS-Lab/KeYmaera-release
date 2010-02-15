@@ -141,12 +141,11 @@ public class ProblemInitializer {
      * defined sorts, as the integer sort was not available.
      */
     private void setUpSorts(InitConfig initConfig) {
-	Iterator<Named> it = initConfig.sortNS().allElements().iterator();
-        while(it.hasNext()) {
-            Sort sort = (Sort)it.next ();
-            if(sort instanceof SortDefiningSymbols) {
-                ((SortDefiningSymbols)sort).addDefinedSymbols (initConfig.funcNS(),
-                                                               initConfig.sortNS());
+        for (Named named : initConfig.sortNS().allElements()) {
+            Sort sort = (Sort) named;
+            if (sort instanceof SortDefiningSymbols) {
+                ((SortDefiningSymbols) sort).addDefinedSymbols(initConfig.funcNS(),
+                        initConfig.sortNS());
             }
         }
     }
@@ -214,15 +213,15 @@ public class ProblemInitializer {
 	    // mu(2008-jan-28): if the directory is not readable for the current user
 	    // list is set to null, which results in a NullPointerException.
 	    if(list != null) {
-	        for (int i=0; i<list.length; i++) {
-	            String fullName = cfile.getPath()+File.separator+list[i];
-	            File n=new File(fullName);
-	            if (n.isDirectory()) {
-	                v.addAll(getClasses(fullName));
-	            } else if (list[i].endsWith(".java")) {
-	                v.add(fullName);
-	            }
-	        }
+            for (String aList : list) {
+                String fullName = cfile.getPath() + File.separator + aList;
+                File n = new File(fullName);
+                if (n.isDirectory()) {
+                    v.addAll(getClasses(fullName));
+                } else if (aList.endsWith(".java")) {
+                    v.add(fullName);
+                }
+            }
 	    }
 	    return v;
 	} else {
@@ -379,11 +378,10 @@ public class ProblemInitializer {
      */
     private void populateNamespaces(Proof proof) {
 	NamespaceSet namespaces = proof.getNamespaces();
-	Iterator<ConstrainedFormula> it = proof.root().sequent().iterator();
-	while(it.hasNext()) {
-	    ConstrainedFormula cf = it.next();
-	    populateNamespaces(cf.formula(), namespaces);
-	}
+        for (Object o : proof.root().sequent()) {
+            ConstrainedFormula cf = (ConstrainedFormula) o;
+            populateNamespaces(cf.formula(), namespaces);
+        }
     }
 
 
@@ -440,11 +438,11 @@ public class ProblemInitializer {
 	reportReady();
 
 	Proof[] proofs = pl.getProofs();
-	for (int i=0; i < proofs.length; i++) {
-	    proofs[i].setSimplifier(simplifier);
-	    proofs[i].setNamespaces(proofs[i].getNamespaces());//TODO: refactor Proof.setNamespaces() so this becomes unnecessary
-	    populateNamespaces(proofs[i]);
-	}
+        for (Proof proof : proofs) {
+            proof.setSimplifier(simplifier);
+            proof.setNamespaces(proof.getNamespaces());//TODO: refactor Proof.setNamespaces() so this becomes unnecessary
+            populateNamespaces(proof);
+        }
 	initConfig.getProofEnv().registerProof(problem, pl);
 	if (main != null) {
             main.addProblem(pl);
@@ -483,12 +481,10 @@ public class ProblemInitializer {
         InitConfig initConfig = lastBaseConfig.copy();
 
 	//register built in rules
-	final Iterator<BuiltInRule> builtInRules =
-    	profile.getStandardRules().getStandardBuiltInRules().iterator();
-        while (builtInRules.hasNext()) {
-            final Rule r = builtInRules.next();
-    	    initConfig.getProofEnv().registerRule(r,
-    		    				  profile.getJustification(r));
+        for (BuiltInRule builtInRule : profile.getStandardRules().getStandardBuiltInRules()) {
+            final Rule r = builtInRule;
+            initConfig.getProofEnv().registerRule(r,
+                    profile.getJustification(r));
         }
 
         //read envInput

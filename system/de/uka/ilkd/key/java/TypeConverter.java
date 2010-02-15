@@ -97,9 +97,8 @@ public class TypeConverter extends TermBuilder {
     }
     
     public void init(ImmutableList<LDT> ldts) {
-        Iterator<LDT> it = ldts.iterator();
-        while (it.hasNext()) {
-            init(it.next());
+        for (LDT ldt : ldts) {
+            init(ldt);
         }
     }
     

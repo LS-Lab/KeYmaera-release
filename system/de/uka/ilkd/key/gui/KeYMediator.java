@@ -25,6 +25,7 @@ import javax.swing.event.EventListenerList;
 
 import de.uka.ilkd.key.dl.gui.TimeStatisticGenerator;
 import de.uka.ilkd.key.dl.rules.ReduceRuleApp;
+import de.uka.ilkd.key.bugdetection.BugDetector;
 import de.uka.ilkd.key.collection.ImmutableList;
 import de.uka.ilkd.key.collection.ImmutableSet;
 import de.uka.ilkd.key.gui.configuration.ProofSettings;
@@ -322,6 +323,17 @@ public class KeYMediator {
 	    try {
 		testCaseConfirmation(
 		    testBuilder.createTestForNode(getSelectedNode()));
+	    } catch(Exception e){
+		new ExceptionDialog(mainFrame(), e);
+	    }
+	}
+    }
+
+    public void bugDetectionForSelectedNode(){
+	if (ensureProofLoaded()) {
+	    BugDetector bugDetector = new BugDetector();
+	    try {
+		bugDetector.run(getSelectedNode());
 	    } catch(Exception e){
 		new ExceptionDialog(mainFrame(), e);
 	    }
@@ -990,7 +1002,7 @@ public class KeYMediator {
       final boolean b = fullStop;
       Runnable interfaceSignaller = new Runnable() {
          public void run() {
-	     if (mainFrame() instanceof JFrame) mainFrame().setCursor
+	     if (mainFrame() != null) mainFrame().setCursor
 		 (new java.awt.Cursor(java.awt.Cursor.WAIT_CURSOR));
             if (b) {
                interactiveProver.fireAutoModeStarted(
@@ -1007,7 +1019,7 @@ public class KeYMediator {
          public void run() {
             if ( b )
                interactiveProver.fireAutoModeStopped (new ProofEvent(getProof()));
-            if (mainFrame() instanceof JFrame) mainFrame().setCursor
+            if (mainFrame() != null) mainFrame().setCursor
 		(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
             if (getProof() != null)
                 keySelectionModel.fireSelectedProofChanged();

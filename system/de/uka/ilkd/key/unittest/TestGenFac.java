@@ -45,32 +45,33 @@ import de.uka.ilkd.key.util.ExtList;
 
 public class TestGenFac {
 
-    public final static String TG_JAVA = "Reflection API";
+    public final static String TG_USE_REFL = "Reflection API";
 
-    public final static String TG_JAVACARD = "Setters & Getters";
+    public final static String TG_USE_SETGET = "Setters & Getters";
 
-    public static String testGenMode = TG_JAVA;
+    public static String testGenMode = TG_USE_REFL;
 
     public static int counter = 0;
 
     public TestGenerator create(final Services serv, final String fileName,
 	    final String directory, final boolean testing,
-	    final AssignmentGenerator ag) {
-	assert (testGenMode == TG_JAVACARD || testGenMode == TG_JAVA) : "Unhandled case in AssignmentGenerator.";
-	if (testGenMode == TG_JAVACARD) {
+	    final AssignmentGenerator ag, final TestGeneratorGUIInterface gui) {
+	assert (testGenMode == TG_USE_SETGET || testGenMode == TG_USE_REFL) : "Unhandled case in AssignmentGenerator.";
+	if (testGenMode == TG_USE_SETGET) {
 	    return new JavaCardTestGenerator(serv, fileName, directory,
-		    testing, ag);
+		    testing, ag, gui);
 	} else {
-	    return new JavaTestGenerator(serv, fileName, directory, testing, ag);
+	    return new JavaTestGenerator(serv, fileName, directory, testing, ag, gui);
 	}
     }
 
-    private class JavaCardTestGenerator extends TestGeneratorGUIInterface {
+    private class JavaCardTestGenerator extends TestGenerator {
 
 	private JavaCardTestGenerator(final Services serv,
 	        final String fileName, final String directory,
-	        final boolean testing, final AssignmentGenerator ag) {
-	    super(serv, fileName, directory, testing, ag);
+	        final boolean testing, final AssignmentGenerator ag,
+	        final TestGeneratorGUIInterface gui) {
+	    super(serv, fileName, directory, testing, ag, gui);
 	}
 
 	@Override
@@ -135,7 +136,7 @@ public class TestGenFac {
 	}
     }
 
-    private class JavaTestGenerator extends TestGeneratorGUIInterface {
+    private class JavaTestGenerator extends TestGenerator{
 
 	private static final String DONT_COPY = "aux";
 
@@ -147,8 +148,8 @@ public class TestGenFac {
 
 	private JavaTestGenerator(final Services serv, final String fileName,
 	        final String directory, final boolean testing,
-	        final AssignmentGenerator ag) {
-	    super(serv, fileName, directory, testing, ag);
+	        final AssignmentGenerator ag,final TestGeneratorGUIInterface gui) {
+	    super(serv, fileName, directory, testing, ag, gui);
 	    dontCopy = modDir + File.separator + DONT_COPY;
 	    callOracle = false;
 	    amm = AccessMethodsManager.getInstance();
@@ -233,13 +234,15 @@ public class TestGenFac {
 	}
 
 	@Override
-	protected Expression createCons(final Sort sort,
+	protected Expression createConstructorCall(final Sort sort,
 	        final HashMap<String, NewArray> array2Cons,
 	        final Expression loc1, final KeYJavaType locKJT) {
 	    if (sort instanceof ArraySort) {
-		final Expression cons = array2Cons.get(CompilableJavaCardPP
-		        .toString(loc1));
+		    String arrayExpression = CompilableJavaCardPP.toString(loc1);
+		    final Expression cons = array2Cons.get(arrayExpression);
 		if (cons == null) {
+			System.err.println("WARNING (TestGenFac.java):Problem with generating an array constructor for "+arrayExpression+
+			"  An array of size 20 will be created but this is an emergency solution.");
 		    return amm.callNew(new NewArray(
 			    new Expression[] { new IntLiteral(20) },
 			    new TypeRef(getBaseType(locKJT)), locKJT, null, 0));
@@ -320,15 +323,13 @@ public class TestGenFac {
 			try {
 			    src.close();
 			} catch (final IOException e) {
-			    ;
-			}
+            }
 		    }
 		    if (targ != null) {
 			try {
 			    targ.close();
 			} catch (final IOException e) {
-			    ;
-			}
+            }
 		    }
 		}
 	    } else {

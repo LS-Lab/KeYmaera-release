@@ -61,6 +61,7 @@ import de.uka.ilkd.key.logic.op.SVSubstitute;
 import de.uka.ilkd.key.logic.op.SchemaVariable;
 import de.uka.ilkd.key.logic.op.SortedSchemaVariable;
 import de.uka.ilkd.key.proof.Goal;
+import de.uka.ilkd.key.proof.Node;
 import de.uka.ilkd.key.rule.inst.GenericSortCondition;
 import de.uka.ilkd.key.rule.inst.IllegalInstantiationException;
 import de.uka.ilkd.key.rule.inst.SVInstantiations;
@@ -375,8 +376,7 @@ public abstract class Taclet implements Rule, Named {
      * @param v the bound variable to be searched 
      */
     protected boolean varIsBound(SchemaVariable v) {
-        return (v instanceof QuantifiableVariable) 
-        ? getBoundVariables().contains((QuantifiableVariable)v) : false;
+        return (v instanceof QuantifiableVariable) && getBoundVariables().contains((QuantifiableVariable) v);
     }
 
  
@@ -506,7 +506,7 @@ public abstract class Taclet implements Rule, Named {
 					     MatchConditions matchCond,
 					     Services services) {   
         MatchConditions result = matchCond;
-	Term t = null;
+	Term t;
 	try {
 	    t = result.getInstantiations ().
 		getTermInstantiation(sv, 
@@ -729,7 +729,7 @@ public abstract class Taclet implements Rule, Named {
 	}
 
 	if ( templateOp instanceof SortedSchemaVariable ) {
-	    return ( (SortedSchemaVariable)templateOp ).match ( term,
+	    return templateOp.match ( term,
 	                                                        matchCond,
 	                                                        services );
         }
@@ -1151,18 +1151,13 @@ public abstract class Taclet implements Rule, Named {
 
 	if (!name.equals(t2.name)) return false;
 
-        final Iterator<Choice> it1 = choices.iterator();
-	        
-	while (it1.hasNext()) {
-            final Choice c1 = it1.next(); 
-            final Iterator<Choice> it2 = t2.getChoices().iterator();
-	    while (it2.hasNext()){
-                final Choice c2 = it2.next();
-		if(c1 != c2 && c1.category().equals(c2.category())){
-		    return false;
-		}
-	    }
-	}
+        for (final Choice choice1 : choices) {
+            for (Choice choice2 : t2.getChoices()) {
+                if (choice1 != choice2 && choice1.category().equals(choice2.category())) {
+                    return false;
+                }
+            }
+        }
 
         return true;
     }
@@ -1264,11 +1259,10 @@ public abstract class Taclet implements Rule, Named {
             MatchConditions matchCond) {       
         
         ImmutableList<ConstrainedFormula> replacements = ImmutableSLList.<ConstrainedFormula>nil();
-        final Iterator<ConstrainedFormula> it = semi.iterator();        
-        
-        while (it.hasNext()) {
+
+        for (Object aSemi : semi) {
             replacements = replacements.append
-                (instantiateReplacement(it.next(), services, matchCond));           
+                    (instantiateReplacement((ConstrainedFormula) aSemi, services, matchCond));
         }
         return replacements;
     }
@@ -1395,11 +1389,10 @@ public abstract class Taclet implements Rule, Named {
     protected void applyAddrule(ImmutableList<Taclet> rules, Goal goal, 
 				Services services,
 				MatchConditions matchCond) {
-                                
-	final Iterator<Taclet> it = rules.iterator();
-	while (it.hasNext()) {
-	    Taclet tacletToAdd = it.next(); 
-	    String uniqueTail=""; // we need to name the new taclet uniquely
+
+        for (Taclet rule : rules) {
+            Taclet tacletToAdd = rule;
+            String uniqueTail = ""; // we need to name the new taclet uniquely
 /*
             TacletGoalTemplate replacewithCandidate = null;
 	    Iterator<TacletGoalTemplate> actions = 
@@ -1427,52 +1420,50 @@ public abstract class Taclet implements Rule, Named {
 	    }
 */
             if ("".equals(uniqueTail)) { // otherwise just number it
-               de.uka.ilkd.key.proof.Node n = goal.node();
-               uniqueTail = AUTONAME+n.getUniqueTacletNr()+"_"+n.parent().siblingNr();
+                Node n = goal.node();
+                uniqueTail = AUTONAME + n.getUniqueTacletNr() + "_" + n.parent().siblingNr();
             }
 
-            tacletToAdd=tacletToAdd.setName(tacletToAdd.name()+uniqueTail);
+            tacletToAdd = tacletToAdd.setName(tacletToAdd.name() + uniqueTail);
 
 
-	    // the new Taclet may contain variables with a known
-	    // instantiation. These must be used by the new Taclet and all
-	    // further rules it contains in the addrules-sections. Therefore all
-	    // appearing (including the addrules) SchemaVariables have to be
-	    // collected, then it is looked if an instantiation is known and if
-	    // positive the instantiation is memorized. At last the Taclet with
-	    // its required instantiations is handed over to the goal, where a
-	    // new TacletApp should be built including the necessary instantiation
-	    // information
+            // the new Taclet may contain variables with a known
+            // instantiation. These must be used by the new Taclet and all
+            // further rules it contains in the addrules-sections. Therefore all
+            // appearing (including the addrules) SchemaVariables have to be
+            // collected, then it is looked if an instantiation is known and if
+            // positive the instantiation is memorized. At last the Taclet with
+            // its required instantiations is handed over to the goal, where a
+            // new TacletApp should be built including the necessary instantiation
+            // information
 
-	    SVInstantiations neededInstances = SVInstantiations.
-		EMPTY_SVINSTANTIATIONS.addUpdateList
-		(matchCond.getInstantiations ().getUpdateContext());
-	    final TacletSchemaVariableCollector collector = new
-		TacletSchemaVariableCollector(); 
-	    collector.visit(tacletToAdd, true);// true, because
-	                                     // descend into
-					     // addrules
-	    final Iterator<SchemaVariable> svIt = collector.varIterator();
-	    while (svIt.hasNext()) {
-		SchemaVariable sv = svIt.next();
-		if (matchCond.getInstantiations ().isInstantiated(sv)) {
-		    neededInstances = neededInstances.add
-			(sv, matchCond.getInstantiations ().getInstantiationEntry(sv));
-		} 
-	    }
+            SVInstantiations neededInstances = SVInstantiations.
+                    EMPTY_SVINSTANTIATIONS.addUpdateList
+                    (matchCond.getInstantiations().getUpdateContext());
+            final TacletSchemaVariableCollector collector = new
+                    TacletSchemaVariableCollector();
+            collector.visit(tacletToAdd, true);// true, because
+            // descend into
+            // addrules
+            final Iterator<SchemaVariable> svIt = collector.varIterator();
+            while (svIt.hasNext()) {
+                SchemaVariable sv = svIt.next();
+                if (matchCond.getInstantiations().isInstantiated(sv)) {
+                    neededInstances = neededInstances.add
+                            (sv, matchCond.getInstantiations().getInstantiationEntry(sv));
+                }
+            }
 
-	    {
-		final ImmutableList<GenericSortCondition>     cs  =
-		    matchCond.getInstantiations ()
-		    .getGenericSortInstantiations ().toConditions ();
-		final Iterator<GenericSortCondition> cit = cs.iterator ();
+            {
+                final ImmutableList<GenericSortCondition> cs =
+                        matchCond.getInstantiations()
+                                .getGenericSortInstantiations().toConditions();
 
-		while ( cit.hasNext () )
-		    neededInstances = neededInstances.add ( cit.next () );
-	    }
+                for (GenericSortCondition c : cs) neededInstances = neededInstances.add(c);
+            }
 
-	    goal.addTaclet(tacletToAdd, neededInstances, matchCond.getConstraint (), true);
-	}
+            goal.addTaclet(tacletToAdd, neededInstances, matchCond.getConstraint(), true);
+        }
     }
 
 
@@ -1680,7 +1671,7 @@ public abstract class Taclet implements Rule, Named {
 		if (itVarsNotFreeIn.hasNext()) sb=sb.append(", ");
 	    }
 	    while (itVC.hasNext()) {
-		sb.append("" + itVC.next());
+		sb.append(itVC.next());
 		if (itVC.hasNext())
 		    sb.append(", ");
 	    }

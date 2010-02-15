@@ -76,9 +76,14 @@ public class DecisionProcedureSettings implements Settings {
     
     private static final String SAVEFILE="[DecisionProcedure]savefile";
     
+    private static final String SHOW_SMT_RES_DIA="[DecisionProcedure]showSMTResDialog";
+    
     private static final String MULTIPLEPROVERS="[DecisionProcedure]multprovers";
     
     private static final String WAITFORALLPROVERS = "[DecisionProcedure]WaitForAllProvers";
+    
+    /**@see {@link de.uka.ilkd.key.smt.SmtLibTranslatorWeaker} */
+    private static final String WEAKENSMTTRANSLATION = "[DecisionProcedure]WeakenSMTTranslation";
 
     /** the list of registered SettingListener */
     private LinkedList<SettingsListener> listenerList = new LinkedList<SettingsListener>();
@@ -170,9 +175,8 @@ public class DecisionProcedureSettings implements Settings {
      * changed to its registered listeners (not thread-safe)
      */
     protected void fireSettingsChanged() {
-        Iterator<SettingsListener> it = listenerList.iterator();
-        while (it.hasNext()) {	    
-            it.next().settingsChanged(new GUIEvent(this));
+        for (SettingsListener aListenerList : listenerList) {
+            aListenerList.settingsChanged(new GUIEvent(this));
         }
     }
     
@@ -244,18 +248,17 @@ public class DecisionProcedureSettings implements Settings {
 	multProversSettings = props.getProperty(MULTIPLEPROVERS);
 	
 	String wfap = props.getProperty(WAITFORALLPROVERS);
-	if(wfap != null && wfap.equals("true")){
-	    waitForAllProvers = true;
-	}else {
-	    waitForAllProvers = false;
-	}
+    waitForAllProvers = wfap != null && wfap.equals("true");
 	
 	String sf = props.getProperty(SAVEFILE);
-	if (!(sf == null) && sf.equals("true")) {
-	    this.saveFile = true;
-	} else {
-	    this.saveFile = false;
-	}
+        this.saveFile = !(sf == null) && sf.equals("true");
+	
+        String sd = props.getProperty(SHOW_SMT_RES_DIA);
+        this.showSMTResDialog = !(sd == null) && sd.equals("true");
+    
+    	String wt = props.getProperty(WEAKENSMTTRANSLATION);
+    	this.weakenSMTTranslation = !(wt == null) && wt.equals("true");
+
     }
     
 
@@ -517,6 +520,22 @@ public class DecisionProcedureSettings implements Settings {
 	return this.saveFile;
     }
     
+    private boolean showSMTResDialog = false;
+    
+    /**@see {@link de.uka.ilkd.key.smt.SmtLibTranslatorWeaker} */
+    public boolean weakenSMTTranslation = false;
+    
+    public void setSMTResDialog(boolean b){
+	if(b!=this.showSMTResDialog){
+	    this.showSMTResDialog = b;
+	    this.fireSettingsChanged();
+	}
+    }
+    
+    public boolean getShowSMTResDialog(){
+	return this.showSMTResDialog;
+    }
+    
     /**
      * true, if the argument should be used for test
      * TODO implement?
@@ -541,6 +560,18 @@ public class DecisionProcedureSettings implements Settings {
         else {
             props.setProperty(SAVEFILE, "false");
         }
+        if (this.showSMTResDialog)
+            props.setProperty(SHOW_SMT_RES_DIA, "true");
+        else {
+            props.setProperty(SHOW_SMT_RES_DIA, "false");
+        }
+
+        if (this.weakenSMTTranslation)
+            props.setProperty(WEAKENSMTTRANSLATION, "true");
+        else {
+            props.setProperty(WEAKENSMTTRANSLATION, "false");
+        }
+
         props.setProperty(WAITFORALLPROVERS, ruleMultipleProvers.isWaitingForAllProvers() ? "true":"false");
         this.writeExecutionString(props);
         this.writeMultipleProversString(props);

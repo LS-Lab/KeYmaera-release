@@ -112,7 +112,7 @@ class SequentViewListener extends MouseInputAdapter
     private String getTermInfo() {
         if ((mousePos == null)||
             ("".equals(seqView.getHighlightedText()))) return null;
-        Term t = null;
+        Term t  ;
         final PosInOccurrence posInOcc = mousePos.getPosInOccurrence();
         if (posInOcc != null) {
             t = posInOcc.subTerm();
@@ -140,6 +140,7 @@ class SequentViewListener extends MouseInputAdapter
 		    } else {		    		    
 		    
 			menu = new TacletMenu(seqView,
+					      mediator.getSelectedGoal(),
 					      mediator.getFindTaclet(mousePos), 
 					      mediator.getRewriteTaclet(mousePos),
 					      mediator.getNoFindTaclet(),

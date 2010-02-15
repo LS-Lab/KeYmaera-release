@@ -217,13 +217,12 @@ public class TestCodeExtractor {
 		        Statement.class);
 		coll.start();
 		final ImmutableList<ProgramElement> l = coll.getNodes();
-		final Iterator<ProgramElement> it = l.iterator();
-		while (it.hasNext()) {
-		    final Statement next = (Statement) it.next();
-		    if (!(next instanceof StatementContainer)) {
-			result.add(next);
-		    }
-		}
+            for (ProgramElement aL : l) {
+                final Statement next = (Statement) aL;
+                if (!(next instanceof StatementContainer)) {
+                    result.add(next);
+                }
+            }
 	    } else {
 		result.add(s);
 	    }
@@ -294,8 +293,9 @@ public class TestCodeExtractor {
 	Term currLoc;
 	for (int i = 0; i < uop.locationCount(); i++) {
 	    currLoc = uop.location(t, i);
+	    //Design problem: Results computed by NRFLHandler are not handled by AssignmentGenerator
 	    if (currLoc.op() instanceof NonRigidFunctionLocation) {
-		result = result.append(nrflHan.getWriteRep(currLoc.op()));
+		result = result.append(nrflHan.getWriteRep(currLoc, uop.value(t, i)));
 	    } else {
 		Expression l, r;
 		l = convertToProgramElement(currLoc);
@@ -318,10 +318,9 @@ public class TestCodeExtractor {
     public ImmutableSet<ProgramVariable> getNewProgramVariables() {
 	ImmutableSet<ProgramVariable> result = DefaultImmutableSet
 	        .<ProgramVariable> nil();
-	final Iterator<Named> it = newPVs.allElements().iterator();
-	while (it.hasNext()) {
-	    result = result.add((ProgramVariable) it.next());
-	}
+        for (Named named : newPVs.allElements()) {
+            result = result.add((ProgramVariable) named);
+        }
 	return result;
     }
 

@@ -7,17 +7,11 @@
 // See LICENSE.TXT for details.
 package de.uka.ilkd.key.unittest;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.*;
 
 import de.uka.ilkd.key.collection.DefaultImmutableSet;
 import de.uka.ilkd.key.collection.ImmutableList;
 import de.uka.ilkd.key.collection.ImmutableSet;
-import de.uka.ilkd.key.gui.Main;
 import de.uka.ilkd.key.java.Position;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.java.Statement;
@@ -44,21 +38,21 @@ import de.uka.ilkd.key.visualization.VisualizationStrategyForTesting;
  */
 public class UnitTestBuilder {
 
-    private final HashMap<Node, ExecutionTraceModel[]> node2trace;
+    protected final HashMap<Node, ExecutionTraceModel[]> node2trace;
 
-    private final Services serv;
+    protected final Services serv;
 
-    private final Constraint uc;
+    protected final Constraint uc;
 
     // the nodes containing trace ends that have already been processed by the
     // proof visualization
-    private final HashSet<Node> traceEndNodes;
+    protected final HashSet<Node> traceEndNodes;
 
-    private PackageReference pr;
+    protected PackageReference pr;
 
     // mbender: This object is only needed to store certain values, that are
     // needed for the KeY junit tests
-    private final DataStorage dataForTest;
+    protected final DataStorage dataForTest;
 
     // private int coverage;
 
@@ -70,23 +64,28 @@ public class UnitTestBuilder {
      * execute because it is a black-box. Set this attribute to true to allow
      * such traces for the test code extraction.
      */
-    private final boolean allowStartWithNonContextTraceElement = true;
+    protected final boolean allowStartWithNonContextTraceElement = true;
 
     // iff true only terminated traces are considered for test case generation
     public static boolean requireCompleteExecution = false;
+    
+    /**The field determines which node to select for the path condition.
+     * When generating tests for a proof branch, a program trace is computed on that branch.
+     * If this field is false, then the original implementation from Christian Engel is used
+     * where the last node on the trace is used as path condition. If this field
+     * is true, then the node selected by the user (possibly end-node of the proof branch)
+     * will be used as path condition. */
+    public static boolean allowNonTraceNodeAsPathCond = false; 
 
-    private final Namespace pvn;
+    protected final Namespace pvn;
 
-    private final String directory = null;
+    protected final String directory = null;
 
-    private final boolean testing;
+    protected final boolean testing;
     
     /**The TestGenerator contains a thread object that is made accessible through this field. */
     public TestGenerator tg = null;
     
-    /** Seconds to wait for modelGeneration for each node. -1 = infinitely.  */
-    public static int modelCreationTimeout=20; 
-
     public UnitTestBuilder(final Services serv, final Proof p,
 	    final boolean testing) {
 	this.serv = serv;
@@ -127,7 +126,7 @@ public class UnitTestBuilder {
      */
     protected void getProgramMethods_ProgressNotification(ImmutableSet<ProgramMethod> result, boolean finished){ }
 
-    private ImmutableSet<ProgramMethod> getProgramMethods(
+    protected ImmutableSet<ProgramMethod> getProgramMethods(
 	    final ImmutableList<Node> nodes) {
 	final Iterator<Node> it = nodes.iterator();
 	ImmutableSet<ProgramMethod> result = DefaultImmutableSet
@@ -140,7 +139,7 @@ public class UnitTestBuilder {
 	return result;
     }
 
-    private ExecutionTraceModel[] getTraces(final Node n) {
+    protected ExecutionTraceModel[] getTraces(final Node n) {
 	ExecutionTraceModel[] tr = node2trace.get(n);
 	if (tr == null) {
 	    final ProofVisualization pv = new ProofVisualization(n,
@@ -153,7 +152,7 @@ public class UnitTestBuilder {
 	return tr;
     }
 
-    private HashSet<Position> getStatements(final ExecutionTraceModel[] tr) {
+    protected HashSet<Position> getStatements(final ExecutionTraceModel[] tr) {
 	final HashSet<Position> result = new HashSet<Position>();
 	for (final ExecutionTraceModel element : tr) {
 	    result.addAll(element.getExecutedStatementPositions());
@@ -190,13 +189,15 @@ public class UnitTestBuilder {
 	TestCodeExtractor tce = null;
 	
 	while (it.hasNext()) {
-	    final Node n = it.next();
+	  //The original node is not necessarily the node for which the test is generated. 
+	  //Tests are generated generated for nodes where execution traces end. Otherwise no tests could be generated for a closed proof tree. 
+	    final Node originalNode = it.next(); 
 	    nodeCounter++;
 	    
-	    createTestForNodes_progressNotification0(nodeCounter, n);
+	    createTestForNodes_progressNotification0(nodeCounter, originalNode);
 
 
-	    final ExecutionTraceModel[] tr = getTraces(n);
+	    final ExecutionTraceModel[] tr = getTraces(originalNode);
 	    // mbender: collect data for KeY junit tests (see
 	    // TestTestGenerator,TestHelper)
 	    dataForTest.addETM(tr);
@@ -210,24 +211,29 @@ public class UnitTestBuilder {
 		final boolean ratingCond = tr[i].getRating() == 0;
 		final boolean blockCompletelyExecutedCond = (!tr[i]
 		        .blockCompletelyExecuted() && requireCompleteExecution);
-		final boolean infeasibleCond = (!tr[i]
-		        .blockCompletelyExecuted())
-		        && n.isClosed();
-		final boolean programMethodsNumCond = tr[i].getProgramMethods(
-		        serv).union(pms).size() == tr[i]
-		        .getProgramMethods(serv).size()
-		        + pms.size();
-		final boolean nodeAlreadyProcessedCond = nodesAlreadyProcessed
-		        .contains(tr[i].getLastTraceElement().node());
-		final boolean inAntecCond = tr[i].getLastTraceElement()
-		        .isInAntec();
+		final boolean infeasibleCond = (!tr[i].blockCompletelyExecuted())
+		        			&& originalNode.isClosed();
+		final boolean programMethodsNumCond = 
+		    	tr[i].getProgramMethods(serv).union(pms).size() == 
+		    	    tr[i].getProgramMethods(serv).size() + pms.size();
+		final boolean nodeAlreadyProcessedCond = 
+		    	nodesAlreadyProcessed.contains(tr[i].getLastTraceElement().node());
+		final boolean inAntecCond = tr[i].getLastTraceElement().isInAntec();
 		final boolean noContextTraceElementCond = (tr[i]
 		        .getFirstContextTraceElement() == TraceElement.END && !allowStartWithNonContextTraceElement);
+		boolean nullPointer=true; 
+		try{
+		    tr[i].getFirstTraceElement().getPosOfModality().subTerm().sub(0);
+		    nullPointer = false;
+		}catch(Exception ex){
+		    nullPointer = true;
+		}
 		// boolean executionTraceTypeCond = tr[i].getType() !=
 		// ExecutionTraceModel.TYPE1;
 		if (ratingCond || blockCompletelyExecutedCond || infeasibleCond
 		        || programMethodsNumCond || nodeAlreadyProcessedCond
 		        || inAntecCond || noContextTraceElementCond
+		        || nullPointer
 		// || executionTraceTypeCond
 		) {
 		    noTraceReasons.append("---------------------\nNode["
@@ -266,6 +272,10 @@ public class UnitTestBuilder {
 			noTraceReasons
 			        .append(" -No ContextTraceElement was found like, e.g., a method-frame.\n");
 		    }
+		    if (nullPointer){
+			noTraceReasons
+		        .append(" -Null pointer occured during evaluation of \ntr[i].getFirstTraceElement().getPosOfModality().subTerm().sub(0).\n");
+		    }
 		    continue;
 		}
 		// nodesAlreadyProcessed.add(tr[i].getLastTraceElement().node());
@@ -281,15 +291,18 @@ public class UnitTestBuilder {
 			    new StatementBlock(code), MethodFrame.class);
 		    coll.start();
 		    if (coll.getNodes().size() == 0) {
-			tg = new TestGenFac().create(serv, "Test"
-			        + tce.getFileName(), directory, testing, ag);
 
 			//There are "GUI interface" versions of the classes UnitTestBuilder and TestGenerator.
-			if(this instanceof UnitTestBuilderGUIInterface &&
-				tg instanceof TestGeneratorGUIInterface){
+			if(this instanceof UnitTestBuilderGUIInterface ){
 			    UnitTestBuilderGUIInterface thisGUI = (UnitTestBuilderGUIInterface) this;
-			    TestGeneratorGUIInterface tgGUI = (TestGeneratorGUIInterface)tg;
-			    tgGUI.setMethodSelectionDialog(thisGUI.dialog);
+				tg = new TestGenFac().create(serv, "Test"
+				        + tce.getFileName(), directory, testing, ag,
+				        new TestGeneratorGUIInterface());
+			    tg.gui.setMethodSelectionDialog(thisGUI.dialog); //A big clumsy. 
+			}else{
+				tg = new TestGenFac().create(serv, "Test"
+				        + tce.getFileName(), directory, testing, ag,
+				        null);			    
 			}
 			if (methodName == null) {
 			    methodName = tce.getMethodName();
@@ -299,25 +312,31 @@ public class UnitTestBuilder {
 			// tr[i].getFirstTraceElement().
 			// node().getGlobalProgVars().
 			// union(tce.getNewProgramVariables());
-			tce.getNewProgramVariables();
+			//tce.getNewProgramVariables();
 			pr = tce.getPackage();
 		    }
 		}
 	    }//for
 	    if (maxRating != -1) {
-		createTestForNodes_progressNotification1(tr[maxRating], n);
-		mgs.add(getModelGenerator(tr[maxRating], n));
-		nodesAlreadyProcessed.add(tr[maxRating].getLastTraceElement()
-		        .node());
+		Node pathConditionNode = null;
+		if(!allowNonTraceNodeAsPathCond){
+		    pathConditionNode = tr[maxRating].getLastTraceElement().node();
+		}else{
+		    pathConditionNode = originalNode;
+		}
+		createTestForNodes_progressNotification1(tr[maxRating], pathConditionNode, originalNode);
+		mgs.add(getModelGenerator(tr[maxRating].toString(),
+					  pathConditionNode, 
+					  originalNode));
+		nodesAlreadyProcessed.add(tr[maxRating].getLastTraceElement().node());
 	    }
 	}
 	if (methodName == null) {
 	    String pmsStr = "";
-	    final Iterator<ProgramMethod> pmIt = pms.iterator();
-	    while (pmIt.hasNext()) {
-		final ProgramMethod pm = pmIt.next();
-		pmsStr += pm.getName() + "\n";
-	    }
+        for (ProgramMethod pm1 : pms) {
+            final ProgramMethod pm = pm1;
+            pmsStr += pm.getName() + "\n";
+        }
 	    
 	    //The following call throws an exception if it is not overwritten. 
 	    createTestForNodes_progressNotification2(new UnitTestException(
@@ -344,8 +363,7 @@ public class UnitTestBuilder {
 	dataForTest.setTg(tg);
 	tg.setData(dataForTest);
 	// computeStatementCoverage(statements, tce.getStatements());
-	 String filename = tg.generateTestSuite(code, oracle, mgs, pvs,
-		 				"test" + methodName, pr,modelCreationTimeout);
+	 String filename = tg.generateTestSuite(code, oracle, mgs, pvs,"test" + methodName, pr);
 	 tg.clean();
 	 tg = null;
 	 return filename;
@@ -353,11 +371,17 @@ public class UnitTestBuilder {
     
     /** called by createTestForNodes. Should be overwritten by UnitTestBuilderGUIInterface to
      * notify the user about the progress of the computation.*/
-    protected void createTestForNodes_progressNotification0(int nodeCounter, Node n){return;}
+    protected void createTestForNodes_progressNotification0(int nodeCounter, Node n){
+	//System.out.println("("+nodeCounter+") Searching for suitable trace for node "+n.serialNr());
+	return;
+    }
 
     /** called by createTestForNodes. Should be overwritten by UnitTestBuilderGUIInterface to
      * notify the user about the progress of the computation.*/
-    protected void createTestForNodes_progressNotification1(ExecutionTraceModel etm, Node n){return;}
+    protected void createTestForNodes_progressNotification1(ExecutionTraceModel etm, Node pathConditionNode, Node originalNode){
+	//System.out.println("Selected node with path condition is "+pathConditionNode.serialNr()+" for child node "+originalNode.serialNr());
+	return;
+    }
     /** called by createTestForNodes. Should be overwritten by UnitTestBuilderGUIInterface to
      * notify the user about the progress of the computation.*/
     protected void createTestForNodes_progressNotification2(UnitTestException e){
@@ -379,7 +403,7 @@ public class UnitTestBuilder {
 	        .iterator(), getProgramMethods(l));
     }
 
-    // private void computeStatementCoverage(HashSet<Position>
+    // protected void computeStatementCoverage(HashSet<Position>
     // executedStatements,
     // HashSet<Statement> sourceStatements) {
     // if (sourceStatements.size() == 0) {
@@ -397,12 +421,12 @@ public class UnitTestBuilder {
     // }
     // }
 
-    private boolean isInteresting(final ExecutionTraceModel tr) {
+    protected boolean isInteresting(final ExecutionTraceModel tr) {
 	return tr.getRating() != 0 && !tr.getLastTraceElement().isInAntec()
 	        && (!requireCompleteExecution || tr.blockCompletelyExecuted());
     }
 
-    private ImmutableSet<ProgramMethod> getProgramMethods(
+    protected ImmutableSet<ProgramMethod> getProgramMethods(
 	    final ExecutionTraceModel[] traces) {
 	ImmutableSet<ProgramMethod> result = DefaultImmutableSet
 	        .<ProgramMethod> nil();
@@ -441,10 +465,13 @@ public class UnitTestBuilder {
 	return createTestForNodes(p.root().leavesIterator(), pms);
     }
 
-    private ModelGenerator getModelGenerator(final ExecutionTraceModel tr,
-	    final Node n) {
-	return new ModelGenerator(serv, uc, tr.getLastTraceElement().node(), tr
-	        .toString(), n);
+    /**This method is overwritten by UnitTestGuilderGUIInterface where ModelGeneratorGUIInterface is returned.
+     * @param node this is the node for which a counter example is generated.
+     * @param originalNode this may be a leaf node below {@code node}. 
+      */
+    protected ModelGenerator getModelGenerator(final String executionTraceModel, final Node node,
+	    final Node originalNode) {
+	return new ModelGenerator(serv, uc, node, executionTraceModel, originalNode);
     }
 
     public DataStorage getDS() {

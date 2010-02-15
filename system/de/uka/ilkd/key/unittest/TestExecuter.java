@@ -10,7 +10,6 @@ import java.util.Vector;
 
 import javax.swing.JOptionPane;
 
-import de.uka.ilkd.key.gui.ExceptionDialog;
 import de.uka.ilkd.key.gui.Main;
 
 /**
@@ -34,11 +33,11 @@ public class TestExecuter {
 		if (compileOnlyGeneratedFiles) {
 			files.add(test);
 			File fileRFL = new File(testDir + File.separator + "RFL.java");
-			System.out.println("RFL file:" + fileRFL + "   exists:"	+ fileRFL.exists());
+			//System.out.println("RFL file:" + fileRFL + "   exists:"	+ fileRFL.exists());
 			if (fileRFL.exists())
 				files.add(fileRFL.toString());
 		} else {
-			System.out.println("testDir:" + testDir);
+			//System.out.println("testDir:" + testDir);
 			files = getJavaFilesAsStrings(testDir, true);
 		}
 		assert(files.size()>0);
@@ -50,7 +49,6 @@ public class TestExecuter {
 	public static String[] testExecutionCommand(String testPath, boolean GUImode){
 	    	assert(testPath.indexOf('\n')==-1);
 		String test = testPath.substring(testPath.lastIndexOf(File.separator) + 1);
-		String testDir = testPath.substring(0, testPath.lastIndexOf(File.separator));
 
 		Vector<String> cmdAndArgs = new Vector<String>();
 	        cmdAndArgs.add("java");
@@ -70,7 +68,6 @@ public class TestExecuter {
 	    
 	    /**
 	     * @param testPath the full path to the test suite file
-	     * @param modelDir is currently not supported
 	     * @throws IOException
 	     */
 	public static void compileAndRunTest(String testPath, String workingDir, boolean compileOnlyGeneratedFiles,boolean GUImode) throws IOException{
@@ -169,17 +166,20 @@ public class TestExecuter {
 	    public static String getKeyExtJars(){
 		String keyExtJars = null;
 		    try{
+			//In a Linux Environment
 			Properties env = getEnvironment();
 			keyExtJars = env.getProperty("KEY_LIB");
 			if(keyExtJars==null) throw new Exception();
 		    }catch(Exception e){
 			try{
-			    Process p = Runtime.getRuntime().exec("cmd.exe /c echo %MYVAR%");
+			    //In a Windows Environment
+			    Process p = Runtime.getRuntime().exec("cmd.exe /c echo %KEY_LIB%");
 			    BufferedReader br = new BufferedReader
 			         ( new InputStreamReader( p.getInputStream() ) );
 			    keyExtJars = br.readLine();
 			    if(keyExtJars==null) throw new Exception();
 			}catch(Exception e2){
+			    //Last idea how to get the path
 				keyExtJars = System.getProperty("key.home")+File.separator+"key-ext-jars";
 			}
 		    }

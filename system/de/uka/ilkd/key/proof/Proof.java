@@ -115,9 +115,24 @@ public class Proof implements Named {
 //    implemented by mbender for jmltest
     private SpecExtPO specExtPO;
     
+    /** This field stores counter examples (in some format) or notes that 
+     * nodes are proved or falsifiable (and therefore not provable)  or 
+     * Falsifiability Preservation information . 
+     * The objects of the vector may store information, e.g., from a decision procedure, 
+     * from the test generator, or from the BugDetector.The runtime type of the vector elements 
+     * maybe, e.g., SMTSolverResult or FPCondition. 
+     * Adding a field "nodeToSMTandFPData" to every node would be a waste of memory
+     * as this information is used rather rarely. Using NodeInfo is not good either,
+     * because the method getNodesWithSMTandFPData() would require traversal of the entire proof,
+     * everytime a different proof is selected 
+     * (and this happens often when proving falsifiability preservation interactively). 
+     * @author gladisch  */
+    public WeakHashMap<Node, Vector<Object>> nodeToSMTandFPData;
+    
+   
 
     /** constructs a new empty proof with name */
-    private Proof(Name name, Services services, ProofSettings settings) {
+     private Proof(Name name, Services services, ProofSettings settings) {
         this.name = name;
         assert services != null : "Tried to create proof without valid services.";
 	this.services = services.copyProofSpecific(this);
@@ -329,10 +344,8 @@ public class Proof implements Named {
     
     private void updateStrategyOnGoals() {
         Strategy ourStrategy = getActiveStrategy();
-        
-        final Iterator<Goal> it = openGoals ().iterator ();
-        while ( it.hasNext () )
-            it.next ().setGoalStrategy(ourStrategy);
+
+        for (Goal goal : openGoals()) goal.setGoalStrategy(ourStrategy);
     }
 
     /** 
@@ -381,9 +394,7 @@ public class Proof implements Named {
     public void clearAndDetachRuleAppIndexes () {
         // Taclet indices of the particular goals have to
         // be rebuilt
-        final Iterator<Goal> it = openGoals ().iterator ();
-        while ( it.hasNext () )
-            it.next ().clearAndDetachRuleAppIndex ();
+        for (Goal goal : openGoals()) goal.clearAndDetachRuleAppIndex();
     }
     
     /** @return Deliverer of new metavariables (with unique names)*/
@@ -654,10 +665,9 @@ public class Proof implements Named {
 		}
 		//call setBack(Goal) on each element in the remove
 		//list. The former parents become the new goals
-		final Iterator<Goal> removeIt = removeList.iterator();
-		while (removeIt.hasNext()) {
-		    setBack(removeIt.next());
-		}
+            for (Goal aRemoveList : removeList) {
+                setBack(aRemoveList);
+            }
 		goal = getGoal(node);
 	    } else {
 	        return false;
@@ -678,41 +688,42 @@ public class Proof implements Named {
     /** fires the event that the proof has been expanded at the given node */
     protected void fireProofExpanded(Node node) {
 	ProofTreeEvent e = new ProofTreeEvent(this, node);
-	for (int i = 0; i<listenerList.size(); i++) {
-	    listenerList.get(i).proofExpanded(e);
-	}
+        for (ProofTreeListener aListenerList : listenerList) {
+            aListenerList.proofExpanded(e);
+        }
     }
 
     /** fires the event that the proof has been pruned at the given node */
     protected void fireProofIsBeingPruned(Node node, Node removedNode) {
         ProofTreeEvent e = new ProofTreeRemovedNodeEvent(this, node, removedNode);
-        for (int i = 0; i<listenerList.size(); i++) {
-            listenerList.get(i).proofIsBeingPruned(e);
+        clearSMTandFPData(removedNode);
+        for (ProofTreeListener aListenerList : listenerList) {
+            aListenerList.proofIsBeingPruned(e);
         }
     } 
 
     /** fires the event that the proof has been pruned at the given node */
     protected void fireProofPruned(Node node, Node removedNode) {
 	ProofTreeEvent e = new ProofTreeRemovedNodeEvent(this, node, removedNode);
-	for (int i = 0; i<listenerList.size(); i++) {
-	    listenerList.get(i).proofPruned(e);
-	}
+        for (ProofTreeListener aListenerList : listenerList) {
+            aListenerList.proofPruned(e);
+        }
     } 
 
     /** fires the event that the proof has been restructured */
     protected void fireProofStructureChanged() {
 	ProofTreeEvent e = new ProofTreeEvent(this);
-	for (int i = 0; i<listenerList.size(); i++) {
-	    listenerList.get(i).proofStructureChanged(e);
-	}    
+        for (ProofTreeListener aListenerList : listenerList) {
+            aListenerList.proofStructureChanged(e);
+        }
     }
 
     /** fires the event that a goal has been removed from the list of goals */
     protected void fireProofGoalRemoved(Goal goal) {
 	ProofTreeEvent e = new ProofTreeEvent(this, goal);
-	for (int i = 0; i<listenerList.size(); i++) {
-	    listenerList.get(i).proofGoalRemoved(e);
-	}	
+        for (ProofTreeListener aListenerList : listenerList) {
+            aListenerList.proofGoalRemoved(e);
+        }
     }
 
     /** fires the event that new goals have been added to the list of
@@ -720,9 +731,9 @@ public class Proof implements Named {
      */
     protected void fireProofGoalsAdded(ImmutableList<Goal> goals) {
 	ProofTreeEvent e = new ProofTreeEvent(this, goals);
-	for (int i = 0; i<listenerList.size(); i++) {
-	    listenerList.get(i).proofGoalsAdded(e);
-	}	
+        for (ProofTreeListener aListenerList : listenerList) {
+            aListenerList.proofGoalsAdded(e);
+        }
     }
 
     /** fires the event that new goals have been added to the list of
@@ -735,9 +746,9 @@ public class Proof implements Named {
     /** fires the event that the proof has been restructured */
     protected void fireProofGoalsChanged() {
 	ProofTreeEvent e = new ProofTreeEvent(this, openGoals());
-	for (int i = 0; i<listenerList.size(); i++) {
-	    listenerList.get(i).proofGoalsChanged(e);
-	}
+        for (ProofTreeListener aListenerList : listenerList) {
+            aListenerList.proofGoalsChanged(e);
+        }
     } 
 
     /** fires the event that the proof has closed. 
@@ -746,9 +757,9 @@ public class Proof implements Named {
      */
     protected void fireProofClosed() {
 	ProofTreeEvent e = new ProofTreeEvent(this);
-	for (int i = 0; i<listenerList.size(); i++) {
-	    listenerList.get(i).proofClosed(e);
-	}
+        for (ProofTreeListener aListenerList : listenerList) {
+            aListenerList.proofClosed(e);
+        }
     }
 
     /**
@@ -791,16 +802,13 @@ public class Proof implements Named {
      * @return the goal that belongs to the given node or null if the
      * node is an inner one 
      */
-    public Goal getGoal(Node node) {	
-	Goal result = null;
-	Iterator<Goal> it = openGoals.iterator();
-	while (it.hasNext()) {
-	    result = it.next();
-	    if (result.node() == node) {
-		return result;
-	    }
-	}
-	return null;
+    public Goal getGoal(Node node) {
+        for (Goal openGoal : openGoals) {
+            if (openGoal.node() == node) {
+                return openGoal;
+            }
+        }
+	    return null;
     }
 
     /** returns the list of goals of the subtree starting with node 
@@ -810,16 +818,14 @@ public class Proof implements Named {
      */
     public ImmutableList<Goal> getSubtreeGoals(Node node) {	
 	ImmutableList<Goal> result = ImmutableSLList.<Goal>nil();
-	final Iterator<Goal> goalsIt  = openGoals.iterator();
-	while (goalsIt.hasNext()) {
-	    final Goal goal = goalsIt.next();
-	    final Iterator<Node> leavesIt = node.leavesIterator();
-	    while (leavesIt.hasNext()) {
-		if (leavesIt.next() == goal.node()) {
-		    result = result.prepend(goal);
-		}
-	    }
-	}
+        for (final Goal openGoal : openGoals) {
+            final Iterator<Node> leavesIt = node.leavesIterator();
+            while (leavesIt.hasNext()) {
+                if (leavesIt.next() == openGoal.node()) {
+                    result = result.prepend(openGoal);
+                }
+            }
+        }
 	return result;
     }
     
@@ -858,17 +864,15 @@ public class Proof implements Named {
      * control the contents of the rule app index
      */
     public void setRuleAppIndexToAutoMode () {
-	Iterator<Goal> it = openGoals.iterator ();
-	while ( it.hasNext () ) {
-	    it.next ().ruleAppIndex ().autoModeStarted ();
-	}
+        for (Goal openGoal : openGoals) {
+            openGoal.ruleAppIndex().autoModeStarted();
+        }
     }
 
     public void setRuleAppIndexToInteractiveMode () {
-	Iterator<Goal> it = openGoals.iterator ();
-	while ( it.hasNext () ) {
-	    it.next ().ruleAppIndex ().autoModeStopped ();
-	}
+        for (Goal openGoal : openGoals) {
+            openGoal.ruleAppIndex().autoModeStopped();
+        }
     }
     
 
@@ -917,6 +921,93 @@ public class Proof implements Named {
      */
     public SpecExtPO getPO() {
         return specExtPO;
+    }
+
+    private static final Object nodeToSMTandFPDataAltLock = new Object();
+    private Object nodeToSMTandFPDataLock(){
+	if(nodeToSMTandFPData!=null)
+	    return nodeToSMTandFPData;
+	return nodeToSMTandFPDataAltLock;
+    }
+    /**This method is meant to be invoked by {@code Node.setSMTandFPData()}
+     * Be aware that this method fires events to listeners and may therefore have other side-effects.
+     * @see {@code nodeToSMTandFPData}
+     * @author gladisch */
+    public  void addSMTandFPData(Node n, Object data){
+	synchronized(nodeToSMTandFPDataLock()){
+        	if(n.proof()!=this)//checking by the way against a null pointer
+        	    throw new RuntimeException("The referenced node does not belong to this proof");
+        	
+        	if(nodeToSMTandFPData==null){
+        	    nodeToSMTandFPData = new WeakHashMap<Node, Vector<Object>>();
+        	}
+        	Vector<Object> vect = nodeToSMTandFPData.get(n);
+        	if(vect==null){
+        	    vect = new Vector<Object>();
+        	    nodeToSMTandFPData.put(n, vect);
+        	}
+        	vect.add(data);
+        	
+        	fireSmtDataUpdate(n);
+	}
+    }
+    
+    /**A listener of {@code SMTResultsAndBugDetectionDialog} is meant to listen to this event. */
+    public void fireSmtDataUpdate(Node n){
+	ProofTreeEvent e = new ProofTreeEvent(this, n);
+        for (ProofTreeListener aListenerList : listenerList) {
+            aListenerList.smtDataUpdate(e);
+        }	
+    }
+    
+    /**If there is no SMT Data, then null is returned.
+     * This method is meant to be invoked by {@code Node.getSMTandFPData()} 
+     * @author gladisch*/
+    public  Vector<Object> getSMTandFPData(Node n){
+	synchronized(nodeToSMTandFPDataLock()){
+        	if(n.proof()!=this)//checking by the way against a null pointer
+        	    throw new RuntimeException("The referenced node does not belong to this proof");
+        
+        	if(nodeToSMTandFPData==null) return null;
+        	Vector<Object> vect = nodeToSMTandFPData.get(n);
+        	if(vect!=null){
+        	    //This is just a check. Read the documentation of this method to understand this.
+        	    if(vect.size()==0)
+        		throw new RuntimeException("Map with counter example data is broken.");
+        	}
+        	return vect;
+	}
+    }
+    
+    public  void clearSMTandFPData(Node n){
+	synchronized(nodeToSMTandFPDataLock()){
+        	if(n.proof()!=this)//checking by the way against a null pointer
+        	    throw new RuntimeException("The referenced node does not belong to this proof");
+        
+        	if(nodeToSMTandFPData==null) return;
+        	
+        	nodeToSMTandFPData.remove(n);
+        	//Should we call fireSmtDataUpdate()?
+	}
+    }
+    
+    public  void clearSMTandFPData(){
+	synchronized(nodeToSMTandFPDataLock()){
+        	if(nodeToSMTandFPData!=null){
+        	    nodeToSMTandFPData.clear();
+        	}
+        	nodeToSMTandFPData=null;
+        	//Should we call fireSmtDataUpdate()?
+	}
+    }
+    
+    /**@return returns the keys of the weak hashmap {@code nodeToSMTandFPData}
+     * 	warning: null may be returend.
+     * @author gladisch */
+     public Set<Node> getNodesWithSMTandFPData(){
+	if(nodeToSMTandFPData==null)
+	    return null;
+	return 	nodeToSMTandFPData.keySet();
     }
 
 }

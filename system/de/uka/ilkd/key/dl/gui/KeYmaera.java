@@ -21,6 +21,8 @@ public class KeYmaera {
 	 * @param args
 	 */
 	public static void main(String[] args) {
+	        // allow selecting directories too. Does no harm on non macs
+	        System.setProperty("apple.awt.fileDialogForDirectories","true"); 
 	    InitialDialogBeans dialog = new InitialDialogBeans(args);
 		if (!dialog.getCheckboxState()) {
 			final JFrame frame = dialog.getInitialDialogFrame();

@@ -239,6 +239,7 @@ public class OrbitalSimplifier implements ISimplifier {
     public static Arithmetic term2Rational(Term form) {
         // translate everything into rationals so that subsequent
         // calculations are precise
+	try {
         BigDecimal dec = new BigDecimal(form.op().name().toString());
         if (dec.scale() > 0) {
             Integer denom = ValuesImpl.getDefault().ONE();
@@ -251,6 +252,10 @@ public class OrbitalSimplifier implements ISimplifier {
         } else {
             return ValuesImpl.getDefault().valueOf(dec.toBigIntegerExact());
         }
+	}
+	catch (NumberFormatException ex) {
+	    throw (IllegalArgumentException) new IllegalArgumentException("Cannot parse " + form + " as a number literal, because of " + ex).initCause(ex);
+	}
     }
 
 	////////////////////////////////////////////////////////////////////////
