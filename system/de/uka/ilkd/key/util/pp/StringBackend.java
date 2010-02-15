@@ -79,4 +79,5 @@ public class StringBackend implements Backend {
     public String getString() {
 	return out.toString();
     }
+    
 }
