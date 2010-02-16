@@ -401,6 +401,8 @@ final object AM {
     case _ => fm
   }
 
+  /* Simplify a propositional formula. */
+
   def psimplify(fm: CHFormula): CHFormula = fm match {
     case Not(p) => psimplify1(Not(psimplify(p)))
     case And(p,q) => psimplify1(And(psimplify(p),psimplify(q)))
@@ -454,6 +456,9 @@ final object AM {
                         else p
     case _ => psimplify1(fm)
   }
+
+
+  /* Simplify a first order formula. */
 
   def simplify(fm: CHFormula): CHFormula = fm match {
     case Not(p) => simplify1(Not(simplify(p)))
@@ -1208,7 +1213,11 @@ final object AM {
   @throws(classOf[CHAbort])
   def real_elim_try_universal_closure(fm: CHFormula, opt: Int): CHFormula = {
     val re = if(opt == 1) real_elim _ else real_elim2 _ ;
-    val fm1 =  re(fm);
+    val fm0 = simplify(evalc(fm));
+    println("after initial simplification:");
+    P.print_fol_formula(fm0);
+    println();
+    val fm1 =  re(fm0);
     if(fv(fm1).length < fv(fm).length)
       fm1
       else {
