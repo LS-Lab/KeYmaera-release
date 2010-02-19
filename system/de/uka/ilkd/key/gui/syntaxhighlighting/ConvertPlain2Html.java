@@ -31,12 +31,12 @@ public class ConvertPlain2Html {
 	 * with the cursor position and thus the manual application of rules*/
 	 
 	StringBuffer myStringBuffer = new StringBuffer();
-	Pattern pattern = Pattern.compile("(\\s)?\\^(\\s)?((\\d+)|(\\w+)|(\\([^(]+?\\)))?");
+	Pattern pattern = Pattern.compile("(\\s)?\\^(\\s)?(([-|+]*?\\d+)|([-|+]*?\\w+)|([-|+]*?\\([^(]+?\\)))?");
 	//Pattern pattern = Pattern.compile("(\\s)?\\^(\\s)?((\\d+)|(\\w+)|(\\([^(]+\\)))?");
 	//Pattern pattern = Pattern.compile("(\\s)?\\^(\\s)??(\\d+)?(\\s)?");
 	Matcher matcher = pattern.matcher(inputString);
 	while (matcher.find()) {
-	    Pattern p1 = Pattern.compile("(\\d+)|(\\w+)|(\\([^(]+?\\))");
+	    Pattern p1 = Pattern.compile("([-|+]*?\\d+)|([-|+]*?\\w+)|([-|+]*?\\([^(]+?\\))");
             Matcher m1 = p1.matcher(matcher.group());
             if (m1.find())
         	matcher.appendReplacement(myStringBuffer,"<sup>"+m1.group()+"</sup>");	

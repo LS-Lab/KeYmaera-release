@@ -40,8 +40,6 @@ import de.uka.ilkd.key.gui.configuration.Config;
 import de.uka.ilkd.key.gui.configuration.ConfigChangeAdapter;
 import de.uka.ilkd.key.gui.configuration.ConfigChangeListener;
 import de.uka.ilkd.key.gui.notification.events.GeneralFailureEvent;
-import de.uka.ilkd.key.gui.syntaxhighlighting.ConvertPlain2Html;
-import de.uka.ilkd.key.gui.syntaxhighlighting.HighlightSyntax;
 import de.uka.ilkd.key.logic.Sequent;
 import de.uka.ilkd.key.pp.LogicPrinter;
 import de.uka.ilkd.key.pp.LogicPrinterHTML;

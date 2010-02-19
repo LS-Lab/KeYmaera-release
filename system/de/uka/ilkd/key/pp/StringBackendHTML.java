@@ -9,27 +9,29 @@ import java.util.regex.Pattern;
 import de.uka.ilkd.key.gui.syntaxhighlighting.ConvertPlain2Html;
 import de.uka.ilkd.key.gui.syntaxhighlighting.HighlightSyntax;
 import de.uka.ilkd.key.util.pp.Backend;
-import de.uka.ilkd.key.util.pp.LayouterHtml;
 import de.uka.ilkd.key.util.pp.StringBackend;
 
 /**
  * @author mokom
  *
  */
+/** A {@link StringBackend} for Html
+ */
 public class StringBackendHTML extends StringBackend implements Backend{
 
-    protected LayouterHtml layouter;
-    private boolean HasSuperScript = false;
-    private int NumOfSuperscript;
+    private boolean hasSuperScript = false;
+    // Keeps records of number of superscripts used
+    private int numOfSuperscript;
+
 	public StringBackendHTML(StringBuffer sb, int lineWidth) {
 		super(sb, lineWidth);
-		NumOfSuperscript = 0;
+		numOfSuperscript = 0;
 		// TODO Auto-generated constructor stub
 	}
-
+	/** Create a new StringBackend. And initialise the numOfSuperscript.*/
 	public StringBackendHTML(int lineWidth) {
 		super(lineWidth);
-		NumOfSuperscript = 0;
+		numOfSuperscript = 0;
 		// TODO Auto-generated constructor stub
 	}
 	
@@ -38,30 +40,26 @@ public class StringBackendHTML extends StringBackend implements Backend{
     public void print(String s) throws java.io.IOException {
     	
     	if (s.contains("^"))
-    		s = removeSpaceForSuperscript(s);
+    		s = insertSpaceForSuperscript(s);
     	out.append(s);
     	if (s.equals("^")){
     		//out.deleteCharAt(out.length()-2);
-    		NumOfSuperscript++;
-    		HasSuperScript = true;
+    		numOfSuperscript++;
+    		hasSuperScript = true;
     	}
-    	if(HasSuperScript){
+    	if(hasSuperScript){
     		if (s.equals("^"))
-    			HasSuperScript = true;
+    			hasSuperScript = true;
     		else{
     			out.deleteCharAt(out.length()-1);
-    		HasSuperScript = false;
+    		hasSuperScript = false;
     		}
     	}
     }
 
-    /** Start a new line. */
-    public void newLine() throws java.io.IOException {
-	out.append('\n');
-    }
     /** Returns the number of characters written through this backend.*/
     public int count() {
-	return out.length()-initOutLength-NumOfSuperscript;
+	return out.length()-initOutLength-numOfSuperscript;
     }
     
     /** Returns the accumulated output */
@@ -69,19 +67,19 @@ public class StringBackendHTML extends StringBackend implements Backend{
     	
        String s = out.toString();
       s= ConvertPlain2Html.convert2html(s);
-      s = HighlightSyntax.Highlight(s);
+      s = HighlightSyntax.highlight(s);
 	return s;
     }
     
-   
-private String removeSpaceForSuperscript(String s){
+   /** Find supperscript character in String s and insert Space before it*/
+    private String insertSpaceForSuperscript(String s){
     	
     	StringBuffer myStringBuffer = new StringBuffer();
     	Pattern pattern = Pattern.compile("(\\s)?\\^(\\s)?(\\d+)");
     	
     	Matcher matcher = pattern.matcher(s);
     	while (matcher.find()) {
-    		NumOfSuperscript++;
+    		numOfSuperscript++;
     	    	Pattern p1 = Pattern.compile("\\d+");
                 Matcher m1 = p1.matcher(matcher.group());
                 if (m1.find())

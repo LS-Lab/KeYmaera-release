@@ -23,7 +23,7 @@ public class testx {
 	JFrame frame = new JFrame("Test");
 
 //	String aa = ConvertPlain2Html.convert2html(" if 1 = 2  sum = man  < + woman \n  else \n exit(1);\n\n return null;");
-	String aa = ConvertPlain2Html.convert2html(" \\problem1 { ( A^(cd2+2) )+ (56 *89) \n"+
+	String aa = ConvertPlain2Html.convert2html(" \\problem1 {  A^(8 +(2+3)) + (56 *89) \n"+
 							"\\[ R h,v,t; R c,g,H \\] ( \n"+
 							"     g > 0 & h> = 0 & t >= 0 & 0 <= c & c < 1 & v ^ 2 <= 2 * g * (H-h) & H >= 0 \n"+
 							"       -> \n"+
@@ -35,7 +35,7 @@ public class testx {
 							"                            t := 0 \n"+
 							"                            fi. \n"+
 							"                     elseh   \n" +
-							"                            v := 2006668^52 4\n" +
+							"                            v := 2006668^-+-52 4\n" +
 							"                  TEST SPECIAL CHARACTERS \n" +
 							"                     BRACES [] [[[[ ]]]] [][], \n" +
 							"                     PARANTHESIS () \n" +
@@ -50,7 +50,7 @@ public class testx {
 						        "	) \n"+
 							" } \n");
 
-	aa = HighlightSyntax.Highlight(aa);
+	aa = HighlightSyntax.highlight(aa);
 	pane.setContentType( "text/html" );
 	String text = aa;
 	pane.setText(text);
