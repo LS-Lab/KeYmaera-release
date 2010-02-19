@@ -55,13 +55,8 @@
 ./hybrid/weispfennig/angle2.key 600
 ./hybrid/weispfennig/steiner-lehmus-theorem.key 600
 ./hybrid/weispfennig/pedos_inequality.key 600
-./hybrid/groebner_basis/harrison.key 600
-./hybrid/groebner_basis/harrison2.key 600
-./hybrid/groebner_basis/harrison3.key 600
-./hybrid/groebner_basis/harrison4.key 600
-./hybrid/groebner_basis/accel-simple.key 600
-./hybrid/groebner_basis/magnetic_field.key 600
-./hybrid/groebner_basis/magnetic_field-simplified.key 600
+./hybrid/accel-simple.key 600
+./hybrid/magnetic_field.key 600
 ./hybrid/ETCS/controllability/ETCS-d-braking.key 600
 ./hybrid/water_tank/water_tank.key 600
 ./hybrid/ETCS/safety/ETCS-essentials.key 600
