@@ -12,11 +12,11 @@ import java.util.regex.Pattern;
  *
  */
 /**
- * The ConvertPlain2Html class converts the input String into an Html readable code.
+ * The TextToHtml class converts the input String into an Html readable code.
  * It makes sure the special characters & < ... are replace by their corresponding Entities.
  * 
  */
-public class ConvertPlain2Html {
+public class TextToHtml {
     Object obj2Highlight;
 
     /**
@@ -72,7 +72,7 @@ public class ConvertPlain2Html {
     	s = s.replace("\"", "&quot;");
     	s = s.replace("<", "&lt;");
     	s = s.replace(" ", "&nbsp;");
-		return s;
+	return s;
     	
     	
     }

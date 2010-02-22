@@ -6,7 +6,7 @@ package de.uka.ilkd.key.pp;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import de.uka.ilkd.key.gui.syntaxhighlighting.ConvertPlain2Html;
+import de.uka.ilkd.key.gui.syntaxhighlighting.TextToHtml;
 import de.uka.ilkd.key.gui.syntaxhighlighting.HighlightSyntax;
 import de.uka.ilkd.key.util.pp.Backend;
 import de.uka.ilkd.key.util.pp.StringBackend;
@@ -66,7 +66,7 @@ public class StringBackendHTML extends StringBackend implements Backend{
     public String getString() {
     	
        String s = out.toString();
-      s= ConvertPlain2Html.convert2html(s);
+      s= TextToHtml.convert2html(s);
       s = HighlightSyntax.highlight(s);
 	return s;
     }
