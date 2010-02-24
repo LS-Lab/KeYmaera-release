@@ -10,8 +10,6 @@
 
 package de.uka.ilkd.key.proof;
 
-import java.util.Iterator;
-
 import de.uka.ilkd.key.collection.ImmutableList;
 import de.uka.ilkd.key.collection.ImmutableSLList;
 import de.uka.ilkd.key.logic.ConstrainedFormula;
@@ -25,6 +23,8 @@ import de.uka.ilkd.key.rule.BuiltInRule;
 import de.uka.ilkd.key.rule.BuiltInRuleApp;
 import de.uka.ilkd.key.rule.RuleApp;
 import de.uka.ilkd.key.rule.SequentWideBuiltInRule;
+
+import java.util.Iterator;
 
 public class BuiltInRuleAppIndex implements java.io.Serializable {
 
