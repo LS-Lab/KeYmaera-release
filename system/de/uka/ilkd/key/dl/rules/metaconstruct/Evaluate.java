@@ -51,6 +51,9 @@ public class Evaluate extends AbstractDLMetaOperator {
 	
 	try {
 	    return simplifier.simplify(toBeEvaled, services.getNamespaces());
+	} catch (IllegalArgumentException e) {
+	    // for instance symbolic variables
+	    return toBeEvaled;
 	} catch (ArithmeticException e) {
 	    // for instance division by zero
 	    return toBeEvaled;
