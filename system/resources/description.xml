@@ -16,9 +16,9 @@
 		<description>Simple example of a controlled moving point that moves towards zero.</description>
 		<requirements>
 			<some>
+				<quantifiereliminator>Mathematica</quantifiereliminator>
 				<quantifiereliminator>QepCad</quantifiereliminator>
 				<quantifiereliminator>Reduce</quantifiereliminator>
-				<quantifiereliminator>Mathematica</quantifiereliminator>
 				<quantifiereliminator>CohenHormander</quantifiereliminator>
 			</some>
 		</requirements>
@@ -31,9 +31,9 @@
     href="http://symbolaris.com/info/fig-bouncing-ball.png"/>
     		<requirements>
     			<some>
+    				<quantifiereliminator>Mathematica</quantifiereliminator>
     				<quantifiereliminator>QepCad</quantifiereliminator>
     				<quantifiereliminator>Reduce</quantifiereliminator>
-    				<quantifiereliminator>Mathematica</quantifiereliminator>
     			</some>
     		</requirements>
     	</example>
@@ -45,12 +45,27 @@
 	    href="http://symbolaris.com/info/fig-bouncing-ball.png"/>
 	    		<requirements>
 	    			<some>
+        				<quantifiereliminator>Mathematica</quantifiereliminator>
 	    				<quantifiereliminator>QepCad</quantifiereliminator>
 	    				<quantifiereliminator>Reduce</quantifiereliminator>
-	    				<quantifiereliminator>Mathematica</quantifiereliminator>
 	    			</some>
 	    		</requirements>
 	    	</example>
+            	<example>
+            		<name>Water Tank</name>
+            		<path>/examples/hybrid/publish/water_tank.key</path>
+            		<description>Standard water tank model, which regulates water level y between 1 and 12 by filling or emptying the water tank. Changing valves has a delayed effect in this example.</description>
+            		<img 
+            href="http://symbolaris.com/info/fig-water-tank.png"/>
+            		<requirements>
+            			<some>
+            				<quantifiereliminator>Mathematica</quantifiereliminator>
+            				<quantifiereliminator>QepCad</quantifiereliminator>
+            				<quantifiereliminator>Reduce</quantifiereliminator>
+            				<quantifiereliminator>CohenHormander</quantifiereliminator>
+            			</some>
+            		</requirements>
+            	</example>
 	<example>
 		<name>ETCS Train Control [simple]</name>
 		<path>/examples/hybrid/ETCS/safety/ETCS-simple.key</path>
@@ -59,9 +74,9 @@
 			href="http://symbolaris.com/info/ETCS-MAProtocol-c.gif"/>
 		<requirements>
 			<some>
+				<quantifiereliminator>Mathematica</quantifiereliminator>
 				<quantifiereliminator>QepCad</quantifiereliminator>
 				<quantifiereliminator>Reduce</quantifiereliminator>
-				<quantifiereliminator>Mathematica</quantifiereliminator>
 			</some>
 		</requirements>
 	</example>
@@ -73,22 +88,8 @@
 			href="http://symbolaris.com/info/fig-tangential-roundabout.png"/>
 		<requirements>
 			<some>
-				<quantifiereliminator>Reduce</quantifiereliminator>
 				<quantifiereliminator>Mathematica</quantifiereliminator>
-			</some>
-		</requirements>
-	</example>
-	<example>
-		<name>Water Tank</name>
-		<path>/examples/hybrid/publish/water_tank.key</path>
-		<description>Standard water tank model, which regulates water level y between 1 and 12 by filling or emptying the water tank. Changing valves has a delayed effect in this example.</description>
-		<img 
-href="http://symbolaris.com/info/fig-water-tank.png"/>
-		<requirements>
-			<some>
-				<quantifiereliminator>QepCad</quantifiereliminator>
 				<quantifiereliminator>Reduce</quantifiereliminator>
-				<quantifiereliminator>Mathematica</quantifiereliminator>
 			</some>
 		</requirements>
 	</example>
