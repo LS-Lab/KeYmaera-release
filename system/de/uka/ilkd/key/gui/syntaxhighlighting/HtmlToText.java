@@ -22,7 +22,7 @@ public class HtmlToText extends HTMLEditorKit.ParserCallback {
      * @param s
      */
     public void parse(String s){
-	input=s;
+	input=s;	
 	replaceSuperscript("^");
 	StringReader in = new StringReader(input);
 	buffer = new StringBuffer();
@@ -44,8 +44,8 @@ public class HtmlToText extends HTMLEditorKit.ParserCallback {
     /**
      * Return plain text.
      */
-    public String getText() {
-	return buffer.toString();
+    public String getText() {	
+	return replaceSpace(buffer.toString());
     }
     /**
      * Insert '^' For superscript represenntation and remove space before it in oder
@@ -61,5 +61,17 @@ public class HtmlToText extends HTMLEditorKit.ParserCallback {
 	    input = input.replaceAll(" <sup>", "<sup>");
 	}
     }
-
+    /**
+     * Check whether some space exists before the "^" character in the input string s, if true removes it.
+     * @param s
+     */
+    public String replaceSpace(String s){	
+	
+	if(s!=null){
+	    s = s.replaceAll("&#160;^", "^");
+	    s = s.replaceAll("&nbsp;^", "^");
+	    s = s.replaceAll(" ^", "^");
+	}
+	return s;
+    }
 }
