@@ -256,9 +256,6 @@ public class Main extends JFrame implements IMain {
     private JPopupMenu reusePopup = new JPopupMenu();
 
     
-    /** undo the last proof step on the currently selected branch */
-    private UndoLastStep undoAction = new UndoLastStep();
-
     /** external prover GUI elements */
     private DPSettingsListener dpSettingsListener;
     private JSlider ruletimeout;
@@ -569,8 +566,7 @@ public class Main extends JFrame implements IMain {
 		}
         
         final JButton goalBackButton = new JButton();
-        undoAction.init();
-        goalBackButton.setAction(undoAction);
+        goalBackButton.setAction(new UndoLastStep(false));        
         
         toolBar.add(goalBackButton);
         toolBar.addSeparator();
@@ -606,6 +602,8 @@ public class Main extends JFrame implements IMain {
         toolBar.addSeparator();
         
         JToolBar fileOperations = new JToolBar("File Operations");
+        fileOperations.setRollover(true);
+        
         fileOperations.add(createOpenFile());
         fileOperations.add(createOpenMostRecentFile());
         fileOperations.add(createSaveFile());
@@ -1416,8 +1414,8 @@ public class Main extends JFrame implements IMain {
 		JMenuItem runStrategy = new JMenuItem(autoModeAction);
 		registerAtMenu(proof, runStrategy);
 
-		JMenuItem undo = new JMenuItem(undoAction);
-		registerAtMenu(proof, undo);
+	JMenuItem undo = new JMenuItem(new UndoLastStep(true));
+	registerAtMenu(proof, undo);
 
 		JMenuItem close = new JMenuItem(new AbandonTask());
 		registerAtMenu(proof, close);	
@@ -1675,9 +1673,13 @@ public class Main extends JFrame implements IMain {
     JCheckBoxMenuItem showSMTResDialog;
     JCheckBoxMenuItem saveSMTFile;
     private JCheckBoxMenuItem waitForAllProvers;
+    private JCheckBoxMenuItem saveTacletTranslation;
+    private JCheckBoxMenuItem useTaclets;
+    private JMenuItem showTacletTranslationSettings;
     /**@see {@link de.uka.ilkd.key.smt.SmtLibTranslatorWeaker} */
     JCheckBoxMenuItem weakerSMTTranslation;
 
+    
     
     /**
      * creates a menu allowing to choose the external prover to be used
@@ -1788,6 +1790,29 @@ public class Main extends JFrame implements IMain {
 		   }
 		});
 	decProcOptions.add(waitForAllProvers);
+	
+
+	
+	showTacletTranslationSettings = new JMenuItem("settings for taclet translation");
+	showTacletTranslationSettings.addActionListener(new ActionListener() {
+		   public void actionPerformed(ActionEvent e) {
+		       if(mediator.getSelectedProof()!=null){
+			    ProofSettings.DEFAULT_SETTINGS.getTacletTranslationSettings().
+			    initTacletMap(mediator.getSelectedProof().env().getInitConfig().getTaclets());  
+		       }
+		
+		       TacletTranslationSettingsDialog.showDialog();
+		       
+		       
+		   }
+		});
+	decProcOptions.add(showTacletTranslationSettings);
+	
+	
+	
+	
+	
+
 	
 	weakerSMTTranslation = new JCheckBoxMenuItem("Weaken Typesystem Translation");
 	weakerSMTTranslation.setSelected(dps.weakenSMTTranslation);
@@ -3063,7 +3088,15 @@ public class Main extends JFrame implements IMain {
      */
     private final class UndoLastStep extends AbstractAction {
 
-        public UndoLastStep() {            
+	private boolean longName = false;
+	
+	/**
+	 * creates an undo action
+	 * @param longName a boolean true iff the long name should be shown (e.g. in MenuItems)
+	 */
+        public UndoLastStep(boolean longName) {            
+            this.longName = longName;
+            init();
             setBackMode();
         }
 
@@ -3123,7 +3156,19 @@ public class Main extends JFrame implements IMain {
         }
         
         private void setBackMode() {
-            putValue(NAME, "Goal Back");
+            String appliedRule = "";
+
+            if (longName && mediator != null) {
+        	final Node nd = mediator.getSelectedNode();
+            
+        	if (nd != null && nd.parent() != null 
+        		&&  nd.parent().getAppliedRuleApp() != null) {
+        	    appliedRule = 
+        		" (" + nd.parent().getAppliedRuleApp().rule().displayName() + ")";
+        	}
+            }
+            putValue(NAME, "Goal Back" + appliedRule );
+            
             putValue(SMALL_ICON, 
                     IconFactory.goalBackLogo(TOOLBAR_ICON_SIZE));
             putValue(SHORT_DESCRIPTION, "Undo the last rule application.");
