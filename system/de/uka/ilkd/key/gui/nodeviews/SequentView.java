@@ -24,7 +24,6 @@ import java.awt.event.HierarchyEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Vector;
 
 import javax.swing.JEditorPane;
@@ -40,10 +39,9 @@ import de.uka.ilkd.key.gui.configuration.Config;
 import de.uka.ilkd.key.gui.configuration.ConfigChangeAdapter;
 import de.uka.ilkd.key.gui.configuration.ConfigChangeListener;
 import de.uka.ilkd.key.gui.notification.events.GeneralFailureEvent;
-import de.uka.ilkd.key.gui.syntaxhighlighting.ConvertPlain2Html;
-import de.uka.ilkd.key.gui.syntaxhighlighting.HighlightSyntax;
+import de.uka.ilkd.key.gui.syntaxhighlighting.HtmlToText;
 import de.uka.ilkd.key.logic.Sequent;
-import de.uka.ilkd.key.pp.LogicPrinter;
+import de.uka.ilkd.key.pp.LogicPrinterHTML;
 import de.uka.ilkd.key.pp.PosInSequent;
 import de.uka.ilkd.key.pp.Range;
 import de.uka.ilkd.key.pp.SequentPrintFilter;
@@ -79,7 +77,7 @@ public class SequentView extends JEditorPane implements Autoscroll {
         new HashMap<Color, DefaultHighlightPainter>();
     
     // the used sequentprinter
-    private LogicPrinter printer;
+    private LogicPrinterHTML printer;
 
     // the used sequent filter
     private SequentPrintFilter filter;
@@ -373,8 +371,8 @@ public class SequentView extends JEditorPane implements Autoscroll {
     private void setSequentViewFont() {
 	Font myFont = UIManager.getFont(Config.KEY_FONT_CURRENT_GOAL_VIEW);
         if (myFont != null) {
-	   putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, Boolean.TRUE);  // Allow font to changed in JEditorPane when set to "text/html"
-	    setFont(myFont);
+	      putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, Boolean.TRUE);  // Allow font to changed in JEditorPane when set to "text/html"
+	      setFont(myFont);
 	} else {
 	    Debug.out("KEY_FONT_CURRENT_GOAL_VIEW not available. Use standard font.");
 	}        
@@ -414,18 +412,13 @@ public class SequentView extends JEditorPane implements Autoscroll {
 	removeMouseListener(listener);
         
         lineWidth = computeLineWidth();
-        String displayString ;
         if (printer != null) {
             printer.update(seq, filter, lineWidth);
 	    boolean errorocc;
 	    do {
 	        errorocc = false;
 	        try {
-	           displayString= ConvertPlain2Html.convert2html(printer.toString());
-	            displayString = HighlightSyntax.Highlight(displayString);
-	           // displayString = ConvertPlain2Html.changeFont(displayString, UIManager.getFont(Config.KEY_FONT_CURRENT_GOAL_VIEW));
-		    setText(displayString);
-		    //setText(printer.toString());
+		    setText(printer.toString());
 	        } catch (Error e) {
 		    System.err.println("Error occurred while printing Sequent!");
 		    errorocc = true;
@@ -462,7 +455,7 @@ public class SequentView extends JEditorPane implements Autoscroll {
     /** sets the LogicPrinter to use
      * @param sp the LogicPrinter that is used
      */
-    public void setPrinter(LogicPrinter sp, Sequent s) {
+    public void setPrinter(LogicPrinterHTML sp, Sequent s) {
     	setPrinter ( sp, null, s );
     }
 
@@ -475,7 +468,7 @@ public class SequentView extends JEditorPane implements Autoscroll {
      * @param sp the LogicPrinter that is used
      * @param f the SequentPrintFilter that is used
      */
-    public void setPrinter(LogicPrinter sp, SequentPrintFilter f, Sequent s) {
+    public void setPrinter(LogicPrinterHTML sp, SequentPrintFilter f, Sequent s) {
         printer = sp;
         filter  = f;
         seq = s;
@@ -484,9 +477,9 @@ public class SequentView extends JEditorPane implements Autoscroll {
     /** return used LogicPrinter
      * @return the LogicPrinter that is used
      */
-    public LogicPrinter printer() {
+    public LogicPrinterHTML printer() {
     	return printer;
-    }
+    } 
 
     /** sets the mediator
      * @param mediator the KeYMediator used to communicate with other
@@ -522,7 +515,7 @@ public class SequentView extends JEditorPane implements Autoscroll {
 	    if (range != null) {
 		getHighlighter()
 		    .changeHighlight(highlighter, 
-				     range.start(), range.end()+1);// Added +1 By Zacharais Njam Mokom due to change of text type to text/html
+				     range.start()+1, range.end()+1);// Added +1 By Zacharais Njam Mokom due to change of text type to text/html
 	    } else {
 		getHighlighter()
 		    .changeHighlight(highlighter, 0, 0);
@@ -572,11 +565,12 @@ public class SequentView extends JEditorPane implements Autoscroll {
        String s;
        try{
 	   PosInSequent pos = listener.getMousePos();
-	   s = getText(pos.getBounds().start(),
+	   s = getPlainText(pos.getBounds().start(),
 		       pos.getBounds().length());
        } catch (Exception ble) { // whatever it is -- forget about it
 	   s="";
        }
+       
        return s;
     }
     
@@ -605,7 +599,7 @@ public class SequentView extends JEditorPane implements Autoscroll {
     synchronized Range getHighlightRange(Point p) {
 	String seqText = getText();
 	if (seqText.length() > 0) {
-	    int characterIndex = correctedViewToModel(p);	    
+	    int characterIndex = correctedViewToModel(p);
 	    return printer().getPositionTable().
 		rangeForIndex(characterIndex);
 	} else {
@@ -676,6 +670,28 @@ public class SequentView extends JEditorPane implements Autoscroll {
             scrollRectToVisible(scrollRect);
         }
     }
+    /**
+     *  Use to get Plain text since the JEditorPane is set to html/plain.
+     *  @return <em>String</em> s
+     */
+    public String getPlainText(){
+	HtmlToText conv = new HtmlToText();
+	conv.parse(getText());
+	return conv.getText();
+    }
+    /**
+     *  Fetches a portion of the text represented by the component. Returns an empty string if length is 0.
+     *  NB:The JEditorPane is set to html/plain but return a plain text represention and takes care of the position table.
+     *  @return <em>String</em> s
+     *  @param offs>=0
+     *  @param len>=0
+     *  @throws BadLocationException 
+     */
+    public String getPlainText(int offs, int len) throws BadLocationException{
+	if (len == 0)
+	    return "";
+	return getPlainText().substring(offs, offs+len);
+    }
 
     /**
      * used to define the area in which autoscrolling will be
@@ -719,6 +735,7 @@ public class SequentView extends JEditorPane implements Autoscroll {
         }
     }
 
+    	
     
 }
 

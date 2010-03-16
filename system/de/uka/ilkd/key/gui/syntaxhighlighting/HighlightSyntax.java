@@ -15,9 +15,9 @@ public class HighlightSyntax {
      * @param inputString : string to highlight preferrable in html form
      * @return the Highlighted String in html form.
      */
-    public static String Highlight(String inputString){
+    public static String highlight(String inputString){
 	
-	String output = HighLighNumericals(inputString);
+	String output = highLighNumericals(inputString);
 	Pattern pattern = Pattern.compile(getKeymaeraSpecificTypes());
 
 	StringBuffer myStringBuffer = new StringBuffer();
@@ -45,7 +45,7 @@ public class HighlightSyntax {
      * @return the Highlighted String in html form. NB: perform only numerical highligh, for complete highlight use 
      * the static method String Highlight(String inputString)
      */
-    static String HighLighNumericals(String inputString) {
+    static String highLighNumericals(String inputString) {
 
 	Pattern pattern = Pattern.compile("\\b\\d+\\b");
 

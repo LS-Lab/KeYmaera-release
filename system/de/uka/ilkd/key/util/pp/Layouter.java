@@ -168,10 +168,10 @@ import java.util.StringTokenizer;
 public class Layouter {
 
     /** The backend */
-    private Backend back;
+    protected Backend back;
 
     /** The Printer used for output. */
-    private Printer out;
+    protected Printer out;
 
     /** The list of scanned tokens not yet output. */
     private List stream = new java.util.LinkedList();
@@ -179,7 +179,7 @@ public class Layouter {
     /** A stack of <code>OpenBlockToken</code>s and
      * <code>BreakToken</code>s in <code>stream</code>, waiting for
      * their size to be determined.*/
-    private List delimStack = new java.util.LinkedList();
+    protected List delimStack = new java.util.LinkedList();
 
     /*
      * Some Invariants:
@@ -197,12 +197,12 @@ public class Layouter {
      * printed in one line.  The difference of this between two states
      * says how much space would be needed to print the intervening
      * stuff without line breaks. */
-    private int totalSize=0;
+    protected int totalSize=0;
 
     /** Total size of strings and blanks sent to the Printer <code>out</code>.
      * Subtract this from <code>totalOutput</code> and you get the space
      * needed to print what is still buffered in <code>stream</code> */
-    private int totalOutput=0;
+    protected int totalOutput=0;
 
     /** The size assigned to things which are guaranteed not to fit on a
      * line.  For good measure, this is intitialized to twice the line
@@ -285,6 +285,7 @@ public class Layouter {
     public Layouter print(String s) 
     	throws IOException
     {
+    	
 	if (delimStack.isEmpty()) {
 	    out.print(s);
 	    totalSize+=back.measure(s);
@@ -585,7 +586,7 @@ public class Layouter {
 
     /** Remove and return the token from the <em>bottom</em> of the
      * delimStack */
-    private StreamToken popBottom()  {
+    protected StreamToken popBottom()  {
 	try {
 	    return (StreamToken)(delimStack.remove(0));
 	} catch (IndexOutOfBoundsException e) {
@@ -606,7 +607,7 @@ public class Layouter {
     /* stream handling */
 
     /** Put a StreamToken into the stream (at the end). */
-    private void enqueue(StreamToken t) {
+    protected void enqueue(StreamToken t) {
 	stream.add(t);
     }
     
@@ -617,7 +618,7 @@ public class Layouter {
 
     /** Send tokens from <code>stream<code> to <code>out</code> as long
      * as there are tokens left and their size is known. */
-    private void advanceLeft() 
+    protected void advanceLeft() 
 	throws IOException
     {
 	StreamToken t;
@@ -633,7 +634,7 @@ public class Layouter {
 
     /** A stream token.
      */
-    private abstract class StreamToken {
+    protected abstract class StreamToken {
 	/** Send this token to the Printer {@link #out}. */
 	abstract void print() 
 	    throws IOException;
@@ -679,7 +680,7 @@ public class Layouter {
     }
 
     /** A token corresponding to a <code>print</code> call. */
-    private class StringToken extends StreamToken {
+    class StringToken extends StreamToken {
 	String s;
 	
 	StringToken(String s) {
@@ -807,7 +808,7 @@ public class Layouter {
     }
 
     /** A token corresponding to a <code>mark</code> call. */
-    private class MarkToken extends StreamToken {
+    class MarkToken extends StreamToken {
 	protected Object o;
 
 	MarkToken(Object o) {

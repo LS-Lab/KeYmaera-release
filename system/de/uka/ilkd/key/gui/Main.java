@@ -80,6 +80,7 @@ import de.uka.ilkd.key.logic.Sequent;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.pp.ConstraintSequentPrintFilter;
 import de.uka.ilkd.key.pp.LogicPrinter;
+import de.uka.ilkd.key.pp.LogicPrinterHTML;
 import de.uka.ilkd.key.pp.PresentationFeatures;
 import de.uka.ilkd.key.pp.ProgramPrinter;
 import de.uka.ilkd.key.pp.SequentPrintFilter;
@@ -2078,7 +2079,7 @@ public class Main extends JFrame implements IMain {
             new ConstraintSequentPrintFilter ( sequent,
                     mediator ().getUserConstraint ()
                     .getConstraint () );
-        final LogicPrinter printer = new LogicPrinter
+        final LogicPrinterHTML printer = new LogicPrinterHTML
         (new ProgramPrinter(null), 
                 mediator().getNotationInfo(),
                 mediator.getServices());
@@ -2478,7 +2479,7 @@ public class Main extends JFrame implements IMain {
             if(mediator()!=null && mediator().getSelectedProof()!=null){
                 goal = mediator().getSelectedGoal();
             } else{//There is no proof. Either not loaded yet or it is abandoned 
-                final LogicPrinter printer = new LogicPrinter
+                final LogicPrinterHTML printer = new LogicPrinterHTML
                 (new ProgramPrinter(null), null,null);
                 sequentView.setPrinter(printer, null);
                 return;
