@@ -38,15 +38,14 @@ public class StringBackendHTML extends StringBackend implements Backend{
     /** Append a String <code>s</code> to the output.  <code>s</code> 
      * contains no newlines. */
     public void print(String s) throws java.io.IOException {
-    	
-    	if (s.contains("^"))
-    		s = insertSpaceForSuperscript(s);
-    	out.append(s);
     	if (s.equals("^")){
-    		//out.deleteCharAt(out.length()-2);
+    	        //out.append(' ');
     		numOfSuperscript++;
     		hasSuperScript = true;
-    	}
+    	}else if (s.contains("^"))
+    		s = insertSpaceForSuperscript(s);
+    	out.append(s);
+    	
     	if(hasSuperScript){
     		if (s.equals("^"))
     			hasSuperScript = true;
@@ -66,8 +65,9 @@ public class StringBackendHTML extends StringBackend implements Backend{
     public String getString() {
     	
        String s = out.toString();
-      s= TextToHtml.convert2html(s);
-      s = HighlightSyntax.highlight(s);
+	s = TextToHtml.convert2html(s);
+	s = HighlightSyntax.highlight(s);
+
 	return s;
     }
     

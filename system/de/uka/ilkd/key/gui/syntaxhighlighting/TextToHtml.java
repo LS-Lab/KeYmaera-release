@@ -29,7 +29,7 @@ public class TextToHtml {
     	inputString = changeHtmlSpecialCharacters(inputString);
 	/*FIXME: Commented out the following part because there is an issue
 	 * with the cursor position and thus the manual application of rules*/
-	 
+    	
 	StringBuffer myStringBuffer = new StringBuffer();
 	Pattern pattern = Pattern.compile("(\\s)?\\^(\\s)?(([-|+]*?\\d+)|([-|+]*?\\w+)|([-|+]*?\\([^(]+?\\)))?");
 	//Pattern pattern = Pattern.compile("(\\s)?\\^(\\s)?((\\d+)|(\\w+)|(\\([^(]+\\)))?");
@@ -39,14 +39,14 @@ public class TextToHtml {
 	    Pattern p1 = Pattern.compile("([-|+]*?\\d+)|([-|+]*?\\w+)|([-|+]*?\\([^(]+?\\))");
             Matcher m1 = p1.matcher(matcher.group());
             if (m1.find())
-        	matcher.appendReplacement(myStringBuffer,"<sup>"+m1.group()+"</sup>");	
+        	matcher.appendReplacement(myStringBuffer," <sup>"+m1.group()+"</sup>");	
 	}
 	
 	myStringBuffer = matcher.appendTail(myStringBuffer);
 	
 	inputString = myStringBuffer.toString();
 	//inputString = inputString.replace(" ", "&nbsp;");
-		
+	
 	return addPre(inputString);	
     }
 
@@ -65,16 +65,15 @@ public class TextToHtml {
     }
     
     public static String changeHtmlSpecialCharacters(String s){
-    	
+	
     	s = s.replace("&", "&amp;");
     	s = s.replace("<", "&lt;");
     	s = s.replace(">", "&gt;");
     	s = s.replace("\"", "&quot;");
     	s = s.replace("<", "&lt;");
-    	s = s.replace(" ", "&nbsp;");
+    	//s = s.replace(" ", "&nbsp;");
 	return s;
-    	
-    	
+    	  	
     }
      	
 }

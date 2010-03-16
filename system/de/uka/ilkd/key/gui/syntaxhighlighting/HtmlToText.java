@@ -1,6 +1,5 @@
 package de.uka.ilkd.key.gui.syntaxhighlighting;
 import java.io.*;
-
 import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.text.html.parser.ParserDelegator;
 
@@ -15,7 +14,7 @@ public class HtmlToText extends HTMLEditorKit.ParserCallback {
     private StringBuffer buffer;
     private String input;
 
-    public HtmlToText() {
+    public HtmlToText() {	
     }
     /**
      * Construction for input String
@@ -52,26 +51,26 @@ public class HtmlToText extends HTMLEditorKit.ParserCallback {
      * to keep the position table correct.
      * @param s
      */
-    public void replaceSuperscript(String s){	
-	
+    public void replaceSuperscript(String s){
+
 	if(input!=null){
 	    input = input.replaceAll("<sup>", "<sup>"+s);
-	    input = input.replaceAll("&#160;<sup>", "<sup>");
-	    input = input.replaceAll("&nbsp;<sup>", "<sup>");
-	    input = input.replaceAll(" <sup>", "<sup>");
 	}
     }
     /**
      * Check whether some space exists before the "^" character in the input string s, if true removes it.
      * @param s
      */
-    public String replaceSpace(String s){	
+    public String replaceSpace(String s){
 	
-	if(s!=null){
-	    s = s.replaceAll("&#160;^", "^");
-	    s = s.replaceAll("&nbsp;^", "^");
-	    s = s.replaceAll(" ^", "^");
-	}
-	return s;
+	char c =0x20; // Space character
+	StringBuffer out = new StringBuffer(s);
+	
+	for(int i= 1; i <out.length(); i++)
+	    if ((out.charAt(i)== '^') && out.charAt(i-1)==c)
+		out.deleteCharAt(i-1);	
+
+	return out.toString();
     }
+
 }

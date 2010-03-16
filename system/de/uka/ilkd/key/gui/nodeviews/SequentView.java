@@ -676,7 +676,7 @@ public class SequentView extends JEditorPane implements Autoscroll {
      */
     public String getPlainText(){
 	HtmlToText conv = new HtmlToText();
-	conv.parse(getText());	
+	conv.parse(getText());
 	return conv.getText();
     }
     /**
