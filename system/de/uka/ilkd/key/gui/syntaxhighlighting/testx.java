@@ -3,6 +3,9 @@
  */
 package de.uka.ilkd.key.gui.syntaxhighlighting;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.text.html.HTML;
@@ -22,9 +25,9 @@ public class testx {
 	JEditorPane pane = new JEditorPane();
 	JFrame frame = new JFrame("Test");
 
-//	String aa = TextToHtml.convert2html(" if 1 = 2  sum = man  < + woman \n  else \n exit(1);\n\n return null;");
-	String aa = TextToHtml.convert2html(" \\problem1 {  A^(8 +(2+3)) + (56 *89) \n"+
-							"\\[ R h,v,t; R c,g,H \\] ( \n"+
+//	String aa = TextToHtml.convert2html(" if 1 = 2  sum = man  < + woman \n  else \n exit(1);\n\n return null;"); TextToHtml.convert2html(
+	String aa ="<pre> \\problem1 {  A^(8 +(2+3)) + (56 *89) \n"+
+							"\\[ R h_2a3,v,t; R c,g,H \\] ( \n"+
 							"     g > 0 & h> = 0 & t >= 0 & 0 <= c & c < 1 & v ^ 2 <= 2 * g * (H-h) & H >= 0 \n"+
 							"       -> \n"+
 							" 	\\[  \n" +
@@ -48,9 +51,10 @@ public class testx {
 							"                 )*                               /* repeat these transitions */ \n"+
 							"           \\] ( 0 <=h & h <= H)                      /* safety / postcondition */ \n"+
 						        "	) \n"+
-							" } \n");
+							" } \n</pre>";
 
-	aa = HighlightSyntax.highlight(aa);
+	//aa = HighlightSyntax.highlight(aa);
+	aa = insertSubscript(aa);
 	pane.setContentType( "text/html" );
 	String text = aa;
 	pane.setText(text);
@@ -60,5 +64,21 @@ public class testx {
 	frame.setVisible(true);
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
     }
+ private static String insertSubscript(String s){
+    	
+    	StringBuffer myStringBuffer = new StringBuffer();
+    	Pattern pattern = Pattern.compile("(_)(\\s)?((\\d|\\w)+)");
+    	
+    	Matcher matcher = pattern.matcher(s);
+    	while (matcher.find()) {
+    	    System.out.println(matcher.group());
+            	matcher.appendReplacement(myStringBuffer,"<sub>"+matcher.group().substring(1)+"</sub>");	
+    	}
+    	
+    	myStringBuffer = matcher.appendTail(myStringBuffer);
+    	
+    	return myStringBuffer.toString();	
+    }
+
 
 }
