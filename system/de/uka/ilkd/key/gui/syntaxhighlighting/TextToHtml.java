@@ -25,29 +25,34 @@ public class TextToHtml {
      */
     public static String convert2html(String inputString){
 
-
-    	inputString = changeHtmlSpecialCharacters(inputString);
-	/*FIXME: Commented out the following part because there is an issue
-	 * with the cursor position and thus the manual application of rules*/
-    	
+    	// Superscript replacement
 	StringBuffer myStringBuffer = new StringBuffer();
 	Pattern pattern = Pattern.compile("(\\s)?\\^(\\s)?(([-|+]*?\\d+)|([-|+]*?\\w+)|([-|+]*?\\([^(]+?\\)))?");
 	//Pattern pattern = Pattern.compile("(\\s)?\\^(\\s)?((\\d+)|(\\w+)|(\\([^(]+\\)))?");
 	//Pattern pattern = Pattern.compile("(\\s)?\\^(\\s)??(\\d+)?(\\s)?");
-	Matcher matcher = pattern.matcher(inputString);
+	Matcher matcher = pattern.matcher(changeHtmlSpecialCharacters(inputString));
 	while (matcher.find()) {
 	    Pattern p1 = Pattern.compile("([-|+]*?\\d+)|([-|+]*?\\w+)|([-|+]*?\\([^(]+?\\))");
             Matcher m1 = p1.matcher(matcher.group());
             if (m1.find())
         	matcher.appendReplacement(myStringBuffer," <sup>"+m1.group()+"</sup>");	
 	}
-	
 	myStringBuffer = matcher.appendTail(myStringBuffer);
 	
-	inputString = myStringBuffer.toString();
-	//inputString = inputString.replace(" ", "&nbsp;");
+	// Subscript replacement
+    	 
+    	 pattern = Pattern.compile("(_)(\\s)?((\\d|\\w)+)");
+    	
+    	 matcher = pattern.matcher(myStringBuffer.toString());
+    	 myStringBuffer = new StringBuffer();
+    	 
+    	while (matcher.find()) {
+            	matcher.appendReplacement(myStringBuffer,"<sub>"+matcher.group().substring(1)+"</sub>");	
+    	}
+    	
+    	myStringBuffer = matcher.appendTail(myStringBuffer);
 	
-	return addPre(inputString);	
+	return addPre(myStringBuffer.toString());	
     }
 
     private static String addPre(String htmlText){

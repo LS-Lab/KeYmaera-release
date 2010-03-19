@@ -21,17 +21,17 @@ public class StringBackendHTML extends StringBackend implements Backend{
 
     private boolean hasSuperScript = false;
     // Keeps records of number of superscripts used
-    private int numOfSuperscript;
+    private int numOfSuperSub_script;
 
 	public StringBackendHTML(StringBuffer sb, int lineWidth) {
 		super(sb, lineWidth);
-		numOfSuperscript = 0;
+		numOfSuperSub_script = 0;
 		// TODO Auto-generated constructor stub
 	}
-	/** Create a new StringBackend. And initialise the numOfSuperscript.*/
+	/** Create a new StringBackend. And initialise the numOfSuperSub_script.*/
 	public StringBackendHTML(int lineWidth) {
 		super(lineWidth);
-		numOfSuperscript = 0;
+		numOfSuperSub_script = 0;
 		// TODO Auto-generated constructor stub
 	}
 	
@@ -40,11 +40,18 @@ public class StringBackendHTML extends StringBackend implements Backend{
     public void print(String s) throws java.io.IOException {
     	if (s.equals("^")){
     	        //out.append(' ');
-    		numOfSuperscript++;
+    		numOfSuperSub_script++;
     		hasSuperScript = true;
     	}else if (s.contains("^"))
     		s = insertSpaceForSuperscript(s);
+    	
     	out.append(s);
+    	
+        Matcher matcher = Pattern.compile("(_)(\\s)?((\\d|\\w)+)").matcher(s);   	 
+   	while (matcher.find()) {
+   	   numOfSuperSub_script++;	
+   	}
+   	
     	
     	if(hasSuperScript){
     		if (s.equals("^"))
@@ -58,7 +65,7 @@ public class StringBackendHTML extends StringBackend implements Backend{
 
     /** Returns the number of characters written through this backend.*/
     public int count() {
-	return out.length()-initOutLength-numOfSuperscript;
+	return out.length()-initOutLength-numOfSuperSub_script;
     }
     
     /** Returns the accumulated output */
@@ -79,7 +86,7 @@ public class StringBackendHTML extends StringBackend implements Backend{
     	
     	Matcher matcher = pattern.matcher(s);
     	while (matcher.find()) {
-    		numOfSuperscript++;
+    		numOfSuperSub_script++;
     	    	Pattern p1 = Pattern.compile("\\d+");
                 Matcher m1 = p1.matcher(matcher.group());
                 if (m1.find())
@@ -90,5 +97,4 @@ public class StringBackendHTML extends StringBackend implements Backend{
     	
     	return myStringBuffer.toString();	
     }
-
 }

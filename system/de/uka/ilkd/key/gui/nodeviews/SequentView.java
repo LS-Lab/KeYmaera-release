@@ -25,6 +25,8 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.HashMap;
 import java.util.Vector;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.JEditorPane;
 import javax.swing.SwingUtilities;
@@ -690,7 +692,14 @@ public class SequentView extends JEditorPane implements Autoscroll {
     public String getPlainText(int offs, int len) throws BadLocationException{
 	if (len == 0)
 	    return "";
-	return getPlainText().substring(offs, offs+len);
+	int count = 0;
+	Matcher matcher= Pattern.compile("(_)(\\s)?((\\d|\\w)+)").matcher(getPlainText());   	 
+	while (matcher.find()) {
+   	      count++;	
+	 }
+	String out = getPlainText().substring(offs, offs+len+count);
+	
+	return out;
     }
 
     /**

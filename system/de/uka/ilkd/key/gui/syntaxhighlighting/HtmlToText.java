@@ -22,7 +22,8 @@ public class HtmlToText extends HTMLEditorKit.ParserCallback {
      */
     public void parse(String s){
 	input=s;	
-	replaceSuperscript("^");
+	replaceSymbol("^", "<sup>");
+	replaceSymbol("_", "<sub>");
 	StringReader in = new StringReader(input);
 	buffer = new StringBuffer();
 	ParserDelegator delegator = new ParserDelegator();
@@ -47,14 +48,14 @@ public class HtmlToText extends HTMLEditorKit.ParserCallback {
 	return replaceSpace(buffer.toString());
     }
     /**
-     * Insert '^' For superscript represenntation and remove space before it in oder
-     * to keep the position table correct.
+     * Restore keymaera superscript and subscript representation by adding the said symbol(pattern)
      * @param s
+     * @param pattern
      */
-    public void replaceSuperscript(String s){
+    public void replaceSymbol(String s, String pattern){
 
 	if(input!=null){
-	    input = input.replaceAll("<sup>", "<sup>"+s);
+	    input = input.replaceAll(pattern, pattern+s);
 	}
     }
     /**
