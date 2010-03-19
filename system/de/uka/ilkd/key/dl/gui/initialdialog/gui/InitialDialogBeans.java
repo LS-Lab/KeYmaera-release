@@ -85,9 +85,10 @@ public class InitialDialogBeans implements ActionListener {
 		InitialDialogFrame.dispose();
 		final String[] args = this.args;
 		if (reinit) {
-		        int result = JOptionPane.showConfirmDialog(null, "Note that you may have to restart KeYmaera for some options to take effect.\n"
+		        int result = JOptionPane.showConfirmDialog(null, "Note that you have to restart KeYmaera now for options to take effect.\n"
 		        	+ "In particular, KeYmaera needs to be restarted after changing the Mathematica JLink path.\n\n"
-		        	+ "Do you want to exit KeYmaera without saving?", "Possible Restart", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+		        	+ "Otherwise option settings may change in KeYmaera.\n"
+		        	+ "Do you want to exit KeYmaera without saving?", "Restart KeYmaera", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 		        if (result == JOptionPane.YES_OPTION) {
 		            System.exit(5);
 		        }

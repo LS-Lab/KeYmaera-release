@@ -383,12 +383,17 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 			cache = new HashMap<Expr, ExprAndMessages>();
 		}
 		int port = readPort();
-		LocateRegistry.createRegistry(port);
+		try {
+		    LocateRegistry.createRegistry(port);
+		}
+		catch (RemoteException ex) {
+		    System.err.println("Could not create registry " + ex);
+		}
 		Registry registry = LocateRegistry.getRegistry(port);
 		final KernelLinkWrapper kernelLinkWrapper = new KernelLinkWrapper(port,
 				cache, call);
-		registry.rebind(IDENTITY, kernelLinkWrapper);
 		INSTANCE = kernelLinkWrapper;
+		registry.rebind(IDENTITY, kernelLinkWrapper);
 		// new Thread(new Runnable() {
 		//
 		// public void run() {
