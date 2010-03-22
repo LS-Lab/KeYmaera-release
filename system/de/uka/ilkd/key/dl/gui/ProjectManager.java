@@ -191,6 +191,8 @@ public class ProjectManager extends JFrame {
 		setLayout(new BorderLayout());
 		add(treeView, BorderLayout.WEST);
 		final JButton button = new JButton("Load");
+		final boolean[] requirementsMet = new boolean[1]; 
+		requirementsMet[0] = true;
 		button.addActionListener(new ActionListener() {
 
 			/*@Override*/
@@ -204,6 +206,9 @@ public class ProjectManager extends JFrame {
 						File tmpfile = createTmpFileToLoad(info.getUrl());
 						if (tmpfile == null) {
 						    JOptionPane.showMessageDialog(ProjectManager.this, "Could not find project " + info.getName() + "\nat resource " + info.getUrl(), "Project Not Found", JOptionPane.ERROR_MESSAGE);
+						}
+						if (!requirementsMet[0]) {
+							JOptionPane.showMessageDialog(ProjectManager.this, "You will probably not be able to prove the validity of this example because you are missing some required solver.", "Missing Solver", JOptionPane.WARNING_MESSAGE);
 						}
 						Main.getInstance().loadProblem(tmpfile);
 						setVisible(false);
@@ -305,13 +310,15 @@ public class ProjectManager extends JFrame {
 							button.setEnabled(true);
 						} else {
 							requirementsArea.setText("You need ");
-							button.setEnabled(false);
+							requirementsMet[0] = false;
+							//button.setEnabled(false);
 							requirementsArea.setForeground(Color.RED);
 							for (String s : info.getRequirements()) {
 								requirementsArea.append(or + s);
 								if (MathSolverManager
 										.getQuantifierEliminators().contains(s)) {
 									requirementsArea.setForeground(Color.BLACK);
+									requirementsMet[0] = true;
 									button.setEnabled(true);
 								}
 								or = " or ";
