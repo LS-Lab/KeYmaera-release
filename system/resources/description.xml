@@ -9,6 +9,11 @@
 		<name>Magnetic Field</name>
 		<path>/examples/hybrid/magnetic_field.key</path>
 		<description>Magnetic field example. It is provable with Grobner Basis backend.</description>
+		<requirements>
+			<some>
+				<quantifiereliminator>Mathematica</quantifiereliminator>
+			</some>
+		</requirements>
 	</example>
 	<example>
 		<name>Controlled Moving Point</name>
