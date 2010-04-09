@@ -609,7 +609,7 @@ public class Main extends JFrame implements IMain {
         fileOperations.add(createSaveFile());
         
         goalView.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW ).put(
-                KeyStroke.getKeyStroke(KeyEvent.VK_R, ActionEvent.CTRL_MASK),
+                KeyStroke.getKeyStroke(KeyEvent.VK_R, ActionEvent.ALT_MASK),
         "show_reuse_state");
         goalView.getActionMap().put("show_reuse_state", new AbstractAction() {
             public void actionPerformed(ActionEvent e) {

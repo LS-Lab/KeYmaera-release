@@ -241,13 +241,13 @@ public class Orbital implements IODESolver {
 			throws RemoteException, SolverException {
 		// TODO implement
 		throw new FailedComputationException(
-				"This differential equation solver does not provide DiffInd. Choose a different solver from the Options menu.");
+				"This differential equation solver does not provide DiffInd. Choose a different solver from the Options menu (install and configure Mathematica).");
 	}
 
 	public Term diffFin(DiffSystem form, Term post, Term ep, Services services)
 			throws RemoteException, SolverException {
 		throw new FailedComputationException(
-				"This differential equation solver does not provide DiffFin. Choose a different solver from the Options menu.");
+				"This differential equation solver does not provide DiffFin. Choose a different solver from the Options menu (install and configure Mathematica).");
 	}
 
 	/**
