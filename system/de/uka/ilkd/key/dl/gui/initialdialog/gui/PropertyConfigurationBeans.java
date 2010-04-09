@@ -315,6 +315,7 @@ public class PropertyConfigurationBeans implements PropertyChangeListener {
 				System.out.println("Property  " + propsName
 						+ " changed from : " + oldPropsSetting + " to "
 						+ props.getProperty(propertyIdentifier));// XXX
+			
 			else
 				System.out.println("Property  " + propsName
 						+ " created with value :"

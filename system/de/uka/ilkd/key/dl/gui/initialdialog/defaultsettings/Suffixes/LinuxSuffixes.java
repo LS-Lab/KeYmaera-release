@@ -105,7 +105,7 @@ public class LinuxSuffixes implements ISuffixes {
 		String[] values = p.split(mathematicaPath);
 
 		if (values[values.length - 1].equals("Linux-x86-64")
-				|| values[values.length - 1].equals("Linux-x86")) // Still to
+				|| values[values.length - 1].equals("Linux-x86")) //XXX Still to
 																	// verify
 																	// for 32
 																	// bit

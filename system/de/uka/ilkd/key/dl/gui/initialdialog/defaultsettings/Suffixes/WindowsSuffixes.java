@@ -35,7 +35,7 @@ public class WindowsSuffixes extends LinuxSuffixes implements ISuffixes{
 	Pattern p = Pattern.compile(File.separator);
 	String[] values = p.split(mathematicaPath);
 	
-	if(values[values.length - 1].equals("Windows-x86-64")||values[values.length - 1].equals("Windows-x86")) // Still to verify for 32 bit computers
+	if(values[values.length - 1].equals("Windows-x86-64")||values[values.length - 1].equals("Windows-x86")) //XXX Still to verify for 32 bit computers
 	    return "";
 	
 	Pattern p2 = Pattern.compile(values[values.length - 1] + ".*");

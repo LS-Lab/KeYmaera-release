@@ -52,7 +52,7 @@ public enum EPropertyConfigurations {
 	OPTIONS_REDUCE_BINARY_PATH(EPropertyConstant.OPTIONS_REDUCE_BINARY,
 			FilePropertyEditor.class, FileStringConverter.class),
 			
-	CHECKBOX_PROPERTY(EPropertyConstant.INITIAL_DIALOG_CHECKBOX, CheckBoxEditor.class,
+	CHECKBOX_PROPERTY(EPropertyConstant.INITIAL_DIALOG_CHECKBOX, EConfigurationFiles.STARTUP_PROPERTY_FILE,CheckBoxEditor.class,
 			BooleanStringConverter.class);
 
 
