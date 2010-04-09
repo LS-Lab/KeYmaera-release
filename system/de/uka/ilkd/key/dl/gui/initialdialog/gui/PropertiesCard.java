@@ -50,7 +50,7 @@ public class PropertiesCard implements ActionListener, ChangeListener {
 
 	
 	for (EPropertyConfigurations k : EPropertyConfigurations.values()) {
-	    if(k.getLabel()== null){		
+	    if(k.getKey()== "[StartUpOptions]skipInitialDialog"){		
 		checkBoxEditor = new PropertyConfigurationBeans();
 		checkBoxEditor.setPathPane(k.getLabel(), k.getToolTip(), k.getEditorClass(), k
 			    .getConverterClass(), k.getConfigFile(), k.getKey());

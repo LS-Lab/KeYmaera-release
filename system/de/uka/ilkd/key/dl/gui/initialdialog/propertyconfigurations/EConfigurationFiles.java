@@ -15,7 +15,9 @@ public enum EConfigurationFiles {
     KEY_PROPERTY_FILE(PathConfig.KEY_CONFIG_DIR + File.separator
                                             + "proof-settings.props"),
     WEBSTART_FILE(PathConfig.KEY_CONFIG_DIR
-                                            + File.separator + "webstart-math.props");
+                                            + File.separator + "webstart-math.props"),
+    STARTUP_PROPERTY_FILE(PathConfig.KEY_CONFIG_DIR + File.separator
+            + "startup.props");
     private String fileName;
 
     EConfigurationFiles(String fileName) {

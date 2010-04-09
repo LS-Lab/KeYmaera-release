@@ -172,7 +172,7 @@ public enum EPropertyConstant {
 		    								   + "which are converted to some normal form. For formulas, however, the<br>" 
 		    								   + "simplified equivalent is by no means canonical.</html>", "Redlog Properties"), 
 	    
-	    INITIAL_DIALOG_CHECKBOX("[DLOptions]skipInitialDialog", null,"Check to skip this dialog in the future.", "CheckBoxes");
+	    INITIAL_DIALOG_CHECKBOX("[StartUpOptions]skipInitialDialog", null,"Check to skip this dialog in the future.", "CheckBox");
 
 	    private String groupName;
 	    private String key;

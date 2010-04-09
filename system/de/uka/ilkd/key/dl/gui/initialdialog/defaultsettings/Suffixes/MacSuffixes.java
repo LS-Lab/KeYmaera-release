@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
  * @author zacho
  * 
  */
-public class MacSuffixes implements ISuffixes {
+public class MacSuffixes implements ISuffixes{
 
 	public static final MacSuffixes INSTANCE = new MacSuffixes();
 
@@ -56,7 +56,7 @@ public class MacSuffixes implements ISuffixes {
 		if (!System.getProperty("java.vm.name").contains("64-Bit"))
 			JVMBit = "";
 		return "SystemFiles" + sp + "Links" + sp + "JLink" + sp + "SystemFiles"
-				+ sp + "Libraries" + sp + "MacOSX-x86-" + sp + JVMBit;
+				+ sp + "Libraries" + sp + "MacOSX-x86" +JVMBit;
 	}
 
 	@Override
@@ -75,8 +75,7 @@ public class MacSuffixes implements ISuffixes {
 		Pattern p2 = Pattern.compile(values[values.length - 1] + ".*");
 		String suffix = null;
 		Matcher m = p2.matcher("SystemFiles" + sp + "Links" + sp + "JLink" + sp
-				+ "SystemFiles" + sp + "Libraries" + sp + "MacOSX-x86-" + sp
-				+ JVMBit);
+				+ "SystemFiles" + sp + "Libraries" + sp + "MacOSX-x86" +JVMBit);
 		while (m.find()) {
 			suffix = m.group();
 		}
