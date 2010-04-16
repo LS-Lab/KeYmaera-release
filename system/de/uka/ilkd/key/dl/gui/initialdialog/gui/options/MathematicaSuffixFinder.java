@@ -32,7 +32,7 @@ public class MathematicaSuffixFinder  implements PropertyChangeListener {
     String mathematica;
     private ISuffixes suffixesClassInstance;
 
-    private Class<? extends ISuffixes> suffixesClass;
+    private Class<? extends ISuffixes> suffixesClass = LinuxSuffixes.class;
 
     HashMap<String, PropertyConfigurationBeans> MathematicaGroup;
 
@@ -110,13 +110,17 @@ public class MathematicaSuffixFinder  implements PropertyChangeListener {
     public void setSuffixesClass() {
 
 	String osName = OSInfosDefault.INSTANCE.getOsName();
-	if (osName.equals("linux"))
+	if (osName.equalsIgnoreCase("linux"))
 	    suffixesClass = LinuxSuffixes.class;
-	if (osName.equals("mac"))
+	else if (osName.equalsIgnoreCase("mac"))
 	    suffixesClass = MacSuffixes.class;
-	if (osName.equals("Windows"))
+	else if (osName.equalsIgnoreCase("windows"))
 	    suffixesClass = WindowsSuffixes.class;
-
+	else {
+	    System.err.println("Detection of operating system failed: " + osName);
+	    suffixesClass = LinuxSuffixes.class;
+	}
+	
 	try {
 	    suffixesClassInstance = suffixesClass.newInstance();
 
