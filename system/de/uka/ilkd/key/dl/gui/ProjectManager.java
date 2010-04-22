@@ -21,6 +21,7 @@ package de.uka.ilkd.key.dl.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -162,7 +163,7 @@ public class ProjectManager extends JFrame {
 		}
 	}
 
-	public static final String EXAMPLES_DESCRIPTION_FILE = "description.xml";
+	public static final String EXAMPLES_DESCRIPTION_FILE = "description1.xml";
 
 	private JTree tree;
 
@@ -182,12 +183,15 @@ public class ProjectManager extends JFrame {
 	public ProjectManager() throws XPathExpressionException {
 		super("Project Manager");
 		NodeList examples = getExamplesFromFile(EXAMPLES_DESCRIPTION_FILE);
+		
 		DefaultMutableTreeNode top = new DefaultMutableTreeNode("Examples");
-
+		
 		createNodes(top, examples);
 
 		tree = new JTree(top);
+		tree.expandRow(1);
 		JScrollPane treeView = new JScrollPane(tree);
+		treeView.setPreferredSize(new Dimension(320,400));
 		setLayout(new BorderLayout());
 		add(treeView, BorderLayout.WEST);
 		final JButton button = new JButton("Load");
@@ -353,33 +357,59 @@ public class ProjectManager extends JFrame {
 	 * @param examples
 	 * @throws XPathExpressionException
 	 */
-	private void createNodes(DefaultMutableTreeNode top, NodeList examples)
+	private void createNodes(DefaultMutableTreeNode top, NodeList groupExamples)
 			throws XPathExpressionException {
 		XPath xpath = XPathFactory.newInstance().newXPath();
-		for (int i = 0; i < examples.getLength(); i++) {
-			Node node = examples.item(i);
-			String name = (String) xpath.evaluate("name", node,
-					XPathConstants.STRING);
-			String path = (String) xpath.evaluate("path", node,
-					XPathConstants.STRING);
-			String description = (String) xpath.evaluate("description", node,
-					XPathConstants.STRING);
-			Set<String> requirements = new LinkedHashSet<String>();
-			NodeList nodes = (NodeList) xpath.evaluate(
-					"requirements/some/quantifiereliminator/text()", node,
-					XPathConstants.NODESET);
-			for (int j = 0; j < nodes.getLength(); j++) {
-				requirements.add(nodes.item(j).getNodeValue());
-			}
-			Node img = (Node) xpath.evaluate("img", node, XPathConstants.NODE);
-			String im = "";
-			if(img != null) {
-				im = img.getAttributes().getNamedItem("href").getNodeValue();
-			}
+		String groupName, subGroupName;
+		for (int i = 0; i < groupExamples.getLength(); i++) {
+			Node groupNode = groupExamples.item(i);
+			groupName=(String)xpath.evaluate("@name", groupNode);
+			DefaultMutableTreeNode tgroupNode = new DefaultMutableTreeNode(groupName);//XXX
+			top.add(tgroupNode);
+			
+			NodeList sGroupExamples = (NodeList) xpath.evaluate(
+	    							"subgroup", groupNode,XPathConstants.NODESET);	
+			for (int j = 0; j < sGroupExamples.getLength(); j++) {
+			    Node sgroupNode = sGroupExamples.item(j);
+			   
+			    subGroupName=(String)xpath.evaluate("@type", sgroupNode);
+			    
+			    DefaultMutableTreeNode tSgroupNode = new DefaultMutableTreeNode(subGroupName);//XXX
+			    tgroupNode.add(tSgroupNode);
+			    
+			    NodeList examples = (NodeList) xpath.evaluate(
+							"example", sgroupNode,XPathConstants.NODESET); 
+			    for (int k = 0; k < examples.getLength(); k++) {
+			     
+				Node node = examples.item(k);
+				//System.out.println(node);
+			    	
+			    	String name = (String) xpath.evaluate("name", node,
+			    			XPathConstants.STRING);
+			    	String path = (String) xpath.evaluate("path", node,
+			    			XPathConstants.STRING);
+			    	String description = (String) xpath.evaluate("description", node,
+			    			XPathConstants.STRING);
+			    	Set<String> requirements = new LinkedHashSet<String>();
+			    	NodeList nodes = (NodeList) xpath.evaluate(
+			    			"requirements/some/quantifiereliminator/text()", node,
+			    			XPathConstants.NODESET);
+			    	for (int l = 0; l < nodes.getLength(); l++) {
+			    	    requirements.add(nodes.item(l).getNodeValue());
+			    	}
+			    	Node img = (Node) xpath.evaluate("img", node, XPathConstants.NODE);
+			    	String im = "";
+			    	if(img != null) {
+			    	    im = img.getAttributes().getNamedItem("href").getNodeValue();
+			    	}
 
-			DefaultMutableTreeNode tNode = new DefaultMutableTreeNode(
-					new ExampleInfo(name, path, description, im, requirements));
-			top.add(tNode);
+			
+			    	DefaultMutableTreeNode tNode = new DefaultMutableTreeNode(
+			    			new ExampleInfo(name, path, description, im, requirements));
+
+			    	tSgroupNode.add(tNode);
+			}
+			}
 		}
 	}
 
@@ -390,11 +420,13 @@ public class ProjectManager extends JFrame {
 	private NodeList getExamplesFromFile(String filename)
 			throws XPathExpressionException {
 		XPath xpath = XPathFactory.newInstance().newXPath();
-		String expression = "/examples/example";
+		String expression = "/examples/group";
 		Document document = new XMLReader(filename).getDocument();
+	            
 		return (NodeList) xpath.evaluate(expression, document,
 				XPathConstants.NODESET);
 	}
+
 
 	private File createTmpFileToLoad(String url) {
 		System.out.println("Trying to open resource " + url);// XXX
