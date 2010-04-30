@@ -562,7 +562,7 @@ final object AM {
          ("<", (r,s) => r < s),
          (">", (r,s) => r > s),
          ("<=", (r,s) => r <= s),
-         (">=", (r,s) => r <= s))
+         (">=", (r,s) => r >= s))
 
 
   def evalc(fm: CHFormula) : CHFormula =  {
