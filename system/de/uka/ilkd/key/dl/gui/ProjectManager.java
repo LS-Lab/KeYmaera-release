@@ -163,7 +163,7 @@ public class ProjectManager extends JFrame {
 		}
 	}
 
-	public static final String EXAMPLES_DESCRIPTION_FILE = "description1.xml";
+	public static final String EXAMPLES_DESCRIPTION_FILE = "description.xml";
 
 	private JTree tree;
 
@@ -189,7 +189,7 @@ public class ProjectManager extends JFrame {
 		createNodes(top, examples);
 
 		tree = new JTree(top);
-		tree.expandRow(1);
+		//tree.expandRow(1);
 		JScrollPane treeView = new JScrollPane(tree);
 		treeView.setPreferredSize(new Dimension(320,400));
 		setLayout(new BorderLayout());
@@ -357,62 +357,86 @@ public class ProjectManager extends JFrame {
 	 * @param examples
 	 * @throws XPathExpressionException
 	 */
-	private void createNodes(DefaultMutableTreeNode top, NodeList groupExamples)
+	private void createNodes(DefaultMutableTreeNode top, NodeList allExamples)
 			throws XPathExpressionException {
 		XPath xpath = XPathFactory.newInstance().newXPath();
-		String groupName, subGroupName;
-		for (int i = 0; i < groupExamples.getLength(); i++) {
-			Node groupNode = groupExamples.item(i);
-			groupName=(String)xpath.evaluate("@name", groupNode);
-			DefaultMutableTreeNode tgroupNode = new DefaultMutableTreeNode(groupName);//XXX
-			top.add(tgroupNode);
-			
-			NodeList sGroupExamples = (NodeList) xpath.evaluate(
-	    							"subgroup", groupNode,XPathConstants.NODESET);	
-			for (int j = 0; j < sGroupExamples.getLength(); j++) {
-			    Node sgroupNode = sGroupExamples.item(j);
-			   
-			    subGroupName=(String)xpath.evaluate("@type", sgroupNode);
-			    
-			    DefaultMutableTreeNode tSgroupNode = new DefaultMutableTreeNode(subGroupName);//XXX
-			    tgroupNode.add(tSgroupNode);
-			    
-			    NodeList examples = (NodeList) xpath.evaluate(
-							"example", sgroupNode,XPathConstants.NODESET); 
-			    for (int k = 0; k < examples.getLength(); k++) {
-			     
-				Node node = examples.item(k);
-				//System.out.println(node);
-			    	
-			    	String name = (String) xpath.evaluate("name", node,
-			    			XPathConstants.STRING);
-			    	String path = (String) xpath.evaluate("path", node,
-			    			XPathConstants.STRING);
-			    	String description = (String) xpath.evaluate("description", node,
-			    			XPathConstants.STRING);
-			    	Set<String> requirements = new LinkedHashSet<String>();
-			    	NodeList nodes = (NodeList) xpath.evaluate(
-			    			"requirements/some/quantifiereliminator/text()", node,
-			    			XPathConstants.NODESET);
-			    	for (int l = 0; l < nodes.getLength(); l++) {
-			    	    requirements.add(nodes.item(l).getNodeValue());
-			    	}
-			    	Node img = (Node) xpath.evaluate("img", node, XPathConstants.NODE);
-			    	String im = "";
-			    	if(img != null) {
-			    	    im = img.getAttributes().getNamedItem("href").getNodeValue();
-			    	}
 
-			
-			    	DefaultMutableTreeNode tNode = new DefaultMutableTreeNode(
-			    			new ExampleInfo(name, path, description, im, requirements));
+		NodeList groups = (NodeList) xpath.evaluate("examples/group", allExamples.item(0),XPathConstants.NODESET); 
+		NodeList examples = (NodeList) xpath.evaluate("examples/example", allExamples.item(0),XPathConstants.NODESET);
 
-			    	tSgroupNode.add(tNode);
-			}
-			}
+		for (int i=0; i < groups.getLength(); i++){
+		    createGroupNode(groups.item(i), top); 
 		}
+		createExampleNode(examples, top) ;  
+		
 	}
 
+	/**
+	 * This function searches the input node and creates subsequent subnodes for each subgroup found.
+	 * @param group
+	 * @param groupNode
+	 * @throws XPathExpressionException
+	 */
+	private void createGroupNode(Node group, DefaultMutableTreeNode groupNode) 
+							throws XPathExpressionException{
+	    	XPath xpath = XPathFactory.newInstance().newXPath();
+	    	String groupType =(String)xpath.evaluate("@type", group);
+	    	DefaultMutableTreeNode node = new DefaultMutableTreeNode(groupType); 
+	    	groupNode.add(node);	    	
+	    	
+	    	NodeList subgroup = (NodeList) xpath.evaluate("group", group,XPathConstants.NODESET);
+	    	if (subgroup != null) {
+	    	    for (int i = 0; i < subgroup.getLength(); i++) {
+	    		Node sgroupNode = subgroup.item(i);	
+	    		createGroupNode(sgroupNode, node);
+	    	    }
+	    	    NodeList examples = (NodeList) xpath.evaluate("example", group,XPathConstants.NODESET);	    
+	    	    createExampleNode(examples, node);	
+	    	}
+	}
+
+
+	/**
+	 * 
+	 * @param examples
+	 * @param groupName
+	 * @return
+	 * @throws XPathExpressionException
+	 */
+	private void createExampleNode(NodeList examples, DefaultMutableTreeNode group) 
+							throws XPathExpressionException{
+	    
+	    XPath xpath = XPathFactory.newInstance().newXPath();
+	    
+	    for (int i = 0; i < examples.getLength(); i++) {
+		     
+		Node node = examples.item(i);
+
+	    	String name = (String) xpath.evaluate("name", node,
+	    			XPathConstants.STRING);
+	    	String path = (String) xpath.evaluate("path", node,
+	    			XPathConstants.STRING);
+	    	String description = (String) xpath.evaluate("description", node,
+	    			XPathConstants.STRING);
+	    	Set<String> requirements = new LinkedHashSet<String>();
+	    	NodeList nodes = (NodeList) xpath.evaluate(
+	    			"requirements/some/quantifiereliminator/text()", node,
+	    			XPathConstants.NODESET);
+	    	for (int l = 0; l < nodes.getLength(); l++) {
+	    	    requirements.add(nodes.item(l).getNodeValue());
+	    	}
+	    	Node img = (Node) xpath.evaluate("img", node, XPathConstants.NODE);
+	    	String im = "";
+	    	if(img != null) {
+	    	    im = img.getAttributes().getNamedItem("href").getNodeValue();
+	    	}
+	
+	    	DefaultMutableTreeNode tNode = new DefaultMutableTreeNode(
+	    			new ExampleInfo(name, path, description, im, requirements));
+
+	    	group.add(tNode);
+	    }   
+	}
 	/**
 	 * @throws XPathExpressionException
 	 * 
@@ -420,7 +444,7 @@ public class ProjectManager extends JFrame {
 	private NodeList getExamplesFromFile(String filename)
 			throws XPathExpressionException {
 		XPath xpath = XPathFactory.newInstance().newXPath();
-		String expression = "/examples/group";
+		String expression = "/";
 		Document document = new XMLReader(filename).getDocument();
 	            
 		return (NodeList) xpath.evaluate(expression, document,
