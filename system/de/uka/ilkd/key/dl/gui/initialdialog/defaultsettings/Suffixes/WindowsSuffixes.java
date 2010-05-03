@@ -57,4 +57,16 @@ public class WindowsSuffixes extends LinuxSuffixes implements ISuffixes{
 	
 	return suffix;
     }
+
+	@Override
+	public String getMathKernelSuffix(String mathematicaPath) {
+		// TODO Auto-generated method stub
+		return "MathKernel.exe";
+	}
+
+	@Override
+	public String getMathkernelDefaultSuffix() {
+		// TODO Auto-generated method stub
+		return "MathKernel.exe";
+	}
 }

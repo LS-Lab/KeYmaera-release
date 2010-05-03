@@ -20,7 +20,7 @@ public class WindowsOsDefaultProperties extends OsDefaultProperties {
 	 */
 	public WindowsOsDefaultProperties() {
 		setMathematicaDefaultPath("C:" + sp + "Program Files" + sp
-			+ "Wolfram" + sp + "Mathematica" + sp + "7.0");
+			+ "Wolfram Research" + sp + "Mathematica" + sp + "7.0");
 	}
 	
 	public String getMathematicaCompletePath(String currentPath) {

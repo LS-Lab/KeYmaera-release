@@ -43,7 +43,8 @@ public class LinuxSuffixes implements ISuffixes {
 			prefix = getMathematicaCompletePath(prefix);
 		else {
 			if (mathematicaPath.contains("Wolfram")
-					|| mathematicaPath.contains("wolfram")) {
+					|| mathematicaPath.contains("wolfram")
+					|| mathematicaPath.contains("Wolfram Research")) {
 				prefix = getMathematicaCompletePath(mathematicaPath
 						+ File.separator + "Mathematica");
 			}
