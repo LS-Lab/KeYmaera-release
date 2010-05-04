@@ -398,6 +398,7 @@ public class ProjectManager extends JFrame {
 
 	private File createTmpFileToLoad(String url) {
 		System.out.println("Trying to open resource " + url);// XXX
+		url = url.replaceAll("/", File.separator);
 		File file = new File(url.substring(1));
 		if (file.exists()) {
 			return file;
@@ -419,7 +420,7 @@ public class ProjectManager extends JFrame {
 		    return null;
 		}
 		try {
-			File tempFile = File.createTempFile(url.substring(url.lastIndexOf('/') + 1, url.lastIndexOf('.')), ".key");
+			File tempFile = File.createTempFile(url.substring(url.lastIndexOf(File.separator) + 1, url.lastIndexOf('.')), ".key");
 			tempFile.deleteOnExit();
 			System.out.println(tempFile.getCanonicalPath());
 			FileOutputStream fileOutputStream = new FileOutputStream(tempFile);
