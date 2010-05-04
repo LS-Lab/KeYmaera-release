@@ -218,21 +218,11 @@ dist-keymaera:	branding all
 	@mkdir -p dist/key/
 	@cp -r $(BINARYPATH)/* dist/key/
 	@cp -r $(RESOURCEPATH)/* dist/key/
-	@mkdir -p dist/key/examples/hybrid
-	@mkdir -p dist/key/examples/hybrid/ETCS/safety
-	@mkdir -p dist/key/examples/hybrid/ETCS/paper
-	@mkdir -p dist/key/examples/hybrid/ATC/roundabout
-	@cp -r ../examples/hybrid/groebner_basis dist/key/examples/hybrid
-	@cp -rH ../examples/hybrid/publish dist/key/examples/hybrid
-	@cp -rH ../examples/hybrid/ETCS/safety/ETCS-simple.key dist/key/examples/hybrid/ETCS/safety
-	@cp -rH ../examples/hybrid/ETCS/paper/safety-lemma-disturbed.key dist/key/examples/hybrid/ETCS/paper
-	@cp -rH ../examples/hybrid/ETCS/paper/controllability-lemma-disturbed.key dist/key/examples/hybrid/ETCS/paper
-	@cp -rH ../examples/hybrid/ETCS/paper/reactivity-lemma.key dist/key/examples/hybrid/ETCS/paper
-	@cp -rH ../examples/hybrid/ETCS/paper/liveness-lemma.key dist/key/examples/hybrid/ETCS/paper
-	@cp -rH ../examples/hybrid/ETCS/paper/safety-lemma.key dist/key/examples/hybrid/ETCS/paper
-	@cp -rH ../examples/hybrid/ETCS/paper/controllability-lemma.key dist/key/examples/hybrid/ETCS/paper
-	@cp -rH ../examples/hybrid/ATC/roundabout/TRM-essentials.key dist/key/examples/hybrid/ATC/roundabout
-	@cp -rH ../examples/hybrid/ATC/roundabout/TRM-essentials-3.key dist/key/examples/hybrid/ATC/roundabout
+	@for i in `grep -R path $(RESOURCEPATH)/description.xml | sed s/'<path>\/'// | sed s/'<\/path>'// | sed 's/^[ \t]*//'`; do \
+		echo mkdir -p dist/key/$$i;\
+		echo rmdir -p dist/key/$$i;\
+		echo cp -rH ../$$i dist/key/$$i;\
+		done
 # for setup.jar
 	@mkdir -p dist/setup/de/uka/ilkd/key/util/
 	@cp -r $(BINARYPATH)/de/uka/ilkd/key/util/* dist/setup/de/uka/ilkd/key/util/
