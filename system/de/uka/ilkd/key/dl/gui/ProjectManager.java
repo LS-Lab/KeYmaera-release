@@ -102,6 +102,7 @@ public class ProjectManager extends JFrame {
 		private String description;
 		private Set<String> requirements;
 		private String img;
+		private boolean isEmtpy = false;
 
 		/**
 		 * @param name
@@ -116,6 +117,16 @@ public class ProjectManager extends JFrame {
 			this.description = description;
 			this.img = img;
 			this.requirements = requirements;
+		}
+		public ExampleInfo(Boolean isEmpty, String name) {
+		super();
+		this.name = name;
+		this.isEmtpy = isEmpty;
+		this.url = "";
+		this.description = "This example is either emtpy or is not yet availble.";
+		this.img = "";
+		this.requirements = new LinkedHashSet<String>();
+
 		}
 
 		/**
@@ -142,7 +153,16 @@ public class ProjectManager extends JFrame {
 		public Set<String> getRequirements() {
 			return requirements;
 		}
-
+		/**
+		 * @return true if example is empty or false if otherwise.
+		 */
+		public boolean isEmpty(){
+		    return isEmtpy;
+		}
+		
+		public void setIsEmpty(boolean bool){
+		    isEmtpy = bool;
+		}
 
 		/**
 		 * @return the img
@@ -189,12 +209,12 @@ public class ProjectManager extends JFrame {
 		createNodes(top, examples);
 
 		tree = new JTree(top);
-		//tree.expandRow(1);
 		JScrollPane treeView = new JScrollPane(tree);
 		treeView.setPreferredSize(new Dimension(320,400));
 		setLayout(new BorderLayout());
 		add(treeView, BorderLayout.WEST);
 		final JButton button = new JButton("Load");
+		button.setEnabled(false);
 		final boolean[] requirementsMet = new boolean[1]; 
 		requirementsMet[0] = true;
 		button.addActionListener(new ActionListener() {
@@ -296,40 +316,48 @@ public class ProjectManager extends JFrame {
 			public void valueChanged(TreeSelectionEvent e) {
 				DefaultMutableTreeNode lastSelectedPathComponent = (DefaultMutableTreeNode) tree
 						.getLastSelectedPathComponent();
+				
 				if (lastSelectedPathComponent != null) {
 					Object nodeInfo = lastSelectedPathComponent.getUserObject();
 					if (lastSelectedPathComponent.isLeaf()) {
 						ExampleInfo info = (ExampleInfo) nodeInfo;
-						fileName.setText(info.getUrl());
-						textArea.setText(info.getDescription());
-						if(info.img.trim().equals("")) {
-							img.setText("");
-						} else {
-							img.setText("<html><body><img src=\"" + info.getImg() + "\"/></body></html>");
-						}
-						String or = "";
-						if (info.requirements.isEmpty()) {
-							requirementsArea.setText("No special requirements");
-							requirementsArea.setForeground(Color.BLACK);
-							button.setEnabled(true);
-						} else {
-							requirementsArea.setText("You need ");
-							requirementsMet[0] = false;
-							//button.setEnabled(false);
-							requirementsArea.setForeground(Color.RED);
-							for (String s : info.getRequirements()) {
-								requirementsArea.append(or + s);
-								if (MathSolverManager
-										.getQuantifierEliminators().contains(s)) {
-									requirementsArea.setForeground(Color.BLACK);
-									requirementsMet[0] = true;
-									button.setEnabled(true);
-								}
-								or = " or ";
-							}
-							requirementsArea.append(" as real arithmetic solver");
-						}
+        					fileName.setText(info.getUrl());
+        					textArea.setText(info.getDescription());
+        					if(info.img.trim().equals("")) {
+        						img.setText("");
+        					} else {
+        						img.setText("<html><body><img src=\"" + info.getImg() + "\"/></body></html>");
+        					}
+        					String or = "";
+        					if (info.requirements.isEmpty()) {
+        					        requirementsArea.setText("No special requirements");
+        						requirementsArea.setForeground(Color.BLACK);
+        						button.setEnabled(true);
+        					} else {
+        						requirementsArea.setText("You need ");
+        						requirementsMet[0] = false;
+        						//button.setEnabled(false);
+        						requirementsArea.setForeground(Color.RED);
+        						for (String s : info.getRequirements()) {
+        							requirementsArea.append(or + s);
+        							if (MathSolverManager
+        									.getQuantifierEliminators().contains(s)) {
+        								requirementsArea.setForeground(Color.BLACK);
+        								requirementsMet[0] = true;
+        								button.setEnabled(true);
+        							}
+        							or = " or ";
+        						}
+        						requirementsArea.append(" as real arithmetic solver");
+        					}
+        					if(info.isEmpty())
+						    button.setEnabled(false);
+        				
 					}
+					else{ //XXX
+					    button.setEnabled(false);
+					}
+					    
 				}
 			}
 
@@ -367,12 +395,13 @@ public class ProjectManager extends JFrame {
 		for (int i=0; i < groups.getLength(); i++){
 		    createGroupNode(groups.item(i), top); 
 		}
-		createExampleNode(examples, top) ;  
+		createExampleNode(examples, top);
 		
 	}
 
 	/**
 	 * This function searches the input node and creates subsequent subnodes for each subgroup found.
+	 * And uses recursion to group them.
 	 * @param group
 	 * @param groupNode
 	 * @throws XPathExpressionException
@@ -380,7 +409,7 @@ public class ProjectManager extends JFrame {
 	private void createGroupNode(Node group, DefaultMutableTreeNode groupNode) 
 							throws XPathExpressionException{
 	    	XPath xpath = XPathFactory.newInstance().newXPath();
-	    	String groupType =(String)xpath.evaluate("@type", group);
+	    	String groupType =(String)xpath.evaluate("@name", group);
 	    	DefaultMutableTreeNode node = new DefaultMutableTreeNode(groupType); 
 	    	groupNode.add(node);	    	
 	    	
@@ -389,32 +418,33 @@ public class ProjectManager extends JFrame {
 	    	    for (int i = 0; i < subgroup.getLength(); i++) {
 	    		Node sgroupNode = subgroup.item(i);	
 	    		createGroupNode(sgroupNode, node);
-	    	    }
-	    	    NodeList examples = (NodeList) xpath.evaluate("example", group,XPathConstants.NODESET);	    
-	    	    createExampleNode(examples, node);	
+	    	    }	    	    
 	    	}
+	    	NodeList examples = (NodeList) xpath.evaluate("example", group,XPathConstants.NODESET);
+	    	createExampleNode(examples, node);	
 	}
 
 
 	/**
 	 * 
-	 * @param examples
-	 * @param groupName
-	 * @return
+	 * @param node
 	 * @throws XPathExpressionException
 	 */
-	private void createExampleNode(NodeList examples, DefaultMutableTreeNode group) 
-							throws XPathExpressionException{
+
+	private DefaultMutableTreeNode individualExample(Node node) throws XPathExpressionException{
 	    
 	    XPath xpath = XPathFactory.newInstance().newXPath();
+	    DefaultMutableTreeNode tNode;
 	    
-	    for (int i = 0; i < examples.getLength(); i++) {
-		     
-		Node node = examples.item(i);
-
+	    if (((NodeList) xpath.evaluate("*", node,XPathConstants.NODESET)).getLength()==0){
+		
+		tNode=new DefaultMutableTreeNode(new ExampleInfo(true, "Empty example"));
+		 return tNode;
+	    }
+	    
 	    	String name = (String) xpath.evaluate("name", node,
 	    			XPathConstants.STRING);
-	    	String path = (String) xpath.evaluate("path", node,
+	    	String path = (String) xpath.evaluate("path", node, 
 	    			XPathConstants.STRING);
 	    	String description = (String) xpath.evaluate("description", node,
 	    			XPathConstants.STRING);
@@ -431,11 +461,34 @@ public class ProjectManager extends JFrame {
 	    	    im = img.getAttributes().getNamedItem("href").getNodeValue();
 	    	}
 	
-	    	DefaultMutableTreeNode tNode = new DefaultMutableTreeNode(
+	    	tNode= new DefaultMutableTreeNode(
 	    			new ExampleInfo(name, path, description, im, requirements));
 
+	    	return tNode;   
+	}
+	/**
+	 * 
+	 * @param examples
+	 * @param groupName
+	 * @throws XPathExpressionException 
+	 * @throws XPathExpressionException
+	 */ 
+	private void createExampleNode(NodeList examples, DefaultMutableTreeNode group) 
+							throws XPathExpressionException{
+	    
+	    XPath xpath = XPathFactory.newInstance().newXPath();
+	    int groupLength = examples.getLength();
+	    if (groupLength > 0){
+        	    for (int i = 0; i < examples.getLength(); i++) {       		              
+            	    	group.add(individualExample(examples.item(i)));
+            	    }   
+	    }
+	    else{
+		DefaultMutableTreeNode tNode = new DefaultMutableTreeNode(
+	    			new ExampleInfo(true, "No examples available."));
+
 	    	group.add(tNode);
-	    }   
+	    }
 	}
 	/**
 	 * @throws XPathExpressionException
