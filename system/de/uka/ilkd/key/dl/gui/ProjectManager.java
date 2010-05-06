@@ -123,7 +123,7 @@ public class ProjectManager extends JFrame {
 		this.name = name;
 		this.isEmtpy = isEmpty;
 		this.url = "";
-		this.description = "This example is either emtpy or is not yet availble.";
+		this.description = "There is no example availble.";
 		this.img = "";
 		this.requirements = new LinkedHashSet<String>();
 
@@ -485,7 +485,7 @@ public class ProjectManager extends JFrame {
 	    }
 	    else{
 		DefaultMutableTreeNode tNode = new DefaultMutableTreeNode(
-	    			new ExampleInfo(true, "No examples available."));
+	    			new ExampleInfo(true, "No examples in this category."));
 
 	    	group.add(tNode);
 	    }
