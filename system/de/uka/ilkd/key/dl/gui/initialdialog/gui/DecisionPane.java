@@ -25,6 +25,7 @@ public class DecisionPane {
 	
 	pane = new JPanel();
 	buttonOK = new JButton("    OK   ");
+	buttonOK.setDefaultCapable(true);
 	buttonApply = new JButton(" Apply ");
 	buttonExit = new JButton(" Cancel ");
 	pane.setLayout(new GridBagLayout());

@@ -4,10 +4,13 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.KeyStroke;
 
 import de.uka.ilkd.key.dl.gui.initialdialog.gui.options.*;
 import de.uka.ilkd.key.gui.Main;
@@ -62,6 +65,12 @@ public class InitialDialogBeans implements ActionListener {
     	decisionPane.add(propsCards.getCheckBoxEditor().getPathPane(),BorderLayout.LINE_START);
 	decisionPane.add(decisionPanel.getPane(),BorderLayout.EAST);
     	InitialDialogFrame.add(decisionPane, BorderLayout.SOUTH);
+    	InitialDialogFrame.getRootPane().setDefaultButton(decisionPanel.getButtonOK());
+    	InitialDialogFrame.getRootPane().registerKeyboardAction(new ActionListener() {
+    	    public void actionPerformed(ActionEvent e) {
+    	        doExit();
+    	    }
+    	}, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
     	
         //InitialDialogFrame.setPreferredSize(new Dimension(720,350));
     	InitialDialogFrame.setResizable(false);
@@ -111,15 +120,18 @@ public class InitialDialogBeans implements ActionListener {
 	}
 
 	if (e.getSource().equals(decisionPanel.getButtonExit())) {
-	    final int option = JOptionPane.showConfirmDialog(
-		    InitialDialogFrame,
-		    "Settings will be ignored \nReally exit KeYmaera?",
-		    "Warning", JOptionPane.YES_NO_OPTION);
-	    if (option == JOptionPane.YES_OPTION) {
-		InitialDialogFrame.dispose();
-	    }
+	    doExit();
 	}
 
+    }
+    private void doExit() {
+	final int option = JOptionPane.showConfirmDialog(
+	    InitialDialogFrame,
+	    "Settings will be ignored \nReally exit KeYmaera?",
+	    "Warning", JOptionPane.YES_NO_OPTION);
+	if (option == JOptionPane.YES_OPTION) {
+	InitialDialogFrame.dispose();
+	}
     }
     
     /**
