@@ -1,198 +1,223 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <examples>
-	<example>
-		<name>Simple Acceleration</name>
-		<path>/examples/hybrid/accel-simple.key</path>
-		<description>Simple example of an accelerating point. It is provable with Grobner Basis backend.</description>
-	</example>
-	<example>
-		<name>Magnetic Field</name>
-		<path>/examples/hybrid/magnetic_field.key</path>
-		<description>Magnetic field example. It is provable with Grobner Basis backend.</description>
-		<requirements>
-			<some>
-				<quantifiereliminator>Mathematica</quantifiereliminator>
-			</some>
-		</requirements>
-	</example>
-	<example>
-		<name>Controlled Moving Point</name>
-		<path>/examples/hybrid/publish/moving-point.key</path>
-		<description>Simple example of a controlled moving point that moves towards zero.</description>
-		<requirements>
-			<some>
-				<quantifiereliminator>Mathematica</quantifiereliminator>
-				<quantifiereliminator>QepCad</quantifiereliminator>
-				<quantifiereliminator>Reduce</quantifiereliminator>
-				<quantifiereliminator>CohenHormander</quantifiereliminator>
-			</some>
-		</requirements>
-	</example>
-    	<example>
-    		<name>Bouncing Ball [simple]</name>
-    		<path>/examples/hybrid/bouncing-ball/bouncing-ball-simplest.key</path>
-    		<description>A fully parametric version of the bouncing ball that jumps up and down but is bounced back from the ground. This version has a fixed bouncing constant c.</description>
-    		<img 
-    href="http://symbolaris.com/info/fig-bouncing-ball.png"/>
-    		<requirements>
-    			<some>
-    				<quantifiereliminator>Mathematica</quantifiereliminator>
-    				<quantifiereliminator>QepCad</quantifiereliminator>
-    				<quantifiereliminator>Reduce</quantifiereliminator>
-    			</some>
-    		</requirements>
-    	</example>
-	    	<example>
-	    		<name>Bouncing Ball [dynamic]</name>
-	    		<path>/examples/hybrid/publish/bouncing-ball-random-H.key</path>
-	    		<description>A fully parametric version of the bouncing ball that jumps up and down but is bounced back from the ground. This version has a bouncing coefficient c that can changer over time by a nondeterministic assignment c:=* </description>
-	    		<img 
-	    href="http://symbolaris.com/info/fig-bouncing-ball.png"/>
-	    		<requirements>
-	    			<some>
-        				<quantifiereliminator>Mathematica</quantifiereliminator>
-	    				<quantifiereliminator>QepCad</quantifiereliminator>
-	    				<quantifiereliminator>Reduce</quantifiereliminator>
-	    			</some>
-	    		</requirements>
-	    	</example>
-            	<example>
-            		<name>Water Tank</name>
-            		<path>/examples/hybrid/publish/water_tank.key</path>
-            		<description>Standard water tank model, which regulates water level y between 1 and 12 by filling or emptying the water tank. Changing valves has a delayed effect in this example.</description>
-            		<img 
-            href="http://symbolaris.com/info/fig-water-tank.png"/>
-            		<requirements>
-            			<some>
-            				<quantifiereliminator>Mathematica</quantifiereliminator>
-            				<quantifiereliminator>QepCad</quantifiereliminator>
-            				<quantifiereliminator>Reduce</quantifiereliminator>
-            				<quantifiereliminator>CohenHormander</quantifiereliminator>
-            			</some>
-            		</requirements>
-            	</example>
-	<example>
-		<name>ETCS Train Control [simple]</name>
-		<path>/examples/hybrid/ETCS/safety/ETCS-simple.key</path>
-		<description>Essentials of the ETCS train control protocol.This example proves that a train never leaves its movement authority (MA=m) and, thus, cannot crash into other trains. Please note, that this is the simplest possible version of the safety requirement for the ETCS. The verification of the ETCS system itself requires a much more advanced model.</description>
-		<img 
-			href="http://symbolaris.com/info/ETCS-MAProtocol-c.gif"/>
-		<requirements>
-			<some>
-				<quantifiereliminator>Mathematica</quantifiereliminator>
-				<quantifiereliminator>QepCad</quantifiereliminator>
-				<quantifiereliminator>Reduce</quantifiereliminator>
-			</some>
-		</requirements>
-	</example>
-	<example>
-		<name>Aircraft Roundabout [simple]</name>
-		<path>/examples/hybrid/ATC/roundabout/TRM-essentials.key</path>
-		<description>Essentials of the tangential roundabout maneuver (TRM) for collision avoidance in air traffic control. This example proves that TRM always separates aircraft by at least the protected zone. Please note, that this is the simplest possible version of the safety requirement for the TRM. The verification of the TRM system itself requires a much more advanced model.</description>
-		<img 
-			href="http://symbolaris.com/info/fig-tangential-roundabout.png"/>
-		<requirements>
-			<some>
-				<quantifiereliminator>Mathematica</quantifiereliminator>
-				<quantifiereliminator>Reduce</quantifiereliminator>
-			</some>
-		</requirements>
-	</example>
-	<example>
-		<name>ETCS Train Control [controllability]</name>
-		<path>/examples/hybrid/ETCS/paper/controllability-lemma.key</path>
-		<description>Proves safety of the ETCS train control protocol case study. This example proves that the train is always controllable safely by some control choice.
-        </description>
-		<img 
-			href="http://symbolaris.com/info/ETCS-MAProtocol-c.gif"/>
-		<source href="http://symbolaris.com/info/ETCS.html"/>
-		<requirements>
-			<some>
-				<quantifiereliminator>Mathematica</quantifiereliminator>
-			</some>
-		</requirements>
-	</example>
-	<example>
-		<name>ETCS Train Control [safety]</name>
-		<path>/examples/hybrid/ETCS/paper/safety-lemma.key</path>
-		<description>Proves safety of the ETCS train control protocol case study. This example proves that a train never leaves its movement authority (MA=m) and, thus, cannot crash into other trains.
-        </description>
-		<source href="http://symbolaris.com/info/ETCS.html"/>
-		<img 
-			href="http://symbolaris.com/info/ETCS-MAProtocol-c.gif"/>
-		<requirements>
-			<some>
-				<quantifiereliminator>Mathematica</quantifiereliminator>
-			</some>
-		</requirements>
-	</example>
-	<example>
-		<name>ETCS Train Control [liveness]</name>
-		<path>/examples/hybrid/ETCS/paper/liveness-lemma.key</path>
-		<description>Proves safety of the ETCS train control protocol case study. This example proves that the train can move beyond every position on the track.
-        </description>
-		<source href="http://symbolaris.com/info/ETCS.html"/>
-		<img 
-			href="http://symbolaris.com/info/ETCS-MAProtocol-c.gif"/>
-		<requirements>
-			<some>
-				<quantifiereliminator>Mathematica</quantifiereliminator>
-			</some>
-		</requirements>
-	</example>
-	<example>
-		<name>ETCS Train Control [reactivity]</name>
-		<path>/examples/hybrid/ETCS/paper/reactivity-lemma.key</path>
-		<description>Proves safety of the ETCS train control protocol case study. This example proves that the train can react to situation changes.
-        </description>
-		<source href="http://symbolaris.com/info/ETCS.html"/>
-		<img 
-			href="http://symbolaris.com/info/ETCS-MAProtocol-c.gif"/>
-		<requirements>
-			<some>
-				<quantifiereliminator>Mathematica</quantifiereliminator>
-			</some>
-		</requirements>
-	</example>
-	<example>
-		<name>ETCS Train Disturbance [controllability]</name>
-		<path>/examples/hybrid/ETCS/paper/controllability-lemma-disturbed.key</path>
-		<description>Proves safety of the ETCS train control protocol case study despite disturbance in the physical dynamics. This example proves that the train is always controllable safely by some control choice, despite disturbance.
-        </description>
-		<source href="http://symbolaris.com/info/ETCS.html"/>
-		<img 
-			href="http://symbolaris.com/info/ETCS-MAProtocol-c.gif"/>
-		<requirements>
-			<some>
-				<quantifiereliminator>Mathematica</quantifiereliminator>
-			</some>
-		</requirements>
-	</example>
-	<example>
-		<name>ETCS Train Disturbance [safety]</name>
-		<path>/examples/hybrid/ETCS/paper/safety-lemma-disturbed.key</path>
-		<description>Proves safety of the ETCS train control protocol case study despite disturbance in the physical dynamics. This example proves that a train never leaves its movement authority (MA=m) and, thus, cannot crash into other trains.
-        </description>
-		<source href="http://symbolaris.com/info/ETCS.html"/>
-		<img 
-			href="http://symbolaris.com/info/ETCS-MAProtocol-c.gif"/>
-		<requirements>
-			<some>
-				<quantifiereliminator>Mathematica</quantifiereliminator>
-			</some>
-		</requirements>
-	</example>
-	<example>
-		<name>Aircraft Roundabout 3 [simple]</name>
-		<path>/examples/hybrid/ATC/roundabout/TRM-essentials-3.key</path>
-		<description>Essentials of the tangential roundabout maneuver (TRM) for collision avoidance in air traffic control with 3 aircraft. This example proves that TRM always separates aircraft by at least the protected zone. Please note, that this is the simplest possible version of the safety requirement for the TRM. The verification of the TRM system itself requires a much more advanced model.</description>
-		<source href="http://symbolaris.com/info/RCAS.html"/>
-		<img 
-			href="http://symbolaris.com/info/fig-tangential-roundabout.png"/>
-		<requirements>
-			<some>
-				<quantifiereliminator>Mathematica</quantifiereliminator>
-			</some>
-		</requirements>
-	</example>
+	<group name="hybrid">
+		<group name="ETCS">
+			<example>
+				<name>ETCS Train Control [simple]</name>
+				<path>/examples/hybrid/ETCS/safety/ETCS-simple.key</path>
+				<description>Essentials of the ETCS train control protocol.This example proves that a train never leaves its movement authority (MA=m) and, thus, cannot crash into other trains. Please note, that this is the simplest possible version of the safety requirement for the ETCS. The verification of the ETCS system itself requires a much more advanced model.</description>
+				<img 
+					href="http://symbolaris.com/info/ETCS-MAProtocol-c.gif"/>
+				<requirements>
+					<some>
+						<quantifiereliminator>Mathematica</quantifiereliminator>
+						<quantifiereliminator>QepCad</quantifiereliminator>
+						<quantifiereliminator>Reduce</quantifiereliminator>
+					</some>
+				</requirements>
+			</example>
+			<example>
+				<name>ETCS Train Control [controllability]</name>
+				<path>/examples/hybrid/ETCS/paper/controllability-lemma.key</path>
+				<description>Proves safety of the ETCS train control protocol case study. This example proves that the train is always controllable safely by some control choice.
+			</description>
+				<img 
+					href="http://symbolaris.com/info/ETCS-MAProtocol-c.gif"/>
+				<source href="http://symbolaris.com/info/ETCS.html"/>
+				<requirements>
+					<some>
+						<quantifiereliminator>Mathematica</quantifiereliminator>
+					</some>
+				</requirements>
+			</example>
+			<example>
+				<name>ETCS Train Control [safety]</name>
+				<path>/examples/hybrid/ETCS/paper/safety-lemma.key</path>
+				<description>Proves safety of the ETCS train control protocol case study. This example proves that a train never leaves its movement authority (MA=m) and, thus, cannot crash into other trains.
+			</description>
+				<source href="http://symbolaris.com/info/ETCS.html"/>
+				<img 
+					href="http://symbolaris.com/info/ETCS-MAProtocol-c.gif"/>
+				<requirements>
+					<some>
+						<quantifiereliminator>Mathematica</quantifiereliminator>
+					</some>
+				</requirements>
+			</example>
+			<example>
+				<name>ETCS Train Control [liveness]</name>
+				<path>/examples/hybrid/ETCS/paper/liveness-lemma.key</path>
+				<description>Proves safety of the ETCS train control protocol case study. This example proves that the train can move beyond every position on the track.
+			</description>
+				<source href="http://symbolaris.com/info/ETCS.html"/>
+				<img 
+					href="http://symbolaris.com/info/ETCS-MAProtocol-c.gif"/>
+				<requirements>
+					<some>
+						<quantifiereliminator>Mathematica</quantifiereliminator>
+					</some>
+				</requirements>
+			</example>
+			<example>
+				<name>ETCS Train Control [reactivity]</name>
+				<path>/examples/hybrid/ETCS/paper/reactivity-lemma.key</path>
+				<description>Proves safety of the ETCS train control protocol case study. This example proves that the train can react to situation changes.
+			</description>
+				<source href="http://symbolaris.com/info/ETCS.html"/>
+				<img 
+					href="http://symbolaris.com/info/ETCS-MAProtocol-c.gif"/>
+				<requirements>
+					<some>
+						<quantifiereliminator>Mathematica</quantifiereliminator>
+					</some>
+				</requirements>
+			</example>
+			<example>
+				<name>ETCS Train Disturbance [controllability]</name>
+				<path>/examples/hybrid/ETCS/paper/controllability-lemma-disturbed.key</path>
+				<description>Proves safety of the ETCS train control protocol case study despite disturbance in the physical dynamics. This example proves that the train is always controllable safely by some control choice, despite disturbance.
+			</description>
+				<source href="http://symbolaris.com/info/ETCS.html"/>
+				<img 
+					href="http://symbolaris.com/info/ETCS-MAProtocol-c.gif"/>
+				<requirements>
+					<some>
+						<quantifiereliminator>Mathematica</quantifiereliminator>
+					</some>
+				</requirements>
+			</example>
+			<example>
+				<name>ETCS Train Disturbance [safety]</name>
+				<path>/examples/hybrid/ETCS/paper/safety-lemma-disturbed.key</path>
+				<description>Proves safety of the ETCS train control protocol case study despite disturbance in the physical dynamics. This example proves that a train never leaves its movement authority (MA=m) and, thus, cannot crash into other trains.
+			</description>
+				<source href="http://symbolaris.com/info/ETCS.html"/>
+				<img 
+					href="http://symbolaris.com/info/ETCS-MAProtocol-c.gif"/>
+				<requirements>
+					<some>
+						<quantifiereliminator>Mathematica</quantifiereliminator>
+					</some>
+				</requirements>
+			</example>
+		</group>		
+		<group name="ATC">
+			<example>
+				<name>Aircraft Roundabout [simple]</name>
+				<path>/examples/hybrid/ATC/roundabout/TRM-essentials.key</path>
+				<description>Essentials of the tangential roundabout maneuver (TRM) for collision avoidance in air traffic control. This example proves that TRM always separates aircraft by at least the protected zone. Please note, that this is the simplest possible version of the safety requirement for the TRM. The verification of the TRM system itself requires a much more advanced model.</description>
+				<img 
+					href="http://symbolaris.com/info/fig-tangential-roundabout.png"/>
+				<requirements>
+					<some>
+						<quantifiereliminator>Mathematica</quantifiereliminator>
+						<quantifiereliminator>Reduce</quantifiereliminator>
+					</some>
+				</requirements>
+			</example>
+			<example>
+				<name>Aircraft Roundabout 3 [simple]</name>
+				<path>/examples/hybrid/ATC/roundabout/TRM-essentials-3.key</path>
+				<description>Essentials of the tangential roundabout maneuver (TRM) for collision avoidance in air traffic control with 3 aircraft. This example proves that TRM always separates aircraft by at least the protected zone. Please note, that this is the simplest possible version of the safety requirement for the TRM. The verification of the TRM system itself requires a much more advanced model.</description>
+				<source href="http://symbolaris.com/info/RCAS.html"/>
+				<img 
+					href="http://symbolaris.com/info/fig-tangential-roundabout.png"/>
+				<requirements>
+					<some>
+						<quantifiereliminator>Mathematica</quantifiereliminator>
+					</some>
+				</requirements>
+			</example>
+		</group>
+		<group name="harrison">
+		</group>
+		<group name="dynamical">
+		</group>
+		<group name="complicated_arithmetic">
+		</group>
+		<group name="complicated">
+		</group>
+		<group name="bouncing-ball">
+			<example>
+				<name>Bouncing Ball [simple]</name>
+				<path>/examples/hybrid/bouncing-ball/bouncing-ball-simplest.key</path>
+				<description>A fully parametric version of the bouncing ball that jumps up and down but is bounced back from the ground. This version has a fixed bouncing constant c.</description>
+				<img 
+		    href="http://symbolaris.com/info/fig-bouncing-ball.png"/>
+				<requirements>
+					<some>
+						<quantifiereliminator>Mathematica</quantifiereliminator>
+						<quantifiereliminator>QepCad</quantifiereliminator>
+						<quantifiereliminator>Reduce</quantifiereliminator>
+					</some>
+				</requirements>
+			</example>
+			<example>
+				<name>Bouncing Ball [dynamic]</name>
+				<path>/examples/hybrid/publish/bouncing-ball-random-H.key</path>
+				<description>A fully parametric version of the bouncing ball that jumps up and down but is bounced back from the ground. This version has a bouncing coefficient c that can changer over time by a nondeterministic assignment c:=* </description>
+				<img href="http://symbolaris.com/info/fig-bouncing-ball.png"/>
+				<requirements>
+					<some>
+						<quantifiereliminator>Mathematica</quantifiereliminator>
+						<quantifiereliminator>QepCad</quantifiereliminator>
+						<quantifiereliminator>Reduce</quantifiereliminator>
+					</some>
+				</requirements>
+			</example>
+		</group>
+		<example>
+			<name>Simple Acceleration</name>
+			<path>/examples/hybrid/accel-simple.key</path>
+			<description>Simple example of an accelerating point. It is provable with Grobner Basis backend.</description>
+		</example>
+		<example>
+			<name>Magnetic Field</name>
+			<path>/examples/hybrid/magnetic_field.key</path>
+			<description>Magnetic field example. It is provable with Grobner Basis backend.</description>
+			<requirements>
+				<some>
+					<quantifiereliminator>Mathematica</quantifiereliminator>
+				</some>
+			</requirements>
+		</example>
+		<example>
+			<name>Controlled Moving Point</name>
+			<path>/examples/hybrid/publish/moving-point.key</path>
+			<description>Simple example of a controlled moving point that moves towards zero.</description>
+			<requirements>
+				<some>
+					<quantifiereliminator>Mathematica</quantifiereliminator>
+					<quantifiereliminator>QepCad</quantifiereliminator>
+					<quantifiereliminator>Reduce</quantifiereliminator>
+					<quantifiereliminator>CohenHormander</quantifiereliminator>
+				</some>
+			</requirements>
+		</example>
+		<example>
+				<name>Water Tank</name>
+				<path>/examples/hybrid/publish/water_tank.key</path>
+				<description>Standard water tank model, which regulates water level y between 1 and 12 by filling or emptying the water tank. Changing valves has a delayed effect in this example.</description>
+				<img href="http://symbolaris.com/info/fig-water-tank.png"/>
+				<requirements>
+					<some>
+						<quantifiereliminator>Mathematica</quantifiereliminator>
+						<quantifiereliminator>QepCad</quantifiereliminator>
+						<quantifiereliminator>Reduce</quantifiereliminator>
+						<quantifiereliminator>CohenHormander</quantifiereliminator>
+					</some>
+				</requirements>
+			</example>
+	</group>
+	<group name="z3">
+	</group>
+	<group name="weispfennig">
+	</group>
+	<group name="semi_definite_polynomials">
+	</group>
+	<group name="realTacletPOs">
+	</group>
+	<group name="aligator">
+	</group>
+	<example></example>
 </examples>
