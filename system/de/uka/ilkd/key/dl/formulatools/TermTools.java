@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -369,7 +369,7 @@ public class TermTools {
 	public static PairOfTermAndVariableList quantifyAllSkolemSymbols(Term t) {
 		PairOfTermAndVariableList result = new PairOfTermAndVariableList(t);
 		List<Term> skolem = new LinkedList<Term>();
-		final Set<Term> skolemSym = new HashSet<Term>();
+		final Set<Term> skolemSym = new LinkedHashSet<Term>();
 		result.t.execPreOrder(new Visitor() {
 
 			/*@Override*/
@@ -383,7 +383,7 @@ public class TermTools {
 		});
 		skolem.addAll(SkolemfunctionTracker.INSTANCE.getOrderedList(skolemSym));
 
-		Set<Match> matches = new HashSet<Match>();
+		Set<Match> matches = new LinkedHashSet<Match>();
 		List<LogicVariable> vars = new ArrayList<LogicVariable>();
 		for (Term sk : skolem) {
 			LogicVariable logicVariable = new LogicVariable(new Name(sk.op()

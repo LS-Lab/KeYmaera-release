@@ -27,7 +27,6 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -200,7 +199,7 @@ public class DiffSystemImpl extends DLNonTerminalProgramElementImpl implements
 	 */
 	private Set<Variable> getQuantifiedVariablesOccurringInDiffEq(
 			ProgramElement el, Set<Variable> quantified) {
-		Set<Variable> result = new HashSet<Variable>();
+		Set<Variable> result = new LinkedHashSet<Variable>();
 
 		if (el instanceof Forall || el instanceof Exists) {
 			DLNonTerminalProgramElement npe = (DLNonTerminalProgramElement) el;

@@ -6,7 +6,7 @@ package de.uka.ilkd.key.dl.formulatools;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -55,7 +55,7 @@ public class LexicographicalOrder {
 		private int degree = 0;
 		private int depth;
 
-		private Set<Term> variables = new HashSet<Term>();
+		private Set<Term> variables = new LinkedHashSet<Term>();
 
 		private Term t;
 
@@ -231,7 +231,7 @@ public class LexicographicalOrder {
 	 */
 	public static Queue<Term> getOrder(Set<Term> terms,
 			final Set<Term> currentVariables) {
-		Set<TermInformations> infos = new HashSet<TermInformations>();
+		Set<TermInformations> infos = new LinkedHashSet<TermInformations>();
 		TreeMap<String, Integer> variables = new TreeMap<String, Integer>();
 		// collect term information and recency information
 		for (Term t : terms) {

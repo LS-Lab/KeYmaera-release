@@ -1,7 +1,7 @@
 package de.uka.ilkd.key.dl.transitionmodel;
 
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -31,9 +31,9 @@ public class TransitionSystem<S, A> {
 	private S finalState;
 
 	public TransitionSystem(S initialState) {
-		states = new HashSet<S>();
-		transitionRelation = new HashMap<S, Map<A, Set<S>>>();
-		reverseTransitionRelation = new HashMap<S, Map<A, Set<S>>>();
+		states = new LinkedHashSet<S>();
+		transitionRelation = new LinkedHashMap<S, Map<A, Set<S>>>();
+		reverseTransitionRelation = new LinkedHashMap<S, Map<A, Set<S>>>();
 		this.initialState = initialState;
 		this.finalState = initialState;
 		states.add(initialState);
@@ -62,11 +62,11 @@ public class TransitionSystem<S, A> {
 			S post) {
 		Map<A, Set<S>> map = tr.get(pre);
 		if (map == null) {
-			map = new HashMap<A, Set<S>>();
+			map = new LinkedHashMap<A, Set<S>>();
 			transitionRelation.put(pre, map);
 		}
 		if (map.get(action) == null) {
-			map.put(action, new HashSet<S>());
+			map.put(action, new LinkedHashSet<S>());
 		}
 		map.get(action).add(post);
 	}

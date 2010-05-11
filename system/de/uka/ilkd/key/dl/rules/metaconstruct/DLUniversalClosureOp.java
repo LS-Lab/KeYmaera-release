@@ -16,9 +16,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Set;
@@ -89,9 +88,9 @@ public class DLUniversalClosureOp extends AbstractMetaOperator {
 			SVInstantiations svInst, Services services, boolean optimizeWrites) {
 		DependencyState depState = DependencyStateGenerator
 				.generateDependencyMap(program);
-		Map<de.uka.ilkd.key.dl.model.ProgramVariable, LinkedHashSet<de.uka.ilkd.key.dl.model.ProgramVariable>> generateDependencyMap = depState
+		LinkedHashMap<de.uka.ilkd.key.dl.model.ProgramVariable, LinkedHashSet<de.uka.ilkd.key.dl.model.ProgramVariable>> generateDependencyMap = depState
 				.getDependencies();
-		final Set<String> variablesInPost = new HashSet<String>();
+		final Set<String> variablesInPost = new LinkedHashSet<String>();
 		post.execPreOrder(new Visitor() {
 
 			/*@Override*/
@@ -132,10 +131,10 @@ public class DLUniversalClosureOp extends AbstractMetaOperator {
 			 */
 		}
 
-		final Map<de.uka.ilkd.key.dl.model.ProgramVariable, LinkedHashSet<de.uka.ilkd.key.dl.model.ProgramVariable>> transitiveClosure = DependencyStateGenerator
+		final LinkedHashMap<de.uka.ilkd.key.dl.model.ProgramVariable, LinkedHashSet<de.uka.ilkd.key.dl.model.ProgramVariable>> transitiveClosure = DependencyStateGenerator
 				.createTransitiveClosure(generateDependencyMap);
 
-		final Map<de.uka.ilkd.key.dl.model.ProgramVariable, Set<de.uka.ilkd.key.dl.model.ProgramVariable>> inverseTransitiveClosure = new HashMap<de.uka.ilkd.key.dl.model.ProgramVariable, Set<de.uka.ilkd.key.dl.model.ProgramVariable>>();
+		final LinkedHashMap<de.uka.ilkd.key.dl.model.ProgramVariable, Set<de.uka.ilkd.key.dl.model.ProgramVariable>> inverseTransitiveClosure = new LinkedHashMap<de.uka.ilkd.key.dl.model.ProgramVariable, Set<de.uka.ilkd.key.dl.model.ProgramVariable>>();
 		for (de.uka.ilkd.key.dl.model.ProgramVariable var : generateDependencyMap
 				.keySet()) {
 			LinkedHashSet<de.uka.ilkd.key.dl.model.ProgramVariable> deps = transitiveClosure
@@ -147,7 +146,7 @@ public class DLUniversalClosureOp extends AbstractMetaOperator {
 					inverseTransitiveClosure
 							.put(
 									v,
-									new HashSet<de.uka.ilkd.key.dl.model.ProgramVariable>());
+									new LinkedHashSet<de.uka.ilkd.key.dl.model.ProgramVariable>());
 					assert inverseTransitiveClosure.get(v) != null;
 				}
 				inverseTransitiveClosure.get(v).add(var);

@@ -1,6 +1,6 @@
 package de.uka.ilkd.key.dl.parser;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 
 import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.CommonTokenStream;
@@ -99,10 +99,10 @@ public class ProgramBlockProvider implements
 
     }
 
-    public HashSet getProgramVariables(JavaBlock programBlock,
+    public LinkedHashSet getProgramVariables(JavaBlock programBlock,
             NamespaceSet nss, boolean globalDeclTermParser, boolean declParser,
             boolean termOrProblemParser, Services services) {
-        HashSet<ProgramElement> programVariables = getProgramVariables(
+        LinkedHashSet<ProgramElement> programVariables = getProgramVariables(
                 (DLProgramElement) ((StatementBlock) programBlock.program())
                         .getChildAt(0), nss);
         return programVariables;
@@ -112,9 +112,9 @@ public class ProgramBlockProvider implements
      * @param nss
      * @return
      */
-    private HashSet<ProgramElement> getProgramVariables(ProgramElement form,
+    private LinkedHashSet<ProgramElement> getProgramVariables(ProgramElement form,
             NamespaceSet nss) {
-        HashSet<ProgramElement> result = new HashSet<ProgramElement>();
+        LinkedHashSet<ProgramElement> result = new LinkedHashSet<ProgramElement>();
         if (form instanceof ProgramSV) {
             return result;
         }

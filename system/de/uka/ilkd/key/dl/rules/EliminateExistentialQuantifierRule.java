@@ -25,8 +25,8 @@ package de.uka.ilkd.key.dl.rules;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -182,7 +182,7 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
 
 		// search the variable on all branches
 
-		Set<Goal> goals = new HashSet<Goal>();
+		Set<Goal> goals = new LinkedHashSet<Goal>();
 		ImmutableList<Goal> openGoals = goal.proof().openGoals();
 		Iterator<Goal> goalIt = openGoals.iterator();
 		while (goalIt.hasNext()) {
@@ -221,10 +221,10 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
 		// construct a conjunction of goal formulas containing implications for
 		// sequents
 		Term query = TermBuilder.DF.tt();
-		Set<Term> skolemSymbols = new HashSet<Term>();
-		Set<Term> skolemSymbolsWithDependcies = new HashSet<Term>();
-		Set<Term> commonAnte = new HashSet<Term>();
-		Set<Term> commonSucc = new HashSet<Term>();
+		Set<Term> skolemSymbols = new LinkedHashSet<Term>();
+		Set<Term> skolemSymbolsWithDependcies = new LinkedHashSet<Term>();
+		Set<Term> commonAnte = new LinkedHashSet<Term>();
+		Set<Term> commonSucc = new LinkedHashSet<Term>();
 		List<Goal> goalList = new ArrayList<Goal>(goals);
 		Iterator<ConstrainedFormula> iterator = goalList.get(0).sequent()
 				.antecedent().iterator();
@@ -239,11 +239,11 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
 			if (!commonAnte.isEmpty()) {
 				Iterator<ConstrainedFormula> it = goalList.get(i).sequent()
 						.antecedent().iterator();
-				Set<Term> forms = new HashSet<Term>();
+				Set<Term> forms = new LinkedHashSet<Term>();
 				while (it.hasNext()) {
 					forms.add(it.next().formula());
 				}
-				Set<Term> remove = new HashSet<Term>();
+				Set<Term> remove = new LinkedHashSet<Term>();
 				for (Term ante : commonAnte) {
 					if (!forms.contains(ante)) {
 						remove.add(ante);
@@ -254,11 +254,11 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
 			if (!commonSucc.isEmpty()) {
 				Iterator<ConstrainedFormula> it = goalList.get(i).sequent()
 						.succedent().iterator();
-				Set<Term> forms = new HashSet<Term>();
+				Set<Term> forms = new LinkedHashSet<Term>();
 				while (it.hasNext()) {
 					forms.add(it.next().formula());
 				}
-				Set<Term> remove = new HashSet<Term>();
+				Set<Term> remove = new LinkedHashSet<Term>();
 				for (Term succ : commonSucc) {
 					if (!forms.contains(succ)) {
 						remove.add(succ);
@@ -268,9 +268,9 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
 			}
 		}
 		Term ante = TermBuilder.DF.tt();
-		Set<Match> commonMatches = new HashSet<Match>();
-		Map<Term, LogicVariable> commonVars = new HashMap<Term, LogicVariable>();
-		Map<Term, LogicVariable> skolemSymbolWithDepsMap = new HashMap<Term, LogicVariable>();
+		Set<Match> commonMatches = new LinkedHashSet<Match>();
+		Map<Term, LogicVariable> commonVars = new LinkedHashMap<Term, LogicVariable>();
+		Map<Term, LogicVariable> skolemSymbolWithDepsMap = new LinkedHashMap<Term, LogicVariable>();
 		for (Term t : commonAnte) {
 			ante = TermFactory.DEFAULT.createJunctorTermAndSimplify(Op.AND,
 					ante, t);
@@ -350,7 +350,7 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
 		// dependencies (as well as commonVars)in the outermost position that is
 		// still sound (so respecting the dependencies)
 
-		Map<Metavariable, LogicVariable> metavarReplacements = new HashMap<Metavariable, LogicVariable>();
+		Map<Metavariable, LogicVariable> metavarReplacements = new LinkedHashMap<Metavariable, LogicVariable>();
 		for (Metavariable var : variables) {
 			LogicVariable logicVariable = new LogicVariable(new Name(var.name()
 					+ "$mv"), var.sort(new Term[0]));
@@ -361,7 +361,7 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
 
 		List<Term> topLevelSkolems = SkolemfunctionTracker.INSTANCE
 				.getOrderedList(skolemSymbols);
-		Map<Term, LogicVariable> topLevelSkolemReplacements = new HashMap<Term, LogicVariable>();
+		Map<Term, LogicVariable> topLevelSkolemReplacements = new LinkedHashMap<Term, LogicVariable>();
 		for (Term t : topLevelSkolems) {
 			LogicVariable logicVariable = new LogicVariable(new Name(t.op()
 					.name()
@@ -383,7 +383,7 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
 		List<Term> orderedList = SkolemfunctionTracker.INSTANCE
 				.getOrderedList(commonVars.keySet());
 		// now we built up a reference list for metavariables
-		Map<Metavariable, Integer> metavariablesDeps = new HashMap<Metavariable, Integer>();
+		Map<Metavariable, Integer> metavariablesDeps = new LinkedHashMap<Metavariable, Integer>();
 		for (Term sk : orderedList) {
 			for (int i = 0; i < sk.arity(); i++) {
 				assert (sk.sub(i).op() instanceof Metavariable) : "Skolem variables must only have metavariables as arguments!";
@@ -514,7 +514,7 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
 	 * @return
 	 */
 	private Set<Term> findSkolemSymbols(Iterator<ConstrainedFormula> iterator) {
-		final Set<Term> result = new HashSet<Term>();
+		final Set<Term> result = new LinkedHashSet<Term>();
 		while (iterator.hasNext()) {
 			result.addAll(findSkolemSymbols(iterator.next().formula()));
 		}
@@ -528,7 +528,7 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
 	 * @return
 	 */
 	private Set<Term> findSkolemSymbols(Term t) {
-		final Set<Term> result = new HashSet<Term>();
+		final Set<Term> result = new LinkedHashSet<Term>();
 		t.execPreOrder(new Visitor() {
 
 			/* @Override */

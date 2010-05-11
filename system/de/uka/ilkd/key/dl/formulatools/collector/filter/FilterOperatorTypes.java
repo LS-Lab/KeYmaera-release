@@ -1,15 +1,15 @@
 package de.uka.ilkd.key.dl.formulatools.collector.filter;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 
 import de.uka.ilkd.key.dl.formulatools.collector.FoundItem;
 
 @SuppressWarnings("unchecked")
 public class FilterOperatorTypes extends FilterDecorator {
 
-	private HashSet<Class> classes = null;
+	private LinkedHashSet<Class> classes = null;
 	
-	public FilterOperatorTypes( HashSet<Class> classes,  IFilter decoratedFilter ) {
+	public FilterOperatorTypes( LinkedHashSet<Class> classes,  IFilter decoratedFilter ) {
 		super(decoratedFilter);
 		this.classes = classes;
 	}

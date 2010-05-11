@@ -22,7 +22,7 @@
  */
 package de.uka.ilkd.key.dl.formulatools;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.Visitor;
@@ -39,14 +39,14 @@ public class SkolemSymbolWithMostParametersVisitor extends Visitor {
 
     private static final SkolemSymbolWithMostParametersVisitor INSTANCE = new SkolemSymbolWithMostParametersVisitor();
 
-    private static HashSet<Term> skolemTerms;
+    private static LinkedHashSet<Term> skolemTerms;
 
     private SkolemSymbolWithMostParametersVisitor() {
     }
 
     public synchronized static Term getSkolemSymbolWithMostParameters(
             Term form) {
-        skolemTerms = new HashSet<Term>();
+        skolemTerms = new LinkedHashSet<Term>();
         form.execPreOrder(INSTANCE);
         Term result = null;
         for (Term term : skolemTerms) {

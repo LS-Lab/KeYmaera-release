@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 
@@ -50,9 +50,9 @@ public class DottyStateGenerator implements
 			return number;
 		}
 
-		public HashSet<String> transitions = new HashSet<String>();
+		public LinkedHashSet<String> transitions = new LinkedHashSet<String>();
 
-		public HashSet<String> states = new LinkedHashSet<String>();
+		public LinkedHashSet<String> states = new LinkedHashSet<String>();
 
 		/**
 		 * Set the number of the next label number to use

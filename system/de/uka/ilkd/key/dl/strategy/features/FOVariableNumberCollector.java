@@ -20,7 +20,6 @@
 package de.uka.ilkd.key.dl.strategy.features;
 
 import java.math.BigDecimal;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -43,7 +42,7 @@ public class FOVariableNumberCollector {
      * LogicVariable, ProgramVariable, QuantifiableVariable, MetaVariable or (non-builtin) Functions.
      */
     public static Set<Operator> getVariables(Term inputFormula) {
-        final HashSet<Operator> variables = new LinkedHashSet<Operator>();
+        final LinkedHashSet<Operator> variables = new LinkedHashSet<Operator>();
         inputFormula.execPreOrder(new Visitor() {
             /*@Override*/
             public void visit(Term visited) {

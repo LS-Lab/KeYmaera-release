@@ -35,8 +35,8 @@ import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.net.ServerSocket;
 import java.rmi.RemoteException;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -186,7 +186,7 @@ public class DLInitializer {
 	 * </ul>
 	 */
 	public static void initialize() {
-		locks = new HashSet<Object>();
+		locks = new LinkedHashSet<Object>();
 		if (!initialized) {
 			initialized = true;
 			ProofSettings.DEFAULT_SETTINGS.setProfile(new DLProfile());
@@ -293,7 +293,7 @@ public class DLInitializer {
 	private static void createOptionTabs() throws IntrospectionException,
 			SecurityException, NoSuchFieldException, IllegalArgumentException,
 			IllegalAccessException {
-		customizers = new HashMap<Customizer, Object>();
+		customizers = new LinkedHashMap<Customizer, Object>();
 		Set<Settings> subOptions = DLOptionBean.INSTANCE.getSubOptions();
 		final Customizer customizer = CustomizerViewController
 				.customizerFor(DLOptionBean.class);

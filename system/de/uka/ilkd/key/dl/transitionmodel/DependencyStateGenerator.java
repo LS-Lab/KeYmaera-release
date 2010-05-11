@@ -20,8 +20,6 @@
 package de.uka.ilkd.key.dl.transitionmodel;
 
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -61,8 +59,8 @@ public class DependencyStateGenerator implements
 	 * 
 	 */
 	public static class WriteAndReadSets {
-		Set<ProgramVariable> reads = new HashSet<ProgramVariable>();
-		Set<ProgramVariable> writes = new HashSet<ProgramVariable>();
+		LinkedHashSet<ProgramVariable> reads = new LinkedHashSet<ProgramVariable>();
+		LinkedHashSet<ProgramVariable> writes = new LinkedHashSet<ProgramVariable>();
 
 	}
 
@@ -87,7 +85,7 @@ public class DependencyStateGenerator implements
 	 */
 	private static Map<ProgramVariable, LinkedHashSet<ProgramVariable>> getDependencies(
 			DLProgram action) {
-		HashMap<ProgramVariable, LinkedHashSet<ProgramVariable>> result = new HashMap<ProgramVariable, LinkedHashSet<ProgramVariable>>();
+		LinkedHashMap<ProgramVariable, LinkedHashSet<ProgramVariable>> result = new LinkedHashMap<ProgramVariable, LinkedHashSet<ProgramVariable>>();
 
 		if (action instanceof Assign) {
 			Assign ass = (Assign) action;
@@ -345,9 +343,9 @@ public class DependencyStateGenerator implements
 	 *            the map of dependencies
 	 * @return (ordered) transitive closure of dependency
 	 */
-	public static Map<ProgramVariable, LinkedHashSet<ProgramVariable>> createTransitiveClosure(
+	public static LinkedHashMap<ProgramVariable, LinkedHashSet<ProgramVariable>> createTransitiveClosure(
 			Map<ProgramVariable, LinkedHashSet<ProgramVariable>> dependency) {
-		final Map<ProgramVariable, LinkedHashSet<ProgramVariable>> transitiveClosure = new LinkedHashMap<ProgramVariable, LinkedHashSet<ProgramVariable>>();
+		final LinkedHashMap<ProgramVariable, LinkedHashSet<ProgramVariable>> transitiveClosure = new LinkedHashMap<ProgramVariable, LinkedHashSet<ProgramVariable>>();
 		boolean changed = true;
 		while (changed) {
 			changed = false;
@@ -363,7 +361,7 @@ public class DependencyStateGenerator implements
 
 					transitiveClosure.put(var, clone);
 				}
-				for (ProgramVariable dvar : new HashSet<ProgramVariable>(deps)) {
+				for (ProgramVariable dvar : new LinkedHashSet<ProgramVariable>(deps)) {
 					LinkedHashSet<ProgramVariable> otherDeps = dependency
 							.get(dvar);
 					if (otherDeps != null) {

@@ -1,6 +1,6 @@
 package de.uka.ilkd.key.dl.formulatools.collector;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import de.uka.ilkd.key.dl.formulatools.collector.filter.*;
@@ -12,7 +12,7 @@ import de.uka.ilkd.key.logic.Term;
  * @author Timo Michelsen
  * 
  */
-public class FilterVariableSet extends HashSet<FoundItem> {
+public class FilterVariableSet extends LinkedHashSet<FoundItem> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -29,7 +29,7 @@ public class FilterVariableSet extends HashSet<FoundItem> {
 	 * @return Set of Variableterms
 	 */
 	public Set<Term> getVariableTerms() {
-		HashSet<Term> terms = new HashSet<Term>();
+		LinkedHashSet<Term> terms = new LinkedHashSet<Term>();
 
 		for (FoundItem f : this) {
 			terms.add(f.getTerm());
@@ -44,7 +44,7 @@ public class FilterVariableSet extends HashSet<FoundItem> {
 	 * @return Set of variablenames
 	 */
 	public Set<String> getVariables() {
-		HashSet<String> variables = new HashSet<String>();
+		LinkedHashSet<String> variables = new LinkedHashSet<String>();
 
 		for (FoundItem f : this) {
 			variables.add(f.getName());

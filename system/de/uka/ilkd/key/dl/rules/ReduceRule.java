@@ -24,7 +24,7 @@ package de.uka.ilkd.key.dl.rules;
 
 import java.rmi.RemoteException;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -66,7 +66,7 @@ public class ReduceRule extends RuleOperatingOnWholeSequence implements RuleFilt
 
     private Set<Term> skolemSymbols;
 
-    private HashSet<String> quantifiedVariables;
+    private LinkedHashSet<String> quantifiedVariables;
     
     private final Set<Term> TRIVIALS; 
 
@@ -75,7 +75,7 @@ public class ReduceRule extends RuleOperatingOnWholeSequence implements RuleFilt
      */
     public ReduceRule() {
         super(true);
-        TRIVIALS = new HashSet<Term>(2);
+        TRIVIALS = new LinkedHashSet<Term>(2);
         TRIVIALS.add(TermBuilder.DF.tt());
         TRIVIALS.add(TermBuilder.DF.ff());
     }
@@ -147,8 +147,8 @@ public class ReduceRule extends RuleOperatingOnWholeSequence implements RuleFilt
     /*@Override*/
     public synchronized ImmutableList<Goal> apply(Goal goal, Services services,
             RuleApp ruleApp) {
-        quantifiedVariables = new HashSet<String>();
-        skolemSymbols = new HashSet<Term>();
+        quantifiedVariables = new LinkedHashSet<String>();
+        skolemSymbols = new LinkedHashSet<Term>();
         return super.apply(goal, services, ruleApp);
     }
 
@@ -208,7 +208,7 @@ public class ReduceRule extends RuleOperatingOnWholeSequence implements RuleFilt
             // }
             // term = MathSolverManager.getCurrentQuantifierEliminator().reduce(
             // term, variables, quantifiers);
-            Set<Match> matches = new HashSet<Match>();
+            Set<Match> matches = new LinkedHashSet<Match>();
             List<LogicVariable> vars = new ArrayList<LogicVariable>();
             for (Term sk : skolem) {
                 LogicVariable logicVariable = new LogicVariable(new Name(sk

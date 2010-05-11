@@ -20,7 +20,7 @@
 package de.uka.ilkd.key.dl.transitionmodel;
 
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 
@@ -28,13 +28,13 @@ import de.uka.ilkd.key.dl.model.ProgramVariable;
 
 public class DependencyState {
 
-    private Map<ProgramVariable, LinkedHashSet<ProgramVariable>> dependencyMap;
+    private LinkedHashMap<ProgramVariable, LinkedHashSet<ProgramVariable>> dependencyMap;
 
-    private Map<ProgramVariable, Boolean> writeBeforeReadList;
+    private LinkedHashMap<ProgramVariable, Boolean> writeBeforeReadList;
 
     public DependencyState() {
-        dependencyMap = new HashMap<ProgramVariable, LinkedHashSet<ProgramVariable>>();
-        writeBeforeReadList = new HashMap<ProgramVariable, Boolean>();
+        dependencyMap = new LinkedHashMap<ProgramVariable, LinkedHashSet<ProgramVariable>>();
+        writeBeforeReadList = new LinkedHashMap<ProgramVariable, Boolean>();
     }
 
     public DependencyState(DependencyState copy) {
@@ -85,14 +85,14 @@ public class DependencyState {
      * 
      * @return a map where get(x) is the set of all variables on which the value of x depends during the execution of the hybrid program.
      */
-    public Map<ProgramVariable, LinkedHashSet<ProgramVariable>> getDependencies() {
+    public LinkedHashMap<ProgramVariable, LinkedHashSet<ProgramVariable>> getDependencies() {
         return dependencyMap;
     }
 
     /**
      * @return the writeBeforeReadList
      */
-    public Map<ProgramVariable, Boolean> getWriteBeforeReadList() {
+    public LinkedHashMap<ProgramVariable, Boolean> getWriteBeforeReadList() {
         return writeBeforeReadList;
     }
 }
