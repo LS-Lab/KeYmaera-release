@@ -18,9 +18,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.PriorityQueue;
-import java.util.Set;
 import java.util.TreeSet;
 
 import de.uka.ilkd.key.dl.logic.ldt.RealLDT;
@@ -90,7 +88,7 @@ public class DLUniversalClosureOp extends AbstractMetaOperator {
 				.generateDependencyMap(program);
 		LinkedHashMap<de.uka.ilkd.key.dl.model.ProgramVariable, LinkedHashSet<de.uka.ilkd.key.dl.model.ProgramVariable>> generateDependencyMap = depState
 				.getDependencies();
-		final Set<String> variablesInPost = new LinkedHashSet<String>();
+		final LinkedHashSet<String> variablesInPost = new LinkedHashSet<String>();
 		post.execPreOrder(new Visitor() {
 
 			/*@Override*/
@@ -134,13 +132,13 @@ public class DLUniversalClosureOp extends AbstractMetaOperator {
 		final LinkedHashMap<de.uka.ilkd.key.dl.model.ProgramVariable, LinkedHashSet<de.uka.ilkd.key.dl.model.ProgramVariable>> transitiveClosure = DependencyStateGenerator
 				.createTransitiveClosure(generateDependencyMap);
 
-		final LinkedHashMap<de.uka.ilkd.key.dl.model.ProgramVariable, Set<de.uka.ilkd.key.dl.model.ProgramVariable>> inverseTransitiveClosure = new LinkedHashMap<de.uka.ilkd.key.dl.model.ProgramVariable, Set<de.uka.ilkd.key.dl.model.ProgramVariable>>();
+		final LinkedHashMap<de.uka.ilkd.key.dl.model.ProgramVariable, LinkedHashSet<de.uka.ilkd.key.dl.model.ProgramVariable>> inverseTransitiveClosure = new LinkedHashMap<de.uka.ilkd.key.dl.model.ProgramVariable, LinkedHashSet<de.uka.ilkd.key.dl.model.ProgramVariable>>();
 		for (de.uka.ilkd.key.dl.model.ProgramVariable var : generateDependencyMap
 				.keySet()) {
 			LinkedHashSet<de.uka.ilkd.key.dl.model.ProgramVariable> deps = transitiveClosure
 					.get(var);
 			for (de.uka.ilkd.key.dl.model.ProgramVariable v : deps) {
-				Set<de.uka.ilkd.key.dl.model.ProgramVariable> set = inverseTransitiveClosure
+				LinkedHashSet<de.uka.ilkd.key.dl.model.ProgramVariable> set = inverseTransitiveClosure
 						.get(v);
 				if (set == null) {
 					inverseTransitiveClosure
@@ -204,9 +202,9 @@ public class DLUniversalClosureOp extends AbstractMetaOperator {
 								return -1;
 							}
 							// this could cause interleaving
-							Set<de.uka.ilkd.key.dl.model.ProgramVariable> set = inverseTransitiveClosure
+							LinkedHashSet<de.uka.ilkd.key.dl.model.ProgramVariable> set = inverseTransitiveClosure
 									.get(o1);
-							Set<de.uka.ilkd.key.dl.model.ProgramVariable> set2 = inverseTransitiveClosure
+							LinkedHashSet<de.uka.ilkd.key.dl.model.ProgramVariable> set2 = inverseTransitiveClosure
 									.get(o2);
 							if (set != null && set2 != null) {
 								int size = set.size();
@@ -223,7 +221,7 @@ public class DLUniversalClosureOp extends AbstractMetaOperator {
 					});
 			// the elements that reference "max" also include those elements
 			// referencing an element that references "max"
-			Set<de.uka.ilkd.key.dl.model.ProgramVariable> backwardDeps = inverseTransitiveClosure
+			LinkedHashSet<de.uka.ilkd.key.dl.model.ProgramVariable> backwardDeps = inverseTransitiveClosure
 					.get(max);
 			orderedDeps.addAll(backwardDeps);
 
@@ -252,7 +250,7 @@ public class DLUniversalClosureOp extends AbstractMetaOperator {
 		}
 
 		// add variables without dependencies
-		Set<de.uka.ilkd.key.dl.model.ProgramVariable> freeVars = new TreeSet<de.uka.ilkd.key.dl.model.ProgramVariable>(
+		TreeSet<de.uka.ilkd.key.dl.model.ProgramVariable> freeVars = new TreeSet<de.uka.ilkd.key.dl.model.ProgramVariable>(
 				new Comparator<de.uka.ilkd.key.dl.model.ProgramVariable>() {
 
 					/*@Override*/
