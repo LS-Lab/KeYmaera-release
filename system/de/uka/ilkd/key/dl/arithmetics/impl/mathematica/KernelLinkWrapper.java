@@ -113,6 +113,9 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 	private static final Expr MEMORYCONSTRAINTED = new Expr(Expr.SYMBOL,
 			"MemoryConstrained");
 
+	private static final Expr CHECK = new Expr(Expr.SYMBOL, "Check");
+
+
 	private Map<Expr, ExprAndMessages> cache;
 
 	private KernelLink link;
@@ -484,7 +487,7 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 			link.newPacket();
 			log(Level.FINEST, "Start evaluation");
 			// wrap inside exception checks
-			Expr check = new Expr(new Expr(Expr.SYMBOL, "Check"), new Expr[] {
+			Expr check = new Expr(CHECK, new Expr[] {
 					compute, new Expr("$Exception"), mBlist });
 			if (DEBUG)
 				System.out.println(check);// XXX
@@ -517,7 +520,13 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 				throw new UnsolveableException(
 						"Mathematica returned the identity of the query: "
 								+ result);
+			} else {
+			    Expr head = result.head();
+			    if (head.equals(CHECK) || head.equals(TIMECONSTRAINED) || head.equals(MEMORYCONSTRAINTED)) {
+				throw new UnsolveableException("Mathematica did not fully evaluate the expression, leaving " + head + " unevaluated in result " + result + "\nConsider upgrading Mathematica.");
+			    }
 			}
+			    
 			testForError(link);
 			// System.err.println("Discarding anwser.");
 			// link.discardAnswer();
