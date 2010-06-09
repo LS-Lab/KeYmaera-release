@@ -109,6 +109,8 @@ public class TextToHtml {
 
 		s = s.replace("&", "&and;");
 		s = s.replaceAll(" \\| ", " &or; ");
+		s = s.replaceAll("<=", "&le;");
+		s = s.replaceAll(">=", "&ge;");
 		s = s.replace("<", "&lt;");
 		s = s.replace(">", "&gt;");
 		s = s.replace("\"", "&quot;");

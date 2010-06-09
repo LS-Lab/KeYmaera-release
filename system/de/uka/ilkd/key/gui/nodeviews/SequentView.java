@@ -701,7 +701,7 @@ public class SequentView extends JEditorPane implements Autoscroll {
 	while (matcher.find()) {
  	      count+=6;	// we had replaced this by a unicode char... therefore add 6 chars
 	 }
-	matcher= Pattern.compile("\\+\\+").matcher(getPlainText());
+	matcher= Pattern.compile("(\\+\\+)|(>=)|(<=)").matcher(getPlainText());
 	while (matcher.find()) {
  	      count++;	// we had replaced this by a unicode char...
 	 }

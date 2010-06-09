@@ -1,5 +1,6 @@
 package de.uka.ilkd.key.gui.syntaxhighlighting;
 import java.io.*;
+import java.util.*;
 
 import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.text.html.parser.ParserDelegator;
@@ -14,6 +15,19 @@ public class HtmlToText extends HTMLEditorKit.ParserCallback {
     
     private StringBuffer buffer;
     private String input;
+
+	private static final Map<String,String> replacements = new LinkedHashMap<String,String>();
+	static {
+		replacements.put("\\u2200_", "\\\\forall ");
+		replacements.put("\\u2203_", "\\\\exists ");
+		replacements.put("\\u2227", "&");
+		replacements.put("\\u2228", "|");
+		replacements.put("\\u222A", "++");
+		replacements.put("\\u00AC", "!");
+		replacements.put("\\u2264", "<=");
+		replacements.put("\\u2265", ">=");
+		
+	}
 
     public HtmlToText() {	
     }
@@ -48,8 +62,16 @@ public class HtmlToText extends HTMLEditorKit.ParserCallback {
      * Return plain text.
      */
     public String getText() {	
-	return replaceSpace(buffer.toString()).replaceAll("\\u2200_", "\\\\forall ").replaceAll("\\u2203_", "\\\\exists ").replaceAll("\\u2227", "&").replaceAll("\\u2228", "|").replaceAll("\\u222A", "++").replaceAll("\\u00AC", "!");
+	return applyReplacements(replaceSpace(buffer.toString()));
     }
+
+	private static String applyReplacements(String str) {
+		for(String k: replacements.keySet()) {
+			str = str.replaceAll(k, replacements.get(k));
+		}
+		return str;
+	}
+
     /**
      * Restore keymaera superscript and subscript representation by adding the said symbol(pattern)
      * @param s

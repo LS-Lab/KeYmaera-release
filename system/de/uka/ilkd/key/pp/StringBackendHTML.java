@@ -61,6 +61,10 @@ public class StringBackendHTML extends StringBackend implements Backend {
 		while (matcher.find()) {
 			quantifiers++;
 		}
+		matcher = Pattern.compile("(\\+\\+)|(>=)|(<=)").matcher(s);
+		while (matcher.find()) {
+			numOfSuperSub_script++;
+		}
 		if (hasSuperScript) {
 			if (s.equals("^"))
 				hasSuperScript = true;
