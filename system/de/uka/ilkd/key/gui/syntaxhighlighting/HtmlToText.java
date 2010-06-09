@@ -1,5 +1,6 @@
 package de.uka.ilkd.key.gui.syntaxhighlighting;
 import java.io.*;
+
 import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.text.html.parser.ParserDelegator;
 
@@ -21,9 +22,11 @@ public class HtmlToText extends HTMLEditorKit.ParserCallback {
      * @param s
      */
     public void parse(String s){
-	input=s;	
+	input=s;
+	
 	replaceSymbol("^", "<sup>");
 	replaceSymbol("_", "<sub>");
+	
 	StringReader in = new StringReader(input);
 	buffer = new StringBuffer();
 	ParserDelegator delegator = new ParserDelegator();
@@ -45,7 +48,7 @@ public class HtmlToText extends HTMLEditorKit.ParserCallback {
      * Return plain text.
      */
     public String getText() {	
-	return replaceSpace(buffer.toString());
+	return replaceSpace(buffer.toString()).replaceAll("\\u2200_", "\\\\forall ").replaceAll("\\u2203_", "\\\\exists ");
     }
     /**
      * Restore keymaera superscript and subscript representation by adding the said symbol(pattern)
@@ -53,7 +56,6 @@ public class HtmlToText extends HTMLEditorKit.ParserCallback {
      * @param pattern
      */
     public void replaceSymbol(String s, String pattern){
-
 	if(input!=null){
 	    input = input.replaceAll(pattern, pattern+s);
 	}
