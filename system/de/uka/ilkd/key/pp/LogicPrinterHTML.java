@@ -67,8 +67,14 @@ public class LogicPrinterHTML extends LogicPrinter {
 	} catch (IOException e) {
 	    throw new RuntimeException("IO Exception in pretty printer:\n" + e);
 	}
-	return ((PosTableStringBackendHTML) backend).getString() + "\n";
+	if(backend instanceof PosTableStringBackendHTML) {
+		return ((PosTableStringBackendHTML) backend).getString() + "\n";
+	} else if(backend instanceof PosTableStringBackend) {
+		return ((PosTableStringBackend) backend).getString() + "\n";
+	} else {
+		throw new IllegalStateException("Unknown backend " + backend.getClass());
     }
+	}
 
     /**
      * returns the PositionTable representing position information on the
@@ -79,7 +85,13 @@ public class LogicPrinterHTML extends LogicPrinter {
 	if (pure) {
 	    return null;
 	}
-	return ((PosTableStringBackendHTML) backend).getPositionTable();
+	if(backend instanceof PosTableStringBackendHTML) {
+		return ((PosTableStringBackendHTML) backend).getPositionTable();
+	} else if(backend instanceof PosTableStringBackend) {
+		return ((PosTableStringBackend) backend).getPositionTable();
+	} else {
+		throw new IllegalStateException("Unknown backend " + backend.getClass());
+    }
     }
 
     protected Layouter mark(Object o) {
