@@ -48,7 +48,7 @@ public class HtmlToText extends HTMLEditorKit.ParserCallback {
      * Return plain text.
      */
     public String getText() {	
-	return replaceSpace(buffer.toString()).replaceAll("\\u2200_", "\\\\forall ").replaceAll("\\u2203_", "\\\\exists ");
+	return replaceSpace(buffer.toString()).replaceAll("\\u2200_", "\\\\forall ").replaceAll("\\u2203_", "\\\\exists ").replaceAll("\\u2227", "&").replaceAll("\\u2228", "|").replaceAll("\\u222A", "++").replaceAll("\\u00AC", "!");
     }
     /**
      * Restore keymaera superscript and subscript representation by adding the said symbol(pattern)

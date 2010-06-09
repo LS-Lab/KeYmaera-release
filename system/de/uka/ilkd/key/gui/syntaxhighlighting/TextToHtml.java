@@ -62,6 +62,9 @@ public class TextToHtml {
 		
 		String result = replaceQunatifiers(myStringBuffer.toString()); 
 
+		result = result.replaceAll("\\+\\+", "&cup;");
+		result = result.replaceAll("!", "&not;");
+
 		return addPre(result);
 	}
 	
@@ -104,7 +107,8 @@ public class TextToHtml {
 
 	public static String changeHtmlSpecialCharacters(String s) {
 
-		s = s.replace("&", "&amp;");
+		s = s.replace("&", "&and;");
+		s = s.replace("|", "&or;");
 		s = s.replace("<", "&lt;");
 		s = s.replace(">", "&gt;");
 		s = s.replace("\"", "&quot;");
