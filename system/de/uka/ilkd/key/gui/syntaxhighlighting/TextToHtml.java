@@ -108,7 +108,7 @@ public class TextToHtml {
 	public static String changeHtmlSpecialCharacters(String s) {
 
 		s = s.replace("&", "&and;");
-		s = s.replace("|", "&or;");
+		s = s.replaceAll(" \\| ", " &or; ");
 		s = s.replace("<", "&lt;");
 		s = s.replace(">", "&gt;");
 		s = s.replace("\"", "&quot;");
