@@ -55,8 +55,8 @@ public class TextToHtml {
 		myStringBuffer = new StringBuffer();
 
 		while (matcher.find()) {
-			matcher.appendReplacement(myStringBuffer, "<sub>"
-					+ matcher.group().substring(1) + "</sub>");
+			matcher.appendReplacement(myStringBuffer, "<sub><small>"
+					+ matcher.group().substring(1) + "</small></sub>");
 		}
 
 		myStringBuffer = matcher.appendTail(myStringBuffer);
@@ -74,9 +74,9 @@ public class TextToHtml {
 	}
 	
 	private static String replaceQunatifiers(String input) {
-		Pattern pattern = Pattern.compile("(\\\\forall) (\\w)+");
+		Pattern pattern = Pattern.compile("(\\\\forall) (\\w+) (.*);");
 		input = replaceAllWithPrefixedSub(input, pattern, "\u2200");
-		pattern = Pattern.compile("(\\\\exists) (\\w)+");
+		pattern = Pattern.compile("(\\\\exists) (\\w+) (.*);");
 		input = replaceAllWithPrefixedSub(input, pattern, "\u2203");
 		return input;
 	}
@@ -86,8 +86,8 @@ public class TextToHtml {
 		StringBuffer myStringBuffer = new StringBuffer();
 
 		while (matcher.find()) {
-			matcher.appendReplacement(myStringBuffer, prefix + "<sub>"
-					+ matcher.group(2) + "</sub>");
+			matcher.appendReplacement(myStringBuffer, prefix + "<sub><small>"
+					+ matcher.group(2) + "</small></sub> " + matcher.group(3) + "&bull;");
 		}
 		
 		myStringBuffer = matcher.appendTail(myStringBuffer);
