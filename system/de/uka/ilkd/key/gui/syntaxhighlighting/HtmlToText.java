@@ -26,6 +26,8 @@ public class HtmlToText extends HTMLEditorKit.ParserCallback {
 		replacements.put("\\u00AC", "!");
 		replacements.put("\\u2264", "<=");
 		replacements.put("\\u2265", ">=");
+		replacements.put("\\u22C5", "*");
+		replacements.put("\\u2212", "-");
 		
 	}
 

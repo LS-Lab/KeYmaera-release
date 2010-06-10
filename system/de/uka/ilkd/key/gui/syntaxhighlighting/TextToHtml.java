@@ -18,7 +18,8 @@ import java.util.regex.Pattern;
  * 
  */
 public class TextToHtml {
-	Object obj2Highlight;
+	private Object obj2Highlight;
+	private static final String temporaryReplacement = "%&t%e%m%p%r%e%p%l%a%c%e%m%e%n%t&%";
 
 	/**
 	 * @param inputString
@@ -64,6 +65,10 @@ public class TextToHtml {
 
 		result = result.replaceAll("\\+\\+", "&cup;");
 		result = result.replaceAll("!", "&not;");
+		result = result.replaceAll(":= \\*", temporaryReplacement);
+		result = result.replaceAll(" \\* ", " &sdot; ");
+		result = result.replaceAll(temporaryReplacement, ":= *");
+		result = result.replaceAll(" - ", " &minus; ");
 
 		return addPre(result);
 	}
