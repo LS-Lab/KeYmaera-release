@@ -5,6 +5,7 @@ package de.uka.ilkd.key.dl.arithmetics.impl.ch.cohenhormander;
 
 final object Parallel {
   // parallel map
+/*
   final def pmap[A,B](l: List[A], f: A => B): List[B] = {
     val buffer = new Array[B](l.length)
     val mappers =
@@ -34,7 +35,7 @@ final object Parallel {
     e.awaitTermination(Math.MAX_LONG, TimeUnit.SECONDS);
     buffer.toList
   }
-
+*/
 
 
 }

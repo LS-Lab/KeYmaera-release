@@ -61,12 +61,12 @@ public class CH2TermConverter {
 	}
 
 	
-	private static CHTerm[] list2Array(scala.List<CHTerm> lst) {
+	private static CHTerm[] 
+            list2Array(scala.collection.immutable.List<CHTerm> lst) {
 		int length = lst.length();
 		CHTerm[] res = new CHTerm[length];
 		for(int i = 0; i < length; i++){
-			res[i] = lst.head();
-			lst = lst.tail();
+                    res[i] = (CHTerm)(lst.apply(i));
 		}
 		return res;	
 	}

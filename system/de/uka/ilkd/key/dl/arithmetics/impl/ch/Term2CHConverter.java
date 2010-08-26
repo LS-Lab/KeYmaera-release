@@ -83,8 +83,8 @@ public class Term2CHConverter {
 	}
 
 	
-	private static scala.List<CHTerm> listOfArray(CHTerm[] args){
-		scala.List<CHTerm> result = de.uka.ilkd.key.dl.arithmetics.impl.ch.cohenhormander.AM.nil();
+	private static scala.collection.immutable.List<CHTerm> listOfArray(CHTerm[] args){
+		scala.collection.immutable.List<CHTerm> result = de.uka.ilkd.key.dl.arithmetics.impl.ch.cohenhormander.AM.nil();
 		for(int i = args.length-1; i >= 0; i--){
 			result = result.$colon$colon(args[i]);
 		}
@@ -92,7 +92,7 @@ public class Term2CHConverter {
 	}
 	
 		
-	private static scala.List<CHTerm> list(CHTerm... args){
+	private static scala.collection.immutable.List<CHTerm> list(CHTerm... args){
 		return listOfArray(args);	
 	}
 	
@@ -130,11 +130,11 @@ public class Term2CHConverter {
 					BigFraction frac = PolynomTool
 					.convertStringToFraction(numberAsString);
 					if (frac.getDenominator().equals(BigInteger.ONE)) {
-						return new Num(new Rational(new scala.BigInt(frac.getNumerator())));
+						return new Num(new Rational(new scala.math.BigInt(frac.getNumerator())));
 					} else {
 						return new Num(new Rational( 
-								new scala.BigInt( frac.getNumerator()),
-								new scala.BigInt( frac.getDenominator()))); 
+								new scala.math.BigInt( frac.getNumerator()),
+								new scala.math.BigInt( frac.getDenominator()))); 
 					}
 				} catch (NumberFormatException nfe) {
 					//System.out.println(form + " (a function) is of type " + form.getClass().toString());
