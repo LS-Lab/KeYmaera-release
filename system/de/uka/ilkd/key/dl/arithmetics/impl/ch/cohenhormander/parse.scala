@@ -31,7 +31,7 @@ object P {
   type Tokens = List[String];
 
   def explode(s: String): List[Char] = 
-    List.fromArray(s.toCharArray())
+    s.toCharArray().toList
 
   def matches(s: String): Char => Boolean = {
     (c: Char) => (s contains c)
@@ -76,7 +76,7 @@ object P {
 
 
 
-
+/*
   def parse_ginfix[A,B](opsym: Token, 
                         opupdate: ((A => B),A) => 
                                    (A => B),
@@ -232,8 +232,12 @@ object P {
 
   val parset = (inp: String) => make_parser(parse_term(Nil), inp);
 
+ */ 
   val comparators = List("=","<","<=",">",">=");
 
+
+
+/*
   def parse_infix_atom(vs: Tokens, inp: Tokens): (CHFormula, Tokens) = {
     val (tm,rest) = parse_term(vs)(inp);
     if(comparators.exists( x => nextin(rest,x)))
@@ -264,7 +268,7 @@ object P {
       parse_formula((parse_infix_atom,parse_atom),Nil,inp1), inp);
 
 
-
+*/
   def bracket[A,B]: Boolean => Int => 
     (A => B => Unit) => A => B => Unit = 
       p => n => f => x => y => {
@@ -272,6 +276,8 @@ object P {
         f(x)(y);
         if( p ) print(")") else ();
       }
+
+
 
   def strip_quant: CHFormula => (Tokens, CHFormula) = fm => fm match {
     case Forall(x,yp@Forall(y,p))=> 

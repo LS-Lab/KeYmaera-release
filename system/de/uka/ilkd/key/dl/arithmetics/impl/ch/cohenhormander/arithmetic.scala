@@ -255,7 +255,7 @@ final object AM {
   }
 
   def setify[A <% Ordered[A]](lst: List[A]) : List[A] = {
-    if(setifiedp(lst)) lst else lst.sort((x,y) => x < y).removeDuplicates
+    if(setifiedp(lst)) lst else lst.sortWith((x,y) => x < y).distinct
   }
 
   
@@ -972,7 +972,7 @@ final object AM {
     val s_1 = swap(swf,s);
     val s_0 = try { assoc(p_1,sgns) } catch { case e => s_1};
     if(s_1 == s_0 || (s_0 == Nonzero() && (s_1==Positive() || s_1==Negative())))
-      (p_1,s_1)::(sgns --  List((p_1,s_0)))
+      (p_1,s_1)::(sgns.filterNot(List((p_1,s_0)) contains))
     else throw new Error("assertsign 1")
     }
   }
@@ -1118,7 +1118,7 @@ final object AM {
                 List[(CHTerm,Sign)]  => CHFormula = sgns => pols match {
 //    case Nil => monicize(vars,dun,cont,sgns)
 //    case Nil => matrix(vars,dun,cont,sgns)
-    case Nil => val (mols,swaps) = List.unzip(dun.map(monic));
+    case Nil => val (mols,swaps) = dun.map(monic).unzip;
                 val sols = setify(mols);
                 val indices = mols.map(p => index(p, sols));
                 def transform(m: List[Sign]) : List[Sign] = {
@@ -1250,6 +1250,7 @@ final object AM {
 
   def test = poly_pow(List(), 
                       Fn("+",List(one, Fn("*",List(Var("x"), one)))),5);
+/*
   def test1 = polynate(List("x"), P.parset("1 + x"));
 
 
@@ -1269,7 +1270,7 @@ final object AM {
   def test_qelim_s(func: Int, s:String): Unit = {
     test_qelim(func, P.parse(s));
   }
-
+*/
   def main(args: Array[String]) {
 
     if(args.length != 2) {
@@ -1279,7 +1280,7 @@ final object AM {
 
    val inp = io.Source.fromFile(args(1)).getLines.reduceLeft(_+_);
 
-   test_qelim_s(Integer.parseInt(args(0)), inp  )
+/*   test_qelim_s(Integer.parseInt(args(0)), inp  ) */
   }
 
 
