@@ -28,6 +28,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
+import java.net.URL;
+import java.net.MalformedURLException;
+
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
@@ -2884,7 +2887,12 @@ public class Main extends JFrame implements IMain {
             statisticsFile = opt[index + 1];
             ++index;
         } else {
-		    printUsageAndExit ();
+	        try {
+		        URL isurl = new URL(opt[index]);
+		        fileNameOnStartUp=opt[index];
+           	} catch (MalformedURLException nourl) {
+  		        printUsageAndExit ();
+            }
 		}		
 	    }
 	    index++;
@@ -3509,7 +3517,30 @@ public class Main extends JFrame implements IMain {
             }
         }
         if (fileNameOnStartUp != null) {
-            loadProblem(new File(fileNameOnStartUp));
+	        File f = new File(fileNameOnStartUp);
+	        if (f.exists()) {
+                loadProblem(f);
+            } else {
+	            try {
+		            URL url = new URL(fileNameOnStartUp);
+					File tempFile = File.createTempFile(fileNameOnStartUp.substring(fileNameOnStartUp.lastIndexOf(File.separator) + 1, fileNameOnStartUp.lastIndexOf('.')), ".key");
+					tempFile.deleteOnExit();
+					InputStream resourceAsStream = url.openStream();
+					FileOutputStream fileOutputStream = new FileOutputStream(tempFile);
+					int i;
+					while ((i = resourceAsStream.read()) != -1) {
+						fileOutputStream.write((char) i);
+					}
+					resourceAsStream.close();
+					fileOutputStream.close();
+					System.out.println(tempFile.getCanonicalPath());
+		            loadProblem(tempFile);
+		        } catch (MalformedURLException nourl) {
+			       throw new IllegalStateException("Cannot locate file to load " + fileNameOnStartUp + " due to " + nourl);
+		        } catch (IOException ex) {
+			       throw new IllegalStateException("Cannot locate file to load " + fileNameOnStartUp + " due to " + ex);
+ 		        }
+            }
         }
     }
     
