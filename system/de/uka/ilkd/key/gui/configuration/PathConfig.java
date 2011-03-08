@@ -24,4 +24,10 @@ public interface PathConfig {
      */
     public static final String RECENT_FILES_STORAGE = 
         KEY_CONFIG_DIR + File.separator + "recentFiles.props";
+
+    /**
+     * In which file to store view properties.
+     */
+    public static final String VIEW_SETTINGS_STORAGE = 
+        KEY_CONFIG_DIR + File.separator + "keymaeraView.props";
 }

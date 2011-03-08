@@ -7,6 +7,7 @@ import java.awt.Font;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import de.uka.ilkd.key.gui.Main;
 /**
  * @author zacho
  *
@@ -61,7 +62,9 @@ public class TextToHtml {
 
 		myStringBuffer = matcher.appendTail(myStringBuffer);
 		
-		String result = replaceQunatifiers(myStringBuffer.toString()); 
+        String result = myStringBuffer.toString(); 
+        if (Main.isUnicodeView()) {
+			result = replaceQuantifiers(result); 
 
 		result = result.replaceAll("\\+\\+", "&cup;");
 		result = result.replaceAll("!", "&not;");
@@ -69,11 +72,12 @@ public class TextToHtml {
 		result = result.replaceAll(" \\* ", " &sdot; ");
 		result = result.replaceAll(temporaryReplacement, ":= *");
 		result = result.replaceAll(" - ", " &minus; ");
+	}
 
 		return addPre(result);
 	}
 	
-	private static String replaceQunatifiers(String input) {
+	private static String replaceQuantifiers(String input) {
 		Pattern pattern = Pattern.compile("(\\\\forall) (\\w+) (.*);");
 		input = replaceAllWithPrefixedSub(input, pattern, "\u2200");
 		pattern = Pattern.compile("(\\\\exists) (\\w+) (.*);");
@@ -112,14 +116,19 @@ public class TextToHtml {
 
 	public static String changeHtmlSpecialCharacters(String s) {
 
-		s = s.replace("&", "&and;");
-		s = s.replaceAll(" \\| ", " &or; ");
+        if (Main.isUnicodeView()) {
+			s = s.replace("&", "&and;");
+			s = s.replaceAll(" \\| ", " &or; ");
 		s = s.replaceAll("<=", "&le;");
 		s = s.replaceAll(">=", "&ge;");
+	    } else {
+			s = s.replace("&", "&amp;");
+		s = s.replaceAll("<=", "&lt;=");
+		s = s.replaceAll(">=", "&gt;=");
+	    }
 		s = s.replace("<", "&lt;");
 		s = s.replace(">", "&gt;");
 		s = s.replace("\"", "&quot;");
-		s = s.replace("<", "&lt;");
 		// s = s.replace(" ", "&nbsp;");
 		return s;
 

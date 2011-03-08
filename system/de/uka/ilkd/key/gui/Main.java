@@ -26,7 +26,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Vector;
+import java.util.Vector; 
+import java.util.Properties;
 
 import java.net.URL;
 import java.net.MalformedURLException;
@@ -154,7 +155,21 @@ public class Main extends JFrame implements IMain {
         // @xxx preliminary: better store along with other settings.
         PresentationFeatures.ENABLED = true;
     }
-    
+
+    // @xxx preliminary: better store along with other settings.
+    private static boolean unicodeView = false;
+static {
+	Properties p = new Properties();
+	try {
+    p.load(new FileInputStream(PathConfig.VIEW_SETTINGS_STORAGE));
+    unicodeView = Boolean.parseBoolean(p.getProperty("UnicodeView", "false"));	
+} catch (IOException ex) {}
+}
+
+    public static boolean isUnicodeView() {
+	    return unicodeView;
+    }
+
     /** the tab bar at the left */
     private JTabbedPane tabbedPane;
     
@@ -1385,10 +1400,24 @@ public class Main extends JFrame implements IMain {
 			isSelected();
 		    makePrettyView();
 		}});
+    
+	registerAtMenu(view, pretty);   
+	
+        JMenuItem unicode = new JCheckBoxMenuItem("Use unicode syntax");
+        unicode.setToolTipText("If ticked, unicode characters are used.");
+        unicode.setSelected(unicodeView);
+	unicode.addActionListener(new ActionListener() {
+		public void actionPerformed(ActionEvent e) {
+		    unicodeView=((JCheckBoxMenuItem)e.getSource()).isSelected();
+				Properties p = new Properties();
+				p.setProperty("UnicodeView", unicodeView +"");
+				try {
+			        p.store(new java.io.FileOutputStream(PathConfig.VIEW_SETTINGS_STORAGE), "KeYmaera View settings");
+			    } catch (IOException ex) {}
+		    makePrettyView();
+		}});
+		registerAtMenu(view, unicode);
 
-	
-	
-	registerAtMenu(view, pretty);
 	addSeparator(view);
 		
 	registerAtMenu(view, createFontSizeMenuEntry());
