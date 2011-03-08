@@ -24,6 +24,16 @@ options {
 	void setSchemaMode(boolean schemaMode) {
 		this.schemaMode = schemaMode;
 	}
+	
+	static String canonicalize(String annotationKey) {
+		if (annotationKey == null)
+  		    return null;
+		// support obsolete annotations by conversion
+		else if ("strengthen".equals(annotationKey))
+		    return "invariant";
+		else
+			return annotationKey;
+	}
 }
 
 /*@init {
@@ -37,13 +47,14 @@ stat returns [ DLProgram pe ] scope { ArrayList<Formula> params; } @init {$stat:
 ;
 
 annotation[ DLProgram pe ]: (ANNOTATION w = WORD 
-	{ 
-		if(!pe.getDLAnnotations().containsKey(w.toString())) { 
-			pe.setDLAnnotation(w.toString(), new ArrayList<Formula>()); 
+	{
+		String annotationKey = canonicalize(w.toString());
+		if(!pe.getDLAnnotations().containsKey(annotationKey)) { 
+			pe.setDLAnnotation(annotationKey, new ArrayList<Formula>()); 
 		} else { 
 			throw new RecognitionException(); /* todo add text filename and line */
 		} 
-	} (f = form[true] { pe.getDLAnnotation(w.toString()).add(f); })* )
+	} (f = form[true] { pe.getDLAnnotation(canonicalize(w.toString())).add(f); })* )
 ;
 
 astat returns [ DLProgram pe ] : 

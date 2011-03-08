@@ -601,7 +601,7 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 					PostDiffStrengthFeature.INSTANCE,
 					// recursively strengthening augmentation validity proofs
 					// seems useless
-					inftyConst(), ifZero(isAnnotated("strengthen"),
+					inftyConst(), ifZero(isAnnotated("invariant"),
 							longConst(-2000), ifZero(
 									ODESolvableFeature.INSTANCE, inftyConst(),
 									ifZero(DiffWeakenFeature.INSTANCE,
@@ -617,7 +617,7 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 					PostDiffStrengthFeature.INSTANCE,
 					// recursively strengthening augmentation validity proofs
 					// seems useless
-					inftyConst(), isAnnotated("strengthen")));
+					inftyConst(), isAnnotated("invariant")));
 		}
 	}
 
@@ -1190,11 +1190,11 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 			final TermBuffer augInst = new TermBuffer();
 			final RuleAppBuffer buffy = new RuleAppBuffer();
 			bindRuleSet(d, "invariant_strengthen", ifZero(
-					isAnnotated("strengthen"),
-					// /////instantiate("augment", annotationOf("strengthen",
+					isAnnotated("invariant"),
+					// /////instantiate("augment", annotationOf("invariant",
 					// true)),
 					storeRuleApp(buffy,
-							not(sum(augInst, new AnnotationList("strengthen",
+							not(sum(augInst, new AnnotationList("invariant",
 									false), add(buffy, instantiate("augment",
 									augInst),
 									not(not(new DiffInvariantPresentFeature(
@@ -1209,8 +1209,8 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 			final TermBuffer augInst = new TermBuffer();
 			final RuleAppBuffer buffy = new RuleAppBuffer();
 			bindRuleSet(d, "invariant_strengthen", ifZero(
-					isAnnotated("strengthen"), storeRuleApp(buffy, not(sum(
-							augInst, new AnnotationList("strengthen", false),
+					isAnnotated("invariant"), storeRuleApp(buffy, not(sum(
+							augInst, new AnnotationList("invariant", false),
 							add(buffy, instantiate("augment", augInst),
 									not(not(new DiffInvariantPresentFeature(
 											augInst))))))), inftyConst()));
