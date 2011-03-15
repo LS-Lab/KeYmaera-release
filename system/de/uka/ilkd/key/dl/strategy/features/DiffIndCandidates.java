@@ -71,8 +71,8 @@ import de.uka.ilkd.key.strategy.termgenerator.TermGenerator;
  * @author ap
  */
 public class DiffIndCandidates implements TermGenerator {
-    private static final boolean DEBUG_CANDIDATES = true;
-    private static final boolean DEBUG_GENERATOR = true;
+    private static final boolean DEBUG_CANDIDATES = false;
+    private static final boolean DEBUG_GENERATOR = false;
 
 
     public final static TermGenerator INSTANCE = new DiffIndCandidates();
