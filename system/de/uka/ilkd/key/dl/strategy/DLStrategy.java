@@ -514,8 +514,10 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 		// ifZero(ContainsInequalityFeature.INSTANCE,longConst(-4000)));
 
 		if (DLOptionBean.INSTANCE.getDiffSat() != DiffSat.BLIND) {
-			bindRuleSet(d, "diff_solve", ifZero(ODESolvableFeature.INSTANCE,
-					longConst(4000), inftyConst()));
+			bindRuleSet(d, "diff_solve", ifZero(or(isAnnotated("weaken"),or(isAnnotated("diffind"),or(isAnnotated("invariant"),isAnnotated("candidate")))),
+			longConst(14000),
+			ifZero(ODESolvableFeature.INSTANCE,
+					longConst(4000), inftyConst())));
 		}
 		if (DLOptionBean.INSTANCE.getCounterexampleTest().compareTo(
 				CounterexampleTest.TRANSITIONS) >= 0) {
