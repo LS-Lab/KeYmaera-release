@@ -123,8 +123,8 @@ public class Expr2TermConverter implements ExprConstants {
         }
     }
 
-    static Term convertImpl(Expr expr, NamespaceSet nss,
-            Map<Name, LogicVariable> quantifiedVariables)
+    static Term convertImpl(final Expr expr, final NamespaceSet nss,
+            final Map<Name, LogicVariable> quantifiedVariables)
             throws RemoteException, ComputationException {
         try {
             if (expr.toString().equalsIgnoreCase("$Aborted")
@@ -336,9 +336,9 @@ public class Expr2TermConverter implements ExprConstants {
                         result = TermBuilder.DF.imp(result, ex[i]);
                     }
                     return result;
-                } else if (expr.head().equals(TRUE)) {
+                } else if (expr.head().equals(ExprConstants.TRUE) || expr.equals(ExprConstants.TRUE)) {
                     return TermBuilder.DF.tt();
-                } else if (expr.head().equals(FALSE)) {
+                } else if (expr.head().equals(ExprConstants.FALSE) || expr.equals(ExprConstants.FALSE)) {
                     return TermBuilder.DF.ff();
                 } else if (expr.toString().equals("E")
                         || expr.head().toString().equals("E")) {
@@ -404,13 +404,18 @@ public class Expr2TermConverter implements ExprConstants {
                         } else {
                             var = nss.programVariables().lookup(name);
                             if (var == null) {
+	                            //@todo not sure why these checks would be necessary again
+			                    // if ("True".equals(expr.toString()))
+			                    //    return TermBuilder.DF.tt();
+			                    // else if ("False".equals(expr.toString()))
+			                    //    return TermBuilder.DF.ff();
                                 // var = new
                                 // de.uka.ilkd.key.logic.op.LocationVariable(
                                 // new ProgramElementName(name.toString()),
                                 // getSortR(nss));
                                 throw new UnableToConvertInputException(
                                         "ProgramVariable " + name
-                                                + " is not declared");
+                                                + " is not declared in expression '" + expr + "'");
                             }
                             return TermBuilder.DF
                                     .var((de.uka.ilkd.key.logic.op.ProgramVariable) var);

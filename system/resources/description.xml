@@ -4,6 +4,21 @@
 			<example>
 				<name>ETCS Train Control [simple]</name>
 				<path>/examples/hybrid/ETCS/safety/ETCS-simple.key</path>
+				<description>Essentials of the ETCS train control protocol.This example proves that a train never leaves its movement authority (MA=m) and, thus, cannot crash into other trains. Please note, that this is the simplest possible version of the safety requirement for the ETCS. The verification of the ETCS system itself requires a much more advanced model.
+  Proves equation (2.19)</description>
+				<img 
+					href="http://symbolaris.com/info/ETCS-MAProtocol-c.gif"/>
+				<requirements>
+					<some>
+						<quantifiereliminator>Mathematica</quantifiereliminator>
+						<quantifiereliminator>QepCad</quantifiereliminator>
+						<quantifiereliminator>Reduce</quantifiereliminator>
+					</some>
+				</requirements>
+			</example>
+			<example>
+				<name>ETCS Train Control [simple nondet]</name>
+				<path>/examples/hybrid/ETCS/safety/ETCS-essentials.key</path>
 				<description>Essentials of the ETCS train control protocol.This example proves that a train never leaves its movement authority (MA=m) and, thus, cannot crash into other trains. Please note, that this is the simplest possible version of the safety requirement for the ETCS. The verification of the ETCS system itself requires a much more advanced model.</description>
 				<img 
 					href="http://symbolaris.com/info/ETCS-MAProtocol-c.gif"/>
@@ -18,7 +33,8 @@
 			<example>
 				<name>ETCS Train Control [controllability]</name>
 				<path>/examples/hybrid/ETCS/paper/controllability-lemma.key</path>
-				<description>Proves safety of the ETCS train control protocol case study. This example proves that the train is always controllable safely by some control choice.
+				<description>Proves safety of the ETCS train control protocol case study. This example proves that the train is always controllable safely by some control choice. 
+Proves Proposition 7.1
 			</description>
 				<img 
 					href="http://symbolaris.com/info/ETCS-MAProtocol-c.gif"/>
@@ -33,6 +49,22 @@
 				<name>ETCS Train Control [safety]</name>
 				<path>/examples/hybrid/ETCS/paper/safety-lemma.key</path>
 				<description>Proves safety of the ETCS train control protocol case study. This example proves that a train never leaves its movement authority (MA=m) and, thus, cannot crash into other trains.
+Proves Proposition 7.5
+			</description>
+				<source href="http://symbolaris.com/info/ETCS.html"/>
+				<img 
+					href="http://symbolaris.com/info/ETCS-MAProtocol-c.gif"/>
+				<requirements>
+					<some>
+						<quantifiereliminator>Mathematica</quantifiereliminator>
+					</some>
+				</requirements>
+			</example>
+			<example>
+				<name>ETCS Train Control [simpler liveness]</name>
+				<path>/examples/hybrid/ETCS/liveness/ETCS-essentials-live-range.key</path>
+				<description>Proves safety of a slightly simplified ETCS train control protocol case study. This example proves that the train can move beyond every position on the track by just a single choice of movement authority.
+Proves Proposition 7.6
 			</description>
 				<source href="http://symbolaris.com/info/ETCS.html"/>
 				<img 
@@ -47,6 +79,7 @@
 				<name>ETCS Train Control [liveness]</name>
 				<path>/examples/hybrid/ETCS/paper/liveness-lemma.key</path>
 				<description>Proves safety of the ETCS train control protocol case study. This example proves that the train can move beyond every position on the track.
+Proves Proposition 7.6
 			</description>
 				<source href="http://symbolaris.com/info/ETCS.html"/>
 				<img 
@@ -61,6 +94,7 @@
 				<name>ETCS Train Control [reactivity]</name>
 				<path>/examples/hybrid/ETCS/paper/reactivity-lemma.key</path>
 				<description>Proves safety of the ETCS train control protocol case study. This example proves that the train can react to situation changes.
+Proves Proposition 7.4
 			</description>
 				<source href="http://symbolaris.com/info/ETCS.html"/>
 				<img 
@@ -75,6 +109,22 @@
 				<name>ETCS Train Disturbance [controllability]</name>
 				<path>/examples/hybrid/ETCS/paper/controllability-lemma-disturbed.key</path>
 				<description>Proves safety of the ETCS train control protocol case study despite disturbance in the physical dynamics. This example proves that the train is always controllable safely by some control choice, despite disturbance.
+Proves Proposition 7.7
+			</description>
+				<source href="http://symbolaris.com/info/ETCS.html"/>
+				<img 
+					href="http://symbolaris.com/info/ETCS-MAProtocol-c.gif"/>
+				<requirements>
+					<some>
+						<quantifiereliminator>Mathematica</quantifiereliminator>
+					</some>
+				</requirements>
+			</example>
+			<example>
+				<name>ETCS Train Disturbance [reactivity]</name>
+				<path>/examples/hybrid/ETCS/paper/reactivity-lemma-disturbed-simplified.key</path>
+				<description>Proves safety of the ETCS train control protocol case study despite disturbance in the physical dynamics. This example proves that the train can react to situation changes.
+Proves Proposition 7.8
 			</description>
 				<source href="http://symbolaris.com/info/ETCS.html"/>
 				<img 
@@ -89,6 +139,7 @@
 				<name>ETCS Train Disturbance [safety]</name>
 				<path>/examples/hybrid/ETCS/paper/safety-lemma-disturbed.key</path>
 				<description>Proves safety of the ETCS train control protocol case study despite disturbance in the physical dynamics. This example proves that a train never leaves its movement authority (MA=m) and, thus, cannot crash into other trains.
+Proves Proposition 7.9
 			</description>
 				<source href="http://symbolaris.com/info/ETCS.html"/>
 				<img 
@@ -104,7 +155,8 @@
 			<example>
 				<name>Aircraft Roundabout [simple]</name>
 				<path>/examples/hybrid/ATC/roundabout/TRM-essentials.key</path>
-				<description>Essentials of the tangential roundabout maneuver (TRM) for collision avoidance in air traffic control. This example proves that TRM always separates aircraft by at least the protected zone. Please note, that this is the simplest possible version of the safety requirement for the TRM. The verification of the TRM system itself requires a much more advanced model.</description>
+				<description>Essentials of the tangential roundabout maneuver (TRM) for collision avoidance in air traffic control. This example proves that TRM always separates aircraft by at least the protected zone. Please note, that this is the simplest possible version of the safety requirement for the TRM. The verification of the TRM system itself requires a much more advanced model.
+Proves Theorem 3.4</description>
 				<img 
 					href="http://symbolaris.com/info/fig-tangential-roundabout.png"/>
 				<requirements>
@@ -117,10 +169,169 @@
 			<example>
 				<name>Aircraft Roundabout 3 [simple]</name>
 				<path>/examples/hybrid/ATC/roundabout/TRM-essentials-3.key</path>
-				<description>Essentials of the tangential roundabout maneuver (TRM) for collision avoidance in air traffic control with 3 aircraft. This example proves that TRM always separates aircraft by at least the protected zone. Please note, that this is the simplest possible version of the safety requirement for the TRM. The verification of the TRM system itself requires a much more advanced model.</description>
+				<description>Essentials of the tangential roundabout maneuver (TRM) for collision avoidance in air traffic control with 3 aircraft. This example proves that TRM always separates aircraft by at least the protected zone. Please note, that this is the simplest possible version of the safety requirement for the TRM. The verification of the TRM system itself requires a much more advanced model.
+Proves Section 8.2.4</description>
 				<source href="http://symbolaris.com/info/RCAS.html"/>
 				<img 
 					href="http://symbolaris.com/info/fig-tangential-roundabout.png"/>
+				<requirements>
+					<some>
+						<quantifiereliminator>Mathematica</quantifiereliminator>
+					</some>
+				</requirements>
+			</example>
+			<example>
+				<name>Aircraft Roundabout 4 [simple]</name>
+				<path>/examples/hybrid/ATC/roundabout/TRM-essentials-4.key</path>
+				<description>Essentials of the tangential roundabout maneuver (TRM) for collision avoidance in air traffic control with 4 aircraft. This example proves that TRM always separates aircraft by at least the protected zone. Please note, that this is the simplest possible version of the safety requirement for the TRM. The verification of the TRM system itself requires a much more advanced model.
+Proves Figure 8.9</description>
+				<source href="http://symbolaris.com/info/RCAS.html"/>
+				<img 
+					href="http://symbolaris.com/info/fig-tangential-roundabout.png"/>
+				<requirements>
+					<some>
+						<quantifiereliminator>Mathematica</quantifiereliminator>
+					</some>
+				</requirements>
+			</example>
+			<example>
+				<name>Aircraft Bounded Speed Choice</name>
+				<path>/examples/hybrid/ATC/roundabout/bounded-speed-choice.key</path>
+				<description>Shows that the control parameters for the aircraft can be chosen such that resulting speed vectors are in a bounded range meeting external speed requirements of the aircraft.
+Proves equation (3.14)</description>
+				<source href="http://symbolaris.com/info/RCAS.html"/>
+				<requirements>
+					<some>
+						<quantifiereliminator>Mathematica</quantifiereliminator>
+					</some>
+				</requirements>
+			</example>
+			<example>
+				<name>Aircraft Bounded Maneuver Speed</name>
+				<path>/examples/hybrid/ATC/roundabout/angular-linear-speed.key</path>
+				<description>Shows that the speed v of the aircraft is maintained even when it changes its angular velocity om nondeterministically during the flight (free flight).
+Proves Example 3.16</description>
+				<source href="http://symbolaris.com/info/RCAS.html"/>
+				<requirements>
+					<some>
+						<quantifiereliminator>Mathematica</quantifiereliminator>
+					</some>
+				</requirements>
+			</example>
+			<example>
+				<name>Aircraft Flyable Roundabout Entry</name>
+				<path>/examples/hybrid/ATC/roundabout/FTRM-entry-tang-simplified.key</path>
+				<description>Shows that the safe tangential configuration is reached by a flyable curve.
+Proves equation (8.3)</description>
+				<source href="http://symbolaris.com/info/RCAS.html"/>
+				<requirements>
+					<some>
+						<quantifiereliminator>Mathematica</quantifiereliminator>
+					</some>
+				</requirements>
+			</example>
+			<example>
+				<name>Aircraft Flyable Entry Feasible</name>
+				<path>/examples/hybrid/ATC/roundabout/FTRM-entry-tang-feasible.key</path>
+				<description>Shows that the safe tangential configuration is feasible.
+Proves equation (8.4)</description>
+				<source href="http://symbolaris.com/info/RCAS.html"/>
+				<requirements>
+					<some>
+						<quantifiereliminator>Mathematica</quantifiereliminator>
+					</some>
+				</requirements>
+			</example>
+			<example>
+				<name>Aircraft Flyable Entry Circular</name>
+				<path>/examples/hybrid/ATC/roundabout/FTRM-entry-tang-circular.key</path>
+				<description>Shows that the flyable entry is circular.
+Proves equation (8.6)</description>
+				<source href="http://symbolaris.com/info/RCAS.html"/>
+				<requirements>
+					<some>
+						<quantifiereliminator>Mathematica</quantifiereliminator>
+					</some>
+				</requirements>
+			</example>
+			<example>
+				<name>Aircraft Limited Progress</name>
+				<path>/examples/hybrid/ATC/roundabout/limited-progress.key</path>
+				<description>Shows that, regardless of the angular velocities, the aircraft only make limited progress in bounded time when starting with bounded speeds.
+Proves equation (8.9)</description>
+				<source href="http://symbolaris.com/info/RCAS.html"/>
+				<requirements>
+					<some>
+						<quantifiereliminator>Mathematica</quantifiereliminator>
+					</some>
+				</requirements>
+			</example>
+			<example>
+				<name>Aircraft Negotiation Feasible</name>
+				<path>/examples/hybrid/ATC/roundabout/FTRM-agree.key</path>
+				<description>Shows that there always is a choice of center, radius, and common angular velocity which is feasible.
+Proves equation (8.17)</description>
+				<source href="http://symbolaris.com/info/RCAS.html"/>
+				<requirements>
+					<some>
+						<quantifiereliminator>Mathematica</quantifiereliminator>
+					</some>
+				</requirements>
+			</example>
+			<example>
+				<name>Aircraft Negotiation Success</name>
+				<path>/examples/hybrid/ATC/roundabout/FTRM-agree-success.key</path>
+				<description>Shows that the negotiation is successful.
+Proves equation (8.18)</description>
+				<source href="http://symbolaris.com/info/RCAS.html"/>
+				<requirements>
+					<some>
+						<quantifiereliminator>Mathematica</quantifiereliminator>
+					</some>
+				</requirements>
+			</example>
+			<example>
+				<name>Aircraft Mutual Negotiation Success</name>
+				<path>/examples/hybrid/ATC/roundabout/FTRM-agree-mutual2-all.key</path>
+				<description>Shows that the mutual negotiation is successful.
+Proves equation (8.19)</description>
+				<source href="http://symbolaris.com/info/RCAS.html"/>
+				<requirements>
+					<some>
+						<quantifiereliminator>Mathematica</quantifiereliminator>
+					</some>
+				</requirements>
+			</example>
+			<example>
+				<name>Aircraft Mutual Negotiation Feasible</name>
+				<path>/examples/hybrid/ATC/roundabout/FTRM-agree-mutual2-simplified.key</path>
+				<description>Shows that the mutual negotiation is feasible.
+Proves equation (8.21)</description>
+				<source href="http://symbolaris.com/info/RCAS.html"/>
+				<requirements>
+					<some>
+						<quantifiereliminator>Mathematica</quantifiereliminator>
+					</some>
+				</requirements>
+			</example>
+			<example>
+				<name>Aircraft Simultaneous Exit Separation</name>
+				<path>/examples/hybrid/ATC/roundabout/exit-simultaneous-indep-simplified.key</path>
+				<description>Shows that the aircraft stay safely separated during the exit maneuver.
+Proves equation (8.27)</description>
+				<source href="http://symbolaris.com/info/RCAS.html"/>
+				<requirements>
+					<some>
+						<quantifiereliminator>Mathematica</quantifiereliminator>
+					</some>
+				</requirements>
+			</example>
+			<example>
+				<name>Aircraft Different Exit Direction</name>
+				<path>/examples/hybrid/ATC/roundabout/exit-simultaneous-different-directions.key</path>
+				<description>Shows that the aircraft will exit in different directions during the exit maneuver.
+Proves equation (8.29)</description>
+				<source href="http://symbolaris.com/info/RCAS.html"/>
 				<requirements>
 					<some>
 						<quantifiereliminator>Mathematica</quantifiereliminator>
@@ -132,7 +343,8 @@
 			<example>
 				<name>Bouncing Ball [simple]</name>
 				<path>/examples/hybrid/bouncing-ball/bouncing-ball-simplest.key</path>
-				<description>A fully parametric version of the bouncing ball that jumps up and down but is bounced back from the ground. This version has a fixed bouncing constant c.</description>
+				<description>A fully parametric version of the bouncing ball that jumps up and down but is bounced back from the ground. This version has a fixed bouncing constant c.
+Proves Figure 2.20</description>
 				<img 
 		    href="http://symbolaris.com/info/fig-bouncing-ball.png"/>
 				<requirements>
@@ -188,7 +400,8 @@
 		<example>
 				<name>Water Tank</name>
 				<path>/examples/hybrid/publish/water_tank.key</path>
-				<description>Standard water tank model, which regulates water level y between 1 and 12 by filling or emptying the water tank. Changing valves has a delayed effect in this example.</description>
+				<description>Standard water tank model, which regulates water level y between 1 and 12 by filling or emptying the water tank. Changing valves has a delayed effect in this example.
+Proves Example C.1</description>
 				<img href="http://symbolaris.com/info/fig-water-tank.png"/>
 				<requirements>
 					<some>

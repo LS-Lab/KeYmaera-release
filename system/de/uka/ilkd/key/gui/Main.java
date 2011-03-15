@@ -158,13 +158,6 @@ public class Main extends JFrame implements IMain {
 
     // @xxx preliminary: better store along with other settings.
     private static boolean unicodeView = false;
-static {
-	Properties p = new Properties();
-	try {
-    p.load(new FileInputStream(PathConfig.VIEW_SETTINGS_STORAGE));
-    unicodeView = Boolean.parseBoolean(p.getProperty("UnicodeView", "false"));	
-} catch (IOException ex) {}
-}
 
     public static boolean isUnicodeView() {
 	    return unicodeView;
@@ -1405,6 +1398,26 @@ static {
 	
         JMenuItem unicode = new JCheckBoxMenuItem("Use unicode syntax");
         unicode.setToolTipText("If ticked, unicode characters are used.");
+		try {
+		    Font f = sequentView != null ? sequentView.getFont() : getFont();
+		    boolean unicodefont = f != null
+                && f.canDisplay('\u2200')
+                && f.canDisplay('\u2203')
+                && f.canDisplay('\u2227')
+                && f.canDisplay('\u2228')
+                && f.canDisplay('\u222A')
+                && f.canDisplay('\u00AC')
+                && f.canDisplay('\u2264')
+                && f.canDisplay('\u2265')
+                && f.canDisplay('\u22C5')
+                && f.canDisplay('\u2212')
+                && f.canDisplay('\u2022');   
+            System.out.println("Unicode font " + (unicodefont ? "supported" : "not supported"));
+            unicodeView = unicodefont;
+			Properties p = new Properties();
+		    p.load(new FileInputStream(PathConfig.VIEW_SETTINGS_STORAGE));
+		    unicodeView = Boolean.parseBoolean(p.getProperty("UnicodeView", unicodefont ? "true" : "false"));	
+		} catch (IOException ex) {}
         unicode.setSelected(unicodeView);
 	unicode.addActionListener(new ActionListener() {
 		public void actionPerformed(ActionEvent e) {

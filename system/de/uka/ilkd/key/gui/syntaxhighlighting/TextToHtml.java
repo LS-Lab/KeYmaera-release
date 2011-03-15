@@ -16,7 +16,7 @@ import de.uka.ilkd.key.gui.Main;
  * The TextToHtml class converts the input String into an Html readable code. It
  * makes sure the special characters & < ... are replace by their corresponding
  * Entities.
- * 
+ * @TODO Use Font.canDisplay(char) to check for unicode support
  */
 public class TextToHtml {
 	private Object obj2Highlight;
