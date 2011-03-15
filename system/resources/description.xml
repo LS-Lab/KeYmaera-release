@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <examples>
-	<group name="hybrid">
-		<group name="ETCS">
+		<group name="ETCS Trains">
 			<example>
 				<name>ETCS Train Control [simple]</name>
 				<path>/examples/hybrid/ETCS/safety/ETCS-simple.key</path>
@@ -101,7 +100,7 @@
 				</requirements>
 			</example>
 		</group>		
-		<group name="ATC">
+		<group name="Aircraft">
 			<example>
 				<name>Aircraft Roundabout [simple]</name>
 				<path>/examples/hybrid/ATC/roundabout/TRM-essentials.key</path>
@@ -129,15 +128,7 @@
 				</requirements>
 			</example>
 		</group>
-		<group name="harrison">
-		</group>
-		<group name="dynamical">
-		</group>
-		<group name="complicated_arithmetic">
-		</group>
-		<group name="complicated">
-		</group>
-		<group name="bouncing-ball">
+		<group name="Bouncing ball">
 			<example>
 				<name>Bouncing Ball [simple]</name>
 				<path>/examples/hybrid/bouncing-ball/bouncing-ball-simplest.key</path>
@@ -208,16 +199,5 @@
 					</some>
 				</requirements>
 			</example>
-	</group>
-	<group name="z3">
-	</group>
-	<group name="weispfennig">
-	</group>
-	<group name="semi_definite_polynomials">
-	</group>
-	<group name="realTacletPOs">
-	</group>
-	<group name="aligator">
-	</group>
 	<example></example>
 </examples>

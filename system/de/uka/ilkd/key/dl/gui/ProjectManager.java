@@ -123,7 +123,7 @@ public class ProjectManager extends JFrame {
 		this.name = name;
 		this.isEmtpy = isEmpty;
 		this.url = "";
-		this.description = "There is no example availble.";
+		this.description = "There is no example available.";
 		this.img = "";
 		this.requirements = new LinkedHashSet<String>();
 
