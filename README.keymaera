@@ -19,22 +19,18 @@ Requirements
 
 - orbital-core.jar
 - orbital-ext.jar
-- ANTLR 3
+- ANTLR 3.3
 - ANTLR 2.77 (you really seem to need multiple versions of ANTLR simultaneously)
 - JLink from Mathematica
 - scala 2.8+ from http://www.scala-lang.org/
 
 Required key-ext-jars libraries
 -------------------------------
-The directory key-ext-jars/ needs the following content (also see README for KeY)
+The directory key-ext-jars/ needs the following content (also see other README* files for KeY)
 
 key-ext-jars/JLink -> /Applications/Mathematica.app/SystemFiles/Links/JLink/
 key-ext-jars/antlr-2.7.2.jar
-key-ext-jars/antlr-3.1.3.jar
-key-ext-jars/antlr.jar -> antlr-3.1.3.jar
-key-ext-jars/antlr3.jar -> antlr-3.1.3.jar
-key-ext-jars/dresden-ocl-demo.jar ?
-key-ext-jars/jargs.jar
+key-ext-jars/antlr.jar   (version 3.1.3 or 3.3+)
 key-ext-jars/javacc.jar (version 4+)
 key-ext-jars/junit.jar (version 4.4+)
 key-ext-jars/log4j.jar
@@ -42,12 +38,8 @@ key-ext-jars/orbital-core.jar from http://symbolaris.com/orbital/
 key-ext-jars/orbital-ext.jar from http://symbolaris.com/orbital/
 key-ext-jars/recoderKey.jar
 key-ext-jars/scala-library.jar from http://www.scala-lang.org/
-key-ext-jars/stringtemplate.jar from antlr
-key-ext-jars/xerces.jar
 
 In the above list "->" indicates a symlink. Paths may need to be adjusted depending on your operating system and platform.
-
-NOTE that it is not clear if all of the above files are strictly required in key-ext-jars but when you experience problems compiling or running KeYmaera, you should make sure you have them all, including the different versions of antlr.
 
 NOTE that it is good practice when interacting with multiple branches on git to have a directory ../key-ext-jars with all the libraries and then use the following command
 

@@ -4,12 +4,20 @@ if [ -z "$KEY_LIB" ] ; then
    KEY_LIB="../key-ext-jars"
 fi
 
-key_ext_jars="antlr.jar antlr3.jar stringtemplate.jar recoderKey.jar log4j.jar JLink/JLink.jar orbital-ext.jar scala-library.jar"
+key_ext_jars="antlr.jar recoderKey.jar log4j.jar JLink/JLink.jar orbital-ext.jar scala-library.jar"
 
-key_dev_jars="javacc.jar junit.jar junit-4.4.jar"
+key_dev_jars="javacc.jar junit.jar"
 
 
 CLASSPATH=./binary/
+
+if [ ! -f "$KEY_LIB/antlr-2.7.2.jar" ]
+then
+   echo "Cannot find $KEY_LIB/antlr-2.7.2.jar"
+   echo Copy or link the file into the
+   echo "$KEY_LIB/ directory."
+   exit 1
+fi
 
 for i in $key_ext_jars $key_dev_jars; do
     current_jar="$KEY_LIB/$i"
