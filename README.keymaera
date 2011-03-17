@@ -46,6 +46,12 @@ NOTE that it is good practice when interacting with multiple branches on git to 
 > cd keymaera
 > ln -s ../key-ext-jars .
 
+Compilation
+-----------
+> cd keymaera
+> make -C system/ realclean all
+
+
 Startup
 -------
 

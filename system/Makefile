@@ -81,8 +81,6 @@ JAVAC:=javac
 endif
 endif
 
-ANTLR_2_7_2=../key-ext-jars/antlr-2.7.2.jar
-
 ifeq "$(ANTLR)" ""
 ANTLR=$(JAVA) -cp $(GENERATED_SRC_PATH):$(ANTLR_2_7_2):$(CLASSPATH) antlr.Tool
 endif

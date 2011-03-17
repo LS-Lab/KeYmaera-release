@@ -4,7 +4,7 @@ if [ -z "$KEY_LIB" ] ; then
    KEY_LIB="../key-ext-jars"
 fi
 
-key_ext_jars="antlr.jar recoderKey.jar log4j.jar JLink/JLink.jar orbital-ext.jar scala-library.jar"
+key_ext_jars="antlr.jar log4j.jar JLink/JLink.jar orbital-core.jar orbital-ext.jar scala-library.jar recoderKey.jar"
 
 key_dev_jars="javacc.jar junit.jar"
 
@@ -17,6 +17,8 @@ then
    echo Copy or link the file into the
    echo "$KEY_LIB/ directory."
    exit 1
+else
+   ANTLR_2_7_2="$KEY_LIB/antlr-2.7.2.jar"
 fi
 
 for i in $key_ext_jars $key_dev_jars; do
@@ -34,3 +36,5 @@ done
 
 export CLASSPATH
 echo "CLASSPATH=$CLASSPATH" > Makefile.mk
+export ANTLR_2_7_2
+echo "ANTLR_2_7_2=$ANTLR_2_7_2" >> Makefile.mk
