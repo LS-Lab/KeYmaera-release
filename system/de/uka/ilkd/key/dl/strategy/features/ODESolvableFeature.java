@@ -68,7 +68,7 @@ public class ODESolvableFeature implements Feature {
 	private static final List<String> transcendentalList = Arrays
 			.asList(new String[] {
 			// @todo check non-constant Exp
-					"Cos", "Sin", "Tan", "Cot" });
+					"Cos", "Sin", "Tan", "Cot", "ArcCos", "ArcSin", "ArcTan", "ArcCot", "Log", "Cosh", "Sinh", "Tanh", "ArcCosh", "ArcSinh", "ArchTanh"});
 	private static final List<String> algebraicList = Arrays
 			.asList(new String[] {
 			// @todo check non-constant Exp
@@ -114,7 +114,7 @@ public class ODESolvableFeature implements Feature {
 		}
 		final Services services = goal.proof().getServices();
 		try {
-			Term result = ODESolve.ODE_SOLVE.odeSolve(term, services);
+			Term result = ODESolve.ODE_SOLVE.odeSolve(term, true, services);
 
 			final boolean[] algebraic = { true };
 			result.execPreOrder(new Visitor() {

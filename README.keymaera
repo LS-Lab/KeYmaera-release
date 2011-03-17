@@ -20,7 +20,7 @@ Requirements
 - orbital-core.jar
 - orbital-ext.jar
 - ANTLR 3.3
-- ANTLR 2.77 (you really seem to need multiple versions of ANTLR simultaneously)
+- ANTLR 2.7.2 (you really seem to need multiple versions of ANTLR simultaneously for KeY and KeYmaera)
 - JLink from Mathematica
 - scala 2.8+ from http://www.scala-lang.org/
 

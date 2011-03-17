@@ -59,9 +59,17 @@ public interface IODESolver extends IMathSolver {
 
         private Term postCondition;
 
+        private String multiple;
+
         public ODESolverResult(Term invariant, Term post) {
             this.invariantExpression = invariant;
             this.postCondition = post;
+        }
+
+        public ODESolverResult(Term invariant, Term post, String multiple) {
+            this.invariantExpression = invariant;
+            this.postCondition = post;
+            this.multiple = multiple;
         }
 
         /**
@@ -93,6 +101,10 @@ public interface IODESolver extends IMathSolver {
         public void setPostCondition(Term postCondition) {
             this.postCondition = postCondition;
         }
+
+        public String getMultiple() {
+	        return multiple;
+        }
     }
 
     /**
@@ -106,6 +118,7 @@ public interface IODESolver extends IMathSolver {
      * @param phi
      *                the formula to be updated by the solutions of the
      *                differential equations
+     * @param rejectmultiple reject solution if the solution is not unique.
      * @param nss
      *                the current namespace sets
      * @return a Term containing an update for the solutions of the differential

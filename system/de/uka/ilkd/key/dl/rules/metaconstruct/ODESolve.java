@@ -41,6 +41,12 @@ import de.uka.ilkd.key.logic.op.TermSymbol;
 import de.uka.ilkd.key.logic.sort.Sort;
 import de.uka.ilkd.key.rule.inst.SVInstantiations;
 
+import de.uka.ilkd.key.dl.arithmetics.exceptions.UnsolveableException;
+
+import de.uka.ilkd.key.gui.Main;
+import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
+
 /**
  * @author jdq
  * 
@@ -82,6 +88,10 @@ public class ODESolve extends AbstractDLMetaOperator {
     }
 
     public Term odeSolve(Term term, Services services) throws RemoteException, SolverException {
+	    return odeSolve(term, false, services);
+    }
+
+    public Term odeSolve(Term term, boolean rejectmultiple, Services services) throws RemoteException, SolverException {
         DiffSystem system = (DiffSystem) ((StatementBlock) term
                 .javaBlock().program()).getChildAt(0);
         LogicVariable t = null;
@@ -119,9 +129,24 @@ public class ODESolve extends AbstractDLMetaOperator {
             }
         } else {
         	if(MathSolverManager.isODESolverSet()) {
-                ODESolverResult odeResult = MathSolverManager
+                final ODESolverResult odeResult = MathSolverManager
                         .getCurrentODESolver().odeSolve(system, t, ts, post,
                                 services);
+                if (odeResult.getMultiple() != null) {
+	                if (rejectmultiple) {
+		                throw new UnsolveableException("Multiple solutions found " + odeResult.getMultiple());
+	} else {
+					SwingUtilities.invokeLater(new Runnable() {
+						public void run() {
+
+							JOptionPane.showMessageDialog(Main.getInstance(), odeResult.getMultiple()
+									+ "\n First solution is to be used.");
+
+						}
+
+					});
+                }
+                }
 
                 if (term.op() == Modality.BOX
                         || term.op() == Modality.TOUT) {

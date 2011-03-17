@@ -254,6 +254,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 			values.add(u.value);
 		}
 
+		String multiple = null;
 		if (!varNames.isEmpty()) {
 			StringBuilder builder = new StringBuilder();
 			builder
@@ -283,16 +284,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 				builder.append("\n" + multipleSolutions.get(v)
 						+ " solutions for " + v);
 			}
-			final String msg = builder.toString();
-			SwingUtilities.invokeLater(new Runnable() {
-				public void run() {
-
-					JOptionPane.showMessageDialog(Main.getInstance(), msg
-							+ "\n First solution is to be used.");
-
-				}
-
-			});
+			multiple = builder.toString();
 		}
 
 		invariant = TermBuilder.DF.tf().createSubstitutionTerm(
@@ -310,7 +302,13 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 				services.getNamespaces());
 		invariant = TermBuilder.DF.imp(tsRange, invariant);
 		invariant = TermBuilder.DF.all(ts, invariant);
-		return new ODESolverResult(invariant,
+		return multiple != null ? 
+  		    new ODESolverResult(invariant,
+				de.uka.ilkd.key.logic.TermFactory.DEFAULT.createUpdateTerm(
+						locations.toArray(new Term[0]), values
+								.toArray(new Term[0]), phi), multiple)
+			:
+  		    new ODESolverResult(invariant,
 				de.uka.ilkd.key.logic.TermFactory.DEFAULT.createUpdateTerm(
 						locations.toArray(new Term[0]), values
 								.toArray(new Term[0]), phi));
