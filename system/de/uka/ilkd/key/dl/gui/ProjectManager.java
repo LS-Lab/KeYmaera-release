@@ -47,6 +47,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextPane;
+import javax.swing.JTextField;
 import javax.swing.JTree;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
@@ -101,6 +102,7 @@ public class ProjectManager extends JFrame {
 		private String url;
 		private String description;
 		private Set<String> requirements;
+		private String source;
 		private String img;
 		private boolean isEmtpy = false;
 
@@ -110,12 +112,13 @@ public class ProjectManager extends JFrame {
 		 * @param img 
 		 */
 		public ExampleInfo(String name, String url, String description,
-				String img, Set<String> requirements) {
+				String img, Set<String> requirements, String source) {
 			super();
 			this.name = name;
 			this.url = url;
 			this.description = description;
 			this.img = img;
+			this.source = source;
 			this.requirements = requirements;
 		}
 		public ExampleInfo(Boolean isEmpty, String name) {
@@ -125,6 +128,7 @@ public class ProjectManager extends JFrame {
 		this.url = "";
 		this.description = "There is no example available.";
 		this.img = "";
+		this.source = "";
 		this.requirements = new LinkedHashSet<String>();
 
 		}
@@ -150,6 +154,10 @@ public class ProjectManager extends JFrame {
 			return description;
 		}
 
+		public String getSource() {
+			return source;
+		}
+		
 		public Set<String> getRequirements() {
 			return requirements;
 		}
@@ -194,6 +202,8 @@ public class ProjectManager extends JFrame {
 	private JTextArea requirementsArea;
 
 	private JTextPane img;
+
+    private JTextPane source;
 
 	/**
 	 * 
@@ -266,6 +276,11 @@ public class ProjectManager extends JFrame {
 		fileName.setColumns(50);
 		fileName.setEditable(false);
 
+		source = new JTextPane();
+		source.setContentType("text/html");
+		source.setEditable(false);
+		source.setAutoscrolls(false);
+
 		img = new JTextPane();
 		img.setContentType("text/html");
 		img.setAutoscrolls(true);
@@ -306,6 +321,9 @@ public class ProjectManager extends JFrame {
         dummy.add(Box.createVerticalStrut(5), v);
 		dummy.add(new JLabel("Requirements: "), l);
 		dummy.add(requirementsArea, r);
+        dummy.add(Box.createVerticalStrut(5), v);
+		dummy.add(new JLabel("Source: "), l);
+		dummy.add(source, r);
         
 		textPanel.add(dummy, BorderLayout.NORTH);
 		buttonTextPanel.add(textPanel, BorderLayout.CENTER);
@@ -328,6 +346,12 @@ public class ProjectManager extends JFrame {
         					} else {
         						img.setText("<html><body><img src=\"" + info.getImg() + "\"/></body></html>");
         					}
+							if (info.getSource().trim().equals("")) {
+							    source.setText("");
+							} else {
+							    // source.setText("<html><body><a href=\"" + info.getSource().trim() + "\">" + info.getSource().trim() + "</a></body></html>");
+							    source.setText("<html><body>" + info.getSource().trim() + "</body></html>");
+							}
         					String or = "";
         					if (info.requirements.isEmpty()) {
         					        requirementsArea.setText("No special requirements");
@@ -350,9 +374,9 @@ public class ProjectManager extends JFrame {
         						}
         						requirementsArea.append(" as real arithmetic solver");
         					}
-        					if(info.isEmpty())
-						    button.setEnabled(false);
-        				
+        					if(info.isEmpty()) {
+						        button.setEnabled(false);
+						    }
 					}
 					else{ //XXX
 					    button.setEnabled(false);
@@ -460,9 +484,14 @@ public class ProjectManager extends JFrame {
 	    	if(img != null) {
 	    	    im = img.getAttributes().getNamedItem("href").getNodeValue();
 	    	}
+	    	Node src = (Node) xpath.evaluate("source", node, XPathConstants.NODE);
+	    	String sr = "";
+	    	if(src != null) {
+	    	    sr = src.getAttributes().getNamedItem("href").getNodeValue();
+	    	}
 	
 	    	tNode= new DefaultMutableTreeNode(
-	    			new ExampleInfo(name, path, description, im, requirements));
+	    			new ExampleInfo(name, path, description, im, requirements, sr));
 
 	    	return tNode;   
 	}

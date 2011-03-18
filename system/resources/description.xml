@@ -343,6 +343,7 @@ Proves equation (8.27)</description>
 				<description>Shows that the aircraft will exit in different directions during the exit maneuver.
 Proves equation (8.29)</description>
 				<source href="http://symbolaris.com/info/RCAS.html"/>
+				<img href="http://symbolaris.com/info/fig-flyable-tangential-roundabout.png"/>
 				<requirements>
 					<some>
 						<quantifiereliminator>Mathematica</quantifiereliminator>
