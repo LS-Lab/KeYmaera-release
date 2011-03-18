@@ -379,6 +379,17 @@ Proves Figure 2.20</description>
 					</some>
 				</requirements>
 			</example>
+			<example>
+				<name>Bouncing Ball [aerodynamic]</name>
+				<path>/examples/hybrid/publish/bouncing-ball-aero2.key</path>
+				<description>A fully parametric version of the aerodynamic bouncing ball that jumps up and down but is bounced back from the ground. This version follows aerodynamic principles of wind resistance.</description>
+				<img href="http://symbolaris.com/info/fig-bouncing-ball.png"/>
+				<requirements>
+					<some>
+						<quantifiereliminator>Mathematica</quantifiereliminator>
+					</some>
+				</requirements>
+			</example>
 		</group>
 		<example>
 			<name>Simple Acceleration</name>
