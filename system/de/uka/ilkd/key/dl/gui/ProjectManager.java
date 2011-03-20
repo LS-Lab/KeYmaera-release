@@ -42,6 +42,7 @@ import javax.swing.AbstractAction;
 import javax.swing.Box;
 import java.awt.event.KeyEvent;
 import java.awt.Toolkit;
+import java.awt.Dimension;
 import javax.swing.JComponent;
 import javax.swing.KeyStroke;
 import javax.swing.JButton;
@@ -94,7 +95,7 @@ public class ProjectManager extends JFrame {
 			putValue(NAME, "Load Project...");
             putValue(SHORT_DESCRIPTION, "Load a problem from the project library.");
             putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_O, 
-        	    Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()|java.awt.event.InputEvent.SHIFT_DOWN_MASK));
+        	    Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()|java.awt.event.InputEvent.ALT_DOWN_MASK));
 		}
 
 		public void actionPerformed(ActionEvent e) {
@@ -274,12 +275,15 @@ public class ProjectManager extends JFrame {
 		JPanel buttonTextPanel = new JPanel(new BorderLayout());
 		JPanel textPanel = new JPanel(new BorderLayout());
 		JPanel imgPanel = new JPanel(new BorderLayout());
+		HyperlinkListener hyperlinkListener = getHyperlinkListener();
+
 		textArea = new JTextArea();
 		textArea.setLineWrap(true);
 		textArea.setAutoscrolls(true);
 		textArea.setColumns(50);
 		textArea.setEditable(false);
 		textArea.setWrapStyleWord(true);
+		//textArea.addHyperlinkListener(hyperlinkListener);
 		imgPanel.add(textArea, BorderLayout.CENTER);
 
 		requirementsArea = new JTextArea();
@@ -295,7 +299,6 @@ public class ProjectManager extends JFrame {
 		fileName.setColumns(50);
 		fileName.setEditable(false);
 
-		HyperlinkListener hyperlinkListener = getHyperlinkListener();
 		source = new JTextPane();
 		source.setContentType("text/html");
 		source.setEditable(false);
@@ -307,7 +310,6 @@ public class ProjectManager extends JFrame {
 		img.setAutoscrolls(true);
 		img.setEditable(false);
 		imgPanel.add(img, BorderLayout.EAST);
-		img.addHyperlinkListener(hyperlinkListener);
 //		textPanel.add(new JLabel("Description: "), BorderLayout.NORTH);
 //		textPanel.add(imgPanel, BorderLayout.CENTER);
 		
@@ -428,15 +430,19 @@ public class ProjectManager extends JFrame {
     
     private static HyperlinkListener getHyperlinkListener() {
 	    final JFrame browser = new JFrame();
+	browser.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+	browser.setPreferredSize(new Dimension(600,400));
+	browser.setBackground(java.awt.Color.WHITE);
 		final JTextPane htmlPane = new JTextPane();
 		htmlPane.setEditable(false);
-		browser.getContentPane().add(new JScrollPane(htmlPane), BorderLayout.CENTER);	    
+		browser.getContentPane().add(new JScrollPane(htmlPane), BorderLayout.CENTER);
+		browser.pack();	    
 	    HyperlinkListener listener = new HyperlinkListener() {
 		 public void hyperlinkUpdate(HyperlinkEvent event) {
 		    if (event.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
 		      try {
-			    browser.setVisible(true);
 		        htmlPane.setPage(event.getURL());
+			    browser.setVisible(true);
 		      } catch(IOException ex) {
 		        System.out.println("Cannot open link " 
 		                 + event.getURL().toExternalForm() + ": " + ex);
