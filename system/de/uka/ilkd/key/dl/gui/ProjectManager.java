@@ -36,9 +36,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.net.URISyntaxException;
 
 import javax.swing.AbstractAction;
 import javax.swing.Box;
+import java.awt.event.KeyEvent;
+import java.awt.Toolkit;
+import javax.swing.JComponent;
+import javax.swing.KeyStroke;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -48,6 +53,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextPane;
 import javax.swing.JTextField;
+import javax.swing.JScrollPane;
 import javax.swing.JTree;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
@@ -55,7 +61,10 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
+import javax.xml.xpath.XPathFactory;  
+
+import javax.swing.event.HyperlinkEvent;
+import javax.swing.event.HyperlinkListener;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -83,6 +92,9 @@ public class ProjectManager extends JFrame {
 		 */
 		public ProjectManagerAction() {
 			putValue(NAME, "Load Project...");
+            putValue(SHORT_DESCRIPTION, "Load a problem from the project library.");
+            putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_O, 
+        	    Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()|java.awt.event.InputEvent.SHIFT_DOWN_MASK));
 		}
 
 		public void actionPerformed(ActionEvent e) {
@@ -225,6 +237,13 @@ public class ProjectManager extends JFrame {
 		add(treeView, BorderLayout.WEST);
 		final JButton button = new JButton("Load");
 		button.setEnabled(false);
+		getRootPane().setDefaultButton(button);
+    	getRootPane().registerKeyboardAction(new ActionListener() {
+    	    public void actionPerformed(ActionEvent e) {
+				setVisible(false);
+				dispose();
+    	    }
+    	}, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
 		final boolean[] requirementsMet = new boolean[1]; 
 		requirementsMet[0] = true;
 		button.addActionListener(new ActionListener() {
@@ -276,16 +295,19 @@ public class ProjectManager extends JFrame {
 		fileName.setColumns(50);
 		fileName.setEditable(false);
 
+		HyperlinkListener hyperlinkListener = getHyperlinkListener();
 		source = new JTextPane();
 		source.setContentType("text/html");
 		source.setEditable(false);
 		source.setAutoscrolls(false);
-
+		source.addHyperlinkListener(hyperlinkListener);
+		
 		img = new JTextPane();
 		img.setContentType("text/html");
 		img.setAutoscrolls(true);
 		img.setEditable(false);
 		imgPanel.add(img, BorderLayout.EAST);
+		img.addHyperlinkListener(hyperlinkListener);
 //		textPanel.add(new JLabel("Description: "), BorderLayout.NORTH);
 //		textPanel.add(imgPanel, BorderLayout.CENTER);
 		
@@ -349,8 +371,8 @@ public class ProjectManager extends JFrame {
 							if (info.getSource().trim().equals("")) {
 							    source.setText("");
 							} else {
-							    // source.setText("<html><body><a href=\"" + info.getSource().trim() + "\">" + info.getSource().trim() + "</a></body></html>");
-							    source.setText("<html><body>" + info.getSource().trim() + "</body></html>");
+							    source.setText("<html><body><a href=\"" + info.getSource().trim() + "\">" + info.getSource().trim() + "</a></body></html>");
+							    // source.setText("<html><body>" + info.getSource().trim() + "</body></html>");
 							}
         					String or = "";
         					if (info.requirements.isEmpty()) {
@@ -403,6 +425,51 @@ public class ProjectManager extends JFrame {
 		add(buttonTextPanel, BorderLayout.CENTER);
 		pack();
 	}
+    
+    private static HyperlinkListener getHyperlinkListener() {
+	    final JFrame browser = new JFrame();
+		final JTextPane htmlPane = new JTextPane();
+		htmlPane.setEditable(false);
+		browser.getContentPane().add(new JScrollPane(htmlPane), BorderLayout.CENTER);	    
+	    HyperlinkListener listener = new HyperlinkListener() {
+		 public void hyperlinkUpdate(HyperlinkEvent event) {
+		    if (event.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
+		      try {
+			    browser.setVisible(true);
+		        htmlPane.setPage(event.getURL());
+		      } catch(IOException ex) {
+		        System.out.println("Cannot open link " 
+		                 + event.getURL().toExternalForm() + ": " + ex);
+		      }
+		    }
+		  }
+		};
+		htmlPane.addHyperlinkListener(listener);
+		try {
+		    Class.forName("java.awt.Desktop");
+		    if (!java.awt.Desktop.isDesktopSupported())
+		        return listener;
+		    final java.awt.Desktop desktop = java.awt.Desktop.getDesktop();
+		    if (!desktop.isSupported(java.awt.Desktop.Action.BROWSE))
+		        return listener;
+			return new HyperlinkListener() {
+		 public void hyperlinkUpdate(HyperlinkEvent event) {
+		    if (event.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
+		      try {
+		        desktop.browse(event.getURL().toURI());
+		      } catch(URISyntaxException ex) {
+		        System.out.println("Cannot open link " 
+		                 + event.getURL().toExternalForm() + ": " + ex);
+		      } catch(IOException ex) {
+		        System.out.println("Cannot open link " 
+		                 + event.getURL().toExternalForm() + ": " + ex);
+		      }
+		    }
+		  }};
+		} catch (ClassNotFoundException beforeJava6) {
+			return listener;
+		}
+    }
 
 	/**
 	 * @param top

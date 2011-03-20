@@ -62,11 +62,12 @@ Proves Proposition 7.5
 					</some>
 				</requirements>
 			</example>
+    		<group name="ETCS Train [advanced]">
 			<example>
 				<name>ETCS Train Control [simpler liveness]</name>
 				<path>/examples/hybrid/ETCS/liveness/ETCS-essentials-live-range.key</path>
 				<description>Proves safety of a slightly simplified ETCS train control protocol case study. This example proves that the train can move beyond every position on the track by just a single choice of movement authority.
-Proves Proposition 7.6
+Proves Proposition 7.6 (see book for how to prove)
 			</description>
 				<source href="http://symbolaris.com/info/ETCS.html"/>
 				<img 
@@ -81,7 +82,7 @@ Proves Proposition 7.6
 				<name>ETCS Train Control [liveness]</name>
 				<path>/examples/hybrid/ETCS/paper/liveness-lemma.key</path>
 				<description>Proves safety of the ETCS train control protocol case study. This example proves that the train can move beyond every position on the track.
-Proves Proposition 7.6
+Proves Proposition 7.6 (see book for how to prove)
 			</description>
 				<source href="http://symbolaris.com/info/ETCS.html"/>
 				<img 
@@ -96,7 +97,7 @@ Proves Proposition 7.6
 				<name>ETCS Train Control [reactivity]</name>
 				<path>/examples/hybrid/ETCS/paper/reactivity-lemma.key</path>
 				<description>Proves safety of the ETCS train control protocol case study. This example proves that the train can react to situation changes.
-Proves Proposition 7.4
+Proves Proposition 7.4 (see book for how to prove)
 			</description>
 				<source href="http://symbolaris.com/info/ETCS.html"/>
 				<img 
@@ -111,7 +112,8 @@ Proves Proposition 7.4
 				<name>ETCS Train Disturbance [controllability]</name>
 				<path>/examples/hybrid/ETCS/paper/controllability-lemma-disturbed.key</path>
 				<description>Proves safety of the ETCS train control protocol case study despite disturbance in the physical dynamics. This example proves that the train is always controllable safely by some control choice, despite disturbance.
-Proves Proposition 7.7
+Proves Proposition 7.7.
+Depending on your settings, use Update Simplification and Eliminate Universal Quantifiers.
 			</description>
 				<source href="http://symbolaris.com/info/ETCS.html"/>
 				<img 
@@ -126,7 +128,7 @@ Proves Proposition 7.7
 				<name>ETCS Train Disturbance [reactivity]</name>
 				<path>/examples/hybrid/ETCS/paper/reactivity-lemma-disturbed-simplified.key</path>
 				<description>Proves safety of the ETCS train control protocol case study despite disturbance in the physical dynamics. This example proves that the train can react to situation changes.
-Proves Proposition 7.8
+Proves Proposition 7.8 (see book for how to prove)
 			</description>
 				<source href="http://symbolaris.com/info/ETCS.html"/>
 				<img 
@@ -141,7 +143,7 @@ Proves Proposition 7.8
 				<name>ETCS Train Disturbance [safety]</name>
 				<path>/examples/hybrid/ETCS/paper/safety-lemma-disturbed.key</path>
 				<description>Proves safety of the ETCS train control protocol case study despite disturbance in the physical dynamics. This example proves that a train never leaves its movement authority (MA=m) and, thus, cannot crash into other trains.
-Proves Proposition 7.9
+Proves Proposition 7.9 (see book for how to prove)
 			</description>
 				<source href="http://symbolaris.com/info/ETCS.html"/>
 				<img 
@@ -152,6 +154,7 @@ Proves Proposition 7.9
 					</some>
 				</requirements>
 			</example>
+		    </group>		
 		</group>		
 		<group name="Aircraft">
 			<example>
@@ -212,7 +215,7 @@ Proves equation (3.14)</description>
 			</example>
 			<example>
 				<name>Aircraft Bounded Maneuver Speed</name>
-				<path>/examples/hybrid/ATC/roundabout/angular-linear-speed.key</path>
+				<path>/examples/hybrid/ATC/roundabout/bounded-angular-linear-speed.key</path>
 				<description>Shows that the speed v of the aircraft is maintained even when it changes its angular velocity om nondeterministically during the flight (free flight).
 Proves Example 3.16</description>
 				<source href="http://symbolaris.com/info/RCAS.html"/>
@@ -386,7 +389,7 @@ Proves Figure 2.20</description>
 			</example>
 			<example>
 				<name>Bouncing Ball [aerodynamic]</name>
-				<path>/examples/hybrid/publish/bouncing-ball-aero2.key</path>
+				<path>/examples/hybrid/bouncing-ball/bouncing-ball-aero2.key</path>
 				<description>A fully parametric version of the aerodynamic bouncing ball that jumps up and down but is bounced back from the ground. This version follows aerodynamic principles of wind resistance.</description>
 				<img href="http://symbolaris.com/info/fig-bouncing-ball.png"/>
 				<requirements>
