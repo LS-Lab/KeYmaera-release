@@ -8,6 +8,7 @@
   Proves equation (2.19)</description>
 				<img 
 					href="http://symbolaris.com/info/ETCS-MAProtocol-c.gif"/>
+				<source href="http://symbolaris.com/lahs/"/>
 				<requirements>
 					<some>
 						<quantifiereliminator>Mathematica</quantifiereliminator>
@@ -22,6 +23,7 @@
 				<description>Essentials of the ETCS train control protocol.This example proves that a train never leaves its movement authority (MA=m) and, thus, cannot crash into other trains. Please note, that this is the simplest possible version of the safety requirement for the ETCS. The verification of the ETCS system itself requires a much more advanced model.</description>
 				<img 
 					href="http://symbolaris.com/info/ETCS-MAProtocol-c.gif"/>
+    			<source href="http://symbolaris.com/lahs/"/>
 				<requirements>
 					<some>
 						<quantifiereliminator>Mathematica</quantifiereliminator>
@@ -159,6 +161,7 @@ Proves Proposition 7.9
 Proves Theorem 3.4</description>
 				<img 
 					href="http://symbolaris.com/info/fig-tangential-roundabout.png"/>
+  				<source href="http://symbolaris.com/lahs/"/>
 				<requirements>
 					<some>
 						<quantifiereliminator>Mathematica</quantifiereliminator>
@@ -357,8 +360,8 @@ Proves equation (8.29)</description>
 				<path>/examples/hybrid/bouncing-ball/bouncing-ball-simplest.key</path>
 				<description>A fully parametric version of the bouncing ball that jumps up and down but is bounced back from the ground. This version has a fixed bouncing constant c.
 Proves Figure 2.20</description>
-				<img 
-		    href="http://symbolaris.com/info/fig-bouncing-ball.png"/>
+				<img href="http://symbolaris.com/info/fig-bouncing-ball.png"/>
+			    <source href="http://symbolaris.com/lahs/"/>
 				<requirements>
 					<some>
 						<quantifiereliminator>Mathematica</quantifiereliminator>
@@ -372,6 +375,7 @@ Proves Figure 2.20</description>
 				<path>/examples/hybrid/publish/bouncing-ball-random-H.key</path>
 				<description>A fully parametric version of the bouncing ball that jumps up and down but is bounced back from the ground. This version has a bouncing coefficient c that can changer over time by a nondeterministic assignment c:=* </description>
 				<img href="http://symbolaris.com/info/fig-bouncing-ball.png"/>
+			    <source href="http://symbolaris.com/lahs/"/>
 				<requirements>
 					<some>
 						<quantifiereliminator>Mathematica</quantifiereliminator>
@@ -426,6 +430,7 @@ Proves Figure 2.20</description>
 				<description>Standard water tank model, which regulates water level y between 1 and 12 by filling or emptying the water tank. Changing valves has a delayed effect in this example.
 Proves Example C.1</description>
 				<img href="http://symbolaris.com/info/fig-water-tank.png"/>
+			    <source href="http://symbolaris.com/lahs/"/>
 				<requirements>
 					<some>
 						<quantifiereliminator>Mathematica</quantifiereliminator>
@@ -440,7 +445,8 @@ Proves Example C.1</description>
         				<path>/examples/hybrid/dynamical/damposc0.key</path>
         				<description>Damped oscillator.
 Proves Example 3.21</description>
-        				<img href="http://symbolaris.com/info/fig-damposc-evo2t.png"/>
+        				<img href="http://symbolaris.com/info/fig-damposc-evo2t-eye.png"/>
+        			    <source href="http://symbolaris.com/lahs/"/>
         				<requirements>
         					<some>
         						<quantifiereliminator>Mathematica</quantifiereliminator>
@@ -452,7 +458,8 @@ Proves Example 3.21</description>
         				<path>/examples/hybrid/switchstab-param.key</path>
         				<description>Switched damped oscillator switching between two modes of damped oscillators at some diagonals. Identifies the assumptions on the switching surface taht are required for safety. Proof hints: The automatic proof pauses at some point. Then use diffweaken and resume automatic proof.
 Proves Figure 3.19</description>
-        				<img href="http://symbolaris.com/info/fig-switchstab-evo-mode1w2w0-late.png"/>
+        				<img href="http://symbolaris.com/info/fig-switchstab-evo-late-eye.png"/>
+        			    <source href="http://symbolaris.com/lahs/"/>
         				<requirements>
         					<some>
         						<quantifiereliminator>Mathematica</quantifiereliminator>
