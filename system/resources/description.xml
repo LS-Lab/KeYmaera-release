@@ -5,7 +5,7 @@
 				<name>ETCS Train Control [simple]</name>
 				<path>/examples/hybrid/ETCS/safety/ETCS-simple.key</path>
 				<description>Essentials of the ETCS train control protocol.This example proves that a train never leaves its movement authority (MA=m) and, thus, cannot crash into other trains. Please note, that this is the simplest possible version of the safety requirement for the ETCS. The verification of the ETCS system itself requires a much more advanced model.
-  Proves equation (2.19)</description>
+Proves equation (2.19)</description>
 				<img 
 					href="http://symbolaris.com/info/ETCS-MAProtocol-c.gif"/>
 				<source href="http://symbolaris.com/lahs/"/>
@@ -32,6 +32,21 @@
 					</some>
 				</requirements>
 			</example>
+          			<example>
+          				<name>ETCS Train Control [tutorial]</name>
+          				<path>/examples/hybrid/ETCS/safety/ETCS-simple-tutorial.key</path>
+          				<description>Essentials of the ETCS train control protocol.This example proves that a train never leaves its movement authority (MA=m) and, thus, cannot crash into other trains. Please note, that this is the simplest possible version of the safety requirement for the ETCS. The verification of the ETCS system itself requires a much more advanced model.</description>
+          				<img 
+          					href="http://symbolaris.com/info/ETCS-MAProtocol-c.gif"/>
+          				<source href="http://symbolaris.com/info/KeYmaera-guide.html"/>
+          				<requirements>
+          					<some>
+          						<quantifiereliminator>Mathematica</quantifiereliminator>
+          						<quantifiereliminator>QepCad</quantifiereliminator>
+          						<quantifiereliminator>Reduce</quantifiereliminator>
+          					</some>
+          				</requirements>
+          			</example>
 			<example>
 				<name>ETCS Train Control [controllability]</name>
 				<path>/examples/hybrid/ETCS/paper/controllability-lemma.key</path>
