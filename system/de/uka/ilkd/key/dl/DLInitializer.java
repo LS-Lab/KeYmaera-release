@@ -273,7 +273,13 @@ public class DLInitializer {
 							.showMessageDialog(
 									main,
 									"Information and documentation on using KeYmaera,\nthe syntax of its specification language, and\nits verification features, is available on the web:\n"
-											+ "see KeYmaera Tutorial at\n    http://symbolaris.com/info/KeYmaera-guide.html",
+											+ "see KeYmaera Tutorial at\n\n    http://symbolaris.com/info/KeYmaera-guide.html\n\n"
+											+ "Full details on the verification approach can be found\nin the book\n"
+											+ "  Andr\u00e9 Platzer.\n"
+											+ "  Logical Analysis of Hybrid Systems\n" + "  Proving Theorems for Complex Dynamcis.\n"
+											+ "  Springer, 2010.\n"
+											+ "  ISBN 978-3-642-14508-7\n"
+											+ "http://symbolaris.com/lahs/",
 									"KeYmaera Documentation",
 									JOptionPane.INFORMATION_MESSAGE);
 				}
