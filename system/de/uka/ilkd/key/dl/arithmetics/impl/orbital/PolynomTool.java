@@ -489,15 +489,15 @@ public abstract class PolynomTool {
 			// calculate the greatest common divisor of the
 			// fraction
 			BigInteger numerator = d.toBigIntegerExact();
-			BigInteger gcd = numerator.gcd(denominator);
-			/*BigInteger tmp = numerator.abs();
+			//BigInteger gcd = numerator.gcd(denominator);
+			BigInteger tmp = numerator.abs();
 			BigInteger gcd = denominator;
 			BigInteger t;
 			while (tmp.compareTo(BigInteger.valueOf(0)) > 0) {
 				t = tmp;
 				tmp = gcd.mod(tmp);
 				gcd = t;
-			}*/
+			}
 			numerator = numerator.divide(gcd);
 			denominator = denominator.divide(gcd);
 			result.numerator = numerator;
