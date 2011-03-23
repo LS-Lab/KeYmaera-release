@@ -469,7 +469,7 @@ public abstract class PolynomTool {
 
 	}
 
-	public static BigFraction convertStringToFraction(String numberAsString)
+	public static BigFraction convertStringToFraction(final String numberAsString)
 			throws NumberFormatException, ArithmeticException {
 		BigFraction result = new BigFraction();
 		BigDecimal d = new BigDecimal(numberAsString);
@@ -477,29 +477,33 @@ public abstract class PolynomTool {
 			result.numerator = d.toBigIntegerExact();
 		} catch (ArithmeticException e) {
 		    try {
-			assert numberAsString.indexOf('.') != -1;
-			int numbersAfterComma = numberAsString.length()
+			assert numberAsString.indexOf('.') >= 0 && numberAsString.indexOf('.') <= numberAsString.length() - 2 : "non-integral decimal numbers have a . but don't end with ." + numberAsString;
+			int digitsAfterComma = numberAsString.length()
 					- numberAsString.indexOf('.') - 1;
-			BigInteger denominator = BigInteger.TEN.pow(numbersAfterComma);
-			d = d.multiply(BigDecimal.TEN.pow(numbersAfterComma));
+			assert digitsAfterComma > 0 : "non-integral decimal numbers have a positive number of digits after . " + digitsAfterComma + " in " + numberAsString;
+			BigInteger denominator = BigInteger.TEN.pow(digitsAfterComma);
+			assert new BigDecimal(denominator).equals(BigDecimal.TEN.pow(digitsAfterComma)) : "10^n = 10.0^n";
+			assert d.multiply(new BigDecimal(denominator)).equals(d.multiply(BigDecimal.TEN.pow(digitsAfterComma))) : "d*10^n = d*10.0^n";
+			d = d.multiply(new BigDecimal(denominator));
 
 			// calculate the greatest common divisor of the
 			// fraction
 			BigInteger numerator = d.toBigIntegerExact();
-			BigInteger tmp = d.toBigIntegerExact().abs();
+			BigInteger gcd = numerator.gcd(denominator);
+			/*BigInteger tmp = numerator.abs();
 			BigInteger gcd = denominator;
 			BigInteger t;
 			while (tmp.compareTo(BigInteger.valueOf(0)) > 0) {
 				t = tmp;
 				tmp = gcd.mod(tmp);
 				gcd = t;
-			}
+			}*/
 			numerator = numerator.divide(gcd);
 			denominator = denominator.divide(gcd);
 			result.numerator = numerator;
 			result.denominator = denominator;
-			assert new BigDecimal(result.numerator).divide(
-					new BigDecimal(result.denominator)).equals(
+			assert new BigDecimal(result.getNumerator()).divide(
+					new BigDecimal(result.getDenominator())).equals(
 					new BigDecimal(numberAsString));
 		    } catch (ArithmeticException e2) {
 			throw (InternalError) new InternalError("Do not know how to convert string to fraction: " + numberAsString + "\nrewritten as " + d + "\nbecause of " + e2).initCause(e2);

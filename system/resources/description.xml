@@ -4,7 +4,7 @@
 			<example>
 				<name>ETCS Train Control [simple]</name>
 				<path>/examples/hybrid/ETCS/safety/ETCS-simple.key</path>
-				<description>Essentials of the ETCS train control protocol.This example proves that a train never leaves its movement authority (MA=m) and, thus, cannot crash into other trains. Please note, that this is the simplest possible version of the safety requirement for the ETCS. The verification of the ETCS system itself requires a much more advanced model.
+				<description>Essentials of the ETCS train control protocol. This example proves that a train never leaves its movement authority (MA=m) and, thus, cannot crash into other trains. Please note, that this is the simplest possible version of the safety requirement for the ETCS. The verification of the ETCS system itself requires a much more advanced model.
 Proves equation (2.19)</description>
 				<img 
 					href="http://symbolaris.com/info/ETCS-MAProtocol-c.gif"/>
@@ -20,7 +20,7 @@ Proves equation (2.19)</description>
 			<example>
 				<name>ETCS Train Control [simple nondet]</name>
 				<path>/examples/hybrid/ETCS/safety/ETCS-essentials.key</path>
-				<description>Essentials of the ETCS train control protocol.This example proves that a train never leaves its movement authority (MA=m) and, thus, cannot crash into other trains. Please note, that this is the simplest possible version of the safety requirement for the ETCS. The verification of the ETCS system itself requires a much more advanced model.</description>
+				<description>Essentials of the ETCS train control protocol. This example proves that a train never leaves its movement authority (MA=m) and, thus, cannot crash into other trains. Please note, that this is the simplest possible version of the safety requirement for the ETCS. The verification of the ETCS system itself requires a much more advanced model.</description>
 				<img 
 					href="http://symbolaris.com/info/ETCS-MAProtocol-c.gif"/>
     			<source href="http://symbolaris.com/lahs/"/>
@@ -35,7 +35,7 @@ Proves equation (2.19)</description>
           			<example>
           				<name>ETCS Train Control [tutorial]</name>
           				<path>/examples/hybrid/ETCS/safety/ETCS-simple-tutorial.key</path>
-          				<description>Essentials of the ETCS train control protocol.This example proves that a train never leaves its movement authority (MA=m) and, thus, cannot crash into other trains. Please note, that this is the simplest possible version of the safety requirement for the ETCS. The verification of the ETCS system itself requires a much more advanced model.</description>
+          				<description>Essentials of the ETCS train control protocol. This example proves that a train never leaves its movement authority (MA=m) and, thus, cannot crash into other trains. Please note, that this is the simplest possible version of the safety requirement for the ETCS. The verification of the ETCS system itself requires a much more advanced model.</description>
           				<img 
           					href="http://symbolaris.com/info/ETCS-MAProtocol-c.gif"/>
           				<source href="http://symbolaris.com/info/KeYmaera-guide.html"/>
@@ -47,6 +47,22 @@ Proves equation (2.19)</description>
           					</some>
           				</requirements>
           			</example>
+                    			<example>
+                    				<name>ETCS Train Control [temporal]</name>
+                    				<path>/examples/hybrid/ETCS/safety/ETCS-essentials-tout.key</path>
+                    				<description>Essentials of the ETCS train control protocol with temporal throughout modality [][]. This example proves that a train never leaves its movement authority (MA=m) and, thus, cannot crash into other trains. Please note, that this is the simplest possible version of the safety requirement for the ETCS. The verification of the ETCS system itself requires a much more advanced model.
+Proves dTL variant of equation (2.19) with [][] instead of []</description>
+                    				<img 
+                    					href="http://symbolaris.com/info/ETCS-MAProtocol-c.gif"/>
+                    				<source href="http://symbolaris.com/lahs/"/>
+                    				<requirements>
+                    					<some>
+                    						<quantifiereliminator>Mathematica</quantifiereliminator>
+                    						<quantifiereliminator>QepCad</quantifiereliminator>
+                    						<quantifiereliminator>Reduce</quantifiereliminator>
+                    					</some>
+                    				</requirements>
+                    			</example>
 			<example>
 				<name>ETCS Train Control [controllability]</name>
 				<path>/examples/hybrid/ETCS/paper/controllability-lemma.key</path>
@@ -413,6 +429,35 @@ Proves Figure 2.20</description>
 					</some>
 				</requirements>
 			</example>
+            			<example>
+            				<name>Bouncing Ball [temporal]</name>
+            				<path>/examples/hybrid/bouncing-ball/bouncing-ball-H0-tout.key</path>
+            				<description>A temporal version of a fully parametric version of the bouncing ball that jumps up and down but is bounced back from the ground. To specify that the property holds throughout, this example uses the dTL [][] modality instead of [].</description>
+            				<img href="http://symbolaris.com/info/fig-bouncing-ball.png"/>
+            			    <source href="http://symbolaris.com/lahs/"/>
+            				<requirements>
+            					<some>
+            						<quantifiereliminator>Mathematica</quantifiereliminator>
+            						<quantifiereliminator>QepCad</quantifiereliminator>
+            						<quantifiereliminator>Reduce</quantifiereliminator>
+            					</some>
+            				</requirements>
+            			</example>
+                                    			<example>
+                                    				<name>Bouncing Ball [temporal, nondet]</name>
+                                    				<path>/examples/hybrid/bouncing-ball/bouncing-ball-H0-tout.key</path>
+                                    				<description>A temporal version of a fully parametric version of the bouncing ball that jumps up and down but is bounced back from the ground. To specify that the property holds throughout, this example uses the dTL [][] modality instead of [].
+Proves equation (4.4)</description>
+                                    				<img href="http://symbolaris.com/info/fig-bouncing-ball.png"/>
+                                    			    <source href="http://symbolaris.com/lahs/"/>
+                                    				<requirements>
+                                    					<some>
+                                    						<quantifiereliminator>Mathematica</quantifiereliminator>
+                                    						<quantifiereliminator>QepCad</quantifiereliminator>
+                                    						<quantifiereliminator>Reduce</quantifiereliminator>
+                                    					</some>
+                                    				</requirements>
+                                    			</example>
 		</group>
 		<example>
 			<name>Simple Acceleration</name>

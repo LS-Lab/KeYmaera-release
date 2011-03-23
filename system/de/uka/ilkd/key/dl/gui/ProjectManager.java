@@ -609,8 +609,8 @@ public class ProjectManager extends JFrame {
 
 	private File createTmpFileToLoad(String url) {
 		System.out.println("Trying to open resource " + url);// XXX
-		url = url.replaceAll("/", File.separator);
-		File file = new File(url.substring(1));
+		url = url.substring(1).replaceAll("/", File.separator);
+		File file = new File(url);
 		if (file.exists()) {
 			return file;
 		}
