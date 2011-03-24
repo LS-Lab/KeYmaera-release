@@ -219,7 +219,7 @@ dist-keymaera:	branding all
 	@for i in `grep -R path $(RESOURCEPATH)/description.xml | sed s/'<path>\/'// | sed s/'<\/path>'// | sed 's/^[ \t]*//'`; do \
 		mkdir -p dist/key/$$i;\
 		rmdir dist/key/$$i;\
-		cp -rH ../$$i dist/key/$$i;\
+		cp -RH ../$$i dist/key/$$i;\
 		done
 # for setup.jar
 	@mkdir -p dist/setup/de/uka/ilkd/key/util/

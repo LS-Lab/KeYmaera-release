@@ -445,7 +445,7 @@ Proves Figure 2.20</description>
             			</example>
                                     			<example>
                                     				<name>Bouncing Ball [temporal, nondet]</name>
-                                    				<path>/examples/hybrid/bouncing-ball/bouncing-ball-H0-tout.key</path>
+                                    				<path>/examples/hybrid/bouncing-ball/bouncing-ball-tout.key</path>
                                     				<description>A temporal version of a fully parametric version of the bouncing ball that jumps up and down but is bounced back from the ground. To specify that the property holds throughout, this example uses the dTL [][] modality instead of [].
 Proves equation (4.4)</description>
                                     				<img href="http://symbolaris.com/info/fig-bouncing-ball.png"/>

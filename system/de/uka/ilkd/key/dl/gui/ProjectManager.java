@@ -608,9 +608,13 @@ public class ProjectManager extends JFrame {
 
 
 	private File createTmpFileToLoad(String url) {
+		final String separator = "/"; //File.separator;
 		System.out.println("Trying to open resource " + url);// XXX
-		url = url.substring(1).replaceAll("/", File.separator);
-		File file = new File(url);
+		// if (File.separator.length() != 1) {
+		// 	throw new UnsupportedOperationException("The file separator should be one characther " + File.separator);
+		// }
+		//@TODO bad decision, because it doesn't work for windows url = url.replace('/', File.separator.charAt(0));
+		File file = new File(url.substring(1));
 		if (file.exists()) {
 			return file;
 		}
@@ -627,11 +631,11 @@ public class ProjectManager extends JFrame {
                     }
 		}
 		if (resourceAsStream == null) {
-		    System.err.println("Could not find resource " + url + " from working directory or JAR");
+		    System.err.println("Could not find resource " + url + " from working directory " + System.getProperty("user.dir") + " or JAR archive");
 		    return null;
 		}
 		try {
-			File tempFile = File.createTempFile(url.substring(url.lastIndexOf(File.separator) + 1, url.lastIndexOf('.')), ".key");
+			File tempFile = File.createTempFile(url.substring(url.lastIndexOf(separator) + 1, url.lastIndexOf('.')), ".key");
 			tempFile.deleteOnExit();
 			System.out.println(tempFile.getCanonicalPath());
 			FileOutputStream fileOutputStream = new FileOutputStream(tempFile);

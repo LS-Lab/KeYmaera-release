@@ -12,6 +12,7 @@ import java.awt.Component;
 import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.event.KeyEvent;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -33,6 +34,7 @@ import de.uka.ilkd.key.util.ExtList;
 public class ExceptionDialog extends JDialog {
 
     private JPanel buttonPanel; 
+    private JButton closeButton; 
     private JScrollPane listScroll,stScroll;    
     private StringWriter sw;
     private PrintWriter pw;
@@ -71,7 +73,7 @@ public class ExceptionDialog extends JDialog {
 
 
     private JPanel createButtonPanel(){
-	 JButton closeButton = new JButton( "Close" );
+	 this.closeButton = new JButton( "Close" );
          JCheckBox detailsBox  = new JCheckBox("Show Details");
          detailsBox.setSelected(false);
 	 JPanel bPanel = new JPanel();
@@ -241,6 +243,13 @@ public class ExceptionDialog extends JDialog {
             getContentPane().add(createExcTextAreaScroll(exceptionArray));
             getContentPane().add(createLocationPanel(exceptionArray));
             getContentPane().add(buttonPanel);
+			getRootPane().setDefaultButton(closeButton);
+	    	getRootPane().registerKeyboardAction(new ActionListener() {
+	    	    public void actionPerformed(ActionEvent e) {
+					setVisible(false);
+					dispose();
+	    	    }
+	    	}, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
             setDefaultCloseOperation(DISPOSE_ON_CLOSE);
             pack();
             setLocationRelativeTo(null);
