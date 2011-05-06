@@ -255,7 +255,7 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 	private void createLink() throws RemoteException {
 		try {
 			log(Level.FINE, "Creating mathlink");
-			System.out.println(linkCall);
+			System.out.println(linkCall + "\nWith native JLink library\ncom.wolfram.jlink.libdir=" + System.getProperty("com.wolfram.jlink.libdir"));
 			link = MathLinkFactory.createKernelLink(linkCall);
 			testForError(link);
 			log(Level.FINE, "Connecting...");

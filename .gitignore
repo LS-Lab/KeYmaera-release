@@ -36,3 +36,5 @@ eclipse/.settings/org.eclipse.jdt.ui.prefs
 *.tar
 system/native/csdp/*.so
 system/native/csdp/*.a
+system/keymaera.jar
+system/de/uka/ilkd/key/dl/parser/output/
