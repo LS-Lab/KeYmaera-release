@@ -43,6 +43,7 @@ public class TextToHtml {
 					.compile("([-|+]*?\\d+)|([-|+]*?\\w+)|([-|+]*?\\([^(]+?\\))");
 			Matcher m1 = p1.matcher(matcher.group());
 			if (m1.find())
+			    //@TODO could remove space here but highlighting doesn't work then anymore
 				matcher.appendReplacement(myStringBuffer, " <sup>" + m1.group()
 						+ "</sup>");
 		}
@@ -121,6 +122,9 @@ public class TextToHtml {
 			s = s.replaceAll(" \\| ", " &or; ");
 		s = s.replaceAll("<=", "&le;");
 		s = s.replaceAll(">=", "&ge;");
+		//@todo could remove superfluous space here but highlighting doesn't work properly then.
+		// s = s.replaceAll(" < ", " &lt;");
+		// s = s.replaceAll(" > ", " &gt;");
 	    } else {
 			s = s.replace("&", "&amp;");
 		s = s.replaceAll("<=", "&lt;=");
