@@ -93,7 +93,6 @@ Proves Proposition 7.5
 					</some>
 				</requirements>
 			</example>
-    		<group name="ETCS Train [advanced]">
     			<example>
     				<name>ETCS Train Control [bug]</name>
     				<path>/examples/hybrid/ETCS/safety/ETCS-essentials-bug0.key</path>
@@ -109,6 +108,7 @@ Bug 2: The constraint for acceleration is too lax and should be m-z>SB. The bugs
     					</some>
     				</requirements>
     			</example>
+    		<group name="ETCS Train [advanced]">
 			<example>
 				<name>ETCS Train Control [simpler liveness]</name>
 				<path>/examples/hybrid/ETCS/liveness/ETCS-essentials-live-range.key</path>
@@ -206,6 +206,21 @@ Proves Proposition 7.9 (see book for how to prove)
 			<example>
 				<name>Aircraft Roundabout [simple]</name>
 				<path>/examples/hybrid/ATC/roundabout/TRM-essentials.key</path>
+				<description>Essentials of the tangential roundabout maneuver (TRM) for collision avoidance in air traffic control. This example proves that TRM always separates aircraft by at least the protected zone. Please note, that this is the simplest possible version of the safety requirement for the TRM. The verification of the TRM system itself requires a much more advanced model.
+Proves Theorem 3.4</description>
+				<img 
+					href="http://symbolaris.com/info/fig-tangential-roundabout.png"/>
+  				<source href="http://symbolaris.com/lahs/"/>
+				<requirements>
+					<some>
+						<quantifiereliminator>Mathematica</quantifiereliminator>
+						<quantifiereliminator>Reduce</quantifiereliminator>
+					</some>
+				</requirements>
+			</example>
+			<example>
+				<name>Aircraft Roundabout 2 [simple]</name>
+				<path>/examples/hybrid/ATC/roundabout/TRM-essentials2.key</path>
 				<description>Essentials of the tangential roundabout maneuver (TRM) for collision avoidance in air traffic control. This example proves that TRM always separates aircraft by at least the protected zone. Please note, that this is the simplest possible version of the safety requirement for the TRM. The verification of the TRM system itself requires a much more advanced model.
 Proves Theorem 3.4</description>
 				<img 
