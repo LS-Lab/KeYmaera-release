@@ -67,6 +67,7 @@ public class TextToHtml {
 			result = replaceQuantifiers(result); 
 
 		result = result.replaceAll("\\+\\+", "&cup;");
+		result = result.replaceAll("!=", "&ne;");
 		result = result.replaceAll("!", "&not;");
 		result = result.replaceAll(":= \\*", temporaryReplacement);
 		result = result.replaceAll(" \\* ", " &sdot; ");
