@@ -559,5 +559,68 @@ Proves Figure 3.19</description>
         					</some>
         				</requirements>
         			</example>        
+                    <group name="Elevator Control">
+                    	<example>
+                    		<name>Elevator Control Study [R2.1a]</name>
+                    		<path>/examples/hybrid/Elevator/elevator-R2-1a.key</path>
+                    		<description>Basic model of a realistic distributed elevator with multiple hybrid dynamics. This is a simplified model with a simple dispatcher algorithm and basic passenger behaviors. The model is for 4 floors includes 1 hallway and a simple door reversal mechanism. This case study illustrates how complicated systems can be modeled and verified formally. This example proves requirement
+R2.1: the elevator car is at a landing if the doors are open.
+Contributed by Aaron Kane</description>
+                    		<img 
+                    			href="http://symbolaris.com/info/elevator.gif"/>
+                    		<source href="http://www.ece.cmu.edu/~ece649/project/portfolio/portfolio_template/portfolio.html"/>
+                    		<requirements>
+                    			<some>
+                    				<quantifiereliminator>Mathematica</quantifiereliminator>
+                                    <quantifiereliminator>CohenHormander</quantifiereliminator>
+                    			</some>
+                    		</requirements>
+                    	</example>
+                    	<example>
+                    		<name>Elevator Control Study [R2.1b]</name>
+                    		<path>/examples/hybrid/Elevator/elevator-R2-1b.key</path>
+                    		<description>Basic model of a realistic distributed elevator with multiple hybrid dynamics. This is a simplified model with a simple dispatcher algorithm and basic passenger behaviors. The model is for 4 floors includes 1 hallway and a simple door reversal mechanism. This case study illustrates how complicated systems can be modeled and verified formally. This example proves requirement
+R2.1: the elevator car is at a landing if the doors are open.
+Contributed by Aaron Kane</description>
+                    		<img 
+                    			href="http://symbolaris.com/info/elevator.gif"/>
+                    		<source href="http://www.ece.cmu.edu/~ece649/project/portfolio/portfolio_template/portfolio.html"/>
+                    		<requirements>
+                    			<some>
+                    				<quantifiereliminator>Mathematica</quantifiereliminator>
+                    			</some>
+                    		</requirements>
+                    	</example>
+                    	<example>
+                    		<name>Elevator Control Study [R2.3]</name>
+                    		<path>/examples/hybrid/Elevator/elevator-R2-3.key</path>
+                    		<description>Basic model of a realistic distributed elevator with multiple hybrid dynamics. This is a simplified model with a simple dispatcher algorithm and basic passenger behaviors. The model is for 4 floors includes 1 hallway and a simple door reversal mechanism. This case study illustrates how complicated systems can be modeled and verified formally. This example proves requirement
+R2.3: the elevator car is stopped if the doors are open.
+Contributed by Aaron Kane</description>
+                    		<img 
+                    			href="http://symbolaris.com/info/elevator.gif"/>
+                    		<source href="http://www.ece.cmu.edu/~ece649/project/portfolio/portfolio_template/portfolio.html"/>
+                    		<requirements>
+                    			<some>
+                    				<quantifiereliminator>Mathematica</quantifiereliminator>
+                    			</some>
+                    		</requirements>
+                    	</example>
+                    	<example>
+                    		<name>Elevator Control Study [R2.5]</name>
+                    		<path>/examples/hybrid/Elevator/elevator-R2-5.key</path>
+                    		<description>Basic model of a realistic distributed elevator with multiple hybrid dynamics. This is a simplified model with a simple dispatcher algorithm and basic passenger behaviors. The model is for 4 floors includes 1 hallway and a simple door reversal mechanism. This case study illustrates how complicated systems can be modeled and verified formally. This example proves requirement
+R2.5: the elevator car never passes the hoistway limit (goes too far).
+Contributed by Aaron Kane</description>
+                    		<img 
+                    			href="http://symbolaris.com/info/elevator.gif"/>
+                    		<source href="http://www.ece.cmu.edu/~ece649/project/portfolio/portfolio_template/portfolio.html"/>
+                    		<requirements>
+                    			<some>
+                    				<quantifiereliminator>Mathematica</quantifiereliminator>
+                    			</some>
+                    		</requirements>
+                    	</example>
+                    </group>
 	<example></example>
 </examples>
