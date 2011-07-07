@@ -93,6 +93,21 @@ Proves Proposition 7.5
 					</some>
 				</requirements>
 			</example>
+    			<example>
+    				<name>ETCS Train Control [bug]</name>
+    				<path>/examples/hybrid/ETCS/safety/ETCS-essentials-bug0.key</path>
+    				<description>A buggy version of the essentials of the ETCS train control protocol. This example (incorrectly) claims that a train in a buggy system never leaves its movement authority (MA=m) and, thus, cannot crash into other trains.
+Bug 1: the precondition of the initial state of the system is not strong enough and should be v^2&lt;2*b*(m-z).
+Bug 2: The constraint for acceleration is too lax and should be m-z>SB. The bugs can be found during the search with invariants v^2&lt;=2*b*(m-z) and v^2&lt;2*b*(m-z), respectively.</description>
+    				<img 
+    					href="http://symbolaris.com/info/ETCS-MAProtocol-c.gif"/>
+        			<source href="http://symbolaris.com/lahs/"/>
+    				<requirements>
+    					<some>
+    						<quantifiereliminator>Mathematica</quantifiereliminator>
+    					</some>
+    				</requirements>
+    			</example>
     		<group name="ETCS Train [advanced]">
 			<example>
 				<name>ETCS Train Control [simpler liveness]</name>
@@ -191,6 +206,21 @@ Proves Proposition 7.9 (see book for how to prove)
 			<example>
 				<name>Aircraft Roundabout [simple]</name>
 				<path>/examples/hybrid/ATC/roundabout/TRM-essentials.key</path>
+				<description>Essentials of the tangential roundabout maneuver (TRM) for collision avoidance in air traffic control. This example proves that TRM always separates aircraft by at least the protected zone. Please note, that this is the simplest possible version of the safety requirement for the TRM. The verification of the TRM system itself requires a much more advanced model.
+Proves Theorem 3.4</description>
+				<img 
+					href="http://symbolaris.com/info/fig-tangential-roundabout.png"/>
+  				<source href="http://symbolaris.com/lahs/"/>
+				<requirements>
+					<some>
+						<quantifiereliminator>Mathematica</quantifiereliminator>
+						<quantifiereliminator>Reduce</quantifiereliminator>
+					</some>
+				</requirements>
+			</example>
+			<example>
+				<name>Aircraft Roundabout 2 [simple]</name>
+				<path>/examples/hybrid/ATC/roundabout/TRM-essentials2.key</path>
 				<description>Essentials of the tangential roundabout maneuver (TRM) for collision avoidance in air traffic control. This example proves that TRM always separates aircraft by at least the protected zone. Please note, that this is the simplest possible version of the safety requirement for the TRM. The verification of the TRM system itself requires a much more advanced model.
 Proves Theorem 3.4</description>
 				<img 
@@ -529,5 +559,68 @@ Proves Figure 3.19</description>
         					</some>
         				</requirements>
         			</example>        
+                    <group name="Elevator Control">
+                    	<example>
+                    		<name>Elevator Control Study [R2.1a]</name>
+                    		<path>/examples/hybrid/Elevator/elevator-R2-1a.key</path>
+                    		<description>Basic model of a realistic distributed elevator with multiple hybrid dynamics. This is a simplified model with a simple dispatcher algorithm and basic passenger behaviors. The model is for 4 floors includes 1 hallway and a simple door reversal mechanism. This case study illustrates how complicated systems can be modeled and verified formally. This example proves requirement
+R2.1: the elevator car is at a landing if the doors are open.
+Contributed by Aaron Kane</description>
+                    		<img 
+                    			href="http://symbolaris.com/info/elevator.gif"/>
+                    		<source href="http://www.ece.cmu.edu/~ece649/project/portfolio/portfolio_template/portfolio.html"/>
+                    		<requirements>
+                    			<some>
+                    				<quantifiereliminator>Mathematica</quantifiereliminator>
+                                    <quantifiereliminator>CohenHormander</quantifiereliminator>
+                    			</some>
+                    		</requirements>
+                    	</example>
+                    	<example>
+                    		<name>Elevator Control Study [R2.1b]</name>
+                    		<path>/examples/hybrid/Elevator/elevator-R2-1b.key</path>
+                    		<description>Basic model of a realistic distributed elevator with multiple hybrid dynamics. This is a simplified model with a simple dispatcher algorithm and basic passenger behaviors. The model is for 4 floors includes 1 hallway and a simple door reversal mechanism. This case study illustrates how complicated systems can be modeled and verified formally. This example proves requirement
+R2.1: the elevator car is at a landing if the doors are open.
+Contributed by Aaron Kane</description>
+                    		<img 
+                    			href="http://symbolaris.com/info/elevator.gif"/>
+                    		<source href="http://www.ece.cmu.edu/~ece649/project/portfolio/portfolio_template/portfolio.html"/>
+                    		<requirements>
+                    			<some>
+                    				<quantifiereliminator>Mathematica</quantifiereliminator>
+                    			</some>
+                    		</requirements>
+                    	</example>
+                    	<example>
+                    		<name>Elevator Control Study [R2.3]</name>
+                    		<path>/examples/hybrid/Elevator/elevator-R2-3.key</path>
+                    		<description>Basic model of a realistic distributed elevator with multiple hybrid dynamics. This is a simplified model with a simple dispatcher algorithm and basic passenger behaviors. The model is for 4 floors includes 1 hallway and a simple door reversal mechanism. This case study illustrates how complicated systems can be modeled and verified formally. This example proves requirement
+R2.3: the elevator car is stopped if the doors are open.
+Contributed by Aaron Kane</description>
+                    		<img 
+                    			href="http://symbolaris.com/info/elevator.gif"/>
+                    		<source href="http://www.ece.cmu.edu/~ece649/project/portfolio/portfolio_template/portfolio.html"/>
+                    		<requirements>
+                    			<some>
+                    				<quantifiereliminator>Mathematica</quantifiereliminator>
+                    			</some>
+                    		</requirements>
+                    	</example>
+                    	<example>
+                    		<name>Elevator Control Study [R2.5]</name>
+                    		<path>/examples/hybrid/Elevator/elevator-R2-5.key</path>
+                    		<description>Basic model of a realistic distributed elevator with multiple hybrid dynamics. This is a simplified model with a simple dispatcher algorithm and basic passenger behaviors. The model is for 4 floors includes 1 hallway and a simple door reversal mechanism. This case study illustrates how complicated systems can be modeled and verified formally. This example proves requirement
+R2.5: the elevator car never passes the hoistway limit (goes too far).
+Contributed by Aaron Kane</description>
+                    		<img 
+                    			href="http://symbolaris.com/info/elevator.gif"/>
+                    		<source href="http://www.ece.cmu.edu/~ece649/project/portfolio/portfolio_template/portfolio.html"/>
+                    		<requirements>
+                    			<some>
+                    				<quantifiereliminator>Mathematica</quantifiereliminator>
+                    			</some>
+                    		</requirements>
+                    	</example>
+                    </group>
 	<example></example>
 </examples>
