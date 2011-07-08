@@ -572,6 +572,7 @@ Contributed by Aaron Kane</description>
                     		<requirements>
                     			<some>
                     				<quantifiereliminator>Mathematica</quantifiereliminator>
+                                    <quantifiereliminator>Reduce</quantifiereliminator>
                                     <quantifiereliminator>CohenHormander</quantifiereliminator>
                     			</some>
                     		</requirements>
@@ -618,6 +619,42 @@ Contributed by Aaron Kane</description>
                     		<requirements>
                     			<some>
                     				<quantifiereliminator>Mathematica</quantifiereliminator>
+                                    <quantifiereliminator>Reduce</quantifiereliminator>
+                    			</some>
+                    		</requirements>
+                    	</example>
+                    	<example>
+                    		<name>Elevator Control Study [X1]</name>
+                    		<path>/examples/hybrid/Elevator/elevator-X1.key</path>
+                    		<description>Basic model of a realistic distributed elevator with multiple hybrid dynamics. This is a simplified model with a simple dispatcher algorithm and basic passenger behaviors. The model is for 4 floors includes 1 hallway and a simple door reversal mechanism. This case study illustrates how complicated systems can be modeled and verified formally. This example proves that the passenger model correctly integrates with the dispatcher model
+X1: car does not leave a hall until it has serviced the passengers at that hallway.
+Contributed by Aaron Kane</description>
+                    		<img 
+                    			href="http://symbolaris.com/info/elevator.gif"/>
+                    		<source href="http://www.ece.cmu.edu/~ece649/project/portfolio/portfolio_template/portfolio.html"/>
+                    		<requirements>
+                    			<some>
+                    				<quantifiereliminator>Mathematica</quantifiereliminator>
+                    				<quantifiereliminator>Reduce</quantifiereliminator>
+                                    
+                    			</some>
+                    		</requirements>
+                    	</example>
+                    	<example>
+                    		<name>Elevator Control Study [X2]</name>
+                    		<path>/examples/hybrid/Elevator/elevator-X2.key</path>
+                    		<description>Basic model of a realistic distributed elevator with multiple hybrid dynamics. This is a simplified model with a simple dispatcher algorithm and basic passenger behaviors. The model is for 4 floors includes 1 hallway and a simple door reversal mechanism. This case study illustrates how complicated systems can be modeled and verified formally. This example proves that the passenger model correctly integrates with the dispatcher model
+X2: car does not leave a hall until it has serviced the passengers at that hallway.
+Contributed by Aaron Kane</description>
+                    		<img 
+                    			href="http://symbolaris.com/info/elevator.gif"/>
+                    		<source href="http://www.ece.cmu.edu/~ece649/project/portfolio/portfolio_template/portfolio.html"/>
+                    		<requirements>
+                    			<some>
+                    				<quantifiereliminator>Mathematica</quantifiereliminator>
+                    				
+<quantifiereliminator>Reduce</quantifiereliminator>
+                    				<quantifiereliminator>CohenHormander</quantifiereliminator>
                     			</some>
                     		</requirements>
                     	</example>
