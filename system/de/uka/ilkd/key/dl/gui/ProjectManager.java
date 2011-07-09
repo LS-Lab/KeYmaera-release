@@ -51,6 +51,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextPane;
 import javax.swing.JTextField;
@@ -206,6 +207,8 @@ public class ProjectManager extends JFrame {
 
 	public static final String EXAMPLES_DESCRIPTION_FILE = "description.xml";
 
+	private JSplitPane splitPane;
+
 	private JTree tree;
 
 	private JTextArea textArea;
@@ -224,18 +227,18 @@ public class ProjectManager extends JFrame {
 	private static final long serialVersionUID = 1006322347422958755L;
 
 	public ProjectManager() throws XPathExpressionException {
-		super("Project Manager");
+		super("KeYmaera Project Manager");
 		NodeList examples = getExamplesFromFile(EXAMPLES_DESCRIPTION_FILE);
 		
 		DefaultMutableTreeNode top = new DefaultMutableTreeNode("Examples");
 		
 		createNodes(top, examples);
-
+		
 		tree = new JTree(top);
 		JScrollPane treeView = new JScrollPane(tree);
 		treeView.setPreferredSize(new Dimension(320,400));
-		setLayout(new BorderLayout());
-		add(treeView, BorderLayout.WEST);
+		//setLayout(new BorderLayout());
+		//this.add(treeView, BorderLayout.WEST);
 		final JButton button = new JButton("Load");
 		button.setEnabled(false);
 		getRootPane().setDefaultButton(button);
@@ -337,16 +340,16 @@ public class ProjectManager extends JFrame {
         
         
 		JPanel dummy = new JPanel(new GridBagLayout());
-		dummy.add(new JLabel("Description: "), l);
+		dummy.add(new JLabel("Problem:"), l);
 		dummy.add(imgPanel, r);
         dummy.add(Box.createVerticalStrut(5), v);
-		dummy.add(new JLabel("Filename: "), l);
+		dummy.add(new JLabel("File:"), l);
 		dummy.add(fileName, r);
         dummy.add(Box.createVerticalStrut(5), v);
-		dummy.add(new JLabel("Requirements: "), l);
+		dummy.add(new JLabel("Requires:"), l);
 		dummy.add(requirementsArea, r);
         dummy.add(Box.createVerticalStrut(5), v);
-		dummy.add(new JLabel("Source: "), l);
+		dummy.add(new JLabel("Source:"), l);
 		dummy.add(source, r);
         
 		textPanel.add(dummy, BorderLayout.NORTH);
@@ -424,7 +427,16 @@ public class ProjectManager extends JFrame {
 		});
 		buttonPanel.add(cancel);
 		buttonTextPanel.add(buttonPanel, BorderLayout.SOUTH);
-		add(buttonTextPanel, BorderLayout.CENTER);
+		//this.add(buttonTextPanel, BorderLayout.CENTER);
+		tree.setVisibleRowCount(12);
+		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, treeView, buttonTextPanel);
+		splitPane.setOneTouchExpandable(true);
+		splitPane.setDividerLocation(250 + splitPane.getInsets().left);
+		treeView.setMinimumSize(new Dimension(50,100));
+		buttonTextPanel.setMinimumSize(new Dimension(200,100));
+		buttonTextPanel.setPreferredSize(new Dimension(725,350));
+		splitPane.setResizeWeight(0.1);
+		this.add(splitPane);
 		pack();
 	}
     
