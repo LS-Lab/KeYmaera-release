@@ -418,6 +418,34 @@ Proves equation (8.29)</description>
 				</requirements>
 			</example>
 		</group>
+        <group name="Car Control">
+        	<example>
+        		<name>Car Control follow the leader [simple]</name>
+        		<path>/examples/hybrid/car/DCCS/dccs-example-simple.key</path>
+        		<description>A very simple version of car control with a single leader and a single follower car drive on a lane and the follower car directly follows the leader. The follower car maintains velocity less than or equal to the lead car.
+See the paper for significantly more complicated car control verification, up to and including an arbitrary number of cars on an arbitrary number of lanes with lane switching and cars entering and leaving the highway.</description>
+        		<img href="http://symbolaris.com/info/fig-car-control2.png"/>
+        	    <source href="http://symbolaris.com/info/DCCS.html"/>
+        		<requirements>
+        			<some>
+        				<quantifiereliminator>Mathematica</quantifiereliminator>
+        			</some>
+        		</requirements>
+        	</example>
+        	<example>
+        		<name>Car Control follow adaptively [simplified]</name>
+        		<path>/examples/hybrid/car/DCCS/dccs-example.key</path>
+        		<description>A very simplified version of car control. Here only one single leader and a single follower car drive on a lane. In this simplified version, however, the leader car is stuck at a traffic light.
+See the paper for significantly more complicated car control verification, up to and including an arbitrary number of cars on an arbitrary number of lanes with lane switching and cars entering and leaving the highway.</description>
+        		<img href="http://symbolaris.com/info/fig-car-control2.png"/>
+        	    <source href="http://symbolaris.com/lahs/"/>
+        		<requirements>
+        			<some>
+        				<quantifiereliminator>Mathematica</quantifiereliminator>
+        			</some>
+        		</requirements>
+        	</example>
+		</group>
 		<group name="Bouncing ball">
 			<example>
 				<name>Bouncing Ball [simple]</name>
