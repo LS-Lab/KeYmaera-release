@@ -109,17 +109,20 @@ class SequentViewListener extends MouseInputAdapter
 	}
     }       
     
+   /**
+    * The information that will be shown about a term when the mouse points with ALT
+    */
     private String getTermInfo() {
         if ((mousePos == null)||
             ("".equals(seqView.getHighlightedText()))) return null;
-        Term t  ;
+        final Term t  ;
         final PosInOccurrence posInOcc = mousePos.getPosInOccurrence();
         if (posInOcc != null) {
             t = posInOcc.subTerm();
             String tOpClassString = t.op().getClass().toString();
             String operator = tOpClassString.substring(
                 tOpClassString.lastIndexOf('.')+1);
-            return  operator + ", Sort: " + t.sort();
+            return  operator + ", Sort: " + t.sort() + ", freeVars: " + t.freeVars();
         }
         return null;
     }
