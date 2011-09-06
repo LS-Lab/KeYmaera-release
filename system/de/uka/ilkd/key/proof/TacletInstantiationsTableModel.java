@@ -394,7 +394,14 @@ public class TacletInstantiationsTableModel extends AbstractTableModel {
 		return new LocationVariable
 		    (VariableNamer.parseName(instantiation), kjt);
 	    }
-	}
+		} else if (svSort == ProgramSVSort.DL_DIFF_SYSTEM_SORT_INSTANCE) {
+			JavaBlock programBlock = services
+					.getProgramBlockProvider()
+					.getProgramBlock(
+							new ParserConfig(services, services.getNamespaces()),
+							instantiation, false, true, false);
+			return ((StatementBlock) programBlock.program()).getChildAt(0);
+		}
 	return null;
     }
 
