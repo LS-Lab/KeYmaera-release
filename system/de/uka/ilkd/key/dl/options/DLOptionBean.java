@@ -281,6 +281,8 @@ public class DLOptionBean implements Settings {
 	private File csdpBinary;
 	private boolean csdpForceInternal;
 
+	private boolean resetStrategyAfterEveryRun;
+
 	private DLOptionBean() {
 		subOptions = new LinkedHashSet<Settings>();
 		foStrategy = FirstOrderStrategy.LAZY;
@@ -1310,5 +1312,13 @@ public class DLOptionBean implements Settings {
 			this.csdpForceInternal = csdpForceInternal;
 			firePropertyChanged();
 		}
+	}
+
+	public boolean isResetStrategyAfterEveryRun() {
+		return resetStrategyAfterEveryRun;
+	}
+
+	public void setResetStrategyAfterEveryRun(boolean resetStrategyAfterEveryRun) {
+		this.resetStrategyAfterEveryRun = resetStrategyAfterEveryRun;
 	}
 }

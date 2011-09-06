@@ -172,7 +172,8 @@ public enum EPropertyConstant {
 		    								   + "which are converted to some normal form. For formulas, however, the<br>" 
 		    								   + "simplified equivalent is by no means canonical.</html>", "Redlog Properties"), 
 	    
-	    INITIAL_DIALOG_CHECKBOX("[StartUpOptions]skipInitialDialog", null,"Check to skip this dialog in the future.", "CheckBox");
+	    INITIAL_DIALOG_CHECKBOX("[StartUpOptions]skipInitialDialog", null,"Check to skip this dialog in the future.", "CheckBox"), 
+	    DLOPTIONS_RESET_STRATEGY_AFTER_EVERY_RUN("[DLOptions]resetStrategyAfterEveryRun", "Reset Strategy", "Check this option to reset the strategy knowledge about applicable rules after every execution of the strategy.", "DL Properties");
 
 	    private String groupName;
 	    private String key;
