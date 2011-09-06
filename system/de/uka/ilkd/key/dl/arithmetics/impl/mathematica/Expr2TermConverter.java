@@ -371,6 +371,7 @@ public class Expr2TermConverter implements ExprConstants {
                     }
                     return TermBuilder.DF.func(f);
                 } else {
+	                // convert names
                     Name name;
                     if (expr.asString().endsWith("$")) {
                         name = new Name(expr.asString().substring(0,
@@ -389,6 +390,7 @@ public class Expr2TermConverter implements ExprConstants {
                         return TermBuilder.DF
                                 .var(quantifiedVariables.get(name));
                     }
+                    checkNamespaceClash(name, nss);
                     Named var = nss.variables().lookup(name);
                     if (var != null) {
                         if (var instanceof LogicVariable) {
@@ -429,6 +431,44 @@ public class Expr2TermConverter implements ExprConstants {
         }
         throw new UnableToConvertInputException("Dont know how to convert "
                 + expr);
+    }
+
+    private static boolean checkNamespaceClash(Name name, NamespaceSet nss) {
+        final Named var = nss.variables().lookup(name);
+        final Named fct = nss.functions().lookup(name);
+        final Named prgvar = nss.programVariables().lookup(name);
+        if (var != null) {
+            if (fct != null || prgvar != null) {
+                if (var instanceof LogicVariable) {
+		            System.out.println("WARNING Namespace logical variable " + TermBuilder.DF.var((LogicVariable) var) + " preferred over function " + fct + " and program variable " + prgvar);
+                } else if (var instanceof Metavariable) {
+		            System.out.println("WARNING Namespace meta variable " + TermFactory.DEFAULT
+	                        .createFunctionTerm((Metavariable) var) + " preferred over function " + fct + " and program variable " + prgvar);
+                }
+	            return true;
+	         } else {
+		        return false;
+        	 }
+        } else if (fct != null) {
+	            if (var != null || prgvar != null) {
+	                System.out.println("WARNING Namespace function " + fct + " preferred over variable " + var + " and program variable " + prgvar);
+	                assert var == null;
+                    return true;
+                } else {
+	                return false;
+                }
+            } else if (prgvar != null) {
+	            if (var != null || fct != null) {
+	                System.out.println("WARNING Namespace program variable " + TermBuilder.DF
+                            .var((de.uka.ilkd.key.logic.op.ProgramVariable) var) + " preferred over variable " + var + " and function " + fct);
+                    assert false : "cannot happen";
+                    return true;
+                 } else {
+	                return false;
+                 }
+            } else {
+	            return false;
+            }
     }
 
     public static boolean isBlacklisted(Name name) {
