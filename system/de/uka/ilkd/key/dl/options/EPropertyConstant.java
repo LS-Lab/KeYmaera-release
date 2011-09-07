@@ -13,9 +13,9 @@ public enum EPropertyConstant {
 	    DLOPTIONS_LOOPSAT_TIMEOUT("[DLOptions]loopSatTimeout", "initial LoopSat timeout", "the timeout used in the first iteration of the loop saturation strategy (in seconds)", "DL Properties"),	  
 	    
 	    
-	    DLOPTIONS_FO_STRATEGY ("[DLOptions]FOStrategy","First Order Strategy", "choose the strategy for first order goals. either STOP or completely UNFOLD,"
-	    									 + " perform EAGER quantifier elimination or LAZY, or activate the Iterative Background"
-	    									 + " Closure (IBC) strategy with incremental timeouts.", "DL Properties"),
+	    DLOPTIONS_FO_STRATEGY ("[DLOptions]FOStrategy","First Order Strategy", "<html><body>choose the strategy for first order goals. Either <br>STOP at first-order or <br>UNFOLD first-order completely and then stop"
+	    									 + " <br>EAGER quantifier elimination as soon as first-order or <br>LAZY quantifier elimination at leaves when no more options or <br>IBC Iterative Background"
+	    									 + " Closure strategy interleaving arithmetic and logic with incremental timeouts.</body></html>", "DL Properties"),
 	  
 	    DLOPTIONS_QUADRIC("[DLOptions]quadricTimeoutIncreaseFactor", "quadratic timeout", "the quadratic part of the IBC timeout. That is, the part c of t_new = a*t_old^2 + b*t_old + c (in seconds)", "DL Properties"),
 	    DLOPTIONS_LINEAR("[DLOptions]linearTimeoutIncreaseFactor", "linear timeout", "the linear part of the IBC timeout. That is, the part c of t_new = a*t_old^2 + b*t_old + c (in seconds)", "DL Properties"),
@@ -32,8 +32,8 @@ public enum EPropertyConstant {
 	    DLOPTIONS_APPLY_GAMMA_RULES("[DLOptions]applyGammaRules", "apply gamma rules", "choose if and when gamma rules should be applied for existential quantifiers", "DL Properties"),
 	    DLOPTIONS_COUNTEREXAMPLE_TEST("[DLOptions]counterexampleTest", "counterexample", "whether to check for counterexamples before trying to prove exhaustively", "DL Properties"),
 	    DLOPTIONS_INVARIANT_RULE("[DLOptions]invariantRule", null, null, "DL Properties"),
-	    DLOPTIONS_USE_DIFF_SAT("[DLOptions]DiffSat", "Differential Saturation", "select the desired automation degree of Differential " 
-	    									  + "Saturation for automatic differential induction. Either BLIND solving or OFF stopping at complex differential equations or SIMPLE differential invariants or DIFFAUTO differential saturation for differential equations or AUTO differential saturation and loop saturation", "DL Properties"),
+	    DLOPTIONS_USE_DIFF_SAT("[DLOptions]DiffSat", "Differential Saturation", "<html><body>select the desired automation degree of Differential " 
+	    									  + "Saturation for automatic differential induction. Either <br>BLIND solving or <br>OFF stopping at complex differential equations or <br>SIMPLE differential invariants or <br>DIFFAUTO differential saturation for differential equations or <br>AUTO differential saturation and loop saturation or <br>DESPARATE automatic solving with fallback to non-arithmetic solutions</body></html>", "DL Properties"),
 	    DLOPTIONS_IGNORE_ANNOTATIONS("[DLOptions]ignoreAnnotations", "ignore @annotations", "Whether to ignore all proof skeleton @annotations, like @invariant, @candidate etc.", "DL Properties"),
 	    DLOPTIONS_SIMPLIFY_TIMEOUT("[DLOptions]simplifyTimeout", "simplify timeout", "the timeout used for calls to the simplifier (in seconds), <=0 means no timeout", "DL Properties"),
 	    DLOPTIONS_ITERATIVE_REDUCE_RULE("[DLOptions]useIterativeReduceRule", "Iterative Inflation", "whether to activate the Iterative Inflation " 
@@ -47,7 +47,7 @@ public enum EPropertyConstant {
 	    DLOPTIONS_SOS_CHECKER("[DLOptions]sosChecker", "sos checker", "select the solver for handling the universal fragment of real arithmetic", "DL Properties"),
 	    DLOPTIONS_USE_POWERSET_ITERATIVE_REDUCE("[DLOptions]usePowersetIterativeReduce", "Inflation Powerset", "whether to use the powerset for iterative inflation or not", "DL Properties"),
 	    DLOPTIONS_PERCENT_OF_POWERSET_FOR_ITERATIVE_REDUCE("[DLOptions]percentOfPowersetForIterativeReduce", "Inflation Percent", "the percentage of the powerset to use for the iterative inflation", "DL Properties"),
-	    DLOPTIONS_BUILT_IN_ARITHMETIC("[DLOptions]BuiltInArithmetic", "built-in arithmetic", "select to which degree built-in arithmetic rules should be used. Either OFF or NORMALIZE polynomials or NORMALIZE&REDUCE polynomials or FULL S-POLYNOMIAL forming", "DL Properties"),
+	    DLOPTIONS_BUILT_IN_ARITHMETIC("[DLOptions]BuiltInArithmetic", "built-in arithmetic", "<html><body>select to which degree built-in arithmetic rules should be used. Either <br>OFF or <br>NORMALIZE polynomials or <br>NORMALIZE&REDUCE polynomials with multivariate polynomial division or <br>FULL S-POLYNOMIAL forming like Gr\u00f6bner bases</body></html>", "DL Properties"),
 	    DLOPTIONS_BUILT_IN_ARITHMETIC_INEQS("[DLOptions]BuiltInArithmeticIneqs", "built-in inequalities", "select whether built-in rules for inequalities are to be used", "DL Properties"),
 	    DLOPTIONS_USE_SOS("[DLOptions]useSOS", "semi-definite programs", "select whether to use semi-definite programming and sum of squares rule, or instead use groebner basis or quantifier elimination rules.", "DL Properties"),
 	    

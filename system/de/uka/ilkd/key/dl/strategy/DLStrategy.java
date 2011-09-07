@@ -515,7 +515,9 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 
 		if (DLOptionBean.INSTANCE.getDiffSat() != DiffSat.BLIND) {
 			bindRuleSet(d, "diff_solve", ifZero(or(isAnnotated("weaken"),or(isAnnotated("diffind"),or(isAnnotated("invariant"),isAnnotated("candidate")))),
-			longConst(14000),
+			(DLOptionBean.INSTANCE.getDiffSat() == DiffSat.DESPARATE ? longConst(14000) 
+			: ifZero(ODESolvableFeature.INSTANCE,
+					longConst(14000), inftyConst())),
 			ifZero(ODESolvableFeature.INSTANCE,
 					longConst(4000), inftyConst())));
 		}
