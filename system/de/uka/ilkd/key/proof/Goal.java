@@ -11,24 +11,42 @@
 
 package de.uka.ilkd.key.proof;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.swing.SwingUtilities;
+
+import de.uka.ilkd.key.collection.DefaultImmutableSet;
 import de.uka.ilkd.key.collection.ImmutableList;
 import de.uka.ilkd.key.collection.ImmutableSLList;
-import de.uka.ilkd.key.collection.DefaultImmutableSet;
 import de.uka.ilkd.key.collection.ImmutableSet;
+import de.uka.ilkd.key.gui.Main;
 import de.uka.ilkd.key.gui.RuleAppListener;
-import de.uka.ilkd.key.logic.*;
+import de.uka.ilkd.key.logic.ConstrainedFormula;
+import de.uka.ilkd.key.logic.Constraint;
+import de.uka.ilkd.key.logic.Named;
+import de.uka.ilkd.key.logic.Namespace;
+import de.uka.ilkd.key.logic.PosInOccurrence;
+import de.uka.ilkd.key.logic.PosInTerm;
+import de.uka.ilkd.key.logic.Sequent;
+import de.uka.ilkd.key.logic.SequentChangeInfo;
 import de.uka.ilkd.key.logic.op.Metavariable;
 import de.uka.ilkd.key.logic.op.ProgramVariable;
 import de.uka.ilkd.key.proof.incclosure.BranchRestricter;
 import de.uka.ilkd.key.proof.incclosure.Sink;
 import de.uka.ilkd.key.proof.proofevent.NodeChangeJournal;
 import de.uka.ilkd.key.proof.proofevent.RuleAppInfo;
-import de.uka.ilkd.key.rule.*;
+import de.uka.ilkd.key.rule.BuiltInRule;
+import de.uka.ilkd.key.rule.BuiltInRuleApp;
+import de.uka.ilkd.key.rule.NoPosTacletApp;
+import de.uka.ilkd.key.rule.RuleApp;
+import de.uka.ilkd.key.rule.Taclet;
+import de.uka.ilkd.key.rule.TacletApp;
+import de.uka.ilkd.key.rule.UpdateSimplificationRule;
+import de.uka.ilkd.key.rule.UpdateSimplifier;
 import de.uka.ilkd.key.rule.inst.SVInstantiations;
 import de.uka.ilkd.key.strategy.AutomatedRuleApplicationManager;
 import de.uka.ilkd.key.strategy.QueueRuleApplicationManager;
@@ -660,12 +678,32 @@ public class Goal  {
     
 
     /** fires the event that a rule has been applied */
-    protected void fireRuleApplied( ProofEvent p_e ) {
-	synchronized(ruleAppListenerList) {
-        for (RuleAppListener aRuleAppListenerList : ruleAppListenerList) {
-            aRuleAppListenerList.ruleApplied(p_e);
+    protected void fireRuleApplied(final ProofEvent p_e ) {
+		Runnable runnable = new Runnable() {
+			
+			@Override
+			public void run() {
+				synchronized(ruleAppListenerList) {
+				for (final RuleAppListener aRuleAppListenerList : ruleAppListenerList) {
+					aRuleAppListenerList.ruleApplied(p_e);
+				}
+				}
+			}
+		};
+		if (Main.getInstance().mediator().autoMode() || SwingUtilities.isEventDispatchThread()) {
+        	runnable.run();
+        } else {
+        	try {
+
+				SwingUtilities.invokeAndWait(runnable);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (InvocationTargetException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
         }
-	}
     }    
     
     
@@ -700,7 +738,6 @@ public class Goal  {
         }
 
         final RuleAppInfo ruleAppInfo = journal.getRuleAppInfo(p_ruleApp);
-
         if ( goalList != null )
             fireRuleApplied( new ProofEvent ( proof, ruleAppInfo ) );
         return goalList;

@@ -10,12 +10,16 @@
 
 package de.uka.ilkd.key.proof;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
+
+import javax.swing.SwingUtilities;
 
 import de.uka.ilkd.key.dl.rules.IrrevocableRule;
 import de.uka.ilkd.key.collection.ImmutableList;
 import de.uka.ilkd.key.collection.ImmutableSLList;
 import de.uka.ilkd.key.gui.GUIEvent;
+import de.uka.ilkd.key.gui.Main;
 import de.uka.ilkd.key.gui.configuration.ProofSettings;
 import de.uka.ilkd.key.gui.configuration.SettingsListener;
 import de.uka.ilkd.key.java.JavaInfo;
@@ -686,24 +690,97 @@ public class Proof implements Named {
 
 
     /** fires the event that the proof has been expanded at the given node */
-    protected void fireProofExpanded(Node node) {
-	ProofTreeEvent e = new ProofTreeEvent(this, node);
+    protected void fireProofExpanded(final Node node) {
+    	Runnable runnable = new Runnable() {
+
+			@Override
+			public void run() {
+				fireProofExpandedImpl(node);
+			}
+    		
+    	};
+    	if (Main.getInstance().mediator().autoMode() || SwingUtilities.isEventDispatchThread()) {
+    		runnable.run();
+    	} else {
+    		try {
+				SwingUtilities.invokeAndWait(runnable);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (InvocationTargetException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+    	}
+    }
+    
+    protected void fireProofExpandedImpl(final Node node) {
+		ProofTreeEvent e = new ProofTreeEvent(Proof.this, node);
         for (ProofTreeListener aListenerList : listenerList) {
             aListenerList.proofExpanded(e);
         }
     }
 
     /** fires the event that the proof has been pruned at the given node */
-    protected void fireProofIsBeingPruned(Node node, Node removedNode) {
+    protected void fireProofIsBeingPruned(final Node node, final Node removedNode) {
+    	Runnable runnable = new Runnable() {
+
+			@Override
+			public void run() {
+				fireProofIsBeingPrunedImpl(node, removedNode);
+			}
+    		
+    	};
+    	if (Main.getInstance().mediator().autoMode() || SwingUtilities.isEventDispatchThread()) {
+    		runnable.run();
+    	} else {
+    		try {
+				SwingUtilities.invokeAndWait(runnable);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (InvocationTargetException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+    	}
+    }
+    
+    protected void fireProofIsBeingPrunedImpl(Node node, Node removedNode) {
         ProofTreeEvent e = new ProofTreeRemovedNodeEvent(this, node, removedNode);
         clearSMTandFPData(removedNode);
         for (ProofTreeListener aListenerList : listenerList) {
             aListenerList.proofIsBeingPruned(e);
         }
     } 
+    
 
     /** fires the event that the proof has been pruned at the given node */
-    protected void fireProofPruned(Node node, Node removedNode) {
+    protected void fireProofPruned(final Node node, final Node removedNode) {
+    	Runnable runnable = new Runnable() {
+
+			@Override
+			public void run() {
+				fireProofPrunedImpl(node, removedNode);
+			}
+    		
+    	};
+    	if (Main.getInstance().mediator().autoMode() || SwingUtilities.isEventDispatchThread()) {
+    		runnable.run();
+    	} else {
+    		try {
+				SwingUtilities.invokeAndWait(runnable);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (InvocationTargetException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+    	}
+    }
+    
+    protected void fireProofPrunedImpl(Node node, Node removedNode) {
 	ProofTreeEvent e = new ProofTreeRemovedNodeEvent(this, node, removedNode);
         for (ProofTreeListener aListenerList : listenerList) {
             aListenerList.proofPruned(e);
@@ -712,6 +789,30 @@ public class Proof implements Named {
 
     /** fires the event that the proof has been restructured */
     protected void fireProofStructureChanged() {
+    	Runnable runnable = new Runnable() {
+
+			@Override
+			public void run() {
+				fireProofStructureChangedImpl();
+			}
+    		
+    	};
+    	if (Main.getInstance().mediator().autoMode() || SwingUtilities.isEventDispatchThread()) {
+    		runnable.run();
+    	} else {
+    		try {
+				SwingUtilities.invokeAndWait(runnable);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (InvocationTargetException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+    	}
+    }
+    
+    protected void fireProofStructureChangedImpl() {
 	ProofTreeEvent e = new ProofTreeEvent(this);
         for (ProofTreeListener aListenerList : listenerList) {
             aListenerList.proofStructureChanged(e);
@@ -719,7 +820,31 @@ public class Proof implements Named {
     }
 
     /** fires the event that a goal has been removed from the list of goals */
-    protected void fireProofGoalRemoved(Goal goal) {
+    protected void fireProofGoalRemoved(final Goal goal) {
+    	Runnable runnable = new Runnable() {
+
+			@Override
+			public void run() {
+				fireProofGoalRemovedImpl(goal);
+			}
+    		
+    	};
+    	if (Main.getInstance().mediator().autoMode() || SwingUtilities.isEventDispatchThread()) {
+    		runnable.run();
+    	} else {
+    		try {
+				SwingUtilities.invokeAndWait(runnable);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (InvocationTargetException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+    	}
+    }
+    
+    protected void fireProofGoalRemovedImpl(Goal goal) {
 	ProofTreeEvent e = new ProofTreeEvent(this, goal);
         for (ProofTreeListener aListenerList : listenerList) {
             aListenerList.proofGoalRemoved(e);
@@ -729,7 +854,31 @@ public class Proof implements Named {
     /** fires the event that new goals have been added to the list of
      * goals 
      */
-    protected void fireProofGoalsAdded(ImmutableList<Goal> goals) {
+    protected void fireProofGoalsAdded(final ImmutableList<Goal> goals) {
+    	Runnable runnable = new Runnable() {
+
+			@Override
+			public void run() {
+				fireProofGoalsAddedImpl(goals);
+			}
+    		
+    	};
+    	if (Main.getInstance().mediator().autoMode() || SwingUtilities.isEventDispatchThread()) {
+    		runnable.run();
+    	} else {
+    		try {
+				SwingUtilities.invokeAndWait(runnable);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (InvocationTargetException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+    	}
+    }
+    
+    protected void fireProofGoalsAddedImpl(ImmutableList<Goal> goals) {
 	ProofTreeEvent e = new ProofTreeEvent(this, goals);
         for (ProofTreeListener aListenerList : listenerList) {
             aListenerList.proofGoalsAdded(e);
@@ -745,6 +894,30 @@ public class Proof implements Named {
 
     /** fires the event that the proof has been restructured */
     protected void fireProofGoalsChanged() {
+    	Runnable runnable = new Runnable() {
+
+			@Override
+			public void run() {
+				fireProofGoalsChangedImpl();
+			}
+    		
+    	};
+    	if (Main.getInstance().mediator().autoMode() || SwingUtilities.isEventDispatchThread()) {
+    		runnable.run();
+    	} else {
+    		try {
+				SwingUtilities.invokeAndWait(runnable);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (InvocationTargetException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+    	}
+    }
+    
+    protected void fireProofGoalsChangedImpl() {
 	ProofTreeEvent e = new ProofTreeEvent(this, openGoals());
         for (ProofTreeListener aListenerList : listenerList) {
             aListenerList.proofGoalsChanged(e);
@@ -756,6 +929,29 @@ public class Proof implements Named {
      * the last goal in list is removed.
      */
     protected void fireProofClosed() {
+    	Runnable runnable = new Runnable() {
+
+			@Override
+			public void run() {
+				fireProofClosedImpl();
+			}
+    		
+    	};
+    	if (Main.getInstance().mediator().autoMode() || SwingUtilities.isEventDispatchThread()) {
+    		runnable.run();
+    	} else {
+    		try {
+				SwingUtilities.invokeAndWait(runnable);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (InvocationTargetException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+    	}
+    }
+    protected void fireProofClosedImpl() {
 	ProofTreeEvent e = new ProofTreeEvent(this);
         for (ProofTreeListener aListenerList : listenerList) {
             aListenerList.proofClosed(e);

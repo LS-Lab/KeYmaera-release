@@ -163,7 +163,7 @@ public class InteractiveProver {
             
             @Override
             public void threadFinished(IThreadSender sender) {
-                
+                System.out.println("Finishing Thread");
                 ImmutableList<Goal> goalList = applyInteractiveThread.getListOfGoal();
                 
                 if (!getProof ().closed ()) {
@@ -200,9 +200,9 @@ public class InteractiveProver {
             
         });
         Main.getInstance().freezeExceptAutoModeButton();
-//        applyInteractiveThread.start();
+        applyInteractiveThread.start();
 // 		FIXME this should be start, but we call run as there are some deadlocks otherwise
-        applyInteractiveThread.run(); 
+//        applyInteractiveThread.run(); 
         System.out.println("InteractiveProver: THREAD STARTED!");
     }
 
