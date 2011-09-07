@@ -19,6 +19,7 @@ import java.awt.dnd.DropTargetAdapter;
 import java.awt.dnd.DropTargetDropEvent;
 import java.awt.dnd.DropTargetListener;
 import java.awt.event.*;
+import java.beans.PropertyChangeListener;
 import java.io.*;
 import java.net.URL;
 import java.util.ArrayList;
@@ -46,6 +47,7 @@ import org.apache.log4j.Logger;
 import de.uka.ilkd.key.collection.ImmutableList;
 import de.uka.ilkd.key.dl.DLInitializer;
 import de.uka.ilkd.key.dl.DLProfile;
+import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
 import de.uka.ilkd.key.dl.gui.ProjectManager;
 import de.uka.ilkd.key.dl.gui.TimeStatisticGenerator;
 import de.uka.ilkd.key.dl.gui.initialdialog.gui.InitialDialogBeans;
@@ -1447,7 +1449,16 @@ public class Main extends JFrame implements IMain {
 			// + ")");
 		}});
 	registerAtMenu(view, tacletOptionsView);
-        
+
+	JMenuItem serverConsole = new JMenuItem("Mathematica Console");
+	serverConsole.addActionListener(new ActionListener() {
+		
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			MathSolverManager.toggleServerConsole();
+		}
+	});
+	registerAtMenu(view, serverConsole);
         
         return view; 
     }

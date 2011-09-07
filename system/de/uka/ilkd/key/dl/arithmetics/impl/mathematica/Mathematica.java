@@ -22,6 +22,8 @@
  */
 package de.uka.ilkd.key.dl.arithmetics.impl.mathematica;
 
+import java.io.IOException;
+import java.net.UnknownHostException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -41,6 +43,7 @@ import de.uka.ilkd.key.dl.arithmetics.IGroebnerBasisCalculator;
 import de.uka.ilkd.key.dl.arithmetics.IODESolver;
 import de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator;
 import de.uka.ilkd.key.dl.arithmetics.ISimplifier;
+import de.uka.ilkd.key.dl.arithmetics.abort.ServerConsole;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ConnectionProblemException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ServerStatusProblemException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
@@ -65,6 +68,8 @@ public class Mathematica implements ICounterExampleGenerator, IODESolver,
 
 	private IMathematicaDLBridge bridge;
 
+	private ServerConsole serverConsole;
+
 	public Mathematica(Node node) {
 		XPath xpath = XPathFactory.newInstance().newXPath();
 		String server = null;
@@ -80,6 +85,7 @@ public class Mathematica implements ICounterExampleGenerator, IODESolver,
 						+ "<server><ip/><port/></server> needed");
 			}
 			bridge = new MathematicaDLBridge(server, port);
+
 		} catch (XPathExpressionException e) {
 			e.printStackTrace(); // XXX
 			throw new RuntimeException("Error parsing XML config", e);
@@ -313,5 +319,9 @@ public class Mathematica implements ICounterExampleGenerator, IODESolver,
 	public boolean isConfigured() {
 		return Options.INSTANCE.getMathKernel().isFile()
 				&& Options.INSTANCE.getMathKernel().exists();
+	}
+	
+	public void toggleServerConsole() {
+		((MathematicaDLBridge)bridge).toggleServerConsole();
 	}
 }

@@ -24,6 +24,7 @@ package de.uka.ilkd.key.dl.arithmetics.impl.mathematica;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.net.UnknownHostException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -48,6 +49,7 @@ import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
 import de.uka.ilkd.key.dl.arithmetics.IODESolver.ODESolverResult;
 import de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator.PairOfTermAndQuantifierType;
 import de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator.QuantifierType;
+import de.uka.ilkd.key.dl.arithmetics.abort.ServerConsole;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ConnectionProblemException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.IncompleteEvaluationException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ServerStatusProblemException;
@@ -146,6 +148,8 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 	 */
 	private DL2ExprConverter lnkDL2ExprConverter;
 
+	private ServerConsole serverConsole;
+
 	/**
 	 * Creates a new instance of the MathematicaDLBridge
 	 * 
@@ -186,11 +190,32 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 			try {
 				kernelWrapper = (IKernelLinkWrapper) reg
 						.lookup(KernelLinkWrapper.IDENTITY);
+				try {
+					serverConsole = new ServerConsole("Server Console", new String[] {"server=" + serverIP, "port=" + port}, false);
+				} catch (UnknownHostException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			} catch (NotBoundException e) {
 				throw new RemoteException("Problem with KernelLink", e);
 			}
 		}
 		return kernelWrapper;
+	}
+	
+	public void toggleServerConsole() {
+		if(serverConsole == null) {
+			try {
+				getKernelWrapper();
+			} catch (RemoteException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		serverConsole.setVisible(!serverConsole.isVisible());
 	}
 
 	/*
