@@ -80,9 +80,9 @@ public class TextToHtml {
 	}
 	
 	private static String replaceQuantifiers(String input) {
-		Pattern pattern = Pattern.compile("(\\\\forall) (\\w+) (.*);");
+		Pattern pattern = Pattern.compile("(\\\\forall) (\\w+) (.*?);");
 		input = replaceAllWithPrefixedSub(input, pattern, "\u2200");
-		pattern = Pattern.compile("(\\\\exists) (\\w+) (.*);");
+		pattern = Pattern.compile("(\\\\exists) (\\w+) (.*?);");
 		input = replaceAllWithPrefixedSub(input, pattern, "\u2203");
 		return input;
 	}

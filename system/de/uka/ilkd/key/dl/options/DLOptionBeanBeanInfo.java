@@ -153,6 +153,9 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
 					createDescriptor(
 							"csdpForceInternal", EPropertyConstant.DLOPTIONS_CSDP_FORCE_INTERNAL,
 							true, false),
+					createDescriptor(
+									"resetStrategyAfterEveryRun", EPropertyConstant.DLOPTIONS_RESET_STRATEGY_AFTER_EVERY_RUN,
+									true, false),
 			// createDescriptor("invariantRule", "invariant rule",
 			// "choose which invariant rule should be used", true,
 			// false, InvariantRulePropertyEditor.class),

@@ -29,6 +29,7 @@ import de.uka.ilkd.key.collection.ImmutableSLList;
 import de.uka.ilkd.key.dl.DLProfile;
 import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
 import de.uka.ilkd.key.dl.gui.AutomodeListener;
+import de.uka.ilkd.key.dl.options.DLOptionBean;
 import de.uka.ilkd.key.gui.configuration.StrategySettings;
 import de.uka.ilkd.key.gui.notification.events.GeneralFailureEvent;
 import de.uka.ilkd.key.proof.DefaultGoalChooserBuilder;
@@ -197,6 +198,12 @@ public class ApplyStrategy {
             Debug.out("Strategy stopped.");
             Debug.out("Applied ", countApplied);
             Debug.out("Time elapsed: ", time);
+			// reset strategy on all branches
+            if(Main.getInstance().mediator().getProfile() instanceof DLProfile) {
+            	if(DLOptionBean.INSTANCE.isResetStrategyAfterEveryRun()) {
+            		proof.setActiveStrategy(proof.getActiveStrategy());
+            	}
+            }
         }
         return "Done.";
     }
