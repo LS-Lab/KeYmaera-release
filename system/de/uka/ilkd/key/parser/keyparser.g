@@ -77,7 +77,7 @@ options {
     private final static int LOCATION_MODIFIER = 1;
     private final static int HEAP_DEPENDENT = 2;
 
-    static HashMap<String, Character> prooflabel2tag = new HashMap<String, Character>(15);
+    static HashMap<String, Character> prooflabel2tag = new HashMap<String, Character>(21);
     static {
       prooflabel2tag.put("branch", new Character('b'));
       prooflabel2tag.put("rule", new Character('r'));
@@ -99,6 +99,7 @@ options {
       prooflabel2tag.put("matchconstraint", new Character('m'));
       prooflabel2tag.put("newnames", new Character('w'));
       prooflabel2tag.put("autoModeTime", new Character('e'));
+      prooflabel2tag.put("nodenum", new Character('x'));
    }
 
     private NamespaceSet nss;

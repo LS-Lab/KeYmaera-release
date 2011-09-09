@@ -21,8 +21,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Stack;
 import java.util.Vector;
 
@@ -258,7 +261,9 @@ public class ProblemLoader implements Runnable {
                children = currNode.childrenIterator(); // --"--
                iconfig = proof.env().getInitConfig();
                try {
-                   if (!keepProblem) {
+            	   proofParseTree = new ProofParseTree();
+            	   currRule = proofParseTree.getBranch().first();
+                   if (!keepProblem) {   
                        init.tryReadProof(this, po);
                    } else {
                        setStatusLine("Loading proof", (int)file.length());
@@ -275,6 +280,58 @@ public class ProblemLoader implements Runnable {
                        do { t = lexer.getSelector().nextToken();
                        } while (t.getType() != KeYLexer.PROOF);
                        parser.proofBody(this);
+                   }
+                   
+                   List<Branch> activeBranches = new ArrayList<Branch>();
+                   
+                   Branch b = proofParseTree.getBranch();
+                   
+                   b.setCurrentNode(currNode);
+                   b.setChildren(children);
+                   
+                   activeBranches.addAll(b.poll().getSubBranches());
+                   for(Branch bb: activeBranches) {
+                	   bb.setCurrentNode(currNode);
+                	   bb.setChildren(children);
+                   }
+                   
+                   
+                   while(activeBranches.size() > 0) {
+                	   Branch branch = activeBranches.get(0);
+                	   currNode = branch.getCurrentNode();
+                	   children = branch.getChildren();
+                	   
+                	   Rule rule = branch.poll();
+                	   
+                	   for(Pair<Character, String> p: rule.getRuleInfos()) {
+                		   beginExprImpl(p.id, p.str);
+                	   }
+                	   Collections.reverse(rule.getRuleInfos());
+                	   for(Pair<Character, String> p: rule.getRuleInfos()) {
+                		   endExprImpl(p.id, rule.getLineNumber());
+                	   }
+                	   
+                	   branch.setCurrentNode(currNode);
+                	   branch.setChildren(children);
+                	   
+                	   if(rule.getSubBranches().size() > 0) {
+                		   assert branch.isEmpty();
+                		   activeBranches.remove(branch);
+                		   activeBranches.addAll(rule.getSubBranches());
+                		   for(int i = 0; i < rule.getSubBranches().size(); i++) {
+                			   Node next = children.next();
+                			   rule.getSubBranches().get(i).setCurrentNode(next);
+                			   rule.getSubBranches().get(i).setChildren(next.childrenIterator());
+                		   }
+                		   assert !children.hasNext();
+                		   
+                	   }
+                	   
+                	   if(branch.isEmpty()) {
+                		   activeBranches.remove(branch);
+                	   }
+                	   
+                	   Collections.sort(activeBranches);
                    }
                } finally {
                     if (constraints.size() > 0) {
@@ -335,9 +392,33 @@ public class ProblemLoader implements Runnable {
     }
 
     private Vector<PairOfString> constraints = new Vector<PairOfString>();
+    private ProofParseTree proofParseTree = new ProofParseTree();
+    private Branch currBranch = proofParseTree.getBranch();
+	private Stack<Branch> branchStack = new Stack<Branch>();
+	private Rule currRule = proofParseTree.getBranch().first();
 
-    // note: Expressions without parameters only emit the endExpr signal
     public void beginExpr(char id, String s) {
+    	switch (id) {
+    	case 'b' :
+    		branchStack.push(currBranch);
+    		currBranch = new Branch();
+    		currRule.addBranch(currBranch);
+    		break;
+    	case 'r':
+    	case 'n':
+    		currRule = new Rule(id, s);
+    		currBranch.addRule(currRule);
+    		break;
+    	case 'x':
+    		currRule.setId(Integer.parseInt(s));
+    		break;
+    	default:
+    		currRule.addRuleInfo(id, s);
+    	}	
+    }
+    
+    // note: Expressions without parameters only emit the endExpr signal
+    public void beginExprImpl(char id, String s) {
         //System.out.println("start "+id+"="+s);
         
         //start no new commands until the ignored branch closes
@@ -469,8 +550,22 @@ public class ProblemLoader implements Runnable {
         }
     }
 
-
     public void endExpr(char id, int linenr) {
+    	switch(id) {
+    	case 'b':
+    		currBranch = branchStack.pop();
+    		currRule = currBranch.last();
+    		break;
+    	case 'r':
+    		currRule.setLineNumber(linenr);
+    		break;
+		case 'n':
+			currRule.setLineNumber(linenr);
+			break;
+    	}
+    }
+
+    public void endExprImpl(char id, int linenr) {
         //System.out.println("end "+id);
         //read no new commands until ignored branch closes
         if ((ignoreBranchRest > 0)&&(id!='b')) return; 

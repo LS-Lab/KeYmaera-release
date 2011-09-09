@@ -229,7 +229,7 @@ public class ProofSaver {
          if (l != null) tree.append(ifFormulaInsts(node, l));
          tree.append("");
          userInteraction2Proof(node, tree);
-         tree.append(")\n");
+         tree.append(" (nodenum \"" + node.getNodeInfo().getNodeNumber() + "\"))\n");
       }      
         
       if (appliedRuleApp instanceof BuiltInRuleApp) {
@@ -265,7 +265,7 @@ public class ProofSaver {
         }
 
 
-        tree.append(")\n");
+        tree.append(" (nodenum \"" + node.getNodeInfo().getNodeNumber() + "\"))\n");
       }
    }
        

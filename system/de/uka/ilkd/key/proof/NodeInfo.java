@@ -59,11 +59,19 @@ public class NodeInfo {
     /**Should be initialized when using loop invariant or operation (method) contract rules. 
      * Is used by the package bugdetection. */
     public ContractAppInfo cInfo;     
+    
+    private static int maxNodeNumber = 0;
+    
+    private final int nodeNum;
 
     public NodeInfo(Node node) {
         this.node = node;
+        nodeNum = maxNodeNumber++;
     }
 
+    public int getNodeNumber() {
+    	return nodeNum;
+    }
 
     private static List<Name> symbolicExecNames = new ArrayList<Name>(5);
     static {
