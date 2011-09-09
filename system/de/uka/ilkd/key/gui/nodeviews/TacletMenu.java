@@ -31,6 +31,7 @@ import de.uka.ilkd.key.collection.ImmutableList;
 import de.uka.ilkd.key.collection.ImmutableSLList;
 import de.uka.ilkd.key.dl.rules.EliminateExistentialQuantifierRule;
 import de.uka.ilkd.key.dl.rules.ReduceRule;
+import de.uka.ilkd.key.dl.rules.ReduceRuleApp;
 import de.uka.ilkd.key.gui.KeYMediator;
 import de.uka.ilkd.key.gui.Main;
 import de.uka.ilkd.key.gui.ReduceRulesItem;
@@ -377,6 +378,8 @@ class TacletMenu extends JMenu {
         		, selectedGoal//Main.getInstance().mediator().getProof()
         		, Main.getInstance().mediator().getProof().getUserConstraint().getConstraint()
         		, ((BuiltInRuleMenuItem) e.getSource()).connectedTo()).start();
+        	} else if (e.getSource() instanceof ReduceRulesItem) {
+        		mediator.selectedReduceRule((ReduceRuleApp) ((ReduceRulesItem) e.getSource()).getRuleApp());
         	} else {
                         mediator.selectedBuiltInRule
                     (((BuiltInRuleMenuItem) e.getSource()).connectedTo(), 

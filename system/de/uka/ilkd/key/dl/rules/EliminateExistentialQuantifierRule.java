@@ -70,6 +70,7 @@ import de.uka.ilkd.key.proof.RuleFilter;
 import de.uka.ilkd.key.rule.BuiltInRule;
 import de.uka.ilkd.key.rule.Rule;
 import de.uka.ilkd.key.rule.RuleApp;
+import de.uka.ilkd.key.rule.RuleAppNumber;
 
 /**
  * This class serves a rule to eliminate existential quantifiers
@@ -128,6 +129,11 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
 
 			};
 		}
+
+		@Override
+		public int getRuleAppNumber() {
+			return Integer.MAX_VALUE;
+		}
 	}
 
 	public static final EliminateExistentialQuantifierRule INSTANCE = new EliminateExistentialQuantifierRule();
@@ -152,9 +158,12 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
 		List<Metavariable> variables = new ArrayList<Metavariable>();
 		if (ruleApp instanceof ReduceRuleApp) {
 			for (String varName : ((ReduceRuleApp) ruleApp).getVariables()) {
-				variables.add((Metavariable) services.getNamespaces()
-						.variables().lookup(new Name(varName)));
+				Metavariable lookup = (Metavariable) services.getNamespaces()
+						.variables().lookup(new Name(varName));
+				variables.add(lookup);
 			}
+		} else {
+			new RuntimeException().printStackTrace();
 		}
 		if (variables.isEmpty()) {
 			final List<Metavariable> ops = new ArrayList<Metavariable>();

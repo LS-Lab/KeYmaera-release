@@ -548,6 +548,7 @@ public class KeYMediator {
 	RuleApp app = set.iterator().next();
 	if (app != null && app.rule() == rule) {
 //	    goal.apply(app);
+		System.out.println("Interactive build-in " + app);
 		applyInteractive(app, goal);
 	    return;
 	}
@@ -1179,7 +1180,7 @@ public class KeYMediator {
 	public boolean selectedReduceRule(ReduceRuleApp app) {
         Goal goal = keySelectionModel.getSelectedGoal();
         Debug.assertTrue(goal != null);        
-        if (!((BuiltInRule)app.rule()).isApplicable(goal, null, null)) {
+        if (!((BuiltInRule)app.rule()).isApplicable(goal, app.posInOccurrence(), null)) {
             barfRuleNotApplicable(app);
             return false;
         }
