@@ -304,6 +304,7 @@ public class ProblemLoader implements Runnable {
                 	   
                 	   if(branch.isEmpty()) {
                 		   activeBranches.remove(branch);
+                		   Collections.sort(activeBranches);
                 		   continue;
                 	   }
                 	   

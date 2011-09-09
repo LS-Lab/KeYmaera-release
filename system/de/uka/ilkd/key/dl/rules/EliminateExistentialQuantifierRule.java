@@ -162,8 +162,6 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
 						.variables().lookup(new Name(varName));
 				variables.add(lookup);
 			}
-		} else {
-			new RuntimeException().printStackTrace();
 		}
 		if (variables.isEmpty()) {
 			final List<Metavariable> ops = new ArrayList<Metavariable>();

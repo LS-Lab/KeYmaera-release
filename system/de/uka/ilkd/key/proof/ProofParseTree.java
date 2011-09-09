@@ -34,6 +34,10 @@ class Branch implements Comparable<Branch> {
 	public int compareTo(Branch o) {
 		if(o.rules.size() > 0 && rules.size() > 0) {
 			return rules.get(0).compareTo(o.rules.get(0));
+		} else if (o.rules.size() == 0 && rules.size() != 0) {
+			return 1;
+		} else if (rules.size() == 0 && o.rules.size() != 0) {
+			return -1;
 		}
 		return 0;
 	}
