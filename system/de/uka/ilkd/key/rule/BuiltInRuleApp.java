@@ -25,6 +25,9 @@ public class BuiltInRuleApp implements RuleApp {
     private BuiltInRule builtInRule;
     private PosInOccurrence pio;
     private Constraint userConstraint;
+    
+    private RuleAppNumber ruleAppNumber;
+    
 
     
     /** 
@@ -35,7 +38,8 @@ public class BuiltInRuleApp implements RuleApp {
 			  Constraint userConstraint) {
 	this.builtInRule    = builtInRule;
 	this.pio            = pio;
-	this.userConstraint = userConstraint;        
+	this.userConstraint = userConstraint;    
+	this.ruleAppNumber = new RuleAppNumber();
     }
 
     /**
@@ -94,5 +98,10 @@ public class BuiltInRuleApp implements RuleApp {
     public String toString() {
 	return ""+rule().name();
     }
+
+	@Override
+	public int getRuleAppNumber() {
+		return ruleAppNumber.getRuleAppNumber();
+	}
 
 }

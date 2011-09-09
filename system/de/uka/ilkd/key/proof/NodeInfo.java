@@ -60,17 +60,15 @@ public class NodeInfo {
      * Is used by the package bugdetection. */
     public ContractAppInfo cInfo;     
     
-    private static int maxNodeNumber = 0;
-    
-    private final int nodeNum;
-
     public NodeInfo(Node node) {
         this.node = node;
-        nodeNum = maxNodeNumber++;
     }
 
     public int getNodeNumber() {
-    	return nodeNum;
+    	if(node.getAppliedRuleApp() != null) {
+    		return node.getAppliedRuleApp().getRuleAppNumber();
+    	}
+    	return Integer.MAX_VALUE;
     }
 
     private static List<Name> symbolicExecNames = new ArrayList<Name>(5);

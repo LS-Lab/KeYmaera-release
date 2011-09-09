@@ -52,4 +52,5 @@ public interface RuleApp {
      */
     boolean complete();
 
+    int getRuleAppNumber();
 }

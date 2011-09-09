@@ -32,6 +32,7 @@ import java.util.Vector;
 import de.uka.ilkd.key.collection.ImmutableList;
 import de.uka.ilkd.key.collection.ImmutableSLList;
 import de.uka.ilkd.key.collection.ImmutableSet;
+import de.uka.ilkd.key.dl.rules.ReduceRuleApp;
 import de.uka.ilkd.key.gui.*;
 import de.uka.ilkd.key.gui.configuration.ProofSettings;
 import de.uka.ilkd.key.java.ProgramElement;
@@ -301,6 +302,11 @@ public class ProblemLoader implements Runnable {
                 	   currNode = branch.getCurrentNode();
                 	   children = branch.getChildren();
                 	   
+                	   if(branch.isEmpty()) {
+                		   activeBranches.remove(branch);
+                		   continue;
+                	   }
+                	   
                 	   Rule rule = branch.poll();
                 	   
                 	   for(Pair<Character, String> p: rule.getRuleInfos()) {
@@ -396,6 +402,7 @@ public class ProblemLoader implements Runnable {
     private Branch currBranch = proofParseTree.getBranch();
 	private Stack<Branch> branchStack = new Stack<Branch>();
 	private Rule currRule = proofParseTree.getBranch().first();
+	private ArrayList<String> reduceVariables;
 
     public void beginExpr(char id, String s) {
     	switch (id) {
@@ -547,6 +554,12 @@ public class ProblemLoader implements Runnable {
                 // ignore
             }
             break;
+        case 'R':
+        	reduceVariables = new ArrayList<String>();
+        	for (String m: s.trim().split(",")) {
+        		reduceVariables.add(m.trim());
+        	}
+        	break;
         }
     }
 
@@ -652,6 +665,12 @@ public class ProblemLoader implements Runnable {
             }
         }
         ourApp = (BuiltInRuleApp) ruleApps.iterator().next();
+        if (ourApp.rule() instanceof BuiltInRule && reduceVariables != null) {
+        	ourApp = new ReduceRuleApp((BuiltInRule) ourApp.rule(), pos,
+        			Constraint.BOTTOM, reduceVariables);
+        	reduceVariables = null;
+        }
+
         return ourApp;
     }
 

@@ -93,6 +93,8 @@ public abstract class TacletApp implements RuleApp {
      */
     protected boolean updateContextFixed = false;
 
+	private RuleAppNumber ruleAppNumber;
+
     /**
      * constructs a TacletApp for the given taclet, with an empty instantiation
      * map
@@ -112,6 +114,7 @@ public abstract class TacletApp implements RuleApp {
 	this.matchConstraint       = matchConstraint;
 	this.matchNewMetavariables = matchNewMetavariables;
 	this.ifInstantiations      = ifInstantiations;
+	this.ruleAppNumber = new RuleAppNumber();
     }
 
     /**
@@ -1722,5 +1725,9 @@ public abstract class TacletApp implements RuleApp {
 	}
     
 	return result;
+    }
+    
+    public int getRuleAppNumber() {
+    	return ruleAppNumber.getRuleAppNumber();
     }
 }
