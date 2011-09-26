@@ -62,6 +62,7 @@ import de.uka.ilkd.key.rule.inst.TermInstantiation;
  */
 public class ProofSaver {
 
+   private static boolean inSavingMode;
    protected IMain main;
    protected KeYMediator mediator;
    protected String filename;
@@ -102,6 +103,8 @@ public class ProofSaver {
       PrintWriter ps = null;
 
       try {
+    	  // set saving mode, so that the pretty printer knows that it needs to write the maximum amount of parentheses
+    	  inSavingMode = true;
           fos = new FileOutputStream(filename);
           ps = new PrintWriter(fos, true);
 
@@ -134,6 +137,8 @@ public class ProofSaver {
           errorMsg = e.toString();
           e.printStackTrace();
       } finally {
+    	  // reset saving mode
+    	  inSavingMode = false;
           try {
 	      if (fos != null) fos.close();
 	      if (ps != null) {
@@ -517,6 +522,10 @@ public class ProofSaver {
         p =  new LogicPrinter(new ProgramPrinter(null), ni, (shortAttrNotation ? serv : null), true);
         return p;
     }
+
+	public static boolean isInSavingMode() {
+		return inSavingMode;
+	}
 
 
 }

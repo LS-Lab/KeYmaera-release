@@ -157,6 +157,7 @@ import de.uka.ilkd.key.logic.op.ProgramSV;
 import de.uka.ilkd.key.logic.op.ProgramVariable;
 import de.uka.ilkd.key.logic.op.SchemaVariable;
 import de.uka.ilkd.key.pp.Range;
+import de.uka.ilkd.key.proof.ProofSaver;
 import de.uka.ilkd.key.rule.inst.SVInstantiations;
 import de.uka.ilkd.key.rule.metaconstruct.ProgramMetaConstruct;
 import de.uka.ilkd.key.rule.soundness.ProgramSVProxy;
@@ -3216,7 +3217,7 @@ public class PrettyPrinter {
                     write(e.getSymbol());
                 }
                 if (p.getChildCount() - startIndex > 0) {
-                    if (e.isBracesOnEqualPriority()) {
+                    if (ProofSaver.isInSavingMode() || e.isBracesOnEqualPriority()) {
                         write("(");
                         changeLevel(1);
                     }
@@ -3227,7 +3228,7 @@ public class PrettyPrinter {
 
                         writeElement(p.getChildAt(i));
                     }
-                    if (e.isBracesOnEqualPriority()) {
+                    if (ProofSaver.isInSavingMode() || e.isBracesOnEqualPriority()) {
                         changeLevel(-1);
                         write(")");
                     }
