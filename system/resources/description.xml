@@ -450,7 +450,7 @@ See the paper for significantly more complicated car control verification, up to
                         <path>/examples/hybrid/car/intersection/intersection-example-simple.key</path>
                         <description>A very simple intersection of two lanes, with one car moving on each lane.  The safety property applies only to the traffic light controller - verifying that it is always red on at least one of the two lanes.  The cars accelerate only if the traffic light is green, or they have already gone through the intersection.
 See the paper on safe intersections for a verification of the safety of the cars, as well as the traffic light.
-Be sure to set the Max Rule Application under Proof Search Strategy to maximum.</description>
+Proof hints: Be sure to set the Max Rule Application under Proof Search Strategy to maximum.</description>
                         <img href="http://symbolaris.com/info/stoplight.png"/>
                     <source href="http://symbolaris.com/info/DCCS.html"/>
                         <requirements>
