@@ -3195,7 +3195,7 @@ public class PrettyPrinter {
                     } else {
                         int comp = e.compareTo(eChild);
                         if (comp < 0
-                                || (comp == 0 && !e.isBracesOnEqualPriority())) {
+                                || (comp == 0 && !ProofSaver.isInSavingMode() && !e.isBracesOnEqualPriority())) {
                             braces = false;
                         }
                     }
