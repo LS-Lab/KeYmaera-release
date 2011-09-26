@@ -114,6 +114,7 @@ public class ProjectManager extends JFrame {
 	private static class ExampleInfo {
 		private String name;
 		private String url;
+		private String proofUrl;
 		private String description;
 		private Set<String> requirements;
 		private String source;
@@ -125,11 +126,12 @@ public class ProjectManager extends JFrame {
 		 * @param url
 		 * @param img 
 		 */
-		public ExampleInfo(String name, String url, String description,
+		public ExampleInfo(String name, String url, String proofUrl, String description,
 				String img, Set<String> requirements, String source) {
 			super();
 			this.name = name;
 			this.url = url;
+			this.proofUrl = proofUrl;
 			this.description = description;
 			this.img = img;
 			this.source = source;
@@ -191,6 +193,10 @@ public class ProjectManager extends JFrame {
 		 */
 		public String getImg() {
 			return img;
+		}
+		
+		public String getProofUrl() {
+			return proofUrl;
 		}
 
 		
@@ -275,6 +281,35 @@ public class ProjectManager extends JFrame {
 			}
 
 		});
+		
+		final JButton proofLoadButton = new JButton("Load Proof");
+		proofLoadButton.addActionListener(new ActionListener() {
+
+			/*@Override*/
+			public void actionPerformed(ActionEvent e) {
+				DefaultMutableTreeNode lastSelectedPathComponent = (DefaultMutableTreeNode) tree
+						.getLastSelectedPathComponent();
+				if (lastSelectedPathComponent != null) {
+					Object nodeInfo = lastSelectedPathComponent.getUserObject();
+					if (lastSelectedPathComponent.isLeaf()) {
+						ExampleInfo info = (ExampleInfo) nodeInfo;
+						File tmpfile = createTmpFileToLoad(info.getProofUrl());
+						if (tmpfile == null) {
+						    JOptionPane.showMessageDialog(ProjectManager.this, "Could not find project " + info.getName() + "\nat resource " + info.getUrl(), "Project Not Found", JOptionPane.ERROR_MESSAGE);
+						}
+						if (!requirementsMet[0]) {
+							JOptionPane.showMessageDialog(ProjectManager.this, "You will probably not be able to prove the validity of this example because you are missing some required solver.", "Missing Solver", JOptionPane.WARNING_MESSAGE);
+						}
+						Main.getInstance().loadProblem(tmpfile);
+						setVisible(false);
+						dispose();
+					}
+				}
+			}
+
+		});
+		proofLoadButton.setEnabled(false);
+		
 		JPanel buttonTextPanel = new JPanel(new BorderLayout());
 		JPanel textPanel = new JPanel(new BorderLayout());
 		JPanel imgPanel = new JPanel(new BorderLayout());
@@ -380,6 +415,11 @@ public class ProjectManager extends JFrame {
 							    // source.setText("<html><body>" + info.getSource().trim() + "</body></html>");
 							}
         					String or = "";
+        					if(info.getProofUrl() == null || info.getProofUrl().trim().equals("")) {
+        						proofLoadButton.setEnabled(false);
+        					} else {
+        						proofLoadButton.setEnabled(true);
+        					}
         					if (info.requirements.isEmpty()) {
         					        requirementsArea.setText("No special requirements");
         						requirementsArea.setForeground(Color.BLACK);
@@ -415,6 +455,7 @@ public class ProjectManager extends JFrame {
 		});
 		JPanel buttonPanel = new JPanel(new FlowLayout());
 		buttonPanel.add(button);
+		buttonPanel.add(proofLoadButton);
 		JButton cancel = new JButton("Cancel");
 		cancel.addActionListener(new ActionListener() {
 
@@ -555,6 +596,8 @@ public class ProjectManager extends JFrame {
 	    			XPathConstants.STRING);
 	    	String path = (String) xpath.evaluate("path", node, 
 	    			XPathConstants.STRING);
+	    	String proofPath = (String) xpath.evaluate("proofpath", node, 
+	    			XPathConstants.STRING);
 	    	String description = (String) xpath.evaluate("description", node,
 	    			XPathConstants.STRING);
 	    	Set<String> requirements = new LinkedHashSet<String>();
@@ -576,7 +619,7 @@ public class ProjectManager extends JFrame {
 	    	}
 	
 	    	tNode= new DefaultMutableTreeNode(
-	    			new ExampleInfo(name, path, description, im, requirements, sr));
+	    			new ExampleInfo(name, path, proofPath, description, im, requirements, sr));
 
 	    	return tNode;   
 	}

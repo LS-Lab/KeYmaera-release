@@ -127,6 +127,7 @@ Proves Proposition 7.6 (see book for how to prove)
 			<example>
 				<name>ETCS Train Control [liveness]</name>
 				<path>/examples/hybrid/ETCS/paper/liveness-lemma.key</path>
+				<proofpath>/examples/hybrid/ETCS/paper/liveness-lemma.key.proof</proofpath>
 				<description>Proves safety of the ETCS train control protocol case study. This example proves that the train can move beyond every position on the track.
 Proves Proposition 7.6 (see book for how to prove)
 			</description>
