@@ -576,6 +576,11 @@ public class ProblemLoader implements Runnable {
 		case 'n':
 			currRule.setLineNumber(linenr);
 			break;
+		case 'a':
+			// we need to execute this later but the userinteraction
+			// flag has no parameters therefore it it not pass beginExpr
+			currRule.addRuleInfo('a', null);
+			break;
     	}
     }
 

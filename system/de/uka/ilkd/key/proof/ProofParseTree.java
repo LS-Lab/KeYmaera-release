@@ -1,10 +1,8 @@
 package de.uka.ilkd.key.proof;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.TreeSet;
 
 public class ProofParseTree {
 	// this list needs to be reordered after each operation
