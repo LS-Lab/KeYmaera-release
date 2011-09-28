@@ -109,11 +109,27 @@ Bug 2: The constraint for acceleration is too lax and should be m-z>SB. The bugs
     				</requirements>
     			</example>
     		<group name="ETCS Train [advanced]">
+            <example>
+            	<name>ETCS Train Control [simple liveness]</name>
+            	<path>/examples/hybrid/ETCS/liveness/ETCS-essentials-live2.key</path>
+            	<proofpath>/examples/hybrid/ETCS/liveness/ETCS-essentials-live2.key.proof</proofpath>
+            	<description>Proves liveness of the essentials of the ETCS train control protocol. This example proves that a train can finally reach any desired position on the track. Please note, that this is the simplest possible system for the liveness requirement for the ETCS.
+Proves formula (2.20) from book (see book for hints how to prove or Load Proof)
+            </description>
+            	<source href="http://symbolaris.com/info/ETCS.html"/>
+            	<img 
+            		href="http://symbolaris.com/info/ETCS-MAProtocol-c.gif"/>
+            	<requirements>
+            		<some>
+            			<quantifiereliminator>Mathematica</quantifiereliminator>
+            		</some>
+            	</requirements>
+            </example>    		
 			<example>
 				<name>ETCS Train Control [simpler liveness]</name>
 				<path>/examples/hybrid/ETCS/liveness/ETCS-essentials-live-range.key</path>
 				<description>Proves safety of a slightly simplified ETCS train control protocol case study. This example proves that the train can move beyond every position on the track by just a single choice of movement authority.
-Proves Proposition 7.6 (see book for how to prove)
+Proves Proposition 7.6 (see book for hints how to prove or Load Proof)
 			</description>
 				<source href="http://symbolaris.com/info/ETCS.html"/>
 				<img 
@@ -129,7 +145,7 @@ Proves Proposition 7.6 (see book for how to prove)
 				<path>/examples/hybrid/ETCS/paper/liveness-lemma.key</path>
 				<proofpath>/examples/hybrid/ETCS/paper/liveness-lemma.key.proof</proofpath>
 				<description>Proves safety of the ETCS train control protocol case study. This example proves that the train can move beyond every position on the track.
-Proves Proposition 7.6 (see book for how to prove)
+Proves Proposition 7.6 (see book for hints how to prove or Load Proof)
 			</description>
 				<source href="http://symbolaris.com/info/ETCS.html"/>
 				<img 
@@ -176,7 +192,7 @@ Depending on your settings, use Update Simplification and Eliminate Universal Qu
 				<path>/examples/hybrid/ETCS/paper/reactivity-lemma-disturbed-simplified.key</path>
 				<proofpath>/examples/hybrid/ETCS/paper/proofs/proposition10.key.proof</proofpath>
 				<description>Proves safety of the ETCS train control protocol case study despite disturbance in the physical dynamics. This example proves that the train can react to situation changes.
-Proves Proposition 7.8 (see book for how to prove)
+Proves Proposition 7.8 (see book for hints how to prove or Load Proof)
 			</description>
 				<source href="http://symbolaris.com/info/ETCS.html"/>
 				<img 
@@ -450,6 +466,7 @@ See the paper for significantly more complicated car control verification, up to
                 <example>
                 <name>Car Control intersection [simple]</name>
                         <path>/examples/hybrid/car/intersection/intersection-example-simple.key</path>
+                        <proofpath>/examples/hybrid/car/intersection/intersection-example-simple.key.proof</proofpath>
                         <description>A very simple intersection of two lanes, with one car moving on each lane.  The safety property applies only to the traffic light controller - verifying that it is always red on at least one of the two lanes.  The cars accelerate only if the traffic light is green, or they have already gone through the intersection.
 See the paper on safe intersections for a verification of the safety of the cars, as well as the traffic light.
 Proof hints: Be sure to set the Max Rule Application under Proof Search Strategy to maximum.</description>
@@ -593,7 +610,9 @@ Proves Example 3.21</description>
 				<example>
         				<name>Switched Damped Oscillator</name>
         				<path>/examples/hybrid/switchstab-param.key</path>
-        				<description>Switched damped oscillator switching between two modes of damped oscillators at some diagonals. Identifies the assumptions on the switching surface taht are required for safety. Proof hints: The automatic proof pauses at some point. Then use diffweaken and resume automatic proof.
+                        <proofpath>/examples/hybrid/switchstab-param.key.proof</proofpath>
+<description>Switched damped oscillator switching between two modes of damped oscillators at some diagonals. Identifies the assumptions on the switching surface taht are required for safety.
+Proof hints: The automatic proof pauses at some point. Then use diffweaken and resume automatic proof. Or use Load Proof.
 Proves Figure 3.19</description>
         				<img href="http://symbolaris.com/info/fig-switchstab-evo-late-eye.png"/>
         			    <source href="http://symbolaris.com/lahs/"/>
