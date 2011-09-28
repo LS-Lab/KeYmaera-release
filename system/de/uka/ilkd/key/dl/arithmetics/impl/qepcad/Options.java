@@ -31,6 +31,7 @@ import de.uka.ilkd.key.dl.options.EPropertyConstant;
 import de.uka.ilkd.key.gui.GUIEvent;
 import de.uka.ilkd.key.gui.configuration.Settings;
 import de.uka.ilkd.key.gui.configuration.SettingsListener;
+import de.uka.ilkd.key.proof.ProofSaver;
 
 /**
  * This class serves options specific for the Qepcad interface
@@ -122,8 +123,11 @@ public class Options implements Settings {
 	 * @see de.uka.ilkd.key.gui.Settings#writeSettings(java.util.Properties)
 	 */
 	public void writeSettings(Properties props) {
-		props.setProperty(EPropertyConstant.QEPCAD_OPTIONS_QEPCAD_PATH.getKey(), qepcadPath.getAbsolutePath());
-		props.setProperty(EPropertyConstant.QEPCAD_OPTIONS_SACLIB_PATH.getKey(), saclibPath.getAbsolutePath());
+		if(!ProofSaver.isInSavingMode()) {
+			// we don't want to save user specific pathes when saving proofs
+			props.setProperty(EPropertyConstant.QEPCAD_OPTIONS_QEPCAD_PATH.getKey(), qepcadPath.getAbsolutePath());
+			props.setProperty(EPropertyConstant.QEPCAD_OPTIONS_SACLIB_PATH.getKey(), saclibPath.getAbsolutePath());
+		}
 		props.setProperty(EPropertyConstant.QEPCAD_OPTIONS_QEPCAD_MEMORYLIMIT.getKey(), "" + qepcadMemoryLimit);
 	}
 
