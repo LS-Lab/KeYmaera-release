@@ -114,7 +114,7 @@ Bug 2: The constraint for acceleration is too lax and should be m-z>SB. The bugs
             	<path>/examples/hybrid/ETCS/liveness/ETCS-essentials-live2.key</path>
             	<proofpath>/examples/hybrid/ETCS/liveness/ETCS-essentials-live2.key.proof</proofpath>
             	<description>Proves liveness of the essentials of the ETCS train control protocol. This example proves that a train can finally reach any desired position on the track. Please note, that this is the simplest possible system for the liveness requirement for the ETCS.
-Proves formula (2.20) from book (see book for hints how to prove or Load Proof)
+Proves equation (2.20) from book (see book for hints how to prove or Load Proof)
             </description>
             	<source href="http://symbolaris.com/info/ETCS.html"/>
             	<img 
@@ -126,7 +126,7 @@ Proves formula (2.20) from book (see book for hints how to prove or Load Proof)
             	</requirements>
             </example>    		
 			<example>
-				<name>ETCS Train Control [simpler liveness]</name>
+				<name>ETCS Train Control [liveness simplified]</name>
 				<path>/examples/hybrid/ETCS/liveness/ETCS-essentials-live-range.key</path>
 				<description>Proves safety of a slightly simplified ETCS train control protocol case study. This example proves that the train can move beyond every position on the track by just a single choice of movement authority.
 Proves Proposition 7.6 (see book for hints how to prove or Load Proof)
@@ -174,6 +174,7 @@ Proves Proposition 7.4 (see book for how to prove)
 			<example>
 				<name>ETCS Train Disturbance [controllability]</name>
 				<path>/examples/hybrid/ETCS/paper/controllability-lemma-disturbed.key</path>
+                <path>/examples/hybrid/ETCS/paper/controllability-lemma-disturbed.key.proof</path>
 				<description>Proves safety of the ETCS train control protocol case study despite disturbance in the physical dynamics. This example proves that the train is always controllable safely by some control choice, despite disturbance.
 Proves Proposition 7.7.
 Depending on your settings, use Update Simplification and Eliminate Universal Quantifiers.
