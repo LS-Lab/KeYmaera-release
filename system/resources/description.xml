@@ -127,7 +127,8 @@ Proves equation (2.20) from book (see book for hints how to prove or Load Proof)
             </example>    		
 			<example>
 				<name>ETCS Train Control [liveness simplified]</name>
-				<path>/examples/hybrid/ETCS/liveness/ETCS-essentials-live-range.key</path>
+				<path>/examples/hybrid/ETCS/liveness/ETCS-essentials-live-range2.key</path>
+                <proofpath>/examples/hybrid/ETCS/liveness/ETCS-essentials-live-range2.key.proof</proofpath>
 				<description>Proves safety of a slightly simplified ETCS train control protocol case study. This example proves that the train can move beyond every position on the track by just a single choice of movement authority.
 Proves Proposition 7.6 (see book for hints how to prove or Load Proof)
 			</description>
