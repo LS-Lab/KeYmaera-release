@@ -30,6 +30,7 @@ import java.util.Properties;
 import de.uka.ilkd.key.gui.GUIEvent;
 import de.uka.ilkd.key.gui.configuration.Settings;
 import de.uka.ilkd.key.gui.configuration.SettingsListener;
+import de.uka.ilkd.key.proof.ProofSaver;
 import  de.uka.ilkd.key.dl.options.EPropertyConstant;
 /**
  * This class serves options specific for the HOL Light interface
@@ -111,12 +112,15 @@ public class Options implements Settings {
 	 * @see de.uka.ilkd.key.gui.Settings#writeSettings(java.util.Properties)
 	 */
 	public void writeSettings(Properties props) {
-		props
+		if(!ProofSaver.isInSavingMode()) {
+			// we don't want to save user specific pathes when saving proofs
+			props
 				.setProperty(EPropertyConstant.HOL_OPTIONS_HOLLIGHT_PATH.getKey(), hollightPath
 						.getAbsolutePath());
-		props.setProperty(EPropertyConstant.HOL_OPTIONS_OCAML_PATH.getKey(), ocamlPath.getAbsolutePath());
-		props.setProperty(EPropertyConstant.HOL_OPTIONS_HARRISON_QE_PATH.getKey(), harrisonqePath
-				.getAbsolutePath());
+			props.setProperty(EPropertyConstant.HOL_OPTIONS_OCAML_PATH.getKey(), ocamlPath.getAbsolutePath());
+			props.setProperty(EPropertyConstant.HOL_OPTIONS_HARRISON_QE_PATH.getKey(), harrisonqePath
+					.getAbsolutePath());
+		}
 		props.setProperty(EPropertyConstant.HOL_OPTIONS_QUANTIFIER_ELIMINATION_METHOD.getKey(), method.name());
 	}
 

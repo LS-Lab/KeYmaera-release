@@ -36,6 +36,7 @@ import de.uka.ilkd.key.gui.GUIEvent;
 import de.uka.ilkd.key.gui.configuration.PathConfig;
 import de.uka.ilkd.key.gui.configuration.Settings;
 import de.uka.ilkd.key.gui.configuration.SettingsListener;
+import de.uka.ilkd.key.proof.ProofSaver;
 
 /**
  * This class serves options specific for the Mathematica interface
@@ -179,27 +180,30 @@ public class Options implements Settings{
 		props.setProperty(EPropertyConstant.MATHEMATICA_OPTIONS_USE_ELIMINATE_LIST.getKey(), Boolean
 				.toString(useEliminateList));
 		props.setProperty(EPropertyConstant.MATHEMATICA_OPTIONS_MEMORYCONSTRAINT.getKey(), "" + memoryConstraint);
-
-		props.setProperty(EPropertyConstant.MATHEMATICA_OPTIONS_MATHKERNEL.getKey(), mathKernel.getAbsolutePath());
 		
-		File file = new File(PathConfig.KEY_CONFIG_DIR + File.separator
-				+ "webstart-math.props");
+		if(!ProofSaver.isInSavingMode()) {
+			// we don't want to save user specific pathes when saving proofs
+			props.setProperty(EPropertyConstant.MATHEMATICA_OPTIONS_MATHKERNEL.getKey(), mathKernel.getAbsolutePath());			
 		
-		Properties properties = new Properties();
-		properties.setProperty(EPropertyConstant.MATHEMATICA_OPTIONS_JLINK_LIBDIR.getKey(), jLinkLibDir.getAbsolutePath());
-		try {
-			if (!file.exists()) {
-				new File(PathConfig.KEY_CONFIG_DIR + File.separator)
-						.mkdirs();
-				file.createNewFile();
+			File file = new File(PathConfig.KEY_CONFIG_DIR + File.separator
+					+ "webstart-math.props");
+		
+			Properties properties = new Properties();
+			properties.setProperty(EPropertyConstant.MATHEMATICA_OPTIONS_JLINK_LIBDIR.getKey(), jLinkLibDir.getAbsolutePath());
+			try {
+				if (!file.exists()) {
+					new File(PathConfig.KEY_CONFIG_DIR + File.separator)
+							.mkdirs();
+					file.createNewFile();
+				}
+				properties.store(new FileOutputStream(file), null);
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-			properties.store(new FileOutputStream(file), null);
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 	}
 

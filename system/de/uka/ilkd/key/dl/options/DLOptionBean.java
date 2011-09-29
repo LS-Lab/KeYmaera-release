@@ -38,6 +38,7 @@ import de.uka.ilkd.key.gui.configuration.Settings;
 import de.uka.ilkd.key.gui.configuration.SettingsListener;
 import de.uka.ilkd.key.proof.Goal;
 import de.uka.ilkd.key.proof.Proof;
+import de.uka.ilkd.key.proof.ProofSaver;
 
 /**
  * @author jdq
@@ -724,7 +725,11 @@ public class DLOptionBean implements Settings {
 		props.setProperty(EPropertyConstant.DLOPTIONS_BUILT_IN_ARITHMETIC_INEQS.getKey(),
 				builtInArithmeticIneqs.name());
 		props.setProperty(EPropertyConstant.DLOPTIONS_CSDP_PATH.getKey(), csdpBinary.getAbsolutePath());
-		props.setProperty(EPropertyConstant.DLOPTIONS_CSDP_FORCE_INTERNAL.getKey(), Boolean.toString(csdpForceInternal));
+
+		if(!ProofSaver.isInSavingMode()) {
+			// we don't want to save user specific pathes when saving proofs
+			props.setProperty(EPropertyConstant.DLOPTIONS_CSDP_FORCE_INTERNAL.getKey(), Boolean.toString(csdpForceInternal));		
+		}
 	}
 
 	public void addSubOptionBean(Settings sub) {

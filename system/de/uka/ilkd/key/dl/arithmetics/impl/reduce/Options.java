@@ -31,6 +31,7 @@ import de.uka.ilkd.key.dl.options.EPropertyConstant;
 import de.uka.ilkd.key.gui.GUIEvent;
 import de.uka.ilkd.key.gui.configuration.Settings;
 import de.uka.ilkd.key.gui.configuration.SettingsListener;
+import de.uka.ilkd.key.proof.ProofSaver;
 
 /**
  * This class serves options specific for the Qepcad interface
@@ -353,9 +354,12 @@ public class Options implements Settings {
 	 * @see de.uka.ilkd.key.gui.Settings#writeSettings(java.util.Properties)
 	 */
 	public void writeSettings(Properties props) {
-		props
-				.setProperty(EPropertyConstant.OPTIONS_REDUCE_BINARY.getKey(), reduceBinary
-						.getAbsolutePath());
+		if(!ProofSaver.isInSavingMode()) {
+			// we don't want to save user specific pathes when saving proofs
+			props
+			.setProperty(EPropertyConstant.OPTIONS_REDUCE_BINARY.getKey(), reduceBinary
+					.getAbsolutePath());
+		}
 		props.setProperty(EPropertyConstant.OPTIONS_REDUCE_QUANTIFIER_ELIMINATION_METHOD.getKey(),
 				qeMethod.name());
 		props.setProperty(EPropertyConstant.OPTIONS_REDUCE_ELIMINATE_FRACTIONS.getKey(), Boolean.toString(eliminateFractions));
