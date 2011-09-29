@@ -68,7 +68,7 @@ public class HtmlToText extends HTMLEditorKit.ParserCallback {
 	return applyReplacements(replaceSpace(buffer.toString()));
     }
 
-	private static String applyReplacements(String str) {
+	public static String applyReplacements(String str) {
 		for(String k: replacements.keySet()) {
 			str = str.replaceAll(k, replacements.get(k));
 		}

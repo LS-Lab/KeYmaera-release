@@ -43,8 +43,10 @@ import de.uka.ilkd.key.gui.configuration.ConfigChangeListener;
 import de.uka.ilkd.key.gui.notification.events.GeneralFailureEvent;
 import de.uka.ilkd.key.gui.syntaxhighlighting.HtmlToText;
 import de.uka.ilkd.key.logic.Sequent;
+import de.uka.ilkd.key.pp.LogicPrinter;
 import de.uka.ilkd.key.pp.LogicPrinterHTML;
 import de.uka.ilkd.key.pp.PosInSequent;
+import de.uka.ilkd.key.pp.ProgramPrinter;
 import de.uka.ilkd.key.pp.Range;
 import de.uka.ilkd.key.pp.SequentPrintFilter;
 import de.uka.ilkd.key.rule.TacletApp;
@@ -692,20 +694,11 @@ public class SequentView extends JEditorPane implements Autoscroll {
     public String getPlainText(int offs, int len) throws BadLocationException{
 	if (len == 0)
 	    return "";
-	int count = 0;
-	Matcher matcher= Pattern.compile("(_)(\\s)?((\\d|\\w)+)").matcher(getPlainText());   	 
-	while (matcher.find()) {
-   	      count++;	
-	 }
-	matcher= Pattern.compile("\\\\(forall|exists)").matcher(getPlainText());
-	while (matcher.find()) {
- 	      count+=6;	// we had replaced this by a unicode char... therefore add 6 chars
-	 }
-	matcher= Pattern.compile("(\\+\\+)|(>=)|(<=)").matcher(getPlainText());
-	while (matcher.find()) {
- 	      count++;	// we had replaced this by a unicode char...
-	 }
-	String out = getPlainText().substring(offs, offs+len+count);
+	setSelectionStart(offs);
+	setSelectionEnd(offs + len);
+	String out = HtmlToText.applyReplacements(getSelectedText());
+	out = out.replaceAll("\\u2200", "\\\\forall ");
+	out = out.replaceAll("\\u2203", "\\\\exists ");
 	
 	return out;
     }
