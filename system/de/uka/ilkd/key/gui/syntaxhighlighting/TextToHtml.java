@@ -19,7 +19,6 @@ import de.uka.ilkd.key.gui.Main;
  * @TODO Use Font.canDisplay(char) to check for unicode support
  */
 public class TextToHtml {
-	private Object obj2Highlight;
 	private static final String temporaryReplacement = "%&t%e%m%p%r%e%p%l%a%c%e%m%e%n%t&%";
 
 	/**
@@ -92,8 +91,10 @@ public class TextToHtml {
 		StringBuffer myStringBuffer = new StringBuffer();
 
 		while (matcher.find()) {
+			String type = matcher.group(2);
+			String var = Matcher.quoteReplacement(matcher.group(3));
 			matcher.appendReplacement(myStringBuffer, prefix + "<sub><small>"
-					+ matcher.group(2) + "</small></sub> " + matcher.group(3) + "&bull;");
+					+ type + "</small></sub> " + var + "&bull;");
 		}
 		
 		myStringBuffer = matcher.appendTail(myStringBuffer);

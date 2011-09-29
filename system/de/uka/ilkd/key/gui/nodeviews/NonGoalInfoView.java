@@ -13,9 +13,8 @@ package de.uka.ilkd.key.gui.nodeviews;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Rectangle;
-import java.util.Iterator;
 
-import javax.swing.JTextArea;
+import javax.swing.JEditorPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.plaf.TextUI;
@@ -32,24 +31,42 @@ import de.uka.ilkd.key.gui.configuration.Config;
 import de.uka.ilkd.key.gui.configuration.ConfigChangeAdapter;
 import de.uka.ilkd.key.gui.configuration.ConfigChangeListener;
 import de.uka.ilkd.key.gui.notification.events.GeneralFailureEvent;
+import de.uka.ilkd.key.gui.syntaxhighlighting.HighlightSyntax;
+import de.uka.ilkd.key.gui.syntaxhighlighting.TextToHtml;
 import de.uka.ilkd.key.logic.PosInOccurrence;
 import de.uka.ilkd.key.logic.PosInTerm;
-import de.uka.ilkd.key.pp.*;
+import de.uka.ilkd.key.pp.ConstraintSequentPrintFilter;
+import de.uka.ilkd.key.pp.InitialPositionTable;
+import de.uka.ilkd.key.pp.LogicPrinter;
+import de.uka.ilkd.key.pp.LogicPrinterHTML;
+import de.uka.ilkd.key.pp.ProgramPrinter;
+import de.uka.ilkd.key.pp.Range;
+import de.uka.ilkd.key.pp.SequentPrintFilter;
 import de.uka.ilkd.key.proof.Node;
-import de.uka.ilkd.key.rule.*;
+import de.uka.ilkd.key.rule.IfFormulaInstSeq;
+import de.uka.ilkd.key.rule.IfFormulaInstantiation;
+import de.uka.ilkd.key.rule.RuleApp;
+import de.uka.ilkd.key.rule.Taclet;
+import de.uka.ilkd.key.rule.TacletApp;
 import de.uka.ilkd.key.rule.export.html.HTMLFileTaclet;
 import de.uka.ilkd.key.rule.inst.GenericSortInstantiations;
 import de.uka.ilkd.key.util.Debug;
 
 
-public class NonGoalInfoView extends JTextArea {
+public class NonGoalInfoView extends JEditorPane {
     	 
-    private LogicPrinter printer;	 
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1381305416290810149L;
+	private LogicPrinter printer;	 
     private SequentPrintFilter filter;
     private InitialPositionTable posTable;
     private ConfigChangeListener configChangeListener = new ConfigChangeAdapter(this);
     
     public NonGoalInfoView (Node node, KeYMediator mediator) {
+    	super("text/html","");
+    	setEditable(false);
         if(MethodCallInfo.MethodCallCounterOn){
             MethodCallInfo.Global.incForClass(this.getClass().toString(), MethodCallInfo.constructor);
             MethodCallInfo.Local.incForClass(this.getClass().toString(), MethodCallInfo.constructor);
@@ -58,19 +75,20 @@ public class NonGoalInfoView extends JTextArea {
 	filter = new ConstraintSequentPrintFilter 
 	    ( node.sequent (), 
 	      mediator.getUserConstraint ().getConstraint () );
-	printer = new LogicPrinter
+	printer = new LogicPrinterHTML
 	    (new ProgramPrinter(null), 
 	     mediator.getNotationInfo(),
-	     mediator.getServices());
+	     mediator.getServices(), false);
 	printer.printSequent (null, filter);
 	String s = printer.toString();
+	s = HighlightSyntax.highlight(s);
         posTable = printer.getPositionTable();
         printer=null;
 	RuleApp app = node.getAppliedRuleApp();
-        s += "\nNode Nr "+node.serialNr()+"\n";
+        s += TextToHtml.changeHtmlSpecialCharacters("\nNode Nr "+node.serialNr()+"\n");
         
 	if ( app != null ) {
-	    s = s + "\n \nUpcoming rule application: \n";
+	    s = s + TextToHtml.changeHtmlSpecialCharacters("\n \nUpcoming rule application: \n");
 	    if (app.rule() instanceof Taclet) {
 		LogicPrinter tacPrinter = new LogicPrinter 
 		    (new ProgramPrinter(null),	                     
@@ -78,29 +96,29 @@ public class NonGoalInfoView extends JTextArea {
 		     mediator.getServices(),
 		     true);	 
 		tacPrinter.printTaclet((Taclet)(app.rule()));	 
-		s += tacPrinter;
+		s += TextToHtml.changeHtmlSpecialCharacters(tacPrinter.toString());
 	    } else {
-	    	s = s + app.rule();
+	    	s = s + TextToHtml.changeHtmlSpecialCharacters(app.rule().toString());
 	    }
 
 	    if ( app instanceof TacletApp ) {
 		TacletApp tapp = (TacletApp)app;
 		if ( tapp.instantiations ().getGenericSortInstantiations () !=
 		     GenericSortInstantiations.EMPTY_INSTANTIATIONS ) {
-		    s = s + "\n\nWith sorts:\n";
+		    s = s + TextToHtml.changeHtmlSpecialCharacters("\n\nWith sorts:\n");
 		    s = s +
-			tapp.instantiations ().getGenericSortInstantiations ();
+		    TextToHtml.changeHtmlSpecialCharacters(tapp.instantiations().getGenericSortInstantiations().toString());
 		}
 
 		StringBuffer sb = new StringBuffer("\n\n");
                 HTMLFileTaclet.writeTacletSchemaVariablesHelper(
 		    sb,tapp.taclet());
-		s = s + sb;
+		s = s + TextToHtml.changeHtmlSpecialCharacters(sb.toString());
 	    }
             
-            s = s + "\n\nApplication justified by: ";
-            s = s + mediator.getSelectedProof().env().getJustifInfo()
-                                .getJustification(app, mediator.getServices())+"\n";
+            s = s + TextToHtml.changeHtmlSpecialCharacters("\n\nApplication justified by: ");
+            s = s + TextToHtml.changeHtmlSpecialCharacters(mediator.getSelectedProof().env().getJustifInfo()
+                                .getJustification(app, mediator.getServices())+"\n");
             
 	}
 
@@ -111,11 +129,11 @@ public class NonGoalInfoView extends JTextArea {
 */
            
         if (node.getReuseSource() != null) {
-            s += "\n"+node.getReuseSource().scoringInfo();
+            s += TextToHtml.changeHtmlSpecialCharacters("\n"+node.getReuseSource().scoringInfo());
         }
 
 	Config.DEFAULT.addConfigChangeListener(configChangeListener);
-
+	s = s.replaceAll("\n", "<br/>");
 	updateUI();
 	setText(s);
 

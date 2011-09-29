@@ -195,7 +195,7 @@ public class LogicPrinterHTML extends LogicPrinter {
 		StackEntry se = stack.peek();
 		stack.pop();
 		pos = se.pos();
-		se.posTbl().setEnd(count() - pos, posTbl);
+		se.posTbl().setEnd(count() - pos + 1, posTbl);
 		posTbl = se.posTbl();
 	    } else if (o == MARK_MODPOSTBL) {
 		need_modPosTable = true;
@@ -211,13 +211,13 @@ public class LogicPrinterHTML extends LogicPrinter {
 	    } else if (o == MARK_START_FIRST_STMT) {
 		firstStmtStart = count() - pos;
 	    } else if (o == MARK_END_FIRST_STMT) {
-		firstStmtRange = new Range(firstStmtStart, count() - pos);
+		firstStmtRange = new Range(firstStmtStart, count() - pos + 1);
 		((ModalityPositionTable) posTbl)
 		        .setFirstStatementRange(firstStmtRange);
 	    } else if (o == MARK_START_UPDATE) {
 		updateStart = count();
 	    } else if (o == MARK_END_UPDATE) {
-		initPosTbl.addUpdateRange(new Range(updateStart, count()));
+		initPosTbl.addUpdateRange(new Range(updateStart, count() + 1));
 	    }
 	}
     }
