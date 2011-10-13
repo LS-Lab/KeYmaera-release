@@ -724,11 +724,11 @@ public class DLOptionBean implements Settings {
 				.name());
 		props.setProperty(EPropertyConstant.DLOPTIONS_BUILT_IN_ARITHMETIC_INEQS.getKey(),
 				builtInArithmeticIneqs.name());
-		props.setProperty(EPropertyConstant.DLOPTIONS_CSDP_PATH.getKey(), csdpBinary.getAbsolutePath());
+		props.setProperty(EPropertyConstant.DLOPTIONS_CSDP_FORCE_INTERNAL.getKey(), Boolean.toString(csdpForceInternal));	
 
 		if(!ProofSaver.isInSavingMode()) {
 			// we don't want to save user specific pathes when saving proofs
-			props.setProperty(EPropertyConstant.DLOPTIONS_CSDP_FORCE_INTERNAL.getKey(), Boolean.toString(csdpForceInternal));		
+			props.setProperty(EPropertyConstant.DLOPTIONS_CSDP_PATH.getKey(), csdpBinary.getAbsolutePath());	
 		}
 	}
 
