@@ -495,6 +495,50 @@ Proof requires user interactions.</description>
                                 </some>
                         </requirements>
                 </example>
+				<group name="Traffic control">
+					<example>
+						<name>Variable speed limit (vsl)</name>
+						<path>/examples/hybrid/car/vsl/vsl.key</path>
+						<proofpath>/examples/hybrid/car/vsl/vsl.key.proof</proofpath>
+						<description>Proves safety of variable speed limits issued by traffic centers. This example proves that the variable speed limit car controller always complies with a speed limit that the traffic center issued for a certain position on a road.
+					</description>
+						<source href="http://symbolaris.com/info/DCCS.html"/>
+						<img href="http://symbolaris.com/info/vsl.png"/>
+						<requirements>
+							<some>
+								<quantifiereliminator>Mathematica</quantifiereliminator>
+							</some>
+						</requirements>
+					</example>
+					<example>
+						<name>Variable speed limit [moving incidents]</name>
+						<path>/examples/hybrid/car/vsl/vsli.key</path>
+						<proofpath>/examples/hybrid/car/vsl/vsli.key.proof</proofpath>
+						<description>Proves safety of variable speed limits issued by traffic centers. This example proves that the (advanced) variable speed limit controller car always complies with a speed limit that the traffic center issues for a certain position on a road. An incident on the road defines an area that must contain a speed limit. This incident may possibly move towards cars. Outside the area defined by the incident, the traffic center may issue additional speed limits at will.
+						</description>
+						<source href="http://symbolaris.com/info/DCCS.html"/>
+						<img href="http://symbolaris.com/info/vsli.png"/>
+						<requirements>
+							<some>
+								<quantifiereliminator>Mathematica</quantifiereliminator>
+							</some>
+						</requirements>
+					</example>
+					<example>
+						<name>Variable speed limit [issued speed limits]</name>
+						<path>/examples/hybrid/car/vsl/vsli-alert.key</path>
+						<proofpath>/examples/hybrid/car/vsl/vsli-alert.key.proof</proofpath>
+						<description>Proves safety of variable speed limits issued by traffic centers. This example proves that the variable speed limit car controller always complies with a speed limit that the traffic center issues for a certain position on a road. An incident on the road defines an area that must contain a speed limit. This incident may move towards cars. Outside the area defined by the incident, the traffic center may issue speed limits at will. Additionally, the traffic center ensures to only issue speed limits once per car within the area defined by the incident to avoid Zeno-style updating.
+					</description>
+						<source href="http://symbolaris.com/info/DCCS.html"/>
+						<img href="http://symbolaris.com/info/vsli-alert.png"/>
+						<requirements>
+							<some>
+								<quantifiereliminator>Mathematica</quantifiereliminator>
+							</some>
+						</requirements>
+					</example>
+				</group>
 		</group>
 		<group name="Bouncing ball">
 			<example>
