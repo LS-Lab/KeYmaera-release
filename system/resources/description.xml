@@ -525,7 +525,7 @@ Proof requires user interactions.</description>
 						</requirements>
 					</example>
 					<example>
-						<name>Variable speed limit [issued speed limits]</name>
+						<name>Variable speed limit [incident alert track]</name>
 						<path>/examples/hybrid/car/vsl/vsli-alert.key</path>
 						<proofpath>/examples/hybrid/car/vsl/vsli-alert.key.proof</proofpath>
 						<description>Proves safety of variable speed limits issued by traffic centers. This example proves that the variable speed limit car controller always complies with a speed limit that the traffic center issues for a certain position on a road. An incident on the road defines an area that must contain a speed limit. This incident may move towards cars. Outside the area defined by the incident, the traffic center may issue speed limits at will. Additionally, the traffic center ensures to only issue speed limits once per car within the area defined by the incident to avoid Zeno-style updating.
