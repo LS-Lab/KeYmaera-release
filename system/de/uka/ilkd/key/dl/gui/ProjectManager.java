@@ -89,6 +89,8 @@ public class ProjectManager extends JFrame {
 		 */
 		private static final long serialVersionUID = -6854675083351675222L;
 
+	    private transient ProjectManager projectManager = null;
+	
 		/**
 		 * 
 		 */
@@ -101,10 +103,11 @@ public class ProjectManager extends JFrame {
 
 		public void actionPerformed(ActionEvent e) {
 			try {
-				ProjectManager projectManager = new ProjectManager();
+				if (projectManager == null)
+				  projectManager = new ProjectManager();
 				projectManager.setVisible(true);
 			} catch (XPathExpressionException e1) {
-				// TODO Auto-generated catch block
+				System.out.println("Project Manager could not initialize");
 				e1.printStackTrace();
 			}
 		}
@@ -247,6 +250,7 @@ public class ProjectManager extends JFrame {
 		//this.add(treeView, BorderLayout.WEST);
 		final JButton button = new JButton("Load");
 		button.setEnabled(false);
+		button.setDefaultCapable(true);
 		getRootPane().setDefaultButton(button);
     	getRootPane().registerKeyboardAction(new ActionListener() {
     	    public void actionPerformed(ActionEvent e) {
@@ -424,6 +428,7 @@ public class ProjectManager extends JFrame {
         					        requirementsArea.setText("No special requirements");
         						requirementsArea.setForeground(Color.BLACK);
         						button.setEnabled(true);
+                                getRootPane().setDefaultButton(button);
         					} else {
         						requirementsArea.setText("You need ");
         						requirementsMet[0] = false;
@@ -436,6 +441,7 @@ public class ProjectManager extends JFrame {
         								requirementsArea.setForeground(Color.BLACK);
         								requirementsMet[0] = true;
         								button.setEnabled(true);
+		                                getRootPane().setDefaultButton(button);
         							}
         							or = " or ";
         						}

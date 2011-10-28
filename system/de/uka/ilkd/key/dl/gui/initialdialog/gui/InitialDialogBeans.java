@@ -127,7 +127,7 @@ public class InitialDialogBeans implements ActionListener {
     private void doExit() {
 	final int option = JOptionPane.showConfirmDialog(
 	    InitialDialogFrame,
-	    "Settings will be ignored \nReally exit KeYmaera?",
+	    "Settings will be ignored \nReally exit KeYmaera Tool Settings?",
 	    "Warning", JOptionPane.YES_NO_OPTION);
 	if (option == JOptionPane.YES_OPTION) {
 	InitialDialogFrame.dispose();
