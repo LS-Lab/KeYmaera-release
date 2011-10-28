@@ -167,7 +167,7 @@ public class Options implements Settings {
 		}
 		qeMethod = QuantifierEliminationMethod.RLQE;
 
-		rlall = false;
+		rlall = true;
 		
 		eliminateFractions = false;
 
