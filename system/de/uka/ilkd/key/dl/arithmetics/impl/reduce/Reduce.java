@@ -62,7 +62,7 @@ public class Reduce implements IQuantifierEliminator {
 
 		System.out.println("START  : Reduce called");
 		int[] variableCount = new int[1];
-		String input = Term2ReduceConverter.convert(form, variableCount);
+		String input = Term2ReduceConverter.convert(form, variableCount, !(Options.INSTANCE.getRlnzden() == ReduceSwitch.ON || Options.INSTANCE.getRlposden() == ReduceSwitch.ON));
 		System.out.println("Input will be " + input);//XXX
 		if(input.equals(Term2ReduceConverter.TRUE)) {
 			return TermBuilder.DF.tt();
@@ -127,6 +127,16 @@ public class Reduce implements IQuantifierEliminator {
 			result += Options.INSTANCE.getRlanuexgcdnormalize().name()
 					.toLowerCase()
 					+ " rlanuexgcdnormalize; ";
+		}
+		if (Options.INSTANCE.getRlnzden() != ReduceSwitch.DEFAULT) {
+			result += Options.INSTANCE.getRlnzden().name()
+					.toLowerCase()
+					+ " rlnzden; ";
+		}
+		if (Options.INSTANCE.getRlposden() != ReduceSwitch.DEFAULT) {
+			result += Options.INSTANCE.getRlposden().name()
+					.toLowerCase()
+					+ " rlposden; ";
 		}
 		if (Options.INSTANCE.getRlanuexpsremseq() != ReduceSwitch.DEFAULT) {
 			result += Options.INSTANCE.getRlanuexpsremseq().name()

@@ -46,8 +46,20 @@ public class Term2ReduceConverter {
 	 * @return QepCadInput-Instance of the given term.
 	 */
 	public static String convert(Term form, int[] variableCount) {
+		return convert(form, variableCount, true);
+	}
+
+	/**
+	 * Function to start to convert a given term.
+	 * 
+	 * @param form
+	 *            Term to convert
+	 * @param variables
+	 * @return QepCadInput-Instance of the given term.
+	 */
+	public static String convert(Term form, int[] variableCount, boolean eliminateFractions) {
 		Term2ReduceConverter converter = new Term2ReduceConverter();
-		return converter.convertImpl(form, variableCount);
+		return converter.convertImpl(form, variableCount, eliminateFractions);
 	}
 
 	/**
@@ -55,10 +67,10 @@ public class Term2ReduceConverter {
 	 * 
 	 * @param variables
 	 */
-	private String convertImpl(Term form, int[] variableCount) {
+	private String convertImpl(Term form, int[] variableCount, boolean eliminateFractions) {
 //		String formula = convert2String(form, null, Options.INSTANCE
 //				.isEliminateFractions());
-		String formula = convert2String(form, null, true, variableCount);
+		String formula = convert2String(form, null, eliminateFractions, variableCount);
 		System.out.println("Converted " + form + " to " + formula);
 		return formula;
 	}

@@ -70,6 +70,12 @@ public class OptionsBeanInfo extends SimpleBeanInfo {
 							"rlsimpl", EPropertyConstant.OPTIONS_REDUCE_RLSIMPL,
 							false, false, ReduceSwitchPropertyEditor.class),
 					createDescriptor(
+							"rlnzden", EPropertyConstant.OPTIONS_REDUCE_RLNZDEN,
+							false, false, ReduceSwitchPropertyEditor.class),
+					createDescriptor(
+							"rlposden", EPropertyConstant.OPTIONS_REDUCE_RLPOSDEN,
+							true, false, ReduceSwitchPropertyEditor.class),
+					createDescriptor(
 							"rlqeqsc", EPropertyConstant.OPTIONS_REDUCE_rlqeqsc,
 							true, false,ReduceSwitchPropertyEditor.class),
 					createDescriptor(

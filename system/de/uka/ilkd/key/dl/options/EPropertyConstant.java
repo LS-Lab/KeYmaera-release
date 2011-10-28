@@ -171,6 +171,11 @@ public enum EPropertyConstant {
 		    								   + "is very similar to the treatment of polynomials or rational functions,<br>" 
 		    								   + "which are converted to some normal form. For formulas, however, the<br>" 
 		    								   + "simplified equivalent is by no means canonical.</html>", "Redlog Properties"), 
+	    OPTIONS_REDUCE_RLNZDEN("[ReduceOptions]rlnzden",  "Non-zero denominators", "<html>Non-zero denominators. By default this switch is off.<br>" 
+		    								   +"Activating rlnzden, allows the input of reciprocal terms. These terms are assumed to be non-zero, and resolved by multiplication. When occurring with ordering relations the reciprocals are resolved by multiplication with their square preserving the sign.</html>", "Redlog Properties"), 
+	    OPTIONS_REDUCE_RLPOSDEN("[ReduceOptions]rlposden",  "Positive denominators", "<html>Positive denominators (soundness critical!). By default this switch is changed to off.<br>" 
+		    								   +"Activating rlposden, allows the input of reciprocal terms but assumes the reciprocals to be strictly positive. These terms are resolved by simple, i.e. non-square, multiplication also with ordering relations.</html>", "Redlog Properties"), 
+		
 	    
 	    INITIAL_DIALOG_CHECKBOX("[StartUpOptions]skipInitialDialog", null,"Check to skip this dialog in the future.", "CheckBox"), 
 	    DLOPTIONS_RESET_STRATEGY_AFTER_EVERY_RUN("[DLOptions]resetStrategyAfterEveryRun", "Reset Strategy", "Check this option to reset the strategy knowledge about applicable rules after every execution of the strategy.", "DL Properties");

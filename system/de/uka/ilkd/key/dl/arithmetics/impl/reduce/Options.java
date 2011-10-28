@@ -104,6 +104,10 @@ public class Options implements Settings {
 	private boolean eliminateFractions;
 
 	private boolean rlall;
+	
+	private ReduceSwitch rlnzden;
+
+	private ReduceSwitch rlposden;
 
 	private ReduceSwitch rlsimpl;
 
@@ -166,6 +170,10 @@ public class Options implements Settings {
 		rlall = false;
 		
 		eliminateFractions = false;
+
+		rlnzden = ReduceSwitch.ON;
+
+		rlposden = ReduceSwitch.DEFAULT;
 
 		rlsimpl = ReduceSwitch.ON;
 
@@ -253,6 +261,14 @@ public class Options implements Settings {
 		property = props.getProperty(EPropertyConstant.OPTIONS_REDUCE_RLALL.getKey());
 		if (property != null) {
 			rlall = Boolean.valueOf(property);
+		}
+		property = props.getProperty(EPropertyConstant.OPTIONS_REDUCE_RLNZDEN.getKey());
+		if (property != null) {
+			rlnzden = ReduceSwitch.valueOf(property);
+		}
+		property = props.getProperty(EPropertyConstant.OPTIONS_REDUCE_RLPOSDEN.getKey());
+		if (property != null) {
+			rlposden = ReduceSwitch.valueOf(property);
 		}
 		property = props.getProperty(EPropertyConstant.OPTIONS_REDUCE_RLSIMPL.getKey());
 		if (property != null) {
@@ -393,6 +409,8 @@ public class Options implements Settings {
 		props.setProperty(EPropertyConstant.OPTIONS_REDUCE_rlqesqsc.getKey(), rlqesqsc.name());
 		props.setProperty(EPropertyConstant.OPTIONS_REDUCE_rlqeqsc.getKey(), rlqeqsc.name());
 		props.setProperty(EPropertyConstant.OPTIONS_REDUCE_RLSIMPL.getKey(), rlsimpl.name());
+		props.setProperty(EPropertyConstant.OPTIONS_REDUCE_RLNZDEN.getKey(), rlnzden.name());
+		props.setProperty(EPropertyConstant.OPTIONS_REDUCE_RLPOSDEN.getKey(), rlposden.name());
 	}
 
 	/**
@@ -842,6 +860,42 @@ public class Options implements Settings {
 	public void setRlall(boolean rlall) {
 		if (rlall != this.rlall) {
 			this.rlall = rlall;
+			firePropertyChanged();
+		}
+	}
+
+	/**
+	 * @return the rlnzden
+	 */
+	public ReduceSwitch getRlnzden() {
+		return rlnzden;
+	}
+
+	/**
+	 * @param rlnzden
+	 *            the rlnzden to set
+	 */
+	public void setRlnzden(ReduceSwitch rlnzden) {
+		if (this.rlnzden != rlnzden) {
+			this.rlnzden = rlnzden;
+			firePropertyChanged();
+		}
+	}
+
+	/**
+	 * @return the rlposden
+	 */
+	public ReduceSwitch getRlposden() {
+		return rlposden;
+	}
+
+	/**
+	 * @param rlposden
+	 *            the rlposden to set
+	 */
+	public void setRlposden(ReduceSwitch rlposden) {
+		if (this.rlposden != rlposden) {
+			this.rlposden = rlposden;
 			firePropertyChanged();
 		}
 	}
