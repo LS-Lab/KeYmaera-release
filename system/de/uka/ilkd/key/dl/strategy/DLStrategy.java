@@ -296,7 +296,7 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 				EqNonDuplicateAppFeature.INSTANCE, longConst(-10000)));
 
 		bindRuleSet(d, "split_gen", ifZero(isAnnotated("generalize"),
-				longConst(-2000), inftyConst()));
+				longConst(-12000), inftyConst()));
 
 		// delete cast
 		bindRuleSet(d, "cast_deletion", ifZero(
