@@ -12,7 +12,11 @@
   <condition property="ext.dir" value="${env.KEY_LIB}">
   	<isset property="env.KEY_LIB"/>
   </condition>
-  <property name="ext.dir" value="${basedir}/../key-ext-jars"   />
+  <condition property="ext.dir" value="${basedir}/../key-ext-jars">
+	<not>
+		<isset property="env.KEY_LIB"/>
+	</not>
+  </condition>
 	
   <property name="instrument.dir" value="${basedir}/instrumented/" />
   <property name="junit.jar"  value="${ext.dir}/junit.jar"  />
@@ -30,8 +34,30 @@
   <target name="info">
     <echo message="Target info is obsolete, use ant -projecthelp instead." />
   </target>
+  
+  <target name="all" depends="clean, compile">
+  </target>
 
-  <target name="prepare">
+  <target name="setup-scala">
+	<property
+		name="scala-library.jar"
+		value="${env.SCALA_HOME}/lib/scala-library.jar" />
+
+	<!-- Define scala compiler, scaladoc, etc command -->	
+	<path id="build.classpath">
+		<pathelement location="${scala-library.jar}"   />
+		<!--<pathelement location="${your.path}"   />-->
+		<pathelement location="${build.dir}"   />
+	</path>
+    <taskdef resource="scala/tools/ant/antlib.xml">
+      <classpath>
+        <pathelement location="${env.SCALA_HOME}/lib/scala-compiler.jar" />
+        <pathelement location="${scala-library.jar}" />
+      </classpath>
+    </taskdef>
+  </target>
+
+  <target name="prepare" depends="setup-scala">
   	<echo message="Please set (if you have not yet done so)  the environment variable ANT_OPTS to -Xms512m -Xmx512m" />
   	
 	<mkdir dir="${gen.dir}/de/uka/ilkd/key/parser"/>
@@ -70,10 +96,11 @@
 
 
   <target name="compile" depends="prepare, keyparser, proofjavaparser, schemajavaparser, 
-  	                                   simplifyparser, 
-  	                                   jmlparser, jmlpreparser,
-  					   oclparser,
-  	                                   diffparser, dictionaryParser, keydocwalker"
+										simplifyparser, 
+										jmlparser, jmlpreparser,
+										oclparser,
+										reduceparser, qepcadparser, dlparser, dlstage2parser,
+										diffparser, dictionaryParser, keydocwalker, scala-compile"
           description="Compiles all java files into the source directory.">
   	<copy todir="${build.dir}">
     	    <fileset dir="${basedir}/resources/"/>
@@ -83,18 +110,33 @@
            deprecation="on"
            debug="on"
            depend="${build.depend}"
-           optimize="off">
+           optimize="off"
+           includeAntRuntime="false">
         <include name="de/**" />
         <include name="recoder/**" />
         <include name="TestKey.java" />
       <classpath>
-        <pathelement location="${ext.dir}/antlr.jar" />
+        <pathelement location="${ext.dir}/antlr-2.7.2.jar" />		
+		<pathelement location="${ext.dir}/antlr.jar" />			<!-- assumes ANTLR >=3.3 -->
         <pathelement location="${ext.dir}/recoderKey.jar" />
         <pathelement location="${ext.dir}/log4j.jar" />
         <pathelement location="${ext.dir}/javacc.jar" />
         <pathelement location="${ext.dir}/junit.jar" />
+		<pathelement location="${ext.dir}/orbital-core.jar" />		
+		<pathelement location="${ext.dir}/orbital-ext.jar" />
+		<pathelement location="${ext.dir}/JLink/jlink.jar" />		
+		<pathelement location="${ext.dir}/scala-library.jar" />	<!-- assumes that scala.math is contained -->
       </classpath>
     </javac>
+  </target>
+  
+  <target name="scala-compile" depends="prepare">
+	<scalac deprecation="yes" 
+			srcdir="${src.dir}"
+			destdir="${dist.dir}" 
+			classpathref="build.classpath" >	
+		<include name="de/uka/ilkd/key/dl/arithmetics/impl/ch/cohenhormander/*.scala" />
+	</scalac>
   </target>
 
   <target name="clean">
@@ -119,7 +161,7 @@
 	         outputdirectory="${gen.dir}/de/uka/ilkd/key/parser/dictionary">
 	       
 	     	<classpath>
-	           <pathelement location="${ext.dir}/antlr.jar" />
+	           <pathelement location="${ext.dir}/antlr-2.7.2.jar" />
 	        </classpath>
 	     </antlr>
   </target>
@@ -129,7 +171,7 @@
 		         target="de/uka/ilkd/key/parser/dictionary/dictionary.g"
 		         outputdirectory="${gen.dir}/de/uka/ilkd/key/parser/dictionary">
 		        <classpath>
-		           <pathelement location="${ext.dir}/antlr.jar" />
+		           <pathelement location="${ext.dir}/antlr-2.7.2.jar" />
 		        </classpath>
 		     </antlr>
 	  </target>
@@ -143,25 +185,25 @@
     </target>
 
 
-  <target name="keylexer">
-     <antlr
+  <target name="keylexer">	
+	<antlr
          target="de/uka/ilkd/key/parser/lexer.g"
          outputdirectory="${gen.dir}/de/uka/ilkd/key/parser">
         <classpath>
-           <pathelement location="${ext.dir}/antlr.jar" />
+           <pathelement location="${ext.dir}/antlr-2.7.2.jar" />
         </classpath>
-     </antlr>
+     </antlr>	
   </target>
 
 
-  <target name="keyparser"  depends="keylexer">
-     <antlr
+  <target name="keyparser"  depends="keylexer">	
+	<antlr
          target="de/uka/ilkd/key/parser/keyparser.g"
          outputdirectory="${gen.dir}/de/uka/ilkd/key/parser">
         <classpath>
-           <pathelement location="${ext.dir}/antlr.jar" />
+           <pathelement location="${ext.dir}/antlr-2.7.2.jar" />
         </classpath>
-     </antlr>
+    </antlr>	
   </target>
 
 	
@@ -170,7 +212,7 @@
 	         target="de/uka/ilkd/key/speclang/jml/pretranslation/jmlprelexer.g"
 	         outputdirectory="${gen.dir}/de/uka/ilkd/key/speclang/jml/pretranslation">
 	        <classpath>
-	           <pathelement location="${ext.dir}/antlr.jar" />
+	           <pathelement location="${ext.dir}/antlr-2.7.2.jar" />
 	        </classpath>
 	     </antlr>
 	  </target>
@@ -181,7 +223,7 @@
 	         target="de/uka/ilkd/key/speclang/jml/pretranslation/jmlpreparser.g"
 	         outputdirectory="${gen.dir}/de/uka/ilkd/key/speclang/jml/pretranslation">
 	        <classpath>
-	           <pathelement location="${ext.dir}/antlr.jar" />
+	           <pathelement location="${ext.dir}/antlr-2.7.2.jar" />
 	        </classpath>
 	     </antlr>
 	  </target>
@@ -191,7 +233,7 @@
 	         target="de/uka/ilkd/key/speclang/jml/translation/jmllexer.g"
 	         outputdirectory="${gen.dir}/de/uka/ilkd/key/speclang/jml/translation">
 	        <classpath>
-	           <pathelement location="${ext.dir}/antlr.jar" />
+	           <pathelement location="${ext.dir}/antlr-2.7.2.jar" />
 	        </classpath>
 	     </antlr>
 	  </target>
@@ -202,7 +244,7 @@
 	         target="de/uka/ilkd/key/speclang/jml/translation/jmlparser.g"
 	         outputdirectory="${gen.dir}/de/uka/ilkd/key/speclang/jml/translation">
 	        <classpath>
-	           <pathelement location="${ext.dir}/antlr.jar" />
+	           <pathelement location="${ext.dir}/antlr-2.7.2.jar" />
 	        </classpath>
 	     </antlr>
 	  </target>
@@ -212,7 +254,7 @@
 	         target="de/uka/ilkd/key/speclang/ocl/translation/ocllexer.g"
 	         outputdirectory="${gen.dir}/de/uka/ilkd/key/speclang/ocl/translation">
 	        <classpath>
-	           <pathelement location="${ext.dir}/antlr.jar" />
+	           <pathelement location="${ext.dir}/antlr-2.7.2.jar" />
 	        </classpath>
 	     </antlr>
 	  </target>
@@ -223,7 +265,7 @@
 	         target="de/uka/ilkd/key/speclang/ocl/translation/oclparser.g"
 	         outputdirectory="${gen.dir}/de/uka/ilkd/key/speclang/ocl/translation">
 	        <classpath>
-	           <pathelement location="${ext.dir}/antlr.jar" />
+	           <pathelement location="${ext.dir}/antlr-2.7.2.jar" />
 	        </classpath>
 	     </antlr>
 	  </target>
@@ -233,7 +275,7 @@
 	         target="de/uka/ilkd/key/util/keydoc/parser/KeYDocLexer.g"
 	         outputdirectory="${gen.dir}/de/uka/ilkd/key/util/keydoc/parser">
 	        <classpath>
-	           <pathelement location="${ext.dir}/antlr.jar" />
+	           <pathelement location="${ext.dir}/antlr-2.7.2.jar" />
 	        </classpath>
 	     </antlr>
 	  </target>
@@ -244,7 +286,7 @@
 	         target="de/uka/ilkd/key/util/keydoc/parser/KeYDocParser.g"
 	         outputdirectory="${gen.dir}/de/uka/ilkd/key/util/keydoc/parser">
 	        <classpath>
-	           <pathelement location="${ext.dir}/antlr.jar" />
+	           <pathelement location="${ext.dir}/antlr-2.7.2.jar" />
 	        </classpath>
 	     </antlr>
 	  </target>
@@ -254,7 +296,7 @@
 	         target="de/uka/ilkd/key/util/keydoc/parser/KeYDocTreeWalker.g"
 	         outputdirectory="${gen.dir}/de/uka/ilkd/key/util/keydoc/parser">
 	        <classpath>
-	           <pathelement location="${ext.dir}/antlr.jar" />
+	           <pathelement location="${ext.dir}/antlr-2.7.2.jar" />
 	        </classpath>
 	     </antlr>
 	  </target>
@@ -289,7 +331,7 @@
 	   target="de/uka/ilkd/key/parser/simplify/lexer.g"
 	   outputdirectory="${gen.dir}/de/uka/ilkd/key/parser/simplify">
 	   <classpath>
-	       <pathelement location="${ext.dir}/antlr.jar" />
+	       <pathelement location="${ext.dir}/antlr-2.7.2.jar" />
 	   </classpath>
 	</antlr>
   </target>
@@ -300,9 +342,42 @@
 	         target="de/uka/ilkd/key/parser/simplify/simplify.g"
 	         outputdirectory="${gen.dir}/de/uka/ilkd/key/parser/simplify">
 	        <classpath>
-	           <pathelement location="${ext.dir}/antlr.jar" />
+	           <pathelement location="${ext.dir}/antlr-2.7.2.jar" />
 	        </classpath>
 	     </antlr>
+  </target>
+  
+  <target name="reduceparser">
+		<!-- antlr task (defaults in ant to ANTLR 2.7.7) does not work for this ones, because they do not state a class -->
+  	    <java jar="${ext.dir}/antlr.jar" fork="true">  
+			<arg value="-o"/>  
+			<arg value="${gen.dir}/de/uka/ilkd/key/dl/parser"/>  
+			<arg value="de/uka/ilkd/key/dl/parser/Reduce.g"/>  
+		</java> 				
+  </target>
+  
+  <target name="qepcadparser">
+		<java jar="${ext.dir}/antlr.jar" fork="true">  
+			<arg value="-o"/>  
+			<arg value="${gen.dir}/de/uka/ilkd/key/dl/parser"/>  
+			<arg value="de/uka/ilkd/key/dl/parser/Qepcad.g"/>  
+		</java>		
+  </target>
+  
+  <target name="dlparser">
+		<java jar="${ext.dir}/antlr.jar" fork="true">  
+			<arg value="-o"/>  
+			<arg value="${gen.dir}/de/uka/ilkd/key/dl/parser"/>  
+			<arg value="de/uka/ilkd/key/dl/parser/DL.g"/>  
+		</java>		
+  </target>
+  
+  <target name="dlstage2parser">
+		<java jar="${ext.dir}/antlr.jar" fork="true">  
+			<arg value="-o"/>  
+			<arg value="${gen.dir}/de/uka/ilkd/key/dl/parser"/>  
+			<arg value="de/uka/ilkd/key/dl/parser/DLStage2.g"/>  
+		</java>		
   </target>
 
 
