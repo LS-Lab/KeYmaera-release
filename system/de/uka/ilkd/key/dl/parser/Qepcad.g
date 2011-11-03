@@ -30,6 +30,37 @@ grammar Qepcad;
 	package de.uka.ilkd.key.dl.parser;
 }
 
+@lexer::members {
+	// let the lexer throw an error instead of silently skipping over them with just a printed error.
+	public Token nextToken() {
+		while (true) {
+			state.token = null;
+			state.channel = Token.DEFAULT_CHANNEL;
+			state.tokenStartCharIndex = input.index();
+			state.tokenStartCharPositionInLine = input.getCharPositionInLine();
+			state.tokenStartLine = input.getLine();
+			state.text = null;
+			if ( input.LA(1)==CharStream.EOF ) {
+				return Token.EOF_TOKEN;
+			}
+			try {
+				mTokens();
+				if ( state.token==null ) {
+					emit();
+				}
+				else if ( state.token==Token.SKIP_TOKEN ) {
+					continue;
+				}
+				return state.token;
+			}
+			catch (RecognitionException re) {
+				reportError(re);
+				throw (RuntimeException) new RuntimeException("Lexical error in input file " + re).initCause(re);
+			}
+		}
+	}
+}
+
 @members {
 	TermBuilder tb = TermBuilder.DF;
 	
