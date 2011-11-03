@@ -55,7 +55,7 @@ grammar Reduce;
 			}
 			catch (RecognitionException re) {
 				reportError(re);
-				throw (RuntimeException) new RuntimeException("Lexical error in input file " + re).initCause(re);
+				throw (IllegalStateException) new IllegalStateException("Lexical error in input file " + re).initCause(re);
 			}
 		}
 	}

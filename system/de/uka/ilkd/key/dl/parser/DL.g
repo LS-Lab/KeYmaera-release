@@ -21,7 +21,7 @@ options {
     // don't just print but throw all exceptions
 	public void emitErrorMessage(String msg) {
 		//@todo turn into an exception type that declares as a "ParseException"
-        throw new IllegalStateException("Parse error: " + msg);
+        throw new IllegalStateException("Parse error:\n" + msg);
 	}
 
     // add rule invocation stack to improve debug information of parser errors
@@ -94,7 +94,7 @@ options {
 			}
 			catch (RecognitionException re) {
 				reportError(re);
-				throw (RuntimeException) new RuntimeException("Lexical error in input file " + re).initCause(re);
+				throw (IllegalStateException) new IllegalStateException("Lexical error in input file " + re).initCause(re);
 			}
 		}
 	}
