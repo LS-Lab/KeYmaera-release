@@ -18,10 +18,18 @@ options {
 		this.schemaMode = schemaMode;
 	}
 
+	public void displayRecognitionError(String[] tokenNames,
+										RecognitionException e)
+	{
+		String hdr = getErrorHeader(e);
+		String msg = getErrorMessage(e, tokenNames);
+		throw new de.uka.ilkd.key.java.PosAddConvertException(hdr+" "+msg, e.line, e.charPositionInLine);
+	}
+
     // don't just print but throw all exceptions
 	public void emitErrorMessage(String msg) {
-		//@todo turn into an exception type that declares as a "ParseException"
-        throw new IllegalStateException("Parse error:\n" + msg);
+		// errors should be reported with more context in displayRecognitionError, but just in case.
+        throw new de.uka.ilkd.key.java.ConvertException(msg);
 	}
 
     // add rule invocation stack to improve debug information of parser errors
@@ -45,7 +53,9 @@ options {
 		return getErrorHeader(e) + " " + msg + "\nafter parsing " + stack; 
 	} 
 	public String getTokenErrorDisplay(Token t) { 
-		return t.toString(); 
+/*		if (true)
+		    return new SLTranslationExceptionManager(this,fileName,offsetPos).createPositionedString("", t);
+*/		return t.toString(); 
 	}
 
     // // ensure the lexer does not silently skip over unrecognized tokens
@@ -94,7 +104,7 @@ options {
 			}
 			catch (RecognitionException re) {
 				reportError(re);
-				throw (IllegalStateException) new IllegalStateException("Lexical error in input file " + re).initCause(re);
+				throw new de.uka.ilkd.key.java.PosAddConvertException("Lexical error in input file " + re, re, re.line, re.charPositionInLine);
 			}
 		}
 	}

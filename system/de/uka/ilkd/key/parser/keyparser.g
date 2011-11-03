@@ -1072,6 +1072,15 @@ options {
 		Debug.out("Using ProgramBlockProvider: " + getServices().getProgramBlockProvider());
            sjb.javaBlock = getServices().getProgramBlockProvider().getProgramBlock(parserConfig,
 		   s, inSchemaMode(), isProblemParser(), isGlobalDeclTermParser());
+        } catch (de.uka.ilkd.key.java.PosAddConvertException e) {
+            lineOffset=e.getLine()-1;
+            colOffset=e.getColumn()+1;
+            if (lineOffset == 0) {
+	          colOffset += t.getColumn();
+            }
+            lineOffset += t.getLine();
+            throw (JavaParserException) new JavaParserException("line "+lineOffset+":"+colOffset + " in program " + e.getMessage(), t, 
+                getFilename(), lineOffset, colOffset).initCause(e);
         } catch (de.uka.ilkd.key.java.PosConvertException e) {
             lineOffset=e.getLine()-1;
             colOffset=e.getColumn()+1;
