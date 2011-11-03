@@ -4,11 +4,12 @@
 	<classpathentry kind="src" path="system/genSrc"/>
 	<classpathentry kind="con" path="org.scala-ide.sdt.launching.SCALA_CONTAINER"/>
 	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="key_lib/recoderKey.jar"/>
 	<classpathentry kind="lib" path="key_lib/log4j.jar"/>
 	<classpathentry kind="lib" path="key_lib/junit.jar"/>
 	<classpathentry kind="lib" path="key_lib/javacc.jar"/>
 	<classpathentry kind="lib" path="key_lib/antlr.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/orbital"/>
+	<classpathentry kind="lib" path="key_lib/recoderKey.jar"/>
+	<classpathentry kind="lib" path="key_lib/JLink/JLink.jar"/>
 	<classpathentry kind="output" path="system/binary"/>
 </classpath>
