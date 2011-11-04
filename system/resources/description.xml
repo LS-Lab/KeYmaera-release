@@ -783,5 +783,21 @@ Contributed by Aaron Kane</description>
                     		</requirements>
                     	</example>
                     </group>
+                    		<group name="Biological Systems">
+                    			<example>
+                    				<name>E. coli chemotaxis</name>
+                    				<path>/examples/hybrid/bio/Ecoli/Ecoli-chemotaxis.key</path>
+                    				<description>Chemotaxis model of the motion of Echerichia Coli (E. coli) bacteria. E. coli will switch between run or tumble mode and switches based on the presence of food attractant or predator repellent.If E. coli senses attractant, it runs. If E. coli senses repellent, it tumbles. Decisions tie and are determined by gradients based on a short-term memory giving precedence to more recent event.
+Contributed by: Solofomampionona Fortunat Rajaona</description>
+                    				<source href="http://resources.aims.ac.za/archive/2010/fortunat.pdf"/>
+                    				<requirements>
+                    					<some>
+                    						<quantifiereliminator>Mathematica</quantifiereliminator>
+                    						<quantifiereliminator>QepCad</quantifiereliminator>
+                    						<quantifiereliminator>Reduce</quantifiereliminator>
+                    					</some>
+                    				</requirements>
+                    			</example>
+	</group>
 	<example></example>
 </examples>
