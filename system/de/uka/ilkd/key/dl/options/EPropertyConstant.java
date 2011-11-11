@@ -87,7 +87,7 @@ public enum EPropertyConstant {
 	    OPTIONS_REDUCE_rlanuexsgnopt("[ReduceOptions]rlanuexsgnopt", "rlanuexsgnopt","<html>Sign optimization. This is turned off by default.<br>"
 											  + "If turned on, it is tried to determine the sign of a constant polynomial<br>"
 											  + "by calculating a containment.</html>", "Redlog Properties"), 
-	    OPTIONS_REDUCE_rlanuexgcdnormalize("[ReduceOptions]ReduceSwitch rlanuexgcdnormalize", "rlanuexgcdnormalize", "<html>GCD normalize. This is turned on by default.<br>"
+	    OPTIONS_REDUCE_rlanuexgcdnormalize("[ReduceOptions]rlanuexgcdnormalize", "rlanuexgcdnormalize", "<html>GCD normalize. This is turned on by default.<br>"
 		    													 + "If turned on, the GCD is normalized to 1, if it is a constant polynomial.</html>", "Redlog Properties"), 
 	    OPTIONS_REDUCE_rlanuexpsremseq("[ReduceOptions]rlanuexpsremseq", "rlanuexpsremseq", "<html>Pseudo remainder sequences. This is turned off by default.<br>"
 		    										+ "This switch decides, whether division or pseudo division is used for<br>"
