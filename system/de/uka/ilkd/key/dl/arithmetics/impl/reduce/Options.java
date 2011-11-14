@@ -48,7 +48,7 @@ public class Options implements Settings {
 	public static enum QuantifierEliminationMethod {
 		RLQE("rlqe", "Virtual Substitution"), RLCAD("rlcad",
 				"Cylindrical algebraic decomposition"), RLHQE("rlhqe",
-				"Hermitian Quantifier Elimination");
+				"Hermitian Quantifier Elimination"), RLQEPCAD("rlqepcad", "QEPCAD");
 
 		private final String method;
 		private final String display;

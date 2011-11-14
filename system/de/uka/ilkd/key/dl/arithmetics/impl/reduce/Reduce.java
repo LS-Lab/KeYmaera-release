@@ -8,6 +8,7 @@ import java.io.OutputStreamWriter;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.w3c.dom.Node;
 
@@ -16,6 +17,7 @@ import de.uka.ilkd.key.dl.arithmetics.exceptions.ConnectionProblemException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ServerStatusProblemException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
 import de.uka.ilkd.key.dl.arithmetics.impl.orbital.OrbitalSimplifier;
+import de.uka.ilkd.key.dl.arithmetics.impl.reduce.Options;
 import de.uka.ilkd.key.dl.arithmetics.impl.reduce.Options.ReduceSwitch;
 import de.uka.ilkd.key.logic.NamespaceSet;
 import de.uka.ilkd.key.logic.Term;
@@ -76,6 +78,14 @@ public class Reduce implements IQuantifierEliminator {
 		}
 		ProcessBuilder pb = new ProcessBuilder(Options.INSTANCE
 				.getReduceBinary().getAbsolutePath());
+		Map<String, String> environment = pb.environment();
+		environment.put("PATH", environment.get("PATH") + File.pathSeparator + de.uka.ilkd.key.dl.arithmetics.impl.qepcad.Options.INSTANCE.getQepcadPath()
+				.getAbsolutePath() + File.separator + "bin");
+		environment.put("qe", de.uka.ilkd.key.dl.arithmetics.impl.qepcad.Options.INSTANCE.getQepcadPath()
+				.getAbsolutePath());
+		environment.put("saclib", de.uka.ilkd.key.dl.arithmetics.impl.qepcad.Options.INSTANCE.getSaclibPath()
+				.getAbsolutePath());
+		
 		Process process = null;
 		try {
 			process = pb.start();
@@ -122,6 +132,10 @@ public class Reduce implements IQuantifierEliminator {
 	private String generateInput(String input, File tmp) {
 		// TODO: use all those options
 		String result = "load_package redlog; off rlverbose; rlset R; ";
+		
+		if(Options.INSTANCE.getQeMethod() == Options.QuantifierEliminationMethod.RLQEPCAD) {
+			result += "load_package qepcad; on rlqefbqepcad; rlqepcadn(100*10^6); rlqepcadl(200*10^3);";
+		}
 
 		if (Options.INSTANCE.getRlanuexgcdnormalize() != ReduceSwitch.DEFAULT) {
 			result += Options.INSTANCE.getRlanuexgcdnormalize().name()
@@ -234,10 +248,10 @@ public class Reduce implements IQuantifierEliminator {
 
 		return result + "redlog_phi := "
 				+ ((Options.INSTANCE.isRlall()) ? "rlall(" : "(") + input + ");"
-				+ "off nat; out \"" + tmp.getAbsolutePath() + "\"; "
-				+ Options.INSTANCE.getQeMethod().getMethod()
-				+ " redlog_phi; shut \"" + tmp.getAbsolutePath()
-				+ "\"; quit;\n";
+				+ "off nat; "
+				+ "redlog_psi_out := " + Options.INSTANCE.getQeMethod().getMethod()
+				+ " redlog_phi; out \"" + tmp.getAbsolutePath() + "\"; redlog_psi_out; shut \"" 
+				+ tmp.getAbsolutePath() + "\"; quit;\n";
 	}
 
 	public Term reduce(Term query,
