@@ -251,18 +251,33 @@ sub produceResultText {
   $result;
 }
 
+sub killtree
+{
+    my ($pid,$sig) = @_;
+    my @blub=qx/ps -o pid --no-headers --ppid $pid/;
+    foreach(@blub) {
+        print "Killing $_ with signal $sig\n";
+        killtree($_, $sig);
+    }  
+	kill $sig, ($pid);
+}
+
+
 sub runAuto {
   my ($dk, $realfilename, $headerfile, $timeout, $expectedresult) = @_;
   my $tmp = "/tmp/statistics.tmp.$$";
   my $result;
   my $pid;
   eval {
-	  $pid = open(STATUS, "$absolute_bin_path/runProver $dk auto dl print_statistics $tmp 2>&1 |");
-	  local $SIG{ALRM} = sub { my @pids = ($pid); print "killing $pid\n"; kill 15, @pids; sleep 5; kill 9, @pids; die "alarm\n"; };
+	  $pid = open(STATUS, "$absolute_bin_path/runKeYmaera $dk auto print_statistics $tmp 2>&1 |");
+	  #local $SIG{ALRM} = sub { my @pids = ($pid); print "killing $pid\n"; kill 15, @pids; sleep 5; kill 9, @pids; die "alarm\n"; };
+	  #local $SIG{ALRM} = sub { print "killing $pid\n"; system("killtree.sh $pid"); sleep 5; system("killtree.sh $pid 9"); die "alarm\n"; };
+	  local $SIG{ALRM} = sub { print "killing $pid\n"; killtree($pid, 15); sleep 5; killtree($pid, 9); die "alarm\n"; };
 	  if ($timeout > 0) {
 		  print "timeout is $timeout\n"; 
 		  alarm $timeout;
 	  }
+	  #system("killall reduce");
 	  print "now trying to prove $realfilename\n";
 	  print "output follows\n";
 	  while(<STATUS>) {
