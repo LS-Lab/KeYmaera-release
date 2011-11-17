@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Set;
 
 import de.uka.ilkd.key.dl.arithmetics.IODESolver.ODESolverResult;
+import de.uka.ilkd.key.dl.arithmetics.IODESolver.ODESolverUpdate;
 import de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator.PairOfTermAndQuantifierType;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ConnectionProblemException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ServerStatusProblemException;
@@ -76,8 +77,12 @@ public interface IMathematicaDLBridge extends Remote {
      * @throws ServerStatusProblemException
      */
     public ODESolverResult odeSolve(DiffSystem form, LogicVariable t,
-            LogicVariable ts, Term phi, Services services)
-            throws RemoteException, SolverException;
+			LogicVariable ts, Term phi, Services services)
+			throws RemoteException, SolverException;
+
+	public List<ODESolverUpdate> odeUpdate(DiffSystem form, LogicVariable t,
+			Services services, long timeout) throws RemoteException,
+			SolverException;
 
     public Term diffInd(DiffSystem form, Term post, Services services)
             throws RemoteException, SolverException;
@@ -125,8 +130,18 @@ public interface IMathematicaDLBridge extends Remote {
      * @throws ServerStatusProblemException
      */
     public String findInstance(Term form, long tmeout) throws RemoteException,
-            SolverException;
+			SolverException;
 
+	// finds multiple instances satisfying form
+	public List<String> findMultiInstance(Term form, int ninst, long timeout)
+			throws RemoteException, SolverException;
+
+	// finds multiple numerical (Real) instances satisfying form
+	public List<String> findMultiNumInstance(Term form, int ninst, long timeout)
+			throws RemoteException, SolverException;
+    
+
+    
     /**
      * Tries to find a transition within the program of modalForm from a state satisfying initial
      * to a state satisfying postcondition of modalForm.

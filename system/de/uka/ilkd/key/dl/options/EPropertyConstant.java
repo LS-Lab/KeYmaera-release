@@ -16,7 +16,10 @@ public enum EPropertyConstant {
 	    DLOPTIONS_FO_STRATEGY ("[DLOptions]FOStrategy","First Order Strategy", "<html><body>choose the strategy for first order goals. Either <br>STOP at first-order or <br>UNFOLD first-order completely and then stop"
 	    									 + " <br>EAGER quantifier elimination as soon as first-order or <br>LAZY quantifier elimination at leaves when no more options or <br>IBC Iterative Background"
 	    									 + " Closure strategy interleaving arithmetic and logic with incremental timeouts.</body></html>", "DL Properties"),
-	  
+	    									            
+	    DLOPTIONS_CEX_FINDER ("[DLOptions]CexFinder", "Counterexample Finder", "choose a search algorithm for finding counterexamples", "DL Properties"),
+	    DLOPTIONS_TRACER_STAT ("[DLOptions]TracerStat", "Enable CEX history", "whether tracing facility is enabled", "DL Properties"),
+	    											 	    									  
 	    DLOPTIONS_QUADRIC("[DLOptions]quadricTimeoutIncreaseFactor", "quadratic timeout", "the quadratic part of the IBC timeout. That is, the part c of t_new = a*t_old^2 + b*t_old + c (in seconds)", "DL Properties"),
 	    DLOPTIONS_LINEAR("[DLOptions]linearTimeoutIncreaseFactor", "linear timeout", "the linear part of the IBC timeout. That is, the part c of t_new = a*t_old^2 + b*t_old + c (in seconds)", "DL Properties"),
 	    DLOPTIONS_CONSTANT("[DLOptions]constantTimeoutIncreaseFactor", "constant timeout","the constant part of the IBC timeout. That is, the part c of t_new = a*t_old^2 + b*t_old + c (in seconds)", "DL Properties"),

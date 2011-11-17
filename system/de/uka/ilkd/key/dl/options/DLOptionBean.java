@@ -46,6 +46,39 @@ import de.uka.ilkd.key.proof.ProofSaver;
  */
 public class DLOptionBean implements Settings {
 
+	public static enum CexFinder {
+		DFS("Depth first search"), BFS("Breadth first search"), ITER_DEEP(
+				"Iterative deepening"), ITER_EXP("Iterative expansion"), ASTAR(
+				"AStar");
+
+		private String string;
+
+		private CexFinder(String str) {
+			this.string = str;
+		}
+
+		@Override
+		public String toString() {
+			return string;
+		}
+	}
+
+	public static enum TracerStat {
+		ON("On"), OFF("Off");
+
+		private String string;
+
+		private TracerStat(String str) {
+			this.string = str;
+		}
+
+		@Override
+		public String toString() {
+			return string;
+		}
+	}
+
+	
 	/**
 	 * @author jdq TODO Documentation since Feb 19, 2009
 	 */
@@ -213,6 +246,11 @@ public class DLOptionBean implements Settings {
 
 	private FirstOrderStrategy foStrategy;
 
+	private CexFinder cexFinder;
+
+	private TracerStat tracerStat;
+
+
 	private long initialTimeout;
 
 	private int quadraticTimeoutIncreaseFactor;
@@ -325,8 +363,34 @@ public class DLOptionBean implements Settings {
 		csdpBinary = new File("/usr/bin/csdp");
 		csdpForceInternal = false;
 
+		cexFinder = CexFinder.ITER_DEEP;
+		tracerStat = TracerStat.OFF;
+
 		listeners = new HashSet<SettingsListener>();
 	}
+
+	public CexFinder getCexFinder() {
+		return cexFinder;
+	}
+
+	public void setCexFinder(CexFinder cexFinder) {
+		if (this.cexFinder != cexFinder) {
+			this.cexFinder = cexFinder;
+			firePropertyChanged();
+		}
+	}
+
+	public TracerStat getTracerStat() {
+		return tracerStat;
+	}
+
+	public void setTracerStat(TracerStat tracerStat) {
+		if (this.tracerStat != tracerStat) {
+			this.tracerStat = tracerStat;
+			firePropertyChanged();
+		}
+	}
+
 
 	/**
 	 * @return the callReduce
@@ -630,6 +694,18 @@ public class DLOptionBean implements Settings {
 		if (property != null) {
 			csdpForceInternal = Boolean.valueOf(property);
 		}
+
+		property = props.getProperty(EPropertyConstant.DLOPTIONS_CEX_FINDER
+				.getKey());
+		if (property != null) {
+			cexFinder = CexFinder.valueOf(property);
+		}
+		property = props.getProperty(EPropertyConstant.DLOPTIONS_TRACER_STAT
+				.getKey());
+		if (property != null) {
+			tracerStat = TracerStat.valueOf(property);
+		}
+
 	}
 
 	/*
@@ -730,6 +806,11 @@ public class DLOptionBean implements Settings {
 			// we don't want to save user specific pathes when saving proofs
 			props.setProperty(EPropertyConstant.DLOPTIONS_CSDP_PATH.getKey(), csdpBinary.getAbsolutePath());	
 		}
+		props.setProperty(EPropertyConstant.DLOPTIONS_CEX_FINDER.getKey(),
+				cexFinder.name());
+		props.setProperty(EPropertyConstant.DLOPTIONS_TRACER_STAT.getKey(),
+				tracerStat.name());
+
 	}
 
 	public void addSubOptionBean(Settings sub) {

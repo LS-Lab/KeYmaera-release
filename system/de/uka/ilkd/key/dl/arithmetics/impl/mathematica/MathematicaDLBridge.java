@@ -47,6 +47,7 @@ import com.wolfram.jlink.ExprFormatException;
 import de.uka.ilkd.key.dl.arithmetics.ISimplifier;
 import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
 import de.uka.ilkd.key.dl.arithmetics.IODESolver.ODESolverResult;
+import de.uka.ilkd.key.dl.arithmetics.IODESolver.ODESolverUpdate;
 import de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator.PairOfTermAndQuantifierType;
 import de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator.QuantifierType;
 import de.uka.ilkd.key.dl.arithmetics.abort.ServerConsole;
@@ -218,6 +219,84 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 		serverConsole.setVisible(!serverConsole.isVisible());
 	}
 
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * de.uka.ilkd.key.dl.IODESolver#odeODESolverUpdate(de.uka.ilkd.key.dl.
+     * DiffSystem, de.uka.ilkd.key.logic.op.LogicVariable,
+     * de.uka.ilkd.key.logic.Term, java.Services)
+     */
+    @Override
+    public List<ODESolverUpdate> odeUpdate(DiffSystem form, LogicVariable t,
+            Services services, long timeout)
+            throws RemoteException, SolverException {
+        List<Expr> args = new ArrayList<Expr>();
+        Map<String, Expr> vars = new HashMap<String, Expr>();
+
+        collectDottedProgramVariables(form, vars, t);
+        for (ProgramElement el : form.getDifferentialEquations(services.getNamespaces()))
+            args.add(DL2ExprConverter.convertDiffEquation(el, t, vars));
+        for (String name : vars.keySet())
+            args.add(new Expr(EQUALS, new Expr[] {
+                        new Expr(new Expr(Expr.SYMBOL, name), new Expr[] { new Expr(0) }),
+                        new Expr(Expr.SYMBOL, name + "$") }));
+        String name = t.name().toString();
+        name = name.replaceAll("_", USCORE_ESCAPE);
+        Expr query = new Expr(new Expr(Expr.SYMBOL, "DSolve"), new Expr[] {
+                        new Expr(new Expr(Expr.SYMBOL, "List"), args.toArray(new Expr[1])),
+                        new Expr(new Expr(Expr.SYMBOL, "List"), vars.values().toArray(new Expr[0])),
+                        new Expr(Expr.SYMBOL, name) });
+        Expr updateExpressions = evaluate(query, timeout).expression;
+
+        return createODESolverUpdates(updateExpressions, services.getNamespaces());
+    }
+
+    public List<ODESolverUpdate> createODESolverUpdates(Expr expr,
+			NamespaceSet nss) throws RemoteException, SolverException {
+		List<ODESolverUpdate> result = new ArrayList<ODESolverUpdate>();
+		if (expr.toString().equalsIgnoreCase("$Aborted")
+				|| expr.toString().contains("Abort[]")) {
+			throw new IncompleteEvaluationException("Calculation aborted!");
+		}
+		if (expr.head().equals(LIST)) {
+			for (int i = 0; i < expr.args().length; i++) {
+				result.addAll(createODESolverUpdates(expr.args()[i], nss));
+			}
+		} else if (expr.head().equals(RULE)) {
+			ODESolverUpdate u = new ODESolverUpdate();
+			try {
+				de.uka.ilkd.key.logic.op.ProgramVariable var = (de.uka.ilkd.key.logic.op.ProgramVariable) nss
+						.programVariables().lookup(
+								new Name(expr.args()[0].head().asString()
+										.replaceAll(USCORE_ESCAPE, "_")));
+				if (var == null) {
+					// var = new de.uka.ilkd.key.logic.op.LocationVariable(
+					// new ProgramElementName(expr.args()[0].head()
+					// .asString()), getSortR(nss));
+					// nss.programVariables().add(var);
+					throw new IllegalStateException("ProgramVariable "
+							+ expr.args()[0].head().asString()
+							+ " is not declared");
+				}
+				u.location = TermBuilder.DF.var(var);
+			} catch (ExprFormatException e) {
+				throw new RemoteException(
+						"Could not create ODESolverUpdate for: " + expr, e);
+			}
+			u.expr = convert(expr.args()[1], nss);
+			result.add(u);
+		} else if (Expr2TermConverter.isBlacklisted(expr)) {
+			throw new UnsolveableException("Blacklisted conversion from "
+					+ expr.toString() + " to updates");
+		} else {
+			throw new IllegalStateException("unknown case " + expr.head()
+					+ " in\n" + expr);
+		}
+		return result;
+	}
+
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -621,6 +700,46 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 		}
 		return "";
 	}
+	
+    /*   
+     * (non-Javadoc)
+     * 
+     * @see
+     * de.uka.ilkd.key.dl.IMathematicaDLBridge#findMultiInstance(de.uka.ilkd.key.
+     * logic.Term, int, long)
+     */
+    public List<String> findMultiInstance(Term form, int ninst, long timeout) throws RemoteException,
+            SolverException {
+        Expr query = Term2ExprConverter.convert2Expr(form);
+        List<Expr> vars = new ArrayList<Expr>();
+        Set<String> variables = AllCollector.getItemSet(form).filter(
+                new FilterVariableCollector(null)).getVariables();
+        for (String var : variables)
+            vars.add(new Expr(Expr.SYMBOL, var.replaceAll("_", USCORE_ESCAPE)));
+        List<String> ret = new ArrayList<String>();
+        if (vars.size() > 0) { 
+            query = new Expr(new Expr(Expr.SYMBOL, "FindInstance"), new Expr[] {
+                    query, new Expr(LIST, vars.toArray(new Expr[0])),
+                    new Expr(Expr.SYMBOL, "Reals"),
+                    new Expr(ninst),
+                    });  
+            Expr results[] = evaluate(query, timeout).expression.args();
+
+            for (Expr result : results) {
+                List<String> createFindInstanceString = createFindInstanceString(result);
+                Collections.sort(createFindInstanceString);
+                StringBuilder res = new StringBuilder();
+                for (String s : createFindInstanceString)
+                    res.append(s + "\n");
+                if (res.toString().contains("FindInstance")) {
+                    throw new UnsolveableException("Recursive counterexample "
+                            + res);
+                }    
+                ret.add(res.toString());
+            }    
+        }    
+        return ret; 
+    } 
 
 	/**
 	 * @param result
@@ -757,6 +876,47 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 		return form;
 	}
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * de.uka.ilkd.key.dl.IMathematicaDLBridge#findMultiNumInstance(de.uka.ilkd.key.
+     * logic.Term, int, long)
+     */
+    public List<String> findMultiNumInstance(Term form, int ninst, long timeout)
+        throws RemoteException, SolverException {
+        Expr query = Term2ExprConverter.convert2Expr(form);
+        List<Expr> vars = new ArrayList<Expr>();
+        Set<String> variables = AllCollector.getItemSet(form).filter(
+                new FilterVariableCollector(null)).getVariables();
+        for (String var : variables)
+            vars.add(new Expr(Expr.SYMBOL, var.replaceAll("_", USCORE_ESCAPE)));
+        List<String> ret = new ArrayList<String>();
+        if (vars.size() > 0) {
+            query = new Expr(new Expr(Expr.SYMBOL, "FindInstance"), new Expr[] {
+                    query, new Expr(LIST, vars.toArray(new Expr[0])),
+                    new Expr(Expr.SYMBOL, "Reals"),
+                    new Expr(ninst),
+                    });
+            query = new Expr(new Expr(Expr.SYMBOL, "N"), new Expr[] {query});
+            Expr results[] = evaluate(query, timeout).expression.args();
+
+            for (Expr result : results) {
+                List<String> createFindInstanceString = createFindInstanceString(result);
+                Collections.sort(createFindInstanceString);
+                StringBuilder res = new StringBuilder();
+                for (String s : createFindInstanceString)
+                    res.append(s + "\n");
+                if (res.toString().contains("FindInstance")) {
+                    throw new UnsolveableException("Recursive counterexample "
+                            + res);
+                }
+                ret.add(res.toString());
+            }
+        }
+        return ret;
+    }
+	
 	/* @Override */
 	public String findTransition(Term initial, Term modalForm, long timeout,
 			Services services) throws RemoteException, SolverException {
