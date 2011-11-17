@@ -143,7 +143,7 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
 							"readdQuantifiers", EPropertyConstant.DLOPTIONS_READD_QUANTIFIERS,true, false, false),
 					createDescriptor(
 							"applyGammaRules", EPropertyConstant.DLOPTIONS_APPLY_GAMMA_RULES,
-							true, false, true, ApplyRulesPropertyEditor.class),
+							true, false, false, ApplyRulesPropertyEditor.class),
 					createDescriptor(
 							"applyUpdatesToModalities", EPropertyConstant.DLOPTIONS_APPLY_UPDATES_TO_MODALITIES,
 							true, false),
