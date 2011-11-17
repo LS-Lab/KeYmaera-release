@@ -60,6 +60,7 @@ import de.uka.ilkd.key.dl.arithmetics.impl.SumOfSquaresChecker.PolynomialClassif
 import de.uka.ilkd.key.dl.arithmetics.impl.mathematica.IKernelLinkWrapper.ExprAndMessages;
 import de.uka.ilkd.key.dl.formulatools.collector.AllCollector;
 import de.uka.ilkd.key.dl.formulatools.collector.filter.FilterVariableCollector;
+import de.uka.ilkd.key.dl.image_compute.CounterExampleFinder;
 import de.uka.ilkd.key.dl.logic.ldt.RealLDT;
 import de.uka.ilkd.key.dl.model.DLNonTerminalProgramElement;
 import de.uka.ilkd.key.dl.model.DiffSystem;
@@ -664,42 +665,58 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 		return evaluate(expr, -1);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * de.uka.ilkd.key.dl.IMathematicaDLBridge#findInstance(de.uka.ilkd.key.
-	 * logic.Term)
-	 */
-	public String findInstance(Term form, long timeout) throws RemoteException,
-			SolverException {
-		Expr query = Term2ExprConverter.convert2Expr(form);
-		List<Expr> vars = new ArrayList<Expr>();
-		Set<String> variables = AllCollector.getItemSet(form).filter(
-				new FilterVariableCollector(null)).getVariables();
-		for (String var : variables) {
-			vars.add(new Expr(Expr.SYMBOL, var.replaceAll("_", USCORE_ESCAPE)));
-		}
-		if (vars.size() > 0) {
-			query = new Expr(new Expr(Expr.SYMBOL, "FindInstance"), new Expr[] {
-					query, new Expr(LIST, vars.toArray(new Expr[0])),
-					new Expr(Expr.SYMBOL, "Reals") });
-			Expr result = evaluate(query, timeout).expression;
+//	/*
+//	 * (non-Javadoc)
+//	 * 
+//	 * @see
+//	 * de.uka.ilkd.key.dl.IMathematicaDLBridge#findInstance(de.uka.ilkd.key.
+//	 * logic.Term)
+//	 */
+//	public String findInstance(Term form, long timeout) throws RemoteException,
+//			SolverException {
+//		Expr query = Term2ExprConverter.convert2Expr(form);
+//		List<Expr> vars = new ArrayList<Expr>();
+//		Set<String> variables = AllCollector.getItemSet(form).filter(
+//				new FilterVariableCollector(null)).getVariables();
+//		for (String var : variables) {
+//			vars.add(new Expr(Expr.SYMBOL, var.replaceAll("_", USCORE_ESCAPE)));
+//		}
+//		if (vars.size() > 0) {
+//			query = new Expr(new Expr(Expr.SYMBOL, "FindInstance"), new Expr[] {
+//					query, new Expr(LIST, vars.toArray(new Expr[0])),
+//					new Expr(Expr.SYMBOL, "Reals") });
+//			Expr result = evaluate(query, timeout).expression;
+//
+//			List<String> createFindInstanceString = createFindInstanceString(result);
+//			Collections.sort(createFindInstanceString);
+//			StringBuilder res = new StringBuilder();
+//			for (String s : createFindInstanceString) {
+//				res.append(s + "\n");
+//			}
+//			if (res.toString().contains("FindInstance")) {
+//				throw new UnsolveableException("Recursive counterexample "
+//						+ res);
+//			}
+//			return res.toString();
+//		}
+//		return "";
+//	}
+	
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * de.uka.ilkd.key.dl.IMathematicaDLBridge#findInstance(de.uka.ilkd.key.
+     * logic.Term)
+     */
+    public String findInstance(Term form, long timeout)
+        throws RemoteException, SolverException {
+        List<String> result = findMultiInstance(form, 1, timeout);
+        if (!result.isEmpty())
+            return result.get(0);
+        return "";
+    }
 
-			List<String> createFindInstanceString = createFindInstanceString(result);
-			Collections.sort(createFindInstanceString);
-			StringBuilder res = new StringBuilder();
-			for (String s : createFindInstanceString) {
-				res.append(s + "\n");
-			}
-			if (res.toString().contains("FindInstance")) {
-				throw new UnsolveableException("Recursive counterexample "
-						+ res);
-			}
-			return res.toString();
-		}
-		return "";
-	}
 	
     /*   
      * (non-Javadoc)
@@ -920,67 +937,69 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 	/* @Override */
 	public String findTransition(Term initial, Term modalForm, long timeout,
 			Services services) throws RemoteException, SolverException {
-		Term term = modalForm;
-		final de.uka.ilkd.key.rule.updatesimplifier.Update update = de.uka.ilkd.key.rule.updatesimplifier.Update
-				.createUpdate(term);
-		// unbox from update prefix
-		if (term.op() instanceof QuanUpdateOperator) {
-			term = ((QuanUpdateOperator) term.op()).target(term);
-			if (term.op() instanceof QuanUpdateOperator)
-				throw new AssertionError(
-						"assume nested updates have been merged");
-		}
-		if (!(term.op() instanceof Modality && term.javaBlock() != null
-				&& term.javaBlock() != JavaBlock.EMPTY_JAVABLOCK && term
-				.javaBlock().program() instanceof StatementBlock)) {
-			throw new IllegalArgumentException("inapplicable to " + modalForm);
-		}
-		Term post = term.sub(0);
-		final DiffSystem system = (DiffSystem) ((StatementBlock) term
-				.javaBlock().program()).getChildAt(0);
-
-		// @todo fixme change this thingx
-		Named t = new LogicVariable(new Name("tmpts"), RealLDT.getRealSort());
-
-		List<Expr> args = new ArrayList<Expr>();
-
-		Map<String, Expr> vars = new HashMap<String, Expr>();
-
-		collectDottedProgramVariables(system, vars, t);
-		Term invariant = system.getInvariant(services);
-		final Map<String, Expr> EMPTY = new HashMap<String, Expr>();
-		for (ProgramElement el : system.getDifferentialEquations(services
-				.getNamespaces())) {
-			args.add(DL2ExprConverter.convertDiffEquation(el, t, vars));
-		}
-		Expr call = new Expr(new Expr(Expr.SYMBOL, "AMC`" + "IFindTransition"),
-				new Expr[] {
-						Term2ExprConverter.convert2Expr(initial),
-						Term2ExprConverter.update2Expr(update),
-						new Expr(new Expr(Expr.SYMBOL, "List"), args
-								.toArray(new Expr[1])),
-						new Expr(Expr.SYMBOL, t.name().toString()),
-						Term2ExprConverter.convert2Expr(invariant),
-						Term2ExprConverter.convert2Expr(TermBuilder.DF
-								.not(post)),
-						new Expr(new Expr(Expr.SYMBOL, "Rule"), new Expr[] {
-								new Expr(Expr.SYMBOL, "TimeHorizon"),
-								new Expr(TIME_HORIZON) }),
-						new Expr(new Expr(Expr.SYMBOL, "Rule"), new Expr[] {
-								new Expr(Expr.SYMBOL, "Instances"),
-								new Expr(CEX_TRANSITION_INSTANCES) }) });
-		Expr result = evaluate(call, timeout).expression;
-
-		List<String> createFindInstanceString = createFindInstanceString(result);
-		Collections.sort(createFindInstanceString);
-		StringBuilder res = new StringBuilder();
-		for (String s : createFindInstanceString) {
-			res.append(s + "\n");
-		}
-		if (res.toString().contains("IFindTransition")) {
-			throw new UnsolveableException("Recursive counterexample " + res);
-		}
-		return res.toString();
+        CounterExampleFinder cef = new CounterExampleFinder(initial, modalForm, services);
+        return cef.findSolution();
+//		Term term = modalForm;
+//		final de.uka.ilkd.key.rule.updatesimplifier.Update update = de.uka.ilkd.key.rule.updatesimplifier.Update
+//				.createUpdate(term);
+//		// unbox from update prefix
+//		if (term.op() instanceof QuanUpdateOperator) {
+//			term = ((QuanUpdateOperator) term.op()).target(term);
+//			if (term.op() instanceof QuanUpdateOperator)
+//				throw new AssertionError(
+//						"assume nested updates have been merged");
+//		}
+//		if (!(term.op() instanceof Modality && term.javaBlock() != null
+//				&& term.javaBlock() != JavaBlock.EMPTY_JAVABLOCK && term
+//				.javaBlock().program() instanceof StatementBlock)) {
+//			throw new IllegalArgumentException("inapplicable to " + modalForm);
+//		}
+//		Term post = term.sub(0);
+//		final DiffSystem system = (DiffSystem) ((StatementBlock) term
+//				.javaBlock().program()).getChildAt(0);
+//
+//		// @todo fixme change this thingx
+//		Named t = new LogicVariable(new Name("tmpts"), RealLDT.getRealSort());
+//
+//		List<Expr> args = new ArrayList<Expr>();
+//
+//		Map<String, Expr> vars = new HashMap<String, Expr>();
+//
+//		collectDottedProgramVariables(system, vars, t);
+//		Term invariant = system.getInvariant(services);
+//		final Map<String, Expr> EMPTY = new HashMap<String, Expr>();
+//		for (ProgramElement el : system.getDifferentialEquations(services
+//				.getNamespaces())) {
+//			args.add(DL2ExprConverter.convertDiffEquation(el, t, vars));
+//		}
+//		Expr call = new Expr(new Expr(Expr.SYMBOL, "AMC`" + "IFindTransition"),
+//				new Expr[] {
+//						Term2ExprConverter.convert2Expr(initial),
+//						Term2ExprConverter.update2Expr(update),
+//						new Expr(new Expr(Expr.SYMBOL, "List"), args
+//								.toArray(new Expr[1])),
+//						new Expr(Expr.SYMBOL, t.name().toString()),
+//						Term2ExprConverter.convert2Expr(invariant),
+//						Term2ExprConverter.convert2Expr(TermBuilder.DF
+//								.not(post)),
+//						new Expr(new Expr(Expr.SYMBOL, "Rule"), new Expr[] {
+//								new Expr(Expr.SYMBOL, "TimeHorizon"),
+//								new Expr(TIME_HORIZON) }),
+//						new Expr(new Expr(Expr.SYMBOL, "Rule"), new Expr[] {
+//								new Expr(Expr.SYMBOL, "Instances"),
+//								new Expr(CEX_TRANSITION_INSTANCES) }) });
+//		Expr result = evaluate(call, timeout).expression;
+//
+//		List<String> createFindInstanceString = createFindInstanceString(result);
+//		Collections.sort(createFindInstanceString);
+//		StringBuilder res = new StringBuilder();
+//		for (String s : createFindInstanceString) {
+//			res.append(s + "\n");
+//		}
+//		if (res.toString().contains("IFindTransition")) {
+//			throw new UnsolveableException("Recursive counterexample " + res);
+//		}
+//		return res.toString();
 	}
 
 	/*

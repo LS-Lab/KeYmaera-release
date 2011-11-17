@@ -42,6 +42,9 @@ import de.uka.ilkd.key.dl.options.DLOptionBean.FirstOrderStrategy;
 import de.uka.ilkd.key.dl.options.DLOptionBean.InvariantRule;
 import de.uka.ilkd.key.dl.options.DLOptionBean.LocalReduceOption;
 
+import de.uka.ilkd.key.dl.options.DLOptionBean.CexFinder;
+import de.uka.ilkd.key.dl.options.DLOptionBean.TracerStat;
+
 /**
  * @author jdq
  * 
@@ -101,6 +104,10 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
 											true, false, SOSCheckerPropertyEditor.class),
 					createDescriptor(
 							"useIterativeReduceRule", EPropertyConstant.DLOPTIONS_ITERATIVE_REDUCE_RULE,false, true, true),
+					createDescriptor(
+					        "cexFinder", EPropertyConstant.DLOPTIONS_CEX_FINDER, true, false, CexFinderPropertyEditor.class),
+					createDescriptor(
+					        "tracerStat", EPropertyConstant.DLOPTIONS_TRACER_STAT, false, true, TracerStatPropertyEditor.class),
 					createDescriptor(
 							"usePowersetIterativeReduce", EPropertyConstant.DLOPTIONS_USE_POWERSET_ITERATIVE_REDUCE,false, true, true),
 					createDescriptor(
@@ -453,4 +460,22 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
 		}
 		return names.toArray(new String[0]);
 	}
+	
+	      public static class CexFinderPropertyEditor extends
+	                       TaggedPropertyEditorSupport {
+	               public CexFinderPropertyEditor() {
+	                       super(getNames(CexFinder.values()), CexFinder
+	                                       .values());
+	               }
+	       }
+	
+	       public static class TracerStatPropertyEditor extends
+	                       TaggedPropertyEditorSupport {
+	               public TracerStatPropertyEditor() {
+	                       super(getNames(TracerStat.values()), TracerStat
+	                                       .values());
+	               }
+	       }
+	
+
 }
