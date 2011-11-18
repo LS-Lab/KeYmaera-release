@@ -172,17 +172,27 @@ public class Term2SMTConverter {
 						+ convert2String(form.sub(1), nss, eliminateFractions)
 						+ ")";
 			} else if (f.name().toString().equals("exp")) {
-				String e = convert2String(form.sub(1), nss, eliminateFractions);
+				// FIXME this function only works for integer exponentials
+				String e = form.sub(1).op().name().toString();
 				int exp = Integer.parseInt(e.substring(0,e.length() - 1));
 				if(exp == 0) {
 					return "1";
+				}
+				boolean negative = false;
+				if(exp < 0) {
+					exp = -exp;
+					negative = true;
 				}
 				String s = convert2String(form.sub(0), nss, eliminateFractions);
 				String res = "(*";
 				for(int i = 0; i < exp; i++) {
 					res += " " + s;
 				}
-				return res + ")";
+				res += ")"
+				if(negative) {
+					return (/ 1. res);
+				}
+				return res;
 			} else {
 				String[] args = new String[form.arity()];
 				for (int i = 0; i < args.length; i++) {
@@ -194,10 +204,10 @@ public class Term2SMTConverter {
 					BigFraction frac = PolynomTool
 							.convertStringToFraction(numberAsString);
 					if (frac.getDenominator().equals(BigInteger.ONE)) {
-						return frac.getNumerator().toString() + ".";
+						return convertNumber(frac.getNumerator());
 					} else {
-						return "(/ " + frac.getNumerator() + ". "
-								+ frac.getDenominator() + ". )";
+						return "(/ " + convertNumber(frac.getNumerator())
+								+ convertNumber(frac.getDenominator()) + ")";
 					}
 				} catch (NumberFormatException nfe) {
 					String name = form.op().name().toString();
@@ -279,6 +289,27 @@ public class Term2SMTConverter {
 		throw new IllegalArgumentException("Could not convert Term: " + form
 				+ "Operator was: " + form.op());
 	}
+
+	private String convertNumber(Term form) {
+		String numberAsString = form.op().name().toString();
+		BigFraction frac = PolynomTool
+				.convertStringToFraction(numberAsString);
+		if (frac.getDenominator().equals(BigInteger.ONE)) {
+			return printNumber(frac.getNumerator());
+		} else {
+			return "(/ " + printNumber(frac.getNumerator())
+					+ printNumber(frac.getDenominator()) + ")";
+		}
+	}
+
+	private String printNumber(BigInteger b) {
+		if(b.compareTo(BigInteger.ZERO) < 0) {
+			return "(- " + b.abs().toString() + ".)";
+		} else {
+			return b.toString() + ".";
+		}
+	}
+
 
 	// Converts an array of Strings in
 	// one string. The elements are seperated by
