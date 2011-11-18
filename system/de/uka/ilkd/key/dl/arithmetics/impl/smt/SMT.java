@@ -52,6 +52,11 @@ public class SMT implements IQuantifierEliminator {
 			List<PairOfTermAndQuantifierType> quantifiers, NamespaceSet nss,
 			long timeout) throws RemoteException, SolverException {
 
+		boolean usePrenexForm = false;
+
+		// TODO: replace topmost universal quantifiers by free variables
+		// as the SMT solvers can work better with quantifier free examples
+
 		SMTInput input = Term2SMTConverter.convert(form,
 				new ArrayList<QuantifiableVariable>());
 //		if (input.getVariableList().equals("()")) {
