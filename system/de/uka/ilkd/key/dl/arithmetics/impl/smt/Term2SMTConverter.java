@@ -361,7 +361,7 @@ public class Term2SMTConverter {
 
 		String result = "";
 		for (int i = 0; i < args.length; i++) {
-			result += "(declare-const " + args[i] + " Real)";
+			result += "(declare-fun " + args[i] + "() Real)";
 			if (i != args.length - 1)
 				result += "\n";
 		}
