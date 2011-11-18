@@ -1207,8 +1207,26 @@ public class LogicPrinter {
         layouter.brk(1,-indent).print(name).ind(1,0);
         maybeParens(r, assRight);
     }
+    
+	public void printSurroundFixTerm(Term l, int assLeft, String left, String right, Term r,
+			int assRight) throws IOException {
+		int indent = left.length() + 1;
+		layouter.beginC(indent);
+		printSurroundFixTermContinuingBlock(l, assLeft, left, right, r, assRight);
+		layouter.end();
+	}
 
-    /**
+	public void printSurroundFixTermContinuingBlock(Term l, int assLeft, String left, String right,
+			Term r, int assRight) throws IOException {
+		startTerm(2);
+		layouter.ind();
+		layouter.print(left);
+		maybeParens(l, assLeft);
+		layouter.print(right);
+		maybeParens(r, assRight);
+	}
+
+	/**
      * prints an anonymous update
      */
     public void printAnonymousUpdate(Term t, int ass)

@@ -138,20 +138,45 @@ public abstract class Notation {
 		sp.printInfixTerm(t.sub(0), assLeft, name, t.sub(1), assRight);
 	    }
 	}
+    }
+	
+    /**
+     * The standard concrete syntax for surroundfix operators.
+     */
+	public static class SurroundFix extends Notation {
+		String left, right;
 
-	/**
+		int assLeft, assRight;
+
+		public SurroundFix(String left, String right, int prio, int assLeft, int assRight) {
+			super(prio);
+			this.left = left;
+			this.right = right;
+			this.assLeft = assLeft;
+			this.assRight = assRight;
+		}
+
+		public void print(Term t, LogicPrinter sp) throws IOException {
+			if (sp.getNotationInfo().getAbbrevMap().isEnabled(t)) {
+				sp.printTerm(t);
+			} else {
+				sp.printSurroundFixTerm(t.sub(0), assLeft, left, right, t.sub(1), assRight);
+			}
+		}
+
+		/**
          * Print a term without beginning a new block. This calls the
          * {@link LogicPrinter#printTermContinuingBlock(Term)} method.
          */
-	public void printContinuingBlock(Term t, LogicPrinter sp)
-		throws IOException {
-	    if (sp.getNotationInfo().getAbbrevMap().isEnabled(t)) {
-		sp.printTerm(t);
-	    } else {
-		sp.printInfixTermContinuingBlock(t.sub(0), assLeft, name, t
-			.sub(1), assRight);
-	    }
-	}
+		public void printContinuingBlock(Term t, LogicPrinter sp)
+				throws IOException {
+			if (sp.getNotationInfo().getAbbrevMap().isEnabled(t)) {
+				sp.printTerm(t);
+			} else {
+				sp.printSurroundFixTermContinuingBlock(t.sub(0), assLeft, left, right, t
+						.sub(1), assRight);
+			}
+		}
 
     }
 

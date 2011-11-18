@@ -563,6 +563,12 @@ options {
       ;
 
 
+DCHOICE
+: "++";
+
+BCHOICE
+: "+-+";
+
 WS
 options {
   paraphrase = "white space";
@@ -799,6 +805,13 @@ options {
     : 
     (DIGIT)+    
     ;
+
+GAME_BEGIN: "\\(";
+GAME_END: "\\)";
+
+ALOOP_BEGIN: 'A' LBRACE;
+ELOOP_BEGIN: 'E' LBRACE;
+LOOP_END: RBRACE EXP STAR;
 
 /**
   * Here we have to accept all strings of kind \\[a-z_]
