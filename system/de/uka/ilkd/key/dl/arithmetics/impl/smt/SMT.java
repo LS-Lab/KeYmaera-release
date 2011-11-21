@@ -93,6 +93,7 @@ public class SMT implements IQuantifierEliminator, ICounterExampleGenerator {
 		System.out.println("SMT Input: \n" + smtIn);
 		try {
 			inputFile = File.createTempFile("keymaerasmt", ".smt2");
+			inputFile.deleteOnExit();
 			FileWriter in = new FileWriter(inputFile);
 			in.write(smtIn);
 			in.flush();
@@ -100,6 +101,7 @@ public class SMT implements IQuantifierEliminator, ICounterExampleGenerator {
 			Process process = Runtime.getRuntime().exec(
 					Options.INSTANCE.getZ3Binary().getAbsolutePath() + " "
 							+ inputFile.getAbsolutePath());
+			inputFile.delete();
 			BufferedReader b = new BufferedReader(new InputStreamReader(process.getInputStream()));
 			boolean checkSat = false;
 			String line = null;
@@ -197,6 +199,7 @@ public class SMT implements IQuantifierEliminator, ICounterExampleGenerator {
 		File inputFile;
 		try {
 			inputFile = File.createTempFile("keymaerasmt", ".smt2");
+			inputFile.deleteOnExit();
 			FileWriter in = new FileWriter(inputFile);
 			in.write(smtIn);
 			in.flush();
@@ -204,6 +207,7 @@ public class SMT implements IQuantifierEliminator, ICounterExampleGenerator {
 			Process process = Runtime.getRuntime().exec(
 					Options.INSTANCE.getZ3Binary().getAbsolutePath() + " "
 							+ inputFile.getAbsolutePath() + " MODEL=true");
+			inputFile.delete();
 			BufferedReader b = new BufferedReader(new InputStreamReader(process.getInputStream()));
 			boolean checkSat = false;
 			boolean sat = false;
