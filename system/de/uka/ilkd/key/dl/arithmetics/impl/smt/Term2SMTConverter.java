@@ -3,10 +3,14 @@ package de.uka.ilkd.key.dl.arithmetics.impl.smt;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import de.uka.ilkd.key.dl.arithmetics.impl.orbital.PolynomTool;
 import de.uka.ilkd.key.dl.arithmetics.impl.orbital.PolynomTool.BigFraction;
+import de.uka.ilkd.key.dl.arithmetics.impl.qepcad.PrenexGenerator;
+import de.uka.ilkd.key.dl.arithmetics.impl.qepcad.PrenexGenerator.PrenexGeneratorResult;
 import de.uka.ilkd.key.logic.NamespaceSet;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.op.Function;
@@ -48,9 +52,29 @@ public class Term2SMTConverter {
 	 * @return QepCadInput-Instance of the given term.
 	 */
 	public static SMTInput convert(Term form,
-			List<QuantifiableVariable> variables) {
+			List<QuantifiableVariable> variables, NamespaceSet nss) {
 		Term2SMTConverter converter = new Term2SMTConverter();
+		if(Options.INSTANCE.isUsePrenexForm()) {
+			PrenexGeneratorResult result = PrenexGenerator.transform(form, nss);
+			form = result.getTerm();
+		}
+		if(Options.INSTANCE.isElimExistentialQuantifierPrefix()) {
+			form = elimForQuan(form);
+		}
 		return converter.convertImpl(form, variables);
+	}
+
+	/**
+	 * Eliminates a universal quantifier prefix.
+	 * 
+	 * @param form
+	 * @return
+	 */
+	private static Term elimForQuan(Term form) {
+		if(form.op() == Op.ALL) {
+			return elimForQuan(form.sub(0));
+		}
+		return form;
 	}
 
 	/**
@@ -175,7 +199,7 @@ public class Term2SMTConverter {
 			} else if (f.name().toString().equals("exp")) {
 				// FIXME this function only works for integer exponentials
 				String e = form.sub(1).op().name().toString();
-				int exp = Integer.parseInt(e.substring(0,e.length() - 1));
+				int exp = Integer.parseInt(e);
 				if(exp == 0) {
 					return "1";
 				}
@@ -189,9 +213,9 @@ public class Term2SMTConverter {
 				for(int i = 0; i < exp; i++) {
 					res += " " + s;
 				}
-				res += ")"
+				res += ")";
 				if(negative) {
-					return (/ 1. res);
+					return ("(/ 1. " + res + ")");
 				}
 				return res;
 			} else {
@@ -205,10 +229,10 @@ public class Term2SMTConverter {
 					BigFraction frac = PolynomTool
 							.convertStringToFraction(numberAsString);
 					if (frac.getDenominator().equals(BigInteger.ONE)) {
-						return convertNumber(frac.getNumerator());
+						return printNumber(frac.getNumerator());
 					} else {
-						return "(/ " + convertNumber(frac.getNumerator())
-								+ convertNumber(frac.getDenominator()) + ")";
+						return "(/ " + printNumber(frac.getNumerator())
+								+ printNumber(frac.getDenominator()) + ")";
 					}
 				} catch (NumberFormatException nfe) {
 					String name = form.op().name().toString();
@@ -361,7 +385,7 @@ public class Term2SMTConverter {
 
 		String result = "";
 		for (int i = 0; i < args.length; i++) {
-			result += "(declare-fun " + args[i] + "() Real)";
+			result += "(declare-fun " + args[i] + " () Real)";
 			if (i != args.length - 1)
 				result += "\n";
 		}

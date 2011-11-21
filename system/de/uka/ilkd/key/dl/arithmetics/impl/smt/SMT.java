@@ -6,11 +6,13 @@ import java.util.List;
 
 import org.w3c.dom.Node;
 
+import de.uka.ilkd.key.dl.arithmetics.ICounterExampleGenerator;
 import de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ConnectionProblemException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ServerStatusProblemException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
 import de.uka.ilkd.key.dl.arithmetics.impl.qepcad.ProgramCommunicator.Stopper;
+import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.logic.NamespaceSet;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.op.QuantifiableVariable;
@@ -21,7 +23,7 @@ import de.uka.ilkd.key.logic.op.QuantifiableVariable;
  * @author jdq
  * 
  */
-public class SMT implements IQuantifierEliminator {
+public class SMT implements IQuantifierEliminator, ICounterExampleGenerator {
 
 	private Stopper stopper = new Stopper();
 
@@ -52,13 +54,8 @@ public class SMT implements IQuantifierEliminator {
 			List<PairOfTermAndQuantifierType> quantifiers, NamespaceSet nss,
 			long timeout) throws RemoteException, SolverException {
 
-		boolean usePrenexForm = false;
-
-		// TODO: replace topmost universal quantifiers by free variables
-		// as the SMT solvers can work better with quantifier free examples
-
 		SMTInput input = Term2SMTConverter.convert(form,
-				new ArrayList<QuantifiableVariable>());
+				new ArrayList<QuantifiableVariable>(), nss);
 //		if (input.getVariableList().equals("()")) {
 //			if (OrbitalSimplifier.testForSimpleTautology(String2TermConverter
 //					.convert(input.getFormula(), nss))) {
@@ -137,6 +134,28 @@ public class SMT implements IQuantifierEliminator {
 	/* @Override */
 	public boolean isConfigured() {
 		return true;
+	}
+
+	/* (non-Javadoc)
+	 * @see de.uka.ilkd.key.dl.arithmetics.ICounterExampleGenerator#findInstance(de.uka.ilkd.key.logic.Term, long)
+	 */
+	@Override
+	public String findInstance(Term form, long timeout) throws RemoteException,
+			SolverException {
+		NamespaceSet nss = null; // FIXME retrieve namespace set
+		SMTInput input = Term2SMTConverter.convert(form,
+				new ArrayList<QuantifiableVariable>(), nss);
+		System.out.println("SMT Input: \n" + input.getVariableList() + "\n" + "(assert " + input.getFormula() + ")" + "\n" + "(check-sat)");
+		return null;
+	}
+
+	/* (non-Javadoc)
+	 * @see de.uka.ilkd.key.dl.arithmetics.ICounterExampleGenerator#findTransition(de.uka.ilkd.key.logic.Term, de.uka.ilkd.key.logic.Term, long, de.uka.ilkd.key.java.Services)
+	 */
+	@Override
+	public String findTransition(Term initial, Term modalForm, long timeout,
+			Services services) throws RemoteException, SolverException {
+		throw new UnsupportedOperationException("Transition counter examples are currently not supported with Z3.");
 	}
 
 }
