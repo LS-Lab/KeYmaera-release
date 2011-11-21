@@ -24,6 +24,10 @@
 	<optionbean>de.uka.ilkd.key.dl.arithmetics.impl.ch.Options</optionbean>
   </MathSolver>
   <MathSolver> 
+	<class>de.uka.ilkd.key.dl.arithmetics.impl.smt.SMT</class>
+	<optionbean>de.uka.ilkd.key.dl.arithmetics.impl.smt.Options</optionbean>
+  </MathSolver>
+  <MathSolver> 
 	<class>de.uka.ilkd.key.dl.arithmetics.impl.hollight.HOLLight</class>
 	<optionbean>de.uka.ilkd.key.dl.arithmetics.impl.hollight.Options</optionbean>
   </MathSolver>
