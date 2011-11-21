@@ -54,7 +54,7 @@ public class Term2SMTConverter {
 	public static SMTInput convert(Term form,
 			List<QuantifiableVariable> variables, NamespaceSet nss) {
 		Term2SMTConverter converter = new Term2SMTConverter();
-		if(Options.INSTANCE.isUsePrenexForm()) {
+		if(Options.INSTANCE.isPrenexForm()) {
 			PrenexGeneratorResult result = PrenexGenerator.transform(form, nss);
 			form = result.getTerm();
 		}

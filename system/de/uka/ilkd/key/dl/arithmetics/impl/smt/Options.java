@@ -45,7 +45,7 @@ public class Options implements Settings {
 
 	private File z3Binary;
 
-	private boolean usePrenexForm;
+	private boolean prenexForm;
 
 	private boolean elimExistentialQuantifierPrefix;
 
@@ -54,7 +54,7 @@ public class Options implements Settings {
 	private Options() {
 		listeners = new LinkedList<SettingsListener>();
 		z3Binary = new File("");
-		usePrenexForm = true;
+		prenexForm = true;
 		elimExistentialQuantifierPrefix = true;
 	}
 
@@ -89,7 +89,7 @@ public class Options implements Settings {
 		property = props.getProperty(EPropertyConstant.Z3_OPTIONS_PRENEX_FORM
 				.getKey());
 		if (property != null) {
-			usePrenexForm = Boolean.parseBoolean(property);
+			prenexForm = Boolean.parseBoolean(property);
 		}
 		property = props
 				.getProperty(EPropertyConstant.Z3_OPTIONS_ELIMINATE_EXISTENTIAL_PREFIX
@@ -111,7 +111,7 @@ public class Options implements Settings {
 					z3Binary.getAbsolutePath());
 		}
 		props.setProperty(EPropertyConstant.Z3_OPTIONS_PRENEX_FORM.getKey(), ""
-				+ usePrenexForm);
+				+ prenexForm);
 		props.setProperty(
 				EPropertyConstant.Z3_OPTIONS_ELIMINATE_EXISTENTIAL_PREFIX
 						.getKey(), "" + elimExistentialQuantifierPrefix);
@@ -140,17 +140,17 @@ public class Options implements Settings {
 	/**
 	 * @return the usePrenexForm
 	 */
-	protected boolean isUsePrenexForm() {
-		return usePrenexForm;
+	public boolean isPrenexForm() {
+		return prenexForm;
 	}
 
 	/**
 	 * @param usePrenexForm
 	 *            the usePrenexForm to set
 	 */
-	protected void setUsePrenexForm(boolean usePrenexForm) {
-		if(this.usePrenexForm != usePrenexForm) {
-			this.usePrenexForm = usePrenexForm;
+	public void setPrenexForm(boolean usePrenexForm) {
+		if(this.prenexForm != usePrenexForm) {
+			this.prenexForm = usePrenexForm;
 			firePropertyChanged();
 		}
 	}
@@ -158,7 +158,7 @@ public class Options implements Settings {
 	/**
 	 * @return the elimExistentialQuantifierPrefix
 	 */
-	protected boolean isElimExistentialQuantifierPrefix() {
+	public boolean isElimExistentialQuantifierPrefix() {
 		return elimExistentialQuantifierPrefix;
 	}
 
@@ -166,7 +166,7 @@ public class Options implements Settings {
 	 * @param elimExistentialQuantifierPrefix
 	 *            the elimExistentialQuantifierPrefix to set
 	 */
-	protected void setElimExistentialQuantifierPrefix(
+	public void setElimExistentialQuantifierPrefix(
 			boolean elimExistentialQuantifierPrefix) {
 		if (this.elimExistentialQuantifierPrefix != elimExistentialQuantifierPrefix) {
 			this.elimExistentialQuantifierPrefix = elimExistentialQuantifierPrefix;

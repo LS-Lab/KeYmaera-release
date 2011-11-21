@@ -53,8 +53,8 @@ public class OptionsBeanInfo extends SimpleBeanInfo {
 			PropertyDescriptor[] pds = new PropertyDescriptor[] {
 					createDescriptor("z3Binary",
 							EPropertyConstant.Z3_OPTIONS_Z3_BINARY, false,
-							false, FilePropertyEditor.class),
-					createDescriptor("usePrenexForm",
+							false, true, FilePropertyEditor.class),
+					createDescriptor("prenexForm",
 							EPropertyConstant.Z3_OPTIONS_PRENEX_FORM),
 					createDescriptor(
 							"elimExistentialQuantifierPrefix",
