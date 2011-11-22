@@ -206,7 +206,7 @@ public class SMT implements IQuantifierEliminator, ICounterExampleGenerator {
 			in.close();
 			Process process = Runtime.getRuntime().exec(
 					Options.INSTANCE.getZ3Binary().getAbsolutePath() + " "
-							+ inputFile.getAbsolutePath() + " MODEL=true");
+							+ inputFile.getAbsolutePath() + "-T:" + timeout + " MODEL=true");
 			inputFile.delete();
 			BufferedReader b = new BufferedReader(new InputStreamReader(process.getInputStream()));
 			boolean checkSat = false;
