@@ -38,6 +38,7 @@
  * things are taken care of by a TransitionGraph object.
  *
  * @author jyn (jingyin@andrew.cmu.edu)
+ * @author Andre Platzer (aplatzer)
  */
 
 package de.uka.ilkd.key.dl.image_compute;
@@ -59,6 +60,7 @@ import de.uka.ilkd.key.logic.Term;
 import java.util.*;
 import java.lang.reflect.*;
 
+import orbital.algorithm.template.HeuristicAlgorithm;
 import orbital.algorithm.template.AStar;
 import orbital.algorithm.template.BreadthFirstSearch;
 import orbital.algorithm.template.DepthFirstSearch;
@@ -71,6 +73,7 @@ import orbital.logic.functor.Function;
 import orbital.logic.functor.MutableFunction;
 import orbital.math.Real;
 import orbital.math.ValueFactory;
+import orbital.math.Values;
 
 public class CounterExampleFinder implements GeneralSearchProblem
 {
@@ -137,6 +140,8 @@ public class CounterExampleFinder implements GeneralSearchProblem
             System.err.println("working on iteration " + i);
             GeneralSearch gs;
             try {
+	            if (HeuristicAlgorithm.class.isAssignableFrom(ctors[0].getDeclaringClass()))
+	                argList.add(createHeuristic());
                 gs = (GeneralSearch)ctors[0].newInstance(argList.toArray());
             } catch (Exception e) {
                 throw new IllegalArgumentException("could not instantiate " + ctors[0].getDeclaringClass());
@@ -148,10 +153,10 @@ public class CounterExampleFinder implements GeneralSearchProblem
                 ret = soln.toString();
         }
         if (ret.equals(""))
-            System.err.println("no cex found");
+            System.err.println("NO counterexample found");
         else {
             assert(soln != null);
-            System.err.println("counterexample: " + ret);
+            System.err.println("COUNTEREXAMPLE:   " + ret);
             /*for (String s : soln.appendLog)
             {
                 System.err.println(s);
@@ -164,6 +169,18 @@ public class CounterExampleFinder implements GeneralSearchProblem
         tree.display();
         return ret;
     }
+
+    private Function createHeuristic() {
+	    return new TruthDistanceHeuristic();
+    }
+
+    private class TruthDistanceHeuristic implements orbital.logic.functor.Function {
+	    private final ValueFactory vf = Values.getDefaultInstance();
+  	    public Object apply(Object o) {
+	        NumericalState ns = (NumericalState) o;
+	        return vf.valueOf(ns.getHeuristic());
+}
+}
 
     /**
      * Returns the initial state of the problem instance.

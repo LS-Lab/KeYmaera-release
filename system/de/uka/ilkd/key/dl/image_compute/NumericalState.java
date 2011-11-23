@@ -2,6 +2,7 @@
  * NumericalState for DL program transition.
  *
  * @author jyn (jingyin@andrew.cmu.edu)
+ * @author Andre Platzer (aplatzer)
  */
 
 package de.uka.ilkd.key.dl.image_compute;
@@ -29,6 +30,11 @@ public class NumericalState
     private boolean multiple;       // whether state has multiple succeeding actions
     private boolean eval;           // evaluation result of a given state
     private Node node;
+                             
+    /**
+     * Heuristic distance to having satisfied condition
+     */
+    private double heuristic = 100000;
 
     public List<String> appendLog;
 
@@ -299,6 +305,14 @@ public class NumericalState
     {
         return eval;
     }
+
+    public void setHeuristic(double heuristic) {
+	    this.heuristic = heuristic;
+	}
+
+    public double getHeuristic() {
+	    return heuristic;
+	}
 
     /**
      * Prints the snapshot of the most current commit.

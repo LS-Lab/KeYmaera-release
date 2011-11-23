@@ -2,6 +2,7 @@
  * Evaluates expressions expressed in Term and FunctionTerm.
  *
  * @author jyn (jingyin@andrew.cmu.edu)
+ * @author Andre Platzer (aplatzer)
  */
 
 package de.uka.ilkd.key.dl.image_compute;
@@ -306,6 +307,14 @@ public class Evaluator
 	}
 
 	/*
+	 * top-level approximate evaluation of Term conditions
+	 */
+	public double evalApproxCond(NumericalState state, Term cond)
+	{
+		return evalApproxCond(state, cond, NIL);
+	}
+
+	/*
 	 * top-level evaluation of Term conditions
 	 */
 	public boolean evalCond(NumericalState state, Term cond, Map<String, Real> map)
@@ -321,6 +330,25 @@ public class Evaluator
 		else {
 			error(cond);
 			return false;
+		}
+	}
+
+	/*
+	 * top-level approximate evaluation of Term conditions
+	 */
+	public double evalApproxCond(NumericalState state, Term cond, Map<String, Real> map)
+	{
+		assert(cond.sort().equals(Sort.FORMULA));
+		Operator op = cond.op();
+		if (op instanceof Junctor)
+			return evalApproxJunctor(state, cond, map);
+		else if (op instanceof Equality)
+			return evalApproxEquality(state, cond, map);
+		else if (op instanceof RigidFunction)
+			return evalRigid(state, cond, map) ? 1 : 0;
+		else {
+			error(cond);
+			return Double.NaN;
 		}
 	}
 
@@ -369,6 +397,50 @@ public class Evaluator
 	}
 
 	/*
+	 * evaluates conditions: NOT, AND, OR, IMP, TRUE, and FALSE
+	 */
+	public double evalApproxJunctor(NumericalState state, Term junctor, Map<String, Real> map)
+	{
+		String supportedOps[] = {
+			"not",
+			"and",
+			"or",
+			"imp",
+			"true",
+			"false"
+		};
+		List<String> supportedOpsList = Arrays.asList(supportedOps);
+		final int NOT_IDX = 0;
+		final int AND_IDX = 1;
+		final int OR_IDX = 2;
+		final int IMP_IDX = 3;
+		final int TRUE_IDX = 4;
+		final int FALSE_IDX = 5;
+
+		int idx = supportedOpsList.indexOf(junctor.op().toString());
+		double args[] = new double[junctor.arity()];
+		for (int i = 0; i < args.length; i++)
+			args[i] = evalApproxCond(state, junctor.sub(i), map);
+		switch (idx) {
+		case NOT_IDX:
+			return 1-args[0];
+		case AND_IDX:
+			return Math.min(args[0],args[1]);
+		case OR_IDX:
+			return Math.max(args[0], args[1]);
+		case IMP_IDX:
+			return (args[0]<=args[1]) ? 1 : args[1];
+		case TRUE_IDX:
+			return 1;
+		case FALSE_IDX:
+			return 0;
+		default:
+			error(junctor);
+			return Double.NaN;
+		}
+	}
+
+	/*
 	 * evaluates conditions: EQUIV, and ==
 	 */
 	public boolean evalEquality(NumericalState state, Term equality, Map<String, Real> map)
@@ -392,6 +464,33 @@ public class Evaluator
 		default:
 			error(equality);
 			return false;
+		}
+	}
+
+	/*
+	 * evaluates conditions: EQUIV, and ==
+	 */
+	public double evalApproxEquality(NumericalState state, Term equality, Map<String, Real> map)
+	{
+		String supportedOps[] = {
+			"equiv",
+			"equals"
+		};
+		List<String> supportedOpsList = Arrays.asList(supportedOps);
+		final int EQUIV_IDX = 0;
+		final int EQUALS_IDX = 1;
+
+		int idx = supportedOpsList.indexOf(equality.op().toString());
+		switch (idx) {
+		case EQUIV_IDX:
+			return Math.abs(evalApproxCond(state, equality.sub(0), map) - 
+				evalApproxCond(state, equality.sub(1), map));
+		case EQUALS_IDX:
+			return evalExpr(state, equality.sub(0), map)
+				.subtract(evalExpr(state, equality.sub(1), map)).norm().doubleValue();
+		default:
+			error(equality);
+			return Double.NaN;
 		}
 	}
 
