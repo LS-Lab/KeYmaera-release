@@ -21,7 +21,7 @@ public class FileStringConverter implements IPropertyConverter {
      */
     
     public File toPropertyEditorValue(String string) {
-        return new File(string);
+        return string == null ? null : new File(string);
     }
 
     /**
