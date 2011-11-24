@@ -9,12 +9,14 @@
  * last action to apply is either an evaluation action or a question action.
  *
  * @author jyn (jingyin@andrew.cmu.edu)
+ * @author Andre Platzer (aplatzer)
  */
 
 package de.uka.ilkd.key.dl.image_compute;
 
 import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
 import de.uka.ilkd.key.dl.arithmetics.IODESolver.ODESolverUpdate;
+import de.uka.ilkd.key.dl.image_compute.TransitionGraph.PostCond;
 import de.uka.ilkd.key.dl.image_compute.graph.Graph;
 import de.uka.ilkd.key.dl.image_compute.graph.Node;
 import de.uka.ilkd.key.dl.model.And;
@@ -53,8 +55,11 @@ import de.uka.ilkd.key.logic.sort.Sort;
 
 import java.util.*;
 
+import orbital.logic.functor.Function;
 import orbital.math.Real;
 import orbital.math.ValueFactory;
+import orbital.math.Values;
+import orbital.math.functional.Functions;
 
 class TransitionGraph
 {
@@ -64,6 +69,8 @@ class TransitionGraph
     private final Services services;
     private final NumericalActionFactory naf;
     private final Evaluator ev;
+    
+    private Function heuristic;
 
     private static final ValueFactory vf = MachValueFactory.getInstance();
     private static final NodeFactory nf = NodeFactory.getInstance();
@@ -73,7 +80,7 @@ class TransitionGraph
     /**
      * Classifies post-conditions.
      *
-     * Post-conditions are:
+     * Post-conditions are (up to normalization):
      * 1. first-order formulas
      * 2. condition AND programBlock
      * 3. condition OR programBlock
@@ -190,9 +197,9 @@ class TransitionGraph
      * If given programBlock is non-conformant, instantiation would fail.
      *
      * @pre programBlock.op() instanceof QuanUpdateOperator or Modality.
-     * @param programBlock The given program block on which we're finding a CEX.
+     * @param modalForm The given modal formula with a program block on which we're finding a CEX.
      */
-    TransitionGraph(Term preCond, Term programBlock, Evaluator ev)
+    TransitionGraph(Term preCond, Term modalForm, Evaluator ev)
     {
         transitionGraph = new Graph<Node, ActionEdge<Node>>();
         services = ev.getServices();
@@ -200,19 +207,55 @@ class TransitionGraph
         naf = NumericalActionFactory.getInstance(ev);
         initialNode = nf.createTransitionNode();
         transitionGraph.addVertex(initialNode);
-        programBlock = invertTerm(programBlock);
+        modalForm = invertTerm(modalForm);
 
         Node evalNodeNext = nf.createTransitionNode();
         if (!preCond.toString().equals("true")) {
-            PostCond cond = new PostCond(PostCondType.FIRST_ORDER_TYPE, preCond, programBlock);
+            PostCond cond = new PostCond(PostCondType.FIRST_ORDER_TYPE, preCond, modalForm);
             Action evalAction = naf.createEvalAction(cond);
             transitionGraph.addVertex(evalNodeNext);
             ActionEdge<Node> evalEdge = new ActionEdge<Node>(initialNode, evalNodeNext, evalAction);
             for (int i = 0; i < NUM_INSTANCE; i++)
                 transitionGraph.addEdge(evalEdge);
-            buildGraph(programBlock, evalNodeNext);
+            buildGraph(modalForm, evalNodeNext);
         } else
-            buildGraph(programBlock, initialNode);
+            buildGraph(modalForm, initialNode);
+    }
+
+    public Function getHeuristic() {
+	return heuristic;
+    }
+
+    public void setHeuristic(Function heuristic) {
+        this.heuristic = heuristic;
+    }
+
+    private Function createHeuristic(PostCond postCond) {
+        if (postCond.type == PostCondType.FIRST_ORDER_TYPE)
+            return new TruthDistanceHeuristic(postCond);
+        else
+            // just uninformative if it's not first-order.
+            //@todo improve with best-effort approximation
+            return Functions.zero;
+    }
+    
+    private class TruthDistanceHeuristic implements orbital.logic.functor.Function {
+	private final ValueFactory vf = Values.getDefaultInstance();
+	private PostCond postCond;
+	public TruthDistanceHeuristic(PostCond postCond) {
+	    assert postCond.type == PostCondType.FIRST_ORDER_TYPE;
+	    this.postCond=postCond;
+	}
+	public Object apply(Object o) {
+	    NumericalState state = (NumericalState) o;
+	    Real hval = state.getHeuristic();
+	    if (hval != null)
+		return hval;
+            double proximity = 1-ev.evalApproxCond(state, postCond.expr);
+            hval = vf.valueOf(proximity);
+            state.setHeuristic(hval);
+	    return hval;
+	}
     }
 
     /**
@@ -253,19 +296,19 @@ class TransitionGraph
      * @pre block.op() instanceof Modality or QuanUpdateOperator. block.op().toString()
      * 
      * @post All newly-created nodes/edges are added to the transition graph.
-     * @param block Encapsulates a program block with optional quan updates.
+     * @param modalForm Encapsulates a program block with optional quan updates.
      * @param initialNode The node on which we start the first action.
      */
-    private void buildGraph(Term block, Node initialNode)
+    private void buildGraph(Term modalForm, Node initialNode)
     {
         Node outputNode;
-        if (block.op() instanceof QuanUpdateOperator) {
-            outputNode = buildQuanUpdate(block, initialNode);
-            block = exposeProgramBlock(block);
+        if (modalForm.op() instanceof QuanUpdateOperator) {
+            outputNode = buildQuanUpdate(modalForm, initialNode);
+            modalForm = exposeProgramBlock(modalForm);
             initialNode = outputNode;
         }
-        assert(block.op() instanceof Modality);
-        DLProgram dl = exposeDLProgram(block);
+        assert(modalForm.op() instanceof Modality);
+        DLProgram dl = exposeDLProgram(modalForm);
         List<HalfEdge> buildDLOutput =
             buildDLProgram(dl, Arrays.asList(new Node[]{initialNode}));
         // evalNode is the node whose only subsequent action is evaluating post-cond
@@ -277,7 +320,8 @@ class TransitionGraph
         }
         // evalNodeNext and evalNode are connected by an EvalAction
         Node evalNodeNext = nf.createTransitionNode();
-        PostCond postCond = buildPostCond(block.sub(0));
+        PostCond postCond = buildPostCond(modalForm.sub(0));
+        setHeuristic(createHeuristic(postCond));
         Action evalAction = naf.createEvalAction(postCond);
         transitionGraph.addVertex(evalNodeNext);
         ActionEdge<Node> evalEdge = new ActionEdge<Node>(evalNode, evalNodeNext, evalAction);
@@ -305,13 +349,14 @@ class TransitionGraph
             if (postCond.op() instanceof Modality)
                 return new PostCond(PostCondType.NESTED_TYPE, null, postCond);
             else if (postCond.op() instanceof Junctor) {
+        	//@todo swap arguments if the first one is a modality and the second one not
                 if (postCond.op().toString().equals("and")) {
                     // TODO: need to consider QuanUpdateTerms also
-                    assert(postCond.sub(1).op() instanceof Modality);
+                    assert(postCond.sub(1).op() instanceof Modality) : "should swap arguments";
                     return new PostCond(PostCondType.AND_TYPE, postCond.sub(0), postCond.sub(1));
                 } else if (postCond.op().toString().equals("or")) {
                     // TODO: need to consider QuanUpdateTerms also
-                    assert(postCond.sub(1).op() instanceof Modality);
+                    assert(postCond.sub(1).op() instanceof Modality) : "should swap arguments";
                     return new PostCond(PostCondType.OR_TYPE, postCond.sub(0), postCond.sub(1));
                 } else {
                     // should not have come here

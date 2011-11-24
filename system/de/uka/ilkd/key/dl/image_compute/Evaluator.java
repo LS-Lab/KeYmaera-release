@@ -267,6 +267,16 @@ public class Evaluator
 		return state.getSymbol(symbol);
 	}
 
+	private Real readStateSymbol(NumericalState state, String symbol, Map<String, Real> map)
+	{
+		if (map.get(symbol) != null)
+			return map.get(symbol);
+		if (state.readSymbol(symbol) != null)
+			return state.readSymbol(symbol);
+		symbolAbsentHandler.handle(state, symbol);
+		return state.readSymbol(symbol);
+	}
+
 	/**
 	 * Obtains the value of a symbol from a given state.
 	 */
@@ -307,14 +317,6 @@ public class Evaluator
 	}
 
 	/*
-	 * top-level approximate evaluation of Term conditions
-	 */
-	public double evalApproxCond(NumericalState state, Term cond)
-	{
-		return evalApproxCond(state, cond, NIL);
-	}
-
-	/*
 	 * top-level evaluation of Term conditions
 	 */
 	public boolean evalCond(NumericalState state, Term cond, Map<String, Real> map)
@@ -335,6 +337,7 @@ public class Evaluator
 
 	/*
 	 * top-level approximate evaluation of Term conditions
+	 * @return a fuzzy similarity indicator. 1 if approximately satisfied. 0 if not very satisfied. Intermediate values indicate partial success. 
 	 */
 	public double evalApproxCond(NumericalState state, Term cond, Map<String, Real> map)
 	{
@@ -345,11 +348,19 @@ public class Evaluator
 		else if (op instanceof Equality)
 			return evalApproxEquality(state, cond, map);
 		else if (op instanceof RigidFunction)
-			return evalRigid(state, cond, map) ? 1 : 0;
+			return evalApproxRigid(state, cond, map);
 		else {
 			error(cond);
 			return Double.NaN;
 		}
+	}
+
+	/*
+	 * top-level approximate evaluation of Term conditions
+	 */
+	public double evalApproxCond(NumericalState state, Term cond)
+	{
+		return evalApproxCond(state, cond, NIL);
 	}
 
 	/*
@@ -486,8 +497,8 @@ public class Evaluator
 			return Math.abs(evalApproxCond(state, equality.sub(0), map) - 
 				evalApproxCond(state, equality.sub(1), map));
 		case EQUALS_IDX:
-			return evalExpr(state, equality.sub(0), map)
-				.subtract(evalExpr(state, equality.sub(1), map)).norm().doubleValue();
+			return evalApproxExpr(state, equality.sub(0), map)
+				.subtract(evalApproxExpr(state, equality.sub(1), map)).norm().doubleValue();
 		default:
 			error(equality);
 			return Double.NaN;
@@ -531,6 +542,41 @@ public class Evaluator
 	}
 
 	/*
+	 * evaluates conditions: >, <, >=, and <=
+	 */
+	public double evalApproxRigid(NumericalState state, Term rigid, Map<String, Real> map)
+	{
+		String supportedOps[] = {
+			"lt",
+			"gt",
+			"leq",
+			"geq"
+		};
+		List<String> supportedOpsList = Arrays.asList(supportedOps);
+		final int LT_IDX = 0;
+		final int GT_IDX = 1;
+		final int LEQ_IDX = 2;
+		final int GEQ_IDX = 3;
+
+		int idx = supportedOpsList.indexOf(rigid.op().toString());
+		Real args[] = new Real[rigid.arity()];
+		for (int i = 0; i < args.length; i++)
+			args[i] = evalApproxExpr(state, rigid.sub(i), map);
+		double cmp = args[0].subtract(args[1]).doubleValue();
+		switch (idx) {
+		case LT_IDX: /* fall-through */
+		case LEQ_IDX:
+		    return cmp <= 0 ? 1 : 1-Math.exp(cmp);
+		case GEQ_IDX: /* fall-through */
+		case GT_IDX:
+		    return cmp >= 0 ? 1 : Math.exp(cmp);
+		default:
+			error(rigid);
+			return Double.NaN;
+		}
+	}
+
+	/*
 	 * top-level evaluation of Term expressions
 	 */
 	public Real evalExpr(NumericalState state, Term expr)
@@ -554,6 +600,24 @@ public class Evaluator
 		} else if (expr.op() instanceof LogicVariable) {
 			if (map.get(expr.toString()) == null)
 				return getStateSymbol(state, expr.toString(), map);
+			return map.get(expr.toString());
+		} else {
+			error(expr);
+			return null;
+		}
+	}
+
+	public Real evalApproxExpr(NumericalState state, Term expr, Map<String, Real> map)
+	{
+		if (expr.op() instanceof RigidFunction)
+			return evalArithmetic(state, expr, map);
+		else if (expr.op() instanceof LocationVariable) {
+			if (map.get(expr.toString()) == null)
+				return readStateSymbol(state, expr.toString(), map);
+			return map.get(expr.toString());
+		} else if (expr.op() instanceof LogicVariable) {
+			if (map.get(expr.toString()) == null)
+				return readStateSymbol(state, expr.toString(), map);
 			return map.get(expr.toString());
 		} else {
 			error(expr);

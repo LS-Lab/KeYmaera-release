@@ -939,6 +939,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 			Services services) throws RemoteException, SolverException {
         CounterExampleFinder cef = new CounterExampleFinder(initial, modalForm, services);
         return cef.findSolution();
+        //@note Old partial implementation using Mathematica
 //		Term term = modalForm;
 //		final de.uka.ilkd.key.rule.updatesimplifier.Update update = de.uka.ilkd.key.rule.updatesimplifier.Update
 //				.createUpdate(term);

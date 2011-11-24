@@ -114,13 +114,14 @@ public class CounterExampleFinder implements GeneralSearchProblem
 
     /**
      * Instantiates a cex finder with a given program block.
+     * @param modalForm is the modal formula with the program
      */
-    public CounterExampleFinder(Term preCond, Term programBlock, Services services)
+    public CounterExampleFinder(Term preCond, Term modalForm, Services services)
     {
         this.services = services;
         ev = Evaluator.getInstance(services);
         initialState = new NumericalState();
-        transitionGraph = new TransitionGraph(preCond, programBlock, ev);
+        transitionGraph = new TransitionGraph(preCond, modalForm, ev);
         initialNode = transitionGraph.getInitialNode();
         initialState.setNode(initialNode);
     }
@@ -141,7 +142,7 @@ public class CounterExampleFinder implements GeneralSearchProblem
             GeneralSearch gs;
             try {
 	            if (HeuristicAlgorithm.class.isAssignableFrom(ctors[0].getDeclaringClass()))
-	                argList.add(createHeuristic());
+	                argList.add(transitionGraph.getHeuristic());
                 gs = (GeneralSearch)ctors[0].newInstance(argList.toArray());
             } catch (Exception e) {
                 throw new IllegalArgumentException("could not instantiate " + ctors[0].getDeclaringClass());
@@ -169,18 +170,6 @@ public class CounterExampleFinder implements GeneralSearchProblem
         tree.display();
         return ret;
     }
-
-    private Function createHeuristic() {
-	    return new TruthDistanceHeuristic();
-    }
-
-    private class TruthDistanceHeuristic implements orbital.logic.functor.Function {
-	    private final ValueFactory vf = Values.getDefaultInstance();
-  	    public Object apply(Object o) {
-	        NumericalState ns = (NumericalState) o;
-	        return vf.valueOf(ns.getHeuristic());
-}
-}
 
     /**
      * Returns the initial state of the problem instance.
