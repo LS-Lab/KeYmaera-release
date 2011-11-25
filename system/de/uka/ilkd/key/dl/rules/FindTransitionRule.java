@@ -22,7 +22,9 @@
  */
 package de.uka.ilkd.key.dl.rules;
 
-import java.awt.FlowLayout;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Collections;
@@ -30,11 +32,15 @@ import java.util.Collections;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JTextArea;
+import javax.swing.JScrollPane;
+import javax.swing.JTree;
 import javax.swing.SwingUtilities;
 
 import orbital.awt.UIUtilities;
 import de.uka.ilkd.key.collection.ImmutableList;
 import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
+import de.uka.ilkd.key.dl.arithmetics.impl.mathematica.Mathematica;
+import de.uka.ilkd.key.dl.arithmetics.impl.mathematica.MathematicaDLBridge;
 import de.uka.ilkd.key.dl.formulatools.TermTools;
 import de.uka.ilkd.key.dl.model.DiffSystem;
 import de.uka.ilkd.key.dl.strategy.features.FOSequence;
@@ -48,13 +54,14 @@ import de.uka.ilkd.key.logic.PosInOccurrence;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.TermBuilder;
 import de.uka.ilkd.key.logic.op.Modality;
-import de.uka.ilkd.key.logic.op.Op;
-import de.uka.ilkd.key.logic.op.QuanUpdateOperator;
+import de.uka.ilkd.key.logic.op.*;
 import de.uka.ilkd.key.proof.Goal;
 import de.uka.ilkd.key.proof.RuleFilter;
 import de.uka.ilkd.key.rule.BuiltInRule;
 import de.uka.ilkd.key.rule.Rule;
 import de.uka.ilkd.key.rule.RuleApp;
+
+import orbital.awt.ChartModel;
 
 /**
  * The FindInstance is a Built-In Rule to test counterexamples for transition systems.
@@ -75,12 +82,11 @@ public class FindTransitionRule implements BuiltInRule, RuleFilter {
      */
     public boolean isApplicable(Goal goal, PosInOccurrence pos,
             Constraint userConstraint) {
-        if (!MathSolverManager.isCounterExampleGeneratorSet()) {
+        // this is set in hybrid strategy tab
+        if (!MathSolverManager.isCounterExampleGeneratorSet())
             return false;
-        }
-        if (pos == null) {
+        if (pos == null || !pos.isTopLevel() || goal == null || userConstraint == null)
             return false;
-        }
         Term term = pos.subTerm();
         // unbox from update prefix
         if (term.op() instanceof QuanUpdateOperator) {
@@ -89,14 +95,19 @@ public class FindTransitionRule implements BuiltInRule, RuleFilter {
                 // can't apply until nested updates have been merged
                 return false;
         }
-        if (!(term.op() instanceof Modality && term.javaBlock() != null
-                && term.javaBlock() != JavaBlock.EMPTY_JAVABLOCK && term
-                .javaBlock().program() instanceof StatementBlock)) {
+        if (!(term.op() instanceof Modality
+           && term.javaBlock() != null
+           && term.javaBlock() != JavaBlock.EMPTY_JAVABLOCK
+           && term.javaBlock().program() instanceof StatementBlock
+           // only admits box property modality
+           // additionally, only admits box property modality in the nested DLPrograms
+           // however, checking nested box property is left to cex finder
+           && term.op().toString().equals("box"))) {
             return false;
         }
-        return ((StatementBlock) term.javaBlock().program()).getChildAt(0) instanceof DiffSystem
-            && FOSequence.INSTANCE.isFOFormula(term.sub(0))
-            && FOSequence.INSTANCE.isFOFormulas(goal.sequent().antecedent().iterator());
+        assert(goal.sequent() != null && goal.sequent().antecedent() != null);
+
+        return FOSequence.INSTANCE.isFOFormulas(goal.sequent().antecedent().iterator());
     }
 
     /*
@@ -108,49 +119,60 @@ public class FindTransitionRule implements BuiltInRule, RuleFilter {
     @SuppressWarnings("unchecked")
     public synchronized ImmutableList<Goal> apply(Goal goal, Services services,
             RuleApp ruleApp) {
+        assert(goal != null && services != null && ruleApp != null);
         Term antecedent = TermTools.createJunctorTermNAry(TermBuilder.DF.tt(),
                 Op.AND, goal.sequent().antecedent().iterator(),
                 Collections.EMPTY_SET, true);
         // @todo ignore succedent?
 
         try {
-            final String result = MathSolverManager
-                    .getCurrentCounterExampleGenerator().findTransition(
-                            antecedent, ruleApp.posInOccurrence().subTerm(), -1, services);
+            final String result = MathSolverManager.getCurrentCounterExampleGenerator()
+                .findTransition(antecedent, ruleApp.posInOccurrence().subTerm(), -1, services);
+            /*final JFrame frame = new JFrame(displayName());
+            frame.setLayout(new GridBagLayout());
+            final JScrollPane scroll = new JScrollPane();
+            final JButton okButton = new JButton("OK");
+            GridBagConstraints cl = new GridBagConstraints();
+            GridBagConstraints cs = new GridBagConstraints();
+
+            cl.fill = GridBagConstraints.BOTH;
+            cl.gridx = 0;
+            cl.gridy = 0;
+            cl.gridwidth = 3;
+            cl.gridheight = 5;
+            cl.weightx = 1.0;
+            cl.weighty = 1.0;
+            scroll.setPreferredSize(new Dimension(300, 500));
+
+            final JTree tree = new JTree();
+            // TODO: configure the tree
+            scroll.add(tree);
+
+            frame.add(scroll, cl);
+
+            cs.fill = GridBagConstraints.NONE;
+            cs.gridx = 3;
+            cs.gridy = 2;
+            cs.anchor = GridBagConstraints.CENTER;
+            cs.weightx = 0.5;
+            cs.weighty = 0.5;
+            okButton.setPreferredSize(new Dimension(100, 50));
+            okButton.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent arg) {
+                    frame.setVisible(false);
+                }
+            });
+            frame.add(okButton, cs);
 
             SwingUtilities.invokeLater(new Runnable() {
 
                 public void run() {
-                    final JFrame frame = new JFrame("Counterexample Result");
-                    frame.setLayout(new FlowLayout());
-                    String label;
-                    if (result.equals("")) {
-                        label = "No counterexample found.";
-                    } else if (result.equals("$Aborted")) {
-                            label = "Counterexample computation aborted.";
-                    } else {
-                        label = result;
-                    }
-                    final JTextArea label2 = new JTextArea(label);
-                    label2.setEditable(false);
-                    label2.setLineWrap(true);
-                    label2.setBounds(0, 0, 200, 200);
-                    frame.add(label2);
-                    JButton button = new JButton("Ok");
-                    frame.add(button);
-                    button.addActionListener(new ActionListener() {
-
-                        public void actionPerformed(ActionEvent arg0) {
-                            frame.setVisible(false);
-                        }
-
-                    });
                     frame.pack();
                     UIUtilities.setCenter(frame, Main.getInstance());
                     frame.setVisible(true);
                 }
 
-            });
+            });*/
 
         } catch (Exception e) {
             // if there is an error invoking the mathsolver we cannot apply this
@@ -175,7 +197,7 @@ public class FindTransitionRule implements BuiltInRule, RuleFilter {
      * @see de.uka.ilkd.key.rule.Rule#name()
      */
     public Name name() {
-        return new Name("Counterexample Transition");
+        return new Name(displayName());
     }
 
     /*
