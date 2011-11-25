@@ -87,6 +87,8 @@ public class CounterExampleFinder implements GeneralSearchProblem
     private NumericalState initialState;
     private NumericalState initialStateCopy;
 
+	private boolean abort = false;
+
     // determines what search algorithm to use
     // algorithms are registered in DLOptionBean.java and DLOptionBeanInfo.java
     // in $KEY_SRC/dl/option
@@ -253,7 +255,7 @@ public class CounterExampleFinder implements GeneralSearchProblem
     {
         NumericalState state = (NumericalState) objs;
         // no more action to perform on a terminated state
-        if (state.getTerminated())
+        if (state.getTerminated() || abort)
             return new IteratorUtil.EmptyIterator();
         Collection col = transitionGraph.actions(state.getNode());
         if (col.size() > 1)
@@ -281,5 +283,9 @@ public class CounterExampleFinder implements GeneralSearchProblem
         state.setNode(ae.dest());
         return new IteratorUtil.SingleIterator(state);
     }
+
+	public void abortCalculation() {
+		abort = true;
+	}
 
 }
