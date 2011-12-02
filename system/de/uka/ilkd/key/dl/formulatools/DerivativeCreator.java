@@ -113,11 +113,6 @@ public class DerivativeCreator {
 			if (variables.keySet().contains(term.op().name().toString())) {
 				return variables.get(term.op().name().toString());
 			} else {
-				try {
-					Integer.parseInt(term.op().name().toString());
-					return term;
-				} catch(Exception e) {
-				}
 				return TermBuilder.DF.func(NumberCache.getNumber(
 						new BigDecimal(0), RealLDT.getRealSort()));
 			}
