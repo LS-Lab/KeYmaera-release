@@ -26,6 +26,7 @@ import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.FailedComputationException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.UnsolveableException;
+import de.uka.ilkd.key.dl.formulatools.DerivativeCreator;
 import de.uka.ilkd.key.dl.model.DiffSystem;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DiffFin.RemoveQuantifiersResult;
 import de.uka.ilkd.key.java.PrettyPrinter;
@@ -95,16 +96,19 @@ public class DiffInd extends AbstractDLMetaOperator {
 				StringWriter writer = new StringWriter();
 				r.getSys().prettyPrint(new PrettyPrinter(writer));
 				System.out.println(writer.toString());//XXX
-				Term diffInd = MathSolverManager.getCurrentODESolver()
-						.diffInd(r.getSys(), post, services);
+//				Term diffInd2 = MathSolverManager.getCurrentODESolver()
+//						.diffInd(r.getSys(), post, services);
+//				System.out.println("Old DiffInd: " + diffInd2);
+				Term diffInd = DerivativeCreator.diffInd(r.getSys(), post, services);
+				diffInd = TermBuilder.DF.imp(r.getSys().getInvariant(services), diffInd);
 				// reintroduce the quantifiers
 				Collections.reverse(r.getQuantifiedVariables());
 				for (LogicVariable var : r.getQuantifiedVariables()) {
 					diffInd= TermBuilder.DF.all(var, diffInd);
 				}
 				return diffInd;
-            } catch (SolverException e) {
-                throw e;
+//            } catch (SolverException e) {
+//                throw e;
             } catch (RuntimeException e) {
                 throw e;
             } catch (Exception e) {
