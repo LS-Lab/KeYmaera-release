@@ -158,8 +158,7 @@ public class DerivativeCreator {
 //							.func(NumberCache.getNumber(new BigDecimal(1),
 //									RealLDT.getRealSort())))));
 		} else if (term.op() == RealLDT.getFunctionFor(Unequals.class)) {
-			return TermBuilder.DF.ff(); // TermBuilder.DF.equals(term.sub(0),
-										// term.sub(1));
+			return TermBuilder.DF.equals(term.sub(0), term.sub(1));
 		} else {
 			Term[] args = new Term[term.arity()];
 			for (int i = 0; i < term.arity(); i++) {
