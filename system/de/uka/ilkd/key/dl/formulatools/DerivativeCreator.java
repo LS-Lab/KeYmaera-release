@@ -13,6 +13,10 @@ import de.uka.ilkd.key.dl.model.Div;
 import de.uka.ilkd.key.dl.model.Dot;
 import de.uka.ilkd.key.dl.model.Equals;
 import de.uka.ilkd.key.dl.model.Exp;
+import de.uka.ilkd.key.dl.model.Greater;
+import de.uka.ilkd.key.dl.model.GreaterEquals;
+import de.uka.ilkd.key.dl.model.Less;
+import de.uka.ilkd.key.dl.model.LessEquals;
 import de.uka.ilkd.key.dl.model.LogicalVariable;
 import de.uka.ilkd.key.dl.model.Minus;
 import de.uka.ilkd.key.dl.model.Mult;
@@ -26,11 +30,11 @@ import de.uka.ilkd.key.logic.NamespaceSet;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.TermBuilder;
 import de.uka.ilkd.key.logic.TermFactory;
+import de.uka.ilkd.key.logic.op.Function;
 import de.uka.ilkd.key.logic.op.Op;
 import de.uka.ilkd.key.logic.op.ProgramVariable;
 import de.uka.ilkd.key.logic.op.QuantifiableVariable;
 import de.uka.ilkd.key.logic.op.TermSymbol;
-
 
 // FIXME: implementation is probably unsound for 5 * 3... because that would be translated to 5*3 + 5*3
 public class DerivativeCreator {
@@ -42,7 +46,17 @@ public class DerivativeCreator {
 		Term createNFF = NegationNormalFormCreator.createNFF(post);
 		System.out.println("Formula: " + post);
 		System.out.println("NFF: " + createNFF);
-		return createDerivative(createNFF, replacements, s.getNamespaces());
+		return createDerivative(createNFF, replacements, s.getNamespaces(), null);
+	}
+
+	public static final Term diffFin(DiffSystem sys, Term post, Term epsilon, Services s) {
+		HashMap<String, Term> replacements = new HashMap<String, Term>();
+		collectDiffReplacements(sys, replacements, s);
+		System.out.println("Replacements are: " + replacements);
+		Term createNFF = NegationNormalFormCreator.createNFF(post);
+		System.out.println("Formula: " + post);
+		System.out.println("NFF: " + createNFF);
+		return createDerivative(createNFF, replacements, s.getNamespaces(), epsilon);
 	}
 
 	/**
@@ -84,7 +98,7 @@ public class DerivativeCreator {
 	}
 
 	public static Term createDerivative(Term term, Map<String, Term> variables,
-			NamespaceSet nss) {
+			NamespaceSet nss, Term epsilon) {
 		if (term.op() == Op.ALL || term.op() == Op.EX) {
 			throw new UnsupportedOperationException(
 					"not yet implemented for quantifiers " + " in " + term);
@@ -96,8 +110,8 @@ public class DerivativeCreator {
 					+ " into negation normal form");
 		} else if (term.op() == Op.OR || term.op() == Op.AND) {
 			return TermBuilder.DF.and(
-					createDerivative(term.sub(0), variables, nss),
-					createDerivative(term.sub(0), variables, nss));
+					createDerivative(term.sub(0), variables, nss, epsilon),
+					createDerivative(term.sub(0), variables, nss, epsilon));
 		} else if (term.op() == Op.EQV) {
 			throw new UnsupportedOperationException(
 					"not yet implemented for equivalence " + Op.EQV + " in "
@@ -108,8 +122,7 @@ public class DerivativeCreator {
 							+ Op.DIA + " in " + term);
 		} else if (term.op() instanceof LogicalVariable
 				|| term.op() instanceof QuantifiableVariable
-				|| term.op() instanceof ProgramVariable
-				|| term.arity() == 0) {
+				|| term.op() instanceof ProgramVariable || term.arity() == 0) {
 			if (variables.keySet().contains(term.op().name().toString())) {
 				return variables.get(term.op().name().toString());
 			} else {
@@ -122,10 +135,10 @@ public class DerivativeCreator {
 			return TermBuilder.DF.func(
 					plus,
 					TermBuilder.DF.func(mult,
-							createDerivative(term.sub(0), variables, nss),
+							createDerivative(term.sub(0), variables, nss, epsilon),
 							term.sub(1)),
 					TermBuilder.DF.func(mult,
-							createDerivative(term.sub(1), variables, nss),
+							createDerivative(term.sub(1), variables, nss, epsilon),
 							term.sub(0)));
 		} else if (term.op() == RealLDT.getFunctionFor(Div.class)) {
 			TermSymbol plus = RealLDT.getFunctionFor(Plus.class);
@@ -135,10 +148,10 @@ public class DerivativeCreator {
 			return TermBuilder.DF.func(div, TermBuilder.DF.func(
 					plus,
 					TermBuilder.DF.func(mult,
-							createDerivative(term.sub(0), variables, nss),
+							createDerivative(term.sub(0), variables, nss, epsilon),
 							term.sub(1)),
 					TermBuilder.DF.func(mult,
-							createDerivative(term.sub(1), variables, nss),
+							createDerivative(term.sub(1), variables, nss, epsilon),
 							term.sub(0))), TermBuilder.DF.func(exp,
 					term.sub(1), TermBuilder.DF.func(NumberCache.getNumber(
 							new BigDecimal(2), RealLDT.getRealSort()))));
@@ -146,23 +159,60 @@ public class DerivativeCreator {
 			int expo = Integer.parseInt(term.sub(1).op().name().toString());
 			Term m = term.sub(0);
 			TermSymbol mult = RealLDT.getFunctionFor(Mult.class);
-			for(int i = 1; i < expo; i++) {
+			for (int i = 1; i < expo; i++) {
 				m = TermBuilder.DF.func(mult, m, term.sub(0));
 			}
-			return createDerivative(m, variables, nss);
-//			TermSymbol sub = RealLDT.getFunctionFor(Minus.class);
-//			TermSymbol exp = RealLDT.getFunctionFor(Exp.class);
-//			return TermBuilder.DF.func(mult, term.sub(1), TermBuilder.DF.func(
-//					exp, createDerivative(term.sub(0), variables, nss),
-//					TermBuilder.DF.func(sub, term.sub(1), TermBuilder.DF
-//							.func(NumberCache.getNumber(new BigDecimal(1),
-//									RealLDT.getRealSort())))));
+			return createDerivative(m, variables, nss, epsilon);
+			// TermSymbol sub = RealLDT.getFunctionFor(Minus.class);
+			// TermSymbol exp = RealLDT.getFunctionFor(Exp.class);
+			// return TermBuilder.DF.func(mult, term.sub(1),
+			// TermBuilder.DF.func(
+			// exp, createDerivative(term.sub(0), variables, nss),
+			// TermBuilder.DF.func(sub, term.sub(1), TermBuilder.DF
+			// .func(NumberCache.getNumber(new BigDecimal(1),
+			// RealLDT.getRealSort())))));
+		} else if (term.op() == RealLDT.getFunctionFor(GreaterEquals.class)) {
+			Function geq = RealLDT.getFunctionFor(GreaterEquals.class);
+			TermSymbol plus = RealLDT.getFunctionFor(Plus.class);
+			if(epsilon == null) {
+				return TermBuilder.DF.func(geq, term.sub(0), term.sub(1));
+			} else {
+				return TermBuilder.DF.func(geq, term.sub(0), TermBuilder.DF.func(plus, term.sub(1), epsilon)); 
+			}
+		} else if (term.op() == RealLDT.getFunctionFor(LessEquals.class)) {
+			Function leq = RealLDT.getFunctionFor(LessEquals.class);
+			TermSymbol plus = RealLDT.getFunctionFor(Plus.class);
+			if(epsilon == null) {
+				return TermBuilder.DF.func(leq, term.sub(0), term.sub(1));
+			} else {
+				return TermBuilder.DF.func(leq, TermBuilder.DF.func(plus, term.sub(0), epsilon), term.sub(1)); 
+			}
+		} else if (term.op() == RealLDT.getFunctionFor(Greater.class)) {
+			return createDerivative(
+					TermBuilder.DF.func(
+							RealLDT.getFunctionFor(GreaterEquals.class),
+							term.sub(0), term.sub(1)), variables, nss, epsilon);
+		} else if (term.op() == RealLDT.getFunctionFor(Less.class)) {
+			return createDerivative(
+					TermBuilder.DF.func(
+							RealLDT.getFunctionFor(LessEquals.class),
+							term.sub(0), term.sub(1)), variables, nss, epsilon);
+		} else if (term.op() == RealLDT.getFunctionFor(Equals.class)) {
+			if(epsilon == null) {
+				return TermBuilder.DF.equals(term.sub(0), term.sub(1));
+			} else {
+				throw new IllegalArgumentException("The operator DiffFin is undefined for equalities.");
+			}
 		} else if (term.op() == RealLDT.getFunctionFor(Unequals.class)) {
-			return TermBuilder.DF.equals(term.sub(0), term.sub(1));
+			if(epsilon == null) {
+				return TermBuilder.DF.equals(term.sub(0), term.sub(1));
+			} else {
+				throw new IllegalArgumentException("The operator DiffFin is undefined for unequalities.");
+			}
 		} else {
 			Term[] args = new Term[term.arity()];
 			for (int i = 0; i < term.arity(); i++) {
-				args[i] = createDerivative(term.sub(i), variables, nss);
+				args[i] = createDerivative(term.sub(i), variables, nss, epsilon);
 			}
 			return TermFactory.DEFAULT.createTerm(term.op(), args,
 					new ImmutableArray[0], term.javaBlock());
