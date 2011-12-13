@@ -160,6 +160,7 @@ public class CounterExampleFinder implements GeneralSearchProblem
         else {
             assert(soln != null);
             System.err.println("COUNTEREXAMPLE:   " + ret);
+            if (soln != null) System.err.println("HEURISTIC:\t" + soln.getHeuristic() + "\n" + transitionGraph.getHeuristic());
             /*for (String s : soln.appendLog)
             {
                 System.err.println(s);
@@ -241,8 +242,12 @@ public class CounterExampleFinder implements GeneralSearchProblem
     {
         NumericalState ns = (NumericalState) objs;
         assert(ns != null);
-        if (ns.getTerminated())
-            return ns.getEvaluated();
+        if (ns.getTerminated()) {
+            boolean evaluated = ns.getEvaluated();
+            return evaluated;
+        } else {
+            System.out.println(ns.getHeuristic() + "\t" + ns);
+        }
         return false;
     }
 

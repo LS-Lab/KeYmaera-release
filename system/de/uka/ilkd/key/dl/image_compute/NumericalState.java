@@ -288,6 +288,11 @@ public class NumericalState
         return terminated;
     }
 
+    public boolean isTerminated()
+    {
+        return getTerminated();
+    }
+
     public void setNode(Node node)
     {
         this.node = node;
@@ -310,6 +315,11 @@ public class NumericalState
     public boolean getEvaluated()
     {
         return eval;
+    }
+
+    public boolean isEvaluated()
+    {
+        return getEvaluated();
     }
 
     public void setHeuristic(Real heuristic) {

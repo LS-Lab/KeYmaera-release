@@ -42,6 +42,7 @@ import de.uka.ilkd.key.dl.model.RandomAssign;
 import de.uka.ilkd.key.dl.model.Star;
 import de.uka.ilkd.key.dl.model.VariableDeclaration;
 import de.uka.ilkd.key.dl.logic.ldt.RealLDT;
+import de.uka.ilkd.key.java.PrettyPrinter;
 import de.uka.ilkd.key.java.ProgramElement;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.java.StatementBlock;
@@ -53,6 +54,8 @@ import de.uka.ilkd.key.logic.TermBuilder;
 import de.uka.ilkd.key.logic.op.*;
 import de.uka.ilkd.key.logic.sort.Sort;
 
+import java.io.IOException;
+import java.io.StringWriter;
 import java.util.*;
 
 import orbital.logic.functor.Function;
@@ -96,6 +99,23 @@ class TransitionGraph
             this.type = type;
             this.expr = expr;
             this.program = program;
+        }
+        public String toString() {
+            return "PostCond[" + type + ":" + prettyPrint(expr) + ", " + prettyPrint(program) + "]";
+        }
+        private String prettyPrint(Term expr)
+        {
+            if (expr == null) return "null";
+            return expr.toString();
+//            StringWriter sw = new StringWriter();
+//            try {
+//                expr.(new PrettyPrinter(sw));
+//            } catch (IOException ioEx) {
+//                System.err.println(ioEx);
+//                ioEx.printStackTrace();
+//                return expr.toString();
+//            }
+//            return sw.toString();
         }
     }
 
@@ -239,22 +259,38 @@ class TransitionGraph
             return Functions.zero;
     }
     
+    /**
+     * Heuristic implementation
+     * @author aplatzer
+     *
+     */
     private class TruthDistanceHeuristic implements orbital.logic.functor.Function {
 	private final ValueFactory vf = Values.getDefaultInstance();
 	private PostCond postCond;
 	public TruthDistanceHeuristic(PostCond postCond) {
 	    assert postCond.type == PostCondType.FIRST_ORDER_TYPE;
 	    this.postCond=postCond;
+	    System.out.println("Heuristic " + this);
 	}
 	public Object apply(Object o) {
 	    NumericalState state = (NumericalState) o;
 	    Real hval = state.getHeuristic();
 	    if (hval != null)
 		return hval;
-            double proximity = 1-ev.evalApproxCond(state, postCond.expr);
+            double proximity = ev.evalApproxCond(state, postCond.expr);
+            if (proximity < -0.5) {
+        	System.out.println("Surprising heuristic " + proximity + " for " + state);
+            }
+            if (!state.isTerminated()) {
+        	//@TODO should add discrete distance to target state instead of constant.
+        	proximity += 0.01;
+            }
             hval = vf.valueOf(proximity);
             state.setHeuristic(hval);
 	    return hval;
+	}
+	public String toString() {
+	    return "TruthDistanceHeuristic[" + postCond + "]";
 	}
     }
 
@@ -466,6 +502,7 @@ class TransitionGraph
      * Propagates Not down to the lowest level.
      *
      * @pre There's no isolated Not scattered throughout term.
+     * @todo this should call more optimized negation normal form converter that turns !(a<b) into a>=b etc.
      */
     private Term invertTerm(Term term)
     {

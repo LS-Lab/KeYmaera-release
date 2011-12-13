@@ -48,13 +48,20 @@ import com.wolfram.jlink.Expr;
 import orbital.math.Real;
 import orbital.math.Values;
 import orbital.math.ValueFactory;
-
+/**
+ * 
+ * @author jingyi ni
+ * @author aplatzer
+ *
+ */
 public class Evaluator
 {
 
 	private static final ValueFactory vf = MachValueFactory.getInstance();
 	private static final Map<String, Real> NIL = new HashMap<String, Real>();
 	private static final Random rand = new Random();
+	
+	private static final double BIGFALSE = 100000.0;
 
 	private final SymbolAbsentHandler DF_SA_HANDLER;
 	private final Services services;
@@ -335,33 +342,6 @@ public class Evaluator
 		}
 	}
 
-	/*
-	 * top-level approximate evaluation of Term conditions
-	 * @return a fuzzy similarity indicator. 1 if approximately satisfied. 0 if not very satisfied. Intermediate values indicate partial success. 
-	 */
-	public double evalApproxCond(NumericalState state, Term cond, Map<String, Real> map)
-	{
-		assert(cond.sort().equals(Sort.FORMULA));
-		Operator op = cond.op();
-		if (op instanceof Junctor)
-			return evalApproxJunctor(state, cond, map);
-		else if (op instanceof Equality)
-			return evalApproxEquality(state, cond, map);
-		else if (op instanceof RigidFunction)
-			return evalApproxRigid(state, cond, map);
-		else {
-			error(cond);
-			return Double.NaN;
-		}
-	}
-
-	/*
-	 * top-level approximate evaluation of Term conditions
-	 */
-	public double evalApproxCond(NumericalState state, Term cond)
-	{
-		return evalApproxCond(state, cond, NIL);
-	}
 
 	/*
 	 * evaluates conditions: NOT, AND, OR, IMP, TRUE, and FALSE
@@ -408,50 +388,6 @@ public class Evaluator
 	}
 
 	/*
-	 * evaluates conditions: NOT, AND, OR, IMP, TRUE, and FALSE
-	 */
-	public double evalApproxJunctor(NumericalState state, Term junctor, Map<String, Real> map)
-	{
-		String supportedOps[] = {
-			"not",
-			"and",
-			"or",
-			"imp",
-			"true",
-			"false"
-		};
-		List<String> supportedOpsList = Arrays.asList(supportedOps);
-		final int NOT_IDX = 0;
-		final int AND_IDX = 1;
-		final int OR_IDX = 2;
-		final int IMP_IDX = 3;
-		final int TRUE_IDX = 4;
-		final int FALSE_IDX = 5;
-
-		int idx = supportedOpsList.indexOf(junctor.op().toString());
-		double args[] = new double[junctor.arity()];
-		for (int i = 0; i < args.length; i++)
-			args[i] = evalApproxCond(state, junctor.sub(i), map);
-		switch (idx) {
-		case NOT_IDX:
-			return 1-args[0];
-		case AND_IDX:
-			return Math.min(args[0],args[1]);
-		case OR_IDX:
-			return Math.max(args[0], args[1]);
-		case IMP_IDX:
-			return (args[0]<=args[1]) ? 1 : args[1];
-		case TRUE_IDX:
-			return 1;
-		case FALSE_IDX:
-			return 0;
-		default:
-			error(junctor);
-			return Double.NaN;
-		}
-	}
-
-	/*
 	 * evaluates conditions: EQUIV, and ==
 	 */
 	public boolean evalEquality(NumericalState state, Term equality, Map<String, Real> map)
@@ -475,33 +411,6 @@ public class Evaluator
 		default:
 			error(equality);
 			return false;
-		}
-	}
-
-	/*
-	 * evaluates conditions: EQUIV, and ==
-	 */
-	public double evalApproxEquality(NumericalState state, Term equality, Map<String, Real> map)
-	{
-		String supportedOps[] = {
-			"equiv",
-			"equals"
-		};
-		List<String> supportedOpsList = Arrays.asList(supportedOps);
-		final int EQUIV_IDX = 0;
-		final int EQUALS_IDX = 1;
-
-		int idx = supportedOpsList.indexOf(equality.op().toString());
-		switch (idx) {
-		case EQUIV_IDX:
-			return Math.abs(evalApproxCond(state, equality.sub(0), map) - 
-				evalApproxCond(state, equality.sub(1), map));
-		case EQUALS_IDX:
-			return evalApproxExpr(state, equality.sub(0), map)
-				.subtract(evalApproxExpr(state, equality.sub(1), map)).norm().doubleValue();
-		default:
-			error(equality);
-			return Double.NaN;
 		}
 	}
 
@@ -542,41 +451,6 @@ public class Evaluator
 	}
 
 	/*
-	 * evaluates conditions: >, <, >=, and <=
-	 */
-	public double evalApproxRigid(NumericalState state, Term rigid, Map<String, Real> map)
-	{
-		String supportedOps[] = {
-			"lt",
-			"gt",
-			"leq",
-			"geq"
-		};
-		List<String> supportedOpsList = Arrays.asList(supportedOps);
-		final int LT_IDX = 0;
-		final int GT_IDX = 1;
-		final int LEQ_IDX = 2;
-		final int GEQ_IDX = 3;
-
-		int idx = supportedOpsList.indexOf(rigid.op().toString());
-		Real args[] = new Real[rigid.arity()];
-		for (int i = 0; i < args.length; i++)
-			args[i] = evalApproxExpr(state, rigid.sub(i), map);
-		double cmp = args[0].subtract(args[1]).doubleValue();
-		switch (idx) {
-		case LT_IDX: /* fall-through */
-		case LEQ_IDX:
-		    return cmp <= 0 ? 1 : 1-Math.exp(cmp);
-		case GEQ_IDX: /* fall-through */
-		case GT_IDX:
-		    return cmp >= 0 ? 1 : Math.exp(cmp);
-		default:
-			error(rigid);
-			return Double.NaN;
-		}
-	}
-
-	/*
 	 * top-level evaluation of Term expressions
 	 */
 	public Real evalExpr(NumericalState state, Term expr)
@@ -600,24 +474,6 @@ public class Evaluator
 		} else if (expr.op() instanceof LogicVariable) {
 			if (map.get(expr.toString()) == null)
 				return getStateSymbol(state, expr.toString(), map);
-			return map.get(expr.toString());
-		} else {
-			error(expr);
-			return null;
-		}
-	}
-
-	public Real evalApproxExpr(NumericalState state, Term expr, Map<String, Real> map)
-	{
-		if (expr.op() instanceof RigidFunction)
-			return evalArithmetic(state, expr, map);
-		else if (expr.op() instanceof LocationVariable) {
-			if (map.get(expr.toString()) == null)
-				return readStateSymbol(state, expr.toString(), map);
-			return map.get(expr.toString());
-		} else if (expr.op() instanceof LogicVariable) {
-			if (map.get(expr.toString()) == null)
-				return readStateSymbol(state, expr.toString(), map);
 			return map.get(expr.toString());
 		} else {
 			error(expr);
@@ -802,5 +658,234 @@ public class Evaluator
 			return null;
 		}
 	}
+	
+	// approximate evaluation for heuristics
 
+	/**
+	 * top-level approximate evaluation of Term conditions
+	 * @return a fuzzy similarity indicator. 0 if approximately satisfied. very positive if not very satisfied. Intermediate values indicate partial success. 
+         * @author aplatzer
+	 */
+	public double evalApproxCond(NumericalState state, Term cond, Map<String, Real> map)
+	{
+		assert(cond.sort().equals(Sort.FORMULA));
+		Operator op = cond.op();
+		if (op instanceof Junctor)
+			return evalApproxJunctor(state, cond, map);
+		else if (op instanceof Equality)
+			return evalApproxEquality(state, cond, map);
+		else if (op instanceof RigidFunction)
+			return evalApproxRigid(state, cond, map);
+		else {
+			error(cond);
+			return Double.NaN;
+		}
+	}
+
+	/**
+	 * top-level approximate evaluation of Term conditions
+         * @author aplatzer
+	 */
+	public double evalApproxCond(NumericalState state, Term cond)
+	{
+		return evalApproxCond(state, cond, NIL);
+	}
+
+	/**
+	 * evaluates conditions: NOT, AND, OR, IMP, TRUE, and FALSE
+         * @author aplatzer
+	 */
+	public double evalApproxJunctor(NumericalState state, Term junctor, Map<String, Real> map)
+	{
+		String supportedOps[] = {
+			"not",
+			"and",
+			"or",
+			"imp",
+			"true",
+			"false"
+		};
+		List<String> supportedOpsList = Arrays.asList(supportedOps);
+		final int NOT_IDX = 0;
+		final int AND_IDX = 1;
+		final int OR_IDX = 2;
+		final int IMP_IDX = 3;
+		final int TRUE_IDX = 4;
+		final int FALSE_IDX = 5;
+
+		int idx = supportedOpsList.indexOf(junctor.op().toString());
+		double args[] = new double[junctor.arity()];
+		for (int i = 0; i < args.length; i++)
+			args[i] = evalApproxCond(state, junctor.sub(i), map);
+		switch (idx) {
+		case NOT_IDX:
+		    //@todo this may not be the best heuristic
+		    return Math.exp(-args[0]);
+			//return 1-args[0];
+		case AND_IDX:
+			return Math.max(args[0],args[1]);
+		case OR_IDX:
+			return Math.min(args[0], args[1]);
+		case IMP_IDX:
+		    //@todo rather heuristic
+			return (args[0]<=args[1]) ? 0 : args[0]-args[1];
+		case TRUE_IDX:
+			return 0;
+		case FALSE_IDX:
+			return BIGFALSE;
+		default:
+			error(junctor);
+			return Double.NaN;
+		}
+	}
+
+	/**
+	 * evaluates conditions: EQUIV, and ==
+         * @author aplatzer
+	 */
+	public double evalApproxEquality(NumericalState state, Term equality, Map<String, Real> map)
+	{
+		String supportedOps[] = {
+			"equiv",
+			"equals"
+		};
+		List<String> supportedOpsList = Arrays.asList(supportedOps);
+		final int EQUIV_IDX = 0;
+		final int EQUALS_IDX = 1;
+
+		int idx = supportedOpsList.indexOf(equality.op().toString());
+		switch (idx) {
+		case EQUIV_IDX:
+			return Math.abs(evalApproxCond(state, equality.sub(0), map) - 
+				evalApproxCond(state, equality.sub(1), map));
+		case EQUALS_IDX:
+			return evalApproxExpr(state, equality.sub(0), map)
+				.subtract(evalApproxExpr(state, equality.sub(1), map)).norm().doubleValue();
+		default:
+			error(equality);
+			return Double.NaN;
+		}
+	}
+
+	/**
+	 * evaluates conditions: >, <, >=, and <=
+         * @author aplatzer
+	 */
+	public double evalApproxRigid(NumericalState state, Term rigid, Map<String, Real> map)
+	{
+		String supportedOps[] = {
+			"lt",
+			"gt",
+			"leq",
+			"geq"
+		};
+		List<String> supportedOpsList = Arrays.asList(supportedOps);
+		final int LT_IDX = 0;
+		final int GT_IDX = 1;
+		final int LEQ_IDX = 2;
+		final int GEQ_IDX = 3;
+
+		int idx = supportedOpsList.indexOf(rigid.op().toString());
+		Real args[] = new Real[rigid.arity()];
+		for (int i = 0; i < args.length; i++)
+			args[i] = evalApproxExpr(state, rigid.sub(i), map);
+		double cmp = args[0].subtract(args[1]).doubleValue();
+		switch (idx) {
+		case LT_IDX: /* fall-through */
+		case LEQ_IDX:
+		    return cmp <= 0 ? 0 : cmp;
+		case GEQ_IDX: /* fall-through */
+		case GT_IDX:
+		    return cmp >= 0 ? 0 : -cmp;
+		default:
+			error(rigid);
+			return Double.NaN;
+		}
+	}
+
+	public Real evalApproxExpr(NumericalState state, Term expr, Map<String, Real> map)
+	{
+		if (expr.op() instanceof RigidFunction)
+			return evalApproxArithmetic(state, expr, map);
+		else if (expr.op() instanceof LocationVariable) {
+			if (map.get(expr.toString()) == null)
+				return readStateSymbol(state, expr.toString(), map);
+			return map.get(expr.toString());
+		} else if (expr.op() instanceof LogicVariable) {
+			if (map.get(expr.toString()) == null)
+				return readStateSymbol(state, expr.toString(), map);
+			return map.get(expr.toString());
+		} else {
+			error(expr);
+			return null;
+		}
+	}
+
+	/*
+	 * evaluates expressions: neg, +, -, *, /, and pow
+         * @author aplatzer
+	 */
+	public Real evalApproxArithmetic(NumericalState state, Term expr, Map<String, Real> map)
+	{
+		// the constant case
+		if (expr.arity() == 0) {
+			Real ret;
+			try {
+				ret = vf.valueOf(new Double(expr.toString()));
+			} catch (Exception e) {
+				ret = readStateSymbol(state, expr.toString(), map);
+			}
+			return ret;
+		}
+		final Real ZERO = vf.valueOf(0.0);
+		String supportedOps[] = {
+			"neg:R",
+			"add:R",
+			"sub:R",
+			"mul:R",
+			"div:R",
+			"exp:R",	// this is really pow:R, and not exponential in the usual sense
+			"Sin:R",
+			"Cos:R",
+			"Tan:R"
+		};
+		List<String> supportedOpsList = Arrays.asList(supportedOps);
+		final int NEG_IDX = 0;
+		final int ADD_IDX = 1;
+		final int SUB_IDX = 2;
+		final int MUL_IDX = 3;
+		final int DIV_IDX = 4;
+		final int POW_IDX = 5;
+		final int SIN_IDX = 6;
+		final int COS_IDX = 7;
+		final int TAN_IDX = 8;
+
+		int idx = supportedOpsList.indexOf(expr.op().toString());
+		Real args[] = new Real[expr.arity()];
+		for (int i = 0; i < args.length; i++)
+			args[i] = evalApproxExpr(state, expr.sub(i), map);
+		switch (idx) {
+		case NEG_IDX:
+			return ZERO.subtract(args[0]);
+		case ADD_IDX:
+			return args[0].add(args[1]);
+		case SUB_IDX:
+			return args[0].subtract(args[1]);
+		case MUL_IDX:
+			return args[0].multiply(args[1]);
+		case DIV_IDX:
+			return args[0].divide(args[1]);
+		case POW_IDX:
+			return args[0].power(args[1]);
+		case SIN_IDX:
+			return vf.valueOf(Math.sin(args[0].doubleValue()));
+		case COS_IDX:
+			return vf.valueOf(Math.cos(args[0].doubleValue()));
+		case TAN_IDX:
+			return vf.valueOf(Math.tan(args[0].doubleValue()));
+		default:
+			error(expr);
+			return null;
+		}
+	}
 }
