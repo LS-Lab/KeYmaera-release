@@ -117,6 +117,29 @@ public class Mathematica implements ICounterExampleGenerator, IODESolver,
 		return bridge.diffFin(form, post, ep, services);
 	}
 
+    public List<ODESolverUpdate> odeUpdate(DiffSystem form, LogicVariable t,
+                       Services services, long timeout)
+                       throws RemoteException, SolverException {
+          return bridge.odeUpdate(form, t, services, timeout);
+    }
+
+   public List<String> findMultiInstance(Term form, int ninst, long timeout)
+				   throws RemoteException, SolverException
+   {
+		   return bridge.findMultiInstance(form, ninst, timeout);
+   }
+
+   public String findNumInstance(Term form, long timeout)
+				   throws RemoteException, SolverException {
+		   return findMultiNumInstance(form, 1, timeout).get(0);
+   }
+
+   public List<String> findMultiNumInstance(Term form, int ninst, long timeout)
+				   throws RemoteException, SolverException {
+		   return bridge.findMultiNumInstance(form, ninst, timeout);
+   }
+
+
 	/*
 	 * (non-Javadoc)
 	 * 

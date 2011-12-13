@@ -747,6 +747,9 @@ public class Goal  {
 
 
     public static void applyUpdateSimplifier( ImmutableList<Goal> goalList ) {
+		if (goalList == null)
+			return;
+    	
         for (Goal aGoalList : goalList) {
             aGoalList.applyUpdateSimplifier();
         }

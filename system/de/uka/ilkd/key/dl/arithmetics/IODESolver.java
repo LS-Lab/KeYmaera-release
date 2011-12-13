@@ -23,6 +23,7 @@
 package de.uka.ilkd.key.dl.arithmetics;
 
 import java.rmi.RemoteException;
+import java.util.List;
 
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ConnectionProblemException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ServerStatusProblemException;
@@ -107,6 +108,23 @@ public interface IODESolver extends IMathSolver {
         }
     }
 
+	 /**
+     * Encapsulates the results returned from odeUpdate.
+     */
+    public static class ODESolverUpdate
+    {
+        public Term location;
+        public Term expr;
+
+       @Override
+       public String toString()
+       {
+               return location + "=" + expr;
+       }
+    }
+    
+    
+
     /**
      * Solves the given differential equation system
      * 
@@ -130,6 +148,16 @@ public interface IODESolver extends IMathSolver {
             LogicVariable ts, Term phi, Services services)
             throws RemoteException, SolverException;
 
+    /**
+     * Solves the given differential equation system
+     *
+     * identical to odeSolve except that results are returned as a list of Updates.
+     */
+    public abstract List<ODESolverUpdate> odeUpdate(DiffSystem form, LogicVariable t,
+            Services services, long timeout)
+            throws RemoteException, SolverException;
+
+    
     /**
      * DiffInd for the given differential equation system.
      * 

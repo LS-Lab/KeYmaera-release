@@ -467,4 +467,14 @@ public class Orbital implements IODESolver {
 		return true;
 	}
 
+	/* (non-Javadoc)
+	 * @see de.uka.ilkd.key.dl.arithmetics.IODESolver#odeUpdate(de.uka.ilkd.key.dl.model.DiffSystem, de.uka.ilkd.key.logic.op.LogicVariable, de.uka.ilkd.key.java.Services, long)
+	 */
+	@Override
+	public List<ODESolverUpdate> odeUpdate(DiffSystem form, LogicVariable t,
+			Services services, long timeout) throws RemoteException,
+			SolverException {
+		throw new UnsupportedOperationException("ODEUpdate method for findTransition rule is not implemented for Orbital.");
+	}
+
 }
