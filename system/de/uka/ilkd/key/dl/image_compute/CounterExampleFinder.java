@@ -66,8 +66,10 @@ import orbital.algorithm.template.BreadthFirstSearch;
 import orbital.algorithm.template.DepthFirstSearch;
 import orbital.algorithm.template.GeneralSearch;
 import orbital.algorithm.template.GeneralSearchProblem;
+import orbital.algorithm.template.HillClimbing;
 import orbital.algorithm.template.IterativeDeepening;
 import orbital.algorithm.template.IterativeExpansion;
+import orbital.algorithm.template.IterativeDeepeningAStar;
 import orbital.algorithm.template.TransitionModel;
 import orbital.logic.functor.Function;
 import orbital.logic.functor.MutableFunction;
@@ -98,8 +100,10 @@ public class CounterExampleFinder implements GeneralSearchProblem
         CEX_FINDERS.put(CexFinder.DFS.toString(), DepthFirstSearch.class);
         CEX_FINDERS.put(CexFinder.BFS.toString(), BreadthFirstSearch.class);
         CEX_FINDERS.put(CexFinder.ITER_DEEP.toString(), IterativeDeepening.class);
+        CEX_FINDERS.put(CexFinder.ITER_DEEP_ASTAR.toString(), IterativeDeepeningAStar.class);
         CEX_FINDERS.put(CexFinder.ITER_EXP.toString(), IterativeExpansion.class);
         CEX_FINDERS.put(CexFinder.ASTAR.toString(), AStar.class);
+        CEX_FINDERS.put(CexFinder.HILL_CLIMB.toString(), HillClimbing.class);
     }
 
     // determines whether we turn on tracing
@@ -143,11 +147,13 @@ public class CounterExampleFinder implements GeneralSearchProblem
             System.err.println("working on iteration " + i);
             GeneralSearch gs;
             try {
-	            if (HeuristicAlgorithm.class.isAssignableFrom(ctors[0].getDeclaringClass()))
+	            if (HeuristicAlgorithm.class.isAssignableFrom(ctors[0].getDeclaringClass())) {
+	        		System.out.println("Heuristic");
 	                argList.add(transitionGraph.getHeuristic());
+	            }
                 gs = (GeneralSearch)ctors[0].newInstance(argList.toArray());
             } catch (Exception e) {
-                throw new IllegalArgumentException("could not instantiate " + ctors[0].getDeclaringClass());
+                throw (IllegalArgumentException) new IllegalArgumentException("could not instantiate " + ctors[0].getDeclaringClass()).initCause(e);
             }
             soln = (NumericalState)gs.solve(this);
             if (soln == null)

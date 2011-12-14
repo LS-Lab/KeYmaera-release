@@ -227,7 +227,7 @@ class TransitionGraph
         naf = NumericalActionFactory.getInstance(ev);
         initialNode = nf.createTransitionNode();
         transitionGraph.addVertex(initialNode);
-        modalForm = invertTerm(modalForm);
+        modalForm = invertTerm(services.getNamespaces(), modalForm);
 
         Node evalNodeNext = nf.createTransitionNode();
         if (!preCond.toString().equals("true")) {
@@ -504,26 +504,26 @@ class TransitionGraph
      * @pre There's no isolated Not scattered throughout term.
      * @todo this should call more optimized negation normal form converter that turns !(a<b) into a>=b etc.
      */
-    private Term invertTerm(Term term)
+    private Term invertTerm(NamespaceSet nss, Term term)
     {
         // TODO: don't know how to create QuanUpdateTerm yet
         /*if (term.op() instanceof QuanUpdateOperator) {
         } else */if (term.op() instanceof Modality) {
             if (term.op().toString().equals("box"))
-                return tb.dia(term.javaBlock(), invertTerm(term.sub(0)));
+                return tb.dia(term.javaBlock(), invertTerm(nss, term.sub(0)));
             else if (term.op().toString().equals("dia"))
-                return tb.box(term.javaBlock(), invertTerm(term.sub(0)));
+                return tb.box(term.javaBlock(), invertTerm(nss, term.sub(0)));
             else
                 throw new UnsupportedOperationException("couldn't handle program " + term.op());
         } else if (term.op() instanceof Junctor) {
             if (term.op().toString().equals("not"))
                 return term.sub(0);
             else if (term.op().toString().equals("and"))
-                return tb.or(invertTerm(term.sub(0)), invertTerm(term.sub(1)));
+                return tb.or(invertTerm(nss, term.sub(0)), invertTerm(nss, term.sub(1)));
             else if (term.op().toString().equals("or"))
-                return tb.and(invertTerm(term.sub(0)), invertTerm(term.sub(1)));
+                return tb.and(invertTerm(nss, term.sub(0)), invertTerm(nss, term.sub(1)));
             else if (term.op().toString().equals("imp"))
-                return tb.and(term.sub(0), invertTerm(term.sub(1)));
+                return tb.and(term.sub(0), invertTerm(nss, term.sub(1)));
             else if (term.op().toString().equals("true"))
                 return tb.ff();
             else if (term.op().toString().equals("false"))
@@ -532,17 +532,45 @@ class TransitionGraph
                 throw new UnsupportedOperationException("couldn't handle junctor " + term.op());
         } else if (term.op() instanceof Equality) {
             if (term.op().toString().equals("equiv"))
-                return tb.or(tb.and(term.sub(0), invertTerm(term.sub(1))), tb.and(term.sub(1), invertTerm(term.sub(0))));
+                return tb.or(tb.and(term.sub(0), invertTerm(nss, term.sub(1))), tb.and(term.sub(1), invertTerm(nss, term.sub(0))));
             else if (term.op().toString().equals("equals"))
                 return tb.not(term);
             else
                 throw new UnsupportedOperationException("couldn't handle equality " + term.op());
         } else if (term.op() instanceof RigidFunction) {
+            if (term.op().toString().equals("leq")) {
+        	        assert term.arity() == 2;
+                return TermBuilder.DF.func(lookupRigidFunction(nss, new Name("gt"), 2), term.sub(0), term.sub(1));
+            } else if (term.op().toString().equals("geq")) {
+	        assert term.arity() == 2;
+	        return TermBuilder.DF.func(lookupRigidFunction(nss, new Name("lt"), 2), term.sub(0), term.sub(1));	
+            } else if (term.op().toString().equals("lt")) {
+	        assert term.arity() == 2;
+	        return TermBuilder.DF.func(lookupRigidFunction(nss, new Name("geq"), 2), term.sub(0), term.sub(1));	
+            } else if (term.op().toString().equals("gt")) {
+	        assert term.arity() == 2;
+	        return TermBuilder.DF.func(lookupRigidFunction(nss, new Name("leq"), 2), term.sub(0), term.sub(1));	
+            }
             return tb.not(term);
         } else {
             throw new UnsupportedOperationException("couldn't handle term "
                 + term.op());
         }
+    }
+    /**
+     * @param nss
+     * @param name
+     * @return
+     */
+    private static RigidFunction lookupRigidFunction(NamespaceSet nss, Name name,
+            int argNum) {
+	RigidFunction num = (RigidFunction) nss.functions().lookup(name);
+        Sort[] argSorts = new Sort[argNum];
+        Arrays.fill(argSorts, RealLDT.getRealSort());
+        if (num == null) {
+            num = new RigidFunction(name, RealLDT.getRealSort(), argSorts);
+        }
+        return num;
     }
 
     /**
@@ -731,6 +759,7 @@ class TransitionGraph
         Term invariant = diffSystem.getInvariant(services);
         Action checkInvariant = naf.createVerifyAction(invariant, "invariant satisfied, proceed to DiffSystem transition");
         DiffSystemTransition dst = new SymbolicDST(diffSystem);
+        //@TODO play with increments
         List<Real> increments =
             Arrays.asList(vf.valueOf(0.1), vf.valueOf(1), vf.valueOf(10));
         Node checkNode = nf.createTransitionNode();

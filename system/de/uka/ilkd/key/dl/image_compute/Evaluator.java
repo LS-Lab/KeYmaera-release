@@ -163,7 +163,7 @@ public class Evaluator
 				throw new UnsupportedOperationException("couldn't instantiate cond " + expr);
 			}
 			if (findInstanceResults.size() == 0)
-				throw new UnsupportedOperationException("couldn't instantiate cond " + expr);
+				throw new UnsupportedOperationException("FindInstance couldn't instantiate cond " + expr);
 			String findInstanceResult = findInstanceResults.get(rand.nextInt(Math.min(NUM_FI, findInstanceResults.size())));
 			StringTokenizer st = new StringTokenizer(findInstanceResult, "\n");
 			while (st.hasMoreTokens()) {
