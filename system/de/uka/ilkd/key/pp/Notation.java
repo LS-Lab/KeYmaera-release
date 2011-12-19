@@ -160,7 +160,11 @@ public abstract class Notation {
 			if (sp.getNotationInfo().getAbbrevMap().isEnabled(t)) {
 				sp.printTerm(t);
 			} else {
-				sp.printSurroundFixTerm(t.sub(0), assLeft, left, right, t.sub(1), assRight);
+				if(t.arity() > 1) {
+					sp.printSurroundFixTerm(t.sub(0), assLeft, left, right, t.sub(1), assRight);
+				} else {
+					sp.printSurroundFixTerm(t.sub(0), assLeft, left, right, null, assRight);
+				}
 			}
 		}
 
@@ -173,8 +177,13 @@ public abstract class Notation {
 			if (sp.getNotationInfo().getAbbrevMap().isEnabled(t)) {
 				sp.printTerm(t);
 			} else {
-				sp.printSurroundFixTermContinuingBlock(t.sub(0), assLeft, left, right, t
-						.sub(1), assRight);
+				if(t.arity() > 1) {
+					sp.printSurroundFixTermContinuingBlock(t.sub(0), assLeft, left, right, 
+							t.sub(1), assRight);
+				} else {
+					sp.printSurroundFixTermContinuingBlock(t.sub(0), assLeft, left, right, null
+						, assRight);
+				}
 			}
 		}
 

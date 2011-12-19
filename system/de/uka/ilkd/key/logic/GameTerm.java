@@ -41,8 +41,12 @@ class GameTerm extends Term {
 		Term[] subTerm) {
 	super(op, op.sort(subTerm));
 	this.subTerm=new ImmutableArray<Term>(subTerm);
-	this.javaBlock=javaBlock;
+	if(javaBlock == null) {
+		this.javaBlock = JavaBlock.EMPTY_JAVABLOCK;
+	} else {
+		this.javaBlock=javaBlock;
     }
+	}
 
     /** @return n-th subterm (always the only one)*/    
     public Term sub(int n) {

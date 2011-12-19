@@ -47,6 +47,7 @@ tokens {
 	OPERATOR = "\\operator";
 	PROGRAM = "\\program";
 	FORMULA = "\\formula";
+	GAME = "\\game";
 	TERM = "\\term";
 	VARIABLES = "\\variables";
 	SKOLEMTERM = "\\skolemTerm";

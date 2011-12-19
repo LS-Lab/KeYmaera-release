@@ -89,6 +89,8 @@ public abstract class SchemaVariableModifierSet {
         }
     }
 
+	public static class GameSV extends SchemaVariableModifierSet {}
+
     public static class VariableSV extends SchemaVariableModifierSet {}
 
     public static class SkolemTermSV extends SchemaVariableModifierSet {}

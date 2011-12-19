@@ -13,6 +13,7 @@ package de.uka.ilkd.key.dl.rules.metaconstruct;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -23,19 +24,23 @@ import java.util.TreeSet;
 
 import de.uka.ilkd.key.dl.logic.ldt.RealLDT;
 import de.uka.ilkd.key.dl.model.DLProgram;
+import de.uka.ilkd.key.dl.model.TermFactory;
+import de.uka.ilkd.key.dl.model.impl.TermFactoryImpl;
+import de.uka.ilkd.key.dl.options.DLOptionBean;
 import de.uka.ilkd.key.dl.transitionmodel.DependencyState;
 import de.uka.ilkd.key.dl.transitionmodel.DependencyStateGenerator;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.java.StatementBlock;
 import de.uka.ilkd.key.logic.Name;
+import de.uka.ilkd.key.logic.NamespaceSet;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.TermBuilder;
-import de.uka.ilkd.key.logic.TermFactory;
 import de.uka.ilkd.key.logic.VariableNamer;
 import de.uka.ilkd.key.logic.Visitor;
 import de.uka.ilkd.key.logic.op.AbstractMetaOperator;
 import de.uka.ilkd.key.logic.op.LogicVariable;
 import de.uka.ilkd.key.logic.op.Modality;
+import de.uka.ilkd.key.logic.op.Op;
 import de.uka.ilkd.key.logic.op.ProgramVariable;
 import de.uka.ilkd.key.logic.op.SVSubstitute;
 import de.uka.ilkd.key.logic.sort.Sort;
@@ -64,11 +69,17 @@ public class DLUniversalClosureOp extends AbstractMetaOperator {
 	 */
 	@SuppressWarnings("unchecked")
 	public Term calculate(Term term, SVInstantiations svInst, Services services) {
-		if (!(term.sub(0).op() instanceof Modality))
-			throw new IllegalArgumentException("inapplicable");
+		Term searchIn = term.sub(0);
 		Term post = term.sub(1);
-		DLProgram program = (DLProgram) ((StatementBlock) term.sub(0)
-				.javaBlock().program()).getChildAt(0);
+		DLProgram program = null;
+		if (searchIn.op() == Op.GAME) {
+			program = collectProgram(searchIn.sub(0), services.getNamespaces());
+		} else if (searchIn.op() instanceof Modality)
+			program = (DLProgram) ((StatementBlock) searchIn.javaBlock()
+					.program()).getChildAt(0);
+		if (program == null) {
+			throw new IllegalArgumentException("inapplicable");
+		}
 		Term optimizeWrites = term.sub(2);
 		boolean optimize = false;
 		if (optimizeWrites.equals(TermBuilder.DF.tt())) {
@@ -82,6 +93,58 @@ public class DLUniversalClosureOp extends AbstractMetaOperator {
 		return universalClosure(program, post, svInst, services, optimize);
 	}
 
+	/**
+	 * @param searchIn
+	 * @return TODO documentation since Dec 19, 2011
+	 */
+	private DLProgram collectProgram(Term searchIn, NamespaceSet nss) {
+		if (searchIn.op() instanceof Modality) {
+			return (DLProgram) ((StatementBlock) searchIn.javaBlock().program())
+					.getChildAt(0);
+		} else if (searchIn.op() == Op.ALOOP || searchIn.op() == Op.ELOOP) {
+			return collectProgram(searchIn.sub(0), nss);
+		} else if (searchIn.op() == Op.CUPGAME || searchIn.op() == Op.CAPGAME) {
+			try {
+				return TermFactory.getTermFactory(
+						DLOptionBean.INSTANCE.getTermFactoryClass(), nss)
+						.createChoice(collectProgram(searchIn.sub(0), nss),
+								collectProgram(searchIn.sub(1), nss));
+			} catch (InvocationTargetException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (InstantiationException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (NoSuchMethodException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		} else if (searchIn.op() == Op.SEQGAME) {
+			try {
+				return TermFactory.getTermFactory(
+						DLOptionBean.INSTANCE.getTermFactoryClass(), nss)
+						.createChop(collectProgram(searchIn.sub(0), nss),
+								collectProgram(searchIn.sub(1), nss));
+			} catch (InvocationTargetException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (InstantiationException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (NoSuchMethodException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return null;
+	}
+
 	public Term universalClosure(DLProgram program, Term post,
 			SVInstantiations svInst, Services services, boolean optimizeWrites) {
 		DependencyState depState = DependencyStateGenerator
@@ -91,7 +154,7 @@ public class DLUniversalClosureOp extends AbstractMetaOperator {
 		final LinkedHashSet<String> variablesInPost = new LinkedHashSet<String>();
 		post.execPreOrder(new Visitor() {
 
-			/*@Override*/
+			/* @Override */
 			public void visit(Term visited) {
 				if (visited.op() instanceof ProgramVariable) {
 					variablesInPost.add(((ProgramVariable) visited.op()).name()
@@ -142,8 +205,7 @@ public class DLUniversalClosureOp extends AbstractMetaOperator {
 						.get(v);
 				if (set == null) {
 					inverseTransitiveClosure
-							.put(
-									v,
+							.put(v,
 									new LinkedHashSet<de.uka.ilkd.key.dl.model.ProgramVariable>());
 					assert inverseTransitiveClosure.get(v) != null;
 				}
@@ -153,14 +215,14 @@ public class DLUniversalClosureOp extends AbstractMetaOperator {
 		System.out.println(inverseTransitiveClosure.keySet());
 		Comparator<de.uka.ilkd.key.dl.model.ProgramVariable> comparator = new Comparator<de.uka.ilkd.key.dl.model.ProgramVariable>() {
 
-			/*@Override*/
+			/* @Override */
 			public int compare(de.uka.ilkd.key.dl.model.ProgramVariable o1,
 					de.uka.ilkd.key.dl.model.ProgramVariable o2) {
 				int size = inverseTransitiveClosure.get(o1).size();
 				int size2 = inverseTransitiveClosure.get(o2).size();
 				if (size == size2) {
-					return o1.getElementName().toString().compareTo(
-							o2.getElementName().toString());
+					return o1.getElementName().toString()
+							.compareTo(o2.getElementName().toString());
 				} else {
 					return size2 - size;
 				}
@@ -187,7 +249,7 @@ public class DLUniversalClosureOp extends AbstractMetaOperator {
 			TreeSet<de.uka.ilkd.key.dl.model.ProgramVariable> orderedDeps = new TreeSet<de.uka.ilkd.key.dl.model.ProgramVariable>(
 					new Comparator<de.uka.ilkd.key.dl.model.ProgramVariable>() {
 
-						/*@Override*/
+						/* @Override */
 						public int compare(
 								de.uka.ilkd.key.dl.model.ProgramVariable o1,
 								de.uka.ilkd.key.dl.model.ProgramVariable o2) {
@@ -213,8 +275,8 @@ public class DLUniversalClosureOp extends AbstractMetaOperator {
 									return size - size2;
 								}
 							}
-							return o1.getElementName().toString().compareTo(
-									o2.getElementName().toString());
+							return o1.getElementName().toString()
+									.compareTo(o2.getElementName().toString());
 
 						}
 
@@ -253,12 +315,12 @@ public class DLUniversalClosureOp extends AbstractMetaOperator {
 		TreeSet<de.uka.ilkd.key.dl.model.ProgramVariable> freeVars = new TreeSet<de.uka.ilkd.key.dl.model.ProgramVariable>(
 				new Comparator<de.uka.ilkd.key.dl.model.ProgramVariable>() {
 
-					/*@Override*/
+					/* @Override */
 					public int compare(
 							de.uka.ilkd.key.dl.model.ProgramVariable o1,
 							de.uka.ilkd.key.dl.model.ProgramVariable o2) {
-						return o1.getElementName().toString().compareTo(
-								o2.getElementName().toString());
+						return o1.getElementName().toString()
+								.compareTo(o2.getElementName().toString());
 					}
 
 				});
@@ -284,7 +346,7 @@ public class DLUniversalClosureOp extends AbstractMetaOperator {
 							.getWriteBeforeReadList().get(pvar)))) {
 				String name = pvar.getElementName().toString();
 				LogicVariable var = searchFreeVar(services, name);
-				post = TermBuilder.DF.all(var, TermFactory.DEFAULT
+				post = TermBuilder.DF.all(var, de.uka.ilkd.key.logic.TermFactory.DEFAULT
 						.createUpdateTerm(TermBuilder.DF
 								.var((ProgramVariable) services.getNamespaces()
 										.lookup(new Name(name))),
@@ -311,8 +373,8 @@ public class DLUniversalClosureOp extends AbstractMetaOperator {
 		do {
 			newName = loc + "_" + i++;
 		} while (services.getNamespaces().variables().lookup(new Name(newName)) != null
-				|| services.getNamespaces().programVariables().lookup(
-						new Name(newName)) != null);
+				|| services.getNamespaces().programVariables()
+						.lookup(new Name(newName)) != null);
 		return new LogicVariable(new Name(newName), RealLDT.getRealSort());
 	}
 

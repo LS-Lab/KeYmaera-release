@@ -100,6 +100,12 @@ public class SchemaVariableFactory {
 	return createFormulaSV(name, listSV, false);
     }
 
+    public static SchemaVariable createGameSV(Name    name,
+						 boolean listSV,
+						 boolean rigidness) {
+	return new GameSV(name, listSV, rigidness);
+    }
+
     public static SchemaVariable createListSV(Name name, Class matchType){
 	return new ListSV(name, matchType);
     }

@@ -21,6 +21,7 @@ import de.uka.ilkd.key.logic.op.Op;
 public interface Sort extends Named {
     
     Sort FORMULA  = new PrimitiveSort(new Name("Formula"));
+    Sort GAME  = new PrimitiveSort(new Name("GAME"));
     Sort NULL     = new NullSortImpl(new Name("Null"));
     /** this sort is the mother of all sorts for java dl 
      *  TODO: should OCLSorts extendTrans this sort too?

@@ -1223,7 +1223,9 @@ public class LogicPrinter {
 		layouter.print(left);
 		maybeParens(l, assLeft);
 		layouter.print(right);
-		maybeParens(r, assRight);
+		if(r != null) {
+			maybeParens(r, assRight);
+		}
 	}
 
 	/**
