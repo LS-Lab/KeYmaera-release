@@ -3627,7 +3627,7 @@ Term a1, a2 = null;
 	: a1 = game_dgl_term30 { a = a1; } (a2 = game_dgl_term30
 	{
 		a = tf.createTerm(Op.SEQGAME, new Term[] {a, a2}, null, null);
-	})+
+	})*
 	;
 
 game_dgl_term30 returns [Term a = null]
@@ -3637,12 +3637,12 @@ Term a1, a2 = null;
 	: a1 = game_dgl_term40 { a = a1; } ((DCHOICE a2 = game_dgl_term40
 	{
 		a = tf.createTerm(Op.CUPGAME, new Term[] {a, a2}, null, null);
-	})+
+	})*
 	|
 	(BCHOICE a2 = game_dgl_term40
 	{
 		a = tf.createTerm(Op.CAPGAME, new Term[] {a, a2}, null, null);
-	})+
+	})*
 	)
 	;
 	
@@ -3652,11 +3652,11 @@ Term a1, a2 = null;
 }
 	: a = mod_in_game
 	| LPAREN a = game_dgl_term20 RPAREN
-	| ALOOP_START a1 = game_dgl_term20 LOOP_END
+	| LBRACKET a1 = game_dgl_term20 RBRACKET STAR
 	{
 		a = tf.createTerm(Op.ALOOP, new Term[] {a1}, null, null);
 	}
-	| ELOOP_START a1 = game_dgl_term20 LOOP_END
+	| LESS a1 = game_dgl_term20 GREATER STAR
 	{
 		a = tf.createTerm(Op.ELOOP, new Term[] {a1}, null, null);
 	}

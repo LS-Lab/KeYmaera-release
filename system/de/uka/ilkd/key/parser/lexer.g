@@ -809,10 +809,6 @@ options {
 GAME_BEGIN: "\\(";
 GAME_END: "\\)";
 
-ALOOP_BEGIN: 'A' LBRACE;
-ELOOP_BEGIN: 'E' LBRACE;
-LOOP_END: RBRACE EXP STAR;
-
 /**
   * Here we have to accept all strings of kind \\[a-z_]
   * and make the decision our selves as to what to do with it
