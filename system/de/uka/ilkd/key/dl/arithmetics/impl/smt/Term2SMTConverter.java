@@ -3,10 +3,14 @@ package de.uka.ilkd.key.dl.arithmetics.impl.smt;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import de.uka.ilkd.key.dl.arithmetics.impl.orbital.PolynomTool;
 import de.uka.ilkd.key.dl.arithmetics.impl.orbital.PolynomTool.BigFraction;
+import de.uka.ilkd.key.dl.arithmetics.impl.qepcad.PrenexGenerator;
+import de.uka.ilkd.key.dl.arithmetics.impl.qepcad.PrenexGenerator.PrenexGeneratorResult;
 import de.uka.ilkd.key.logic.NamespaceSet;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.op.Function;
@@ -26,6 +30,7 @@ public class Term2SMTConverter {
 
 	static final String USCOREESCAPE = "uscore";
 	static final String DOLLARESCAPE = "dollar";
+	static final String MODREPLACEMENT = "moduscorereplaceuscorement";
 	private SMTInput input = new SMTInput(); // Result
 	private ArrayList<String> existingVars = new ArrayList<String>(); // List of
 
@@ -47,9 +52,29 @@ public class Term2SMTConverter {
 	 * @return QepCadInput-Instance of the given term.
 	 */
 	public static SMTInput convert(Term form,
-			List<QuantifiableVariable> variables) {
+			List<QuantifiableVariable> variables, NamespaceSet nss) {
 		Term2SMTConverter converter = new Term2SMTConverter();
+		if(Options.INSTANCE.isPrenexForm()) {
+			PrenexGeneratorResult result = PrenexGenerator.transform(form, nss);
+			form = result.getTerm();
+		}
+		if(Options.INSTANCE.isElimExistentialQuantifierPrefix()) {
+			form = elimForQuan(form);
+		}
 		return converter.convertImpl(form, variables);
+	}
+
+	/**
+	 * Eliminates a universal quantifier prefix.
+	 * 
+	 * @param form
+	 * @return
+	 */
+	private static Term elimForQuan(Term form) {
+		if(form.op() == Op.ALL) {
+			return elimForQuan(form.sub(0));
+		}
+		return form;
 	}
 
 	/**
@@ -125,7 +150,7 @@ public class Term2SMTConverter {
 							.eliminateFractionsFromInequality(form, nss), nss,
 							false);
 				}
-				return "(not (=" + convert2String(form.sub(0), nss, true) + " "
+				return "(not (= " + convert2String(form.sub(0), nss, true) + " "
 						+ convert2String(form.sub(1), nss, true) + " ))";
 			} else if (f.name().toString().equals("leq")) {
 				if (eliminateFractions) {
@@ -172,17 +197,27 @@ public class Term2SMTConverter {
 						+ convert2String(form.sub(1), nss, eliminateFractions)
 						+ ")";
 			} else if (f.name().toString().equals("exp")) {
-				String e = convert2String(form.sub(1), nss, eliminateFractions);
-				int exp = Integer.parseInt(e.substring(0,e.length() - 1));
+				// FIXME this function only works for integer exponentials
+				String e = form.sub(1).op().name().toString();
+				int exp = Integer.parseInt(e);
 				if(exp == 0) {
 					return "1";
+				}
+				boolean negative = false;
+				if(exp < 0) {
+					exp = -exp;
+					negative = true;
 				}
 				String s = convert2String(form.sub(0), nss, eliminateFractions);
 				String res = "(*";
 				for(int i = 0; i < exp; i++) {
 					res += " " + s;
 				}
-				return res + ")";
+				res += ")";
+				if(negative) {
+					return ("(/ 1. " + res + ")");
+				}
+				return res;
 			} else {
 				String[] args = new String[form.arity()];
 				for (int i = 0; i < args.length; i++) {
@@ -194,10 +229,10 @@ public class Term2SMTConverter {
 					BigFraction frac = PolynomTool
 							.convertStringToFraction(numberAsString);
 					if (frac.getDenominator().equals(BigInteger.ONE)) {
-						return frac.getNumerator().toString() + ".";
+						return printNumber(frac.getNumerator());
 					} else {
-						return "(/ " + frac.getNumerator() + ". "
-								+ frac.getDenominator() + ". )";
+						return "(/ " + printNumber(frac.getNumerator())
+								+ printNumber(frac.getDenominator()) + ")";
 					}
 				} catch (NumberFormatException nfe) {
 					String name = form.op().name().toString();
@@ -207,6 +242,9 @@ public class Term2SMTConverter {
 					}
 					if (name.contains("$")) {
 						name = name.replaceAll("\\$", DOLLARESCAPE);
+					}
+					if (name.equals("mod")) {
+						name = MODREPLACEMENT;
 					}
 					addExistingVariable(name);
 					if (args.length == 0) {
@@ -224,6 +262,9 @@ public class Term2SMTConverter {
 			}
 			if (name.contains("$")) {
 				name = name.replaceAll("\\$", DOLLARESCAPE);
+			}
+			if (name.equals("mod")) {
+				name = MODREPLACEMENT;
 			}
 			addExistingVariable(name);
 			return name;
@@ -264,6 +305,9 @@ public class Term2SMTConverter {
 				if (name.contains("$")) {
 					name = name.replaceAll("\\$", DOLLARESCAPE);
 				}
+				if (name.equals("mod")) {
+					name = MODREPLACEMENT;
+				}
 				vars[i] = name;
 //				addExistingVariable(name);
 			}
@@ -279,6 +323,27 @@ public class Term2SMTConverter {
 		throw new IllegalArgumentException("Could not convert Term: " + form
 				+ "Operator was: " + form.op());
 	}
+
+	private String convertNumber(Term form) {
+		String numberAsString = form.op().name().toString();
+		BigFraction frac = PolynomTool
+				.convertStringToFraction(numberAsString);
+		if (frac.getDenominator().equals(BigInteger.ONE)) {
+			return printNumber(frac.getNumerator());
+		} else {
+			return "(/ " + printNumber(frac.getNumerator())
+					+ printNumber(frac.getDenominator()) + ")";
+		}
+	}
+
+	private String printNumber(BigInteger b) {
+		if(b.compareTo(BigInteger.ZERO) < 0) {
+			return "(- " + b.abs().toString() + ".)";
+		} else {
+			return b.toString() + ".";
+		}
+	}
+
 
 	// Converts an array of Strings in
 	// one string. The elements are seperated by
@@ -320,7 +385,7 @@ public class Term2SMTConverter {
 
 		String result = "";
 		for (int i = 0; i < args.length; i++) {
-			result += "(declare-const " + args[i] + " Real)";
+			result += "(declare-fun " + args[i] + " () Real)";
 			if (i != args.length - 1)
 				result += "\n";
 		}
@@ -352,6 +417,9 @@ public class Term2SMTConverter {
 			if (name.contains("$")) {
 				name = name.replaceAll("\\$", DOLLARESCAPE);
 			}
+			if (name.equals("mod")) {
+				name = MODREPLACEMENT;
+			}
 			allVariables.remove(name);
 			quantified.add(name);
 		}
@@ -361,14 +429,11 @@ public class Term2SMTConverter {
 			freeVars.add(var);
 		}
 
-		String[] result = new String[allVariables.size() + quantified.size()];
-		for (int i = 0; i < freeVars.size(); i++) {
-			result[i] = freeVars.get(i);
-		}
-		for (int i = 0; i < quantified.size(); i++) {
-			result[freeVars.size() + i] = quantified.get(i);
-		}
+		Set<String> vars = new HashSet<String>();
 
-		return result;
+		vars.addAll(allVariables);
+		vars.addAll(quantified);
+
+		return vars.toArray(new String[vars.size()]);
 	}
 }

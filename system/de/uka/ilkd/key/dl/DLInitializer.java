@@ -346,7 +346,7 @@ public class DLInitializer {
 	private static void updateCustomizers() throws IntrospectionException {
 		MathSolverManager.rehash();
 		for (Customizer c : customizers.keySet()) {
-			System.out.println("Updating" + customizers.get(c));// XXX
+			System.out.println("Updating " + customizers.get(c));// XXX
 			if (!locks.contains(c)) {
 				locks.add(c);
 				((DefaultCustomizer) c).init(customizers.get(c).getClass());

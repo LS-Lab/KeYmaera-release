@@ -48,8 +48,9 @@ public class DLOptionBean implements Settings {
 
 	public static enum CexFinder {
 		DFS("Depth first search"), BFS("Breadth first search"), ITER_DEEP(
-				"Iterative deepening"), ITER_EXP("Iterative expansion"), ASTAR(
-				"AStar");
+				"Iterative deepening"), ITER_DEEP_ASTAR(
+					"Iterative deepening A*"),  ITER_EXP("Iterative expansion"), ASTAR(
+				"A*"), HILL_CLIMB("Hill climbing");
 
 		private String string;
 

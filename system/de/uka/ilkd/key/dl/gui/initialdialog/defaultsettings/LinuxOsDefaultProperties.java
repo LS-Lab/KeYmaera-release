@@ -41,6 +41,23 @@ public class LinuxOsDefaultProperties extends OsDefaultProperties implements
 	 * 
 	 * @see
 	 * de.uka.ilkd.key.dl.gui.initialdialog.defaultsettings.OsDefaultProperties
+	 * #getZ3BinaryPath()
+	 */
+	@Override
+	protected String getZ3BinaryPath() {
+		File z3 = new File(sp + "user" + sp + "bin" + sp + "z3");
+		if (!z3.exists())
+			z3 = new File(System.getProperty("user.home") + sp + "bin" + "z3");
+		if (!z3.exists())
+			z3 = new File(sp + "usr" + sp + "bin" + sp + "z3");
+		return z3.getAbsolutePath();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.uka.ilkd.key.dl.gui.initialdialog.defaultsettings.OsDefaultProperties
 	 * #getHOLLightPath()
 	 */
 	@Override

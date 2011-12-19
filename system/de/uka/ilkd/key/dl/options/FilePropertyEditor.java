@@ -65,7 +65,7 @@ public class FilePropertyEditor extends PropertyEditorSupport implements
 	 * java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
 	 */
 	public void actionPerformed(ActionEvent e) {
-		JFileChooser chooser = new JFileChooser(file.getPath());
+		JFileChooser chooser = file == null ? new JFileChooser() : new JFileChooser(file.getPath());
 		int state = chooser.showDialog(null, "Select");
 		if (state == JFileChooser.APPROVE_OPTION) {
 			setValue(chooser.getSelectedFile());
@@ -91,7 +91,7 @@ public class FilePropertyEditor extends PropertyEditorSupport implements
 
 	public void setValue(Object value) {
 		file = (File) value;
-		comp.setText(file.getAbsolutePath());
+		comp.setText(file == null ? "" : file.getAbsolutePath());
 		firePropertyChange();
 	}
 

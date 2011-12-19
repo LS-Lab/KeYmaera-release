@@ -38,6 +38,7 @@
  * things are taken care of by a TransitionGraph object.
  *
  * @author jyn (jingyin@andrew.cmu.edu)
+ * @author Andre Platzer (aplatzer)
  */
 
 package de.uka.ilkd.key.dl.image_compute;
@@ -59,18 +60,22 @@ import de.uka.ilkd.key.logic.Term;
 import java.util.*;
 import java.lang.reflect.*;
 
+import orbital.algorithm.template.HeuristicAlgorithm;
 import orbital.algorithm.template.AStar;
 import orbital.algorithm.template.BreadthFirstSearch;
 import orbital.algorithm.template.DepthFirstSearch;
 import orbital.algorithm.template.GeneralSearch;
 import orbital.algorithm.template.GeneralSearchProblem;
+import orbital.algorithm.template.HillClimbing;
 import orbital.algorithm.template.IterativeDeepening;
 import orbital.algorithm.template.IterativeExpansion;
+import orbital.algorithm.template.IterativeDeepeningAStar;
 import orbital.algorithm.template.TransitionModel;
 import orbital.logic.functor.Function;
 import orbital.logic.functor.MutableFunction;
 import orbital.math.Real;
 import orbital.math.ValueFactory;
+import orbital.math.Values;
 
 public class CounterExampleFinder implements GeneralSearchProblem
 {
@@ -84,6 +89,8 @@ public class CounterExampleFinder implements GeneralSearchProblem
     private NumericalState initialState;
     private NumericalState initialStateCopy;
 
+	private boolean abort = false;
+
     // determines what search algorithm to use
     // algorithms are registered in DLOptionBean.java and DLOptionBeanInfo.java
     // in $KEY_SRC/dl/option
@@ -93,8 +100,10 @@ public class CounterExampleFinder implements GeneralSearchProblem
         CEX_FINDERS.put(CexFinder.DFS.toString(), DepthFirstSearch.class);
         CEX_FINDERS.put(CexFinder.BFS.toString(), BreadthFirstSearch.class);
         CEX_FINDERS.put(CexFinder.ITER_DEEP.toString(), IterativeDeepening.class);
+        CEX_FINDERS.put(CexFinder.ITER_DEEP_ASTAR.toString(), IterativeDeepeningAStar.class);
         CEX_FINDERS.put(CexFinder.ITER_EXP.toString(), IterativeExpansion.class);
         CEX_FINDERS.put(CexFinder.ASTAR.toString(), AStar.class);
+        CEX_FINDERS.put(CexFinder.HILL_CLIMB.toString(), HillClimbing.class);
     }
 
     // determines whether we turn on tracing
@@ -111,13 +120,14 @@ public class CounterExampleFinder implements GeneralSearchProblem
 
     /**
      * Instantiates a cex finder with a given program block.
+     * @param modalForm is the modal formula with the program
      */
-    public CounterExampleFinder(Term preCond, Term programBlock, Services services)
+    public CounterExampleFinder(Term preCond, Term modalForm, Services services)
     {
         this.services = services;
         ev = Evaluator.getInstance(services);
         initialState = new NumericalState();
-        transitionGraph = new TransitionGraph(preCond, programBlock, ev);
+        transitionGraph = new TransitionGraph(preCond, modalForm, ev);
         initialNode = transitionGraph.getInitialNode();
         initialState.setNode(initialNode);
     }
@@ -137,9 +147,13 @@ public class CounterExampleFinder implements GeneralSearchProblem
             System.err.println("working on iteration " + i);
             GeneralSearch gs;
             try {
+	            if (HeuristicAlgorithm.class.isAssignableFrom(ctors[0].getDeclaringClass())) {
+	        		System.out.println("Heuristic");
+	                argList.add(transitionGraph.getHeuristic());
+	            }
                 gs = (GeneralSearch)ctors[0].newInstance(argList.toArray());
             } catch (Exception e) {
-                throw new IllegalArgumentException("could not instantiate " + ctors[0].getDeclaringClass());
+                throw (IllegalArgumentException) new IllegalArgumentException("could not instantiate " + ctors[0].getDeclaringClass()).initCause(e);
             }
             soln = (NumericalState)gs.solve(this);
             if (soln == null)
@@ -148,10 +162,11 @@ public class CounterExampleFinder implements GeneralSearchProblem
                 ret = soln.toString();
         }
         if (ret.equals(""))
-            System.err.println("no cex found");
+            System.err.println("NO counterexample found");
         else {
             assert(soln != null);
-            System.err.println("counterexample: " + ret);
+            System.err.println("COUNTEREXAMPLE:   " + ret);
+            if (soln != null) System.err.println("HEURISTIC:\t" + soln.getHeuristic() + "\n" + transitionGraph.getHeuristic());
             /*for (String s : soln.appendLog)
             {
                 System.err.println(s);
@@ -233,8 +248,12 @@ public class CounterExampleFinder implements GeneralSearchProblem
     {
         NumericalState ns = (NumericalState) objs;
         assert(ns != null);
-        if (ns.getTerminated())
-            return ns.getEvaluated();
+        if (ns.getTerminated()) {
+            boolean evaluated = ns.getEvaluated();
+            return evaluated;
+        } else {
+            System.out.println(ns.getHeuristic() + "\t" + ns);
+        }
         return false;
     }
 
@@ -247,7 +266,7 @@ public class CounterExampleFinder implements GeneralSearchProblem
     {
         NumericalState state = (NumericalState) objs;
         // no more action to perform on a terminated state
-        if (state.getTerminated())
+        if (state.getTerminated() || abort)
             return new IteratorUtil.EmptyIterator();
         Collection col = transitionGraph.actions(state.getNode());
         if (col.size() > 1)
@@ -275,5 +294,9 @@ public class CounterExampleFinder implements GeneralSearchProblem
         state.setNode(ae.dest());
         return new IteratorUtil.SingleIterator(state);
     }
+
+	public void abortCalculation() {
+		abort = true;
+	}
 
 }

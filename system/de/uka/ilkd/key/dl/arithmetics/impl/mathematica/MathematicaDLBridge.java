@@ -35,6 +35,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Set;
 
@@ -103,6 +104,8 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 	public static final String[] messageBlacklist = new String[] { "nsmet" };
 
 	public static String mBlistString;
+
+	public List<CounterExampleFinder> cexFinders = new ArrayList<CounterExampleFinder>();
 
 	static {
 		String or = "";
@@ -793,6 +796,9 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 	 */
 	public void abortCalculation() throws RemoteException {
 		getKernelWrapper().interruptCalculation();
+		for(CounterExampleFinder cex: cexFinders) {
+			cex.abortCalculation();
+		}
 	}
 
 	public String getTimeStatistics() throws RemoteException {
@@ -938,7 +944,11 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 	public String findTransition(Term initial, Term modalForm, long timeout,
 			Services services) throws RemoteException, SolverException {
         CounterExampleFinder cef = new CounterExampleFinder(initial, modalForm, services);
-        return cef.findSolution();
+		cexFinders.add(cef);
+        String s = cef.findSolution();
+		cexFinders.remove(cef);
+		return s;
+        //@note Old partial implementation using Mathematica
 //		Term term = modalForm;
 //		final de.uka.ilkd.key.rule.updatesimplifier.Update update = de.uka.ilkd.key.rule.updatesimplifier.Update
 //				.createUpdate(term);

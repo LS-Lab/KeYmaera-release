@@ -2,6 +2,7 @@
  * NumericalState for DL program transition.
  *
  * @author jyn (jingyin@andrew.cmu.edu)
+ * @author Andre Platzer (aplatzer)
  */
 
 package de.uka.ilkd.key.dl.image_compute;
@@ -20,6 +21,7 @@ public class NumericalState
     private List<Update> updates;
 
     private static final ValueFactory vf = MachValueFactory.getInstance();
+    private static final Real SO_FAR_AWAY = vf.valueOf(100000.0);
 
     private Map<String, Real> lastMap = null;
 
@@ -29,6 +31,11 @@ public class NumericalState
     private boolean multiple;       // whether state has multiple succeeding actions
     private boolean eval;           // evaluation result of a given state
     private Node node;
+                             
+    /**
+     * Heuristic distance to having satisfied condition
+     */
+    private Real heuristic = null; /*SO_FAR_AWAY;*/
 
     public List<String> appendLog;
 
@@ -95,6 +102,11 @@ public class NumericalState
         u.variable = variable;
         u.value = value;
         updates.add(u);
+    }
+
+    public Real readSymbol(String variable)
+    {
+        return lastMap.get(variable);
     }
 
     /**
@@ -276,6 +288,11 @@ public class NumericalState
         return terminated;
     }
 
+    public boolean isTerminated()
+    {
+        return getTerminated();
+    }
+
     public void setNode(Node node)
     {
         this.node = node;
@@ -300,6 +317,19 @@ public class NumericalState
         return eval;
     }
 
+    public boolean isEvaluated()
+    {
+        return getEvaluated();
+    }
+
+    public void setHeuristic(Real heuristic) {
+	    this.heuristic = heuristic;
+	}
+
+    public Real getHeuristic() {
+	    return heuristic;
+	}
+
     /**
      * Prints the snapshot of the most current commit.
      */
@@ -307,8 +337,13 @@ public class NumericalState
     public String toString()
     {
         StringBuilder sb = new StringBuilder();
-        for (Map.Entry<String, Real> e : lastMap.entrySet())
-            sb.append("[" + e.getKey() + "=" + e.getValue() + "]");
+        for (Map.Entry<String, Real> e : lastMap.entrySet()) {
+            sb.append('[');
+            sb.append(e.getKey());
+            sb.append('=');
+            sb.append(e.getValue());
+            sb.append(']');
+        }
         return sb.toString();
     }
 
