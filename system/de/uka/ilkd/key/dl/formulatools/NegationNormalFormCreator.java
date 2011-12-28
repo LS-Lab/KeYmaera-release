@@ -40,17 +40,22 @@ public class NegationNormalFormCreator {
 				}
 				return TermBuilder.DF.all(vars, createNFF(nTerm, negated));
 			} else if (term.op() == Op.IMP) {
+			    assert term.op() == 2;
 				return TermBuilder.DF.or(createNFF(term.sub(0), !negated),
 						createNFF(term.sub(1), negated));
 			} else if (term.op() == Op.NOT) {
+			    assert term.op() == 1;
 				return createNFF(term.sub(0), !negated);
 			} else if (term.op() == Op.OR) {
+			    assert term.op() == 2;
 				return TermBuilder.DF.and(createNFF(term.sub(0), negated),
-						createNFF(term.sub(0), negated));
+						createNFF(term.sub(1), negated));
 			} else if (term.op() == Op.AND) {
+			    assert term.op() == 2;
 				return TermBuilder.DF.or(createNFF(term.sub(0), negated),
-						createNFF(term.sub(0), negated));
+						createNFF(term.sub(1), negated));
 			} else if (term.op() == Op.EQV) {
+			    assert term.op() == 2;
 				throw new UnsupportedOperationException(
 						"not yet implemented for equivalence " + Op.EQV
 								+ " in " + term);
@@ -106,20 +111,24 @@ public class NegationNormalFormCreator {
 				}
 				return TermBuilder.DF.ex(vars, createNFF(nTerm, negated));
 			} else if (term.op() == Op.IMP) {
+			    assert term.arity() == 2;
 				return TermBuilder.DF.or(createNFF(term.sub(0), !negated),
 						createNFF(term.sub(1), negated));
 			} else if (term.op() == Op.NOT) {
-				return createNFF(term.sub(0), !negated);
+			    assert term.arity() == 1;
+			    return createNFF(term.sub(0), !negated);
 			} else if (term.op() == Op.OR) {
+			    assert term.arity() == 2;
 				return TermBuilder.DF.or(createNFF(term.sub(0), negated),
-						createNFF(term.sub(0), negated));
+						createNFF(term.sub(1), negated));
 			} else if (term.op() == Op.AND) {
+			    assert term.arity() == 2;
 				return TermBuilder.DF.and(createNFF(term.sub(0), negated),
-						createNFF(term.sub(0), negated));
+						createNFF(term.sub(1), negated));
 			} else if (term.op() == Op.EQV) {
-				throw new UnsupportedOperationException(
-						"not yet implemented for equivalence " + Op.EQV
-								+ " in " + term);
+			    assert term.arity() == 2;
+				return TermBuilder.DF.equiv(createNFF(term.sub(0), negated),
+					createNFF(term.sub(1), negated));
 			} else if (term.op() == Op.BOX || term.op() == Op.DIA) {
 				throw new UnsupportedOperationException(
 						"not yet implemented for equivalence " + Op.BOX
