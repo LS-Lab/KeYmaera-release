@@ -21,6 +21,7 @@ import de.uka.ilkd.key.dl.model.LogicalVariable;
 import de.uka.ilkd.key.dl.model.Minus;
 import de.uka.ilkd.key.dl.model.Mult;
 import de.uka.ilkd.key.dl.model.Plus;
+import de.uka.ilkd.key.dl.model.Minus;
 import de.uka.ilkd.key.dl.model.PredicateTerm;
 import de.uka.ilkd.key.dl.model.Unequals;
 import de.uka.ilkd.key.dl.parser.NumberCache;
@@ -39,6 +40,11 @@ import de.uka.ilkd.key.logic.op.TermSymbol;
 // FIXME: implementation is probably unsound for 5 * 3... because that would be translated to 5*3 + 5*3
 public class DerivativeCreator {
 
+	/**
+	 * The function calculates the derivative (induction) of a term based on the derivivates given by @sys
+	 *
+	 * note that the @sys must not contain any evolution domain
+	 */
 	public static final Term diffInd(DiffSystem sys, Term post, Services s) {
 		HashMap<String, Term> replacements = new HashMap<String, Term>();
 		collectDiffReplacements(sys, replacements, s);
@@ -49,6 +55,11 @@ public class DerivativeCreator {
 		return createDerivative(createNFF, replacements, s.getNamespaces(), null);
 	}
 
+	/**
+	 * The function calculates the derivative (diffFin) of a term based on the derivivates given by @sys
+	 *
+	 * note that the @sys must not contain any evolution domain
+	 */
 	public static final Term diffFin(DiffSystem sys, Term post, Term epsilon, Services s) {
 		HashMap<String, Term> replacements = new HashMap<String, Term>();
 		collectDiffReplacements(sys, replacements, s);
@@ -149,12 +160,12 @@ public class DerivativeCreator {
 		    assert term.arity() == 2;
 		    //@todo move those "final TermSymbol" constants more global, maybe even private statical final? 
 			TermSymbol plus = RealLDT.getFunctionFor(Plus.class);
+			TermSymbol minus = RealLDT.getFunctionFor(Minus.class);
 			TermSymbol mult = RealLDT.getFunctionFor(Mult.class);
 			TermSymbol div = RealLDT.getFunctionFor(Div.class);
 			TermSymbol exp = RealLDT.getFunctionFor(Exp.class);
 			return TermBuilder.DF.func(div, TermBuilder.DF.func(
-				//@todo this should be minus
-					plus,
+					minus,
 					TermBuilder.DF.func(mult,
 							createDerivative(term.sub(0), variables, nss, epsilon),
 							term.sub(1)),
@@ -166,14 +177,40 @@ public class DerivativeCreator {
 							new BigDecimal(2), RealLDT.getRealSort()))));
 		} else if (term.op() == RealLDT.getFunctionFor(Exp.class)) {
 		    assert term.arity() == 2;
-			int expo = Integer.parseInt(term.sub(1).op().name().toString());
-			//@todo this would not work for exponents 0 and -5
+			// implemented chain rule:
+
+			Term subD = createDerivative(term.sub(0), variables, nss, epsilon);
+			TermSymbol minus = RealLDT.getFunctionFor(Minus.class);
+			TermSymbol exp = RealLDT.getFunctionFor(Exp.class);
+
+			return TermBuilder.DF.func(exp, subD, TermBuilder.DF.func(minus,
+						term.sub(1), TermBuilder.DF.func(NumberCache.getNumber(new
+							BigDecimal(1), RealLDT.getRealSort()))));
+			//@todo this does only work for integer exponents not for fractions
+			/*int expo = Integer.parseInt(term.sub(1).op().name().toString());
+			TermSymbol div = RealLDT.getFunctionFor(Div.class);
+			if(expo == 0) {
+				return NumberCache.getNumber(new BigDecimal(0), RealLDT.getRealSort());
+			}
+			boolean divN = false;
+			if(expo < 0) {
+				expo = -expo;
+				divN = true;
+			}
 			Term m = term.sub(0);
 			TermSymbol mult = RealLDT.getFunctionFor(Mult.class);
 			for (int i = 1; i < expo; i++) {
 				m = TermBuilder.DF.func(mult, m, term.sub(0));
 			}
-			return createDerivative(m, variables, nss, epsilon);
+			if(divN) {
+				return createDerivative(TermBuilder.DF.func(div,
+					NumberCache.getNumber(new BigDecimal(0), RealLDT.getRealSort()), m), variables, 
+						nss, epsilon);
+			} else {
+				return createDerivative(m, variables, nss, epsilon);
+			}
+
+			*/
 			// TermSymbol sub = RealLDT.getFunctionFor(Minus.class);
 			// TermSymbol exp = RealLDT.getFunctionFor(Exp.class);
 			// return TermBuilder.DF.func(mult, term.sub(1),
