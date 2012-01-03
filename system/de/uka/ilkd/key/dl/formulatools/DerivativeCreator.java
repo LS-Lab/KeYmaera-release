@@ -187,11 +187,13 @@ public class DerivativeCreator {
 			TermSymbol exp = RealLDT.getFunctionFor(Exp.class);
 
 			if(term.op().name().toString().equals("1")) {
+				//@todo no that condition can't be right. You mean term.sub(1)
 				return TermBuilder.DF.func(NumberCache.getNumber(new BigDecimal(1)));
 			}
 			Term subD = createDerivative(term.sub(0), variables, nss, epsilon);
 			try {
 				BigFraction frac = PolynomTool.convertStringToFraction(term.sub(1).op().name().toString());
+				assert term.sub(1).arity() == 0 : "literal constants have no subterms";
 				// calculate explicit derivative
 				return TermBuilder.DF.func(mult, TermBuilder.DF.func(mult, term.sub(1), TermBuilder.DF.func(exp, term.sub(0), TermBuilder.DF.func(minus,
 							term.sub(1), TermBuilder.DF.func(NumberCache.getNumber(new
