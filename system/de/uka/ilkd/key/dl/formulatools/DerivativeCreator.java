@@ -182,7 +182,8 @@ public class DerivativeCreator {
 			Term subD = createDerivative(term.sub(0), variables, nss, epsilon);
 			TermSymbol minus = RealLDT.getFunctionFor(Minus.class);
 			TermSymbol exp = RealLDT.getFunctionFor(Exp.class);
-
+            
+            //@todo multiply the whole stuff by term.sub(1). Also check that term.sub(1) is only an integer constant, nothing fancy.
 			return TermBuilder.DF.func(exp, subD, TermBuilder.DF.func(minus,
 						term.sub(1), TermBuilder.DF.func(NumberCache.getNumber(new
 							BigDecimal(1), RealLDT.getRealSort()))));
