@@ -17,7 +17,6 @@ import de.uka.ilkd.key.dl.model.Greater;
 import de.uka.ilkd.key.dl.model.GreaterEquals;
 import de.uka.ilkd.key.dl.model.Less;
 import de.uka.ilkd.key.dl.model.LessEquals;
-import de.uka.ilkd.key.dl.model.LogicalVariable;
 import de.uka.ilkd.key.dl.model.Minus;
 import de.uka.ilkd.key.dl.model.Mult;
 import de.uka.ilkd.key.dl.model.Plus;
@@ -25,13 +24,17 @@ import de.uka.ilkd.key.dl.model.Minus;
 import de.uka.ilkd.key.dl.model.PredicateTerm;
 import de.uka.ilkd.key.dl.model.Unequals;
 import de.uka.ilkd.key.dl.parser.NumberCache;
+import de.uka.ilkd.key.dl.arithmetics.impl.orbital.PolynomTool;
+import de.uka.ilkd.key.dl.arithmetics.impl.orbital.PolynomTool.BigFraction;
 import de.uka.ilkd.key.java.ProgramElement;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.logic.NamespaceSet;
+import de.uka.ilkd.key.logic.Name;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.TermBuilder;
 import de.uka.ilkd.key.logic.TermFactory;
 import de.uka.ilkd.key.logic.op.Function;
+import de.uka.ilkd.key.logic.op.LogicVariable;
 import de.uka.ilkd.key.logic.op.Op;
 import de.uka.ilkd.key.logic.op.ProgramVariable;
 import de.uka.ilkd.key.logic.op.QuantifiableVariable;
@@ -134,7 +137,7 @@ public class DerivativeCreator {
 			throw new UnsupportedOperationException(
 					"not yet implemented for equivalence " + Op.BOX + " or "
 							+ Op.DIA + " in " + term);
-		} else if (term.op() instanceof LogicalVariable
+		} else if (term.op() instanceof LogicVariable
 				|| term.op() instanceof QuantifiableVariable
 				|| term.op() instanceof ProgramVariable || term.arity() == 0) {
 			if (variables.keySet().contains(term.op().name().toString())) {
@@ -179,14 +182,25 @@ public class DerivativeCreator {
 		    assert term.arity() == 2;
 			// implemented chain rule:
 
-			Term subD = createDerivative(term.sub(0), variables, nss, epsilon);
+			TermSymbol mult = RealLDT.getFunctionFor(Mult.class);
 			TermSymbol minus = RealLDT.getFunctionFor(Minus.class);
 			TermSymbol exp = RealLDT.getFunctionFor(Exp.class);
+
+			Term subD = createDerivative(term.sub(0), variables, nss, epsilon);
+			try {
+				BigFraction frac = PolynomTool.convertStringToFraction(term.sub(1).op().name().toString());
+				return TermBuilder.DF.func(mult, term.sub(1), TermBuilder.DF.func(exp, subD, TermBuilder.DF.func(minus,
+							term.sub(1), TermBuilder.DF.func(NumberCache.getNumber(new
+								BigDecimal(1), RealLDT.getRealSort())))));
+			} catch(Exception e) {
+				LogicVariable u = new LogicVariable(new Name("$apply$u"), RealLDT.getRealSort());
+				HashMap<String, Term> nvars = new HashMap<String, Term>();
+				Term uTerm = TermBuilder.DF.var(u);
+				nvars.put(u.name().toString(), uTerm);
+				Term subOut = createDerivative(TermBuilder.DF.func(exp, nvars.get(u), term.sub(1)), nvars, nss, epsilon);
+				return TermBuilder.DF.func(mult, term.sub(1), apply(subOut, subD, uTerm));
+			}
             
-            //@todo multiply the whole stuff by term.sub(1). Also check that term.sub(1) is only an integer constant, nothing fancy.
-			return TermBuilder.DF.func(exp, subD, TermBuilder.DF.func(minus,
-						term.sub(1), TermBuilder.DF.func(NumberCache.getNumber(new
-							BigDecimal(1), RealLDT.getRealSort()))));
 			//@todo this does only work for integer exponents not for fractions
 			/*int expo = Integer.parseInt(term.sub(1).op().name().toString());
 			TermSymbol div = RealLDT.getFunctionFor(Div.class);
@@ -272,6 +286,18 @@ public class DerivativeCreator {
 			}
 			return TermFactory.DEFAULT.createTerm(term.op(), args,
 					new ImmutableArray[0], term.javaBlock());
+		}
+	}
+
+	private static Term apply(Term in, Term rep, Term u) {
+		if(in.equals(u)) {
+			return rep;
+		} else {
+			Term[] subs = new Term[in.arity()];
+			for(int i = 0; i < subs.length; i++) {
+				subs[i] = apply(in.sub(i), rep, u);
+			}
+			return TermFactory.DEFAULT.createTerm(in.op(), subs, new ImmutableArray[0], in.javaBlock());
 		}
 	}
 }
