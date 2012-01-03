@@ -186,8 +186,8 @@ public class DerivativeCreator {
 			TermSymbol minus = RealLDT.getFunctionFor(Minus.class);
 			TermSymbol exp = RealLDT.getFunctionFor(Exp.class);
 
-			if(term.op().name().toString().equals("1")) {
-				//@todo no that condition can't be right. You mean term.sub(1)
+			if(term.sub(0).op().name().toString().equals("1")) {
+				// if the base is 1 the exponent does not matter
 				return TermBuilder.DF.func(NumberCache.getNumber(new BigDecimal(1)));
 			}
 			Term subD = createDerivative(term.sub(0), variables, nss, epsilon);
