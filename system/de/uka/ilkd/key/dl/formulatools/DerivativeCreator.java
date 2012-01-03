@@ -186,19 +186,25 @@ public class DerivativeCreator {
 			TermSymbol minus = RealLDT.getFunctionFor(Minus.class);
 			TermSymbol exp = RealLDT.getFunctionFor(Exp.class);
 
+			if(term.op().name().toString().equals("1")) {
+				return TermBuilder.DF.func(NumberCache.getNumber(new BigDecimal(1)));
+			}
 			Term subD = createDerivative(term.sub(0), variables, nss, epsilon);
 			try {
 				BigFraction frac = PolynomTool.convertStringToFraction(term.sub(1).op().name().toString());
-				return TermBuilder.DF.func(mult, term.sub(1), TermBuilder.DF.func(exp, subD, TermBuilder.DF.func(minus,
+				// calculate explicit derivative
+				return TermBuilder.DF.func(mult, TermBuilder.DF.func(mult, term.sub(1), TermBuilder.DF.func(exp, term.sub(0), TermBuilder.DF.func(minus,
 							term.sub(1), TermBuilder.DF.func(NumberCache.getNumber(new
-								BigDecimal(1), RealLDT.getRealSort())))));
+								BigDecimal(1), RealLDT.getRealSort()))))), subD);
 			} catch(Exception e) {
-				LogicVariable u = new LogicVariable(new Name("$apply$u"), RealLDT.getRealSort());
+				throw new UnsupportedOperationException("Not implemented for polynomial exponents: " + term.sub(1));
+				/* LogicVariable u = new LogicVariable(new Name("$apply$u"), RealLDT.getRealSort());
 				HashMap<String, Term> nvars = new HashMap<String, Term>();
+				nvars.putAll(variables);
 				Term uTerm = TermBuilder.DF.var(u);
 				nvars.put(u.name().toString(), uTerm);
 				Term subOut = createDerivative(TermBuilder.DF.func(exp, nvars.get(u), term.sub(1)), nvars, nss, epsilon);
-				return TermBuilder.DF.func(mult, term.sub(1), apply(subOut, subD, uTerm));
+				return TermBuilder.DF.func(mult, apply(subOut, subD, uTerm), subD); */
 			}
             
 			//@todo this does only work for integer exponents not for fractions
