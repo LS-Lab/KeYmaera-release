@@ -75,7 +75,8 @@ public class NegationNormalFormCreator {
 				} else if (term.op() == RealLDT.getFunctionFor(Equals.class)) {
 					op = RealLDT.getFunctionFor(Unequals.class);
 				} else if (term.op() == RealLDT.getFunctionFor(Unequals.class)) {
-					op = RealLDT.getFunctionFor(Equals.class);
+					assert term.arity() == 2;
+					return TermBuilder.DF.equals(term.sub(0), term.sub(1));
 				} else if (term.op() == RealLDT
 						.getFunctionFor(LessEquals.class)) {
 					op = RealLDT.getFunctionFor(Greater.class);
