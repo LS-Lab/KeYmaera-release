@@ -18,6 +18,7 @@ import de.uka.ilkd.key.dl.model.GreaterEquals;
 import de.uka.ilkd.key.dl.model.Less;
 import de.uka.ilkd.key.dl.model.LessEquals;
 import de.uka.ilkd.key.dl.model.Minus;
+import de.uka.ilkd.key.dl.model.MinusSign;
 import de.uka.ilkd.key.dl.model.Mult;
 import de.uka.ilkd.key.dl.model.Plus;
 import de.uka.ilkd.key.dl.model.Minus;
@@ -190,13 +191,26 @@ public class DerivativeCreator {
 			// implemented chain rule:
 
 			TermSymbol mult = RealLDT.getFunctionFor(Mult.class);
+			TermSymbol div = RealLDT.getFunctionFor(Div.class);
 			TermSymbol minus = RealLDT.getFunctionFor(Minus.class);
 			TermSymbol exp = RealLDT.getFunctionFor(Exp.class);
 
+			// exponent 0
+			Term one = TermBuilder.DF.func(NumberCache.getNumber(
+					new BigDecimal(1), RealLDT.getRealSort()));
+			if (term.sub(1).op().name().toString().equals("0")) {
+				return one;
+			}
+
+			// exponent 1
+			if (term.sub(1).op().name().toString().equals("1")) {
+				return createDerivative(term.sub(0), variables, nss, epsilon);
+			}
+
+			// base 1
 			if (term.sub(0).op().name().toString().equals("1")) {
 				// if the base is 1 the exponent does not matter
-				return TermBuilder.DF.func(NumberCache.getNumber(
-						new BigDecimal(1), RealLDT.getRealSort()));
+				return one;
 			}
 			Term subD = createDerivative(term.sub(0), variables, nss, epsilon);
 			try {
@@ -204,12 +218,19 @@ public class DerivativeCreator {
 						.sub(1).op().name().toString());
 				assert term.sub(1).arity() == 0 : "literal constants have no subterms";
 				// calculate explicit derivative
-				return TermBuilder.DF.func(mult, TermBuilder.DF.func(mult, term
-						.sub(1), TermBuilder.DF.func(exp, term.sub(0),
-						TermBuilder.DF.func(minus, term.sub(1), TermBuilder.DF
-								.func(NumberCache.getNumber(new BigDecimal(1),
-										RealLDT.getRealSort()))))), subD);
+				return TermBuilder.DF.func(mult, TermBuilder.DF.func(
+						mult,
+						term.sub(1),
+						TermBuilder.DF.func(exp, term.sub(0),
+								TermBuilder.DF.func(minus, term.sub(1), one))),
+						subD);
 			} catch (Exception e) {
+				if (term.sub(1).op() == RealLDT.getFunctionFor(MinusSign.class)) {
+					// negative exponent
+					return createDerivative(TermBuilder.DF.func(div, one,
+							TermBuilder.DF.func(exp, term.sub(0), term.sub(1)
+									.sub(0))), variables, nss, epsilon);
+				}
 				throw new UnsupportedOperationException(
 						"Not implemented for polynomial exponents: "
 								+ term.sub(1));
