@@ -195,11 +195,15 @@ public class DerivativeCreator {
 			TermSymbol minus = RealLDT.getFunctionFor(Minus.class);
 			TermSymbol exp = RealLDT.getFunctionFor(Exp.class);
 
-			// exponent 0
+
 			Term one = TermBuilder.DF.func(NumberCache.getNumber(
 					new BigDecimal(1), RealLDT.getRealSort()));
+			Term zero = TermBuilder.DF.func(NumberCache.getNumber(
+					new BigDecimal(0), RealLDT.getRealSort()));
+			// exponent 0
 			if (term.sub(1).op().name().toString().equals("0")) {
-				return one;
+				// the derivative of 1 is 0
+				return zero;
 			}
 
 			// exponent 1
