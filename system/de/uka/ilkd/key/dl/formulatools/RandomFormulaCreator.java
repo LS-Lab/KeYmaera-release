@@ -80,7 +80,7 @@ public class RandomFormulaCreator {
 	 */
 	public static void testDiffInd() {
 		NamespaceSet nss;
-		int numberOfVariables = 10;
+		int numberOfVariables = 6;
 		nss = Main.getInstance().mediator().namespaces();
 		for (int i = 0; i <= numberOfVariables; i++) {
 			if (nss.programVariables().lookup(new ProgramElementName("x" + i)) == null) {
@@ -101,7 +101,7 @@ public class RandomFormulaCreator {
 		 */
 		System.out.println(nss);
 		Term createRandomWithDiffSystemFormula = RandomFormulaCreator
-				.createRandomWithDiffSystemFormula(10, 3, nss);
+				.createRandomWithDiffSystemFormula(numberOfVariables, 4, nss);
 		Services services = Main.getInstance().mediator().getServices();
 		System.out.println("Org Form: " + createRandomWithDiffSystemFormula);
 		DiffSystem system = (DiffSystem) ((StatementBlock) createRandomWithDiffSystemFormula
@@ -131,9 +131,12 @@ public class RandomFormulaCreator {
 			diffInd2 = MathSolverManager.getCurrentODESolver().diffInd(system,
 					post, Main.getInstance().mediator().getServices());
 			System.out.println("Math DiffInd: " + LogicPrinter.quickPrintTerm(diffInd2, services));
-			System.out.println("Simplified DiffInd: " + LogicPrinter.quickPrintTerm(MathSolverManager.getCurrentSimplifier().simplify(diffInd, nss), services));
-			System.out.println("Simplified DiffInd2: " + LogicPrinter.quickPrintTerm(MathSolverManager.getCurrentSimplifier().simplify(diffInd2, nss), services));
-			System.out.println("Equiv: " + MathSolverManager.getCurrentQuantifierEliminator().reduce(TermBuilder.DF.equiv(diffInd, diffInd2), nss, 1000));
+			Term sdiffInd = MathSolverManager.getCurrentSimplifier().simplify(diffInd, nss);
+			System.out.println("Simplified DiffInd: " + LogicPrinter.quickPrintTerm(sdiffInd, services));
+			Term sdiffInd2 = MathSolverManager.getCurrentSimplifier().simplify(diffInd2, nss);
+			System.out.println("Simplified DiffInd2: " + LogicPrinter.quickPrintTerm(sdiffInd2, services));
+			System.out.println("DiffInd -> DiffInd2: " + MathSolverManager.getCurrentQuantifierEliminator().reduce(TermBuilder.DF.imp(sdiffInd, sdiffInd2), nss, 100));
+			System.out.println("DiffInd2 -> DiffInd1: " + MathSolverManager.getCurrentQuantifierEliminator().reduce(TermBuilder.DF.imp(sdiffInd2, sdiffInd), nss, 100));
 		} catch (RemoteException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
