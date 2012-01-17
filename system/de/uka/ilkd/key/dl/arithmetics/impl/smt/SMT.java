@@ -261,4 +261,12 @@ public class SMT implements IQuantifierEliminator, ICounterExampleGenerator {
 		throw new UnsupportedOperationException("Transition counter examples are currently not supported with Z3.");
 	}
 
+	public List<String> findMultiNumInstance(Term t,int num,long timeout) {
+		throw new UnsupportedOperationException("Finding multiple counter examples is currently not supported with Z3.");
+	}
+
+	public List<String> findMultiInstance(Term t,int num,long timeout) {
+		throw new UnsupportedOperationException("Finding multiple counter examples is currently not supported with Z3.");
+	}
+
 }

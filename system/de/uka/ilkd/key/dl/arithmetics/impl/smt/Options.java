@@ -53,7 +53,7 @@ public class Options implements Settings {
 
 	private Options() {
 		listeners = new LinkedList<SettingsListener>();
-		z3Binary = new File("");
+		z3Binary = new File("/usr/local/bin/z3");
 		prenexForm = true;
 		elimExistentialQuantifierPrefix = true;
 	}
