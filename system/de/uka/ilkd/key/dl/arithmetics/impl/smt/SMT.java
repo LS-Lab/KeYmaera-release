@@ -214,7 +214,7 @@ public class SMT implements IQuantifierEliminator, ICounterExampleGenerator {
 			in.close();
 			Process process = Runtime.getRuntime().exec(
 					Options.INSTANCE.getZ3Binary().getAbsolutePath() + " "
-							+ inputFile.getAbsolutePath() + " MODEL=true");
+							+ inputFile.getAbsolutePath() + "-T:" + timeout + " MODEL=true");
 			inputFile.delete();
 			BufferedReader b = new BufferedReader(new InputStreamReader(process.getInputStream()));
 			boolean checkSat = false;
@@ -259,6 +259,14 @@ public class SMT implements IQuantifierEliminator, ICounterExampleGenerator {
 	public String findTransition(Term initial, Term modalForm, long timeout,
 			Services services) throws RemoteException, SolverException {
 		throw new UnsupportedOperationException("Transition counter examples are currently not supported with Z3.");
+	}
+
+	public List<String> findMultiNumInstance(Term t,int num,long timeout) {
+		throw new UnsupportedOperationException("Finding multiple counter examples is currently not supported with Z3.");
+	}
+
+	public List<String> findMultiInstance(Term t,int num,long timeout) {
+		throw new UnsupportedOperationException("Finding multiple counter examples is currently not supported with Z3.");
 	}
 
 }

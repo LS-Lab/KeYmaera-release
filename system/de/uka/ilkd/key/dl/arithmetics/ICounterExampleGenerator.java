@@ -23,6 +23,7 @@
 package de.uka.ilkd.key.dl.arithmetics;
 
 import java.rmi.RemoteException;
+import java.util.List;
 
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ConnectionProblemException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ServerStatusProblemException;
@@ -80,4 +81,11 @@ public interface ICounterExampleGenerator extends IMathSolver {
      */
     String findTransition(Term initial, Term modalForm, long timeout, Services services)
             throws RemoteException, SolverException;
+
+	public abstract List<String> findMultiInstance(Term form, int ninst, long timeout)
+	            throws RemoteException, SolverException;
+
+	public abstract List<String> findMultiNumInstance(Term form, int ninst, long timeout)
+	            throws RemoteException, SolverException;
+
 }

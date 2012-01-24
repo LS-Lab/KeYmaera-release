@@ -48,6 +48,22 @@ public class WindowsOsDefaultProperties extends OsDefaultProperties {
 	 * 
 	 * @see
 	 * de.uka.ilkd.key.dl.gui.initialdialog.defaultsettings.OsDefaultProperties
+	 * #getZ3BinaryPath()
+	 */
+	@Override
+	protected String getZ3BinaryPath() {
+		File z3 = new File("C:" + sp + "Program Files" + sp + "z3" + sp
+				+ "bin" + sp + "z3.exe");
+		if (!z3.exists())
+			z3 = new File("C:" + sp + "z3.exe");
+		return z3.getAbsolutePath();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.uka.ilkd.key.dl.gui.initialdialog.defaultsettings.OsDefaultProperties
 	 * #getHOLLightPath()
 	 */
 	@Override
