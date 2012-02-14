@@ -783,7 +783,7 @@ Contributed by Aaron Kane</description>
                     		</requirements>
                     	</example>
                     </group>
-                    		<group name="Biological Systems">
+                    		<!-- group name="Biological Systems">
                     			<example>
                     				<name>E. coli chemotaxis</name>
                     				<path>/examples/hybrid/bio/Ecoli/Ecoli-chemotaxis.key</path>
@@ -798,6 +798,6 @@ Contributed by: Solofomampionona Fortunat Rajaona</description>
                     					</some>
                     				</requirements>
                     			</example>
-	</group>
+	</group -->
 	<example></example>
 </examples>
