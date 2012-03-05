@@ -4,6 +4,7 @@
 			<example>
 				<name>ETCS Train Control [simple]</name>
 				<path>/examples/hybrid/ETCS/safety/ETCS-simple.key</path>
+				<proofpath quantifiereliminator="Mathematica">/examples/hybrid/ETCS/safety/ETCS-simple.key.proof</proofpath>
 				<description>Essentials of the ETCS train control protocol. This example proves that a train never leaves its movement authority (MA=m) and, thus, cannot crash into other trains. Please note, that this is the simplest possible version of the safety requirement for the ETCS. The verification of the ETCS system itself requires a much more advanced model.
 Proves equation (2.19)</description>
 				<img 
@@ -20,6 +21,7 @@ Proves equation (2.19)</description>
 			<example>
 				<name>ETCS Train Control [simple nondet]</name>
 				<path>/examples/hybrid/ETCS/safety/ETCS-essentials.key</path>
+				<proofpath quantifiereliminator="Mathematica">/examples/hybrid/ETCS/safety/ETCS-essentials.key.proof</proofpath>
 				<description>Essentials of the ETCS train control protocol. This example proves that a train never leaves its movement authority (MA=m) and, thus, cannot crash into other trains. Please note, that this is the simplest possible version of the safety requirement for the ETCS. The verification of the ETCS system itself requires a much more advanced model.</description>
 				<img 
 					href="http://symbolaris.com/info/ETCS-MAProtocol-c.gif"/>
@@ -35,6 +37,7 @@ Proves equation (2.19)</description>
           			<example>
           				<name>ETCS Train Control [tutorial]</name>
           				<path>/examples/hybrid/ETCS/safety/ETCS-simple-tutorial.key</path>
+          				<proofpath quantifiereliminator="Mathematica">/examples/hybrid/ETCS/safety/ETCS-simple-tutorial.key.proof</proofpath>
           				<description>Essentials of the ETCS train control protocol. This example proves that a train never leaves its movement authority (MA=m) and, thus, cannot crash into other trains. Please note, that this is the simplest possible version of the safety requirement for the ETCS. The verification of the ETCS system itself requires a much more advanced model.</description>
           				<img 
           					href="http://symbolaris.com/info/ETCS-MAProtocol-c.gif"/>
@@ -50,6 +53,7 @@ Proves equation (2.19)</description>
                     			<example>
                     				<name>ETCS Train Control [temporal]</name>
                     				<path>/examples/hybrid/ETCS/safety/ETCS-essentials-tout.key</path>
+                    				<proofpath quantifiereliminator="Mathematica">/examples/hybrid/ETCS/safety/ETCS-essentials-tout.key.proof</proofpath>
                     				<description>Essentials of the ETCS train control protocol with temporal throughout modality [][]. This example proves that a train never leaves its movement authority (MA=m) and, thus, cannot crash into other trains. Please note, that this is the simplest possible version of the safety requirement for the ETCS. The verification of the ETCS system itself requires a much more advanced model.
 Proves dTL variant of equation (2.19) with [][] instead of []</description>
                     				<img 
@@ -81,6 +85,7 @@ Proves Proposition 7.1
 			<example>
 				<name>ETCS Train Control [safety]</name>
 				<path>/examples/hybrid/ETCS/paper/safety-lemma.key</path>
+                <proofpath>/examples/hybrid/ETCS/paper/safety-lemma.key.proof</proofpath>
 				<description>Proves safety of the ETCS train control protocol case study. This example proves that a train never leaves its movement authority (MA=m) and, thus, cannot crash into other trains.
 Proves Proposition 7.5
 			</description>
@@ -175,7 +180,7 @@ Proves Proposition 7.4 (see book for how to prove)
 			<example>
 				<name>ETCS Train Disturbance [controllability]</name>
 				<path>/examples/hybrid/ETCS/paper/controllability-lemma-disturbed.key</path>
-                <path>/examples/hybrid/ETCS/paper/controllability-lemma-disturbed.key.proof</path>
+                <proofpath>/examples/hybrid/ETCS/paper/controllability-lemma-disturbed.key.proof</proofpath>
 				<description>Proves safety of the ETCS train control protocol case study despite disturbance in the physical dynamics. This example proves that the train is always controllable safely by some control choice, despite disturbance.
 Proves Proposition 7.7.
 Depending on your settings, use Update Simplification and Eliminate Universal Quantifiers.
@@ -208,6 +213,7 @@ Proves Proposition 7.8 (see book for hints how to prove or Load Proof)
 			<example>
 				<name>ETCS Train Disturbance [safety]</name>
 				<path>/examples/hybrid/ETCS/paper/safety-lemma-disturbed.key</path>
+				<proofpath>/examples/hybrid/ETCS/paper/safety-lemma-disturbed.key.proof</proofpath>
 				<description>Proves safety of the ETCS train control protocol case study despite disturbance in the physical dynamics. This example proves that a train never leaves its movement authority (MA=m) and, thus, cannot crash into other trains.
 Proves Proposition 7.9 (see book for how to prove)
 			</description>
