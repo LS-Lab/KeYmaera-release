@@ -1,5 +1,21 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <examples>
+	<group name="KeYmaera Tutorial">
+		<example>
+            <name>Tutorial 1: Safety of continuous system</name>
+            				<path>/examples/hybrid/tutorial/tutorial1-continuous.key</path>
+            <description>KeYmaera Tutorial Example 1: Modeling a safety property of a continuous system .... </description>
+            <img href="URL-to.gif"/>
+            <source href="http://symbolaris.com/info/KeYmaera-tutorial.html"/>
+            <requirements>
+                 <some>
+            		 	<quantifiereliminator>Mathematica</quantifiereliminator>
+            		 	<quantifiereliminator>QepCad</quantifiereliminator>
+            		 	<quantifiereliminator>Reduce</quantifiereliminator>
+            	   </some>
+             </requirements>
+		</example>
+	</group> 
 		<group name="ETCS Trains">
 			<example>
 				<name>ETCS Train Control [simple]</name>
