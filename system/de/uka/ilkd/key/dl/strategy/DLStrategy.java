@@ -155,7 +155,7 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 
 	private final Feature instantiationF;
 
-	private enum FirstOrder {
+    private enum FirstOrder {
 		NOT_FO, FO;
 	}
 
@@ -1448,6 +1448,11 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 		}
 		return (vetoF.compute(app, pio, goal) instanceof TopRuleAppCost);
 	}
+
+    public void resetCache() {
+        ceCache.clear();
+        foCache.clear();
+    }
 
 	/**
 	 * @return
