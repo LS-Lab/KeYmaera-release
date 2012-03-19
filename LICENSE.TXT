@@ -1,9 +1,10 @@
        KeY - INTEGRATED DEDUCTIVE SOFTWARE DESIGN 
-            
-       Copyright (C) 2001-2009 Universitaet Karlsruhe (TH), Germany 
+
+       Copyright (C) 2001-2012 Universitaet Karlsruhe (TH), Germany 
                                Universitaet Koblenz-Landau, Germany
                                Chalmers University of Technology, Sweden
-
+							   Carl von Ossietzky Universitaet Oldenburg, Germany
+							   Carnegie Mellon University, USA
 
        Universitaet Karlsruhe (TH)
        Institut fuer Theoretische Informatik
@@ -25,6 +26,16 @@
        SE-41296 Gothenburg
        Sweden
 
+	   Carl von Ossietzky Universitaet Oldenburg
+	   Department of Computing Science
+	   Correct System Design Group
+	   D-26111 Oldenburg
+	   Germany
+
+	   Carnegie Mellon University 
+	   Computer Science Department
+	   Pittsburgh, PA
+	   USA
 
        WWW: http://key-project.org
        e-mail: key@ira.uka.de	
