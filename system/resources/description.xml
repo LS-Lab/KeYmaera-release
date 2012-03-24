@@ -4,6 +4,8 @@
 		<example>
             <name>Tutorial 1: Safety of continuous system</name>
             				<path>/examples/hybrid/tutorial/tutorial1-continuous.key</path>
+            				<proofpath>/examples/hybrid/tutorial/tutorial1-continuous.key.proof</proofpath>
+            				<proofpath quantifiereliminator="smt">/examples/hybrid/tutorial/tutorial1-continuous.key.smt.proof</proofpath>
             <description>KeYmaera Tutorial Example 1: Modeling a safety property of a continuous system. This is a simple system in which a car starts at some velocity v and accelerates at constant rate A along a straight lane.  The requirement we want to prove is that the car may never travel backward, i.e. for all time, in all scenarios v is greater than or equal to zero. 
  </description>
             <img href="URL-to.gif"/>
