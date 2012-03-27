@@ -5,43 +5,35 @@
             <name>1: Safety of continuous system</name>
             				<path>/examples/hybrid/tutorial/tutorial1-continuous.key</path>
             				<proofpath>/examples/hybrid/tutorial/tutorial1-continuous.key.proof</proofpath>
-            				<proofpath quantifiereliminator="smt">/examples/hybrid/tutorial/tutorial1-continuous.key.smt.proof</proofpath>
             <description>KeYmaera Tutorial Example 1: Modeling a safety property of a continuous system. This is a simple system in which a car starts at some velocity v and accelerates at constant rate A along a straight lane.  The requirement we want to prove is that the car may never travel backward, i.e. for all time, in all scenarios v is greater than or equal to zero. 
  </description>
             <source href="http://symbolaris.com/info/KeYmaera-tutorial.html"/>
             <requirements>
                  <some>
-            		 	<quantifiereliminator>Mathematica</quantifiereliminator>
-            		 	<quantifiereliminator>QepCad</quantifiereliminator>
-            		 	<quantifiereliminator>Reduce</quantifiereliminator>
             	   </some>
              </requirements>
 		</example>
 		<example>
             <name>2: Safety of a hybrid system</name>
             				<path>/examples/hybrid/tutorial/tutorial2-hybrid.key</path>
+            				<proofpath>/examples/hybrid/tutorial/tutorial2-hybrid.key.proof</proofpath>
             <description>KeYmaera Tutorial Example 2: Modeling a safety property of a hybrid system. In this example, we introduce a discrete controller into the model of the continuous system in Example 1. The controller has only three options: it may cause the car to accelerate with rate A, brake with rate -B, or maintain velocity.  
 </description>
             <source href="http://symbolaris.com/info/KeYmaera-tutorial.html"/>
             <requirements>
                  <some>
-            		 	<quantifiereliminator>Mathematica</quantifiereliminator>
-            		 	<quantifiereliminator>QepCad</quantifiereliminator>
-            		 	<quantifiereliminator>Reduce</quantifiereliminator>
             	   </some>
              </requirements>
 		</example>
 		<example>
             <name>3a: Event-triggerd stop sign controller</name>
             				<path>/examples/hybrid/tutorial/tutorial3-event.key</path>
+            				<proofpath>/examples/hybrid/tutorial/tutorial3-event.key.proof</proofpath>
             <description>KeYmaera Tutorial Example 3a: While the car is driving down the lane,  the controller must choose when to begin decelerating so that it stops at or before a stop sign.  We add an additional constraint to the evolution domain to model an event triggered system.  In this case, the event-trigger is when the distance between the car and the stop sign equals the stopping distance of the car. 
 </description>
             <source href="http://symbolaris.com/info/KeYmaera-tutorial.html"/>
             <requirements>
                  <some>
-            		 	<quantifiereliminator>Mathematica</quantifiereliminator>
-            		 	<quantifiereliminator>QepCad</quantifiereliminator>
-            		 	<quantifiereliminator>Reduce</quantifiereliminator>
             	   </some>
              </requirements>
 		</example>
@@ -75,7 +67,6 @@
 		<example>
             <name>5: Guarded nondeterministic assignment stop sign controller</name>
             				<path>/examples/hybrid/tutorial/tutorial5-nondet_assignment.key</path>
-            				<proofpath>/examples/hybrid/tutorial/tutorial5-nondet_assignment.key.proof</proofpath>
             <description>KeYmaera Tutorial Example 5: In this example, the stop sign controller is able to choose any acceleration within a range of values representing the physical limits of the system, rather than choosing from a discrete set of values.  We do this by using guarded nondeterministic assignment.</description>
             <source href="http://symbolaris.com/info/KeYmaera-tutorial.html"/>
             <requirements>
