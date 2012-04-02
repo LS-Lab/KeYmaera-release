@@ -65,9 +65,22 @@ public class ProgramBlockProvider implements
 
         TermFactory tf = null;
         try {
+	        if (DLOptionBean.INSTANCE == null || DLOptionBean.INSTANCE.getTermFactoryClass() == null)  
+			    throw new IllegalStateException("NullPointerException while finding term factory: "
+                    + DLOptionBean.INSTANCE.getTermFactoryClass());
+			if (config == null)  
+					    throw new IllegalStateException("NullPointerException no configuration while creating term factory: "
+		                    + DLOptionBean.INSTANCE.getTermFactoryClass());
+			if (config.namespaces() == null)  
+									    throw new IllegalStateException("NullPointerException no namespace in configuration while creating term factory: "
+						                    + DLOptionBean.INSTANCE.getTermFactoryClass());
             tf = TermFactory.getTermFactory(DLOptionBean.INSTANCE.getTermFactoryClass(), config
                     .namespaces());
-        } catch (Exception e) {
+        } catch (IllegalStateException e) {
+	        throw e;
+	    } catch (NullPointerException e) {
+	        throw e;
+	    } catch (Exception e) {
             throw new IllegalStateException("Term factory not found: "
                     + DLOptionBean.INSTANCE.getTermFactoryClass(), e);
         }
