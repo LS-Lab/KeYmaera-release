@@ -50,6 +50,7 @@ public class PropertyConfigurationBeans implements PropertyChangeListener {
 	private Boolean USING_DEFAULT_PROPERTY = false;
 	private PropertyEditor propertyEditor;
 	private IPropertyConverter converter;
+	private ToolInstaller installer;
 	private String propsName;
 	private String propsFileName; // Property file name where to get the
 									// properties
@@ -339,5 +340,19 @@ public class PropertyConfigurationBeans implements PropertyChangeListener {
 		// TODO Auto-generated method stub
 		currentPropertyObject = propertyEditor.getValue();
 	}
+
+    /**
+     * @return the installer
+     */
+    public ToolInstaller getInstaller() {
+        return installer;
+    }
+
+    /**
+     * @param installer the installer to set
+     */
+    public void setInstaller(ToolInstaller installer) {
+        this.installer = installer;
+    }
 
 }
