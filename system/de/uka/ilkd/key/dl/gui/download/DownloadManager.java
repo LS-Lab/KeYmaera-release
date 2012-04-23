@@ -25,13 +25,14 @@ public final class DownloadManager {
 		if( destDir == null )
 			destDir = "";
 		
-		if( destDir.length() > 0 && destDir.charAt( destDir.length() - 1 ) != '/')
-			destDir += "/";
+		if( destDir.length() > 0 && destDir.charAt( destDir.length() - 1 ) != File.separatorChar)
+			destDir += File.separator;
 		
 		for( FileInfo file: filesToDownload ) {
 			try {
 				// Schauen, ob die Datei schon runtergeladen wurde
-				String destFileLocationString = destDir + File.separator + file.getDestFullFilename();
+				String destFileLocationString = destDir + file.getDestFullFilename();
+				System.out.println("Downloading to " + destFileLocationString);//XXX
 				File testFile = new File( destFileLocationString);
 				if( testFile.exists() ) {
 					

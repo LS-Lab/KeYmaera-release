@@ -93,13 +93,14 @@ public class PropertyConfigurationBeans implements PropertyChangeListener {
 	public void setPathPane(String labelName, String toolTipText,
 			Class<? extends PropertyEditor> propertyEditorClass,
 			Class<? extends IPropertyConverter> converterClass,
-			EConfigurationFiles configurationFiles, String key) {
+			EConfigurationFiles configurationFiles, String key, ToolInstaller installer) {
 
 		this.propsFileName = configurationFiles.getFileName();
 		this.propertyIdentifier = key;
 		this.propertyEditorClass = propertyEditorClass;
 		this.converterClass = converterClass;
 		this.propsName = labelName;
+		this.installer = installer;
 
 		readSettings(new Properties());
 

@@ -76,15 +76,15 @@ public class FileExistenceVerification {
                     message.setText(message.getText() + pcb.getPropsName()
                             + "  [ " + currentPropertyObject + "]\n");
                     ALLEXIST = false;
-                    ToolInstaller installer = pcb.getInstaller();
-                    if(!toolButtons.contains(installer.getToolName())) {
+                    final ToolInstaller installer = pcb.getInstaller();
+                    if(installer != null && !toolButtons.contains(installer.getToolName())) {
                         // check that for each tool there is only one button
                         JButton jButton = new JButton(installer.getToolName());
                         jButton.addActionListener(new ActionListener() {
                             
                             @Override
                             public void actionPerformed(ActionEvent e) {
-                                
+                                installer.install();
                             }
                         });
                         buttonPanel.add(jButton);

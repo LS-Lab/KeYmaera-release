@@ -7,12 +7,14 @@
  * 
  * Contributors:
  *     Zacharias Mokom - initial API and implementation
+ *     Jan-David Quesel - ToolPathes
  ******************************************************************************/
 package de.uka.ilkd.key.dl.gui.initialdialog.propertyconfigurations;
 
 import java.beans.PropertyEditor;
 
 import de.uka.ilkd.key.dl.gui.initialdialog.converters.*;
+import de.uka.ilkd.key.dl.gui.initialdialog.defaultsettings.EToolPath;
 import de.uka.ilkd.key.dl.gui.initialdialog.propertyeditors.CheckBoxEditor;
 import de.uka.ilkd.key.dl.options.DirectoryPropertyEditor;
 import de.uka.ilkd.key.dl.options.FilePropertyEditor;
@@ -42,13 +44,13 @@ public enum EPropertyConfigurations {
 			FileStringConverter.class),
 
 	OPTIONS_QEPCAD_PATH(EPropertyConstant.QEPCAD_OPTIONS_QEPCAD_PATH,
-			DirectoryPropertyEditor.class, FileStringConverter.class),
+			DirectoryPropertyEditor.class, FileStringConverter.class, EToolPath.QEPCAD),
 
 	OPTIONS_SACLIB_PATH(EPropertyConstant.QEPCAD_OPTIONS_SACLIB_PATH,
-			DirectoryPropertyEditor.class, FileStringConverter.class),
+			DirectoryPropertyEditor.class, FileStringConverter.class, EToolPath.QEPCAD),
 
 	OPTIONS_CSDP_BINARY(EPropertyConstant.DLOPTIONS_CSDP_PATH,
-			FilePropertyEditor.class, FileStringConverter.class),
+			FilePropertyEditor.class, FileStringConverter.class, EToolPath.CSDP),
 
 	OPTIONS_OCAML_PATH(EPropertyConstant.HOL_OPTIONS_OCAML_PATH,
 			FilePropertyEditor.class, FileStringConverter.class),
@@ -60,9 +62,9 @@ public enum EPropertyConfigurations {
 			DirectoryPropertyEditor.class, FileStringConverter.class),
 
 	OPTIONS_REDUCE_BINARY_PATH(EPropertyConstant.OPTIONS_REDUCE_BINARY,
-			FilePropertyEditor.class, FileStringConverter.class),
+			FilePropertyEditor.class, FileStringConverter.class, EToolPath.REDLOG),
 	OPTIONS_Z3_BINARY_PATH(EPropertyConstant.Z3_OPTIONS_Z3_BINARY,
-					FilePropertyEditor.class, FileStringConverter.class),
+					FilePropertyEditor.class, FileStringConverter.class, EToolPath.Z3),
 			
 	CHECKBOX_PROPERTY(EPropertyConstant.INITIAL_DIALOG_CHECKBOX, EConfigurationFiles.STARTUP_PROPERTY_FILE,CheckBoxEditor.class,
 			BooleanStringConverter.class);
@@ -75,6 +77,7 @@ public enum EPropertyConfigurations {
 	private EConfigurationFiles configFile;
 	private Class<? extends PropertyEditor> editorClass;
 	private Class<? extends IPropertyConverter> converterClass;
+	private EToolPath toolPath;
 
 	EPropertyConfigurations(EPropertyConstant propsConstant,
 			Class<? extends PropertyEditor> propertyEditorClass,
@@ -83,6 +86,15 @@ public enum EPropertyConfigurations {
 	    this(propsConstant,
 			EConfigurationFiles.KEY_PROPERTY_FILE, propertyEditorClass,
 			converterClass);
+	}
+	
+	EPropertyConfigurations(EPropertyConstant propsConstant,
+	        Class<? extends PropertyEditor> propertyEditorClass,
+	        Class<? extends IPropertyConverter> converterClass, EToolPath toolPath) {
+	    
+	    this(propsConstant,
+	            EConfigurationFiles.KEY_PROPERTY_FILE, propertyEditorClass,
+	            converterClass, toolPath);
 	}
 
 	/**
@@ -112,6 +124,34 @@ public enum EPropertyConfigurations {
 		this.converterClass = converterClass;
 	}
 
+	/**
+	 * 
+	 * @param propsConstant
+	 *            This enum type contains: <em>String</em> Property key, <em>String</em> property label, <em>String</em> property tooltip  <em>String</em> property group Name
+	 * @param propertyConfigFile
+	 *            EConfigurationFiles, Where to find and store property.
+	 * @param propertyEditorClass
+	 *            Class<? extends PropertyEditor>, Property editor class to be
+	 *            used.
+	 * @param converterClass
+	 *            Class<? extends IPropertyConverter>, Converter to be used.
+	 */
+	EPropertyConfigurations(EPropertyConstant propsConstant,
+	        EConfigurationFiles propertyConfigFile,
+	        Class<? extends PropertyEditor> propertyEditorClass,
+	        Class<? extends IPropertyConverter> converterClass, EToolPath toolPath) {
+	    this(propsConstant, propertyConfigFile, propertyEditorClass, converterClass);
+	    this.toolPath = toolPath;
+	}
+
+	
+	/**
+     * @return the toolPath
+     */
+    public EToolPath getToolPath() {
+        return toolPath;
+    }
+    
 	/**
 	 * @return the group
 	 */

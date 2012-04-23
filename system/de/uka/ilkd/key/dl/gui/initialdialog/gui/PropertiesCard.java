@@ -22,6 +22,7 @@ import javax.swing.SwingConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import de.uka.ilkd.key.dl.gui.initialdialog.defaultsettings.OSInfosDefault;
 import de.uka.ilkd.key.dl.gui.initialdialog.gui.options.FileExistenceVerification;
 import de.uka.ilkd.key.dl.gui.initialdialog.gui.options.MathematicaSuffixFinder;
 import de.uka.ilkd.key.dl.gui.initialdialog.propertyconfigurations.EPropertyConfigurations;
@@ -56,41 +57,55 @@ public class PropertiesCard implements ActionListener, ChangeListener {
      * This method sets the CardProperties by grouping each property in its corresponding group.
      * The properties used are those written in EPropertyConfigurations class.
      */
-    public void setCardProperties(){
-
-	
-	for (EPropertyConfigurations k : EPropertyConfigurations.values()) {
-	    if(k.getKey()== "[StartUpOptions]skipInitialDialog"){		
-		checkBoxEditor = new PropertyConfigurationBeans();
-		checkBoxEditor.setPathPane(k.getLabel(), k.getToolTip(), k.getEditorClass(), k
-			    .getConverterClass(), k.getConfigFile(), k.getKey());
-		continue;
-	    }
-	    final PropertyConfigurationBeans editor = new PropertyConfigurationBeans();
-	    editor.setPathPane(k.getLabel(), k.getToolTip(), k.getEditorClass(), k
-		    .getConverterClass(), k.getConfigFile(), k.getKey());
-	    List<PropertyConfigurationBeans> editorsInGroup = groupMap.get(k
-		    .getGroup());
-	    if (editorsInGroup == null) {
-	    	editorsInGroup = new LinkedList<PropertyConfigurationBeans>();
-	    	groupMap.put(k.getGroup(), editorsInGroup);	
-	   	 }
-	    editorsInGroup.add(editor);
-	}
-	int index = 0;
-	for (String groupIdentifier : groupMap.keySet()) {
-	    PropertyGroupCardBeans card = new PropertyGroupCardBeans();
-	    card.setPropertiesFields(groupMap.get(groupIdentifier), groupIdentifier, index++);
-	    card.addButtonListeners(this);
-	    groupCardMap.put(groupIdentifier, card);   
-	    propertiesCardPane.add(groupIdentifier,card.getCardPane());    
-	}
-	propertiesCardPane.addChangeListener(this);
-	currentCard = groupCardMap.get("Mathematica Properties");
-	if(!(currentCard == null))
-	    propertiesCardPane.setSelectedIndex(currentCard.getIndex());
-	MathematicaSuffixFinder m = new MathematicaSuffixFinder();
-	m.setMathematicaSuffixFinder(groupCardMap.get("Mathematica Properties"));
+    public void setCardProperties() {
+        for (EPropertyConfigurations k : EPropertyConfigurations.values()) {
+            if (k.getKey() == "[StartUpOptions]skipInitialDialog") {
+                checkBoxEditor = new PropertyConfigurationBeans();
+                checkBoxEditor.setPathPane(k.getLabel(), k.getToolTip(),
+                        k.getEditorClass(), k.getConverterClass(),
+                        k.getConfigFile(), k.getKey(), null);
+                continue;
+            }
+            final PropertyConfigurationBeans editor = new PropertyConfigurationBeans();
+            if (k.getToolPath() != null) {
+                editor.setPathPane(
+                        k.getLabel(),
+                        k.getToolTip(),
+                        k.getEditorClass(),
+                        k.getConverterClass(),
+                        k.getConfigFile(),
+                        k.getKey(),
+                        new ToolInstaller(k.getToolPath().name(), k
+                                .getToolPath().getUrl(
+                                        OSInfosDefault.INSTANCE.getOs())));
+            } else {
+                editor.setPathPane(k.getLabel(), k.getToolTip(),
+                        k.getEditorClass(), k.getConverterClass(),
+                        k.getConfigFile(), k.getKey(), null);
+            }
+            List<PropertyConfigurationBeans> editorsInGroup = groupMap.get(k
+                    .getGroup());
+            if (editorsInGroup == null) {
+                editorsInGroup = new LinkedList<PropertyConfigurationBeans>();
+                groupMap.put(k.getGroup(), editorsInGroup);
+            }
+            editorsInGroup.add(editor);
+        }
+        int index = 0;
+        for (String groupIdentifier : groupMap.keySet()) {
+            PropertyGroupCardBeans card = new PropertyGroupCardBeans();
+            card.setPropertiesFields(groupMap.get(groupIdentifier),
+                    groupIdentifier, index++);
+            card.addButtonListeners(this);
+            groupCardMap.put(groupIdentifier, card);
+            propertiesCardPane.add(groupIdentifier, card.getCardPane());
+        }
+        propertiesCardPane.addChangeListener(this);
+        currentCard = groupCardMap.get("Mathematica Properties");
+        if (!(currentCard == null))
+            propertiesCardPane.setSelectedIndex(currentCard.getIndex());
+        MathematicaSuffixFinder m = new MathematicaSuffixFinder();
+        m.setMathematicaSuffixFinder(groupCardMap.get("Mathematica Properties"));
     }
    
     @Override
