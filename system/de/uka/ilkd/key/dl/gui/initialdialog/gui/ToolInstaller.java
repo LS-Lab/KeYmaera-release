@@ -170,8 +170,9 @@ public class ToolInstaller {
         System.out.println("Unzipping " + tmp + " to " + dir);// XXX
         final int BUFFER = 2048;
         BufferedOutputStream dest = null;
-        FileInputStream fis = new FileInputStream(new File(tmp.getParentFile()
-                .getAbsolutePath() + tmp.getAbsolutePath()));
+        File file = new File(tmp.getParentFile()
+                .getAbsolutePath() + tmp.getAbsolutePath());
+        FileInputStream fis = new FileInputStream(file);
         ZipInputStream zis = new ZipInputStream(new BufferedInputStream(fis));
         ZipEntry entry;
         while ((entry = zis.getNextEntry()) != null) {
@@ -196,6 +197,7 @@ public class ToolInstaller {
             }
         }
         zis.close();
+        file.delete();
     }
 
     /**

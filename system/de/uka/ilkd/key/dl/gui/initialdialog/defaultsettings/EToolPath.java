@@ -23,17 +23,17 @@ public enum EToolPath {
     Z3(
             "http://csd.informatik.uni-oldenburg.de/keymaera/tools/z3-windows.zip",
             "http://csd.informatik.uni-oldenburg.de/keymaera/tools/z3-linux.zip",
-            "http://csd.informatik.uni-oldenburg.de/keymaera/tools/z3-mac.zip"),
+            "http://csd.informatik.uni-oldenburg.de/keymaera/tools/z3-osx.zip"),
 
     QEPCAD(
             "http://csd.informatik.uni-oldenburg.de/keymaera/tools/qepcad-windows.zip",
             "http://csd.informatik.uni-oldenburg.de/keymaera/tools/qepcad-linux.zip",
-            "http://csd.informatik.uni-oldenburg.de/keymaera/tools/qepcad-mac.zip"),
+            "http://csd.informatik.uni-oldenburg.de/keymaera/tools/qepcad-osx.zip"),
 
     CSDP(
             "http://csd.informatik.uni-oldenburg.de/keymaera/tools/csdp-windows.zip",
             "http://csd.informatik.uni-oldenburg.de/keymaera/tools/csdp-linux.zip",
-            "http://csd.informatik.uni-oldenburg.de/keymaera/tools/csdp-mac.zip"), ;
+            "http://csd.informatik.uni-oldenburg.de/keymaera/tools/csdp-osx.zip"), ;
 
     final private String windowsUrl;
 
