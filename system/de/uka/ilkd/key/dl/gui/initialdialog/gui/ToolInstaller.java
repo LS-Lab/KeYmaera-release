@@ -45,13 +45,17 @@ public class ToolInstaller {
 
     class ProgressBarWindow implements IDownloadListener {
         private JProgressBar bar;
+
         private JPanel panel;
+
         final private File file;
+
         final private JComponent parent;
+
         final private Window dialog;
 
         /**
-         * @param dialog 
+         * @param dialog
          * 
          */
         public ProgressBarWindow(JComponent parent, File file, Window dialog) {
@@ -77,10 +81,10 @@ public class ToolInstaller {
         @Override
         public void onConnect(FileInfo file) {
             SwingUtilities.invokeLater(new Runnable() {
-                
+
                 @Override
                 public void run() {
-                    JOptionPane.showMessageDialog(parent, panel);      
+                    JOptionPane.showMessageDialog(parent, panel);
                 }
             });
         }
@@ -122,14 +126,17 @@ public class ToolInstaller {
             // pbw.setVisible(false);
             // pbw.dispose();
             Window windowAncestor = SwingUtilities.getWindowAncestor(panel);
-            windowAncestor.setVisible(false);
-            windowAncestor.dispose();
-            dialog.setVisible(false);
-            dialog.dispose();
+            if (windowAncestor != null) {
+                windowAncestor.setVisible(false);
+                windowAncestor.dispose();
+            }
+            if (dialog != null) {
+                dialog.setVisible(false);
+                dialog.dispose();
+            }
             JOptionPane.showMessageDialog(parent,
                     "Successfully downloaded and unpacked " + toolName + " to "
-                            + file.getAbsoluteFile()
-                            + ".\n "
+                            + file.getAbsoluteFile() + ".\n "
                             + "Please configure the tool path.");
         }
 
@@ -164,7 +171,8 @@ public class ToolInstaller {
 
         final JFileChooser chooser = new JFileChooser();
         chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-        int result = chooser.showOpenDialog(null);
+        chooser.setDialogTitle("Choose directory for installation of " + toolName);
+        int result = chooser.showDialog(parent, "Install " + toolName + " here");
         if (result == JFileChooser.APPROVE_OPTION) {
             try {
                 final File tmp = File
@@ -172,7 +180,8 @@ public class ToolInstaller {
                 final FileInfo info = new FileInfo(url, tmp.getAbsolutePath(),
                         false);
                 final DownloadManager dlm = new DownloadManager();
-                ProgressBarWindow pbw = new ProgressBarWindow(parent, chooser.getSelectedFile(), dialog);
+                ProgressBarWindow pbw = new ProgressBarWindow(parent,
+                        chooser.getSelectedFile(), dialog);
                 dlm.addListener(pbw);
                 Runnable down = new Runnable() {
 
@@ -206,7 +215,6 @@ public class ToolInstaller {
      */
     private void unzip(File tmp, File dir) throws FileNotFoundException,
             IOException {
-        System.out.println("Unzipping " + tmp + " to " + dir);// XXX
         final int BUFFER = 2048;
         BufferedOutputStream dest = null;
         File file = new File(tmp.getParentFile().getAbsolutePath()
@@ -215,7 +223,6 @@ public class ToolInstaller {
         ZipInputStream zis = new ZipInputStream(new BufferedInputStream(fis));
         ZipEntry entry;
         while ((entry = zis.getNextEntry()) != null) {
-            System.out.println("Extracting: " + entry);
             int count;
             byte data[] = new byte[BUFFER];
             // write the files to the disk
