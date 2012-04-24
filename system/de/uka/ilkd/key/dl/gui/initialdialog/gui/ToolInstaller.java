@@ -10,6 +10,7 @@
  ******************************************************************************/
 package de.uka.ilkd.key.dl.gui.initialdialog.gui;
 
+import java.awt.FlowLayout;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -20,11 +21,18 @@ import java.io.IOException;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import javax.swing.JComponent;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 
 import de.uka.ilkd.key.dl.gui.download.DownloadManager;
 import de.uka.ilkd.key.dl.gui.download.FileInfo;
+import de.uka.ilkd.key.dl.gui.download.IDownloadListener;
 import de.uka.ilkd.key.gui.Main;
 
 /**
@@ -36,6 +44,71 @@ import de.uka.ilkd.key.gui.Main;
  */
 public class ToolInstaller {
 
+    class ProgressBarWindow extends JDialog implements IDownloadListener {
+        private JProgressBar bar;
+        
+        /**
+         * 
+         */
+        public ProgressBarWindow() {
+            bar = new JProgressBar();
+            this.setModal(false);
+
+            
+            JPanel panel = new JPanel();
+            panel.setLayout(new FlowLayout());
+            add(panel);
+            panel.add(new JLabel("Downloading: "));
+            panel.add(bar);
+        }
+
+        /* (non-Javadoc)
+         * @see de.uka.ilkd.key.dl.gui.download.IDownloadListener#onConnect(de.uka.ilkd.key.dl.gui.download.FileInfo)
+         */
+        @Override
+        public void onConnect(FileInfo file) {
+            // TODO Auto-generated method stub
+            
+        }
+
+        /* (non-Javadoc)
+         * @see de.uka.ilkd.key.dl.gui.download.IDownloadListener#onBeginDownload(de.uka.ilkd.key.dl.gui.download.FileInfo)
+         */
+        @Override
+        public void onBeginDownload(FileInfo file) {
+            bar.setValue( 0 );
+        }
+
+        /* (non-Javadoc)
+         * @see de.uka.ilkd.key.dl.gui.download.IDownloadListener#onDownload(de.uka.ilkd.key.dl.gui.download.FileInfo, int, int)
+         */
+        @Override
+        public void onDownload(FileInfo file, int bytesRecieved, int fileSize) {
+            final int perc = ( int ) ( ( float ) bytesRecieved / ( float ) fileSize * 100.0f );
+            bar.setValue( perc );
+        }
+
+        /* (non-Javadoc)
+         * @see de.uka.ilkd.key.dl.gui.download.IDownloadListener#onEndDownload(de.uka.ilkd.key.dl.gui.download.FileInfo)
+         */
+        @Override
+        public void onEndDownload(FileInfo file) {
+            // TODO Auto-generated method stub
+            
+        }
+
+        /* (non-Javadoc)
+         * @see de.uka.ilkd.key.dl.gui.download.IDownloadListener#onAbortDownload(de.uka.ilkd.key.dl.gui.download.FileInfo, java.lang.String)
+         */
+        @Override
+        public void onAbortDownload(FileInfo file, String message) {
+            // TODO Auto-generated method stub
+            
+        }
+        
+        
+    }
+    
     private String url;
 
     private String toolName;
@@ -48,7 +121,7 @@ public class ToolInstaller {
         this.url = url;
     }
 
-    public void install() {
+    public void install(JComponent parent) {
 
         JFileChooser chooser = new JFileChooser();
         chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
@@ -58,13 +131,27 @@ public class ToolInstaller {
                 File tmp = File.createTempFile("keymaeraDownload", ".zip");
                 FileInfo info = new FileInfo(url, tmp.getAbsolutePath(), false);
                 DownloadManager dlm = new DownloadManager();
+                System.out.println("1");
+                ProgressBarWindow pbw = new ProgressBarWindow();
+                pbw.setLocationRelativeTo(parent);
+                System.out.println("2");
+                dlm.addListener(pbw);
+                System.out.println("3");
+                pbw.pack();
+                System.out.println("4");
+                pbw.setVisible(true);
+                System.out.println("5");
                 dlm.downloadAll(new FileInfo[] { info }, 2000, tmp
                         .getParentFile().getAbsolutePath());
+                System.out.println("6");
                 unzip(tmp, chooser.getSelectedFile().getAbsoluteFile());
-                JOptionPane.showMessageDialog(null,
+                pbw.setVisible(false);
+                pbw.dispose();
+                JOptionPane.showMessageDialog(parent,
                         "Successfully downloaded and unpacked " + toolName
                                 + " to "
-                                + chooser.getSelectedFile().getAbsoluteFile());
+                                + chooser.getSelectedFile().getAbsoluteFile() + ".\n "
+                                + "Please click no and configure the tool path.");
             } catch (IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();

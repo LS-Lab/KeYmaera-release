@@ -49,7 +49,7 @@ public class FileExistenceVerification {
      * @return an int indicating the option selected by the user.
      */
     public static int verifyDirectories(List<PropertyConfigurationBeans> group,
-            JComponent parent) {
+            final JComponent parent) {
 
         JPanel messagePane = new JPanel();
         JPanel buttonPanel = new JPanel();
@@ -78,13 +78,14 @@ public class FileExistenceVerification {
                     ALLEXIST = false;
                     final ToolInstaller installer = pcb.getInstaller();
                     if(installer != null && !toolButtons.contains(installer.getToolName())) {
+                        toolButtons.add(installer.getToolName());
                         // check that for each tool there is only one button
                         JButton jButton = new JButton(installer.getToolName());
                         jButton.addActionListener(new ActionListener() {
                             
                             @Override
                             public void actionPerformed(ActionEvent e) {
-                                installer.install();
+                                installer.install(parent);
                             }
                         });
                         buttonPanel.add(jButton);
@@ -95,7 +96,8 @@ public class FileExistenceVerification {
         c.gridy = 1;
         messagePane.add(message, c);
         c.gridy = 2;
-        messagePane.add(buttonPanel);
+        buttonPanel.add(new JLabel("Download: "), 0);
+        messagePane.add(buttonPanel, c);
         c.gridy = 3;
         messagePane.add(new JLabel("<html><br>"
                 + "This may cause an error in KeYmaera <br>"

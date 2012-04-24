@@ -64,7 +64,7 @@ public class InitialDialogBeans implements ActionListener {
     	InitialDialogFrame.add(
     			new HeadingText(
     				"Select Solvers Properties and File Locations:",
-    				"KeYmaera stores the corresponding  paths and properties for the each solver")
+    				"KeYmaera stores the corresponding paths and properties for the each solver")
     				.getDescriptionText(),BorderLayout.NORTH);
     	
     	InitialDialogFrame.add(propsCards.getPropertiesCardPane(),BorderLayout.CENTER ); 
@@ -137,7 +137,7 @@ public class InitialDialogBeans implements ActionListener {
     private void doExit() {
 	final int option = JOptionPane.showConfirmDialog(
 	    InitialDialogFrame,
-	    "Settings will be ignored \nReally exit KeYmaera Tool Settings?",
+	    "Settings will be ignored.\nReally exit KeYmaera tool settings dialog?",
 	    "Warning", JOptionPane.YES_NO_OPTION);
 	if (option == JOptionPane.YES_OPTION) {
 	InitialDialogFrame.dispose();
