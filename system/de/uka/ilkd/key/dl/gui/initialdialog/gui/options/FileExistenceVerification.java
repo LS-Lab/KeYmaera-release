@@ -4,6 +4,7 @@
 package de.uka.ilkd.key.dl.gui.initialdialog.gui.options;
 
 import java.awt.GridBagConstraints;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -18,6 +19,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextPane;
+import javax.swing.SwingUtilities;
 
 import de.uka.ilkd.key.dl.gui.initialdialog.gui.PropertyConfigurationBeans;
 import de.uka.ilkd.key.dl.gui.initialdialog.gui.ToolInstaller;
@@ -51,7 +53,7 @@ public class FileExistenceVerification {
     public static int verifyDirectories(List<PropertyConfigurationBeans> group,
             final JComponent parent) {
 
-        JPanel messagePane = new JPanel();
+        final JPanel messagePane = new JPanel();
         JPanel buttonPanel = new JPanel();
         JTextPane message = new JTextPane();
         messagePane.setLayout(new java.awt.GridBagLayout());
@@ -85,7 +87,8 @@ public class FileExistenceVerification {
                             
                             @Override
                             public void actionPerformed(ActionEvent e) {
-                                installer.install(parent);
+                                Window w = SwingUtilities.getWindowAncestor(messagePane);
+                                installer.install(parent, w);
                             }
                         });
                         buttonPanel.add(jButton);
