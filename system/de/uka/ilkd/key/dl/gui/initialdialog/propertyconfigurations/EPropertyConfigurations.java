@@ -44,10 +44,10 @@ public enum EPropertyConfigurations {
 			FileStringConverter.class),
 
 	OPTIONS_QEPCAD_PATH(EPropertyConstant.QEPCAD_OPTIONS_QEPCAD_PATH,
-			DirectoryPropertyEditor.class, FileStringConverter.class, EToolPath.QEPCAD),
+			DirectoryPropertyEditor.class, FileStringConverter.class),
 
 	OPTIONS_SACLIB_PATH(EPropertyConstant.QEPCAD_OPTIONS_SACLIB_PATH,
-			DirectoryPropertyEditor.class, FileStringConverter.class, EToolPath.QEPCAD),
+			DirectoryPropertyEditor.class, FileStringConverter.class),
 
 	OPTIONS_CSDP_BINARY(EPropertyConstant.DLOPTIONS_CSDP_PATH,
 			FilePropertyEditor.class, FileStringConverter.class, EToolPath.CSDP),
