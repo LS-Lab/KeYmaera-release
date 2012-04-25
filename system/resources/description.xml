@@ -183,6 +183,7 @@ Proves Proposition 7.1
 				<requirements>
 					<some>
 						<quantifiereliminator>Mathematica</quantifiereliminator>
+        				<quantifiereliminator>Reduce</quantifiereliminator>
 					</some>
 				</requirements>
 			</example>
@@ -559,6 +560,7 @@ See the paper for significantly more complicated car control verification, up to
         		<requirements>
         			<some>
         				<quantifiereliminator>Mathematica</quantifiereliminator>
+        				<quantifiereliminator>Reduce</quantifiereliminator>
         			</some>
         		</requirements>
         	</example>
@@ -572,6 +574,7 @@ See the paper for significantly more complicated car control verification, up to
         		<requirements>
         			<some>
         				<quantifiereliminator>Mathematica</quantifiereliminator>
+        				<quantifiereliminator>Reduce</quantifiereliminator>
         			</some>
         		</requirements>
         	</example>
@@ -733,6 +736,7 @@ Proves equation (4.4)</description>
 			<requirements>
 				<some>
 					<quantifiereliminator>Mathematica</quantifiereliminator>
+					<quantifiereliminator>Reduce</quantifiereliminator>
 				</some>
 			</requirements>
 		</example>
@@ -823,6 +827,7 @@ Contributed by Aaron Kane</description>
                     		<requirements>
                     			<some>
                     				<quantifiereliminator>Mathematica</quantifiereliminator>
+									<quantifiereliminator>Reduce</quantifiereliminator>
                     			</some>
                     		</requirements>
                     	</example>
