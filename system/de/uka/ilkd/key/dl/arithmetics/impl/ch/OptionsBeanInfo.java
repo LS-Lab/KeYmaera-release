@@ -54,7 +54,7 @@ public class OptionsBeanInfo extends SimpleBeanInfo {
 			PropertyDescriptor[] pds = new PropertyDescriptor[] {
 					createDescriptor(
 							"eliminatorMode",EPropertyConstant.COHENHORMANDER_OPTIONS_MODE,
-							true, false, CHModePropertyEditor.class)
+							false, false, CHModePropertyEditor.class)
 					
 			};
 			return pds;
