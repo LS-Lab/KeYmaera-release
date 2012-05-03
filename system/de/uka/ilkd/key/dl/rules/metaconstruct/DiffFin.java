@@ -28,6 +28,7 @@ import java.util.List;
 import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.FailedComputationException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.UnsolveableException;
+import de.uka.ilkd.key.dl.formulatools.DerivativeCreator;
 import de.uka.ilkd.key.dl.formulatools.ReplaceVisitor;
 import de.uka.ilkd.key.dl.logic.ldt.RealLDT;
 import de.uka.ilkd.key.dl.model.DiffSystem;
@@ -37,6 +38,7 @@ import de.uka.ilkd.key.dl.model.TermFactory;
 import de.uka.ilkd.key.dl.model.Variable;
 import de.uka.ilkd.key.dl.model.VariableDeclaration;
 import de.uka.ilkd.key.dl.model.impl.TermFactoryImpl;
+import de.uka.ilkd.key.dl.options.DLOptionBean;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.java.StatementBlock;
 import de.uka.ilkd.key.logic.Name;
@@ -128,23 +130,29 @@ public class DiffFin extends AbstractDLMetaOperator {
 				RemoveQuantifiersResult r = new RemoveQuantifiersResult(system);
 				r = removeQuantifiers(nss, r);
 				System.out.println(r.sys);// XXX
-				Term diffFin2 = MathSolverManager.getCurrentODESolver()
-						.diffFin(r.sys, post, ep, services);
+				Term diffFin;
+				if(DLOptionBean.INSTANCE.isUseODEIndFinMethods()) {
+				    diffFin = MathSolverManager.getCurrentODESolver()
+				            .diffFin(r.sys, post, ep, services);
+				} else {
+				    diffFin = DerivativeCreator.diffFin(r.getSys(), post, ep, services);
+	                diffFin = TermBuilder.DF.imp(r.getSys().getInvariant(services), diffFin);
+				}
 				// reintroduce the quantifiers
 				Collections.reverse(r.quantifiedVariables);
 				for (LogicVariable var : r.quantifiedVariables) {
-					diffFin2 = TermBuilder.DF.all(var, diffFin2);
+					diffFin = TermBuilder.DF.all(var, diffFin);
 				}
-				return diffFin2;
+				return diffFin;
 			} else {
 				throw new IllegalStateException("Unknown modality " + arg.op());
 			}
-		} catch (UnsolveableException e) {
-			throw new IllegalStateException(
-					"DiffFin cannot handle these equations", e);
-		} catch (FailedComputationException e) {
-			throw new IllegalStateException(
-					"DiffFin did not handle these equations", e);
+//		} catch (UnsolveableException e) {
+//			throw new IllegalStateException(
+//					"DiffFin cannot handle these equations", e);
+//		} catch (FailedComputationException e) {
+//			throw new IllegalStateException(
+//					"DiffFin did not handle these equations", e);
 		} catch (RuntimeException e) {
 			throw (RuntimeException) e;
 		} catch (Exception e) {
