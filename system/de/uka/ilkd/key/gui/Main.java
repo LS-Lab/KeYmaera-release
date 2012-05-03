@@ -48,7 +48,6 @@ import de.uka.ilkd.key.collection.ImmutableList;
 import de.uka.ilkd.key.dl.DLInitializer;
 import de.uka.ilkd.key.dl.DLProfile;
 import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
-import de.uka.ilkd.key.dl.formulatools.RandomFormulaCreator;
 import de.uka.ilkd.key.dl.gui.ProjectManager;
 import de.uka.ilkd.key.dl.gui.TimeStatisticGenerator;
 import de.uka.ilkd.key.dl.gui.initialdialog.gui.InitialDialogBeans;
@@ -614,25 +613,6 @@ public class Main extends JFrame implements IMain {
         }
 
         toolBar.addSeparator();
-        
-        Button button = new Button("Test");
-		toolBar.add(button);
-		button.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				new Thread(new Runnable() {
-
-					@Override
-					public void run() {
-						MathSolverManager.abortCurrentCalculations();
-						RandomFormulaCreator.testDiffInd();		
-					}
-				
-				}).start();
-			}
-			
-		});
         
         JToolBar fileOperations = new JToolBar("File Operations");
         fileOperations.setRollover(true);
