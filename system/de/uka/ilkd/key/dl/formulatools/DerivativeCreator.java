@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import de.uka.ilkd.key.collection.ImmutableArray;
+import de.uka.ilkd.key.dl.arithmetics.impl.orbital.PolynomTool;
+import de.uka.ilkd.key.dl.arithmetics.impl.orbital.PolynomTool.BigFraction;
 import de.uka.ilkd.key.dl.logic.ldt.RealLDT;
 import de.uka.ilkd.key.dl.model.DLNonTerminalProgramElement;
 import de.uka.ilkd.key.dl.model.DLProgramElement;
@@ -21,16 +23,12 @@ import de.uka.ilkd.key.dl.model.Minus;
 import de.uka.ilkd.key.dl.model.MinusSign;
 import de.uka.ilkd.key.dl.model.Mult;
 import de.uka.ilkd.key.dl.model.Plus;
-import de.uka.ilkd.key.dl.model.Minus;
 import de.uka.ilkd.key.dl.model.PredicateTerm;
 import de.uka.ilkd.key.dl.model.Unequals;
 import de.uka.ilkd.key.dl.parser.NumberCache;
-import de.uka.ilkd.key.dl.arithmetics.impl.orbital.PolynomTool;
-import de.uka.ilkd.key.dl.arithmetics.impl.orbital.PolynomTool.BigFraction;
 import de.uka.ilkd.key.java.ProgramElement;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.logic.NamespaceSet;
-import de.uka.ilkd.key.logic.Name;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.TermBuilder;
 import de.uka.ilkd.key.logic.TermFactory;
@@ -107,11 +105,14 @@ public class DerivativeCreator {
 							+ " that is occurring in a diff system");
 				}
 			} else {
-				// @todo could "a>=b+5" be an equation in the diff-free
-				// evolution domain constraint? Or will this not end up here?
-				throw new IllegalArgumentException(
-						"Don't know how to handle predicate "
-								+ pred.getChildAt(0));
+			    if(containsDots(pred)) {
+                    // could "a'>=b+5" be an equation in the diff-free
+                    throw new IllegalArgumentException(
+                            "Don't know how to handle predicate "
+                                    + pred.getChildAt(0));
+			    } else {
+			      // ignore evolution domain constraint  
+			    }
 			}
 		}
 		if (form instanceof DLNonTerminalProgramElement) {
@@ -122,7 +123,26 @@ public class DerivativeCreator {
 		}
 	}
 
-	public static Term createDerivative(Term term, Map<String, Term> variables,
+	/**
+     * @param pred
+     * @return
+     */
+    private static boolean containsDots(DLProgramElement pred) {
+        if (pred instanceof DLNonTerminalProgramElement) {
+            DLNonTerminalProgramElement dlnpe = (DLNonTerminalProgramElement) pred;
+            for (ProgramElement p : dlnpe) {
+                if(p instanceof Dot) {
+                    return true;
+                }
+            }
+            return false;
+        } else if(pred instanceof Dot) {
+            return true;
+        }
+        return false;
+    }
+
+    public static Term createDerivative(Term term, Map<String, Term> variables,
 			NamespaceSet nss, Term epsilon) {
 		if (term.op() == Op.ALL || term.op() == Op.EX) {
 			throw new UnsupportedOperationException(

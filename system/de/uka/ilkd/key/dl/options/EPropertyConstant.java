@@ -184,6 +184,7 @@ public enum EPropertyConstant {
 	    
 	    INITIAL_DIALOG_CHECKBOX("[StartUpOptions]skipInitialDialog", null,"Check to skip this dialog in the future.", "CheckBox"), 
 	    DLOPTIONS_RESET_STRATEGY_AFTER_EVERY_RUN("[DLOptions]resetStrategyAfterEveryRun", "Reset Strategy", "Check this option to reset the strategy knowledge about applicable rules after every execution of the strategy.", "DL Properties"), 
+	    DLOPTIONS_USE_ODE_IND_FIN_METHODS("[DLOptions]useODEIndFinMethods", "Use Ind/Fin Methods of ODESolver", "Check this option to use the DiffInd/DiffFin methods implemented in the ODE Solver instead of directly in KeYmaera.", "DL Properties"), 
 	    Z3_OPTIONS_Z3_BINARY("[Z3Options]z3Binary", "Z3 Binary", "The path to the z3 binary.", "Z3 Properties"),
 	    Z3_OPTIONS_PRENEX_FORM("[Z3Options]z3Prenex", "Use Prenex Form", "Convert the formula into prenex form before passing it to Z3.", "Z3 Properties"),
 	    Z3_OPTIONS_ELIMINATE_EXISTENTIAL_PREFIX("[Z3Options]z3ElimExPrefix", "Eliminate Existential Prefix", "Turn leading existential quantifiers into variable declarations.", "Z3 Properties"),
