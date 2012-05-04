@@ -9,6 +9,8 @@
  *     Jan-David Quesel - initial API and implementation
  ******************************************************************************/
 package de.uka.ilkd.key.dl.options;
+
+
 /**
 
  * SubCategories used for grouping the different options
@@ -206,14 +208,14 @@ public enum EPropertyConstant {
 	    private String key;
 	    private String label;
 	    private String toolTip;
-	    
-	    EPropertyConstant(String key, String label, String toolTip, String groupName) {
-		this.label = label;
-		this.key = key;
-		this.toolTip = toolTip;
-		this.groupName = groupName;
-	    }
 
+	    EPropertyConstant(String key, String label, String toolTip, String groupName) {
+	        this.label = label;
+	        this.key = key;
+	        this.toolTip = toolTip;
+	        this.groupName = groupName;
+	    }
+	    
 	    public String getLabel() {
 		return label;
 	    }

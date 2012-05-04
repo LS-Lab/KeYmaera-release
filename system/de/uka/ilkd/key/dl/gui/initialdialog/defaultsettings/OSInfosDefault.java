@@ -24,7 +24,7 @@ public class OSInfosDefault {
 
     public static final OSInfosDefault INSTANCE = new OSInfosDefault();
 
-    private String OsName;
+    private OperatingSystem os;
     private Properties props;
     private Class<? extends IOsDefaultProperties> defaultPropertiesClass;
     private IOsDefaultProperties defaultProperties;
@@ -39,13 +39,13 @@ public class OSInfosDefault {
         str = System.getProperty("os.name");
         str = str.toLowerCase(Locale.ENGLISH);
         if (str.contains("linux")) {
-            OsName = "linux";
+            os = OperatingSystem.LINUX;
             defaultPropertiesClass = LinuxOsDefaultProperties.class;
         } else if (str.contains("windows")) {
-            OsName = "windows";
+            os = OperatingSystem.WINDOWS;
             defaultPropertiesClass = WindowsOsDefaultProperties.class;
         } else if (str.contains("mac")) {
-            OsName = "mac";
+            os = OperatingSystem.OSX;
             defaultPropertiesClass = MacOsDefaultProperties.class;
         }
 
@@ -55,9 +55,9 @@ public class OSInfosDefault {
      * @return the Operating systems name as a string. i.e "linux", or "windows"
      *         or "mac"
      */
-    public String getOsName() {
-        System.out.println("You are working on : " + OsName  + " Operating System."); // XXX
-        return OsName;
+    public OperatingSystem getOs() {
+        System.out.println("You are working on : " + os + " Operating System."); // XXX
+        return os;
     }
     public void setDefaultProperty(Properties props){
 	
