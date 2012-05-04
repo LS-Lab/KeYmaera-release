@@ -4,7 +4,10 @@
 		<example>
             <name>1: Safety of continuous system</name>
             				<path>/examples/hybrid/tutorial/tutorial1-continuous.key</path>
-            				<proofpath>/examples/hybrid/tutorial/tutorial1-continuous.key.proof</proofpath>
+							<proofs>
+								<proof name="CohenHormander" href="/examples/hybrid/tutorial/tutorial1-continuous.key.proof"/>
+								<proof name="SMT" href="/examples/hybrid/tutorial/tutorial1-continuous-smt.key.proof"/>
+							</proofs>
             <description>KeYmaera Tutorial Example 1: Modeling a safety property of a continuous system. This is a simple system in which a car starts at some velocity v and accelerates at constant rate A along a straight lane.  The requirement we want to prove is that the car may never travel backward, i.e. for all time, in all scenarios v is greater than or equal to zero. 
  </description>
             <source href="http://symbolaris.com/info/KeYmaera-tutorial.html"/>
@@ -16,7 +19,9 @@
 		<example>
             <name>2: Safety of a hybrid system</name>
             				<path>/examples/hybrid/tutorial/tutorial2-hybrid.key</path>
-            				<proofpath>/examples/hybrid/tutorial/tutorial2-hybrid.key.proof</proofpath>
+							<proofs>
+								<proof name="CohenHormander" href="/examples/hybrid/tutorial/tutorial2-hybrid.key.proof"/>
+							</proofs>
             <description>KeYmaera Tutorial Example 2: Modeling a safety property of a hybrid system. In this example, we introduce a discrete controller into the model of the continuous system in Example 1. The controller has only three options: it may cause the car to accelerate with rate A, brake with rate -B, or maintain velocity.  
 </description>
             <source href="http://symbolaris.com/info/KeYmaera-tutorial.html"/>
@@ -28,7 +33,9 @@
 		<example>
             <name>3a: Event-triggerd stop sign controller</name>
             				<path>/examples/hybrid/tutorial/tutorial3-event.key</path>
-            				<proofpath>/examples/hybrid/tutorial/tutorial3-event.key.proof</proofpath>
+							<proofs>
+								<proof name="CohenHormander" href="/examples/hybrid/tutorial/tutorial3-event.key.proof"/>
+							</proofs>
             <description>KeYmaera Tutorial Example 3a: While the car is driving down the lane,  the controller must choose when to begin decelerating so that it stops at or before a stop sign.  We add an additional constraint to the evolution domain to model an event triggered system.  In this case, the event-trigger is when the distance between the car and the stop sign equals the stopping distance of the car. 
 </description>
             <source href="http://symbolaris.com/info/KeYmaera-tutorial.html"/>
@@ -108,7 +115,9 @@
 			<example>
 				<name>ETCS Train Control [simple]</name>
 				<path>/examples/hybrid/ETCS/safety/ETCS-simple.key</path>
-				<proofpath quantifiereliminator="Mathematica">/examples/hybrid/ETCS/safety/ETCS-simple.key.proof</proofpath>
+				<proofs>
+					<proof name="Mathematica" href="/examples/hybrid/ETCS/safety/ETCS-simple.key.proof"/>
+				</proofs>
 				<description>Essentials of the ETCS train control protocol. This example proves that a train never leaves its movement authority (MA=m) and, thus, cannot crash into other trains. Please note, that this is the simplest possible version of the safety requirement for the ETCS. The verification of the ETCS system itself requires a much more advanced model.
 Proves equation (2.19)</description>
 				<img 
@@ -125,7 +134,9 @@ Proves equation (2.19)</description>
 			<example>
 				<name>ETCS Train Control [simple nondet]</name>
 				<path>/examples/hybrid/ETCS/safety/ETCS-essentials.key</path>
-				<proofpath quantifiereliminator="Mathematica">/examples/hybrid/ETCS/safety/ETCS-essentials.key.proof</proofpath>
+				<proofs>
+					<proof name="Mathematica" href="/examples/hybrid/ETCS/safety/ETCS-essentials.key.proof"/>
+				</proofs>
 				<description>Essentials of the ETCS train control protocol. This example proves that a train never leaves its movement authority (MA=m) and, thus, cannot crash into other trains. Please note, that this is the simplest possible version of the safety requirement for the ETCS. The verification of the ETCS system itself requires a much more advanced model.</description>
 				<img 
 					href="http://symbolaris.com/info/ETCS-MAProtocol-c.gif"/>
@@ -141,7 +152,9 @@ Proves equation (2.19)</description>
           			<example>
           				<name>ETCS Train Control [tutorial]</name>
           				<path>/examples/hybrid/ETCS/safety/ETCS-simple-tutorial.key</path>
-          				<proofpath quantifiereliminator="Mathematica">/examples/hybrid/ETCS/safety/ETCS-simple-tutorial.key.proof</proofpath>
+						<proofs>
+							<proof name="Mathematica" href="/examples/hybrid/ETCS/safety/ETCS-simple-tutorial.key.proof"/>
+						</proofs>
           				<description>Essentials of the ETCS train control protocol. This example proves that a train never leaves its movement authority (MA=m) and, thus, cannot crash into other trains. Please note, that this is the simplest possible version of the safety requirement for the ETCS. The verification of the ETCS system itself requires a much more advanced model.</description>
           				<img 
           					href="http://symbolaris.com/info/ETCS-MAProtocol-c.gif"/>
@@ -157,7 +170,9 @@ Proves equation (2.19)</description>
                     			<example>
                     				<name>ETCS Train Control [temporal]</name>
                     				<path>/examples/hybrid/ETCS/safety/ETCS-essentials-tout.key</path>
-                    				<proofpath quantifiereliminator="Mathematica">/examples/hybrid/ETCS/safety/ETCS-essentials-tout.key.proof</proofpath>
+									<proofs>
+										<proof name="Mathematica" href="/examples/hybrid/ETCS/safety/ETCS-essentials-tout.key.proof"/>
+									</proofs>
                     				<description>Essentials of the ETCS train control protocol with temporal throughout modality [][]. This example proves that a train never leaves its movement authority (MA=m) and, thus, cannot crash into other trains. Please note, that this is the simplest possible version of the safety requirement for the ETCS. The verification of the ETCS system itself requires a much more advanced model.
 Proves dTL variant of equation (2.19) with [][] instead of []</description>
                     				<img 
@@ -190,7 +205,10 @@ Proves Proposition 7.1
 			<example>
 				<name>ETCS Train Control [safety]</name>
 				<path>/examples/hybrid/ETCS/paper/safety-lemma.key</path>
-                <proofpath>/examples/hybrid/ETCS/paper/safety-lemma.key.proof</proofpath>
+				<proofs>
+					<proof name="Mathematica" href="/examples/hybrid/ETCS/paper/safety-lemma.key.proof"/>
+					<proof name="Redlog" href="/examples/hybrid/ETCS/paper/safety-lemma-redlog.key.proof"/>
+				</proofs>
 				<description>Proves safety of the ETCS train control protocol case study. This example proves that a train never leaves its movement authority (MA=m) and, thus, cannot crash into other trains.
 Proves Proposition 7.5
 			</description>
@@ -200,6 +218,7 @@ Proves Proposition 7.5
 				<requirements>
 					<some>
 						<quantifiereliminator>Mathematica</quantifiereliminator>
+						<quantifiereliminator>Redlog</quantifiereliminator>
 					</some>
 				</requirements>
 			</example>
@@ -222,7 +241,9 @@ Bug 2: The constraint for acceleration is too lax and should be m-z>SB. The bugs
             <example>
             	<name>ETCS Train Control [simple liveness]</name>
             	<path>/examples/hybrid/ETCS/liveness/ETCS-essentials-live2.key</path>
-            	<proofpath>/examples/hybrid/ETCS/liveness/ETCS-essentials-live2.key.proof</proofpath>
+				<proofs>
+					<proof name="Mathematica" href="/examples/hybrid/ETCS/liveness/ETCS-essentials-live2.key.proof"/>
+				</proofs>
             	<description>Proves liveness of the essentials of the ETCS train control protocol. This example proves that a train can finally reach any desired position on the track. Please note, that this is the simplest possible system for the liveness requirement for the ETCS.
 Proves equation (2.20) from book (see book for hints how to prove or Load Proof)
             </description>
@@ -238,7 +259,9 @@ Proves equation (2.20) from book (see book for hints how to prove or Load Proof)
 			<example>
 				<name>ETCS Train Control [liveness simplified]</name>
 				<path>/examples/hybrid/ETCS/liveness/ETCS-essentials-live-range2.key</path>
-                <proofpath>/examples/hybrid/ETCS/liveness/ETCS-essentials-live-range2.key.proof</proofpath>
+				<proofs>
+					<proof name="Mathematica" href="/examples/hybrid/ETCS/liveness/ETCS-essentials-live-range2.key.proof"/>
+				</proofs>
 				<description>Proves safety of a slightly simplified ETCS train control protocol case study. This example proves that the train can move beyond every position on the track by just a single choice of movement authority.
 Proves Proposition 7.6 (see book for hints how to prove or Load Proof)
 			</description>
@@ -254,7 +277,9 @@ Proves Proposition 7.6 (see book for hints how to prove or Load Proof)
 			<example>
 				<name>ETCS Train Control [liveness]</name>
 				<path>/examples/hybrid/ETCS/paper/liveness-lemma.key</path>
-				<proofpath>/examples/hybrid/ETCS/paper/liveness-lemma.key.proof</proofpath>
+				<proofs>
+					<proof name="Mathematica" href="/examples/hybrid/ETCS/paper/liveness-lemma.key.proof"/>
+				</proofs>
 				<description>Proves safety of the ETCS train control protocol case study. This example proves that the train can move beyond every position on the track.
 Proves Proposition 7.6 (see book for hints how to prove or Load Proof)
 			</description>
@@ -285,7 +310,9 @@ Proves Proposition 7.4 (see book for how to prove)
 			<example>
 				<name>ETCS Train Disturbance [controllability]</name>
 				<path>/examples/hybrid/ETCS/paper/controllability-lemma-disturbed.key</path>
-                <proofpath>/examples/hybrid/ETCS/paper/controllability-lemma-disturbed.key.proof</proofpath>
+				<proofs>
+					<proof name="Mathematica" href="/examples/hybrid/ETCS/paper/controllability-lemma-disturbed.key.proof"/>
+				</proofs>
 				<description>Proves safety of the ETCS train control protocol case study despite disturbance in the physical dynamics. This example proves that the train is always controllable safely by some control choice, despite disturbance.
 Proves Proposition 7.7.
 Depending on your settings, use Update Simplification and Eliminate Universal Quantifiers.
@@ -302,7 +329,9 @@ Depending on your settings, use Update Simplification and Eliminate Universal Qu
 			<example>
 				<name>ETCS Train Disturbance [reactivity]</name>
 				<path>/examples/hybrid/ETCS/paper/reactivity-lemma-disturbed-simplified.key</path>
-				<proofpath>/examples/hybrid/ETCS/paper/proofs/proposition10.key.proof</proofpath>
+				<proofs>
+					<proof name="Mathematica" href="/examples/hybrid/ETCS/paper/proofs/proposition10.key.proof"/>
+				</proofs>
 				<description>Proves safety of the ETCS train control protocol case study despite disturbance in the physical dynamics. This example proves that the train can react to situation changes.
 Proves Proposition 7.8 (see book for hints how to prove or Load Proof)
 			</description>
@@ -318,7 +347,9 @@ Proves Proposition 7.8 (see book for hints how to prove or Load Proof)
 			<example>
 				<name>ETCS Train Disturbance [safety]</name>
 				<path>/examples/hybrid/ETCS/paper/safety-lemma-disturbed.key</path>
-				<proofpath>/examples/hybrid/ETCS/paper/safety-lemma-disturbed.key.proof</proofpath>
+				<proofs>
+					<proof name="Mathematica" href="/examples/hybrid/ETCS/paper/safety-lemma-disturbed.key.proof"/>
+				</proofs>
 				<description>Proves safety of the ETCS train control protocol case study despite disturbance in the physical dynamics. This example proves that a train never leaves its movement authority (MA=m) and, thus, cannot crash into other trains.
 Proves Proposition 7.9 (see book for how to prove)
 			</description>
@@ -581,7 +612,9 @@ See the paper for significantly more complicated car control verification, up to
                 <example>
                 <name>Car Control Intersection [stoplight]</name>
                         <path>/examples/hybrid/car/intersection/intersection-example-simple.key</path>
-                        <proofpath>/examples/hybrid/car/intersection/intersection-example-simple.key.proof</proofpath>
+						<proofs>
+							<proof name="Mathematica" href="/examples/hybrid/car/intersection/intersection-example-simple.key.proof"/>
+						</proofs>
                         <description>A very simple intersection of two lanes, with one car moving on each lane.  The safety property applies only to the traffic light controller - verifying that it is always red on at least one of the two lanes.  The cars accelerate only if the traffic light is green, or they have already gone through the intersection.
 See the paper on safe intersections for a verification of the safety of the cars, as well as the traffic light.
 Proof hints: Be sure to set the Max Rule Application under Proof Search Strategy to maximum.</description>
@@ -596,7 +629,9 @@ Proof hints: Be sure to set the Max Rule Application under Proof Search Strategy
                 <example>
                 <name>Car Control Intersection [one lane]</name>
                         <path>/examples/hybrid/car/intersection/intersection-example-onelane.key</path>
-                        <proofpath>/examples/hybrid/car/intersection/intersection-example-onelane.key.proof</proofpath>
+						<proofs>
+							<proof name="Mathematica" href="/examples/hybrid/car/intersection/intersection-example-onelane.key.proof"/>
+						</proofs>
                         <description>A very simple intersection of two lanes, with one car moving on one lane.  The car accelerates only if the traffic light is green, or it has already gone through the intersection.
 See the paper on safe intersections.
 Proof requires user interactions.</description>
@@ -612,7 +647,9 @@ Proof requires user interactions.</description>
 					<example>
 						<name>Variable speed limit (vsl)</name>
 						<path>/examples/hybrid/car/vsl/vsl.key</path>
-						<proofpath>/examples/hybrid/car/vsl/vsl.key.proof</proofpath>
+						<proofs>
+							<proof name="Mathematica" href="/examples/hybrid/car/vsl/vsl.key.proof"/>
+						</proofs>
 						<description>Proves safety of variable speed limits issued by traffic centers. This example proves that the variable speed limit car controller always complies with a speed limit that the traffic center issued for a certain position on a road.
 					</description>
 						<source href="http://symbolaris.com/info/DCCS.html"/>
@@ -626,7 +663,9 @@ Proof requires user interactions.</description>
 					<example>
 						<name>Variable speed limit [moving incidents]</name>
 						<path>/examples/hybrid/car/vsl/vsli.key</path>
-						<proofpath>/examples/hybrid/car/vsl/vsli.key.proof</proofpath>
+						<proofs>
+							<proof name="Mathematica" href="/examples/hybrid/car/vsl/vsli.key.proof"/>
+						</proofs>
 						<description>Proves safety of variable speed limits issued by traffic centers. This example proves that the (advanced) variable speed limit controller car always complies with a speed limit that the traffic center issues for a certain position on a road. An incident on the road defines an area that must contain a speed limit. This incident may possibly move towards cars. Outside the area defined by the incident, the traffic center may issue additional speed limits at will.
 						</description>
 						<source href="http://symbolaris.com/info/DCCS.html"/>
@@ -640,7 +679,9 @@ Proof requires user interactions.</description>
 					<example>
 						<name>Variable speed limit [incident alert track]</name>
 						<path>/examples/hybrid/car/vsl/vsli-alert.key</path>
-						<proofpath>/examples/hybrid/car/vsl/vsli-alert.key.proof</proofpath>
+						<proofs>
+							<proof name="Mathematica" href="/examples/hybrid/car/vsl/vsli-alert.key.proof"/>
+						</proofs>
 						<description>Proves safety of variable speed limits issued by traffic centers. This example proves that the variable speed limit car controller always complies with a speed limit that the traffic center issues for a certain position on a road. An incident on the road defines an area that must contain a speed limit. This incident may move towards cars. Outside the area defined by the incident, the traffic center may issue speed limits at will. Additionally, the traffic center ensures to only issue speed limits once per car within the area defined by the incident to avoid Zeno-style updating.
 					</description>
 						<source href="http://symbolaris.com/info/DCCS.html"/>
@@ -785,7 +826,9 @@ Proves Example 3.21</description>
 				<example>
         				<name>Switched Damped Oscillator</name>
         				<path>/examples/hybrid/switchstab-param.key</path>
-                        <proofpath>/examples/hybrid/switchstab-param.key.proof</proofpath>
+						<proofs>
+							<proof name="Mathematica" href="/examples/hybrid/switchstab-param.key.proof"/>
+						</proofs>
 <description>Switched damped oscillator switching between two modes of damped oscillators at some diagonals. Identifies the assumptions on the switching surface taht are required for safety.
 Proof hints: The automatic proof pauses at some point. Then use diffweaken and resume automatic proof. Or use Load Proof.
 Proves Figure 3.19</description>
