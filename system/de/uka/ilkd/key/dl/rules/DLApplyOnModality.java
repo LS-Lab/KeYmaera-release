@@ -64,6 +64,7 @@ import de.uka.ilkd.key.java.ProgramElement;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.java.StatementBlock;
 import de.uka.ilkd.key.logic.JavaBlock;
+import de.uka.ilkd.key.logic.Named;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.Visitor;
 import de.uka.ilkd.key.logic.op.NonRigidFunction;
@@ -95,7 +96,7 @@ public class DLApplyOnModality extends ApplyOnModality {
      * @param deletionEnabled
      */
     public DLApplyOnModality(UpdateSimplifier updateSimplifier) {
-        super(updateSimplifier, true);
+        super(updateSimplifier, false);
 
     }
 

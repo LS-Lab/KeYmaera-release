@@ -417,7 +417,7 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
 
 		for (Term sk : orderedList) {
 			LogicVariable var = commonVars.get(sk);
-			assert query.freeVars().contains(var);
+			assert sk.arity() > 0 || query.freeVars().contains(var) : "Skolem functions should be replaced by free variables.";
 			query = TermFactory.DEFAULT
 					.createQuantifierTerm(Op.ALL, var, query);
 			variableNames.add(var.name().toString());
