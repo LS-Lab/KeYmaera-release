@@ -762,8 +762,7 @@ public class GoalList extends JList {
         return res;
     }
         
-    private class IconCellRenderer extends DefaultListCellRenderer 
-	                           implements ListCellRenderer,
+    private class IconCellRenderer extends DefaultListCellRenderer implements
 				             java.io.Serializable { 
 
                

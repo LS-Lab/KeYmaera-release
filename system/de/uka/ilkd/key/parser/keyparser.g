@@ -3642,16 +3642,20 @@ game_dgl_term30 returns [Term a = null]
 {
 Term a1, a2 = null;
 }
-	: a1 = game_dgl_term40 { a = a1; } ((DCHOICE a2 = game_dgl_term40
+	: a1 = game_dgl_term35 { a = a1; } (DCHOICE a2 = game_dgl_term35
 	{
 		a = tf.createTerm(Op.CUPGAME, new Term[] {a, a2}, null, JavaBlock.EMPTY_JAVABLOCK);
 	})*
-	|
-	(BCHOICE a2 = game_dgl_term40
+	;
+
+game_dgl_term35 returns [Term a = null]
+{
+Term a1, a2 = null;
+}
+	: a1 = game_dgl_term40 { a = a1; } (BCHOICE a2 = game_dgl_term40
 	{
 		a = tf.createTerm(Op.CAPGAME, new Term[] {a, a2}, null, JavaBlock.EMPTY_JAVABLOCK);
 	})*
-	)
 	;
 	
 game_dgl_term40 returns [Term a = null]

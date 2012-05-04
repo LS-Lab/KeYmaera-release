@@ -1218,7 +1218,11 @@ public class LogicPrinter {
 
 	public void printSurroundFixTermContinuingBlock(Term l, int assLeft, String left, String right,
 			Term r, int assRight) throws IOException {
-		startTerm(2);
+		if(r == null) {
+			startTerm(1);
+		} else {
+			startTerm(2);
+		}
 		layouter.ind();
 		layouter.print(left);
 		maybeParens(l, assLeft);
