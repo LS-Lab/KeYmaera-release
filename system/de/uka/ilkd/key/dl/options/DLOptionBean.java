@@ -323,6 +323,8 @@ public class DLOptionBean implements Settings {
 
 	private boolean resetStrategyAfterEveryRun;
 
+    private boolean useODEIndFinMethods;
+
 	private DLOptionBean() {
 		subOptions = new LinkedHashSet<Settings>();
 		foStrategy = FirstOrderStrategy.LAZY;
@@ -1406,6 +1408,26 @@ public class DLOptionBean implements Settings {
 	}
 
 	public void setResetStrategyAfterEveryRun(boolean resetStrategyAfterEveryRun) {
-		this.resetStrategyAfterEveryRun = resetStrategyAfterEveryRun;
+	    if(this.resetStrategyAfterEveryRun != resetStrategyAfterEveryRun) {
+	        this.resetStrategyAfterEveryRun = resetStrategyAfterEveryRun;
+	        firePropertyChanged();
+	    }
 	}
+
+    /**
+     * @return
+     */
+    public boolean isUseODEIndFinMethods() {
+        return useODEIndFinMethods;
+    }
+
+    /**
+     * @param useODEIndFinMethods the useODEIndFinMethods to set
+     */
+    public void setUseODEIndFinMethods(boolean useODEIndFinMethods) {
+        if(this.useODEIndFinMethods != useODEIndFinMethods) {
+            this.useODEIndFinMethods = useODEIndFinMethods;
+            firePropertyChanged();
+        }
+    }
 }

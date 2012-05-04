@@ -1,3 +1,13 @@
+/*******************************************************************************
+ * Copyright (c) 2012 Jan-David Quesel.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the GNU Public License v2.0
+ * which accompanies this distribution, and is available at
+ * http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+ * 
+ * Contributors:
+ *     Jan-David Quesel - initial API and implementation
+ ******************************************************************************/
 /* $Id: XMLReader.java 1.2 Fri, 24 Aug 2007 14:27:50 +0200 quesel $
  *
  * Copyright (C) 2006, Jan-David Quesel

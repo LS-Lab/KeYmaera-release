@@ -163,6 +163,9 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
 					createDescriptor(
 									"resetStrategyAfterEveryRun", EPropertyConstant.DLOPTIONS_RESET_STRATEGY_AFTER_EVERY_RUN,
 									true, false),
+					createDescriptor(
+									 "useODEIndFinMethods", EPropertyConstant.DLOPTIONS_USE_ODE_IND_FIN_METHODS,
+									        true, false),
 			// createDescriptor("invariantRule", "invariant rule",
 			// "choose which invariant rule should be used", true,
 			// false, InvariantRulePropertyEditor.class),
