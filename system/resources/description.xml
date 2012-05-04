@@ -207,7 +207,7 @@ Proves Proposition 7.1
 				<path>/examples/hybrid/ETCS/paper/safety-lemma.key</path>
 				<proofs>
 					<proof name="Mathematica" href="/examples/hybrid/ETCS/paper/safety-lemma.key.proof"/>
-					<proof name="Redlog" href="/examples/hybrid/ETCS/paper/safety-lemma-redlog.key.proof"/>
+					<proof name="Reduce" href="/examples/hybrid/ETCS/paper/safety-lemma-redlog.key.proof"/>
 				</proofs>
 				<description>Proves safety of the ETCS train control protocol case study. This example proves that a train never leaves its movement authority (MA=m) and, thus, cannot crash into other trains.
 Proves Proposition 7.5
@@ -218,7 +218,7 @@ Proves Proposition 7.5
 				<requirements>
 					<some>
 						<quantifiereliminator>Mathematica</quantifiereliminator>
-						<quantifiereliminator>Redlog</quantifiereliminator>
+						<quantifiereliminator>Reduce</quantifiereliminator>
 					</some>
 				</requirements>
 			</example>
@@ -279,6 +279,7 @@ Proves Proposition 7.6 (see book for hints how to prove or Load Proof)
 				<path>/examples/hybrid/ETCS/paper/liveness-lemma.key</path>
 				<proofs>
 					<proof name="Mathematica" href="/examples/hybrid/ETCS/paper/liveness-lemma.key.proof"/>
+					<proof name="Reduce" href="/examples/hybrid/ETCS/paper/liveness-lemma-redlog.key.proof"/>
 				</proofs>
 				<description>Proves safety of the ETCS train control protocol case study. This example proves that the train can move beyond every position on the track.
 Proves Proposition 7.6 (see book for hints how to prove or Load Proof)
@@ -289,6 +290,7 @@ Proves Proposition 7.6 (see book for hints how to prove or Load Proof)
 				<requirements>
 					<some>
 						<quantifiereliminator>Mathematica</quantifiereliminator>
+						<quantifiereliminator>Reduce</quantifiereliminator>
 					</some>
 				</requirements>
 			</example>
