@@ -65,7 +65,7 @@ public class DLOptionBean implements Settings {
 	}
 
 	public static enum TracerStat {
-		ON("On"), OFF("Off");
+		ON("on"), OFF("off");
 
 		private String string;
 
@@ -138,7 +138,7 @@ public class DLOptionBean implements Settings {
 
 	public static enum DiffSat {
 		BLIND("blind"), OFF("off"), SIMPLE("simple"), DIFF("diffauto"), AUTO(
-				"auto"), DESPARATE ("desparate");
+				"auto"), DESPERATE ("desperate");
 
 		private String string;
 

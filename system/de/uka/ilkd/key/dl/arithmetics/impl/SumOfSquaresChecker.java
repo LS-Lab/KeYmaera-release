@@ -1763,7 +1763,7 @@ public class SumOfSquaresChecker implements ISOSChecker {
 	 */
 	@Override
 	public String getName() {
-		return "Internal SOS";
+		return "Built-in SOS";
 	}
 
 	/* (non-Javadoc)
