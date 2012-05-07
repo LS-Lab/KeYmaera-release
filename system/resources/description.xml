@@ -6,7 +6,7 @@
             				<path>/examples/hybrid/tutorial/tutorial1-continuous.key</path>
 							<proofs>
 								<proof name="CohenHormander" href="/examples/hybrid/tutorial/tutorial1-continuous.key.proof"/>
-								<proof name="SMT" href="/examples/hybrid/tutorial/tutorial1-continuous-smt.key.proof"/>
+								<proof name="SMT" href="/examples/hybrid/tutorial/tutorial1-continuous.key.smt.proof"/>
 							</proofs>
             <description>KeYmaera Tutorial Example 1: Modeling a safety property of a continuous system. This is a simple system in which a car starts at some velocity v and accelerates at constant rate A along a straight lane.  The requirement we want to prove is that the car may never travel backward, i.e. for all time, in all scenarios v is greater than or equal to zero. 
  </description>

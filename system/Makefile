@@ -67,8 +67,8 @@ ifeq "$(KEY_VERSION_LONG)" ""
 KEY_VERSION_LONG=$(KEY_VERSION_SHORT)_$(SHA1)
 endif
 
-KEY_VERSION_SHORT=2.0
-KEY_VERSION_LONG=2.0
+KEY_VERSION_SHORT=2.1
+KEY_VERSION_LONG=2.1
 
 export KEY_VERSION_LONG
 export KEY_VERSION_SHORT
@@ -223,7 +223,7 @@ dist-keymaera:	branding all
 		cp -RH ../$$i dist/key/$$i;\
 		done
 #copy example proof files
-	@for i in `grep -R \<proofpath\> $(RESOURCEPATH)/description.xml | sed s/'<proofpath>\/'// | sed s/'<\/proofpath>'// | sed 's/^[ \t]*//'`; do \
+	@for i in `grep -R 'href=.*.proof' $(RESOURCEPATH)/description.xml | sed s/'.*href=\"\/'// | sed s/'\".*'// | sed 's/^[ \t]*//'`; do \
 		mkdir -p dist/key/$$i;\
 		rmdir dist/key/$$i;\
 		cp -RH ../$$i dist/key/$$i;\
