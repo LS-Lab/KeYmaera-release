@@ -59,11 +59,10 @@ public class OSInfosDefault {
         System.out.println("You are working on : " + os + " Operating System."); // XXX
         return os;
     }
-    public void setDefaultProperty(Properties props){
+    public void setDefaultProperty(){
 	
 	setDefaultPropertiesClass();
-	props = defaultProperties.getDefaultPropertyList();
-	this.props = props;
+	this.props = defaultProperties.getDefaultPropertyList();
     }
     /**
      *  Sets the default properties
@@ -86,7 +85,7 @@ public class OSInfosDefault {
      * @return <em> Properties </em> the default property list as a Properties Object.
      */
     public Properties getDefaultProperty() {
-        setDefaultProperty(new Properties());
+        setDefaultProperty();
         return props;
     }
     /**
@@ -95,7 +94,7 @@ public class OSInfosDefault {
      *  @return <em> string </em> the default property value .
      */
     public String getDefaultProperty(String key){
-	 setDefaultProperty(new Properties());
+	 setDefaultProperty();
 	return props.getProperty(key);
     }
     

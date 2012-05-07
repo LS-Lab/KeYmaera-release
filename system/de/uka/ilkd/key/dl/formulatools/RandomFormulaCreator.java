@@ -386,7 +386,7 @@ public class RandomFormulaCreator {
 			NamespaceSet nss) throws InvocationTargetException,
 			IllegalAccessException, InstantiationException,
 			NoSuchMethodException {
-		Random ran = new Random();
+//		Random ran = new Random();
 		TermFactory tf = TermFactoryImpl.getTermFactory(TermFactoryImpl.class,
 				nss);
 		List<Formula> content = new ArrayList<Formula>();
