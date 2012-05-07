@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.0"?>
-<plugin name="ProofVisualization Plug-in" id="ProofVisualization" version="1.1.16" provider-name="KeY Project, University of Karlsruhe"        class="proofVisualization.ProofVisualizationPlugin">
+<plugin name="ProofVisualization Plug-in" id="ProofVisualization" version="2.1" provider-name="KeY Project, University of Karlsruhe"        class="proofVisualization.ProofVisualizationPlugin">
   
    <runtime>
       <library name="ProofVisualization.jar">

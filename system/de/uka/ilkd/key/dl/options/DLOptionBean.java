@@ -1009,9 +1009,10 @@ public class DLOptionBean implements Settings {
 	 *            the quantifierEliminator to set
 	 */
 	public void setQuantifierEliminator(String quantifierEliminator) {
-		if (!(quantifierEliminator == null || this.quantifierEliminator == null)
-				|| !quantifierEliminator.equals(this.quantifierEliminator)) {
-			this.quantifierEliminator = quantifierEliminator;
+        if (!(quantifierEliminator == null && this.quantifierEliminator == null)
+                || quantifierEliminator == null
+                || !quantifierEliminator.equals(this.quantifierEliminator)) {
+            this.quantifierEliminator = quantifierEliminator;
 			firePropertyChanged();
 		}
 	}

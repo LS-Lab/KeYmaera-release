@@ -4,16 +4,15 @@
 	<classpathentry kind="src" path="genSrc"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/orbital"/>
-	<classpathentry exported="true" kind="lib" path="key_lib/javacc.jar"/>
-	<classpathentry exported="true" kind="lib" path="key_lib/junit.jar"/>
-	<classpathentry exported="true" kind="lib" path="key_lib/log4j.jar"/>
-	<classpathentry exported="true" kind="lib" path="key_lib/antlr.jar"/>
-	<classpathentry kind="lib" path="key_lib/JLink/JLink.jar"/>
-	<classpathentry kind="lib" path="key_lib/antlr3.jar"/>
-	<classpathentry kind="lib" path="key_lib/antlr-2.7.7.jar"/>
-	<classpathentry kind="lib" path="key_lib/stringtemplate.jar"/>
-	<classpathentry kind="lib" path="key_lib/recoderKey.jar"/>
-	<classpathentry kind="lib" path="key_lib/junit-4.4.jar"/>
-	<classpathentry kind="lib" path="key_lib/scala-library.jar"/>
+	<classpathentry kind="lib" path="/home/user/jdq/devel/key/key-ext-jars/antlr-2.7.2.jar"/>
+	<classpathentry kind="lib" path="/space/users/syspect/jdq/zola/ext_class/antlr-2.7.7.jar"/>
+	<classpathentry kind="lib" path="/space/users/syspect/jdq/zola/ext_class/antlr-3.4-complete.jar"/>
+	<classpathentry kind="lib" path="/space/users/syspect/jdq/zola/ext_class/javacc.jar"/>
+	<classpathentry kind="lib" path="/space/users/syspect/jdq/zola/ext_class/JLink/JLink.jar"/>
+	<classpathentry kind="lib" path="/home/user/jdq/devel/key/key-ext-jars/junit-4.4.jar"/>
+	<classpathentry kind="lib" path="/space/users/syspect/jdq/zola/ext_class/log4j.jar"/>
+	<classpathentry kind="lib" path="/space/users/syspect/jdq/zola/ext_class/recoderKey.jar"/>
+	<classpathentry kind="lib" path="/space/users/syspect/jdq/zola/ext_class/scala-library.jar"/>
+	<classpathentry kind="lib" path="/space/users/syspect/jdq/zola/ext_class/stringtemplate.jar"/>
 	<classpathentry kind="output" path="binary/"/>
 </classpath>
