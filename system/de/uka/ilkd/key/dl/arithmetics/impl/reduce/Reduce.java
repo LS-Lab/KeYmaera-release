@@ -112,11 +112,8 @@ public class Reduce implements IQuantifierEliminator {
 				System.out.print((char) process.getInputStream().read());
 			}
 			System.out.println();
-			try {
-				process.waitFor();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+			process.waitFor();
+			
 			FileReader f = new FileReader(tmp);
 
 			String res = "";
@@ -129,6 +126,10 @@ public class Reduce implements IQuantifierEliminator {
 			Term parsedTerm = String2TermConverter.convert(res, nss);
 			process.destroy();
 			return parsedTerm;
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            throw new IllegalStateException(
+                    "Interrupted while waiting for reduce!", e);
 		} catch (IOException e) {
 			throw new IllegalStateException(e.getMessage(), e);
 		} finally {
