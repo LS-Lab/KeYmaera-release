@@ -155,7 +155,16 @@ public class ApplyStrategy {
             assert g != null;
             AutomodeListener.currentGoal = g;
             rl.removeRPConsumedGoal(g);
-            rl.addRPOldMarkersNewGoals(g.apply(app));
+            ImmutableList<RuleApp> appliedRuleApps = g.appliedRuleApps();
+            try {
+                rl.addRPOldMarkersNewGoals(g.apply(app));
+            } catch (RuntimeException e) {
+                if(appliedRuleApps != g.appliedRuleApps()) {
+                    System.err.println("Removing rule application as it was not completed!");
+                    g.removeAppliedRuleApp();
+                }
+                throw e; // pass the exception to the next level
+            }
         }
 
         if (rl.reusePossible())

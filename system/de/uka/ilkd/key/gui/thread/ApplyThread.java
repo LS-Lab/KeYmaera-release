@@ -50,11 +50,15 @@ public class ApplyThread implements Runnable, IThreadSender {
     public void run() {
 	
         signalThreadStarted();
-
+        ImmutableList<RuleApp> appliedRuleApps = goal.appliedRuleApps();
         try {
             goals = goal.apply(app);
         } 
         catch( Exception e ) {
+            if(goal.appliedRuleApps() != appliedRuleApps) {
+                System.err.println("Removing rule application as it was not completed!");
+                goal.removeAppliedRuleApp();
+            }
             signalThreadException(e);
             return;
         }
