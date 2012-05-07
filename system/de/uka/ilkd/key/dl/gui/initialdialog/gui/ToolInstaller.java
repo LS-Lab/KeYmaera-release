@@ -170,11 +170,19 @@ public class ToolInstaller {
     public void install(JComponent parent, Window dialog) {
 
         final JFileChooser chooser = new JFileChooser();
+		chooser.setMultiSelectionEnabled(false);
         chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         chooser.setDialogTitle("Choose directory for installation of " + toolName);
-        int result = chooser.showDialog(parent, "Install " + toolName + " here");
+        //chooser.setDialogType(JFileChooser.OPEN_DIALOG);
+        chooser.setApproveButtonText("Install " + toolName + " here");
+        int result = chooser.showOpenDialog(parent);
         if (result == JFileChooser.APPROVE_OPTION) {
             try {
+/*				System.out.println("Installing into " + chooser.getSelectedFile());
+				System.out.println("Installing into " + chooser.getSelectedFile().getPath());
+				System.out.println("Installing into absolutefile " + chooser.getSelectedFile().getAbsoluteFile());
+				System.out.println("Installing into absolutepath " + chooser.getSelectedFile().getAbsolutePath());
+*/
                 final File tmp = File
                         .createTempFile("keymaeraDownload", ".zip");
                 final FileInfo info = new FileInfo(url, tmp.getAbsolutePath(),
