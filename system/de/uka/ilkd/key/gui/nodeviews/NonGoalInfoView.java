@@ -298,6 +298,7 @@ public class NonGoalInfoView extends JEditorPane {
 	super.updateUI();
 	Font myFont = UIManager.getFont(Config.KEY_FONT_INNER_NODE_VIEW);
 	if (myFont != null) {
+	    putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, Boolean.TRUE);  // Allow font to changed in JEditorPane when set to "text/html"
 	    setFont(myFont);
 	} else {
 	    Debug.out("KEY-INNER_NODE_FONT not available, use standard font.");
