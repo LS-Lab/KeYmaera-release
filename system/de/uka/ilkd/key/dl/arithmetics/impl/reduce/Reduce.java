@@ -130,13 +130,12 @@ public class Reduce implements IQuantifierEliminator {
 			process.destroy();
 			return parsedTerm;
 		} catch (IOException e) {
-			e.printStackTrace();
+			throw new IllegalStateException(e.getMessage(), e);
 		} finally {
 			if(process != null) {
 				process.destroy();
 			}
 		}
-		return null;
 	}
 
 	private String generateInput(String input, File tmp) {
