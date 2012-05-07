@@ -35,17 +35,21 @@ public enum EPropertyConfigurations {
 
 	OPTIONS_MATHEMATICA_PATH(EPropertyConstant.MATHEMATICA_OPTIONS_MATHEMATICA_PATH,
 			DirectoryPropertyEditor.class, FileStringConverter.class),
-
 	OPTIONS_MATHKERNEL(EPropertyConstant.MATHEMATICA_OPTIONS_MATHKERNEL, FilePropertyEditor.class,
 			FileStringConverter.class),
-
 	OPTIONS_JLINK_LIBDIR(EPropertyConstant.MATHEMATICA_OPTIONS_JLINK_LIBDIR,
 			EConfigurationFiles.WEBSTART_FILE, DirectoryPropertyEditor.class,
 			FileStringConverter.class),
 
+    OPTIONS_REDUCE_BINARY_PATH(EPropertyConstant.OPTIONS_REDUCE_BINARY,
+            FilePropertyEditor.class, FileStringConverter.class,
+            EToolPath.REDLOG),
+            
+    OPTIONS_Z3_BINARY_PATH(EPropertyConstant.Z3_OPTIONS_Z3_BINARY, FilePropertyEditor.class,
+            FileStringConverter.class, EToolPath.Z3),
+            
 	OPTIONS_QEPCAD_PATH(EPropertyConstant.QEPCAD_OPTIONS_QEPCAD_PATH,
 			DirectoryPropertyEditor.class, FileStringConverter.class),
-
 	OPTIONS_SACLIB_PATH(EPropertyConstant.QEPCAD_OPTIONS_SACLIB_PATH,
 			DirectoryPropertyEditor.class, FileStringConverter.class),
 
@@ -60,11 +64,6 @@ public enum EPropertyConfigurations {
 
 	OPTIONS_H_QE_PATH(EPropertyConstant.HOL_OPTIONS_HARRISON_QE_PATH,
 			DirectoryPropertyEditor.class, FileStringConverter.class),
-
-	OPTIONS_REDUCE_BINARY_PATH(EPropertyConstant.OPTIONS_REDUCE_BINARY,
-			FilePropertyEditor.class, FileStringConverter.class, EToolPath.REDLOG),
-	OPTIONS_Z3_BINARY_PATH(EPropertyConstant.Z3_OPTIONS_Z3_BINARY,
-					FilePropertyEditor.class, FileStringConverter.class, EToolPath.Z3),
 			
 	CHECKBOX_PROPERTY(EPropertyConstant.INITIAL_DIALOG_CHECKBOX, EConfigurationFiles.STARTUP_PROPERTY_FILE,CheckBoxEditor.class,
 			BooleanStringConverter.class);
