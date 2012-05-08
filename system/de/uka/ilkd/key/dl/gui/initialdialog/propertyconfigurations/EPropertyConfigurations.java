@@ -15,6 +15,8 @@ import java.beans.PropertyEditor;
 
 import de.uka.ilkd.key.dl.gui.initialdialog.converters.*;
 import de.uka.ilkd.key.dl.gui.initialdialog.defaultsettings.EToolPath;
+import de.uka.ilkd.key.dl.gui.initialdialog.defaultsettings.OperatingSystem;
+import de.uka.ilkd.key.dl.gui.initialdialog.gui.PropertySetter;
 import de.uka.ilkd.key.dl.gui.initialdialog.propertyeditors.CheckBoxEditor;
 import de.uka.ilkd.key.dl.options.DirectoryPropertyEditor;
 import de.uka.ilkd.key.dl.options.FilePropertyEditor;
@@ -43,10 +45,10 @@ public enum EPropertyConfigurations {
 
     OPTIONS_REDUCE_BINARY_PATH(EPropertyConstant.OPTIONS_REDUCE_BINARY,
             FilePropertyEditor.class, FileStringConverter.class,
-            EToolPath.REDLOG),
+            EToolPath.REDLOG, new String[] { "reduce", "reduce", "reduce.exe" }),
             
     OPTIONS_Z3_BINARY_PATH(EPropertyConstant.Z3_OPTIONS_Z3_BINARY, FilePropertyEditor.class,
-            FileStringConverter.class, EToolPath.Z3),
+            FileStringConverter.class, EToolPath.Z3, new String[] { "z3", "z3", "z3.exe" }),
             
 	OPTIONS_QEPCAD_PATH(EPropertyConstant.QEPCAD_OPTIONS_QEPCAD_PATH,
 			DirectoryPropertyEditor.class, FileStringConverter.class),
@@ -54,7 +56,7 @@ public enum EPropertyConfigurations {
 			DirectoryPropertyEditor.class, FileStringConverter.class),
 
 	OPTIONS_CSDP_BINARY(EPropertyConstant.DLOPTIONS_CSDP_PATH,
-			FilePropertyEditor.class, FileStringConverter.class, EToolPath.CSDP),
+			FilePropertyEditor.class, FileStringConverter.class, EToolPath.CSDP, new String[] { "csdp", "csdp", "csdp.exe" }),
 
 	OPTIONS_OCAML_PATH(EPropertyConstant.HOL_OPTIONS_OCAML_PATH,
 			FilePropertyEditor.class, FileStringConverter.class),
@@ -77,6 +79,7 @@ public enum EPropertyConfigurations {
 	private Class<? extends PropertyEditor> editorClass;
 	private Class<? extends IPropertyConverter> converterClass;
 	private EToolPath toolPath;
+    private String[] fileNames;
 
 	EPropertyConfigurations(EPropertyConstant propsConstant,
 			Class<? extends PropertyEditor> propertyEditorClass,
@@ -89,11 +92,11 @@ public enum EPropertyConfigurations {
 	
 	EPropertyConfigurations(EPropertyConstant propsConstant,
 	        Class<? extends PropertyEditor> propertyEditorClass,
-	        Class<? extends IPropertyConverter> converterClass, EToolPath toolPath) {
+	        Class<? extends IPropertyConverter> converterClass, EToolPath toolPath, String[] fileNames) {
 	    
 	    this(propsConstant,
 	            EConfigurationFiles.KEY_PROPERTY_FILE, propertyEditorClass,
-	            converterClass, toolPath);
+	            converterClass, toolPath, fileNames);
 	}
 
 	/**
@@ -138,9 +141,10 @@ public enum EPropertyConfigurations {
 	EPropertyConfigurations(EPropertyConstant propsConstant,
 	        EConfigurationFiles propertyConfigFile,
 	        Class<? extends PropertyEditor> propertyEditorClass,
-	        Class<? extends IPropertyConverter> converterClass, EToolPath toolPath) {
+	        Class<? extends IPropertyConverter> converterClass, EToolPath toolPath, String[] fileNames) {
 	    this(propsConstant, propertyConfigFile, propertyEditorClass, converterClass);
 	    this.toolPath = toolPath;
+	    this.fileNames = fileNames;
 	}
 
 	
@@ -201,5 +205,22 @@ public enum EPropertyConfigurations {
 	public String getToolTip() {
 		return toolTip;
 	}
+
+    /**
+     * @param operatingSystem 
+     * @return
+     */
+    public PropertySetter getPropertySetter(OperatingSystem operatingSystem) {
+        switch (operatingSystem) {
+        case LINUX:
+            return new PropertySetter(fileNames[0]);
+        case OSX:
+            return new PropertySetter(fileNames[1]);
+        case WINDOWS:
+            return new PropertySetter(fileNames[2]);
+        default:
+            throw new IllegalArgumentException("Don't know operating system: " + operatingSystem);
+        }
+    }
 
 }

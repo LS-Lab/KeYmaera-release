@@ -18,15 +18,18 @@ public enum EToolPath {
     REDLOG(
             "http://downloads.sourceforge.net/project/reduce-algebra/reduce-windows32-20110414.zip?r=http%3A%2F%2Fsourceforge.net%2Fprojects%2Freduce-algebra%2Ffiles%2F&ts=1335266884&use_mirror=dfn",
             "http://csd.informatik.uni-oldenburg.de/keymaera/tools/redlog-linux.zip",
+            "http://csd.informatik.uni-oldenburg.de/keymaera/tools/redlog-linux.zip",
             "http://csd.informatik.uni-oldenburg.de/keymaera/tools/redlog-mac.zip"),
 
     Z3(
             "http://csd.informatik.uni-oldenburg.de/keymaera/tools/z3-windows.zip",
             "http://csd.informatik.uni-oldenburg.de/keymaera/tools/z3-linux.zip",
+            "http://csd.informatik.uni-oldenburg.de/keymaera/tools/z3-linux32.zip",
             "http://csd.informatik.uni-oldenburg.de/keymaera/tools/z3-osx.zip"),
 
     CSDP(
             "http://csd.informatik.uni-oldenburg.de/keymaera/tools/csdp-windows.zip",
+            "http://csd.informatik.uni-oldenburg.de/keymaera/tools/csdp-linux.zip",
             "http://csd.informatik.uni-oldenburg.de/keymaera/tools/csdp-linux.zip",
             "http://csd.informatik.uni-oldenburg.de/keymaera/tools/csdp-mac.zip"), ;
 
@@ -36,18 +39,24 @@ public enum EToolPath {
 
     final private String macUrl;
 
+    private String linux32Url;
+
     /**
      * 
      */
-    private EToolPath(String windowsUrl, String linuxUrl, String macUrl) {
+    private EToolPath(String windowsUrl, String linuxUrl, String linux32Url, String macUrl) {
         this.windowsUrl = windowsUrl;
         this.linuxUrl = linuxUrl;
+        this.linux32Url = linux32Url;
         this.macUrl = macUrl;
     }
 
     public String getUrl(OperatingSystem os) {
         switch (os) {
         case LINUX:
+            if(!System.getProperty("os.arch").equals("amd64")) {
+                return linux32Url;
+            }
             return linuxUrl;
         case WINDOWS:
             return windowsUrl;

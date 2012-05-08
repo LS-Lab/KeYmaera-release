@@ -80,6 +80,7 @@ public class PropertyGroupCardBeans implements ActionListener {
             for(PropertyConfigurationBeans bean: beans) {
                 if(bean.getInstaller() != null) {
                     installer = bean.getInstaller();
+                    installer.setPropertyEditor(bean.getPropertyEditor());
                     return;
                 }
             }

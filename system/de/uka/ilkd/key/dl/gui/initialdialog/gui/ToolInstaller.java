@@ -12,6 +12,7 @@ package de.uka.ilkd.key.dl.gui.initialdialog.gui;
 
 import java.awt.FlowLayout;
 import java.awt.Window;
+import java.beans.PropertyEditor;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -33,6 +34,8 @@ import javax.swing.SwingUtilities;
 import de.uka.ilkd.key.dl.gui.download.DownloadManager;
 import de.uka.ilkd.key.dl.gui.download.FileInfo;
 import de.uka.ilkd.key.dl.gui.download.IDownloadListener;
+import de.uka.ilkd.key.dl.gui.initialdialog.defaultsettings.OSInfosDefault;
+import de.uka.ilkd.key.dl.gui.initialdialog.defaultsettings.OperatingSystem;
 
 /**
  * This class serves as an installer for different tools. It downloads the tool
@@ -159,12 +162,15 @@ public class ToolInstaller {
 
     private String toolName;
 
+    private PropertySetter ps;
+
     /**
      * 
      */
-    public ToolInstaller(String toolName, String url) {
+    public ToolInstaller(String toolName, String url, PropertySetter ps) {
         this.toolName = toolName;
         this.url = url;
+        this.ps = ps;
     }
 
     public void install(JComponent parent, Window dialog) {
@@ -218,6 +224,7 @@ public class ToolInstaller {
 
     /**
      * @param tmp
+     * @param  
      * @throws FileNotFoundException
      * @throws IOException
      */
@@ -234,20 +241,28 @@ public class ToolInstaller {
             int count;
             byte data[] = new byte[BUFFER];
             // write the files to the disk
+            String outputFile = dir.getAbsolutePath() + File.separator
+                        + entry.getName();
             if (entry.isDirectory()) {
-                new File(dir.getAbsolutePath() + File.separator
-                        + entry.getName()).mkdirs();
+                new File(outputFile).mkdirs();
             } else {
-
                 FileOutputStream fos = new FileOutputStream(
-                        dir.getAbsolutePath() + File.separator
-                                + entry.getName());
+                        outputFile);
                 dest = new BufferedOutputStream(fos, BUFFER);
                 while ((count = zis.read(data, 0, BUFFER)) != -1) {
                     dest.write(data, 0, count);
                 }
                 dest.flush();
                 dest.close();
+                File oFile = new File(outputFile);
+                if(OSInfosDefault.INSTANCE.getOs() == OperatingSystem.OSX) {
+                    // FIXME: we need to make everything executable as somehow the executable bit is not preserved in 
+                    // OSX
+                    oFile.setExecutable(true);
+                }
+                if(ps.filterFilename(oFile)) {
+                    ps.setProperty(outputFile);
+                }
             }
         }
         zis.close();
@@ -282,6 +297,13 @@ public class ToolInstaller {
      */
     public void setToolName(String toolName) {
         this.toolName = toolName;
+    }
+
+    /**
+     * @param propertyEditor
+     */
+    public void setPropertyEditor(PropertyEditor propertyEditor) {
+        ps.setPropertyEditor(propertyEditor);
     }
 
 }

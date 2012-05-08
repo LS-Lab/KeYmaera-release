@@ -77,7 +77,9 @@ public class PropertiesCard implements ActionListener, ChangeListener {
                         k.getKey(),
                         new ToolInstaller(k.getToolPath().name(), k
                                 .getToolPath().getUrl(
-                                        OSInfosDefault.INSTANCE.getOs())));
+                                        OSInfosDefault.INSTANCE.getOs()), k
+                                .getPropertySetter(OSInfosDefault.INSTANCE
+                                        .getOs())));
             } else {
                 editor.setPathPane(k.getLabel(), k.getToolTip(),
                         k.getEditorClass(), k.getConverterClass(),

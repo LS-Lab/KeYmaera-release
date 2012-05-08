@@ -98,5 +98,13 @@ public class FilePropertyEditor extends PropertyEditorSupport implements
 	public boolean supportsCustomEditor() {
 		return true;
 	}
+	
+	/* (non-Javadoc)
+	 * @see java.beans.PropertyEditorSupport#setAsText(java.lang.String)
+	 */
+	@Override
+	public void setAsText(String text) throws IllegalArgumentException {
+	    setValue(new File(text));
+	}
 
 }

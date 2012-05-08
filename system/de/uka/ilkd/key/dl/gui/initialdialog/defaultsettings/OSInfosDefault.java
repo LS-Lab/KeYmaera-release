@@ -56,7 +56,6 @@ public class OSInfosDefault {
      *         or "mac"
      */
     public OperatingSystem getOs() {
-        System.out.println("You are working on : " + os + " Operating System."); // XXX
         return os;
     }
     public void setDefaultProperty(){
