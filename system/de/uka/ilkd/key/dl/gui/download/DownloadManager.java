@@ -12,7 +12,7 @@ public final class DownloadManager {
 		
 	}
 	
-	public void downloadAll( FileInfo[] filesToDownload, int timeout, String destDir ) {
+	public void downloadAll( FileInfo[] filesToDownload, int timeout, String destDir, boolean overwrite ) {
 		if( filesToDownload == null )
 			throw new IllegalArgumentException("filesToDownload is null");
 		
@@ -34,17 +34,19 @@ public final class DownloadManager {
 				String destFileLocationString = destDir + file.getDestFullFilename();
 				System.out.println("Downloading to " + destFileLocationString);//XXX
 				File testFile = new File( destFileLocationString);
-				if( testFile.exists() ) {
-					
-					// Download simulieren, Schnittstelle nach au??en
-					// somit nicht ver??ndert
-					for( IDownloadListener l : listeners ) {
-						l.onConnect( file );
-						l.onBeginDownload( file );
-						l.onDownload( file, 1, 1 );
-						l.onEndDownload( file );
-					}
-					continue;
+				if(!overwrite) {
+                    if (testFile.exists()) {
+
+                        // Download simulieren, Schnittstelle nach au??en
+                        // somit nicht ver??ndert
+                        for (IDownloadListener l : listeners) {
+                            l.onConnect(file);
+                            l.onBeginDownload(file);
+                            l.onDownload(file, 1, 1);
+                            l.onEndDownload(file);
+                        }
+                        continue;
+                    }
 				}
 				// Prepare Download
 				Downloader downloader = new Downloader( file );

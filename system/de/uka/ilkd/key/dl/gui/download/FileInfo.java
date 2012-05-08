@@ -46,6 +46,9 @@ public final class FileInfo {
 		int pos = destFileName.length() - 1;
 		while( pos >= 0 && destFileName.charAt( pos ) != File.separatorChar )
 			pos--;
+		if(pos == -1) {
+		    return "";
+		}
 		return destFileName.substring( 0, pos );
 	}
 	

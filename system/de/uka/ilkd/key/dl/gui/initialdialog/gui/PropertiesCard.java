@@ -23,6 +23,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import de.uka.ilkd.key.dl.gui.initialdialog.defaultsettings.OSInfosDefault;
+import de.uka.ilkd.key.dl.gui.initialdialog.defaultsettings.OperatingSystem;
 import de.uka.ilkd.key.dl.gui.initialdialog.gui.options.FileExistenceVerification;
 import de.uka.ilkd.key.dl.gui.initialdialog.gui.options.MathematicaSuffixFinder;
 import de.uka.ilkd.key.dl.gui.initialdialog.propertyconfigurations.EPropertyConfigurations;
@@ -68,6 +69,7 @@ public class PropertiesCard implements ActionListener, ChangeListener {
             }
             final PropertyConfigurationBeans editor = new PropertyConfigurationBeans();
             if (k.getToolPath() != null) {
+                OperatingSystem os = OSInfosDefault.INSTANCE.getOs();
                 editor.setPathPane(
                         k.getLabel(),
                         k.getToolTip(),
@@ -77,9 +79,8 @@ public class PropertiesCard implements ActionListener, ChangeListener {
                         k.getKey(),
                         new ToolInstaller(k.getToolPath().name(), k
                                 .getToolPath().getUrl(
-                                        OSInfosDefault.INSTANCE.getOs()), k
-                                .getPropertySetter(OSInfosDefault.INSTANCE
-                                        .getOs())));
+                                        os), k.getToolPath().getFileType(os),k
+                                .getPropertySetter(os)));
             } else {
                 editor.setPathPane(k.getLabel(), k.getToolTip(),
                         k.getEditorClass(), k.getConverterClass(),

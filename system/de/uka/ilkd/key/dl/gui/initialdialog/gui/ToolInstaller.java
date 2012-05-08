@@ -20,6 +20,9 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.zip.GZIPInputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -31,9 +34,17 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.SwingUtilities;
 
+import org.apache.commons.compress.archivers.ArchiveException;
+import org.apache.commons.compress.archivers.ArchiveStreamFactory;
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
+import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
+import org.apache.commons.compress.utils.IOUtils;
+
 import de.uka.ilkd.key.dl.gui.download.DownloadManager;
 import de.uka.ilkd.key.dl.gui.download.FileInfo;
 import de.uka.ilkd.key.dl.gui.download.IDownloadListener;
+import de.uka.ilkd.key.dl.gui.initialdialog.defaultsettings.EToolPath.FileType;
 import de.uka.ilkd.key.dl.gui.initialdialog.defaultsettings.OSInfosDefault;
 import de.uka.ilkd.key.dl.gui.initialdialog.defaultsettings.OperatingSystem;
 
@@ -164,34 +175,34 @@ public class ToolInstaller {
 
     private PropertySetter ps;
 
+    private FileType ft;
+
     /**
      * 
      */
-    public ToolInstaller(String toolName, String url, PropertySetter ps) {
+    public ToolInstaller(String toolName, String url, FileType ft,
+            PropertySetter ps) {
         this.toolName = toolName;
         this.url = url;
+        this.ft = ft;
         this.ps = ps;
     }
 
     public void install(JComponent parent, Window dialog) {
 
         final JFileChooser chooser = new JFileChooser();
-		chooser.setMultiSelectionEnabled(false);
+        chooser.setMultiSelectionEnabled(false);
         chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-        chooser.setDialogTitle("Choose directory for installation of " + toolName);
-        //chooser.setDialogType(JFileChooser.OPEN_DIALOG);
+        chooser.setDialogTitle("Choose directory for installation of "
+                + toolName);
+        // chooser.setDialogType(JFileChooser.OPEN_DIALOG);
         chooser.setApproveButtonText("Install " + toolName + " here");
         int result = chooser.showOpenDialog(parent);
         if (result == JFileChooser.APPROVE_OPTION) {
             try {
-/*				System.out.println("Installing into " + chooser.getSelectedFile());
-				System.out.println("Installing into " + chooser.getSelectedFile().getPath());
-				System.out.println("Installing into absolutefile " + chooser.getSelectedFile().getAbsoluteFile());
-				System.out.println("Installing into absolutepath " + chooser.getSelectedFile().getAbsolutePath());
-*/
-                final File tmp = File
-                        .createTempFile("keymaeraDownload", ".zip");
-                final FileInfo info = new FileInfo(url, tmp.getAbsolutePath(),
+                final File tmp = File.createTempFile("keymaeraDownload", "."
+                        + ft.toString().toLowerCase());
+                final FileInfo info = new FileInfo(url, tmp.getName(),
                         false);
                 final DownloadManager dlm = new DownloadManager();
                 ProgressBarWindow pbw = new ProgressBarWindow(parent,
@@ -203,10 +214,13 @@ public class ToolInstaller {
                     public void run() {
                         try {
                             dlm.downloadAll(new FileInfo[] { info }, 2000, tmp
-                                    .getParentFile().getAbsolutePath());
-                            unzip(tmp, chooser.getSelectedFile()
+                                    .getParentFile().getAbsolutePath(), true);
+                            unpack(tmp, chooser.getSelectedFile()
                                     .getAbsoluteFile());
                         } catch (IOException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        } catch (ArchiveException e) {
                             // TODO Auto-generated catch block
                             e.printStackTrace();
                         }
@@ -222,18 +236,88 @@ public class ToolInstaller {
         }
     }
 
+    private void unpack(File tmp, File dir) throws FileNotFoundException,
+            IOException, ArchiveException {
+        switch (ft) {
+        case ZIP:
+            unzip(tmp, dir);
+            break;
+        case TARGZ:
+        case TARBZ2:
+            untar(tmp, dir, ft);
+            break;
+        default:
+            throw new IllegalArgumentException("Unknown filetype: " + ft);
+        }
+    }
+
     /**
      * @param tmp
-     * @param  
+     * @param dir
+     * @throws IOException
+     * @throws ArchiveException
+     */
+    private void untar(File file, File dir, FileType ft) throws IOException,
+            ArchiveException {
+        FileInputStream fis = new FileInputStream(file);
+        InputStream is;
+        switch (ft) {
+        case TARGZ:
+            is = new GZIPInputStream(fis);
+            break;
+        case TARBZ2:
+            is = new BZip2CompressorInputStream(fis);
+            break;
+        default:
+            throw new IllegalArgumentException(
+                    "Don't know how to handle filetype: " + ft);
+        }
+
+        final TarArchiveInputStream debInputStream = (TarArchiveInputStream) new ArchiveStreamFactory()
+                .createArchiveInputStream("tar", is);
+        TarArchiveEntry entry = null;
+        while ((entry = (TarArchiveEntry) debInputStream.getNextEntry()) != null) {
+            final File outputFile = new File(dir, entry.getName());
+            if (entry.isDirectory()) {
+                if (!outputFile.exists()) {
+                    if (!outputFile.mkdirs()) {
+                        throw new IllegalStateException(String.format(
+                                "Couldn't create directory %s.",
+                                outputFile.getAbsolutePath()));
+                    }
+                }
+            } else {
+                final OutputStream outputFileStream = new FileOutputStream(
+                        outputFile);
+                IOUtils.copy(debInputStream, outputFileStream);
+                if (OSInfosDefault.INSTANCE.getOs() == OperatingSystem.OSX) {
+                    // FIXME: we need to make everything executable as somehow
+                    // the executable bit is not preserved in
+                    // OSX
+                    outputFile.setExecutable(true);
+                }
+                if (ps.filterFilename(outputFile)) {
+                    ps.setProperty(outputFile.getAbsolutePath());
+                }
+                outputFileStream.flush();
+                outputFileStream.close();
+            }
+        }
+        debInputStream.close();
+        is.close();
+        file.delete();
+    }
+
+    /**
+     * @param tmp
+     * @param
      * @throws FileNotFoundException
      * @throws IOException
      */
-    private void unzip(File tmp, File dir) throws FileNotFoundException,
+    private void unzip(File file, File dir) throws FileNotFoundException,
             IOException {
         final int BUFFER = 2048;
         BufferedOutputStream dest = null;
-        File file = new File(tmp.getParentFile().getAbsolutePath()
-                + tmp.getAbsolutePath());
         FileInputStream fis = new FileInputStream(file);
         ZipInputStream zis = new ZipInputStream(new BufferedInputStream(fis));
         ZipEntry entry;
@@ -242,12 +326,11 @@ public class ToolInstaller {
             byte data[] = new byte[BUFFER];
             // write the files to the disk
             String outputFile = dir.getAbsolutePath() + File.separator
-                        + entry.getName();
+                    + entry.getName();
             if (entry.isDirectory()) {
                 new File(outputFile).mkdirs();
             } else {
-                FileOutputStream fos = new FileOutputStream(
-                        outputFile);
+                FileOutputStream fos = new FileOutputStream(outputFile);
                 dest = new BufferedOutputStream(fos, BUFFER);
                 while ((count = zis.read(data, 0, BUFFER)) != -1) {
                     dest.write(data, 0, count);
@@ -255,12 +338,13 @@ public class ToolInstaller {
                 dest.flush();
                 dest.close();
                 File oFile = new File(outputFile);
-                if(OSInfosDefault.INSTANCE.getOs() == OperatingSystem.OSX) {
-                    // FIXME: we need to make everything executable as somehow the executable bit is not preserved in 
+                if (OSInfosDefault.INSTANCE.getOs() == OperatingSystem.OSX) {
+                    // FIXME: we need to make everything executable as somehow
+                    // the executable bit is not preserved in
                     // OSX
                     oFile.setExecutable(true);
                 }
-                if(ps.filterFilename(oFile)) {
+                if (ps.filterFilename(oFile)) {
                     ps.setProperty(outputFile);
                 }
             }
