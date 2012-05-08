@@ -195,9 +195,9 @@ public class ToolInstaller {
         chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         chooser.setDialogTitle("Choose directory for installation of "
                 + toolName);
-        // chooser.setDialogType(JFileChooser.OPEN_DIALOG);
+         chooser.setDialogType(JFileChooser.SAVE_DIALOG);
         chooser.setApproveButtonText("Install " + toolName + " here");
-        int result = chooser.showOpenDialog(parent);
+        int result = chooser.showDialog(parent, "Install " + toolName + " here");
         if (result == JFileChooser.APPROVE_OPTION) {
             try {
                 final File tmp = File.createTempFile("keymaeraDownload", "."
