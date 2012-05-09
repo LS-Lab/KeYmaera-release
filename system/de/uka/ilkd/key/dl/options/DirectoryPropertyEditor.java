@@ -10,6 +10,7 @@ import java.io.File;
 import javax.swing.JFileChooser;
 
 import de.uka.ilkd.key.dl.gui.initialdialog.defaultsettings.OSInfosDefault;
+import de.uka.ilkd.key.gui.Main;
 
 /**
  * @author jdq
@@ -29,7 +30,7 @@ public class DirectoryPropertyEditor extends FilePropertyEditor {
         switch(OSInfosDefault.INSTANCE.getOs()) {
         case OSX:
             System.setProperty("apple.awt.fileDialogForDirectories", "true");
-            FileDialog d = new FileDialog((java.awt.Frame)null, "Choose a directory.", FileDialog.LOAD);
+            FileDialog d = new FileDialog(Main.getInstance(), "Choose a directory.", FileDialog.LOAD);
             d.setDirectory(((File) getValue()).getPath());
             d.setVisible(true);
             System.setProperty("apple.awt.fileDialogForDirectories", "false");

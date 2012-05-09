@@ -20,6 +20,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import de.uka.ilkd.key.dl.gui.initialdialog.defaultsettings.OSInfosDefault;
+import de.uka.ilkd.key.gui.Main;
 
 public class FilePropertyEditor extends PropertyEditorSupport implements
 		PropertyEditor, ActionListener {
@@ -68,7 +69,8 @@ public class FilePropertyEditor extends PropertyEditorSupport implements
 	public void actionPerformed(ActionEvent e) {
         switch(OSInfosDefault.INSTANCE.getOs()) {
         case OSX:
-            FileDialog d = new FileDialog((java.awt.Frame)null, "Choose a file.", FileDialog.LOAD);
+            System.setProperty("apple.awt.fileDialogForDirectories", "false");
+            FileDialog d = new FileDialog(Main.getInstance(), "Choose a file.", FileDialog.LOAD);
             d.setDirectory(file.getPath());
             d.setVisible(true);
             if(d.getFile() != null) {
