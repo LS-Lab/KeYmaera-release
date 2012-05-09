@@ -152,8 +152,7 @@ public class ToolInstaller {
             }
             JOptionPane.showMessageDialog(parent,
                     "Successfully downloaded and unpacked " + toolName + " to "
-                            + file.getAbsoluteFile() + ".\n "
-                            + "Please configure the tool path.");
+                            + file.getAbsoluteFile());
         }
 
         /*

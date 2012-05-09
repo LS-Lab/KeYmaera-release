@@ -1275,7 +1275,7 @@ final object AM {
 
     if(args.length != 2) {
       println("usage: arith {0|1} pathname")
-      exit(0);
+      sys.exit(0);
     };
 
    val inp = io.Source.fromFile(args(1)).getLines.reduceLeft(_+_);

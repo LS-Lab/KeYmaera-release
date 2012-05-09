@@ -68,8 +68,9 @@ public class Term2ReduceConverter {
 	 * @return QepCadInput-Instance of the given term.
 	 */
 	public static String convert(Term form, int[] variableCount, boolean eliminateFractions) {
-		Term2ReduceConverter converter = new Term2ReduceConverter();
-		return converter.convertImpl(form, variableCount, eliminateFractions);
+//		Term2ReduceConverter converter = new Term2ReduceConverter();
+//		return converter.convertImplOrg(form, variableCount, eliminateFractions);
+	    return Term2ReduceString.apply(form, variableCount, eliminateFractions);
 	}
 
 	/**
@@ -77,7 +78,7 @@ public class Term2ReduceConverter {
 	 * 
 	 * @param variables
 	 */
-	private String convertImpl(Term form, int[] variableCount, boolean eliminateFractions) {
+	private String convertImplOrg(Term form, int[] variableCount, boolean eliminateFractions) {
 //		String formula = convert2String(form, null, Options.INSTANCE
 //				.isEliminateFractions());
 		String formula = convert2String(form, null, eliminateFractions, variableCount);
