@@ -6,6 +6,7 @@ package de.uka.ilkd.key.dl.options;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.FileDialog;
+import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
@@ -20,7 +21,6 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import de.uka.ilkd.key.dl.gui.initialdialog.defaultsettings.OSInfosDefault;
-import de.uka.ilkd.key.gui.Main;
 
 public class FilePropertyEditor extends PropertyEditorSupport implements
 		PropertyEditor, ActionListener {
@@ -70,7 +70,7 @@ public class FilePropertyEditor extends PropertyEditorSupport implements
         switch(OSInfosDefault.INSTANCE.getOs()) {
         case OSX:
             System.setProperty("apple.awt.fileDialogForDirectories", "false");
-            FileDialog d = new FileDialog(Main.getInstance(), "Choose a file.", FileDialog.LOAD);
+            FileDialog d = new FileDialog(Frame.getFrames()[0], "Choose a file.", FileDialog.LOAD);
             d.setDirectory(file.getPath());
             d.setVisible(true);
             if(d.getFile() != null) {

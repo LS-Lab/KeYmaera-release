@@ -12,6 +12,7 @@ package de.uka.ilkd.key.dl.gui.initialdialog.gui;
 
 import java.awt.FileDialog;
 import java.awt.FlowLayout;
+import java.awt.Frame;
 import java.awt.Window;
 import java.beans.PropertyEditor;
 import java.io.BufferedInputStream;
@@ -48,7 +49,6 @@ import de.uka.ilkd.key.dl.gui.download.IDownloadListener;
 import de.uka.ilkd.key.dl.gui.initialdialog.defaultsettings.EToolPath.FileType;
 import de.uka.ilkd.key.dl.gui.initialdialog.defaultsettings.OSInfosDefault;
 import de.uka.ilkd.key.dl.gui.initialdialog.defaultsettings.OperatingSystem;
-import de.uka.ilkd.key.gui.Main;
 
 /**
  * This class serves as an installer for different tools. It downloads the tool
@@ -196,7 +196,7 @@ public class ToolInstaller {
         switch(OSInfosDefault.INSTANCE.getOs()) {
         case OSX:
             System.setProperty("apple.awt.fileDialogForDirectories", "true");
-            FileDialog d = new FileDialog(Main.getInstance(), "Choose directory for installation of " + toolName, FileDialog.LOAD);
+            FileDialog d = new FileDialog(Frame.getFrames()[0], "Choose directory for installation of " + toolName, FileDialog.LOAD);
             d.setVisible(true);
             System.setProperty("apple.awt.fileDialogForDirectories", "false");
             if(d.getFile() != null) {
