@@ -10,6 +10,7 @@
  ******************************************************************************/
 package de.uka.ilkd.key.dl.gui.initialdialog.gui;
 
+import java.awt.FileDialog;
 import java.awt.FlowLayout;
 import java.awt.Window;
 import java.beans.PropertyEditor;
@@ -190,15 +191,36 @@ public class ToolInstaller {
 
     public void install(JComponent parent, Window dialog) {
 
-        final JFileChooser chooser = new JFileChooser();
-        chooser.setMultiSelectionEnabled(false);
-        chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-        chooser.setDialogTitle("Choose directory for installation of "
-                + toolName);
-         chooser.setDialogType(JFileChooser.SAVE_DIALOG);
-        chooser.setApproveButtonText("Install " + toolName + " here");
-        int result = chooser.showDialog(parent, "Install " + toolName + " here");
-        if (result == JFileChooser.APPROVE_OPTION) {
+        final File installDirectory;
+        switch(OSInfosDefault.INSTANCE.getOs()) {
+        case OSX:
+            System.setProperty("apple.awt.fileDialogForDirectories", "true");
+            FileDialog d = new FileDialog((java.awt.Frame)null, "Choose directory for installation of " + toolName, FileDialog.SAVE);
+            d.setVisible(true);
+            System.setProperty("apple.awt.fileDialogForDirectories", "false");
+            if(d.getFile() != null) {
+                installDirectory = new File(d.getDirectory(), d.getFile());
+            } else {
+                installDirectory = null;
+            }
+            break;
+        default:
+            final JFileChooser chooser = new JFileChooser();
+            chooser.setMultiSelectionEnabled(false);
+            chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+            chooser.setDialogTitle("Choose directory for installation of "
+                    + toolName);
+            chooser.setDialogType(JFileChooser.SAVE_DIALOG);
+            chooser.setApproveButtonText("Install " + toolName + " here");
+            int result = chooser.showDialog(parent, "Install " + toolName + " here");
+            if(result == JFileChooser.APPROVE_OPTION) {
+                installDirectory = chooser.getSelectedFile();
+            } else {
+                installDirectory = null;
+            }
+        }
+        
+        if (installDirectory != null) {
             try {
                 final File tmp = File.createTempFile("keymaeraDownload", "."
                         + ft.toString().toLowerCase());
@@ -206,7 +228,7 @@ public class ToolInstaller {
                         false);
                 final DownloadManager dlm = new DownloadManager();
                 ProgressBarWindow pbw = new ProgressBarWindow(parent,
-                        chooser.getSelectedFile(), dialog);
+                        installDirectory, dialog);
                 dlm.addListener(pbw);
                 Runnable down = new Runnable() {
 
@@ -215,7 +237,7 @@ public class ToolInstaller {
                         try {
                             dlm.downloadAll(new FileInfo[] { info }, 2000, tmp
                                     .getParentFile().getAbsolutePath(), true);
-                            unpack(tmp, chooser.getSelectedFile()
+                            unpack(tmp, installDirectory
                                     .getAbsoluteFile());
                         } catch (IOException e) {
                             // TODO Auto-generated catch block
