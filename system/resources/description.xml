@@ -821,7 +821,6 @@ Proves Example 3.21</description>
         			    <source href="http://symbolaris.com/lahs/"/>
         				<requirements>
         					<some>
-        						<quantifiereliminator>Mathematica</quantifiereliminator>
         					</some>
         				</requirements>
         			</example>
