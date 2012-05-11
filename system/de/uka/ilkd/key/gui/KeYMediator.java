@@ -196,7 +196,11 @@ public class KeYMediator {
 
     /** returns the Services with the java service classes */
     public Services getServices() {
-       return getProof().getServices();
+        if(getProof() != null) {
+            return getProof().getServices();
+        } else {
+            return null;
+        }
     }
 
     /** returns the user constraint (table model)
@@ -1116,7 +1120,9 @@ public class KeYMediator {
 	 */
 	public void autoModeStarted(ProofEvent e) {
               autoMode = true;
-              getServices().setAutoMode(true);
+              if(getServices() != null) {
+                  getServices().setAutoMode(true);
+              }
               selectedBeforeAutoMode = getSelectedNode(); 
 //            if (proof == null) return; // there is no selection or anything
 	}
@@ -1125,7 +1131,9 @@ public class KeYMediator {
 	 */
 	public void autoModeStopped(ProofEvent e) {
             autoMode = false;
-            getServices().setAutoMode(false);
+            if(getServices() != null) {
+                getServices().setAutoMode(false);
+            }
             if (getProof() != null) {
                 if (selectedBeforeAutoMode!=null) {
 //XXX%%%%% This is way too slow for big proofs! 
