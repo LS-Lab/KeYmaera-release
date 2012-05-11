@@ -202,10 +202,9 @@ public class SMT implements IQuantifierEliminator, ICounterExampleGenerator {
 	 * @see de.uka.ilkd.key.dl.arithmetics.ICounterExampleGenerator#findInstance(de.uka.ilkd.key.logic.Term, long)
 	 */
 	@Override
-	public String findInstance(Term form, long timeout) throws RemoteException,
+	public String findInstance(Term form, long timeout, Services s) throws RemoteException,
 			SolverException {
-		NamespaceSet nss = null; // FIXME retrieve namespace set
-		nss = Main.getInstance().mediator().namespaces();
+		NamespaceSet nss = s.getNamespaces();
 		SMTInput input = Term2SMTConverter.convert(form,
 				new ArrayList<QuantifiableVariable>(), nss);
 		String smtIn = input.getVariableList() + "\n";

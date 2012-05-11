@@ -28,6 +28,7 @@ import java.util.Map;
 
 import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
+import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.logic.ConstrainedFormula;
 import de.uka.ilkd.key.logic.PosInOccurrence;
 import de.uka.ilkd.key.logic.PosInTerm;
@@ -63,7 +64,7 @@ public class FindInstanceTest implements Feature {
         resultTerm = TermBuilder.DF.and(resultTerm, TermBuilder.DF.not(changes2
                 .keySet().iterator().next()));
 
-        TestThread thread = new TestThread(resultTerm);
+        TestThread thread = new TestThread(resultTerm, goal.proof().getServices());
         thread.start();
         try {
             thread.join(2*TIMEOUT);
@@ -135,8 +136,11 @@ public class FindInstanceTest implements Feature {
 
         private String string;
 
-        public TestThread(Term term) {
+        private Services services;
+
+        public TestThread(Term term, Services services) {
             this.term = term;
+            this.services = services;
         }
 
         /*@Override*/
@@ -144,7 +148,7 @@ public class FindInstanceTest implements Feature {
             result = Result.UNKNOWN;
             try {
                 string = MathSolverManager.getCurrentCounterExampleGenerator()
-                        .findInstance(term, TIMEOUT);
+                        .findInstance(term, TIMEOUT, services);
                 if (string.equals("")) {
                     result = Result.NO_COUNTER_EXAMPLE_AVAILABLE;
                 } else if(string.trim().equalsIgnoreCase("$Aborted")) {

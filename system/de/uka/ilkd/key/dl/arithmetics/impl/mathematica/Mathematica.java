@@ -207,14 +207,14 @@ public class Mathematica implements ICounterExampleGenerator, IODESolver,
 	 * @see
 	 * de.uka.ilkd.key.dl.IMathSolver#findInstance(de.uka.ilkd.key.logic.Term)
 	 */
-	public String findInstance(Term form, long timeout) throws RemoteException,
+	public String findInstance(Term form, long timeout, Services services) throws RemoteException,
 			SolverException {
-		return bridge.findInstance(form, timeout);
+		return bridge.findInstance(form, timeout, services);
 	}
 
-	public String findInstance(Term form) throws RemoteException,
+	public String findInstance(Term form, Services services) throws RemoteException,
 			SolverException {
-		return findInstance(form, -1);
+		return findInstance(form, -1, services);
 	}
 
 	/*

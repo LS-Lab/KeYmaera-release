@@ -53,7 +53,7 @@ public interface ICounterExampleGenerator extends IMathSolver {
      * @throws ServerStatusProblemException
      * 
      */
-    public abstract String findInstance(Term form, long timeout)
+    public abstract String findInstance(Term form, long timeout, Services s)
             throws RemoteException, SolverException;
 
     /**

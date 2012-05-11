@@ -22,6 +22,7 @@
  */
 package de.uka.ilkd.key.dl.arithmetics.impl.mathematica;
 
+import java.awt.Frame;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.net.UnknownHostException;
@@ -373,11 +374,11 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 				comma = ", ";
 			}
 			final String msg = builder.toString();
-			if (!Main.getInstance().mediator().autoMode()) {
+			if (!services.autoMode()) {
 				SwingUtilities.invokeLater(new Runnable() {
 
 					public void run() {
-						JOptionPane.showMessageDialog(Main.getInstance(), msg);
+						JOptionPane.showMessageDialog(Frame.getFrames()[0], msg);
 					}
 
 				});
@@ -712,7 +713,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
      * de.uka.ilkd.key.dl.IMathematicaDLBridge#findInstance(de.uka.ilkd.key.
      * logic.Term)
      */
-    public String findInstance(Term form, long timeout)
+    public String findInstance(Term form, long timeout, Services services)
         throws RemoteException, SolverException {
         List<String> result = findMultiInstance(form, 1, timeout);
         if (!result.isEmpty())

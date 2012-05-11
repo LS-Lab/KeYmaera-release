@@ -116,7 +116,7 @@ public class ApplyOnNonRigidWithExplicitDependencies extends AbstractUpdateRule 
      * @return true iff this rule is responsible for simplication of the given
      *         pair
      */
-    public boolean isApplicable(Update update, Term target) {
+    public boolean isApplicable(Update update, Term target, Services services) {
         return target.op() instanceof NRFunctionWithExplicitDependencies;
     }
 

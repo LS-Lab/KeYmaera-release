@@ -35,7 +35,7 @@ public class ApplyOnAnonymousUpdate extends AbstractUpdateRule {
     /* (non-Javadoc)
      * @see de.uka.ilkd.key.rule.UpdateRule#isApplicable(de.uka.ilkd.key.rule.updatesimplifier.Update, de.uka.ilkd.key.logic.Term)
      */
-    public boolean isApplicable(Update update, Term target) {        
+    public boolean isApplicable(Update update, Term target, Services services) {        
         return target.op() instanceof AnonymousUpdate;
     }
 
@@ -57,4 +57,5 @@ public class ApplyOnAnonymousUpdate extends AbstractUpdateRule {
                      + target );
         return null; // unreachable
     }
+
 }

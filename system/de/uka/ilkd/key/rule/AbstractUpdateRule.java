@@ -106,7 +106,7 @@ public abstract class AbstractUpdateRule implements IUpdateRule {
      * @return true if the rule can be applied on the update, target
      * pair 
      */   
-    public abstract boolean isApplicable(Update update, Term target);
+    public abstract boolean isApplicable(Update update, Term target, Services services);
     
     
     public static class PropagationResult {

@@ -57,7 +57,7 @@ public class ApplyOnModality extends AbstractUpdateRule {
     /* (non-Javadoc)
      * @see de.uka.ilkd.key.rule.IUpdateRule#isApplicable(de.uka.ilkd.key.rule.updatesimplifier.Update, de.uka.ilkd.key.logic.Term)
      */
-    public boolean isApplicable(Update update, Term target) {                
+    public boolean isApplicable(Update update, Term target, Services services) {                
         return target.op() instanceof Modality;         
     }
 

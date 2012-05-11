@@ -35,7 +35,7 @@ public class ApplyAnonymousUpdateOnNonRigid extends AbstractUpdateRule {
     /* (non-Javadoc)
      * @see de.uka.ilkd.key.rule.UpdateRule#isApplicable(de.uka.ilkd.key.rule.updatesimplifier.Update, de.uka.ilkd.key.logic.Term)
      */
-    public boolean isApplicable(Update update, Term target) {        
+    public boolean isApplicable(Update update, Term target, Services services) {        
         final Operator op = target.op();
         return update.isAnonymousUpdate() && 
            op instanceof NonRigid && !(op instanceof AnonymousUpdate);
@@ -78,7 +78,7 @@ public class ApplyAnonymousUpdateOnNonRigid extends AbstractUpdateRule {
 
 	Term result = updateSimplifier().simplify(target, services);
 
-	if ( result.op() != target.op() && !isApplicable(update, result) ) {
+	if ( result.op() != target.op() && !isApplicable(update, result, services) ) {
 	    result = updateSimplifier().simplify(update, result, services);
 	    logExit(result);
 	    return result;

@@ -44,7 +44,7 @@ public class ApplyOnLocalVariableOrStaticField extends AbstractUpdateRule {
      * @return true if the top level operator of target is a local
      * variable
      */
-    public boolean isApplicable(Update update, Term target) {	
+    public boolean isApplicable(Update update, Term target, Services services) {	
 	return target.op() instanceof LocationVariable
                || target.op() instanceof NonRigidFunctionLocation 
                      && target.op().arity() == 0;	    

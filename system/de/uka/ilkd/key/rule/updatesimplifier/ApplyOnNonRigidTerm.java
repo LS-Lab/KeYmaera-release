@@ -37,7 +37,7 @@ public class ApplyOnNonRigidTerm extends AbstractUpdateRule {
      * this rule is applicable if the top level operator is a non rigid 
      * symbol
      */
-    public boolean isApplicable(Update update, Term target) {       
+    public boolean isApplicable(Update update, Term target, Services services) {       
         return target.op() instanceof NonRigid;
     }
 

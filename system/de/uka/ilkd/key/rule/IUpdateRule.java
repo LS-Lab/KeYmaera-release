@@ -35,7 +35,7 @@ public interface IUpdateRule {
      *            the Term on which the update is applied
      * @return true if the rule can be applied on the update, target pair
      */
-    public abstract boolean isApplicable(Update update, Term target);
+    public abstract boolean isApplicable(Update update, Term target, Services services);
 
     /**
      * Applies the update on the target term. This method must only be called if

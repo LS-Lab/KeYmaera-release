@@ -91,7 +91,7 @@ public class UpdateSimplifier {
     
     public Term simplify(Update update, Term t, Services services) {
         for (IUpdateRule simplificationRule : simplificationRules) {
-            if (simplificationRule.isApplicable(update, t)) {
+            if (simplificationRule.isApplicable(update, t, services)) {
                 return simplificationRule.apply(update, t, services);
             }
         }
@@ -119,7 +119,7 @@ public class UpdateSimplifier {
 	    			   Term target, 
 	    			   Services services) {
         for (IUpdateRule simplificationRule : simplificationRules) {
-            if (simplificationRule.isApplicable(update, target))
+            if (simplificationRule.isApplicable(update, target, services))
                 return simplificationRule.matchingCondition(update, target, services);
         }
         Debug.fail("Don't know how to handle " + target);

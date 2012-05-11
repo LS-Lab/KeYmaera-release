@@ -19,6 +19,7 @@
  ***************************************************************************/
 package de.uka.ilkd.key.dl.rules.metaconstruct;
 
+import java.awt.Frame;
 import java.math.BigDecimal;
 import java.rmi.RemoteException;
 
@@ -139,7 +140,7 @@ public class ODESolve extends AbstractDLMetaOperator {
 					SwingUtilities.invokeLater(new Runnable() {
 						public void run() {
 
-							JOptionPane.showMessageDialog(Main.getInstance(), odeResult.getMultiple()
+							JOptionPane.showMessageDialog(Frame.getFrames()[0], odeResult.getMultiple()
 									+ "\n First solution is to be used.");
 
 						}
