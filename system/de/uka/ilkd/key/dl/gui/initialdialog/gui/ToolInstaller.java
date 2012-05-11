@@ -64,7 +64,15 @@ public class ToolInstaller {
 
         private JPanel panel;
 
+        private JLabel label;
+
         final private File file;
+
+        final private File tmp;
+
+		final private FileType ft;
+
+		final private PropertySetter ps;
 
         final private JComponent parent;
 
@@ -74,8 +82,11 @@ public class ToolInstaller {
          * @param dialog
          * 
          */
-        public ProgressBarWindow(JComponent parent, File file, Window dialog) {
+        public ProgressBarWindow(JComponent parent, File file, File tmp, FileType ft, PropertySetter ps, Window dialog) {
             this.parent = parent;
+			this.tmp = tmp;
+			this.ft = ft;
+			this.ps = ps;
             this.file = file;
             this.dialog = dialog;
             bar = new JProgressBar(0, 100);
@@ -83,7 +94,8 @@ public class ToolInstaller {
 
             panel = new JPanel();
             panel.setLayout(new FlowLayout());
-            panel.add(new JLabel("Downloading: "));
+			label = new JLabel("Downloading: ");
+            panel.add(label);
             panel.add(bar);
         }
 
@@ -141,6 +153,33 @@ public class ToolInstaller {
         public void onEndDownload(FileInfo f) {
             // pbw.setVisible(false);
             // pbw.dispose();
+			try {
+				label.setText("Unpacking: ");
+				bar.setValue(0);
+				unpack(tmp, file.getAbsoluteFile(), ft, ps, bar);
+				disposeStatusWindow();
+				JOptionPane.showMessageDialog(parent,
+						"Successfully downloaded and unpacked " + toolName + " to "
+								+ file.getAbsoluteFile());
+			} catch (IOException e) {
+				disposeStatusWindow();
+				JOptionPane.showMessageDialog(parent,
+						"Error unpacking " + toolName + " to "
+								+ file.getAbsoluteFile());
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (ArchiveException e) {
+				disposeStatusWindow();
+				JOptionPane.showMessageDialog(parent,
+						"Error unpacking " + toolName + " to "
+								+ file.getAbsoluteFile());
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+        }
+
+		private void disposeStatusWindow() {
             Window windowAncestor = SwingUtilities.getWindowAncestor(panel);
             if (windowAncestor != null) {
                 windowAncestor.setVisible(false);
@@ -150,10 +189,7 @@ public class ToolInstaller {
                 dialog.setVisible(false);
                 dialog.dispose();
             }
-            JOptionPane.showMessageDialog(parent,
-                    "Successfully downloaded and unpacked " + toolName + " to "
-                            + file.getAbsoluteFile());
-        }
+		}
 
         /*
          * (non-Javadoc)
@@ -228,24 +264,14 @@ public class ToolInstaller {
                         false);
                 final DownloadManager dlm = new DownloadManager();
                 ProgressBarWindow pbw = new ProgressBarWindow(parent,
-                        installDirectory, dialog);
+                        installDirectory, tmp, ft, ps, dialog);
                 dlm.addListener(pbw);
                 Runnable down = new Runnable() {
 
                     @Override
                     public void run() {
-                        try {
-                            dlm.downloadAll(new FileInfo[] { info }, 2000, tmp
-                                    .getParentFile().getAbsolutePath(), true);
-                            unpack(tmp, installDirectory
-                                    .getAbsoluteFile());
-                        } catch (IOException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
-                        } catch (ArchiveException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
-                        }
+						dlm.downloadAll(new FileInfo[] { info }, 2000, tmp
+								.getParentFile().getAbsolutePath(), true);
                     }
                 };
                 Thread thread = new Thread(down);
@@ -258,15 +284,15 @@ public class ToolInstaller {
         }
     }
 
-    private void unpack(File tmp, File dir) throws FileNotFoundException,
+    public static void unpack(File tmp, File dir, FileType ft, PropertySetter ps, JProgressBar bar) throws FileNotFoundException,
             IOException, ArchiveException {
         switch (ft) {
         case ZIP:
-            unzip(tmp, dir);
+            unzip(tmp, dir, ps, bar);
             break;
         case TARGZ:
         case TARBZ2:
-            untar(tmp, dir, ft);
+            untar(tmp, dir, ft, ps, bar);
             break;
         default:
             throw new IllegalArgumentException("Unknown filetype: " + ft);
@@ -279,7 +305,7 @@ public class ToolInstaller {
      * @throws IOException
      * @throws ArchiveException
      */
-    private void untar(File file, File dir, FileType ft) throws IOException,
+    private static void untar(File file, File dir, FileType ft, PropertySetter ps, JProgressBar bar) throws IOException,
             ArchiveException {
         FileInputStream fis = new FileInputStream(file);
         InputStream is;
@@ -298,7 +324,9 @@ public class ToolInstaller {
         final TarArchiveInputStream debInputStream = (TarArchiveInputStream) new ArchiveStreamFactory()
                 .createArchiveInputStream("tar", is);
         TarArchiveEntry entry = null;
+		int value = 0;
         while ((entry = (TarArchiveEntry) debInputStream.getNextEntry()) != null) {
+			bar.setValue(value++);
             final File outputFile = new File(dir, entry.getName());
             if (entry.isDirectory()) {
                 if (!outputFile.exists()) {
@@ -336,14 +364,16 @@ public class ToolInstaller {
      * @throws FileNotFoundException
      * @throws IOException
      */
-    private void unzip(File file, File dir) throws FileNotFoundException,
+    private static void unzip(File file, File dir, PropertySetter ps, JProgressBar bar) throws FileNotFoundException,
             IOException {
         final int BUFFER = 2048;
         BufferedOutputStream dest = null;
         FileInputStream fis = new FileInputStream(file);
         ZipInputStream zis = new ZipInputStream(new BufferedInputStream(fis));
         ZipEntry entry;
+		int value = 0;
         while ((entry = zis.getNextEntry()) != null) {
+			bar.setValue(value++);
             int count;
             byte data[] = new byte[BUFFER];
             // write the files to the disk
