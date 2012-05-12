@@ -17,16 +17,18 @@ import java.util.List;
 
 import org.w3c.dom.Node;
 
+import scala.Tuple2;
 import de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ConnectionProblemException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ServerStatusProblemException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
 import de.uka.ilkd.key.dl.arithmetics.impl.orbital.OrbitalSimplifier;
-import de.uka.ilkd.key.dl.arithmetics.impl.qepcad.PrenexGenerator.PrenexGeneratorResult;
 import de.uka.ilkd.key.dl.arithmetics.impl.qepcad.ProgramCommunicator.Stopper;
+import de.uka.ilkd.key.dl.formulatools.Prenex;
 import de.uka.ilkd.key.logic.NamespaceSet;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.TermBuilder;
+import de.uka.ilkd.key.logic.op.QuantifiableVariable;
 
 /**
  * Implements the QuantifierElimintor with an external program called qebcad.
@@ -68,10 +70,10 @@ public class QepCad implements IQuantifierEliminator {
 			long timeout) throws RemoteException, SolverException {
 
 		// System.out.println("START  : Reduce called");
-		PrenexGeneratorResult result = PrenexGenerator.transform(form, nss);
+		Tuple2<Term, List<QuantifiableVariable>> result = Prenex.transform(form, nss);
 
-		QepCadInput input = Term2QepCadConverter.convert(result.getTerm(),
-				result.getVariables());
+		QepCadInput input = Term2QepCadConverter.convert(result._1,
+				result._2);
 		if (input.getVariableList().equals("()")) {
 			if (OrbitalSimplifier.testForSimpleTautology(String2TermConverter
 					.convert(input.getFormula(), nss))) {

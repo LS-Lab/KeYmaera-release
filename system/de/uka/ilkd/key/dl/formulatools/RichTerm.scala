@@ -125,6 +125,11 @@ object Constant {
 }
 
 object Ex {
+  
+  def apply(t: Term, v: LogicVariable) : Term = {
+    TermBuilder.DF.ex(Array[QuantifiableVariable](v), t)
+  }
+  
   def apply(t: Term, orgvars: ImmutableArray[QuantifiableVariable]): Term = {
     var vars: Array[QuantifiableVariable] = new Array[QuantifiableVariable](orgvars.size);
     for (i <- 0 until t.varsBoundHere(0).size()) {
@@ -141,6 +146,11 @@ object Ex {
 }
 
 object All {
+  
+  def apply(t: Term, v: LogicVariable) : Term = {
+    TermBuilder.DF.all(Array[QuantifiableVariable](v), t)
+  }
+  
   def apply(t: Term, orgvars: ImmutableArray[QuantifiableVariable]): Term = {
     var vars: Array[QuantifiableVariable] = new Array[QuantifiableVariable](orgvars.size);
     for (i <- 0 until t.varsBoundHere(0).size()) {

@@ -767,6 +767,7 @@ final object AM {
     case Fn("+",List(c,Fn("*",List(Var(x),p)))) =>
       Fn("+",List(poly_neg(c), Fn("*",List(Var(x), poly_neg(p)))))
     case Num(n) => Num(-n)
+    case _ => throw new Error("poly_ladd: malformed input")
   }
 
   def poly_sub(vars: List[String], p: CHTerm, q: CHTerm): CHTerm = {

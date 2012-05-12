@@ -19,8 +19,7 @@ import java.util.Set;
 
 import de.uka.ilkd.key.dl.arithmetics.impl.orbital.PolynomTool;
 import de.uka.ilkd.key.dl.arithmetics.impl.orbital.PolynomTool.BigFraction;
-import de.uka.ilkd.key.dl.arithmetics.impl.qepcad.PrenexGenerator;
-import de.uka.ilkd.key.dl.arithmetics.impl.qepcad.PrenexGenerator.PrenexGeneratorResult;
+import de.uka.ilkd.key.dl.formulatools.Prenex;
 import de.uka.ilkd.key.logic.NamespaceSet;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.op.Function;
@@ -65,8 +64,7 @@ public class Term2SMTConverter {
 			List<QuantifiableVariable> variables, NamespaceSet nss) {
 		Term2SMTConverter converter = new Term2SMTConverter();
 		if(Options.INSTANCE.isPrenexForm()) {
-			PrenexGeneratorResult result = PrenexGenerator.transform(form, nss);
-			form = result.getTerm();
+			form = Prenex.transform(form, nss)._1;
 		}
 		if(Options.INSTANCE.isElimExistentialQuantifierPrefix()) {
 			form = elimForQuan(form);
