@@ -90,7 +90,7 @@ object Term2ReduceString {
       println("vars size " + vars.size)
     for (i <- 0 until vars.size) {
       count(0) += 1
-      res += "all(" + replaceChars(vars.get(i).name.toString) + ", "
+      res += s + "(" + replaceChars(vars.get(i).name.toString) + ", "
     }
     res += conv(t);
     for (i <- 0 until vars.size) {
