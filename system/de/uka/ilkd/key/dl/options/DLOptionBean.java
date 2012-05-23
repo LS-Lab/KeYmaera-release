@@ -324,6 +324,8 @@ public class DLOptionBean implements Settings {
 	private boolean resetStrategyAfterEveryRun;
 
     private boolean useODEIndFinMethods;
+    
+    private boolean reduceOnFreshBranch;
 
 	private DLOptionBean() {
 		subOptions = new LinkedHashSet<Settings>();
@@ -708,7 +710,14 @@ public class DLOptionBean implements Settings {
 		if (property != null) {
 			tracerStat = TracerStat.valueOf(property);
 		}
-
+		property = props.getProperty(EPropertyConstant.DLOPTIONS_USE_ODE_IND_FIN_METHODS.getKey());
+		if(property != null) {
+		    useODEIndFinMethods = Boolean.valueOf(property);
+		}
+		property = props.getProperty(EPropertyConstant.DLOPTIONS_USE_ODE_IND_FIN_METHODS.getKey());
+		if(property != null) {
+		    useODEIndFinMethods = Boolean.valueOf(property);
+		}
 	}
 
 	/*
@@ -813,6 +822,8 @@ public class DLOptionBean implements Settings {
 				cexFinder.name());
 		props.setProperty(EPropertyConstant.DLOPTIONS_TRACER_STAT.getKey(),
 				tracerStat.name());
+		props.setProperty(EPropertyConstant.DLOPTIONS_USE_ODE_IND_FIN_METHODS.getKey(), Boolean.toString(useODEIndFinMethods));
+		props.setProperty(EPropertyConstant.DLOPTIONS_REDUCE_ON_FRESH_BRANCH.getKey(), Boolean.toString(reduceOnFreshBranch));
 
 	}
 
@@ -1428,6 +1439,24 @@ public class DLOptionBean implements Settings {
     public void setUseODEIndFinMethods(boolean useODEIndFinMethods) {
         if(this.useODEIndFinMethods != useODEIndFinMethods) {
             this.useODEIndFinMethods = useODEIndFinMethods;
+            firePropertyChanged();
+        }
+    }
+
+    /**
+     * @return the reduceOnFreshBranch
+     */
+    public boolean isReduceOnFreshBranch() {
+        return reduceOnFreshBranch;
+    }
+
+    /**
+     * @param reduceOnFreshBranch the reduceOnFreshBranch to set
+     */
+    public void setReduceOnFreshBranch(boolean reduceOnFreshBranch) {
+        if(this.reduceOnFreshBranch != reduceOnFreshBranch) {
+            System.out.println("Changed!");
+            this.reduceOnFreshBranch = reduceOnFreshBranch;
             firePropertyChanged();
         }
     }

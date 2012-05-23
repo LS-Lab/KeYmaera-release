@@ -26,8 +26,10 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.WeakHashMap;
 
+import de.uka.ilkd.key.dl.options.DLOptionBean;
 import de.uka.ilkd.key.logic.PosInOccurrence;
 import de.uka.ilkd.key.proof.Goal;
+import de.uka.ilkd.key.proof.Node;
 import de.uka.ilkd.key.rule.Rule;
 import de.uka.ilkd.key.rule.RuleApp;
 import de.uka.ilkd.key.strategy.LongRuleAppCost;
@@ -62,14 +64,25 @@ public class OnlyOncePerBranchFeature implements Feature {
 		//applied.put(app, app.rule());
 		
 
-		Iterator<RuleApp> it = goal.appliedRuleApps().iterator();
-		while (it.hasNext()) {
-			RuleApp next = it.next();
-			if (next.rule() == app.rule()) {
-				return TopRuleAppCost.INSTANCE;
-			}
-			
-		}
+	    if(DLOptionBean.INSTANCE.isReduceOnFreshBranch()) {
+	        Node n = goal.node();
+	        do {
+	            if (n.getAppliedRuleApp() != null && n.getAppliedRuleApp().rule() == app.rule()) {
+	                 return TopRuleAppCost.INSTANCE;
+	            }
+	            n = n.parent();
+	        } while(n != null && n.childrenCount() <= 1);    
+	    } else {
+            Iterator<RuleApp> it = goal.appliedRuleApps().iterator();
+            while (it.hasNext()) {
+                RuleApp next = it.next();
+                if (next.rule() == app.rule()) {
+                    return TopRuleAppCost.INSTANCE;
+                }
+
+            }
+	    }
+	    
 		return LongRuleAppCost.ZERO_COST;
 	}
 }

@@ -166,6 +166,9 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
 					createDescriptor(
 									 "useODEIndFinMethods", EPropertyConstant.DLOPTIONS_USE_ODE_IND_FIN_METHODS,
 									        true, false),
+					createDescriptor(
+									 "reduceOnFreshBranch", EPropertyConstant.DLOPTIONS_REDUCE_ON_FRESH_BRANCH,
+									        true, false),
 			// createDescriptor("invariantRule", "invariant rule",
 			// "choose which invariant rule should be used", true,
 			// false, InvariantRulePropertyEditor.class),
