@@ -26,6 +26,8 @@ import de.uka.ilkd.key.logic.op.Op
 import de.uka.ilkd.key.logic.JavaBlock
 
 /**
+ * This class wraps the KeY Term data structures to allow advanced matching and operator overloading
+ * 
  * @author jdq
  *
  */
@@ -107,7 +109,6 @@ object Equals extends BinaryLogicOperator(Op.EQUALS) {
 
 object Constant {
   def unapply(o: Operator): Option[String] = {
-    System.out.println("Testing " + o.name.toString + " with type " + o.getClass)
     if (o.isInstanceOf[LogicVariable]
       || o.isInstanceOf[QuantifiableVariable]
       || o.isInstanceOf[ProgramVariable]
