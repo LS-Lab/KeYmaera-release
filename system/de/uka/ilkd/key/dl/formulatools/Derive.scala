@@ -56,25 +56,23 @@ object Derive {
       case Minus(a, b) => d(a) - d(b)
       case Mult(a, b) => (d(a) * b) + (a * d(b))
       case Div(a, b) => ((d(a) * b) - (a * d(b))) / (b ^ 2)
-      case Exp(a, b) => {
-        if (b == 0) return 0
-        if (b == 1) return d(a)
-        if (a == 1) return 1
-        try {
-          b match {
-            case MinusSign(e) => d((1: Term) / (a ^ e))
-            case _ => {
-              val frac = PolynomTool.convertStringToFraction(b.op.name.toString)
-              assert(b.arity == 0) //: "literal constants have no subterms";
-              b * (a ^ (b - 1)) * d(a)
-            }
+      case Exp(_, b) if (b == 0) => 0
+      case Exp(a, _) if (a == 1) => 0 // term is constant and thus derived to 0
+      case Exp(a, b) if (b == 1) => d(a)
+      case Exp(a, b) => try {
+        b match {
+          case MinusSign(e) => d((1: Term) / (a ^ e))
+          case _ => {
+            val frac = PolynomTool.convertStringToFraction(b.op.name.toString)
+            assert(b.arity == 0) //: "literal constants have no subterms";
+            b * (a ^ (b - 1)) * d(a)
           }
-        } catch {
-          case e: Exception => {
-            throw new UnsupportedOperationException(
-              "Not implemented for polynomial exponents: "
-                + b, e);
-          }
+        }
+      } catch {
+        case e: Exception => {
+          throw new UnsupportedOperationException(
+            "Not implemented for polynomial exponents: "
+              + b, e);
         }
       }
       case Equals(a, b) => if (eps == null) (d(t.sub(0)) equal d(t.sub(1))) else {
