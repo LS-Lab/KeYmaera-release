@@ -81,7 +81,7 @@ public class MacOsDefaultProperties extends LinuxOsDefaultProperties implements
 				spath = "/";
 			else
 				spath = spath + File.separator + "Workspace" + File.separator
-						+ "qepcad/saclib2.1";
+						+ "qepcad";
 		}
 		return spath;
 	}

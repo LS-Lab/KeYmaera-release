@@ -104,13 +104,13 @@ public class FileExistenceVerification {
         c.gridy = 3;
         messagePane.add(new JLabel("<html><br>"
                 + "This may cause an error in KeYmaera <br>"
-                + "<br>Do  you want to continue ?</html>"), c);
+                + "<br>Do  you want to continue?</html>"), c);
 
         if (ALLEXIST)
             return JOptionPane.YES_OPTION;
         else
             return JOptionPane.showConfirmDialog(parent, messagePane,
-                    "Warning", JOptionPane.YES_NO_OPTION);
+                    "Configuration Warning", JOptionPane.YES_NO_OPTION);
 
     }
 

@@ -94,7 +94,7 @@ public class ToolInstaller {
 
             panel = new JPanel();
             panel.setLayout(new FlowLayout());
-			label = new JLabel("Downloading: ");
+			label = new JLabel("Downloading solver: ");
             panel.add(label);
             panel.add(bar);
         }
@@ -112,7 +112,7 @@ public class ToolInstaller {
 
                 @Override
                 public void run() {
-                    JOptionPane.showMessageDialog(parent, panel);
+                    JOptionPane.showMessageDialog(parent, panel, "Downloading Solver", JOptionPane.PLAIN_MESSAGE);
                 }
             });
         }
@@ -160,19 +160,19 @@ public class ToolInstaller {
 				disposeStatusWindow();
 				JOptionPane.showMessageDialog(parent,
 						"Successfully downloaded and unpacked " + toolName + " to "
-								+ file.getAbsoluteFile());
+								+ file.getAbsoluteFile(), "Solver Download Successful", JOptionPane.INFORMATION_MESSAGE);
 			} catch (IOException e) {
 				disposeStatusWindow();
 				JOptionPane.showMessageDialog(parent,
 						"Error unpacking " + toolName + " to "
-								+ file.getAbsoluteFile());
+								+ file.getAbsoluteFile() + "\nCheck directory permissions.", "Solver Installation Failed", JOptionPane.ERROR_MESSAGE);
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (ArchiveException e) {
 				disposeStatusWindow();
 				JOptionPane.showMessageDialog(parent,
 						"Error unpacking " + toolName + " to "
-								+ file.getAbsoluteFile());
+								+ file.getAbsoluteFile() + "\nCheck directory permissions.", "Solver Installation Failed", JOptionPane.ERROR_MESSAGE);
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
