@@ -586,8 +586,7 @@ Proves equation (8.29)</description>
         	<example>
         		<name>Car Control follow the leader [simple]</name>
         		<path>/examples/hybrid/car/DCCS/dccs-example-simple.key</path>
-        		<description>A very simple version of car control with a single leader and a single follower car drive on a lane and the follower car directly follows the leader. The follower car maintains velocity less than or equal to the lead car.
-See the paper for significantly more complicated car control verification, up to and including an arbitrary number of cars on an arbitrary number of lanes with lane switching and cars entering and leaving the highway.</description>
+        		<description>A very simple version of car control with a single leader and a single follower car drive on a lane and the follower car directly follows the leader. The follower car maintains velocity less than or equal to the lead car. See the FM'11 paper for significantly more complicated car control verification, up to and including an arbitrary number of cars on an arbitrary number of lanes with lane switching and cars entering and leaving the highway.</description>
         		<img href="http://symbolaris.com/info/fig-car-control2.png"/>
         	    <source href="http://symbolaris.com/info/DCCS.html"/>
         		<requirements>
@@ -600,10 +599,9 @@ See the paper for significantly more complicated car control verification, up to
         	<example>
         		<name>Car Control follow adaptively [simplified]</name>
         		<path>/examples/hybrid/car/DCCS/dccs-example.key</path>
-        		<description>A very simplified version of car control. Here only one single leader and a single follower car drive on a lane. In this simplified version, however, the leader car is stuck at a traffic light.
-See the paper for significantly more complicated car control verification, up to and including an arbitrary number of cars on an arbitrary number of lanes with lane switching and cars entering and leaving the highway.</description>
+        		<description>A very simplified version of car control. Here only one single leader and a single follower car drive on a lane. In this simplified version, however, the leader car is stuck at a traffic light. See the FM'11 paper for significantly more complicated car control verification, up to and including an arbitrary number of cars on an arbitrary number of lanes with lane switching and cars entering and leaving the highway.</description>
         		<img href="http://symbolaris.com/info/fig-car-control2.png"/>
-        	    <source href="http://symbolaris.com/lahs/"/>
+        	    <source href="http://symbolaris.com/info/DCCS.html"/>
         		<requirements>
         			<some>
         				<quantifiereliminator>Mathematica</quantifiereliminator>
@@ -617,8 +615,7 @@ See the paper for significantly more complicated car control verification, up to
 						<proofs>
 							<proof name="Mathematica" href="/examples/hybrid/car/intersection/intersection-example-simple.key.proof"/>
 						</proofs>
-                        <description>A very simple intersection of two lanes, with one car moving on each lane.  The safety property applies only to the traffic light controller - verifying that it is always red on at least one of the two lanes.  The cars accelerate only if the traffic light is green, or they have already gone through the intersection.
-See the paper on safe intersections for a verification of the safety of the cars, as well as the traffic light.
+                        <description>A very simple intersection of two lanes, with one car moving on each lane. The safety property applies only to the traffic light controller - verifying that it is always red on at least one of the two lanes.  The cars accelerate only if the traffic light is green, or they have already gone through the intersection. See the ITSC'11 paper on safe intersections for a verification of the safety of the cars, as well as the traffic light.
 Proof hints: Be sure to set the Max Rule Application under Proof Search Strategy to maximum.</description>
                         <img href="http://symbolaris.com/info/stoplight.png"/>
                     <source href="http://symbolaris.com/info/DCCS.html"/>
@@ -634,8 +631,7 @@ Proof hints: Be sure to set the Max Rule Application under Proof Search Strategy
 						<proofs>
 							<proof name="Mathematica" href="/examples/hybrid/car/intersection/intersection-example-onelane.key.proof"/>
 						</proofs>
-                        <description>A very simple intersection of two lanes, with one car moving on one lane.  The car accelerates only if the traffic light is green, or it has already gone through the intersection.
-See the paper on safe intersections.
+                        <description>A very simple intersection of two lanes, with one car moving on one lane.  The car accelerates only if the traffic light is green, or it has already gone through the intersection. See the ITSC'11 paper on safe intersections for a verification of the safety of the cars, as well as the traffic light.
 Proof requires user interactions.</description>
                         <img href="http://symbolaris.com/info/onelane.png"/>
                     <source href="http://symbolaris.com/info/DCCS.html"/>
@@ -652,7 +648,7 @@ Proof requires user interactions.</description>
 						<proofs>
 							<proof name="Mathematica" href="/examples/hybrid/car/vsl/vsl.key.proof"/>
 						</proofs>
-						<description>Proves safety of variable speed limits issued by traffic centers. This example proves that the variable speed limit car controller always complies with a speed limit that the traffic center issued for a certain position on a road.
+						<description>Proves safety of variable speed limits issued by traffic centers. This example proves that the variable speed limit car controller always complies with a speed limit that the traffic center issued for a certain position on a road. See ICCPS'12 paper for more details.
 					</description>
 						<source href="http://symbolaris.com/info/DCCS.html"/>
 						<img href="http://symbolaris.com/info/vsl.png"/>
@@ -668,7 +664,7 @@ Proof requires user interactions.</description>
 						<proofs>
 							<proof name="Mathematica" href="/examples/hybrid/car/vsl/vsli.key.proof"/>
 						</proofs>
-						<description>Proves safety of variable speed limits issued by traffic centers. This example proves that the (advanced) variable speed limit controller car always complies with a speed limit that the traffic center issues for a certain position on a road. An incident on the road defines an area that must contain a speed limit. This incident may possibly move towards cars. Outside the area defined by the incident, the traffic center may issue additional speed limits at will.
+						<description>Proves safety of variable speed limits issued by traffic centers. This example proves that the (advanced) variable speed limit controller car always complies with a speed limit that the traffic center issues for a certain position on a road. An incident on the road defines an area that must contain a speed limit. This incident may possibly move towards cars. Outside the area defined by the incident, the traffic center may issue additional speed limits at will. See ICCPS'12 paper for more details.
 						</description>
 						<source href="http://symbolaris.com/info/DCCS.html"/>
 						<img href="http://symbolaris.com/info/vsli.png"/>
@@ -684,7 +680,7 @@ Proof requires user interactions.</description>
 						<proofs>
 							<proof name="Mathematica" href="/examples/hybrid/car/vsl/vsli-alert.key.proof"/>
 						</proofs>
-						<description>Proves safety of variable speed limits issued by traffic centers. This example proves that the variable speed limit car controller always complies with a speed limit that the traffic center issues for a certain position on a road. An incident on the road defines an area that must contain a speed limit. This incident may move towards cars. Outside the area defined by the incident, the traffic center may issue speed limits at will. Additionally, the traffic center ensures to only issue speed limits once per car within the area defined by the incident to avoid Zeno-style updating.
+						<description>Proves safety of variable speed limits issued by traffic centers. This example proves that the variable speed limit car controller always complies with a speed limit that the traffic center issues for a certain position on a road. An incident on the road defines an area that must contain a speed limit. This incident may move towards cars. Outside the area defined by the incident, the traffic center may issue speed limits at will. Additionally, the traffic center ensures to only issue speed limits once per car within the area defined by the incident to avoid Zeno-style updating. See ICCPS'12 paper for more details.
 					</description>
 						<source href="http://symbolaris.com/info/DCCS.html"/>
 						<img href="http://symbolaris.com/info/vsli-alert.png"/>
