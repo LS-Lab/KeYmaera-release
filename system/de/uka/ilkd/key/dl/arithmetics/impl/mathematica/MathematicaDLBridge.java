@@ -781,7 +781,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 		} else if (result.head().equals(RULE)) {
 			StringBuilder str = new StringBuilder();
 			str.append(result.args()[0].toString().replaceAll(USCORE_ESCAPE,
-					"_"));
+					"_").replaceFirst(EConstants.SKOPE(), ""));
 			str.append(" = ");
 			if (result.args()[1].head().equals(RATIONAL)) {
 				str.append(result.args()[1].args()[0] + "/"

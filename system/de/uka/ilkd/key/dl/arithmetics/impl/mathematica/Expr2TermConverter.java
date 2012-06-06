@@ -374,11 +374,12 @@ public class Expr2TermConverter implements ExprConstants {
 
                         Function f = (Function) nss.functions().lookup(name);
                         if (f == null) {
-                            if (isBlacklisted(name)) {
-                                throw new RemoteException(
-                                        "Mathematica returned a system function "
-                                                + name);
-                            }
+                            // it cannot be blacklisted as it started with EConstants.SKOPE()
+//                            if (isBlacklisted(name)) {
+//                                throw new RemoteException(
+//                                        "Mathematica returned a system function "
+//                                                + name);
+//                            }
                             Sort[] argSorts = new Sort[ex.length];
                             Arrays.fill(argSorts, RealLDT.getRealSort());
                             f = new RigidFunction(name, RealLDT.getRealSort(),
@@ -404,11 +405,12 @@ public class Expr2TermConverter implements ExprConstants {
                                 EConstants.SKOPE(), ""));
                         name = new Name(name.toString().replaceAll(
                                 USCORE_ESCAPE, "_"));
-                        if (isBlacklisted(name)) {
-                            throw new RemoteException(
-                                    "Mathematica returned a system function "
-                                            + name);
-                        }
+                            // it cannot be blacklisted as it started with EConstants.SKOPE()
+//                        if (isBlacklisted(name)) {
+//                            throw new RemoteException(
+//                                    "Mathematica returned a system function "
+//                                            + name);
+//                        }
                         if (quantifiedVariables.containsKey(name)) {
                             return TermBuilder.DF.var(quantifiedVariables
                                     .get(name));
