@@ -97,7 +97,7 @@ public class DL2ExprConverter implements ExprConstants {
                     .getChildAt(0);
             if (args.length == 0) {
                 String name = f.getElementName().toString();
-                name = name.replaceAll("_", USCORE_ESCAPE);
+                name = EConstants.SKOPE() + name.replaceAll("_", USCORE_ESCAPE);
                 return new Expr(Expr.SYMBOL, name);
             } else {
                 return new Expr(convertDiffEquation(f, t, vars), args);
@@ -124,23 +124,23 @@ public class DL2ExprConverter implements ExprConstants {
         } else if (el instanceof ProgramVariable) {
             ProgramVariable v = (ProgramVariable) el;
             String pvName = v.getElementName().toString();
-            pvName = pvName.replaceAll("_", USCORE_ESCAPE);
+            pvName = EConstants.SKOPE() + pvName.replaceAll("_", USCORE_ESCAPE);
 			Expr var = new Expr(Expr.SYMBOL, pvName);
             if (vars.containsKey(pvName)) {
                 String name = t.name().toString();
-                name = name.replaceAll("_", USCORE_ESCAPE);
+                name = EConstants.SKOPE() + name.replaceAll("_", USCORE_ESCAPE);
                 return new Expr(var, new Expr[] { new Expr(Expr.SYMBOL, name) });
             } else {
                 return var;
             }
         } else if (el instanceof MetaVariable) {
             MetaVariable v = (MetaVariable) el;
-            return new Expr(Expr.SYMBOL, v.getElementName().toString().replaceAll("_", USCORE_ESCAPE));
+            return new Expr(Expr.SYMBOL, EConstants.SKOPE() + v.getElementName().toString().replaceAll("_", USCORE_ESCAPE));
 
         } else {
             if (el instanceof NamedElement) {
                 String name = ((NamedElement) el).getElementName().toString();
-                name = name.replaceAll("_", USCORE_ESCAPE);
+                name = EConstants.SKOPE() + name.replaceAll("_", USCORE_ESCAPE);
                 if (el instanceof LogicalVariable) {
                     return new Expr(Expr.SYMBOL, name);
                 } else if (el instanceof FreeFunction) {
@@ -149,7 +149,7 @@ public class DL2ExprConverter implements ExprConstants {
             } else if (el instanceof Dot) {
                 Dot dot = (Dot) el;
                 Expr variableName = new Expr(Expr.SYMBOL,
-                        ((NamedElement) dot.getChildAt(0))
+                        EConstants.SKOPE() + ((NamedElement) dot.getChildAt(0))
                                 .getElementName().toString().replaceAll("_", USCORE_ESCAPE));
                 Expr differentialSymbol = new Expr(new Expr(new Expr(Expr.SYMBOL, "Derivative"),
                         new Expr[] { new Expr(dot.getOrder()) }),
@@ -159,7 +159,7 @@ public class DL2ExprConverter implements ExprConstants {
                     return differentialSymbol;
                 } else {
                     String name = t.name().toString();
-                    name = name.replaceAll("_", USCORE_ESCAPE);
+                    name = EConstants.SKOPE() + name.replaceAll("_", USCORE_ESCAPE);
                     return new Expr(
                         differentialSymbol,
                         new Expr[] { new Expr(Expr.SYMBOL, name) });

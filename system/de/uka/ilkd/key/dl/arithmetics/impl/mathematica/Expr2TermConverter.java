@@ -76,8 +76,8 @@ public class Expr2TermConverter implements ExprConstants {
             "List", "Resolve", "DSolve", "D", "Dt", "Indeterminate",
             "GroebnerBasis" };
 
-    private static final Set<String> BLACKLIST = new LinkedHashSet<String>(Arrays
-            .asList(BLACKLIST_ARRAY));
+    private static final Set<String> BLACKLIST = new LinkedHashSet<String>(
+            Arrays.asList(BLACKLIST_ARRAY));
 
     /**
      * @param nss
@@ -139,23 +139,26 @@ public class Expr2TermConverter implements ExprConstants {
                     for (int i = 0; i < list.args().length; i++) {
                         Name name;
                         String asString = list.args()[i].asString();
-                        if (asString.endsWith("$")) {
-                            name = new Name(asString.substring(0, asString
-                                    .length() - 1));
-                        } else {
-                            name = new Name(asString);
-                        }
-                        name = new Name(name.toString().replaceAll(
-                                USCORE_ESCAPE, "_"));
-                        LogicVariable lookup = (LogicVariable) nss.variables()
-                                .lookup(name);
-                        if (lookup == null) {
-                            lookup = new LogicVariable(name, RealLDT
-                                    .getRealSort());
+                        if (asString.startsWith(EConstants.SKOPE())) {
+                            asString = asString.replaceFirst(EConstants.SKOPE(), "");
+                            if (asString.endsWith("$")) {
+                                name = new Name(asString.substring(0,
+                                        asString.length() - 1));
+                            } else {
+                                name = new Name(asString);
+                            }
+                            name = new Name(name.toString().replaceAll(
+                                    USCORE_ESCAPE, "_"));
+                            LogicVariable lookup = (LogicVariable) nss
+                                    .variables().lookup(name);
+                            if (lookup == null) {
+                                lookup = new LogicVariable(name,
+                                        RealLDT.getRealSort());
 
+                            }
+                            vars.add(lookup);
+                            quantifiedVariables.put(name, lookup);
                         }
-                        vars.add(lookup);
-                        quantifiedVariables.put(name, lookup);
                     }
                     if (expr.head().equals(EXISTS)) {
                         Term result = convertImpl(expr.args()[1], nss,
@@ -165,9 +168,10 @@ public class Expr2TermConverter implements ExprConstants {
                         }
                         return result;
                     } else {
-                        return TermBuilder.DF.all(vars
-                                .toArray(new LogicVariable[0]), convertImpl(
-                                expr.args()[1], nss, quantifiedVariables));
+                        return TermBuilder.DF.all(
+                                vars.toArray(new LogicVariable[0]),
+                                convertImpl(expr.args()[1], nss,
+                                        quantifiedVariables));
                     }
                 }
             }
@@ -196,8 +200,9 @@ public class Expr2TermConverter implements ExprConstants {
                 } else if (expr.args()[3].equals(GREATER)) {
                     func2 = "gt";
                 }
-                result = TermBuilder.DF.func(lookupRigidFunction(nss, new Name(
-                        func1), 1), left, mid);
+                result = TermBuilder.DF
+                        .func(lookupRigidFunction(nss, new Name(func1), 1),
+                                left, mid);
                 result = TermBuilder.DF.and(result, TermBuilder.DF.func(
                         lookupRigidFunction(nss, new Name(func2), 1), mid,
                         right));
@@ -213,8 +218,9 @@ public class Expr2TermConverter implements ExprConstants {
                 }
             }
             if (expr.rationalQ()) {
-                return TermBuilder.DF.func(lookupRigidFunction(nss, new Name(
-                        "div"), 2), ex[0], ex[1]);
+                return TermBuilder.DF.func(
+                        lookupRigidFunction(nss, new Name("div"), 2), ex[0],
+                        ex[1]);
             } else if (expr.numberQ()) {
                 BigDecimal asBigDecimal = expr.asBigDecimal();
                 boolean minus = false;
@@ -226,61 +232,68 @@ public class Expr2TermConverter implements ExprConstants {
                 Function num = lookupRigidFunction(nss, name, 0);
                 Term result = TermBuilder.DF.func(num);
                 if (minus) {
-                    result = TermBuilder.DF.func(lookupRigidFunction(nss,
-                            new Name("neg"), 2), result);
+                    result = TermBuilder.DF.func(
+                            lookupRigidFunction(nss, new Name("neg"), 2),
+                            result);
                 }
                 return result;
             } else if (expr.head().symbolQ()) {
                 if (expr.head().equals(PLUS)) {
                     Term result = ex[0];
                     for (int i = 1; i < ex.length; i++) {
-                        result = TermBuilder.DF.func(RealLDT
-                                .getFunctionFor(Plus.class), result, ex[i]);
+                        result = TermBuilder.DF.func(
+                                RealLDT.getFunctionFor(Plus.class), result,
+                                ex[i]);
                     }
                     return result;
                 } else if (expr.head().equals(MINUS)) {
                     Term result = ex[0];
                     for (int i = 1; i < ex.length; i++) {
                         result = TermBuilder.DF
-                                .func(
-                                        RealLDT
-                                                .getFunctionFor(de.uka.ilkd.key.dl.model.Minus.class),
+                                .func(RealLDT
+                                        .getFunctionFor(de.uka.ilkd.key.dl.model.Minus.class),
                                         result, ex[i]);
                     }
                     return result;
                 } else if (expr.head().equals(MINUSSIGN)) {
-                    return TermBuilder.DF.func(RealLDT
-                            .getFunctionFor(MinusSign.class), ex[0]);
+                    return TermBuilder.DF.func(
+                            RealLDT.getFunctionFor(MinusSign.class), ex[0]);
                 } else if (expr.head().equals(MULT)) {
                     Term result = ex[0];
                     for (int i = 1; i < ex.length; i++) {
-                        result = TermBuilder.DF.func(RealLDT
-                                .getFunctionFor(Mult.class), result, ex[i]);
+                        result = TermBuilder.DF.func(
+                                RealLDT.getFunctionFor(Mult.class), result,
+                                ex[i]);
                     }
                     return result;
                 } else if (expr.head().equals(DIV)) {
                     Term result = ex[0];
                     for (int i = 1; i < ex.length; i++) {
-                        result = TermBuilder.DF.func(RealLDT
-                                .getFunctionFor(Div.class), result, ex[i]);
+                        result = TermBuilder.DF.func(
+                                RealLDT.getFunctionFor(Div.class), result,
+                                ex[i]);
                     }
                     return result;
                 } else if (expr.head().equals(EXP)) {
                     Term result = ex[0];
                     for (int i = 1; i < ex.length; i++) {
-                        result = TermBuilder.DF.func(RealLDT
-                                .getFunctionFor(Exp.class), result, ex[i]);
+                        result = TermBuilder.DF.func(
+                                RealLDT.getFunctionFor(Exp.class), result,
+                                ex[i]);
                     }
                     return result;
                 } else if (expr.head().equals(INVERSE_FUNCTION)) {
                     Term result = ex[0];
-                    result = TermBuilder.DF.func(lookupRigidFunction(nss,
-                            new Name("InverseFunction"), 1), result, ex[1]);
+                    result = TermBuilder.DF.func(
+                            lookupRigidFunction(nss,
+                                    new Name("InverseFunction"), 1), result,
+                            ex[1]);
                     return result;
                 } else if (expr.head().equals(INTEGRATE)) {
                     Term result = ex[0];
-                    result = TermBuilder.DF.func(lookupRigidFunction(nss,
-                            new Name("Integrate"), 1), result, ex[1]);
+                    result = TermBuilder.DF.func(
+                            lookupRigidFunction(nss, new Name("Integrate"), 1),
+                            result, ex[1]);
                     return result;
                 } else if (expr.head().equals(EQUALS)) {
                     Term result = ex[0];
@@ -288,32 +301,33 @@ public class Expr2TermConverter implements ExprConstants {
                     return result;
                 } else if (expr.head().equals(LESS)) {
                     Term result = ex[0];
-                    result = TermBuilder.DF.func(RealLDT
-                            .getFunctionFor(Less.class), result, ex[1]);
+                    result = TermBuilder.DF.func(
+                            RealLDT.getFunctionFor(Less.class), result, ex[1]);
                     return result;
                 } else if (expr.head().equals(GREATER)) {
                     Term result = ex[0];
                     result = TermBuilder.DF
-                            .func(
-                                    RealLDT
-                                            .getFunctionFor(de.uka.ilkd.key.dl.model.Greater.class),
+                            .func(RealLDT
+                                    .getFunctionFor(de.uka.ilkd.key.dl.model.Greater.class),
                                     result, ex[1]);
                     return result;
                 } else if (expr.head().equals(GREATER_EQUALS)) {
                     Term result = ex[0];
-                    result = TermBuilder.DF
-                            .func(RealLDT.getFunctionFor(GreaterEquals.class),
-                                    result, ex[1]);
+                    result = TermBuilder.DF.func(
+                            RealLDT.getFunctionFor(GreaterEquals.class),
+                            result, ex[1]);
                     return result;
                 } else if (expr.head().equals(LESS_EQUALS)) {
                     Term result = ex[0];
-                    result = TermBuilder.DF.func(RealLDT
-                            .getFunctionFor(LessEquals.class), result, ex[1]);
+                    result = TermBuilder.DF.func(
+                            RealLDT.getFunctionFor(LessEquals.class), result,
+                            ex[1]);
                     return result;
                 } else if (expr.head().equals(UNEQUAL)) {
                     Term result = ex[0];
-                    result = TermBuilder.DF.func(RealLDT
-                            .getFunctionFor(Unequals.class), result, ex[1]);
+                    result = TermBuilder.DF.func(
+                            RealLDT.getFunctionFor(Unequals.class), result,
+                            ex[1]);
                     return result;
                 } else if (expr.head().equals(AND)) {
                     Term result = ex[0];
@@ -336,9 +350,11 @@ public class Expr2TermConverter implements ExprConstants {
                         result = TermBuilder.DF.imp(result, ex[i]);
                     }
                     return result;
-                } else if (expr.head().equals(ExprConstants.TRUE) || expr.equals(ExprConstants.TRUE)) {
+                } else if (expr.head().equals(ExprConstants.TRUE)
+                        || expr.equals(ExprConstants.TRUE)) {
                     return TermBuilder.DF.tt();
-                } else if (expr.head().equals(ExprConstants.FALSE) || expr.equals(ExprConstants.FALSE)) {
+                } else if (expr.head().equals(ExprConstants.FALSE)
+                        || expr.equals(ExprConstants.FALSE)) {
                     return TermBuilder.DF.ff();
                 } else if (expr.toString().equals("E")
                         || expr.head().toString().equals("E")) {
@@ -349,29 +365,33 @@ public class Expr2TermConverter implements ExprConstants {
                     }
                     return TermBuilder.DF.func(funcE);
                 } else if (ex.length > 0) {
-                    Name name = new Name(expr.head().asString());
-                    name = new Name(name.toString().replaceAll(USCORE_ESCAPE,
-                            "_"));
+                    String asString = expr.head().asString();
+                    if (asString.startsWith(EConstants.SKOPE())) {
+                        Name name = new Name(asString.replaceFirst(EConstants.SKOPE(),
+                                ""));
+                        name = new Name(name.toString().replaceAll(
+                                USCORE_ESCAPE, "_"));
 
-                    Function f = (Function) nss.functions().lookup(name);
-                    if (f == null) {
-                        if (isBlacklisted(name)) {
-                            throw new RemoteException(
-                                    "Mathematica returned a system function "
-                                            + name);
+                        Function f = (Function) nss.functions().lookup(name);
+                        if (f == null) {
+                            if (isBlacklisted(name)) {
+                                throw new RemoteException(
+                                        "Mathematica returned a system function "
+                                                + name);
+                            }
+                            Sort[] argSorts = new Sort[ex.length];
+                            Arrays.fill(argSorts, RealLDT.getRealSort());
+                            f = new RigidFunction(name, RealLDT.getRealSort(),
+                                    argSorts, FunctionType.MATHFUNCTION);
+                            nss.functions().add(f);
                         }
-                        Sort[] argSorts = new Sort[ex.length];
-                        Arrays.fill(argSorts, RealLDT.getRealSort());
-                        f = new RigidFunction(name, RealLDT.getRealSort(),
-                                argSorts, FunctionType.MATHFUNCTION);
-                        nss.functions().add(f);
+                        if (expr.args().length > 0) {
+                            return TermBuilder.DF.func(f, ex);
+                        }
+                        return TermBuilder.DF.func(f);
                     }
-                    if (expr.args().length > 0) {
-                        return TermBuilder.DF.func(f, ex);
-                    }
-                    return TermBuilder.DF.func(f);
                 } else {
-	                // convert names
+                    // convert names
                     Name name;
                     if (expr.asString().endsWith("$")) {
                         name = new Name(expr.asString().substring(0,
@@ -379,48 +399,55 @@ public class Expr2TermConverter implements ExprConstants {
                     } else {
                         name = new Name(expr.toString());
                     }
-                    name = new Name(name.toString().replaceAll(USCORE_ESCAPE,
-                            "_"));
-                    if (isBlacklisted(name)) {
-                        throw new RemoteException(
-                                "Mathematica returned a system function "
-                                        + name);
-                    }
-                    if (quantifiedVariables.containsKey(name)) {
-                        return TermBuilder.DF
-                                .var(quantifiedVariables.get(name));
-                    }
-                    checkNamespaceClash(name, nss);
-                    Named var = nss.variables().lookup(name);
-                    if (var != null) {
-                        if (var instanceof LogicVariable) {
-                            return TermBuilder.DF.var((LogicVariable) var);
-                        } else if (var instanceof Metavariable) {
-                            return TermFactory.DEFAULT
-                                    .createFunctionTerm((Metavariable) var);
+                    if (name.toString().startsWith(EConstants.SKOPE())) {
+                        name = new Name(name.toString().replaceFirst(
+                                EConstants.SKOPE(), ""));
+                        name = new Name(name.toString().replaceAll(
+                                USCORE_ESCAPE, "_"));
+                        if (isBlacklisted(name)) {
+                            throw new RemoteException(
+                                    "Mathematica returned a system function "
+                                            + name);
                         }
-                    } else {
-                        var = nss.functions().lookup(name);
+                        if (quantifiedVariables.containsKey(name)) {
+                            return TermBuilder.DF.var(quantifiedVariables
+                                    .get(name));
+                        }
+                        checkNamespaceClash(name, nss);
+                        Named var = nss.variables().lookup(name);
                         if (var != null) {
-                            return TermBuilder.DF.func((Function) var, ex);
-                        } else {
-                            var = nss.programVariables().lookup(name);
-                            if (var == null) {
-	                            //@todo not sure why these checks would be necessary again
-			                    // if ("True".equals(expr.toString()))
-			                    //    return TermBuilder.DF.tt();
-			                    // else if ("False".equals(expr.toString()))
-			                    //    return TermBuilder.DF.ff();
-                                // var = new
-                                // de.uka.ilkd.key.logic.op.LocationVariable(
-                                // new ProgramElementName(name.toString()),
-                                // getSortR(nss));
-                                throw new UnableToConvertInputException(
-                                        "ProgramVariable " + name
-                                                + " is not declared in expression '" + expr + "'");
+                            if (var instanceof LogicVariable) {
+                                return TermBuilder.DF.var((LogicVariable) var);
+                            } else if (var instanceof Metavariable) {
+                                return TermFactory.DEFAULT
+                                        .createFunctionTerm((Metavariable) var);
                             }
-                            return TermBuilder.DF
-                                    .var((de.uka.ilkd.key.logic.op.ProgramVariable) var);
+                        } else {
+                            var = nss.functions().lookup(name);
+                            if (var != null) {
+                                return TermBuilder.DF.func((Function) var, ex);
+                            } else {
+                                var = nss.programVariables().lookup(name);
+                                if (var == null) {
+                                    // @todo not sure why these checks would be
+                                    // necessary again
+                                    // if ("True".equals(expr.toString()))
+                                    // return TermBuilder.DF.tt();
+                                    // else if ("False".equals(expr.toString()))
+                                    // return TermBuilder.DF.ff();
+                                    // var = new
+                                    // de.uka.ilkd.key.logic.op.LocationVariable(
+                                    // new ProgramElementName(name.toString()),
+                                    // getSortR(nss));
+                                    throw new UnableToConvertInputException(
+                                            "ProgramVariable "
+                                                    + name
+                                                    + " is not declared in expression '"
+                                                    + expr + "'");
+                                }
+                                return TermBuilder.DF
+                                        .var((de.uka.ilkd.key.logic.op.ProgramVariable) var);
+                            }
                         }
                     }
                 }
@@ -440,35 +467,47 @@ public class Expr2TermConverter implements ExprConstants {
         if (var != null) {
             if (fct != null || prgvar != null) {
                 if (var instanceof LogicVariable) {
-		            System.out.println("WARNING Namespace logical variable " + TermBuilder.DF.var((LogicVariable) var) + " preferred over function " + fct + " and program variable " + prgvar);
+                    System.out.println("WARNING Namespace logical variable "
+                            + TermBuilder.DF.var((LogicVariable) var)
+                            + " preferred over function " + fct
+                            + " and program variable " + prgvar);
                 } else if (var instanceof Metavariable) {
-		            System.out.println("WARNING Namespace meta variable " + TermFactory.DEFAULT
-	                        .createFunctionTerm((Metavariable) var) + " preferred over function " + fct + " and program variable " + prgvar);
+                    System.out.println("WARNING Namespace meta variable "
+                            + TermFactory.DEFAULT
+                                    .createFunctionTerm((Metavariable) var)
+                            + " preferred over function " + fct
+                            + " and program variable " + prgvar);
                 }
-	            return true;
-	         } else {
-		        return false;
-        	 }
-        } else if (fct != null) {
-	            if (var != null || prgvar != null) {
-	                System.out.println("WARNING Namespace function " + fct + " preferred over variable " + var + " and program variable " + prgvar);
-	                assert var == null;
-                    return true;
-                } else {
-	                return false;
-                }
-            } else if (prgvar != null) {
-	            if (var != null || fct != null) {
-	                System.out.println("WARNING Namespace program variable " + TermBuilder.DF
-                            .var((de.uka.ilkd.key.logic.op.ProgramVariable) var) + " preferred over variable " + var + " and function " + fct);
-                    assert false : "cannot happen";
-                    return true;
-                 } else {
-	                return false;
-                 }
+                return true;
             } else {
-	            return false;
+                return false;
             }
+        } else if (fct != null) {
+            if (var != null || prgvar != null) {
+                System.out.println("WARNING Namespace function " + fct
+                        + " preferred over variable " + var
+                        + " and program variable " + prgvar);
+                assert var == null;
+                return true;
+            } else {
+                return false;
+            }
+        } else if (prgvar != null) {
+            if (var != null || fct != null) {
+                System.out
+                        .println("WARNING Namespace program variable "
+                                + TermBuilder.DF
+                                        .var((de.uka.ilkd.key.logic.op.ProgramVariable) var)
+                                + " preferred over variable " + var
+                                + " and function " + fct);
+                assert false : "cannot happen";
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
     }
 
     public static boolean isBlacklisted(Name name) {

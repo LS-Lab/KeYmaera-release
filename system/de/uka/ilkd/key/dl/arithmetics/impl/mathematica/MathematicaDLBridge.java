@@ -247,7 +247,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
                         new Expr(new Expr(Expr.SYMBOL, name), new Expr[] { new Expr(0) }),
                         new Expr(Expr.SYMBOL, name + "$") }));
         String name = t.name().toString();
-        name = name.replaceAll("_", USCORE_ESCAPE);
+        name = EConstants.SKOPE() + name.replaceAll("_", USCORE_ESCAPE);
         Expr query = new Expr(new Expr(Expr.SYMBOL, "DSolve"), new Expr[] {
                         new Expr(new Expr(Expr.SYMBOL, "List"), args.toArray(new Expr[1])),
                         new Expr(new Expr(Expr.SYMBOL, "List"), vars.values().toArray(new Expr[0])),
@@ -271,20 +271,23 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 		} else if (expr.head().equals(RULE)) {
 			ODESolverUpdate u = new ODESolverUpdate();
 			try {
-				de.uka.ilkd.key.logic.op.ProgramVariable var = (de.uka.ilkd.key.logic.op.ProgramVariable) nss
-						.programVariables().lookup(
-								new Name(expr.args()[0].head().asString()
-										.replaceAll(USCORE_ESCAPE, "_")));
-				if (var == null) {
-					// var = new de.uka.ilkd.key.logic.op.LocationVariable(
-					// new ProgramElementName(expr.args()[0].head()
-					// .asString()), getSortR(nss));
-					// nss.programVariables().add(var);
-					throw new IllegalStateException("ProgramVariable "
-							+ expr.args()[0].head().asString()
-							+ " is not declared");
-				}
-				u.location = TermBuilder.DF.var(var);
+                String name = expr.args()[0].head().asString()
+                        .replaceAll(USCORE_ESCAPE, "_");
+                if (name.startsWith(EConstants.SKOPE())) {
+                    name = name.replaceFirst(EConstants.SKOPE(), "");
+                    de.uka.ilkd.key.logic.op.ProgramVariable var = (de.uka.ilkd.key.logic.op.ProgramVariable) nss
+                            .programVariables().lookup(new Name(name));
+                    if (var == null) {
+                        // var = new de.uka.ilkd.key.logic.op.LocationVariable(
+                        // new ProgramElementName(expr.args()[0].head()
+                        // .asString()), getSortR(nss));
+                        // nss.programVariables().add(var);
+                        throw new IllegalStateException("ProgramVariable "
+                                + name
+                                + " is not declared");
+                    }
+                    u.location = TermBuilder.DF.var(var);
+                }
 			} catch (ExprFormatException e) {
 				throw new RemoteException(
 						"Could not create ODESolverUpdate for: " + expr, e);
@@ -329,7 +332,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 					new Expr(Expr.SYMBOL, name + "$") }));
 		}
 		String name = t.name().toString();
-		name = name.replaceAll("_", USCORE_ESCAPE);
+		name = EConstants.SKOPE() + name.replaceAll("_", USCORE_ESCAPE);
 		Expr query = new Expr(new Expr(Expr.SYMBOL, "DSolve"), new Expr[] {
 				new Expr(new Expr(Expr.SYMBOL, "List"), args
 						.toArray(new Expr[1])),
@@ -344,7 +347,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 		List<Term> values = new ArrayList<Term>();
 		List<String> varNames = new ArrayList<String>();
 		for (String var : vars.keySet()) {
-			varNames.add(var.replaceAll(USCORE_ESCAPE, "_"));
+			varNames.add(var.replaceAll(USCORE_ESCAPE, "_").replaceFirst(EConstants.SKOPE(), ""));
 		}
 		Map<String, Integer> multipleSolutions = new HashMap<String, Integer>();
 		for (Update u : updates) {
@@ -406,8 +409,8 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 		invariant = ((SubstOp) invariant.op()).apply(invariant);
 		// insert 0 <= ts <= t
 		Term tsRange = convert(new Expr(INEQUALITY, new Expr[] { new Expr(0),
-				LESS_EQUALS, new Expr(Expr.SYMBOL, ts.name().toString()),
-				LESS_EQUALS, new Expr(Expr.SYMBOL, t.name().toString()) }),
+				LESS_EQUALS, new Expr(Expr.SYMBOL, EConstants.SKOPE() + ts.name().toString()),
+				LESS_EQUALS, new Expr(Expr.SYMBOL, EConstants.SKOPE() + t.name().toString()) }),
 				services.getNamespaces());
 		invariant = TermBuilder.DF.imp(tsRange, invariant);
 		invariant = TermBuilder.DF.all(ts, invariant);
@@ -506,20 +509,23 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 		} else if (expr.head().equals(RULE)) {
 			Update u = new Update();
 			try {
-				de.uka.ilkd.key.logic.op.ProgramVariable var = (de.uka.ilkd.key.logic.op.ProgramVariable) nss
-						.programVariables().lookup(
-								new Name(expr.args()[0].head().asString()
-										.replaceAll(USCORE_ESCAPE, "_")));
-				if (var == null) {
-					// var = new de.uka.ilkd.key.logic.op.LocationVariable(
-					// new ProgramElementName(expr.args()[0].head()
-					// .asString()), getSortR(nss));
-					// nss.programVariables().add(var);
-					throw new IllegalStateException("ProgramVariable "
-							+ expr.args()[0].head().asString()
-							+ " is not declared");
-				}
-				u.location = TermBuilder.DF.var(var);
+                String name = expr.args()[0].head().asString()
+                        .replaceAll(USCORE_ESCAPE, "_");
+                if (name.startsWith(EConstants.SKOPE())) {
+                    name = name.replaceFirst(EConstants.SKOPE(), "");
+                    de.uka.ilkd.key.logic.op.ProgramVariable var = (de.uka.ilkd.key.logic.op.ProgramVariable) nss
+                            .programVariables().lookup(new Name(name));
+                    if (var == null) {
+                        // var = new de.uka.ilkd.key.logic.op.LocationVariable(
+                        // new ProgramElementName(expr.args()[0].head()
+                        // .asString()), getSortR(nss));
+                        // nss.programVariables().add(var);
+                        throw new IllegalStateException("ProgramVariable "
+                                + expr.args()[0].head().asString()
+                                + " is not declared");
+                    }
+                    u.location = TermBuilder.DF.var(var);
+                }
 			} catch (ExprFormatException e) {
 				throw new RemoteException("Could not create Update for: "
 						+ expr, e);
@@ -562,11 +568,11 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 	public static final void collectDottedProgramVariables(ProgramElement form,
 			Map<String, Expr> vars, Named t) {
 		String name = t.name().toString();
-		name = name.replaceAll("_", USCORE_ESCAPE);
+		name = EConstants.SKOPE() + name.replaceAll("_", USCORE_ESCAPE);
 		if (form instanceof Dot) {
 			ProgramVariable pv = (ProgramVariable) ((Dot) form).getChildAt(0);
 			String pvName = pv.getElementName().toString();
-			pvName = pvName.replaceAll("_", USCORE_ESCAPE);
+			pvName = EConstants.SKOPE() + pvName.replaceAll("_", USCORE_ESCAPE);
 			vars.put(pvName, new Expr(new Expr(Expr.SYMBOL, pvName),
 					new Expr[] { new Expr(Expr.SYMBOL, name) }));
 		}
@@ -736,7 +742,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
         Set<String> variables = AllCollector.getItemSet(form).filter(
                 new FilterVariableCollector(null)).getVariables();
         for (String var : variables)
-            vars.add(new Expr(Expr.SYMBOL, var.replaceAll("_", USCORE_ESCAPE)));
+            vars.add(new Expr(Expr.SYMBOL, EConstants.SKOPE() + var.replaceAll("_", USCORE_ESCAPE)));
         List<String> ret = new ArrayList<String>();
         if (vars.size() > 0) { 
             query = new Expr(new Expr(Expr.SYMBOL, "FindInstance"), new Expr[] {
@@ -855,6 +861,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 		List<Expr> vars = new ArrayList<Expr>();
 		for (String name : additionalReduce) {
 			String sym = name.replaceAll("_", USCORE_ESCAPE);
+			sym = EConstants.SKOPE() + sym;
 			vars.add(new Expr(Expr.SYMBOL, sym));
 		}
 		for (PairOfTermAndQuantifierType pair : quantifiers) {
@@ -914,7 +921,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
         Set<String> variables = AllCollector.getItemSet(form).filter(
                 new FilterVariableCollector(null)).getVariables();
         for (String var : variables)
-            vars.add(new Expr(Expr.SYMBOL, var.replaceAll("_", USCORE_ESCAPE)));
+            vars.add(new Expr(Expr.SYMBOL, EConstants.SKOPE() + var.replaceAll("_", USCORE_ESCAPE)));
         List<String> ret = new ArrayList<String>();
         if (vars.size() > 0) {
             query = new Expr(new Expr(Expr.SYMBOL, "FindInstance"), new Expr[] {
@@ -1035,7 +1042,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 					new FilterVariableCollector(null)).getVariables();
 			varNames.addAll(variables);
 			for (String var : variables) {
-				vars.add(new Expr(Expr.SYMBOL, var.replaceAll("_",
+				vars.add(new Expr(Expr.SYMBOL, EConstants.SKOPE() + var.replaceAll("_",
 						USCORE_ESCAPE)));
 			}
 		}
@@ -1065,7 +1072,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 					new FilterVariableCollector(null)).getVariables();
 			varNames.addAll(variables);
 			for (String var : variables) {
-				vars.add(new Expr(Expr.SYMBOL, var.replaceAll("_",
+				vars.add(new Expr(Expr.SYMBOL, EConstants.SKOPE() + var.replaceAll("_",
 						USCORE_ESCAPE)));
 			}
 		}
@@ -1087,7 +1094,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 					new FilterVariableCollector(null)).getVariables();
 			varNames.addAll(variables);
 			for (String var : variables) {
-				vars.add(new Expr(Expr.SYMBOL, var.replaceAll("_",
+				vars.add(new Expr(Expr.SYMBOL, EConstants.SKOPE() + var.replaceAll("_",
 						USCORE_ESCAPE)));
 			}
 		}
@@ -1166,7 +1173,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 				while (varNames.contains(name)) {
 					name = baseName + i++;
 				}
-				Expr freeVar = new Expr(Expr.SYMBOL, name);
+				Expr freeVar = new Expr(Expr.SYMBOL, EConstants.SKOPE() + name);
 				vars.add(freeVar);
 				for (Expr curG : classify2.g) {
 					Expr curBase = evaluate(new Expr(new Expr(Expr.SYMBOL,
