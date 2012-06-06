@@ -57,8 +57,6 @@ object Term2Expr extends ExpressionConstants {
 
   def elimFraction(t: Term) = this(PolynomTool.eliminateFractionsFromInequality(t: Term, null), false)
 
-  def replaceChars(n: String): String = SKOPE + n.replaceAll("_", USCORE_ESCAPE)
-
   def apply(t: Term, elimFract: Boolean): Expr = {
     val conv = this(_: Term, elimFract)
     val elim = elimFraction(_: Term)
@@ -91,7 +89,7 @@ object Term2Expr extends ExpressionConstants {
             return new Expr(Expr.SYM_REAL, Array(new Expr(num)))
           }
         } catch {
-          case e: NumberFormatException => new Expr(Expr.SYMBOL, replaceChars(n))
+          case e: NumberFormatException => new Expr(Expr.SYMBOL, NameMasker.mask(n))
         }
       }
       case Not(a) => !conv(a)
@@ -113,7 +111,7 @@ object Term2Expr extends ExpressionConstants {
             case _ => Array()
           }).toList :+ ca).toArray)
       case Function(f, args) => {
-        val fun = new Expr(Expr.SYMBOL, replaceChars(f))
+        val fun = new Expr(Expr.SYMBOL, NameMasker.mask(f))
         if (args.isEmpty)
           fun
         else
@@ -127,8 +125,26 @@ object Term2Expr extends ExpressionConstants {
   def convert(vars: ImmutableArray[QuantifiableVariable], oldvars: Array[Expr]): Array[Expr] =
     Array(new Expr(Expr.SYM_LIST,
       ((for (i <- 0 until vars.size)
-        yield new Expr(Expr.SYMBOL, replaceChars(vars.get(i).name.toString))) ++ oldvars).toArray))
+        yield new Expr(Expr.SYMBOL, NameMasker.mask(vars.get(i).name.toString))) ++ oldvars).toArray))
 }
+
+object NameMasker {
+    
+  val USCORE_ESCAPE = "\\$u";
+
+  val SCOPE = "KeYmaera`"
+  
+  def mask(e: String) : String = SCOPE + e.replaceAll("_", USCORE_ESCAPE)
+
+  def unmask(e: String) : String = e.replaceAll(USCORE_ESCAPE, "_").replaceFirst(SCOPE, "")
+  
+  def isMasked(e: String) : Boolean = e.startsWith(SCOPE)
+}
+
+object Expr2Term extends ExpressionConstants {
+  
+}
+
 
 object EExists extends ExpressionConstants {
   def unapply(e: Expr): Option[(Expr, Array[Expr])] = {
@@ -152,10 +168,6 @@ object EForall extends ExpressionConstants {
 object EConstants extends ExpressionConstants;
 
 trait ExpressionConstants {
-  
-  val USCORE_ESCAPE = "\\$u";
-
-  val SKOPE = "KeYmaera`"
 
   val FALSE = new Expr(Expr.SYMBOL, "False");
 

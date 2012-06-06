@@ -145,7 +145,7 @@ public class Term2ExprConverter implements ExprConstants {
 					}
 				} catch (NumberFormatException e) {
 					String name = form.op().name().toString();
-					name = name.replaceAll("_", USCORE_ESCAPE);
+					name = NameMasker.mask(name);
 					Expr expr = new Expr(Expr.SYMBOL, name);
 					if (args.length == 0) {
 						return expr;
@@ -157,7 +157,7 @@ public class Term2ExprConverter implements ExprConstants {
 				|| form.op() instanceof de.uka.ilkd.key.logic.op.ProgramVariable
 				|| form.op() instanceof Metavariable) {
 			String name = form.op().name().toString();
-			name = name.replaceAll("_", USCORE_ESCAPE);
+			name = NameMasker.mask(name);
 			return new Expr(Expr.SYMBOL, name);
 		} else if (form.op() instanceof Junctor) {
 			if (form.op() == Junctor.AND) {
@@ -179,9 +179,8 @@ public class Term2ExprConverter implements ExprConstants {
 			System.arraycopy(args, 0, newArgs, 1, args.length);
 			Expr[] vars = new Expr[form.varsBoundHere(0).size()];
 			for (int i = 0; i < vars.length; i++) {
-				vars[i] = new Expr(Expr.SYMBOL, form.varsBoundHere(0)
-						.get(i).name().toString()
-						.replaceAll("_", USCORE_ESCAPE));
+				vars[i] = new Expr(Expr.SYMBOL, NameMasker.mask(form.varsBoundHere(0)
+						.get(i).name().toString()));
 			}
 			newArgs[0] = new Expr(LIST, vars);
 			if (form.op() == Quantifier.ALL) {

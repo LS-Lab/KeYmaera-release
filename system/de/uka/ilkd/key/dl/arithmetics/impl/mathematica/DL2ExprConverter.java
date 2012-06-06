@@ -46,7 +46,6 @@ import de.uka.ilkd.key.dl.model.PredicateTerm;
 import de.uka.ilkd.key.dl.model.ProgramVariable;
 import de.uka.ilkd.key.java.ProgramElement;
 import de.uka.ilkd.key.logic.Named;
-import de.uka.ilkd.key.logic.op.LogicVariable;
 
 /**
  * Converter for the DLProgram to Expr transformation.
@@ -81,8 +80,8 @@ public class DL2ExprConverter implements ExprConstants {
                         .getChildAt(i + 1), t, vars);
             }
             if (args.length == 0) {
-                return new Expr(Expr.SYMBOL, ((Predicate) ((PredicateTerm) el)
-                        .getChildAt(0)).getElementName().toString().replaceAll("_", USCORE_ESCAPE));
+                return new Expr(Expr.SYMBOL, NameMasker.mask(((Predicate) ((PredicateTerm) el)
+                        .getChildAt(0)).getElementName().toString()));
             } else {
                 return new Expr(convertDiffEquation(((PredicateTerm) el)
                         .getChildAt(0), t, vars), args);
@@ -97,7 +96,7 @@ public class DL2ExprConverter implements ExprConstants {
                     .getChildAt(0);
             if (args.length == 0) {
                 String name = f.getElementName().toString();
-                name = EConstants.SKOPE() + name.replaceAll("_", USCORE_ESCAPE);
+                name = NameMasker.mask(name);
                 return new Expr(Expr.SYMBOL, name);
             } else {
                 return new Expr(convertDiffEquation(f, t, vars), args);
@@ -124,23 +123,23 @@ public class DL2ExprConverter implements ExprConstants {
         } else if (el instanceof ProgramVariable) {
             ProgramVariable v = (ProgramVariable) el;
             String pvName = v.getElementName().toString();
-            pvName = EConstants.SKOPE() + pvName.replaceAll("_", USCORE_ESCAPE);
+            pvName = NameMasker.mask(pvName);
 			Expr var = new Expr(Expr.SYMBOL, pvName);
             if (vars.containsKey(pvName)) {
                 String name = t.name().toString();
-                name = EConstants.SKOPE() + name.replaceAll("_", USCORE_ESCAPE);
+                name = NameMasker.mask(name);
                 return new Expr(var, new Expr[] { new Expr(Expr.SYMBOL, name) });
             } else {
                 return var;
             }
         } else if (el instanceof MetaVariable) {
             MetaVariable v = (MetaVariable) el;
-            return new Expr(Expr.SYMBOL, EConstants.SKOPE() + v.getElementName().toString().replaceAll("_", USCORE_ESCAPE));
+            return new Expr(Expr.SYMBOL, NameMasker.mask(v.getElementName().toString()));
 
         } else {
             if (el instanceof NamedElement) {
                 String name = ((NamedElement) el).getElementName().toString();
-                name = EConstants.SKOPE() + name.replaceAll("_", USCORE_ESCAPE);
+                name = NameMasker.mask(name);
                 if (el instanceof LogicalVariable) {
                     return new Expr(Expr.SYMBOL, name);
                 } else if (el instanceof FreeFunction) {
@@ -149,8 +148,8 @@ public class DL2ExprConverter implements ExprConstants {
             } else if (el instanceof Dot) {
                 Dot dot = (Dot) el;
                 Expr variableName = new Expr(Expr.SYMBOL,
-                        EConstants.SKOPE() + ((NamedElement) dot.getChildAt(0))
-                                .getElementName().toString().replaceAll("_", USCORE_ESCAPE));
+                        NameMasker.mask(((NamedElement) dot.getChildAt(0))
+                                .getElementName().toString()));
                 Expr differentialSymbol = new Expr(new Expr(new Expr(Expr.SYMBOL, "Derivative"),
                         new Expr[] { new Expr(dot.getOrder()) }),
                         new Expr[] { variableName });
@@ -159,7 +158,7 @@ public class DL2ExprConverter implements ExprConstants {
                     return differentialSymbol;
                 } else {
                     String name = t.name().toString();
-                    name = EConstants.SKOPE() + name.replaceAll("_", USCORE_ESCAPE);
+                    name = NameMasker.mask(name);
                     return new Expr(
                         differentialSymbol,
                         new Expr[] { new Expr(Expr.SYMBOL, name) });
