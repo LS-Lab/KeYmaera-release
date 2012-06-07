@@ -63,7 +63,7 @@ public class Term2ExprConverter implements ExprConstants {
 	public static Expr convert2Expr(Term form) {
 
 	    if(true)
-	        return Term2Expr.apply(form, false);
+	        return Term2Expr.apply(form, Options.INSTANCE.isEliminateFractions());
 		Expr convert2ExprImpl = convert2ExprImpl(form);
 		// try {
 		// assert (form.equals(Expr2TermConverter.convertImpl(convert2ExprImpl,

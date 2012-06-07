@@ -130,6 +130,13 @@ object Term2Expr extends ExpressionConstants {
         yield new Expr(Expr.SYMBOL, NameMasker.mask(vars.get(i).name.toString))) ++ oldvars).toArray))
 }
 
+/**
+ * Class for masking names:
+ *
+ * - Replace underscores by something that is not interpreted by Mathematica
+ * - Add a context to each name such that Mathematica does not get confused by variables/functions named,
+ *   for instance, E, I, or D.
+ */
 object NameMasker {
 
   val USCORE_ESCAPE = "\\$u";
@@ -203,6 +210,7 @@ object DL2Expr extends ExpressionConstants {
             Some((NameMasker.mask(n.getElementName.toString), dot.getOrder))
           case _ => throw new IllegalArgumentException("Dot should have a NamedElement as first child")
         }
+      case _ => None
     }
   }
 
@@ -212,11 +220,14 @@ object DL2Expr extends ExpressionConstants {
         case ft: FunctionTerm if (ft.getChildCount > 0) =>
           ft.getChildAt(0) match {
             case fun: Function => Some((fun, for (i <- 1 until ft.getChildCount) yield ft.getChildAt(i)))
+            case _ => None
           }
         case pt: PredicateTerm if (pt.getChildCount > 0) =>
           pt.getChildAt(0) match {
             case pred: Predicate => Some((pred, for (i <- 1 until pt.getChildCount) yield pt.getChildAt(i)))
+            case _ => None
           }
+        case _ => None
       }
   }
 
@@ -226,6 +237,7 @@ object DL2Expr extends ExpressionConstants {
       case mv: MetaVariable => Some(NameMasker.mask(mv.getElementName.toString))
       case lv: LogicalVariable => Some(NameMasker.mask(lv.getElementName.toString))
       case f: FreeFunction => Some(NameMasker.mask(f.getElementName.toString))
+      case _ => None
     }
   }
 }

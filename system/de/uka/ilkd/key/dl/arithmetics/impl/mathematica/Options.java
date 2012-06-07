@@ -90,12 +90,15 @@ public class Options implements Settings{
 	private File jLinkLibDir;
 
 	private int memoryConstraint;
+	
+	private boolean eliminateFractions;
 
 	private Options() {
 		listeners = new LinkedList<SettingsListener>();
 		quantifierEliminationMethod = QuantifierEliminationMethod.REDUCE;
 		useEliminateList = true;
 		convertDecimalsToRationals = true;
+		eliminateFractions = false;
 		mathKernel = new File("MathKernel");
 		String libDirProp = System.getProperty(EPropertyConstant.MATHEMATICA_OPTIONS_JLINK_LIBDIR.getKey());
 		if(libDirProp != null) {
@@ -153,6 +156,10 @@ public class Options implements Settings{
 		if (property != null) {
 			mathKernel = new File(property);
 		}
+		property = props.getProperty(EPropertyConstant.MATHEMATICA_OPTIONS_ELIMINATE_FRACTIONS.getKey());
+		if (property != null) {
+		    eliminateFractions = Boolean.valueOf(property);
+		}
 		File file = new File(PathConfig.KEY_CONFIG_DIR + File.separator
 				+ "webstart-math.props");
 		if (file.exists()) {
@@ -180,6 +187,7 @@ public class Options implements Settings{
 		props.setProperty(EPropertyConstant.MATHEMATICA_OPTIONS_USE_ELIMINATE_LIST.getKey(), Boolean
 				.toString(useEliminateList));
 		props.setProperty(EPropertyConstant.MATHEMATICA_OPTIONS_MEMORYCONSTRAINT.getKey(), "" + memoryConstraint);
+		props.setProperty(EPropertyConstant.MATHEMATICA_OPTIONS_ELIMINATE_FRACTIONS.getKey(), Boolean.toString(eliminateFractions));
 		
 		if(!ProofSaver.isInSavingMode()) {
 			// we don't want to save user specific pathes when saving proofs
@@ -314,6 +322,22 @@ public class Options implements Settings{
 		}
 	}
 	
+	/**
+     * @return the eliminateFractions
+     */
+    public boolean isEliminateFractions() {
+        return eliminateFractions;
+    }
+    
+    /**
+     * @param eliminateFractions the eliminateFractions to set
+     */
+    public void setEliminateFractions(boolean eliminateFractions) {
+        if(this.eliminateFractions != eliminateFractions) {
+            this.eliminateFractions = eliminateFractions;
+            firePropertyChanged();
+        }
+    }
 	
 
 }
