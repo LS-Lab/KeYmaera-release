@@ -98,10 +98,6 @@ import de.uka.ilkd.key.util.Debug;
 public class MathematicaDLBridge extends UnicastRemoteObject implements
 		IMathematicaDLBridge, ExprConstants {
 
-	private static final int CEX_TRANSITION_INSTANCES = 10;
-
-	private static final int TIME_HORIZON = 200;
-
 	public static final String[] messageBlacklist = new String[] { "nsmet" };
 
 	public static String mBlistString;
@@ -134,25 +130,6 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 	private String serverIP;
 
 	private int port;
-
-	/**
-	 * @directed
-	 */
-	private Expr2TermConverter lnkExpr2TermConverter;
-
-	/**
-	 * @directed
-	 */
-	// private VariableCollector lnkVariableCollector;
-	/**
-	 * @directed
-	 */
-	private Term2ExprConverter lnkTerm2ExprConverter;
-
-	/**
-	 * @directed
-	 */
-	private DL2ExprConverter lnkDL2ExprConverter;
 
 	private ServerConsole serverConsole;
 
@@ -241,7 +218,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 
         collectDottedProgramVariables(form, vars, t);
         for (ProgramElement el : form.getDifferentialEquations(services.getNamespaces()))
-            args.add(DL2ExprConverter.convertDiffEquation(el, t, vars));
+            args.add(DL2Expr.apply(el, t, vars));
         for (String name : vars.keySet())
             args.add(new Expr(EQUALS, new Expr[] {
                         new Expr(new Expr(Expr.SYMBOL, name), new Expr[] { new Expr(0) }),
@@ -322,7 +299,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 		final Map<String, Expr> EMPTY = new HashMap<String, Expr>();
 		for (ProgramElement el : form.getDifferentialEquations(services
 				.getNamespaces())) {
-			args.add(DL2ExprConverter.convertDiffEquation(el, t, vars));
+			args.add(DL2Expr.apply(el, t, vars));
 		}
 		for (String name : vars.keySet()) {
 			args.add(new Expr(EQUALS, new Expr[] {
@@ -460,7 +437,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 		final Map<String, Expr> EMPTY = new HashMap<String, Expr>();
 		for (ProgramElement el : form.getDifferentialEquations(services
 				.getNamespaces())) {
-			args.add(DL2ExprConverter.convertDiffEquation(el, t, EMPTY));
+			args.add(DL2Expr.apply(el, t, EMPTY));
 		}
 		if (Debug.ENABLE_DEBUG) {
 			System.out.println(diffOperator
