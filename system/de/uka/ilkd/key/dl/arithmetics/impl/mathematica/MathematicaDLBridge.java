@@ -323,7 +323,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 		List<Term> values = new ArrayList<Term>();
 		List<String> varNames = new ArrayList<String>();
 		for (String var : vars.keySet()) {
-			varNames.add(NameMasker.unmask(name));
+			varNames.add(NameMasker.unmask(var));
 		}
 		Map<String, Integer> multipleSolutions = new HashMap<String, Integer>();
 		for (Update u : updates) {
