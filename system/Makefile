@@ -584,7 +584,7 @@ eclipse-plug-in: dist
 
 
 SCALAC = scalac
-SCALAOPTIONS =  -deprecation -d $(BINARYPATH)
+SCALAOPTIONS = -classpath $(CLASSPATH) -deprecation -d $(BINARYPATH)
 
 COHENHORMANDER = $(PFX)dl/arithmetics/impl/ch/cohenhormander
 
