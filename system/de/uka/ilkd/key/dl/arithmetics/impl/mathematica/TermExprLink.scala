@@ -21,6 +21,8 @@ import java.math.BigInteger
 import de.uka.ilkd.key.collection.ImmutableArray
 import de.uka.ilkd.key.logic.op.QuantifiableVariable
 import com.wolfram.jlink.Expr
+import de.uka.ilkd.key.java.ProgramElement
+import de.uka.ilkd.key.logic.Named
 
 /**
  * Converts a term to an Expr object for J/Link
@@ -57,8 +59,6 @@ object Term2Expr extends ExpressionConstants {
 
   def elimFraction(t: Term) = this(PolynomTool.eliminateFractionsFromInequality(t: Term, null), false)
 
-  def replaceChars(n: String): String = SKOPE + n.replaceAll("_", USCORE_ESCAPE)
-
   def apply(t: Term, elimFract: Boolean): Expr = {
     val conv = this(_: Term, elimFract)
     val elim = elimFraction(_: Term)
@@ -91,7 +91,7 @@ object Term2Expr extends ExpressionConstants {
             return new Expr(Expr.SYM_REAL, Array(new Expr(num)))
           }
         } catch {
-          case e: NumberFormatException => new Expr(Expr.SYMBOL, replaceChars(n))
+          case e: NumberFormatException => new Expr(Expr.SYMBOL, NameMasker.mask(n))
         }
       }
       case Not(a) => !conv(a)
@@ -113,7 +113,7 @@ object Term2Expr extends ExpressionConstants {
             case _ => Array()
           }).toList :+ ca).toArray)
       case Function(f, args) => {
-        val fun = new Expr(Expr.SYMBOL, replaceChars(f))
+        val fun = new Expr(Expr.SYMBOL, NameMasker.mask(f))
         if (args.isEmpty)
           fun
         else
@@ -127,7 +127,119 @@ object Term2Expr extends ExpressionConstants {
   def convert(vars: ImmutableArray[QuantifiableVariable], oldvars: Array[Expr]): Array[Expr] =
     Array(new Expr(Expr.SYM_LIST,
       ((for (i <- 0 until vars.size)
-        yield new Expr(Expr.SYMBOL, replaceChars(vars.get(i).name.toString))) ++ oldvars).toArray))
+        yield new Expr(Expr.SYMBOL, NameMasker.mask(vars.get(i).name.toString))) ++ oldvars).toArray))
+}
+
+/**
+ * Class for masking names:
+ *
+ * - Replace underscores by something that is not interpreted by Mathematica
+ * - Add a context to each name such that Mathematica does not get confused by variables/functions named,
+ *   for instance, E, I, or D.
+ */
+object NameMasker {
+
+  val USCORE_ESCAPE = "\\$u";
+
+  val SCOPE = "KeYmaera`"
+
+  def mask(e: String): String = SCOPE + e.replaceAll("_", USCORE_ESCAPE)
+
+  def unmask(e: String): String = e.replaceAll(USCORE_ESCAPE, "_").replaceFirst(SCOPE, "")
+
+  def isMasked(e: String): Boolean = e.startsWith(SCOPE)
+}
+
+object Expr2Term extends ExpressionConstants {
+
+}
+
+/**
+ * Convert DLProgram data structures to Expr for J/Link (reimplementation of DL2ExprConverter from 13.02.2007)
+ *
+ * @author jdq
+ * @since 7.6.2012
+ */
+object DL2Expr extends ExpressionConstants {
+  import de.uka.ilkd.key.dl.model._
+
+  def apply(p: ProgramElement, t: Named, vars: java.util.Map[String, Expr]): Expr = {
+    val conv = this(_: ProgramElement, t, vars)
+    val ofT = (x: Expr) => new Expr(x, Array(new Expr(Expr.SYMBOL, NameMasker.mask(t.name.toString))))
+    p match {
+      case ComposedTerm(op, args) if (args.size == 0) =>
+        new Expr(Expr.SYMBOL, NameMasker.mask(op.getElementName.toString))
+      case ComposedTerm(op, args) if (args.size > 0) =>
+        new Expr(conv(op), args.map(conv).toArray)
+      case _: Equals => EQUALS
+      case _: Plus => PLUS
+      case _: Minus => MINUS
+      case _: Mult => MULT
+      case _: Div => DIV
+      case _: Exp => EXP
+      case c: Constant =>
+        val d = c.getValue
+        try {
+          return new Expr(d.intValueExact)
+        } catch {
+          case e: ArithmeticException => return new Expr(d)
+        }
+      case DLVariable(n) =>
+        val v = new Expr(Expr.SYMBOL, n)
+        if (vars.containsKey(n)) ofT(v) else v
+      case Dot(n, o) =>
+        val v = new Expr(Expr.SYMBOL, n)
+        val diffSymbol = new Expr(new Expr(new Expr(Expr.SYMBOL, "Derivative"),
+          Array(new Expr(o))), Array(v))
+        if (t == null)
+          // use implicit differential symbols if there is no temporal variable
+          diffSymbol
+        else
+          ofT(diffSymbol)
+      case _ => throw new IllegalArgumentException("Don't know how to translate " +
+        "the program element: " + p + " of type " + p.getClass)
+    }
+
+  }
+
+  object Dot {
+    def unapply(x: ProgramElement): Option[(String, Int)] = x match {
+      case dot: Dot =>
+        dot.getChildAt(0) match {
+          case n: NamedElement =>
+            Some((NameMasker.mask(n.getElementName.toString), dot.getOrder))
+          case _ => throw new IllegalArgumentException("Dot should have a NamedElement as first child")
+        }
+      case _ => None
+    }
+  }
+
+  object ComposedTerm {
+    def unapply(x: ProgramElement): Option[(ProgramElement with NamedElement, Seq[ProgramElement])] =
+      x match {
+        case ft: FunctionTerm if (ft.getChildCount > 0) =>
+          ft.getChildAt(0) match {
+            case fun: Function => Some((fun, for (i <- 1 until ft.getChildCount) yield ft.getChildAt(i)))
+            case _ => None
+          }
+        case pt: PredicateTerm if (pt.getChildCount > 0) =>
+          pt.getChildAt(0) match {
+            case pred: Predicate => Some((pred, for (i <- 1 until pt.getChildCount) yield pt.getChildAt(i)))
+            case _ => None
+          }
+        case _ => None
+      }
+  }
+
+  object DLVariable {
+    def unapply(x: ProgramElement): Option[String] = x match {
+      case pv: ProgramVariable => Some(NameMasker.mask(pv.getElementName.toString))
+      case mv: MetaVariable => Some(NameMasker.mask(mv.getElementName.toString))
+      case lv: LogicalVariable => Some(NameMasker.mask(lv.getElementName.toString))
+      case f: FreeFunction => Some(NameMasker.mask(f.getElementName.toString))
+      case _ => None
+    }
+  }
 }
 
 object EExists extends ExpressionConstants {
@@ -141,21 +253,16 @@ object EExists extends ExpressionConstants {
 
 object EForall extends ExpressionConstants {
   def unapply(e: Expr): Option[(Expr, Array[Expr])] = {
-    if (e.head == FORALL && e.args.length == 2) {
+    if (e.head == FORALL && e.args.length == 2)
       Some((e.args()(1), e.args()(0).args))
-    } else {
+    else
       None
-    }
   }
 }
 
 object EConstants extends ExpressionConstants;
 
 trait ExpressionConstants {
-  
-  val USCORE_ESCAPE = "\\$u";
-
-  val SKOPE = "KeYmaera`"
 
   val FALSE = new Expr(Expr.SYMBOL, "False");
 

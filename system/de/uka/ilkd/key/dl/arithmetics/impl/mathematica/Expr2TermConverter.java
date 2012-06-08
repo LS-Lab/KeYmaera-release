@@ -139,16 +139,14 @@ public class Expr2TermConverter implements ExprConstants {
                     for (int i = 0; i < list.args().length; i++) {
                         Name name;
                         String asString = list.args()[i].asString();
-                        if (asString.startsWith(EConstants.SKOPE())) {
-                            asString = asString.replaceFirst(EConstants.SKOPE(), "");
+                        if (NameMasker.isMasked(asString)) {
+                            asString = NameMasker.unmask(asString);
                             if (asString.endsWith("$")) {
                                 name = new Name(asString.substring(0,
                                         asString.length() - 1));
                             } else {
                                 name = new Name(asString);
                             }
-                            name = new Name(name.toString().replaceAll(
-                                    USCORE_ESCAPE, "_"));
                             LogicVariable lookup = (LogicVariable) nss
                                     .variables().lookup(name);
                             if (lookup == null) {
@@ -366,19 +364,17 @@ public class Expr2TermConverter implements ExprConstants {
                     return TermBuilder.DF.func(funcE);
                 } else if (ex.length > 0) {
                     String asString = expr.head().asString();
-                    if (asString.startsWith(EConstants.SKOPE())) {
-                        Name name = new Name(asString.replaceFirst(EConstants.SKOPE(),
-                                ""));
-                        name = new Name(name.toString().replaceAll(
-                                USCORE_ESCAPE, "_"));
+                    if (NameMasker.isMasked(asString)) {
+                        Name name = new Name(NameMasker.unmask(asString));
 
                         Function f = (Function) nss.functions().lookup(name);
                         if (f == null) {
-                            if (isBlacklisted(name)) {
-                                throw new RemoteException(
-                                        "Mathematica returned a system function "
-                                                + name);
-                            }
+                            // it cannot be blacklisted as it started with EConstants.SKOPE()
+//                            if (isBlacklisted(name)) {
+//                                throw new RemoteException(
+//                                        "Mathematica returned a system function "
+//                                                + name);
+//                            }
                             Sort[] argSorts = new Sort[ex.length];
                             Arrays.fill(argSorts, RealLDT.getRealSort());
                             f = new RigidFunction(name, RealLDT.getRealSort(),
@@ -399,16 +395,14 @@ public class Expr2TermConverter implements ExprConstants {
                     } else {
                         name = new Name(expr.toString());
                     }
-                    if (name.toString().startsWith(EConstants.SKOPE())) {
-                        name = new Name(name.toString().replaceFirst(
-                                EConstants.SKOPE(), ""));
-                        name = new Name(name.toString().replaceAll(
-                                USCORE_ESCAPE, "_"));
-                        if (isBlacklisted(name)) {
-                            throw new RemoteException(
-                                    "Mathematica returned a system function "
-                                            + name);
-                        }
+                    if (NameMasker.isMasked(name.toString())) {
+                        name = new Name(NameMasker.unmask(name.toString()));
+                            // it cannot be blacklisted as it started with EConstants.SKOPE()
+//                        if (isBlacklisted(name)) {
+//                            throw new RemoteException(
+//                                    "Mathematica returned a system function "
+//                                            + name);
+//                        }
                         if (quantifiedVariables.containsKey(name)) {
                             return TermBuilder.DF.var(quantifiedVariables
                                     .get(name));

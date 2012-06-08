@@ -80,6 +80,7 @@ public enum EPropertyConstant {
 	    MATHEMATICA_OPTIONS_USE_ELIMINATE_LIST("[MathematicaOptions]useEliminateList", "elimination list", "choose if the list of elimination variables should be passed to Mathematica's Reduce","Mathematica Properties"),
 	    MATHEMATICA_OPTIONS_MEMORYCONSTRAINT("[MathematicaOptions]memoryConstraint", "memory limit", "the maximum memory used by the Mathematica server [in bytes], -1 means no limit","Mathematica Properties"),
 	    MATHEMATICA_OPTIONS_CONVERT_DECIMAL_FRACTIONS_TO_RATIONALS( "[MathematicaOptions]convertDecimalFractionsToRationals", "convert decimals", "choose if decimal fraction entered by the user should be converted into a rational representation (q/r)","Mathematica Properties"),
+	    MATHEMATICA_OPTIONS_ELIMINATE_FRACTIONS( "[MathematicaOptions]eliminateFractions", "eliminate fractions", "check if fractions should be eliminated from the input before passing on to Mathematica.","Mathematica Properties"),
 	    
 	    ORBITAL_OPTIONS_REPRESENTATION("[OrbitalOptions]representation", null, null,"ORBITAL Properties"),
 	    ORBITAL_OPTIONS_SPARSEPOLYNOMIALS("[OrbitalOptions]sparsePolynomials", null, null,"ORBITAL Properties"),

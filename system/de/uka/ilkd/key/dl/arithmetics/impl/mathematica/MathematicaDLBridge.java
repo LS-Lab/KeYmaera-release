@@ -98,10 +98,6 @@ import de.uka.ilkd.key.util.Debug;
 public class MathematicaDLBridge extends UnicastRemoteObject implements
 		IMathematicaDLBridge, ExprConstants {
 
-	private static final int CEX_TRANSITION_INSTANCES = 10;
-
-	private static final int TIME_HORIZON = 200;
-
 	public static final String[] messageBlacklist = new String[] { "nsmet" };
 
 	public static String mBlistString;
@@ -134,25 +130,6 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 	private String serverIP;
 
 	private int port;
-
-	/**
-	 * @directed
-	 */
-	private Expr2TermConverter lnkExpr2TermConverter;
-
-	/**
-	 * @directed
-	 */
-	// private VariableCollector lnkVariableCollector;
-	/**
-	 * @directed
-	 */
-	private Term2ExprConverter lnkTerm2ExprConverter;
-
-	/**
-	 * @directed
-	 */
-	private DL2ExprConverter lnkDL2ExprConverter;
 
 	private ServerConsole serverConsole;
 
@@ -241,13 +218,13 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 
         collectDottedProgramVariables(form, vars, t);
         for (ProgramElement el : form.getDifferentialEquations(services.getNamespaces()))
-            args.add(DL2ExprConverter.convertDiffEquation(el, t, vars));
+            args.add(DL2Expr.apply(el, t, vars));
         for (String name : vars.keySet())
             args.add(new Expr(EQUALS, new Expr[] {
                         new Expr(new Expr(Expr.SYMBOL, name), new Expr[] { new Expr(0) }),
                         new Expr(Expr.SYMBOL, name + "$") }));
         String name = t.name().toString();
-        name = EConstants.SKOPE() + name.replaceAll("_", USCORE_ESCAPE);
+        name = NameMasker.mask(name);
         Expr query = new Expr(new Expr(Expr.SYMBOL, "DSolve"), new Expr[] {
                         new Expr(new Expr(Expr.SYMBOL, "List"), args.toArray(new Expr[1])),
                         new Expr(new Expr(Expr.SYMBOL, "List"), vars.values().toArray(new Expr[0])),
@@ -271,10 +248,9 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 		} else if (expr.head().equals(RULE)) {
 			ODESolverUpdate u = new ODESolverUpdate();
 			try {
-                String name = expr.args()[0].head().asString()
-                        .replaceAll(USCORE_ESCAPE, "_");
-                if (name.startsWith(EConstants.SKOPE())) {
-                    name = name.replaceFirst(EConstants.SKOPE(), "");
+                String name = expr.args()[0].head().asString();
+                if (NameMasker.isMasked(name)) {
+                    name = NameMasker.unmask(name);
                     de.uka.ilkd.key.logic.op.ProgramVariable var = (de.uka.ilkd.key.logic.op.ProgramVariable) nss
                             .programVariables().lookup(new Name(name));
                     if (var == null) {
@@ -323,7 +299,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 		final Map<String, Expr> EMPTY = new HashMap<String, Expr>();
 		for (ProgramElement el : form.getDifferentialEquations(services
 				.getNamespaces())) {
-			args.add(DL2ExprConverter.convertDiffEquation(el, t, vars));
+			args.add(DL2Expr.apply(el, t, vars));
 		}
 		for (String name : vars.keySet()) {
 			args.add(new Expr(EQUALS, new Expr[] {
@@ -332,7 +308,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 					new Expr(Expr.SYMBOL, name + "$") }));
 		}
 		String name = t.name().toString();
-		name = EConstants.SKOPE() + name.replaceAll("_", USCORE_ESCAPE);
+		name = NameMasker.mask(name);
 		Expr query = new Expr(new Expr(Expr.SYMBOL, "DSolve"), new Expr[] {
 				new Expr(new Expr(Expr.SYMBOL, "List"), args
 						.toArray(new Expr[1])),
@@ -347,7 +323,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 		List<Term> values = new ArrayList<Term>();
 		List<String> varNames = new ArrayList<String>();
 		for (String var : vars.keySet()) {
-			varNames.add(var.replaceAll(USCORE_ESCAPE, "_").replaceFirst(EConstants.SKOPE(), ""));
+			varNames.add(NameMasker.unmask(var));
 		}
 		Map<String, Integer> multipleSolutions = new HashMap<String, Integer>();
 		for (Update u : updates) {
@@ -409,8 +385,8 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 		invariant = ((SubstOp) invariant.op()).apply(invariant);
 		// insert 0 <= ts <= t
 		Term tsRange = convert(new Expr(INEQUALITY, new Expr[] { new Expr(0),
-				LESS_EQUALS, new Expr(Expr.SYMBOL, EConstants.SKOPE() + ts.name().toString()),
-				LESS_EQUALS, new Expr(Expr.SYMBOL, EConstants.SKOPE() + t.name().toString()) }),
+				LESS_EQUALS, new Expr(Expr.SYMBOL, NameMasker.mask(ts.name().toString())),
+				LESS_EQUALS, new Expr(Expr.SYMBOL, NameMasker.mask(t.name().toString())) }),
 				services.getNamespaces());
 		invariant = TermBuilder.DF.imp(tsRange, invariant);
 		invariant = TermBuilder.DF.all(ts, invariant);
@@ -461,7 +437,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 		final Map<String, Expr> EMPTY = new HashMap<String, Expr>();
 		for (ProgramElement el : form.getDifferentialEquations(services
 				.getNamespaces())) {
-			args.add(DL2ExprConverter.convertDiffEquation(el, t, EMPTY));
+			args.add(DL2Expr.apply(el, t, EMPTY));
 		}
 		if (Debug.ENABLE_DEBUG) {
 			System.out.println(diffOperator
@@ -509,10 +485,9 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 		} else if (expr.head().equals(RULE)) {
 			Update u = new Update();
 			try {
-                String name = expr.args()[0].head().asString()
-                        .replaceAll(USCORE_ESCAPE, "_");
-                if (name.startsWith(EConstants.SKOPE())) {
-                    name = name.replaceFirst(EConstants.SKOPE(), "");
+                String name = expr.args()[0].head().asString();
+                if (NameMasker.isMasked(name)) {
+                    name = NameMasker.unmask(name);
                     de.uka.ilkd.key.logic.op.ProgramVariable var = (de.uka.ilkd.key.logic.op.ProgramVariable) nss
                             .programVariables().lookup(new Name(name));
                     if (var == null) {
@@ -568,11 +543,11 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 	public static final void collectDottedProgramVariables(ProgramElement form,
 			Map<String, Expr> vars, Named t) {
 		String name = t.name().toString();
-		name = EConstants.SKOPE() + name.replaceAll("_", USCORE_ESCAPE);
+		name = NameMasker.mask(name);
 		if (form instanceof Dot) {
 			ProgramVariable pv = (ProgramVariable) ((Dot) form).getChildAt(0);
 			String pvName = pv.getElementName().toString();
-			pvName = EConstants.SKOPE() + pvName.replaceAll("_", USCORE_ESCAPE);
+			pvName = NameMasker.mask(pvName);
 			vars.put(pvName, new Expr(new Expr(Expr.SYMBOL, pvName),
 					new Expr[] { new Expr(Expr.SYMBOL, name) }));
 		}
@@ -742,7 +717,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
         Set<String> variables = AllCollector.getItemSet(form).filter(
                 new FilterVariableCollector(null)).getVariables();
         for (String var : variables)
-            vars.add(new Expr(Expr.SYMBOL, EConstants.SKOPE() + var.replaceAll("_", USCORE_ESCAPE)));
+            vars.add(new Expr(Expr.SYMBOL, NameMasker.mask(var)));
         List<String> ret = new ArrayList<String>();
         if (vars.size() > 0) { 
             query = new Expr(new Expr(Expr.SYMBOL, "FindInstance"), new Expr[] {
@@ -780,8 +755,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 			}
 		} else if (result.head().equals(RULE)) {
 			StringBuilder str = new StringBuilder();
-			str.append(result.args()[0].toString().replaceAll(USCORE_ESCAPE,
-					"_"));
+			str.append(NameMasker.unmask(result.args()[0].toString()));
 			str.append(" = ");
 			if (result.args()[1].head().equals(RATIONAL)) {
 				str.append(result.args()[1].args()[0] + "/"
@@ -860,9 +834,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 		Expr query = Term2ExprConverter.convert2Expr(form);
 		List<Expr> vars = new ArrayList<Expr>();
 		for (String name : additionalReduce) {
-			String sym = name.replaceAll("_", USCORE_ESCAPE);
-			sym = EConstants.SKOPE() + sym;
-			vars.add(new Expr(Expr.SYMBOL, sym));
+			vars.add(new Expr(Expr.SYMBOL, NameMasker.mask(name)));
 		}
 		for (PairOfTermAndQuantifierType pair : quantifiers) {
 			Expr convert2Expr = Term2ExprConverter.convert2Expr(pair.term);
@@ -921,7 +893,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
         Set<String> variables = AllCollector.getItemSet(form).filter(
                 new FilterVariableCollector(null)).getVariables();
         for (String var : variables)
-            vars.add(new Expr(Expr.SYMBOL, EConstants.SKOPE() + var.replaceAll("_", USCORE_ESCAPE)));
+            vars.add(new Expr(Expr.SYMBOL, NameMasker.mask(var)));
         List<String> ret = new ArrayList<String>();
         if (vars.size() > 0) {
             query = new Expr(new Expr(Expr.SYMBOL, "FindInstance"), new Expr[] {
@@ -1042,8 +1014,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 					new FilterVariableCollector(null)).getVariables();
 			varNames.addAll(variables);
 			for (String var : variables) {
-				vars.add(new Expr(Expr.SYMBOL, EConstants.SKOPE() + var.replaceAll("_",
-						USCORE_ESCAPE)));
+				vars.add(new Expr(Expr.SYMBOL, NameMasker.mask(var)));
 			}
 		}
 		for (Term t : terms.g) {
@@ -1072,8 +1043,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 					new FilterVariableCollector(null)).getVariables();
 			varNames.addAll(variables);
 			for (String var : variables) {
-				vars.add(new Expr(Expr.SYMBOL, EConstants.SKOPE() + var.replaceAll("_",
-						USCORE_ESCAPE)));
+				vars.add(new Expr(Expr.SYMBOL, NameMasker.mask(var)));
 			}
 		}
 		// if h is empty the following proceedure might be unsound, so we just
@@ -1094,8 +1064,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 					new FilterVariableCollector(null)).getVariables();
 			varNames.addAll(variables);
 			for (String var : variables) {
-				vars.add(new Expr(Expr.SYMBOL, EConstants.SKOPE() + var.replaceAll("_",
-						USCORE_ESCAPE)));
+				vars.add(new Expr(Expr.SYMBOL, NameMasker.mask(var)));
 			}
 		}
 		PolynomialClassification<Expr> classify2 = new PolynomialClassification<Expr>(
@@ -1173,7 +1142,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 				while (varNames.contains(name)) {
 					name = baseName + i++;
 				}
-				Expr freeVar = new Expr(Expr.SYMBOL, EConstants.SKOPE() + name);
+				Expr freeVar = new Expr(Expr.SYMBOL, NameMasker.mask(name));
 				vars.add(freeVar);
 				for (Expr curG : classify2.g) {
 					Expr curBase = evaluate(new Expr(new Expr(Expr.SYMBOL,
