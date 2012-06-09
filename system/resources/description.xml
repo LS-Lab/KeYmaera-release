@@ -238,6 +238,7 @@ Bug 2: The constraint for acceleration is too lax and should be m-z>SB. The bugs
     				</requirements>
     			</example>
     		<group name="ETCS Train [advanced]">
+    		<!--
             <example>
             	<name>ETCS Train Control [simple liveness]</name>
             	<path>/examples/hybrid/ETCS/liveness/ETCS-essentials-live2.key</path>
@@ -255,7 +256,8 @@ Proves equation (2.20) from book (see book for hints how to prove or Load Proof)
             			<quantifiereliminator>Mathematica</quantifiereliminator>
             		</some>
             	</requirements>
-            </example>    		
+            </example>
+            -->    		
 			<example>
 				<name>ETCS Train Control [liveness simplified]</name>
 				<path>/examples/hybrid/ETCS/liveness/ETCS-essentials-live-range2.key</path>
