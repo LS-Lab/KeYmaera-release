@@ -708,7 +708,7 @@ public class ProjectManager extends JFrame {
 	}
 
 
-	private File createTmpFileToLoad(String url) {
+	public static File createTmpFileToLoad(String url) {
 		final String separator = "/"; //File.separator;
 		System.out.println("Trying to open resource " + url);// XXX
 		// if (File.separator.length() != 1) {
