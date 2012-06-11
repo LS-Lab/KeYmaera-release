@@ -64,8 +64,8 @@
                         <name>3c: Event-triggered safe &amp; stuck </name>
                         				<path>/examples/hybrid/tutorial/lics3c-event-safe-stuck.key</path>
             							<proofs>
-            								<proof name="Reduce" href="/examples/hybrid/tutorial/tutorial3-event.key.redlog.proof"/>
-            								<proof name="Mathematica" href="/examples/hybrid/tutorial/tutorial3-event.key.mathematica.proof"/>
+            								<proof name="Reduce" href="/examples/hybrid/tutorial/lics3c-event-safe-stuck.key.redlog.proof"/>
+            								<proof name="Mathematica" href="/examples/hybrid/tutorial/lics3c-event-safe-stuck.key.mathematica.proof"/>
             							</proofs>
                         <description>LICS Tutorial Example 3c: While the car is driving down the lane, the controller must choose when to begin decelerating so that it stops at or before a stop sign.  We add an additional constraint to the evolution domain to model an event triggered system.  In this case, the event-trigger is when the distance between the car and the stop sign equals the stopping distance of the car.  Because of the evolution domain constraint, this system might get stuck, however.
             </description>
