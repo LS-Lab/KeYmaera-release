@@ -841,7 +841,7 @@ Proof requires user interactions.</description>
             				<name>Bouncing Ball [if]</name>
             				<path>/examples/hybrid/bouncing-ball/bouncing-ball-if.key</path>
             				<description>A fully parametric version of the bouncing ball that jumps up and down but is bounced back from the ground. This version has a fixed bouncing constant c.
-Proves if-variation Figure 2.20</description>
+Proves if-variation of Figure 2.20</description>
             				<img href="http://symbolaris.com/info/fig-bouncing-ball.png"/>
             			    <source href="http://symbolaris.com/lahs/"/>
             				<requirements>
