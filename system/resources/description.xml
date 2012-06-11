@@ -634,6 +634,18 @@ Proves equation (8.6)</description>
 					</some>
 				</requirements>
 			</example>
+            			<example>
+            				<name>Aircraft Linear Progress</name>
+            				<path>/examples/hybrid/ATC/roundabout/linear-progress.key</path>
+            				<description>Shows that, an aircraft can fly beyond any position.
+Proves Example 3.24</description>
+            				<source href="http://symbolaris.com/lahs/"/>
+            				<requirements>
+            					<some>
+            						<quantifiereliminator>Mathematica</quantifiereliminator>
+            					</some>
+            				</requirements>
+            			</example>
 			<example>
 				<name>Aircraft Limited Progress</name>
 				<path>/examples/hybrid/ATC/roundabout/limited-progress.key</path>
