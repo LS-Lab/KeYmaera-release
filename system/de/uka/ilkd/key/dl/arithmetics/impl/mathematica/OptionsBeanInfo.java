@@ -73,6 +73,9 @@ public class OptionsBeanInfo extends SimpleBeanInfo {
 							"convertDecimalsToRationals",EPropertyConstant.MATHEMATICA_OPTIONS_CONVERT_DECIMAL_FRACTIONS_TO_RATIONALS,						
 							false, false),
 					createDescriptor(
+							"eliminateFractions",EPropertyConstant.MATHEMATICA_OPTIONS_ELIMINATE_FRACTIONS,						
+							false, false),
+					createDescriptor(
 							"memoryConstraint",EPropertyConstant.MATHEMATICA_OPTIONS_MEMORYCONSTRAINT,							
 							false, false),
 					createDescriptor(

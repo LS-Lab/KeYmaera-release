@@ -134,7 +134,12 @@ public abstract class PolynomTool {
 							return (Fraction) p.power(number.minus()).inverse();
 						return (Fraction) p.power(number);
 					} catch (NumberFormatException e) {
-						return (Fraction) p.power(q);
+					    try {
+					        return (Fraction) p.power(q);
+					    } catch(ClassCastException ce) {
+					        System.out.println("Cannot cast " + p.power(q));
+					        throw ce;
+					    }
 					}
 				}
 			} else if (sub.arity() == 1) {
@@ -196,12 +201,12 @@ public abstract class PolynomTool {
 		// convert the left side of the term to a fraction
 		Fraction leftHandSide = createFractionOfPolynomialsFromTerm(t.sub(0),
 				varList);
-		System.out.println(t.sub(0) + " becomes " + leftHandSide);
+		// System.out.println(t.sub(0) + " becomes " + leftHandSide);
 
 		// convert the right side of the term to a fraction
 		Fraction rightHandSide = createFractionOfPolynomialsFromTerm(t.sub(1),
 				varList);
-		System.out.println(t.sub(1) + " becomes " + rightHandSide);
+		// System.out.println(t.sub(1) + " becomes " + rightHandSide);
 
 		// reduce the fractions
 
@@ -228,7 +233,7 @@ public abstract class PolynomTool {
 					.getDefault().fraction(leftHandSide.denominator(),
 							leftHandSide.denominator().one()));
 		}
-		System.out.println("leftDenominator: " + leftDenominator + " righthandside " + rightHandSide);
+		// System.out.println("leftDenominator: " + leftDenominator + " righthandside " + rightHandSide);
 
 		// add terms stating that the denominators are unequal to zero
 		Term rightDenominator = null;

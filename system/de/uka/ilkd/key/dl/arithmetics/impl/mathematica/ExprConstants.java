@@ -34,8 +34,6 @@ import com.wolfram.jlink.Expr;
  */
 public interface ExprConstants {
 
-	final String USCORE_ESCAPE = "\\$u";
-
 	final Expr FALSE = new Expr(Expr.SYMBOL, "False");
 
 	final Expr TRUE = new Expr(Expr.SYMBOL, "True");
