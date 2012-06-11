@@ -94,13 +94,13 @@
                  </requirements>
     		</example>
     		<example>
-                <name>4b: Time-triggered safe if braking safe</name>
-                				<path>/examples/hybrid/tutorial/lics4b-time-safe-relative.key</path>
+                <name>4c: Time-triggered safe if braking safe</name>
+                				<path>/examples/hybrid/tutorial/lics4c-time-safe-relative.key</path>
     							<proofs>
-    								<proof name="Reduce" href="/examples/hybrid/tutorial/lics4b-time-safe-relative.key.redlog.proof"/>
-    								<proof name="Mathematica" href="/examples/hybrid/tutorial/lics4b-time-safe-relative.key.mathematica.proof"/>
+    								<proof name="Reduce" href="/examples/hybrid/tutorial/lics4c-time-safe-relative.key.redlog.proof"/>
+    								<proof name="Mathematica" href="/examples/hybrid/tutorial/lics4c-time-safe-relative.key.mathematica.proof"/>
     							</proofs>
-                <description>LICS Tutorial Example 4b: In a realistic system, the sensors on the car would take periodic measurements of position and velocity and the controller would execute each time those sensor updates are taken. We continue with the single car travelling toward a stop sign, receiving periodic updates about its position and velocity.  The time between sensor updates is bounded by ep. Proves that the car controller will always make the car stay before the traffic light if braking would.
+                <description>LICS Tutorial Example 4c: In a realistic system, the sensors on the car would take periodic measurements of position and velocity and the controller would execute each time those sensor updates are taken. We continue with the single car travelling toward a stop sign, receiving periodic updates about its position and velocity.  The time between sensor updates is bounded by ep. Proves that the car controller will always make the car stay before the traffic light if braking would.
 To prove quickly, instantiate the time quantifier in the antecedent by the time variable of the succedent (e.g. t5_0).</description>
                 <source href="http://symbolaris.com/info/KeYmaera-tutorial.html"/>
                 <requirements>
@@ -837,6 +837,21 @@ Proof requires user interactions.</description>
 				</group>
 		</group>
 		<group name="Bouncing ball">
+            			<example>
+            				<name>Bouncing Ball [if]</name>
+            				<path>/examples/hybrid/bouncing-ball/bouncing-ball-if.key</path>
+            				<description>A fully parametric version of the bouncing ball that jumps up and down but is bounced back from the ground. This version has a fixed bouncing constant c.
+Proves if-variation Figure 2.20</description>
+            				<img href="http://symbolaris.com/info/fig-bouncing-ball.png"/>
+            			    <source href="http://symbolaris.com/lahs/"/>
+            				<requirements>
+            					<some>
+            						<quantifiereliminator>Mathematica</quantifiereliminator>
+            						<quantifiereliminator>QepCad</quantifiereliminator>
+            						<quantifiereliminator>Reduce</quantifiereliminator>
+            					</some>
+            				</requirements>
+            			</example>
 			<example>
 				<name>Bouncing Ball [simple]</name>
 				<path>/examples/hybrid/bouncing-ball/bouncing-ball-simplest.key</path>
@@ -1098,5 +1113,34 @@ Contributed by: Solofomampionona Fortunat Rajaona</description>
                     				</requirements>
                     			</example>
 	</group -->
+	<group name="Continuous Systems">
+    	<example>
+    		<name>Nonlinear Diffcut</name>
+    		<path>/examples/hybrid/dynamical/nonlinear-diffcut.key</path>
+    		<description>Higly nonlinear dynamics example</description>
+    		<requirements>
+    			<some>
+    			</some>
+    		</requirements>
+    	</example>
+    	<example>
+    		<name>Nonlinear 1 Quadratic</name>
+    		<path>/examples/hybrid/dynamical/nonlinear1.key</path>
+    		<description>Nonlinear quadratic dynamics example</description>
+    		<requirements>
+    			<some>
+    			</some>
+    		</requirements>
+    	</example>
+    	<example>
+    		<name>Riccati Equation</name>
+    		<path>/examples/hybrid/dynamical/Riccati.key</path>
+    		<description>Nonlinear Riccati dynamics example</description>
+    		<requirements>
+    			<some>
+    			</some>
+    		</requirements>
+    	</example>
+    </group>
 	<example></example>
 </examples>
