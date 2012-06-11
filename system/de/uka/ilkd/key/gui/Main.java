@@ -2836,34 +2836,34 @@ public class Main extends JFrame implements IMain {
 	    if ((new File(opt[index])).exists()) {
 		fileNameOnStartUp=opt[index];
 	    } else {
-		opt[index] = opt[index].toUpperCase();		
-        if (opt[index].equals("RELOAD")) {
+		    String option = opt[index].toUpperCase();		
+        if (option.equals("RELOAD")) {
             reloadOnStartUp = true;
-        } else if (opt[index].equals("NO_DEBUG")) {
+        } else if (option.equals("NO_DEBUG")) {
 		    de.uka.ilkd.key.util.Debug.ENABLE_DEBUG = false;
-		} else if (opt[index].equals("DEBUG")) {
+		} else if (option.equals("DEBUG")) {
 		    de.uka.ilkd.key.util.Debug.ENABLE_DEBUG = true;
-		} else if (opt[index].equals("NO_ASSERTION")) {
+		} else if (option.equals("NO_ASSERTION")) {
 		    de.uka.ilkd.key.util.Debug.ENABLE_ASSERTION = false;
-		} else if (opt[index].equals("ASSERTION")) {
+		} else if (option.equals("ASSERTION")) {
 		    de.uka.ilkd.key.util.Debug.ENABLE_ASSERTION = true;
-		} else if (opt[index].equals("NO_JMLSPECS")) {
+		} else if (option.equals("NO_JMLSPECS")) {
 		    GeneralSettings.disableSpecs = true;
-		} else if (opt[index].equals("AUTO")) {
+		} else if (option.equals("AUTO")) {
 		    batchMode = true;
                     setVisibleMode(false);
-		} else if (opt[index].equals("DEPTHFIRST")) {		
+		} else if (option.equals("DEPTHFIRST")) {		
 		    	System.out.println("DepthFirst GoalChooser ...");
 			Profile p = ProofSettings.DEFAULT_SETTINGS.getProfile();
 			p.setSelectedGoalChooserBuilder(DepthFirstGoalChooserBuilder.NAME);  
 			VBTStrategy.preferedGoalChooser = DepthFirstGoalChooserBuilder.NAME; 
-		} else if (opt[index].equals("TESTING") || opt[index].equals("UNIT") || opt[index].equals("UNIT2")) {
+		} else if (option.equals("TESTING") || option.equals("UNIT") || option.equals("UNIT2")) {
 		    int mode=-1;
-		    if(opt[index].equals("TESTING")){
+		    if(option.equals("TESTING")){
 			mode=1;
-		    } else if(opt[index].equals("UNIT")) {
+		    } else if(option.equals("UNIT")) {
 			mode=2;
-		    } else if(opt[index].equals("UNIT2")){
+		    } else if(option.equals("UNIT2")){
 			mode=3;
 		    }
                     if(mode==1){
@@ -2905,7 +2905,7 @@ public class Main extends JFrame implements IMain {
                     }
                     testMode = true;
                     
-		} else if (opt[index].equals("DEBUGGER")) {                                     
+		} else if (option.equals("DEBUGGER")) {                                     
                     System.out.println("Symbolic Execution Debugger Mode enabled ...");                                        
                     final Profile p = new DebuggerProfile(null);                    
                     if (index + 1 < opt.length && 
@@ -2917,11 +2917,11 @@ public class Main extends JFrame implements IMain {
                     ProofSettings.DEFAULT_SETTINGS.setProfile(p);                    
                     testMode = true;
                 }                                                 
-                else if (opt[index].equals("FOL")) {                     
+                else if (option.equals("FOL")) {                     
                    ProofSettings.DEFAULT_SETTINGS.setProfile(new PureFOLProfile());
-                } else if (opt[index].equals("DL")) {
+                } else if (option.equals("DL")) {
                     DLInitializer.initialize();
-                } else if (opt[index].equals("TIMEOUT")) {
+                } else if (option.equals("TIMEOUT")) {
                     long timeout = -1;
                     try {
                         timeout = Long.parseLong(opt[index + 1]);
@@ -2935,18 +2935,22 @@ public class Main extends JFrame implements IMain {
                     }
                     index++;                   
                     ProofSettings.DEFAULT_SETTINGS.getStrategySettings().setTimeout(timeout);
-        } else if (opt[index].equals("PRINT_STATISTICS")) {                     
+        } else if (option.equals("PRINT_STATISTICS")) {                     
             if ( !( opt.length > index + 1 ) ) printUsageAndExit ();
             statisticsFile = opt[index + 1];
             ++index;
         } else {
+	        File tmp = ProjectManager.createTmpFileToLoad(opt[index]);
+	        if (tmp != null) {
+		       fileNameOnStartUp = tmp.toString();
+		    } else
 	        try {
 		        URL isurl = new URL(opt[index]);
 		        fileNameOnStartUp=opt[index];
            	} catch (MalformedURLException nourl) {
   		        printUsageAndExit ();
             }
-		}		
+		}   	
 	    }
 	    index++;
 	}	
