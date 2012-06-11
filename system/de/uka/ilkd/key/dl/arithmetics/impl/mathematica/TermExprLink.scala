@@ -172,6 +172,7 @@ object DL2Expr extends ExpressionConstants {
       case ComposedTerm(op, args) if (args.size > 0) =>
         new Expr(conv(op), args.map(conv).toArray)
       case _: Equals => EQUALS
+      case _: MinusSign => MINUSSIGN
       case _: Plus => PLUS
       case _: Minus => MINUS
       case _: Mult => MULT
