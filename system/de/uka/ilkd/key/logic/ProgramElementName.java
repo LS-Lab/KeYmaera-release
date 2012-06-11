@@ -71,7 +71,7 @@ public class ProgramElementName extends Name
 
     public ProgramElementName(String n, String q) {
 	super(q + "::" + n);
-	if ((q != "") & logger.isDebugEnabled()) {
+	if ((!q.equals("")) && logger.isDebugEnabled()) {
 	    logger.debug(q + "::" + n);
 	}
 	assert q!=null && q.length() > 0 : "Tried to create qualified name with missing qualifier";

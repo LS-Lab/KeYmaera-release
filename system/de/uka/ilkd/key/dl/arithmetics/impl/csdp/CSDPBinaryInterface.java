@@ -153,45 +153,50 @@ public class CSDPBinaryInterface {
 		while ((read = reader.read()) != -1) {
 			System.out.print((char) read);
 		}
-		try {
-			start.waitFor();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		if (start.exitValue() == 0 || start.exitValue() == 3) {
-			final FileReader fReader = new FileReader(output);
-			final Scanner stok = new Scanner(fReader);
-			Arrays.fill(blockmatrixpX, 0);
-			Arrays.fill(blockmatrixpZ, 0);
+        try {
+            start.waitFor();
 
-			// first we read k doubles
-			for (int i = 0; i < k; i++) {
-				py[i] = Double.parseDouble(stok.next());
-			}
-			// the next numbers provide us the matrices pX and pZ
-			// the form is the following 1 1 1 1 1.000000004211176741e+00
-			// as long as the first number is 1 we are reading values for pX
-			// if it changes to 2 we are reading pZ
-			// as we initially used one block per matrix, the result should
-			// also contain just one block, therefore the second number is
-			// always one
-			while (stok.hasNext()) {
-				int matrixNumber = -1;
-				matrixNumber = (int) Integer.parseInt(stok.next());
-				if (matrixNumber == 1) {
-					addLineToMatrix(blockmatrixpZ, blocksizes, stok);
-				} else if (matrixNumber == 2) {
-					addLineToMatrix(blockmatrixpX, blocksizes, stok);
-				} else {
-					throw new IllegalArgumentException(
-							"Dont know how to interpret matrix number "
-									+ matrixNumber);
-				}
-			}
-			fReader.close();
+            if (start.exitValue() == 0 || start.exitValue() == 3) {
+                final FileReader fReader = new FileReader(output);
+                final Scanner stok = new Scanner(fReader);
+                Arrays.fill(blockmatrixpX, 0);
+                Arrays.fill(blockmatrixpZ, 0);
 
-		}
+                // first we read k doubles
+                for (int i = 0; i < k; i++) {
+                    py[i] = Double.parseDouble(stok.next());
+                }
+                // the next numbers provide us the matrices pX and pZ
+                // the form is the following 1 1 1 1 1.000000004211176741e+00
+                // as long as the first number is 1 we are reading values for pX
+                // if it changes to 2 we are reading pZ
+                // as we initially used one block per matrix, the result should
+                // also contain just one block, therefore the second number is
+                // always one
+                while (stok.hasNext()) {
+                    int matrixNumber = -1;
+                    matrixNumber = (int) Integer.parseInt(stok.next());
+                    if (matrixNumber == 1) {
+                        addLineToMatrix(blockmatrixpZ, blocksizes, stok);
+                    } else if (matrixNumber == 2) {
+                        addLineToMatrix(blockmatrixpX, blocksizes, stok);
+                    } else {
+                        throw new IllegalArgumentException(
+                                "Dont know how to interpret matrix number "
+                                        + matrixNumber);
+                    }
+                }
+                fReader.close();
+
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            throw new IllegalStateException("Interrupted", e);
+        } finally {
+            if (start != null) {
+                start.destroy();
+            }
+        }
 		return start.exitValue();
 	}
 

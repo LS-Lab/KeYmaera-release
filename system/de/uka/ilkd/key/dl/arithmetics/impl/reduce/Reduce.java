@@ -1,3 +1,13 @@
+/*******************************************************************************
+ * Copyright (c) 2012 Jan-David Quesel.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the GNU Public License v2.0
+ * which accompanies this distribution, and is available at
+ * http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+ * 
+ * Contributors:
+ *     Jan-David Quesel - initial API and implementation
+ ******************************************************************************/
 package de.uka.ilkd.key.dl.arithmetics.impl.reduce;
 
 import java.io.BufferedWriter;
@@ -102,11 +112,8 @@ public class Reduce implements IQuantifierEliminator {
 				System.out.print((char) process.getInputStream().read());
 			}
 			System.out.println();
-			try {
-				process.waitFor();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+			process.waitFor();
+			
 			FileReader f = new FileReader(tmp);
 
 			String res = "";
@@ -119,14 +126,17 @@ public class Reduce implements IQuantifierEliminator {
 			Term parsedTerm = String2TermConverter.convert(res, nss);
 			process.destroy();
 			return parsedTerm;
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            throw new IllegalStateException(
+                    "Interrupted while waiting for reduce!", e);
 		} catch (IOException e) {
-			e.printStackTrace();
+			throw new IllegalStateException(e.getMessage(), e);
 		} finally {
 			if(process != null) {
 				process.destroy();
 			}
 		}
-		return null;
 	}
 
 	private String generateInput(String input, File tmp) {

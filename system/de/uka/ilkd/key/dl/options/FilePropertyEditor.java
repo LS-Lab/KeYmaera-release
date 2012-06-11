@@ -5,12 +5,12 @@ package de.uka.ilkd.key.dl.options;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.FileDialog;
+import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.beans.PropertyEditor;
 import java.beans.PropertyEditorSupport;
 import java.io.File;
@@ -19,6 +19,8 @@ import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+
+import de.uka.ilkd.key.dl.gui.initialdialog.defaultsettings.OSInfosDefault;
 
 public class FilePropertyEditor extends PropertyEditorSupport implements
 		PropertyEditor, ActionListener {
@@ -65,11 +67,28 @@ public class FilePropertyEditor extends PropertyEditorSupport implements
 	 * java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
 	 */
 	public void actionPerformed(ActionEvent e) {
-		JFileChooser chooser = file == null ? new JFileChooser() : new JFileChooser(file.getPath());
-		int state = chooser.showDialog(null, "Select");
-		if (state == JFileChooser.APPROVE_OPTION) {
-			setValue(chooser.getSelectedFile());
-		}
+        switch(OSInfosDefault.INSTANCE.getOs()) {
+        case OSX:
+            System.setProperty("apple.awt.fileDialogForDirectories", "false");
+            FileDialog d = new FileDialog(Frame.getFrames()[0], "Choose a file.", FileDialog.LOAD);
+            d.setDirectory(file.getPath());
+            d.setVisible(true);
+            if(d.getFile() != null) {
+                setValue(new File(d.getDirectory(), d.getFile()));
+            }
+            break;
+        default:
+            JFileChooser chooser = file == null ? new JFileChooser() : new JFileChooser(file.getPath());
+            chooser.setMultiSelectionEnabled(false);
+            chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+            chooser.setDialogTitle("Choose a file");
+            chooser.setDialogType(JFileChooser.OPEN_DIALOG);
+            int result = chooser.showDialog(null, "Select");
+            if(result == JFileChooser.APPROVE_OPTION) {
+                setValue(chooser.getSelectedFile());
+            }
+        }
+		
 	}
 
 	/** * @return custom editor panel */
@@ -97,6 +116,14 @@ public class FilePropertyEditor extends PropertyEditorSupport implements
 
 	public boolean supportsCustomEditor() {
 		return true;
+	}
+	
+	/* (non-Javadoc)
+	 * @see java.beans.PropertyEditorSupport#setAsText(java.lang.String)
+	 */
+	@Override
+	public void setAsText(String text) throws IllegalArgumentException {
+	    setValue(new File(text));
 	}
 
 }

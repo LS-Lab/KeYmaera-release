@@ -13,7 +13,14 @@ package de.uka.ilkd.key.logic;
 import de.uka.ilkd.key.collection.ImmutableArray;
 import de.uka.ilkd.key.collection.DefaultImmutableSet;
 import de.uka.ilkd.key.collection.ImmutableSet;
+import de.uka.ilkd.key.dl.DLProfile;
+import de.uka.ilkd.key.dl.formulatools.MetaVariableLocator;
+import de.uka.ilkd.key.gui.KeYMediator;
+import de.uka.ilkd.key.gui.Main;
+import de.uka.ilkd.key.java.ProgramElement;
+import de.uka.ilkd.key.java.StatementBlock;
 import de.uka.ilkd.key.logic.op.Metavariable;
+import de.uka.ilkd.key.logic.op.Modality;
 import de.uka.ilkd.key.logic.op.Operator;
 import de.uka.ilkd.key.logic.op.QuantifiableVariable;
 import de.uka.ilkd.key.logic.op.SVSubstitute;
@@ -136,26 +143,71 @@ public abstract class Term implements SVSubstitute {
      * arity of the term. The method then can determine the free vars of the
      * term and put them in a cache.
      */
-    private void determineFreeVarsAndMetaVars() {
-	freeVars = DefaultImmutableSet.<QuantifiableVariable>nil();
-        metaVars = DefaultImmutableSet.<Metavariable>nil();
+    private void determineFreeVars() {
+        freeVars = DefaultImmutableSet.<QuantifiableVariable> nil();
         if (op instanceof QuantifiableVariable) {
             freeVars = freeVars.add((QuantifiableVariable) op);
-        } else if ( op instanceof Metavariable ) {
-            metaVars = metaVars.add ( (Metavariable)op );
+        } else if (op instanceof Modality) {
+            // FIXME: we need to check the modalities as well
         }
-        for (int i = 0, ar = arity(); i<ar; i++) {
-	    if (sub(i) == null) {
-                Debug.fail("FREE "+op+" "+i);
-	    }	        
-	    ImmutableSet<QuantifiableVariable> subFreeVars = sub(i).freeVars();
-	    for (int j=0, sz = varsBoundHere(i).size(); j<sz; j++) {
-		subFreeVars = subFreeVars.
-		    remove(varsBoundHere(i).get(j));
-	    }
-	    freeVars = freeVars.union(subFreeVars);
-	    metaVars = metaVars.union(sub(i).metaVars());
-	}
+        for (int i = 0, ar = arity(); i < ar; i++) {
+            if (sub(i) == null) {
+                Debug.fail("FREE " + op + " " + i);
+            }
+            ImmutableSet<QuantifiableVariable> subFreeVars = sub(i).freeVars();
+            for (int j = 0, sz = varsBoundHere(i).size(); j < sz; j++) {
+                subFreeVars = subFreeVars.remove(varsBoundHere(i).get(j));
+            }
+            freeVars = freeVars.union(subFreeVars);
+        }
+    }
+    
+    /**
+     * this method has to be called by subclasses after they determined the
+     * arity of the term. The method then can determine the free vars of the
+     * term and put them in a cache.
+     */
+    private boolean determineMetaVars() {
+        boolean result = true;
+        freeVars = DefaultImmutableSet.<QuantifiableVariable> nil();
+        metaVars = DefaultImmutableSet.<Metavariable> nil();
+        if (op instanceof Metavariable) {
+            metaVars = metaVars.add((Metavariable) op);
+        } else if (op instanceof Modality) {
+                KeYMediator mediator = Main.getInstance().mediator();
+                if (mediator != null) {
+                    if (mediator.getProfile() instanceof DLProfile) {
+                        try {
+                            NamespaceSet namespaces = mediator.namespaces();
+                            if (namespaces != null) {
+                                metaVars = MetaVariableLocator
+                                        .findInsideModality(
+                                                (ProgramElement) ((StatementBlock) javaBlock()
+                                                        .program())
+                                                        .getChildAt(0),
+                                                namespaces);
+                            } else {
+                                result = false;
+                                new Exception("Namespaces are still null!")
+                                        .printStackTrace();
+                            }
+                        } catch (Exception e) {
+                            result = false;
+                            e.printStackTrace();
+                        }
+                    }
+                } else {
+                    result = false;
+                    new Exception("Mediator is still null!").printStackTrace();
+                }
+        }
+        for (int i = 0, ar = arity(); i < ar; i++) {
+            if (sub(i) == null) {
+                Debug.fail("FREE " + op + " " + i);
+            }
+            metaVars = metaVars.union(sub(i).metaVars());
+        }
+        return result;
     }
 
 
@@ -272,7 +324,7 @@ public abstract class Term implements SVSubstitute {
      */
     public ImmutableSet<QuantifiableVariable> freeVars() {
         if (freeVars == null) {
-            determineFreeVarsAndMetaVars();
+            determineFreeVars();
         }
         return freeVars;
     }
@@ -335,7 +387,16 @@ public abstract class Term implements SVSubstitute {
      */
     public ImmutableSet<Metavariable> metaVars () {
         if (metaVars == null) {
-            determineFreeVarsAndMetaVars();
+            if(determineMetaVars()) {
+                return metaVars;
+            } else {
+                // FIXME: we weren't able to check all modalities as the
+                // namespaces where not available. Therefore, we must
+                // not cache this variable set.
+                ImmutableSet<Metavariable> res = metaVars;
+                metaVars = null;
+                return res;
+            }
         }
         return metaVars;
     }

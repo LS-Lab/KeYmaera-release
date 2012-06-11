@@ -75,9 +75,7 @@ public class Options implements Settings {
 		} else {
 			saclibPath = new File(spath);
 		}
-		if(qepcadMemoryLimit == 0) {
-			qepcadMemoryLimit = 2000000;
-		}
+		qepcadMemoryLimit = 2000000;
 	}
 
 	/*

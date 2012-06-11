@@ -27,9 +27,9 @@ public class NumberCache {
 	private static final Map<Name, Function> NUMBERS = new WeakHashMap<Name, Function>();
 
 	public static Function getNumber(BigDecimal number, Sort r) {
-		Function num = NUMBERS.get(new Name(number.toString()));
+		Name name = new Name(number.toPlainString());
+		Function num = NUMBERS.get(name);
 		if (num == null) {
-			Name name = new Name(number.toString());
 			num = new RigidFunction(name, r, new Sort[0]);
 			NUMBERS.put(name, num);
 		}

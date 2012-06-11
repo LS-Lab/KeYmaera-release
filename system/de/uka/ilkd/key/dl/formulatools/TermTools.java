@@ -228,7 +228,7 @@ public class TermTools {
 			} else {
 				try {
 					// number
-					BigDecimal d = new BigDecimal(form.op().name().toString());
+					new BigDecimal(form.op().name().toString());
 					return result;
 				} catch (NumberFormatException e) {
 					result.add(f);

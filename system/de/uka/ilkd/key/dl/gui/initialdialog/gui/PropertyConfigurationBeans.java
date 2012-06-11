@@ -1,3 +1,13 @@
+/*******************************************************************************
+ * Copyright (c) 2010 Zacharias Mokom.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the GNU Public License v2.0
+ * which accompanies this distribution, and is available at
+ * http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+ * 
+ * Contributors:
+ *     Zacharias Mokom - initial API and implementation
+ ******************************************************************************/
 package de.uka.ilkd.key.dl.gui.initialdialog.gui;
 
 import java.awt.BorderLayout;
@@ -40,6 +50,7 @@ public class PropertyConfigurationBeans implements PropertyChangeListener {
 	private Boolean USING_DEFAULT_PROPERTY = false;
 	private PropertyEditor propertyEditor;
 	private IPropertyConverter converter;
+	private ToolInstaller installer;
 	private String propsName;
 	private String propsFileName; // Property file name where to get the
 									// properties
@@ -82,13 +93,14 @@ public class PropertyConfigurationBeans implements PropertyChangeListener {
 	public void setPathPane(String labelName, String toolTipText,
 			Class<? extends PropertyEditor> propertyEditorClass,
 			Class<? extends IPropertyConverter> converterClass,
-			EConfigurationFiles configurationFiles, String key) {
+			EConfigurationFiles configurationFiles, String key, ToolInstaller installer) {
 
 		this.propsFileName = configurationFiles.getFileName();
 		this.propertyIdentifier = key;
 		this.propertyEditorClass = propertyEditorClass;
 		this.converterClass = converterClass;
 		this.propsName = labelName;
+		this.installer = installer;
 
 		readSettings(new Properties());
 
@@ -329,5 +341,19 @@ public class PropertyConfigurationBeans implements PropertyChangeListener {
 		// TODO Auto-generated method stub
 		currentPropertyObject = propertyEditor.getValue();
 	}
+
+    /**
+     * @return the installer
+     */
+    public ToolInstaller getInstaller() {
+        return installer;
+    }
+
+    /**
+     * @param installer the installer to set
+     */
+    public void setInstaller(ToolInstaller installer) {
+        this.installer = installer;
+    }
 
 }

@@ -30,6 +30,7 @@ import de.uka.ilkd.key.dl.DLProfile;
 import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
 import de.uka.ilkd.key.dl.gui.AutomodeListener;
 import de.uka.ilkd.key.dl.options.DLOptionBean;
+import de.uka.ilkd.key.dl.strategy.DLStrategy;
 import de.uka.ilkd.key.gui.configuration.StrategySettings;
 import de.uka.ilkd.key.gui.notification.events.GeneralFailureEvent;
 import de.uka.ilkd.key.proof.DefaultGoalChooserBuilder;
@@ -154,7 +155,16 @@ public class ApplyStrategy {
             assert g != null;
             AutomodeListener.currentGoal = g;
             rl.removeRPConsumedGoal(g);
-            rl.addRPOldMarkersNewGoals(g.apply(app));
+            ImmutableList<RuleApp> appliedRuleApps = g.appliedRuleApps();
+            try {
+                rl.addRPOldMarkersNewGoals(g.apply(app));
+            } catch (RuntimeException e) {
+                if(appliedRuleApps != g.appliedRuleApps()) {
+                    System.err.println("Removing rule application as it was not completed!");
+                    g.removeAppliedRuleApp();
+                }
+                throw e; // pass the exception to the next level
+            }
         }
 
         if (rl.reusePossible())
@@ -201,6 +211,10 @@ public class ApplyStrategy {
 			// reset strategy on all branches
             if(Main.getInstance().mediator().getProfile() instanceof DLProfile) {
             	if(DLOptionBean.INSTANCE.isResetStrategyAfterEveryRun()) {
+                    if(proof.getActiveStrategy() instanceof DLStrategy) {
+                        DLStrategy strat = (DLStrategy) proof.getActiveStrategy();
+                        strat.resetCache();
+                    }
             		proof.setActiveStrategy(proof.getActiveStrategy());
             	}
             }

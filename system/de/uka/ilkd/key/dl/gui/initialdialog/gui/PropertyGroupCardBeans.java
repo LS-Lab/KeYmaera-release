@@ -1,3 +1,13 @@
+/*******************************************************************************
+ * Copyright (c) 2010 Zacharias Mokom.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the GNU Public License v2.0
+ * which accompanies this distribution, and is available at
+ * http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+ * 
+ * Contributors:
+ *     Zacharias Mokom - initial API and implementation
+ ******************************************************************************/
 package de.uka.ilkd.key.dl.gui.initialdialog.gui;
 
 import java.awt.BorderLayout;
@@ -6,6 +16,7 @@ import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
@@ -14,11 +25,15 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Properties;
 
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import javax.swing.border.TitledBorder;
 
 import de.uka.ilkd.key.dl.gui.initialdialog.defaultsettings.OSInfosDefault;
@@ -33,18 +48,62 @@ import de.uka.ilkd.key.dl.gui.initialdialog.gui.options.WriteProperties;
 
 public class PropertyGroupCardBeans implements ActionListener {
 
-    List<PropertyConfigurationBeans> group;
-    JPanel cardPane;
-    JButton buttonDefault;
-    JButton buttonApply;
-    JButton buttonNext;
-    JButton buttonPrevious;
-    int index;
+    class DownloadAction extends AbstractAction {
+
+        private ToolInstaller installer;
+        
+        /**
+         * 
+         */
+        public DownloadAction() {
+            super("Download");
+        }
+        
+        /* (non-Javadoc)
+         * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+         */
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            installer.install(null, null);
+        }
+
+
+        /* (non-Javadoc)
+         * @see javax.swing.Action#isEnabled()
+         */
+        @Override
+        public boolean isEnabled() {
+            return installer != null;
+        }
+        
+        public void setPropertyConfigurations(List<PropertyConfigurationBeans> beans) {
+            for(PropertyConfigurationBeans bean: beans) {
+                if(bean.getInstaller() != null) {
+                    installer = bean.getInstaller();
+                    installer.setPropertyEditor(bean.getPropertyEditor());
+                    return;
+                }
+            }
+        }
+        
+    }
+    
+    private List<PropertyConfigurationBeans> group;
+    private JPanel cardPane;
+    private JButton buttonDefault;
+    private JButton buttonApply;
+    private JButton buttonNext;
+    private JButton buttonPrevious;
+    private JButton download;
+    private int index;
 
     private String groupName;
+    
+    private DownloadAction downloadAction;
 
     PropertyGroupCardBeans() {
 	cardPane = new JPanel();
+	downloadAction = new DownloadAction();
     }
 
 /**
@@ -93,6 +152,9 @@ public class PropertyGroupCardBeans implements ActionListener {
 	border.setTitleColor(Color.gray);
 	propsPane.setBorder(border);
 
+	
+	downloadAction.setPropertyConfigurations(group);
+	download.setEnabled(downloadAction.isEnabled());
     }
 
     /**
@@ -150,6 +212,10 @@ public class PropertyGroupCardBeans implements ActionListener {
 	buttonPrevious.addActionListener(this);
 	buttonPrevious.setEnabled(false);
 
+	download = new JButton("Download");
+	download.setToolTipText("Download this tool for your operating system.");
+	download.setAction(downloadAction);
+	
 	JPanel pane1 = new JPanel();
 	pane1.setLayout(new FlowLayout());
 	pane1.add(buttonPrevious, FlowLayout.LEFT);
@@ -157,6 +223,7 @@ public class PropertyGroupCardBeans implements ActionListener {
 
 	JPanel pane2 = new JPanel();
 	pane2.setLayout(new FlowLayout());
+	pane2.add(download);
 	pane2.add(buttonDefault);
 	pane2.add(buttonApply);
 

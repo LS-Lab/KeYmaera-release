@@ -123,13 +123,14 @@ public interface IMathematicaDLBridge extends Remote {
 
     /**
      * @param form
+     * @param services 
      * @return
      * @throws RemoteException
      * @throws UnsolveableException
      * @throws ConnectionProblemException
      * @throws ServerStatusProblemException
      */
-    public String findInstance(Term form, long tmeout) throws RemoteException,
+    public String findInstance(Term form, long tmeout, Services services) throws RemoteException,
 			SolverException;
 
 	// finds multiple instances satisfying form

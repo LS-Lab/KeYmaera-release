@@ -1,3 +1,13 @@
+/*******************************************************************************
+ * Copyright (c) 2012 Jan-David Quesel.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the GNU Public License v2.0
+ * which accompanies this distribution, and is available at
+ * http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+ * 
+ * Contributors:
+ *     Jan-David Quesel - initial API and implementation
+ ******************************************************************************/
 package de.uka.ilkd.key.dl.arithmetics.impl.smt;
 
 import java.math.BigInteger;
@@ -9,8 +19,7 @@ import java.util.Set;
 
 import de.uka.ilkd.key.dl.arithmetics.impl.orbital.PolynomTool;
 import de.uka.ilkd.key.dl.arithmetics.impl.orbital.PolynomTool.BigFraction;
-import de.uka.ilkd.key.dl.arithmetics.impl.qepcad.PrenexGenerator;
-import de.uka.ilkd.key.dl.arithmetics.impl.qepcad.PrenexGenerator.PrenexGeneratorResult;
+import de.uka.ilkd.key.dl.formulatools.Prenex;
 import de.uka.ilkd.key.logic.NamespaceSet;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.op.Function;
@@ -55,8 +64,7 @@ public class Term2SMTConverter {
 			List<QuantifiableVariable> variables, NamespaceSet nss) {
 		Term2SMTConverter converter = new Term2SMTConverter();
 		if(Options.INSTANCE.isPrenexForm()) {
-			PrenexGeneratorResult result = PrenexGenerator.transform(form, nss);
-			form = result.getTerm();
+			form = Prenex.transform(form, nss)._1;
 		}
 		if(Options.INSTANCE.isElimExistentialQuantifierPrefix()) {
 			form = elimForQuan(form);

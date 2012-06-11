@@ -1,9 +1,265 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <examples>
+    	<group name="LICS'12 Tutorial">
+    		<example>
+                <name>1: Continuous system forward</name>
+                				<path>/examples/hybrid/tutorial/lics1-continuous-forward.key</path>
+    							<proofs>
+    								<proof name="CohenHormander" href="/examples/hybrid/tutorial/lics1-continuous-forward.key.proof"/>
+    								<proof name="SMT" href="/examples/hybrid/tutorial/lics1-continuous-forward.key.smt.proof"/>
+    								<proof name="Reduce" href="/examples/hybrid/tutorial/lics1-continuous-forward.key.redlog.proof"/>
+    								<proof name="Mathematica" href="/examples/hybrid/tutorial/lics1-continuous-forward.key.mathematica.proof"/>
+    							</proofs>
+                <description>LICS Tutorial Example 1: Modeling a safety property of a continuous system. This is a simple system in which a car starts at some velocity v and accelerates at constant rate A along a straight lane.  The requirement we want to prove is that the car may never travel backward, i.e. for all time, in all scenarios v is greater than or equal to zero. 
+     </description>
+                <source href="http://symbolaris.com/info/KeYmaera-tutorial.html"/>
+                <requirements>
+                     <some>
+             		 	<quantifiereliminator>CohenHormander</quantifiereliminator>
+             		 	<quantifiereliminator>SMT</quantifiereliminator>
+             		 	<quantifiereliminator>Mathematica</quantifiereliminator>
+             		 	<quantifiereliminator>QepCad</quantifiereliminator>
+             		 	<quantifiereliminator>Reduce</quantifiereliminator>
+                	   </some>
+                 </requirements>
+    		</example>
+    		<example>
+                <name>2: Hybrid system forward</name>
+                				<path>/examples/hybrid/tutorial/lics2-hybrid-forward.key</path>
+    							<proofs>
+    								<proof name="CohenHormander" href="/examples/hybrid/tutorial/lics2-hybrid-forward.key.proof"/>
+    								<proof name="Reduce" href="/examples/hybrid/tutorial/lics2-hybrid-forward.key.redlog.proof"/>
+    								<proof name="Mathematica" href="/examples/hybrid/tutorial/lics2-hybrid-forward.key.mathematica.proof"/>
+    							</proofs>
+                <description>LICS Tutorial Example 2: Modeling a safety property of a hybrid system. In this example, we introduce a discrete controller into the model of the continuous system in Example 1. The controller has only two options: it may cause the car to accelerate with rate A or brake with rate -b.
+    </description>
+                <source href="http://symbolaris.com/info/KeYmaera-tutorial.html"/>
+                <requirements>
+                     <some>
+             		 	<quantifiereliminator>CohenHormander</quantifiereliminator>
+             		 	<quantifiereliminator>QepCad</quantifiereliminator>
+             		 	<quantifiereliminator>Reduce</quantifiereliminator>
+            		 	<quantifiereliminator>Mathematica</quantifiereliminator>
+                	   </some>
+                 </requirements>
+    		</example>
+    		<example>
+                <name>3a: Event-triggered forward</name>
+                				<path>/examples/hybrid/tutorial/lics3a-event-forward.key</path>
+    							<proofs>
+    								<proof name="Reduce" href="/examples/hybrid/tutorial/lics3a-event-forward.key.redlog.proof"/>
+    								<proof name="Mathematica" href="/examples/hybrid/tutorial/lics3a-event-forward.key.mathematica.proof"/>
+    							</proofs>
+                <description>LICS Tutorial Example 3a: While the car is driving down the lane, the controller must choose when to begin decelerating so that it stops at or before a stop sign.  We add an additional constraint to the evolution domain to model an event triggered system.  In this case, the event-trigger is when the distance between the car and the stop sign equals the stopping distance of the car. This example shows that the system still can never travel backwards.
+    </description>
+                <source href="http://symbolaris.com/info/KeYmaera-tutorial.html"/>
+                <requirements>
+                     <some>
+                		 	<quantifiereliminator>Mathematica</quantifiereliminator>
+                		 	<quantifiereliminator>Reduce</quantifiereliminator>
+                	   </some>
+                 </requirements>
+    		</example>
+            		<example>
+                        <name>3c: Event-triggered safe &amp; stuck </name>
+                        				<path>/examples/hybrid/tutorial/lics3c-event-safe-stuck.key</path>
+            							<proofs>
+            								<proof name="Reduce" href="/examples/hybrid/tutorial/tutorial3-event.key.redlog.proof"/>
+            								<proof name="Mathematica" href="/examples/hybrid/tutorial/tutorial3-event.key.mathematica.proof"/>
+            							</proofs>
+                        <description>LICS Tutorial Example 3c: While the car is driving down the lane, the controller must choose when to begin decelerating so that it stops at or before a stop sign.  We add an additional constraint to the evolution domain to model an event triggered system.  In this case, the event-trigger is when the distance between the car and the stop sign equals the stopping distance of the car.  Because of the evolution domain constraint, this system might get stuck, however.
+            </description>
+                        <source href="http://symbolaris.com/info/KeYmaera-tutorial.html"/>
+                        <requirements>
+                             <some>
+                        		 	<quantifiereliminator>Mathematica</quantifiereliminator>
+                        		 	<quantifiereliminator>Reduce</quantifiereliminator>
+                        	   </some>
+                         </requirements>
+            		</example>
+    		<example>
+                <name>4a: Time-triggered safe</name>
+                				<path>/examples/hybrid/tutorial/lics4a-time-safe.key</path>
+    							<proofs>
+    								<proof name="Reduce" href="/examples/hybrid/tutorial/lics4a-time-safe.key.redlog.proof"/>
+    								<proof name="Mathematica" href="/examples/hybrid/tutorial/lics4a-time-safe.key.mathematica.proof"/>
+    							</proofs>
+                <description>LICS Tutorial Example 4a: In a realistic system, the sensors on the car would take periodic measurements of position and velocity and the controller would execute each time those sensor updates are taken. We continue with the single car travelling toward a stop sign, receiving periodic updates about its position and velocity.  The time between sensor updates is bounded by ep.</description>
+                <source href="http://symbolaris.com/info/KeYmaera-tutorial.html"/>
+                <requirements>
+                     <some>
+                		 	<quantifiereliminator>Mathematica</quantifiereliminator>
+                		 	<quantifiereliminator>Reduce</quantifiereliminator>
+                	   </some>
+                 </requirements>
+    		</example>
+    		<example>
+                <name>4b: Time-triggered safe if braking safe</name>
+                				<path>/examples/hybrid/tutorial/lics4b-time-safe-relative.key</path>
+    							<proofs>
+    								<proof name="Reduce" href="/examples/hybrid/tutorial/lics4b-time-safe-relative.key.redlog.proof"/>
+    								<proof name="Mathematica" href="/examples/hybrid/tutorial/lics4b-time-safe-relative.key.mathematica.proof"/>
+    							</proofs>
+                <description>LICS Tutorial Example 4b: In a realistic system, the sensors on the car would take periodic measurements of position and velocity and the controller would execute each time those sensor updates are taken. We continue with the single car travelling toward a stop sign, receiving periodic updates about its position and velocity.  The time between sensor updates is bounded by ep. Proves that the car controller will always make the car stay before the traffic light if braking would.
+To prove quickly, instantiate the time quantifier in the antecedent by the time variable of the succedent (e.g. t5_0).</description>
+                <source href="http://symbolaris.com/info/KeYmaera-tutorial.html"/>
+                <requirements>
+                     <some>
+                		 	<quantifiereliminator>Mathematica</quantifiereliminator>
+                		 	<quantifiereliminator>Reduce</quantifiereliminator>
+                	   </some>
+                 </requirements>
+    		</example>
+                		<example>
+                            <name>5: Controllability equivalence</name>
+                            				<path>/examples/hybrid/tutorial/lics5-controllability-equivalence.key</path>
+                            				<proofs>
+                								<proof name="Reduce" href="/examples/hybrid/tutorial/lics5-controllability-equivalence.key.redlog.proof"/>
+                								<proof name="Mathematica" href="/examples/hybrid/tutorial/lics5-controllability-equivalence.key.mathematica.proof"/>
+                							</proofs>
+                							
+                            <description>LICS Tutorial Example 5: Proves that the controllability constraint is equivalent to braking being safe for all future. That is, a car can brake safely and can always stay in front of traffic light m if and only if the arithmetic constraint v^2&lt;=2b(m-x) holds currently.</description>
+                            <source href="http://symbolaris.com/info/KeYmaera-tutorial.html"/>
+                            <requirements>
+                                 <some>
+                            		 	<quantifiereliminator>Mathematica</quantifiereliminator>
+                            		 	<quantifiereliminator>Reduce</quantifiereliminator>
+                            	   </some>
+                             </requirements>
+                		</example>
+                		<example>
+                            <name>6: Model-predictive control equivalence</name>
+                            				<path>/examples/hybrid/tutorial/lics6-MPC-acceleration-equivalence.key</path>
+                            				<proofs>
+                								<proof name="Mathematica" href="/examples/hybrid/tutorial/lics6-MPC-acceleration-equivalence.key.mathematica.proof"/>
+                							</proofs>
+                            <description>LICS Tutorial Example 6: Proves that the acceleration constraint is equivalent to braking being safe after accelerating for at most ep time units. That is, a car can accelerate for up to ep time units and then brake safely and will always stay in front of traffic light m if and only if the arithmetic constraint on acceleration holds currently.</description>
+                            <source href="http://symbolaris.com/info/KeYmaera-tutorial.html"/>
+                            <requirements>
+                                 <some>
+                            		 	<quantifiereliminator>Mathematica</quantifiereliminator>
+                            	   </some>
+                             </requirements>
+                		</example>
+    </group>
+	<group name="KeYmaera Tutorial">
+		<example>
+            <name>1: Safety of continuous system</name>
+            				<path>/examples/hybrid/tutorial/tutorial1-continuous.key</path>
+							<proofs>
+								<proof name="CohenHormander" href="/examples/hybrid/tutorial/tutorial1-continuous.key.proof"/>
+								<proof name="SMT" href="/examples/hybrid/tutorial/tutorial1-continuous.key.smt.proof"/>
+							</proofs>
+            <description>KeYmaera Tutorial Example 1: Modeling a safety property of a continuous system. This is a simple system in which a car starts at some velocity v and accelerates at constant rate A along a straight lane.  The requirement we want to prove is that the car may never travel backward, i.e. for all time, in all scenarios v is greater than or equal to zero. 
+ </description>
+            <source href="http://symbolaris.com/info/KeYmaera-tutorial.html"/>
+            <requirements>
+                 <some>
+            	   </some>
+             </requirements>
+		</example>
+		<example>
+            <name>2: Safety of a hybrid system</name>
+            				<path>/examples/hybrid/tutorial/tutorial2-hybrid.key</path>
+							<proofs>
+								<proof name="CohenHormander" href="/examples/hybrid/tutorial/tutorial2-hybrid.key.proof"/>
+							</proofs>
+            <description>KeYmaera Tutorial Example 2: Modeling a safety property of a hybrid system. In this example, we introduce a discrete controller into the model of the continuous system in Example 1. The controller has only three options: it may cause the car to accelerate with rate A, brake with rate -B, or maintain velocity.  
+</description>
+            <source href="http://symbolaris.com/info/KeYmaera-tutorial.html"/>
+            <requirements>
+                 <some>
+            	   </some>
+             </requirements>
+		</example>
+		<example>
+            <name>3a: Event-triggered stop sign controller</name>
+            				<path>/examples/hybrid/tutorial/tutorial3-event.key</path>
+							<proofs>
+								<proof name="CohenHormander" href="/examples/hybrid/tutorial/tutorial3-event.key.proof"/>
+							</proofs>
+            <description>KeYmaera Tutorial Example 3a: While the car is driving down the lane,  the controller must choose when to begin decelerating so that it stops at or before a stop sign.  We add an additional constraint to the evolution domain to model an event triggered system.  In this case, the event-trigger is when the distance between the car and the stop sign equals the stopping distance of the car. 
+</description>
+            <source href="http://symbolaris.com/info/KeYmaera-tutorial.html"/>
+            <requirements>
+                 <some>
+            	   </some>
+             </requirements>
+		</example>
+		<example>
+            <name>3b: Discovering controller bounds from unproveable stop sign controller</name>
+            				<path>/examples/hybrid/tutorial/tutorial3b-event.key</path>
+            <description>KeYmaera Tutorial Example 3b: In this example, the car may choose to accelerate without any restrictions, which of course can not always be correct. Attempting to prove this property results in several open goals in where there are formulas which, had they been in the antecedent, the property would have held. Some of these formulas contradict our assumptions, so we ignore them. However, there is one remaining formula which does not contradict any assumption. The failed proof attempt indicates that we should change our design to obey this constraint.
+</description>
+            <source href="http://symbolaris.com/info/KeYmaera-tutorial.html"/>
+            <requirements>
+                 <some>
+            		 	<quantifiereliminator>Mathematica</quantifiereliminator>
+            		 	<quantifiereliminator>QepCad</quantifiereliminator>
+            		 	<quantifiereliminator>Reduce</quantifiereliminator>
+            	   </some>
+             </requirements>
+		</example>
+		<example>
+            <name>4: Time-triggered stop sign controller</name>
+            				<path>/examples/hybrid/tutorial/tutorial4-time.key</path>
+            <description>KeYmaera Tutorial Example 4: In a realistic system, the sensors on the car would take periodic measurements of position and velocity and the controller would execute each time those sensor updates are taken. We continue with the single car travelling toward a stop sign, receiving periodic updates about its position and velocity.  The time between sensor updates is bounded by eps.</description>
+            <source href="http://symbolaris.com/info/KeYmaera-tutorial.html"/>
+            <requirements>
+                 <some>
+            		 	<quantifiereliminator>Mathematica</quantifiereliminator>
+            		 	<quantifiereliminator>QepCad</quantifiereliminator>
+            		 	<quantifiereliminator>Reduce</quantifiereliminator>
+            	   </some>
+             </requirements>
+		</example>
+		<example>
+            <name>5: Guarded nondeterministic assignment stop sign controller</name>
+            				<path>/examples/hybrid/tutorial/tutorial5-nondet_assignment.key</path>
+            <description>KeYmaera Tutorial Example 5: In this example, the stop sign controller is able to choose any acceleration within a range of values representing the physical limits of the system, rather than choosing from a discrete set of values.  We do this by using guarded nondeterministic assignment.</description>
+            <source href="http://symbolaris.com/info/KeYmaera-tutorial.html"/>
+            <requirements>
+                 <some>
+            		 	<quantifiereliminator>Mathematica</quantifiereliminator>
+            		 	<quantifiereliminator>QepCad</quantifiereliminator>
+            		 	<quantifiereliminator>Reduce</quantifiereliminator>
+            	   </some>
+             </requirements>
+		</example>
+		<example>
+            <name>6: Stop sign controller with non-deterministic braking</name>
+            				<path>/examples/hybrid/tutorial/tutorial6-nondet_braking.key</path>
+            <description>KeYmaera Tutorial Example 6: In this example, a non-deterministic braking envelope is used to overapproximate a more complicated braking envelope</description>
+            <source href="http://symbolaris.com/info/KeYmaera-tutorial.html"/>
+            <requirements>
+                 <some>
+            		 	<quantifiereliminator>Mathematica</quantifiereliminator>
+            	   </some>
+             </requirements>
+		</example>
+	</group> 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 		<group name="ETCS Trains">
 			<example>
 				<name>ETCS Train Control [simple]</name>
 				<path>/examples/hybrid/ETCS/safety/ETCS-simple.key</path>
+				<proofs>
+					<proof name="Mathematica" href="/examples/hybrid/ETCS/safety/ETCS-simple.key.proof"/>
+				</proofs>
 				<description>Essentials of the ETCS train control protocol. This example proves that a train never leaves its movement authority (MA=m) and, thus, cannot crash into other trains. Please note, that this is the simplest possible version of the safety requirement for the ETCS. The verification of the ETCS system itself requires a much more advanced model.
 Proves equation (2.19)</description>
 				<img 
@@ -20,6 +276,9 @@ Proves equation (2.19)</description>
 			<example>
 				<name>ETCS Train Control [simple nondet]</name>
 				<path>/examples/hybrid/ETCS/safety/ETCS-essentials.key</path>
+				<proofs>
+					<proof name="Mathematica" href="/examples/hybrid/ETCS/safety/ETCS-essentials.key.proof"/>
+				</proofs>
 				<description>Essentials of the ETCS train control protocol. This example proves that a train never leaves its movement authority (MA=m) and, thus, cannot crash into other trains. Please note, that this is the simplest possible version of the safety requirement for the ETCS. The verification of the ETCS system itself requires a much more advanced model.</description>
 				<img 
 					href="http://symbolaris.com/info/ETCS-MAProtocol-c.gif"/>
@@ -35,6 +294,9 @@ Proves equation (2.19)</description>
           			<example>
           				<name>ETCS Train Control [tutorial]</name>
           				<path>/examples/hybrid/ETCS/safety/ETCS-simple-tutorial.key</path>
+						<proofs>
+							<proof name="Mathematica" href="/examples/hybrid/ETCS/safety/ETCS-simple-tutorial.key.proof"/>
+						</proofs>
           				<description>Essentials of the ETCS train control protocol. This example proves that a train never leaves its movement authority (MA=m) and, thus, cannot crash into other trains. Please note, that this is the simplest possible version of the safety requirement for the ETCS. The verification of the ETCS system itself requires a much more advanced model.</description>
           				<img 
           					href="http://symbolaris.com/info/ETCS-MAProtocol-c.gif"/>
@@ -50,6 +312,9 @@ Proves equation (2.19)</description>
                     			<example>
                     				<name>ETCS Train Control [temporal]</name>
                     				<path>/examples/hybrid/ETCS/safety/ETCS-essentials-tout.key</path>
+									<proofs>
+										<proof name="Mathematica" href="/examples/hybrid/ETCS/safety/ETCS-essentials-tout.key.proof"/>
+									</proofs>
                     				<description>Essentials of the ETCS train control protocol with temporal throughout modality [][]. This example proves that a train never leaves its movement authority (MA=m) and, thus, cannot crash into other trains. Please note, that this is the simplest possible version of the safety requirement for the ETCS. The verification of the ETCS system itself requires a much more advanced model.
 Proves dTL variant of equation (2.19) with [][] instead of []</description>
                     				<img 
@@ -75,12 +340,17 @@ Proves Proposition 7.1
 				<requirements>
 					<some>
 						<quantifiereliminator>Mathematica</quantifiereliminator>
+        				<quantifiereliminator>Reduce</quantifiereliminator>
 					</some>
 				</requirements>
 			</example>
 			<example>
 				<name>ETCS Train Control [safety]</name>
 				<path>/examples/hybrid/ETCS/paper/safety-lemma.key</path>
+				<proofs>
+					<proof name="Mathematica" href="/examples/hybrid/ETCS/paper/safety-lemma.key.proof"/>
+					<proof name="Reduce" href="/examples/hybrid/ETCS/paper/safety-lemma-redlog-simpler.key.proof"></proof>
+				</proofs>
 				<description>Proves safety of the ETCS train control protocol case study. This example proves that a train never leaves its movement authority (MA=m) and, thus, cannot crash into other trains.
 Proves Proposition 7.5
 			</description>
@@ -90,6 +360,7 @@ Proves Proposition 7.5
 				<requirements>
 					<some>
 						<quantifiereliminator>Mathematica</quantifiereliminator>
+						<quantifiereliminator>Reduce</quantifiereliminator>
 					</some>
 				</requirements>
 			</example>
@@ -109,10 +380,13 @@ Bug 2: The constraint for acceleration is too lax and should be m-z>SB. The bugs
     				</requirements>
     			</example>
     		<group name="ETCS Train [advanced]">
+    		<!--
             <example>
             	<name>ETCS Train Control [simple liveness]</name>
             	<path>/examples/hybrid/ETCS/liveness/ETCS-essentials-live2.key</path>
-            	<proofpath>/examples/hybrid/ETCS/liveness/ETCS-essentials-live2.key.proof</proofpath>
+				<proofs>
+					<proof name="Mathematica" href="/examples/hybrid/ETCS/liveness/ETCS-essentials-live2.key.proof"/>
+				</proofs>
             	<description>Proves liveness of the essentials of the ETCS train control protocol. This example proves that a train can finally reach any desired position on the track. Please note, that this is the simplest possible system for the liveness requirement for the ETCS.
 Proves equation (2.20) from book (see book for hints how to prove or Load Proof)
             </description>
@@ -124,11 +398,14 @@ Proves equation (2.20) from book (see book for hints how to prove or Load Proof)
             			<quantifiereliminator>Mathematica</quantifiereliminator>
             		</some>
             	</requirements>
-            </example>    		
+            </example>
+            -->    		
 			<example>
 				<name>ETCS Train Control [liveness simplified]</name>
 				<path>/examples/hybrid/ETCS/liveness/ETCS-essentials-live-range2.key</path>
-                <proofpath>/examples/hybrid/ETCS/liveness/ETCS-essentials-live-range2.key.proof</proofpath>
+				<proofs>
+					<proof name="Mathematica" href="/examples/hybrid/ETCS/liveness/ETCS-essentials-live-range2.key.proof"/>
+				</proofs>
 				<description>Proves safety of a slightly simplified ETCS train control protocol case study. This example proves that the train can move beyond every position on the track by just a single choice of movement authority.
 Proves Proposition 7.6 (see book for hints how to prove or Load Proof)
 			</description>
@@ -144,7 +421,10 @@ Proves Proposition 7.6 (see book for hints how to prove or Load Proof)
 			<example>
 				<name>ETCS Train Control [liveness]</name>
 				<path>/examples/hybrid/ETCS/paper/liveness-lemma.key</path>
-				<proofpath>/examples/hybrid/ETCS/paper/liveness-lemma.key.proof</proofpath>
+				<proofs>
+					<proof name="Mathematica" href="/examples/hybrid/ETCS/paper/liveness-lemma.key.proof"/>
+					<proof name="Reduce" href="/examples/hybrid/ETCS/paper/liveness-lemma-redlog.key.proof"/>
+				</proofs>
 				<description>Proves safety of the ETCS train control protocol case study. This example proves that the train can move beyond every position on the track.
 Proves Proposition 7.6 (see book for hints how to prove or Load Proof)
 			</description>
@@ -154,6 +434,7 @@ Proves Proposition 7.6 (see book for hints how to prove or Load Proof)
 				<requirements>
 					<some>
 						<quantifiereliminator>Mathematica</quantifiereliminator>
+						<quantifiereliminator>Reduce</quantifiereliminator>
 					</some>
 				</requirements>
 			</example>
@@ -175,7 +456,9 @@ Proves Proposition 7.4 (see book for how to prove)
 			<example>
 				<name>ETCS Train Disturbance [controllability]</name>
 				<path>/examples/hybrid/ETCS/paper/controllability-lemma-disturbed.key</path>
-                <path>/examples/hybrid/ETCS/paper/controllability-lemma-disturbed.key.proof</path>
+				<proofs>
+					<proof name="Mathematica" href="/examples/hybrid/ETCS/paper/controllability-lemma-disturbed.key.proof"/>
+				</proofs>
 				<description>Proves safety of the ETCS train control protocol case study despite disturbance in the physical dynamics. This example proves that the train is always controllable safely by some control choice, despite disturbance.
 Proves Proposition 7.7.
 Depending on your settings, use Update Simplification and Eliminate Universal Quantifiers.
@@ -192,7 +475,9 @@ Depending on your settings, use Update Simplification and Eliminate Universal Qu
 			<example>
 				<name>ETCS Train Disturbance [reactivity]</name>
 				<path>/examples/hybrid/ETCS/paper/reactivity-lemma-disturbed-simplified.key</path>
-				<proofpath>/examples/hybrid/ETCS/paper/proofs/proposition10.key.proof</proofpath>
+				<proofs>
+					<proof name="Mathematica" href="/examples/hybrid/ETCS/paper/proofs/proposition10.key.proof"/>
+				</proofs>
 				<description>Proves safety of the ETCS train control protocol case study despite disturbance in the physical dynamics. This example proves that the train can react to situation changes.
 Proves Proposition 7.8 (see book for hints how to prove or Load Proof)
 			</description>
@@ -208,6 +493,9 @@ Proves Proposition 7.8 (see book for hints how to prove or Load Proof)
 			<example>
 				<name>ETCS Train Disturbance [safety]</name>
 				<path>/examples/hybrid/ETCS/paper/safety-lemma-disturbed.key</path>
+				<proofs>
+					<proof name="Mathematica" href="/examples/hybrid/ETCS/paper/safety-lemma-disturbed.key.proof"/>
+				</proofs>
 				<description>Proves safety of the ETCS train control protocol case study despite disturbance in the physical dynamics. This example proves that a train never leaves its movement authority (MA=m) and, thus, cannot crash into other trains.
 Proves Proposition 7.9 (see book for how to prove)
 			</description>
@@ -442,35 +730,36 @@ Proves equation (8.29)</description>
         	<example>
         		<name>Car Control follow the leader [simple]</name>
         		<path>/examples/hybrid/car/DCCS/dccs-example-simple.key</path>
-        		<description>A very simple version of car control with a single leader and a single follower car drive on a lane and the follower car directly follows the leader. The follower car maintains velocity less than or equal to the lead car.
-See the paper for significantly more complicated car control verification, up to and including an arbitrary number of cars on an arbitrary number of lanes with lane switching and cars entering and leaving the highway.</description>
+        		<description>A very simple version of car control with a single leader and a single follower car drive on a lane and the follower car directly follows the leader. The follower car maintains velocity less than or equal to the lead car. See the FM'11 paper for significantly more complicated car control verification, up to and including an arbitrary number of cars on an arbitrary number of lanes with lane switching and cars entering and leaving the highway.</description>
         		<img href="http://symbolaris.com/info/fig-car-control2.png"/>
         	    <source href="http://symbolaris.com/info/DCCS.html"/>
         		<requirements>
         			<some>
         				<quantifiereliminator>Mathematica</quantifiereliminator>
+        				<quantifiereliminator>Reduce</quantifiereliminator>
         			</some>
         		</requirements>
         	</example>
         	<example>
         		<name>Car Control follow adaptively [simplified]</name>
         		<path>/examples/hybrid/car/DCCS/dccs-example.key</path>
-        		<description>A very simplified version of car control. Here only one single leader and a single follower car drive on a lane. In this simplified version, however, the leader car is stuck at a traffic light.
-See the paper for significantly more complicated car control verification, up to and including an arbitrary number of cars on an arbitrary number of lanes with lane switching and cars entering and leaving the highway.</description>
+        		<description>A very simplified version of car control. Here only one single leader and a single follower car drive on a lane. In this simplified version, however, the leader car is stuck at a traffic light. See the FM'11 paper for significantly more complicated car control verification, up to and including an arbitrary number of cars on an arbitrary number of lanes with lane switching and cars entering and leaving the highway.</description>
         		<img href="http://symbolaris.com/info/fig-car-control2.png"/>
-        	    <source href="http://symbolaris.com/lahs/"/>
+        	    <source href="http://symbolaris.com/info/DCCS.html"/>
         		<requirements>
         			<some>
         				<quantifiereliminator>Mathematica</quantifiereliminator>
+        				<quantifiereliminator>Reduce</quantifiereliminator>
         			</some>
         		</requirements>
         	</example>
                 <example>
                 <name>Car Control Intersection [stoplight]</name>
                         <path>/examples/hybrid/car/intersection/intersection-example-simple.key</path>
-                        <proofpath>/examples/hybrid/car/intersection/intersection-example-simple.key.proof</proofpath>
-                        <description>A very simple intersection of two lanes, with one car moving on each lane.  The safety property applies only to the traffic light controller - verifying that it is always red on at least one of the two lanes.  The cars accelerate only if the traffic light is green, or they have already gone through the intersection.
-See the paper on safe intersections for a verification of the safety of the cars, as well as the traffic light.
+						<proofs>
+							<proof name="Mathematica" href="/examples/hybrid/car/intersection/intersection-example-simple.key.proof"/>
+						</proofs>
+                        <description>A very simple intersection of two lanes, with one car moving on each lane. The safety property applies only to the traffic light controller - verifying that it is always red on at least one of the two lanes.  The cars accelerate only if the traffic light is green, or they have already gone through the intersection. See the ITSC'11 paper on safe intersections for a verification of the safety of the cars, as well as the traffic light.
 Proof hints: Be sure to set the Max Rule Application under Proof Search Strategy to maximum.</description>
                         <img href="http://symbolaris.com/info/stoplight.png"/>
                     <source href="http://symbolaris.com/info/DCCS.html"/>
@@ -483,9 +772,10 @@ Proof hints: Be sure to set the Max Rule Application under Proof Search Strategy
                 <example>
                 <name>Car Control Intersection [one lane]</name>
                         <path>/examples/hybrid/car/intersection/intersection-example-onelane.key</path>
-                        <proofpath>/examples/hybrid/car/intersection/intersection-example-onelane.key.proof</proofpath>
-                        <description>A very simple intersection of two lanes, with one car moving on one lane.  The car accelerates only if the traffic light is green, or it has already gone through the intersection.
-See the paper on safe intersections.
+						<proofs>
+							<proof name="Mathematica" href="/examples/hybrid/car/intersection/intersection-example-onelane.key.proof"/>
+						</proofs>
+                        <description>A very simple intersection of two lanes, with one car moving on one lane.  The car accelerates only if the traffic light is green, or it has already gone through the intersection. See the ITSC'11 paper on safe intersections for a verification of the safety of the cars, as well as the traffic light.
 Proof requires user interactions.</description>
                         <img href="http://symbolaris.com/info/onelane.png"/>
                     <source href="http://symbolaris.com/info/DCCS.html"/>
@@ -499,8 +789,10 @@ Proof requires user interactions.</description>
 					<example>
 						<name>Variable speed limit (vsl)</name>
 						<path>/examples/hybrid/car/vsl/vsl.key</path>
-						<proofpath>/examples/hybrid/car/vsl/vsl.key.proof</proofpath>
-						<description>Proves safety of variable speed limits issued by traffic centers. This example proves that the variable speed limit car controller always complies with a speed limit that the traffic center issued for a certain position on a road.
+						<proofs>
+							<proof name="Mathematica" href="/examples/hybrid/car/vsl/vsl.key.proof"/>
+						</proofs>
+						<description>Proves safety of variable speed limits issued by traffic centers. This example proves that the variable speed limit car controller always complies with a speed limit that the traffic center issued for a certain position on a road. See ICCPS'12 paper for more details.
 					</description>
 						<source href="http://symbolaris.com/info/DCCS.html"/>
 						<img href="http://symbolaris.com/info/vsl.png"/>
@@ -513,8 +805,10 @@ Proof requires user interactions.</description>
 					<example>
 						<name>Variable speed limit [moving incidents]</name>
 						<path>/examples/hybrid/car/vsl/vsli.key</path>
-						<proofpath>/examples/hybrid/car/vsl/vsli.key.proof</proofpath>
-						<description>Proves safety of variable speed limits issued by traffic centers. This example proves that the (advanced) variable speed limit controller car always complies with a speed limit that the traffic center issues for a certain position on a road. An incident on the road defines an area that must contain a speed limit. This incident may possibly move towards cars. Outside the area defined by the incident, the traffic center may issue additional speed limits at will.
+						<proofs>
+							<proof name="Mathematica" href="/examples/hybrid/car/vsl/vsli.key.proof"/>
+						</proofs>
+						<description>Proves safety of variable speed limits issued by traffic centers. This example proves that the (advanced) variable speed limit controller car always complies with a speed limit that the traffic center issues for a certain position on a road. An incident on the road defines an area that must contain a speed limit. This incident may possibly move towards cars. Outside the area defined by the incident, the traffic center may issue additional speed limits at will. See ICCPS'12 paper for more details.
 						</description>
 						<source href="http://symbolaris.com/info/DCCS.html"/>
 						<img href="http://symbolaris.com/info/vsli.png"/>
@@ -527,8 +821,10 @@ Proof requires user interactions.</description>
 					<example>
 						<name>Variable speed limit [incident alert track]</name>
 						<path>/examples/hybrid/car/vsl/vsli-alert.key</path>
-						<proofpath>/examples/hybrid/car/vsl/vsli-alert.key.proof</proofpath>
-						<description>Proves safety of variable speed limits issued by traffic centers. This example proves that the variable speed limit car controller always complies with a speed limit that the traffic center issues for a certain position on a road. An incident on the road defines an area that must contain a speed limit. This incident may move towards cars. Outside the area defined by the incident, the traffic center may issue speed limits at will. Additionally, the traffic center ensures to only issue speed limits once per car within the area defined by the incident to avoid Zeno-style updating.
+						<proofs>
+							<proof name="Mathematica" href="/examples/hybrid/car/vsl/vsli-alert.key.proof"/>
+						</proofs>
+						<description>Proves safety of variable speed limits issued by traffic centers. This example proves that the variable speed limit car controller always complies with a speed limit that the traffic center issues for a certain position on a road. An incident on the road defines an area that must contain a speed limit. This incident may move towards cars. Outside the area defined by the incident, the traffic center may issue speed limits at will. Additionally, the traffic center ensures to only issue speed limits once per car within the area defined by the incident to avoid Zeno-style updating. See ICCPS'12 paper for more details.
 					</description>
 						<source href="http://symbolaris.com/info/DCCS.html"/>
 						<img href="http://symbolaris.com/info/vsli-alert.png"/>
@@ -623,6 +919,7 @@ Proves equation (4.4)</description>
 			<requirements>
 				<some>
 					<quantifiereliminator>Mathematica</quantifiereliminator>
+					<quantifiereliminator>Reduce</quantifiereliminator>
 				</some>
 			</requirements>
 		</example>
@@ -664,14 +961,15 @@ Proves Example 3.21</description>
         			    <source href="http://symbolaris.com/lahs/"/>
         				<requirements>
         					<some>
-        						<quantifiereliminator>Mathematica</quantifiereliminator>
         					</some>
         				</requirements>
         			</example>
 				<example>
         				<name>Switched Damped Oscillator</name>
         				<path>/examples/hybrid/switchstab-param.key</path>
-                        <proofpath>/examples/hybrid/switchstab-param.key.proof</proofpath>
+						<proofs>
+							<proof name="Mathematica" href="/examples/hybrid/switchstab-param.key.proof"/>
+						</proofs>
 <description>Switched damped oscillator switching between two modes of damped oscillators at some diagonals. Identifies the assumptions on the switching surface taht are required for safety.
 Proof hints: The automatic proof pauses at some point. Then use diffweaken and resume automatic proof. Or use Load Proof.
 Proves Figure 3.19</description>
@@ -713,6 +1011,7 @@ Contributed by Aaron Kane</description>
                     		<requirements>
                     			<some>
                     				<quantifiereliminator>Mathematica</quantifiereliminator>
+									<quantifiereliminator>Reduce</quantifiereliminator>
                     			</some>
                     		</requirements>
                     	</example>
@@ -783,7 +1082,7 @@ Contributed by Aaron Kane</description>
                     		</requirements>
                     	</example>
                     </group>
-                    		<group name="Biological Systems">
+                    		<!-- group name="Biological Systems">
                     			<example>
                     				<name>E. coli chemotaxis</name>
                     				<path>/examples/hybrid/bio/Ecoli/Ecoli-chemotaxis.key</path>
@@ -798,6 +1097,6 @@ Contributed by: Solofomampionona Fortunat Rajaona</description>
                     					</some>
                     				</requirements>
                     			</example>
-	</group>
+	</group -->
 	<example></example>
 </examples>

@@ -281,7 +281,7 @@ public class IterativeReduceRule implements BuiltInRule, RuleFilter {
 								.findInstance(
 										TermBuilder.DF.not(currentItem
 												.getUseForFindInstance()),
-										timeout / 2);
+										timeout / 2, services);
 					} catch (IncompleteEvaluationException e) {
 						// timeout
 					}

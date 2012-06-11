@@ -53,6 +53,7 @@ import de.uka.ilkd.key.dl.arithmetics.exceptions.ConnectionProblemException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.FailedComputationException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ServerStatusProblemException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.UnsolveableException;
 import de.uka.ilkd.key.dl.arithmetics.impl.orbital.DL2MatrixFormConverter.MatrixForm;
 import de.uka.ilkd.key.dl.logic.ldt.RealLDT;
 import de.uka.ilkd.key.dl.model.DLNonTerminalProgramElement;
@@ -128,9 +129,14 @@ public class Orbital implements IODESolver {
 					.getDifferentialEquations(services.getNamespaces());
 
 			// create matrix
-			MatrixForm matrixForm = DL2MatrixFormConverter.INSTANCE
-					.convertToMatrixForm(vars, equations, services
-							.getNamespaces());
+            MatrixForm matrixForm;
+            try {
+                matrixForm = DL2MatrixFormConverter.INSTANCE
+                        .convertToMatrixForm(vars, equations,
+                                services.getNamespaces());
+            } catch (IllegalArgumentException e) {
+                throw new UnsolveableException("Could not convert ode ", e);
+            }
 			System.out.println("Solving ODE x'(t) ==\n" + matrixForm.matrix
 					+ "*x(t) + " + matrixForm.b + "\n" + "  " + matrixForm.eta
 					+ "'(t) == " + matrixForm.matrix.multiply(matrixForm.eta)

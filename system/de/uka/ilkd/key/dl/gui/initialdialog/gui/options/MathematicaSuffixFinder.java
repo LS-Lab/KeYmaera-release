@@ -1,3 +1,13 @@
+/*******************************************************************************
+ * Copyright (c) 2010 Zacharias Mokom.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the GNU Public License v2.0
+ * which accompanies this distribution, and is available at
+ * http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+ * 
+ * Contributors:
+ *     Zacharias Mokom - initial API and implementation
+ ******************************************************************************/
 package de.uka.ilkd.key.dl.gui.initialdialog.gui.options;
 
 import java.beans.PropertyChangeEvent;
@@ -109,28 +119,32 @@ public class MathematicaSuffixFinder  implements PropertyChangeListener {
      */
     public void setSuffixesClass() {
 
-	String osName = OSInfosDefault.INSTANCE.getOsName();
-	if (osName.equalsIgnoreCase("linux"))
-	    suffixesClass = LinuxSuffixes.class;
-	else if (osName.equalsIgnoreCase("mac"))
-	    suffixesClass = MacSuffixes.class;
-	else if (osName.equalsIgnoreCase("windows"))
-	    suffixesClass = WindowsSuffixes.class;
-	else {
-	    System.err.println("Detection of operating system failed: " + osName);
-	    suffixesClass = LinuxSuffixes.class;
-	}
-	
-	try {
-	    suffixesClassInstance = suffixesClass.newInstance();
+        switch (OSInfosDefault.INSTANCE.getOs()) {
+        case LINUX:
+            suffixesClass = LinuxSuffixes.class;
+            break;
+        case WINDOWS:
+            suffixesClass = WindowsSuffixes.class;
+            break;
+        case OSX:
+            suffixesClass = MacSuffixes.class;
+            break;
+        default:
+            System.err.println("Detection of operating system failed: "
+                    + OSInfosDefault.INSTANCE.getOs());
+            suffixesClass = LinuxSuffixes.class;
+        }
 
-	} catch (InstantiationException e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
-	} catch (IllegalAccessException e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
-	}
+        try {
+            suffixesClassInstance = suffixesClass.newInstance();
+
+        } catch (InstantiationException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
 
     }
     public Boolean showConfirnPathSearch(){

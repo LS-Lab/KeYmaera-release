@@ -94,6 +94,8 @@ public class Services{
      */
     private NameRecorder nameRecorder;
 
+    private boolean autoMode;
+
     
     /**
      * creates a new Services object with a new TypeConverter and a new
@@ -313,5 +315,16 @@ public class Services{
 	 */
     public Proof getProof() {
 	return proof;
+    }
+
+    /**
+     * @return
+     */
+    public boolean autoMode() {
+        return autoMode;
+    }
+    
+    public void setAutoMode(boolean autoMode) {
+        this.autoMode = autoMode;
     }
 }

@@ -107,7 +107,7 @@ public class FindInstanceRule extends Visitor implements BuiltInRule,
 
             final String result = MathSolverManager
                     .getCurrentCounterExampleGenerator().findInstance(
-                            resultTerm, -1);
+                            resultTerm, -1, services);
 
             SwingUtilities.invokeLater(new Runnable() {
 

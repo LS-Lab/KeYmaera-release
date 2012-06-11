@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<feature id="KeY_Feature" label="KeY Feature" version="1.1.16" provider-name="KeY Project, University of Karlsruhe">
+<feature id="KeY_Feature" label="KeY Feature" version="2.1" provider-name="KeY Project, University of Karlsruhe">
 
    <description url="http://www.key-project.org/">
       KeY is a tool that provides facilities for formal specification
@@ -82,14 +82,14 @@ POSSIBILITY OF SUCH DAMAGES.
       <import plugin="org.eclipse.ui.ide"/>
    </requires>
 
-  <plugin id="KeYPlugin" download-size="0" install-size="0" version="1.1.16" unpack="false"/> 
+  <plugin id="KeYPlugin" download-size="0" install-size="0" version="2.1" unpack="false"/> 
 
-  <plugin id="ProofVisualization" download-size="0" install-size="0" version="1.1.16" unpack="false"/> 
+  <plugin id="ProofVisualization" download-size="0" install-size="0" version="2.1" unpack="false"/> 
 
-  <plugin id="VisualDebugger" download-size="0" install-size="0" version="1.1.16" unpack="false"/>
+  <plugin id="VisualDebugger" download-size="0" install-size="0" version="2.1" unpack="false"/>
 
-  <plugin id="KeYExternalLibraries" download-size="0" install-size="0" version="1.1.16" unpack="false"/> 
+  <plugin id="KeYExternalLibraries" download-size="0" install-size="0" version="2.1" unpack="false"/> 
   
-  <plugin id="org.key_project.core" download-size="0" install-size="0" version="1.1.16" unpack="false"/> 
+  <plugin id="org.key_project.core" download-size="0" install-size="0" version="2.1" unpack="false"/> 
 
 </feature>

@@ -91,7 +91,7 @@ public class MetaVariableLocator {
 	 * @return a SetOfMetavariables that contains all Metavariables that occur
 	 *         in the program
 	 */
-	private ImmutableSet<Metavariable> findInsideModality(ProgramElement programElement, NamespaceSet nss) {
+	public static ImmutableSet<Metavariable> findInsideModality(ProgramElement programElement, NamespaceSet nss) {
 		ImmutableSet<Metavariable> result = DefaultImmutableSet.nil();
 		if (programElement instanceof DLNonTerminalProgramElement) {
 			DLNonTerminalProgramElement dlnpe = (DLNonTerminalProgramElement) programElement;

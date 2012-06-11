@@ -65,7 +65,7 @@ public class DLOptionBean implements Settings {
 	}
 
 	public static enum TracerStat {
-		ON("On"), OFF("Off");
+		ON("on"), OFF("off");
 
 		private String string;
 
@@ -138,7 +138,7 @@ public class DLOptionBean implements Settings {
 
 	public static enum DiffSat {
 		BLIND("blind"), OFF("off"), SIMPLE("simple"), DIFF("diffauto"), AUTO(
-				"auto"), DESPARATE ("desparate");
+				"auto"), DESPERATE ("desperate");
 
 		private String string;
 
@@ -322,6 +322,10 @@ public class DLOptionBean implements Settings {
 	private boolean csdpForceInternal;
 
 	private boolean resetStrategyAfterEveryRun;
+
+    private boolean useODEIndFinMethods;
+    
+    private boolean reduceOnFreshBranch;
 
 	private DLOptionBean() {
 		subOptions = new LinkedHashSet<Settings>();
@@ -706,7 +710,14 @@ public class DLOptionBean implements Settings {
 		if (property != null) {
 			tracerStat = TracerStat.valueOf(property);
 		}
-
+		property = props.getProperty(EPropertyConstant.DLOPTIONS_USE_ODE_IND_FIN_METHODS.getKey());
+		if(property != null) {
+		    useODEIndFinMethods = Boolean.valueOf(property);
+		}
+		property = props.getProperty(EPropertyConstant.DLOPTIONS_USE_ODE_IND_FIN_METHODS.getKey());
+		if(property != null) {
+		    useODEIndFinMethods = Boolean.valueOf(property);
+		}
 	}
 
 	/*
@@ -811,6 +822,8 @@ public class DLOptionBean implements Settings {
 				cexFinder.name());
 		props.setProperty(EPropertyConstant.DLOPTIONS_TRACER_STAT.getKey(),
 				tracerStat.name());
+		props.setProperty(EPropertyConstant.DLOPTIONS_USE_ODE_IND_FIN_METHODS.getKey(), Boolean.toString(useODEIndFinMethods));
+		props.setProperty(EPropertyConstant.DLOPTIONS_REDUCE_ON_FRESH_BRANCH.getKey(), Boolean.toString(reduceOnFreshBranch));
 
 	}
 
@@ -1007,9 +1020,10 @@ public class DLOptionBean implements Settings {
 	 *            the quantifierEliminator to set
 	 */
 	public void setQuantifierEliminator(String quantifierEliminator) {
-		if (!(quantifierEliminator == null && this.quantifierEliminator == null)
-				|| !quantifierEliminator.equals(this.quantifierEliminator)) {
-			this.quantifierEliminator = quantifierEliminator;
+        if (!(quantifierEliminator == null && this.quantifierEliminator == null)
+                || quantifierEliminator == null
+                || !quantifierEliminator.equals(this.quantifierEliminator)) {
+            this.quantifierEliminator = quantifierEliminator;
 			firePropertyChanged();
 		}
 	}
@@ -1406,6 +1420,44 @@ public class DLOptionBean implements Settings {
 	}
 
 	public void setResetStrategyAfterEveryRun(boolean resetStrategyAfterEveryRun) {
-		this.resetStrategyAfterEveryRun = resetStrategyAfterEveryRun;
+	    if(this.resetStrategyAfterEveryRun != resetStrategyAfterEveryRun) {
+	        this.resetStrategyAfterEveryRun = resetStrategyAfterEveryRun;
+	        firePropertyChanged();
+	    }
 	}
+
+    /**
+     * @return
+     */
+    public boolean isUseODEIndFinMethods() {
+        return useODEIndFinMethods;
+    }
+
+    /**
+     * @param useODEIndFinMethods the useODEIndFinMethods to set
+     */
+    public void setUseODEIndFinMethods(boolean useODEIndFinMethods) {
+        if(this.useODEIndFinMethods != useODEIndFinMethods) {
+            this.useODEIndFinMethods = useODEIndFinMethods;
+            firePropertyChanged();
+        }
+    }
+
+    /**
+     * @return the reduceOnFreshBranch
+     */
+    public boolean isReduceOnFreshBranch() {
+        return reduceOnFreshBranch;
+    }
+
+    /**
+     * @param reduceOnFreshBranch the reduceOnFreshBranch to set
+     */
+    public void setReduceOnFreshBranch(boolean reduceOnFreshBranch) {
+        if(this.reduceOnFreshBranch != reduceOnFreshBranch) {
+            System.out.println("Changed!");
+            this.reduceOnFreshBranch = reduceOnFreshBranch;
+            firePropertyChanged();
+        }
+    }
 }

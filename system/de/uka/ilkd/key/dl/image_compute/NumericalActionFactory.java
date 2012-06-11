@@ -6,46 +6,25 @@
 
 package de.uka.ilkd.key.dl.image_compute;
 
-import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
-import de.uka.ilkd.key.dl.arithmetics.IODESolver.ODESolverUpdate;
-import de.uka.ilkd.key.dl.image_compute.Evaluator.SymbolAbsentHandler;
-import de.uka.ilkd.key.dl.image_compute.NumericalState.*;
-import de.uka.ilkd.key.dl.image_compute.TransitionGraph.DiffSystemTransition;
-import de.uka.ilkd.key.dl.image_compute.TransitionGraph.PostCond;
-import de.uka.ilkd.key.dl.image_compute.TransitionGraph.PostCondType;
-import de.uka.ilkd.key.dl.model.Assign;
-import de.uka.ilkd.key.dl.model.Choice;
-import de.uka.ilkd.key.dl.model.Chop;
-import de.uka.ilkd.key.dl.model.CompoundDLProgram;
-import de.uka.ilkd.key.dl.model.DLProgram;
-import de.uka.ilkd.key.dl.model.DLProgramElement;
-import de.uka.ilkd.key.dl.model.DiffSystem;
-import de.uka.ilkd.key.dl.model.ElementaryDLProgram;
-import de.uka.ilkd.key.dl.model.IfStatement;
-import de.uka.ilkd.key.dl.model.ProgramVariable;
-import de.uka.ilkd.key.dl.model.Quest;
-import de.uka.ilkd.key.dl.model.RandomAssign;
-import de.uka.ilkd.key.dl.model.Star;
-import de.uka.ilkd.key.dl.model.VariableDeclaration;
-import de.uka.ilkd.key.dl.logic.ldt.RealLDT;
-import de.uka.ilkd.key.java.PrettyPrinter;
-import de.uka.ilkd.key.java.ProgramElement;
-import de.uka.ilkd.key.java.Services;
-import de.uka.ilkd.key.logic.Name;
-import de.uka.ilkd.key.logic.NamespaceSet;
-import de.uka.ilkd.key.logic.Term;
-import de.uka.ilkd.key.logic.TermBuilder;
-import de.uka.ilkd.key.logic.op.*;
-import de.uka.ilkd.key.logic.sort.Sort;
-
-import de.uka.ilkd.key.dl.image_compute.MachValueFactory;
-
 import java.io.IOException;
 import java.io.StringWriter;
-import java.util.*;
+import java.util.Random;
 
 import orbital.math.Real;
 import orbital.math.ValueFactory;
+import de.uka.ilkd.key.dl.image_compute.Evaluator.SymbolAbsentHandler;
+import de.uka.ilkd.key.dl.image_compute.TransitionGraph.DiffSystemTransition;
+import de.uka.ilkd.key.dl.image_compute.TransitionGraph.PostCond;
+import de.uka.ilkd.key.dl.model.Assign;
+import de.uka.ilkd.key.dl.model.DLProgramElement;
+import de.uka.ilkd.key.dl.model.DiffSystem;
+import de.uka.ilkd.key.dl.model.RandomAssign;
+import de.uka.ilkd.key.dl.model.VariableDeclaration;
+import de.uka.ilkd.key.java.PrettyPrinter;
+import de.uka.ilkd.key.java.ProgramElement;
+import de.uka.ilkd.key.logic.Term;
+import de.uka.ilkd.key.logic.TermBuilder;
+import de.uka.ilkd.key.logic.op.QuanUpdateOperator;
 
 class NumericalActionFactory
 {
@@ -542,8 +521,6 @@ class NumericalActionFactory
         @Override
         void apply(NumericalState state)
         {
-            Map<String, Real> symbolMaps = new HashMap<String, Real>();
-
             QuanUpdateOperator top = (QuanUpdateOperator)quanUpdate.op();
             for (int i = 0; i < quanUpdate.arity() - 1; i++)
                 state.setSymbol(top.location(quanUpdate, i).toString(), ev.evalExpr(state, quanUpdate.sub(i)));

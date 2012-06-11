@@ -45,7 +45,7 @@ public class ApplyOnAttributeAccess extends ApplyOnAccessTerm {
      * @return true if the top level operator of target is an
      * attribute operator
      */
-    public boolean isApplicable (Update update, Term target) {
+    public boolean isApplicable (Update update, Term target, Services services) {
         return (target.op () instanceof AttributeOp)
                 || 
                 (target.op() instanceof NonRigidFunctionLocation && 

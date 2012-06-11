@@ -1,3 +1,13 @@
+/*******************************************************************************
+ * Copyright (c) 2010 Zacharias Mokom.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the GNU Public License v2.0
+ * which accompanies this distribution, and is available at
+ * http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+ * 
+ * Contributors:
+ *     Zacharias Mokom - initial API and implementation
+ ******************************************************************************/
 package de.uka.ilkd.key.dl.gui.initialdialog.gui;
 
 import java.awt.BorderLayout;
@@ -54,7 +64,7 @@ public class InitialDialogBeans implements ActionListener {
     	InitialDialogFrame.add(
     			new HeadingText(
     				"Select Solvers Properties and File Locations:",
-    				"KeYmaera stores the corresponding  paths and properties for the each solver")
+    				"KeYmaera stores the corresponding paths and properties for the each solver")
     				.getDescriptionText(),BorderLayout.NORTH);
     	
     	InitialDialogFrame.add(propsCards.getPropertiesCardPane(),BorderLayout.CENTER ); 
@@ -127,7 +137,7 @@ public class InitialDialogBeans implements ActionListener {
     private void doExit() {
 	final int option = JOptionPane.showConfirmDialog(
 	    InitialDialogFrame,
-	    "Settings will be ignored \nReally exit KeYmaera Tool Settings?",
+	    "Settings will be ignored.\nReally exit KeYmaera tool settings dialog?",
 	    "Warning", JOptionPane.YES_NO_OPTION);
 	if (option == JOptionPane.YES_OPTION) {
 	InitialDialogFrame.dispose();

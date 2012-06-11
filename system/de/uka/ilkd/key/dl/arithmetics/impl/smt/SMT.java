@@ -1,3 +1,13 @@
+/*******************************************************************************
+ * Copyright (c) 2012 Jan-David Quesel.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the GNU Public License v2.0
+ * which accompanies this distribution, and is available at
+ * http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+ * 
+ * Contributors:
+ *     Jan-David Quesel - initial API and implementation
+ ******************************************************************************/
 package de.uka.ilkd.key.dl.arithmetics.impl.smt;
 
 import java.io.BufferedReader;
@@ -192,10 +202,9 @@ public class SMT implements IQuantifierEliminator, ICounterExampleGenerator {
 	 * @see de.uka.ilkd.key.dl.arithmetics.ICounterExampleGenerator#findInstance(de.uka.ilkd.key.logic.Term, long)
 	 */
 	@Override
-	public String findInstance(Term form, long timeout) throws RemoteException,
+	public String findInstance(Term form, long timeout, Services s) throws RemoteException,
 			SolverException {
-		NamespaceSet nss = null; // FIXME retrieve namespace set
-		nss = Main.getInstance().mediator().namespaces();
+		NamespaceSet nss = s.getNamespaces();
 		SMTInput input = Term2SMTConverter.convert(form,
 				new ArrayList<QuantifiableVariable>(), nss);
 		String smtIn = input.getVariableList() + "\n";

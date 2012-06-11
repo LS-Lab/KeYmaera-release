@@ -23,6 +23,8 @@ import java.awt.event.HierarchyBoundsListener;
 import java.awt.event.HierarchyEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.IOException;
+import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Vector;
 import java.util.regex.Matcher;
@@ -34,7 +36,10 @@ import javax.swing.UIManager;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.DefaultHighlighter.DefaultHighlightPainter;
+import javax.swing.text.Document;
+import javax.swing.text.EditorKit;
 import javax.swing.text.Highlighter.HighlightPainter;
+import javax.swing.text.html.HTMLDocument;
 
 import de.uka.ilkd.key.gui.*;
 import de.uka.ilkd.key.gui.configuration.Config;
@@ -696,11 +701,21 @@ public class SequentView extends JEditorPane implements Autoscroll {
 	    return "";
 	setSelectionStart(offs);
 	setSelectionEnd(offs + len);
-	String out = HtmlToText.applyReplacements(getSelectedText());
-	out = out.replaceAll("\\u2200", "\\\\forall ");
-	out = out.replaceAll("\\u2203", "\\\\exists ");
+	HTMLDocument document = (HTMLDocument) getDocument();
+	EditorKit editorKit = getEditorKit();
+	StringWriter w = new StringWriter();
+	try {
+        editorKit.write(w, getDocument(), offs, len);
+    } catch (IOException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+    }
+	String selectedText = w.toString();
 	
-	return out;
+	HtmlToText conv = new HtmlToText();
+	conv.parse(selectedText);
+	
+	return conv.getText();
     }
 
     /**

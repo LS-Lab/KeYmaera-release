@@ -39,7 +39,7 @@ public class ApplyOnRigidTerm extends AbstractUpdateRule {
      * @return true if the top level operator of target is a local
      * variable
      */
-    public boolean isApplicable(Update update, Term target) {	
+    public boolean isApplicable(Update update, Term target, Services services) {	
 	return target.isRigid();
     }
 

@@ -1,3 +1,13 @@
+/*******************************************************************************
+ * Copyright (c) 2012 Jan-David Quesel.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the GNU Public License v2.0
+ * which accompanies this distribution, and is available at
+ * http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+ * 
+ * Contributors:
+ *     Jan-David Quesel - initial API and implementation
+ ******************************************************************************/
 package de.uka.ilkd.key.dl.arithmetics.impl.reduce;
 
 import java.math.BigInteger;
@@ -58,8 +68,9 @@ public class Term2ReduceConverter {
 	 * @return QepCadInput-Instance of the given term.
 	 */
 	public static String convert(Term form, int[] variableCount, boolean eliminateFractions) {
-		Term2ReduceConverter converter = new Term2ReduceConverter();
-		return converter.convertImpl(form, variableCount, eliminateFractions);
+//		Term2ReduceConverter converter = new Term2ReduceConverter();
+//		return converter.convertImplOrg(form, variableCount, eliminateFractions);
+	    return Term2ReduceString.apply(form, variableCount, eliminateFractions);
 	}
 
 	/**
@@ -67,7 +78,7 @@ public class Term2ReduceConverter {
 	 * 
 	 * @param variables
 	 */
-	private String convertImpl(Term form, int[] variableCount, boolean eliminateFractions) {
+	private String convertImplOrg(Term form, int[] variableCount, boolean eliminateFractions) {
 //		String formula = convert2String(form, null, Options.INSTANCE
 //				.isEliminateFractions());
 		String formula = convert2String(form, null, eliminateFractions, variableCount);

@@ -1,3 +1,13 @@
+/*******************************************************************************
+ * Copyright (c) 2010 Zacharias Mokom.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the GNU Public License v2.0
+ * which accompanies this distribution, and is available at
+ * http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+ * 
+ * Contributors:
+ *     Zacharias Mokom - initial API and implementation
+ ******************************************************************************/
 package de.uka.ilkd.key.dl.gui.initialdialog.defaultsettings;
 
 import java.util.Locale;
@@ -14,7 +24,7 @@ public class OSInfosDefault {
 
     public static final OSInfosDefault INSTANCE = new OSInfosDefault();
 
-    private String OsName;
+    private OperatingSystem os;
     private Properties props;
     private Class<? extends IOsDefaultProperties> defaultPropertiesClass;
     private IOsDefaultProperties defaultProperties;
@@ -29,13 +39,13 @@ public class OSInfosDefault {
         str = System.getProperty("os.name");
         str = str.toLowerCase(Locale.ENGLISH);
         if (str.contains("linux")) {
-            OsName = "linux";
+            os = OperatingSystem.LINUX;
             defaultPropertiesClass = LinuxOsDefaultProperties.class;
         } else if (str.contains("windows")) {
-            OsName = "windows";
+            os = OperatingSystem.WINDOWS;
             defaultPropertiesClass = WindowsOsDefaultProperties.class;
         } else if (str.contains("mac")) {
-            OsName = "mac";
+            os = OperatingSystem.OSX;
             defaultPropertiesClass = MacOsDefaultProperties.class;
         }
 
@@ -45,15 +55,13 @@ public class OSInfosDefault {
      * @return the Operating systems name as a string. i.e "linux", or "windows"
      *         or "mac"
      */
-    public String getOsName() {
-        System.out.println("You are working on : " + OsName  + " Operating System."); // XXX
-        return OsName;
+    public OperatingSystem getOs() {
+        return os;
     }
-    public void setDefaultProperty(Properties props){
+    public void setDefaultProperty(){
 	
 	setDefaultPropertiesClass();
-	props = defaultProperties.getDefaultPropertyList();
-	this.props = props;
+	this.props = defaultProperties.getDefaultPropertyList();
     }
     /**
      *  Sets the default properties
@@ -76,7 +84,7 @@ public class OSInfosDefault {
      * @return <em> Properties </em> the default property list as a Properties Object.
      */
     public Properties getDefaultProperty() {
-        setDefaultProperty(new Properties());
+        setDefaultProperty();
         return props;
     }
     /**
@@ -85,7 +93,7 @@ public class OSInfosDefault {
      *  @return <em> string </em> the default property value .
      */
     public String getDefaultProperty(String key){
-	 setDefaultProperty(new Properties());
+	 setDefaultProperty();
 	return props.getProperty(key);
     }
     

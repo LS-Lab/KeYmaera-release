@@ -64,6 +64,7 @@ import de.uka.ilkd.key.java.ProgramElement;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.java.StatementBlock;
 import de.uka.ilkd.key.logic.JavaBlock;
+import de.uka.ilkd.key.logic.Named;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.Visitor;
 import de.uka.ilkd.key.logic.op.NonRigidFunction;
@@ -95,7 +96,7 @@ public class DLApplyOnModality extends ApplyOnModality {
      * @param deletionEnabled
      */
     public DLApplyOnModality(UpdateSimplifier updateSimplifier) {
-        super(updateSimplifier, true);
+        super(updateSimplifier, false);
 
     }
 
@@ -106,10 +107,10 @@ public class DLApplyOnModality extends ApplyOnModality {
      *      de.uka.ilkd.key.logic.Term)
      */
     /*@Override*/
-    public boolean isApplicable(Update update, Term target) {
-        return super.isApplicable(update, target)
+    public boolean isApplicable(Update update, Term target, Services services) {
+        return super.isApplicable(update, target, services)
                 && DLOptionBean.INSTANCE.isApplyUpdatesToModalities()
-                && applyableUpdates(update, target);
+                && applyableUpdates(update, target, services);
     }
 
     /**
@@ -117,8 +118,8 @@ public class DLApplyOnModality extends ApplyOnModality {
      * @param target
      * @return
      */
-    private boolean applyableUpdates(Update update, Term target) {
-        HashSet protectedVars = collectProgramVariables(target, Main.getInstance().mediator().getServices());
+    private boolean applyableUpdates(Update update, Term target, Services services) {
+        HashSet protectedVars = collectProgramVariables(target, services);
         for (int i = 0; i < update.locationCount(); i++) {
             if (!protectedVars.contains(update.location(i))) {
                 boolean found = false;

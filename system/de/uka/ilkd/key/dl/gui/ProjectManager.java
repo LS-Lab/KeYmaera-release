@@ -34,7 +34,12 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.net.URISyntaxException;
 
@@ -43,6 +48,10 @@ import javax.swing.Box;
 import java.awt.event.KeyEvent;
 import java.awt.Toolkit;
 import java.awt.Dimension;
+
+import javax.swing.ComboBoxModel;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.KeyStroke;
 import javax.swing.JButton;
@@ -57,6 +66,7 @@ import javax.swing.JTextPane;
 import javax.swing.JTextField;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
+import javax.swing.event.ListDataListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -69,6 +79,7 @@ import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 
 import org.w3c.dom.Document;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -117,7 +128,7 @@ public class ProjectManager extends JFrame {
 	private static class ExampleInfo {
 		private String name;
 		private String url;
-		private String proofUrl;
+		private Map<String, String> proofUrls;
 		private String description;
 		private Set<String> requirements;
 		private String source;
@@ -129,12 +140,12 @@ public class ProjectManager extends JFrame {
 		 * @param url
 		 * @param img 
 		 */
-		public ExampleInfo(String name, String url, String proofUrl, String description,
+		public ExampleInfo(String name, String url, Map<String, String> proofUrls, String description,
 				String img, Set<String> requirements, String source) {
 			super();
 			this.name = name;
 			this.url = url;
-			this.proofUrl = proofUrl;
+			this.proofUrls = proofUrls;
 			this.description = description;
 			this.img = img;
 			this.source = source;
@@ -198,8 +209,12 @@ public class ProjectManager extends JFrame {
 			return img;
 		}
 		
-		public String getProofUrl() {
-			return proofUrl;
+		public Map<String,String> getProofUrls() {
+            return proofUrls;
+        }
+		
+		public String getProofUrl(String name) {
+			return proofUrls.get(name);
 		}
 
 		
@@ -212,6 +227,14 @@ public class ProjectManager extends JFrame {
 		public String toString() {
 			return getName();
 		}
+	}
+	
+	private class ProofComboBoxModel extends DefaultComboBoxModel {
+
+        public ProofComboBoxModel(Map<String, String> proofs) {
+            super(proofs.keySet().toArray());
+        }
+	    
 	}
 
 	public static final String EXAMPLES_DESCRIPTION_FILE = "description.xml";
@@ -286,7 +309,14 @@ public class ProjectManager extends JFrame {
 
 		});
 		
+		final ProofComboBoxModel proofComboBoxModel = new ProofComboBoxModel(new HashMap<String, String>());
+        final JComboBox proofs = new JComboBox();
+        proofs.setToolTipText("Select the version of the proof to load");
+        proofs.setModel(proofComboBoxModel);
+        
+		
 		final JButton proofLoadButton = new JButton("Load Proof");
+		proofLoadButton.setToolTipText("Load the proof selected in the combo box.");
 		proofLoadButton.addActionListener(new ActionListener() {
 
 			/*@Override*/
@@ -297,7 +327,7 @@ public class ProjectManager extends JFrame {
 					Object nodeInfo = lastSelectedPathComponent.getUserObject();
 					if (lastSelectedPathComponent.isLeaf()) {
 						ExampleInfo info = (ExampleInfo) nodeInfo;
-						File tmpfile = createTmpFileToLoad(info.getProofUrl());
+						File tmpfile = createTmpFileToLoad(info.getProofUrl((String) proofs.getSelectedItem()));
 						if (tmpfile == null) {
 						    JOptionPane.showMessageDialog(ProjectManager.this, "Could not find project " + info.getName() + "\nat resource " + info.getUrl(), "Project Not Found", JOptionPane.ERROR_MESSAGE);
 						}
@@ -419,7 +449,8 @@ public class ProjectManager extends JFrame {
 							    // source.setText("<html><body>" + info.getSource().trim() + "</body></html>");
 							}
         					String or = "";
-        					if(info.getProofUrl() == null || info.getProofUrl().trim().equals("")) {
+        					proofs.setModel(new ProofComboBoxModel(info.getProofUrls()));
+        					if(info.getProofUrls() == null || info.getProofUrls().isEmpty()) {
         						proofLoadButton.setEnabled(false);
         					} else {
         						proofLoadButton.setEnabled(true);
@@ -461,6 +492,7 @@ public class ProjectManager extends JFrame {
 		});
 		JPanel buttonPanel = new JPanel(new FlowLayout());
 		buttonPanel.add(button);
+		buttonPanel.add(proofs);
 		buttonPanel.add(proofLoadButton);
 		JButton cancel = new JButton("Cancel");
 		cancel.addActionListener(new ActionListener() {
@@ -602,8 +634,16 @@ public class ProjectManager extends JFrame {
 	    			XPathConstants.STRING);
 	    	String path = (String) xpath.evaluate("path", node, 
 	    			XPathConstants.STRING);
-	    	String proofPath = (String) xpath.evaluate("proofpath", node, 
-	    			XPathConstants.STRING);
+	    	Map<String, String> proofUrls = new LinkedHashMap<String, String>();
+	    	NodeList proofs = (NodeList) xpath.evaluate(
+                    "proofs/proof", node,
+                    XPathConstants.NODESET);
+            for (int l = 0; l < proofs.getLength(); l++) {
+                NamedNodeMap attributes = proofs.item(l).getAttributes();
+                Node proofName = attributes.getNamedItem("name");
+                Node url = attributes.getNamedItem("href");
+                proofUrls.put(proofName.getTextContent(), url.getTextContent());
+            }
 	    	String description = (String) xpath.evaluate("description", node,
 	    			XPathConstants.STRING);
 	    	Set<String> requirements = new LinkedHashSet<String>();
@@ -625,7 +665,7 @@ public class ProjectManager extends JFrame {
 	    	}
 	
 	    	tNode= new DefaultMutableTreeNode(
-	    			new ExampleInfo(name, path, proofPath, description, im, requirements, sr));
+	    			new ExampleInfo(name, path, proofUrls, description, im, requirements, sr));
 
 	    	return tNode;   
 	}
@@ -668,7 +708,7 @@ public class ProjectManager extends JFrame {
 	}
 
 
-	private File createTmpFileToLoad(String url) {
+	public static File createTmpFileToLoad(String url) {
 		final String separator = "/"; //File.separator;
 		System.out.println("Trying to open resource " + url);// XXX
 		// if (File.separator.length() != 1) {
