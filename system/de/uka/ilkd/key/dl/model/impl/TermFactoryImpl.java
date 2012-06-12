@@ -34,11 +34,13 @@ import de.uka.ilkd.key.dl.model.And;
 import de.uka.ilkd.key.dl.model.Assign;
 import de.uka.ilkd.key.dl.model.AtomicTerm;
 import de.uka.ilkd.key.dl.model.Biimplies;
+import de.uka.ilkd.key.dl.model.Box;
 import de.uka.ilkd.key.dl.model.Choice;
 import de.uka.ilkd.key.dl.model.Chop;
 import de.uka.ilkd.key.dl.model.Comparsion;
 import de.uka.ilkd.key.dl.model.Constant;
 import de.uka.ilkd.key.dl.model.DLProgram;
+import de.uka.ilkd.key.dl.model.Diamond;
 import de.uka.ilkd.key.dl.model.DiffSystem;
 import de.uka.ilkd.key.dl.model.Dot;
 import de.uka.ilkd.key.dl.model.Equals;
@@ -841,5 +843,21 @@ public class TermFactoryImpl extends TermFactory {
 	public Forall createForall(VariableDeclaration dec, Formula form) {
 		return new ForallImpl(dec, form);
 	}
+
+    /* (non-Javadoc)
+     * @see de.uka.ilkd.key.dl.model.TermFactory#createDiamond(de.uka.ilkd.key.dl.model.DLProgram, de.uka.ilkd.key.dl.model.Formula)
+     */
+    @Override
+    public Diamond createDiamond(DLProgram program, Formula post) {
+        return new DiamondImpl(program, post);
+    }
+
+    /* (non-Javadoc)
+     * @see de.uka.ilkd.key.dl.model.TermFactory#createBox(de.uka.ilkd.key.dl.model.DLProgram, de.uka.ilkd.key.dl.model.Formula)
+     */
+    @Override
+    public Box createBox(DLProgram program, Formula post) {
+        return new BoxImpl(program, post);
+    }
 
 }

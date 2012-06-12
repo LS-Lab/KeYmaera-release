@@ -32,9 +32,12 @@ import java.util.Set;
 import de.uka.ilkd.key.dl.logic.ldt.RealLDT;
 import de.uka.ilkd.key.dl.model.And;
 import de.uka.ilkd.key.dl.model.Biimplies;
+import de.uka.ilkd.key.dl.model.Box;
 import de.uka.ilkd.key.dl.model.Constant;
 import de.uka.ilkd.key.dl.model.DLNonTerminalProgramElement;
+import de.uka.ilkd.key.dl.model.DLProgram;
 import de.uka.ilkd.key.dl.model.DLProgramElement;
+import de.uka.ilkd.key.dl.model.Diamond;
 import de.uka.ilkd.key.dl.model.DiffSystem;
 import de.uka.ilkd.key.dl.model.Dot;
 import de.uka.ilkd.key.dl.model.Exists;
@@ -52,6 +55,8 @@ import de.uka.ilkd.key.dl.model.VariableDeclaration;
 import de.uka.ilkd.key.dl.parser.NumberCache;
 import de.uka.ilkd.key.java.ProgramElement;
 import de.uka.ilkd.key.java.Services;
+import de.uka.ilkd.key.java.StatementBlock;
+import de.uka.ilkd.key.logic.JavaBlock;
 import de.uka.ilkd.key.logic.Name;
 import de.uka.ilkd.key.logic.NamespaceSet;
 import de.uka.ilkd.key.logic.ProgramElementName;
@@ -291,6 +296,12 @@ public class Prog2LogicConverter extends AbstractMetaOperator {
 			Term formula = convertRecursivly(f.getChildAt(1), services,
 					dotReplacementmap);
 			return TermBuilder.DF.ex(vars, formula);
+		} else if (form instanceof de.uka.ilkd.key.dl.model.Box) {
+		    Box b = (Box) form;
+		    return TermBuilder.DF.box(JavaBlock.createJavaBlock(new StatementBlock((DLProgram)b.getChildAt(0))), convertRecursivly(b.getChildAt(1), services, dotReplacementmap));
+		} else if (form instanceof de.uka.ilkd.key.dl.model.Diamond) {
+		    Diamond b = (Diamond) form;
+		    return TermBuilder.DF.dia(JavaBlock.createJavaBlock(new StatementBlock((DLProgram)b.getChildAt(0))), convertRecursivly(b.getChildAt(1), services, dotReplacementmap));
 		} else if (form instanceof DLNonTerminalProgramElement) {
 			DLNonTerminalProgramElement p = (DLNonTerminalProgramElement) form;
 			Term[] subTerms = new Term[p.getChildCount()];

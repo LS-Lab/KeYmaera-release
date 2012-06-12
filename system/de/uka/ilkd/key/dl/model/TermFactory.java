@@ -645,6 +645,10 @@ public abstract class TermFactory implements Serializable {
     public abstract Forall createForall(VariableDeclaration dec, Formula form);
     
     public abstract Exists createExists(VariableDeclaration dec, Formula form);
+    
+    public abstract Diamond createDiamond(DLProgram program, Formula post);
+    
+    public abstract Box createBox(DLProgram program, Formula post);
 
 	/**
 	 * @param type
