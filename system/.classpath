@@ -7,7 +7,7 @@
 	<classpathentry kind="lib" path="key_lib/antlr-3.4-complete.jar"/>
 	<classpathentry kind="lib" path="key_lib/javacc.jar"/>
 	<classpathentry kind="lib" path="key_lib/JLink/JLink.jar"/>
-	<classpathentry kind="lib" path="key_libunit-4.4.jar"/>
+	<classpathentry kind="lib" path="key_lib/junit-4.4.jar"/>
 	<classpathentry kind="lib" path="key_lib/log4j.jar"/>
 	<classpathentry kind="lib" path="key_lib/recoderKey.jar"/>
 	<classpathentry kind="lib" path="key_lib/scala-library.jar"/>
