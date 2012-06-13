@@ -33,15 +33,28 @@ public abstract class StrategyFactory implements Named {
      
         StrategyFactory createdFactory = null;
         try {
-            createdFactory = (StrategyFactory) Class.forName(
-                    "de.uka.ilkd.key.strategy."+name+"$Factory").newInstance();
+            Class fact = Class.forName(
+                    "de.uka.ilkd.key.strategy."+name+"$Factory");
+            try {
+                createdFactory = (StrategyFactory) fact.newInstance();
+            } catch (InstantiationException e) {
+                throw new RuntimeException(e);
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
         } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        } catch (InstantiationException e) {
-            throw new RuntimeException(e);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        } 
+            try {
+                Class fact = Class.forName("de.uka.ilkd.key.dl.strategy."
+                        + name + "$Factory");
+                createdFactory = (StrategyFactory) fact.newInstance();
+            } catch (ClassNotFoundException f) {
+                throw new RuntimeException(f);
+            } catch (InstantiationException f) {
+                throw new RuntimeException(f);
+            } catch (IllegalAccessException f) {
+                throw new RuntimeException(f);
+            }
+        }
         
         return createdFactory.create ( proof , strategyProperties );
     }
