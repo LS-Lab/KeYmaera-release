@@ -153,7 +153,8 @@ For an easy proof, differentially refine the antecedent of the acceleration case
                             <source href="http://symbolaris.com/info/KeYmaera-tutorial.html"/>
                             <requirements>
                                  <some>
-                            		 	<quantifiereliminator>Mathematica</quantifiereliminator>
+                         		 	<quantifiereliminator>Mathematica</quantifiereliminator>
+                            		 	<quantifiereliminator>Reduce</quantifiereliminator>
                             	   </some>
                              </requirements>
                 		</example>
