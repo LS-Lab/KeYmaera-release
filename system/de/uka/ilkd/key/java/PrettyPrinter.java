@@ -20,8 +20,10 @@ import de.uka.ilkd.key.collection.ImmutableArray;
 import de.uka.ilkd.key.dl.DLProfile;
 import de.uka.ilkd.key.dl.gui.PresentationInfo;
 import de.uka.ilkd.key.dl.gui.PresentationInfo.PresentationInfoEntry;
+import de.uka.ilkd.key.dl.model.Box;
 import de.uka.ilkd.key.dl.model.DLNonTerminalProgramElement;
 import de.uka.ilkd.key.dl.model.DLProgramElement;
+import de.uka.ilkd.key.dl.model.Diamond;
 import de.uka.ilkd.key.dl.model.Dot;
 import de.uka.ilkd.key.dl.model.Exists;
 import de.uka.ilkd.key.dl.model.Forall;
@@ -3507,6 +3509,36 @@ public class PrettyPrinter {
         write("\\forall ");
         writeElement(p.getChildAt(0));
         write("; ");
+        writeElement(p.getChildAt(1));
+        markEnd(0, p);
+        printFooter(p);
+    }
+
+    /**
+     * @param boxImpl
+     */
+    public void printBox(Box p) throws IOException {
+        printHeader(p);
+        markStart(0, p);
+        
+        write("[");
+        writeElement(p.getChildAt(0));
+        write("]");
+        writeElement(p.getChildAt(1));
+        markEnd(0, p);
+        printFooter(p);
+    }
+    
+    /**
+     * @param boxImpl
+     */
+    public void printDiamond(Diamond p) throws IOException {
+        printHeader(p);
+        markStart(0, p);
+        
+        write("<");
+        writeElement(p.getChildAt(0));
+        write(">");
         writeElement(p.getChildAt(1));
         markEnd(0, p);
         printFooter(p);

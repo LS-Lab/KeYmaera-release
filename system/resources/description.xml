@@ -141,6 +141,22 @@ To prove quickly, instantiate the time quantifier in the antecedent by the time 
                             	   </some>
                              </requirements>
                 		</example>
+                		<example>
+                            <name>7: Model-predictive control design</name>
+                            				<path>/examples/hybrid/tutorial/lics7-MPC.key</path>
+                            				<proofs>
+                								<proof name="Mathematica" href="/examples/hybrid/tutorial/lics7-MPC.key.proof"/>
+                								<proof name="Reduce" href="/examples/hybrid/tutorial/lics7-MPC.key.redlog.proof"/>
+                							</proofs>
+                            <description>LICS Tutorial Example 7: Model-predictive control version of time-triggered car control. We continue with the single car travelling toward a stop sign, receiving periodic updates about its position and velocity.  The time between sensor updates is bounded by ep. Proves that the car controller will always make the car stay before the traffic light if braking would, with a model-predictive control choice for the acceleration / braking decision.
+For an easy proof, differentially refine the antecedent of the acceleration case (Case 1) to be as in the conclusion, i.e., include v>=0.</description>
+                            <source href="http://symbolaris.com/info/KeYmaera-tutorial.html"/>
+                            <requirements>
+                                 <some>
+                            		 	<quantifiereliminator>Mathematica</quantifiereliminator>
+                            	   </some>
+                             </requirements>
+                		</example>
     </group>
 	<group name="KeYmaera Tutorial">
 		<example>

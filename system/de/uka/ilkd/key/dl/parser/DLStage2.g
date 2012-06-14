@@ -77,6 +77,8 @@ form[boolean diff] returns [ Formula fe ] scope { ArrayList<Expression> params; 
 | ^(IMPL frm = form[diff] { fe = frm; } ( f = form[diff] { fe = tf.createImpl(fe, f); })*)
 | ^(BIIMPL frm = form[diff] { fe = frm; } ( f = form[diff] { fe = tf.createBiImpl(fe, f); })*)
 | ^(NOT frm = form[diff] { fe = tf.createNot(frm); })
+| ^(LB pe = stat frm = form[diff] { fe = tf.createBox(pe, frm); })
+| ^(DIA pe = stat frm = form[diff] { fe = tf.createDiamond(pe, frm); })
 | ^(bop = brel e = expr[diff] e2 = expr[diff]) { fe = tf.createBinaryRelation(bop, e, e2); }
 | ^(FORALL ^(VARDEC decl = vardecl[false]) CHOP frm = form[diff] { fe = tf.createForall(decl, frm); })
 | ^(EXISTS ^(VARDEC decl = vardecl[false]) CHOP frm = form[diff] { fe = tf.createExists(decl, frm); })
