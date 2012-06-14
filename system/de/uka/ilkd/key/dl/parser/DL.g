@@ -180,6 +180,8 @@ pred[boolean diffAllowed]:
 | {schemaMode}? sv
 | TRUE
 | FALSE
+| LB^ stat RB! pred[diffAllowed]
+| LESS stat GREATER pred[diffAllowed] -> ^(DIA stat pred)
 ;
 
 list[boolean diffAllowed]: LPAREN! expr[diffAllowed] (COMMA! expr[diffAllowed])* RPAREN!
@@ -238,6 +240,7 @@ LBRACE form[true] (COMMA form[true])* RBRACE
 
 sv: SV^ WORD;
 
+DIA		: '\\<';
 TRUE		: 'true' ;
 FALSE		: 'false' ;
 SV		: '#' ;
