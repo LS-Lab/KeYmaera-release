@@ -24,10 +24,11 @@ import de.uka.ilkd.key.logic.op.LocationVariable
 import de.uka.ilkd.key.logic.op.Operator
 import de.uka.ilkd.key.logic.op.Op
 import de.uka.ilkd.key.logic.JavaBlock
+import de.uka.ilkd.key.logic.op.RigidFunction
 
 /**
  * This class wraps the KeY Term data structures to allow advanced matching and operator overloading
- * 
+ *
  * @author jdq
  *
  */
@@ -125,12 +126,37 @@ object Constant {
   }
 }
 
+object Function {
+  def unapply(t: Term): Option[(String, Seq[Term])] = {
+    if (t.op.isInstanceOf[RigidFunction]) {
+      t match {
+        // exclude all built-in functions
+        case Equals(_, _) => None
+        case UnEquals(_, _) => None
+        case Greater(_, _) => None
+        case GreaterEquals(_, _) => None
+        case LessEquals(_, _) => None
+        case Less(_, _) => None
+        case MinusSign(_) => None
+        case Plus(_, _) => None
+        case Minus(_, _) => None
+        case Mult(_, _) => None
+        case Div(_, _) => None
+        case Exp(_, _) => None
+        case _ =>
+          val children = for (i <- 0 until t.arity) yield t.sub(i)
+          Some((t.op.name.toString, children))
+      }
+    } else None
+  }
+}
+
 object Ex {
-  
-  def apply(t: Term, v: LogicVariable) : Term = {
+
+  def apply(t: Term, v: LogicVariable): Term = {
     TermBuilder.DF.ex(Array[QuantifiableVariable](v), t)
   }
-  
+
   def apply(t: Term, orgvars: ImmutableArray[QuantifiableVariable]): Term = {
     var vars: Array[QuantifiableVariable] = new Array[QuantifiableVariable](orgvars.size);
     for (i <- 0 until t.varsBoundHere(0).size()) {
@@ -147,11 +173,11 @@ object Ex {
 }
 
 object All {
-  
-  def apply(t: Term, v: LogicVariable) : Term = {
+
+  def apply(t: Term, v: LogicVariable): Term = {
     TermBuilder.DF.all(Array[QuantifiableVariable](v), t)
   }
-  
+
   def apply(t: Term, orgvars: ImmutableArray[QuantifiableVariable]): Term = {
     var vars: Array[QuantifiableVariable] = new Array[QuantifiableVariable](orgvars.size);
     for (i <- 0 until t.varsBoundHere(0).size()) {

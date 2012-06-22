@@ -584,14 +584,14 @@ eclipse-plug-in: dist
 
 
 SCALAC = scalac
-SCALAOPTIONS =  -deprecation -d $(BINARYPATH)
+SCALAOPTIONS =  -deprecation -d $(BINARYPATH) -classpath $(CLASSPATH)
 
 COHENHORMANDER = $(PFX)dl/arithmetics/impl/ch/cohenhormander
 
 SCALAFILES = $(COHENHORMANDER)/parallel.scala $(COHENHORMANDER)/parse.scala \
 	$(COHENHORMANDER)/rational.scala $(COHENHORMANDER)/arithmetic.scala \
 	$(PFX)dl/formulatools/Derive.scala $(PFX)dl/formulatools/NegationNormalForm.scala $(PFX)dl/formulatools/RichTerm.scala $(PFX)dl/arithmetics/impl/reduce/Term2ReduceString.scala \
-	$(PFX)dl/formulatools/Prenex.scala
+	$(PFX)dl/formulatools/Prenex.scala $(PFX)dl/arithmetics/impl/mathematica/TermExprLink.scala
 
 
 $(COHENHORMANDERCLASS) ch : $(SCALAFILES) argfile.normal
