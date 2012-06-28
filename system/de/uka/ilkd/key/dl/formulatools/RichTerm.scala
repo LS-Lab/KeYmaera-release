@@ -108,6 +108,16 @@ object Equals extends BinaryLogicOperator(Op.EQUALS) {
   def apply(t: RichTerm, t2: Term): Term = t equal t2
 }
 
+object MathFun {
+  def unapply(t: Term): Option[(String, Seq[Term])] = {
+    t.op match {
+      case f: RigidFunction if f.isMathFunction() => 
+        Some(f.name.toString, for(i <- 0 until t.arity) yield t.sub(i)) 
+      case _ => None
+    }
+  }
+}
+
 object Constant {
   def unapply(o: Operator): Option[String] = {
     if (o.isInstanceOf[LogicVariable]

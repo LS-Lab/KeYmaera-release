@@ -156,6 +156,8 @@ tokens {
 //        NAME = "\\name";
 	NONRIGID = "\\nonRigid";
 
+	EXTERNAL = "\\external";
+
 	INTERSECTIONSORT = "\\inter";
 
 	RULES = "\\rules";

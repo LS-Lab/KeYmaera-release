@@ -37,6 +37,7 @@ import de.uka.ilkd.key.dl.arithmetics.impl.orbital.PolynomTool.BigFraction;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.op.Equality;
 import de.uka.ilkd.key.logic.op.Function;
+import de.uka.ilkd.key.logic.op.RigidFunction;
 import de.uka.ilkd.key.logic.op.Junctor;
 import de.uka.ilkd.key.logic.op.LogicVariable;
 import de.uka.ilkd.key.logic.op.Metavariable;
@@ -126,6 +127,8 @@ public class Term2ExprConverter implements ExprConstants {
 				return new Expr(RATIONAL, args);
 			} else if (f.name().toString().equals("exp")) {
 				return new Expr(EXP, args);
+			} else if (f instanceof RigidFunction && ((RigidFunction) f).isMathFunction()) {
+				return new Expr(Expr.SYMBOL,f.name().toString());
 			} else {
 				try {
 					if (Options.INSTANCE.isConvertDecimalsToRationals()) {

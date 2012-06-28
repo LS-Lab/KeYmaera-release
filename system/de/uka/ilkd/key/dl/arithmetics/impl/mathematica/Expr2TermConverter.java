@@ -385,7 +385,16 @@ public class Expr2TermConverter implements ExprConstants {
                             return TermBuilder.DF.func(f, ex);
                         }
                         return TermBuilder.DF.func(f);
-                    }
+                    } else {
+						// Name is not masked so it has to be a _known_ MathFunction
+						Name name = new Name(asString);
+						RigidFunction f = (RigidFunction) nss.functions().lookup(name);
+						assert f.isMathFunction() : "The unmasked function returned by mathematica has to be a known mathfunction.";
+                        if (expr.args().length > 0) {
+                            return TermBuilder.DF.func(f, ex);
+                        }
+                        return TermBuilder.DF.func(f);
+					}
                 } else {
                     // convert names
                     Name name;

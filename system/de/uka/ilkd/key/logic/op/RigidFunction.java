@@ -21,6 +21,16 @@ public class RigidFunction extends Function {
 	}
 	
 	private FunctionType type = FunctionType.UNDEFINED;
+
+	/**
+	 * Creates a rigid function with given signature.
+	 * @param name
+	 * @param sort
+	 * @param argSorts
+	 */
+	public RigidFunction(Name name, Sort sort, Sort[] argSorts, boolean external) {
+	    this(name, sort, argSorts, external?FunctionType.MATHFUNCTION:FunctionType.UNDEFINED);
+	}
 	
 	/**
 	 * Creates a rigid function with given signature.
@@ -79,7 +89,7 @@ public class RigidFunction extends Function {
 	public boolean isMathFunction() {
 		return type == FunctionType.MATHFUNCTION;
 	}
-	
+
 	public String toString() {
 	    return super.toString() + (isSkolem() ? "$Sk" : "");
 	}

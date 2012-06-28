@@ -77,6 +77,7 @@ object Term2Expr extends ExpressionConstants {
       case Mult(a, b) => conv(a) * conv(b)
       case Div(a, b) => conv(a) / conv(b)
       case Exp(a, b) => conv(a) ^ conv(b)
+      case MathFun(n, args) => new Expr(new Expr(Expr.SYMBOL, n), args.map(conv).toArray)
       case Constant(n) => {
         assert(t.arity == 0) // we can only handle variables, constant functions, and numbers here
         try {

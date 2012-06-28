@@ -2141,11 +2141,13 @@ func_decl
     String func_name;
     List dependencyListList = null;
     boolean nonRigid = false;
+	boolean external = false;
     String id = null;
     int location = NORMAL_NONRIGID;
 }
     :
         (NONRIGID {nonRigid=true;} (LBRACKET location = location_ident RBRACKET)?)?
+		(EXTERNAL {external=true;})?
         retSort = sortId_check[!skip_functions]
         func_name = funcpred_name 
         (
@@ -2189,7 +2191,7 @@ func_decl
                  	}
                     }
                 } else {
-                    f = new RigidFunction(fct_name, retSort, argSorts);
+                    f = new RigidFunction(fct_name, retSort, argSorts, external);
                 }
                 assert f != null;
                 addFunction(f);
