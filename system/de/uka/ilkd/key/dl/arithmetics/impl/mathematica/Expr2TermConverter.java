@@ -389,7 +389,7 @@ public class Expr2TermConverter implements ExprConstants {
 						// Name is not masked so it has to be a _known_ MathFunction
 						Name name = new Name(asString);
 						RigidFunction f = (RigidFunction) nss.functions().lookup(name);
-						assert f.isMathFunction() : "The unmasked function returned by mathematica has to be a known mathfunction.";
+						assert f != null && f.isMathFunction() : "The unmasked function: " + asString + " returned by Mathematica has to be a known mathfunction (declared as \\external). But is only known as: " + f;
                         if (expr.args().length > 0) {
                             return TermBuilder.DF.func(f, ex);
                         }

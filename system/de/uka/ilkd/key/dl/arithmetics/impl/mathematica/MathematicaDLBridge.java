@@ -218,7 +218,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 
         collectDottedProgramVariables(form, vars, t);
         for (ProgramElement el : form.getDifferentialEquations(services.getNamespaces()))
-            args.add(DL2Expr.apply(el, t, vars));
+            args.add(DL2Expr.apply(el, t, vars, services));
         for (String name : vars.keySet())
             args.add(new Expr(EQUALS, new Expr[] {
                         new Expr(new Expr(Expr.SYMBOL, name), new Expr[] { new Expr(0) }),
@@ -299,7 +299,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 		final Map<String, Expr> EMPTY = new HashMap<String, Expr>();
 		for (ProgramElement el : form.getDifferentialEquations(services
 				.getNamespaces())) {
-			args.add(DL2Expr.apply(el, t, vars));
+			args.add(DL2Expr.apply(el, t, vars, services));
 		}
 		for (String name : vars.keySet()) {
 			args.add(new Expr(EQUALS, new Expr[] {
@@ -437,7 +437,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 		final Map<String, Expr> EMPTY = new HashMap<String, Expr>();
 		for (ProgramElement el : form.getDifferentialEquations(services
 				.getNamespaces())) {
-			args.add(DL2Expr.apply(el, t, EMPTY));
+			args.add(DL2Expr.apply(el, t, EMPTY, services));
 		}
 		if (Debug.ENABLE_DEBUG) {
 			System.out.println(diffOperator

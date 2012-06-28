@@ -20,9 +20,12 @@ import de.uka.ilkd.key.dl.arithmetics.impl.orbital.PolynomTool
 import java.math.BigInteger
 import de.uka.ilkd.key.collection.ImmutableArray
 import de.uka.ilkd.key.logic.op.QuantifiableVariable
+import de.uka.ilkd.key.logic.op.RigidFunction
 import com.wolfram.jlink.Expr
 import de.uka.ilkd.key.java.ProgramElement
 import de.uka.ilkd.key.logic.Named
+import de.uka.ilkd.key.logic.Name
+import de.uka.ilkd.key.java.Services
 
 /**
  * Converts a term to an Expr object for J/Link
@@ -164,8 +167,14 @@ object Expr2Term extends ExpressionConstants {
 object DL2Expr extends ExpressionConstants {
   import de.uka.ilkd.key.dl.model._
 
-  def apply(p: ProgramElement, t: Named, vars: java.util.Map[String, Expr]): Expr = {
-    val conv = this(_: ProgramElement, t, vars)
+  def apply(p: ProgramElement, t: Named, vars: java.util.Map[String, Expr], s: Services): Expr = {
+    val conv = this(_: ProgramElement, t, vars, s)
+    def isMathFunction(n: String, s: Services) : Boolean = s.getNamespaces.functions.lookup(new Name(n)) match {
+        case null => false
+        case rf : RigidFunction => rf.isMathFunction
+        case _ => false
+    }
+
     val ofT = (x: Expr) => new Expr(x, Array(new Expr(Expr.SYMBOL, NameMasker.mask(t.name.toString))))
     p match {
       case ComposedTerm(op, args) if (args.size == 0) =>
@@ -179,6 +188,7 @@ object DL2Expr extends ExpressionConstants {
       case _: Mult => MULT
       case _: Div => DIV
       case _: Exp => EXP
+      case FreeFunction(n) if(isMathFunction(n, s)) => new Expr(Expr.SYMBOL, n)
       case c: Constant =>
         val d = c.getValue
         try {
@@ -202,6 +212,13 @@ object DL2Expr extends ExpressionConstants {
         "the program element: " + p + " of type " + p.getClass)
     }
 
+  }
+
+  object FreeFunction {
+    def unapply(x: ProgramElement) : Option[String] = x match {
+      case f: FreeFunction => Some(f.getElementName.toString)
+      case _ => None
+    }
   }
 
   object Dot {
