@@ -336,23 +336,13 @@ public class Prog2LogicConverter extends AbstractMetaOperator {
 			} else if (p instanceof Dot) {
 				final String name = ((NamedElement) p.getChildAt(0))
 						.getElementName().toString();
+				assert name != null && !name.equals("") : "variable has to have a name";
 				if (dotReplacementmap.containsKey(name + ((Dot) p).getOrder())) {
 					return dotReplacementmap.get(name + ((Dot) p).getOrder());
 				}
 				int num = 0;
-				String newName = "";
-				if (name.contains("_")) {
-					try {
-						num = Integer.parseInt(name.substring(name
-								.lastIndexOf("_"), name.length()));
-						num++;
-						newName = name.substring(name.lastIndexOf("_"));
-					} catch (NumberFormatException e) {
-
-					}
-				} else {
-					newName = name;
-				}
+				// just use the previous name and append the order
+				String newName = name;
 				newName += ((Dot) p).getOrder();
 				String n = newName + "_" + num;
 				while (services.getNamespaces().programVariables().lookup(
