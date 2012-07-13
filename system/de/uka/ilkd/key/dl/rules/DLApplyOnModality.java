@@ -337,6 +337,8 @@ public class DLApplyOnModality extends ApplyOnModality {
                         if (!found) {
                             result = ReplaceVisitor.convertToProgram(update
                                     .getAssignmentPair(i).value(), tf);
+                            // FIXME: we might need to apply the rest of the update to the term result
+                            break;
                         }
                     }
                 }
