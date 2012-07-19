@@ -64,6 +64,8 @@ object Prenex {
     val res = pos(a)
     var quants = res._1
     var nt = res._2
+    println("handling quantifier " + a + " of type " + q)
+    println("quants are: " +quants)
     for (i <- 0 until vars.size) {
       val ov = vars.get(i)
       val nv = newVarName(ov.name.toString, ov.sort, nss)
@@ -71,6 +73,7 @@ object Prenex {
         case QT.All => if (negated) (QT.Ex, nv) else (QT.All, nv)
         case QT.Ex => if (negated) (QT.All, nv) else (QT.Ex, nv)
       })
+    println("quants are now: " +quants)
       val subst = TermFactory.DEFAULT.createSubstitutionTerm(
         Op.SUBST, ov, TermFactory.DEFAULT.createVariableTerm(nv), nt);
       subst.op match {
@@ -100,7 +103,7 @@ object Prenex {
         (res._1, !res._2)
       case Or(a, b) => comb(pos(a), pos(b), Or(_, _))
       case And(a, b) => comb(pos(a), pos(b), And(_, _))
-      case Imp(a, b) => comb(pos(a), pos(b), Imp(_, _))
+      case Imp(a, b) => comb(neg(a), pos(b), Imp(_, _))
       case Eqv(a, b) => comb(pos(a), pos(b), Eqv(_, _))
       case Equals(a, b) => (Nil, a equal b)
       case Greater(a, b) => (Nil, a gt b)
