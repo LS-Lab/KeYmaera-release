@@ -1001,6 +1001,7 @@ Proves Example C.1</description>
 						<quantifiereliminator>QepCad</quantifiereliminator>
 						<quantifiereliminator>Reduce</quantifiereliminator>
 						<quantifiereliminator>CohenHormander</quantifiereliminator>
+						<quantifiereliminator>SMT</quantifiereliminator>
 					</some>
 				</requirements>
 		</example>
