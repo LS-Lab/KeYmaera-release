@@ -249,7 +249,7 @@ object And extends BinaryLogicOperator(Op.AND) {
 }
 
 object Or extends BinaryLogicOperator(Op.OR) {
-  def apply(t1: RichTerm, t2: Term): Term = (t1 & t2)
+  def apply(t1: RichTerm, t2: Term): Term = (t1 | t2)
 }
 
 object Imp extends BinaryLogicOperator(Op.IMP) {
