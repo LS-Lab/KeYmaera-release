@@ -15,6 +15,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
 import de.uka.ilkd.key.gui.thread.ApplyThread;
@@ -196,13 +197,15 @@ public class InteractiveProver {
                 System.out.println("InteractiveProver: THREAD HAS EXCEPTION");
                 ex.printStackTrace();
                 Main.getInstance().unfreezeExceptAutoModeButton();
+                // show a dialog with the exception
+                JOptionPane.showMessageDialog(Main.getInstance(),
+                        "Error during interactive rule application.", ex + ": "
+                                + ex.getMessage(), JOptionPane.ERROR_MESSAGE);
            }
             
         });
         Main.getInstance().freezeExceptAutoModeButton();
         applyInteractiveThread.start();
-// 		FIXME this should be start, but we call run as there are some deadlocks otherwise
-//        applyInteractiveThread.run(); 
         System.out.println("InteractiveProver: THREAD STARTED!");
     }
 

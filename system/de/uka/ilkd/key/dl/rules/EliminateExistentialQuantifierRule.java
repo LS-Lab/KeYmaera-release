@@ -484,10 +484,14 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
 			// if there is a result: close all goals beside this one... and
 			// progress
 			// here
-			for (Goal g : goals) {
-				if (g != goal) {
-					g.apply(new CloseRuleApp());
-				}
+			if(resultTerm != null) {
+    			for (Goal g : goals) {
+    				if (g != goal) {
+    					g.apply(new CloseRuleApp());
+    				}
+    			}
+			} else {
+			    throw new UnsolveableException();
 			}
 			if (resultTerm.equals(TermBuilder.DF.tt())) {
 				return goal.split(0);
