@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2007 by André Platzer                                   *
+ *   Copyright (C) 2007 by Andr�� Platzer                                   *
  *   @informatik.uni-oldenburg.de                                          *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -33,6 +33,7 @@ import de.uka.ilkd.key.dl.arithmetics.exceptions.FailedComputationException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.UnsolveableException;
 import de.uka.ilkd.key.dl.model.DiffSystem;
+import de.uka.ilkd.key.dl.options.DLOptionBean;
 import de.uka.ilkd.key.dl.rules.metaconstruct.ODESolve;
 import de.uka.ilkd.key.java.ProgramElement;
 import de.uka.ilkd.key.java.Services;
@@ -86,6 +87,10 @@ public class ODESolvableFeature implements Feature {
 	 * de.uka.ilkd.key.proof.Goal)
 	 */
 	public RuleAppCost compute(RuleApp app, PosInOccurrence pos, Goal goal) {
+	    if(!DLOptionBean.INSTANCE.isSolveODE()) {
+	        // option checked that says we do not want to solve ode's
+	        return TopRuleAppCost.INSTANCE;
+	    }
 		Term term = pos.subTerm();
 
 		// unbox from update prefix

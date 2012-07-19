@@ -203,7 +203,8 @@ public enum EPropertyConstant {
 	    DLOPTIONS_REDUCE_ON_FRESH_BRANCH("[DLOptions]reduceOnFreshBranch", "try reduce on fresh branches", "Check this option to allow the strategy to use reduce on fresh branches.", "DL Properties"), 
 	    Z3_OPTIONS_Z3_BINARY("[Z3Options]z3Binary", "Z3 Binary", "The path to the z3 binary.", "Z3 Properties"),
 	    Z3_OPTIONS_PRENEX_FORM("[Z3Options]z3Prenex", "prenex form", "Convert the formula into prenex form before passing it to Z3.", "Z3 Properties"),
-	    Z3_OPTIONS_ELIMINATE_EXISTENTIAL_PREFIX("[Z3Options]z3ElimExPrefix", "existential prefix", "Convert leading existential quantifiers into variable declarations.", "Z3 Properties"),
+	    Z3_OPTIONS_ELIMINATE_EXISTENTIAL_PREFIX("[Z3Options]z3ElimExPrefix", "existential prefix", "Convert leading existential quantifiers into variable declarations.", "Z3 Properties"), 
+	    DLOPTIONS_SOLVE_ODE("[DLOptions]solveODE", "solve ODEs", "Use ODE solver to solve ODEs if the solution is polynomial and do not verify the solutions using differential invariants", "DL Properties"),
 	    ;
 
 	    private String groupName;

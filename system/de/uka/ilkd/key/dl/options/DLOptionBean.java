@@ -326,6 +326,8 @@ public class DLOptionBean implements Settings {
     private boolean useODEIndFinMethods;
     
     private boolean reduceOnFreshBranch;
+    
+    private boolean solveODE;
 
 	private DLOptionBean() {
 		subOptions = new LinkedHashSet<Settings>();
@@ -342,6 +344,7 @@ public class DLOptionBean implements Settings {
 		simplifyAfterReduce = false;
 		simplifyAfterODESolve = false;
 		applyUpdatesToModalities = false;
+		solveODE = true;
 		counterExampleGenerator = "";
 		odeSolver = "";
 		quantifierEliminator = "";
@@ -714,9 +717,13 @@ public class DLOptionBean implements Settings {
 		if(property != null) {
 		    useODEIndFinMethods = Boolean.valueOf(property);
 		}
-		property = props.getProperty(EPropertyConstant.DLOPTIONS_USE_ODE_IND_FIN_METHODS.getKey());
+		property = props.getProperty(EPropertyConstant.DLOPTIONS_REDUCE_ON_FRESH_BRANCH.getKey());
 		if(property != null) {
-		    useODEIndFinMethods = Boolean.valueOf(property);
+		    reduceOnFreshBranch = Boolean.valueOf(property);
+		}
+		property = props.getProperty(EPropertyConstant.DLOPTIONS_SOLVE_ODE.getKey());
+		if(property != null) {
+		    solveODE = Boolean.valueOf(property);
 		}
 	}
 
@@ -824,6 +831,7 @@ public class DLOptionBean implements Settings {
 				tracerStat.name());
 		props.setProperty(EPropertyConstant.DLOPTIONS_USE_ODE_IND_FIN_METHODS.getKey(), Boolean.toString(useODEIndFinMethods));
 		props.setProperty(EPropertyConstant.DLOPTIONS_REDUCE_ON_FRESH_BRANCH.getKey(), Boolean.toString(reduceOnFreshBranch));
+		props.setProperty(EPropertyConstant.DLOPTIONS_SOLVE_ODE.getKey(), Boolean.toString(solveODE));
 
 	}
 
@@ -1457,6 +1465,23 @@ public class DLOptionBean implements Settings {
         if(this.reduceOnFreshBranch != reduceOnFreshBranch) {
             System.out.println("Changed!");
             this.reduceOnFreshBranch = reduceOnFreshBranch;
+            firePropertyChanged();
+        }
+    }
+    
+    /**
+     * @return the solveODE
+     */
+    public boolean isSolveODE() {
+        return solveODE;
+    }
+    
+    /**
+     * @param solveODE the solveODE to set
+     */
+    public void setSolveODE(boolean solveODE) {
+        if(this.solveODE != solveODE) {
+            this.solveODE = solveODE;
             firePropertyChanged();
         }
     }

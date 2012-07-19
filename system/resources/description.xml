@@ -967,11 +967,15 @@ Proves equation (4.4)</description>
 		<example>
 			<name>Magnetic Field</name>
 			<path>/examples/hybrid/magnetic_field.key</path>
+			<proofs>
+				<proof name="SMT" href="/examples/hybrid/magnetic_field.key.z3.proof"/>
+			</proofs>
 			<description>Magnetic field example. It is provable with Grobner Basis backend.</description>
 			<requirements>
 				<some>
 					<quantifiereliminator>Mathematica</quantifiereliminator>
 					<quantifiereliminator>Reduce</quantifiereliminator>
+					<quantifiereliminator>SMT</quantifiereliminator>
 				</some>
 			</requirements>
 		</example>
@@ -985,6 +989,7 @@ Proves equation (4.4)</description>
 					<quantifiereliminator>QepCad</quantifiereliminator>
 					<quantifiereliminator>Reduce</quantifiereliminator>
 					<quantifiereliminator>CohenHormander</quantifiereliminator>
+					<quantifiereliminator>SMT</quantifiereliminator>
 				</some>
 			</requirements>
 		</example>
@@ -1031,6 +1036,7 @@ Proves Figure 3.19</description>
         				<requirements>
         					<some>
         						<quantifiereliminator>Mathematica</quantifiereliminator>
+        						<quantifiereliminator>SMT</quantifiereliminator>
         					</some>
         				</requirements>
         			</example>        
