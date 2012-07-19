@@ -276,6 +276,7 @@ For an easy proof, differentially refine the antecedent of the acceleration case
 				<path>/examples/hybrid/ETCS/safety/ETCS-simple.key</path>
 				<proofs>
 					<proof name="Mathematica" href="/examples/hybrid/ETCS/safety/ETCS-simple.key.proof"/>
+					<proof name="SMT" href="/examples/hybrid/ETCS/safety/ETCS-simple.key.z3.proof"/>
 				</proofs>
 				<description>Essentials of the ETCS train control protocol. This example proves that a train never leaves its movement authority (MA=m) and, thus, cannot crash into other trains. Please note, that this is the simplest possible version of the safety requirement for the ETCS. The verification of the ETCS system itself requires a much more advanced model.
 Proves equation (2.19)</description>
@@ -287,6 +288,7 @@ Proves equation (2.19)</description>
 						<quantifiereliminator>Mathematica</quantifiereliminator>
 						<quantifiereliminator>QepCad</quantifiereliminator>
 						<quantifiereliminator>Reduce</quantifiereliminator>
+						<quantifiereliminator>SMT</quantifiereliminator>
 					</some>
 				</requirements>
 			</example>
@@ -295,6 +297,7 @@ Proves equation (2.19)</description>
 				<path>/examples/hybrid/ETCS/safety/ETCS-essentials.key</path>
 				<proofs>
 					<proof name="Mathematica" href="/examples/hybrid/ETCS/safety/ETCS-essentials.key.proof"/>
+					<proof name="SMT" href="/examples/hybrid/ETCS/safety/ETCS-essentials.key.z3.proof"/>
 				</proofs>
 				<description>Essentials of the ETCS train control protocol. This example proves that a train never leaves its movement authority (MA=m) and, thus, cannot crash into other trains. Please note, that this is the simplest possible version of the safety requirement for the ETCS. The verification of the ETCS system itself requires a much more advanced model.</description>
 				<img 
@@ -305,6 +308,7 @@ Proves equation (2.19)</description>
 						<quantifiereliminator>Mathematica</quantifiereliminator>
 						<quantifiereliminator>QepCad</quantifiereliminator>
 						<quantifiereliminator>Reduce</quantifiereliminator>
+						<quantifiereliminator>SMT</quantifiereliminator>
 					</some>
 				</requirements>
 			</example>
@@ -313,6 +317,7 @@ Proves equation (2.19)</description>
           				<path>/examples/hybrid/ETCS/safety/ETCS-simple-tutorial.key</path>
 						<proofs>
 							<proof name="Mathematica" href="/examples/hybrid/ETCS/safety/ETCS-simple-tutorial.key.proof"/>
+							<proof name="SMT" href="/examples/hybrid/ETCS/safety/ETCS-simple-tutorial.key.z3.proof"/>
 						</proofs>
           				<description>Essentials of the ETCS train control protocol. This example proves that a train never leaves its movement authority (MA=m) and, thus, cannot crash into other trains. Please note, that this is the simplest possible version of the safety requirement for the ETCS. The verification of the ETCS system itself requires a much more advanced model.</description>
           				<img 
@@ -323,6 +328,7 @@ Proves equation (2.19)</description>
           						<quantifiereliminator>Mathematica</quantifiereliminator>
           						<quantifiereliminator>QepCad</quantifiereliminator>
           						<quantifiereliminator>Reduce</quantifiereliminator>
+          						<quantifiereliminator>SMT</quantifiereliminator>
           					</some>
           				</requirements>
           			</example>
@@ -331,6 +337,7 @@ Proves equation (2.19)</description>
                     				<path>/examples/hybrid/ETCS/safety/ETCS-essentials-tout.key</path>
 									<proofs>
 										<proof name="Mathematica" href="/examples/hybrid/ETCS/safety/ETCS-essentials-tout.key.proof"/>
+										<proof name="SMT" href="/examples/hybrid/ETCS/safety/ETCS-essentials-tout.key.z3.proof"/>
 									</proofs>
                     				<description>Essentials of the ETCS train control protocol with temporal throughout modality [][]. This example proves that a train never leaves its movement authority (MA=m) and, thus, cannot crash into other trains. Please note, that this is the simplest possible version of the safety requirement for the ETCS. The verification of the ETCS system itself requires a much more advanced model.
 Proves dTL variant of equation (2.19) with [][] instead of []</description>
@@ -342,6 +349,7 @@ Proves dTL variant of equation (2.19) with [][] instead of []</description>
                     						<quantifiereliminator>Mathematica</quantifiereliminator>
                     						<quantifiereliminator>QepCad</quantifiereliminator>
                     						<quantifiereliminator>Reduce</quantifiereliminator>
+                    						<quantifiereliminator>SMT</quantifiereliminator>
                     					</some>
                     				</requirements>
                     			</example>
@@ -367,6 +375,7 @@ Proves Proposition 7.1
 				<proofs>
 					<proof name="Mathematica" href="/examples/hybrid/ETCS/paper/safety-lemma.key.proof"/>
 					<proof name="Reduce" href="/examples/hybrid/ETCS/paper/safety-lemma-redlog-simpler.key.proof"></proof>
+					<proof name="SMT" href="/examples/hybrid/ETCS/paper/safety-lemma.key.z3.proof"></proof>
 				</proofs>
 				<description>Proves safety of the ETCS train control protocol case study. This example proves that a train never leaves its movement authority (MA=m) and, thus, cannot crash into other trains.
 Proves Proposition 7.5
@@ -378,6 +387,7 @@ Proves Proposition 7.5
 					<some>
 						<quantifiereliminator>Mathematica</quantifiereliminator>
 						<quantifiereliminator>Reduce</quantifiereliminator>
+						<quantifiereliminator>SMT</quantifiereliminator>
 					</some>
 				</requirements>
 			</example>
@@ -759,6 +769,9 @@ Proves equation (8.29)</description>
         	<example>
         		<name>Car Control follow the leader [simple]</name>
         		<path>/examples/hybrid/car/DCCS/dccs-example-simple.key</path>
+				<proofs>
+					<proof name="SMT" href="/examples/hybrid/car/DCCS/dccs-example-simple.key.z3.proof"/>
+				</proofs>
         		<description>A very simple version of car control with a single leader and a single follower car drive on a lane and the follower car directly follows the leader. The follower car maintains velocity less than or equal to the lead car. See the FM'11 paper for significantly more complicated car control verification, up to and including an arbitrary number of cars on an arbitrary number of lanes with lane switching and cars entering and leaving the highway.</description>
         		<img href="http://symbolaris.com/info/fig-car-control2.png"/>
         	    <source href="http://symbolaris.com/info/DCCS.html"/>
@@ -766,12 +779,16 @@ Proves equation (8.29)</description>
         			<some>
         				<quantifiereliminator>Mathematica</quantifiereliminator>
         				<quantifiereliminator>Reduce</quantifiereliminator>
+        				<quantifiereliminator>SMT</quantifiereliminator>
         			</some>
         		</requirements>
         	</example>
         	<example>
         		<name>Car Control follow adaptively [simplified]</name>
         		<path>/examples/hybrid/car/DCCS/dccs-example.key</path>
+				<proofs>
+					<proof name="SMT" href="/examples/hybrid/car/DCCS/dccs-example.key.z3.proof"/>
+				</proofs>
         		<description>A very simplified version of car control. Here only one single leader and a single follower car drive on a lane. In this simplified version, however, the leader car is stuck at a traffic light. See the FM'11 paper for significantly more complicated car control verification, up to and including an arbitrary number of cars on an arbitrary number of lanes with lane switching and cars entering and leaving the highway.</description>
         		<img href="http://symbolaris.com/info/fig-car-control2.png"/>
         	    <source href="http://symbolaris.com/info/DCCS.html"/>
@@ -779,6 +796,7 @@ Proves equation (8.29)</description>
         			<some>
         				<quantifiereliminator>Mathematica</quantifiereliminator>
         				<quantifiereliminator>Reduce</quantifiereliminator>
+        				<quantifiereliminator>SMT</quantifiereliminator>
         			</some>
         		</requirements>
         	</example>
@@ -1055,6 +1073,7 @@ Contributed by Aaron Kane</description>
                     				<quantifiereliminator>Mathematica</quantifiereliminator>
                                     <quantifiereliminator>Reduce</quantifiereliminator>
                                     <quantifiereliminator>CohenHormander</quantifiereliminator>
+									<quantifiereliminator>SMT</quantifiereliminator>
                     			</some>
                     		</requirements>
                     	</example>
@@ -1071,12 +1090,16 @@ Contributed by Aaron Kane</description>
                     			<some>
                     				<quantifiereliminator>Mathematica</quantifiereliminator>
 									<quantifiereliminator>Reduce</quantifiereliminator>
+									<quantifiereliminator>SMT</quantifiereliminator>
                     			</some>
                     		</requirements>
                     	</example>
                     	<example>
                     		<name>Elevator Control Study [R2.3]</name>
                     		<path>/examples/hybrid/Elevator/elevator-R2-3.key</path>
+							<proofs>
+								<proof name="SMT" href="/examples/hybrid/Elevator/elevator-R2-3.key.z3.proof"/>
+							</proofs>
                     		<description>Basic model of a realistic distributed elevator with multiple hybrid dynamics. This is a simplified model with a simple dispatcher algorithm and basic passenger behaviors. The model is for 4 floors includes 1 hallway and a simple door reversal mechanism. This case study illustrates how complicated systems can be modeled and verified formally. This example proves requirement
 R2.3: the elevator car is stopped if the doors are open.
 Contributed by Aaron Kane</description>
@@ -1086,6 +1109,7 @@ Contributed by Aaron Kane</description>
                     		<requirements>
                     			<some>
                     				<quantifiereliminator>Mathematica</quantifiereliminator>
+									<quantifiereliminator>SMT</quantifiereliminator>
                     			</some>
                     		</requirements>
                     	</example>
@@ -1102,6 +1126,7 @@ Contributed by Aaron Kane</description>
                     			<some>
                     				<quantifiereliminator>Mathematica</quantifiereliminator>
                                     <quantifiereliminator>Reduce</quantifiereliminator>
+                                    <quantifiereliminator>SMT</quantifiereliminator>
                     			</some>
                     		</requirements>
                     	</example>
@@ -1118,7 +1143,7 @@ Contributed by Aaron Kane</description>
                     			<some>
                     				<quantifiereliminator>Mathematica</quantifiereliminator>
                     				<quantifiereliminator>Reduce</quantifiereliminator>
-                                    
+                    				<quantifiereliminator>SMT</quantifiereliminator>
                     			</some>
                     		</requirements>
                     	</example>
@@ -1134,9 +1159,9 @@ Contributed by Aaron Kane</description>
                     		<requirements>
                     			<some>
                     				<quantifiereliminator>Mathematica</quantifiereliminator>
-                    				
-<quantifiereliminator>Reduce</quantifiereliminator>
+									<quantifiereliminator>Reduce</quantifiereliminator>
                     				<quantifiereliminator>CohenHormander</quantifiereliminator>
+                    				<quantifiereliminator>SMT</quantifiereliminator>
                     			</some>
                     		</requirements>
                     	</example>
