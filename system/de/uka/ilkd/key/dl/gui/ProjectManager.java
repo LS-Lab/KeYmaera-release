@@ -642,6 +642,7 @@ public class ProjectManager extends JFrame {
                 NamedNodeMap attributes = proofs.item(l).getAttributes();
                 Node proofName = attributes.getNamedItem("name");
                 Node url = attributes.getNamedItem("href");
+if (proofName == null || url == null) throw new IllegalArgumentException("description.xml example with proof that has been incompletely specified " + proofName + " at " + url);
                 proofUrls.put(proofName.getTextContent(), url.getTextContent());
             }
 	    	String description = (String) xpath.evaluate("description", node,

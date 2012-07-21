@@ -764,6 +764,22 @@ Proves equation (8.29)</description>
 					</some>
 				</requirements>
 			</example>
+			<example>
+			    <name>TCAS [simplified]</name>
+			    <path>/examples/hybrid/ATC/TCAS/TCAS-simplified.key</path>
+			    <proofs>
+			        <proof name="Mathematica" href="/examples/hybrid/ATC/TCAS/TCAS-simplified.key.proof"/>
+		        </proofs>
+		        <description>TCAS (Traffic Collision and Avoidance System) is an onboard unit installed on aircraft. It is responsible for detecting upcoming possible collisions and for giving resolution advisories (RA) to prevent them. Possible RA consist of either climbing or descending actions.
+This is a heavily simplified aircraft collision avoidance scheme where one plane rises and the other one drops to avoid each other.
+Authors: David Henriques, Sarah Loos, Joao Martins</description>
+			    <source href="http://symbolaris.com/info/TCAS-simplified.pdf"/>
+        		<requirements>
+        			<some>
+        				<quantifiereliminator>Mathematica</quantifiereliminator>
+        			</some>
+        		</requirements>
+			</example>
 		</group>
         <group name="Car Control">
         	<example>
