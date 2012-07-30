@@ -21,6 +21,7 @@ package de.uka.ilkd.key.dl.arithmetics.impl.orbital;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.nio.channels.UnsupportedAddressTypeException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -35,6 +36,8 @@ import orbital.math.Values;
 import orbital.math.Vector;
 import orbital.math.functional.Operations;
 import orbital.util.KeyValuePair;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.UnableToConvertInputException;
 import de.uka.ilkd.key.dl.formulatools.collector.AllCollector;
 import de.uka.ilkd.key.dl.formulatools.collector.FilterVariableSet;
 import de.uka.ilkd.key.dl.formulatools.collector.FoundItem;
@@ -86,10 +89,16 @@ public abstract class PolynomTool {
 						Values.getDefault().MONOMIAL(size),
 						Values.getDefault().MONOMIAL(size).one());
 			} else {
-				return Values.getDefault().fraction(
-						Values.getDefault().MONOMIAL(
-								OrbitalSimplifier.term2Rational(sub), size),
-						Values.getDefault().MONOMIAL(size).one());
+				try {
+                    return Values.getDefault().fraction(
+                    		Values.getDefault().MONOMIAL(
+                    				OrbitalSimplifier.term2Rational(sub), size),
+                    		Values.getDefault().MONOMIAL(size).one());
+                } catch (UnableToConvertInputException e) {
+                    throw new IllegalArgumentException(e);
+                } catch (UnsupportedOperationException e) {
+                    throw new IllegalArgumentException(e);
+                }
 			}
 		} else {
 			if (sub.arity() == 2) {

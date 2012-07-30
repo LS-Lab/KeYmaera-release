@@ -17,6 +17,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import orbital.math.Arithmetic;
+
+import de.uka.ilkd.key.dl.arithmetics.exceptions.UnableToConvertInputException;
+import de.uka.ilkd.key.dl.arithmetics.impl.orbital.OrbitalSimplifier;
 import de.uka.ilkd.key.dl.arithmetics.impl.orbital.PolynomTool;
 import de.uka.ilkd.key.dl.arithmetics.impl.orbital.PolynomTool.BigFraction;
 import de.uka.ilkd.key.dl.formulatools.Prenex;
@@ -206,8 +210,20 @@ public class Term2SMTConverter {
 						+ ")";
 			} else if (f.name().toString().equals("exp")) {
 				// FIXME this function only works for integer exponentials
-				String e = form.sub(1).op().name().toString();
-				int exp = Integer.parseInt(e);
+				int exp;
+                try {
+    				Arithmetic e = OrbitalSimplifier.translateArithmetic(form.sub(1));
+    				if(e instanceof orbital.math.Integer) {
+    				    exp = ((orbital.math.Integer) e).intValue();
+    				} else {
+    				    throw new IllegalArgumentException("Cannot handle exponent " + form.sub(1));
+    				}
+                } catch (Exception e1) {
+                    if(e1 instanceof InterruptedException) {
+                        Thread.currentThread().interrupt();
+                    }
+				    throw new IllegalArgumentException("Cannot handle exponent " + form.sub(1));
+                }
 				if(exp == 0) {
 					return "1";
 				}

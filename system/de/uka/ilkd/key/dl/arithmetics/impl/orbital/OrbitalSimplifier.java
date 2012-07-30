@@ -23,6 +23,7 @@ import de.uka.ilkd.key.dl.arithmetics.ISimplifier;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ConnectionProblemException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ServerStatusProblemException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.UnableToConvertInputException;
 import de.uka.ilkd.key.dl.logic.ldt.RealLDT;
 import de.uka.ilkd.key.dl.model.Div;
 import de.uka.ilkd.key.dl.model.Exp;
@@ -120,7 +121,7 @@ public class OrbitalSimplifier implements ISimplifier {
 		return form;
 	}
 
-	public static boolean testForSimpleTautology(Term form) {
+	public static boolean testForSimpleTautology(Term form) throws SolverException {
 		if (form.op() == Op.AND) {
 			for (int i = 0; i < form.arity(); i++) {
 				if (!testForSimpleTautology(form.sub(i))) {
@@ -186,7 +187,7 @@ public class OrbitalSimplifier implements ISimplifier {
 	    }
 	}
 	
-	private static Arithmetic translateArithmetic(Term form) throws UnsupportedPOWException {
+	public static Arithmetic translateArithmetic(Term form) throws UnsupportedPOWException, SolverException {
 		Arithmetic[] args = new Arithmetic[form.arity()];
 		for (int i = 0; i < form.arity(); i++) {
 			args[i] = translateArithmetic(form.sub(i));
@@ -236,7 +237,7 @@ public class OrbitalSimplifier implements ISimplifier {
 	    return a;
 	}
 	
-    public static Arithmetic term2Rational(Term form) {
+    public static Arithmetic term2Rational(Term form) throws UnableToConvertInputException {
         // translate everything into rationals so that subsequent
         // calculations are precise
 	try {
@@ -254,7 +255,7 @@ public class OrbitalSimplifier implements ISimplifier {
         }
 	}
 	catch (NumberFormatException ex) {
-	    throw (IllegalArgumentException) new IllegalArgumentException("Cannot parse " + form + " as a number literal, because of " + ex).initCause(ex);
+	    throw new UnableToConvertInputException("Cannot parse " + form + " as a number literal, because of " + ex);
 	}
     }
 
