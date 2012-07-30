@@ -104,6 +104,13 @@ public class FindInstanceRule extends Visitor implements BuiltInRule,
         try {
             resultTerm = MathSolverManager.getCurrentSimplifier().simplify(
                     resultTerm, services.getNamespaces());
+        } catch(Exception e) {
+            if (e instanceof InterruptedException) {
+                Thread.currentThread().interrupt();
+            }
+            //ignore all other exceptions, i.e. NumberFormatException thrown by the orbital simplifier
+        }
+        try {
 
             final String result = MathSolverManager
                     .getCurrentCounterExampleGenerator().findInstance(
