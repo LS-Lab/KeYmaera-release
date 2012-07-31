@@ -21,15 +21,15 @@
 
 package de.uka.ilkd.key.dl.model;
 
-
 /**
- * This interface is implemented by all functions ({@link FreeFunction},
- * {@link Div}, {@link Mult}, {@link Plus}, {@link Minus},...).
+ * The super interface of all Non-Rigid-Functions ({@link ProgramVariable},
+ * {@link LogicalVariable})
  * 
  * @author jdq
- * @since 13.02.2007
+ * @since 31.07.2012
  * 
  */
-public interface Function extends DLTerminalProgramElement, NamedElement,
-        SymbolizedElement {
+public interface NonRigidFunction extends Function {
+    
+    public String[] getArgSorts();
 }

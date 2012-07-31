@@ -9,7 +9,10 @@ options {
 	package de.uka.ilkd.key.dl.parser;
 	import de.uka.ilkd.key.dl.model.*;
 	import de.uka.ilkd.key.java.ProgramElement;
+	import java.util.List;
 	import java.util.ArrayList;
+	import java.util.Map;
+	import java.util.HashMap;
 	import java.math.BigDecimal;
 }
 
@@ -63,12 +66,17 @@ astat returns [ DLProgram pe ] :
 | ^(PARALLEL st = stat { pe = st; } (st = stat { pe = tf.createParallel(pe, st); })* (annotation[pe])*)
 | ^(STAR st = stat { pe = tf.createStar(st); } (annotation[pe])*)
 | ^(QUEST frm = form[false] { pe = tf.createQuest(frm); } (annotation[pe])*)
-| ^(ASSIGN as = assign { pe = as; } (annotation[pe])*)
-| ^(DIFFSYSTEM dsc = form[true] { $stat::params.add(dsc); } (d = form[true] { $stat::params.add(d); })* { pe = tf.createDiffSystem($stat::params); $stat::params.clear(); } (annotation[pe])*)
+| (pelem = asordiffsys { pe = pelem; })
 | ^(VARDEC dec = vardecl[true] { pe = dec; } (annotation[pe])*)
 | ^(IF frm = form[false] st = stat (st2 = stat)? { pe = tf.createIf(frm, st, st2); } (annotation[pe])*)
 | ^(WHILE frm = form[false] st = stat { DLProgram star = tf.createStar(tf.createChop(tf.createQuest(frm), st)); pe = tf.createChop(star, tf.createQuest(tf.createNot(frm)));} (annotation[star])*) 
+| ^(FORALL ^(VARDEC decl = vardecl[false]) aod = asordiffsys { pe = tf.createQuantified(decl, aod); })
 | {schemaMode}? sv = svar { pe = tf.schemaProgramVariable(sv); }
+;
+
+asordiffsys returns [ DLProgram pe ]:
+^(ASSIGN as = assign { pe = as; } (annotation[pe])*)
+| ^(DIFFSYSTEM dsc = form[true] { $stat::params.add(dsc); } (d = form[true] { $stat::params.add(d); })* { pe = tf.createDiffSystem($stat::params); $stat::params.clear(); } (annotation[pe])*)
 ;
 
 form[boolean diff] returns [ Formula fe ] scope { ArrayList<Expression> params; } @init { $form::params = new ArrayList<Expression>(); }: 
@@ -99,15 +107,23 @@ LESS { bo = tf.createLess(); }
 | {schemaMode}? sv = svar { bo = tf.schemaBrelVariable(sv); }
 ;
 
-assign returns [ DLProgram a ]: 
-var = WORD (e = expr[false] { a = tf.createAssign(var, e); }
-| STAR { a = tf.createRandomAssign(var); })
+assign returns [ DLProgram a ] scope { ArrayList<Expression> args; } @init { $assign::args = new ArrayList<Expression>(); }: 
+var = WORD 
+(LPAREN (arg = expr[false] { $assign::args.add(arg); })* RPAREN)? 
+(e = expr[false] { a = tf.createAssign(var, $assign::args, e); }
+| STAR { a = tf.createRandomAssign(var, $assign::args); })
 | {schemaMode}? sv = svar (e = expr[false] { a = tf.createAssignToSchemaVariable(sv, e);} 
 | STAR { a = tf.createRandomAssignToSchemaVariable(var); })
 ;
 
-vardecl[boolean programVariable] returns [ VariableDeclaration a ] scope { List<CommonTree> decls; } @init { $vardecl::decls = new ArrayList<CommonTree>(); }: 
-vt = WORD (var = WORD { $vardecl::decls.add(var);} )+ { a = tf.createVariableDeclaration(vt, $vardecl::decls, programVariable); }
+vardecl[boolean programVariable] returns [ VariableDeclaration a ] scope { List<CommonTree> decls; Map<CommonTree, List<CommonTree>> argsorts; } 
+	@init { $vardecl::decls = new ArrayList<CommonTree>(); $vardecl::argsorts = new HashMap<CommonTree, List<CommonTree>>();}: 
+vt =WORD (var = WORD { $vardecl::decls.add(var); } (fargs = funargs { $vardecl::argsorts.put(var, fargs); })? )+ 
+	{ a = tf.createVariableDeclaration(vt, $vardecl::decls, $vardecl::argsorts, programVariable); }
+;
+
+funargs returns [ List<CommonTree> r ]:
+LPAREN (t = WORD { if(r == null) { r = new ArrayList<CommonTree>(); }; r.add(t); })+ RPAREN
 ;
 
 expr[boolean diffAllowed] returns [ Expression pe ] scope { ArrayList<Expression> params; } @init { $expr::params = new ArrayList<Expression>(); }:
@@ -124,8 +140,8 @@ expr[boolean diffAllowed] returns [ Expression pe ] scope { ArrayList<Expression
 | sv = svar { pe = tf.schemaExpressionVariable(sv); }
 ; 
 
-diff returns [ Dot pe ]: 
-^(DOT (w = WORD { pe = tf.createDot(w); } | m = diff { pe = m; pe = tf.raiseDotCount(pe); }))
+diff returns [ Dot pe ] scope { ArrayList<Expression> args; int count; } @init { $diff::args = new ArrayList<Expression>(); $diff::count = 1; }:
+^(DOT (w = WORD (DOT {$diff::count++;})* (LPAREN (arg = expr[false] { $diff::args.add(arg); })* RPAREN)? { pe = tf.createDot($diff::count, w, $diff::args); } ) )
 ;
 
 /*diffsystemcontent returns [ Formula dsc ]: 
@@ -133,7 +149,7 @@ diff returns [ Dot pe ]:
 | ^(op = brel t = WORD de = expr[true]){ dsc = tf.createDiffSystemContent(op, t, de); }
 ;*/
 
-svar returns [ CommonTree t]: ^(SV w = WORD) { t = w; }
+svar returns [ CommonTree t]: ^(SV w = WORD) { System.out.println("match sv: " + w); t = w; }
 ;
 
 invariant returns [ Formula frm ]:

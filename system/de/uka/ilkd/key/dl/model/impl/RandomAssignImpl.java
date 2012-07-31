@@ -25,6 +25,7 @@ package de.uka.ilkd.key.dl.model.impl;
 import java.io.IOException;
 
 import de.uka.ilkd.key.dl.model.DLProgramElement;
+import de.uka.ilkd.key.dl.model.FunctionTerm;
 import de.uka.ilkd.key.dl.model.ProgramVariable;
 import de.uka.ilkd.key.dl.model.RandomAssign;
 import de.uka.ilkd.key.java.PrettyPrinter;
@@ -46,6 +47,10 @@ public class RandomAssignImpl extends DLNonTerminalProgramElementImpl implements
      * @param variable
      */
     public RandomAssignImpl(ProgramVariable variable) {
+        addChild(variable);
+    }
+    
+    public RandomAssignImpl(FunctionTerm variable) {
         addChild(variable);
     }
 

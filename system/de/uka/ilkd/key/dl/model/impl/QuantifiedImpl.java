@@ -23,55 +23,37 @@
 
 package de.uka.ilkd.key.dl.model.impl;
 
-import de.uka.ilkd.key.dl.model.Assign;
+import java.io.IOException;
+
+import de.uka.ilkd.key.dl.model.DLProgram;
 import de.uka.ilkd.key.dl.model.DLProgramElement;
-import de.uka.ilkd.key.dl.model.Expression;
-import de.uka.ilkd.key.dl.model.FunctionTerm;
-import de.uka.ilkd.key.dl.model.ProgramVariable;
+import de.uka.ilkd.key.dl.model.Quantified;
+import de.uka.ilkd.key.dl.model.Variable;
+import de.uka.ilkd.key.dl.model.VariableDeclaration;
+import de.uka.ilkd.key.java.PrettyPrinter;
+import de.uka.ilkd.key.java.ReuseableProgramElement;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.java.reference.ExecutionContext;
 
 /**
- * The implementation of an assignment ({@link Assign})
+ * The implementation of a quantifier in a program ({@link Quantified})
  * 
  * @version 1.00
  * @author jdq
  */
-public class AssignImpl extends DLNonTerminalProgramElementImpl implements
-        Assign {
+public class QuantifiedImpl extends DLNonTerminalProgramElementImpl implements Quantified {
 
     /**
-     * Creates a new Assign statement with a given variable and a given value.
+     * Creates a new quantified statement with a given variable and a given statement.
      * 
      * @param var
      *                the variable to assign
      * @param value
      *                the value to assign to the variable
      */
-    public AssignImpl(ProgramVariable var, Expression value) {
-        addChild(var);
-        addChild(value);
-    }
-    
-    public AssignImpl(FunctionTerm var, Expression value) {
-        addChild(var);
-        addChild(value);
-    }
-
-    /**
-     * @see de.uka.ilkd.key.dl.model.impl.CompoundFormulaImpl#getSymbol()
-     *      getSymbol
-     */
-    public String getSymbol() {
-        return ":=";
-    }
-
-    /**
-     * @see de.uka.ilkd.key.dl.model.impl.CompoundFormulaImpl#printInfix()
-     *      printInfix
-     */
-    public boolean printInfix() {
-        return true;
+    public QuantifiedImpl(VariableDeclaration decl, DLProgram statement) {
+        addChild(decl);
+        addChild(statement);
     }
 
     /*
@@ -83,8 +65,8 @@ public class AssignImpl extends DLNonTerminalProgramElementImpl implements
     public String reuseSignature(Services services, ExecutionContext ec) {
         // TODO Auto-generated method stub
         StringBuilder result = new StringBuilder();
-        result.append(getSymbol() + "(");
-        for (int i = 0; i < getChildCount(); i++) {
+        result.append("forall " + ((ReuseableProgramElement) getChildAt(0)).reuseSignature(services, ec) + " (");
+        for (int i = 1; i < getChildCount(); i++) {
             result.append(((DLProgramElement) getChildAt(i))
                     .reuseSignature(services, ec)
                     + ", ");
@@ -92,4 +74,13 @@ public class AssignImpl extends DLNonTerminalProgramElementImpl implements
         result.append(")");
         return result.toString();
     }
+    
+    /* (non-Javadoc)
+     * @see de.uka.ilkd.key.dl.model.impl.DLNonTerminalProgramElementImpl#prettyPrint(de.uka.ilkd.key.java.PrettyPrinter)
+     */
+    @Override
+    public void prettyPrint(PrettyPrinter arg0) throws IOException {
+        arg0.printQuantified(this);
+    }
+    
 }

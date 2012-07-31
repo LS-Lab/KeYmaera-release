@@ -140,12 +140,19 @@ atomp options { k=3; } : itomp^ (annotation)*
 ;
 
 itomp options { k=3; } : quest | assign | LPAREN! stat RPAREN! | diffsystem | ifThenElse | vardec | {schemaMode}? sv | whileSym
+	| quanitomp
+;
+
+quanitomp: FORALL^ vardec COLON! (assign | diffsystem)
 ;
 
 whileSym: WHILE^ LPAREN! form[false] RPAREN! stat (ELIHW!|END!)
 ;
 
-vardec: (type var (COMMA var)*) -> ^(VARDEC type var*)
+vardec: (type fundef (COMMA fundef)*) -> ^(VARDEC type fundef*)
+;
+
+fundef: var (LPAREN type (COMMA! type)* RPAREN)?
 ;
 
 ifThenElse: IF^ LPAREN! form[false] RPAREN! THEN! stat (ELSE! stat)? (FI!|END!)
@@ -196,7 +203,7 @@ brel: LESS
 | {schemaMode}? sv
 ;
 
-assign: (WORD|{schemaMode}? sv) ASSIGN^ (expr[false] | STAR)
+assign: ((WORD ( LPAREN WORD (COMMA! WORD)* RPAREN)?)|{schemaMode}? sv) ASSIGN^ (expr[false] | STAR)
 ;
 
 expr[boolean diffAllowed]:
@@ -229,7 +236,7 @@ var: WORD_DOLLAR | WORD
 type: WORD
 ;
 
-diff: WORD (DOT^)+
+diff: WORD DOT^ (DOT*) (LPAREN WORD (COMMA! WORD)* RPAREN)?
 ;
 
 diffsystem:
@@ -246,6 +253,7 @@ FALSE		: 'false' ;
 SV		: '#' ;
 //INVARIANT: '@invariant' ;
 VARDEC	: '@decl@';
+FUNARGS	: '@funargs@';
 DIFFSYSTEM : '@DIFFSYSTEM@';
 ANNOTATION : '@';
 NOT		: '!' ;
@@ -278,6 +286,7 @@ LB		: '[' ;
 RB		: ']' ;
 COMMA	: ',' ;
 CHOP	: ';' ;
+COLON	: ':' ;
 AND		: '&' ;
 OR		: '|' ;
 LESS	: '<' ;

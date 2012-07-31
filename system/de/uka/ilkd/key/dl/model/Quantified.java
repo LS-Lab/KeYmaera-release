@@ -21,15 +21,13 @@
 
 package de.uka.ilkd.key.dl.model;
 
-
 /**
- * This interface is implemented by all functions ({@link FreeFunction},
- * {@link Div}, {@link Mult}, {@link Plus}, {@link Minus},...).
+ * Quantified is used to represent a quantified statement.
  * 
  * @author jdq
  * @since 13.02.2007
  * 
  */
-public interface Function extends DLTerminalProgramElement, NamedElement,
-        SymbolizedElement {
+public interface Quantified extends DLNonTerminalProgramElement, DLProgram {
+
 }
