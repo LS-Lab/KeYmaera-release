@@ -328,7 +328,7 @@ public class TermFactoryImpl extends TermFactory {
 		}
 		if (getNamespaces().programVariables().lookup(new Name(name)) != null) {
 			assert getNamespaces().variables().lookup(new Name(name)) == null;
-			return ProgramVariableImpl.getProgramVariable(name, false);
+			return ProgramVariableImpl.getProgramVariable(name, true);
 		} else {
 			throw new IllegalStateException("ProgramVariable " + name
 					+ " is not declared.");
