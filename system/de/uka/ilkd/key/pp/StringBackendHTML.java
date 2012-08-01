@@ -6,6 +6,7 @@ package de.uka.ilkd.key.pp;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import de.uka.ilkd.key.gui.Main;
 import de.uka.ilkd.key.gui.syntaxhighlighting.TextToHtml;
 import de.uka.ilkd.key.gui.syntaxhighlighting.HighlightSyntax;
 import de.uka.ilkd.key.util.pp.Backend;
@@ -77,7 +78,11 @@ public class StringBackendHTML extends StringBackend implements Backend {
 
 	/** Returns the number of characters written through this backend. */
 	public int count() {
-		return out.length() - initOutLength - numOfSuperSub_script - 7*quantifiers;
+	    if(Main.isUnicodeView()) {
+	        return out.length() - initOutLength - numOfSuperSub_script - 7*quantifiers;
+	    } else {
+	        return out.length() - initOutLength - numOfSuperSub_script;
+	    }
 	}
 
 	/** Returns the accumulated output */
