@@ -17,6 +17,7 @@ import de.uka.ilkd.key.dl.formulatools.Prog2LogicConverter;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DLChoiceUnwind;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DLDiffAdjoin;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DLDiffInequalityRewrite;
+import de.uka.ilkd.key.dl.rules.metaconstruct.DLFreshVar;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DLIntroNewAnonUpdateOp;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DLInvariantPart;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DLRandomAssign;
@@ -232,6 +233,8 @@ public abstract class AbstractMetaOperator extends Op implements MetaOperator {
 	public static final DLUniversalClosureOp DL_UNIVERSAL_CLOSURE = new DLUniversalClosureOp();
 
 	public static final AbstractMetaOperator DL_INT_FORALL = new DLRandomAssign();
+	
+	public static final AbstractMetaOperator DL_FRESH_VAR = new DLFreshVar();
 
 	public static final AbstractMetaOperator DL_DNF_TRANSFORMER = new DNFTransformer();
 

@@ -3537,7 +3537,7 @@ bound_variables returns[ImmutableList<QuantifiableVariable> list = ImmutableSLLi
         var = one_bound_variable { list = list.append(var); }
        (SEMI var = one_bound_variable { list = list.append(var); })*
       RPAREN
-   | var = one_bound_variable { list = list.append(var); } SEMI 
+   | var = one_bound_variable { list = list.append(var); } (SEMI|DOT)
      
 ;
 

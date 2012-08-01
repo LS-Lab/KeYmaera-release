@@ -28,7 +28,7 @@ public class HtmlToText extends HTMLEditorKit.ParserCallback {
 		replacements.put("\\u2265", ">=");
 		replacements.put("\\u22C5", "*");
 		replacements.put("\\u2212", "-");
-		replacements.put("\\u2022", ";"); // was used for quantifier separation
+		replacements.put("\\u2022", "."); // was used for quantifier separation
 		
 	}
 

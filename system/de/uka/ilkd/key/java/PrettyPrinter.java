@@ -3394,26 +3394,26 @@ public class PrettyPrinter {
     public void printDot(Dot p) throws IOException {
         printHeader(p);
         markStart(0, p);
-        if(p.getChildAt(0) instanceof FunctionTerm) {
-            FunctionTerm ft = (FunctionTerm) p.getChildAt(0);
-            writeElement(ft.getChildAt(0));
-        } else {
-            writeElement(p.getChildAt(0));
-        }
-
+//        if(p.getChildAt(0) instanceof FunctionTerm) {
+//            FunctionTerm ft = (FunctionTerm) p.getChildAt(0);
+//            writeElement(ft.getChildAt(0));
+//        } else {
+//            writeElement(p.getChildAt(0));
+//        }
+//        if(p.getChildAt(0) instanceof FunctionTerm) {
+//            FunctionTerm ft = (FunctionTerm) p.getChildAt(0);
+//            write("(");
+//            String comma = "";
+//            for(int i = 1; i < ft.getChildCount(); i++) {
+//                write(comma);
+//                writeElement(ft.getChildAt(i));
+//                comma = ", ";
+//            }
+//            write(")");
+//        }
+        writeElement(p.getChildAt(0));
         for (int i = 0; i < p.getOrder(); i++) {
             write("\'");
-        }
-        if(p.getChildAt(0) instanceof FunctionTerm) {
-            FunctionTerm ft = (FunctionTerm) p.getChildAt(0);
-            write("(");
-            String comma = "";
-            for(int i = 1; i < ft.getChildCount(); i++) {
-                write(comma);
-                writeElement(ft.getChildAt(i));
-                comma = ", ";
-            }
-            write(")");
         }
 
         markEnd(0, p);
@@ -3526,7 +3526,7 @@ public class PrettyPrinter {
         
         write("\\exists ");
         writeElement(p.getChildAt(0));
-        write("; ");
+        write(". ");
         writeElement(p.getChildAt(1));
         markEnd(0, p);
         printFooter(p);
@@ -3541,7 +3541,7 @@ public class PrettyPrinter {
         
         write("\\forall ");
         writeElement(p.getChildAt(0));
-        write("; ");
+        write(". ");
         writeElement(p.getChildAt(1));
         markEnd(0, p);
         printFooter(p);
@@ -3588,7 +3588,7 @@ public class PrettyPrinter {
        
        write("\\forall ");
        writeElement(q.getChildAt(0));
-       write(" ; ");
+       write(". ");
        writeElement(q.getChildAt(1));
        markEnd(0, q);
        printFooter(q);

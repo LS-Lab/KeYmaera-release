@@ -143,7 +143,7 @@ itomp options { k=3; } : quest | assign | LPAREN! stat RPAREN! | diffsystem | if
 	| quanitomp
 ;
 
-quanitomp: FORALL^ vardec CHOP! (assign | diffsystem)
+quanitomp: FORALL^ vardec (CHOP|BULLET)! (assign | diffsystem)
 ;
 
 whileSym: WHILE^ LPAREN! form[false] RPAREN! stat (ELIHW!|END!)
@@ -183,7 +183,7 @@ pred[boolean diffAllowed]:
 | func[diffAllowed] 
 | LPAREN! form[diffAllowed] RPAREN!
 | NOT^ pred[diffAllowed]
-| (FORALL|EXISTS)^ vardec CHOP pred[diffAllowed]
+| (FORALL|EXISTS)^ vardec (CHOP|BULLET) pred[diffAllowed]
 | {schemaMode}? sv
 | TRUE
 | FALSE
@@ -220,10 +220,10 @@ MINUS expexpr[diffAllowed] -> ^(MINUSSIGN expexpr)
 ;
 
 atom[boolean diffAllowed]: 
-func[diffAllowed]
+func[diffAllowed] ({ diffAllowed }? DOT^ (DOT*))?
 | NUM
 | LPAREN! expr[diffAllowed] RPAREN!
-| { diffAllowed }? diff
+//| { diffAllowed }? diff
 | {schemaMode}? sv
 ;
 
@@ -236,7 +236,7 @@ var: WORD_DOLLAR | WORD
 type: WORD
 ;
 
-diff: WORD DOT^ (DOT*) (LPAREN WORD (COMMA! WORD)* RPAREN)?
+diff: WORD DOT^ (DOT*)
 ;
 
 diffsystem:
@@ -285,6 +285,7 @@ RBRACE	: '}' ;
 LB		: '[' ;
 RB		: ']' ;
 COMMA	: ',' ;
+BULLET	: '.' ;
 CHOP	: ';' ;
 COLON	: ':' ;
 AND		: '&' ;

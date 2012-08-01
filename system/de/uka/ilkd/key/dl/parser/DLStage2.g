@@ -88,8 +88,8 @@ form[boolean diff] returns [ Formula fe ] scope { ArrayList<Expression> params; 
 | ^(LB pe = stat frm = form[diff] { fe = tf.createBox(pe, frm); })
 | ^(DIA pe = stat frm = form[diff] { fe = tf.createDiamond(pe, frm); })
 | ^(bop = brel e = expr[diff] e2 = expr[diff]) { fe = tf.createBinaryRelation(bop, e, e2); }
-| ^(FORALL ^(VARDEC decl = vardecl[false]) CHOP frm = form[diff] { fe = tf.createForall(decl, frm); })
-| ^(EXISTS ^(VARDEC decl = vardecl[false]) CHOP frm = form[diff] { fe = tf.createExists(decl, frm); })
+| ^(FORALL ^(VARDEC decl = vardecl[false]) (CHOP|BULLET) frm = form[diff] { fe = tf.createForall(decl, frm); })
+| ^(EXISTS ^(VARDEC decl = vardecl[false]) (CHOP|BULLET) frm = form[diff] { fe = tf.createExists(decl, frm); })
 | ^(t = WORD (e = expr[diff] { $form::params.add(e); })* { fe = tf.createPredicateTerm(t, $form::params); $form::params.clear(); })
 | t = (WORD_DOLLAR | WORD) { fe = tf.createPredicateTerm(t); }
 | {schemaMode}? sv = svar { fe = tf.schemaTermVariable(sv, diff); }
@@ -141,7 +141,7 @@ expr[boolean diffAllowed] returns [ Expression pe ] scope { ArrayList<Expression
 ; 
 
 diff returns [ Dot pe ] scope { ArrayList<Expression> args; int count; } @init { $diff::args = new ArrayList<Expression>(); $diff::count = 1; }:
-^(DOT (w = WORD (DOT {$diff::count++;})* (LPAREN (arg = expr[false] { $diff::args.add(arg); })* RPAREN)? { pe = tf.createDot($diff::count, w, $diff::args); } ) )
+^(DOT (^(w = WORD (arg = expr[false] { $diff::args.add(arg); })*) (DOT {$diff::count++;})* { pe = tf.createDot($diff::count, w, $diff::args); $diff::args.clear(); } ) )
 ;
 
 /*diffsystemcontent returns [ Formula dsc ]: 

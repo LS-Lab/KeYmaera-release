@@ -1359,7 +1359,7 @@ public class LogicPrinter {
         if(size != 1)
           layouter.print ( ") " );
         else
-          layouter.print ( "; " );
+          layouter.print ( ". " );
     }
 
 
