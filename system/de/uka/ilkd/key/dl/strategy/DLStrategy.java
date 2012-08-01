@@ -310,6 +310,7 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 
 		bindRuleSet(d, "system_invariant", inftyConst());
 		bindRuleSet(d, "query_normalize", inftyConst());
+		bindRuleSet(d, "query_normalize_high_costs", inftyConst());
 
 		bindRuleSet(d, "loop_invariant",
 				LoopInvariantRuleDispatchFeature.INSTANCE);

@@ -765,12 +765,9 @@ public class TermFactoryImpl extends TermFactory {
 			List<CommonTree> decls, Map<CommonTree, List<CommonTree>> argsorts, boolean programVariable) {
 		List<DLProgramElement> variables = new ArrayList<DLProgramElement>();
 		for (CommonTree var : decls) {
-    		System.out.println("Declaring " + var);
 			if (programVariable) {
-    		System.out.println("It's a program variable");
 			    List<CommonTree> args = argsorts.get(var); 
 			    if(args == null || args.isEmpty()) {
-            		System.out.println("it does not have arguments " + argsorts);
 			        // we have declared a program variable
     				assert getNamespaces().variables().lookup(
     						new Name(var.getText())) == null : "newly declared program variable " + var + " not yet in variables namespace at " + decls;
@@ -788,7 +785,6 @@ public class TermFactoryImpl extends TermFactory {
     						.getText(), true));
 			    } else {
 			        // we are declaring a non-rigid function symbol
-            		System.out.println("it has arguments " + args);
                     if (getNamespaces().functions().lookup(
                             new Name(var.getText())) == null) {
                         Sort sort = (Sort) getNamespaces().sorts().lookup(

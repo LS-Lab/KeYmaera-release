@@ -155,6 +155,10 @@ public class Prog2LogicConverter extends AbstractMetaOperator {
 			NamespaceSet namespaces, int arity, Sort sort, Sort[] sorts, boolean rigid) {
 		de.uka.ilkd.key.logic.op.Function result = (de.uka.ilkd.key.logic.op.Function) namespaces
 				.functions().lookup(name);
+		if(!rigid) {
+		    assert result == null || result instanceof de.uka.ilkd.key.logic.op.NonRigidFunction :
+		        "The function " + name + " should be a non-rigid function!";
+		}
 
 		if (name.toString().startsWith("$")) {
 			throw new IllegalArgumentException(
@@ -234,7 +238,7 @@ public class Prog2LogicConverter extends AbstractMetaOperator {
 					return termBuilder.var(var);
 				}
 				return termBuilder.func(getFunction(elementName, services
-						.getNamespaces(), subTerms.length, Sort.FORMULA, sorts, false),
+						.getNamespaces(), subTerms.length, Sort.FORMULA, sorts, true),
 						subTerms);
 			}
 
@@ -270,11 +274,10 @@ public class Prog2LogicConverter extends AbstractMetaOperator {
 						dotReplacementmap);
 				sorts[i-1] = subTerms[i - 1].sort();
 			}
-
 			return termBuilder
 					.func(getFunction(((NamedElement) p.getChildAt(0))
 							.getElementName(), services.getNamespaces(),
-							subTerms.length, sortR, sorts, p.getChildAt(0) instanceof NonRigidFunction), subTerms);
+							subTerms.length, sortR, sorts, !(p.getChildAt(0) instanceof NonRigidFunction)), subTerms);
 		} else if (form instanceof Forall) {
 			Forall f = (Forall) form;
 			VariableDeclaration decl = (VariableDeclaration) f.getChildAt(0);
