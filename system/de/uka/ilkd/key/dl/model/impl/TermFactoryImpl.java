@@ -266,15 +266,17 @@ public class TermFactoryImpl extends TermFactory {
 	 * @return the function term
 	 */
 	public FunctionTerm createFunctionTerm(CommonTree t, List<Expression> params) {
-	    NonRigidFunction nrf = NonRigidFunctionImpl.getFunction(t.getText(), null, false);
-        assert getNamespaces().functions().lookup(new Name(t.getText())) != null : "The function " + t + " has to be declared!";
-	    if(nrf == null) {
-	        assert getNamespaces().functions().lookup(new Name(t.getText())) instanceof RigidFunction : "The function " + t + " has to be a rigid function or declared in the program otherwise!";
+	    de.uka.ilkd.key.logic.op.Function f = (de.uka.ilkd.key.logic.op.Function) getNamespaces().functions().lookup(new Name(t.getText()));
+        assert f != null : "The function " + t + " has to be declared!";
+	    if(f instanceof RigidFunction) {
     		return createFunctionTerm(FreeFunctionImpl.getFunction(t.getText()),
     				params);
 	    } else {
-	        assert getNamespaces().functions().lookup(new Name(t.getText())) instanceof de.uka.ilkd.key.logic.op.NonRigidFunction : "The function " + t + " has to be a non-rigid function!";
-    		return createFunctionTerm(nrf, params);
+	        String[] args = new String[f.arity()];
+	        for(int i = 0; i < f.arity(); i++) {
+	            args[i] = f.argSort(i).name().toString();
+	        }
+    		return createFunctionTerm(NonRigidFunctionImpl.getFunction(t.getText(), args, true), params);
 	    }
 	}
 
@@ -350,7 +352,7 @@ public class TermFactoryImpl extends TermFactory {
 		}
 		if (getNamespaces().programVariables().lookup(new Name(name)) != null) {
 			assert getNamespaces().variables().lookup(new Name(name)) == null;
-			return ProgramVariableImpl.getProgramVariable(name, false);
+			return ProgramVariableImpl.getProgramVariable(name, true);
 		} else {
 			throw new IllegalStateException("ProgramVariable " + name
 					+ " is not declared.");

@@ -1432,6 +1432,10 @@ options {
     public void addFunction(Function f) {
         functions().add(f);
     }
+    
+    public void addProgramVariable(LocationVariable f) {
+        programVariables().add(f);
+    }
 
     private Sort getIntersectionSort(ImmutableList<String> composites) 
                                             throws NotDeclException, KeYSemanticException {
@@ -1848,30 +1852,7 @@ prog_var_decls
         PROGRAMVARIABLES
         LBRACE 
         (
-            kjt = keyjavatype
-            var_names = simple_ident_comma_list
-            {
-	        Iterator<String> it = var_names.iterator();
-		while(it.hasNext()){
-		  var_name = it.next();
-		  ProgramElementName pvName = new ProgramElementName(var_name);
-		  Named name = lookup(pvName);
-                  if (name != null ) {
-		    // commented out as pv do not have unique name (at the moment)
-		    //  throw new AmbigiousDeclException
-     		    //  	(var_name, getFilename(), getLine(), getColumn()); 
-		    if(name instanceof ProgramVariable && 
-			    !((ProgramVariable)name).getKeYJavaType().equals(kjt)) { 
-                      namespaces().programVariables().add(new LocationVariable
-                        (pvName, kjt));
-		    }
-                  }else{
-                     namespaces().programVariables().add(new LocationVariable
-                        (pvName, kjt));
-		  }
-	       }
-            }
-            SEMI
+        	var_decl
         ) *
         RBRACE
     ;
@@ -2132,6 +2113,27 @@ location_ident returns [int kind = NORMAL_NONRIGID]
        }
     ;
 
+var_decl
+{
+    Sort retSort;
+    String func_name;
+}
+    :
+        retSort = sortId_check[!skip_functions]
+        func_name = funcpred_name 
+        {
+	        if (!skip_functions) {
+	            ProgramElementName fct_name = new ProgramElementName(func_name);
+	            LocationVariable f = null;
+	            if (lookup(fct_name) != null) {
+	                throw new AmbigiousDeclException(func_name, getFilename(), getLine(), getColumn());
+	            }
+	            f = new LocationVariable(fct_name, retSort);
+	            addProgramVariable(f);
+	        } 
+        }
+        SEMI
+    ;
 
 
 func_decl
