@@ -2182,7 +2182,13 @@ func_decl
                              extractPartitionedLocations(dependencyListList));
                     } else {
                         switch (location) {
-                           case NORMAL_NONRIGID: f = new NonRigidFunction(fct_name, retSort, argSorts);
+                           case NORMAL_NONRIGID:
+                           		if(argSorts.length == 0) {
+                           			// declare a program variable instead of a non-rigid function
+                           			addProgramVariable(new LocationVariable(new ProgramElementName(func_name), retSort));
+                           		} else { 
+                           			f = new NonRigidFunction(fct_name, retSort, argSorts);
+                           		}
                               break;
                            case LOCATION_MODIFIER: f = new NonRigidFunctionLocation(fct_name, retSort, argSorts, true);
                               break;
@@ -2195,8 +2201,10 @@ func_decl
                 } else {
                     f = new RigidFunction(fct_name, retSort, argSorts, external);
                 }
-                assert f != null;
-                addFunction(f);
+                if(!nonRigid || !(argSorts.length == 0 && location == NORMAL_NONRIGID)) {
+                	assert f != null;
+                	addFunction(f);
+               	}
             } 
         }
         SEMI

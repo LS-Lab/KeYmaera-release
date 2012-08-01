@@ -97,7 +97,7 @@ public class ProgramBlockProvider implements
         try {
             CommonTree t = parser.prog().tree;
             
-            System.out.println(t.toStringTree());
+//            System.out.println(t.toStringTree());
 
             Debug.out("Stage 1 finished");
             CommonTreeNodeStream nodes = new CommonTreeNodeStream(t);
