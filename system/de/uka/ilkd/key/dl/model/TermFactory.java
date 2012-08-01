@@ -587,6 +587,9 @@ public abstract class TermFactory implements Serializable {
      */
     public abstract Assign createAssign(ProgramVariable expression,
             Expression expression2);
+    
+    public abstract Assign createAssign(FunctionTerm expression,
+            Expression expression2);
 
     /**
      * Create a constant for the given value.

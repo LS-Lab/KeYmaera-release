@@ -404,6 +404,10 @@ public class TermFactoryImpl extends TermFactory {
 	public Assign createAssign(ProgramVariable t, Expression e) {
 		return new AssignImpl(t, e);
 	}
+	
+	public Assign createAssign(FunctionTerm t, Expression e) {
+		return new AssignImpl(t, e);
+	}
 
 	/*
 	 * (non-Javadoc)

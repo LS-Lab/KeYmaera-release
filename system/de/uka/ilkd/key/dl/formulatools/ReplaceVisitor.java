@@ -56,6 +56,7 @@ import de.uka.ilkd.key.dl.model.Or;
 import de.uka.ilkd.key.dl.model.Parallel;
 import de.uka.ilkd.key.dl.model.Predicate;
 import de.uka.ilkd.key.dl.model.PredicateTerm;
+import de.uka.ilkd.key.dl.model.Quantified;
 import de.uka.ilkd.key.dl.model.Quest;
 import de.uka.ilkd.key.dl.model.RandomAssign;
 import de.uka.ilkd.key.dl.model.Star;
@@ -170,9 +171,15 @@ public class ReplaceVisitor {
 			result = tf.createDiffSystem(children);
 		} else if (childAt instanceof Assign) {
 			Assign a = (Assign) childAt;
-			result = tf.createAssign(
-					(de.uka.ilkd.key.dl.model.ProgramVariable) a.getChildAt(0),
-					(Expression) convert(a.getChildAt(1), substitutionMap, tf));
+			if(a.getChildAt(0) instanceof de.uka.ilkd.key.dl.model.ProgramVariable) {
+			    result = tf.createAssign(
+			            (de.uka.ilkd.key.dl.model.ProgramVariable) a.getChildAt(0),
+			            (Expression) convert(a.getChildAt(1), substitutionMap, tf));
+			} else {
+			    FunctionTerm ft = (FunctionTerm) a.getChildAt(0);
+			    result = tf.createAssign((FunctionTerm)convert(ft, substitutionMap, tf),
+                        (Expression) convert(a.getChildAt(1), substitutionMap, tf));
+			}
 		} else if (childAt instanceof Dot) {
 			result = (Dot) childAt;
 		} else if (childAt instanceof RandomAssign) {
@@ -203,6 +210,32 @@ public class ReplaceVisitor {
 					substitutionMap, tf), (DLProgram) convert(ifS.getThen(),
 					substitutionMap, tf), (ifS.getElse() == null) ? null
 					: (DLProgram) convert(ifS.getElse(), substitutionMap, tf));
+		} else if (childAt instanceof Quantified) {
+			// we need to remove all variables bound by this quantifier
+			DLNonTerminalProgramElement f = (DLNonTerminalProgramElement) childAt;
+			VariableDeclaration decl = (VariableDeclaration) f.getChildAt(0);
+			DLProgram sub = (DLProgram) f.getChildAt(1);
+			Map<QuantifiableVariable, Term> newSubstitutionMap = new HashMap<QuantifiableVariable, Term>(
+                    substitutionMap);
+            out: for (QuantifiableVariable q : substitutionMap.keySet()) {
+                for (int i = 1; i < decl.getChildCount(); i++) {
+                    if (q.name().toString().equals(
+                            ((Variable) decl.getChildAt(i)).getElementName()
+                                    .toString())) {
+                        newSubstitutionMap.remove(q);
+                        continue out;
+                    }
+                    for(QuantifiableVariable var: substitutionMap.get(q).freeVars()) {
+                        if (var.name().toString().equals(
+                                ((Variable) decl.getChildAt(i)).getElementName()
+                                        .toString())) {
+                            newSubstitutionMap.remove(q);
+                            continue out;
+                        }   
+                    }
+                }
+            }
+			result = tf.createQuantified(decl, (DLProgram) convert(sub, newSubstitutionMap, tf));
 		} else if (childAt instanceof Forall || childAt instanceof Exists) {
 			// we need to remove all variables bound by this quantifier
 			DLNonTerminalProgramElement f = (DLNonTerminalProgramElement) childAt;

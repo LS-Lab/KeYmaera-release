@@ -3280,7 +3280,7 @@ public class PrettyPrinter {
 
                 }
             }
-            write("\n");
+            //write("\n");
         }
 
         markEnd(0, p);
@@ -3588,7 +3588,7 @@ public class PrettyPrinter {
        
        write("\\forall ");
        writeElement(q.getChildAt(0));
-       write(" : ");
+       write(" ; ");
        writeElement(q.getChildAt(1));
        markEnd(0, q);
        printFooter(q);

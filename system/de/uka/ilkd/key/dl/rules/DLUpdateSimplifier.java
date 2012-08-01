@@ -51,13 +51,14 @@ public class DLUpdateSimplifier extends UpdateSimplifier {
     public DLUpdateSimplifier() {
         ImmutableList<IUpdateRule> usRules = ImmutableSLList.nil();
         usRules = usRules.append(
-                new ApplyOnAnonymousUpdate(this)).append(
-                new ApplyAnonymousUpdateOnNonRigid(this)).append(
-                new ApplyOnUpdate(this)).append(
-                new ApplyOnLocalVariableOrStaticField(this)).append(
-                new DLApplyOnModality(this)).append(new ApplyOnRigidTerm(this))
-                .append(new ApplyOnRigidOperatorTerm(this)).append(
-                        new ApplyOnNonRigidWithExplicitDependencies(this))
+                new ApplyOnAnonymousUpdate(this))
+                .append(new ApplyAnonymousUpdateOnNonRigid(this))
+                .append(new ApplyOnUpdate(this))
+                .append(new ApplyOnLocalVariableOrStaticField(this))
+                .append(new DLApplyOnModality(this))
+                .append(new ApplyOnRigidTerm(this))
+                .append(new ApplyOnRigidOperatorTerm(this))
+                .append(new ApplyOnNonRigidWithExplicitDependencies(this))
                 .append(new ApplyOnNonRigidTerm(this));
 
         setSimplificationRules(usRules);

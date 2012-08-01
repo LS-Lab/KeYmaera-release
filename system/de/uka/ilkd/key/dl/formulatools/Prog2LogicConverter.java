@@ -48,6 +48,7 @@ import de.uka.ilkd.key.dl.model.Implies;
 import de.uka.ilkd.key.dl.model.LogicalVariable;
 import de.uka.ilkd.key.dl.model.MetaVariable;
 import de.uka.ilkd.key.dl.model.NamedElement;
+import de.uka.ilkd.key.dl.model.NonRigidFunction;
 import de.uka.ilkd.key.dl.model.Not;
 import de.uka.ilkd.key.dl.model.Or;
 import de.uka.ilkd.key.dl.model.PredicateTerm;
@@ -151,7 +152,7 @@ public class Prog2LogicConverter extends AbstractMetaOperator {
 	}
 
 	public static de.uka.ilkd.key.logic.op.Function getFunction(Name name,
-			NamespaceSet namespaces, int arity, Sort sort) {
+			NamespaceSet namespaces, int arity, Sort sort, Sort[] sorts, boolean rigid) {
 		de.uka.ilkd.key.logic.op.Function result = (de.uka.ilkd.key.logic.op.Function) namespaces
 				.functions().lookup(name);
 
@@ -161,12 +162,7 @@ public class Prog2LogicConverter extends AbstractMetaOperator {
 		}
 
 		if (result == null) {
-			Sort[] sorts = new Sort[arity];
 			Sort sortR = RealLDT.getRealSort();
-
-			for (int i = 0; i < sorts.length; i++) {
-				sorts[i] = sortR;
-			}
 			if (arity == 0) {
 				try {
 					BigDecimal b = new BigDecimal(name.toString());
@@ -176,8 +172,14 @@ public class Prog2LogicConverter extends AbstractMetaOperator {
 				}
 			}
 			if (result == null) {
-				result = new de.uka.ilkd.key.logic.op.RigidFunction(name, sort,
-						sorts);
+			    if (rigid) {
+			        result = new de.uka.ilkd.key.logic.op.RigidFunction(name, sort,
+			                sorts);
+			    } else {
+			        result = new de.uka.ilkd.key.logic.op.NonRigidFunction(name, sort,
+			                sorts);
+			        
+			    }
 			}
 			namespaces.functions().add(result);
 		}
@@ -200,10 +202,12 @@ public class Prog2LogicConverter extends AbstractMetaOperator {
 		if (form instanceof PredicateTerm) {
 			PredicateTerm p = (PredicateTerm) form;
 			Term[] subTerms = new Term[p.getChildCount() - 1];
+			Sort[] sorts = new Sort[p.getChildCount() - 1];
 
 			for (int i = 1; i < p.getChildCount(); i++) {
 				subTerms[i - 1] = convertRecursivly(p.getChildAt(i), services,
 						dotReplacementmap);
+				sorts[i - 1] = subTerms[i - 1].sort();
 			}
 			Name elementName = ((NamedElement) p.getChildAt(0))
 					.getElementName();
@@ -230,7 +234,7 @@ public class Prog2LogicConverter extends AbstractMetaOperator {
 					return termBuilder.var(var);
 				}
 				return termBuilder.func(getFunction(elementName, services
-						.getNamespaces(), subTerms.length, Sort.FORMULA),
+						.getNamespaces(), subTerms.length, Sort.FORMULA, sorts, false),
 						subTerms);
 			}
 
@@ -259,24 +263,26 @@ public class Prog2LogicConverter extends AbstractMetaOperator {
 				return termBuilder.var(var);
 			}
 			Term[] subTerms = new Term[p.getChildCount() - 1];
+			Sort[] sorts = new Sort[p.getChildCount() -1];
 
 			for (int i = 1; i < p.getChildCount(); i++) {
 				subTerms[i - 1] = convertRecursivly(p.getChildAt(i), services,
 						dotReplacementmap);
+				sorts[i-1] = subTerms[i - 1].sort();
 			}
 
 			return termBuilder
 					.func(getFunction(((NamedElement) p.getChildAt(0))
 							.getElementName(), services.getNamespaces(),
-							subTerms.length, sortR), subTerms);
+							subTerms.length, sortR, sorts, p.getChildAt(0) instanceof NonRigidFunction), subTerms);
 		} else if (form instanceof Forall) {
 			Forall f = (Forall) form;
 			VariableDeclaration decl = (VariableDeclaration) f.getChildAt(0);
 
 			LogicVariable[] vars = new LogicVariable[decl.getChildCount() - 1];
+			Sort sort = (Sort) services.getNamespaces().sorts().lookup(decl.getType().getElementName());
 			for (int i = 1; i < decl.getChildCount(); i++) {
-				vars[i - 1] = (LogicVariable) convertRecursivly(
-						decl.getChildAt(i), services, dotReplacementmap).op();
+				vars[i - 1] = new LogicVariable(((NamedElement) decl.getChildAt(i)).getElementName(), sort);
 				services.getNamespaces().variables().add(vars[i - 1]);
 			}
 			// do not convert the formula before addind the vars
@@ -287,9 +293,9 @@ public class Prog2LogicConverter extends AbstractMetaOperator {
 			Exists f = (Exists) form;
 			VariableDeclaration decl = (VariableDeclaration) f.getChildAt(0);
 			LogicVariable[] vars = new LogicVariable[decl.getChildCount() - 1];
+			Sort sort = (Sort) services.getNamespaces().sorts().lookup(decl.getType().getElementName());
 			for (int i = 1; i < decl.getChildCount(); i++) {
-				vars[i - 1] = (LogicVariable) convertRecursivly(
-						decl.getChildAt(i), services, dotReplacementmap).op();
+				vars[i - 1] = new LogicVariable(((NamedElement) decl.getChildAt(i)).getElementName(), sort);
 				services.getNamespaces().variables().add(vars[i - 1]);
 			}
 			// do not convert the formula before addind the vars
@@ -388,7 +394,7 @@ public class Prog2LogicConverter extends AbstractMetaOperator {
 		} else if (form instanceof Constant) {
 			return termBuilder.func(getFunction(new Name(""
 					+ ((Constant) form).getValue()), services.getNamespaces(),
-					0, sortR));
+					0, sortR, new Sort[0], true));
 		}
 
 		throw new IllegalArgumentException("Cannot convert " + form);

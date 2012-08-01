@@ -143,7 +143,7 @@ itomp options { k=3; } : quest | assign | LPAREN! stat RPAREN! | diffsystem | if
 	| quanitomp
 ;
 
-quanitomp: FORALL^ vardec COLON! (assign | diffsystem)
+quanitomp: FORALL^ vardec CHOP! (assign | diffsystem)
 ;
 
 whileSym: WHILE^ LPAREN! form[false] RPAREN! stat (ELIHW!|END!)
