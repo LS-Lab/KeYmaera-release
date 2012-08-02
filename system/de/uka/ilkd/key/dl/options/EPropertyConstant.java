@@ -204,7 +204,14 @@ public enum EPropertyConstant {
 	    Z3_OPTIONS_Z3_BINARY("[Z3Options]z3Binary", "Z3 Binary", "The path to the z3 binary.", "Z3 Properties"),
 	    Z3_OPTIONS_PRENEX_FORM("[Z3Options]z3Prenex", "prenex form", "Convert the formula into prenex form before passing it to Z3.", "Z3 Properties"),
 	    Z3_OPTIONS_ELIMINATE_EXISTENTIAL_PREFIX("[Z3Options]z3ElimExPrefix", "existential prefix", "Convert leading existential quantifiers into variable declarations.", "Z3 Properties"), 
-	    DLOPTIONS_SOLVE_ODE("[DLOptions]solveODE", "solve ODEs", "Use ODE solver to solve ODEs if the solution is polynomial and do not verify the solutions using differential invariants", "DL Properties"),
+	    DLOPTIONS_SOLVE_ODE(
+            "[DLOptions]solveODE",
+            "solve ODEs",
+            "If checked an external ODE solver will be used to solve ODEs and the solution will be used unchecked if it is polynomial ODESolve rule." + 
+            "If this option is not set, no solutions for ODEs from external tools will be used." +
+            "Instead handling of continuous flows then relies on differential invariants. " +
+            "In either case differential invariants will be used if the solution is not polynomial.",
+            "DL Properties"),
 	    ;
 
 	    private String groupName;
