@@ -22,7 +22,6 @@ import de.uka.ilkd.key.dl.rules.metaconstruct.DLIntroNewAnonUpdateOp;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DLInvariantPart;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DLRandomAssign;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DLUniversalClosureOp;
-import de.uka.ilkd.key.dl.rules.metaconstruct.DLUnwindLoop;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DNFTransformer;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DiffFin;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DiffInd;
