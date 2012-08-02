@@ -819,9 +819,9 @@ public class TermFactoryImpl extends TermFactory {
                         getNamespaces()
                                 .functions()
                                 .addSafely(
-                                        new de.uka.ilkd.key.logic.op.NonRigidFunction(
+                                        new de.uka.ilkd.key.logic.op.NonRigidFunctionLocation(
                                                 new Name(var.getText()), sort,
-                                                argSorts));
+                                                argSorts, true));
                     }
                     String[] sorts = new String[args.size()];
                     for(int i = 0; i < args.size(); i++) {

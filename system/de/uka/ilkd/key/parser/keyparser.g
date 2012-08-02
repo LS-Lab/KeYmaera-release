@@ -2192,27 +2192,28 @@ func_decl
                              new ImmutableArray<Sort>(argSorts),
                              extractPartitionedLocations(dependencyListList));
                     } else {
-                        switch (location) {
-                           case NORMAL_NONRIGID:
-                           		if(argSorts.length == 0) {
-                           			// declare a program variable instead of a non-rigid function
-                           			addProgramVariable(new LocationVariable(new ProgramElementName(func_name), retSort));
-                           		} else { 
-                           			f = new NonRigidFunction(fct_name, retSort, argSorts);
-                           		}
-                              break;
-                           case LOCATION_MODIFIER: f = new NonRigidFunctionLocation(fct_name, retSort, argSorts, true);
-                              break;
-                 	  case HEAP_DEPENDENT: f = new NonRigidHeapDependentFunction(fct_name, retSort, argSorts);      
-                 	      break;
-                 	  default:
-                 	     semanticError("Unknwon modifier used in declaration of non-rigid function "+fct_name);
-                 	}
+                    
+                   		if(argSorts.length == 0) {
+                   			// declare a program variable instead of a non-rigid function
+                   			addProgramVariable(new LocationVariable(new ProgramElementName(func_name), retSort));
+                   		} else {
+	                        switch (location) {
+	                           case NORMAL_NONRIGID: f = new NonRigidFunction(fct_name, retSort, argSorts);
+	                              break;
+	                           case LOCATION_MODIFIER: f = new NonRigidFunctionLocation(fct_name, retSort, argSorts, true);
+	                              break;
+		                 	   case HEAP_DEPENDENT: f = new NonRigidHeapDependentFunction(fct_name, retSort, argSorts);      
+		                 	      break;
+	                 	       default:
+		                 	     semanticError("Unknwon modifier used in declaration of non-rigid function "+fct_name);
+		                 	     
+		                 	}
+		                 }
                     }
                 } else {
                     f = new RigidFunction(fct_name, retSort, argSorts, external);
                 }
-                if(!nonRigid || !(argSorts.length == 0 && location == NORMAL_NONRIGID)) {
+                if(!nonRigid || !(argSorts.length == 0)) {
                 	assert f != null;
                 	addFunction(f);
                	}

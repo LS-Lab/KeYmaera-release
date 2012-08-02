@@ -68,6 +68,7 @@ import de.uka.ilkd.key.logic.op.AbstractMetaOperator;
 import de.uka.ilkd.key.logic.op.LocationVariable;
 import de.uka.ilkd.key.logic.op.LogicVariable;
 import de.uka.ilkd.key.logic.op.Metavariable;
+import de.uka.ilkd.key.logic.op.NonRigidFunctionLocation;
 import de.uka.ilkd.key.logic.sort.Sort;
 import de.uka.ilkd.key.rule.inst.SVInstantiations;
 
@@ -156,7 +157,7 @@ public class Prog2LogicConverter extends AbstractMetaOperator {
 		de.uka.ilkd.key.logic.op.Function result = (de.uka.ilkd.key.logic.op.Function) namespaces
 				.functions().lookup(name);
 		if(!rigid) {
-		    assert result == null || result instanceof de.uka.ilkd.key.logic.op.NonRigidFunction :
+		    assert result == null || result instanceof de.uka.ilkd.key.logic.op.NonRigidFunctionLocation :
 		        "The function " + name + " should be a non-rigid function!";
 		}
 
@@ -180,8 +181,8 @@ public class Prog2LogicConverter extends AbstractMetaOperator {
 			        result = new de.uka.ilkd.key.logic.op.RigidFunction(name, sort,
 			                sorts);
 			    } else {
-			        result = new de.uka.ilkd.key.logic.op.NonRigidFunction(name, sort,
-			                sorts);
+			        result = new de.uka.ilkd.key.logic.op.NonRigidFunctionLocation(name, sort,
+			                sorts, true);
 			        
 			    }
 			}
@@ -277,7 +278,7 @@ public class Prog2LogicConverter extends AbstractMetaOperator {
 			return termBuilder
 					.func(getFunction(((NamedElement) p.getChildAt(0))
 							.getElementName(), services.getNamespaces(),
-							subTerms.length, sortR, sorts, !(p.getChildAt(0) instanceof NonRigidFunction)), subTerms);
+							subTerms.length, sortR, sorts, !(p.getChildAt(0) instanceof NonRigidFunctionLocation)), subTerms);
 		} else if (form instanceof Forall) {
 			Forall f = (Forall) form;
 			VariableDeclaration decl = (VariableDeclaration) f.getChildAt(0);
