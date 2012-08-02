@@ -77,6 +77,7 @@ import de.uka.ilkd.key.dl.model.Unequals;
 import de.uka.ilkd.key.dl.model.Variable;
 import de.uka.ilkd.key.dl.model.VariableDeclaration;
 import de.uka.ilkd.key.dl.model.VariableType;
+import de.uka.ilkd.key.java.ProgramElement;
 import de.uka.ilkd.key.logic.Name;
 import de.uka.ilkd.key.logic.Named;
 import de.uka.ilkd.key.logic.NamespaceSet;
@@ -338,7 +339,18 @@ public class TermFactoryImpl extends TermFactory {
             return new DotImpl(degree, fTerm);
 	    }
 	}
+	
+    public Dot createDot(DLProgramElement convert, int order) {
+        return new DotImpl(convert, order);
+    }
 
+	public Dot schemaCreateDot(CommonTree t) {
+		return new DotImpl(schemaProgramSV(t));
+	}
+
+	public Dot schemaCreateDot(CommonTree t, int order) {
+		return new DotImpl(schemaProgramSV(t), order);
+	}
 	/**
 	 * Creates a program variable if necessary or returns a cached one.
 	 * 
@@ -392,6 +404,10 @@ public class TermFactoryImpl extends TermFactory {
 	        FunctionTerm fTerm = createFunctionTerm(f, args);
             return new AssignImpl(fTerm, e);
 	    }
+	}
+	
+	public Assign createAssign(ProgramElement left, ProgramElement right) {
+		return new AssignImpl(left, right);
 	}
 
 	/**

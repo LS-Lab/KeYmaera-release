@@ -206,6 +206,9 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 
 		final RuleSetDispatchFeature d = RuleSetDispatchFeature.create();
 
+		// do not try to introduce auxilary variables
+		bindRuleSet(d, "auxilaries", inftyConst());
+
 		bindRuleSet(d, "closure", -30000);
 		bindRuleSet(d, "concrete", -10000);
 		bindRuleSet(d, "alpha", -7000);

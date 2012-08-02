@@ -64,6 +64,15 @@ public class DotImpl extends DLNonTerminalProgramElementImpl implements Dot {
     }
 
     /**
+     * @param convert
+     * @param order2
+     */
+    public DotImpl(DLProgramElement convert, int order) {
+        this.order = order;
+        addChild(convert);
+    }
+
+    /**
      * Increments the dotcount
      */
     public void increment() {

@@ -32,7 +32,10 @@ import java.util.WeakHashMap;
 
 import org.antlr.runtime.tree.CommonTree;
 
+import de.uka.ilkd.key.dl.model.impl.DotImpl;
+import de.uka.ilkd.key.java.ProgramElement;
 import de.uka.ilkd.key.logic.NamespaceSet;
+import de.uka.ilkd.key.logic.op.SchemaVariable;
 import de.uka.ilkd.key.logic.sort.Sort;
 
 /**
@@ -267,6 +270,10 @@ public abstract class TermFactory implements Serializable {
     
     public abstract Dot createDot(int degree, CommonTree t, List<Expression> args);
 
+    public abstract Dot schemaCreateDot(CommonTree t);
+
+    public abstract Dot schemaCreateDot(CommonTree t, int order);
+    
     /**
      * Creates a program variable if necessary or returns a cached one.
      * 
@@ -285,7 +292,9 @@ public abstract class TermFactory implements Serializable {
      *                the value of the variable
      * @return the assign statement
      */
-    public abstract Assign createAssign(CommonTree t, List<Expression> args, Expression e);
+	public abstract Assign createAssign(CommonTree t, List<Expression> args, Expression e);
+    
+    public abstract Assign createAssign(ProgramElement left, ProgramElement right);
 
     /**
      * Creates an assignment to a schema variable
@@ -667,4 +676,11 @@ public abstract class TermFactory implements Serializable {
 
 	
 	public abstract Quantified createQuantified(VariableDeclaration decl, DLProgram statement);
+    /**
+     * @param convert
+     * @param order
+     * @return
+     */
+    public abstract Dot createDot(DLProgramElement convert, int order);
+
 }

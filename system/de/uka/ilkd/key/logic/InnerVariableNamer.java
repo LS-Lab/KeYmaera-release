@@ -114,7 +114,7 @@ public class InnerVariableNamer extends VariableNamer {
         
         if (!newname.equals(name)) {        
             newvar = new LocationVariable(newname,
-                    var.getKeYJavaType());
+                    var.sort());
             map.put(var, newvar);
             renamingHistory = map;
             //execute renaming

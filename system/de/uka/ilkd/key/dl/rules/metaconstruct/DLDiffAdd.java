@@ -1,6 +1,6 @@
 /***************************************************************************
- *   Copyright (C) 2007 by Jan David Quesel                                *
- *   quesel@informatik.uni-oldenburg.de                                    *
+ *   Copyright (C) 2007 by Andre Platzer                                   *
+ *   @informatik.uni-oldenburg.de                                          *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -17,19 +17,19 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-/**
- * File created 30.01.2007
- */
 package de.uka.ilkd.key.dl.rules.metaconstruct;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.List;
 
-import de.uka.ilkd.key.dl.model.Chop;
-import de.uka.ilkd.key.dl.model.DLProgram;
+import de.uka.ilkd.key.dl.formulatools.ReplaceVisitor;
 import de.uka.ilkd.key.dl.model.DLStatementBlock;
-import de.uka.ilkd.key.dl.model.Star;
+import de.uka.ilkd.key.dl.model.DiffSystem;
+import de.uka.ilkd.key.dl.model.Formula;
 import de.uka.ilkd.key.dl.model.TermFactory;
 import de.uka.ilkd.key.dl.options.DLOptionBean;
+import de.uka.ilkd.key.java.ProgramElement;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.java.StatementBlock;
 import de.uka.ilkd.key.logic.JavaBlock;
@@ -39,21 +39,16 @@ import de.uka.ilkd.key.logic.sort.Sort;
 import de.uka.ilkd.key.rule.inst.SVInstantiations;
 
 /**
- * Unwinds a given loop.
- * 
- * @author jdq
- * @since 30.01.2007
- * 
+ * Adjoins a formula to a diffsystem.
+ * \[#diffsystem\]post,psi yields \[#diffsystem&psi\]post.
+ * @author ap
  */
-public class DLUnwindLoop extends AbstractDLMetaOperator {
+public class DLDiffAdd extends AbstractDLMetaOperator {
 
-    public static final Name NAME = new Name("#dlunwind");
+    public static final Name NAME = new Name("#diffadd");
 
-    /**
-     * 
-     */
-    public DLUnwindLoop() {
-        super(NAME, 1);
+    public DLDiffAdd() {
+        super(NAME, 2);
     }
 
     /*
@@ -63,11 +58,7 @@ public class DLUnwindLoop extends AbstractDLMetaOperator {
      */
     /*@Override*/
     public Sort sort(Term[] term) {
-        // if(term.length == 0) {
         return Sort.FORMULA;
-        // } else {
-        // return super.sort(term);
-        // }
     }
 
     /*
@@ -78,34 +69,47 @@ public class DLUnwindLoop extends AbstractDLMetaOperator {
      *      de.uka.ilkd.key.java.Services)
      */
     public Term calculate(Term term, SVInstantiations svInst, Services services) {
-        Term t = term.sub(0);
-        DLProgram program = (DLProgram) ((StatementBlock) term.sub(0)
+        // \[#diffsystem\]post, \[ #dlvar ' = #rate \] true
+        DiffSystem system = (DiffSystem) ((StatementBlock) term.sub(0)
+                .javaBlock().program()).getChildAt(0);
+        DiffSystem newSys = (DiffSystem) ((StatementBlock) term.sub(1)
                 .javaBlock().program()).getChildAt(0);
         Term post = term.sub(0).sub(0);
-        TermFactory dlTf;
         try {
-            dlTf = TermFactory.getTermFactory(DLOptionBean.INSTANCE.getTermFactoryClass(), services
-                    .getNamespaces());
-            //FIXME: the invariant gets lost here
-            Star s = dlTf.createStar(program);
-            Chop chop = dlTf.createChop(program, s);
-            JavaBlock jb = JavaBlock.createJavaBlock(new DLStatementBlock(chop));
+            final TermFactory tf = TermFactory.getTermFactory(
+            		DLOptionBean.INSTANCE.getTermFactoryClass(), services.getNamespaces());
+            List<Formula> augmented = new ArrayList<Formula>(system
+                    .getChildCount() + 1);
+            for (ProgramElement el : system) {
+                if (el instanceof Formula) {
+                    augmented.add((Formula) el);
+                } else {
+                    throw new IllegalStateException(
+                            "DiffSystem expected to contain Formulas instead of " + el);
+                }
+            }
+            for(ProgramElement el : newSys) {
+                if (el instanceof Formula) {
+                    augmented.add((Formula) el);
+                } else {
+                    throw new IllegalStateException(
+                            "DiffSystem expected to contain Formulas instead of " + el);
+                }
+            }
+            // \[#diffsystem&#newSys\]post
+            DiffSystem augmentedSystem = tf.createDiffSystem(augmented);
+            augmentedSystem.setDLAnnotations(system.getDLAnnotations());
             return de.uka.ilkd.key.logic.TermFactory.DEFAULT.createProgramTerm(
-                    term.sub(0).op(), jb, post);
+                    term.sub(0).op(), JavaBlock
+                            .createJavaBlock(new DLStatementBlock(augmentedSystem)), post);
         } catch (InvocationTargetException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            throw (InternalError) new InternalError().initCause(e);
         } catch (IllegalAccessException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            throw (InternalError) new InternalError().initCause(e);
         } catch (InstantiationException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            throw (InternalError) new InternalError().initCause(e);
         } catch (NoSuchMethodException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            throw (InternalError) new InternalError().initCause(e);
         }
-        return t;
     }
-
 }

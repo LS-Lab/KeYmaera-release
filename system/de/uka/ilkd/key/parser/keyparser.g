@@ -2117,6 +2117,7 @@ var_decl
 {
     Sort retSort;
     String func_name;
+    String fun2_name;
 }
     :
         retSort = sortId_check[!skip_functions]
@@ -2131,7 +2132,17 @@ var_decl
 	            f = new LocationVariable(fct_name, retSort);
 	            addProgramVariable(f);
 	        } 
-        }
+        } (COMMA fun2_name = funcpred_name {
+	        if (!skip_functions) {
+	            ProgramElementName fct_name = new ProgramElementName(fun2_name);
+	            LocationVariable f = null;
+	            if (lookup(fct_name) != null) {
+	                throw new AmbigiousDeclException(func_name, getFilename(), getLine(), getColumn());
+	            }
+	            f = new LocationVariable(fct_name, retSort);
+	            addProgramVariable(f);
+	        } 
+		})*
         SEMI
     ;
 

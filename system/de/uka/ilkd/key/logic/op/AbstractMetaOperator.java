@@ -15,14 +15,13 @@ import java.util.HashMap;
 
 import de.uka.ilkd.key.dl.formulatools.Prog2LogicConverter;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DLChoiceUnwind;
+import de.uka.ilkd.key.dl.rules.metaconstruct.DLDiffAdd;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DLDiffAdjoin;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DLDiffInequalityRewrite;
-import de.uka.ilkd.key.dl.rules.metaconstruct.DLFreshVar;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DLIntroNewAnonUpdateOp;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DLInvariantPart;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DLRandomAssign;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DLUniversalClosureOp;
-import de.uka.ilkd.key.dl.rules.metaconstruct.DLUnwindLoop;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DNFTransformer;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DiffFin;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DiffInd;
@@ -224,18 +223,16 @@ public abstract class AbstractMetaOperator extends Op implements MetaOperator {
         public static final DiffInd DIFFIND = new DiffInd();
         public static final AbstractMetaOperator DIFFFIN = new DiffFin();
         public static final AbstractMetaOperator DIFFADJOIN= new DLDiffAdjoin();
+        public static final AbstractMetaOperator DIFFADD= new DLDiffAdd();
         public static final AbstractMetaOperator INVARIANTPART = new DLInvariantPart();
 	public static final AbstractMetaOperator SIMPLIFY = new Simplify();
 	public static final AbstractMetaOperator FULL_SIMPLIFY = new FullSimplify();
 	public static final AbstractMetaOperator REDUCE = new Reduce();
-	public static final AbstractMetaOperator UNWIND_LOOP = new DLUnwindLoop();
 	public static final AbstractMetaOperator DL_INV_LOOP = new DLIntroNewAnonUpdateOp();
 	public static final DLUniversalClosureOp DL_UNIVERSAL_CLOSURE = new DLUniversalClosureOp();
 
 	public static final AbstractMetaOperator DL_INT_FORALL = new DLRandomAssign();
 	
-	public static final AbstractMetaOperator DL_FRESH_VAR = new DLFreshVar();
-
 	public static final AbstractMetaOperator DL_DNF_TRANSFORMER = new DNFTransformer();
 
 	public static final AbstractMetaOperator DL_CHOICE_UNWIND = new DLChoiceUnwind();

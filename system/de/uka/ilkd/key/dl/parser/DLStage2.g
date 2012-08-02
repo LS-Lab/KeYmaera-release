@@ -108,12 +108,12 @@ LESS { bo = tf.createLess(); }
 ;
 
 assign returns [ DLProgram a ] scope { ArrayList<Expression> args; } @init { $assign::args = new ArrayList<Expression>(); }: 
-var = WORD 
+(var = WORD 
 (LPAREN (arg = expr[false] { $assign::args.add(arg); })* RPAREN)? 
 (e = expr[false] { a = tf.createAssign(var, $assign::args, e); }
-| STAR { a = tf.createRandomAssign(var, $assign::args); })
-| {schemaMode}? sv = svar (e = expr[false] { a = tf.createAssignToSchemaVariable(sv, e);} 
-| STAR { a = tf.createRandomAssignToSchemaVariable(var); })
+| STAR { a = tf.createRandomAssign(var, $assign::args); }))
+| ({schemaMode}? sv = svar (e = expr[false] { a = tf.createAssignToSchemaVariable(sv, e);} 
+| STAR { a = tf.createRandomAssignToSchemaVariable(sv); }))
 ;
 
 vardecl[boolean programVariable] returns [ VariableDeclaration a ] scope { List<CommonTree> decls; Map<CommonTree, List<CommonTree>> argsorts; } 
@@ -142,6 +142,7 @@ expr[boolean diffAllowed] returns [ Expression pe ] scope { ArrayList<Expression
 
 diff returns [ Dot pe ] scope { ArrayList<Expression> args; int count; } @init { $diff::args = new ArrayList<Expression>(); $diff::count = 1; }:
 ^(DOT (^(w = WORD (arg = expr[false] { $diff::args.add(arg); })*) (DOT {$diff::count++;})* { pe = tf.createDot($diff::count, w, $diff::args); $diff::args.clear(); } ) )
+| ^(DOT (sv = svar) (DOT {$diff::count++;})* { pe = tf.schemaCreateDot(sv, $diff::count); $diff::args.clear(); } )
 ;
 
 /*diffsystemcontent returns [ Formula dsc ]: 
@@ -149,7 +150,7 @@ diff returns [ Dot pe ] scope { ArrayList<Expression> args; int count; } @init {
 | ^(op = brel t = WORD de = expr[true]){ dsc = tf.createDiffSystemContent(op, t, de); }
 ;*/
 
-svar returns [ CommonTree t]: ^(SV w = WORD) { System.out.println("match sv: " + w); t = w; }
+svar returns [ CommonTree t]: ^(SV w = WORD) { t = w; }
 ;
 
 invariant returns [ Formula frm ]:
