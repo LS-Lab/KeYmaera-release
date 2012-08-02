@@ -27,6 +27,7 @@ import de.uka.ilkd.key.dl.model.Assign;
 import de.uka.ilkd.key.dl.model.DLProgramElement;
 import de.uka.ilkd.key.dl.model.Expression;
 import de.uka.ilkd.key.dl.model.ProgramVariable;
+import de.uka.ilkd.key.java.ProgramElement;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.java.reference.ExecutionContext;
 
@@ -48,6 +49,11 @@ public class AssignImpl extends DLNonTerminalProgramElementImpl implements
      *                the value to assign to the variable
      */
     public AssignImpl(ProgramVariable var, Expression value) {
+        addChild(var);
+        addChild(value);
+    }
+    
+    public AssignImpl(ProgramElement var, ProgramElement value) {
         addChild(var);
         addChild(value);
     }

@@ -70,7 +70,10 @@ import de.uka.ilkd.key.logic.op.Function;
 import de.uka.ilkd.key.logic.op.LogicVariable;
 import de.uka.ilkd.key.logic.op.Metavariable;
 import de.uka.ilkd.key.logic.op.Op;
+import de.uka.ilkd.key.logic.op.ProgramSV;
 import de.uka.ilkd.key.logic.op.QuantifiableVariable;
+import de.uka.ilkd.key.logic.op.SchemaVariable;
+import de.uka.ilkd.key.rule.inst.SVInstantiations;
 
 /**
  * Class that is capable of applying a substitution to a DLProgramElement.
@@ -249,6 +252,157 @@ public class ReplaceVisitor {
 
 				for (Formula form : annotations) {
 					newAnnon.add((Formula) convert(form, substitutionMap, tf));
+				}
+
+				result.setDLAnnotation(annotation, newAnnon);
+			}
+		}
+		return result;
+	}
+	/**
+	 * @param childAt
+	 * @param tf
+	 *            TODO
+	 * @param update
+	 * @param protectedVars
+	 * @return
+	 */
+	public static DLProgramElement convert(ProgramElement childAt,
+			SVInstantiations inst, TermFactory tf) {
+		DLProgramElement result = null;
+		if (childAt instanceof SchemaVariable) {
+		    result = (DLProgramElement) inst.getInstantiation((SchemaVariable) childAt);
+		} else if (childAt instanceof Chop) {
+			Chop chop = (Chop) childAt;
+			result = tf.createChop((DLProgram) convert(chop.getChildAt(0),
+					inst, tf), (DLProgram) convert(chop
+					.getChildAt(1), inst, tf));
+		} else if (childAt instanceof Choice) {
+			Choice choice = (Choice) childAt;
+			result = tf.createChoice((DLProgram) convert(choice.getChildAt(0),
+					inst, tf), (DLProgram) convert(choice
+					.getChildAt(1), inst, tf));
+		} else if (childAt instanceof Star) {
+			Star p = (Star) childAt;
+			Star createStar = tf.createStar((DLProgram) convert(
+					p.getChildAt(0), inst, tf));
+			result = createStar;
+		} else if (childAt instanceof Parallel) {
+			Parallel parallel = (Parallel) childAt;
+			result = tf.createParallel((DLProgram) convert(parallel
+					.getChildAt(0), inst, tf), (DLProgram) convert(
+					parallel.getChildAt(1), inst, tf));
+		} else if (childAt instanceof Implies) {
+			CompoundFormula p = (CompoundFormula) childAt;
+			result = tf.createImpl((Formula) convert(p.getChildAt(0),
+					inst, tf), (Formula) convert(p.getChildAt(1),
+					inst, tf));
+		} else if (childAt instanceof Not) {
+			CompoundFormula p = (CompoundFormula) childAt;
+			result = tf.createNot((Formula) convert(p.getChildAt(0),
+					inst, tf));
+		} else if (childAt instanceof And) {
+			CompoundFormula p = (CompoundFormula) childAt;
+			result = tf.createAnd((Formula) convert(p.getChildAt(0),
+					inst, tf), (Formula) convert(p.getChildAt(1),
+					inst, tf));
+		} else if (childAt instanceof Biimplies) {
+			CompoundFormula p = (CompoundFormula) childAt;
+			result = tf.createBiImpl((Formula) convert(p.getChildAt(0),
+					inst, tf), (Formula) convert(p.getChildAt(1),
+					inst, tf));
+		} else if (childAt instanceof Or) {
+			CompoundFormula p = (CompoundFormula) childAt;
+			result = tf.createOr((Formula) convert(p.getChildAt(0),
+					inst, tf), (Formula) convert(p.getChildAt(1),
+					inst, tf));
+		} else if (childAt instanceof PredicateTerm) {
+			PredicateTerm p = (PredicateTerm) childAt;
+			Predicate pred = (Predicate) convert(p.getChildAt(0),
+					inst, tf);
+			List<Expression> children = new ArrayList<Expression>();
+			for (int i = 1; i < p.getChildCount(); i++) {
+				children.add((Expression) convert(p.getChildAt(i),
+						inst, tf));
+			}
+			result = tf.createPredicateTerm(pred, children);
+		} else if (childAt instanceof FunctionTerm) {
+			FunctionTerm p = (FunctionTerm) childAt;
+			de.uka.ilkd.key.dl.model.Function pred = (de.uka.ilkd.key.dl.model.Function) convert(
+					p.getChildAt(0), inst, tf);
+			List<Expression> children = new ArrayList<Expression>();
+			for (int i = 1; i < p.getChildCount(); i++) {
+				children.add((Expression) convert(p.getChildAt(i),
+						inst, tf));
+			}
+			result = tf.createFunctionTerm(pred, children);
+		} else if (childAt instanceof Predicate) {
+			result = (Predicate) childAt;
+		} else if (childAt instanceof de.uka.ilkd.key.dl.model.Function) {
+			result = (de.uka.ilkd.key.dl.model.Function) childAt;
+		} else if (childAt instanceof Constant) {
+			result = (Constant) childAt;
+		} else if (childAt instanceof DiffSystem) {
+			List<Formula> children = new ArrayList<Formula>();
+			for (ProgramElement p : (DiffSystem) childAt) {
+				children.add((Formula) convert(p, inst, tf));
+			}
+			result = tf.createDiffSystem(children);
+		} else if (childAt instanceof Assign) {
+			Assign a = (Assign) childAt;
+			result = tf.createAssign(
+					(de.uka.ilkd.key.dl.model.ProgramVariable) convert(a.getChildAt(0), inst, tf),
+					(Expression) convert(a.getChildAt(1), inst, tf));
+		} else if (childAt instanceof Dot) {
+		    Dot d = (Dot) childAt;
+		    result = tf.createDot(convert(d.getChildAt(0), inst, tf), d.getOrder());
+		} else if (childAt instanceof RandomAssign) {
+			result = (RandomAssign) childAt;
+		} else if (childAt instanceof SchemaVariable) {
+		    result = (DLProgramElement) inst.getInstantiation((SchemaVariable) childAt);
+		} else if (childAt instanceof de.uka.ilkd.key.dl.model.ProgramVariable) {
+			de.uka.ilkd.key.dl.model.ProgramVariable pv = (de.uka.ilkd.key.dl.model.ProgramVariable) childAt;
+			result = pv;
+		} else if (childAt instanceof LogicalVariable) {
+			result = (DLProgramElement) childAt;
+		} else if (childAt instanceof MetaVariable) {
+			result = (MetaVariable) childAt;
+		} else if (childAt instanceof Quest) {
+			result = tf.createQuest((Formula) convert(((Quest) childAt)
+					.getChildAt(0), inst, tf));
+		} else if (childAt instanceof VariableDeclaration) {
+			result = (VariableDeclaration) childAt;
+		} else if (childAt instanceof IfStatement) {
+			IfStatement ifS = (IfStatement) childAt;
+			result = tf.createIf((Formula) convert(ifS.getExpression(),
+					inst, tf), (DLProgram) convert(ifS.getThen(),
+					inst, tf), (ifS.getElse() == null) ? null
+					: (DLProgram) convert(ifS.getElse(), inst, tf));
+		} else if (childAt instanceof Forall || childAt instanceof Exists) {
+			DLNonTerminalProgramElement f = (DLNonTerminalProgramElement) childAt;
+			VariableDeclaration decl = (VariableDeclaration) f.getChildAt(0);
+			Formula form = (Formula) f.getChildAt(1);
+			if (childAt instanceof Forall) {
+				result = tf.createForall(decl, (Formula) convert(form,
+						inst, tf));
+			} else {
+				result = tf.createExists(decl, (Formula) convert(form,
+						inst, tf));
+			}
+		}
+		if (result == null) {
+			throw new IllegalArgumentException("Dont know how to convert: "
+					+ childAt);
+		}
+		if (childAt instanceof DLProgramElement && !(childAt instanceof ProgramSV)) {
+			DLProgramElement el = (DLProgramElement) childAt;
+			for (String annotation : el.getDLAnnotations().keySet()) {
+				final List<Formula> annotations = el
+						.getDLAnnotation(annotation);
+				List<Formula> newAnnon = new ArrayList<Formula>();
+
+				for (Formula form : annotations) {
+					newAnnon.add((Formula) convert(form, inst, tf));
 				}
 
 				result.setDLAnnotation(annotation, newAnnon);

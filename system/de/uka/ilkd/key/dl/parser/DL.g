@@ -229,7 +229,7 @@ var: WORD_DOLLAR | WORD
 type: WORD
 ;
 
-diff: WORD (DOT^)+
+diff: (WORD | {schemaMode}? sv) (DOT^)+
 ;
 
 diffsystem:

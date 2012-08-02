@@ -408,11 +408,11 @@ public abstract class ProgramSVSort extends PrimitiveSort {
     // ---------------DL SORTS -------------------------------
     private static final DLProgramSort DL_PROGRAM_SORT_INSTANCE = new DLProgramSort();
 
-    private static final DLExpressionSort DL_EXPRESSION_SORT_INSTANCE = new DLExpressionSort();
+    public static final DLExpressionSort DL_EXPRESSION_SORT_INSTANCE = new DLExpressionSort();
 
     private static final DLFormulaSort DL_FORMULA_SORT_INSTANCE = new DLFormulaSort();
 
-    private static final DLVariableSort DL_VARIABLE_SORT_INSTANCE = new DLVariableSort();
+    public static final DLVariableSort DL_VARIABLE_SORT_INSTANCE = new DLVariableSort();
 
     public static final DLDiffSystemSort DL_DIFF_SYSTEM_SORT_INSTANCE = new DLDiffSystemSort();
 

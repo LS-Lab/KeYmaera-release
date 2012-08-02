@@ -15,6 +15,7 @@ import java.util.HashMap;
 
 import de.uka.ilkd.key.dl.formulatools.Prog2LogicConverter;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DLChoiceUnwind;
+import de.uka.ilkd.key.dl.rules.metaconstruct.DLDiffAdd;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DLDiffAdjoin;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DLDiffInequalityRewrite;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DLIntroNewAnonUpdateOp;
@@ -223,6 +224,7 @@ public abstract class AbstractMetaOperator extends Op implements MetaOperator {
         public static final DiffInd DIFFIND = new DiffInd();
         public static final AbstractMetaOperator DIFFFIN = new DiffFin();
         public static final AbstractMetaOperator DIFFADJOIN= new DLDiffAdjoin();
+        public static final AbstractMetaOperator DIFFADD= new DLDiffAdd();
         public static final AbstractMetaOperator INVARIANTPART = new DLInvariantPart();
 	public static final AbstractMetaOperator SIMPLIFY = new Simplify();
 	public static final AbstractMetaOperator FULL_SIMPLIFY = new FullSimplify();

@@ -17,6 +17,7 @@
  */
 package de.uka.ilkd.key.rule;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -25,6 +26,13 @@ import java.util.Stack;
 import de.uka.ilkd.key.collection.ImmutableArray;
 import de.uka.ilkd.key.collection.ImmutableMap;
 import de.uka.ilkd.key.collection.DefaultImmutableMap;
+import de.uka.ilkd.key.dl.formulatools.ReplaceVisitor;
+import de.uka.ilkd.key.dl.model.Assign;
+import de.uka.ilkd.key.dl.model.DLProgram;
+import de.uka.ilkd.key.dl.model.DLProgramElement;
+import de.uka.ilkd.key.dl.model.DLStatementBlock;
+import de.uka.ilkd.key.dl.model.DiffSystem;
+import de.uka.ilkd.key.dl.options.DLOptionBean;
 import de.uka.ilkd.key.java.*;
 import de.uka.ilkd.key.java.reference.ExecutionContext;
 import de.uka.ilkd.key.java.visitor.ProgramContextAdder;
@@ -177,7 +185,62 @@ public class SyntacticalReplaceVisitor extends Visitor {
 		 allowPartialReplacement);
 	    trans.start();
 	    result = addContext((StatementBlock)trans.result());
-	} else {
+//	} else if(jb.program() instanceof DLStatementBlock && ((DLStatementBlock) jb.program()).getFirstElement() instanceof Assign) {
+//	    Assign a = (Assign) ((DLStatementBlock) jb.program()).getFirstElement();
+//	    ProgramElement left = a.getChildAt(0);
+//	    ProgramElement right = a.getChildAt(1);
+//	    if(left instanceof SchemaVariable) {
+//	        left = (ProgramElement) svInst.getInstantiation((SchemaVariable) left);
+//	    }
+//	    if(right instanceof SchemaVariable) {
+//	        right = (ProgramElement) svInst.getInstantiation((SchemaVariable) right);
+//	    }
+//            try {
+//                result = new DLStatementBlock(
+//                                de.uka.ilkd.key.dl.model.TermFactory
+//                                        .getTermFactory(
+//                                                DLOptionBean.INSTANCE
+//                                                        .getTermFactoryClass(),
+//                                                services.getNamespaces())
+//                                        .createAssign(left, right));
+//            } catch (InvocationTargetException e) {
+//                // TODO Auto-generated catch block
+//                e.printStackTrace();
+//            } catch (IllegalAccessException e) {
+//                // TODO Auto-generated catch block
+//                e.printStackTrace();
+//            } catch (InstantiationException e) {
+//                // TODO Auto-generated catch block
+//                e.printStackTrace();
+//            } catch (NoSuchMethodException e) {
+//                // TODO Auto-generated catch block
+//                e.printStackTrace();
+//            }
+    	} else if(jb.program() instanceof DLStatementBlock) {
+    	    try {
+                de.uka.ilkd.key.dl.model.TermFactory tf = de.uka.ilkd.key.dl.model.TermFactory
+                        .getTermFactory(
+                                DLOptionBean.INSTANCE.getTermFactoryClass(),
+                                services.getNamespaces());
+                result = new DLStatementBlock(
+                        (Statement) ReplaceVisitor.convert(
+                                (DLProgram) ((DLStatementBlock) jb.program())
+                                        .getFirstElement(), svInst, tf));
+            } catch (InvocationTargetException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (InstantiationException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (NoSuchMethodException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        	    
+        } else {
 	    trans = new ProgramReplaceVisitor(jb.program(),
 					      getServices (),
 					      svInst,

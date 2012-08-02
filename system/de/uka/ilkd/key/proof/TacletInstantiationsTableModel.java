@@ -18,6 +18,7 @@
 package de.uka.ilkd.key.proof;
 
 import java.io.StringReader;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Vector;
 
@@ -69,8 +70,7 @@ public class TacletInstantiationsTableModel extends AbstractTableModel {
     private VariableNamer varNamer;
     /** proposers to ask when instantiating a schema variable */
     private InstantiationProposerCollection instantiationProposers;
-
-
+    
     /** create new data model for tree
      * @param app the TacletApp where to get the necessary entries
      */
@@ -401,6 +401,28 @@ public class TacletInstantiationsTableModel extends AbstractTableModel {
 							new ParserConfig(services, services.getNamespaces()),
 							instantiation, false, true, false);
 			return ((StatementBlock) programBlock.program()).getChildAt(0);
+		} else if (svSort == ProgramSVSort.DL_VARIABLE_SORT_INSTANCE) {
+			// create a new variable with name VariableNamer.parseName(instantiation)
+			String name = VariableNamer.parseName(instantiation).toString();
+    	    NewVarcond nvc = app.taclet().varDeclaredNew(sv);
+    	    if(nvc != null) {
+    			String prefix = name;
+    			int i = 0;
+    			// create a unique name
+    			while(services.getNamespaces().lookup(new Name(name)) != null) {
+    			    name = prefix + "_" + i++;
+    			}
+			// if the variable is fresh it needs to be added using \newprogvars to the namespaces
+    	    }
+            return de.uka.ilkd.key.dl.model.impl.ProgramVariableImpl.getProgramVariable(name, true);
+		} else if (svSort == ProgramSVSort.DL_EXPRESSION_SORT_INSTANCE) {
+			JavaBlock programBlock = services
+					.getProgramBlockProvider()
+					.getProgramBlock(
+							new ParserConfig(services, services.getNamespaces()),
+							"?" + instantiation + " = 0", false, true, false);
+			// get the left expression under the ? and =
+			return ((de.uka.ilkd.key.dl.model.PredicateTerm)((de.uka.ilkd.key.dl.model.Quest)((StatementBlock) programBlock.program()).getChildAt(0)).getChildAt(0)).getChildAt(1);
 		}
 	return null;
     }

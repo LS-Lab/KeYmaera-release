@@ -125,7 +125,7 @@ expr[boolean diffAllowed] returns [ Expression pe ] scope { ArrayList<Expression
 ; 
 
 diff returns [ Dot pe ]: 
-^(DOT (w = WORD { pe = tf.createDot(w); } | m = diff { pe = m; pe = tf.raiseDotCount(pe); }))
+^(DOT ((w = WORD { pe = tf.createDot(w); } | sv = svar { pe = tf.schemaCreateDot(sv); }) | m = diff { pe = m; pe = tf.raiseDotCount(pe); }))
 ;
 
 /*diffsystemcontent returns [ Formula dsc ]: 

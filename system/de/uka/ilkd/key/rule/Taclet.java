@@ -40,6 +40,7 @@ import de.uka.ilkd.key.logic.EqualityConstraint;
 import de.uka.ilkd.key.logic.Name;
 import de.uka.ilkd.key.logic.Named;
 import de.uka.ilkd.key.logic.PosInOccurrence;
+import de.uka.ilkd.key.logic.ProgramElementName;
 import de.uka.ilkd.key.logic.RenameTable;
 import de.uka.ilkd.key.logic.RenamingTable;
 import de.uka.ilkd.key.logic.Semisequent;
@@ -49,6 +50,7 @@ import de.uka.ilkd.key.logic.TermFactory;
 import de.uka.ilkd.key.logic.VariableNamer;
 import de.uka.ilkd.key.logic.Visitor;
 import de.uka.ilkd.key.logic.op.IUpdateOperator;
+import de.uka.ilkd.key.logic.op.LocationVariable;
 import de.uka.ilkd.key.logic.op.LogicVariable;
 import de.uka.ilkd.key.logic.op.Metavariable;
 import de.uka.ilkd.key.logic.op.ModalOperatorSV;
@@ -1475,8 +1477,19 @@ public abstract class Taclet implements Rule, Named {
                                     MatchConditions matchCond) {
         ImmutableList<RenamingTable> renamings = ImmutableSLList.<RenamingTable>nil();
 	for (final SchemaVariable sv : pvs) {
-	    ProgramVariable inst
-		= (ProgramVariable)matchCond.getInstantiations ().getInstantiation(sv);
+	    Object in = matchCond.getInstantiations ().getInstantiation(sv);
+        ProgramVariable inst;
+        if (in instanceof ProgramVariable) {
+            inst = (ProgramVariable) in;
+        } else if (in instanceof de.uka.ilkd.key.dl.model.ProgramVariable) {
+            inst = new LocationVariable(new ProgramElementName(
+                    ((de.uka.ilkd.key.dl.model.ProgramVariable) in)
+                            .getElementName().toString()),
+                    sv.sort(new Term[0]));
+        } else {
+            throw new IllegalArgumentException("Cannot deal with type "
+                    + in.getClass());
+        }
 	    final VariableNamer vn = services.getVariableNamer();
 	    inst = vn.rename(inst, goal, posOfFind);
             final RenamingTable rt = 

@@ -40,6 +40,7 @@ import de.uka.ilkd.key.dl.model.Chop;
 import de.uka.ilkd.key.dl.model.Comparsion;
 import de.uka.ilkd.key.dl.model.Constant;
 import de.uka.ilkd.key.dl.model.DLProgram;
+import de.uka.ilkd.key.dl.model.DLProgramElement;
 import de.uka.ilkd.key.dl.model.Diamond;
 import de.uka.ilkd.key.dl.model.DiffSystem;
 import de.uka.ilkd.key.dl.model.Dot;
@@ -73,6 +74,7 @@ import de.uka.ilkd.key.dl.model.Unequals;
 import de.uka.ilkd.key.dl.model.Variable;
 import de.uka.ilkd.key.dl.model.VariableDeclaration;
 import de.uka.ilkd.key.dl.model.VariableType;
+import de.uka.ilkd.key.java.ProgramElement;
 import de.uka.ilkd.key.logic.Name;
 import de.uka.ilkd.key.logic.Named;
 import de.uka.ilkd.key.logic.NamespaceSet;
@@ -314,7 +316,14 @@ public class TermFactoryImpl extends TermFactory {
 	public Dot createDot(CommonTree t) {
 		return new DotImpl(createProgramVariable(t.getText()));
 	}
+	
+    public Dot createDot(DLProgramElement convert, int order) {
+        return new DotImpl(convert, order);
+    }
 
+	public Dot schemaCreateDot(CommonTree t) {
+		return new DotImpl(schemaProgramSV(t));
+	}
 	/**
 	 * Creates a program variable if necessary or returns a cached one.
 	 * 
@@ -362,6 +371,10 @@ public class TermFactoryImpl extends TermFactory {
 	 */
 	public Assign createAssign(CommonTree t, Expression e) {
 		return new AssignImpl(createProgramVariable(t.getText()), e);
+	}
+	
+	public Assign createAssign(ProgramElement left, ProgramElement right) {
+		return new AssignImpl(left, right);
 	}
 
 	/**
