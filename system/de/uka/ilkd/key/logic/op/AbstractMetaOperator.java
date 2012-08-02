@@ -229,7 +229,6 @@ public abstract class AbstractMetaOperator extends Op implements MetaOperator {
 	public static final AbstractMetaOperator SIMPLIFY = new Simplify();
 	public static final AbstractMetaOperator FULL_SIMPLIFY = new FullSimplify();
 	public static final AbstractMetaOperator REDUCE = new Reduce();
-	public static final AbstractMetaOperator UNWIND_LOOP = new DLUnwindLoop();
 	public static final AbstractMetaOperator DL_INV_LOOP = new DLIntroNewAnonUpdateOp();
 	public static final DLUniversalClosureOp DL_UNIVERSAL_CLOSURE = new DLUniversalClosureOp();
 

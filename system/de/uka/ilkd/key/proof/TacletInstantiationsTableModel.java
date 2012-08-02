@@ -423,6 +423,15 @@ public class TacletInstantiationsTableModel extends AbstractTableModel {
 							"?" + instantiation + " = 0", false, true, false);
 			// get the left expression under the ? and =
 			return ((de.uka.ilkd.key.dl.model.PredicateTerm)((de.uka.ilkd.key.dl.model.Quest)((StatementBlock) programBlock.program()).getChildAt(0)).getChildAt(0)).getChildAt(1);
+		} else if(svSort == ProgramSVSort.DL_FORMULA_SORT_INSTANCE) {
+			JavaBlock programBlock = services
+					.getProgramBlockProvider()
+					.getProgramBlock(
+							new ParserConfig(services, services.getNamespaces()),
+							"?" + instantiation, false, true, false);
+			// get the left expression under the ?
+			return ((de.uka.ilkd.key.dl.model.Quest)((StatementBlock) programBlock.program()).getChildAt(0)).getChildAt(0);
+		    
 		}
 	return null;
     }

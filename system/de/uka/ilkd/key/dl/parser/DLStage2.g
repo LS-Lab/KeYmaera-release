@@ -100,10 +100,10 @@ LESS { bo = tf.createLess(); }
 ;
 
 assign returns [ DLProgram a ]: 
-var = WORD (e = expr[false] { a = tf.createAssign(var, e); }
-| STAR { a = tf.createRandomAssign(var); })
+(var = WORD (e = expr[false] { a = tf.createAssign(var, e); }
+| STAR { a = tf.createRandomAssign(var); }))
 | {schemaMode}? sv = svar (e = expr[false] { a = tf.createAssignToSchemaVariable(sv, e);} 
-| STAR { a = tf.createRandomAssignToSchemaVariable(var); })
+| STAR { a = tf.createRandomAssignToSchemaVariable(sv); })
 ;
 
 vardecl[boolean programVariable] returns [ VariableDeclaration a ] scope { List<CommonTree> decls; } @init { $vardecl::decls = new ArrayList<CommonTree>(); }: 
