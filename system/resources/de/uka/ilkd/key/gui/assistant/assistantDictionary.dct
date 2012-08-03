@@ -1,4 +1,21 @@
 [rules]
+eliminate_variable_decl = "Through away the variable declarations. They are mainly for parsing purposes."
+
+generalisation = "The <b>generalization</b> allows for characterizing the reachable states of a program by a stronger formula."
+
+seq_comp_generalisation = "The <b>sequential generalization</b> allows for characterizing the reachable states of the first part of a sequential program by a stronger formula."
+
+assignment_to_update_left = "The <b>:=</b> rule symbolically executes the assignments."
+
+assignment_to_update_right = "The <b>:=</b> rule symbolically executes the assignments."
+
+ODEDNF_left = "The <b>ODE to DNF</b> rule transforms a system of differential constraints into disjunctive normal form."
+ODEDNF_right = "The <b>ODE to DNF</b> rule transforms a system of differential constraints into disjunctive normal form."
+
+ODESolve_left = "The <b>ODE solve</b> rule replaces the continuous evolution by a formula that asserts for every possible evolution time that the value of the solution of the differential equation at that point in time satisfies the post condition. (Under the assumption that the solution satisfied the evolution domain constraint the up until this point.)"
+
+ODESolve_right = "The <b>ODE solve</b> rule replaces the continuous evolution by a formula that asserts for every possible evolution time that the value of the solution of the differential equation at that point in time satisfies the post condition. (Under the assumption that the solution satisfied the evolution domain constraint the up until this point.)"
+
 andLeft  = "Here could stand your slogan. Edit <tt>assistantDictionary.dct</tt>"
 andRight = "Splitting goals is fun."
 
@@ -31,6 +48,19 @@ Groeber_Basis = "<p>The <b>Groebner Basis</b> rule checks whether the current se
 
 Eliminate_Existential_Quantifiers = "<p>The <b>Eliminate Existential Quantifiers</b> rule reintroduces the existential quantifiers that where replaced by <tt>MetaVariables</tt> by the all_left or ex_right rules and merges, in the progress, all branches where these variables occur into a single formula. Afterwards a quantifier elimination procedure is applied to determine whether the resuling formula is valid.</p>"
 
+Sum_of_Squares = "<p>The <b>Sum of Squares</b> rule tries to proof that the current sequent is a universal sentence using Stengle's Positivstellensatz based on an encoding provided by Parrilo in 2003.</p>" 
+
+loop_unwind_box = "This rule unwinds a loop exactly once. This is, it replaces <tt>\\[a*\\]F</tt> by <tt>F & \\[a\\]\\[a*\\]F</tt>, meaning that the post condition holds in the current state and in all states reachable by executing the loop body at least once."
+loop_unwind_dia = "This rule unwinds a loop exactly once. This is, it replaces <tt>\\&lt;a*\\&gt;F</tt> by <tt>F | \\&lt;a\\&gt;\\&lt;a*\\&gt;</tt>, meaning that either F has to already hold or it has to hold after one or more iterations of the loop."
+
+box_choice_right = "The rule <b>box_choice</b> is used to split a modality with a program of the form <tt>a ++ b</tt> into two sub branches. On one branch the goal is to show that if <tt>a</tt> was chosen the post condition holds, on the other if the choice was <tt>b</tt>."
+
+box_choice_left = "The rule <b>box_choice</b> is used to split a modality with a program of the form <tt>a ++ b</tt> into two sub branches. On one branch the goal is to show that if <tt>a</tt> was chosen the post condition holds, on the other if the choice was <tt>b</tt>."
+
+dia_choice_right = "The rule <b>dia_choice</b> is used to split a modality with a program of the form <tt>a ++ b</tt> into two sub branches. On one branch the goal is to show that if <tt>a</tt> was chosen the post condition holds, on the other if the choice was <tt>b</tt>."
+
+dia_choice_left = "The rule <b>dia_choice</b> is used to split a modality with a program of the form <tt>a ++ b</tt> into two sub branches. On one branch the goal is to show that if <tt>a</tt> was chosen the post condition holds, on the other if the choice was <tt>b</tt>."
+
 all_left  =  "You selected the rule all_left. Most definitely, you will not need to enter an instantiation. Just press Apply. If you really want to provide an instantiation, you can also apply this rule via drag and drop, just drag the quantified formula on the term you want it to instantiate with."
 ex_right  =  "You selected the rule ex_right. Most definitely, you will not need to enter an instantiation. Just press Apply. If you really want to provide an instantiation, you can also apply this rule via drag and drop, just drag the quantified formula on the term you want it to instantiate with."
 
@@ -58,7 +88,6 @@ cut_direct_l = "The rule <b>cut_direct_l</b> is rather useless. You may looking 
 methodCall = "You have executed a method call. The if cascade is used to resolve the dynamical binding of methods."
 methodCallWithAssignment = "You have executed a method call. The if-cascade is used to resolve the dynamical binding of methods."
 
-loopUnwind = "This rule unwinds a loop exactly once."
 
 whileInvBox = "When you have annotated the loop invariant in the source code, you do not need to enter the invariant manually. Further you can then set the strategy option 'Loop Treatment' to 'Invariant', which causes the invariant rule to be applied automatically." 
 whileInvDiamond = "When you have annotated the loop invariant in the source code, you do not need to enter the invariant manually. Using this rule will most probably urge you to do an induction. It is often easier to use a variant (non-negative, steady decreasing expression), so you should consider using the rule 'whileInvDiamondDec' instead." 
