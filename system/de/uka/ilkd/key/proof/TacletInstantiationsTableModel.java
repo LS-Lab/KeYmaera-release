@@ -25,6 +25,7 @@ import java.util.Vector;
 import javax.swing.table.AbstractTableModel;
 
 import de.uka.ilkd.key.dl.DLProfile;
+import de.uka.ilkd.key.dl.logic.ldt.RealLDT;
 import de.uka.ilkd.key.gui.Main;
 import de.uka.ilkd.key.collection.ImmutableList;
 import de.uka.ilkd.key.collection.ImmutableSLList;
@@ -414,7 +415,9 @@ public class TacletInstantiationsTableModel extends AbstractTableModel {
     			}
 			// if the variable is fresh it needs to be added using \newprogvars to the namespaces
     	    }
-            return de.uka.ilkd.key.dl.model.impl.ProgramVariableImpl.getProgramVariable(name, true);
+    	    // FIXME: RealLDT.getRealSort() is hardcoded here...
+            return new LocationVariable(new ProgramElementName(name), RealLDT.getRealSort());
+//            return de.uka.ilkd.key.dl.model.impl.ProgramVariableImpl.getProgramVariable(name, true);
 		} else if (svSort == ProgramSVSort.DL_EXPRESSION_SORT_INSTANCE) {
 			JavaBlock programBlock = services
 					.getProgramBlockProvider()

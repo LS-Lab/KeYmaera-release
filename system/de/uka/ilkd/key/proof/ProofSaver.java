@@ -35,6 +35,7 @@ import de.uka.ilkd.key.logic.PosInTerm;
 import de.uka.ilkd.key.logic.Sequent;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.op.Metavariable;
+import de.uka.ilkd.key.logic.op.Modality;
 import de.uka.ilkd.key.logic.op.SchemaVariable;
 import de.uka.ilkd.key.pp.LogicPrinter;
 import de.uka.ilkd.key.pp.NotationInfo;
@@ -500,8 +501,12 @@ public class ProofSaver {
             else 
                 if (val==null){
                     return null;
+                } if(val instanceof Modality) {
+                    // just print the name of the modality
+                    return val.toString();
                 }
                 else {
+                    new Exception().printStackTrace();
                     System.err.println("Don't know how to prettyprint "+val.getClass());
                     // try to String by chance
                     return val.toString();

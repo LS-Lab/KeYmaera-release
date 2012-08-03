@@ -66,6 +66,7 @@ astat returns [ DLProgram pe ] :
 | ^(ASSIGN as = assign { pe = as; } (annotation[pe])*)
 | ^(DIFFSYSTEM dsc = form[true] { $stat::params.add(dsc); } (d = form[true] { $stat::params.add(d); })* { pe = tf.createDiffSystem($stat::params); $stat::params.clear(); } (annotation[pe])*)
 | ^(VARDEC dec = vardecl[true] { pe = dec; } (annotation[pe])*)
+| ^(SVARDEC w = WORD sv = svar { pe = tf.schemaCreateVariableDeclaration(w, sv); } (annotation[pe])*)
 | ^(IF frm = form[false] st = stat (st2 = stat)? { pe = tf.createIf(frm, st, st2); } (annotation[pe])*)
 | ^(WHILE frm = form[false] st = stat { DLProgram star = tf.createStar(tf.createChop(tf.createQuest(frm), st)); pe = tf.createChop(star, tf.createQuest(tf.createNot(frm)));} (annotation[star])*) 
 | {schemaMode}? sv = svar { pe = tf.schemaProgramVariable(sv); }

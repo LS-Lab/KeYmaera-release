@@ -371,6 +371,9 @@ public abstract class TermFactory implements Serializable {
      */
     public abstract VariableDeclaration createVariableDeclaration(
             CommonTree type, List<CommonTree> var, boolean programVariable);
+    
+    public abstract VariableDeclaration schemaCreateVariableDeclaration(
+            CommonTree type, CommonTree sv);
 
     /**
      * Creates a new representation for a variable declaration

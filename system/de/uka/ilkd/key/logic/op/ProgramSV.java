@@ -589,8 +589,7 @@ public class ProgramSV extends SortedSchemaVariable implements
      * @see de.uka.ilkd.key.dl.NamedElement#getElementName()
      */
     public Name getElementName() {
-        throw new UnsupportedOperationException(
-                "This Operation is not supported!");
+        return new Name(getName());
     }
 
     /*

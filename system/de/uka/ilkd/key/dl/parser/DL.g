@@ -146,6 +146,7 @@ whileSym: WHILE^ LPAREN! form[false] RPAREN! stat (ELIHW!|END!)
 ;
 
 vardec: (type var (COMMA var)*) -> ^(VARDEC type var*)
+| {schemaMode}? (type sv) -> ^(SVARDEC type sv) 
 ;
 
 ifThenElse: IF^ LPAREN! form[false] RPAREN! THEN! stat (ELSE! stat)? (FI!|END!)
@@ -246,6 +247,7 @@ FALSE		: 'false' ;
 SV		: '#' ;
 //INVARIANT: '@invariant' ;
 VARDEC	: '@decl@';
+SVARDEC	: '@svdecl@';
 DIFFSYSTEM : '@DIFFSYSTEM@';
 ANNOTATION : '@';
 NOT		: '!' ;
