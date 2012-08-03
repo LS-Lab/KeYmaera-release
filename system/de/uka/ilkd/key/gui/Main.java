@@ -187,7 +187,7 @@ public class Main extends JFrame implements IMain {
     private UnitTestGeneratorGui unitKeY;
     
     /** the user constraint view */
-    private UserConstraintView userConstraintView = null;
+    //private UserConstraintView userConstraintView = null;
     
     /** the rule view */
     private RuleView ruleView = null;
@@ -196,7 +196,7 @@ public class Main extends JFrame implements IMain {
     private StrategySelectionView strategySelectionView = null;
     
     /** the current user constraint */
-    private ConstraintTableModel userConstraint = null;
+    //private ConstraintTableModel userConstraint = null;
     
     /** contains a list of all proofs */
     private JScrollPane proofListView;
@@ -431,8 +431,8 @@ public class Main extends JFrame implements IMain {
             proofView.updateUI();
         if (openGoalsView != null)
             openGoalsView.updateUI();
-        if (userConstraintView != null)
-            userConstraintView.updateUI();
+        /*if (userConstraintView != null)
+            userConstraintView.updateUI();*/
         if (ruleView != null)
             ruleView.updateUI();
         if (proofListView != null)
@@ -543,10 +543,13 @@ public class Main extends JFrame implements IMain {
 	openGoalsView = new JScrollPane();
 	paintEmptyViewComponent(openGoalsView, "Open Goals");
 
+	/*
+	// the userConstraintView is currently not used in KeYmaera
 	userConstraintView = new UserConstraintView ();
 	if ( mediator != null ) {
 	    userConstraintView.setMediator(mediator);
 	}
+	*/
 
 	strategySelectionView = new StrategySelectionView();
 	if ( mediator != null ) {
@@ -666,8 +669,11 @@ public class Main extends JFrame implements IMain {
         
         addTab("Goals", openGoalsView, "The currently open goals");
         
+        /*
+        // the userConstraintView is currently not used in KeYmaera
         tabbedPane.addTab("User Constraint", null, userConstraintView,
         "Currently chosen metavariable instantiations");
+        */
         
         tabbedPane.addTab("Proof Search Strategy", null, strategySelectionView,
         "Select strategy for automated proof search");
@@ -1145,7 +1151,7 @@ public class Main extends JFrame implements IMain {
                         .func_ns());
             }
             mediator().getSelectedProof().updateProof();
-            userConstraintView.updateTableDisplay(); // %%% HACK
+            //userConstraintView.updateTableDisplay(); // %%% HACK
         }
         
     }
@@ -2487,7 +2493,7 @@ public class Main extends JFrame implements IMain {
                 Main.this.goalView.setEnabled(false);
                 Main.this.proofView.setEnabled(false);
                 Main.this.openGoalsView.setEnabled(false);
-                Main.this.userConstraintView.setEnabled(false);
+                //Main.this.userConstraintView.setEnabled(false);
                 Main.this.strategySelectionView.setEnabled(false);
                 Main.this.ruleView.setEnabled(false);
                 setToolBarDisabled();
@@ -2505,7 +2511,7 @@ public class Main extends JFrame implements IMain {
                 Main.this.goalView.setEnabled(true);
                 Main.this.proofView.setEnabled(true);
                 Main.this.openGoalsView.setEnabled(true);
-                Main.this.userConstraintView.setEnabled(true);
+                //Main.this.userConstraintView.setEnabled(true);
                 Main.this.strategySelectionView.setEnabled(true);
                 Main.this.ruleView.setEnabled(true);
                 setToolBarEnabled();
@@ -2585,6 +2591,7 @@ public class Main extends JFrame implements IMain {
             disableCurrentGoalView = false;	    
             goalView.setViewportView(null);
             
+            /*
             if ( userConstraint != null )
                 userConstraint
                 .removeConstraintTableListener ( constraintListener );
@@ -2592,14 +2599,12 @@ public class Main extends JFrame implements IMain {
             userConstraint = (proof != null) ? proof.getUserConstraint() :
                 null;
             
+            
             if ( userConstraint != null )
                 userConstraint
                 .addConstraintTableListener ( constraintListener );
+            */
             setProofNodeDisplay();
-            if(!(mediator.getProfile() instanceof DLProfile)) {
-            	dpSettingsListener.settingsChanged(new GUIEvent((proof != null ? 
-            			proof.getSettings() : ProofSettings.DEFAULT_SETTINGS).getDecisionProcedureSettings()));
-            }
             makePrettyView();
         }
         
