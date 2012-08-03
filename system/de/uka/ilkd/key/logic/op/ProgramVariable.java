@@ -10,12 +10,17 @@
 package de.uka.ilkd.key.logic.op;
 
 import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
+import de.uka.ilkd.key.dl.model.Formula;
 import de.uka.ilkd.key.java.*;
 import de.uka.ilkd.key.java.abstraction.ArrayType;
 import de.uka.ilkd.key.java.abstraction.KeYJavaType;
 import de.uka.ilkd.key.java.abstraction.Type;
 import de.uka.ilkd.key.java.reference.*;
+import de.uka.ilkd.key.logic.Name;
 import de.uka.ilkd.key.logic.ProgramElementName;
 import de.uka.ilkd.key.logic.ProgramInLogic;
 import de.uka.ilkd.key.logic.Term;
@@ -27,8 +32,10 @@ import de.uka.ilkd.key.util.ExtList;
 public abstract class ProgramVariable extends TermSymbol 
     implements SourceElement, ProgramElement, Expression, 
 	       ReferencePrefix, IProgramVariable, ParsableVariable, ReferenceSuffix, 
-	       ProgramInLogic {
+	       ProgramInLogic, de.uka.ilkd.key.dl.model.ProgramVariable {
 
+    private Map<String, List<Formula>> annotations = new LinkedHashMap<String, List<Formula>>();
+    
     // attention: this counter is used to get a unique variable name, once the
     // names are unique the counter should be removed %%%%
     private static long COUNTER = 0;
@@ -280,4 +287,53 @@ public abstract class ProgramVariable extends TermSymbol
             return null;
         }     
     }
+    
+     /* (non-Javadoc)
+     * @see de.uka.ilkd.key.dl.model.DLProgramElement#setDLAnotation(java.lang.String, java.lang.String)
+     */
+    /*@Override*/
+    public void setDLAnnotation(String key, List<Formula> value) {
+        annotations.put(key, value);
+    }
+    
+    /* (non-Javadoc)
+     * @see de.uka.ilkd.key.dl.model.DLProgramElement#getDLAnotation(java.lang.String)
+     */
+    /*@Override*/
+    public List<Formula> getDLAnnotation(String key) {
+        return annotations.get(key);
+    }
+    
+    /* (non-Javadoc)
+     * @see de.uka.ilkd.key.dl.model.DLProgramElement#getDLAnotation(java.lang.String)
+     */
+    /*@Override*/
+    public boolean containsDLAnnotation(String key) {
+        return annotations.containsKey(key);
+    }
+
+    /* (non-Javadoc)
+     * @see de.uka.ilkd.key.dl.model.DLProgramElement#getDLAnnotations()
+     */
+    /*@Override*/
+    public Map<String, List<Formula>> getDLAnnotations() {
+        return annotations;
+    }
+    /*@Override*/
+    public void setDLAnnotations(Map<String, List<Formula>> annotations) {
+        this.annotations.clear();
+        this.annotations.putAll(annotations);
+    }
+    
+    /* (non-Javadoc)
+     * @see de.uka.ilkd.key.dl.model.NamedElement#getElementName()
+     */
+    @Override
+    public Name getElementName() {
+        return name();
+    }
+    
+    public String reuseSignature(Services services, ExecutionContext ec) {
+        return name().toString();
+    };
 }

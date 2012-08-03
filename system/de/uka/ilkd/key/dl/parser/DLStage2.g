@@ -68,6 +68,7 @@ astat returns [ DLProgram pe ] :
 | ^(QUEST frm = form[false] { pe = tf.createQuest(frm); } (annotation[pe])*)
 | (pelem = asordiffsys { pe = pelem; })
 | ^(VARDEC dec = vardecl[true] { pe = dec; } (annotation[pe])*)
+| ^(SVARDEC w = WORD sv = svar { pe = tf.schemaCreateVariableDeclaration(w, sv); } (annotation[pe])*)
 | ^(IF frm = form[false] st = stat (st2 = stat)? { pe = tf.createIf(frm, st, st2); } (annotation[pe])*)
 | ^(WHILE frm = form[false] st = stat { DLProgram star = tf.createStar(tf.createChop(tf.createQuest(frm), st)); pe = tf.createChop(star, tf.createQuest(tf.createNot(frm)));} (annotation[star])*) 
 | ^(FORALL ^(VARDEC decl = vardecl[false]) aod = asordiffsys { pe = tf.createQuantified(decl, aod); })

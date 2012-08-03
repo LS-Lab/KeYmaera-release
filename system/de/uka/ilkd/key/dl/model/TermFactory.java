@@ -292,7 +292,7 @@ public abstract class TermFactory implements Serializable {
      *                the value of the variable
      * @return the assign statement
      */
-	public abstract Assign createAssign(CommonTree t, List<Expression> args, Expression e);
+    public abstract Assign createAssign(CommonTree t, List<Expression> args, Expression e);
     
     public abstract Assign createAssign(ProgramElement left, ProgramElement right);
 
@@ -596,9 +596,6 @@ public abstract class TermFactory implements Serializable {
      */
     public abstract Assign createAssign(ProgramVariable expression,
             Expression expression2);
-    
-    public abstract Assign createAssign(FunctionTerm expression,
-            Expression expression2);
 
     /**
      * Create a constant for the given value.
@@ -674,13 +671,15 @@ public abstract class TermFactory implements Serializable {
 	public abstract VariableDeclaration createVariableDeclaration(Sort type,
 			List<Variable> decls);
 
-	
-	public abstract Quantified createQuantified(VariableDeclaration decl, DLProgram statement);
     /**
      * @param convert
      * @param order
      * @return
      */
     public abstract Dot createDot(DLProgramElement convert, int order);
+    
+    public abstract Quantified createQuantified(VariableDeclaration decl, DLProgram statement);
+    
+	public abstract VariableDeclaration schemaCreateVariableDeclaration(CommonTree type, CommonTree sv);
 
 }

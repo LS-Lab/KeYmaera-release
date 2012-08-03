@@ -69,6 +69,7 @@ import de.uka.ilkd.key.logic.op.LocationVariable;
 import de.uka.ilkd.key.logic.op.LogicVariable;
 import de.uka.ilkd.key.logic.op.Metavariable;
 import de.uka.ilkd.key.logic.op.NonRigidFunctionLocation;
+import de.uka.ilkd.key.logic.op.ProgramVariable;
 import de.uka.ilkd.key.logic.sort.Sort;
 import de.uka.ilkd.key.rule.inst.SVInstantiations;
 
@@ -275,6 +276,7 @@ public class Prog2LogicConverter extends AbstractMetaOperator {
 						dotReplacementmap);
 				sorts[i-1] = subTerms[i - 1].sort();
 			}
+
 			return termBuilder
 					.func(getFunction(((NamedElement) p.getChildAt(0))
 							.getElementName(), services.getNamespaces(),
@@ -369,7 +371,9 @@ public class Prog2LogicConverter extends AbstractMetaOperator {
 		} else if (form instanceof Variable) {
 			Variable vform = (Variable) form;
 			Name elementName = vform.getElementName();
-			if (form instanceof de.uka.ilkd.key.dl.model.ProgramVariable) {
+			if (form instanceof de.uka.ilkd.key.logic.op.ProgramVariable) {
+			    return termBuilder.var((de.uka.ilkd.key.logic.op.ProgramVariable)form);
+			} else if (form instanceof de.uka.ilkd.key.dl.model.ProgramVariable) {
 				de.uka.ilkd.key.logic.op.ProgramVariable var = getCorresponding(
 						(de.uka.ilkd.key.dl.model.ProgramVariable) vform,
 						services);
@@ -431,6 +435,9 @@ public class Prog2LogicConverter extends AbstractMetaOperator {
 	 */
 	public static de.uka.ilkd.key.logic.op.ProgramVariable getCorresponding(
 			de.uka.ilkd.key.dl.model.ProgramVariable form, Services services) {
+	    if(form instanceof de.uka.ilkd.key.logic.op.ProgramVariable) {
+	        return (ProgramVariable) form;
+	    }
 		// @todo assert namespaces.unique because of dangerous name equality
 		de.uka.ilkd.key.logic.op.ProgramVariable var = (de.uka.ilkd.key.logic.op.ProgramVariable) services
 				.getNamespaces().programVariables().lookup(

@@ -364,7 +364,8 @@ public class TermFactoryImpl extends TermFactory {
 		}
 		if (getNamespaces().programVariables().lookup(new Name(name)) != null) {
 			assert getNamespaces().variables().lookup(new Name(name)) == null;
-			return ProgramVariableImpl.getProgramVariable(name, true);
+			return (ProgramVariable) getNamespaces().programVariables().lookup(new Name(name));
+//			return ProgramVariableImpl.getProgramVariable(name, true);
 		} else {
 			throw new IllegalStateException("ProgramVariable " + name
 					+ " is not declared.");
@@ -799,8 +800,10 @@ public class TermFactoryImpl extends TermFactory {
     							new LocationVariable(new ProgramElementName(var
     									.getText()), sort));
     				}
-    				variables.add(ProgramVariableImpl.getProgramVariable(var
-    						.getText(), true));
+//					variables.add(ProgramVariableImpl.getProgramVariable(var
+//						.getText(), true));
+					variables.add((Variable) getNamespaces().programVariables().lookup(
+                        new Name(var.getText())));
 			    } else {
 			        // we are declaring a non-rigid function symbol
                     if (getNamespaces().functions().lookup(
@@ -870,8 +873,10 @@ public class TermFactoryImpl extends TermFactory {
 												.getRealSort()));
 					}
 				}
-				variables
-						.add(ProgramVariableImpl.getProgramVariable(var, true));
+//				variables
+//						.add(ProgramVariableImpl.getProgramVariable(var, true));
+				variables.add((Variable) getNamespaces().programVariables().lookup(
+                        new Name(var)));
 			} else {
 				if (fresh) {
 					assert getNamespaces().programVariables().lookup(
@@ -899,6 +904,12 @@ public class TermFactoryImpl extends TermFactory {
 			List<Variable> decls) {
 		return new VariableDeclarationImpl(VariableTypeImpl
 				.getVariableType(type.name()), decls);
+	}
+	
+	public VariableDeclaration schemaCreateVariableDeclaration(CommonTree type,
+			CommonTree sv) {
+		return new VariableDeclarationImpl(VariableTypeImpl
+				.getVariableType(type.getText()), schemaProgramSV(sv));
 	}
 
 	/*
