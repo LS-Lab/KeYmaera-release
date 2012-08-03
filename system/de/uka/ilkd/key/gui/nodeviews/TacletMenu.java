@@ -333,7 +333,9 @@ class TacletMenu extends JMenu {
                 @Override
                 public void stateChanged(ChangeEvent e) {
                     MenuElement[] selectedPath = MenuSelectionManager.defaultManager().getSelectedPath();
-                    if(selectedPath.length > 0 && selectedPath[selectedPath.length - 1] == item) {
+                    // the item can be connected to no rule if it is used to insert a hidden formula or
+                    // was otherwise introduced by a taclet
+                    if(selectedPath.length > 0 && selectedPath[selectedPath.length - 1] == item && item.connectedTo() != null) {
                         ProofAssistantController proofAssistantController = Main.getInstance().getProofAssistantController();
                         AIAction analyze = proofAssistantController
                                 .getAssistantAI()
