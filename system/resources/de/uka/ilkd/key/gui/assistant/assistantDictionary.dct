@@ -2,11 +2,37 @@
 andLeft  = "Here could stand your slogan. Edit <tt>assistantDictionary.dct</tt>"
 andRight = "Splitting goals is fun."
 
+and_right = "Splitting goals is fun."
+
 orLeft   =  "Here could stand your slogan. Edit <tt>assistantDictionary.dct</tt>"
 orRight  =  "Alpha rules are boring, am I right?"
 
-all_left  =  "You applied rule all_left. Most definitely, you will not need to enter an instantiation. Just press Apply. If you really want to provide an instantiation, you can also apply this rule via drag and drop, just drag the quantified formula on the term you want it to instantiate with."
-ex_right  =  "You applied rule ex_right. Most definitely, you will not need to enter an instantiation. Just press Apply. If you really want to provide an instantiation, you can also apply this rule via drag and drop, just drag the quantified formula on the term you want it to instantiate with."
+modality_split_right = "Split modality along sequential composition (;)."
+modality_split_left = "Split modality along sequential composition (;)."
+
+box_quest_left = "Tests are assertions on the current program state."
+box_quest_right = "Tests are assertions on the current program state."
+
+diamond_quest_left = "Tests are assertions on the current program state."
+diamond_quest_right = "Tests are assertions on the current program state."
+
+loop_inv_box_quan = "You are facing a loop. Try finding a loop invariant, i.e. a first order characterization of what the effect of the loop is."
+
+loop_var_dia = "You are facing a loop. Try finding a loop invariant, i.e. a first order characterization of what the effect of the loop is.<br>
+				As the loop is occurred in a diamond you also have to show progress."
+
+intro_aux = "This rule let's you introduce <b>auxilary</b> variables. This can be useful for example if you need to access initial values in invariants or variants."
+
+Eliminate_Universal_Quantifiers = "<p>Eliminate universal quantifiers is the <b>most important rule of all!</b><br> This rule is used to eliminate universal quantifiers. This rule assumes <b>all</b> variables in the sequent to be universally quantified and thus checks whether the current sequent is a universal sentence and the goal can be closed.</p><p>Further note, that this rule ignores all formulas in the sequent that do still contain modalities, updates, or substitutions.</p>"
+
+Find_Counterexample = "<p>If you assume that the current goal is not a universal sentence, you can use this rule to try to find a <b>numeric counter example</b></p><p>Such a counter example might make it easier to get an idea of what is actually going on in your system.</p>"
+
+Groeber_Basis = "<p>The <b>Groebner Basis</b> rule checks whether the current sequent has a constant groebner basis and is thus a universal sentence.</p><p>The goal of this rule are thus similar to that of the Eliminate Universal Quantifiers rule, but the methods used are different."
+
+Eliminate_Existential_Quantifiers = "<p>The <b>Eliminate Existential Quantifiers</b> rule reintroduces the existential quantifiers that where replaced by <tt>MetaVariables</tt> by the all_left or ex_right rules and merges, in the progress, all branches where these variables occur into a single formula. Afterwards a quantifier elimination procedure is applied to determine whether the resuling formula is valid.</p>"
+
+all_left  =  "You selected the rule all_left. Most definitely, you will not need to enter an instantiation. Just press Apply. If you really want to provide an instantiation, you can also apply this rule via drag and drop, just drag the quantified formula on the term you want it to instantiate with."
+ex_right  =  "You selected the rule ex_right. Most definitely, you will not need to enter an instantiation. Just press Apply. If you really want to provide an instantiation, you can also apply this rule via drag and drop, just drag the quantified formula on the term you want it to instantiate with."
 
 allLeftHide = "The quantified formula has been hidden. Add it to the sequent again by applying rule 'insertHidden'. You can also apply this rule via drag and drop, just drag the quantified formula on the term you want it to instantiate with."
 exRightHide = "The quantified formula has been hidden. Add it to the sequent again by applying rule 'insertHidden'. You can also apply this rule via drag and drop, just drag the quantified formula on the term you want it to instantiate with."
@@ -25,14 +51,14 @@ applyEq = "Alternatively you can drag and drop the equation on the term you want
 make_insert_eq = "Alternatively, you can click on the term where you want to apply the equation and use rule <tt>apply_eq</tt>"
 make_insert_eq_nonrigid = "Alternatively, you can click on the term where you want to apply the equation and use rule <tt>apply_eq</tt>"
 
-cut_direct_r = "This rule is rather useless. You may looking for rule <tt>cut</tt> which can be found by clicking on the sequent arrow."
-cut_direct_l = "This rule is rather useless. You may looking for rule <tt>cut</tt> which can be found by clicking on the sequent arrow."
+cut_direct_r = "The rule <b>cut_direct_r</b> is rather useless. You may looking for rule <tt>cut</tt> which can be found by clicking on the sequent arrow."
+cut_direct_l = "The rule <b>cut_direct_l</b> is rather useless. You may looking for rule <tt>cut</tt> which can be found by clicking on the sequent arrow."
 
 
 methodCall = "You have executed a method call. The if cascade is used to resolve the dynamical binding of methods."
 methodCallWithAssignment = "You have executed a method call. The if-cascade is used to resolve the dynamical binding of methods."
 
-loopUnwind = "This rule unwinds a while loop exactly once. Breaks and continues are handled accordingly by introducing up to two new labels."
+loopUnwind = "This rule unwinds a loop exactly once."
 
 whileInvBox = "When you have annotated the loop invariant in the source code, you do not need to enter the invariant manually. Further you can then set the strategy option 'Loop Treatment' to 'Invariant', which causes the invariant rule to be applied automatically." 
 whileInvDiamond = "When you have annotated the loop invariant in the source code, you do not need to enter the invariant manually. Using this rule will most probably urge you to do an induction. It is often easier to use a variant (non-negative, steady decreasing expression), so you should consider using the rule 'whileInvDiamondDec' instead." 

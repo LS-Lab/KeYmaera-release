@@ -67,8 +67,9 @@ public class ProofAssistant extends JPanel {
 	layoutAssistant();
 
 	setText("Hi!<br>I am <strong>KiKi</strong> your " +
-		"personal proof assistant. <br> You "+
-		"can disable me in the <tt>Options</tt> menu.");
+		"personal proof assistant. <br> If you close me I won't bother you again.<br>"+
+		"However, I provide useful explainations about the rules, when you highlight them in the context menu.<br>" +
+		"If you should ever close me by accident, you can reopen me in the <tt>Options</tt> menu.");
 
 	// create the frame
 	frame = new JFrame("Proof Assistant");
