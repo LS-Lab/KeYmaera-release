@@ -144,6 +144,8 @@ public class ProofAssistantController {
 
 	menuBarListener = new AIMenuBarListener(mainFrame.getJMenuBar());
 	mainFrame.getJMenuBar().addContainerListener(menuBarListener);
+	
+	mainFrame.setAssistantController(this);
 
 	try {
 		final int width = mainFrame.getGraphicsConfiguration().
@@ -549,6 +551,13 @@ public class ProofAssistantController {
 		}
 	    }
 	}
+    }
+    
+    /**
+     * @return the assistantAI
+     */
+    public ProofAssistantAI getAssistantAI() {
+        return assistantAI;
     }
     
 

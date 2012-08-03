@@ -15,26 +15,43 @@
 // See LICENSE.TXT for details.
 package de.uka.ilkd.key.gui.assistant;
 
+import de.uka.ilkd.key.rule.Rule;
+import de.uka.ilkd.key.rule.RuleApp;
+
 /**
- * The input for the proof assistant AI has to implement this interface
+ * A rule event has happend. The corresponding rule application object
+ * is encapsulated by the input object and can be evaluated by the
+ * proof assistant AI.
  */
-public interface AIInput {
-    
-    /** a button on the toolbar has been pressed */
-    int TOOLBAR_EVENT = 0;
+public class BuiltInRuleSelectedInput implements AIInput {
 
-    /** an item on the menu bar has been selected */
-    int MENUBAR_EVENT = 1;
+    /** the rule application to be evaluated */
+    private final String rule;
 
-    /** some rule application has been used/created/selected */
-    int RULE_APPLICATION_EVENT = 2;
+    public BuiltInRuleSelectedInput(String rule) {
+        this.rule = rule;
+    }
     
-    int BUILT_IN_RULE_SELECTED_EVENT = 3;
-    
-
     /**
-     * return the classification ID of this input
+     * @return the rule
      */
-    int getInputID();
+    public String getRule() {
+        return rule;
+    }
+
+    /** 
+     * returns the AI input identifier 
+     */
+    public int getInputID() {
+	return BUILT_IN_RULE_SELECTED_EVENT;
+    }
+
+    /** toString */
+    public String toString() {
+	return "RuleEvent: "+getInputID()+
+	    "\n for Rule:"+getRule();
+    }
+
+    
 
 }

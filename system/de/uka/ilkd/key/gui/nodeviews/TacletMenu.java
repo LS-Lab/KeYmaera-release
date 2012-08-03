@@ -24,6 +24,10 @@ import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.MenuElement;
+import javax.swing.MenuSelectionManager;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import org.apache.log4j.Logger;
 
@@ -35,6 +39,10 @@ import de.uka.ilkd.key.dl.rules.ReduceRuleApp;
 import de.uka.ilkd.key.gui.KeYMediator;
 import de.uka.ilkd.key.gui.Main;
 import de.uka.ilkd.key.gui.ReduceRulesItem;
+import de.uka.ilkd.key.gui.assistant.AIAction;
+import de.uka.ilkd.key.gui.assistant.BuiltInRuleSelectedInput;
+import de.uka.ilkd.key.gui.assistant.ProofAssistantController;
+import de.uka.ilkd.key.gui.assistant.RuleEventInput;
 import de.uka.ilkd.key.java.ProgramElement;
 import de.uka.ilkd.key.logic.JavaBlock;
 import de.uka.ilkd.key.logic.NameCreationInfo;
@@ -49,7 +57,14 @@ import de.uka.ilkd.key.pp.AbbrevException;
 import de.uka.ilkd.key.pp.AbbrevMap;
 import de.uka.ilkd.key.pp.PosInSequent;
 import de.uka.ilkd.key.proof.Goal;
-import de.uka.ilkd.key.rule.*;
+import de.uka.ilkd.key.rule.BuiltInRule;
+import de.uka.ilkd.key.rule.FindTaclet;
+import de.uka.ilkd.key.rule.RewriteTaclet;
+import de.uka.ilkd.key.rule.RewriteTacletGoalTemplate;
+import de.uka.ilkd.key.rule.Taclet;
+import de.uka.ilkd.key.rule.TacletApp;
+import de.uka.ilkd.key.rule.TacletGoalTemplate;
+import de.uka.ilkd.key.rule.TacletSchemaVariableCollector;
 import de.uka.ilkd.key.smt.DecProcRunner;
 import de.uka.ilkd.key.smt.SMTRule;
 import de.uka.ilkd.key.smt.SMTRuleMulti;
@@ -174,9 +189,9 @@ class TacletMenu extends JMenu {
     /**
      * adds an item for built in rules (e.g. Run Simplify or Update Simplifier)
      */
-    private void addBuiltInRuleItem(BuiltInRule builtInRule,
+    private void addBuiltInRuleItem(final BuiltInRule builtInRule,
 				    MenuControl control) {
-        JMenuItem item;
+        final JMenuItem item;
         if (builtInRule instanceof ReduceRule
                 || builtInRule instanceof EliminateExistentialQuantifierRule) {
             item = new ReduceRulesItem(mediator.mainFrame(), builtInRule,
@@ -186,6 +201,27 @@ class TacletMenu extends JMenu {
         }
         item.addActionListener(control);
         add(item);
+        // add listeners to show tips in the proof assistant
+        ((JMenuItem) item).addChangeListener(new ChangeListener() {
+
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                MenuElement[] selectedPath = MenuSelectionManager
+                        .defaultManager().getSelectedPath();
+                if (selectedPath.length > 0
+                        && selectedPath[selectedPath.length - 1] == item) {
+                    ProofAssistantController proofAssistantController = Main
+                            .getInstance().getProofAssistantController();
+                    AIAction analyze = proofAssistantController
+                            .getAssistantAI().analyze(
+                                    new BuiltInRuleSelectedInput(builtInRule.name().toString().replace(' ', '_')));
+                    if (analyze != null) {
+                        analyze.execute(proofAssistantController);
+                    }
+                }
+            }
+        });
+
     }
 
     
@@ -289,8 +325,25 @@ class TacletMenu extends JMenu {
 
     /** adds array of TacletMenuItem to itself*/
     private void add(TacletMenuItem[] items) {
-        for (TacletMenuItem item : items) {
+        for (final TacletMenuItem item : items) {
             add((Component) item);
+            // add listeners to show tips in the proof assistant
+            ((JMenuItem) item).addChangeListener(new ChangeListener() {
+                
+                @Override
+                public void stateChanged(ChangeEvent e) {
+                    MenuElement[] selectedPath = MenuSelectionManager.defaultManager().getSelectedPath();
+                    if(selectedPath.length > 0 && selectedPath[selectedPath.length - 1] == item) {
+                        ProofAssistantController proofAssistantController = Main.getInstance().getProofAssistantController();
+                        AIAction analyze = proofAssistantController
+                                .getAssistantAI()
+                                .analyze(new RuleEventInput(item.connectedTo()));
+                        if(analyze != null) {
+                            analyze.execute(proofAssistantController);
+                        }
+                    }
+                }
+            });
         }
     }
 

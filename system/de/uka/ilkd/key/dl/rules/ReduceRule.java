@@ -118,7 +118,7 @@ public class ReduceRule extends RuleOperatingOnWholeSequence implements RuleFilt
     public Name name() {
         return new Name("Eliminate Universal Quantifiers");
     }
-
+    
     /*
      * (non-Javadoc)
      * 

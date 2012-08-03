@@ -59,7 +59,7 @@ public class ProofAssistantAI {
 	AIAction action = null;
 	switch (input.getInputID()) {
 	case AIInput.RULE_APPLICATION_EVENT:
-	    action = analyzeRuleAppEvent(((RuleEventInput)input).getRuleApp());
+	    action = analyzeRuleAppEvent(((RuleEventInput)input).getRule().name().toString());
 	    break;
  	case AIInput.TOOLBAR_EVENT:
 	    action = analyzeToolBarEvent(((PressedButtonEventInput)input).
@@ -69,6 +69,9 @@ public class ProofAssistantAI {
  	    action = analyzeMenuBarEvent(((PressedButtonEventInput)input).
  					 getPressedButton());
  	    break;
+  	case AIInput.BUILT_IN_RULE_SELECTED_EVENT:
+  	    action = analyzeRuleAppEvent(((BuiltInRuleSelectedInput)input).getRule());
+  	    break;
 	default:
 	    action = DO_NOTHING;
 	}	
@@ -84,11 +87,11 @@ public class ProofAssistantAI {
      * @param app the RuleApp to be analyzed
      * @return the action to be executed by the controller
      */
-    private AIAction analyzeRuleAppEvent(RuleApp app) {	
+    private AIAction analyzeRuleAppEvent(String name) {	
 	AIAction result = null;
 
 	final String tip = dict.get("rules", 
-				    app.rule().name().toString());
+				    name);
 	if (tip != null) {
 	    result = new DisplayTextAction(tip);
 	} else {

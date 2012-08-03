@@ -2527,6 +2527,8 @@ public class Main extends JFrame implements IMain {
      */
     private boolean disableCurrentGoalView = false;
 
+    private ProofAssistantController proofAssistantController;
+
    
 
     private synchronized void setProofNodeDisplay() {
@@ -4027,6 +4029,21 @@ public class Main extends JFrame implements IMain {
 
     public static boolean isVisibleMode() {
 	return visible;
+    }
+
+    /**
+     * @param proofAssistantController
+     */
+    public void setAssistantController(
+            ProofAssistantController proofAssistantController) {
+        this.proofAssistantController = proofAssistantController;
+    }
+    
+    /**
+     * @return the proofAssistantController
+     */
+    public ProofAssistantController getProofAssistantController() {
+        return proofAssistantController;
     }
 
    
