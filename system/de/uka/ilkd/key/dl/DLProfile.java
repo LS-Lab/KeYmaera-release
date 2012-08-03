@@ -135,15 +135,17 @@ public class DLProfile extends AbstractProfile {
 	/* @Override */
 	protected ImmutableList<BuiltInRule> initBuiltInRules() {
 		ImmutableList<BuiltInRule> rule = ImmutableSLList.nil();
-		rule = rule.prepend(
-				ReduceRule.INSTANCE).prepend(getUpdateSimplificationRule())
-				.prepend(FindInstanceRule.INSTANCE).prepend(
-						FindTransitionRule.INSTANCE);
-		rule = rule.append(VisualizationRule.INSTANCE).prepend(
-				SumOfSquaresRule.INSTANCE)
-				.prepend(IterativeReduceRule.INSTANCE).prepend(
-						GroebnerBasisRule.INSTANCE).prepend(
-						EliminateExistentialQuantifierRule.INSTANCE);
+		rule = rule
+		        .append(getUpdateSimplificationRule())
+		        .append(ReduceRule.INSTANCE)
+				.append(EliminateExistentialQuantifierRule.INSTANCE)
+				.append(GroebnerBasisRule.INSTANCE)
+				.append(SumOfSquaresRule.INSTANCE)
+				.append(FindInstanceRule.INSTANCE)
+				.append(FindTransitionRule.INSTANCE)
+				.append(VisualizationRule.INSTANCE)
+				.append(IterativeReduceRule.INSTANCE)
+				;
 		if (Debug.ENABLE_DEBUG) {
 			rule = rule.prepend(DebugRule.INSTANCE);
 		}
