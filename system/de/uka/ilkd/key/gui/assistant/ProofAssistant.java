@@ -24,6 +24,9 @@ import java.awt.geom.RoundRectangle2D;
 import javax.swing.*;
 
 import de.uka.ilkd.key.gui.IconFactory;
+import de.uka.ilkd.key.util.Debug;
+import de.uka.ilkd.key.gui.configuration.Config;
+import de.uka.ilkd.key.gui.configuration.ConfigChangeAdapter;
 
 /**
  * This class implements the user interface of the proof assistant.
@@ -51,12 +54,12 @@ public class ProofAssistant extends JPanel {
 	IconFactory.keyAssistant(KIKI_HEIGHT, KIKI_HEIGHT).getImage();
 
     
-    private JTextPane textPane;
+    private JEditorPane textPane;
     private JFrame frame;
 
-    private static final String PREFIX = 
-	"<html><body style=\"font-family:" +
-	"'Times New Roman',Times,sans serif;font-size: 12pt;\">";
+    private static final String PREFIX = "<html>";
+	//"<html><body style=\"font-family:" +
+	//"'Times New Roman',Times,sans serif;font-size: 12pt;\">";
 
     private static final String POSTFIX = "</body></html>";
 
@@ -95,9 +98,17 @@ public class ProofAssistant extends JPanel {
 	setLayout(layout);
 	setBackground(Color.white);
 
-	textPane = new JTextPane();
+	textPane = new JEditorPane() {
+		public void updateUI() {
+			super.updateUI();
+			setFont();
+		}
+	};
 	textPane.setBackground(BACKGROUND_COLOR);
 	textPane.setContentType("text/html");
+	setFont();
+	Config.DEFAULT.addConfigChangeListener(new ConfigChangeAdapter(textPane));
+
 	textPane.setEditable(false);
 
  	Dimension dim = new Dimension(200, 120);
@@ -111,6 +122,18 @@ public class ProofAssistant extends JPanel {
 
  	add(scroll,BorderLayout.CENTER);
     }
+
+	private void setFont() {
+		Font myFont = UIManager.getFont(Config.KEY_FONT_CURRENT_GOAL_VIEW);
+		if (myFont != null) {
+		  if(textPane != null) {
+			  textPane.putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, Boolean.TRUE);  // Allow font to changed in JEditorPane when set to "text/html"
+			  textPane.setFont(myFont);
+		  }
+		} else {
+		  Debug.out("KEY_FONT_CURRENT_GOAL_VIEW not available. Use standard font.");
+		}        
+	}
 
     /** Paint the custom background for our component.
      * This consists of the rounded speech bubble and the Kiki image.
