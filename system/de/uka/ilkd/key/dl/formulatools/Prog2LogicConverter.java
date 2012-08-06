@@ -44,6 +44,7 @@ import de.uka.ilkd.key.dl.model.Dot;
 import de.uka.ilkd.key.dl.model.Exists;
 import de.uka.ilkd.key.dl.model.Forall;
 import de.uka.ilkd.key.dl.model.FunctionTerm;
+import de.uka.ilkd.key.dl.model.IfExpr;
 import de.uka.ilkd.key.dl.model.Implies;
 import de.uka.ilkd.key.dl.model.LogicalVariable;
 import de.uka.ilkd.key.dl.model.MetaVariable;
@@ -303,6 +304,15 @@ public class Prog2LogicConverter extends AbstractMetaOperator {
 		} else if (form instanceof de.uka.ilkd.key.dl.model.Diamond) {
 		    Diamond b = (Diamond) form;
 		    return TermBuilder.DF.dia(JavaBlock.createJavaBlock(new DLStatementBlock((DLProgram)b.getChildAt(0))), convertRecursivly(b.getChildAt(1), services, dotReplacementmap));
+		} else if (form instanceof IfExpr) {
+		    IfExpr i = (IfExpr) form;
+            return termBuilder.ife(
+                    convertRecursivly(i.getChildAt(0), services,
+                            dotReplacementmap),
+                    convertRecursivly(i.getChildAt(1), services,
+                            dotReplacementmap),
+                    convertRecursivly(i.getChildAt(2), services,
+                            dotReplacementmap));
 		} else if (form instanceof DLNonTerminalProgramElement) {
 			DLNonTerminalProgramElement p = (DLNonTerminalProgramElement) form;
 			Term[] subTerms = new Term[p.getChildCount()];

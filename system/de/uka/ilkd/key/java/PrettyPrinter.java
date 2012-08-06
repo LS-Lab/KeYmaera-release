@@ -27,12 +27,12 @@ import de.uka.ilkd.key.dl.model.Diamond;
 import de.uka.ilkd.key.dl.model.Dot;
 import de.uka.ilkd.key.dl.model.Exists;
 import de.uka.ilkd.key.dl.model.Forall;
+import de.uka.ilkd.key.dl.model.IfExpr;
 import de.uka.ilkd.key.dl.model.IfStatement;
 import de.uka.ilkd.key.dl.model.NamedElement;
 import de.uka.ilkd.key.dl.model.RandomAssign;
 import de.uka.ilkd.key.dl.model.SymbolizedElement;
 import de.uka.ilkd.key.gui.Main;
-import de.uka.ilkd.key.java.abstraction.ArrayType;
 import de.uka.ilkd.key.java.abstraction.Type;
 import de.uka.ilkd.key.java.declaration.ArrayDeclaration;
 import de.uka.ilkd.key.java.declaration.ClassDeclaration;
@@ -153,7 +153,6 @@ import de.uka.ilkd.key.java.statement.Try;
 import de.uka.ilkd.key.java.statement.While;
 import de.uka.ilkd.key.logic.ProgramElementName;
 import de.uka.ilkd.key.logic.op.IProgramVariable;
-import de.uka.ilkd.key.logic.op.ProgramConstant;
 import de.uka.ilkd.key.logic.op.ProgramMethod;
 import de.uka.ilkd.key.logic.op.ProgramSV;
 import de.uka.ilkd.key.logic.op.ProgramVariable;
@@ -1093,7 +1092,7 @@ public class PrettyPrinter {
 	    throws java.io.IOException {
 
 	printHeader(x);
-	writeInternalIndentation(x);
+//	writeInternalIndentation(x);
 
 	write(x.name().toString());
 	printFooter(x);
@@ -3540,6 +3539,24 @@ public class PrettyPrinter {
         writeElement(p.getChildAt(0));
         write(">");
         writeElement(p.getChildAt(1));
+        markEnd(0, p);
+        printFooter(p);
+    }
+
+    /**
+     * @param ifExprImpl
+     */
+    public void printDLIf(IfExpr p) throws IOException {
+        printHeader(p);
+        markStart(0, p);
+        
+        write("if ");
+        writeElement(p.getChildAt(0));
+        write(" then ");
+        writeElement(p.getChildAt(1));
+        write(" else ");
+        writeElement(p.getChildAt(2));
+        write(" fi");
         markEnd(0, p);
         printFooter(p);
     }

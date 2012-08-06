@@ -676,5 +676,7 @@ public abstract class TermFactory implements Serializable {
      * @return
      */
     public abstract Dot createDot(DLProgramElement convert, int order);
+    
+    public abstract IfExpr createIfExpr(Formula f, Expression thenExpr, Expression elseExpr);
 
 }

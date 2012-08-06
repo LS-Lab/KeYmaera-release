@@ -47,6 +47,7 @@ import de.uka.ilkd.key.dl.model.Expression;
 import de.uka.ilkd.key.dl.model.Forall;
 import de.uka.ilkd.key.dl.model.Formula;
 import de.uka.ilkd.key.dl.model.FunctionTerm;
+import de.uka.ilkd.key.dl.model.IfExpr;
 import de.uka.ilkd.key.dl.model.IfStatement;
 import de.uka.ilkd.key.dl.model.Implies;
 import de.uka.ilkd.key.dl.model.LogicalVariable;
@@ -159,6 +160,12 @@ public class ReplaceVisitor {
 						substitutionMap, tf));
 			}
 			result = tf.createFunctionTerm(pred, children);
+		} else if(childAt instanceof IfExpr) {
+		    IfExpr i = (IfExpr) childAt;
+            result = tf.createIfExpr(
+                    (Formula) convert(i.getChildAt(0), substitutionMap, tf),
+                    (Expression) convert(i.getChildAt(1), substitutionMap, tf),
+                    (Expression) convert(i.getChildAt(2), substitutionMap, tf));
 		} else if (childAt instanceof Predicate) {
 			result = (Predicate) childAt;
 		} else if (childAt instanceof de.uka.ilkd.key.dl.model.Function) {
@@ -336,6 +343,12 @@ public class ReplaceVisitor {
 						inst, tf));
 			}
 			result = tf.createFunctionTerm(pred, children);
+		} else if(childAt instanceof IfExpr) {
+		    IfExpr i = (IfExpr) childAt;
+            result = tf.createIfExpr(
+                    (Formula) convert(i.getChildAt(0), inst, tf),
+                    (Expression) convert(i.getChildAt(1), inst, tf),
+                    (Expression) convert(i.getChildAt(2), inst, tf));
 		} else if (childAt instanceof Predicate) {
 			result = (Predicate) childAt;
 		} else if (childAt instanceof de.uka.ilkd.key.dl.model.Function) {

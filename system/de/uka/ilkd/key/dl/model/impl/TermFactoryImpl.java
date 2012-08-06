@@ -54,6 +54,7 @@ import de.uka.ilkd.key.dl.model.Function;
 import de.uka.ilkd.key.dl.model.FunctionTerm;
 import de.uka.ilkd.key.dl.model.Greater;
 import de.uka.ilkd.key.dl.model.GreaterEquals;
+import de.uka.ilkd.key.dl.model.IfExpr;
 import de.uka.ilkd.key.dl.model.IfStatement;
 import de.uka.ilkd.key.dl.model.Implies;
 import de.uka.ilkd.key.dl.model.Less;
@@ -884,6 +885,15 @@ public class TermFactoryImpl extends TermFactory {
     @Override
     public Box createBox(DLProgram program, Formula post) {
         return new BoxImpl(program, post);
+    }
+    
+    /* (non-Javadoc)
+     * @see de.uka.ilkd.key.dl.model.TermFactory#createIfExpr(de.uka.ilkd.key.dl.model.Formula, de.uka.ilkd.key.dl.model.Expression, de.uka.ilkd.key.dl.model.Expression)
+     */
+    @Override
+    public IfExpr createIfExpr(Formula f, Expression thenExpr,
+            Expression elseExpr) {
+        return new IfExprImpl(f, thenExpr, elseExpr);
     }
 
 }

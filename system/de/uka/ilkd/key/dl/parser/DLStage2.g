@@ -123,6 +123,7 @@ expr[boolean diffAllowed] returns [ Expression pe ] scope { ArrayList<Expression
 | num = NUM { pe = tf.createConstant(num); }
 | {diffAllowed}? d = diff { pe = d; }
 | sv = svar { pe = tf.schemaExpressionVariable(sv); }
+| ^(IF f=form[diffAllowed] e=expr[diffAllowed] e2=expr[diffAllowed] { pe = tf.createIfExpr(f,e,e2); })
 ; 
 
 diff returns [ Dot pe ]: 
