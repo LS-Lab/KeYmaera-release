@@ -404,9 +404,7 @@ public class TermFactoryImpl extends TermFactory {
 	    if(args.isEmpty()) {
 	        return new AssignImpl(createProgramVariable(t.getText()), e);
 	    } else {
-	        NonRigidFunction f = NonRigidFunctionImpl.getFunction(new Name(t.getText()), null, false);
-	        FunctionTerm fTerm = createFunctionTerm(f, args);
-            return new AssignImpl(fTerm, e);
+            return new AssignImpl(createFunctionTerm(t, args), e);
 	    }
 	}
 	
