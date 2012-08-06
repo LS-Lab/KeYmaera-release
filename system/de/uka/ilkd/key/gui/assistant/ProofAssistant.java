@@ -101,7 +101,7 @@ public class ProofAssistant extends JPanel {
 	textPane = new JEditorPane() {
 		public void updateUI() {
 			super.updateUI();
-			setFont();
+			ProofAssistant.this.setFont();
 		}
 	};
 	textPane.setBackground(BACKGROUND_COLOR);
