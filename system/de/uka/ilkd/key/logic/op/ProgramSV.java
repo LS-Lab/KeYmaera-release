@@ -43,6 +43,7 @@ import de.uka.ilkd.key.logic.ProgramElementName;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.sort.PlaceHolderSort;
 import de.uka.ilkd.key.logic.sort.ProgramSVSort;
+import de.uka.ilkd.key.logic.sort.ProgramSVSort.DLVariableDeclarationSort;
 import de.uka.ilkd.key.logic.sort.Sort;
 import de.uka.ilkd.key.rule.MatchConditions;
 import de.uka.ilkd.key.rule.inst.ProgramList;
@@ -694,6 +695,4 @@ public class ProgramSV extends SortedSchemaVariable implements
 	public boolean containsDLAnnotation(String key) {
         throw new UnsupportedOperationException();
 	}
-
-
 }

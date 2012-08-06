@@ -2196,7 +2196,7 @@ public abstract class ProgramSVSort extends PrimitiveSort {
 	 * 
 	 * @author jdq
 	 */
-	private static class DLVariableDeclarationSort extends ProgramSVSort {
+	public static class DLVariableDeclarationSort extends ProgramSVSort {
 		public DLVariableDeclarationSort() {
 			super(new Name("DLVariableDeclaration"));
 		}

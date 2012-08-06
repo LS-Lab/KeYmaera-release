@@ -972,6 +972,14 @@ public class TermFactoryImpl extends TermFactory {
     }
 
     /* (non-Javadoc)
+     * @see de.uka.ilkd.key.dl.model.TermFactory#schemaCreateQuantified(de.uka.ilkd.key.logic.op.SchemaVariable, de.uka.ilkd.key.dl.model.DLProgram)
+     */
+    @Override
+    public Quantified schemaCreateQuantified(CommonTree decl,
+            DLProgram statement) {
+        return new QuantifiedImpl(schemaProgramSV(decl), statement);
+    }
+    /* (non-Javadoc)
      * @see de.uka.ilkd.key.dl.model.TermFactory#createIfExpr(de.uka.ilkd.key.dl.model.Formula, de.uka.ilkd.key.dl.model.Expression, de.uka.ilkd.key.dl.model.Expression)
      */
     @Override

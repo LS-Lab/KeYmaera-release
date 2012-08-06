@@ -20,6 +20,7 @@ import de.uka.ilkd.key.dl.rules.metaconstruct.DLDiffAdjoin;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DLDiffInequalityRewrite;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DLIntroNewAnonUpdateOp;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DLInvariantPart;
+import de.uka.ilkd.key.dl.rules.metaconstruct.DLQuanUpdate;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DLRandomAssign;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DLUniversalClosureOp;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DNFTransformer;
@@ -232,6 +233,8 @@ public abstract class AbstractMetaOperator extends Op implements MetaOperator {
 	public static final DLUniversalClosureOp DL_UNIVERSAL_CLOSURE = new DLUniversalClosureOp();
 
 	public static final AbstractMetaOperator DL_INT_FORALL = new DLRandomAssign();
+	
+	public static final AbstractMetaOperator DL_QUAN_UPDATE = new DLQuanUpdate();
 	
 	public static final AbstractMetaOperator DL_DNF_TRANSFORMER = new DNFTransformer();
 

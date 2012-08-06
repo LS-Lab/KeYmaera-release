@@ -13,7 +13,11 @@ package de.uka.ilkd.key.rule.updatesimplifier;
 
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.logic.Term;
+import de.uka.ilkd.key.logic.Visitor;
 import de.uka.ilkd.key.logic.op.NonRigid;
+import de.uka.ilkd.key.logic.op.NonRigidFunctionLocation;
+import de.uka.ilkd.key.logic.op.Operator;
+import de.uka.ilkd.key.logic.op.QuantifiableVariable;
 import de.uka.ilkd.key.rule.AbstractUpdateRule;
 import de.uka.ilkd.key.rule.UpdateSimplifier;
 import de.uka.ilkd.key.util.Debug;
@@ -45,10 +49,40 @@ public class ApplyOnNonRigidTerm extends AbstractUpdateRule {
      * implementation of the fall back rule for terms with an "unknown"
      * non rigid top level symbol
      */
-    public Term apply(Update update, Term target, Services services) {       
-	
-        return UpdateSimplifierTermFactory.DEFAULT.
-            createUpdateTerm(update.getAllAssignmentPairs(), 
+    public Term apply(Update update, final Term target, Services services) {       
+        if (target.op() instanceof NonRigidFunctionLocation) {
+            for (int i = update.locationCount() - 1; i >= 0; i--) {
+                AssignmentPair pair = update.getAssignmentPair(i);
+                if(target.op() == pair.locationAsTerm().op()) {
+                    // try to unify
+                    final boolean[] unifyable = new boolean[1];
+                    unifyable[0] = true;
+                    for(int j = 0; j < target.arity(); j++) {
+                        Operator op = pair.locationAsTerm().sub(j).op();
+                        if(op instanceof QuantifiableVariable && pair.boundVars().contains((QuantifiableVariable) op)) {
+                            // check whether the current non-rigid function is contained in the term
+                            target.sub(j).execPreOrder(new Visitor() {
+                                
+                                @Override
+                                public void visit(Term visited) {
+                                    if(visited.op() == target.op()) {
+                                        unifyable[0] = false;
+                                    }
+                                }
+                            });
+                        } else {
+                            // FIXME: implement more complex unifications
+                            unifyable[0] = false;
+                        }
+                    }
+                    if(unifyable[0]) {
+                        return pair.value();
+                    }
+                }
+            }
+        } 
+        return UpdateSimplifierTermFactory.DEFAULT.createUpdateTerm(update
+                    .getAllAssignmentPairs(),
                     updateSimplifier().simplify(target, services));
     }
 

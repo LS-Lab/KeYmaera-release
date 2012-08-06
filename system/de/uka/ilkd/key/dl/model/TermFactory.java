@@ -680,6 +680,8 @@ public abstract class TermFactory implements Serializable {
     
     public abstract Quantified createQuantified(VariableDeclaration decl, DLProgram statement);
     
+    public abstract Quantified schemaCreateQuantified(CommonTree decl, DLProgram statement);
+    
 	public abstract VariableDeclaration schemaCreateVariableDeclaration(CommonTree type, CommonTree sv);
     public abstract IfExpr createIfExpr(Formula f, Expression thenExpr, Expression elseExpr);
 

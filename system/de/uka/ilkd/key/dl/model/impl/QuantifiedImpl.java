@@ -27,6 +27,7 @@ import java.io.IOException;
 
 import de.uka.ilkd.key.dl.model.DLProgram;
 import de.uka.ilkd.key.dl.model.DLProgramElement;
+import de.uka.ilkd.key.dl.model.ProgramVariable;
 import de.uka.ilkd.key.dl.model.Quantified;
 import de.uka.ilkd.key.dl.model.Variable;
 import de.uka.ilkd.key.dl.model.VariableDeclaration;
@@ -52,6 +53,11 @@ public class QuantifiedImpl extends DLNonTerminalProgramElementImpl implements Q
      *                the value to assign to the variable
      */
     public QuantifiedImpl(VariableDeclaration decl, DLProgram statement) {
+        addChild(decl);
+        addChild(statement);
+    }
+    
+    public QuantifiedImpl(ProgramVariable decl, DLProgram statement) {
         addChild(decl);
         addChild(statement);
     }

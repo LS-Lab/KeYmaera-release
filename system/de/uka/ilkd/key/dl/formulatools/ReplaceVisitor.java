@@ -397,7 +397,7 @@ public class ReplaceVisitor {
 		} else if (childAt instanceof Assign) {
 			Assign a = (Assign) childAt;
 			result = tf.createAssign(
-					(de.uka.ilkd.key.dl.model.ProgramVariable) convert(a.getChildAt(0), inst, tf),
+			        convert(a.getChildAt(0), inst, tf),
 					(Expression) convert(a.getChildAt(1), inst, tf));
 		} else if (childAt instanceof Dot) {
 		    Dot d = (Dot) childAt;
@@ -424,6 +424,19 @@ public class ReplaceVisitor {
 					inst, tf), (DLProgram) convert(ifS.getThen(),
 					inst, tf), (ifS.getElse() == null) ? null
 					: (DLProgram) convert(ifS.getElse(), inst, tf));
+		} else if (childAt instanceof Quantified) {
+			// we need to remove all variables bound by this quantifier
+			DLNonTerminalProgramElement f = (DLNonTerminalProgramElement) childAt;
+			VariableDeclaration decl;
+			DLProgram sub = (DLProgram) f.getChildAt(1);
+			
+			if(f.getChildAt(0) instanceof SchemaVariable) {
+			    decl = (VariableDeclaration) inst.getInstantiation((SchemaVariable) f.getChildAt(0));
+			} else {
+			    decl = (VariableDeclaration) f.getChildAt(0);
+			}
+			
+			result = tf.createQuantified(decl, (DLProgram) convert(sub, inst, tf));
 		} else if (childAt instanceof Forall || childAt instanceof Exists) {
 			DLNonTerminalProgramElement f = (DLNonTerminalProgramElement) childAt;
 			VariableDeclaration decl = (VariableDeclaration) f.getChildAt(0);
