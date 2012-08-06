@@ -27,6 +27,7 @@ import de.uka.ilkd.key.dl.model.Diamond;
 import de.uka.ilkd.key.dl.model.Dot;
 import de.uka.ilkd.key.dl.model.Exists;
 import de.uka.ilkd.key.dl.model.Forall;
+import de.uka.ilkd.key.dl.model.IfExpr;
 import de.uka.ilkd.key.dl.model.FunctionTerm;
 import de.uka.ilkd.key.dl.model.IfStatement;
 import de.uka.ilkd.key.dl.model.NamedElement;
@@ -1096,7 +1097,7 @@ public class PrettyPrinter {
 	    throws java.io.IOException {
 
 	printHeader(x);
-	writeInternalIndentation(x);
+//	writeInternalIndentation(x);
 
 	write(x.name().toString());
 	printFooter(x);
@@ -3412,6 +3413,7 @@ public class PrettyPrinter {
 //            write(")");
 //        }
         writeElement(p.getChildAt(0));
+
         for (int i = 0; i < p.getOrder(); i++) {
             write("\'");
         }
@@ -3592,6 +3594,24 @@ public class PrettyPrinter {
        writeElement(q.getChildAt(1));
        markEnd(0, q);
        printFooter(q);
+    }
+
+    /**
+     * @param ifExprImpl
+     */
+    public void printDLIf(IfExpr p) throws IOException {
+        printHeader(p);
+        markStart(0, p);
+        
+        write("if ");
+        writeElement(p.getChildAt(0));
+        write(" then ");
+        writeElement(p.getChildAt(1));
+        write(" else ");
+        writeElement(p.getChildAt(2));
+        write(" fi");
+        markEnd(0, p);
+        printFooter(p);
     }
 
 }

@@ -226,6 +226,7 @@ func[diffAllowed] ({ diffAllowed }? DOT^ (DOT*))?
 | LPAREN! expr[diffAllowed] RPAREN!
 //| { diffAllowed }? diff
 | {schemaMode}? sv ({ diffAllowed }? DOT^ (DOT*))?
+| IF^ form[diffAllowed] THEN! expr[diffAllowed] ELSE! expr[diffAllowed] FI!
 ;
 
 func[boolean diffAllowed]: (WORD_DOLLAR | WORD)^ (list[diffAllowed])?

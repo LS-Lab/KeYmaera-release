@@ -55,6 +55,7 @@ import de.uka.ilkd.key.dl.model.Function;
 import de.uka.ilkd.key.dl.model.FunctionTerm;
 import de.uka.ilkd.key.dl.model.Greater;
 import de.uka.ilkd.key.dl.model.GreaterEquals;
+import de.uka.ilkd.key.dl.model.IfExpr;
 import de.uka.ilkd.key.dl.model.IfStatement;
 import de.uka.ilkd.key.dl.model.Implies;
 import de.uka.ilkd.key.dl.model.Less;
@@ -86,6 +87,8 @@ import de.uka.ilkd.key.logic.op.LocationVariable;
 import de.uka.ilkd.key.logic.op.LogicVariable;
 import de.uka.ilkd.key.logic.op.Metavariable;
 import de.uka.ilkd.key.logic.op.RigidFunction;
+import de.uka.ilkd.key.logic.op.ProgramSV;
+import de.uka.ilkd.key.logic.op.SchemaVariable;
 import de.uka.ilkd.key.logic.sort.Sort;
 
 /**
@@ -968,6 +971,15 @@ public class TermFactoryImpl extends TermFactory {
     public Quantified createQuantified(VariableDeclaration decl,
             DLProgram statement) {
         return new QuantifiedImpl(decl, statement);
+    }
+
+    /* (non-Javadoc)
+     * @see de.uka.ilkd.key.dl.model.TermFactory#createIfExpr(de.uka.ilkd.key.dl.model.Formula, de.uka.ilkd.key.dl.model.Expression, de.uka.ilkd.key.dl.model.Expression)
+     */
+    @Override
+    public IfExpr createIfExpr(Formula f, Expression thenExpr,
+            Expression elseExpr) {
+        return new IfExprImpl(f, thenExpr, elseExpr);
     }
 
 }
