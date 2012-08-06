@@ -51,7 +51,7 @@ public class ApplyOnNonRigidTerm extends AbstractUpdateRule {
      */
     public Term apply(Update update, final Term target, Services services) {       
         if (target.op() instanceof NonRigidFunctionLocation) {
-            for (int i = update.locationCount() - 1; i >= 0; i--) {
+           out: for (int i = update.locationCount() - 1; i >= 0; i--) {
                 AssignmentPair pair = update.getAssignmentPair(i);
                 if(target.op() == pair.locationAsTerm().op()) {
                     // try to unify
@@ -71,8 +71,12 @@ public class ApplyOnNonRigidTerm extends AbstractUpdateRule {
                                 }
                             });
                         } else {
-                            // FIXME: implement more complex unifications
-                            unifyable[0] = false;
+                            if(!pair.locationAsTerm().sub(j).equals(target.sub(j))) {
+                                // FIXME: implement more complex unifications
+                                unifyable[0] = false;
+                                // we have to stop trying as the innermost update was not applicable
+                                break out;
+                            }
                         }
                     }
                     if(unifyable[0]) {
