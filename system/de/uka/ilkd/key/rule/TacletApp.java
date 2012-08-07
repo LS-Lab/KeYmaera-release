@@ -605,7 +605,7 @@ public abstract class TacletApp implements RuleApp {
         TacletApp app = this;
         ImmutableList<String> proposals = ImmutableSLList.<String>nil();
 
-        for (final SchemaVariable var : uninstantiatedVars()) {
+        out: for (final SchemaVariable var : uninstantiatedVars()) {
             
             if (LoopInvariantProposer.DEFAULT.inLoopInvariantRuleSet(taclet())){ 
                 Object inv = LoopInvariantProposer.DEFAULT.tryToInstantiate(this, var, services);              
@@ -634,6 +634,8 @@ public abstract class TacletApp implements RuleApp {
                         String proposal = VariableNameProposer.DEFAULT
                                 .getProposal(this, sv, services, goal.node(),
                                         proposals);
+                        if(proposal == null)
+                            continue out;
                         ProgramElement pe = TacletInstantiationsTableModel
                                 .getProgramElement(app, proposal, sv, services);
                         proposals = proposals.prepend(proposal);
@@ -653,6 +655,8 @@ public abstract class TacletApp implements RuleApp {
     
                     String proposal = VariableNameProposer.DEFAULT
                         .getProposal(app, sv, services, goal.node(), proposals);
+                    if(proposal == null)
+                        continue out;
 
                     proposals = proposals.append(proposal);
 
