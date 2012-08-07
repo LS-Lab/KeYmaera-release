@@ -198,9 +198,7 @@ public class InteractiveProver {
                 ex.printStackTrace();
                 Main.getInstance().unfreezeExceptAutoModeButton();
                 // show a dialog with the exception
-                JOptionPane.showMessageDialog(Main.getInstance(),
-                        "Error during interactive rule application.", ex + ": "
-                                + ex.getMessage(), JOptionPane.ERROR_MESSAGE);
+                new ExceptionDialog(Main.getInstance(), ex); 
            }
             
         });
