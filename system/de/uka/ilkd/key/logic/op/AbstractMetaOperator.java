@@ -15,6 +15,7 @@ import java.util.HashMap;
 
 import de.uka.ilkd.key.dl.formulatools.Prog2LogicConverter;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DLChoiceUnwind;
+import de.uka.ilkd.key.dl.rules.metaconstruct.DLDefined;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DLDiffAdd;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DLDiffAdjoin;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DLDiffInequalityRewrite;
@@ -242,6 +243,8 @@ public abstract class AbstractMetaOperator extends Op implements MetaOperator {
 	public static final AbstractMetaOperator DL_WEAKNEGATE = new WeakNegation();
 
 	public static final AbstractMetaOperator DL_IMPLICATION = new ImplicationIntroductor();
+	
+	public static final AbstractMetaOperator DL_DEFINED = new DLDefined();
 
 	public static final AbstractMetaOperator EVALUATE = new Evaluate ();
 	
