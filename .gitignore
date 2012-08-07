@@ -40,6 +40,3 @@ system/keymaera.jar
 system/de/uka/ilkd/key/dl/parser/output/
 filesChanges
 examples/statistics-*.csv
-system/.cache
-system/.classpath
-system/.settings/org.eclipse.jdt.core.prefs
