@@ -124,7 +124,7 @@ object Term2Expr extends ExpressionConstants {
           new Expr(fun, args.map(conv).toArray)
       }
       case _ => throw new IllegalArgumentException("Could not convert Term: " + t
-        + "Operator was: " + t.op())
+        + ". Operator was: " + t.op())
     }
   }
 
