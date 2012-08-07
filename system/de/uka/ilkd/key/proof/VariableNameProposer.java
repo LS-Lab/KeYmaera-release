@@ -15,6 +15,10 @@ import java.util.regex.Pattern;
 
 import de.uka.ilkd.key.collection.ImmutableList;
 import de.uka.ilkd.key.collection.ImmutableSLList;
+import de.uka.ilkd.key.dl.logic.ldt.RealLDT;
+import de.uka.ilkd.key.dl.model.Exp;
+import de.uka.ilkd.key.dl.model.Mult;
+import de.uka.ilkd.key.dl.model.Plus;
 import de.uka.ilkd.key.java.ProgramElement;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.java.StatementBlock;
@@ -23,6 +27,7 @@ import de.uka.ilkd.key.logic.Name;
 import de.uka.ilkd.key.logic.NamespaceSet;
 import de.uka.ilkd.key.logic.ProgramElementName;
 import de.uka.ilkd.key.logic.Term;
+import de.uka.ilkd.key.logic.op.Function;
 import de.uka.ilkd.key.logic.op.SchemaVariable;
 import de.uka.ilkd.key.logic.op.SortedSchemaVariable;
 import de.uka.ilkd.key.logic.sort.ProgramSVSort;
@@ -178,13 +183,24 @@ public class VariableNameProposer implements InstantiationProposer {
      */
     protected static String createBaseNameProposalBasedOnCorrespondence (TacletApp p_app,
                                                                          SchemaVariable p_var) {
-        final String result;
+        String result;
         final SchemaVariable v = p_app.taclet ().getNameCorrespondent ( p_var );
         if ( v != null && p_app.instantiations ().isInstantiated ( v ) ) {
             
             final Object inst = p_app.instantiations ().getInstantiation ( v );
             
             if (inst instanceof Term) {
+                // let the user enter abbreviations for arithmetic expressions
+                if(((Term) inst).op() == RealLDT.getFunctionFor(de.uka.ilkd.key.dl.model.Plus.class)
+                        || ((Term) inst).op() == RealLDT.getFunctionFor(de.uka.ilkd.key.dl.model.Minus.class)
+                        || ((Term) inst).op() == RealLDT.getFunctionFor(de.uka.ilkd.key.dl.model.Mult.class)
+                        || ((Term) inst).op() == RealLDT.getFunctionFor(de.uka.ilkd.key.dl.model.Div.class)
+                        || ((Term) inst).op() == RealLDT.getFunctionFor(de.uka.ilkd.key.dl.model.MinusSign.class)
+                        || ((Term) inst).op() == RealLDT.getFunctionFor(de.uka.ilkd.key.dl.model.Exp.class)
+                        || ((Term) inst).op().name().toString().matches("[0-9]*"))
+                {
+                    return null;
+                }
                 result = ((Term)inst).op().name().toString();
             } else {
                 result = "" + inst;
@@ -192,6 +208,10 @@ public class VariableNameProposer implements InstantiationProposer {
         } else {
             // ... otherwise use the name of the SkolemTermSV
             result = "" + p_var.name ();
+        }
+        
+        if(result.matches("^[0-9].*")) {
+            result = "" + p_var.name();
         }
 
         // remove characters that should better not turn up in identifiers
@@ -216,6 +236,9 @@ public class VariableNameProposer implements InstantiationProposer {
 	do {
 	    name = computeName(basename, services.getCounter(SKOLEMTERMVARCOUNTER_PREFIX + name)
 		.getCountPlusPlusWithParent(undoAnchor));	    
+	    if(name == null) {
+	        return null;
+	    }
 	    l_name = new Name(name);
 	} while (nss.lookup(l_name) != null &&
                 !previousProposals.contains(name));
@@ -225,6 +248,7 @@ public class VariableNameProposer implements InstantiationProposer {
     }
     
     private static String computeName(String basename, int index) {
+        if(basename == null) return null;
     	if(basename.contains("" + SKOLEMTERM_VARIABLE_NAME_POSTFIX)) {
     		String number = basename.substring(basename.lastIndexOf("" + SKOLEMTERM_VARIABLE_NAME_POSTFIX) + 1);
     		String prev = basename.substring(0, basename.lastIndexOf("" + SKOLEMTERM_VARIABLE_NAME_POSTFIX) + 1);
