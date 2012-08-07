@@ -161,7 +161,7 @@ public class FOSequence implements Feature {
     
     public static boolean isFunctionWithDifferentSort(Term t, Sort sort) {
         if(t.op() instanceof Function || t.op() instanceof ProgramVariable || t.op() instanceof LogicVariable) {
-            if(t.sort() != sort) {
+            if(t.sort() != Sort.FORMULA && t.sort() != sort) {
                 return true;
             }
         }
