@@ -11,11 +11,15 @@
  */
 package de.uka.ilkd.key.rule.updatesimplifier;
 
+import java.util.LinkedHashMap;
+
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.logic.Term;
-import de.uka.ilkd.key.logic.Visitor;
+import de.uka.ilkd.key.logic.TermBuilder;
+import de.uka.ilkd.key.logic.TermFactory;
 import de.uka.ilkd.key.logic.op.NonRigid;
 import de.uka.ilkd.key.logic.op.NonRigidFunctionLocation;
+import de.uka.ilkd.key.logic.op.Op;
 import de.uka.ilkd.key.logic.op.Operator;
 import de.uka.ilkd.key.logic.op.QuantifiableVariable;
 import de.uka.ilkd.key.rule.AbstractUpdateRule;
@@ -23,79 +27,92 @@ import de.uka.ilkd.key.rule.UpdateSimplifier;
 import de.uka.ilkd.key.util.Debug;
 
 /**
- * @author bubel
- * This rule is fall back rule for "unknown" terms with non rigid
- * top level symbol and just prepends the Update.
+ * @author bubel This rule is fall back rule for "unknown" terms with non rigid
+ *         top level symbol and just prepends the Update.
  */
 public class ApplyOnNonRigidTerm extends AbstractUpdateRule {
 
     /**
-     * @param updateSimplifier the UpdateSimplifier to which this 
-     * rule is attached
+     * @param updateSimplifier
+     *            the UpdateSimplifier to which this rule is attached
      */
     public ApplyOnNonRigidTerm(UpdateSimplifier updateSimplifier) {
-        super(updateSimplifier);        
+        super(updateSimplifier);
     }
 
     /**
-     * this rule is applicable if the top level operator is a non rigid 
-     * symbol
+     * this rule is applicable if the top level operator is a non rigid symbol
      */
-    public boolean isApplicable(Update update, Term target, Services services) {       
+    public boolean isApplicable(Update update, Term target, Services services) {
         return target.op() instanceof NonRigid;
     }
 
-    /** 
-     * implementation of the fall back rule for terms with an "unknown"
-     * non rigid top level symbol
+    /**
+     * implementation of the fall back rule for terms with an "unknown" non
+     * rigid top level symbol
      */
-    public Term apply(Update update, final Term target, Services services) {       
+    public Term apply(Update update, final Term target, Services services) {
+        Term result = UpdateSimplifierTermFactory.DEFAULT.createUpdateTerm(
+                update.getAllAssignmentPairs(),
+                updateSimplifier().simplify(target, services));
         if (target.op() instanceof NonRigidFunctionLocation) {
-           out: for (int i = update.locationCount() - 1; i >= 0; i--) {
+            LinkedHashMap<QuantifiableVariable, Term> subst = new LinkedHashMap<QuantifiableVariable, Term>();
+            for (int i = 0; i < update.locationCount(); i++) {
                 AssignmentPair pair = update.getAssignmentPair(i);
-                if(target.op() == pair.locationAsTerm().op()) {
+                if (target.op() == pair.locationAsTerm().op()) {
                     // try to unify
                     final boolean[] unifyable = new boolean[1];
                     unifyable[0] = true;
-                    for(int j = 0; j < target.arity(); j++) {
+                    Term guard = TermBuilder.DF.tt();
+                    for (int j = 0; j < target.arity(); j++) {
                         Operator op = pair.locationAsTerm().sub(j).op();
-                        if(op instanceof QuantifiableVariable && pair.boundVars().contains((QuantifiableVariable) op)) {
-                            // check whether the current non-rigid function is contained in the term
-                            target.sub(j).execPreOrder(new Visitor() {
-                                
-                                @Override
-                                public void visit(Term visited) {
-                                    if(visited.op() == target.op()) {
-                                        unifyable[0] = false;
-                                    }
-                                }
-                            });
+                        if (op instanceof QuantifiableVariable
+                                && pair.boundVars().contains(
+                                        (QuantifiableVariable) op)) {
+                            // propagate the update to the target and substitute
+                            // the quantified argument for this in the value
+                            subst.put((QuantifiableVariable) op, UpdateSimplifierTermFactory.DEFAULT
+                                    .createUpdateTerm(
+                                            update.getAllAssignmentPairs(),
+                                            updateSimplifier().simplify(
+                                                    target.sub(j), services)));
                         } else {
-                            if(!pair.locationAsTerm().sub(j).equals(target.sub(j))) {
-                                // FIXME: implement more complex unifications
-                                unifyable[0] = false;
-                                // we have to stop trying as the innermost update was not applicable
-                                break out;
-                            }
+                            // after updating the args have to be the same
+                            guard = TermBuilder.DF
+                                    .and(guard,
+                                            TermBuilder.DF
+                                                    .equals(pair
+                                                            .locationAsTerm()
+                                                            .sub(j),
+                                                            UpdateSimplifierTermFactory.DEFAULT
+                                                                    .createUpdateTerm(
+                                                                            update.getAllAssignmentPairs(),
+                                                                            updateSimplifier()
+                                                                                    .simplify(
+                                                                                            target.sub(j),
+                                                                                            services))));
                         }
                     }
-                    if(unifyable[0]) {
-                        return pair.value();
+                    Term value = pair.value();
+                    for(QuantifiableVariable v: subst.keySet()) {
+                        value = TermFactory.DEFAULT.createSubstitutionTerm(Op.SUBST, v, subst.get(v), value);
+                    }
+                    if (guard == TermBuilder.DF.tt()) {
+                        result = value;
+                    } else {
+                        result = TermBuilder.DF
+                                .ife(guard, value, result);
                     }
                 }
             }
-        } 
-        return UpdateSimplifierTermFactory.DEFAULT.createUpdateTerm(update
-                    .getAllAssignmentPairs(),
-                    updateSimplifier().simplify(target, services));
+        }
+        return result;
     }
 
-    public Term matchingCondition (Update update, 
-	    			   Term target, 
-	    			   Services services) {
+    public Term matchingCondition(Update update, Term target, Services services) {
         // we don't really know what to do here ;-)
-        Debug.fail ( "no default implementation of "
-                     + "matchingCondition(...) available" );
+        Debug.fail("no default implementation of "
+                + "matchingCondition(...) available");
         return null; // unreachable
     }
 }
