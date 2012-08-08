@@ -195,71 +195,58 @@ public class QODESolve extends AbstractDLMetaOperator {
                     Term[] locations = new Term[updates.size()];
                     Term[] values = new Term[updates.size()];
                     Term[] guards = new Term[updates.size()];
-                    ImmutableArray<QuantifiableVariable>[] boundVars = new ImmutableArray[updates.size()];
+                    ImmutableArray<QuantifiableVariable>[] boundVars = new ImmutableArray[updates
+                            .size()];
                     int idx = 0;
                     for (ODESolverUpdate u : updates) {
                         locations[idx] = replaceAll(services, tmpVars,
                                 u.location);
                         values[idx] = replaceAll(services, tmpVars, u.expr);
                         guards[idx] = TermBuilder.DF.tt();
-                        boundVars[idx] = new ImmutableArray<QuantifiableVariable>(var);
+                        boundVars[idx] = new ImmutableArray<QuantifiableVariable>(
+                                var);
                         idx++;
                     }
 
+                    Term zero = TermBuilder.DF.func(getNull(services));
+                    Term updatedPost = QuanUpdateOperator.normalize(boundVars,
+                            guards, locations, values, post);
+                    // range: 0 <= ts & ts <= t
+                    Term range = TermBuilder.DF.and(TermBuilder.DF.func(
+                            RealLDT.getFunctionFor(LessEquals.class), zero,
+                            TermBuilder.DF.var(ts)), TermBuilder.DF.func(
+                            RealLDT.getFunctionFor(LessEquals.class),
+                            TermBuilder.DF.var(ts), TermBuilder.DF.var(t)));
+                    Term invariant = TermBuilder.DF
+                            .all(var, TermBuilder.DF.all(ts, TermBuilder.DF
+                                    .imp(range, QuanUpdateOperator.normalize(
+                                            boundVars, guards, locations,
+                                            values,
+                                            orgSystem.getInvariant(services)))));
+
+                    Term tGeqZero = TermBuilder.DF.func((Function) nss
+                            .functions().lookup(new Name("geq")), new Term[] {
+                            TermBuilder.DF.var(t), zero });
                     if (term.op() == Modality.BOX || term.op() == Modality.TOUT) {
-                        Term zero = TermBuilder.DF
-                                .func(getNull(services));
                         if (system.getInvariant(services).equals(
                                 TermBuilder.DF.tt())) {
-                            odeSolve = QuanUpdateOperator.normalize(boundVars,
-                                    guards, locations, values, post);
+                            odeSolve = updatedPost;
                         } else {
-                            // range: 0 <= ts & ts <= t 
-                            Term range = TermBuilder.DF.and(TermBuilder.DF
-                                    .func(RealLDT
-                                            .getFunctionFor(LessEquals.class),
-                                            zero, TermBuilder.DF.var(ts)),
-                                    TermBuilder.DF.func(RealLDT
-                                            .getFunctionFor(LessEquals.class),
-                                            TermBuilder.DF.var(ts),
-                                            TermBuilder.DF.var(t)));
-                            odeSolve = TermBuilder.DF.imp(TermBuilder.DF.all(var, TermBuilder.DF.all(
-                                    ts, TermBuilder.DF.imp(range, 
-                                    QuanUpdateOperator.normalize(boundVars,
-                                            guards, locations, values,
-                                            orgSystem.getInvariant(services))))),
-                                    QuanUpdateOperator.normalize(boundVars,
-                                            guards, locations, values, post));
+                            odeSolve = TermBuilder.DF.imp(invariant,
+                                    updatedPost);
                         }
-                        odeSolve = TermBuilder.DF
-                                .imp(TermBuilder.DF
-                                        .func((Function) nss.functions()
-                                                .lookup(new Name("geq")),
-                                                new Term[] {
-                                                        TermBuilder.DF.var(t),
-                                                        zero }),
-                                        odeSolve);
-                        // odeSolve = replaceAll(services, tmpVars, odeSolve);
+                        odeSolve = TermBuilder.DF.imp(tGeqZero, odeSolve);
                         return TermBuilder.DF.all(t, odeSolve);
-                        // } else if (term.op() == Modality.DIA) {
-                        // if (system.getInvariant(services).equals(
-                        // TermBuilder.DF.tt())) {
-                        // odeSolve = odeResult.getPostCondition();
-                        // } else {
-                        // odeSolve = TermBuilder.DF.and(
-                        // odeResult.getInvariantExpression(),
-                        // odeResult.getPostCondition());
-                        // }
-                        // odeSolve = TermBuilder.DF
-                        // .and(TermBuilder.DF
-                        // .func((Function) nss.functions()
-                        // .lookup(new Name("geq")),
-                        // new Term[] {
-                        // TermBuilder.DF.var(t),
-                        // TermBuilder.DF
-                        // .func(getNull(services)) }),
-                        // odeSolve);
-                        // return TermBuilder.DF.ex(t, odeSolve);
+                    } else if (term.op() == Modality.DIA) {
+                        if (system.getInvariant(services).equals(
+                                TermBuilder.DF.tt())) {
+                            odeSolve = updatedPost;
+                        } else {
+                            odeSolve = TermBuilder.DF.and(invariant,
+                                    updatedPost);
+                        }
+                        odeSolve = TermBuilder.DF.and(tGeqZero, odeSolve);
+                        return TermBuilder.DF.ex(t, odeSolve);
                     } else {
                         throw new IllegalStateException("Unknown modality "
                                 + term.op());
