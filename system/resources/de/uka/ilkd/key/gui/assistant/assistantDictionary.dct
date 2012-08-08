@@ -33,7 +33,9 @@ box_quest_right = "Tests are assertions on the current program state."
 diamond_quest_left = "Tests are assertions on the current program state."
 diamond_quest_right = "Tests are assertions on the current program state."
 
-loop_inv_box_quan = "You are facing a loop. Try finding a loop invariant, i.e. a first order characterization of what the effect of the loop is."
+loop_inv_box_quan = "You are facing a loop. The rule <b>invariant_loop (quantified)</b> is the default rule to handle this. Try finding a loop invariant, i.e. a first order characterization of what the effect of the loop is."
+
+loop_inv_box_fresh = "The rule <b>invariant_loop (fresh)</b> is a variant of the quantified version. It cancels the context instead of quantifying the changed variables. This sometimes has an advantage regarding the resulting arithmetic complexity. However, the loop invariant has to carry more information about the rigid symbols in the sequent."
 
 loop_var_dia = "You are facing a loop. Try finding a loop invariant, i.e. a first order characterization of what the effect of the loop is.<br>
 				As the loop is occurred in a diamond you also have to show progress."

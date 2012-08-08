@@ -1336,7 +1336,7 @@ options {
                                  Sequent addSeq,
                                  ImmutableList<Taclet> addRList,
                                  ImmutableSet<SchemaVariable> pvs,
-                                 ImmutableSet<Choice> soc) 
+                                 ImmutableSet<Choice> soc, boolean fresh) 
         throws SemanticException
         {
             TacletGoalTemplate gt = null;
@@ -1358,7 +1358,7 @@ options {
                         gt = new AntecSuccTacletGoalTemplate(addSeq,
                                                              addRList,
                                                              (Sequent)rwObj,
-                                                             pvs);  
+                                                             pvs, fresh);  
                     } else {
                         throw new UnfittingReplacewithException
                             ("Replacewith in a Antec-or SuccTaclet has "+
@@ -4442,6 +4442,7 @@ RPAREN
 goalspec[TacletBuilder b, ImmutableSet<Choice> soc] 
 {
     Object rwObj = null;
+    boolean fresh = false;
     Sequent addSeq = Sequent.EMPTY_SEQUENT;
     ImmutableList<Taclet> addRList = ImmutableSLList.<Taclet>nil();
     ImmutableSet<SchemaVariable> addpv = DefaultImmutableSet.<SchemaVariable>nil();
@@ -4456,15 +4457,23 @@ goalspec[TacletBuilder b, ImmutableSet<Choice> soc]
             )
         | ( addSeq=add (addRList=addrules)? )
         | ( addRList=addrules )
+        | ( rwObj = addfreshgoal { fresh = true; }
+                (addSeq=add)? 
+                (addRList=addrules)? 
+                (addpv=addprogvar)?
+        )
         )
         {
-            addGoalTemplate(b,name,rwObj,addSeq,addRList,addpv,soc);
+            addGoalTemplate(b,name,rwObj,addSeq,addRList,addpv,soc,fresh);
         }
         
     ;
 
 replacewith returns [Object o] { o = null; } :
         REPLACEWITH LPAREN o=termorseq RPAREN;
+        
+addfreshgoal returns [Object o] { o = null; } :
+        ADDFRESHGOAL LPAREN o=termorseq RPAREN;
 
 add returns [Sequent s] { s = null;} :
         ADD LPAREN s=seq RPAREN;

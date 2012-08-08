@@ -26,6 +26,7 @@ import de.uka.ilkd.key.logic.op.SchemaVariable;
 public class AntecSuccTacletGoalTemplate extends TacletGoalTemplate{
     /** sequent that replaces another one */
     private Sequent replacewith=Sequent.EMPTY_SEQUENT;
+    private boolean fresh;
 
     /** creates new Goaldescription 
      *@param addedSeq new Sequent to be added
@@ -36,18 +37,19 @@ public class AntecSuccTacletGoalTemplate extends TacletGoalTemplate{
     public AntecSuccTacletGoalTemplate(Sequent addedSeq,
 			   ImmutableList<Taclet> addedRules,
 			   Sequent replacewith,
-			   ImmutableSet<SchemaVariable> pvs) {
+			   ImmutableSet<SchemaVariable> pvs, boolean fresh) {
 	super(addedSeq, addedRules, pvs);
 	TacletBuilder.checkContainsFreeVarSV(replacewith, 
                 null, "replacewith sequent");
 	this.replacewith = replacewith;
+	this.fresh = fresh;
     }
 
     public AntecSuccTacletGoalTemplate(Sequent addedSeq,
 				     ImmutableList<Taclet> addedRules,				     
 				     Sequent replacewith) {
 	this(addedSeq, addedRules, replacewith,
-	     DefaultImmutableSet.<SchemaVariable>nil());
+	     DefaultImmutableSet.<SchemaVariable>nil(), false);
     }
 
     /** a Taclet may replace a Sequent by another. The new Sequent is returned.
@@ -97,8 +99,18 @@ public class AntecSuccTacletGoalTemplate extends TacletGoalTemplate{
     /** toString */
     public String toString() {
 	String result=super.toString();
-	result+="\\replacewith("+replaceWith()+") ";       
+	if(!fresh) {
+	    result+="\\replacewith("+replaceWith()+") ";
+	} else {
+	    result+="\\addfreshgoal("+replaceWith()+") ";
+	}
 	return result;
     }
 
+    /**
+     * @return the fresh
+     */
+    public boolean isFresh() {
+        return fresh;
+    }
 }

@@ -144,6 +144,7 @@ tokens {
         OLDNAME = "\\oldname";
         HELPTEXT = "\\helptext";
         REPLACEWITH = "\\replacewith";
+        ADDFRESHGOAL = "\\addfreshgoal";
         ADDRULES = "\\addrules";
         ADDPROGVARS = "\\addprogvars";
         HEURISTICS = "\\heuristics";	

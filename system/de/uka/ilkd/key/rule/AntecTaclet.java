@@ -10,6 +10,8 @@
 
 package de.uka.ilkd.key.rule;
 
+import java.util.LinkedHashSet;
+
 import de.uka.ilkd.key.collection.ImmutableList;
 import de.uka.ilkd.key.collection.ImmutableMap;
 import de.uka.ilkd.key.collection.ImmutableSet;
@@ -75,7 +77,23 @@ public class AntecTaclet extends FindTaclet{
 				    Services services, 
 				    MatchConditions matchCond) {
 	if (gt instanceof AntecSuccTacletGoalTemplate) {
-	    final Sequent replWith = ((AntecSuccTacletGoalTemplate)gt).replaceWith();
+	    AntecSuccTacletGoalTemplate antecSuccTacletGoalTemplate = (AntecSuccTacletGoalTemplate)gt;
+        final Sequent replWith = antecSuccTacletGoalTemplate.replaceWith();
+
+        LinkedHashSet<PosInOccurrence> positions = new LinkedHashSet<PosInOccurrence>();
+        if(antecSuccTacletGoalTemplate.isFresh()) {
+            for(ConstrainedFormula f : goal.sequent().antecedent()) {
+                positions.add(new PosInOccurrence(f, PosInTerm.TOP_LEVEL, true));
+            }
+            for(ConstrainedFormula f : goal.sequent().succedent()) {
+                positions.add(new PosInOccurrence(f, PosInTerm.TOP_LEVEL, false));
+            }
+            positions.remove(posOfFind);
+            
+            for(PosInOccurrence p: positions) {
+                goal.removeFormula(p);
+            }
+        }
 
             if ( createCopies ( goal, posOfFind, matchCond ) ) {
                 addToAntec ( replWith.antecedent (),
