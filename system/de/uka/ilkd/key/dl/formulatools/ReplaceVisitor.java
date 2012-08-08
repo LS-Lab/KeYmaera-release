@@ -40,6 +40,7 @@ import de.uka.ilkd.key.dl.model.Constant;
 import de.uka.ilkd.key.dl.model.DLNonTerminalProgramElement;
 import de.uka.ilkd.key.dl.model.DLProgram;
 import de.uka.ilkd.key.dl.model.DLProgramElement;
+import de.uka.ilkd.key.dl.model.DLStatementBlock;
 import de.uka.ilkd.key.dl.model.DiffSystem;
 import de.uka.ilkd.key.dl.model.Dot;
 import de.uka.ilkd.key.dl.model.Exists;
@@ -278,7 +279,12 @@ public class ReplaceVisitor {
 			SVInstantiations inst, TermFactory tf) {
 		DLProgramElement result = null;
 		if (childAt instanceof SchemaVariable) {
-		    result = (DLProgramElement) inst.getInstantiation((SchemaVariable) childAt);
+			if(inst.getInstantiation((SchemaVariable) childAt) instanceof DLProgramElement) {
+				result = (DLProgramElement) inst.getInstantiation((SchemaVariable) childAt);
+			} else if(inst.getInstantiation((SchemaVariable) childAt) instanceof Term) {
+				Term t = (Term) inst.getInstantiation((SchemaVariable) childAt);
+				result = (DLProgramElement) ((DLStatementBlock)t.executableJavaBlock().program()).getFirstElement();
+			}
 		} else if (childAt instanceof Chop) {
 			Chop chop = (Chop) childAt;
 			result = tf.createChop((DLProgram) convert(chop.getChildAt(0),
@@ -372,7 +378,12 @@ public class ReplaceVisitor {
 		} else if (childAt instanceof RandomAssign) {
 			result = (RandomAssign) childAt;
 		} else if (childAt instanceof SchemaVariable) {
-		    result = (DLProgramElement) inst.getInstantiation((SchemaVariable) childAt);
+			if(inst.getInstantiation((SchemaVariable) childAt) instanceof DLProgramElement) {
+				result = (DLProgramElement) inst.getInstantiation((SchemaVariable) childAt);
+			} else if(inst.getInstantiation((SchemaVariable) childAt) instanceof Term) {
+				Term t = (Term) inst.getInstantiation((SchemaVariable) childAt);
+				result = (DLProgramElement) ((DLStatementBlock)t.executableJavaBlock().program()).getFirstElement();
+			}
 		} else if (childAt instanceof de.uka.ilkd.key.dl.model.ProgramVariable) {
 			de.uka.ilkd.key.dl.model.ProgramVariable pv = (de.uka.ilkd.key.dl.model.ProgramVariable) childAt;
 			result = pv;
