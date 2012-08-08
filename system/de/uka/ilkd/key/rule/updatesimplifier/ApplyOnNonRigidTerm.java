@@ -13,6 +13,7 @@ package de.uka.ilkd.key.rule.updatesimplifier;
 
 import java.util.LinkedHashMap;
 
+import de.uka.ilkd.key.collection.ImmutableArray;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.TermBuilder;
@@ -52,10 +53,20 @@ public class ApplyOnNonRigidTerm extends AbstractUpdateRule {
      * rigid top level symbol
      */
     public Term apply(Update update, final Term target, Services services) {
-        Term result = UpdateSimplifierTermFactory.DEFAULT.createUpdateTerm(
-                update.getAllAssignmentPairs(),
-                updateSimplifier().simplify(target, services));
+        Term result;
         if (target.op() instanceof NonRigidFunctionLocation) {
+            Term[] args = new Term[target.arity()];
+            ImmutableArray<QuantifiableVariable>[] boundVars = new ImmutableArray[target
+                    .arity()];
+            // pass update homomorph to the arguments
+            for (int i = 0; i < target.arity(); i++) {
+                args[i] = UpdateSimplifierTermFactory.DEFAULT.createUpdateTerm(
+                        update.getAllAssignmentPairs(), updateSimplifier()
+                                .simplify(target.sub(i), services));
+                boundVars[i] = target.varsBoundHere(i);
+            }
+            result = TermFactory.DEFAULT.createTerm(target.op(), args,
+                    boundVars, target.javaBlock());
             LinkedHashMap<QuantifiableVariable, Term> subst = new LinkedHashMap<QuantifiableVariable, Term>();
             for (int i = 0; i < update.locationCount(); i++) {
                 AssignmentPair pair = update.getAssignmentPair(i);
@@ -71,8 +82,9 @@ public class ApplyOnNonRigidTerm extends AbstractUpdateRule {
                                         (QuantifiableVariable) op)) {
                             // propagate the update to the target and substitute
                             // the quantified argument for this in the value
-                            subst.put((QuantifiableVariable) op, UpdateSimplifierTermFactory.DEFAULT
-                                    .createUpdateTerm(
+                            subst.put(
+                                    (QuantifiableVariable) op,
+                                    UpdateSimplifierTermFactory.DEFAULT.createUpdateTerm(
                                             update.getAllAssignmentPairs(),
                                             updateSimplifier().simplify(
                                                     target.sub(j), services)));
@@ -94,17 +106,21 @@ public class ApplyOnNonRigidTerm extends AbstractUpdateRule {
                         }
                     }
                     Term value = pair.value();
-                    for(QuantifiableVariable v: subst.keySet()) {
-                        value = TermFactory.DEFAULT.createSubstitutionTerm(Op.SUBST, v, subst.get(v), value);
+                    for (QuantifiableVariable v : subst.keySet()) {
+                        value = TermFactory.DEFAULT.createSubstitutionTerm(
+                                Op.SUBST, v, subst.get(v), value);
                     }
                     if (guard == TermBuilder.DF.tt()) {
                         result = value;
                     } else {
-                        result = TermBuilder.DF
-                                .ife(guard, value, result);
+                        result = TermBuilder.DF.ife(guard, value, result);
                     }
                 }
             }
+        } else {
+            result = UpdateSimplifierTermFactory.DEFAULT.createUpdateTerm(
+                    update.getAllAssignmentPairs(), updateSimplifier()
+                            .simplify(target, services));
         }
         return result;
     }

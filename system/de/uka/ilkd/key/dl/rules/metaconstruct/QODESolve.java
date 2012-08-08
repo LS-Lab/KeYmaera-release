@@ -177,7 +177,6 @@ public class QODESolve extends AbstractDLMetaOperator {
                 }
             } else {
                 Set<ProgramElement> collectNonRigidFunctionTerms = collectNonRigidFunctionTerms(system);
-                System.out.println(collectNonRigidFunctionTerms); // XXX
                 Map<ProgramVariable, ProgramElement> tmpVars = createTmpVariables(
                         collectNonRigidFunctionTerms, services);
                 Map<FunctionTerm, de.uka.ilkd.key.dl.model.ProgramVariable> inverse = new HashMap<FunctionTerm, de.uka.ilkd.key.dl.model.ProgramVariable>();
@@ -196,16 +195,16 @@ public class QODESolve extends AbstractDLMetaOperator {
                     Term[] locations = new Term[updates.size()];
                     Term[] values = new Term[updates.size()];
                     Term[] guards = new Term[updates.size()];
+                    ImmutableArray<QuantifiableVariable>[] boundVars = new ImmutableArray[updates.size()];
                     int idx = 0;
                     for (ODESolverUpdate u : updates) {
                         locations[idx] = replaceAll(services, tmpVars,
                                 u.location);
                         values[idx] = replaceAll(services, tmpVars, u.expr);
                         guards[idx] = TermBuilder.DF.tt();
+                        boundVars[idx] = new ImmutableArray<QuantifiableVariable>(var);
                         idx++;
                     }
-                    ImmutableArray<QuantifiableVariable>[] boundVars = new ImmutableArray[1];
-                    boundVars[0] = new ImmutableArray<QuantifiableVariable>(var);
 
                     if (term.op() == Modality.BOX || term.op() == Modality.TOUT) {
                         Term zero = TermBuilder.DF
@@ -224,11 +223,11 @@ public class QODESolve extends AbstractDLMetaOperator {
                                             .getFunctionFor(LessEquals.class),
                                             TermBuilder.DF.var(ts),
                                             TermBuilder.DF.var(t)));
-                            odeSolve = TermBuilder.DF.imp(TermBuilder.DF.all(
+                            odeSolve = TermBuilder.DF.imp(TermBuilder.DF.all(var, TermBuilder.DF.all(
                                     ts, TermBuilder.DF.imp(range, 
                                     QuanUpdateOperator.normalize(boundVars,
                                             guards, locations, values,
-                                            orgSystem.getInvariant(services)))),
+                                            orgSystem.getInvariant(services))))),
                                     QuanUpdateOperator.normalize(boundVars,
                                             guards, locations, values, post));
                         }
@@ -241,7 +240,6 @@ public class QODESolve extends AbstractDLMetaOperator {
                                                         zero }),
                                         odeSolve);
                         // odeSolve = replaceAll(services, tmpVars, odeSolve);
-                        odeSolve = TermBuilder.DF.all(var, odeSolve);
                         return TermBuilder.DF.all(t, odeSolve);
                         // } else if (term.op() == Modality.DIA) {
                         // if (system.getInvariant(services).equals(
