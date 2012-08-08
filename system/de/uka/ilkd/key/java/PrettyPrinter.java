@@ -3492,8 +3492,9 @@ public class PrettyPrinter {
         
         write("\\exists ");
         writeElement(p.getChildAt(0));
-        write("; ");
+        write("; (");
         writeElement(p.getChildAt(1));
+		write(")");
         markEnd(0, p);
         printFooter(p);
     }
@@ -3507,8 +3508,9 @@ public class PrettyPrinter {
         
         write("\\forall ");
         writeElement(p.getChildAt(0));
-        write("; ");
+        write("; (");
         writeElement(p.getChildAt(1));
+		write(")");
         markEnd(0, p);
         printFooter(p);
     }
