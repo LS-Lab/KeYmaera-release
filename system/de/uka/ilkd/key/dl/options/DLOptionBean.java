@@ -173,7 +173,7 @@ public class DLOptionBean implements Settings {
 	}
 
 	public static enum InvariantRule {
-		QUANTIFIERS("loop_inv_box_quan");
+		QUANTIFIERS("loop_inv_box_quan"), FRESH("loop_inv_box_fresh");
 
 		private String name;
 

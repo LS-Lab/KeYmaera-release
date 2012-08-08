@@ -540,9 +540,15 @@ public class LogicPrinter {
 	}
 	
 	if (tgt instanceof AntecSuccTacletGoalTemplate) {
-	    printTextSequent
-		(((AntecSuccTacletGoalTemplate)tgt).replaceWith(), 
-		 "\\replacewith", true);
+	    if(((AntecSuccTacletGoalTemplate) tgt).isFresh()) {
+    	    printTextSequent
+    		(((AntecSuccTacletGoalTemplate)tgt).replaceWith(), 
+    		 "\\addfreshgoal", true);
+	    } else {
+    	    printTextSequent
+    		(((AntecSuccTacletGoalTemplate)tgt).replaceWith(), 
+    		 "\\replacewith", true);
+	    }
 	}
 	if (tgt instanceof RewriteTacletGoalTemplate) {
 	    layouter.brk();
