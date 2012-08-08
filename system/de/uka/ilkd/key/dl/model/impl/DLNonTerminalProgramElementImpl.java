@@ -307,4 +307,23 @@ public abstract class DLNonTerminalProgramElementImpl extends
 	public Iterator<ProgramElement> iterator() {
 		return new DLNonTerminalProgramElementIteratorImpl(this);
 	}
+	
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+	    if(obj != null && obj instanceof DLNonTerminalProgramElement) {
+	        DLNonTerminalProgramElement dn = (DLNonTerminalProgramElement) obj;
+	        if(dn.getChildCount() == this.getChildCount()) {
+	            for(int i = 0; i < getChildCount(); i++) {
+	                if(!dn.getChildAt(i).equals(getChildAt(i))) {
+	                    return false;
+	                }
+	            }
+	            return true;
+	        }
+	    }
+	    return false;
+	}
 }

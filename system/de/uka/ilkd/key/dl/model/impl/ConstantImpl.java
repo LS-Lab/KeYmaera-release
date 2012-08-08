@@ -98,4 +98,16 @@ public class ConstantImpl extends DLTerminalProgramElementImpl implements
     public String toString() {
         return "" + value;
     }
+    
+    /* (non-Javadoc)
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if(obj != null && obj instanceof Constant) {
+            Constant c = (Constant) obj;
+            return c.getValue().equals(getValue());
+        }
+        return false;
+    }
 }

@@ -87,4 +87,16 @@ public abstract class VariableImpl extends DLTerminalProgramElementImpl
 	public String toString() {
 		return name.toString();
 	}
+	
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+        if(obj != null && obj instanceof Variable) {
+            Variable c = (Variable) obj;
+            return c.getElementName().toString().equals(getElementName().toString());
+        }
+        return false;
+	}
 }

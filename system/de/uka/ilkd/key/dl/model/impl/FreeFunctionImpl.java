@@ -114,5 +114,17 @@ public class FreeFunctionImpl extends FunctionImpl implements FreeFunction {
 	public String getSymbol() {
 		return getElementName().toString();
 	}
+	
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+	    if(obj != null && obj instanceof FreeFunction) {
+	        FreeFunction f = (FreeFunction) obj;
+	        return f.getElementName().toString().equals(getElementName().toString());
+	    }
+	    return false;
+	}
 
 }

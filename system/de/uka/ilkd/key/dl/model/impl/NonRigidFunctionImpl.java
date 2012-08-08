@@ -27,7 +27,6 @@ package de.uka.ilkd.key.dl.model.impl;
 import java.util.Map;
 import java.util.WeakHashMap;
 
-import de.uka.ilkd.key.dl.model.FreeFunction;
 import de.uka.ilkd.key.dl.model.NonRigidFunction;
 import de.uka.ilkd.key.logic.Name;
 
@@ -127,4 +126,24 @@ public class NonRigidFunctionImpl extends FunctionImpl implements NonRigidFuncti
 	    return argSorts;
 	}
 
+	
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+	    if(obj != null && obj instanceof NonRigidFunction) {
+	        NonRigidFunction f = (NonRigidFunction) obj;
+	        boolean names = f.getElementName().toString().equals(getElementName().toString());
+	        if(names && f.getArgSorts().length == getArgSorts().length) {
+	            for(int i = 0; i < getArgSorts().length; i++) {
+	                if(!f.getArgSorts()[i].equals(getArgSorts()[i])) {
+	                    return false;
+	                }
+	            }
+	            return true;
+	        }
+	    }
+	    return false;
+	}
 }

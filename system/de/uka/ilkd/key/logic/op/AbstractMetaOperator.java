@@ -33,6 +33,7 @@ import de.uka.ilkd.key.dl.rules.metaconstruct.Evaluate;
 import de.uka.ilkd.key.dl.rules.metaconstruct.FullSimplify;
 import de.uka.ilkd.key.dl.rules.metaconstruct.ImplicationIntroductor;
 import de.uka.ilkd.key.dl.rules.metaconstruct.ODESolve;
+import de.uka.ilkd.key.dl.rules.metaconstruct.QODESolve;
 import de.uka.ilkd.key.dl.rules.metaconstruct.Reduce;
 import de.uka.ilkd.key.dl.rules.metaconstruct.Simplify;
 import de.uka.ilkd.key.dl.rules.metaconstruct.WeakNegation;
@@ -222,6 +223,7 @@ public abstract class AbstractMetaOperator extends Op implements MetaOperator {
 	public static final AbstractMetaOperator PROG_2_LOGIC_CONVERTER = new Prog2LogicConverter();
 	
         public static final ODESolve ODE_SOLVE = new ODESolve();
+        public static final QODESolve QODE_SOLVE = new QODESolve();
         public static final DiffInd DIFFIND = new DiffInd();
         public static final AbstractMetaOperator DIFFFIN = new DiffFin();
         public static final AbstractMetaOperator DIFFADJOIN= new DLDiffAdjoin();
