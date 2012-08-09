@@ -25,9 +25,9 @@ package de.uka.ilkd.key.dl.rules;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -35,16 +35,17 @@ import java.util.Set;
 import javax.swing.JOptionPane;
 
 import de.uka.ilkd.key.collection.ImmutableList;
-import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
+import de.uka.ilkd.key.collection.ImmutableMapEntry;
 import de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator.PairOfTermAndQuantifierType;
+import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.UnsolveableException;
 import de.uka.ilkd.key.dl.formulatools.ContainsMetaVariableVisitor;
+import de.uka.ilkd.key.dl.formulatools.ContainsMetaVariableVisitor.Result;
 import de.uka.ilkd.key.dl.formulatools.SkolemfunctionTracker;
 import de.uka.ilkd.key.dl.formulatools.TermRewriter;
-import de.uka.ilkd.key.dl.formulatools.TermTools;
-import de.uka.ilkd.key.dl.formulatools.ContainsMetaVariableVisitor.Result;
 import de.uka.ilkd.key.dl.formulatools.TermRewriter.Match;
+import de.uka.ilkd.key.dl.formulatools.TermTools;
 import de.uka.ilkd.key.dl.options.DLOptionBean;
 import de.uka.ilkd.key.dl.strategy.features.FOSequence;
 import de.uka.ilkd.key.gui.Main;
@@ -64,13 +65,15 @@ import de.uka.ilkd.key.logic.op.Metavariable;
 import de.uka.ilkd.key.logic.op.Op;
 import de.uka.ilkd.key.logic.op.Operator;
 import de.uka.ilkd.key.logic.op.RigidFunction;
+import de.uka.ilkd.key.logic.op.SchemaVariable;
 import de.uka.ilkd.key.proof.Goal;
 import de.uka.ilkd.key.proof.Node;
 import de.uka.ilkd.key.proof.RuleFilter;
 import de.uka.ilkd.key.rule.BuiltInRule;
+import de.uka.ilkd.key.rule.NoPosTacletApp;
 import de.uka.ilkd.key.rule.Rule;
 import de.uka.ilkd.key.rule.RuleApp;
-import de.uka.ilkd.key.rule.RuleAppNumber;
+import de.uka.ilkd.key.rule.inst.InstantiationEntry;
 
 /**
  * This class serves a rule to eliminate existential quantifiers
@@ -196,6 +199,14 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
 			Goal curGoal = goalIt.next();
 			Iterator<ConstrainedFormula> it = curGoal.sequent().iterator();
 			Result result = Result.DOES_NOT_CONTAIN_VAR;
+			Set<NoPosTacletApp> toRemove = new java.util.HashSet<NoPosTacletApp>();
+            for(NoPosTacletApp ta: curGoal.ruleAppIndex().tacletIndex().allNoPosTacletApps()) {
+                checkTacletApp(variables, toRemove, ta);
+            }
+            // remove marked hidden formulas
+            for(NoPosTacletApp ta: toRemove) {
+                curGoal.ruleAppIndex().removeNoPosTacletApp(ta);
+            }
 			while (it.hasNext()) {
 				ConstrainedFormula next = it.next();
 				Result res = ContainsMetaVariableVisitor
@@ -517,6 +528,33 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
 					+ Arrays.toString(variables.toArray()), e);
 		}
 	}
+
+    /**
+     * @param variables
+     * @param toRemove
+     * @param ta
+     */
+    private void checkTacletApp(List<Metavariable> variables,
+            Set<NoPosTacletApp> toRemove, NoPosTacletApp ta) {
+        if(ta.taclet().displayName().startsWith("insert_hidden")) {
+            Iterator<ImmutableMapEntry<SchemaVariable, InstantiationEntry>> pairIterator = ta.instantiations().pairIterator();
+            while(pairIterator.hasNext()) {
+                ImmutableMapEntry<SchemaVariable, InstantiationEntry> pair = pairIterator.next();
+                if(pair.value().getInstantiation() instanceof Term) {
+                    Term t = (Term) pair.value().getInstantiation();
+                   Result res = ContainsMetaVariableVisitor.containsMetaVariableAndIsFO(variables, t);
+                   if(res == Result.CONTAINS_VAR || res == Result.CONTAINS_VAR_BUT_CANNOT_APPLY) {
+                       toRemove.add(ta);
+                   } 
+                } else {
+                    // we are not sure, therefore better remove the taclet
+                    // TODO: find out if we really need to remove
+                   toRemove.add(ta);
+                   System.err.println("Removing hidden even though we weren't sure: " + ta);
+                }
+            }
+        }
+    }
 
 	/**
 	 * Find skolem functions that occur in the given formulas
