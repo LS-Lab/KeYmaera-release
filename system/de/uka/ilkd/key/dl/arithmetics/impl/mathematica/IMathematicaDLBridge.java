@@ -80,6 +80,8 @@ public interface IMathematicaDLBridge extends Remote {
 			LogicVariable ts, Term phi, Services services)
 			throws RemoteException, SolverException;
 
+	public Term[] pdeSolve(DiffSystem form, LogicVariable t, Services services);
+
 	public List<ODESolverUpdate> odeUpdate(DiffSystem form, LogicVariable t,
 			Services services, long timeout) throws RemoteException,
 			SolverException;
@@ -242,4 +244,5 @@ public interface IMathematicaDLBridge extends Remote {
 	 * TODO documentation since Jun 6, 2008
 	 */
 	boolean checkForConstantGroebnerBasis(PolynomialClassification<Term> terms, Services services) throws RemoteException;
+
 }

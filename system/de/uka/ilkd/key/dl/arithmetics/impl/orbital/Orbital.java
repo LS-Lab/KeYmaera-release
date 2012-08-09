@@ -243,6 +243,10 @@ public class Orbital implements IODESolver {
 		}
 	}
 
+	public Term[] pdeSolve(DiffSystem form, LogicVariable t, Services services) {
+		throw new UnsupportedOperationException("not yet implemented");
+	}
+
 	public Term diffInd(DiffSystem form, Term post, Services services)
 			throws RemoteException, SolverException {
 		// TODO implement

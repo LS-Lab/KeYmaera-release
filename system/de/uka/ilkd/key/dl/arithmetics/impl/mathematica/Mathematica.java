@@ -107,7 +107,12 @@ public class Mathematica implements ICounterExampleGenerator, IODESolver,
 		return bridge.odeSolve(form, t, ts, phi, services);
 	}
 
-	public Term diffInd(DiffSystem form, Term post, Services services)
+    public Term[] pdeSolve(DiffSystem form, LogicVariable t, Services services)
+            throws RemoteException, SolverException {
+    		return bridge.pdeSolve(form, t, services);
+    }
+
+    public Term diffInd(DiffSystem form, Term post, Services services)
 			throws RemoteException, SolverException {
 		return bridge.diffInd(form, post, services);
 	}

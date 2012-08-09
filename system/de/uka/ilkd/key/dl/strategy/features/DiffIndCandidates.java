@@ -37,6 +37,8 @@ import java.util.LinkedHashSet;
 import orbital.util.SequenceIterator;
 import orbital.util.Setops;
 import de.uka.ilkd.key.collection.ImmutableArray;
+import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
+import de.uka.ilkd.key.dl.arithmetics.impl.mathematica.Mathematica;
 import de.uka.ilkd.key.dl.formulatools.Prog2LogicConverter;
 import de.uka.ilkd.key.dl.formulatools.ReplacementSubst;
 import de.uka.ilkd.key.dl.formulatools.TermTools;
@@ -95,6 +97,7 @@ public class DiffIndCandidates implements TermGenerator {
         }
         final DLProgram program = (DLProgram) ((StatementBlock) term
                 .javaBlock().program()).getChildAt(0);
+        final Term post = term.sub(0);
         Term currentInvariant;
         if (program instanceof DiffSystem) {
             currentInvariant = ((DiffSystem) program).getInvariant(goal.proof().getServices());
@@ -113,6 +116,10 @@ public class DiffIndCandidates implements TermGenerator {
         // can handle this.
         // we only consider sophisticated choices
         // l.add(post); // consider diffind itself als diffstrengthening
+        if (false && program instanceof DiffSystem && MathSolverManager.isODESolverSet() 
+        		&& MathSolverManager.getCurrentODESolver() instanceof Mathematica && FOSequence.INSTANCE.isFOFormula(post)) {
+            // fancy diffop strategy
+        }
         final Iterator<Term> candidateGenerator = 
             indCandidates(goal.sequent(), pos, currentInvariant,
                         services);

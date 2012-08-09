@@ -148,6 +148,8 @@ public interface IODESolver extends IMathSolver {
             LogicVariable ts, Term phi, Services services)
             throws RemoteException, SolverException;
 
+    public abstract Term[] pdeSolve(DiffSystem form, LogicVariable t, Services services)
+            throws RemoteException, SolverException;
     /**
      * Solves the given differential equation system
      *

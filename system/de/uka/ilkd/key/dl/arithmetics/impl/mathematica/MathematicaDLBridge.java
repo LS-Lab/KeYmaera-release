@@ -405,6 +405,29 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 		// ({ solved diff equations } phi)
 	}
 
+	@Override
+	public Term[] pdeSolve(DiffSystem form, LogicVariable t, Services services) {
+		List<Expr> args = new ArrayList<Expr>();
+		Map<String, Expr> vars = new HashMap<String, Expr>();
+
+		collectDottedProgramVariables(form, vars, t);
+		Term invariant = form.getInvariant(services);
+		final Map<String, Expr> EMPTY = new HashMap<String, Expr>();
+		for (ProgramElement el : form.getDifferentialEquations(services
+				.getNamespaces())) {
+			args.add(DL2Expr.apply(el, t, vars, services));
+		}
+		String name = t.name().toString();
+		name = NameMasker.mask(name);
+		Expr query = new Expr(new Expr(Expr.SYMBOL, "DSolve"), new Expr[] {
+				new Expr(new Expr(Expr.SYMBOL, "List"), args
+						.toArray(new Expr[1])),
+				new Expr(new Expr(Expr.SYMBOL, "List"), vars.values().toArray(
+						new Expr[0])), new Expr(Expr.SYMBOL, name) });
+		//Expr updateExpressions = evaluate(query).expression;
+		throw new UnsupportedOperationException("not yet implemented");
+	}
+
 	public Term diffInd(DiffSystem form, Term post, Services services)
 			throws RemoteException, SolverException {
 		return differentialCall(form, post, null, services, "IDiffInd");
@@ -1199,4 +1222,5 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 		result[args.length] = expr;
 		return result;
 	}
+
 }
