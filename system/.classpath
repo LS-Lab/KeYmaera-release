@@ -10,7 +10,6 @@
 	<classpathentry kind="lib" path="key_lib/recoderKey.jar"/>
 	<classpathentry kind="lib" path="key_lib/scala-library.jar"/>
 	<classpathentry kind="lib" path="key_lib/commons-compress-1.4.jar"/>
-	<classpathentry kind="lib" path="key_lib/antlr-2.7.7.jar"/>
 	<classpathentry kind="lib" path="key_lib/antlr.jar"/>
 	<classpathentry kind="con" path="org.scala-ide.sdt.launching.SCALA_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
