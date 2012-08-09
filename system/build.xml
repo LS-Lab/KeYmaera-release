@@ -50,7 +50,6 @@
 	<path id="build.classpath">
 		<pathelement location="${scala-library.jar}"   />
 		<pathelement location="${scala-compiler.jar}"   />
-        <pathelement location="${ext.dir}/antlr-2.7.2.jar" />		
 		<pathelement location="${ext.dir}/antlr.jar" />			<!-- assumes ANTLR >=3.3 -->
         <pathelement location="${ext.dir}/recoderKey.jar" />
         <pathelement location="${ext.dir}/log4j.jar" />
@@ -129,7 +128,6 @@
         <include name="recoder/**" />
         <include name="TestKey.java" />
       <classpath>
-        <pathelement location="${ext.dir}/antlr-2.7.2.jar" />		
 		<pathelement location="${ext.dir}/antlr.jar" />			<!-- assumes ANTLR >=3.3 -->
         <pathelement location="${ext.dir}/recoderKey.jar" />
         <pathelement location="${ext.dir}/log4j.jar" />
@@ -181,7 +179,7 @@
 	         outputdirectory="${gen.dir}/de/uka/ilkd/key/parser/dictionary">
 	       
 	     	<classpath>
-	           <pathelement location="${ext.dir}/antlr-2.7.2.jar" />
+	           <pathelement location="${ext.dir}/antlr.jar" />
 	        </classpath>
 	     </antlr>
   </target>
@@ -191,7 +189,7 @@
 		         target="de/uka/ilkd/key/parser/dictionary/dictionary.g"
 		         outputdirectory="${gen.dir}/de/uka/ilkd/key/parser/dictionary">
 		        <classpath>
-		           <pathelement location="${ext.dir}/antlr-2.7.2.jar" />
+		           <pathelement location="${ext.dir}/antlr.jar" />
 		        </classpath>
 		     </antlr>
 	  </target>
@@ -210,7 +208,7 @@
          target="de/uka/ilkd/key/parser/lexer.g"
          outputdirectory="${gen.dir}/de/uka/ilkd/key/parser">
         <classpath>
-           <pathelement location="${ext.dir}/antlr-2.7.2.jar" />
+           <pathelement location="${ext.dir}/antlr.jar" />
         </classpath>
      </antlr>	
   </target>
@@ -221,7 +219,7 @@
          target="de/uka/ilkd/key/parser/keyparser.g"
          outputdirectory="${gen.dir}/de/uka/ilkd/key/parser">
         <classpath>
-           <pathelement location="${ext.dir}/antlr-2.7.2.jar" />
+           <pathelement location="${ext.dir}/antlr.jar" />
         </classpath>
     </antlr>	
   </target>
@@ -232,7 +230,7 @@
 	         target="de/uka/ilkd/key/speclang/jml/pretranslation/jmlprelexer.g"
 	         outputdirectory="${gen.dir}/de/uka/ilkd/key/speclang/jml/pretranslation">
 	        <classpath>
-	           <pathelement location="${ext.dir}/antlr-2.7.2.jar" />
+	           <pathelement location="${ext.dir}/antlr.jar" />
 	        </classpath>
 	     </antlr>
 	  </target>
@@ -243,7 +241,7 @@
 	         target="de/uka/ilkd/key/speclang/jml/pretranslation/jmlpreparser.g"
 	         outputdirectory="${gen.dir}/de/uka/ilkd/key/speclang/jml/pretranslation">
 	        <classpath>
-	           <pathelement location="${ext.dir}/antlr-2.7.2.jar" />
+	           <pathelement location="${ext.dir}/antlr.jar" />
 	        </classpath>
 	     </antlr>
 	  </target>
@@ -253,7 +251,7 @@
 	         target="de/uka/ilkd/key/speclang/jml/translation/jmllexer.g"
 	         outputdirectory="${gen.dir}/de/uka/ilkd/key/speclang/jml/translation">
 	        <classpath>
-	           <pathelement location="${ext.dir}/antlr-2.7.2.jar" />
+	           <pathelement location="${ext.dir}/antlr.jar" />
 	        </classpath>
 	     </antlr>
 	  </target>
@@ -264,7 +262,7 @@
 	         target="de/uka/ilkd/key/speclang/jml/translation/jmlparser.g"
 	         outputdirectory="${gen.dir}/de/uka/ilkd/key/speclang/jml/translation">
 	        <classpath>
-	           <pathelement location="${ext.dir}/antlr-2.7.2.jar" />
+	           <pathelement location="${ext.dir}/antlr.jar" />
 	        </classpath>
 	     </antlr>
 	  </target>
@@ -274,7 +272,7 @@
 	         target="de/uka/ilkd/key/speclang/ocl/translation/ocllexer.g"
 	         outputdirectory="${gen.dir}/de/uka/ilkd/key/speclang/ocl/translation">
 	        <classpath>
-	           <pathelement location="${ext.dir}/antlr-2.7.2.jar" />
+	           <pathelement location="${ext.dir}/antlr.jar" />
 	        </classpath>
 	     </antlr>
 	  </target>
@@ -285,7 +283,7 @@
 	         target="de/uka/ilkd/key/speclang/ocl/translation/oclparser.g"
 	         outputdirectory="${gen.dir}/de/uka/ilkd/key/speclang/ocl/translation">
 	        <classpath>
-	           <pathelement location="${ext.dir}/antlr-2.7.2.jar" />
+	           <pathelement location="${ext.dir}/antlr.jar" />
 	        </classpath>
 	     </antlr>
 	  </target>
@@ -295,7 +293,7 @@
 	         target="de/uka/ilkd/key/util/keydoc/parser/KeYDocLexer.g"
 	         outputdirectory="${gen.dir}/de/uka/ilkd/key/util/keydoc/parser">
 	        <classpath>
-	           <pathelement location="${ext.dir}/antlr-2.7.2.jar" />
+	           <pathelement location="${ext.dir}/antlr.jar" />
 	        </classpath>
 	     </antlr>
 	  </target>
@@ -306,7 +304,7 @@
 	         target="de/uka/ilkd/key/util/keydoc/parser/KeYDocParser.g"
 	         outputdirectory="${gen.dir}/de/uka/ilkd/key/util/keydoc/parser">
 	        <classpath>
-	           <pathelement location="${ext.dir}/antlr-2.7.2.jar" />
+	           <pathelement location="${ext.dir}/antlr.jar" />
 	        </classpath>
 	     </antlr>
 	  </target>
@@ -316,7 +314,7 @@
 	         target="de/uka/ilkd/key/util/keydoc/parser/KeYDocTreeWalker.g"
 	         outputdirectory="${gen.dir}/de/uka/ilkd/key/util/keydoc/parser">
 	        <classpath>
-	           <pathelement location="${ext.dir}/antlr-2.7.2.jar" />
+	           <pathelement location="${ext.dir}/antlr.jar" />
 	        </classpath>
 	     </antlr>
 	  </target>
@@ -351,7 +349,7 @@
 	   target="de/uka/ilkd/key/parser/simplify/lexer.g"
 	   outputdirectory="${gen.dir}/de/uka/ilkd/key/parser/simplify">
 	   <classpath>
-	       <pathelement location="${ext.dir}/antlr-2.7.2.jar" />
+	       <pathelement location="${ext.dir}/antlr.jar" />
 	   </classpath>
 	</antlr>
   </target>
@@ -362,7 +360,7 @@
 	         target="de/uka/ilkd/key/parser/simplify/simplify.g"
 	         outputdirectory="${gen.dir}/de/uka/ilkd/key/parser/simplify">
 	        <classpath>
-	           <pathelement location="${ext.dir}/antlr-2.7.2.jar" />
+	           <pathelement location="${ext.dir}/antlr.jar" />
 	        </classpath>
 	     </antlr>
   </target>
