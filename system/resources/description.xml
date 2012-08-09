@@ -357,6 +357,15 @@ Proves dTL variant of equation (2.19) with [][] instead of []</description>
 			<example>
 				<name>ETCS Train Control [controllability]</name>
 				<path>/examples/hybrid/ETCS/paper/controllability-lemma.key</path>
+				<authors>
+					<author>platzer</author>
+					<author>quesel</author>
+				</authors>
+				<proofauthors>
+					<author>platzer</author>
+					<author>quesel</author>
+				</proofauthors>
+				<publication>ETCS</publication> 
 				<description>Proves safety of the ETCS train control protocol case study. This example proves that the train is always controllable safely by some control choice. 
 Proves Proposition 7.1
 			</description>
@@ -386,6 +395,7 @@ Proves Proposition 7.1
 					<author>platzer</author>
 					<author>quesel</author>
 				</proofauthors>
+				<publication>ETCS</publication>
 				<description>Proves safety of the ETCS train control protocol case study. This example proves that a train never leaves its movement authority (MA=m) and, thus, cannot crash into other trains.
 Proves Proposition 7.5
 			</description>
@@ -442,6 +452,15 @@ Proves equation (2.20) from book (see book for hints how to prove or Load Proof)
 				<proofs>
 					<proof name="Mathematica" href="/examples/hybrid/ETCS/liveness/ETCS-essentials-live-range2.key.proof"/>
 				</proofs>
+				<authors>
+					<author>platzer</author>
+					<author>quesel</author>
+				</authors>
+				<proofauthors>
+					<author>platzer</author>
+					<author>quesel</author>
+				</proofauthors>
+				<publication>ETCS</publication> 
 				<description>Proves safety of a slightly simplified ETCS train control protocol case study. This example proves that the train can move beyond every position on the track by just a single choice of movement authority.
 Proves Proposition 7.6 (see book for hints how to prove or Load Proof)
 			</description>
@@ -461,6 +480,15 @@ Proves Proposition 7.6 (see book for hints how to prove or Load Proof)
 					<proof name="Mathematica" href="/examples/hybrid/ETCS/paper/liveness-lemma.key.proof"/>
 					<proof name="Reduce" href="/examples/hybrid/ETCS/paper/liveness-lemma-redlog.key.proof"/>
 				</proofs>
+				<authors>
+					<author>platzer</author>
+					<author>quesel</author>
+				</authors>
+				<proofauthors>
+					<author>platzer</author>
+					<author>quesel</author>
+				</proofauthors>
+				<publication>ETCS</publication> 
 				<description>Proves safety of the ETCS train control protocol case study. This example proves that the train can move beyond every position on the track.
 Proves Proposition 7.6 (see book for hints how to prove or Load Proof)
 			</description>
@@ -477,6 +505,15 @@ Proves Proposition 7.6 (see book for hints how to prove or Load Proof)
 			<example>
 				<name>ETCS Train Control [reactivity]</name>
 				<path>/examples/hybrid/ETCS/paper/reactivity-lemma.key</path>
+				<authors>
+					<author>platzer</author>
+					<author>quesel</author>
+				</authors>
+				<proofauthors>
+					<author>platzer</author>
+					<author>quesel</author>
+				</proofauthors>
+				<publication>ETCS</publication> 
 				<description>Proves safety of the ETCS train control protocol case study. This example proves that the train can react to situation changes.
 Proves Proposition 7.4 (see book for how to prove)
 			</description>
@@ -495,6 +532,15 @@ Proves Proposition 7.4 (see book for how to prove)
 				<proofs>
 					<proof name="Mathematica" href="/examples/hybrid/ETCS/paper/controllability-lemma-disturbed.key.proof"/>
 				</proofs>
+				<authors>
+					<author>platzer</author>
+					<author>quesel</author>
+				</authors>
+				<proofauthors>
+					<author>platzer</author>
+					<author>quesel</author>
+				</proofauthors>
+				<publication>ETCS</publication> 
 				<description>Proves safety of the ETCS train control protocol case study despite disturbance in the physical dynamics. This example proves that the train is always controllable safely by some control choice, despite disturbance.
 Proves Proposition 7.7.
 Depending on your settings, use Update Simplification and Eliminate Universal Quantifiers.
@@ -514,6 +560,15 @@ Depending on your settings, use Update Simplification and Eliminate Universal Qu
 				<proofs>
 					<proof name="Mathematica" href="/examples/hybrid/ETCS/paper/proofs/proposition10.key.proof"/>
 				</proofs>
+				<authors>
+					<author>platzer</author>
+					<author>quesel</author>
+				</authors>
+				<proofauthors>
+					<author>platzer</author>
+					<author>quesel</author>
+				</proofauthors>
+				<publication>ETCS</publication>
 				<description>Proves safety of the ETCS train control protocol case study despite disturbance in the physical dynamics. This example proves that the train can react to situation changes.
 Proves Proposition 7.8 (see book for hints how to prove or Load Proof)
 			</description>
@@ -532,6 +587,15 @@ Proves Proposition 7.8 (see book for hints how to prove or Load Proof)
 				<proofs>
 					<proof name="Mathematica" href="/examples/hybrid/ETCS/paper/safety-lemma-disturbed.key.proof"/>
 				</proofs>
+				<authors>
+					<author>platzer</author>
+					<author>quesel</author>
+				</authors>
+				<proofauthors>
+					<author>platzer</author>
+					<author>quesel</author>
+				</proofauthors>
+				<publication>ETCS</publication>
 				<description>Proves safety of the ETCS train control protocol case study despite disturbance in the physical dynamics. This example proves that a train never leaves its movement authority (MA=m) and, thus, cannot crash into other trains.
 Proves Proposition 7.9 (see book for how to prove)
 			</description>
@@ -550,6 +614,12 @@ Proves Proposition 7.9 (see book for how to prove)
 			<example>
 				<name>Aircraft Roundabout [simple]</name>
 				<path>/examples/hybrid/ATC/roundabout/TRM-essentials.key</path>
+				<authors>
+					<author>platzer</author>
+				</authors>
+				<proofauthors>
+					<author>platzer</author>
+				</proofauthors>
 				<description>Essentials of the tangential roundabout maneuver (TRM) for collision avoidance in air traffic control. This example proves that TRM always separates aircraft by at least the protected zone. Please note, that this is the simplest possible version of the safety requirement for the TRM. The verification of the TRM system itself requires a much more advanced model.
 Proves Theorem 3.4</description>
 				<img 
@@ -565,6 +635,12 @@ Proves Theorem 3.4</description>
 			<example>
 				<name>Aircraft Roundabout 2 [simple]</name>
 				<path>/examples/hybrid/ATC/roundabout/TRM-essentials2.key</path>
+				<authors>
+					<author>platzer</author>
+				</authors>
+				<proofauthors>
+					<author>platzer</author>
+				</proofauthors>
 				<description>Essentials of the tangential roundabout maneuver (TRM) for collision avoidance in air traffic control. This example proves that TRM always separates aircraft by at least the protected zone. Please note, that this is the simplest possible version of the safety requirement for the TRM. The verification of the TRM system itself requires a much more advanced model.
 Proves Theorem 3.4</description>
 				<img 
@@ -580,6 +656,12 @@ Proves Theorem 3.4</description>
 			<example>
 				<name>Aircraft Roundabout 3 [simple]</name>
 				<path>/examples/hybrid/ATC/roundabout/TRM-essentials-3.key</path>
+				<authors>
+					<author>platzer</author>
+				</authors>
+				<proofauthors>
+					<author>platzer</author>
+				</proofauthors>
 				<description>Essentials of the tangential roundabout maneuver (TRM) for collision avoidance in air traffic control with 3 aircraft. This example proves that TRM always separates aircraft by at least the protected zone. Please note, that this is the simplest possible version of the safety requirement for the TRM. The verification of the TRM system itself requires a much more advanced model.
 Proves Section 8.2.4</description>
 				<source href="http://symbolaris.com/info/RCAS.html"/>
@@ -594,6 +676,12 @@ Proves Section 8.2.4</description>
 			<example>
 				<name>Aircraft Roundabout 4 [simple]</name>
 				<path>/examples/hybrid/ATC/roundabout/TRM-essentials-4.key</path>
+				<authors>
+					<author>platzer</author>
+				</authors>
+				<proofauthors>
+					<author>platzer</author>
+				</proofauthors>
 				<description>Essentials of the tangential roundabout maneuver (TRM) for collision avoidance in air traffic control with 4 aircraft. This example proves that TRM always separates aircraft by at least the protected zone. Please note, that this is the simplest possible version of the safety requirement for the TRM. The verification of the TRM system itself requires a much more advanced model.
 Proves Figure 8.9</description>
 				<source href="http://symbolaris.com/info/RCAS.html"/>
@@ -608,6 +696,12 @@ Proves Figure 8.9</description>
 			<example>
 				<name>Aircraft Bounded Speed Choice</name>
 				<path>/examples/hybrid/ATC/roundabout/bounded-speed-choice.key</path>
+				<authors>
+					<author>platzer</author>
+				</authors>
+				<proofauthors>
+					<author>platzer</author>
+				</proofauthors>
 				<description>Shows that the control parameters for the aircraft can be chosen such that resulting speed vectors are in a bounded range meeting external speed requirements of the aircraft.
 Proves equation (3.14)</description>
 				<source href="http://symbolaris.com/info/RCAS.html"/>
@@ -621,6 +715,12 @@ Proves equation (3.14)</description>
 			<example>
 				<name>Aircraft Bounded Maneuver Speed</name>
 				<path>/examples/hybrid/ATC/roundabout/bounded-angular-linear-speed.key</path>
+				<authors>
+					<author>platzer</author>
+				</authors>
+				<proofauthors>
+					<author>platzer</author>
+				</proofauthors>
 				<description>Shows that the speed v of the aircraft is maintained even when it changes its angular velocity om nondeterministically during the flight (free flight).
 Proves Example 3.16</description>
 				<source href="http://symbolaris.com/info/RCAS.html"/>
@@ -634,6 +734,12 @@ Proves Example 3.16</description>
 			<example>
 				<name>Aircraft Flyable Roundabout Entry</name>
 				<path>/examples/hybrid/ATC/roundabout/FTRM-entry-tang-simplified.key</path>
+				<authors>
+					<author>platzer</author>
+				</authors>
+				<proofauthors>
+					<author>platzer</author>
+				</proofauthors>
 				<description>Shows that the safe tangential configuration is reached by a flyable curve.
 Proves equation (8.3)</description>
 				<source href="http://symbolaris.com/info/RCAS.html"/>
@@ -647,6 +753,12 @@ Proves equation (8.3)</description>
 			<example>
 				<name>Aircraft Flyable Entry Feasible</name>
 				<path>/examples/hybrid/ATC/roundabout/FTRM-entry-tang-feasible.key</path>
+				<authors>
+					<author>platzer</author>
+				</authors>
+				<proofauthors>
+					<author>platzer</author>
+				</proofauthors>
 				<description>Shows that the safe tangential configuration is feasible.
 Proves equation (8.4)</description>
 				<source href="http://symbolaris.com/info/RCAS.html"/>
@@ -660,6 +772,12 @@ Proves equation (8.4)</description>
 			<example>
 				<name>Aircraft Flyable Entry Circular</name>
 				<path>/examples/hybrid/ATC/roundabout/FTRM-entry-tang-circular.key</path>
+				<authors>
+					<author>platzer</author>
+				</authors>
+				<proofauthors>
+					<author>platzer</author>
+				</proofauthors>
 				<description>Shows that the flyable entry is circular.
 Proves equation (8.6)</description>
 				<source href="http://symbolaris.com/info/RCAS.html"/>
@@ -673,6 +791,12 @@ Proves equation (8.6)</description>
             			<example>
             				<name>Aircraft Linear Progress</name>
             				<path>/examples/hybrid/ATC/roundabout/linear-progress.key</path>
+							<authors>
+								<author>platzer</author>
+							</authors>
+							<proofauthors>
+								<author>platzer</author>
+							</proofauthors>
             				<description>Shows that, an aircraft can fly beyond any position.
 Proves Example 3.24</description>
             				<source href="http://symbolaris.com/lahs/"/>
@@ -685,6 +809,12 @@ Proves Example 3.24</description>
 			<example>
 				<name>Aircraft Limited Progress</name>
 				<path>/examples/hybrid/ATC/roundabout/limited-progress.key</path>
+				<authors>
+					<author>platzer</author>
+				</authors>
+				<proofauthors>
+					<author>platzer</author>
+				</proofauthors>
 				<description>Shows that, regardless of the angular velocities, the aircraft only make limited progress in bounded time when starting with bounded speeds.
 Proves equation (8.9)</description>
 				<source href="http://symbolaris.com/info/RCAS.html"/>
@@ -698,6 +828,12 @@ Proves equation (8.9)</description>
 			<example>
 				<name>Aircraft Negotiation Feasible</name>
 				<path>/examples/hybrid/ATC/roundabout/FTRM-agree.key</path>
+				<authors>
+					<author>platzer</author>
+				</authors>
+				<proofauthors>
+					<author>platzer</author>
+				</proofauthors>
 				<description>Shows that there always is a choice of center, radius, and common angular velocity which is feasible.
 Proves equation (8.17)</description>
 				<source href="http://symbolaris.com/info/RCAS.html"/>
@@ -711,6 +847,12 @@ Proves equation (8.17)</description>
 			<example>
 				<name>Aircraft Negotiation Success</name>
 				<path>/examples/hybrid/ATC/roundabout/FTRM-agree-success.key</path>
+				<authors>
+					<author>platzer</author>
+				</authors>
+				<proofauthors>
+					<author>platzer</author>
+				</proofauthors>
 				<description>Shows that the negotiation is successful.
 Proves equation (8.18)</description>
 				<source href="http://symbolaris.com/info/RCAS.html"/>
@@ -724,6 +866,12 @@ Proves equation (8.18)</description>
 			<example>
 				<name>Aircraft Mutual Negotiation Success</name>
 				<path>/examples/hybrid/ATC/roundabout/FTRM-agree-mutual2-all.key</path>
+				<authors>
+					<author>platzer</author>
+				</authors>
+				<proofauthors>
+					<author>platzer</author>
+				</proofauthors>
 				<description>Shows that the mutual negotiation is successful.
 Proves equation (8.19)</description>
 				<source href="http://symbolaris.com/info/RCAS.html"/>
@@ -737,6 +885,12 @@ Proves equation (8.19)</description>
 			<example>
 				<name>Aircraft Mutual Negotiation Feasible</name>
 				<path>/examples/hybrid/ATC/roundabout/FTRM-agree-mutual2-simplified.key</path>
+				<authors>
+					<author>platzer</author>
+				</authors>
+				<proofauthors>
+					<author>platzer</author>
+				</proofauthors>
 				<description>Shows that the mutual negotiation is feasible.
 Proves equation (8.21)</description>
 				<source href="http://symbolaris.com/info/RCAS.html"/>
@@ -750,6 +904,12 @@ Proves equation (8.21)</description>
 			<example>
 				<name>Aircraft Simultaneous Exit Separation</name>
 				<path>/examples/hybrid/ATC/roundabout/exit-simultaneous-indep-simplified.key</path>
+				<authors>
+					<author>platzer</author>
+				</authors>
+				<proofauthors>
+					<author>platzer</author>
+				</proofauthors>
 				<description>Shows that the aircraft stay safely separated during the exit maneuver.
 Proves equation (8.27)</description>
 				<source href="http://symbolaris.com/info/RCAS.html"/>
@@ -763,6 +923,12 @@ Proves equation (8.27)</description>
 			<example>
 				<name>Aircraft Different Exit Direction</name>
 				<path>/examples/hybrid/ATC/roundabout/exit-simultaneous-different-directions.key</path>
+				<authors>
+					<author>platzer</author>
+				</authors>
+				<proofauthors>
+					<author>platzer</author>
+				</proofauthors>
 				<description>Shows that the aircraft will exit in different directions during the exit maneuver.
 Proves equation (8.29)</description>
 				<source href="http://symbolaris.com/info/RCAS.html"/>
@@ -779,6 +945,16 @@ Proves equation (8.29)</description>
 			    <proofs>
 			        <proof name="Mathematica" href="/examples/hybrid/ATC/TCAS/TCAS-simplified.key.proof"/>
 		        </proofs>
+				<authors>
+					<author>david_henriques</author>
+					<author>sloos</author>
+					<author>joao_martins</author>
+				</authors>
+				<proofauthors>
+					<author>david_henriques</author>
+					<author>sloos</author>
+					<author>joao_martins</author>
+				</proofauthors>
 		        <description>TCAS (Traffic Collision and Avoidance System) is an onboard unit installed on aircraft. It is responsible for detecting upcoming possible collisions and for giving resolution advisories (RA) to prevent them. Possible RA consist of either climbing or descending actions.
 This is a heavily simplified aircraft collision avoidance scheme where one plane rises and the other one drops to avoid each other.
 Authors: David Henriques, Sarah Loos, Joao Martins</description>
@@ -1022,7 +1198,7 @@ Proves equation (4.4)</description>
 			<proofauthors>
 				<author>quesel</author>
 			</proofauthors>
-			<publication>Constructing invariants for hybrid systems (FORMAL METHODS IN SYSTEM DESIGN Volume 32, Number 1 (2008), 25-55, DOI: 10.1007/s10703-007-0046-1)</publication>
+			<publication>invariants_hybrid_systems</publication>
 			<requirements>
 				<some>
 					<quantifiereliminator>Mathematica</quantifiereliminator>
@@ -1048,6 +1224,9 @@ Proves equation (4.4)</description>
 		<example>
 				<name>Water Tank</name>
 				<path>/examples/hybrid/publish/water_tank.key</path>
+				<proofauthors>
+					<name>quesel</name>
+				</proofauthors>
 				<description>Standard water tank model, which regulates water level y between 1 and 12 by filling or emptying the water tank. Changing valves has a delayed effect in this example.
 Proves Example C.1</description>
 				<img href="http://symbolaris.com/info/fig-water-tank.png"/>
@@ -1096,6 +1275,12 @@ Proves Figure 3.19</description>
                     	<example>
                     		<name>Elevator Control Study [R2.1a]</name>
                     		<path>/examples/hybrid/Elevator/elevator-R2-1a.key</path>
+							<authors>
+								<author>akane</author>
+							</authors>
+							<proofauthors>
+								<author>akane</author>
+							</proofauthors>
                     		<description>Basic model of a realistic distributed elevator with multiple hybrid dynamics. This is a simplified model with a simple dispatcher algorithm and basic passenger behaviors. The model is for 4 floors includes 1 hallway and a simple door reversal mechanism. This case study illustrates how complicated systems can be modeled and verified formally. This example proves requirement
 R2.1: the elevator car is at a landing if the doors are open.
 Contributed by Aaron Kane</description>
@@ -1114,6 +1299,12 @@ Contributed by Aaron Kane</description>
                     	<example>
                     		<name>Elevator Control Study [R2.1b]</name>
                     		<path>/examples/hybrid/Elevator/elevator-R2-1b.key</path>
+							<authors>
+								<author>akane</author>
+							</authors>
+							<proofauthors>
+								<author>akane</author>
+							</proofauthors>
                     		<description>Basic model of a realistic distributed elevator with multiple hybrid dynamics. This is a simplified model with a simple dispatcher algorithm and basic passenger behaviors. The model is for 4 floors includes 1 hallway and a simple door reversal mechanism. This case study illustrates how complicated systems can be modeled and verified formally. This example proves requirement
 R2.1: the elevator car is at a landing if the doors are open.
 Contributed by Aaron Kane</description>
@@ -1134,6 +1325,12 @@ Contributed by Aaron Kane</description>
 							<proofs>
 								<proof name="SMT" href="/examples/hybrid/Elevator/elevator-R2-3.key.z3.proof"/>
 							</proofs>
+							<authors>
+								<author>akane</author>
+							</authors>
+							<proofauthors>
+								<author>akane</author>
+							</proofauthors>
                     		<description>Basic model of a realistic distributed elevator with multiple hybrid dynamics. This is a simplified model with a simple dispatcher algorithm and basic passenger behaviors. The model is for 4 floors includes 1 hallway and a simple door reversal mechanism. This case study illustrates how complicated systems can be modeled and verified formally. This example proves requirement
 R2.3: the elevator car is stopped if the doors are open.
 Contributed by Aaron Kane</description>
@@ -1150,6 +1347,12 @@ Contributed by Aaron Kane</description>
                     	<example>
                     		<name>Elevator Control Study [R2.5]</name>
                     		<path>/examples/hybrid/Elevator/elevator-R2-5.key</path>
+							<authors>
+								<author>akane</author>
+							</authors>
+							<proofauthors>
+								<author>akane</author>
+							</proofauthors>
                     		<description>Basic model of a realistic distributed elevator with multiple hybrid dynamics. This is a simplified model with a simple dispatcher algorithm and basic passenger behaviors. The model is for 4 floors includes 1 hallway and a simple door reversal mechanism. This case study illustrates how complicated systems can be modeled and verified formally. This example proves requirement
 R2.5: the elevator car never passes the hoistway limit (goes too far).
 Contributed by Aaron Kane</description>
@@ -1167,6 +1370,12 @@ Contributed by Aaron Kane</description>
                     	<example>
                     		<name>Elevator Control Study [X1]</name>
                     		<path>/examples/hybrid/Elevator/elevator-X1.key</path>
+							<authors>
+								<author>akane</author>
+							</authors>
+							<proofauthors>
+								<author>akane</author>
+							</proofauthors>
                     		<description>Basic model of a realistic distributed elevator with multiple hybrid dynamics. This is a simplified model with a simple dispatcher algorithm and basic passenger behaviors. The model is for 4 floors includes 1 hallway and a simple door reversal mechanism. This case study illustrates how complicated systems can be modeled and verified formally. This example proves that the passenger model correctly integrates with the dispatcher model
 X1: car does not leave a hall until it has serviced the passengers at that hallway.
 Contributed by Aaron Kane</description>
@@ -1184,6 +1393,12 @@ Contributed by Aaron Kane</description>
                     	<example>
                     		<name>Elevator Control Study [X2]</name>
                     		<path>/examples/hybrid/Elevator/elevator-X2.key</path>
+							<authors>
+								<author>akane</author>
+							</authors>
+							<proofauthors>
+								<author>akane</author>
+							</proofauthors>
                     		<description>Basic model of a realistic distributed elevator with multiple hybrid dynamics. This is a simplified model with a simple dispatcher algorithm and basic passenger behaviors. The model is for 4 floors includes 1 hallway and a simple door reversal mechanism. This case study illustrates how complicated systems can be modeled and verified formally. This example proves that the passenger model correctly integrates with the dispatcher model
 X2: car does not leave a hall until it has serviced the passengers at that hallway.
 Contributed by Aaron Kane</description>
@@ -1251,16 +1466,19 @@ Contributed by: Solofomampionona Fortunat Rajaona</description>
 		<short>quesel</short>
 		<name>Jan-David Quesel</name>
 		<url>http://csd.informatik.uni-oldenburg.de/persons/jan-david.quesel/index.html</url>
+		<imgurl>http://theoretica.informatik.uni-oldenburg.de/pics/photos/jan-david.quesel.png</imgurl>
 	</author>
 	<author>
 		<short>platzer</short>
 		<name>Andr&amp;eacute; Platzer</name>
 		<url>http://symbolaris.com</url>
+		<imgurl>http://symbolaris.com/meta/andre.platzer.png</imgurl>
 	</author>
 	<author>
 		<short>srirams</short>
 		<name>Sriram Sankaranarayanan</name>
 		<url>http://www.cs.colorado.edu/~srirams</url>
+		<imgurl>https://www.cusys.edu/newsletter/2010/03-24/images/people_sankaranarayanan.jpg</imgurl>
 	</author>
 	<author>
 		<short>sipma</short>
@@ -1271,7 +1489,56 @@ Contributed by: Solofomampionona Fortunat Rajaona</description>
 		<short>manna</short>
 		<name>Zohar Manna</name>
 		<url>http://theory.stanford.edu/~zm</url>
+		<imgurl>http://theory.stanford.edu/~zm/images/zohar.gif</imgurl>
+	</author>
+	<author>
+		<short>david_henriques</short>
+		<name>David Henriques</name>
+		<url>http://www.cs.cmu.edu/~dhenriqu</url>
+		<imgurl>http://www.cs.cmu.edu/~dhenriqu/tastelarge.png</imgurl>
+	</author>
+	<author>
+		<short>sloos</short>
+		<name>Sarah Loos</name>
+		<url>http://sarahmloos.wordpress.com</url>
+		<imgurl>http://anitaborg.org/files/sarahloos.jpg</imgurl>
+	</author>
+	<author>
+		<short>joao_martins</short>
+		<name>Jo&amp;atilde;o Martins</name>
+		<url>http://www.cs.cmu.edu/~jmartins</url>
+		<imgurl>http://www.cs.cmu.edu/~jmartins/JGMartins.jpg</imgurl>
+	</author>
+	<author>
+		<short>akane</short>
+		<name>Aaron Kane</name>
 	</author>
 
 </authors>
+<publications>
+	<publication>
+		<short>ETCS</short>
+		<title>European Train Control System: A case study in formal verification</title>
+		<authors>
+			<author>platzer</author> 
+			<author>quesel</author>
+		</authors>
+		<url>http://symbolaris.com/pub/etcs.pdf</url>
+		<additional>
+			In Karin Breitman and Ana Cavalcanti, editors, 11th International Conference on Formal Engineering Methods, ICFEM, Rio de Janeiro, Brasil, Proceedings, volume 5885 of LNCS, pages 246-265. Springer, 2009.
+		</additional>
+	</publication>
+	<publication>
+		<short>invariants_hybrid_systems</short>
+		<title>Constructing invariants for hybrid systems</title>
+		<authors>
+			<author>srirams</author>
+			<author>sipma</author>
+			<author>manna</author>
+		</authors>
+		<url>http://www.springerlink.com/content/d5p67630wk1663l0</url>
+		<additional>(FORMAL METHODS IN SYSTEM DESIGN Volume 32, Number 1 (2008), 25-55, DOI: 10.1007/s10703-007-0046-1)</additional>
+	</publication>
+</publications>
+
 </description>
