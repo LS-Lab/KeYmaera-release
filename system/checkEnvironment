@@ -11,16 +11,6 @@ key_dev_jars="javacc.jar junit.jar junit-4.4.jar"
 
 CLASSPATH=./binary/
 
-if [ ! -f "$KEY_LIB/antlr-2.7.2.jar" ]
-then
-   echo "Cannot find $KEY_LIB/antlr-2.7.2.jar"
-   echo Copy or link the file into the
-   echo "$KEY_LIB/ directory."
-   exit 1
-else
-   ANTLR_2_7_2="$KEY_LIB/antlr-2.7.2.jar"
-fi
-
 for i in $key_ext_jars $key_dev_jars; do
     current_jar="$KEY_LIB/$i"
     if [ ! -f $current_jar ]
@@ -36,5 +26,3 @@ done
 
 export CLASSPATH
 echo "CLASSPATH=$CLASSPATH" > Makefile.mk
-export ANTLR_2_7_2
-echo "ANTLR_2_7_2=$ANTLR_2_7_2" >> Makefile.mk

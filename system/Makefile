@@ -82,7 +82,7 @@ endif
 endif
 
 ifeq "$(ANTLR)" ""
-ANTLR=$(JAVA) -cp $(GENERATED_SRC_PATH):$(ANTLR_2_7_2):$(CLASSPATH) antlr.Tool
+ANTLR=$(JAVA) -cp $(GENERATED_SRC_PATH):$(CLASSPATH) antlr.Tool
 endif
 
 ifeq "$(ANTLR3)" ""
