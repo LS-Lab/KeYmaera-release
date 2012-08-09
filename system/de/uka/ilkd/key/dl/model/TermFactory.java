@@ -266,9 +266,13 @@ public abstract class TermFactory implements Serializable {
      *                the variable that is derivated.
      * @return an object representing the derivative
      */
-    public abstract Dot createDot(CommonTree t);
+    public abstract Dot createDot(CommonTree t, List<Expression> args);
     
+    public abstract Dot createDot(int degree, CommonTree t, List<Expression> args);
+
     public abstract Dot schemaCreateDot(CommonTree t);
+
+    public abstract Dot schemaCreateDot(CommonTree t, int order);
     
     /**
      * Creates a program variable if necessary or returns a cached one.
@@ -288,7 +292,7 @@ public abstract class TermFactory implements Serializable {
      *                the value of the variable
      * @return the assign statement
      */
-    public abstract Assign createAssign(CommonTree t, Expression e);
+    public abstract Assign createAssign(CommonTree t, List<Expression> args, Expression e);
     
     public abstract Assign createAssign(ProgramElement left, ProgramElement right);
 
@@ -311,7 +315,7 @@ public abstract class TermFactory implements Serializable {
      *                the variable assigned
      * @return the assign statement
      */
-    public abstract RandomAssign createRandomAssign(CommonTree t);
+    public abstract RandomAssign createRandomAssign(CommonTree t, List<Expression> args);
 
     /**
      * Creates a new random assign statement to a schema variable
@@ -370,10 +374,7 @@ public abstract class TermFactory implements Serializable {
      * @return a new representation for a variable declaration
      */
     public abstract VariableDeclaration createVariableDeclaration(
-            CommonTree type, List<CommonTree> var, boolean programVariable);
-    
-    public abstract VariableDeclaration schemaCreateVariableDeclaration(
-            CommonTree type, CommonTree sv);
+            CommonTree type, List<CommonTree> decls, Map<CommonTree, List<CommonTree>> argsorts, boolean programVariable);
 
     /**
      * Creates a new representation for a variable declaration
@@ -677,6 +678,11 @@ public abstract class TermFactory implements Serializable {
      */
     public abstract Dot createDot(DLProgramElement convert, int order);
     
+    public abstract Quantified createQuantified(VariableDeclaration decl, DLProgram statement);
+    
+    public abstract Quantified schemaCreateQuantified(CommonTree decl, DLProgram statement);
+    
+	public abstract VariableDeclaration schemaCreateVariableDeclaration(CommonTree type, CommonTree sv);
     public abstract IfExpr createIfExpr(Formula f, Expression thenExpr, Expression elseExpr);
 
 }

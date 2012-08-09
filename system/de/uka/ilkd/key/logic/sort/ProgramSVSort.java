@@ -28,6 +28,8 @@ import de.uka.ilkd.key.dl.model.Less;
 import de.uka.ilkd.key.dl.model.LessEquals;
 import de.uka.ilkd.key.dl.model.Or;
 import de.uka.ilkd.key.dl.model.PredicateTerm;
+import de.uka.ilkd.key.dl.model.Quantified;
+import de.uka.ilkd.key.dl.model.impl.QuantifiedImpl;
 import de.uka.ilkd.key.java.Expression;
 import de.uka.ilkd.key.java.Label;
 import de.uka.ilkd.key.java.NamedProgramElement;
@@ -421,6 +423,8 @@ public abstract class ProgramSVSort extends PrimitiveSort {
     private static final DLOrdinaryDiffSystemSort DL_ORDINARY_DIFF_SYSTEM_SORT_INSTANCE = new DLOrdinaryDiffSystemSort();
 
     public static final DLOrdinaryDiffSystemWithoutQuantifiersSort DL_SIMPLE_ORDINARY_DIFF_SYSTEM_SORT_INSTANCE = new DLOrdinaryDiffSystemWithoutQuantifiersSort();
+    
+    public static final DLQuantifiedOrdinaryDiffSystemWithoutQuantifiersSort DL_QUANTIFIED_SIMPLE_ORDINARY_DIFF_SYSTEM_SORT_INSTANCE = new DLQuantifiedOrdinaryDiffSystemWithoutQuantifiersSort();
 
     private static final DLNotDNFDiffSystemSort DL_NOT_DNF_DIFF_SYSTEM_SORT_INSTANCE = new DLNotDNFDiffSystemSort();
 
@@ -2118,6 +2122,40 @@ public abstract class ProgramSVSort extends PrimitiveSort {
 		}
 
 	}
+	
+	/**
+	 * ProgramSVSort that can stand for an ordinary differential equation system
+	 * 
+	 * @author jdq
+	 */
+	public static class DLQuantifiedOrdinaryDiffSystemWithoutQuantifiersSort extends
+			ProgramSVSort {
+		public DLQuantifiedOrdinaryDiffSystemWithoutQuantifiersSort() {
+			super(new Name("QuantifiedSimpleOrdinaryDiffSystem"));
+		}
+
+		/**
+		 * @see de.uka.ilkd.key.logic.sort.ProgramSVSort#canStandFor(de.uka.ilkd.key.java.ProgramElement,
+		 *      de.uka.ilkd.key.java.Services) canStandFor
+		 */
+		public boolean canStandFor(ProgramElement pe, Services services) {
+		    return (pe instanceof Quantified && ((Quantified)pe).getChildAt(1) instanceof de.uka.ilkd.key.dl.model.DiffSystem)
+					&& isOrdinary(((de.uka.ilkd.key.dl.model.DiffSystem) ((Quantified)pe).getChildAt(1)));
+		}
+
+		/**
+		 * @param diffSystem
+		 * @return
+		 */
+		private boolean isOrdinary(DiffSystem diffSystem) {
+			boolean result = true;
+			for (ProgramElement p : diffSystem) {
+				result &= DLOrdinaryDiffSystemSort.isOrdinary(p);
+			}
+			return result;
+		}
+
+	}
 
 	/**
 	 * ProgramSVSort that can stand for a differential system that contains or
@@ -2196,7 +2234,7 @@ public abstract class ProgramSVSort extends PrimitiveSort {
 	 * 
 	 * @author jdq
 	 */
-	private static class DLVariableDeclarationSort extends ProgramSVSort {
+	public static class DLVariableDeclarationSort extends ProgramSVSort {
 		public DLVariableDeclarationSort() {
 			super(new Name("DLVariableDeclaration"));
 		}

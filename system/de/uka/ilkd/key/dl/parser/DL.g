@@ -140,13 +140,20 @@ atomp options { k=3; } : itomp^ (annotation)*
 ;
 
 itomp options { k=3; } : quest | assign | LPAREN! stat RPAREN! | diffsystem | ifThenElse | vardec | {schemaMode}? sv | whileSym
+	| quanitomp
+;
+
+quanitomp: FORALL^ (vardec| {schemaMode}? sv )(CHOP|BULLET)! (assign | diffsystem)
 ;
 
 whileSym: WHILE^ LPAREN! form[false] RPAREN! stat (ELIHW!|END!)
 ;
 
-vardec: (type var (COMMA var)*) -> ^(VARDEC type var*)
+vardec: (type fundef (COMMA fundef)*) -> ^(VARDEC type fundef*)
 | {schemaMode}? (type sv) -> ^(SVARDEC type sv) 
+;
+
+fundef: var (LPAREN type (COMMA! type)* RPAREN)?
 ;
 
 ifThenElse: IF^ LPAREN! form[false] RPAREN! THEN! stat (ELSE! stat)? (FI!|END!)
@@ -177,7 +184,7 @@ pred[boolean diffAllowed]:
 | func[diffAllowed] 
 | LPAREN! form[diffAllowed] RPAREN!
 | NOT^ pred[diffAllowed]
-| (FORALL|EXISTS)^ vardec CHOP pred[diffAllowed]
+| (FORALL|EXISTS)^ vardec (CHOP|BULLET) pred[diffAllowed]
 | {schemaMode}? sv
 | TRUE
 | FALSE
@@ -197,7 +204,7 @@ brel: LESS
 | {schemaMode}? sv
 ;
 
-assign: (WORD|{schemaMode}? sv) ASSIGN^ (expr[false] | STAR)
+assign: ((WORD ( LPAREN WORD (COMMA! WORD)* RPAREN)?)|{schemaMode}? sv) ASSIGN^ (expr[false] | STAR)
 ;
 
 expr[boolean diffAllowed]:
@@ -214,11 +221,11 @@ MINUS expexpr[diffAllowed] -> ^(MINUSSIGN expexpr)
 ;
 
 atom[boolean diffAllowed]: 
-func[diffAllowed]
+func[diffAllowed] ({ diffAllowed }? DOT^ (DOT*))?
 | NUM
 | LPAREN! expr[diffAllowed] RPAREN!
-| { diffAllowed }? diff
-| {schemaMode}? sv
+//| { diffAllowed }? diff
+| {schemaMode}? sv ({ diffAllowed }? DOT^ (DOT*))?
 | IF^ form[diffAllowed] THEN! expr[diffAllowed] ELSE! expr[diffAllowed] FI!
 ;
 
@@ -231,7 +238,7 @@ var: WORD_DOLLAR | WORD
 type: WORD
 ;
 
-diff: (WORD | {schemaMode}? sv) (DOT^)+
+diff: (WORD | {schemaMode}? sv) DOT^ (DOT*)
 ;
 
 diffsystem:
@@ -249,6 +256,7 @@ SV		: '#' ;
 //INVARIANT: '@invariant' ;
 VARDEC	: '@decl@';
 SVARDEC	: '@svdecl@';
+FUNARGS	: '@funargs@';
 DIFFSYSTEM : '@DIFFSYSTEM@';
 ANNOTATION : '@';
 NOT		: '!' ;
@@ -280,7 +288,9 @@ RBRACE	: '}' ;
 LB		: '[' ;
 RB		: ']' ;
 COMMA	: ',' ;
+BULLET	: '.' ;
 CHOP	: ';' ;
+COLON	: ':' ;
 AND		: '&' ;
 OR		: '|' ;
 LESS	: '<' ;

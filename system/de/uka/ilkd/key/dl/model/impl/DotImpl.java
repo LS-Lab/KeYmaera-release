@@ -25,6 +25,7 @@ package de.uka.ilkd.key.dl.model.impl;
 
 import de.uka.ilkd.key.dl.model.DLProgramElement;
 import de.uka.ilkd.key.dl.model.Dot;
+import de.uka.ilkd.key.dl.model.FunctionTerm;
 import de.uka.ilkd.key.dl.model.ProgramVariable;
 import de.uka.ilkd.key.java.PrettyPrinter;
 import de.uka.ilkd.key.java.Services;
@@ -49,7 +50,16 @@ public class DotImpl extends DLNonTerminalProgramElementImpl implements Dot {
      *                the dotted variable
      */
     public DotImpl(ProgramVariable var) {
-        order = 1;
+        this(1, var);
+    }
+    
+    public DotImpl(int order, ProgramVariable var) {
+        this.order = order;
+        addChild(var);
+    }
+    
+    public DotImpl(int order, FunctionTerm var) {
+        this.order = order;
         addChild(var);
     }
 

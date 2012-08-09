@@ -26,6 +26,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import org.antlr.runtime.tree.CommonTree;
 
@@ -61,12 +62,14 @@ import de.uka.ilkd.key.dl.model.Less;
 import de.uka.ilkd.key.dl.model.LessEquals;
 import de.uka.ilkd.key.dl.model.LogicalVariable;
 import de.uka.ilkd.key.dl.model.MetaVariable;
+import de.uka.ilkd.key.dl.model.NonRigidFunction;
 import de.uka.ilkd.key.dl.model.Not;
 import de.uka.ilkd.key.dl.model.Or;
 import de.uka.ilkd.key.dl.model.Parallel;
 import de.uka.ilkd.key.dl.model.Predicate;
 import de.uka.ilkd.key.dl.model.PredicateTerm;
 import de.uka.ilkd.key.dl.model.ProgramVariable;
+import de.uka.ilkd.key.dl.model.Quantified;
 import de.uka.ilkd.key.dl.model.Quest;
 import de.uka.ilkd.key.dl.model.RandomAssign;
 import de.uka.ilkd.key.dl.model.Star;
@@ -83,6 +86,7 @@ import de.uka.ilkd.key.logic.ProgramElementName;
 import de.uka.ilkd.key.logic.op.LocationVariable;
 import de.uka.ilkd.key.logic.op.LogicVariable;
 import de.uka.ilkd.key.logic.op.Metavariable;
+import de.uka.ilkd.key.logic.op.RigidFunction;
 import de.uka.ilkd.key.logic.op.ProgramSV;
 import de.uka.ilkd.key.logic.op.SchemaVariable;
 import de.uka.ilkd.key.logic.sort.Sort;
@@ -266,8 +270,18 @@ public class TermFactoryImpl extends TermFactory {
 	 * @return the function term
 	 */
 	public FunctionTerm createFunctionTerm(CommonTree t, List<Expression> params) {
-		return createFunctionTerm(FreeFunctionImpl.getFunction(t.getText()),
-				params);
+	    de.uka.ilkd.key.logic.op.Function f = (de.uka.ilkd.key.logic.op.Function) getNamespaces().functions().lookup(new Name(t.getText()));
+        assert f != null : "The function " + t + " has to be declared!";
+	    if(f instanceof RigidFunction) {
+    		return createFunctionTerm(FreeFunctionImpl.getFunction(t.getText()),
+    				params);
+	    } else {
+	        String[] args = new String[f.arity()];
+	        for(int i = 0; i < f.arity(); i++) {
+	            args[i] = f.argSort(i).name().toString();
+	        }
+    		return createFunctionTerm(NonRigidFunctionImpl.getFunction(t.getText(), args, true), params);
+	    }
 	}
 
 	/**
@@ -316,8 +330,17 @@ public class TermFactoryImpl extends TermFactory {
 	 *            the variable that is derivated.
 	 * @return an object representing the derivative
 	 */
-	public Dot createDot(CommonTree t) {
-		return new DotImpl(createProgramVariable(t.getText()));
+	public Dot createDot(CommonTree t, List<Expression> args) {
+	    return createDot(1, t, args);
+	}
+	public Dot createDot(int degree, CommonTree t, List<Expression> args) {
+	    if(args == null || args.isEmpty()) {
+	        return new DotImpl(degree, createProgramVariable(t.getText()));
+	    } else {
+	        NonRigidFunction f = NonRigidFunctionImpl.getFunction(new Name(t.getText()), null, false);
+	        FunctionTerm fTerm = createFunctionTerm(f, args);
+            return new DotImpl(degree, fTerm);
+	    }
 	}
 	
     public Dot createDot(DLProgramElement convert, int order) {
@@ -326,6 +349,10 @@ public class TermFactoryImpl extends TermFactory {
 
 	public Dot schemaCreateDot(CommonTree t) {
 		return new DotImpl(schemaProgramSV(t));
+	}
+
+	public Dot schemaCreateDot(CommonTree t, int order) {
+		return new DotImpl(schemaProgramSV(t), order);
 	}
 	/**
 	 * Creates a program variable if necessary or returns a cached one.
@@ -373,8 +400,12 @@ public class TermFactoryImpl extends TermFactory {
 	 *            the value of the variable
 	 * @return the assign statement
 	 */
-	public Assign createAssign(CommonTree t, Expression e) {
-		return new AssignImpl(createProgramVariable(t.getText()), e);
+	public Assign createAssign(CommonTree t, List<Expression> args, Expression e) {
+	    if(args.isEmpty()) {
+	        return new AssignImpl(createProgramVariable(t.getText()), e);
+	    } else {
+            return new AssignImpl(createFunctionTerm(t, args), e);
+	    }
 	}
 	
 	public Assign createAssign(ProgramElement left, ProgramElement right) {
@@ -391,6 +422,10 @@ public class TermFactoryImpl extends TermFactory {
 	 * @return the assign statement
 	 */
 	public Assign createAssign(ProgramVariable t, Expression e) {
+		return new AssignImpl(t, e);
+	}
+	
+	public Assign createAssign(FunctionTerm t, Expression e) {
 		return new AssignImpl(t, e);
 	}
 
@@ -698,8 +733,14 @@ public class TermFactoryImpl extends TermFactory {
 	 * @see de.uka.ilkd.key.dl.TermFactory#createRandomAssign(org.antlr.runtime.tree.CommonTree)
 	 */
 	/*@Override*/
-	public RandomAssign createRandomAssign(CommonTree t) {
-		return new RandomAssignImpl(createProgramVariable(t.getText()));
+	public RandomAssign createRandomAssign(CommonTree t, List<Expression> args) {
+	    if(args.isEmpty()) {
+	        return new RandomAssignImpl(createProgramVariable(t.getText()));
+	    } else {
+	        NonRigidFunction f = NonRigidFunctionImpl.getFunction(new Name(t.getText()), null, false);
+	        FunctionTerm fTerm = createFunctionTerm(f, args);
+	        return new RandomAssignImpl(fTerm);
+	    }
 	}
 
 	/*
@@ -741,31 +782,65 @@ public class TermFactoryImpl extends TermFactory {
 	 */
 	/*@Override*/
 	public VariableDeclaration createVariableDeclaration(CommonTree type,
-			List<CommonTree> decls, boolean programVariable) {
-		List<Variable> variables = new ArrayList<Variable>();
+			List<CommonTree> decls, Map<CommonTree, List<CommonTree>> argsorts, boolean programVariable) {
+		List<DLProgramElement> variables = new ArrayList<DLProgramElement>();
 		for (CommonTree var : decls) {
 			if (programVariable) {
-				assert getNamespaces().variables().lookup(
-						new Name(var.getText())) == null : "newly declared program variable " + var + " not yet in variables namespace at " + decls;
-				// && getNamespaces().programVariables().lookup(
-				// new Name(var.getText())) == null;
-				if (getNamespaces().programVariables().lookup(
-						new Name(var.getText())) == null) {
-					getNamespaces().programVariables().addSafely(
-							new LocationVariable(new ProgramElementName(var
-									.getText()), RealLDT.getRealSort()));
-				}
-//				variables.add(ProgramVariableImpl.getProgramVariable(var
+			    List<CommonTree> args = argsorts.get(var); 
+			    if(args == null || args.isEmpty()) {
+			        // we have declared a program variable
+    				assert getNamespaces().variables().lookup(
+    						new Name(var.getText())) == null : "newly declared program variable " + var + " not yet in variables namespace at " + decls;
+    				// && getNamespaces().programVariables().lookup(
+    				// new Name(var.getText())) == null;
+    				if (getNamespaces().programVariables().lookup(
+    						new Name(var.getText())) == null) {
+    				    Sort sort = (Sort) getNamespaces().sorts().lookup(new Name(type.getText()));
+    				    assert sort != null : "variable sort " + type.getText() + " should be known!";
+    					getNamespaces().programVariables().addSafely(
+    							new LocationVariable(new ProgramElementName(var
+    									.getText()), sort));
+    				}
+//					variables.add(ProgramVariableImpl.getProgramVariable(var
 //						.getText(), true));
-				variables.add((Variable) getNamespaces().programVariables().lookup(
+					variables.add((Variable) getNamespaces().programVariables().lookup(
                         new Name(var.getText())));
+			    } else {
+			        // we are declaring a non-rigid function symbol
+                    if (getNamespaces().functions().lookup(
+                            new Name(var.getText())) == null) {
+                        Sort sort = (Sort) getNamespaces().sorts().lookup(
+                                new Name(type.getText()));
+                        assert sort != null : "variable sort " + type.getText()
+                                + " should be known!";
+                        Sort[] argSorts = new Sort[args.size()];
+                        for(int i = 0; i < args.size(); i++) {
+                            argSorts[i] = (Sort) getNamespaces().sorts().lookup(
+                                new Name(args.get(i).getText()));
+                            assert argSorts[i] != null : "argument sort " + type.getText()
+                                + " should be known!";
+                        }
+                        getNamespaces()
+                                .functions()
+                                .addSafely(
+                                        new de.uka.ilkd.key.logic.op.NonRigidFunctionLocation(
+                                                new Name(var.getText()), sort,
+                                                argSorts, true));
+                    }
+                    String[] sorts = new String[args.size()];
+                    for(int i = 0; i < args.size(); i++) {
+                        sorts[i] = args.get(i).getText();
+                    }
+                    variables.add(NonRigidFunctionImpl.getFunction(var.getText(), sorts, true));
+			    }
 			} else {
 				assert getNamespaces().programVariables().lookup(
 						new Name(var.getText())) == null : "newly declared non-program variable " + var + " not yet in program variables namespace at " + decls;
 				if (getNamespaces().variables().lookup(new Name(var.getText())) == null) {
+				    Sort sort = (Sort) getNamespaces().sorts().lookup(new Name(type.getText()));
+				    assert sort != null : "variable sort " + type.getText() + " should be known!";
 					getNamespaces().variables().addSafely(
-							new LogicVariable(new Name(var.getText()), RealLDT
-									.getRealSort()));
+							new LogicVariable(new Name(var.getText()), sort));
 				}
 				variables.add(LogicalVariableImpl.getLogicalVariable(var
 						.getText()));
@@ -887,6 +962,23 @@ public class TermFactoryImpl extends TermFactory {
         return new BoxImpl(program, post);
     }
     
+    /* (non-Javadoc)
+     * @see de.uka.ilkd.key.dl.model.TermFactory#createQuantified(java.lang.String, java.lang.String, de.uka.ilkd.key.dl.model.DLProgram)
+     */
+    @Override
+    public Quantified createQuantified(VariableDeclaration decl,
+            DLProgram statement) {
+        return new QuantifiedImpl(decl, statement);
+    }
+
+    /* (non-Javadoc)
+     * @see de.uka.ilkd.key.dl.model.TermFactory#schemaCreateQuantified(de.uka.ilkd.key.logic.op.SchemaVariable, de.uka.ilkd.key.dl.model.DLProgram)
+     */
+    @Override
+    public Quantified schemaCreateQuantified(CommonTree decl,
+            DLProgram statement) {
+        return new QuantifiedImpl(schemaProgramSV(decl), statement);
+    }
     /* (non-Javadoc)
      * @see de.uka.ilkd.key.dl.model.TermFactory#createIfExpr(de.uka.ilkd.key.dl.model.Formula, de.uka.ilkd.key.dl.model.Expression, de.uka.ilkd.key.dl.model.Expression)
      */

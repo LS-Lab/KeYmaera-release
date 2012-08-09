@@ -37,6 +37,7 @@ import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
 import de.uka.ilkd.key.dl.formulatools.SkolemfunctionTracker;
 import de.uka.ilkd.key.dl.formulatools.TermRewriter;
 import de.uka.ilkd.key.dl.formulatools.TermRewriter.Match;
+import de.uka.ilkd.key.dl.logic.ldt.RealLDT;
 import de.uka.ilkd.key.dl.options.DLOptionBean;
 import de.uka.ilkd.key.dl.strategy.features.FOSequence;
 import de.uka.ilkd.key.java.Services;
@@ -62,13 +63,14 @@ import de.uka.ilkd.key.rule.RuleApp;
  * @since 01.02.2007
  * @see de.uka.ilkd.key.proof.DLProfile
  */
-public class ReduceRule extends RuleOperatingOnWholeSequence implements RuleFilter, UnknownProgressRule {
+public class ReduceRule extends RuleOperatingOnWholeSequence implements
+        RuleFilter, UnknownProgressRule {
 
     private Set<Term> skolemSymbols;
 
     private LinkedHashSet<String> quantifiedVariables;
-    
-    private final Set<Term> TRIVIALS; 
+
+    private final Set<Term> TRIVIALS;
 
     /**
      * @param formulaContainsSearchSymbolDefault
@@ -85,9 +87,9 @@ public class ReduceRule extends RuleOperatingOnWholeSequence implements RuleFilt
     /*
      * (non-Javadoc)
      * 
-     * @see de.uka.ilkd.key.rule.BuiltInRule#isApplicable(de.uka.ilkd.key.proof.Goal,
-     *      de.uka.ilkd.key.logic.PosInOccurrence,
-     *      de.uka.ilkd.key.logic.Constraint)
+     * @see
+     * de.uka.ilkd.key.rule.BuiltInRule#isApplicable(de.uka.ilkd.key.proof.Goal,
+     * de.uka.ilkd.key.logic.PosInOccurrence, de.uka.ilkd.key.logic.Constraint)
      */
     public boolean isApplicable(Goal goal, Constraint userConstraint) {
         return MathSolverManager.isQuantifierEliminatorSet()
@@ -97,10 +99,10 @@ public class ReduceRule extends RuleOperatingOnWholeSequence implements RuleFilt
     }
 
     public boolean isApplicable(Goal goal, PosInOccurrence pio,
-                                Constraint userConstraint) {
+            Constraint userConstraint) {
         return isApplicable(goal, userConstraint);
     }
-        
+
     /*
      * (non-Javadoc)
      * 
@@ -118,7 +120,7 @@ public class ReduceRule extends RuleOperatingOnWholeSequence implements RuleFilt
     public Name name() {
         return new Name("Eliminate Universal Quantifiers");
     }
-    
+
     /*
      * (non-Javadoc)
      * 
@@ -133,7 +135,7 @@ public class ReduceRule extends RuleOperatingOnWholeSequence implements RuleFilt
      * 
      * @see java.lang.Object#toString()
      */
-    /*@Override*/
+    /* @Override */
     public String toString() {
         return displayName();
     }
@@ -141,10 +143,11 @@ public class ReduceRule extends RuleOperatingOnWholeSequence implements RuleFilt
     /*
      * (non-Javadoc)
      * 
-     * @see de.uka.ilkd.key.dl.RuleOperatingOnWholeSequence#apply(de.uka.ilkd.key.proof.Goal,
-     *      de.uka.ilkd.key.java.Services, de.uka.ilkd.key.rule.RuleApp)
+     * @see
+     * de.uka.ilkd.key.dl.RuleOperatingOnWholeSequence#apply(de.uka.ilkd.key
+     * .proof.Goal, de.uka.ilkd.key.java.Services, de.uka.ilkd.key.rule.RuleApp)
      */
-    /*@Override*/
+    /* @Override */
     public synchronized ImmutableList<Goal> apply(Goal goal, Services services,
             RuleApp ruleApp) {
         quantifiedVariables = new LinkedHashSet<String>();
@@ -155,9 +158,11 @@ public class ReduceRule extends RuleOperatingOnWholeSequence implements RuleFilt
     /*
      * (non-Javadoc)
      * 
-     * @see de.uka.ilkd.key.dl.RuleOperatingOnWholeSequence#visit(de.uka.ilkd.key.logic.Term)
+     * @see
+     * de.uka.ilkd.key.dl.RuleOperatingOnWholeSequence#visit(de.uka.ilkd.key
+     * .logic.Term)
      */
-    /*@Override*/
+    /* @Override */
     public void visit(Term visited) {
         if (visited.op() instanceof RigidFunction) {
             RigidFunction sk = (RigidFunction) visited.op();
@@ -168,8 +173,7 @@ public class ReduceRule extends RuleOperatingOnWholeSequence implements RuleFilt
             ImmutableArray<QuantifiableVariable> varsBoundHere = visited
                     .varsBoundHere(0);
             for (int i = 0; i < varsBoundHere.size(); i++) {
-                quantifiedVariables.add(varsBoundHere
-                        .get(i).name().toString());
+                quantifiedVariables.add(varsBoundHere.get(i).name().toString());
             }
         }
         super.visit(visited);
@@ -178,12 +182,13 @@ public class ReduceRule extends RuleOperatingOnWholeSequence implements RuleFilt
     /*
      * (non-Javadoc)
      * 
-     * @see de.uka.ilkd.key.dl.RuleOperatingOnWholeSequence#performQuery(de.uka.ilkd.key.logic.Term,
-     *      de.uka.ilkd.key.dl.IMathSolver)
+     * @see
+     * de.uka.ilkd.key.dl.RuleOperatingOnWholeSequence#performQuery(de.uka.ilkd
+     * .key.logic.Term, de.uka.ilkd.key.dl.IMathSolver)
      */
-    /*@Override*/
-    protected Term performQuery(Term term, long timeout) throws RemoteException,
-            SolverException {
+    /* @Override */
+    protected Term performQuery(Term term, long timeout)
+            throws RemoteException, SolverException {
 
         List<String> variables = getVariables();
         List<Term> skolem = new LinkedList<Term>();
@@ -212,8 +217,7 @@ public class ReduceRule extends RuleOperatingOnWholeSequence implements RuleFilt
             List<LogicVariable> vars = new ArrayList<LogicVariable>();
             for (Term sk : skolem) {
                 LogicVariable logicVariable = new LogicVariable(new Name(sk
-                        .op().name()
-                        + "$sk"), sk.op().sort(new Term[0]));
+                        .op().name() + "$sk"), sk.op().sort(new Term[0]));
                 vars.add(logicVariable);
                 matches.add(new Match((RigidFunction) sk.op(), TermBuilder.DF
                         .var(logicVariable)));
@@ -236,19 +240,21 @@ public class ReduceRule extends RuleOperatingOnWholeSequence implements RuleFilt
             }
         }
         if (DLOptionBean.INSTANCE.isSimplifyBeforeReduce()) {
-            term = MathSolverManager.getCurrentSimplifier().simplify(term, getServices().getNamespaces());
+            term = MathSolverManager.getCurrentSimplifier().simplify(term,
+                    getServices().getNamespaces());
         }
         if (TRIVIALS.contains(term)) {
             return term;
         }
         term = MathSolverManager.getCurrentQuantifierEliminator().reduce(term,
-                variables, new LinkedList<PairOfTermAndQuantifierType>(),getServices().getNamespaces(),
-                timeout);
+                variables, new LinkedList<PairOfTermAndQuantifierType>(),
+                getServices().getNamespaces(), timeout);
         if (TRIVIALS.contains(term)) {
             return term;
         }
         if (DLOptionBean.INSTANCE.isSimplifyAfterReduce()) {
-            term = MathSolverManager.getCurrentSimplifier().simplify(term,getServices().getNamespaces());
+            term = MathSolverManager.getCurrentSimplifier().simplify(term,
+                    getServices().getNamespaces());
         }
         return term;
     }
@@ -256,11 +262,15 @@ public class ReduceRule extends RuleOperatingOnWholeSequence implements RuleFilt
     /*
      * (non-Javadoc)
      * 
-     * @see de.uka.ilkd.key.dl.RuleOperatingOnWholeSequence#performSearch(de.uka.ilkd.key.logic.Term)
+     * @see
+     * de.uka.ilkd.key.dl.RuleOperatingOnWholeSequence#performSearch(de.uka.
+     * ilkd.key.logic.Term)
      */
-    /*@Override*/
+    /* @Override */
     protected void performSearch(Term visited) {
-        if (!FOSequence.isFOOperator(visited.op())) {
+        if (!FOSequence.isFOOperator(visited.op())
+                || FOSequence.isFunctionWithDifferentSort(visited,
+                        RealLDT.getRealSort())) {
             addFormula = false;
         }
     }

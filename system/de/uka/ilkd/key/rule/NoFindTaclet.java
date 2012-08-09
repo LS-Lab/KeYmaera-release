@@ -52,7 +52,7 @@ public class NoFindTaclet extends Taclet {
 		      ImmutableMap<SchemaVariable,TacletPrefix> prefixMap,
 		      ImmutableSet<Choice> choices){
 	super(name, applPart, goalTemplates, ruleSets, constraint, attrs, 
-	      prefixMap, choices);
+	      prefixMap, choices, false);
 	cacheMatchInfo();
     } 
 

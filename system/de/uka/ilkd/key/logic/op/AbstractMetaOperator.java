@@ -21,6 +21,7 @@ import de.uka.ilkd.key.dl.rules.metaconstruct.DLDiffAdjoin;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DLDiffInequalityRewrite;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DLIntroNewAnonUpdateOp;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DLInvariantPart;
+import de.uka.ilkd.key.dl.rules.metaconstruct.DLQuanUpdate;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DLRandomAssign;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DLUniversalClosureOp;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DNFTransformer;
@@ -32,6 +33,7 @@ import de.uka.ilkd.key.dl.rules.metaconstruct.Evaluate;
 import de.uka.ilkd.key.dl.rules.metaconstruct.FullSimplify;
 import de.uka.ilkd.key.dl.rules.metaconstruct.ImplicationIntroductor;
 import de.uka.ilkd.key.dl.rules.metaconstruct.ODESolve;
+import de.uka.ilkd.key.dl.rules.metaconstruct.QODESolve;
 import de.uka.ilkd.key.dl.rules.metaconstruct.Reduce;
 import de.uka.ilkd.key.dl.rules.metaconstruct.Simplify;
 import de.uka.ilkd.key.dl.rules.metaconstruct.WeakNegation;
@@ -221,6 +223,7 @@ public abstract class AbstractMetaOperator extends Op implements MetaOperator {
 	public static final AbstractMetaOperator PROG_2_LOGIC_CONVERTER = new Prog2LogicConverter();
 	
         public static final ODESolve ODE_SOLVE = new ODESolve();
+        public static final QODESolve QODE_SOLVE = new QODESolve();
         public static final DiffInd DIFFIND = new DiffInd();
         public static final AbstractMetaOperator DIFFFIN = new DiffFin();
         public static final AbstractMetaOperator DIFFADJOIN= new DLDiffAdjoin();
@@ -233,7 +236,9 @@ public abstract class AbstractMetaOperator extends Op implements MetaOperator {
 	public static final DLUniversalClosureOp DL_UNIVERSAL_CLOSURE = new DLUniversalClosureOp();
 
 	public static final AbstractMetaOperator DL_INT_FORALL = new DLRandomAssign();
-
+	
+	public static final AbstractMetaOperator DL_QUAN_UPDATE = new DLQuanUpdate();
+	
 	public static final AbstractMetaOperator DL_DNF_TRANSFORMER = new DNFTransformer();
 
 	public static final AbstractMetaOperator DL_CHOICE_UNWIND = new DLChoiceUnwind();

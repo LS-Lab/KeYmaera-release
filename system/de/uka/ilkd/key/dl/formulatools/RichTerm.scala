@@ -110,6 +110,7 @@ object Equals extends BinaryLogicOperator(Op.EQUALS) {
 
 object MathFun {
   def unapply(t: Term): Option[(String, Seq[Term])] = {
+    if(t.sort != RealLDT.getRealSort) return None
     t.op match {
       case f: RigidFunction if f.isMathFunction() => 
         Some(f.name.toString, for(i <- 0 until t.arity) yield t.sub(i)) 
@@ -128,6 +129,7 @@ object Constant {
     else None
   }
   def unapply(t: Term): Option[String] = {
+    if(t.sort != RealLDT.getRealSort) return None
     if (t.arity == 0) {
       Some(t.op.name.toString)
     } else {
@@ -138,6 +140,7 @@ object Constant {
 
 object Function {
   def unapply(t: Term): Option[(String, Seq[Term])] = {
+    if(t.sort != RealLDT.getRealSort) return None
     if (t.op.isInstanceOf[RigidFunction]) {
       t match {
         // exclude all built-in functions

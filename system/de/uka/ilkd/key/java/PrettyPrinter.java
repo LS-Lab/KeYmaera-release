@@ -28,11 +28,15 @@ import de.uka.ilkd.key.dl.model.Dot;
 import de.uka.ilkd.key.dl.model.Exists;
 import de.uka.ilkd.key.dl.model.Forall;
 import de.uka.ilkd.key.dl.model.IfExpr;
+import de.uka.ilkd.key.dl.model.FunctionTerm;
 import de.uka.ilkd.key.dl.model.IfStatement;
 import de.uka.ilkd.key.dl.model.NamedElement;
+import de.uka.ilkd.key.dl.model.NonRigidFunction;
+import de.uka.ilkd.key.dl.model.Quantified;
 import de.uka.ilkd.key.dl.model.RandomAssign;
 import de.uka.ilkd.key.dl.model.SymbolizedElement;
 import de.uka.ilkd.key.gui.Main;
+import de.uka.ilkd.key.java.abstraction.ArrayType;
 import de.uka.ilkd.key.java.abstraction.Type;
 import de.uka.ilkd.key.java.declaration.ArrayDeclaration;
 import de.uka.ilkd.key.java.declaration.ClassDeclaration;
@@ -153,6 +157,7 @@ import de.uka.ilkd.key.java.statement.Try;
 import de.uka.ilkd.key.java.statement.While;
 import de.uka.ilkd.key.logic.ProgramElementName;
 import de.uka.ilkd.key.logic.op.IProgramVariable;
+import de.uka.ilkd.key.logic.op.ProgramConstant;
 import de.uka.ilkd.key.logic.op.ProgramMethod;
 import de.uka.ilkd.key.logic.op.ProgramSV;
 import de.uka.ilkd.key.logic.op.ProgramVariable;
@@ -3276,7 +3281,7 @@ public class PrettyPrinter {
 
                 }
             }
-            write("\n");
+            //write("\n");
         }
 
         markEnd(0, p);
@@ -3390,6 +3395,23 @@ public class PrettyPrinter {
     public void printDot(Dot p) throws IOException {
         printHeader(p);
         markStart(0, p);
+//        if(p.getChildAt(0) instanceof FunctionTerm) {
+//            FunctionTerm ft = (FunctionTerm) p.getChildAt(0);
+//            writeElement(ft.getChildAt(0));
+//        } else {
+//            writeElement(p.getChildAt(0));
+//        }
+//        if(p.getChildAt(0) instanceof FunctionTerm) {
+//            FunctionTerm ft = (FunctionTerm) p.getChildAt(0);
+//            write("(");
+//            String comma = "";
+//            for(int i = 1; i < ft.getChildCount(); i++) {
+//                write(comma);
+//                writeElement(ft.getChildAt(i));
+//                comma = ", ";
+//            }
+//            write(")");
+//        }
         writeElement(p.getChildAt(0));
 
         for (int i = 0; i < p.getOrder(); i++) {
@@ -3446,7 +3468,21 @@ public class PrettyPrinter {
         String comma = "";
         for(int i = 1; i < p.getChildCount(); i++) {
             write(comma);
-            writeElement(p.getChildAt(i));
+            ProgramElement child = p.getChildAt(i);
+            if(child instanceof NonRigidFunction) {
+                NonRigidFunction nc = (NonRigidFunction) child;
+                markStart(0, child);
+                write(nc.getSymbol() + "(");
+                String ncomma = "";
+                for(String s: nc.getArgSorts()) {
+                    write(ncomma + s);
+                    ncomma = ", ";
+                }
+                write(")");
+                markEnd(0, child);
+            } else {
+                writeElement(child);
+            }
             comma = ", ";
         }
         markEnd(0, p);
@@ -3492,9 +3528,9 @@ public class PrettyPrinter {
         
         write("\\exists ");
         writeElement(p.getChildAt(0));
-        write("; (");
+        write(". (");
         writeElement(p.getChildAt(1));
-		write(")");
+        write(")");
         markEnd(0, p);
         printFooter(p);
     }
@@ -3508,9 +3544,9 @@ public class PrettyPrinter {
         
         write("\\forall ");
         writeElement(p.getChildAt(0));
-        write("; (");
+        write(". (");
         writeElement(p.getChildAt(1));
-		write(")");
+        write(")");
         markEnd(0, p);
         printFooter(p);
     }
@@ -3543,6 +3579,23 @@ public class PrettyPrinter {
         writeElement(p.getChildAt(1));
         markEnd(0, p);
         printFooter(p);
+    }
+
+    /**
+     * @param varName
+     * @param typeName
+     * @param childAt
+     */
+    public void printQuantified(Quantified q) throws IOException {
+       printHeader(q);
+       markStart(0, q);
+       
+       write("\\forall ");
+       writeElement(q.getChildAt(0));
+       write(". ");
+       writeElement(q.getChildAt(1));
+       markEnd(0, q);
+       printFooter(q);
     }
 
     /**

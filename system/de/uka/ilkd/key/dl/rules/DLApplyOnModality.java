@@ -69,6 +69,7 @@ import de.uka.ilkd.key.logic.Named;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.Visitor;
 import de.uka.ilkd.key.logic.op.NonRigidFunction;
+import de.uka.ilkd.key.logic.op.NonRigidFunctionLocation;
 import de.uka.ilkd.key.logic.op.Operator;
 import de.uka.ilkd.key.logic.op.ProgramMethod;
 import de.uka.ilkd.key.logic.op.ProgramVariable;
@@ -400,7 +401,7 @@ public class DLApplyOnModality extends ApplyOnModality {
 
         if (targetOp instanceof ProgramVariable) {
             foundProgVars.add(targetOp);
-        } else if ((targetOp instanceof NonRigidFunction && !(targetOp instanceof ProgramMethod))) {
+        } else if (((targetOp instanceof NonRigidFunction || targetOp instanceof NonRigidFunctionLocation) && !(targetOp instanceof ProgramMethod))) {
             foundProgVars.add(PROTECT_ALL);
             return foundProgVars;
         }

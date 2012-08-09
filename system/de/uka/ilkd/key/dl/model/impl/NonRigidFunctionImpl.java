@@ -27,20 +27,20 @@ package de.uka.ilkd.key.dl.model.impl;
 import java.util.Map;
 import java.util.WeakHashMap;
 
-import de.uka.ilkd.key.dl.model.FreeFunction;
+import de.uka.ilkd.key.dl.model.NonRigidFunction;
 import de.uka.ilkd.key.logic.Name;
 
 /**
- * Implementation of {@link FreeFunction}. Weak hashing of the functions is
+ * Implementation of {@link NonRigidFunction}. Weak hashing of the functions is
  * done to assert that there is only one instance of this object per name.
  * 
  * @version 1.00
  * @author jdq
- * @since Mo Jan 15 09:46:07 CET 2007
+ * @since 31.7.2012
  */
-public class FreeFunctionImpl extends FunctionImpl implements FreeFunction {
+public class NonRigidFunctionImpl extends FunctionImpl implements NonRigidFunction {
 
-	private static Map<Name, FreeFunction> instances = new WeakHashMap<Name, FreeFunction>();
+	private static Map<Name, NonRigidFunction> instances = new WeakHashMap<Name, NonRigidFunction>();
 
 	/**
 	 * Creates a new Function or returns a cached one with the given name. This
@@ -51,8 +51,8 @@ public class FreeFunctionImpl extends FunctionImpl implements FreeFunction {
 	 *            the name of the function
 	 * @return the new or cached function
 	 */
-	public static FreeFunction getFunction(String name) {
-		return getFunction(new Name(name));
+	public static NonRigidFunction getFunction(String name, String[] argSorts, boolean create) {
+		return getFunction(new Name(name), argSorts, create);
 	}
 
 	/**
@@ -64,19 +64,21 @@ public class FreeFunctionImpl extends FunctionImpl implements FreeFunction {
 	 *            the name of the function
 	 * @return the new or cached function
 	 */
-	public static FreeFunction getFunction(Name name) {
+	public static NonRigidFunction getFunction(Name name, String[] argSorts, boolean create) {
 		if(name.toString().startsWith("$")) {
 			throw new IllegalArgumentException("Dollar ($) prefix is reserved for logic variables!");
 		}
-		FreeFunction result = instances.get(name);
-		if (result == null) {
-			result = new FreeFunctionImpl(name);
+		NonRigidFunction result = instances.get(name);
+		if (create && result == null) {
+			result = new NonRigidFunctionImpl(name, argSorts);
 			instances.put(name, result);
 		}
 		return result;
 	}
 
 	private Name name;
+	
+	private String[] argSorts;
 
 	/**
 	 * Creates a new function with a given name
@@ -84,14 +86,15 @@ public class FreeFunctionImpl extends FunctionImpl implements FreeFunction {
 	 * @param name
 	 *            the name to use
 	 */
-	protected FreeFunctionImpl(Name name) {
+	protected NonRigidFunctionImpl(Name name, String[] argSorts) {
 		this.name = name;
+		this.argSorts = argSorts;
 	}
 
 	/**
 	 * Creates a new function
 	 */
-	protected FreeFunctionImpl() {
+	protected NonRigidFunctionImpl() {
 	}
 
 	/**
@@ -116,15 +119,31 @@ public class FreeFunctionImpl extends FunctionImpl implements FreeFunction {
 	}
 	
 	/* (non-Javadoc)
+	 * @see de.uka.ilkd.key.dl.model.NonRigidFunction#getArgSorts()
+	 */
+	@Override
+	public String[] getArgSorts() {
+	    return argSorts;
+	}
+
+	
+	/* (non-Javadoc)
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override
 	public boolean equals(Object obj) {
-	    if(obj != null && obj instanceof FreeFunction) {
-	        FreeFunction f = (FreeFunction) obj;
-	        return f.getElementName().toString().equals(getElementName().toString());
+	    if(obj != null && obj instanceof NonRigidFunction) {
+	        NonRigidFunction f = (NonRigidFunction) obj;
+	        boolean names = f.getElementName().toString().equals(getElementName().toString());
+	        if(names && f.getArgSorts().length == getArgSorts().length) {
+	            for(int i = 0; i < getArgSorts().length; i++) {
+	                if(!f.getArgSorts()[i].equals(getArgSorts()[i])) {
+	                    return false;
+	                }
+	            }
+	            return true;
+	        }
 	    }
 	    return false;
 	}
-
 }

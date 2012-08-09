@@ -25,6 +25,7 @@ package de.uka.ilkd.key.dl.model.impl;
 import java.io.IOException;
 import java.util.List;
 
+import de.uka.ilkd.key.dl.model.DLProgramElement;
 import de.uka.ilkd.key.dl.model.ProgramVariable;
 import de.uka.ilkd.key.dl.model.Variable;
 import de.uka.ilkd.key.dl.model.VariableDeclaration;
@@ -36,8 +37,6 @@ import de.uka.ilkd.key.java.ReuseableProgramElement;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.java.SourceElement;
 import de.uka.ilkd.key.java.reference.ExecutionContext;
-import de.uka.ilkd.key.logic.op.ProgramSV;
-import de.uka.ilkd.key.logic.op.SchemaVariable;
 
 /**
  * This class is the implementation of the representation of variable
@@ -53,9 +52,9 @@ public class VariableDeclarationImpl extends DLNonTerminalProgramElementImpl
     /**
      * @param variable
      */
-    public VariableDeclarationImpl(VariableType type, List<Variable> variables) {
+    public VariableDeclarationImpl(VariableType type, List<? extends DLProgramElement> variables) {
         addChild(type);
-        for (Variable variable : variables) {
+        for (DLProgramElement variable : variables) {
             addChild(variable);
         }
     }

@@ -10,7 +10,9 @@
 
 package de.uka.ilkd.key.rule;
 
+import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.Set;
 
 import de.uka.ilkd.key.collection.ImmutableList;
 import de.uka.ilkd.key.collection.ImmutableMap;
@@ -40,6 +42,7 @@ public class SuccTaclet extends FindTaclet{
      * @param find the find term of the Taclet
      * @param prefixMap a ImmMap<SchemaVariable,TacletPrefix> that contains the
      * prefix for each SchemaVariable in the Taclet
+     * @param onlyRigidFunctions 
      */
     public SuccTaclet(Name name, TacletApplPart applPart,  
 		    ImmutableList<TacletGoalTemplate> goalTemplates, 
@@ -47,9 +50,9 @@ public class SuccTaclet extends FindTaclet{
 		    Constraint constraint,
 		    TacletAttributes attrs,
 		    Term find,ImmutableMap<SchemaVariable,TacletPrefix> prefixMap,
-		    ImmutableSet<Choice> choices){
+		    ImmutableSet<Choice> choices, boolean onlyRigidFunctions){
 	super(name, applPart, goalTemplates, heuristics, constraint,
-	      attrs, find, prefixMap, choices);
+	      attrs, find, prefixMap, choices, onlyRigidFunctions);
 	cacheMatchInfo();
     }	
 
@@ -90,6 +93,16 @@ public class SuccTaclet extends FindTaclet{
             
             for(PosInOccurrence p: positions) {
                 goal.removeFormula(p);
+            }
+            // remove all hidden formulas from the tacletIndex
+            Set<NoPosTacletApp> hidden = new HashSet<NoPosTacletApp>();
+            for(NoPosTacletApp ta: goal.ruleAppIndex().tacletIndex().allNoPosTacletApps()) {
+                if(ta.taclet().displayName().startsWith("insert_hidden")) {
+                    hidden.add(ta);
+                }
+            }
+            for(NoPosTacletApp ta: hidden) {
+                goal.ruleAppIndex().removeNoPosTacletApp(ta);
             }
         }
 

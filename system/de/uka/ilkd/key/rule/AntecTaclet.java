@@ -10,13 +10,22 @@
 
 package de.uka.ilkd.key.rule;
 
+import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.Set;
 
 import de.uka.ilkd.key.collection.ImmutableList;
 import de.uka.ilkd.key.collection.ImmutableMap;
 import de.uka.ilkd.key.collection.ImmutableSet;
 import de.uka.ilkd.key.java.Services;
-import de.uka.ilkd.key.logic.*;
+import de.uka.ilkd.key.logic.Choice;
+import de.uka.ilkd.key.logic.ConstrainedFormula;
+import de.uka.ilkd.key.logic.Constraint;
+import de.uka.ilkd.key.logic.Name;
+import de.uka.ilkd.key.logic.PosInOccurrence;
+import de.uka.ilkd.key.logic.PosInTerm;
+import de.uka.ilkd.key.logic.Sequent;
+import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.op.SchemaVariable;
 import de.uka.ilkd.key.proof.Goal;
 
@@ -40,6 +49,7 @@ public class AntecTaclet extends FindTaclet{
      * @param find the find term of the Taclet
      * @param prefixMap a ImmMap<SchemaVariable,TacletPrefix> that contains the
      * prefix for each SchemaVariable in the Taclet
+     * @param onlyRigidFunctions 
      */
     public AntecTaclet(Name name, TacletApplPart applPart,  
 		     ImmutableList<TacletGoalTemplate> goalTemplates, 
@@ -47,9 +57,9 @@ public class AntecTaclet extends FindTaclet{
 		     Constraint constraint,
 		     TacletAttributes attrs,
 		     Term find, ImmutableMap<SchemaVariable,TacletPrefix> prefixMap,
-		     ImmutableSet<Choice> choices){
+		     ImmutableSet<Choice> choices, boolean onlyRigidFunctions){
 	super(name, applPart, goalTemplates, heuristics, constraint, 
-	      attrs, find, prefixMap, choices);
+	      attrs, find, prefixMap, choices, onlyRigidFunctions);
 	cacheMatchInfo();
     }
 
@@ -92,6 +102,16 @@ public class AntecTaclet extends FindTaclet{
             
             for(PosInOccurrence p: positions) {
                 goal.removeFormula(p);
+            }
+            // remove all hidden formulas from the tacletIndex
+            Set<NoPosTacletApp> hidden = new HashSet<NoPosTacletApp>();
+            for(NoPosTacletApp ta: goal.ruleAppIndex().tacletIndex().allNoPosTacletApps()) {
+                if(ta.taclet().displayName().startsWith("insert_hidden")) {
+                    hidden.add(ta);
+                }
+            }
+            for(NoPosTacletApp ta: hidden) {
+                goal.ruleAppIndex().removeNoPosTacletApp(ta);
             }
         }
 

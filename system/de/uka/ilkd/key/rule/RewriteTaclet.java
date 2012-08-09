@@ -78,6 +78,7 @@ public class RewriteTaclet extends FindTaclet{
      * @param p_stateRestriction an int defining state restrictions of the taclet
      * (required for location check)
      * @param choices the SetOf<Choices> to which this taclet belongs to
+     * @param onlyRigidFunctions 
      */
     public RewriteTaclet(Name name, TacletApplPart applPart,  
 			 ImmutableList<TacletGoalTemplate>  goalTemplates, 
@@ -87,9 +88,9 @@ public class RewriteTaclet extends FindTaclet{
 			 Term                      find, 
 			 ImmutableMap<SchemaVariable,TacletPrefix> prefixMap,
 			 int                       p_stateRestriction,
-			 ImmutableSet<Choice> choices){
+			 ImmutableSet<Choice> choices, boolean onlyRigidFunctions){
 	super(name, applPart, goalTemplates, ruleSets, constraint,
-	      attrs, find, prefixMap, choices);
+	      attrs, find, prefixMap, choices, onlyRigidFunctions);
 	stateRestriction = p_stateRestriction;
 	
 	cacheMatchInfo();

@@ -482,7 +482,7 @@ public class RandomFormulaCreator {
 					public String getText() {
 						return "x" + j;
 					}
-				}));
+				}, null));
 				children.add(createTerm(numberOfVariables, stop + 5, nss, tf));
 				if (result == null) {
 					result = tf

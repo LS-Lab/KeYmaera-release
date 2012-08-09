@@ -28,8 +28,10 @@ import de.uka.ilkd.key.dl.model.RandomAssign;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.java.StatementBlock;
 import de.uka.ilkd.key.logic.Name;
+import de.uka.ilkd.key.logic.Named;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.TermBuilder;
+import de.uka.ilkd.key.logic.op.LocationVariable;
 import de.uka.ilkd.key.logic.op.LogicVariable;
 import de.uka.ilkd.key.logic.op.Modality;
 import de.uka.ilkd.key.logic.sort.Sort;
@@ -71,12 +73,13 @@ public class DLRandomAssign extends AbstractDLMetaOperator {
         LogicVariable var = null;
         ProgramVariable progVar = (ProgramVariable) ((RandomAssign) ((StatementBlock) result
                 .javaBlock().program()).getChildAt(0)).getChildAt(0);
+        de.uka.ilkd.key.logic.op.ProgramVariable lookup = (LocationVariable) services.getNamespaces().programVariables().lookup(progVar.getElementName());
         while (var == null) {
             // TODO replace by VariableNamer
             Name name2 = new Name(progVar.getElementName().toString() + "_"
                     + l++);
             if (services.getNamespaces().lookup(name2) == null) {
-                var = new LogicVariable(name2, RealLDT.getRealSort());
+                var = new LogicVariable(name2, lookup.sort());
                 services.getNamespaces().variables().add(var);
                 break;
             }
@@ -89,12 +92,7 @@ public class DLRandomAssign extends AbstractDLMetaOperator {
                                     .tf()
                                     .createUpdateTerm(
                                             TermBuilder.DF
-                                                    .var((de.uka.ilkd.key.logic.op.ProgramVariable) services
-                                                            .getNamespaces()
-                                                            .programVariables()
-                                                            .lookup(
-                                                                    progVar
-                                                                            .getElementName())),
+                                                    .var(lookup),
                                             TermBuilder.DF.var(var),
                                             result.sub(0)));
         } else if (result.op() == Modality.DIA) { // TODO: add
@@ -106,12 +104,7 @@ public class DLRandomAssign extends AbstractDLMetaOperator {
                                     .tf()
                                     .createUpdateTerm(
                                             TermBuilder.DF
-                                                    .var((de.uka.ilkd.key.logic.op.ProgramVariable) services
-                                                            .getNamespaces()
-                                                            .programVariables()
-                                                            .lookup(
-                                                                    progVar
-                                                                            .getElementName())),
+                                                    .var(lookup),
                                             TermBuilder.DF.var(var),
                                             result.sub(0)));
         } else {
