@@ -19,6 +19,7 @@
  ***************************************************************************/
 package de.uka.ilkd.key.dl.strategy.features;
 
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -36,12 +37,15 @@ import java.util.LinkedHashSet;
 
 import orbital.util.SequenceIterator;
 import orbital.util.Setops;
+import scala.actors.threadpool.Arrays;
 import de.uka.ilkd.key.collection.ImmutableArray;
 import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
 import de.uka.ilkd.key.dl.arithmetics.impl.mathematica.Mathematica;
 import de.uka.ilkd.key.dl.formulatools.Prog2LogicConverter;
 import de.uka.ilkd.key.dl.formulatools.ReplacementSubst;
 import de.uka.ilkd.key.dl.formulatools.TermTools;
+import de.uka.ilkd.key.dl.logic.ldt.RealLDT;
 import de.uka.ilkd.key.dl.model.DLProgram;
 import de.uka.ilkd.key.dl.model.DiffSystem;
 import de.uka.ilkd.key.dl.model.NamedElement;
@@ -53,10 +57,12 @@ import de.uka.ilkd.key.java.StatementBlock;
 import de.uka.ilkd.key.logic.ConstrainedFormula;
 import de.uka.ilkd.key.logic.JavaBlock;
 import de.uka.ilkd.key.logic.Name;
+import de.uka.ilkd.key.logic.NamespaceSet;
 import de.uka.ilkd.key.logic.PosInOccurrence;
 import de.uka.ilkd.key.logic.Sequent;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.TermBuilder;
+import de.uka.ilkd.key.logic.op.LogicVariable;
 import de.uka.ilkd.key.logic.op.Modality;
 import de.uka.ilkd.key.logic.op.QuanUpdateOperator;
 import de.uka.ilkd.key.pp.LogicPrinter;
@@ -116,9 +122,28 @@ public class DiffIndCandidates implements TermGenerator {
         // can handle this.
         // we only consider sophisticated choices
         // l.add(post); // consider diffind itself als diffstrengthening
-        if (false && program instanceof DiffSystem && MathSolverManager.isODESolverSet() 
+        if (program instanceof DiffSystem && MathSolverManager.isODESolverSet() 
         		&& MathSolverManager.getCurrentODESolver() instanceof Mathematica && FOSequence.INSTANCE.isFOFormula(post)) {
             // fancy diffop strategy
+        	LogicVariable t = null;
+            /*int i = 0;
+            final NamespaceSet nss = services.getNamespaces();
+            Name tName = null;
+            do {
+                tName = new Name("t" + i++);
+            } while (nss.variables().lookup(tName) != null
+                    || nss.programVariables().lookup(tName) != null);
+            t = new LogicVariable(tName, RealLDT.getRealSort());*/
+        	try {
+				Term[] invf = MathSolverManager.getCurrentODESolver().pdeSolve((DiffSystem)program, t, services);
+				System.out.println("FUNCTION CANDIDATES:  ....\n" + Arrays.asList(invf));
+			} catch (RemoteException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (SolverException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
         }
         final Iterator<Term> candidateGenerator = 
             indCandidates(goal.sequent(), pos, currentInvariant,

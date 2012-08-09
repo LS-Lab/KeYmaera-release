@@ -33,8 +33,9 @@ import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
@@ -60,6 +61,7 @@ import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.UnsolveableException;
 import de.uka.ilkd.key.dl.arithmetics.impl.SumOfSquaresChecker.PolynomialClassification;
 import de.uka.ilkd.key.dl.arithmetics.impl.mathematica.IKernelLinkWrapper.ExprAndMessages;
+import de.uka.ilkd.key.dl.formulatools.DerivativeCreator;
 import de.uka.ilkd.key.dl.formulatools.collector.AllCollector;
 import de.uka.ilkd.key.dl.formulatools.collector.filter.FilterVariableCollector;
 import de.uka.ilkd.key.dl.image_compute.CounterExampleFinder;
@@ -214,7 +216,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
             Services services, long timeout)
             throws RemoteException, SolverException {
         List<Expr> args = new ArrayList<Expr>();
-        Map<String, Expr> vars = new HashMap<String, Expr>();
+        Map<String, Expr> vars = new LinkedHashMap<String, Expr>();
 
         collectDottedProgramVariables(form, vars, t);
         for (ProgramElement el : form.getDifferentialEquations(services.getNamespaces()))
@@ -292,11 +294,11 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 			LogicVariable ts, Term phi, Services services)
 			throws RemoteException, SolverException {
 		List<Expr> args = new ArrayList<Expr>();
-		Map<String, Expr> vars = new HashMap<String, Expr>();
+		Map<String, Expr> vars = new LinkedHashMap<String, Expr>();
 
 		collectDottedProgramVariables(form, vars, t);
 		Term invariant = form.getInvariant(services);
-		final Map<String, Expr> EMPTY = new HashMap<String, Expr>();
+		final Map<String, Expr> EMPTY = new LinkedHashMap<String, Expr>();
 		for (ProgramElement el : form.getDifferentialEquations(services
 				.getNamespaces())) {
 			args.add(DL2Expr.apply(el, t, vars, services));
@@ -325,7 +327,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 		for (String var : vars.keySet()) {
 			varNames.add(NameMasker.unmask(var));
 		}
-		Map<String, Integer> multipleSolutions = new HashMap<String, Integer>();
+		Map<String, Integer> multipleSolutions = new LinkedHashMap<String, Integer>();
 		for (Update u : updates) {
 			final String varName = u.location.op().name().toString();
 			if (varNames.contains(varName)) {
@@ -406,26 +408,72 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 	}
 
 	@Override
-	public Term[] pdeSolve(DiffSystem form, LogicVariable t, Services services) throws RemoteException {
+	public Term[] pdeSolve(DiffSystem form, LogicVariable t, Services services) throws RemoteException, SolverException {
 		List<Expr> args = new ArrayList<Expr>();
-		Map<String, Expr> vars = new HashMap<String, Expr>();
+		Map<String, Expr> vars = new LinkedHashMap<String, Expr>();
 
-		collectDottedProgramVariables(form, vars, t);
-		Term invariant = form.getInvariant(services);
-		final Map<String, Expr> EMPTY = new HashMap<String, Expr>();
-		for (ProgramElement el : form.getDifferentialEquations(services
-				.getNamespaces())) {
-			args.add(DL2Expr.apply(el, t, vars, services));
+		collectDottedProgramVariables(form, vars);
+
+		final Expr f = new Expr(Expr.SYMBOL, "$f");
+		final Term invariant = form.getInvariant(services);
+		Map<String, Term> replacements = new LinkedHashMap<String, Term>();
+		DerivativeCreator.collectDiffReplacements(form, replacements, services);
+		for (Map.Entry<String, Term> vt : replacements.entrySet()) {
+			args.add(new Expr(new Expr(Expr.SYMBOL, "Times"), new Expr[] {
+				Term2Expr.apply(vt.getValue(), false),
+				//DL2Expr.apply((ProgramElement) vt.getValue(), t, vars, services),
+				new Expr(new Expr(Expr.SYMBOL, "D"), new Expr[] {
+					new Expr(f, vars.values().toArray(new Expr[0])),
+					new Expr(Expr.SYMBOL, NameMasker.mask(vt.getKey()))
+				})
+		    }));
 		}
-		String name = t.name().toString();
-		name = NameMasker.mask(name);
+		Expr pde = new Expr(new Expr(Expr.SYMBOL, "Equal"), new Expr[] {
+			new Expr(new Expr(Expr.SYMBOL, "Plus"), args
+					.toArray(new Expr[1])),
+			new Expr(BigInteger.ZERO)
+		});
+		final Expr genParam = new Expr(Expr.SYMBOL,"$C");
 		Expr query = new Expr(new Expr(Expr.SYMBOL, "DSolve"), new Expr[] {
-				new Expr(new Expr(Expr.SYMBOL, "List"), args
-						.toArray(new Expr[1])),
+				pde,
+			    new Expr(f, vars.values().toArray(new Expr[0])),
 				new Expr(new Expr(Expr.SYMBOL, "List"), vars.values().toArray(
-						new Expr[0])), new Expr(Expr.SYMBOL, name) });
-		//Expr updateExpressions = evaluate(query).expression;
-		throw new UnsupportedOperationException("not yet implemented");
+						new Expr[0])),
+			    new Expr(new Expr(Expr.SYMBOL, "Rule"), new Expr[] {
+			    	new Expr(Expr.SYMBOL, "GeneratedParameters"),
+			    	genParam
+			    })
+				});
+		final Expr subfinder = new Expr(new Expr(Expr.SYMBOL, "Rule"), new Expr[] {
+			new Expr(
+					new Expr(genParam, new Expr[] {new Expr(new Expr(Expr.SYMBOL, "Pattern"), new Expr[]{new Expr(Expr.SYMBOL, "n"), new Expr(new Expr(Expr.SYMBOL,"Blank"), new Expr[] {})})}),
+					new Expr[] {new Expr(new Expr(Expr.SYMBOL, "Pattern"), new Expr[]{new Expr(Expr.SYMBOL, "e"), new Expr(new Expr(Expr.SYMBOL,"BlankNullSequence"), new Expr[] {})})}),
+			new Expr(new Expr(Expr.SYMBOL, "Apply"), new Expr[] {
+				new Expr(Expr.SYMBOL, "List"),
+				new Expr(Expr.SYMBOL, "e")
+			    })
+		});
+		query = new Expr(new Expr(Expr.SYMBOL, "Module"), new Expr[] {
+			new Expr(new Expr(Expr.SYMBOL,"List"), new Expr[] {genParam}),
+			new Expr(new Expr(Expr.SYMBOL, "Cases"), new Expr[] {
+				query,
+				subfinder,
+				new Expr(Expr.SYMBOL, "Infinity")
+			})});
+		System.out.println("DOING " + query);
+		Expr expressions = evaluate(query).expression;
+		if (expressions.toString().equalsIgnoreCase("$Aborted")
+				|| expressions.toString().contains("Abort[]")) {
+			throw new IncompleteEvaluationException("Calculation aborted!");
+		}
+		if (expressions.head().equals(LIST)) {
+			List<Term> result = new LinkedList<Term>();
+			for (int i = 0; i < expressions.args().length; i++) {
+				result.add(convert(expressions.args()[i], services.getNamespaces()));
+			}
+			return result.toArray(new Term[0]);
+		} else
+			throw new SolverException("Unexpected form of output: " + expressions);
 	}
 
 	public Term diffInd(DiffSystem form, Term post, Services services)
@@ -457,7 +505,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 		// use implicit differential symbols
 		final LogicVariable t = null;
 		Term invariant = form.getInvariant(services);
-		final Map<String, Expr> EMPTY = new HashMap<String, Expr>();
+		final Map<String, Expr> EMPTY = new LinkedHashMap<String, Expr>();
 		for (ProgramElement el : form.getDifferentialEquations(services
 				.getNamespaces())) {
 			args.add(DL2Expr.apply(el, t, EMPTY, services));
@@ -549,7 +597,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 	public Term convert(Expr expr, NamespaceSet nss) throws RemoteException,
 			SolverException {
 		return Expr2TermConverter.convert(expr, nss,
-				new HashMap<Name, LogicVariable>());
+				new LinkedHashMap<Name, LogicVariable>());
 	}
 
 	/**
@@ -583,6 +631,32 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 
 	}
 
+	/**
+	 * Collect all program variables which are children of a Dot (without adding time).
+	 * 
+	 * @param form
+	 *            the current root element.
+	 * 
+	 * @param vars
+	 *            the Map used for storing the result
+	 */
+	public static final void collectDottedProgramVariables(ProgramElement form,
+			Map<String, Expr> vars) {
+		if (form instanceof Dot) {
+			ProgramVariable pv = (ProgramVariable) ((Dot) form).getChildAt(0);
+			String pvName = pv.getElementName().toString();
+			pvName = NameMasker.mask(pvName);
+			vars.put(pvName, new Expr(Expr.SYMBOL, pvName));
+		}
+		if (form instanceof DLNonTerminalProgramElement) {
+			DLNonTerminalProgramElement dlnpe = (DLNonTerminalProgramElement) form;
+			for (ProgramElement p : dlnpe) {
+				collectDottedProgramVariables(p, vars);
+			}
+		}
+
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -593,7 +667,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 	public Term simplify(Term form, Set<Term> assumptions, NamespaceSet nss)
 			throws RemoteException, SolverException {
 		Expr query = Term2ExprConverter.convert2Expr(form);
-		Set<Expr> ass = new HashSet<Expr>();
+		Set<Expr> ass = new LinkedHashSet<Expr>();
 		for (Term t : assumptions) {
 			ass.add(Term2ExprConverter.convert2Expr(t));
 		}
@@ -1026,11 +1100,11 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 	public boolean checkForConstantGroebnerBasis(
 			PolynomialClassification<Term> terms, Services services) {
 
-		Set<Expr> f = new HashSet<Expr>();
-		Set<Expr> g = new HashSet<Expr>();
-		Set<Expr> h = new HashSet<Expr>();
-		Set<Expr> vars = new HashSet<Expr>();
-		Set<String> varNames = new HashSet<String>();
+		Set<Expr> f = new LinkedHashSet<Expr>();
+		Set<Expr> g = new LinkedHashSet<Expr>();
+		Set<Expr> h = new LinkedHashSet<Expr>();
+		Set<Expr> vars = new LinkedHashSet<Expr>();
+		Set<String> varNames = new LinkedHashSet<String>();
 		for (Term t : terms.f) {
 			f.add(Term2ExprConverter.convert2Expr(t.sub(0)));
 			Set<String> variables = AllCollector.getItemSet(t).filter(
@@ -1043,7 +1117,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 		for (Term t : terms.g) {
 			Expr left = Term2ExprConverter.convert2Expr(t.sub(0));
 			try {
-				if (simplify(t, new HashSet<Term>(), services.getNamespaces())
+				if (simplify(t, new LinkedHashSet<Term>(), services.getNamespaces())
 						.equals(TermBuilder.DF.ff())) {
 					// found a contradiction of the form 0 != 0
 					return true;

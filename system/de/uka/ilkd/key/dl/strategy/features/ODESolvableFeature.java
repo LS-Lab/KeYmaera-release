@@ -87,6 +87,7 @@ public class ODESolvableFeature implements Feature {
 	 * de.uka.ilkd.key.proof.Goal)
 	 */
 	public RuleAppCost compute(RuleApp app, PosInOccurrence pos, Goal goal) {
+		if (true) return TopRuleAppCost.INSTANCE; // TODO nonsense hack!
 	    if(!DLOptionBean.INSTANCE.isSolveODE()) {
 	        // option checked that says we do not want to solve ode's
 	        return TopRuleAppCost.INSTANCE;
