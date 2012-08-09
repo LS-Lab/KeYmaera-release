@@ -245,4 +245,8 @@ public interface IMathematicaDLBridge extends Remote {
 	 */
 	boolean checkForConstantGroebnerBasis(PolynomialClassification<Term> terms, Services services) throws RemoteException;
 
+	public Term[] computeGroebnerBasis(Term[] polynomials, Services services) throws RemoteException, SolverException;
+
+	public Term polynomialReduce(Term poly, Term[] reductions, Services services) throws RemoteException, SolverException;
+
 }

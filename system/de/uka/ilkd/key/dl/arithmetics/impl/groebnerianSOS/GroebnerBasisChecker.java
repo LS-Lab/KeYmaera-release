@@ -53,6 +53,7 @@ import org.w3c.dom.Node;
 import de.uka.ilkd.key.dl.arithmetics.IGroebnerBasisCalculator;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ConnectionProblemException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ServerStatusProblemException;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
 import de.uka.ilkd.key.dl.arithmetics.impl.SumOfSquaresChecker;
 import de.uka.ilkd.key.dl.arithmetics.impl.SumOfSquaresChecker.PolynomialClassification;
 import de.uka.ilkd.key.dl.arithmetics.impl.csdp.CSDP;
@@ -1583,6 +1584,20 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 	/* @Override */
 	public boolean isConfigured() {
 		return true;
+	}
+
+	@Override
+	public Term[] computeGroebnerBasis(Term[] polynomials, Services services)
+			throws RemoteException, SolverException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Term polynomialReduce(Term poly, Term[] reductions, Services services)
+			throws RemoteException, SolverException {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

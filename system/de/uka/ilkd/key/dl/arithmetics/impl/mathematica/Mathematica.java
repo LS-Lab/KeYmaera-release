@@ -352,4 +352,16 @@ public class Mathematica implements ICounterExampleGenerator, IODESolver,
 	public void toggleServerConsole() {
 		((MathematicaDLBridge)bridge).toggleServerConsole();
 	}
+
+	@Override
+	public Term[] computeGroebnerBasis(Term[] polynomials, Services services)
+			throws RemoteException, SolverException {
+		return bridge.computeGroebnerBasis(polynomials, services);
+	}
+
+	@Override
+	public Term polynomialReduce(Term poly, Term[] reductions, Services services)
+			throws RemoteException, SolverException {
+		return bridge.polynomialReduce(poly, reductions, services);
+	}
 }

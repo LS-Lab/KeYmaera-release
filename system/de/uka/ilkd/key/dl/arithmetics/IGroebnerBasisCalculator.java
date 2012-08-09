@@ -21,6 +21,7 @@ package de.uka.ilkd.key.dl.arithmetics;
 
 import java.rmi.RemoteException;
 
+import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
 import de.uka.ilkd.key.dl.arithmetics.impl.SumOfSquaresChecker.PolynomialClassification;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.logic.Term;
@@ -38,4 +39,16 @@ public interface IGroebnerBasisCalculator extends IMathSolver {
 	 * @throws RemoteException 
 	 */
 	boolean checkForConstantGroebnerBasis(PolynomialClassification<Term> terms, Services services) throws RemoteException;
+	
+	Term[] computeGroebnerBasis(Term[] polynomials, Services services) throws RemoteException, SolverException;
+	
+	/**
+	 * Polynomially reduce poly with respect to the polynomials in reductions.
+	 * @param poly
+	 * @param reductions
+	 * @return
+	 * @throws RemoteException
+	 * @throws SolverException
+	 */
+	Term polynomialReduce(Term poly, Term[] reductions, Services services) throws RemoteException, SolverException;
 }

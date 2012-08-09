@@ -476,6 +476,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 			throw new SolverException("Unexpected form of output: " + expressions);
 	}
 
+
 	public Term diffInd(DiffSystem form, Term post, Services services)
 			throws RemoteException, SolverException {
 		return differentialCall(form, post, null, services, "IDiffInd");
@@ -1283,6 +1284,59 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 		}
 
 		return false;
+	}
+
+	@Override
+	public Term[] computeGroebnerBasis(Term[] polynomials, Services services)
+			throws RemoteException, SolverException {
+		return null;
+	}
+
+	@Override
+	public Term polynomialReduce(Term poly, Term[] reductions, Services services)
+			throws RemoteException, SolverException {
+		Set<Expr> vars = new LinkedHashSet<Expr>();
+		Set<String> varNames = new LinkedHashSet<String>();
+		for (Term t : reductions) {
+			Set<String> variables = AllCollector.getItemSet(t).filter(
+					new FilterVariableCollector(null)).getVariables();
+			varNames.addAll(variables);
+			for (String var : variables) {
+				vars.add(new Expr(Expr.SYMBOL, NameMasker.mask(var)));
+			}
+		}
+		{
+			Set<String> variables = AllCollector.getItemSet(poly).filter(
+					new FilterVariableCollector(null)).getVariables();
+			varNames.addAll(variables);
+			for (String var : variables) {
+				vars.add(new Expr(Expr.SYMBOL, NameMasker.mask(var)));
+			}
+		}
+		
+		Expr order = new Expr(RULE, new Expr[] {
+				new Expr(Expr.SYMBOL, "MonomialOrder"),
+				new Expr(Expr.SYMBOL, "DegreeReverseLexicographic") });
+
+		Expr[] reds = new Expr[reductions.length];
+		for (int i = 0; i < reductions.length; i++) {
+			reds[i] = Term2Expr.apply(reductions[i], false);
+		}
+		Expr expression = evaluate(new Expr(
+				new Expr(Expr.SYMBOL, "PolynomialReduce"),
+				new Expr[] {
+					Term2Expr.apply(poly, false),
+				    new Expr(LIST, reds),
+						new Expr(LIST, vars.toArray(new Expr[vars.size()])),
+						order })).expression;
+		System.out.println("Result for reduce 1 is: " + expression);
+		if (expression.head().equals(LIST)) {
+			if (expression.args().length == 2) {
+				// check if the remainder is 0.
+				return convert(expression.args()[1], services.getNamespaces());
+			}
+		}
+		throw new SolverException("Computation failed");
 	}
 
 	/**
