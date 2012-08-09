@@ -79,6 +79,13 @@ public class Expr2TermConverter implements ExprConstants {
     private static final Set<String> BLACKLIST = new LinkedHashSet<String>(
             Arrays.asList(BLACKLIST_ARRAY));
 
+
+	public static class UnknownMathFunctionException extends RuntimeException {
+		public UnknownMathFunctionException(String msg) {
+			super(msg);
+		}
+	}
+
     /**
      * @param nss
      * @param name
@@ -125,7 +132,7 @@ public class Expr2TermConverter implements ExprConstants {
 
     static Term convertImpl(final Expr expr, final NamespaceSet nss,
             final Map<Name, LogicVariable> quantifiedVariables)
-            throws RemoteException, ComputationException {
+            throws RemoteException, ComputationException, UnknownMathFunctionException {
         try {
             if (expr.toString().equalsIgnoreCase("$Aborted")
                     || expr.toString().equalsIgnoreCase("Abort[]")) {
@@ -389,7 +396,9 @@ public class Expr2TermConverter implements ExprConstants {
 						// Name is not masked so it has to be a _known_ MathFunction
 						Name name = new Name(asString);
 						RigidFunction f = (RigidFunction) nss.functions().lookup(name);
-						assert f != null && f.isMathFunction() : "The unmasked function: " + asString + " returned by Mathematica has to be a known mathfunction (declared as \\external). But is only known as: " + f;
+						if(f != null && f.isMathFunction()) {
+							throw new UnknownMathFunctionException("The unmasked function: " + asString + " returned by Mathematica has to be a known mathfunction (declared as \\external). But is only known as: " + f);
+						}
                         if (expr.args().length > 0) {
                             return TermBuilder.DF.func(f, ex);
                         }
