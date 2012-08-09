@@ -10,7 +10,9 @@
 
 package de.uka.ilkd.key.rule;
 
+import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.Set;
 
 import de.uka.ilkd.key.collection.ImmutableList;
 import de.uka.ilkd.key.collection.ImmutableMap;
@@ -90,6 +92,16 @@ public class SuccTaclet extends FindTaclet{
             
             for(PosInOccurrence p: positions) {
                 goal.removeFormula(p);
+            }
+            // remove all hidden formulas from the tacletIndex
+            Set<NoPosTacletApp> hidden = new HashSet<NoPosTacletApp>();
+            for(NoPosTacletApp ta: goal.ruleAppIndex().tacletIndex().allNoPosTacletApps()) {
+                if(ta.taclet().displayName().startsWith("insert_hidden")) {
+                    hidden.add(ta);
+                }
+            }
+            for(NoPosTacletApp ta: hidden) {
+                goal.ruleAppIndex().removeNoPosTacletApp(ta);
             }
         }
 

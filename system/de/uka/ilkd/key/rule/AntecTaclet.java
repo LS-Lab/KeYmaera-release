@@ -10,13 +10,22 @@
 
 package de.uka.ilkd.key.rule;
 
+import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.Set;
 
 import de.uka.ilkd.key.collection.ImmutableList;
 import de.uka.ilkd.key.collection.ImmutableMap;
 import de.uka.ilkd.key.collection.ImmutableSet;
 import de.uka.ilkd.key.java.Services;
-import de.uka.ilkd.key.logic.*;
+import de.uka.ilkd.key.logic.Choice;
+import de.uka.ilkd.key.logic.ConstrainedFormula;
+import de.uka.ilkd.key.logic.Constraint;
+import de.uka.ilkd.key.logic.Name;
+import de.uka.ilkd.key.logic.PosInOccurrence;
+import de.uka.ilkd.key.logic.PosInTerm;
+import de.uka.ilkd.key.logic.Sequent;
+import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.op.SchemaVariable;
 import de.uka.ilkd.key.proof.Goal;
 
@@ -92,6 +101,16 @@ public class AntecTaclet extends FindTaclet{
             
             for(PosInOccurrence p: positions) {
                 goal.removeFormula(p);
+            }
+            // remove all hidden formulas from the tacletIndex
+            Set<NoPosTacletApp> hidden = new HashSet<NoPosTacletApp>();
+            for(NoPosTacletApp ta: goal.ruleAppIndex().tacletIndex().allNoPosTacletApps()) {
+                if(ta.taclet().displayName().startsWith("insert_hidden")) {
+                    hidden.add(ta);
+                }
+            }
+            for(NoPosTacletApp ta: hidden) {
+                goal.ruleAppIndex().removeNoPosTacletApp(ta);
             }
         }
 
