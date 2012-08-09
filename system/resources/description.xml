@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
+<description>
 <examples>
     	<group name="LICS'12 Tutorial">
     		<example>
@@ -377,6 +378,14 @@ Proves Proposition 7.1
 					<proof name="Reduce" href="/examples/hybrid/ETCS/paper/safety-lemma-redlog-simpler.key.proof"></proof>
 					<proof name="SMT" href="/examples/hybrid/ETCS/paper/safety-lemma.key.z3.proof"></proof>
 				</proofs>
+				<authors>
+					<author>platzer</author>
+					<author>quesel</author>
+				</authors>
+				<proofauthors>
+					<author>platzer</author>
+					<author>quesel</author>
+				</proofauthors>
 				<description>Proves safety of the ETCS train control protocol case study. This example proves that a train never leaves its movement authority (MA=m) and, thus, cannot crash into other trains.
 Proves Proposition 7.5
 			</description>
@@ -1005,6 +1014,15 @@ Proves equation (4.4)</description>
 				<proof name="SMT" href="/examples/hybrid/magnetic_field.key.z3.proof"/>
 			</proofs>
 			<description>Magnetic field example. It is provable with Grobner Basis backend.</description>
+			<authors>
+				<author>srirams</author>
+				<author>sipma</author>
+				<author>manna</author>
+			</authors>
+			<proofauthors>
+				<author>quesel</author>
+			</proofauthors>
+			<publication>Constructing invariants for hybrid systems (FORMAL METHODS IN SYSTEM DESIGN Volume 32, Number 1 (2008), 25-55, DOI: 10.1007/s10703-007-0046-1)</publication>
 			<requirements>
 				<some>
 					<quantifiereliminator>Mathematica</quantifiereliminator>
@@ -1228,3 +1246,32 @@ Contributed by: Solofomampionona Fortunat Rajaona</description>
     	</example>
     </group>
 </examples>
+<authors>
+	<author>
+		<short>quesel</short>
+		<name>Jan-David Quesel</name>
+		<url>http://csd.informatik.uni-oldenburg.de/persons/jan-david.quesel/index.html</url>
+	</author>
+	<author>
+		<short>platzer</short>
+		<name>Andr&amp;eacute; Platzer</name>
+		<url>http://symbolaris.com</url>
+	</author>
+	<author>
+		<short>srirams</short>
+		<name>Sriram Sankaranarayanan</name>
+		<url>http://www.cs.colorado.edu/~srirams</url>
+	</author>
+	<author>
+		<short>sipma</short>
+		<name>Henny B. Sipma</name>
+		<url>http://theory.stanford.edu/~sipma</url>
+	</author>
+	<author>
+		<short>manna</short>
+		<name>Zohar Manna</name>
+		<url>http://theory.stanford.edu/~zm</url>
+	</author>
+
+</authors>
+</description>
