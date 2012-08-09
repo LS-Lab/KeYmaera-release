@@ -95,7 +95,7 @@ public class AntecTacletBuilder extends FindTacletBuilder{
 			     attrs,
 			     find,
 			     prefixBuilder.getPrefixMap(),
-			     choices);
+			     choices, onlyRigidFunctions);
     }
 
 }

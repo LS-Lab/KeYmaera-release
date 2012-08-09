@@ -79,7 +79,7 @@ public class SuccTacletBuilder extends FindTacletBuilder {
 			      attrs,
 			      find,
 			      prefixBuilder.getPrefixMap(),
-			      choices);
+			      choices, onlyRigidFunctions);
     }
     
     /** builds and returns the Taclet that is specified by

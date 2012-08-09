@@ -59,6 +59,7 @@ import de.uka.ilkd.key.logic.op.Op;
 import de.uka.ilkd.key.logic.op.Operator;
 import de.uka.ilkd.key.logic.op.ProgramVariable;
 import de.uka.ilkd.key.logic.op.QuantifiableVariable;
+import de.uka.ilkd.key.logic.op.RigidFunction;
 import de.uka.ilkd.key.logic.op.SVSubstitute;
 import de.uka.ilkd.key.logic.op.SchemaVariable;
 import de.uka.ilkd.key.logic.op.SortedSchemaVariable;
@@ -200,7 +201,9 @@ public abstract class Taclet implements Rule, Named {
 	svNameCorrespondences = null;
 	
     /** Integer to cache the hashcode */
-    private int hashcode = 0;    
+    private int hashcode = 0;
+
+    private boolean onlyRigidFunctions;    
     
     /**
      * creates a Schematic Theory Specific Rule (Taclet) with the given
@@ -213,6 +216,7 @@ public abstract class Taclet implements Rule, Named {
      * @param constraint the Constraint under which the Taclet is valid
      * @param attrs attributes for the Taclet; these are boolean values
      * indicating a noninteractive or recursive use of the Taclet.      
+     * @param onlyRigidFunctions 
      */
     Taclet(Name                     name,
 	   TacletApplPart           applPart,  
@@ -221,7 +225,7 @@ public abstract class Taclet implements Rule, Named {
 	   Constraint               constraint, 
 	   TacletAttributes         attrs,
 	   ImmutableMap<SchemaVariable,TacletPrefix> prefixMap,
-	   ImmutableSet<Choice> choices ){
+	   ImmutableSet<Choice> choices, boolean onlyRigidFunctions ){
 
 	this.name          = name;
 	ifSequent          = applPart.ifSequent();
@@ -238,6 +242,7 @@ public abstract class Taclet implements Rule, Named {
         this.displayName   = attrs.displayName() == null ? 
                 name.toString() : attrs.displayName();
         this.oldNames      = attrs.oldNames();
+        this.onlyRigidFunctions = onlyRigidFunctions;
 
     }
 
@@ -410,6 +415,15 @@ public abstract class Taclet implements Rule, Named {
 				    Services        services,
 				    Constraint      userConstraint) {
 	Debug.out("taclet: Start Matching rule: ", name);
+	if(onlyRigidFunctions) {
+	    for(Named n: services.getNamespaces().functions().allElements()) {
+	        if(!(n instanceof RigidFunction)) {
+	            // return null as there is a non-rigid function symbol in the sequent
+	            // TODO: maybe we could restrict this to what we want to match
+	            return null;
+	        }
+	    }
+	}
 	matchCond = matchHelp(term, template, ignoreUpdates, matchCond, 
 		 services, userConstraint);	
 	return matchCond == null ? null : checkConditions(matchCond, services);

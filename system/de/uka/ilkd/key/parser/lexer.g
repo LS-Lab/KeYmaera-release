@@ -148,6 +148,7 @@ tokens {
         ADDRULES = "\\addrules";
         ADDPROGVARS = "\\addprogvars";
         HEURISTICS = "\\heuristics";	
+        ONLYRIGIDFUNCTIONS = "\\onlyRigidFunctions";
 	FIND = "\\find";
 	ADD = "\\add";
 	ASSUMES = "\\assumes"; // what used to be "if"

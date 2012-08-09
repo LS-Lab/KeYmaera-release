@@ -49,6 +49,7 @@ public class AntecTaclet extends FindTaclet{
      * @param find the find term of the Taclet
      * @param prefixMap a ImmMap<SchemaVariable,TacletPrefix> that contains the
      * prefix for each SchemaVariable in the Taclet
+     * @param onlyRigidFunctions 
      */
     public AntecTaclet(Name name, TacletApplPart applPart,  
 		     ImmutableList<TacletGoalTemplate> goalTemplates, 
@@ -56,9 +57,9 @@ public class AntecTaclet extends FindTaclet{
 		     Constraint constraint,
 		     TacletAttributes attrs,
 		     Term find, ImmutableMap<SchemaVariable,TacletPrefix> prefixMap,
-		     ImmutableSet<Choice> choices){
+		     ImmutableSet<Choice> choices, boolean onlyRigidFunctions){
 	super(name, applPart, goalTemplates, heuristics, constraint, 
-	      attrs, find, prefixMap, choices);
+	      attrs, find, prefixMap, choices, onlyRigidFunctions);
 	cacheMatchInfo();
     }
 

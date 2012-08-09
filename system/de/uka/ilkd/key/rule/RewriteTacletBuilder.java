@@ -81,7 +81,7 @@ public class RewriteTacletBuilder extends FindTacletBuilder{
 				 find,
 				 prefixBuilder.getPrefixMap(),
 				 stateRestriction,
-				 choices);
+				 choices, onlyRigidFunctions);
     }
 
     /**

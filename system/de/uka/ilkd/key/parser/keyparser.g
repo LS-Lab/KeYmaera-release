@@ -3957,6 +3957,7 @@ modifiers[TacletBuilder b]
             {b.addOldName(oname);}
         | HELPTEXT htext = string_literal
             {b.setHelpText(htext);}
+        | ONLYRIGIDFUNCTIONS { b.setOnlyRigidFunctions(true); }
         ) *
     ;
 

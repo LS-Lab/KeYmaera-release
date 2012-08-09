@@ -63,6 +63,7 @@ public abstract class FindTaclet extends Taclet {
      * sequent and the places where it matches the Taclet can be applied
      * @param prefixMap a ImmMap<SchemaVariable,TacletPrefix> that contains the
      * prefix for each SchemaVariable in the Taclet
+     * @param onlyRigidFunctions 
      */
     public FindTaclet(Name name, TacletApplPart applPart,  
 		      ImmutableList<TacletGoalTemplate> goalTemplates, 
@@ -70,9 +71,9 @@ public abstract class FindTaclet extends Taclet {
 		      Constraint constraint, TacletAttributes attrs,
 		      Term find,
 		      ImmutableMap<SchemaVariable,TacletPrefix> prefixMap,
-		      ImmutableSet<Choice> choices){
+		      ImmutableSet<Choice> choices, boolean onlyRigidFunctions){
 	super(name, applPart, goalTemplates, ruleSets, constraint, attrs,
-	      prefixMap, choices);
+	      prefixMap, choices, onlyRigidFunctions);
 	this.find = find;
     }
     

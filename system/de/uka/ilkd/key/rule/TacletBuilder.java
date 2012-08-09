@@ -47,6 +47,8 @@ public abstract class TacletBuilder {
     protected ImmutableList<VariableCondition> variableConditions       = ImmutableSLList.<VariableCondition>nil(); 
     protected HashMap<TacletGoalTemplate, ImmutableSet<Choice>> goal2Choices          = null;
     protected ImmutableSet<Choice> choices           = DefaultImmutableSet.<Choice>nil();
+    
+    protected boolean onlyRigidFunctions = false;
 
 
     private static boolean containsFreeVarSV(Term t) {
@@ -275,6 +277,20 @@ public abstract class TacletBuilder {
 
     public void setTacletGoalTemplates(ImmutableList<TacletGoalTemplate> g) {
 	goals=g;
+    }
+    
+    /**
+     * @return the onlyRigidFunctions
+     */
+    public boolean isOnlyRigidFunctions() {
+        return onlyRigidFunctions;
+    }
+    
+    /**
+     * @param onlyRigidFunctions the onlyRigidFunctions to set
+     */
+    public void setOnlyRigidFunctions(boolean onlyRigidFunctions) {
+        this.onlyRigidFunctions = onlyRigidFunctions;
     }
 
     /** builds and returns the Taclet that is specified by
