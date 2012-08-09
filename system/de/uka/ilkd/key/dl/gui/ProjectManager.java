@@ -125,12 +125,33 @@ public class ProjectManager extends JFrame {
 
 	}
 
+	private static class AuthorInfo {
+		private String name;
+		private String url;
+
+		public AuthorInfo(String name, String url) {
+			this.name = name;
+			this.url = url;
+		}
+
+		public String getName() {
+			return name;
+		}
+
+		public String getUrl() {
+			return url;
+		}
+	}
+
 	private static class ExampleInfo {
 		private String name;
 		private String url;
 		private Map<String, String> proofUrls;
 		private String description;
 		private Set<String> requirements;
+		private List<String> authors;
+		private List<String> proofAuthors;
+		private String publication;
 		private String source;
 		private String img;
 		private boolean isEmtpy = false;
@@ -141,7 +162,7 @@ public class ProjectManager extends JFrame {
 		 * @param img 
 		 */
 		public ExampleInfo(String name, String url, Map<String, String> proofUrls, String description,
-				String img, Set<String> requirements, String source) {
+				List<String> authors, List<String> proofAuthors, String publication, String img, Set<String> requirements, String source) {
 			super();
 			this.name = name;
 			this.url = url;
@@ -150,6 +171,9 @@ public class ProjectManager extends JFrame {
 			this.img = img;
 			this.source = source;
 			this.requirements = requirements;
+			this.authors = authors;
+			this.proofAuthors = proofAuthors;
+			this.publication = publication;
 		}
 		public ExampleInfo(Boolean isEmpty, String name) {
 		super();
@@ -217,6 +241,18 @@ public class ProjectManager extends JFrame {
 			return proofUrls.get(name);
 		}
 
+		public String getPublication() {
+			return publication;
+		}
+
+		public List<String> getAuthors() {
+			return authors;
+		}
+
+		public List<String> getProofAuthors() {
+			return proofAuthors;
+		}
+
 		
 		/*
 		 * (non-Javadoc)
@@ -248,10 +284,18 @@ public class ProjectManager extends JFrame {
 	private JTextArea fileName;
 
 	private JTextArea requirementsArea;
+	
+	private JTextPane authorsArea;
+
+	private JTextPane proofAuthorsArea;
+
+	private JTextArea publicationArea;
 
 	private JTextPane img;
 
     private JTextPane source;
+	
+	private HashMap<String, AuthorInfo> authorInfos;
 
 	/**
 	 * 
@@ -364,6 +408,25 @@ public class ProjectManager extends JFrame {
 		requirementsArea.setColumns(50);
 		requirementsArea.setEditable(false);
 		requirementsArea.setWrapStyleWord(true);
+
+		authorsArea = new JTextPane();
+		authorsArea.setContentType("text/html");
+		authorsArea.setEditable(false);
+		authorsArea.setAutoscrolls(false);
+		authorsArea.addHyperlinkListener(hyperlinkListener);
+
+		proofAuthorsArea = new JTextPane();
+		proofAuthorsArea.setContentType("text/html");
+		proofAuthorsArea.setEditable(false);
+		proofAuthorsArea.setAutoscrolls(false);
+		proofAuthorsArea.addHyperlinkListener(hyperlinkListener);
+
+		publicationArea = new JTextArea();
+		publicationArea.setLineWrap(true);
+		publicationArea.setAutoscrolls(true);
+		publicationArea.setColumns(50);
+		publicationArea.setEditable(false);
+		publicationArea.setWrapStyleWord(true);
 		
 		fileName = new JTextArea();
 		fileName.setLineWrap(true);
@@ -411,6 +474,15 @@ public class ProjectManager extends JFrame {
 		JPanel dummy = new JPanel(new GridBagLayout());
 		dummy.add(new JLabel("Problem:"), l);
 		dummy.add(imgPanel, r);
+        dummy.add(Box.createVerticalStrut(5), v);
+		dummy.add(new JLabel("Author(s):"), l);
+		dummy.add(authorsArea, r);
+        dummy.add(Box.createVerticalStrut(5), v);
+		dummy.add(new JLabel("Publication:"), l);
+		dummy.add(publicationArea, r);
+        dummy.add(Box.createVerticalStrut(5), v);
+		dummy.add(new JLabel("Adaptation by:"), l);
+		dummy.add(proofAuthorsArea, r);
         dummy.add(Box.createVerticalStrut(5), v);
 		dummy.add(new JLabel("File:"), l);
 		dummy.add(fileName, r);
@@ -478,6 +550,45 @@ public class ProjectManager extends JFrame {
         						}
         						requirementsArea.append(" as real arithmetic solver");
         					}
+							if(info.getAuthors().isEmpty()) {
+								authorsArea.setText("No authors given.");
+							} else {
+								String comma = "";
+								String result = "";
+								for(String a: info.getAuthors()) {
+									result += comma;
+									if(authorInfos.keySet().contains(a)) {
+										AuthorInfo aInfo = authorInfos.get(a);
+										result += "<a href=\"" + aInfo.getUrl() + "\">" + aInfo.getName() + "</a>";
+									} else {
+										result += a;
+									}
+									comma = ", ";
+								}
+								authorsArea.setText(result);
+							}
+							if(info.getProofAuthors().isEmpty()) {
+								proofAuthorsArea.setText("No authors given.");
+							} else {
+								String comma = "";
+								String result = "";
+								for(String a: info.getProofAuthors()) {
+									result += comma;
+									if(authorInfos.keySet().contains(a)) {
+										AuthorInfo aInfo = authorInfos.get(a);
+										result += "<a href=\"" + aInfo.getUrl() + "\">" + aInfo.getName() + "</a>";
+									} else {
+										result += a;
+									}
+									comma = ", ";
+								}
+								proofAuthorsArea.setText(result);
+							}
+							if(info.getPublication() == null || info.getPublication().equals("")) {
+								publicationArea.setText("No publication given.");
+							} else {
+								publicationArea.setText(info.getPublication());
+							}
         					if(info.isEmpty()) {
 						        button.setEnabled(false);
 						    }
@@ -580,6 +691,17 @@ public class ProjectManager extends JFrame {
 		NodeList groups = (NodeList) xpath.evaluate("examples/group", allExamples.item(0),XPathConstants.NODESET); 
 		NodeList examples = (NodeList) xpath.evaluate("examples/example", allExamples.item(0),XPathConstants.NODESET);
 
+		NodeList authors = (NodeList) xpath.evaluate("authors/author", allExamples.item(0),XPathConstants.NODESET);
+
+		authorInfos = new HashMap<String, AuthorInfo>();
+		for (int l = 0; l < authors.getLength(); l++) {
+	    	NodeList shorts = (NodeList) xpath.evaluate( "short/text()", authors.item(l), XPathConstants.NODESET);
+	    	NodeList names = (NodeList) xpath.evaluate( "name/text()", authors.item(l), XPathConstants.NODESET);
+	    	NodeList urls = (NodeList) xpath.evaluate( "url/text()", authors.item(l), XPathConstants.NODESET);
+			authorInfos.put(shorts.item(0).getNodeValue(), new AuthorInfo(names.item(0).getNodeValue(), urls.item(0).getNodeValue()));
+		}
+
+
 		for (int i=0; i < groups.getLength(); i++){
 		    createGroupNode(groups.item(i), top); 
 		}
@@ -647,12 +769,28 @@ if (proofName == null || url == null) throw new IllegalArgumentException("descri
             }
 	    	String description = (String) xpath.evaluate("description", node,
 	    			XPathConstants.STRING);
+	    	String publication = (String) xpath.evaluate("publication", node,
+	    			XPathConstants.STRING);
 	    	Set<String> requirements = new LinkedHashSet<String>();
 	    	NodeList nodes = (NodeList) xpath.evaluate(
 	    			"requirements/some/quantifiereliminator/text()", node,
 	    			XPathConstants.NODESET);
 	    	for (int l = 0; l < nodes.getLength(); l++) {
 	    	    requirements.add(nodes.item(l).getNodeValue());
+	    	}
+			List<String> authors = new ArrayList<String>();
+	    	nodes = (NodeList) xpath.evaluate(
+	    			"authors/author/text()", node,
+	    			XPathConstants.NODESET);
+	    	for (int l = 0; l < nodes.getLength(); l++) {
+	    	    authors.add(nodes.item(l).getNodeValue());
+	    	}
+			List<String> proofAuthors = new ArrayList<String>();
+	    	nodes = (NodeList) xpath.evaluate(
+	    			"proofauthors/author/text()", node,
+	    			XPathConstants.NODESET);
+	    	for (int l = 0; l < nodes.getLength(); l++) {
+	    	    proofAuthors.add(nodes.item(l).getNodeValue());
 	    	}
 	    	Node img = (Node) xpath.evaluate("img", node, XPathConstants.NODE);
 	    	String im = "";
@@ -666,7 +804,7 @@ if (proofName == null || url == null) throw new IllegalArgumentException("descri
 	    	}
 	
 	    	tNode= new DefaultMutableTreeNode(
-	    			new ExampleInfo(name, path, proofUrls, description, im, requirements, sr));
+	    			new ExampleInfo(name, path, proofUrls, description, authors, proofAuthors, publication, im, requirements, sr));
 
 	    	return tNode;   
 	}
@@ -701,13 +839,12 @@ if (proofName == null || url == null) throw new IllegalArgumentException("descri
 	private NodeList getExamplesFromFile(String filename)
 			throws XPathExpressionException {
 		XPath xpath = XPathFactory.newInstance().newXPath();
-		String expression = "/";
+		String expression = "/description";
 		Document document = new XMLReader(filename).getDocument();
 	            
 		return (NodeList) xpath.evaluate(expression, document,
 				XPathConstants.NODESET);
 	}
-
 
 	public static File createTmpFileToLoad(String url) {
 		final String separator = "/"; //File.separator;
