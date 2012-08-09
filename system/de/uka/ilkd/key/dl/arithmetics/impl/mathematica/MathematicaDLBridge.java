@@ -406,7 +406,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 	}
 
 	@Override
-	public Term[] pdeSolve(DiffSystem form, LogicVariable t, Services services) {
+	public Term[] pdeSolve(DiffSystem form, LogicVariable t, Services services) throws RemoteException {
 		List<Expr> args = new ArrayList<Expr>();
 		Map<String, Expr> vars = new HashMap<String, Expr>();
 

@@ -80,7 +80,7 @@ public interface IMathematicaDLBridge extends Remote {
 			LogicVariable ts, Term phi, Services services)
 			throws RemoteException, SolverException;
 
-	public Term[] pdeSolve(DiffSystem form, LogicVariable t, Services services);
+	public Term[] pdeSolve(DiffSystem form, LogicVariable t, Services services) throws RemoteException;
 
 	public List<ODESolverUpdate> odeUpdate(DiffSystem form, LogicVariable t,
 			Services services, long timeout) throws RemoteException,
