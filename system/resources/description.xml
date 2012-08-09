@@ -1225,7 +1225,7 @@ Proves equation (4.4)</description>
 				<name>Water Tank</name>
 				<path>/examples/hybrid/publish/water_tank.key</path>
 				<proofauthors>
-					<name>quesel</name>
+					<author>quesel</author>
 				</proofauthors>
 				<description>Standard water tank model, which regulates water level y between 1 and 12 by filling or emptying the water tank. Changing valves has a delayed effect in this example.
 Proves Example C.1</description>
