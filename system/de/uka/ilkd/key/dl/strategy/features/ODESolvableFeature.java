@@ -32,6 +32,7 @@ import java.util.WeakHashMap;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.FailedComputationException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.UnsolveableException;
+import de.uka.ilkd.key.dl.arithmetics.impl.mathematica.Expr2TermConverter.UnknownMathFunctionException;
 import de.uka.ilkd.key.dl.model.DiffSystem;
 import de.uka.ilkd.key.dl.options.DLOptionBean;
 import de.uka.ilkd.key.dl.rules.metaconstruct.ODESolve;
@@ -165,6 +166,9 @@ public class ODESolvableFeature implements Feature {
 			e.printStackTrace();
 			return TopRuleAppCost.INSTANCE;
 		} catch (SolverException e) {
+			e.printStackTrace();
+			return TopRuleAppCost.INSTANCE;
+		} catch (UnknownMathFunctionException e) {
 			e.printStackTrace();
 			return TopRuleAppCost.INSTANCE;
 		}
