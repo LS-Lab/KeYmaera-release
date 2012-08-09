@@ -1178,6 +1178,23 @@ Proves equation (4.4)</description>
                                     				</requirements>
                                     			</example>
 		</group>
+		<group name="QdL">
+			<example>
+				<name>Creation</name>
+				<path>/examples/hybrid/qdl/creation.key</path>
+				<description>Simple example of object creation.</description>
+				<authors>
+					<author>platzer</author>
+				</authors>
+				<proofauthors>
+					<author>quesel</author>
+				</proofauthors>
+				<publication>QdL</publication>
+				<proofs>
+					<proof name="Mathematica" href="/examples/hybrid/qdl/creation.key.proof"/>
+				</proofs>
+			</example>
+		</group>
 		<example>
 			<name>Simple Acceleration</name>
 			<path>/examples/hybrid/accel-simple.key</path>
