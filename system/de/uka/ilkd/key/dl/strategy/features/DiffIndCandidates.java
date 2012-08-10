@@ -82,8 +82,8 @@ import de.uka.ilkd.key.strategy.termgenerator.TermGenerator;
  * 
  * @author ap
  * @see "Andre Platzer. A differential operator approach to equational differential invariants. In Lennart Beringer and Amy Felty, editors, Interactive Theorem Proving, International Conference, ITP 2012, August 13-15, Princeton, USA, Proceedings, volume 7406 of LNCS, pages 28-48. Springer, 2012."
- * @see "André Platzer. Logical Analysis of Hybrid Systems: Proving Theorems for Complex Dynamics. Springer, 2010."
- * @see "André Platzer and Edmund M. Clarke. Computing differential invariants of hybrid systems as fixedpoints. Formal Methods in System Design, 35(1), pages 98-120, 2009."
+ * @see "Andre Platzer. Logical Analysis of Hybrid Systems: Proving Theorems for Complex Dynamics. Springer, 2010."
+ * @see "Andre Platzer and Edmund M. Clarke. Computing differential invariants of hybrid systems as fixedpoints. Formal Methods in System Design, 35(1), pages 98-120, 2009."
  */
 public class DiffIndCandidates implements TermGenerator {
     private static final boolean DEBUG_CANDIDATES = false;

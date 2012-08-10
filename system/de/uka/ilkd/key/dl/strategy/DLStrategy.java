@@ -141,7 +141,7 @@ import de.uka.ilkd.key.strategy.termfeature.TermFeature;
  * @author jdq
  * @author ap
  * @todo allow equality rewriting
- * @see "André Platzer. Logical Analysis of Hybrid Systems: Proving Theorems for Complex Dynamics. Springer, 2010."
+ * @see "Andre Platzer. Logical Analysis of Hybrid Systems: Proving Theorems for Complex Dynamics. Springer, 2010."
  */
 public class DLStrategy extends AbstractFeatureStrategy implements
 		RealtimeStrategy {
