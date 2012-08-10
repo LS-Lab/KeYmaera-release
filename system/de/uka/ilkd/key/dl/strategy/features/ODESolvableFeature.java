@@ -169,7 +169,7 @@ public class ODESolvableFeature implements Feature {
 			e.printStackTrace();
 			return TopRuleAppCost.INSTANCE;
 		} catch (UnknownMathFunctionException e) {
-			e.printStackTrace();
+		    // the solution did contain an unknown function, we therefore consider it as unsolvable
 			return TopRuleAppCost.INSTANCE;
 		}
 	}
