@@ -150,6 +150,33 @@ public class LogicPrinter {
         return p.result().toString();
     }
     
+    public static String quickPrintTerm(Term[] terms, Services services) {
+        return quickPrintTerm(Arrays.asList(terms), services);
+    }
+    
+    public static String quickPrintTerm(Collection<Term> terms, Services services) {
+        final NotationInfo ni = NotationInfo.createInstance();
+        if (services != null) {
+            PresentationFeatures.modifyNotationInfo(ni,
+                    services.getNamespaces().functions());
+        }
+        String res = "";
+	    for (Iterator<Term> i = terms.iterator(); i.hasNext(); ) {
+	    	    Term t = i.next();
+	    	    LogicPrinter p = new LogicPrinter(null, 
+                        ni, 
+                        services);
+	    		try {
+        	    		p.printTerm(t);
+        		} catch (IOException ioe) {
+        			return t.toString();
+        		}
+	    		res += p.result().toString();
+	    		if (res.length() > 0 && i.hasNext())
+	    			res = res.substring(0, res.length()-1) + ",\n";
+        }
+        return res;
+    }
 
     /**
      * Creates a LogicPrinter.  Sets the sequent to be printed, as

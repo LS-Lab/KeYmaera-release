@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2007 by Jan-David Quesel and Andre Platzer              *
+ *   Copyright (C) 2007-2012 by Jan-David Quesel and Andre Platzer              *
  *   quesel@informatik.uni-oldenburg.de                                    *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -40,6 +40,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
@@ -1246,7 +1247,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 					Expr curBase = evaluate(new Expr(new Expr(Expr.SYMBOL,
 							"GroebnerBasis"),
 							new Expr[] {
-									new Expr(LIST, compondArray(groebnerBasis
+									new Expr(LIST, appendToArray(groebnerBasis
 											.args(), new Expr(MINUS,
 											new Expr[] {
 													new Expr(MULT, new Expr[] {
@@ -1289,29 +1290,60 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 	@Override
 	public Term[] computeGroebnerBasis(Term[] polynomials, Services services)
 			throws RemoteException, SolverException {
-		return null;
+		Set<String> varNames = new LinkedHashSet<String>();
+		for (Term t : polynomials) {
+			Set<String> variables = AllCollector.getItemSet(t).filter(
+					new FilterVariableCollector(null)).getVariables();
+			varNames.addAll(variables);
+		}
+		Set<Expr> vars = new LinkedHashSet<Expr>();
+		for (String var : new TreeSet<String>(varNames)) {
+			vars.add(new Expr(Expr.SYMBOL, NameMasker.mask(var)));
+		}
+		
+		Expr order = new Expr(RULE, new Expr[] {
+				new Expr(Expr.SYMBOL, "MonomialOrder"),
+				new Expr(Expr.SYMBOL, "DegreeReverseLexicographic") });
+
+		Expr[] pols = new Expr[polynomials.length];
+		for (int i = 0; i < polynomials.length; i++) {
+			pols[i] = Term2Expr.apply(polynomials[i], false);
+		}
+		Expr query = new Expr(
+				new Expr(Expr.SYMBOL, "GroebnerBasis"),
+				new Expr[] {
+				    new Expr(LIST, pols),
+						new Expr(LIST, vars.toArray(new Expr[vars.size()])),
+						order });
+		System.out.println(query);
+		Expr expressions = evaluate(query).expression;
+		if (expressions.head().equals(LIST)) {
+			List<Term> result = new LinkedList<Term>();
+			for (int i = 0; i < expressions.args().length; i++) {
+				result.add(convert(expressions.args()[i], services.getNamespaces()));
+			}
+			return result.toArray(new Term[0]);
+		} else
+			throw new SolverException("Unexpected form of output: " + expressions);	
 	}
 
 	@Override
 	public Term polynomialReduce(Term poly, Term[] reductions, Services services)
 			throws RemoteException, SolverException {
-		Set<Expr> vars = new LinkedHashSet<Expr>();
 		Set<String> varNames = new LinkedHashSet<String>();
 		for (Term t : reductions) {
 			Set<String> variables = AllCollector.getItemSet(t).filter(
 					new FilterVariableCollector(null)).getVariables();
 			varNames.addAll(variables);
-			for (String var : variables) {
-				vars.add(new Expr(Expr.SYMBOL, NameMasker.mask(var)));
-			}
 		}
 		{
 			Set<String> variables = AllCollector.getItemSet(poly).filter(
 					new FilterVariableCollector(null)).getVariables();
 			varNames.addAll(variables);
-			for (String var : variables) {
-				vars.add(new Expr(Expr.SYMBOL, NameMasker.mask(var)));
-			}
+		}
+		Set<Expr> vars = new LinkedHashSet<Expr>();
+		for (String var : new TreeSet<String>(varNames)) {
+			vars.add(new Expr(Expr.SYMBOL, NameMasker.mask(var)));
 		}
 		
 		Expr order = new Expr(RULE, new Expr[] {
@@ -1322,13 +1354,15 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 		for (int i = 0; i < reductions.length; i++) {
 			reds[i] = Term2Expr.apply(reductions[i], false);
 		}
-		Expr expression = evaluate(new Expr(
+		Expr query = new Expr(
 				new Expr(Expr.SYMBOL, "PolynomialReduce"),
 				new Expr[] {
 					Term2Expr.apply(poly, false),
 				    new Expr(LIST, reds),
 						new Expr(LIST, vars.toArray(new Expr[vars.size()])),
-						order })).expression;
+						order });
+		System.out.println(query);
+		Expr expression = evaluate(query).expression;
 		System.out.println("Result for reduce 1 is: " + expression);
 		if (expression.head().equals(LIST)) {
 			if (expression.args().length == 2) {
@@ -1344,7 +1378,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 	 * @param expr
 	 * @return TODO documentation since Jan 27, 2009
 	 */
-	private Expr[] compondArray(Expr[] args, Expr expr) {
+	private Expr[] appendToArray(Expr[] args, Expr expr) {
 		Expr[] result = new Expr[args.length + 1];
 		System.arraycopy(args, 0, result, 0, args.length);
 		result[args.length] = expr;

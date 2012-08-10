@@ -97,8 +97,17 @@ public class SumOfSquaresChecker implements ISOSChecker {
 	}
 
 	public static class PolynomialClassification<T> {
+		/**
+		 * the set of polynomials with condition f > 0
+		 */
 		public Set<T> f;
+		/**
+		 * the set of polynomials with condition g != 0	
+		 */
 		public Set<T> g;
+		/**
+		 * the set of polynomials with condition h = 0	
+		 */
 		public Set<T> h;
 
 		public PolynomialClassification(Set<T> f, Set<T> g, Set<T> h) {

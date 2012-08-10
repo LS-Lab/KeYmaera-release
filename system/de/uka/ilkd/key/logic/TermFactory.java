@@ -373,8 +373,8 @@ public class TermFactory {
       * subterms)
       */
     public Term createFunctionTerm(TermSymbol op, Term[] subTerms) {
-	if (op==null) throw new IllegalArgumentException("null-Operator at"+
-							 "TermFactory");
+	if (op==null) throw new IllegalArgumentException("null-Operator at "+
+							 "TermFactory on arguments " + Arrays.asList(subTerms));
 	
 	return OpTerm.createOpTerm(op, subTerms).checked();
     }

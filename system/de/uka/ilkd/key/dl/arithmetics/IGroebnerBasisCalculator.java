@@ -40,10 +40,20 @@ public interface IGroebnerBasisCalculator extends IMathSolver {
 	 */
 	boolean checkForConstantGroebnerBasis(PolynomialClassification<Term> terms, Services services) throws RemoteException;
 	
+	/**
+	 * Compute a Groebner Basis.
+	 * Ordering is consistent with polynomialReduce
+	 * @param poly
+	 * @param reductions
+	 * @return
+	 * @throws RemoteException
+	 * @throws SolverException
+	 */
 	Term[] computeGroebnerBasis(Term[] polynomials, Services services) throws RemoteException, SolverException;
 	
 	/**
 	 * Polynomially reduce poly with respect to the polynomials in reductions.
+	 * Ordering is consistent with computeGroebnerBasis
 	 * @param poly
 	 * @param reductions
 	 * @return

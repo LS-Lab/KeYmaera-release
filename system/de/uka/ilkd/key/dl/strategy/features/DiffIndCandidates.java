@@ -1,6 +1,6 @@
 /***************************************************************************
- *   Copyright (C) 2007 by Andr√© Platzer                                   *
- *   @informatik.uni-oldenburg.de                                          *
+ *   Copyright (C) 2007,2012 by Andre Platzer                              *
+ *   @cs.cmu.edu, @informatik.uni-oldenburg.de                             *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -41,7 +41,10 @@ import scala.actors.threadpool.Arrays;
 import de.uka.ilkd.key.collection.ImmutableArray;
 import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
+import de.uka.ilkd.key.dl.arithmetics.impl.SumOfSquaresChecker;
+import de.uka.ilkd.key.dl.arithmetics.impl.SumOfSquaresChecker.PolynomialClassification;
 import de.uka.ilkd.key.dl.arithmetics.impl.mathematica.Mathematica;
+import de.uka.ilkd.key.dl.formulatools.PolynomialExtraction;
 import de.uka.ilkd.key.dl.formulatools.Prog2LogicConverter;
 import de.uka.ilkd.key.dl.formulatools.ReplacementSubst;
 import de.uka.ilkd.key.dl.formulatools.TermTools;
@@ -62,6 +65,7 @@ import de.uka.ilkd.key.logic.PosInOccurrence;
 import de.uka.ilkd.key.logic.Sequent;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.TermBuilder;
+import de.uka.ilkd.key.logic.TermFactory;
 import de.uka.ilkd.key.logic.op.LogicVariable;
 import de.uka.ilkd.key.logic.op.Modality;
 import de.uka.ilkd.key.logic.op.QuanUpdateOperator;
@@ -77,6 +81,9 @@ import de.uka.ilkd.key.strategy.termgenerator.TermGenerator;
  * DiffInd candidates.
  * 
  * @author ap
+ * @see "Andre Platzer. A differential operator approach to equational differential invariants. In Lennart Beringer and Amy Felty, editors, Interactive Theorem Proving, International Conference, ITP 2012, August 13-15, Princeton, USA, Proceedings, volume 7406 of LNCS, pages 28-48. Springer, 2012."
+ * @see "André Platzer. Logical Analysis of Hybrid Systems: Proving Theorems for Complex Dynamics. Springer, 2010."
+ * @see "André Platzer and Edmund M. Clarke. Computing differential invariants of hybrid systems as fixedpoints. Formal Methods in System Design, 35(1), pages 98-120, 2009."
  */
 public class DiffIndCandidates implements TermGenerator {
     private static final boolean DEBUG_CANDIDATES = false;
@@ -122,7 +129,57 @@ public class DiffIndCandidates implements TermGenerator {
         // can handle this.
         // we only consider sophisticated choices
         // l.add(post); // consider diffind itself als diffstrengthening
-        if (program instanceof DiffSystem && MathSolverManager.isODESolverSet() 
+        Iterator<Term> diffOpCandidates = computeDiffopCandidates(program, post, services);
+        if (true) return diffOpCandidates;
+        final Iterator<Term> candidateGenerator = 
+            indCandidates(goal.sequent(), pos, currentInvariant,
+                        services);
+        Iterator<Term> resulting = candidateGenerator;
+        // prefer @candidate annotations, then diffOpCandidates then generated candidates
+        if (program.containsDLAnnotation("candidate")) {
+        	    resulting = new SequenceIterator(new Iterator[] {
+        			Prog2LogicConverter.convert(program.getDLAnnotation("candidate").iterator(), services),
+        			diffOpCandidates,
+        			candidateGenerator
+        	    });
+        } else {
+    	    		resulting = new SequenceIterator(new Iterator[] {
+    	    				diffOpCandidates,
+    	    				candidateGenerator
+    	    		});
+        }
+        	final Iterator<Term> result = resulting;
+        	// Collections.unmodifiableView(result);
+        return new Iterator<Term>() {
+
+            /*@Override*/
+            public boolean hasNext() {
+                return result.hasNext();
+            }
+
+            /*@Override*/
+            public Term next() {
+                return result.next();
+            }
+
+			/*@Override*/
+			public void remove() {
+				throw new UnsupportedOperationException();
+			}
+            
+        };
+    }
+
+    /**
+     * @see "Andre Platzer. A differential operator approach to equational differential invariants. In Lennart Beringer and Amy Felty, editors, Interactive Theorem Proving, International Conference, ITP 2012, August 13-15, Princeton, USA, Proceedings, volume 7406 of LNCS, pages 28-48. Springer, 2012."
+     * @param program
+     * @param post
+     * @param services
+     * @return
+     */
+	private Iterator<Term> computeDiffopCandidates(final DLProgram program,
+			final Term post, final Services services) {
+		if (program instanceof DiffSystem && MathSolverManager.isODESolverSet() && MathSolverManager.isGroebnerBasisCalculatorSet() 
         		&& MathSolverManager.getCurrentODESolver() instanceof Mathematica && FOSequence.INSTANCE.isFOFormula(post)) {
             // fancy diffop strategy
         	LogicVariable t = null;
@@ -135,8 +192,21 @@ public class DiffIndCandidates implements TermGenerator {
                     || nss.programVariables().lookup(tName) != null);
             t = new LogicVariable(tName, RealLDT.getRealSort());*/
         	try {
+        		Set<Term> candidates = new LinkedHashSet<Term>();
 				Term[] invf = MathSolverManager.getCurrentODESolver().pdeSolve((DiffSystem)program, t, services);
-				System.out.println("FUNCTION CANDIDATES:  ....\n" + Arrays.asList(invf));
+				System.out.println("FUNCTION CANDIDATES:  ....\n" + LogicPrinter.quickPrintTerm(invf,services));
+				//PolynomialClassification<Term> pclasses = SumOfSquaresChecker.classify(Collections.EMPTY_SET, Collections.singleton(post));
+				Set<Term> pclasses = PolynomialExtraction.convert(post);
+				System.out.println("REDUCTIONS:  ...\n" + LogicPrinter.quickPrintTerm(pclasses, services));
+				Term[] GB = MathSolverManager.getCurrentGroebnerBasisCalculator().computeGroebnerBasis(pclasses.toArray(new Term[0]), services);
+				System.out.println("GB REDUCTIONS:  ...\n" + LogicPrinter.quickPrintTerm(GB, services));
+				for (Term ivf : invf) {
+					Term initial = MathSolverManager.getCurrentGroebnerBasisCalculator().polynomialReduce(ivf, GB, services);
+					Term cand = TermFactory.DEFAULT.createEqualityTerm(ivf, initial);
+					candidates.add(cand);
+					System.out.println("CANDIDATE " + LogicPrinter.quickPrintTerm(cand,services));
+				}
+				return candidates.iterator();
 			} catch (RemoteException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -145,28 +215,8 @@ public class DiffIndCandidates implements TermGenerator {
 				e.printStackTrace();
 			}
         }
-        final Iterator<Term> candidateGenerator = 
-            indCandidates(goal.sequent(), pos, currentInvariant,
-                        services);
-        return new Iterator<Term>() {
-
-            /*@Override*/
-            public boolean hasNext() {
-                return candidateGenerator.hasNext();
-            }
-
-            /*@Override*/
-            public Term next() {
-                return candidateGenerator.next();
-            }
-
-			/*@Override*/
-			public void remove() {
-				throw new UnsupportedOperationException();
-			}
-            
-        };
-    }
+		return Collections.EMPTY_LIST.iterator();
+	}
 
     /**
      * Determine diffind candidates for the formula at the given position in the
@@ -297,66 +347,23 @@ public class DiffIndCandidates implements TermGenerator {
         result.remove(tb.tt());
 
         if (DEBUG_CANDIDATES) {
-            System.out.println("INDCANDIDATE-BASIS ...");
-            for (Term c : result) {
-                try {
-                    final LogicPrinter lp = new LogicPrinter(new ProgramPrinter(
-                            null), Main.getInstance().mediator().getNotationInfo(), services);
-                    lp.printTerm(c);
-                    System.out.print("...  " + lp.toString());
-                } catch (Exception ignore) {
-                    System.out.println("......  " + c.toString());
-                    ignore.printStackTrace();
-                }
-            }
+            System.out.println("INDCANDIDATE-BASIS ..." + LogicPrinter.quickPrintTerm(result, services));
         }
         if (false && DEBUG_GENERATOR) {
             System.out.println("    GENERATORS 1 ....");
             for (Set<Term> s : resultPowerGenerators1) {
-	            System.out.println("{");
-	            for (Term c : s) {
-                try {
-                    final LogicPrinter lp = new LogicPrinter(new ProgramPrinter(
-                            null), Main.getInstance().mediator().getNotationInfo(), services);
-                    lp.printTerm(c);
-                    System.out.print("...  " + lp.toString());
-                } catch (Exception ignore) {
-                    System.out.println("......  " + c.toString());
-                    ignore.printStackTrace();
-                }
-                }
-	            System.out.println("}");
+	            System.out.println("{" + LogicPrinter.quickPrintTerm(s, services) + "}");
             }
             System.out.println("    GENERATORS 2 ....");
             for (Set<Term> s : resultPowerGenerators2) {
-	            System.out.println("{");
-	            for (Term c : s) {
-                try {
-                    final LogicPrinter lp = new LogicPrinter(new ProgramPrinter(
-                            null), Main.getInstance().mediator().getNotationInfo(), services);
-                    lp.printTerm(c);
-                    System.out.print("...  " + lp.toString());
-                } catch (Exception ignore) {
-                    System.out.println("......  " + c.toString());
-                    ignore.printStackTrace();
-                }
-                }
-	            System.out.println("}");
+	            System.out.println("{" + LogicPrinter.quickPrintTerm(s, services) + "}");
             }
         }
-        // prefer @candidate annotations, then quickly return size=1 formulas, and only lazily generate powersets
-        if (program.containsDLAnnotation("candidate")) {
-        	return new SequenceIterator(new Iterator[] {
-        			Prog2LogicConverter.convert(program.getDLAnnotation("candidate").iterator(), services),
-        			result.iterator(),
-        			new LazyPowerGenerator(resultPowerGenerators1, resultPowerGenerators2, sizeComparator, resultConjuncts)
-        	});
-        } else {
+        // quickly return size=1 formulas, and only lazily generate powersets
         	return new SequenceIterator(new Iterator[] {
         			result.iterator(),
         			new LazyPowerGenerator(resultPowerGenerators1, resultPowerGenerators2, sizeComparator, resultConjuncts), 
         	});
-        }
     }
 
     /**
@@ -731,18 +738,7 @@ public class DiffIndCandidates implements TermGenerator {
             result.remove(tb.ff());
             result.remove(tb.tt());
             if (DEBUG_GENERATOR) { 
-                System.out.println("LAZY INDCANDIDATE ...");
-                for (Term c : result) {
-                    try {
-                        final LogicPrinter lp = new LogicPrinter(new ProgramPrinter(
-                                null), Main.getInstance().mediator().getNotationInfo(), Main.getInstance().mediator().getServices());
-                        lp.printTerm(c);
-                        System.out.print("...  " + lp.toString());
-                    } catch (Exception ignore) {
-                        System.out.println("......  " + c.toString());
-                        ignore.printStackTrace();
-                    }
-                }
+                System.out.println("LAZY INDCANDIDATE ... " + LogicPrinter.quickPrintTerm(result, Main.getInstance().mediator().getServices()));
             }
             return result.iterator();
         }
