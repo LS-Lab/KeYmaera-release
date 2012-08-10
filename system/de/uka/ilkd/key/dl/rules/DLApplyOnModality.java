@@ -65,7 +65,6 @@ import de.uka.ilkd.key.java.ProgramElement;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.java.StatementBlock;
 import de.uka.ilkd.key.logic.JavaBlock;
-import de.uka.ilkd.key.logic.Named;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.Visitor;
 import de.uka.ilkd.key.logic.op.NonRigidFunction;
@@ -430,7 +429,9 @@ public class DLApplyOnModality extends ApplyOnModality {
         HashSet<ProgramElement> result = new HashSet<ProgramElement>();
         if (form instanceof Dot) {
             Dot dot = (Dot) form;
-            if (dot.getChildAt(0) instanceof de.uka.ilkd.key.dl.model.ProgramVariable) {
+            if(dot.getChildAt(0) instanceof ProgramVariable) {
+                result.add(dot.getChildAt(0));
+            } else if (dot.getChildAt(0) instanceof de.uka.ilkd.key.dl.model.ProgramVariable) {
                 de.uka.ilkd.key.dl.model.ProgramVariable pv = (de.uka.ilkd.key.dl.model.ProgramVariable) dot
                         .getChildAt(0);
                 ProgramVariable kpv = (ProgramVariable) Main.getInstance()
@@ -444,7 +445,9 @@ public class DLApplyOnModality extends ApplyOnModality {
             }
         } else if (form instanceof RandomAssign) {
             RandomAssign dot = (RandomAssign) form;
-            if (dot.getChildAt(0) instanceof de.uka.ilkd.key.dl.model.ProgramVariable) {
+            if(dot.getChildAt(0) instanceof ProgramVariable) {
+                result.add(dot.getChildAt(0));
+            } else if (dot.getChildAt(0) instanceof de.uka.ilkd.key.dl.model.ProgramVariable) {
                 de.uka.ilkd.key.dl.model.ProgramVariable pv = (de.uka.ilkd.key.dl.model.ProgramVariable) dot
                         .getChildAt(0);
                 ProgramVariable kpv = (ProgramVariable) Main.getInstance()
@@ -458,7 +461,9 @@ public class DLApplyOnModality extends ApplyOnModality {
             }
         } else if (form instanceof Assign) {
             Assign assign = (Assign) form;
-            if (assign.getChildAt(0) instanceof de.uka.ilkd.key.dl.model.ProgramVariable) {
+            if(assign.getChildAt(0) instanceof ProgramVariable) {
+                result.add(assign.getChildAt(0));
+            } else if (assign.getChildAt(0) instanceof de.uka.ilkd.key.dl.model.ProgramVariable) {
                 de.uka.ilkd.key.dl.model.ProgramVariable pv = (de.uka.ilkd.key.dl.model.ProgramVariable) assign
                         .getChildAt(0);
                 ProgramVariable kpv = (ProgramVariable) Main.getInstance()

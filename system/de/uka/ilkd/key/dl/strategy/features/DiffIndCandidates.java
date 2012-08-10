@@ -44,6 +44,7 @@ import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
 import de.uka.ilkd.key.dl.arithmetics.impl.SumOfSquaresChecker;
 import de.uka.ilkd.key.dl.arithmetics.impl.SumOfSquaresChecker.PolynomialClassification;
 import de.uka.ilkd.key.dl.arithmetics.impl.mathematica.Mathematica;
+import de.uka.ilkd.key.dl.arithmetics.impl.mathematica.Expr2TermConverter.UnknownMathFunctionException;
 import de.uka.ilkd.key.dl.formulatools.PolynomialExtraction;
 import de.uka.ilkd.key.dl.formulatools.Prog2LogicConverter;
 import de.uka.ilkd.key.dl.formulatools.ReplacementSubst;
@@ -214,6 +215,8 @@ public class DiffIndCandidates implements TermGenerator {
 			} catch (SolverException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+			} catch (UnknownMathFunctionException e) {
+			    e.printStackTrace();
 			}
         }
 		return Collections.EMPTY_LIST.iterator();
