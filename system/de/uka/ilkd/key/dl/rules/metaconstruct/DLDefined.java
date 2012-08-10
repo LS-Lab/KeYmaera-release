@@ -149,8 +149,9 @@ public class DLDefined extends AbstractDLMetaOperator {
                         tf.createPredicateTerm(tf.createUnequals(), children2)));
             }
             // recursively add more denominators
-            result.addAll(findDenominators(tf, (Expression) ft.getChildAt(1)));
-            result.addAll(findDenominators(tf, (Expression) ft.getChildAt(2)));
+            for(int i = 1; i < ft.getChildCount(); i++) {
+                result.addAll(findDenominators(tf, (Expression) ft.getChildAt(i)));
+            }
         }
         return result;
     }
