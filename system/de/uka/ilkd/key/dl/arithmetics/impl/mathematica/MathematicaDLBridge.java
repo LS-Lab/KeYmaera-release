@@ -56,6 +56,7 @@ import de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator.PairOfTermAndQuantif
 import de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator.QuantifierType;
 import de.uka.ilkd.key.dl.arithmetics.abort.ServerConsole;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ConnectionProblemException;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.FailedComputationException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.IncompleteEvaluationException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ServerStatusProblemException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
@@ -474,7 +475,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 			}
 			return result.toArray(new Term[0]);
 		} else
-			throw new SolverException("Unexpected form of output: " + expressions);
+			throw new FailedComputationException("Unexpected form of output: " + expressions);
 	}
 
 
@@ -1324,7 +1325,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 			}
 			return result.toArray(new Term[0]);
 		} else
-			throw new SolverException("Unexpected form of output: " + expressions);	
+			throw new FailedComputationException("Unexpected form of output: " + expressions);	
 	}
 
 	@Override
@@ -1370,7 +1371,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 				return convert(expression.args()[1], services.getNamespaces());
 			}
 		}
-		throw new SolverException("Computation failed");
+		throw new FailedComputationException("Unexpected form of output: " + expression);
 	}
 
 	/**

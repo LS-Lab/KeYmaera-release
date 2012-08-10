@@ -131,7 +131,7 @@ public class DiffIndCandidates implements TermGenerator {
         // can handle this.
         // we only consider sophisticated choices
         // l.add(post); // consider diffind itself als diffstrengthening
-        Iterator<Term> diffOpCandidates = computeDiffopCandidates(program, post, services);
+        Iterator<Term> diffOpCandidates = indDiffopCandidates(program, post, services);
         if (true) return diffOpCandidates;
         final Iterator<Term> candidateGenerator = 
             indCandidates(goal.sequent(), pos, currentInvariant,
@@ -179,12 +179,13 @@ public class DiffIndCandidates implements TermGenerator {
      * @param services
      * @return
      */
-	private Iterator<Term> computeDiffopCandidates(final DLProgram program,
+	private Iterator<Term> indDiffopCandidates(final DLProgram program,
 			final Term post, final Services services) {
 		if (program instanceof DiffSystem && MathSolverManager.isODESolverSet() && MathSolverManager.isGroebnerBasisCalculatorSet() 
         		&& MathSolverManager.getCurrentODESolver() instanceof Mathematica && FOSequence.INSTANCE.isFOFormula(post)) {
             // fancy diffop strategy
-        	LogicVariable t = null;
+			final Set<Term> invariant = TermTools.splitConjuncts(((DiffSystem)program).getInvariant(services));
+			LogicVariable t = null;
             /*int i = 0;
             final NamespaceSet nss = services.getNamespaces();
             Name tName = null;
@@ -196,6 +197,10 @@ public class DiffIndCandidates implements TermGenerator {
         	try {
         		Set<Term> candidates = new LinkedHashSet<Term>();
 				Term[] invf = MathSolverManager.getCurrentODESolver().pdeSolve((DiffSystem)program, t, services);
+				if (invf.length == 0) {
+					System.out.println("No solution to inverse characteristic");
+					return Collections.EMPTY_LIST.iterator();
+				}
 				System.out.println("FUNCTION CANDIDATES:  ....\n" + LogicPrinter.quickPrintTerm(invf,services));
 				//PolynomialClassification<Term> pclasses = SumOfSquaresChecker.classify(Collections.EMPTY_SET, Collections.singleton(post));
 				Set<Term> pclasses = PolynomialExtraction.convert(NegationNormalForm.apply(post));
@@ -204,9 +209,14 @@ public class DiffIndCandidates implements TermGenerator {
 				System.out.println("GB REDUCTIONS:  ...\n" + LogicPrinter.quickPrintTerm(GB, services));
 				for (Term ivf : invf) {
 					Term initial = MathSolverManager.getCurrentGroebnerBasisCalculator().polynomialReduce(ivf, GB, services);
-					Term cand = TermFactory.DEFAULT.createEqualityTerm(ivf, initial);
-					candidates.add(cand);
-					System.out.println("CANDIDATE " + LogicPrinter.quickPrintTerm(cand,services));
+					Term cand = TermBuilder.DF.equals(ivf, initial);
+					if (!TermBuilder.DF.tt().equals(cand) && !TermBuilder.DF.ff().equals(cand)
+							&& !TermTools.subsumes(invariant, cand)) {
+						//@todo could check against being a tautology as well using QE
+						candidates.add(cand);
+						System.out.println("CANDIDATE " + LogicPrinter.quickPrintTerm(cand,services));
+						// System.out.println("not in " + LogicPrinter.quickPrintTerm(invariant, services));
+					}
 				}
 				return candidates.iterator();
 			} catch (RemoteException e) {
