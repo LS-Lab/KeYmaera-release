@@ -101,6 +101,8 @@ import de.uka.ilkd.key.util.Debug;
  */
 public class MathematicaDLBridge extends UnicastRemoteObject implements
 		IMathematicaDLBridge, ExprConstants {
+	
+	private static final boolean DEBUG = false;
 
 	public static final String[] messageBlacklist = new String[] { "nsmet" };
 
@@ -462,7 +464,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 				subfinder,
 				new Expr(Expr.SYMBOL, "Infinity")
 			})});
-		System.out.println("DOING " + query);
+		if (DEBUG) {System.out.println("DOING " + query);}
 		Expr expressions = evaluate(query).expression;
 		if (expressions.toString().equalsIgnoreCase("$Aborted")
 				|| expressions.toString().contains("Abort[]")) {
