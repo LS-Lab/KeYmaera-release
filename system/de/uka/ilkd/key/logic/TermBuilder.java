@@ -10,6 +10,7 @@ package de.uka.ilkd.key.logic;
 import java.util.Iterator;
 
 import de.uka.ilkd.key.collection.ImmutableList;
+import de.uka.ilkd.key.dl.logic.ldt.RealLDT;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.java.expression.literal.IntLiteral;
 import de.uka.ilkd.key.logic.ldt.IntegerLDT;
@@ -156,24 +157,48 @@ public class TermBuilder {
     
     public Term geq(Term t1, Term t2, Services services) {
         final IntegerLDT integerLDT = services.getTypeConverter().getIntegerLDT();
+        if ( t1.equals ( t2 ) ) return tt ();
         return tf.createFunctionTerm(integerLDT.getGreaterOrEquals(), t1, t2);
     }
     
     public Term gt(Term t1, Term t2, Services services) {
         final IntegerLDT integerLDT = services.getTypeConverter().getIntegerLDT();
+        if ( t1.equals ( t2 ) ) return ff();
         return tf.createFunctionTerm(integerLDT.getGreaterThan(), t1, t2);
     }
     
     public Term lt(Term t1, Term t2, Services services) {
         final IntegerLDT integerLDT = services.getTypeConverter().getIntegerLDT();
+        if ( t1.equals ( t2 ) ) return ff();
         return tf.createFunctionTerm(integerLDT.getLessThan(), t1, t2);
     }    
     
     public Term leq(Term t1, Term t2, Services services) {
         final IntegerLDT integerLDT = services.getTypeConverter().getIntegerLDT();
+        if ( t1.equals ( t2 ) ) return tt();
         return tf.createFunctionTerm(integerLDT.getLessOrEquals(), t1, t2);
     }    
+
+    public Term geqR(Term t1, Term t2) {
+        if ( t1.equals ( t2 ) ) return tt ();
+        return tf.createFunctionTerm(RealLDT.getFunctionFor(de.uka.ilkd.key.dl.model.GreaterEquals.class), t1, t2);
+    }
     
+    public Term gtR(Term t1, Term t2) {
+        if ( t1.equals ( t2 ) ) return ff();
+        return tf.createFunctionTerm(RealLDT.getFunctionFor(de.uka.ilkd.key.dl.model.Greater.class), t1, t2);
+    }
+    
+    public Term ltR(Term t1, Term t2) {
+        if ( t1.equals ( t2 ) ) return ff();
+        return tf.createFunctionTerm(RealLDT.getFunctionFor(de.uka.ilkd.key.dl.model.Less.class), t1, t2);
+    }    
+    
+    public Term leqR(Term t1, Term t2) {
+        if ( t1.equals ( t2 ) ) return tt();
+        return tf.createFunctionTerm(RealLDT.getFunctionFor(de.uka.ilkd.key.dl.model.LessEquals.class), t1, t2);
+    }    
+
     public Term zero(Services services) {       
         return services.getTypeConverter().getIntegerLDT().zero();        
     }

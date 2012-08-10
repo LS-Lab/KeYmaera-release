@@ -209,13 +209,14 @@ public class DiffIndCandidates implements TermGenerator {
 				System.out.println("GB REDUCTIONS:  ...\n" + LogicPrinter.quickPrintTerm(GB, services));
 				for (Term ivf : invf) {
 					Term initial = MathSolverManager.getCurrentGroebnerBasisCalculator().polynomialReduce(ivf, GB, services);
-					Term cand = TermBuilder.DF.equals(ivf, initial);
+					for (Term cand : new LinkedHashSet<Term>(java.util.Arrays.asList(new Term[] {TermBuilder.DF.equals(ivf, initial),TermBuilder.DF.geqR(ivf, initial),TermBuilder.DF.leqR(ivf, initial)}))) {
 					if (!TermBuilder.DF.tt().equals(cand) && !TermBuilder.DF.ff().equals(cand)
 							&& !TermTools.subsumes(invariant, cand)) {
 						//@todo could check against being a tautology as well using QE
 						candidates.add(cand);
 						System.out.println("CANDIDATE " + LogicPrinter.quickPrintTerm(cand,services));
 						// System.out.println("not in " + LogicPrinter.quickPrintTerm(invariant, services));
+					}
 					}
 				}
 				return candidates.iterator();
