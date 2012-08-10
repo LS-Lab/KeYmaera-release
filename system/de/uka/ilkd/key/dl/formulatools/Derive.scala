@@ -39,6 +39,7 @@ object Derive {
   def apply(t: Term, vars: java.util.Map[String, Term], eps: Term): Term = {
     val d = Derive(_: Term, vars, eps)
     t match {
+      case True() | False() => t 
       case All(_, _) | Ex(_, _) | Eqv(_, _) | Imp(_, _) | Box(_, _) | Dia(_, _) =>
         throw new UnsupportedOperationException(
           "not yet implemented for operator " + t.op + " in " + t);
