@@ -47,7 +47,7 @@ public class Evaluate extends AbstractDLMetaOperator {
 
     public Term calculate(Term term, SVInstantiations svInst, Services services) {
 	final Term toBeEvaled = term.sub(0);
-	//@todo why is Orbital hardwired and not .currentSimplifier?
+	// the orbital simplifier is hardwired as it is sufficient for the evaluation of arithmetic expressions without variables and always present
 	final ISimplifier simplifier = MathSolverManager.getSimplifier("Orbital");
 	
 	try {
