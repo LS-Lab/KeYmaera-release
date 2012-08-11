@@ -84,6 +84,9 @@ public class Expr2TermConverter implements ExprConstants {
 		public UnknownMathFunctionException(String msg) {
 			super(msg);
 		}
+		public UnknownMathFunctionException(String msg, Throwable cause) {
+			super(msg, cause);
+		}
 	}
 
     /**
