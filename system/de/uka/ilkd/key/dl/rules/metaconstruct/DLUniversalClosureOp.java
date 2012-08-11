@@ -294,11 +294,18 @@ public class DLUniversalClosureOp extends AbstractMetaOperator {
 							.getWriteBeforeReadList().get(pvar)))) {
 				String name = pvar.getElementName().toString();
 				LogicVariable var = searchFreeVar(services, name);
-				post = TermBuilder.DF.all(var, TermFactory.DEFAULT
-						.createUpdateTerm(TermBuilder.DF
-								.var((ProgramVariable) services.getNamespaces()
-										.lookup(new Name(name))),
-								TermBuilder.DF.var(var), post));
+				if(pvar instanceof de.uka.ilkd.key.logic.op.ProgramVariable) {
+					post = TermBuilder.DF.all(var, TermFactory.DEFAULT
+							.createUpdateTerm(TermBuilder.DF
+									.var((ProgramVariable) pvar),
+									TermBuilder.DF.var(var), post));
+				} else {
+					post = TermBuilder.DF.all(var, TermFactory.DEFAULT
+							.createUpdateTerm(TermBuilder.DF
+									.var((ProgramVariable) services.getNamespaces()
+											.lookup(new Name(name))),
+									TermBuilder.DF.var(var), post));
+				}
 			}
 		}
 		return post;

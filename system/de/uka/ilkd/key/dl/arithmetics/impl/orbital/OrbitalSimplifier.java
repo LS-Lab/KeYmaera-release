@@ -138,11 +138,13 @@ public class OrbitalSimplifier implements ISimplifier {
 			return false;
 		} else if (form.op() == Op.IMP) {
 			assert (form.arity() == 2);
-			//@todo why should this be sound?
+			// this is sound as we are evaluating arithemtic expressions and therefore a formula is either valid or unsatisfiable
+			// as there are no variables
 			return (!testForSimpleTautology(form.sub(0))) || testForSimpleTautology(form.sub(1));
 		} else if (form.op() == Op.EQV) {
 			assert (form.arity() == 2);
-			//@todo why should this be sound?
+			// this is sound as we are evaluating arithemtic expressions and therefore a formula is either valid or unsatisfiable
+			// as there are no variables
 			return testForSimpleTautology(form.sub(0)) == testForSimpleTautology(form.sub(1));
 		} else if (form.op() instanceof Function
 				|| form.op() instanceof Equality) {
