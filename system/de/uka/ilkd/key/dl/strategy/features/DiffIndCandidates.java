@@ -206,7 +206,8 @@ public class DiffIndCandidates implements TermGenerator {
 				//PolynomialClassification<Term> pclasses = SumOfSquaresChecker.classify(Collections.EMPTY_SET, Collections.singleton(post));
 				PolynomialSplit polysets = PolynomialExtraction.convert(NegationNormalForm.apply(post));
 				Set<Term> pclasses = new LinkedHashSet<Term>(polysets.eq());
-				//pclasses.addAll(polysets.geq());
+				pclasses.addAll(polysets.geq());
+				//pclasses.addAll(polysets.gt());
 				if (DEBUG_CANDIDATES) {System.out.println("REDUCTIONS:  ...\n" + LogicPrinter.quickPrintTerm(pclasses, services));}
 				Term[] GB = MathSolverManager.getCurrentGroebnerBasisCalculator().computeGroebnerBasis(pclasses.toArray(new Term[0]), services);
 				System.out.println("GB REDUCTIONS:  ...\n" + LogicPrinter.quickPrintTerm(GB, services));
