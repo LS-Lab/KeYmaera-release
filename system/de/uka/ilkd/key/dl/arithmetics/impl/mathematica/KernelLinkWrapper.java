@@ -513,7 +513,7 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 				link.waitForAnswer();
 				Expr msg = link.getExpr();
 				throw new UnsolveableException("Cannot solve "
-						+ compute.toString() + " because message " + msg
+						+ compute.toString() + "\nbecause message " + msg
 						+ " of the messages in "
 						+ Arrays.deepToString(messageBlacklist) + " occured");
 			} else if (result.toString().equals(expr.toString())) {
