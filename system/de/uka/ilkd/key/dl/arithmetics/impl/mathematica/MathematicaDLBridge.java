@@ -464,7 +464,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 				subfinder,
 				new Expr(Expr.SYMBOL, "Infinity")
 			})});
-		if (DEBUG) {System.out.println("DOING " + query);}
+		if (DEBUG) {System.out.println("evaluating " + query);}
 		Expr expressions = evaluate(query).expression;
 		if (expressions.toString().equalsIgnoreCase("$Aborted")
 				|| expressions.toString().contains("Abort[]")) {
@@ -473,6 +473,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 		if (expressions.head().equals(LIST)) {
 			List<Term> result = new LinkedList<Term>();
 			for (int i = 0; i < expressions.args().length; i++) {
+				if (DEBUG) System.out.println("found " + expressions.args()[i]);
 				result.add(convert(expressions.args()[i], services.getNamespaces()));
 			}
 			return result.toArray(new Term[0]);

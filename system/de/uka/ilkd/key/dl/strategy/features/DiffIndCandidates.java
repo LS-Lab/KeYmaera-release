@@ -224,10 +224,9 @@ public class DiffIndCandidates implements TermGenerator {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (SolverException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				System.out.println("indDiffopCandidates has no suggestions, because of " + e);
 			} catch (UnknownMathFunctionException e) {
-			    e.printStackTrace();
+			    System.out.println("indDiffopCandidates has no suggestions, because of " + e);
 			}
         }
 		return Collections.EMPTY_LIST.iterator();
