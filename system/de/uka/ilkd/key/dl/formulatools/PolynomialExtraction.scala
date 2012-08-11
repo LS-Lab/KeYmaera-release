@@ -27,6 +27,10 @@ import de.uka.ilkd.key.dl.parser.NumberCache
 import java.math.BigDecimal
 import de.uka.ilkd.key.dl.logic.ldt.RealLDT
 
+case class PolynomialSplit(geq: java.util.Set[Term], gt: java.util.Set[Term], eq: java.util.Set[Term], uneq: java.util.Set[Term]) {
+  def ++(b: PolynomialSplit) = new PolynomialSplit(this.geq++b.geq, this.gt++b.gt, this.eq++b.eq, this.uneq++b.uneq)
+}
+
 /**
  * @author ap
  *
@@ -36,9 +40,11 @@ object PolynomialExtraction {
   implicit def int2term(i: Int) = TermBuilder.DF.func(NumberCache.getNumber(
     new BigDecimal(i), RealLDT.getRealSort()))
     
-  def convert(t: Term): java.util.Set[Term] = apply(t)
+  val empty = java.util.Collections.emptySet[Term]()
+    
+  def convert(t: Term) = apply(t)
 
-  def apply(t: Term): Set[Term] = {
+  def apply(t: Term): PolynomialSplit = {
     t match {
       case All(_, _) | Ex(_, _) | Eqv(_, _) | Imp(_, _) | Box(_, _) | Dia(_, _) =>
         throw new UnsupportedOperationException(
@@ -48,16 +54,16 @@ object PolynomialExtraction {
           + " into negation normal form");
       case Or(a, b) => apply(a) ++ apply(b)
       case And(a, b) => apply(a) ++ apply(b)
-      case Equals(a, b) => Set(a-b)
-      case UnEquals(a, b) => Set(a-b)
-      case GreaterEquals(a, b) => Set(a-b)
-      case LessEquals(a, b) => Set(b-a)
-      case Greater(a, b) => Set(a-b)
-      case Less(a, b) => Set(b-a)
+      case Equals(a, b) => new PolynomialSplit(empty, empty, Set(a-b), empty)
+      case UnEquals(a, b) => new PolynomialSplit(empty, empty, empty, Set(a-b))
+      case GreaterEquals(a, b) => new PolynomialSplit(Set(a-b), empty, empty, empty)
+      case LessEquals(a, b) => new PolynomialSplit(Set(b-a), empty, empty, empty)
+      case Greater(a, b) => new PolynomialSplit(empty, Set(a-b), empty, empty)
+      case Less(a, b) => new PolynomialSplit(empty, Set(b-a), empty, empty)
       case _ => {
-        if (t.sort() == RealLDT.getRealSort())
-          Set(t)
-        else
+        //if (t.sort() == RealLDT.getRealSort())
+          //Set(t)
+        //else
           throw new IllegalArgumentException("Don't known how to convert " + t.op + " in " + t)
       }
     }

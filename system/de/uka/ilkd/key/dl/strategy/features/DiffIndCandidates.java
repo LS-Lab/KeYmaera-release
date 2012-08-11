@@ -46,6 +46,7 @@ import de.uka.ilkd.key.dl.arithmetics.impl.SumOfSquaresChecker.PolynomialClassif
 import de.uka.ilkd.key.dl.arithmetics.impl.mathematica.Mathematica;
 import de.uka.ilkd.key.dl.arithmetics.impl.mathematica.Expr2TermConverter.UnknownMathFunctionException;
 import de.uka.ilkd.key.dl.formulatools.PolynomialExtraction;
+import de.uka.ilkd.key.dl.formulatools.PolynomialSplit;
 import de.uka.ilkd.key.dl.formulatools.Prog2LogicConverter;
 import de.uka.ilkd.key.dl.formulatools.ReplacementSubst;
 import de.uka.ilkd.key.dl.formulatools.TermTools;
@@ -203,7 +204,9 @@ public class DiffIndCandidates implements TermGenerator {
 				}
 				System.out.println("FUNCTION CANDIDATES:  ....\n" + LogicPrinter.quickPrintTerm(invf,services));
 				//PolynomialClassification<Term> pclasses = SumOfSquaresChecker.classify(Collections.EMPTY_SET, Collections.singleton(post));
-				Set<Term> pclasses = PolynomialExtraction.convert(NegationNormalForm.apply(post));
+				PolynomialSplit polysets = PolynomialExtraction.convert(NegationNormalForm.apply(post));
+				Set<Term> pclasses = new LinkedHashSet<Term>(polysets.eq());
+				//pclasses.addAll(polysets.geq());
 				if (DEBUG_CANDIDATES) {System.out.println("REDUCTIONS:  ...\n" + LogicPrinter.quickPrintTerm(pclasses, services));}
 				Term[] GB = MathSolverManager.getCurrentGroebnerBasisCalculator().computeGroebnerBasis(pclasses.toArray(new Term[0]), services);
 				System.out.println("GB REDUCTIONS:  ...\n" + LogicPrinter.quickPrintTerm(GB, services));
