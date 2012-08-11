@@ -138,9 +138,11 @@ public class OrbitalSimplifier implements ISimplifier {
 			return false;
 		} else if (form.op() == Op.IMP) {
 			assert (form.arity() == 2);
+			//@todo why should this be sound?
 			return (!testForSimpleTautology(form.sub(0))) || testForSimpleTautology(form.sub(1));
 		} else if (form.op() == Op.EQV) {
 			assert (form.arity() == 2);
+			//@todo why should this be sound?
 			return testForSimpleTautology(form.sub(0)) == testForSimpleTautology(form.sub(1));
 		} else if (form.op() instanceof Function
 				|| form.op() instanceof Equality) {
@@ -177,6 +179,7 @@ public class OrbitalSimplifier implements ISimplifier {
 		} else if(form.op() == Junctor.FALSE) {
 			return false;
 		}
+		//@todo what to do with Box and Diamond?
 		throw new IllegalArgumentException("Dont know how to translate "
 				+ form.op() + " of class " + form.op().getClass());
 	}
