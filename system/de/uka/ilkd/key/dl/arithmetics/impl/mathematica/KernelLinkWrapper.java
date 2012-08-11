@@ -515,7 +515,7 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 				throw new UnsolveableException("Cannot solve "
 						+ compute.toString() + " because message " + msg
 						+ " of the messages in "
-						+ Arrays.toString(messageBlacklist) + " occured");
+						+ Arrays.deepToString(messageBlacklist) + " occured");
 			} else if (result.toString().equals(expr.toString())) {
 				throw new UnsolveableException(
 						"Mathematica returned the identity of the query: "
