@@ -29,5 +29,6 @@ public interface NotificationEventID {
     int EXIT_KEY = 3;
     /** tasks used to inform the user should have this ID */
     int GENERAL_INFORMATION = 4;
+    int EXCEPTION = 5;
 
 }

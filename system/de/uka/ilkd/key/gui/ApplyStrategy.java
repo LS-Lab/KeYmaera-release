@@ -32,6 +32,7 @@ import de.uka.ilkd.key.dl.gui.AutomodeListener;
 import de.uka.ilkd.key.dl.options.DLOptionBean;
 import de.uka.ilkd.key.dl.strategy.DLStrategy;
 import de.uka.ilkd.key.gui.configuration.StrategySettings;
+import de.uka.ilkd.key.gui.notification.events.ExceptionEvent;
 import de.uka.ilkd.key.gui.notification.events.GeneralFailureEvent;
 import de.uka.ilkd.key.proof.DefaultGoalChooserBuilder;
 import de.uka.ilkd.key.proof.DepthFirstGoalChooserBuilder;
@@ -348,9 +349,10 @@ public class ApplyStrategy {
                         + " strategy execution."));  
             } else if (result instanceof Exception) {
                 mediator().startInterface(true);
-                mediator().notify(
+                /*mediator().notify(
                         new GeneralFailureEvent("An exception occurred during"
-                                + " strategy execution.\n" + result.toString()));
+                                + " strategy execution.\n" + result.toString()));*/
+				mediator().notify(new ExceptionEvent((Exception)result));
             } else {
                 if (startedAsInteractive){
                     if (medi.getProof().getSettings().getStrategySettings()
