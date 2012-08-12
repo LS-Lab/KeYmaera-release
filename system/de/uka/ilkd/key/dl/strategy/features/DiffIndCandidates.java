@@ -133,11 +133,10 @@ public class DiffIndCandidates implements TermGenerator {
         // we only consider sophisticated choices
         // l.add(post); // consider diffind itself als diffstrengthening
         Iterator<Term> diffOpCandidates = indDiffopCandidates(program, post, services);
-        if (true) return diffOpCandidates;
         final Iterator<Term> candidateGenerator = 
             indCandidates(goal.sequent(), pos, currentInvariant,
                         services);
-        Iterator<Term> resulting = candidateGenerator;
+        Iterator<Term> resulting;
         // prefer @candidate annotations, then diffOpCandidates then generated candidates
         if (program.containsDLAnnotation("candidate")) {
         	    resulting = new SequenceIterator(new Iterator[] {
