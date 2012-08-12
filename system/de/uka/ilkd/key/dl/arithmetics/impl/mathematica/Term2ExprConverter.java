@@ -128,7 +128,12 @@ public class Term2ExprConverter implements ExprConstants {
 			} else if (f.name().toString().equals("exp")) {
 				return new Expr(EXP, args);
 			} else if (f instanceof RigidFunction && ((RigidFunction) f).isMathFunction()) {
-				return new Expr(Expr.SYMBOL,f.name().toString());
+				Expr fun = new Expr(Expr.SYMBOL,f.name().toString());
+				if(args.length == 0) {
+					return fun;
+				} else {
+					return new Expr(fun, args);
+				}
 			} else {
 				try {
 					if (Options.INSTANCE.isConvertDecimalsToRationals()) {
