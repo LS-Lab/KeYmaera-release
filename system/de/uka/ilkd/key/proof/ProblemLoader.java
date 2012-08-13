@@ -767,8 +767,12 @@ public class ProblemLoader implements Runnable {
         } else {
             Namespace varNS = p.getNamespaces().variables();
 	    varNS = app.extendVarNamespaceForSV(varNS, sv);
+	    Namespace progNS = targetGoal.proof().getNamespaces().programVariables();
+	    progNS.add(varNS);
+//	    Term instance = parseTerm(value, p, varNS, 
+//	            targetGoal.getVariableNamespace(varNS));
 	    Term instance = parseTerm(value, p, varNS, 
-	            targetGoal.getVariableNamespace(varNS));
+	            targetGoal.getVariableNamespace(progNS));
 	    result = app.addCheckedInstantiation(sv, instance, services, true); 
         }
         return result;

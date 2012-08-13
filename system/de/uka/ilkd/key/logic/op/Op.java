@@ -63,6 +63,30 @@ public abstract class Op implements Operator {
      * 'ex x.A' is true if and only if there is at least one elements
      * d of the universe such that A{x<-d} (x substitued with d) is true */     
     public static final Quantifier EX = new Quantifier(new Name("exist"));
+    /**
+     * the game operator of dGL.
+     */
+    public static final Game GAME = new Game(new Name("game"), 2);
+    /**
+     * the game operator A(G)* of dGL.
+     */
+    public static final Game ALOOP = new Game(new Name("a_game_loop"));
+    /**
+     * the game operator E(G)* of dGL.
+     */
+    public static final Game ELOOP = new Game(new Name("e_game_loop"));
+    /**
+     * the game operator for sequential composition G G of dGL.
+     */
+    public static final Game SEQGAME = new Game(new Name("seqgame"), 2);
+    /**
+     * the game operator G cup G of dGL.
+     */
+    public static final Game CUPGAME = new Game(new Name("cupgame"), 2);
+    /**
+     * the game operator G cap G of dGL.
+     */
+    public static final Game CAPGAME = new Game(new Name("capgame"), 2);
     /** the diamond operator of dynamic logic. A formula
      * <alpha;>Phi can be read as after processing the program alpha
      * there exists a state such that Phi holds. */    

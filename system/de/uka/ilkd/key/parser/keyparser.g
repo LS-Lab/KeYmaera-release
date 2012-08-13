@@ -648,6 +648,9 @@ options {
             if ( s == Sort.FORMULA ) {
                 v = SchemaVariableFactory.createFormulaSV
                 (new Name(name), mods.list(), mods.rigid());
+			} else if ( s == Sort.GAME) {
+                v = SchemaVariableFactory.createGameSV
+                (new Name(name), mods.list(), mods.rigid());
             } else if ( s instanceof ProgramSVSort ) {
                 v = SchemaVariableFactory.createProgramSV
                 (new ProgramElementName(name),(ProgramSVSort) s, mods.list());
@@ -1915,6 +1918,11 @@ one_schema_var_decl
        }
     }
     ids = simple_ident_comma_list
+  | GAME
+  	{ mods = new SchemaVariableModifierSet.GameSV (); }
+    ( schema_modifiers[mods] ) ?
+	{ s = Sort.GAME; }
+    ids = simple_ident_comma_list 
   | FORMULA
     { mods = new SchemaVariableModifierSet.FormulaSV (); }
     ( schema_modifiers[mods] ) ?
@@ -2645,6 +2653,7 @@ unary_formula returns [Term a = null]
         NOT a1  = term60 { a = tf.createJunctorTerm(Op.NOT,new Term[]{a1}); }
     |	a = quantifierterm 
     |   a = modality_dl_term
+    |	a = game_dgl_term
 ; exception
         catch [TermCreationException ex] {
               keh.reportException
@@ -3632,6 +3641,96 @@ lhsSingle returns[Term result = null]
         }
     ;
 
+game_dgl_term returns [Term a = null]
+{
+Term g = null;
+Term a1 = null;
+}
+    :
+    GAME_BEGIN g = game_dgl_term20 GAME_END a1=term60 {
+    	a = tf.createTerm(Op.GAME, new Term[] {g, a1}, null, JavaBlock.EMPTY_JAVABLOCK);
+    }
+    ; 
+ 
+game_dgl_term20 returns [Term a = null]
+{
+Term a1, a2 = null;
+}
+	: a1 = game_dgl_term30 { a = a1; } (a2 = game_dgl_term30
+	{
+		a = tf.createTerm(Op.SEQGAME, new Term[] {a, a2}, null, JavaBlock.EMPTY_JAVABLOCK);
+	})*
+	;
+
+game_dgl_term30 returns [Term a = null]
+{
+Term a1, a2 = null;
+}
+	: a1 = game_dgl_term35 { a = a1; } (DCHOICE a2 = game_dgl_term35
+	{
+		a = tf.createTerm(Op.CUPGAME, new Term[] {a, a2}, null, JavaBlock.EMPTY_JAVABLOCK);
+	})*
+	;
+
+game_dgl_term35 returns [Term a = null]
+{
+Term a1, a2 = null;
+}
+	: a1 = game_dgl_term40 { a = a1; } (BCHOICE a2 = game_dgl_term40
+	{
+		a = tf.createTerm(Op.CAPGAME, new Term[] {a, a2}, null, JavaBlock.EMPTY_JAVABLOCK);
+	})*
+	;
+	
+game_dgl_term40 returns [Term a = null]
+{
+Term a1, a2 = null;
+String s;
+}
+	: a = mod_in_game
+	| LPAREN a = game_dgl_term20 RPAREN
+	| LBRACKET a1 = game_dgl_term20 RBRACKET STAR
+	{
+		a = tf.createTerm(Op.ALOOP, new Term[] {a1}, null, JavaBlock.EMPTY_JAVABLOCK);
+	}
+	| LESS a1 = game_dgl_term20 GREATER STAR
+	{
+		a = tf.createTerm(Op.ELOOP, new Term[] {a1}, null, JavaBlock.EMPTY_JAVABLOCK);
+	}
+	| { inSchemaMode() }? s = simple_ident { a = tf.createVariableTerm((SchemaVariable) variables().lookup(new Name(s))); }
+	;
+ 
+mod_in_game returns [Term a = null]
+{
+    Term a1;
+    PairOfTermArrayAndBoundVarsArray argsWithBoundVars = null;
+    Term[] terms = null;
+    Operator op = null;
+    PairOfStringAndJavaBlock sjb = null;
+}
+	:
+	modality : MODALITY
+     {
+       sjb=getJavaBlock(modality);
+       Debug.out("op: ", sjb.opName);
+       Debug.out("program: ", sjb.javaBlock);
+       if(sjb.opName.charAt(0) == '#') {
+         if (!inSchemaMode()) {
+           semanticError
+             ("No schema elements allowed outside taclet declarations ("+sjb.opName+")");
+         }
+         op = (SchemaVariable)variables().lookup(new Name(sjb.opName));
+       } else {
+         op = Op.getModality(sjb.opName);
+       }
+       if(op == null) {
+         semanticError("Unknown modal operator: "+sjb.opName);
+       }
+       bindProgVars(progVars(sjb.javaBlock));
+       a = tf.createGameModalityTerm(op, sjb.javaBlock);
+     }
+     ;
+ 
 modality_dl_term returns [Term a = null]
 {
     Term a1;

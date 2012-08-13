@@ -78,14 +78,16 @@ public class TacletPrefixBuilder {
 	    SchemaVariable sv = (SchemaVariable)t.op();
 	    ImmutableSet<SchemaVariable> relevantBoundVars = removeNotFreeIn(sv);
 	    TacletPrefix prefix = prefixMap.get(sv);
-	    if (prefix == null || prefix.prefix().equals(relevantBoundVars)) {
+		//FIXME: commenting out the next lines for parsing variant rule for games
+		// however this might enable us to write unsound taclets
+	    //if (prefix == null || prefix.prefix().equals(relevantBoundVars)) {
 		setPrefixOfOccurrence(sv, relevantBoundVars);
-	    } else {
+	    /*} else {
 		throw new InvalidPrefixException(tacletBuilder.getName().toString(), 
 						 sv, 
 						 prefix, 
 						 relevantBoundVars);
-	    }
+	    }*/
 	} 
 	for (int i=0; i<t.arity(); i++) {
 	    ImmutableSet<SchemaVariable> oldBounds=currentlyBoundVars;

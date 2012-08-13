@@ -647,8 +647,21 @@ public class SyntacticalReplaceVisitor extends Visitor {
            varsChanged.setVal(false); // reset variable change flag
            final ImmutableArray<QuantifiableVariable>[] boundVars = 
                instantiateBoundVariables(visited);
-            
-            Term[] neededsubs = neededSubs(newOp.arity());
+           int subs = newOp.arity();
+            for(int i = 0; i < subs; i++) {
+            	try {
+            		visited.sub(i);
+            	} catch(Throwable t) {
+            		subs = i - 1;
+            		break;
+            	}
+            }
+            Term[] neededsubs;
+            if(subs > 0) { 
+            	neededsubs = neededSubs(subs);
+            } else {
+            	neededsubs = new Term[0];
+            }
             if (varsChanged.val() || jblockChanged || operatorInst
                     || (!subStack.empty() && subStack.peek() == newMarker)) {
                 pushNew(resolveSubst(tf.createTerm(newOp, neededsubs, boundVars,

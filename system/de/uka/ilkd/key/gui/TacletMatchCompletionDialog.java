@@ -30,7 +30,9 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 
+import de.uka.ilkd.key.dl.DLProfile;
 import de.uka.ilkd.key.gui.configuration.PathConfig;
+import de.uka.ilkd.key.logic.Namespace;
 import de.uka.ilkd.key.logic.NamespaceSet;
 import de.uka.ilkd.key.proof.*;
 import de.uka.ilkd.key.rule.Taclet;
@@ -138,7 +140,11 @@ public class TacletMatchCompletionDialog extends ApplyTacletDialog {
 
     public static ApplyTacletDialogModel createModel(TacletApp app, Goal goal, 
                                                      KeYMediator medi) {
-        return new ApplyTacletDialogModel(
+    	Namespace pv = new Namespace(goal.createGlobalProgVarNamespace());
+    	if(medi.getProfile() instanceof DLProfile) {
+    		pv.add(medi.progVar_ns());
+    	}
+    	return new ApplyTacletDialogModel(
             app, goal.sequent(), medi.getServices(),
 	    medi.getUserConstraint ().getConstraint(),
 	    new NamespaceSet(medi.var_ns(),
@@ -146,7 +152,7 @@ public class TacletMatchCompletionDialog extends ApplyTacletDialog {
 			     medi.sort_ns(),
 			     medi.heur_ns(),
 			     medi.choice_ns(),
-			     goal.createGlobalProgVarNamespace()),
+			     pv),
 	    medi.getNotationInfo().getAbbrevMap(), goal);
     }
     
