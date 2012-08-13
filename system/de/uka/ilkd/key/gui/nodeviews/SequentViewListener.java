@@ -58,8 +58,6 @@ class SequentViewListener extends MouseInputAdapter
     private boolean showTermInfo;
 
     
-    private Object mouseOverHighlight;
-
     /** last registered mouse position */
     PosInSequent mousePos = PosInSequent.createSequentPos();
 
@@ -75,7 +73,6 @@ class SequentViewListener extends MouseInputAdapter
 	this.mediator = mediator;
 	this.seqView = seqView;
 
-        mouseOverHighlight = seqView.getDefaultHighlight();
 	menu = new TacletMenu();     
 
 	seqViewDragGestureListener = new SequentViewGestures();
@@ -88,7 +85,7 @@ class SequentViewListener extends MouseInputAdapter
     
     private void highlight(Point p) {
         mousePos = seqView.getPosInSequent(p);            
-        seqView.setCurrentHighlight(mouseOverHighlight);
+        seqView.setCurrentHighlight(seqView.getDefaultHighlight());
         seqView.paintHighlights(p);
         seqView.setLastHighlightedCaretPos(seqView.correctedViewToModel(p));
     }

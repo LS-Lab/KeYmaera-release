@@ -56,6 +56,7 @@ import de.uka.ilkd.key.gui.assistant.ProofAssistant;
 import de.uka.ilkd.key.gui.assistant.ProofAssistantAI;
 import de.uka.ilkd.key.gui.assistant.ProofAssistantController;
 import de.uka.ilkd.key.gui.configuration.ChoiceSelector;
+import de.uka.ilkd.key.gui.configuration.ColorSelector;
 import de.uka.ilkd.key.gui.configuration.Config;
 import de.uka.ilkd.key.gui.configuration.ConfigChangeEvent;
 import de.uka.ilkd.key.gui.configuration.ConfigChangeListener;
@@ -1456,6 +1457,16 @@ public class Main extends JFrame implements IMain {
 		}});
 	registerAtMenu(view, tacletOptionsView);
 
+	JMenuItem colors = new JMenuItem("Edit colors");
+	colors.addActionListener(new ActionListener() {
+        
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            new ColorSelector(Main.this).setVisible(true);
+        }
+    });
+	registerAtMenu(view, colors);
+	
 	JMenuItem serverConsole = new JMenuItem("Mathematica Console");
 	serverConsole.addActionListener(new ActionListener() {
 		

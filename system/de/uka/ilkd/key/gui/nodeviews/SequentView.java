@@ -45,6 +45,9 @@ import de.uka.ilkd.key.gui.*;
 import de.uka.ilkd.key.gui.configuration.Config;
 import de.uka.ilkd.key.gui.configuration.ConfigChangeAdapter;
 import de.uka.ilkd.key.gui.configuration.ConfigChangeListener;
+import de.uka.ilkd.key.gui.configuration.GeneralSettings;
+import de.uka.ilkd.key.gui.configuration.ProofSettings;
+import de.uka.ilkd.key.gui.configuration.SettingsListener;
 import de.uka.ilkd.key.gui.notification.events.GeneralFailureEvent;
 import de.uka.ilkd.key.gui.syntaxhighlighting.HtmlToText;
 import de.uka.ilkd.key.logic.Sequent;
@@ -65,10 +68,6 @@ import de.uka.ilkd.key.util.Debug;
  */
 public class SequentView extends JEditorPane implements Autoscroll {
             
-    public static final Color DEFAULT_HIGHLIGHT_COLOR = Color.YELLOW;
-
-    public static final Color UPDATE_HIGHLIGHT_COLOR = new Color(255, 230, 230);
-
     // the default tag of the highlight
     private Object defaultHighlight;
 
@@ -143,9 +142,16 @@ public class SequentView extends JEditorPane implements Autoscroll {
 	// WHEN USING OVERLAPPING HIGHLIGHTS:
 	// Adding highlight H1 before highlight H2 ensures that 
 	// H1 can overwrite overlapping parts of H2 !!!
+	updateColors();
         	        
-	additionalHighlight = getColorHighlight(Color.lightGray); 		
-	defaultHighlight = getColorHighlight(DEFAULT_HIGHLIGHT_COLOR);
+	ProofSettings.DEFAULT_SETTINGS.getViewSettings().addSettingsListener(new SettingsListener() {
+        
+        @Override
+        public void settingsChanged(GUIEvent e) {
+            updateColors();
+            repaint();
+        }
+    });
 	
 	currentHighlight = defaultHighlight;
 	updateHighlights = new Vector<Object>();
@@ -303,7 +309,8 @@ public class SequentView extends JEditorPane implements Autoscroll {
 
         if (ranges != null) {
             for (Range range : ranges) {
-                Object tag = getColorHighlight(UPDATE_HIGHLIGHT_COLOR);
+                Object tag = getColorHighlight(ProofSettings.DEFAULT_SETTINGS
+                        .getViewSettings().getUpdateHighlightColor());
                 updateHighlights.addElement(tag);
                 paintHighlight(range, tag);
             }
@@ -760,6 +767,27 @@ public class SequentView extends JEditorPane implements Autoscroll {
         }
     }
 
+    
+    private void updateColors() {
+        if(defaultHighlight != null) {
+            disableHighlight(defaultHighlight);
+            removeHighlight(defaultHighlight);
+        }
+        if(updateHighlights != null) {
+            for(Object u: updateHighlights) {
+                disableHighlight(u);
+                removeHighlight(u);
+            }
+        }
+        
+        additionalHighlight = getColorHighlight(ProofSettings.DEFAULT_SETTINGS
+                .getViewSettings().getAdditionalHighlightColor());
+        defaultHighlight = getColorHighlight(ProofSettings.DEFAULT_SETTINGS
+                .getViewSettings().getDefaultHighlightColor());
+        
+        updateUpdateHighlights();
+        updateUI();
+    }
     	
     
 }
