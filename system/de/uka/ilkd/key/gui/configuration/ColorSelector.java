@@ -35,20 +35,11 @@ import javax.swing.text.PlainDocument;
 
 public class ColorSelector extends JDialog {
 
-    /**
-     * 
-     */
-    private static final String ADDITIONAL = "Additional";
+    private static final String ADDITIONAL = "Program Highlight Color";
 
-    /**
-     * 
-     */
-    private static final String UPDATE = "Update";
+    private static final String UPDATE = "Update Highlight Color";
 
-    /**
-     * 
-     */
-    private static final String DEFAULT = "Default";
+    private static final String DEFAULT = "Default Highlight Color";
 
     private Color defaultColor;
 
