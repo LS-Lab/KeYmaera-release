@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<description>
+	<welcometext>
+		Welcome to the KeYmaera tutorial overview...
+	</welcometext>
+	<tutorials>
+		<tutorial name="Verified Software Summer School 2012">
+			<description>
+				This tutorial contains the exercises used at the Verified Software Summer School 2012.
+			</description>
+			<exercise>
+				<title>Ex. 1 Pen&amp;Paper Modelling</title>
+				<description>Use Pen&amp;Paper to model a car.</description>
+			</exercise>
+			<exercise>
+				<title>Ex. 2 Dynamics</title>
+				<description>Given the following system of...</description>
+				<path>/examples/hybrid/tutorial/lics1-continuous-forward.key</path>
+			</exercise>
+		</tutorial>
+	</tutorials>
+</description>

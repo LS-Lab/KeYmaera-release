@@ -217,13 +217,13 @@ dist-keymaera:	branding all
 	@cp -r $(BINARYPATH)/* dist/key/
 	@cp -r $(RESOURCEPATH)/* dist/key/
 #copy example file
-	@for i in `grep -R \<path\> $(RESOURCEPATH)/description.xml | sed s/'<path>\/'// | sed s/'<\/path>'// | sed 's/^[ \t]*//'`; do \
+	@for i in `grep -R \<path\> $(RESOURCEPATH)/description.xml $(RESOURCEPATH)/tutorial.xml | sed s/'<path>\/'// | sed s/'<\/path>'// | sed 's/^[ \t]*//'`; do \
 		mkdir -p dist/key/$$i;\
 		rmdir dist/key/$$i;\
 		cp -RH ../$$i dist/key/$$i;\
 		done
 #copy example proof files
-	@for i in `grep -R 'href=.*.proof' $(RESOURCEPATH)/description.xml | sed s/'.*href=\"\/'// | sed s/'\".*'// | sed 's/^[ \t]*//'`; do \
+	@for i in `grep -R 'href=.*.proof' $(RESOURCEPATH)/description.xml $(RESOURCEPATH)/tutorial.xml | sed s/'.*href=\"\/'// | sed s/'\".*'// | sed 's/^[ \t]*//'`; do \
 		mkdir -p dist/key/$$i;\
 		rmdir dist/key/$$i;\
 		cp -RH ../$$i dist/key/$$i;\

@@ -50,6 +50,7 @@ import de.uka.ilkd.key.dl.DLProfile;
 import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
 import de.uka.ilkd.key.dl.gui.ProjectManager;
 import de.uka.ilkd.key.dl.gui.TimeStatisticGenerator;
+import de.uka.ilkd.key.dl.gui.Tutorial;
 import de.uka.ilkd.key.dl.gui.initialdialog.gui.InitialDialogBeans;
 import de.uka.ilkd.key.gui.DecisionProcedureSettings.RuleDescriptor;
 import de.uka.ilkd.key.gui.assistant.ProofAssistant;
@@ -1302,6 +1303,11 @@ public class Main extends JFrame implements IMain {
     protected JMenu createFileMenu() {
         JMenu fileMenu = new JMenu("File");
         fileMenu.setMnemonic(KeyEvent.VK_F);
+        
+        JMenuItem tutorial = new JMenuItem();
+        tutorial.setAction(new Tutorial.TutorialAction());
+        
+        registerAtMenu(fileMenu, tutorial);
         
         JMenuItem project = new JMenuItem();
         project.setAction(new ProjectManager.ProjectManagerAction());
