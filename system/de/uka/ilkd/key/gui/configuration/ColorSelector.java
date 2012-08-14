@@ -74,7 +74,7 @@ public class ColorSelector extends JDialog {
     protected void layoutViewSelector() {
         getContentPane().setLayout(new BorderLayout());
 
-        final JComboBox<String> comboBox = new JComboBox<String>();
+        final JComboBox/*<String>*/ comboBox = new JComboBox/*<String>*/();
 
         comboBox.addItem(DEFAULT);
 
