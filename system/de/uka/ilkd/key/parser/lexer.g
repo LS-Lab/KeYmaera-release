@@ -47,6 +47,7 @@ tokens {
 	OPERATOR = "\\operator";
 	PROGRAM = "\\program";
 	FORMULA = "\\formula";
+	GAME = "\\game";
 	TERM = "\\term";
 	VARIABLES = "\\variables";
 	SKOLEMTERM = "\\skolemTerm";
@@ -572,6 +573,12 @@ options {
       ;
 
 
+DCHOICE
+: "++";
+
+BCHOICE
+: "+-+";
+
 WS
 options {
   paraphrase = "white space";
@@ -808,6 +815,9 @@ options {
     : 
     (DIGIT)+    
     ;
+
+GAME_BEGIN: "\\(";
+GAME_END: "\\)";
 
 /**
   * Here we have to accept all strings of kind \\[a-z_]

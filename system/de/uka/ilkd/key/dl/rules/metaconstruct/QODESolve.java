@@ -53,6 +53,7 @@ import de.uka.ilkd.key.java.ProgramElement;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.java.StatementBlock;
 import de.uka.ilkd.key.logic.Name;
+import de.uka.ilkd.key.logic.Namespace;
 import de.uka.ilkd.key.logic.NamespaceSet;
 import de.uka.ilkd.key.logic.ProgramElementName;
 import de.uka.ilkd.key.logic.Term;
@@ -177,6 +178,7 @@ public class QODESolve extends AbstractDLMetaOperator {
                 }
             } else {
                 Set<ProgramElement> collectNonRigidFunctionTerms = collectNonRigidFunctionTerms(system);
+                Namespace pvNs = services.getNamespaces().programVariables().copy();
                 Map<ProgramVariable, ProgramElement> tmpVars = createTmpVariables(
                         collectNonRigidFunctionTerms, services);
                 Map<FunctionTerm, de.uka.ilkd.key.dl.model.ProgramVariable> inverse = new HashMap<FunctionTerm, de.uka.ilkd.key.dl.model.ProgramVariable>();
@@ -207,6 +209,8 @@ public class QODESolve extends AbstractDLMetaOperator {
                                 var);
                         idx++;
                     }
+                    // remove temporary variables from the namespaces again
+                    services.getNamespaces().setProgramVariables(pvNs);
 
                     Term zero = TermBuilder.DF.func(getNull(services));
                     Term updatedPost = QuanUpdateOperator.normalize(boundVars,

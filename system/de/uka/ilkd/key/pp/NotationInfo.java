@@ -172,6 +172,13 @@ public class NotationInfo {
                             "\\endmodality", 60, 60));
 	tbl.put(Op.IF_THEN_ELSE, new Notation.IfThenElse(130, "\\if"));
 	tbl.put(Op.IF_EX_THEN_ELSE, new Notation.IfThenElse(130, "\\ifEx"));
+	
+	tbl.put(Op.GAME, new Notation.SurroundFix("\\(", "\\)", 60, 60, 60));
+	tbl.put(Op.ALOOP, new Notation.SurroundFix("[", "]*", 60, 60, 60));
+	tbl.put(Op.ELOOP, new Notation.SurroundFix("<", ">*", 60, 60, 60));
+	tbl.put(Op.SEQGAME, new Notation.Infix(" ", 60, 60, 60));
+	tbl.put(Op.CUPGAME, new Notation.Infix(" ++ ", 60, 60, 60));
+	tbl.put(Op.CAPGAME, new Notation.Infix(" +-+ ", 60, 60, 60));
 
 	//createNumLitNotation(IntegerLDT.getStaticNumberSymbol());
 

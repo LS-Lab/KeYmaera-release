@@ -23,29 +23,33 @@ package de.uka.ilkd.key.dl.rules.metaconstruct;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.LinkedHashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.PriorityQueue;
 import java.util.TreeSet;
 
 import de.uka.ilkd.key.dl.logic.ldt.RealLDT;
 import de.uka.ilkd.key.dl.model.DLProgram;
+import de.uka.ilkd.key.dl.model.TermFactory;
+import de.uka.ilkd.key.dl.options.DLOptionBean;
 import de.uka.ilkd.key.dl.transitionmodel.DependencyState;
 import de.uka.ilkd.key.dl.transitionmodel.DependencyStateGenerator;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.java.StatementBlock;
 import de.uka.ilkd.key.logic.Name;
+import de.uka.ilkd.key.logic.NamespaceSet;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.TermBuilder;
-import de.uka.ilkd.key.logic.TermFactory;
 import de.uka.ilkd.key.logic.VariableNamer;
 import de.uka.ilkd.key.logic.Visitor;
 import de.uka.ilkd.key.logic.op.AbstractMetaOperator;
 import de.uka.ilkd.key.logic.op.LogicVariable;
 import de.uka.ilkd.key.logic.op.Modality;
+import de.uka.ilkd.key.logic.op.Op;
 import de.uka.ilkd.key.logic.op.ProgramVariable;
 import de.uka.ilkd.key.logic.op.SVSubstitute;
 import de.uka.ilkd.key.logic.sort.Sort;
@@ -74,11 +78,17 @@ public class DLUniversalClosureOp extends AbstractMetaOperator {
 	 */
 	@SuppressWarnings("unchecked")
 	public Term calculate(Term term, SVInstantiations svInst, Services services) {
-		if (!(term.sub(0).op() instanceof Modality))
-			throw new IllegalArgumentException("inapplicable");
+		Term searchIn = term.sub(0);
 		Term post = term.sub(1);
-		DLProgram program = (DLProgram) ((StatementBlock) term.sub(0)
-				.javaBlock().program()).getChildAt(0);
+		DLProgram program = null;
+		if (searchIn.op() == Op.GAME) {
+			program = collectProgram(searchIn.sub(0), services.getNamespaces());
+		} else if (searchIn.op() instanceof Modality)
+			program = (DLProgram) ((StatementBlock) searchIn.javaBlock()
+					.program()).getChildAt(0);
+		if (program == null) {
+			throw new IllegalArgumentException("inapplicable");
+		}
 		Term optimizeWrites = term.sub(2);
 		boolean optimize = false;
 		if (optimizeWrites.equals(TermBuilder.DF.tt())) {
@@ -90,6 +100,58 @@ public class DLUniversalClosureOp extends AbstractMetaOperator {
 					+ optimizeWrites;
 		}
 		return universalClosure(program, post, svInst, services, optimize);
+	}
+
+	/**
+	 * @param searchIn
+	 * @return TODO documentation since Dec 19, 2011
+	 */
+	private DLProgram collectProgram(Term searchIn, NamespaceSet nss) {
+		if (searchIn.op() instanceof Modality) {
+			return (DLProgram) ((StatementBlock) searchIn.javaBlock().program())
+					.getChildAt(0);
+		} else if (searchIn.op() == Op.ALOOP || searchIn.op() == Op.ELOOP) {
+			return collectProgram(searchIn.sub(0), nss);
+		} else if (searchIn.op() == Op.CUPGAME || searchIn.op() == Op.CAPGAME) {
+			try {
+				return TermFactory.getTermFactory(
+						DLOptionBean.INSTANCE.getTermFactoryClass(), nss)
+						.createChoice(collectProgram(searchIn.sub(0), nss),
+								collectProgram(searchIn.sub(1), nss));
+			} catch (InvocationTargetException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (InstantiationException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (NoSuchMethodException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		} else if (searchIn.op() == Op.SEQGAME) {
+			try {
+				return TermFactory.getTermFactory(
+						DLOptionBean.INSTANCE.getTermFactoryClass(), nss)
+						.createChop(collectProgram(searchIn.sub(0), nss),
+								collectProgram(searchIn.sub(1), nss));
+			} catch (InvocationTargetException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (InstantiationException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (NoSuchMethodException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return null;
 	}
 
 	public Term universalClosure(DLProgram program, Term post,
@@ -295,12 +357,12 @@ public class DLUniversalClosureOp extends AbstractMetaOperator {
 				String name = pvar.getElementName().toString();
 				LogicVariable var = searchFreeVar(services, name);
 				if(pvar instanceof de.uka.ilkd.key.logic.op.ProgramVariable) {
-					post = TermBuilder.DF.all(var, TermFactory.DEFAULT
+					post = TermBuilder.DF.all(var, de.uka.ilkd.key.logic.TermFactory.DEFAULT
 							.createUpdateTerm(TermBuilder.DF
 									.var((ProgramVariable) pvar),
 									TermBuilder.DF.var(var), post));
 				} else {
-					post = TermBuilder.DF.all(var, TermFactory.DEFAULT
+					post = TermBuilder.DF.all(var, de.uka.ilkd.key.logic.TermFactory.DEFAULT
 							.createUpdateTerm(TermBuilder.DF
 									.var((ProgramVariable) services.getNamespaces()
 											.lookup(new Name(name))),
