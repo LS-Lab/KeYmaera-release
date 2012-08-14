@@ -2,189 +2,277 @@
 <description>
 	<welcometext>
 		Welcome to the KeYmaera tutorial overview...
-
-		<![CDATA[
-		<h2>Overview</h2>
-
-		<h3>Hybrid Programs</h3>
-<table class="syntax">
-  
-<tr>
-<td colspan="3" id="HP"><b>Hybrid programs</b>, with typical names <kbd>&alpha;</kbd> and <kbd>&beta;</kbd>, are defined by the following syntax:</td>
-</tr>
-	
-<tr>
-	<td></td><td><kbd>&alpha;; &beta;</kbd></td><td><em>Sequential composition</em> that runs <kbd>&alpha;</kbd> first and then <kbd>&beta;</kbd> after <kbd>&alpha;</kbd> stops (<kbd>&beta;</kbd> never starts if <kbd>&alpha;</kbd> never stops)</td>
-</tr> 
-<!--	<tr><td/><td><kbd>&#945;@invariant(&#966;)*</kbd> </td><td>Non-deterministic repetition with attached invariant constraint <kbd>&#966;</kbd></td></tr>  -->
-	
-<tr>
-<td></td><td><kbd>x:=t</kbd> </td><td><em>Discrete assignment/jump</em> assigning the value of term <kbd>t</kbd> to <kbd>x</kbd></td>
-</tr>
-	
-<tr>
-<td></td><td><kbd>x:=*</kbd> </td><td><em>Random assignment</em> assigns any real value to <kbd>x</kbd>, non-deterministically</td>
-</tr>
-	
-<tr>
-<td></td><td><kbd><span class="keyword">if</span>(H)&nbsp;<span class="keyword">then</span>&nbsp;&alpha;&nbsp;<span class="keyword">fi</span></kbd> </td><td><em>If-then</em> statement, performs <kbd>&alpha;</kbd> if formula/condition <kbd>H</kbd> holds at current state and does nothing otherwise</td>
-</tr>
-	
-<tr>
-<td></td><td><kbd><span class="keyword">if</span>(H)&nbsp;<span class="keyword">then</span>&nbsp;&alpha;&nbsp;<span class="keyword">else</span>&nbsp;&beta;&nbsp;<span class="keyword">fi</span></kbd></td><td><em>If-then-else</em> statement, performs <kbd>&alpha;</kbd> if <kbd>H</kbd> holds at current state and performs <kbd>&beta;</kbd> otherwise</td>
-</tr>
-	
-<tr>
-<td></td><td><kbd>?H</kbd> </td><td><em>State assertion</em> testing whether formula <kbd>H</kbd> is true in current state (otherwise abort)</td>
-</tr>
-	
-<tr>
-<td></td><td><kbd>&alpha; ++ &beta;</kbd></td><td><em>Non-deterministic choice</em> following either alternative   <kbd>&alpha;</kbd> or <kbd>&beta;</kbd></td>
-</tr>
-	
-<tr>
-<td></td><td><kbd><span class="keyword">while</span>(H)&nbsp;&alpha;&nbsp;<span class="keyword">end</span></kbd></td><td><em>While loop</em>, repeats <kbd>&alpha;</kbd> as long as <kbd>H</kbd> holds, stops before doing <kbd>&alpha;</kbd> only if <kbd>H</kbd> is false
-	 (<kbd>&alpha;</kbd> will not be stopped in the middle just because <kbd>H</kbd> becomes false at some intermediate state during <kbd>&alpha;</kbd>).</td>
-</tr>
-	
-<tr>
-<td></td><td><kbd>&alpha;<sup>*</sup></kbd> </td><td><em>Non-deterministic repetition</em>, repeating <kbd>&alpha;</kbd> arbitrarily often including 0 times</td>
-</tr>
-	
-<tr>
-<td></td><td><kbd>{x'=t,y'=s,&nbsp;H}</kbd> </td><td><em>Continuous evolution</em> along <em>differential equation system</em> with terms <kbd>t,s</kbd>, optionally with <em>evolution domain constraint</em> <kbd>H</kbd>.
-	This domain constraint <kbd>H</kbd> needs to be true <em>at every time</em> during the evolution, otherwise the system needs to stop following this continuous mode and move on.
-	You can use systems of differential equations, differential-algebraic equations, differential inequalities, and differential equations with disturbances.</td>
-</tr>
-	
-<tr>
-<td></td><td><kbd>{x'=t,y'&lt;=s,y'&gt;=r,&nbsp;H}</kbd> </td><td><em>Continuous evolution</em> along <em>system of differential equations and differential inequalities</em> with terms <kbd>t,s,r</kbd>, optionally with evolution domain <kbd>H</kbd>. The time-derivative of <kbd>y</kbd> needs to stay within <kbd>r</kbd> and <kbd>s</kbd> all the time.</td>
-</tr>
-	
-<tr>
-<td></td><td><kbd>{<span class="keyword">\exists</span>&nbsp;R&nbsp;u;&nbsp;(x'=t &amp; y'=s&nbsp;&amp;&nbsp;H)}</kbd> </td><td><em>Continuous evolution</em> along <em>system of differential-algebraic equations</em> with disturbance <kbd>u</kbd> (which may occur in the terms <kbd>t,s</kbd> and formula <kbd>H</kbd>), optionally with evolution domain <kbd>H</kbd>.</td>
-</tr>
-	
-<tr>
-<td></td><td id="vardecl"><kbd><span class="X:primitiveType">R</span> x</kbd> </td><td><em>Variable declaration</em>, declaring <kbd>x</kbd> as a real variable (either a state variable or auxiliary variable).
-	<!-- We recommend that variable names start with lowercase letters. --></td>
-</tr>
-	
-<tr>
-<td></td><td><kbd><span class="X:primitiveType">R</span> x, y, z</kbd> </td><td><em>Variable declaration</em>, declaring <kbd>x</kbd>, <kbd>y</kbd>, and <kbd>z</kbd> as real variables</td>
-</tr>
-	
-<tr>
-<td colspan="3">where <kbd>H</kbd> is a formula of (possibly non-linear) real arithmetic (possibly including quantifiers, but no modalities).</td>
-</tr>
-
-</table>
-
-<h3>Formulas</h3>
-<table class="syntax">
-  
-<tr>
-<td colspan="3" id="syntax"><b>Formulas of <a href="../logic/dL.html" title="Differential Dynamic Logic for Hybrid Systems">dL</a></b>, with typical names <kbd>&phi;</kbd> and <kbd>&psi;</kbd>, are defined by the following syntax</td>
-</tr>
-  
-<tr>
-<td>&phi;&nbsp;::=</td> 
-	<td>
-	<kbd><span class="keyword">\forall</span>&nbsp;R&nbsp;x;&nbsp;&phi;</kbd>
-	</td>
-	<td><em>Universal quantifier</em>: for all real values for variable <kbd>x</kbd>, formula <kbd>&phi;</kbd> holds</td>
-	
-</tr>
-	
-<tr>
-	
-<td></td>
-	<td><kbd><span class="keyword">\exists</span>&nbsp;R&nbsp;x;&nbsp;&phi;</kbd></td>
-	<td><em>Existential quantifier</em>: for some real value for variable <kbd>x</kbd>, formula <kbd>&phi;</kbd> holds</td>
-	
-</tr>
-	
-<tr>
-<td></td><td><kbd>!&phi;</kbd></td><td><em>Negation</em> (not)</td>
-</tr> 
-	
-<tr>
-<td></td><td><kbd>&phi; &amp; &psi;</kbd></td><td><em>Conjunction</em> (and)</td>
-</tr> 
-	
-<tr>
-<td></td><td><kbd>&phi; | &psi;</kbd></td><td><em>Disjunction</em> (or)</td>
-</tr>
-	
-<tr>
-<td></td><td><kbd>&phi;&nbsp;-&gt;&nbsp;&psi;</kbd></td><td><em>Implication</em> (implication)</td>
-</tr>
-	
-<tr>
-<td></td><td><kbd>&phi;&nbsp;&lt;-&gt;&nbsp;&psi;</kbd></td><td><em>Biimplication</em> (equivalence)</td>
-</tr>
-	
-<tr>
-<td></td><td><kbd>\[<a href="#HP">&alpha;</a>\] &phi;</kbd></td><td><em>Box-modality</em>: After all runs of <a href="#HP">hybrid program</a> <kbd>&alpha;</kbd>, formula <kbd>&phi;</kbd> holds (safety)</td>
-</tr>
-	
-<tr>
-<td></td><td><kbd>\&lt;<a href="#HP">&alpha;</a>\&gt; &phi;</kbd></td><td><em>Diamond-modality</em>: There is at least one run of <a href="#HP">hybrid program</a> <kbd>&alpha;</kbd>, after which formula <kbd>&phi;</kbd> holds (liveness)</td>
-</tr>
-	
-<tr>
-<td></td><td><kbd>\[[<a href="#HP">&alpha;</a>\]] &phi;</kbd></td><td><em>Temporal-box-modality</em>: During all runs of <a href="#HP">hybrid program</a> <kbd>&alpha;</kbd>, formula <kbd>&phi;</kbd> holds (safety throughout)</td>
-</tr>
-	
-<tr>
-<td></td><td><a href="#predicate">pred</a></td> <td><a href="#predicate">Real arithmetic predicate expression</a></td>
-</tr>
-<tr>
-<td id="term" colspan="3"><b>Real arithmetic terms</b>, with typical names <kbd>s</kbd> and <kbd>t</kbd>, are defined by the following syntax</td>
-</tr>
-	
-<tr>
-<td>t&nbsp;::= </td><td><kbd>t + s</kbd></td><td>Addition</td>
-</tr>
-	
-<tr>
-<td></td><td><kbd>t - s</kbd></td><td>Subtraction</td>
-</tr> 
-	
-<tr>
-<td></td><td><kbd>t * s</kbd></td><td>Multiplication</td>
-</tr> 
-	
-<tr>
-<td></td><td><kbd>t / s</kbd></td><td>Division</td>
-</tr> 
-	
-<tr>
-<td></td><td><kbd>t^n</kbd></td><td>Power with integer <kbd>n</kbd></td>
-</tr> 
-	
-<tr>
-<td></td><td><kbd>- s</kbd></td><td>Minus</td>
-</tr> 
-	
-<tr>
-<td></td><td><kbd>f(t1,...,tn)</kbd></td><td>Function application</td>
-</tr> 
-	
-<tr>
-<td></td><td>VARIABLE</td><td>An arbitrary variable identifier (that <a href="#vardecl">has been declared</a>)</td>
-</tr> 
-	
-<tr>
-<td></td><td>NUMBER</td><td>An arbitrary decimal number</td>
-</tr>
-
-</table>
-</table>
-
-		]]>
 	</welcometext>
 	<tutorials>
+		<tutorial name="Overview">
+			<description>
+				Overview over the KeYmaera input format
+			</description>
+			<exercise>
+				<title>Input File Format</title>
+				<description>
+					<![CDATA[
+					<h3 id="keymaerafile">Structure of KeYmaera Problem Specification File</h3>
+
+					<p>
+					A <kbd>.key</kbd> input file for KeYmaera specifies both the operational model of your hybrid system (using the notation of hybrid programs)
+					and the correctness property that you want to verify.
+					The verification problem is specified in a block called <kbd><span class="keyword">\problem</span> {...}</kbd> that contains the problem description as a <a href="#sec:dL">formula</a>.
+					This block contains a single formula of <a href="../logic/dL.html" title="Differential Dynamic Logic for Hybrid Systems">differential dynamic logic&nbsp;(dL)</a>.
+					For instance, this formula can characterise the initial state of the system using implications,
+					the operational system specification using hybrid programs,
+					and the safety/liveness/reactivity/controllability properties to show using modalities.
+					</p>
+
+					<p>
+					The .key file format is quite flexible (there is a <a href="http://dx.doi.org/10.1007/978-3-540-69061-0_17">full description of KeY files</a> with all details except the <a href="#sec:dL">description of logical formulas in KeYmaera</a>).
+					The canonical case has the following form
+					</p>
+
+					<pre>
+	<span class="keyword">\sorts</span> {
+	  /* declare two additional sorts C and D */
+	  <span class="primitiveType">C</span>;
+	  <span class="primitiveType">D</span>;
+	}
+	<span class="keyword">\functions</span> {
+	  <span class="comment">/* symbolic parameter declarations */</span>
+	  <span class="comment">/* they cannot change their values at runtime */</span>
+	  <span class="primitiveType">R</span> para1;
+	  <span class="primitiveType">R</span> para2;
+	  /* declare a function as external, meaning it should be interpreted */
+	  /* by the arithmetic backends */
+	  \external R Sqrt(R);
+	  /* declare a function that might be updated with 3 parameters */
+	  \nonRigid[Location] C f(R,R,D);
+	}
+
+	<span class="keyword">\programVariables</span> {
+		<span class="comment">/* state variable declarations */</span>
+		<span class="primitiveType">R</span> x;
+		<span class="primitiveType">R</span> y;
+		<span class="primitiveType">R</span> z;
+	}
+
+	<span class="keyword">\problem</span> {
+		<a href="#sec:dL">AFormula</a>
+	}
+					</pre>
+					Here <a href="#sec:dL">AFormula</a> is a formula in differential dynamic logic (dL) following the <a href="#sec:dL">syntax of dL formulas</a>.
+					This logical formula specifies the property that you are interested in.
+					It will also include the system dynamics inside modalities following the <a href="#sec:HP">syntax of hybrid programs</a>.
+					Often (but not always), the formula <a href="#sec:dL">AFormula</a> has the form
+					<center>
+					<kbd>&phi; -&gt; \[&alpha;\] &psi;</kbd>
+					</center>
+					of a safety property where <kbd>&phi;</kbd> is the formula specifying the precondition for the initial state and <kbd>&alpha;</kbd> is the hybrid program describing the system behavior and <kbd>&psi;</kbd> is the formula specifying the postcondition.
+					This formula expresses that, when starting in a state satisfying <kbd>&phi;</kbd>, all behavior of <kbd>&alpha;</kbd> will lead to states satsifying formula <kbd>&psi;</kbd> (safety).
+					Another common case for <a href="#sec:dL">AFormula</a> is
+					<center>
+					<kbd>&phi; -&gt; \&lt;&alpha;\&gt; &psi;</kbd>
+					</center>
+					This formula expresses that, when starting in a state satisfying <kbd>&phi;</kbd>, there is a behavior of system <kbd>&alpha;</kbd> that can lead to a state satsifying formula <kbd>&psi;</kbd>.
+					Several other formulas including quantifiers and nested modalities can be used.
+					See <a href="#sec:dL">syntax of formulas</a> for full details.
+					]]>
+				</description>
+			</exercise>
+			<exercise>
+				<title>Hybrid Programs</title>
+					<description>
+						<![CDATA[
+						<table class="syntax">
+						  
+						<tr>
+						<td colspan="3" id="HP"><b>Hybrid programs</b>, with typical names <kbd>&alpha;</kbd> and <kbd>&beta;</kbd>, are defined by the following syntax:</td>
+						</tr>
+							
+						<tr>
+							<td></td><td><kbd>&alpha;; &beta;</kbd></td><td><em>Sequential composition</em> that runs <kbd>&alpha;</kbd> first and then <kbd>&beta;</kbd> after <kbd>&alpha;</kbd> stops (<kbd>&beta;</kbd> never starts if <kbd>&alpha;</kbd> never stops)</td>
+						</tr> 
+						<!--	<tr><td/><td><kbd>&#945;@invariant(&#966;)*</kbd> </td><td>Non-deterministic repetition with attached invariant constraint <kbd>&#966;</kbd></td></tr>  -->
+							
+						<tr>
+						<td></td><td><kbd>x:=t</kbd> </td><td><em>Discrete assignment/jump</em> assigning the value of term <kbd>t</kbd> to <kbd>x</kbd></td>
+						</tr>
+							
+						<tr>
+						<td></td><td><kbd>x:=*</kbd> </td><td><em>Random assignment</em> assigns any real value to <kbd>x</kbd>, non-deterministically</td>
+						</tr>
+							
+						<tr>
+						<td></td><td><kbd><span class="keyword">if</span>(H)&nbsp;<span class="keyword">then</span>&nbsp;&alpha;&nbsp;<span class="keyword">fi</span></kbd> </td><td><em>If-then</em> statement, performs <kbd>&alpha;</kbd> if formula/condition <kbd>H</kbd> holds at current state and does nothing otherwise</td>
+						</tr>
+							
+						<tr>
+						<td></td><td><kbd><span class="keyword">if</span>(H)&nbsp;<span class="keyword">then</span>&nbsp;&alpha;&nbsp;<span class="keyword">else</span>&nbsp;&beta;&nbsp;<span class="keyword">fi</span></kbd></td><td><em>If-then-else</em> statement, performs <kbd>&alpha;</kbd> if <kbd>H</kbd> holds at current state and performs <kbd>&beta;</kbd> otherwise</td>
+						</tr>
+							
+						<tr>
+						<td></td><td><kbd>?H</kbd> </td><td><em>State assertion</em> testing whether formula <kbd>H</kbd> is true in current state (otherwise abort)</td>
+						</tr>
+							
+						<tr>
+						<td></td><td><kbd>&alpha; ++ &beta;</kbd></td><td><em>Non-deterministic choice</em> following either alternative   <kbd>&alpha;</kbd> or <kbd>&beta;</kbd></td>
+						</tr>
+							
+						<tr>
+						<td></td><td><kbd><span class="keyword">while</span>(H)&nbsp;&alpha;&nbsp;<span class="keyword">end</span></kbd></td><td><em>While loop</em>, repeats <kbd>&alpha;</kbd> as long as <kbd>H</kbd> holds, stops before doing <kbd>&alpha;</kbd> only if <kbd>H</kbd> is false
+							 (<kbd>&alpha;</kbd> will not be stopped in the middle just because <kbd>H</kbd> becomes false at some intermediate state during <kbd>&alpha;</kbd>).</td>
+						</tr>
+							
+						<tr>
+						<td></td><td><kbd>&alpha;<sup>*</sup></kbd> </td><td><em>Non-deterministic repetition</em>, repeating <kbd>&alpha;</kbd> arbitrarily often including 0 times</td>
+						</tr>
+							
+						<tr>
+						<td></td><td><kbd>{x'=t,y'=s,&nbsp;H}</kbd> </td><td><em>Continuous evolution</em> along <em>differential equation system</em> with terms <kbd>t,s</kbd>, optionally with <em>evolution domain constraint</em> <kbd>H</kbd>.
+							This domain constraint <kbd>H</kbd> needs to be true <em>at every time</em> during the evolution, otherwise the system needs to stop following this continuous mode and move on.
+							You can use systems of differential equations, differential-algebraic equations, differential inequalities, and differential equations with disturbances.</td>
+						</tr>
+							
+						<tr>
+						<td></td><td><kbd>{x'=t,y'&lt;=s,y'&gt;=r,&nbsp;H}</kbd> </td><td><em>Continuous evolution</em> along <em>system of differential equations and differential inequalities</em> with terms <kbd>t,s,r</kbd>, optionally with evolution domain <kbd>H</kbd>. The time-derivative of <kbd>y</kbd> needs to stay within <kbd>r</kbd> and <kbd>s</kbd> all the time.</td>
+						</tr>
+							
+						<tr>
+						<td></td><td><kbd>{<span class="keyword">\exists</span>&nbsp;R&nbsp;u;&nbsp;(x'=t &amp; y'=s&nbsp;&amp;&nbsp;H)}</kbd> </td><td><em>Continuous evolution</em> along <em>system of differential-algebraic equations</em> with disturbance <kbd>u</kbd> (which may occur in the terms <kbd>t,s</kbd> and formula <kbd>H</kbd>), optionally with evolution domain <kbd>H</kbd>.</td>
+						</tr>
+							
+						<tr>
+						<td></td><td id="vardecl"><kbd><span class="X:primitiveType">R</span> x</kbd> </td><td><em>Variable declaration</em>, declaring <kbd>x</kbd> as a real variable (either a state variable or auxiliary variable).
+							<!-- We recommend that variable names start with lowercase letters. --></td>
+						</tr>
+							
+						<tr>
+						<td></td><td><kbd><span class="X:primitiveType">R</span> x, y, z</kbd> </td><td><em>Variable declaration</em>, declaring <kbd>x</kbd>, <kbd>y</kbd>, and <kbd>z</kbd> as real variables</td>
+						</tr>
+							
+						<tr>
+						<td colspan="3">where <kbd>H</kbd> is a formula of (possibly non-linear) real arithmetic (possibly including quantifiers, but no modalities).</td>
+						</tr>
+
+						</table>
+						]]>
+					</description>
+			</exercise>
+			<exercise>
+				<title>Formulas</title>
+				<description>
+					<![CDATA[
+					<table class="syntax">
+					  
+					<tr>
+					<td colspan="3" id="syntax"><b>Formulas of <a href="../logic/dL.html" title="Differential Dynamic Logic for Hybrid Systems">dL</a></b>, with typical names <kbd>&phi;</kbd> and <kbd>&psi;</kbd>, are defined by the following syntax</td>
+					</tr>
+					  
+					<tr>
+					<td></td> 
+						<td>
+						<kbd><span class="keyword">\forall</span>&nbsp;R&nbsp;x;&nbsp;&phi;</kbd>
+						</td>
+						<td><em>Universal quantifier</em>: for all real values for variable <kbd>x</kbd>, formula <kbd>&phi;</kbd> holds</td>
+						
+					</tr>
+						
+					<tr>
+						
+					<td></td>
+						<td><kbd><span class="keyword">\exists</span>&nbsp;R&nbsp;x;&nbsp;&phi;</kbd></td>
+						<td><em>Existential quantifier</em>: for some real value for variable <kbd>x</kbd>, formula <kbd>&phi;</kbd> holds</td>
+						
+					</tr>
+						
+					<tr>
+					<td></td><td><kbd>!&phi;</kbd></td><td><em>Negation</em> (not)</td>
+					</tr> 
+						
+					<tr>
+					<td></td><td><kbd>&phi; &amp; &psi;</kbd></td><td><em>Conjunction</em> (and)</td>
+					</tr> 
+						
+					<tr>
+					<td></td><td><kbd>&phi; | &psi;</kbd></td><td><em>Disjunction</em> (or)</td>
+					</tr>
+						
+					<tr>
+					<td></td><td><kbd>&phi;&nbsp;-&gt;&nbsp;&psi;</kbd></td><td><em>Implication</em> (implication)</td>
+					</tr>
+						
+					<tr>
+					<td></td><td><kbd>&phi;&nbsp;&lt;-&gt;&nbsp;&psi;</kbd></td><td><em>Biimplication</em> (equivalence)</td>
+					</tr>
+						
+					<tr>
+					<td></td><td><kbd>\[<a href="#HP">&alpha;</a>\] &phi;</kbd></td><td><em>Box-modality</em>: After all runs of <a href="#HP">hybrid program</a> <kbd>&alpha;</kbd>, formula <kbd>&phi;</kbd> holds (safety)</td>
+					</tr>
+						
+					<tr>
+					<td></td><td><kbd>\&lt;<a href="#HP">&alpha;</a>\&gt; &phi;</kbd></td><td><em>Diamond-modality</em>: There is at least one run of <a href="#HP">hybrid program</a> <kbd>&alpha;</kbd>, after which formula <kbd>&phi;</kbd> holds (liveness)</td>
+					</tr>
+						
+					<tr>
+					<td></td><td><kbd>\[[<a href="#HP">&alpha;</a>\]] &phi;</kbd></td><td><em>Temporal-box-modality</em>: During all runs of <a href="#HP">hybrid program</a> <kbd>&alpha;</kbd>, formula <kbd>&phi;</kbd> holds (safety throughout)</td>
+					</tr>
+						
+					<tr>
+					<td></td><td><a href="#predicate">pred</a></td> <td><a href="#predicate">Real arithmetic predicate expression</a></td>
+					</tr>
+						]]>
+					</description>
+			</exercise>
+			<exercise>
+				<title>Terms</title>
+				<description>
+					<![CDATA[
+					<table class="syntax">
+					<tr>
+					<td id="term" colspan="3"><b>Real arithmetic terms</b>, with typical names <kbd>s</kbd> and <kbd>t</kbd>, are defined by the following syntax</td>
+					</tr>
+						
+					<tr>
+					<td></td><td><kbd>t + s</kbd></td><td>Addition</td>
+					</tr>
+						
+					<tr>
+					<td></td><td><kbd>t - s</kbd></td><td>Subtraction</td>
+					</tr> 
+						
+					<tr>
+					<td></td><td><kbd>t * s</kbd></td><td>Multiplication</td>
+					</tr> 
+						
+					<tr>
+					<td></td><td><kbd>t / s</kbd></td><td>Division</td>
+					</tr> 
+						
+					<tr>
+					<td></td><td><kbd>t^n</kbd></td><td>Power with integer <kbd>n</kbd></td>
+					</tr> 
+						
+					<tr>
+					<td></td><td><kbd>- s</kbd></td><td>Minus</td>
+					</tr> 
+						
+					<tr>
+					<td></td><td><kbd>f(t1,...,tn)</kbd></td><td>Function application</td>
+					</tr> 
+						
+					<tr>
+					<td></td><td>VARIABLE</td><td>An arbitrary variable identifier (that <a href="#vardecl">has been declared</a>)</td>
+					</tr> 
+						
+					<tr>
+					<td></td><td>NUMBER</td><td>An arbitrary decimal number</td>
+					</tr>
+
+					</table>
+					</table>
+
+					]]>
+				</description>
+			</exercise>
+		</tutorial>
 		<tutorial name="Verified Software Summer School 2012">
 			<description>
 				This tutorial contains the exercises used at the Verified Software Summer School 2012.
