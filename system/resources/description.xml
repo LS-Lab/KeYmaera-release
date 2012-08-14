@@ -11,6 +11,13 @@
     								<proof name="Reduce" href="/examples/hybrid/tutorial/lics1-continuous-forward.key.redlog.proof"/>
     								<proof name="Mathematica" href="/examples/hybrid/tutorial/lics1-continuous-forward.key.mathematica.proof"/>
     							</proofs>
+                				<authors>
+                					<author>platzer</author>
+                				</authors>
+                				<proofauthors>
+                					<author>platzer</author>
+                				</proofauthors>
+                				<publication>DBLP:conf/lics/Platzer12a</publication> 
                 <description>LICS Tutorial Example 1: Modeling a safety property of a continuous system. This is a simple system in which a car starts at some velocity v and accelerates at constant rate A along a straight lane.  The requirement we want to prove is that the car may never travel backward, i.e. for all time, in all scenarios v is greater than or equal to zero. 
      </description>
                 <source href="http://symbolaris.com/info/KeYmaera-tutorial.html"/>
@@ -32,6 +39,13 @@
     								<proof name="Reduce" href="/examples/hybrid/tutorial/lics2-hybrid-forward.key.redlog.proof"/>
     								<proof name="Mathematica" href="/examples/hybrid/tutorial/lics2-hybrid-forward.key.mathematica.proof"/>
     							</proofs>
+                				<authors>
+                					<author>platzer</author>
+                				</authors>
+                				<proofauthors>
+                					<author>platzer</author>
+                				</proofauthors>
+                				<publication>DBLP:conf/lics/Platzer12a</publication> 
                 <description>LICS Tutorial Example 2: Modeling a safety property of a hybrid system. In this example, we introduce a discrete controller into the model of the continuous system in Example 1. The controller has only two options: it may cause the car to accelerate with rate A or brake with rate -b.
     </description>
                 <source href="http://symbolaris.com/info/KeYmaera-tutorial.html"/>
@@ -51,6 +65,13 @@
     								<proof name="Reduce" href="/examples/hybrid/tutorial/lics3a-event-forward.key.redlog.proof"/>
     								<proof name="Mathematica" href="/examples/hybrid/tutorial/lics3a-event-forward.key.mathematica.proof"/>
     							</proofs>
+                				<authors>
+                					<author>platzer</author>
+                				</authors>
+                				<proofauthors>
+                					<author>platzer</author>
+                				</proofauthors>
+                				<publication>DBLP:conf/lics/Platzer12a</publication> 
                 <description>LICS Tutorial Example 3a: While the car is driving down the lane, the controller must choose when to begin decelerating so that it stops at or before a stop sign.  We add an additional constraint to the evolution domain to model an event triggered system.  In this case, the event-trigger is when the distance between the car and the stop sign equals the stopping distance of the car. This example shows that the system still can never travel backwards.
     </description>
                 <source href="http://symbolaris.com/info/KeYmaera-tutorial.html"/>
@@ -68,6 +89,13 @@
             								<proof name="Reduce" href="/examples/hybrid/tutorial/lics3c-event-safe-stuck.key.redlog.proof"/>
             								<proof name="Mathematica" href="/examples/hybrid/tutorial/lics3c-event-safe-stuck.key.mathematica.proof"/>
             							</proofs>
+                        				<authors>
+                        					<author>platzer</author>
+                        				</authors>
+                        				<proofauthors>
+                        					<author>platzer</author>
+                        				</proofauthors>
+                        				<publication>DBLP:conf/lics/Platzer12a</publication> 
                         <description>LICS Tutorial Example 3c: While the car is driving down the lane, the controller must choose when to begin decelerating so that it stops at or before a stop sign.  We add an additional constraint to the evolution domain to model an event triggered system.  In this case, the event-trigger is when the distance between the car and the stop sign equals the stopping distance of the car.  Because of the evolution domain constraint, this system might get stuck, however.
             </description>
                         <source href="http://symbolaris.com/info/KeYmaera-tutorial.html"/>
@@ -85,6 +113,13 @@
     								<proof name="Reduce" href="/examples/hybrid/tutorial/lics4a-time-safe.key.redlog.proof"/>
     								<proof name="Mathematica" href="/examples/hybrid/tutorial/lics4a-time-safe.key.mathematica.proof"/>
     							</proofs>
+                				<authors>
+                					<author>platzer</author>
+                				</authors>
+                				<proofauthors>
+                					<author>platzer</author>
+                				</proofauthors>
+                				<publication>DBLP:conf/lics/Platzer12a</publication> 
                 <description>LICS Tutorial Example 4a: In a realistic system, the sensors on the car would take periodic measurements of position and velocity and the controller would execute each time those sensor updates are taken. We continue with the single car travelling toward a stop sign, receiving periodic updates about its position and velocity.  The time between sensor updates is bounded by ep.</description>
                 <source href="http://symbolaris.com/info/KeYmaera-tutorial.html"/>
                 <requirements>
@@ -101,6 +136,13 @@
     								<proof name="Reduce" href="/examples/hybrid/tutorial/lics4c-time-safe-relative.key.redlog.proof"/>
     								<proof name="Mathematica" href="/examples/hybrid/tutorial/lics4c-time-safe-relative.key.mathematica.proof"/>
     							</proofs>
+                				<authors>
+                					<author>platzer</author>
+                				</authors>
+                				<proofauthors>
+                					<author>platzer</author>
+                				</proofauthors>
+                				<publication>DBLP:conf/lics/Platzer12a</publication> 
                 <description>LICS Tutorial Example 4c: In a realistic system, the sensors on the car would take periodic measurements of position and velocity and the controller would execute each time those sensor updates are taken. We continue with the single car travelling toward a stop sign, receiving periodic updates about its position and velocity.  The time between sensor updates is bounded by ep. Proves that the car controller will always make the car stay before the traffic light if braking would.
 To prove quickly, instantiate the time quantifier in the antecedent by the time variable of the succedent (e.g. t5_0).</description>
                 <source href="http://symbolaris.com/info/KeYmaera-tutorial.html"/>
@@ -118,7 +160,13 @@ To prove quickly, instantiate the time quantifier in the antecedent by the time 
                 								<proof name="Reduce" href="/examples/hybrid/tutorial/lics5-controllability-equivalence.key.redlog.proof"/>
                 								<proof name="Mathematica" href="/examples/hybrid/tutorial/lics5-controllability-equivalence.key.mathematica.proof"/>
                 							</proofs>
-                							
+                            				<authors>
+                            					<author>platzer</author>
+                            				</authors>
+                            				<proofauthors>
+                            					<author>platzer</author>
+                            				</proofauthors>
+                            				<publication>DBLP:conf/lics/Platzer12a</publication> 
                             <description>LICS Tutorial Example 5: Proves that the controllability constraint is equivalent to braking being safe for all future. That is, a car can brake safely and can always stay in front of traffic light m if and only if the arithmetic constraint v^2&lt;=2b(m-x) holds currently.</description>
                             <source href="http://symbolaris.com/info/KeYmaera-tutorial.html"/>
                             <requirements>
@@ -134,6 +182,13 @@ To prove quickly, instantiate the time quantifier in the antecedent by the time 
                             				<proofs>
                 								<proof name="Mathematica" href="/examples/hybrid/tutorial/lics6-MPC-acceleration-equivalence.key.mathematica.proof"/>
                 							</proofs>
+                            				<authors>
+                            					<author>platzer</author>
+                            				</authors>
+                            				<proofauthors>
+                            					<author>platzer</author>
+                            				</proofauthors>
+                            				<publication>DBLP:conf/lics/Platzer12a</publication> 
                             <description>LICS Tutorial Example 6: Proves that the acceleration constraint is equivalent to braking being safe after accelerating for at most ep time units. That is, a car can accelerate for up to ep time units and then brake safely and will always stay in front of traffic light m if and only if the arithmetic constraint on acceleration holds currently.</description>
                             <source href="http://symbolaris.com/info/KeYmaera-tutorial.html"/>
                             <requirements>
@@ -149,6 +204,13 @@ To prove quickly, instantiate the time quantifier in the antecedent by the time 
                 								<proof name="Mathematica" href="/examples/hybrid/tutorial/lics7-MPC.key.proof"/>
                 								<proof name="Reduce" href="/examples/hybrid/tutorial/lics7-MPC.key.redlog.proof"/>
                 							</proofs>
+                            				<authors>
+                            					<author>platzer</author>
+                            				</authors>
+                            				<proofauthors>
+                            					<author>platzer</author>
+                            				</proofauthors>
+                            				<publication>DBLP:conf/lics/Platzer12a</publication> 
                             <description>LICS Tutorial Example 7: Model-predictive control version of time-triggered car control. We continue with the single car travelling toward a stop sign, receiving periodic updates about its position and velocity.  The time between sensor updates is bounded by ep. Proves that the car controller will always make the car stay before the traffic light if braking would, with a model-predictive control choice for the acceleration / braking decision.
 For an easy proof, before solving differential equations in the acceleration case (Case 1), drag the succedent to the first differential equation in the antecedent to differentially refine the antecedent of the acceleration case to be as in the conclusion, i.e., including v>=0.</description>
                             <source href="http://symbolaris.com/info/KeYmaera-tutorial.html"/>
@@ -279,6 +341,7 @@ For an easy proof, before solving differential equations in the acceleration cas
 					<proof name="Mathematica" href="/examples/hybrid/ETCS/safety/ETCS-simple.key.proof"/>
 					<proof name="SMT" href="/examples/hybrid/ETCS/safety/ETCS-simple.key.z3.proof"/>
 				</proofs>
+				<publication>Platzer10</publication>
 				<description>Essentials of the ETCS train control protocol. This example proves that a train never leaves its movement authority (MA=m) and, thus, cannot crash into other trains. Please note, that this is the simplest possible version of the safety requirement for the ETCS. The verification of the ETCS system itself requires a much more advanced model.
 Proves equation (2.19)</description>
 				<img 
@@ -300,6 +363,13 @@ Proves equation (2.19)</description>
 					<proof name="Mathematica" href="/examples/hybrid/ETCS/safety/ETCS-essentials.key.proof"/>
 					<proof name="SMT" href="/examples/hybrid/ETCS/safety/ETCS-essentials.key.z3.proof"/>
 				</proofs>
+				<authors>
+					<author>platzer</author>
+				</authors>
+				<proofauthors>
+					<author>platzer</author>
+				</proofauthors>
+				<publication>DBLP:journals/jar/Platzer08</publication> 
 				<description>Essentials of the ETCS train control protocol. This example proves that a train never leaves its movement authority (MA=m) and, thus, cannot crash into other trains. Please note, that this is the simplest possible version of the safety requirement for the ETCS. The verification of the ETCS system itself requires a much more advanced model.</description>
 				<img 
 					href="http://symbolaris.com/info/ETCS-MAProtocol-c.gif"/>
@@ -320,6 +390,13 @@ Proves equation (2.19)</description>
 							<proof name="Mathematica" href="/examples/hybrid/ETCS/safety/ETCS-simple-tutorial.key.proof"/>
 							<proof name="SMT" href="/examples/hybrid/ETCS/safety/ETCS-simple-tutorial.key.z3.proof"/>
 						</proofs>
+        				<authors>
+        					<author>platzer</author>
+        				</authors>
+        				<proofauthors>
+        					<author>platzer</author>
+        				</proofauthors>
+        				<publication>DBLP:conf/cav/Platzer11</publication> 
           				<description>Essentials of the ETCS train control protocol. This example proves that a train never leaves its movement authority (MA=m) and, thus, cannot crash into other trains. Please note, that this is the simplest possible version of the safety requirement for the ETCS. The verification of the ETCS system itself requires a much more advanced model.</description>
           				<img 
           					href="http://symbolaris.com/info/ETCS-MAProtocol-c.gif"/>
@@ -340,6 +417,13 @@ Proves equation (2.19)</description>
 										<proof name="Mathematica" href="/examples/hybrid/ETCS/safety/ETCS-essentials-tout.key.proof"/>
 										<proof name="SMT" href="/examples/hybrid/ETCS/safety/ETCS-essentials-tout.key.z3.proof"/>
 									</proofs>
+                    				<authors>
+                    					<author>platzer</author>
+                    				</authors>
+                    				<proofauthors>
+                    					<author>platzer</author>
+                    				</proofauthors>
+                    				<publication>Platzer10</publication> 
                     				<description>Essentials of the ETCS train control protocol with temporal throughout modality [][]. This example proves that a train never leaves its movement authority (MA=m) and, thus, cannot crash into other trains. Please note, that this is the simplest possible version of the safety requirement for the ETCS. The verification of the ETCS system itself requires a much more advanced model.
 Proves dTL variant of equation (2.19) with [][] instead of []</description>
                     				<img 
@@ -357,6 +441,9 @@ Proves dTL variant of equation (2.19) with [][] instead of []</description>
 			<example>
 				<name>ETCS Train Control [controllability]</name>
 				<path>/examples/hybrid/ETCS/paper/controllability-lemma.key</path>
+				<proofs>
+					<proof name="Mathematica" href="/examples/hybrid/ETCS/paper/controllability-lemma.key.proof"/>
+				</proofs>
 				<authors>
 					<author>platzer</author>
 					<author>quesel</author>
@@ -414,8 +501,8 @@ Proves Proposition 7.5
     				<name>ETCS Train Control [bug]</name>
     				<path>/examples/hybrid/ETCS/safety/ETCS-essentials-bug0.key</path>
     				<description>A buggy version of the essentials of the ETCS train control protocol. This example (incorrectly) claims that a train in a buggy system never leaves its movement authority (MA=m) and, thus, cannot crash into other trains.
-Bug 1: the precondition of the initial state of the system is not strong enough and should be v^2&lt;2*b*(m-z).
-Bug 2: The constraint for acceleration is too lax and should be m-z>SB. The bugs can be found during the search with invariants v^2&lt;=2*b*(m-z) and v^2&lt;2*b*(m-z), respectively.</description>
+Bug 1: the precondition of the initial state of the system is not strong enough and should be v^2&amp;lt;2*b*(m-z).
+Bug 2: The constraint for acceleration is too lax and should be m-z>SB. The bugs can be found during the search with invariants v^2&amp;lt;=2*b*(m-z) and v^2&amp;lt;2*b*(m-z), respectively.</description>
     				<img 
     					href="http://symbolaris.com/info/ETCS-MAProtocol-c.gif"/>
         			<source href="http://symbolaris.com/lahs/"/>
@@ -620,6 +707,7 @@ Proves Proposition 7.9 (see book for how to prove)
 				<proofauthors>
 					<author>platzer</author>
 				</proofauthors>
+				<publication>DBLP:journals/logcom/Platzer10</publication> 
 				<description>Essentials of the tangential roundabout maneuver (TRM) for collision avoidance in air traffic control. This example proves that TRM always separates aircraft by at least the protected zone. Please note, that this is the simplest possible version of the safety requirement for the TRM. The verification of the TRM system itself requires a much more advanced model.
 Proves Theorem 3.4</description>
 				<img 
@@ -641,6 +729,7 @@ Proves Theorem 3.4</description>
 				<proofauthors>
 					<author>platzer</author>
 				</proofauthors>
+				<publication>DBLP:journals/logcom/Platzer10</publication> 
 				<description>Essentials of the tangential roundabout maneuver (TRM) for collision avoidance in air traffic control. This example proves that TRM always separates aircraft by at least the protected zone. Please note, that this is the simplest possible version of the safety requirement for the TRM. The verification of the TRM system itself requires a much more advanced model.
 Proves Theorem 3.4</description>
 				<img 
@@ -662,6 +751,7 @@ Proves Theorem 3.4</description>
 				<proofauthors>
 					<author>platzer</author>
 				</proofauthors>
+				<publication>DBLP:conf/cav/PlatzerC08</publication> 
 				<description>Essentials of the tangential roundabout maneuver (TRM) for collision avoidance in air traffic control with 3 aircraft. This example proves that TRM always separates aircraft by at least the protected zone. Please note, that this is the simplest possible version of the safety requirement for the TRM. The verification of the TRM system itself requires a much more advanced model.
 Proves Section 8.2.4</description>
 				<source href="http://symbolaris.com/info/RCAS.html"/>
@@ -682,6 +772,7 @@ Proves Section 8.2.4</description>
 				<proofauthors>
 					<author>platzer</author>
 				</proofauthors>
+				<publication>DBLP:conf/cav/PlatzerC08</publication> 
 				<description>Essentials of the tangential roundabout maneuver (TRM) for collision avoidance in air traffic control with 4 aircraft. This example proves that TRM always separates aircraft by at least the protected zone. Please note, that this is the simplest possible version of the safety requirement for the TRM. The verification of the TRM system itself requires a much more advanced model.
 Proves Figure 8.9</description>
 				<source href="http://symbolaris.com/info/RCAS.html"/>
@@ -698,10 +789,12 @@ Proves Figure 8.9</description>
 				<path>/examples/hybrid/ATC/roundabout/bounded-speed-choice.key</path>
 				<authors>
 					<author>platzer</author>
+					<author>clarke</author>
 				</authors>
 				<proofauthors>
 					<author>platzer</author>
 				</proofauthors>
+				<publication>DBLP:conf/fm/PlatzerC09</publication> 				
 				<description>Shows that the control parameters for the aircraft can be chosen such that resulting speed vectors are in a bounded range meeting external speed requirements of the aircraft.
 Proves equation (3.14)</description>
 				<source href="http://symbolaris.com/info/RCAS.html"/>
@@ -717,10 +810,12 @@ Proves equation (3.14)</description>
 				<path>/examples/hybrid/ATC/roundabout/bounded-angular-linear-speed.key</path>
 				<authors>
 					<author>platzer</author>
+					<author>clarke</author>
 				</authors>
 				<proofauthors>
 					<author>platzer</author>
 				</proofauthors>
+				<publication>DBLP:conf/fm/PlatzerC09</publication> 				
 				<description>Shows that the speed v of the aircraft is maintained even when it changes its angular velocity om nondeterministically during the flight (free flight).
 Proves Example 3.16</description>
 				<source href="http://symbolaris.com/info/RCAS.html"/>
@@ -736,10 +831,12 @@ Proves Example 3.16</description>
 				<path>/examples/hybrid/ATC/roundabout/FTRM-entry-tang-simplified.key</path>
 				<authors>
 					<author>platzer</author>
+					<author>clarke</author>
 				</authors>
 				<proofauthors>
 					<author>platzer</author>
 				</proofauthors>
+				<publication>DBLP:conf/fm/PlatzerC09</publication> 				
 				<description>Shows that the safe tangential configuration is reached by a flyable curve.
 Proves equation (8.3)</description>
 				<source href="http://symbolaris.com/info/RCAS.html"/>
@@ -755,10 +852,12 @@ Proves equation (8.3)</description>
 				<path>/examples/hybrid/ATC/roundabout/FTRM-entry-tang-feasible.key</path>
 				<authors>
 					<author>platzer</author>
+					<author>clarke</author>
 				</authors>
 				<proofauthors>
 					<author>platzer</author>
 				</proofauthors>
+				<publication>DBLP:conf/fm/PlatzerC09</publication> 				
 				<description>Shows that the safe tangential configuration is feasible.
 Proves equation (8.4)</description>
 				<source href="http://symbolaris.com/info/RCAS.html"/>
@@ -774,10 +873,12 @@ Proves equation (8.4)</description>
 				<path>/examples/hybrid/ATC/roundabout/FTRM-entry-tang-circular.key</path>
 				<authors>
 					<author>platzer</author>
+					<author>clarke</author>
 				</authors>
 				<proofauthors>
 					<author>platzer</author>
 				</proofauthors>
+				<publication>DBLP:conf/fm/PlatzerC09</publication> 				
 				<description>Shows that the flyable entry is circular.
 Proves equation (8.6)</description>
 				<source href="http://symbolaris.com/info/RCAS.html"/>
@@ -793,10 +894,12 @@ Proves equation (8.6)</description>
             				<path>/examples/hybrid/ATC/roundabout/linear-progress.key</path>
 							<authors>
 								<author>platzer</author>
+            					<author>clarke</author>
 							</authors>
 							<proofauthors>
 								<author>platzer</author>
 							</proofauthors>
+            				<publication>DBLP:conf/fm/PlatzerC09</publication> 				
             				<description>Shows that, an aircraft can fly beyond any position.
 Proves Example 3.24</description>
             				<source href="http://symbolaris.com/lahs/"/>
@@ -811,10 +914,12 @@ Proves Example 3.24</description>
 				<path>/examples/hybrid/ATC/roundabout/limited-progress.key</path>
 				<authors>
 					<author>platzer</author>
+					<author>clarke</author>
 				</authors>
 				<proofauthors>
 					<author>platzer</author>
 				</proofauthors>
+				<publication>DBLP:conf/fm/PlatzerC09</publication> 				
 				<description>Shows that, regardless of the angular velocities, the aircraft only make limited progress in bounded time when starting with bounded speeds.
 Proves equation (8.9)</description>
 				<source href="http://symbolaris.com/info/RCAS.html"/>
@@ -830,10 +935,12 @@ Proves equation (8.9)</description>
 				<path>/examples/hybrid/ATC/roundabout/FTRM-agree.key</path>
 				<authors>
 					<author>platzer</author>
+					<author>clarke</author>
 				</authors>
 				<proofauthors>
 					<author>platzer</author>
 				</proofauthors>
+				<publication>DBLP:conf/fm/PlatzerC09</publication> 				
 				<description>Shows that there always is a choice of center, radius, and common angular velocity which is feasible.
 Proves equation (8.17)</description>
 				<source href="http://symbolaris.com/info/RCAS.html"/>
@@ -849,10 +956,12 @@ Proves equation (8.17)</description>
 				<path>/examples/hybrid/ATC/roundabout/FTRM-agree-success.key</path>
 				<authors>
 					<author>platzer</author>
+					<author>clarke</author>
 				</authors>
 				<proofauthors>
 					<author>platzer</author>
 				</proofauthors>
+				<publication>DBLP:conf/fm/PlatzerC09</publication> 				
 				<description>Shows that the negotiation is successful.
 Proves equation (8.18)</description>
 				<source href="http://symbolaris.com/info/RCAS.html"/>
@@ -868,10 +977,12 @@ Proves equation (8.18)</description>
 				<path>/examples/hybrid/ATC/roundabout/FTRM-agree-mutual2-all.key</path>
 				<authors>
 					<author>platzer</author>
+					<author>clarke</author>
 				</authors>
 				<proofauthors>
 					<author>platzer</author>
 				</proofauthors>
+				<publication>DBLP:conf/fm/PlatzerC09</publication> 				
 				<description>Shows that the mutual negotiation is successful.
 Proves equation (8.19)</description>
 				<source href="http://symbolaris.com/info/RCAS.html"/>
@@ -887,10 +998,12 @@ Proves equation (8.19)</description>
 				<path>/examples/hybrid/ATC/roundabout/FTRM-agree-mutual2-simplified.key</path>
 				<authors>
 					<author>platzer</author>
+					<author>clarke</author>
 				</authors>
 				<proofauthors>
 					<author>platzer</author>
 				</proofauthors>
+				<publication>DBLP:conf/fm/PlatzerC09</publication> 				
 				<description>Shows that the mutual negotiation is feasible.
 Proves equation (8.21)</description>
 				<source href="http://symbolaris.com/info/RCAS.html"/>
@@ -906,10 +1019,12 @@ Proves equation (8.21)</description>
 				<path>/examples/hybrid/ATC/roundabout/exit-simultaneous-indep-simplified.key</path>
 				<authors>
 					<author>platzer</author>
+					<author>clarke</author>
 				</authors>
 				<proofauthors>
 					<author>platzer</author>
 				</proofauthors>
+				<publication>DBLP:conf/fm/PlatzerC09</publication> 				
 				<description>Shows that the aircraft stay safely separated during the exit maneuver.
 Proves equation (8.27)</description>
 				<source href="http://symbolaris.com/info/RCAS.html"/>
@@ -925,10 +1040,12 @@ Proves equation (8.27)</description>
 				<path>/examples/hybrid/ATC/roundabout/exit-simultaneous-different-directions.key</path>
 				<authors>
 					<author>platzer</author>
+					<author>clarke</author>
 				</authors>
 				<proofauthors>
 					<author>platzer</author>
 				</proofauthors>
+				<publication>DBLP:conf/fm/PlatzerC09</publication> 				
 				<description>Shows that the aircraft will exit in different directions during the exit maneuver.
 Proves equation (8.29)</description>
 				<source href="http://symbolaris.com/info/RCAS.html"/>
@@ -1084,7 +1201,7 @@ Proof requires user interactions.</description>
 					</example>
 				</group>
 		</group>
-		<group name="Bouncing ball">
+		<group name="Bouncing Ball">
             			<example>
             				<name>Bouncing Ball [if]</name>
             				<path>/examples/hybrid/bouncing-ball/bouncing-ball-if.key</path>
@@ -1178,23 +1295,6 @@ Proves equation (4.4)</description>
                                     				</requirements>
                                     			</example>
 		</group>
-		<group name="QdL">
-			<example>
-				<name>Creation</name>
-				<path>/examples/hybrid/qdl/creation.key</path>
-				<description>Simple example of object creation.</description>
-				<authors>
-					<author>platzer</author>
-				</authors>
-				<proofauthors>
-					<author>quesel</author>
-				</proofauthors>
-				<publication>QdL</publication>
-				<proofs>
-					<proof name="Mathematica" href="/examples/hybrid/qdl/creation.key.proof"/>
-				</proofs>
-			</example>
-		</group>
 		<example>
 			<name>Simple Acceleration</name>
 			<path>/examples/hybrid/accel-simple.key</path>
@@ -1261,6 +1361,13 @@ Proves Example C.1</description>
 				<example>
         				<name>Damped Oscillator</name>
         				<path>/examples/hybrid/dynamical/damposc0.key</path>
+        				<authors>
+        					<author>platzer</author>
+        				</authors>
+        				<proofauthors>
+        					<author>platzer</author>
+        				</proofauthors>
+        				<publication>Platzer10</publication> 
         				<description>Damped oscillator.
 Proves Example 3.21</description>
         				<img href="http://symbolaris.com/info/fig-damposc-evo2t-eye.png"/>
@@ -1276,6 +1383,13 @@ Proves Example 3.21</description>
 						<proofs>
 							<proof name="Mathematica" href="/examples/hybrid/switchstab-param.key.proof"/>
 						</proofs>
+        				<authors>
+        					<author>platzer</author>
+        				</authors>
+        				<proofauthors>
+        					<author>platzer</author>
+        				</proofauthors>
+        				<publication>Platzer10</publication> 
 <description>Switched damped oscillator switching between two modes of damped oscillators at some diagonals. Identifies the assumptions on the switching surface taht are required for safety.
 Proof hints: The automatic proof pauses at some point. Then use diffweaken and resume automatic proof. Or use Load Proof.
 Proves Figure 3.19</description>
@@ -1452,6 +1566,12 @@ Contributed by: Solofomampionona Fortunat Rajaona</description>
     	<example>
     		<name>Nonlinear Diffcut</name>
     		<path>/examples/hybrid/dynamical/nonlinear-diffcut.key</path>
+			<authors>
+				<author>platzer</author>
+			</authors>
+			<proofauthors>
+				<author>platzer</author>
+			</proofauthors>
     		<description>Higly nonlinear dynamics example</description>
     		<requirements>
     			<some>
@@ -1461,6 +1581,12 @@ Contributed by: Solofomampionona Fortunat Rajaona</description>
     	<example>
     		<name>Nonlinear 1 Quadratic</name>
     		<path>/examples/hybrid/dynamical/nonlinear1.key</path>
+			<authors>
+				<author>platzer</author>
+			</authors>
+			<proofauthors>
+				<author>platzer</author>
+			</proofauthors>
     		<description>Nonlinear quadratic dynamics example</description>
     		<requirements>
     			<some>
@@ -1470,6 +1596,12 @@ Contributed by: Solofomampionona Fortunat Rajaona</description>
     	<example>
     		<name>Riccati Equation</name>
     		<path>/examples/hybrid/dynamical/Riccati.key</path>
+			<authors>
+				<author>platzer</author>
+			</authors>
+			<proofauthors>
+				<author>platzer</author>
+			</proofauthors>
     		<description>Nonlinear Riccati dynamics example</description>
     		<requirements>
     			<some>
@@ -1477,6 +1609,25 @@ Contributed by: Solofomampionona Fortunat Rajaona</description>
     		</requirements>
     	</example>
     </group>
+	<group name="Distributed Hybrid Systems">
+		<example>
+			<name>Distributed Car Control System [simple]</name>
+			<path>/examples/hybrid/qdl/creation.key</path>
+			<description>Arbitrarily many cars moving with a simple controller on a straight lane with new cars appearing dynamically.</description>
+			<authors>
+				<author>platzer</author>
+			</authors>
+			<proofauthors>
+				<author>quesel</author>
+			</proofauthors>
+			<publication>DBLP:journals/lmcs/Platzer12b</publication>
+			<source href="http://symbolaris.com/logic/disthysys.html"/>
+			<img href="http://symbolaris.com/info/fig-distributed-car-control.png"/>
+			<proofs>
+				<proof name="Mathematica" href="/examples/hybrid/qdl/creation.key.proof"/>
+			</proofs>
+		</example>
+	</group>
 </examples>
 <authors>
 	<author>
@@ -1530,6 +1681,12 @@ Contributed by: Solofomampionona Fortunat Rajaona</description>
 		<short>akane</short>
 		<name>Aaron Kane</name>
 	</author>
+	<author>
+		<short>clarke</short>
+		<name>Edmund M. Clarke</name>
+		<url>http://www.cs.cmu.edu/~emc/</url>
+		<imgurl>http://www.cs.cmu.edu/~emc/images/Ed_Clarke_color1.jpg</imgurl>
+	</author>
 
 </authors>
 <publications>
@@ -1546,6 +1703,89 @@ Contributed by: Solofomampionona Fortunat Rajaona</description>
 		</additional>
 	</publication>
 	<publication>
+		<short>DBLP:conf/lics/Platzer12a</short>
+		<title>Logics of dynamical systems</title>
+		<authors>
+			<author>platzer</author>
+		</authors>
+		<url>http://dx.doi.org/10.1109/LICS.2012.13</url>
+		<additional>(LICS, pages 13-24, 2012 DOI: 10.1109/LICS.2012.13)</additional>
+	</publication>
+	<publication>
+		<short>DBLP:journals/jar/Platzer08</short>
+		<title>Differential dynamic logic for hybrid systems</title>
+		<authors>
+			<author>platzer</author>
+		</authors>
+		<url>http://dx.doi.org/10.1007/s10817-008-9103-8</url>
+		<additional>Journal of Automated Reasoning, 41(2), pages 143-189, 2008. DOI: 10.1007/s10817-008-9103-8</additional>
+	</publication>
+	<publication>
+		<short>DBLP:journals/logcom/Platzer10</short>
+		<title>Differential-algebraic dynamic logic for differential-algebraic programs</title>
+		<authors>
+			<author>platzer</author>
+		</authors>
+		<url>http://dx.doi.org/10.1093/logcom/exn070</url>
+		<additional>Journal of Logic and Computation, 20(1), pages 309-352, 2010. DOI: 10.1093/logcom/exn070</additional>
+	</publication>
+	<publication>
+		<short>DBLP:journals/lmcs/Platzer12b</short>
+		<title>A complete axiomatization of quantified differential dynamic logic for distributed hybrid systems.</title>
+		<authors>
+			<author>platzer</author>
+		</authors>
+		<url>http://arxiv.org/abs/1206.3357</url>
+		<additional>Logical Methods in Computer Science, 2012.</additional>
+	</publication>
+	<publication>
+		<short>Platzer10</short>
+		<title>Logical Analysis of Hybrid Systems: Proving Theorems for Complex Dynamics</title>
+		<authors>
+			<author>platzer</author>
+		</authors>
+		<url>http://dx.doi.org/10.1007/978-3-642-14509-4</url>
+		<additional>Springer, 426 pages, 2010. DOI: 10.1007/978-3-642-14509-4</additional>
+	</publication>
+	<publication>
+		<short>DBLP:conf/cav/Platzer11</short>
+		<title>Logic and compositional verification of hybrid systems</title>
+		<authors>
+			<author>platzer</author>
+		</authors>
+		<url>http://dx.doi.org/10.1007/978-3-642-22110-1_4</url>
+		<additional>In Ganesh Gopalakrishnan and Shaz Qadeer, editors, Computer Aided Verification, CAV 2011, Snowbird, UT, USA, Proceedings, volume 6806 of LNCS, pages 28-43. Springer, 2011.</additional>
+	</publication>
+	<publication>
+		<short>DBLP:conf/csl/Platzer10</short>
+		<title>Quantified differential dynamic logic for distributed hybrid systems</title>
+		<authors>
+			<author>platzer</author>
+		</authors>
+		<url>http://dx.doi.org/10.1007/978-3-642-15205-4_36</url>
+		<additional>In Anuj Dawar and Helmut Veith, editors, Computer Science Logic, 19th EACSL Annual Conference, CSL 2010, Brno, Czech Republic, August 23-27, 2010. Proceedings, volume 6247 of LNCS, pages 469-483. Springer, 2010.</additional>
+	</publication>
+	<publication>
+		<short>DBLP:conf/cav/PlatzerC08</short>
+		<title>Computing differential invariants of hybrid systems as fixedpoints</title>
+		<authors>
+			<author>platzer</author>
+			<author>clarke</author>
+		</authors>
+		<url>http://dx.doi.org/10.1007/978-3-540-70545-1_17</url>
+		<additional>In Aarti Gupta and Sharad Malik, editors, Computer Aided Verification, CAV 2008, Princeton, USA, Proceedings, volume 5123 of LNCS, pages 176-189, Springer, 2008.</additional>
+	</publication>
+	<publication>
+		<short>DBLP:conf/fm/PlatzerC09</short>
+		<title>Formal verification of curved flight collision avoidance maneuvers: A case study</title>
+		<authors>
+			<author>platzer</author>
+			<author>clarke</author>
+		</authors>
+		<url>http://dx.doi.org/10.1007/978-3-642-05089-3_35</url>
+		<additional>In Ana Cavalcanti and Dennis Dams, editors, 16th International Symposium on Formal Methods, FM, Eindhoven, Netherlands, Proceedings, volume 5850 of LNCS, pages 547-562. Springer, 2009.</additional>
+	</publication>
+	<publication>
 		<short>invariants_hybrid_systems</short>
 		<title>Constructing invariants for hybrid systems</title>
 		<authors>
@@ -1554,7 +1794,7 @@ Contributed by: Solofomampionona Fortunat Rajaona</description>
 			<author>manna</author>
 		</authors>
 		<url>http://www.springerlink.com/content/d5p67630wk1663l0</url>
-		<additional>(FORMAL METHODS IN SYSTEM DESIGN Volume 32, Number 1 (2008), 25-55, DOI: 10.1007/s10703-007-0046-1)</additional>
+		<additional>(Formal Methods in System Design Volume 32, Number 1 (2008), 25-55, DOI: 10.1007/s10703-007-0046-1)</additional>
 	</publication>
 </publications>
 
