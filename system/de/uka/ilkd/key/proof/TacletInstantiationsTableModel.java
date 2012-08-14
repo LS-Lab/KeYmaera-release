@@ -403,8 +403,8 @@ public class TacletInstantiationsTableModel extends AbstractTableModel {
 							instantiation, false, true, false);
 			return ((StatementBlock) programBlock.program()).getChildAt(0);
 		} else if (svSort == ProgramSVSort.DL_VARIABLE_SORT_INSTANCE) {
-			// create a new variable with name VariableNamer.parseName(instantiation)
-			String name = VariableNamer.parseName(instantiation).toString();
+		    // important: as this is also used when loading proofs, we must not use parseName here!
+		    String name = instantiation;
     	    NewVarcond nvc = app.taclet().varDeclaredNew(sv);
     	    if(nvc != null) {
     			String prefix = name;
