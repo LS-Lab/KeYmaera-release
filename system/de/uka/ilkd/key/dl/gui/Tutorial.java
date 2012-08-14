@@ -370,7 +370,7 @@ public class Tutorial extends JFrame {
         textArea.addHyperlinkListener(ProjectManager.getHyperlinkListener());
 
         textArea.setText(text);
-        return textArea;
+        return new JScrollPane(textArea);
     }
 
     private JComponent createExcerciseView(TutorialPage p) {
