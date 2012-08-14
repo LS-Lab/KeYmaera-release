@@ -17,6 +17,60 @@
 				<description>Given the following system of...</description>
 				<path>/examples/hybrid/tutorial/lics1-continuous-forward.key</path>
 			</exercise>
+			<exercise>
+				<title>Ex. 3 Water Tank</title>
+				<description>
+				<![CDATA[
+					<p>
+					The given input file models a water tank. The water level (named y) is supposed to be between 1 and 12. Another variable x is used as clock to model delays while switching modes.
+					</p>
+
+					<p>
+					The system has two main modes:
+					<ul>
+					<li> st = 0: is the mode where water is flowing into the tank with a constant rate of 1.</li>
+					<li> st = 2: is the mode where water is draining from the tank with a constant rate of -2.</li>
+					</ul>
+					</p>
+					<p>
+					The modes st = 1 and st = 3 model the delays while switching between modes 0 and 2.
+					</p>
+					<p>
+					<b>Exercise:</b> Load the example and press play. The automatic strategy is able to proof this example using the annotated loop invariant in the input file. 
+					</p>
+				
+				]]>
+					
+				</description>
+			    <img href="http://symbolaris.com/info/fig-water-tank.png"/>
+			    <path>/examples/hybrid/publish/water_tank.key</path>
+			</exercise>
+			<exercise>
+				<title>Ex. 4 Parametric Water Tank</title>
+				<description>
+					<![CDATA[
+					<p>
+					The given input file again models a water tank. Now, the water level (named y) is supposed to be between min_fill and max_fill. Another variable x is used as clock to model delays while switching modes. The delay is bounded by a constant max_com.
+					</p>
+
+					<p>
+						The system has two main modes (for f > 0 & d > 0):
+					<ul>
+						<li> st = 0: is the mode where water is flowing into the tank with a constant rate of <b>f</b>.</li>
+						<li> st = 2: is the mode where water is draining from the tank with a constant rate of <b>-d</b>.</li>
+					</ul>
+					</p>
+					<p>
+					The modes st = 1 and st = 3 model the delays while switching between modes 0 and 2.
+					</p>
+					<p>
+					<b>Exercise:</b> Load the example. And proof that the input is a tautology. Note that in contrast to the previous exercise the loop invariant is not given.
+					</p>
+				]]>
+				</description>
+			    <img href="http://symbolaris.com/info/fig-water-tank.png"/>
+				 <path>/examples/hybrid/verifiedsoft/general_water_tank.key</path>
+			</exercise>
 		</tutorial>
 	</tutorials>
 </description>
