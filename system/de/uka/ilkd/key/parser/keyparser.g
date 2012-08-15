@@ -3728,6 +3728,7 @@ mod_in_game returns [Term a = null]
        }
        bindProgVars(progVars(sjb.javaBlock));
        a = tf.createGameModalityTerm(op, sjb.javaBlock);
+       unbindProgVars();
      }
      ;
  

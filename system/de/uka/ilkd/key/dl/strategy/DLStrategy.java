@@ -39,6 +39,7 @@ import de.uka.ilkd.key.dl.rules.FindInstanceRule;
 import de.uka.ilkd.key.dl.rules.FindTransitionRule;
 import de.uka.ilkd.key.dl.rules.GroebnerBasisRule;
 import de.uka.ilkd.key.dl.rules.IterativeReduceRule;
+import de.uka.ilkd.key.dl.rules.PlotRule;
 import de.uka.ilkd.key.dl.rules.ReduceRule;
 import de.uka.ilkd.key.dl.rules.SumOfSquaresRule;
 import de.uka.ilkd.key.dl.rules.VisualizationRule;
@@ -239,25 +240,22 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 		bindRuleSet(d, "test_gen", inftyConst());
 
 		if (DLOptionBean.INSTANCE.getApplyGammaRules() == ApplyRules.ALWAYS) {
-			bindRuleSet(d, "gamma", ifZero(introducedByGammaF, longConst(0),
+			bindRuleSet(d, "gamma_destructive", ifZero(introducedByGammaF, longConst(0),
 					add(
 							ifZero(NonDuplicateAppFeature.INSTANCE,
 									longConst(-200)), longConst(-3250))));
 
-			bindRuleSet(d, "gamma_destructive", ifZero(introducedByGammaF,
-					longConst(-5000)));
+			bindRuleSet(d, "gamma", inftyConst());
 		} else if (DLOptionBean.INSTANCE.getApplyGammaRules() == ApplyRules.NEVER) {
 			bindRuleSet(d, "gamma", inftyConst());
 
 			bindRuleSet(d, "gamma_destructive", inftyConst());
 		} else if (DLOptionBean.INSTANCE.getApplyGammaRules() == ApplyRules.ONLY_TO_MODALITIES) {
-			bindRuleSet(d, "gamma", ifZero(FOFormula.INSTANCE, inftyConst(),
+			bindRuleSet(d, "gamma", inftyConst());
+			bindRuleSet(d, "gamma_destructive", ifZero(FOFormula.INSTANCE, inftyConst(),
 					ifZero(introducedByGammaF, longConst(0), add(ifZero(
 							NonDuplicateAppFeature.INSTANCE, longConst(-200)),
 							longConst(-3250)))));
-
-			bindRuleSet(d, "gamma_destructive", ifZero(FOFormula.INSTANCE,
-					inftyConst(), ifZero(introducedByGammaF, longConst(-5000))));
 		} else {
 			throw new IllegalStateException("For gamma rules the state "
 					+ DLOptionBean.INSTANCE.getApplyGammaRules()
@@ -463,6 +461,8 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 						inftyConst()),
 				ConditionalFeature.createConditional(DebugRule.INSTANCE,
 						inftyConst()),
+				ConditionalFeature.createConditional(
+						PlotRule.INSTANCE, inftyConst()),
 				ConditionalFeature.createConditional(
 						VisualizationRule.INSTANCE, inftyConst()),
 				ConditionalFeature.createConditional(

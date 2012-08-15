@@ -76,7 +76,7 @@ public class DebugRule extends Visitor implements BuiltInRule, RuleFilter {
             ConstrainedFormula f = it.next();
             f.formula().execPostOrder(this);
         }
-        return goal.split(1);
+        return null;
     }
 
     /*

@@ -750,7 +750,7 @@ public class ProjectManager extends JFrame {
         pack();
     }
 
-    private static HyperlinkListener getHyperlinkListener() {
+    public static HyperlinkListener getHyperlinkListener() {
         final JFrame browser = new JFrame();
         browser.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
         browser.setPreferredSize(new Dimension(600, 400));

@@ -58,6 +58,7 @@
 		<pathelement location="${ext.dir}/orbital-core.jar" />		
 		<pathelement location="${ext.dir}/orbital-ext.jar" />
 		<pathelement location="${ext.dir}/JLink/JLink.jar" />		
+		<pathelement location="${ext.dir}/jmathplot.jar" />		
 		<!--<pathelement location="${your.path}"   />-->
 		<pathelement location="${build.dir}"   />
 	</path>

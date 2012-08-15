@@ -80,6 +80,8 @@ int_induction  = "It looks like you are trying to prove a loop. Do you want to:
 applyEqRigid = "Alternatively you can drag and drop the equation on the term you want to replace."
 applyEq = "Alternatively you can drag and drop the equation on the term you want to replace."
 
+Plot_Trajectory = "The <b>Plot Trajectory</b> rule allows you to create a plot of a given system of differential equations based on numerical simulation."
+
 make_insert_eq = "Alternatively, you can click on the term where you want to apply the equation and use rule <tt>apply_eq</tt>"
 make_insert_eq_nonrigid = "Alternatively, you can click on the term where you want to apply the equation and use rule <tt>apply_eq</tt>"
 
