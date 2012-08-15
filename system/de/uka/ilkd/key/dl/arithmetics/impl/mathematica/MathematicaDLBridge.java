@@ -62,6 +62,7 @@ import de.uka.ilkd.key.dl.arithmetics.exceptions.ServerStatusProblemException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.UnsolveableException;
 import de.uka.ilkd.key.dl.arithmetics.impl.SumOfSquaresChecker.PolynomialClassification;
+import de.uka.ilkd.key.dl.arithmetics.impl.mathematica.Expr2TermConverter.UnknownMathFunctionException;
 import de.uka.ilkd.key.dl.arithmetics.impl.mathematica.IKernelLinkWrapper.ExprAndMessages;
 import de.uka.ilkd.key.dl.formulatools.DerivativeCreator;
 import de.uka.ilkd.key.dl.formulatools.collector.AllCollector;
@@ -602,8 +603,13 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 	 */
 	public Term convert(Expr expr, NamespaceSet nss) throws RemoteException,
 			SolverException {
-		return Expr2TermConverter.convert(expr, nss,
+		try {
+			return Expr2TermConverter.convert(expr, nss,
 				new LinkedHashMap<Name, LogicVariable>());
+		}
+		catch (UnknownMathFunctionException e) {
+			throw new UnknownMathFunctionException(e + "\nin " + expr, e);
+		}
 	}
 
 	/**
