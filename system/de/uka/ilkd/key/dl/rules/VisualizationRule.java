@@ -86,7 +86,7 @@ public class VisualizationRule extends Visitor implements BuiltInRule,
 //            ConstrainedFormula f = it.next();
 //            f.formula().execPostOrder(this);
 //        }
-        return goal.split(1);
+        return null;
     }
 
     /*
