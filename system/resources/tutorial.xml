@@ -322,6 +322,7 @@
 					<![CDATA[
 					<p>
 					The given input file again models a water tank. Now, the water level (named y) is supposed to be between min_fill and max_fill. Another variable x is used as clock to model delays while switching modes. The delay is bounded by a constant max_com.
+					The water level is now increased with constant rate <b>f</b> instead of 1 and decreased with constant rate <b>-d</b> instead of -2.
 					</p>
 
 					<p>
