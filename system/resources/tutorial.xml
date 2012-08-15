@@ -357,6 +357,9 @@
 					</p>
 					]]>
 				</description>
+				<resources>
+					<img>/examples/hybrid/heater/diffcut.png</img>
+				</resources>
 				<path>/examples/hybrid/heater/diffcut.key</path>
 			</exercise>
 			<exercise>
@@ -371,6 +374,9 @@
 					</p>
 					]]>
 				</description>
+				<resources>
+					<img>/examples/hybrid/heater/diffcut2.png</img>
+				</resources>
 				<path>/examples/hybrid/heater/diffcut2.key</path>
 			</exercise>
 			<exercise>
@@ -385,6 +391,9 @@
 					</p>
 					]]>
 				</description>
+				<resources>
+					<img>/examples/hybrid/heater/diffcut2.png</img>
+				</resources>
 				<path>/examples/hybrid/heater/diffcut3.key</path>
 			</exercise>
 			<exercise>
@@ -399,6 +408,11 @@
 					</p>
 					]]>
 				</description>
+				<resources>
+					<img>/examples/hybrid/heater/diffcut2.png</img>
+					<img>/examples/hybrid/heater/diffcut3.png</img>
+					<img>/examples/hybrid/heater/diffcut4.png</img>
+				</resources>
 				<path>/examples/hybrid/heater/diffcut4.key</path>
 			</exercise>
 			<exercise>
@@ -435,6 +449,10 @@
 					</p>
 					]]>
 				</description>
+				<resources>
+					<img>/examples/hybrid/verifiedsoft/heating.png</img>
+					<img>/examples/hybrid/heater/diffcut4.png</img>
+				</resources>
 				<path>/examples/hybrid/verifiedsoft/heater-switchdelay-extract2.key</path>
 			</exercise>
 		</tutorial>
