@@ -22,6 +22,7 @@ package de.uka.ilkd.key.dl.gui;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
@@ -44,6 +45,7 @@ import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -54,6 +56,7 @@ import javax.swing.JTextPane;
 import javax.swing.JToolTip;
 import javax.swing.JTree;
 import javax.swing.KeyStroke;
+import javax.swing.UIManager;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -68,6 +71,8 @@ import org.w3c.dom.NodeList;
 
 import de.uka.ilkd.key.dl.utils.XMLReader;
 import de.uka.ilkd.key.gui.Main;
+import de.uka.ilkd.key.gui.configuration.Config;
+import de.uka.ilkd.key.util.Debug;
 
 /**
  * This class is used to present exercises for an online tutorial
@@ -402,6 +407,7 @@ public class Tutorial extends JFrame {
         textArea.addHyperlinkListener(ProjectManager.getHyperlinkListener());
 
         textArea.setText(text);
+        setFont(textArea);
         return new JScrollPane(textArea);
     }
 
@@ -602,4 +608,16 @@ public class Tutorial extends JFrame {
         return (NodeList) xpath.evaluate(expression, document,
                 XPathConstants.NODESET);
     }
+    
+	private void setFont(JComponent comp) {
+		Font myFont = UIManager.getFont(Config.KEY_FONT_CURRENT_GOAL_VIEW);
+		if (myFont != null) {
+		  if(comp != null) {
+			  comp.putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, Boolean.TRUE);  // Allow font to changed in JEditorPane when set to "text/html"
+			  comp.setFont(myFont);
+		  }
+		} else {
+		  Debug.out("KEY_FONT_CURRENT_GOAL_VIEW not available. Use standard font.");
+		}        
+	}
 }
