@@ -22,6 +22,8 @@ package de.uka.ilkd.key.dl.gui;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.Image;
 import java.awt.Insets;
@@ -49,6 +51,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextPane;
+import javax.swing.JToolTip;
 import javax.swing.JTree;
 import javax.swing.KeyStroke;
 import javax.swing.event.TreeSelectionEvent;
@@ -433,10 +436,43 @@ public class Tutorial extends JFrame {
         JPanel iPanel = new JPanel();
         iPanel.setLayout(new BoxLayout(iPanel, BoxLayout.Y_AXIS));
         for (Image i : p.getResources()) {
-            if(i.getWidth(null) > 400) {
-                i = i.getScaledInstance(400, -1, Image.SCALE_SMOOTH);
+            final Image org = i;
+            if(i.getWidth(null) > 300) {
+                i = i.getScaledInstance(300, -1, Image.SCALE_SMOOTH);
+                // draw the original image as tool tip
+                final JLabel jLabel = new JLabel(new ImageIcon(i)) {
+                    /* (non-Javadoc)
+                     * @see javax.swing.JComponent#createToolTip()
+                     */
+                    @Override
+                    public JToolTip createToolTip() {
+                        JToolTip tip = new JToolTip() {
+                            /* (non-Javadoc)
+                             * @see javax.swing.JComponent#paint(java.awt.Graphics)
+                             */
+                            @Override
+                            public void paint(Graphics g) {
+                                Graphics2D g2d = (Graphics2D) g;
+                                g2d.drawImage(org, 0, 0, null);
+                            }
+                            
+                            /* (non-Javadoc)
+                             * @see javax.swing.JComponent#getPreferredSize()
+                             */
+                            @Override
+                            public Dimension getPreferredSize() {
+                                return new Dimension(org.getWidth(null), org.getHeight(null));
+                            }
+                        };
+                        return tip;
+                    }
+                };
+                jLabel.setToolTipText("moep");
+                iPanel.add(jLabel);
+            } else {
+                final JLabel jLabel = new JLabel(new ImageIcon(i)); 
+                iPanel.add(jLabel);
             }
-            iPanel.add(new JLabel(new ImageIcon(i)));
         }
         imgPanel.add(iPanel, BorderLayout.EAST);
 
