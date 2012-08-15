@@ -39,6 +39,7 @@ import de.uka.ilkd.key.dl.rules.FindInstanceRule;
 import de.uka.ilkd.key.dl.rules.FindTransitionRule;
 import de.uka.ilkd.key.dl.rules.GroebnerBasisRule;
 import de.uka.ilkd.key.dl.rules.IterativeReduceRule;
+import de.uka.ilkd.key.dl.rules.PlotRule;
 import de.uka.ilkd.key.dl.rules.ReduceRule;
 import de.uka.ilkd.key.dl.rules.SumOfSquaresRule;
 import de.uka.ilkd.key.dl.rules.VisualizationRule;
@@ -463,6 +464,8 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 						inftyConst()),
 				ConditionalFeature.createConditional(DebugRule.INSTANCE,
 						inftyConst()),
+				ConditionalFeature.createConditional(
+						PlotRule.INSTANCE, inftyConst()),
 				ConditionalFeature.createConditional(
 						VisualizationRule.INSTANCE, inftyConst()),
 				ConditionalFeature.createConditional(

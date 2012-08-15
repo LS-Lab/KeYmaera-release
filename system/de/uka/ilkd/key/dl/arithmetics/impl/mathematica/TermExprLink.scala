@@ -181,7 +181,8 @@ object DL2Expr extends ExpressionConstants {
 
     val ofT = (x: Expr) => new Expr(x, Array(new Expr(Expr.SYMBOL, NameMasker.mask(t))))
     p match {
-      case ComposedTerm(op, args) if (args.size == 0 && repl.containsKey(op)) => repl.get(op)
+      case ComposedTerm(op, args) if (args.size == 0 && repl.containsKey(op.getElementName.toString)) => repl.get(op.getElementName.toString)
+
       case ComposedTerm(op, args) if (args.size == 0 && !repl.containsKey(op)) =>
         new Expr(Expr.SYMBOL, NameMasker.mask(op.getElementName.toString))
       case ComposedTerm(op, args) if (args.size > 0) =>
@@ -203,7 +204,7 @@ object DL2Expr extends ExpressionConstants {
         }
       case DLVariable(n) =>
         val v = new Expr(Expr.SYMBOL, n)
-        if (vars.containsKey(n)) ofT(v) else if(repl.containsKey(n)) repl.get(n) else v
+        if (vars.containsKey(n)) ofT(v) else if(repl.containsKey(NameMasker.unmask(n))) repl.get(NameMasker.unmask(n)) else v
       case Dot(n, o) =>
         val v = new Expr(Expr.SYMBOL, n)
         val diffSymbol = new Expr(new Expr(new Expr(Expr.SYMBOL, "Derivative"),

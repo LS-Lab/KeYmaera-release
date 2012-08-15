@@ -33,6 +33,7 @@ import de.uka.ilkd.key.dl.rules.FindInstanceRule;
 import de.uka.ilkd.key.dl.rules.FindTransitionRule;
 import de.uka.ilkd.key.dl.rules.GroebnerBasisRule;
 import de.uka.ilkd.key.dl.rules.IterativeReduceRule;
+import de.uka.ilkd.key.dl.rules.PlotRule;
 import de.uka.ilkd.key.dl.rules.ReduceRule;
 import de.uka.ilkd.key.dl.rules.SumOfSquaresRule;
 import de.uka.ilkd.key.dl.rules.VisualizationRule;
@@ -143,6 +144,7 @@ public class DLProfile extends AbstractProfile {
 				.append(SumOfSquaresRule.INSTANCE)
 				.append(FindInstanceRule.INSTANCE)
 				.append(FindTransitionRule.INSTANCE)
+				.append(PlotRule.INSTANCE)
 				.append(VisualizationRule.INSTANCE)
 				.append(IterativeReduceRule.INSTANCE)
 				;

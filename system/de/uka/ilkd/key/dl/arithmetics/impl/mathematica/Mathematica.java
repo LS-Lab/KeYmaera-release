@@ -22,8 +22,6 @@
  */
 package de.uka.ilkd.key.dl.arithmetics.impl.mathematica;
 
-import java.io.IOException;
-import java.net.UnknownHostException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -366,7 +364,7 @@ public class Mathematica implements ICounterExampleGenerator, IODESolver,
 		return bridge.polynomialReduce(poly, reductions, services);
 	}
 	
-	public Map<String, Double[][]> getPlotData(DiffSystem sys, String t, double minT, double maxT, Map<String, Double> initialValues, Services services) throws RemoteException, SolverException {
-	    return bridge.getPlotData(sys, t, minT, maxT, initialValues, services);
+	public Map<String, Double[][]> getPlotData(DiffSystem sys, String t, double minT, double maxT, double sampling, Map<String, Double> initialValues, Services services) throws RemoteException, SolverException {
+	    return bridge.getPlotData(sys, t, minT, maxT, sampling, initialValues, services);
 	}
 }

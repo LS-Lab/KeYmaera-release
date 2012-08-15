@@ -257,11 +257,12 @@ public interface IMathematicaDLBridge extends Remote {
 	 * @param t
 	 * @param minT
 	 * @param maxT
+	 * @param sampling 
 	 * @param initialValues
 	 * @return
 	 * @throws RemoteException 
 	 * @throws SolverException 
 	 */
-	public Map<String, Double[][]> getPlotData(DiffSystem sys, String t, double minT, double maxT, Map<String, Double> initialValues, Services services) throws SolverException, RemoteException;
+	public Map<String, Double[][]> getPlotData(DiffSystem sys, String t, double minT, double maxT, double sampling, Map<String, Double> initialValues, Services services) throws SolverException, RemoteException;
 
 }
