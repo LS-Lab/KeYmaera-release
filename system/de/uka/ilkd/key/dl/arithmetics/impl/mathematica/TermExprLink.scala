@@ -169,7 +169,7 @@ object DL2Expr extends ExpressionConstants {
   import de.uka.ilkd.key.dl.model._
 
   def apply(p: ProgramElement, t: Named, vars: java.util.Map[String, Expr], s: Services): Expr = {
-    apply(p, t.name.toString, vars, new java.util.HashMap[String, Expr], s)
+    DL2Expr(p, if(t == null) null else t.name.toString, vars, new java.util.HashMap[String, Expr], s)
   }
   def apply(p: ProgramElement, t: String, vars: java.util.Map[String, Expr], repl: java.util.Map[String, Expr], s: Services): Expr = {
     val conv = this(_: ProgramElement, t, vars, repl, s)

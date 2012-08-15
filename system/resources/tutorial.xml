@@ -333,12 +333,101 @@
 					The modes st = 1 and st = 3 model the delays while switching between modes 0 and 2.
 					</p>
 					<p>
-					<b>Exercise:</b> Load the example. And proof that the input is a tautology. Note that in contrast to the previous exercise the loop invariant is not given.
+						<b>Exercise:</b> Load the example. And proof that the input is a tautology. Note that in contrast to the previous exercise the loop invariant is not given.
 					</p>
 				]]>
 				</description>
 			    <img href="http://symbolaris.com/info/fig-water-tank.png"/>
 				 <path>/examples/hybrid/verifiedsoft/general_water_tank.key</path>
+			</exercise>
+			<exercise>
+				<title>Ex. 5 Differential Cut</title>
+				<description>
+					<![CDATA[
+					<p>
+					Consider the differential equation <b>x' = 10 - x</b>. 
+					</p>
+					
+					<p>
+						<b>Exercise:</b> Prove that if this system is started with an inital value greater than 10 it always stays greater than 10.
+					</p>
+					]]>
+				</description>
+				<path>/examples/hybrid/heater/diffcut.key</path>
+			</exercise>
+			<exercise>
+				<title>Ex. 6 Differential Cut 2</title>
+				<description>
+					<![CDATA[
+					<p>
+					Consider the differential equation <b>x' = 15 + 1/2*(10-x)</b>.
+					</p>
+					<p>
+						<b>Exercise:</b> Prove that if this system is started with an inital value less than 40 it always stays less than 40.
+					</p>
+					]]>
+				</description>
+				<path>/examples/hybrid/heater/diffcut2.key</path>
+			</exercise>
+			<exercise>
+				<title>Ex. 7 Differential Cut 3</title>
+				<description>
+					<![CDATA[
+					<p>
+					Consider the differential equation <b>x' = 15 + 1/2*(10-x)</b>.
+					</p>
+					<p>
+						<b>Exercise:</b> Prove that if this system is started with an inital value between 20 and 30 it always stays above 15.
+					</p>
+					]]>
+				</description>
+				<path>/examples/hybrid/heater/diffcut3.key</path>
+			</exercise>
+			<exercise>
+				<title>Ex. 8 Differential Cut 4</title>
+				<description>
+					<![CDATA[
+					<p>
+					Consider the differential equation <b>x' = 15 + 1/2*(10-x)</b>.
+					</p>
+					<p>
+						<b>Exercise:</b> Prove that if this system is started with an inital value greater than 15 it always stays above 15.
+					</p>
+					]]>
+				</description>
+				<path>/examples/hybrid/heater/diffcut4.key</path>
+			</exercise>
+			<exercise>
+				<title>Ex. 9 Heater (extract)</title>
+				<description>
+					<![CDATA[
+					<p>
+					The differential equations considered in the previous execises are the modes of a heater system. The outside temperature is assumed to be 10 degrees.
+					The goal of the heating system is to guarantee an inside temperature of <b>at least 15 degrees</b>. The control strategy for the heater is underspecified. 
+					However, it might only be turned off when the current temperature is <b>at least 20 degrees</b>. Due to mechanical restrictions might then be turned off for at most <b>1/2 time units</b>.
+					</p>
+					<p>
+						<b>Exercise:</b> Prove that if the current temperature is above 20 degrees, the temperature does not fall below 15 degrees within the next 1/2 time units when the heater is switched off.</b> 
+					</p>
+					]]>
+				</description>
+				<path>/examples/hybrid/verifiedsoft/heater-switchdelay-extract.key</path>
+			</exercise>
+			<exercise>
+				<title>Ex. 10 Heater (extract 2)</title>
+				<description>
+					<![CDATA[
+					<p>
+					The differential equations considered in the previous execises are the modes of a heater system. The outside temperature is assumed to be 10 degrees.
+					The goal of the heating system is to guarantee an inside temperature of <b>at least 15 degrees</b>. The control strategy for the heater is underspecified. 
+					However, it might only be turned off when the current temperature is <b>at least 20 degrees</b>. Due to mechanical restrictions might then be turned off for at most <b>1/2 time units</b>.
+					</p>
+					<p>
+						<b>Exercise:</b> Prove that if the current temperature is above 15 degrees, the temperature rises above 20 degrees within 1/2 time units while heating.</b> 
+					</p>
+					]]>
+				</description>
+				<path>/examples/hybrid/verifiedsoft/heater-switchdelay-extract2.key</path>
 			</exercise>
 		</tutorial>
 	</tutorials>
