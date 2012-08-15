@@ -433,6 +433,9 @@ public class Tutorial extends JFrame {
         JPanel iPanel = new JPanel();
         iPanel.setLayout(new BoxLayout(iPanel, BoxLayout.Y_AXIS));
         for (Image i : p.getResources()) {
+            if(i.getWidth(null) > 400) {
+                i = i.getScaledInstance(400, -1, Image.SCALE_SMOOTH);
+            }
             iPanel.add(new JLabel(new ImageIcon(i)));
         }
         imgPanel.add(iPanel, BorderLayout.EAST);

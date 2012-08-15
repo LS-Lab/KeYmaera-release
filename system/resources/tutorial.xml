@@ -305,7 +305,7 @@
 					The modes st = 1 and st = 3 model the delays while switching between modes 0 and 2.
 					</p>
 					<p>
-					<b>Exercise:</b> Load the example and press play. The automatic strategy is able to proof this example using the annotated loop invariant in the input file. 
+					<b>Exercise:</b> Load the example and press play. The automatic strategy is able to prove this example using the annotated loop invariant in the input file. 
 					</p>
 				
 				]]>
@@ -335,12 +335,11 @@
 					The modes st = 1 and st = 3 model the delays while switching between modes 0 and 2.
 					</p>
 					<p>
-						<b>Exercise:</b> Load the example. And proof that the input is a tautology. Note that in contrast to the previous exercise the loop invariant is not given.
+						<b>Exercise:</b> Load the example and prove that the input is a tautology. Note that in contrast to the previous exercise the loop invariant is not given.
 					</p>
 				]]>
 				</description>
 				<resources>
-					<img>/examples/hybrid/water_tank/fig-water-tank.png</img>
 					<img>/examples/hybrid/water_tank/fig-water-tank.png</img>
 				</resources>
 				 <path>/examples/hybrid/verifiedsoft/general_water_tank.key</path>
@@ -416,6 +415,10 @@
 					</p>
 					]]>
 				</description>
+				<resources>
+					<img>/examples/hybrid/verifiedsoft/cooling.png</img>
+					<img>/examples/hybrid/verifiedsoft/cooling2.png</img>
+				</resources>
 				<path>/examples/hybrid/verifiedsoft/heater-switchdelay-extract.key</path>
 			</exercise>
 			<exercise>
