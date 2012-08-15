@@ -23,17 +23,27 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
+import java.awt.Image;
 import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
+import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
+import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -104,7 +114,7 @@ public class Tutorial extends JFrame {
 
         private String description;
 
-        private String img;
+        private List<Image> resources;
 
         private boolean isEmtpy = false;
 
@@ -114,12 +124,29 @@ public class Tutorial extends JFrame {
          * @param img
          */
         public TutorialPage(String title, String url, String description,
-                String img) {
+                List<String> resources) {
             super();
             this.title = title;
             this.url = url;
             this.description = description;
-            this.img = img;
+            this.resources = new ArrayList<Image>();
+            for (String r : resources) {
+                try {
+                    InputStream in = getClass().getResourceAsStream(r);
+                    this.resources.add(ImageIO.read(in));
+                } catch (Exception e) {
+                    File file = new File(r.substring(1));
+                    if (file.exists()) {
+                        InputStream in;
+                        try {
+                            in = new FileInputStream(file);
+                            this.resources.add(ImageIO.read(in));
+                        } catch (Exception e1) {
+                            e1.printStackTrace();
+                        }
+                    }
+                }
+            }
         }
 
         public TutorialPage(Boolean isEmpty, String title) {
@@ -128,7 +155,7 @@ public class Tutorial extends JFrame {
             this.isEmtpy = isEmpty;
             this.url = "";
             this.description = "There is no example available.";
-            this.img = "";
+            this.resources = new ArrayList<Image>();
         }
 
         /**
@@ -166,8 +193,8 @@ public class Tutorial extends JFrame {
         /**
          * @return the img
          */
-        public String getImg() {
-            return img;
+        public List<Image> getResources() {
+            return resources;
         }
 
         /*
@@ -229,8 +256,10 @@ public class Tutorial extends JFrame {
          */
         public LoadAction() {
             putValue(NAME, "Load exercise file");
-            putValue(SHORT_DESCRIPTION, "Load the file corresponding to the current exercise.");
+            putValue(SHORT_DESCRIPTION,
+                    "Load the file corresponding to the current exercise.");
         }
+
         /*
          * (non-Javadoc)
          * 
@@ -401,17 +430,12 @@ public class Tutorial extends JFrame {
 
         imgPanel.add(textArea, BorderLayout.CENTER);
 
-        JTextPane img = new JTextPane();
-        img.setContentType("text/html");
-        img.setAutoscrolls(true);
-        img.setEditable(false);
-        imgPanel.add(img, BorderLayout.EAST);
-        if (p.getImg().trim().equals("")) {
-            img.setText("");
-        } else {
-            img.setText("<html><body><img src=\"" + p.getImg()
-                    + "\"/></body></html>");
+        JPanel iPanel = new JPanel();
+        iPanel.setLayout(new BoxLayout(iPanel, BoxLayout.Y_AXIS));
+        for (Image i : p.getResources()) {
+            iPanel.add(new JLabel(new ImageIcon(i)));
         }
+        imgPanel.add(iPanel, BorderLayout.EAST);
 
         // JPanel dummy = new JPanel(new GridBagLayout());
         // dummy.add(new JLabel("Exercise:"), l);
@@ -495,14 +519,16 @@ public class Tutorial extends JFrame {
                 XPathConstants.STRING);
         String description = (String) xpath.evaluate("description", node,
                 XPathConstants.STRING);
-        Node img = (Node) xpath.evaluate("img", node, XPathConstants.NODE);
-        String im = "";
-        if (img != null) {
-            im = img.getAttributes().getNamedItem("href").getNodeValue();
+        NodeList resourceList = (NodeList) xpath.evaluate("resources/img",
+                node, XPathConstants.NODESET);
+
+        List<String> resources = new ArrayList<String>();
+        for (int i = 0; i < resourceList.getLength(); i++) {
+            resources.add(resourceList.item(i).getTextContent());
         }
 
         tNode = new DefaultMutableTreeNode(new TutorialPage(title, path,
-                description, im));
+                description, resources));
 
         return tNode;
     }

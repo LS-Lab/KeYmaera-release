@@ -311,7 +311,9 @@
 				]]>
 					
 				</description>
-			    <img href="http://symbolaris.com/info/fig-water-tank.png"/>
+				<resources>
+					<img>/examples/hybrid/water_tank/fig-water-tank.png</img>
+				</resources>
 			    <path>/examples/hybrid/publish/water_tank.key</path>
 			</exercise>
 			<exercise>
@@ -337,7 +339,10 @@
 					</p>
 				]]>
 				</description>
-			    <img href="http://symbolaris.com/info/fig-water-tank.png"/>
+				<resources>
+					<img>/examples/hybrid/water_tank/fig-water-tank.png</img>
+					<img>/examples/hybrid/water_tank/fig-water-tank.png</img>
+				</resources>
 				 <path>/examples/hybrid/verifiedsoft/general_water_tank.key</path>
 			</exercise>
 			<exercise>

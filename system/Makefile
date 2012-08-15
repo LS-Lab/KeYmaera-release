@@ -228,6 +228,12 @@ dist-keymaera:	branding all
 		rmdir dist/key/$$i;\
 		cp -RH ../$$i dist/key/$$i;\
 		done
+#copy images
+	@for i in `grep -R \<img\> $(RESOURCEPATH)/description.xml $(RESOURCEPATH)/tutorial.xml | sed s/'<img>\/'// | sed s/'<\/img>'// | sed 's/^[ \t]*//'`; do \
+		mkdir -p dist/key/$$i;\
+		rmdir dist/key/$$i;\
+		cp -RH ../$$i dist/key/$$i;\
+		done
 # for setup.jar
 	@mkdir -p dist/setup/de/uka/ilkd/key/util/
 	@cp -r $(BINARYPATH)/de/uka/ilkd/key/util/* dist/setup/de/uka/ilkd/key/util/
