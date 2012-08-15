@@ -72,7 +72,9 @@ public class ProofAssistant extends JPanel {
 	setText("Hi!<br>I am <strong>KiKi</strong> your " +
 		"personal proof assistant. <br> If you close me I won't bother you again.<br>"+
 		"However, I provide useful explainations about the rules, when you highlight them in the context menu.<br>" +
-		"If you should ever close me by accident, you can reopen me in the <tt>Options</tt> menu.");
+		"If you should ever close me by accident, you can reopen me in the <tt>Options</tt> menu.<br>" +
+		"If you are new to KeYmaera, you should walk through the steps in <i>File-&gt;Start Tutorial</i>.<br>" +
+		"It is also helpful to inspect the projects in <i>File-&gt;Load Project</i>.");
 
 	// create the frame
 	frame = new JFrame("Proof Assistant");

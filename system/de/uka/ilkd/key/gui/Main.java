@@ -1457,7 +1457,7 @@ public class Main extends JFrame implements IMain {
 		}});
 	registerAtMenu(view, tacletOptionsView);
 
-	JMenuItem colors = new JMenuItem("Edit colors");
+	JMenuItem colors = new JMenuItem("Edit colors...");
 	colors.addActionListener(new ActionListener() {
         
         @Override
@@ -1467,7 +1467,7 @@ public class Main extends JFrame implements IMain {
     });
 	registerAtMenu(view, colors);
 	
-	JMenuItem serverConsole = new JMenuItem("Mathematica Console");
+	JMenuItem serverConsole = new JMenuItem("Server Console...");
 	serverConsole.addActionListener(new ActionListener() {
 		
 		@Override
