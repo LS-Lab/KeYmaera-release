@@ -1406,11 +1406,28 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
             args.add(equals);
         }
         final Expr list = new Expr(Expr.SYMBOL, "List");
-        Expr dsolve = new Expr(new Expr(Expr.SYMBOL, "DSolve"), new Expr[] {
-                        new Expr(list, args.toArray(new Expr[args.size()])),
-                        new Expr(list, vars.values().toArray(new Expr[0])),
-                        new Expr(Expr.SYMBOL, NameMasker.mask(t)) });
-        Expr rule = evaluate(dsolve).expression;
+//        Expr dsolve = new Expr(new Expr(Expr.SYMBOL, "DSolve"), new Expr[] {
+//                        new Expr(list, args.toArray(new Expr[args.size()])),
+//                        new Expr(list, vars.values().toArray(new Expr[0])),
+//                        new Expr(Expr.SYMBOL, NameMasker.mask(t)) });
+        Expr[] varsAsExpr = new Expr[vars.keySet().size()];
+        int idx = 0;
+        for(String s: vars.keySet()) {
+            varsAsExpr[idx++] = new Expr(Expr.SYMBOL, s);
+        }
+        Expr dsolve = new Expr(new Expr(Expr.SYMBOL, "NDSolve"), new Expr[] {
+                new Expr(list, args.toArray(new Expr[args.size()])),
+                new Expr(list, varsAsExpr),
+                new Expr(list, new Expr[] {
+                        new Expr(Expr.SYMBOL, NameMasker.mask(t)),
+                        new Expr(minT), new Expr(maxT), }) });
+        Expr rule = evaluate(dsolve, 1000).expression;
+        if(!rule.listQ()) {
+            throw new FailedComputationException(
+                    "Expecting a list of rewrites but got: "
+                            + rule
+                            + " when trying to solve a differential equation system.");
+        }
         Map<String, Integer> positionMap = new HashMap<String, Integer>();
         args = new ArrayList<Expr>();
         final Expr exprT = new Expr(Expr.SYMBOL, NameMasker.mask(t));
@@ -1439,17 +1456,18 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
         assert updateExpressions.listQ() : "The head has to be a list";
         for(int i = 0; i < updateExpressions.args().length; i++) {
             for(String s: positionMap.keySet()) {
+                final Expr expr = updateExpressions.args()[i];
                 try {
                     // at position 0 there is the value of t
-                    final Expr expr = updateExpressions.args()[i];
                     final double tAsDouble = expr.args()[0].asDouble();
                     result.get(NameMasker.unmask(s))[0][i] = tAsDouble;
                     // at position positionMap.get(s) there is a singleton list with the value of s
                     final double sAsDouble = expr.args()[positionMap.get(s)].args()[0].asDouble();
                     result.get(NameMasker.unmask(s))[1][i] = sAsDouble;
                 } catch (ExprFormatException e) {
-                    e.printStackTrace();
-                    throw new FailedComputationException(e);
+                    throw new FailedComputationException("Cannot convert "
+                            + expr.args()[positionMap.get(s)].args()[0]
+                            + " in solution " + expr, e);
                 }
             }
         }

@@ -37,6 +37,7 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 
 import org.math.plot.Plot2DPanel;
 
@@ -49,6 +50,8 @@ import de.uka.ilkd.key.dl.model.DiffSystem;
 import de.uka.ilkd.key.dl.model.FreeFunction;
 import de.uka.ilkd.key.dl.model.LogicalVariable;
 import de.uka.ilkd.key.dl.model.ProgramVariable;
+import de.uka.ilkd.key.gui.Main;
+import de.uka.ilkd.key.gui.notification.events.ExceptionEvent;
 import de.uka.ilkd.key.java.ProgramElement;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.logic.Constraint;
@@ -175,12 +178,14 @@ public class PlotRule implements BuiltInRule, RuleFilter {
                         // sDia.pack();
                         sDia.setSize(600, 400);
                         sDia.setVisible(true);
-                    } catch (RemoteException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    } catch (SolverException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
+                    } catch (final RemoteException e) {
+                        dialog.setVisible(false);
+                        dialog.dispose();
+                        Main.getInstance().notify(new ExceptionEvent(e));
+                    } catch (final SolverException e) {
+                        dialog.setVisible(false);
+                        dialog.dispose();
+                        Main.getInstance().notify(new ExceptionEvent(e));
                     }
 
                 }
