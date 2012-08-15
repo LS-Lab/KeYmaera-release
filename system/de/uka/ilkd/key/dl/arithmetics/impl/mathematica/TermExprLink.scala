@@ -169,16 +169,20 @@ object DL2Expr extends ExpressionConstants {
   import de.uka.ilkd.key.dl.model._
 
   def apply(p: ProgramElement, t: Named, vars: java.util.Map[String, Expr], s: Services): Expr = {
-    val conv = this(_: ProgramElement, t, vars, s)
+    apply(p, t.name.toString, vars, new java.util.HashMap[String, Expr], s)
+  }
+  def apply(p: ProgramElement, t: String, vars: java.util.Map[String, Expr], repl: java.util.Map[String, Expr], s: Services): Expr = {
+    val conv = this(_: ProgramElement, t, vars, repl, s)
     def isMathFunction(n: String, s: Services) : Boolean = s.getNamespaces.functions.lookup(new Name(n)) match {
         case null => false
         case rf : RigidFunction => rf.isMathFunction
         case _ => false
     }
 
-    val ofT = (x: Expr) => new Expr(x, Array(new Expr(Expr.SYMBOL, NameMasker.mask(t.name.toString))))
+    val ofT = (x: Expr) => new Expr(x, Array(new Expr(Expr.SYMBOL, NameMasker.mask(t))))
     p match {
-      case ComposedTerm(op, args) if (args.size == 0) =>
+      case ComposedTerm(op, args) if (args.size == 0 && repl.containsKey(op)) => repl.get(op)
+      case ComposedTerm(op, args) if (args.size == 0 && !repl.containsKey(op)) =>
         new Expr(Expr.SYMBOL, NameMasker.mask(op.getElementName.toString))
       case ComposedTerm(op, args) if (args.size > 0) =>
         new Expr(conv(op), args.map(conv).toArray)
@@ -199,7 +203,7 @@ object DL2Expr extends ExpressionConstants {
         }
       case DLVariable(n) =>
         val v = new Expr(Expr.SYMBOL, n)
-        if (vars.containsKey(n)) ofT(v) else v
+        if (vars.containsKey(n)) ofT(v) else if(repl.containsKey(n)) repl.get(n) else v
       case Dot(n, o) =>
         val v = new Expr(Expr.SYMBOL, n)
         val diffSymbol = new Expr(new Expr(new Expr(Expr.SYMBOL, "Derivative"),

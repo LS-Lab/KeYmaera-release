@@ -33,6 +33,7 @@ import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.LinkedHashSet;
@@ -619,7 +620,11 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 	 */
 	public static final void collectDottedProgramVariables(ProgramElement form,
 			Map<String, Expr> vars, Named t) {
-		String name = t.name().toString();
+		collectDottedProgramVariables(form, vars, t.name().toString());
+	}
+	
+	public static final void collectDottedProgramVariables(ProgramElement form,
+			Map<String, Expr> vars, String name) {
 		name = NameMasker.mask(name);
 		if (form instanceof Dot) {
 			ProgramVariable pv = (ProgramVariable) ((Dot) form).getChildAt(0);
@@ -631,7 +636,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 		if (form instanceof DLNonTerminalProgramElement) {
 			DLNonTerminalProgramElement dlnpe = (DLNonTerminalProgramElement) form;
 			for (ProgramElement p : dlnpe) {
-				collectDottedProgramVariables(p, vars, t);
+				collectDottedProgramVariables(p, vars, name);
 			}
 		}
 
@@ -1389,4 +1394,71 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 		return result;
 	}
 
+	public Map<String, Double[][]> getPlotData(DiffSystem sys, String t, double minT, double maxT, Map<String, Double> initialValues, Services services) throws SolverException, RemoteException{
+	           List<Expr> args = new ArrayList<Expr>();
+        Map<String, Expr> vars = new LinkedHashMap<String, Expr>();
+
+        collectDottedProgramVariables(sys, vars, t);
+        Map<String, Expr> init = new HashMap<String, Expr>();
+        for(String s: initialValues.keySet()) {
+            if(!vars.containsKey(s)) {
+                init.put(s, new Expr(initialValues.get(s)));
+            }
+        }
+        
+        for (ProgramElement el : sys.getDifferentialEquations(services.getNamespaces()))
+            args.add(DL2Expr.apply(el, t, vars, init, services));
+        for (String name : vars.keySet())
+            args.add(new Expr(EQUALS, new Expr[] {
+                        new Expr(new Expr(Expr.SYMBOL, name), new Expr[] { new Expr(0) }),
+                        new Expr(initialValues.get(name)) }));
+        String name = t;
+        name = NameMasker.mask(name);
+        final Expr list = new Expr(Expr.SYMBOL, "List");
+        Expr dsolve = new Expr(new Expr(Expr.SYMBOL, "DSolve"), new Expr[] {
+                        new Expr(list, args.toArray(new Expr[args.size()])),
+                        new Expr(list, vars.values().toArray(new Expr[0])),
+                        new Expr(Expr.SYMBOL, name) });
+        Expr rule = evaluate(dsolve).expression;
+        Map<String, Integer> positionMap = new HashMap<String, Integer>();
+        args = new ArrayList<Expr>();
+        final Expr exprT = new Expr(Expr.SYMBOL, t);
+        args.add(exprT);
+        for(String var: vars.keySet()) {
+            positionMap.put(var, args.size());
+            // N[var[t] /. rule] 
+            Expr vOfT = new Expr(new Expr(Expr.SYMBOL, var), new Expr[] { exprT });
+            Expr replace = new Expr(new Expr(Expr.SYMBOL, "ReplaceAll"), new Expr[] { vOfT, rule });
+            args.add(new Expr(new Expr(Expr.SYMBOL, "N"), new Expr[] { replace }));
+        }
+        
+        Expr query = new Expr(new Expr(Expr.SYMBOL, "Table"), new Expr[] {
+           new Expr(list, args.toArray(new Expr[args.size()])), new Expr(list, new Expr[] { exprT, new Expr(minT), new Expr(maxT) }) }); 
+        Expr updateExpressions = evaluate(query).expression;
+        // the result is a list of list that contain n elements, first one is
+        // the value of t, the subsequent ones are singleton lists containing
+        // the value of vars at that point
+        Map<String, Double[][]> result = new LinkedHashMap<String, Double[][]>();
+        for(String s: vars.keySet()) {
+            final Double[][] doubles = new Double[2][];
+            doubles[0] = new Double[updateExpressions.args().length];
+            doubles[1] = new Double[updateExpressions.args().length];
+            result.put(s, doubles);
+        }
+        assert updateExpressions.listQ() : "The head has to be a list";
+        for(int i = 0; i < updateExpressions.args().length; i++) {
+            for(String s: positionMap.keySet()) {
+                try {
+                    // at position 0 there is the value of t
+                    result.get(s)[0][i] = updateExpressions.args()[i].args()[0].asDouble();
+                    // at position positionMap.get(s) there is a singleton list with the value of s
+                    result.get(s)[1][i] = updateExpressions.args()[i].args()[positionMap.get(s)].args()[0].asDouble();
+                } catch (ExprFormatException e) {
+                    e.printStackTrace();
+                    throw new FailedComputationException(e);
+                }
+            }
+        }
+        return result;
+	}
 }
