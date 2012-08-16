@@ -158,10 +158,11 @@ class TacletMenu extends JMenu {
 
 	createBuiltInRuleMenu(builtInList, control);
         
+	addSkolemizeTactic(control);
+	
 	createFocussedAutoModeMenu ( control );
     
 	//        addPopFrameItem(control);
-	addSkolemizeTactic(control);
 	addClipboardItem(control);
 
 	if (pos != null) {
@@ -326,6 +327,7 @@ class TacletMenu extends JMenu {
         @Override
         public void actionPerformed(ActionEvent arg0) {
             new SkolemizeTactic().apply(selectedGoal, mediator.getServices());
+            mediator.goalChosen(selectedGoal);
         }
     });
 	add(item);

@@ -25,6 +25,10 @@ import de.uka.ilkd.key.logic.op.RigidFunction.FunctionType
 import scala.collection.mutable.LinkedHashMap
 import de.uka.ilkd.key.logic.Named
 import de.uka.ilkd.key.logic.op.Op
+import de.uka.ilkd.key.rule.IfFormulaInstantiation
+import de.uka.ilkd.key.rule.IfFormulaInstSeq
+import de.uka.ilkd.key.collection.ImmutableList
+import de.uka.ilkd.key.collection.ImmutableSLList
 
 /**
  * @author jdq
@@ -45,52 +49,65 @@ class SkolemizeTactic {
     val tacomplete = papp.createSkolemConstant(s.getNamespaces.getUniqueName("sk"), sv, false, s)
     var ta = tacomplete.instantiateWithMV(g)
     ta = ta.createSkolemFunctions(s.getNamespaces().functions(), s)
-    val skC =  ta.instantiations().lookupValue(new Name("sk"))
+    val skC = ta.instantiations().lookupValue(new Name("sk"))
+    val trm = ta.instantiations().lookupValue(new Name("trm"))
     s.getNamespaces().functions().add(skC.asInstanceOf[Term].op())
     // apply the skolemize rule
     ta.execute(g, s);
     var skip = -1;
-    for(i <- 0 until g.sequent().antecedent().size())
-        if(g.sequent().antecedent().get(i).formula().op() == Op.EQUALS) {
-          if(g.sequent().antecedent().get(i).formula().sub(0).op() == skC.asInstanceOf[Term].op()) {
+    for (i <- 0 until g.sequent().antecedent().size())
+      if (g.sequent().antecedent().get(i).formula().op() == Op.EQUALS) {
+        if (g.sequent().antecedent().get(i).formula().sub(0).op() == skC.asInstanceOf[Term].op()) {
+          skip = i
+        }
+      }
+    assert(skip != -1)
+    // we need to ignore formula skip as that is the equation we want to apply
+    var r: PosInOccurrence = null
+    do {
+      var skip = -1;
+      for (i <- 0 until g.sequent().antecedent().size())
+        if (g.sequent().antecedent().get(i).formula().op() == Op.EQUALS) {
+          if (g.sequent().antecedent().get(i).formula().sub(0).op() == skC.asInstanceOf[Term].op()
+              && g.sequent().antecedent().get(i).formula().sub(1).op() == trm.asInstanceOf[Term].op()) {
             skip = i
           }
         }
-    assert(skip != -1) 
-    // we need to ignore formula skip as that is the equation we want to apply
-    var r : PosInOccurrence = null
-    do {
-        r = null
-        for(i <- 0 until g.sequent.antecedent.size) {
-          if(i != skip) {
-              val res = findNonRigidFunction(new PosInOccurrence(g.sequent.antecedent.get(i), PosInTerm.TOP_LEVEL, true))
-              res get p.subTerm().toString() match {
-                case Some(l) => r = l
-                case _ => 
-              }
+      assert(skip != -1)
+
+      r = null
+      for (i <- 0 until g.sequent.antecedent.size) {
+        if (i != skip) {
+          val res = findNonRigidFunction(new PosInOccurrence(g.sequent.antecedent.get(i), PosInTerm.TOP_LEVEL, true))
+          res get p.subTerm().toString() match {
+            case Some(l) => r = l
+            case _ =>
           }
         }
-        if(r == null) {
-            for(i <- 0 until g.sequent.succedent.size) {
-              val res = findNonRigidFunction(new PosInOccurrence(g.sequent.succedent.get(i), PosInTerm.TOP_LEVEL, false))
-              res get p.subTerm().toString() match {
-                case Some(l) => r = l
-                case _ => 
-              }
-            }
+      }
+      if (r == null) {
+        for (i <- 0 until g.sequent.succedent.size) {
+          val res = findNonRigidFunction(new PosInOccurrence(g.sequent.succedent.get(i), PosInTerm.TOP_LEVEL, false))
+          res get p.subTerm().toString() match {
+            case Some(l) => r = l
+            case _ =>
+          }
         }
-        if(r != null) {
-            var apply_eq = g.ruleAppIndex.tacletIndex.lookup("applyEq_sym")
-            apply_eq = apply_eq.matchFind(r, Constraint.BOTTOM, s, Constraint.BOTTOM)
-            val papp = apply_eq.setPosInOccurrence(r)
-            var ra = papp.addInstantiation(papp.uninstantiatedVars().iterator().next(), g.sequent().antecedent().get(0).formula().sub(0), false)
-            ra = ra.findIfFormulaInstantiations(g.sequent(), s, Constraint.BOTTOM).head()
-            ra = ra.instantiateWithMV(g)
-            ra = ra.createSkolemFunctions(s.getNamespaces().functions(), s)
-            // apply rule
-            ra.execute(g, s);
-        }
-    } while(r != null)
+      }
+      if (r != null) {
+        var apply_eq = g.ruleAppIndex.tacletIndex.lookup("applyEq_sym")
+        apply_eq = apply_eq.matchFind(r, Constraint.BOTTOM, s, Constraint.BOTTOM)
+        val papp = apply_eq.setPosInOccurrence(r)
+        var ra = papp.addInstantiation(papp.uninstantiatedVars().iterator().next(), g.sequent().antecedent().get(skip).formula().sub(0), false)
+        val lst: ImmutableList[IfFormulaInstantiation] = ImmutableSLList.nil.asInstanceOf[ImmutableList[IfFormulaInstantiation]]
+        val ifInstList = lst.append(new IfFormulaInstSeq(g.sequent, true, g.sequent.antecedent.get(skip)))
+        ra = ra.setIfFormulaInstantiations(ifInstList, s, Constraint.BOTTOM)
+        ra = ra.instantiateWithMV(g)
+        ra = ra.createSkolemFunctions(s.getNamespaces().functions(), s)
+        // apply rule
+        ra.execute(g, s);
+      }
+    } while (r != null)
     // afterwards hide the introduced equality
     var hide = g.ruleAppIndex().tacletIndex().lookup("hide_left")
     val pos0 = new PosInOccurrence(g.sequent().antecedent().get(skip), PosInTerm.TOP_LEVEL, true)
@@ -100,9 +117,7 @@ class SkolemizeTactic {
     ra = ra.createSkolemFunctions(s.getNamespaces().functions(), s)
     // apply rule
     ra.execute(g, s);
-    // apply skolemize rule
-    // then apply "apply_eq" rule
-    if(!findNonRigidFunction(g.sequent()).isEmpty)
+    if (!findNonRigidFunction(g.sequent()).isEmpty)
       apply(g, s)
   }
 
