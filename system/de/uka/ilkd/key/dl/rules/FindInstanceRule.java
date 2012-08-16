@@ -38,6 +38,8 @@ import javax.swing.SwingUtilities;
 
 import de.uka.ilkd.key.collection.ImmutableList;
 import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
+import de.uka.ilkd.key.dl.logic.ldt.RealLDT;
+import de.uka.ilkd.key.dl.strategy.features.FOSequence;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.logic.ConstrainedFormula;
 import de.uka.ilkd.key.logic.Constraint;
@@ -47,6 +49,7 @@ import de.uka.ilkd.key.logic.PosInTerm;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.TermBuilder;
 import de.uka.ilkd.key.logic.Visitor;
+import de.uka.ilkd.key.logic.op.NonRigidFunctionLocation;
 import de.uka.ilkd.key.logic.op.Op;
 import de.uka.ilkd.key.proof.Goal;
 import de.uka.ilkd.key.proof.RuleFilter;
@@ -228,8 +231,9 @@ public class FindInstanceRule extends Visitor implements BuiltInRule,
      *                the term to check.
      */
     private void performSearch(Term visited) {
-        if (visited.op() == Op.BOX || visited.op() == Op.DIA
-                || visited.op() == Op.BOXTRA || visited.op() == Op.DIATRA) {
+        if (!FOSequence.isFOOperator(visited.op())
+                || FOSequence.isFunctionWithDifferentSort(visited,
+                        RealLDT.getRealSort()) || visited.op() instanceof NonRigidFunctionLocation) {
             formulaContainsSearchSymbol = false;
         }
     }
