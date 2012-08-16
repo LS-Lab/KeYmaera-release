@@ -539,6 +539,10 @@
 					</p>
 					]]>
 				</description>
+				<hints>
+					<hint>Try using differential induction</hint>
+					<hint>The input file defines a function R Log(R) as \external</hint>
+				</hints>
 				<resources>
 					<img>/examples/hybrid/verifiedsoft/cooling.png</img>
 					<img>/examples/hybrid/verifiedsoft/cooling2.png</img>

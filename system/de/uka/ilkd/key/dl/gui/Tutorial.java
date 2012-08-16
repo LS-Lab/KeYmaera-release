@@ -57,6 +57,8 @@ import javax.swing.JToolTip;
 import javax.swing.JTree;
 import javax.swing.KeyStroke;
 import javax.swing.UIManager;
+import javax.swing.event.HyperlinkEvent;
+import javax.swing.event.HyperlinkListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -121,6 +123,8 @@ public class Tutorial extends JFrame {
         private String url;
 
         private String description;
+        
+        private List<String> hints;
 
         private List<Image> resources;
 
@@ -132,7 +136,7 @@ public class Tutorial extends JFrame {
          * @param img
          */
         public TutorialPage(String title, String url, String description,
-                List<String> resources) {
+                List<String> resources, List<String> hints) {
             super();
             this.title = title;
             this.url = url;
@@ -155,6 +159,7 @@ public class Tutorial extends JFrame {
                     }
                 }
             }
+            this.hints = hints;
         }
 
         public TutorialPage(Boolean isEmpty, String title) {
@@ -164,6 +169,7 @@ public class Tutorial extends JFrame {
             this.url = "";
             this.description = "There is no example available.";
             this.resources = new ArrayList<Image>();
+            this.hints = new ArrayList<String>();
         }
 
         /**
@@ -188,21 +194,17 @@ public class Tutorial extends JFrame {
         }
 
         /**
-         * @return true if example is empty or false if otherwise.
-         */
-        public boolean isEmpty() {
-            return isEmtpy;
-        }
-
-        public void setIsEmpty(boolean bool) {
-            isEmtpy = bool;
-        }
-
-        /**
          * @return the img
          */
         public List<Image> getResources() {
             return resources;
+        }
+        
+        /**
+         * @return the hints
+         */
+        public List<String> getHints() {
+            return hints;
         }
 
         /*
@@ -400,18 +402,21 @@ public class Tutorial extends JFrame {
     }
 
     private JComponent createTextPanel(String text) {
+        return createTextPanel(text, ProjectManager.getHyperlinkListener());
+    }
+    private JComponent createTextPanel(String text, HyperlinkListener l) {
         JTextPane textArea = new JTextPane();
         textArea.setContentType("text/html");
         textArea.setEditable(false);
         textArea.setAutoscrolls(false);
-        textArea.addHyperlinkListener(ProjectManager.getHyperlinkListener());
+        textArea.addHyperlinkListener(l);
 
         textArea.setText(text);
         setFont(textArea);
         return new JScrollPane(textArea);
     }
 
-    private JComponent createExcerciseView(TutorialPage p) {
+    private JComponent createExcerciseView(final TutorialPage p) {
         // left labels
         GridBagConstraints l = new GridBagConstraints();
         l.anchor = GridBagConstraints.NORTHWEST;
@@ -435,7 +440,28 @@ public class Tutorial extends JFrame {
         f.weighty = 0.5;
 
         JPanel imgPanel = new JPanel(new BorderLayout());
-        JComponent textArea = createTextPanel(p.getDescription());
+        String description = p.getDescription();
+        description += "<p>";
+        for(int i = 0; i < p.getHints().size(); i++) {
+            description += " <a href=\"http://hint?" + i + "\">Hint " + (i+1) + "</a>"; 
+        }
+        description += "</p>";
+        JComponent textArea = createTextPanel(description, new HyperlinkListener() {
+            
+            @Override
+            public void hyperlinkUpdate(HyperlinkEvent arg0) {
+                if(arg0.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
+                    try {
+                        int i = Integer.parseInt(arg0.getURL().getQuery());
+                        Main.getInstance().getProofAssistantController().displayText(p.getHints().get(i));
+                    } catch(NumberFormatException e) {
+                        // ignore
+                    }
+                }
+            }
+        });
+        
+        
 
         imgPanel.add(textArea, BorderLayout.CENTER);
 
@@ -566,14 +592,21 @@ public class Tutorial extends JFrame {
                 XPathConstants.STRING);
         NodeList resourceList = (NodeList) xpath.evaluate("resources/img",
                 node, XPathConstants.NODESET);
+        NodeList hintList = (NodeList) xpath.evaluate("hints/hint",
+                node, XPathConstants.NODESET);
 
         List<String> resources = new ArrayList<String>();
         for (int i = 0; i < resourceList.getLength(); i++) {
             resources.add(resourceList.item(i).getTextContent());
         }
+        
+        List<String> hints = new ArrayList<String>();
+        for (int i = 0; i < hintList.getLength(); i++) {
+            hints.add(hintList.item(i).getTextContent());
+        }
 
         tNode = new DefaultMutableTreeNode(new TutorialPage(title, path,
-                description, resources));
+                description, resources, hints));
 
         return tNode;
     }
