@@ -204,36 +204,33 @@ public class NamespaceSet {
         return getUniqueName(prefix, false);
     }
     
-    public String getUniqueName(final String prefix, boolean increaseIndex) {
-        String pref = prefix;
+    public String getUniqueName(String prefix, boolean increaseIndex) {
         if (prefix == null || prefix.equals("")) {
-            pref = "_var";
+            prefix = "_var";
         }
+        String pref = prefix;
         String result = prefix;
         Named n = lookup(new Name(result));
         int i = 0;
         if(currentCounter.containsKey(prefix)) {
             i = currentCounter.get(prefix);
         }
-        if (increaseIndex) {
-            if (prefix.contains("_")) {
-                try {
-                    i = Integer.parseInt(prefix.substring(prefix
-                            .lastIndexOf('_') + 1));
-                    i++;
-                    pref = pref.substring(0, pref.lastIndexOf('_') + 1);
-                } catch (NumberFormatException e) {
-                    pref = pref + "_";
-                }
-            } else {
+        if (increaseIndex && pref.contains("_")) {
+            try {
+                i = Integer.parseInt(pref.substring(pref.lastIndexOf('_') + 1));
+                i++;
+                pref = pref.substring(0, pref.lastIndexOf('_') + 1);
+            } catch (NumberFormatException e) {
                 pref = pref + "_";
             }
+        } else {
+            pref = pref + "_";
         }
         while (n != null) {
             result = pref + i++;
             n = lookup(new Name(result));
         }
-        currentCounter.put(pref, i);
+        currentCounter.put(prefix, i);
         return result;
     }
 
