@@ -43,6 +43,7 @@ import de.uka.ilkd.key.dl.rules.PlotRule;
 import de.uka.ilkd.key.dl.rules.ReduceRule;
 import de.uka.ilkd.key.dl.rules.SumOfSquaresRule;
 import de.uka.ilkd.key.dl.rules.VisualizationRule;
+import de.uka.ilkd.key.dl.strategy.features.AllRigidFeature;
 import de.uka.ilkd.key.dl.strategy.features.AnnotationList;
 import de.uka.ilkd.key.dl.strategy.features.AtomsSmallerThanFeature;
 import de.uka.ilkd.key.dl.strategy.features.ContainsInequalityFeature;
@@ -447,6 +448,10 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 								FOSequence.INSTANCE, longConst(20000)));
 			}
 		}
+		
+		// only apply the reduce rule if all terms are rigid
+		reduceSequence = add(reduceSequence, ConditionalFeature.createConditional(
+					ReduceRule.INSTANCE, AllRigidFeature.INSTANCE));
 
 		// if the sequent is first order, we can try to apply the rule...
 		// the strat should still avoid applying it, if there is another
