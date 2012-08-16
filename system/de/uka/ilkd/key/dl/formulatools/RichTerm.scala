@@ -164,6 +164,15 @@ object Function {
   }
 }
 
+object NonRigidFunction {
+  def unapply(t: Term) : Option[(String, Seq[Term])] = { 
+    if(t.op.isInstanceOf[de.uka.ilkd.key.logic.op.NonRigidFunctionLocation]) {
+      val children = for (i <- 0 until t.arity) yield t.sub(i)
+      Some((t.op.name.toString, children))
+    } else None
+  }
+}
+
 object Ex {
 
   def apply(t: Term, v: LogicVariable): Term = {

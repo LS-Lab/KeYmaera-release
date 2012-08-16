@@ -36,6 +36,7 @@ import de.uka.ilkd.key.collection.ImmutableSLList;
 import de.uka.ilkd.key.dl.rules.EliminateExistentialQuantifierRule;
 import de.uka.ilkd.key.dl.rules.ReduceRule;
 import de.uka.ilkd.key.dl.rules.ReduceRuleApp;
+import de.uka.ilkd.key.dl.strategy.tactics.SkolemizeTactic;
 import de.uka.ilkd.key.gui.KeYMediator;
 import de.uka.ilkd.key.gui.Main;
 import de.uka.ilkd.key.gui.ReduceRulesItem;
@@ -76,6 +77,10 @@ import de.uka.ilkd.key.smt.SMTRuleMulti;
  * Taclet that are applicable at a selected position in a sequent.
  */ 
 class TacletMenu extends JMenu {
+
+    private static final String SKOLEMIZE_NON_RIGIDS = "skolemize non-rigids";
+
+    private static final String TO_CLIPBOARD = "to clipboard";
 
     private PosInSequent pos;
     private SequentView sequentView;
@@ -156,7 +161,7 @@ class TacletMenu extends JMenu {
 	createFocussedAutoModeMenu ( control );
     
 	//        addPopFrameItem(control);
-
+	addSkolemizeTactic(control);
 	addClipboardItem(control);
 
 	if (pos != null) {
@@ -313,10 +318,22 @@ class TacletMenu extends JMenu {
 	add(item);
     }
 
+    private void addSkolemizeTactic(MenuControl control) {
+	addSeparator();
+	JMenuItem item = new JMenuItem(SKOLEMIZE_NON_RIGIDS);
+	item.addActionListener(new ActionListener() {
+        
+        @Override
+        public void actionPerformed(ActionEvent arg0) {
+            new SkolemizeTactic().apply(selectedGoal, mediator.getServices());
+        }
+    });
+	add(item);
+    }
     
     private void addClipboardItem(MenuControl control) {
 	addSeparator();
-	JMenuItem item = new JMenuItem("to clipboard");
+	JMenuItem item = new JMenuItem(TO_CLIPBOARD);
 	item.addActionListener(control);
 	add(item);
     }
@@ -410,7 +427,7 @@ class TacletMenu extends JMenu {
     /** ActionListener */
     class MenuControl implements ActionListener{
 
-	private boolean validabbreviation(String s){
+    private boolean validabbreviation(String s){
 	    if(s==null || s.length()==0) return false;
 	    for(int i=0; i<s.length(); i++){
 		if(!((s.charAt(i)<='9' && s.charAt(i)>='0')||
@@ -446,7 +463,7 @@ class TacletMenu extends JMenu {
 	                                     mediator.getSelectedGoal () );
 	    } else {
 		if (((JMenuItem)e.getSource()).getText()
-		    .startsWith("to clipboard")){
+		    .startsWith(TO_CLIPBOARD)){
                     Main.copyHighlightToClipboard(sequentView);
 		} else if(((JMenuItem)e.getSource()).getText().
 			  startsWith("Pop method frame")){

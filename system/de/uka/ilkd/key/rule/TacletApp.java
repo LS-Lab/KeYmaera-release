@@ -979,7 +979,7 @@ public abstract class TacletApp implements RuleApp {
 					       boolean        interesting ) {
 	Function c = new RigidFunction ( new Name ( instantiation ),
 				    sort,
-				    new Sort [0] );
+				    new Sort [0], FunctionType.SKOLEM );
 	return addInstantiation ( sv,
 				  TermFactory.DEFAULT.createFunctionTerm ( c ),
 				  interesting );

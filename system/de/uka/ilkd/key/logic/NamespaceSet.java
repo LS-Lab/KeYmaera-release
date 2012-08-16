@@ -195,6 +195,20 @@ public class NamespaceSet {
         } 
         return null;
     }
+    
+    public String getUniqueName(String prefix) {
+        if(prefix == null || prefix.equals("")) {
+            prefix = "_var";
+        }
+        String result = prefix;
+        Named n = lookup(new Name(result));
+        int i = 0;
+        while(n != null) {
+            result = prefix + "_" + i++;
+            n = lookup(new Name(result));
+        } 
+        return result;
+    }
 
     public String toString() {
 	return "Sorts: "+sorts()+"\n"+
