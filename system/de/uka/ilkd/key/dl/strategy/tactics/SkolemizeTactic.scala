@@ -46,7 +46,8 @@ class SkolemizeTactic {
     val papp = skolemize.setPosInOccurrence(p)
     // there should only be one schema variable left that needs instantiation
     val sv = papp.uninstantiatedVars().iterator().next()
-    val tacomplete = papp.createSkolemConstant(s.getNamespaces.getUniqueName("sk"), sv, false, s)
+    val indices = (x : Term) => if(x.arity > 0) "_" + (for(i <- 0 until x.arity) yield x.sub(i).op.name.toString).reduce((a,b) => a + "_" + b) else ""
+    val tacomplete = papp.createSkolemConstant(s.getNamespaces.getUniqueName(p.subTerm.op.name.toString + indices(p.subTerm)), sv, false, s)
     var ta = tacomplete.instantiateWithMV(g)
     ta = ta.createSkolemFunctions(s.getNamespaces().functions(), s)
     val skC = ta.instantiations().lookupValue(new Name("sk"))
