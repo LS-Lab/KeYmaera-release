@@ -565,6 +565,23 @@
 				</resources>
 				<path>/examples/hybrid/verifiedsoft/heater-switchdelay-extract2.key</path>
 			</exercise>
+			<exercise>
+				<title>Ex. 14 Distributed cars</title>
+				<description>
+					<![CDATA[
+					<p>
+					Consider the following example of two cars. It is modelled in QdL.
+					</p>
+					<p>
+						<b>Exercise:</b> Prove that the two cars do not collide
+					</p>
+					]]>
+				</description>
+				<resources>
+					<img>/examples/hybrid/qdl/fig-distributed-car-control.png</img>
+				</resources>
+				<path>/examples/hybrid/qdl/llcsimpler.key</path>
+			</exercise>
 		</tutorial>
 	</tutorials>
 </description>
