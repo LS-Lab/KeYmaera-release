@@ -29,11 +29,11 @@ public enum EToolPath {
     Z3(
             "http://csd.informatik.uni-oldenburg.de/keymaera/tools/z3-windows.zip",
             FileType.ZIP,
-            "http://research.microsoft.com/projects/z3/z3-x64-4.0.tar.gz",
+            "http://research.microsoft.com/projects/z3/z3-x64-4.1.tar.gz",
             FileType.TARGZ,
-            "http://research.microsoft.com/projects/z3/z3-4.0.tar.gz",
+            "http://research.microsoft.com/projects/z3/z3-4.1.tar.gz",
             FileType.TARGZ,
-            "http://research.microsoft.com/en-us/um/redmond/projects/z3/z3-osx-4.0.tar.gz",
+            "http://research.microsoft.com/en-us/um/redmond/projects/z3/z3-osx-4.1.tar.gz",
             FileType.TARGZ),
 
     CSDP(
