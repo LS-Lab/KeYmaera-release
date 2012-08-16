@@ -282,12 +282,104 @@
 				<description>Use Pen&amp;Paper to model a car.</description>
 			</exercise>
 			<exercise>
-				<title>Ex. 2 Dynamics</title>
-				<description>Given the following system of...</description>
+				<title>Ex. 2 Continuous dynamics</title>
+				<description>
+				<![CDATA[
+					<h3>Modeling a safety property of a continuous system</h3>
+					<p>
+					This is a simple system in which a car starts at some velocity v and accelerates at constant rate A along a straight lane.
+					The requirement we want to prove is that the car may never travel backward, i.e. for all time, in all scenarios v is greater than or equal to zero.
+					</p>
+					<b>Exercise:</b> 
+					Load the example and press play. The automatic strategy is able to prove this example.
+				]]>
+				</description>
 				<path>/examples/hybrid/tutorial/lics1-continuous-forward.key</path>
 			</exercise>
 			<exercise>
-				<title>Ex. 3 Water Tank</title>
+				<title>Ex. 3 Safety of a simple car model</title>
+				<description>
+				<![CDATA[
+					<h3>Modeling a safety property of a hybrid system</h3>
+					<p>
+					In this example, we introduce a discrete controller into the
+					model of the continuous system in Example 1. The controller has
+					only two options: it may cause the car to accelerate with rate
+					A or brake with rate -b.
+					</p>
+					<b>Exercise:</b>
+					<ul>
+						<li>Load the example and press play. The automatic strategy is able to prove this example.</li>
+						<li>Investigate the resulting proof. Which loop invariant did the strategy use?</li>
+					</ul>
+				]]>
+				</description>
+				<path>/examples/hybrid/tutorial/lics2-hybrid-forward.key</path>
+			</exercise>
+			<exercise>
+				<title>Ex. 4 Event-triggered car</title>
+				<description>
+				<![CDATA[
+					<p>
+					While the car is driving down the lane, the controller must
+					choose when to begin decelerating so that it stops at or
+					before a stop sign.  We add an additional constraint to the
+					evolution domain to model an event triggered system.  In
+					this case, the event-trigger is when the distance between
+					the car and the stop sign equals the stopping distance of
+					the car. This example shows that the system still can never
+					travel backwards.
+					</p>
+					<b>Exercise:</b>
+					<ul>
+						<li>Load the example.</li>
+						<li>Go to your <tt>Hybrid Strategy</tt> tab and turn <tt>Differential Saturation</tt> to <b>off</b> 
+						<li>Prove that the car is safe.</li>
+					</ul>
+				]]>
+				</description>
+				<path>/examples/hybrid/tutorial/lics3a-event-forward.key</path>
+			</exercise>
+			<exercise>
+				<title>Ex. 5 Time-triggered car</title>
+				<description>
+				<![CDATA[
+					<h3>Time-triggered safe if braking safe</h3>
+					<p>
+					In a realistic system, the sensors on the car would take periodic measurements
+					of position and velocity and the controller would execute each time those
+					sensor updates are taken. We continue with the single car travelling toward a
+					stop sign, receiving periodic updates about its position and velocity.  The
+					time between sensor updates is bounded by ep. Proves that the car controller
+					will always make the car stay before the traffic light if braking would.
+					</p>
+					<p>
+					Variable Definitions:
+					<ul>
+					  <li> <b>x</b> position of car</li>
+					  <li> <b>v</b> velocity of car
+					  <li> <b>a</b> acceleration of car</li>
+					  <li> <b>A</b> max acceleration</li>
+					  <li> <b>b</b> max braking</li>
+					  <li> <b>m</b> position of Stop Sign</li>
+					</ul>
+					</p>
+					<p>
+					Hint: To prove quickly, instantiate the time quantifier in the antecedent by the time
+					variable of the succedent (e.g. t5_0).
+					</p>
+					<b>Exercise:</b>
+					<ul>
+						<li>Load the example.</li>
+						<li>Go to your <tt>Hybrid Strategy</tt> tab and turn <tt>Differential Saturation</tt> to <b>off</b> 
+						<li>Prove that the car is safe.</li>
+					</ul>
+				]]>
+				</description>
+				<path>/examples/hybrid/verifiedsoft/time-safe-relative.key</path>
+			</exercise>
+			<exercise>
+				<title>Ex. 6 Water Tank</title>
 				<description>
 				<![CDATA[
 					<p>
@@ -305,7 +397,11 @@
 					The modes st = 1 and st = 3 model the delays while switching between modes 0 and 2.
 					</p>
 					<p>
-					<b>Exercise:</b> Load the example and press play. The automatic strategy is able to prove this example using the annotated loop invariant in the input file. 
+						<b>Exercise:</b>
+						<ul>
+							<li>Load the example.</li>
+							<li>Go to your <tt>Hybrid Strategy</tt> tab and turn <tt>Differential Saturation</tt> to <b>auto</b> </li>
+							<li>Press play. The automatic strategy is able to prove this example using the annotated loop invariant in the input file.</li>
 					</p>
 				
 				]]>
@@ -317,7 +413,7 @@
 			    <path>/examples/hybrid/publish/water_tank.key</path>
 			</exercise>
 			<exercise>
-				<title>Ex. 4 Parametric Water Tank</title>
+				<title>Ex. 7 Parametric Water Tank</title>
 				<description>
 					<![CDATA[
 					<p>
@@ -346,11 +442,12 @@
 				 <path>/examples/hybrid/verifiedsoft/general_water_tank.key</path>
 			</exercise>
 			<exercise>
-				<title>Ex. 5 Differential Cut</title>
+				<title>Ex. 8 Cooling down</title>
 				<description>
 					<![CDATA[
 					<p>
-					Consider the differential equation <b>x' = 10 - x</b>. 
+						A room with a temperature <b>x</b> of more than 10 degrees within an enviornment with constant temperature of 10 degrees is bound to cool down. 
+						We model this system by the differential equation <b>x' = 10 - x</b>. 
 					</p>
 					
 					<p>
@@ -364,11 +461,15 @@
 				<path>/examples/hybrid/heater/diffcut.key</path>
 			</exercise>
 			<exercise>
-				<title>Ex. 6 Differential Cut 2</title>
+				<title>Ex. 9 Heating up</title>
 				<description>
 					<![CDATA[
 					<p>
-					Consider the differential equation <b>x' = 15 + 1/2*(10-x)</b>.
+					Now our heater from the previous exercise gets a heater
+					which constantly increases the temperature in the room.
+					Further, we add some isolation to room to slow down
+					temperature exchange a bit. This is modelled by the
+					differential equation <b>x' = 15 + 1/2*(10-x)</b>.
 					</p>
 					<p>
 						<b>Exercise:</b> Prove that if this system is started with an inital value less than 40 it always stays less than 40.
@@ -381,11 +482,15 @@
 				<path>/examples/hybrid/heater/diffcut2.key</path>
 			</exercise>
 			<exercise>
-				<title>Ex. 7 Differential Cut 3</title>
+				<title>Ex. 10 At least not cooling down</title>
 				<description>
 					<![CDATA[
 					<p>
-					Consider the differential equation <b>x' = 15 + 1/2*(10-x)</b>.
+					In the previous exercise we have shown that there is an
+					upper bound for the temperature. Now we want to show that
+					of course there is a lower bound as well.
+					</p>
+					Reminder: The system is still modelled by the differential equation <b>x' = 15 + 1/2*(10-x)</b>.
 					</p>
 					<p>
 						<b>Exercise:</b> Prove that if this system is started with an inital value between 20 and 30 it always stays above 15.
@@ -398,11 +503,15 @@
 				<path>/examples/hybrid/heater/diffcut3.key</path>
 			</exercise>
 			<exercise>
-				<title>Ex. 8 Differential Cut 4</title>
+				<title>Ex. 11 Behavior in hot cases</title>
 				<description>
 					<![CDATA[
 					<p>
-					Consider the differential equation <b>x' = 15 + 1/2*(10-x)</b>.
+					So we know that there is an upper bound for certain cases
+					and a lower bound for certain cases. What happens if we
+					start with an arbitrary value above 15 degrees?
+					</p>
+					Reminder: The system is still modelled by the differential equation <b>x' = 15 + 1/2*(10-x)</b>.
 					</p>
 					<p>
 						<b>Exercise:</b> Prove that if this system is started with an inital value greater than 15 it always stays above 15.
@@ -417,7 +526,7 @@
 				<path>/examples/hybrid/heater/diffcut4.key</path>
 			</exercise>
 			<exercise>
-				<title>Ex. 9 Heater (extract)</title>
+				<title>Ex. 12 Heater (extract)</title>
 				<description>
 					<![CDATA[
 					<p>
@@ -437,7 +546,7 @@
 				<path>/examples/hybrid/verifiedsoft/heater-switchdelay-extract.key</path>
 			</exercise>
 			<exercise>
-				<title>Ex. 10 Heater (extract 2)</title>
+				<title>Ex. 13 Heater (extract 2)</title>
 				<description>
 					<![CDATA[
 					<p>
