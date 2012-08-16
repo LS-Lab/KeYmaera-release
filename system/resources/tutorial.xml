@@ -540,8 +540,8 @@
 					]]>
 				</description>
 				<hints>
-					<hint>Try using differential induction</hint>
-					<hint>The input file defines a function R Log(R) as \external</hint>
+					<hint id="12.0">Try using differential induction</hint>
+					<hint id="12.1">The input file defines a function R Log(R) as \external</hint>
 				</hints>
 				<resources>
 					<img>/examples/hybrid/verifiedsoft/cooling.png</img>

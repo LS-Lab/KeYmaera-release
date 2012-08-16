@@ -41,7 +41,7 @@ public class Config {
 
     /** An array of font sizes for the goal view */
     private static final int[] sizes=new int[]{10,12,14,17,20,24};
-
+    
     /** The index of the current size */
     private int sizeIndex = ProofSettings.DEFAULT_SETTINGS.getViewSettings().sizeIndex();
 

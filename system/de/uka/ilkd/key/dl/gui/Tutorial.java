@@ -74,6 +74,7 @@ import org.w3c.dom.NodeList;
 import de.uka.ilkd.key.dl.utils.XMLReader;
 import de.uka.ilkd.key.gui.Main;
 import de.uka.ilkd.key.gui.configuration.Config;
+import de.uka.ilkd.key.gui.configuration.ProofSettings;
 import de.uka.ilkd.key.util.Debug;
 
 /**
@@ -130,13 +131,15 @@ public class Tutorial extends JFrame {
 
         private boolean isEmtpy = false;
 
+        private List<String> hintIds;
+
         /**
          * @param name
          * @param url
          * @param img
          */
         public TutorialPage(String title, String url, String description,
-                List<String> resources, List<String> hints) {
+                List<String> resources, List<String> hints, List<String> hintIds) {
             super();
             this.title = title;
             this.url = url;
@@ -160,6 +163,7 @@ public class Tutorial extends JFrame {
                 }
             }
             this.hints = hints;
+            this.hintIds = hintIds;
         }
 
         public TutorialPage(Boolean isEmpty, String title) {
@@ -170,6 +174,7 @@ public class Tutorial extends JFrame {
             this.description = "There is no example available.";
             this.resources = new ArrayList<Image>();
             this.hints = new ArrayList<String>();
+            this.hintIds = new ArrayList<String>();
         }
 
         /**
@@ -215,6 +220,14 @@ public class Tutorial extends JFrame {
         /* @Override */
         public String toString() {
             return title;
+        }
+
+        /**
+         * @param i
+         * @return
+         */
+        public String getHintId(int i) {
+            return hintIds.get(i);
         }
     }
 
@@ -454,6 +467,7 @@ public class Tutorial extends JFrame {
                     try {
                         int i = Integer.parseInt(arg0.getURL().getQuery());
                         Main.getInstance().getProofAssistantController().displayText(p.getHints().get(i));
+                        ProofSettings.DEFAULT_SETTINGS.getHintLog().addUsedHint(p.getHintId(i));
                     } catch(NumberFormatException e) {
                         // ignore
                     }
@@ -601,12 +615,16 @@ public class Tutorial extends JFrame {
         }
         
         List<String> hints = new ArrayList<String>();
+        List<String> hintIds = new ArrayList<String>();
         for (int i = 0; i < hintList.getLength(); i++) {
-            hints.add(hintList.item(i).getTextContent());
+            final Node item = hintList.item(i);
+            String id = xpath.evaluate("@id", item);
+            hintIds.add(id);
+            hints.add(item.getTextContent());
         }
 
         tNode = new DefaultMutableTreeNode(new TutorialPage(title, path,
-                description, resources, hints));
+                description, resources, hints, hintIds));
 
         return tNode;
     }

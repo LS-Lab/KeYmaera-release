@@ -79,7 +79,8 @@ public class ProofSettings {
 	    new ViewSettings(),
             new LibrariesSettings(),
             DLOptionBean.INSTANCE,
-            TacletTranslationSettings.getInstance()
+            TacletTranslationSettings.getInstance(),
+            new HintLog()
 	};
         for (Settings setting : settings) {
             setting.addSettingsListener(listener);
@@ -276,6 +277,11 @@ public class ProofSettings {
     public ViewSettings getViewSettings() {
 	ensureInitialized();
 	return (ViewSettings) settings[5];
+    }
+    
+    public HintLog getHintLog() {
+        ensureInitialized();
+        return (HintLog) settings[9];
     }
 
     private class ProofSettingsListener implements SettingsListener {
