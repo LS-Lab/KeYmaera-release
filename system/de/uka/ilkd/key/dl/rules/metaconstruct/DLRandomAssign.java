@@ -69,21 +69,14 @@ public class DLRandomAssign extends AbstractDLMetaOperator {
      */
     public Term calculate(Term term, SVInstantiations svInst, Services services) {
         Term result = term.sub(0);
-        long l = 0;
         LogicVariable var = null;
         ProgramVariable progVar = (ProgramVariable) ((RandomAssign) ((StatementBlock) result
                 .javaBlock().program()).getChildAt(0)).getChildAt(0);
         de.uka.ilkd.key.logic.op.ProgramVariable lookup = (LocationVariable) services.getNamespaces().programVariables().lookup(progVar.getElementName());
-        while (var == null) {
-            // TODO replace by VariableNamer
-            Name name2 = new Name(progVar.getElementName().toString() + "_"
-                    + l++);
-            if (services.getNamespaces().lookup(name2) == null) {
-                var = new LogicVariable(name2, lookup.sort());
-                services.getNamespaces().variables().add(var);
-                break;
-            }
-        }
+        var = new LogicVariable(new Name(services.getNamespaces()
+                .getUniqueName(progVar.getElementName().toString())),
+                lookup.sort());
+        services.getNamespaces().variables().add(var);
         if (result.op() == Modality.BOX || result.op() == Modality.TOUT) {
             return TermBuilder.DF
                     .all(

@@ -143,23 +143,11 @@ public class QODESolve extends AbstractDLMetaOperator {
         DiffSystem orgSystem = system;
         TermFactory tf;
         try {
-            LogicVariable t = null;
-            LogicVariable ts = null;
-            int i = 0;
             final NamespaceSet nss = services.getNamespaces();
-            Name tName = null;
-            do {
-                tName = new Name("t" + i++);
-            } while (nss.variables().lookup(tName) != null
-                    || nss.programVariables().lookup(tName) != null);
-            t = new LogicVariable(tName, RealLDT.getRealSort());
-            i = 0;
-            Name tsName = null;
-            do {
-                tsName = new Name("ts" + i++);
-            } while ((nss.variables().lookup(tsName) != null || nss
-                    .programVariables().lookup(tsName) != null));
-            ts = new LogicVariable(tsName, RealLDT.getRealSort());
+            Name tName = new Name(nss.getUniqueName("t"));
+            Name tsName = new Name(nss.getUniqueName("ts"));
+            LogicVariable t = new LogicVariable(tName, RealLDT.getRealSort());
+            LogicVariable ts = new LogicVariable(tsName, RealLDT.getRealSort());
             nss.variables().add(t);
             nss.variables().add(ts);
             Term post = term.sub(0);
@@ -306,12 +294,9 @@ public class QODESolve extends AbstractDLMetaOperator {
             Set<ProgramElement> collectNonRigidFunctionTerms, Services services) {
         Map<ProgramVariable, ProgramElement> abbr = new HashMap<ProgramVariable, ProgramElement>();
         String prefix = "tmp";
-        int i = 0;
         for (ProgramElement p : collectNonRigidFunctionTerms) {
-            while (services.getNamespaces().lookup(new Name(prefix + i++)) != null)
-                ;
             LocationVariable tmp = new LocationVariable(new ProgramElementName(
-                    prefix + (i - 1)), RealLDT.getRealSort());
+                    services.getNamespaces().getUniqueName(prefix)), RealLDT.getRealSort());
             services.getNamespaces().programVariables().add(tmp);
             abbr.put(tmp, p);
         }

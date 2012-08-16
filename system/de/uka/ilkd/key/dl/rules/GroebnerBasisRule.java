@@ -111,7 +111,6 @@ public class GroebnerBasisRule implements SequentWideBuiltInRule, RuleFilter {
 					// them to h for this Groebner basis check
 
 					// first get |f| new names and construct their squares
-					int i = 0;
 					String basename = "neu";
 					Queue<Term> squares = new LinkedList<Term>();
 					Sort r = RealLDT.getRealSort();
@@ -124,10 +123,7 @@ public class GroebnerBasisRule implements SequentWideBuiltInRule, RuleFilter {
 					de.uka.ilkd.key.logic.op.Function exp = RealLDT
 							.getFunctionFor(Exp.class);
 					while (squares.size() < classify.f.size()) {
-						Name n = new Name(basename + i++);
-						while (services.getNamespaces().lookup(n) != null) {
-							n = new Name(basename + i++);
-						}
+						Name n = new Name(services.getNamespaces().getUniqueName(basename));
 						squares.add(TermBuilder.DF.func(exp, TermBuilder.DF
 								.var(new LogicVariable(n, r)), two));
 					}

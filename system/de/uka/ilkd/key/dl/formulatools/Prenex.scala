@@ -113,28 +113,9 @@ object Prenex {
   }
 
   def newVarName(v: String, s: Sort, nss: NamespaceSet): LogicVariable = {
-    var (prefix, j) = parseVar(v);
-    var n = prefix + j;
-    while (nss.lookup(n) != null) {
-      j += 1
-      n = prefix + j;
-    }
+    val n = nss.getUniqueName(v, true) 
     val sym = new LogicVariable(n, s);
     nss.variables().add(sym);
     sym;
   }
-
-  def parseVar(v: String): (String, Int) = {
-    if (v.contains("_")) {
-      try {
-        val i = v.lastIndexOf('_') + 1
-        val j = Integer.parseInt(v.substring(i))
-        return (v.substring(0, i), j + 1)
-      } catch {
-        case e: NumberFormatException =>
-      }
-    }
-    (v + "_", 0)
-  }
-
 }

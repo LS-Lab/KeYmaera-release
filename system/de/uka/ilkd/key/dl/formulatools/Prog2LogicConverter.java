@@ -362,15 +362,10 @@ public class Prog2LogicConverter extends AbstractMetaOperator {
 				if (dotReplacementmap.containsKey(name + ((Dot) p).getOrder())) {
 					return dotReplacementmap.get(name + ((Dot) p).getOrder());
 				}
-				int num = 0;
 				// just use the previous name and append the order
 				String newName = name;
 				newName += ((Dot) p).getOrder();
-				String n = newName + "_" + num;
-				while (services.getNamespaces().programVariables().lookup(
-						new ProgramElementName(n)) != null) {
-					n = newName + "_" + ++num;
-				}
+				String n = services.getNamespaces().getUniqueName(newName);
 				de.uka.ilkd.key.logic.op.ProgramVariable var = new LocationVariable(
 						new ProgramElementName(n), RealLDT.getRealSort());
 				services.getNamespaces().programVariables().add(var);

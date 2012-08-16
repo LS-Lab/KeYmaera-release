@@ -97,20 +97,10 @@ public class ODESolve extends AbstractDLMetaOperator {
                 .javaBlock().program()).getChildAt(0);
         LogicVariable t = null;
         LogicVariable ts = null;
-        int i = 0;
         final NamespaceSet nss = services.getNamespaces();
-        Name tName = null;
-        do {
-            tName = new Name("t" + i++);
-        } while (nss.variables().lookup(tName) != null
-                || nss.programVariables().lookup(tName) != null);
+        Name tName = new Name(nss.getUniqueName("t"));
         t = new LogicVariable(tName, RealLDT.getRealSort());
-        i = 0;
-        Name tsName = null;
-        do {
-            tsName = new Name("ts" + i++);
-        } while ((nss.variables().lookup(tsName) != null || nss
-                .programVariables().lookup(tsName) != null));
+        Name tsName = new Name(nss.getUniqueName("ts"));
         ts = new LogicVariable(tsName, RealLDT.getRealSort());
         nss.variables().add(t);
         nss.variables().add(ts);

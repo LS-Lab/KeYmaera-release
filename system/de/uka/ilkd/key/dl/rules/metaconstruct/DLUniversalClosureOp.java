@@ -385,14 +385,7 @@ public class DLUniversalClosureOp extends AbstractMetaOperator {
 	 * @return a new programvariable with a fresh name
 	 */
 	private LogicVariable searchFreeVar(Services services, String loc) {
-		int i = 0;
-		String newName = null;
-		do {
-			newName = loc + "_" + i++;
-		} while (services.getNamespaces().variables().lookup(new Name(newName)) != null
-				|| services.getNamespaces().programVariables().lookup(
-						new Name(newName)) != null);
-		return new LogicVariable(new Name(newName), RealLDT.getRealSort());
+		return new LogicVariable(new Name(services.getNamespaces().getUniqueName(loc)), RealLDT.getRealSort());
 	}
 
 	/*

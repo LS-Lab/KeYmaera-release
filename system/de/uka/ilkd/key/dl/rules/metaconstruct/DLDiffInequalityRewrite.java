@@ -146,26 +146,7 @@ public class DLDiffInequalityRewrite extends AbstractDLMetaOperator {
 		while ((curDot = getDottedVariableInEq(f, false)) != null) {
 			Variable oldVar = (Variable) curDot.getChildAt(0);
 			String string = "d" + oldVar.getElementName().toString();
-			String n2;
-			int j;
-			if (string.contains("_")) {
-				try {
-					j = Integer.parseInt(string.substring(string
-							.lastIndexOf('_') + 1));
-					j++;
-					n2 = string.substring(0, string.lastIndexOf('_') + 1);
-				} catch (NumberFormatException e) {
-					n2 = string + "_";
-					j = 0;
-				}
-			} else {
-				n2 = string + "_";
-				j = 0;
-			}
-			Name n = new Name(n2 + j);
-			while (nss.lookup(n) != null) {
-				n = new Name(n2 + ++j);
-			}
+			Name n = new Name(nss.getUniqueName(string, true));
 			LogicalVariable var = tf.createLogicalVariable(n.toString());
 			f = (Formula) convert(f, curDot, var, tf);
 			List<Expression> args = new ArrayList<Expression>();

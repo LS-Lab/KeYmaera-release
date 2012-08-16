@@ -323,26 +323,7 @@ public class DNFTransformer extends AbstractDLMetaOperator {
 			HashMap<QuantifiableVariable, Term> map = new HashMap<QuantifiableVariable, Term>();
 			for (int i = 1; i < decl.getChildCount(); i++) {
 				String string = ((Variable) decl.getChildAt(i)).getElementName().toString();
-				String n2;
-				int j;
-				if (string.contains("_")) {
-					try {
-						j = Integer.parseInt(string.substring(string
-								.lastIndexOf('_') + 1));
-						j++;
-						n2 = string.substring(0, string.lastIndexOf('_') + 1);
-					} catch (NumberFormatException e) {
-						n2 = string + "_";
-						j = 0;
-					}
-				} else {
-					n2 = string + "_";
-					j = 0;
-				}
-				Name n = new Name(n2 + j);
-				while (namespaces.lookup(n) != null) {
-					n = new Name(n2 + ++j);
-				}
+				Name n = new Name(namespaces.getUniqueName(string, true));
 				LogicVariable sym = new LogicVariable(n, RealLDT.getRealSort());
 				namespaces.variables().add(sym);
 				map.put(new LogicVariable(new Name(string), RealLDT

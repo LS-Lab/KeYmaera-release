@@ -97,10 +97,7 @@ public class DLQuanUpdate extends AbstractDLMetaOperator {
         Name name2 = ((NamedElement) decl.getChildAt(1))
                 .getElementName();
         String prefix = name2.toString();
-        int l = 0;
-        while(services.getNamespaces().lookup(name2) != null) {
-            name2 = new Name(prefix + "_" + l++);
-        }
+        name2 = new Name(services.getNamespaces().getUniqueName(prefix));
         Sort sort = (Sort) services.getNamespaces()
                 .sorts().lookup(decl.getType().getElementName());
         var = new LogicVariable(name2, sort);

@@ -104,13 +104,7 @@ public class DLIntroNewAnonUpdateOp extends AbstractMetaOperator {
      */
     private ProgramVariable searchFreeVar(Services services, String loc) {
         int i = 0;
-        String newName = null;
-        do {
-            newName = loc + "_" + i++;
-        } while (services.getNamespaces().programVariables().lookup(
-                new Name(newName)) != null
-                || services.getNamespaces().variables().lookup(
-                        new Name(newName)) != null);
+        String newName = services.getNamespaces().getUniqueName(loc);
         LocationVariable locationVariable = new LocationVariable(
                 new ProgramElementName(newName), RealLDT.getRealSort());
         services.getNamespaces().programVariables().add(locationVariable);

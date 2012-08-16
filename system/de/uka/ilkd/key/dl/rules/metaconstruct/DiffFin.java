@@ -186,28 +186,7 @@ public class DiffFin extends AbstractDLMetaOperator {
 				for (int i = 1; i < childAt2.getChildCount(); i++) {
 					String string = ((Variable) childAt2.getChildAt(i))
 							.toString();
-					String n2;
-					int j;
-					if (string.contains("_")) {
-						try {
-							j = Integer.parseInt(string.substring(string
-									.lastIndexOf('_') + 1));
-							j++;
-							n2 = string.substring(0,
-									string.lastIndexOf('_') + 1);
-						} catch (NumberFormatException e) {
-							n2 = string + "_";
-							j = 0;
-						}
-					} else {
-						n2 = string + "_";
-						j = 0;
-					}
-
-					Name n = new Name(n2 + j);
-					while (nss.lookup(n) != null) {
-						n = new Name(n2 + ++j);
-					}
+					Name n = new Name(nss.getUniqueName(string, true));
 					LogicVariable sym = new LogicVariable(n, RealLDT
 							.getRealSort());
 					nss.variables().add(sym);

@@ -11,6 +11,7 @@
 package de.uka.ilkd.key.logic;
 
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 
 public class NamespaceSet {
 
@@ -20,6 +21,8 @@ public class NamespaceSet {
     private Namespace ruleSetNS=new Namespace();
     private Namespace sortNS=new Namespace();
     private Namespace choiceNS=new Namespace();
+    
+    private LinkedHashMap<String, Integer> currentCounter = new LinkedHashMap<String, Integer>();
 
     public NamespaceSet() {
     }
@@ -102,6 +105,7 @@ public class NamespaceSet {
 	c.setVariables(variables().copy());
 	c.setProgramVariables(programVariables().copy());
 	c.setChoices(choices().copy());
+	c.currentCounter.putAll(currentCounter);
 	return c;
     }
     
@@ -197,16 +201,39 @@ public class NamespaceSet {
     }
     
     public String getUniqueName(String prefix) {
-        if(prefix == null || prefix.equals("")) {
-            prefix = "_var";
+        return getUniqueName(prefix, false);
+    }
+    
+    public String getUniqueName(final String prefix, boolean increaseIndex) {
+        String pref = prefix;
+        if (prefix == null || prefix.equals("")) {
+            pref = "_var";
         }
         String result = prefix;
         Named n = lookup(new Name(result));
         int i = 0;
-        while(n != null) {
-            result = prefix + "_" + i++;
+        if(currentCounter.containsKey(prefix)) {
+            i = currentCounter.get(prefix);
+        }
+        if (increaseIndex) {
+            if (prefix.contains("_")) {
+                try {
+                    i = Integer.parseInt(prefix.substring(prefix
+                            .lastIndexOf('_') + 1));
+                    i++;
+                    pref = pref.substring(0, pref.lastIndexOf('_') + 1);
+                } catch (NumberFormatException e) {
+                    pref = pref + "_";
+                }
+            } else {
+                pref = pref + "_";
+            }
+        }
+        while (n != null) {
+            result = pref + i++;
             n = lookup(new Name(result));
-        } 
+        }
+        currentCounter.put(pref, i);
         return result;
     }
 
