@@ -3,11 +3,27 @@ eliminate_variable_decl = "Through away the variable declarations. They are main
 
 generalisation = "The <b>generalization</b> allows for characterizing the reachable states of a program by a stronger formula."
 
+generalisation_fresh = "The <b>generalization</b> allows for characterizing the reachable states of a program by a stronger formula. Fresh means that the new formula is stronger in every context."
+
 seq_comp_generalisation = "The <b>sequential generalization</b> allows for characterizing the reachable states of the first part of a sequential program by a stronger formula."
+
+seq_comp_generalisation_fresh = "The <b>sequential generalization</b> allows for characterizing the reachable states of the first part of a sequential program by a stronger formula. Fresh means that the new formula is stronger in every context." 
 
 assignment_to_update_left = "The <b>:=</b> rule symbolically executes the assignments."
 
 assignment_to_update_right = "The <b>:=</b> rule symbolically executes the assignments."
+
+assignment_to_update_left_quan = "The <b>:=</b> rule symbolically executes the assignments."
+
+assignment_to_update_right_quan = "The <b>:=</b> rule symbolically executes the assignments."
+
+random_ass_box_left = "The <b>[:*] random</b> handles assignments of arbitrary values. These assignments are turned into universal quantifiers."
+
+random_ass_box_right = "The <b>[:*] random</b> handles assignments of arbitrary values. These assignments are turned into universal quantifiers."
+
+random_ass_dia_left = "The <b><:*> random</b> handles assignments of arbitrary values. These assignments are turned into existential quantifiers."
+
+random_ass_dia_right = "The <b><:*> random</b> handles assignments of arbitrary values. These assignments are turned into existential quantifiers."
 
 ODEDNF_left = "The <b>ODE to DNF</b> rule transforms a system of differential constraints into disjunctive normal form."
 ODEDNF_right = "The <b>ODE to DNF</b> rule transforms a system of differential constraints into disjunctive normal form."
@@ -16,13 +32,27 @@ ODESolve_left = "The <b>ODE solve</b> rule replaces the continuous evolution by 
 
 ODESolve_right = "The <b>ODE solve</b> rule replaces the continuous evolution by a formula that asserts for every possible evolution time that the value of the solution of the differential equation at that point in time satisfies the post condition. (Under the assumption that the solution satisfied the evolution domain constraint the up until this point.)"
 
-andLeft  = "Here could stand your slogan. Edit <tt>assistantDictionary.dct</tt>"
-andRight = "Splitting goals is fun."
+QODESolve_left = "The <b>ODE solve</b> rule replaces the continuous evolution by a formula that asserts for every possible evolution time that the value of the solution of the differential equation at that point in time satisfies the post condition. (Under the assumption that the solution satisfied the evolution domain constraint the up until this point.)"
 
+QODESolve_right = "The <b>ODE solve</b> rule replaces the continuous evolution by a formula that asserts for every possible evolution time that the value of the solution of the differential equation at that point in time satisfies the post condition. (Under the assumption that the solution satisfied the evolution domain constraint the up until this point.)"
+
+skolemize = "You can <b>abbreviate</b> terms by fresh, rigid, constant function symbols. This is for example necessary when you want are dealing with non-constant non-rigid functions. It can also be used to simplify arithmetic expressions."
+
+true_left = "We can throw <b>true</b> away in the antecedent."
+
+false_right = "We can throw <b>false</b> away in the succedent."
+
+not_left = "Move it to the other side."
+not_right = "Move it to the other side."
+
+and_left = "Well that means we know both things. :)"
 and_right = "Splitting goals is fun."
 
-orLeft   =  "Here could stand your slogan. Edit <tt>assistantDictionary.dct</tt>"
-orRight  =  "Alpha rules are boring, am I right?"
+or_left = "A disjunction in the antecendent means we have to make a case distinction."
+or_right  =  "Alpha rules are boring, am I right?"
+
+imp_left = "Implication on the left side of the sequent need to be split."
+imp_right = "Implication on the right side of the sequent are the most natural thing in sequent calculus. We just move the premise to the antecedent."
 
 modality_split_right = "Split modality along sequential composition (;)."
 modality_split_left = "Split modality along sequential composition (;)."
@@ -42,6 +72,10 @@ loop_var_dia = "You are facing a loop. Try finding a loop invariant, i.e. a firs
 
 intro_aux = "This rule let's you introduce <b>auxilary</b> variables. This can be useful for example if you need to access initial values in invariants or variants."
 
+diff_aux = "The <b>DA differential auxiliaries</b> rule allows to introduce auxiliary variables into differential equation systems. This is sometimes necessary for proves by differential induction."
+
+diff_aux_fresh = "The <b>DA differential auxiliaries (drop context)</b> rule allows to introduce auxiliary variables into differential equation systems. This is sometimes necessary for proves by differential induction. In the <b>drop context</b> variant of this rule the auxiliary formula has to be equilalent in all possible contexts."
+
 Eliminate_Universal_Quantifiers = "<p>Eliminate universal quantifiers is the <b>most important rule of all!</b><br> This rule is used to eliminate universal quantifiers. This rule assumes <b>all</b> variables in the sequent to be universally quantified and thus checks whether the current sequent is a universal sentence and the goal can be closed.</p><p>Further note, that this rule ignores all formulas in the sequent that do still contain modalities, updates, or substitutions.</p>"
 
 Find_Counterexample = "<p>If you assume that the current goal is not a universal sentence, you can use this rule to try to find a <b>numeric counter example</b></p><p>Such a counter example might make it easier to get an idea of what is actually going on in your system.</p>"
@@ -50,7 +84,7 @@ Groeber_Basis = "<p>The <b>Groebner Basis</b> rule checks whether the current se
 
 Eliminate_Existential_Quantifiers = "<p>The <b>Eliminate Existential Quantifiers</b> rule reintroduces the existential quantifiers that where replaced by <tt>MetaVariables</tt> by the all_left or ex_right rules and merges, in the progress, all branches where these variables occur into a single formula. Afterwards a quantifier elimination procedure is applied to determine whether the resuling formula is valid.</p>"
 
-Sum_of_Squares = "<p>The <b>Sum of Squares</b> rule tries to proof that the current sequent is a universal sentence using Stengle's Positivstellensatz based on an encoding provided by Parrilo in 2003.</p>" 
+Sum_of_Squares = "<p>The <b>Sum of Squares</b> rule tries to prove that the current sequent is a universal sentence using Stengle's Positivstellensatz based on an encoding provided by Parrilo in 2003.</p>" 
 
 loop_unwind_box = "This rule unwinds a loop exactly once. This is, it replaces <tt>\\[a*\\]F</tt> by <tt>F & \\[a\\]\\[a*\\]F</tt>, meaning that the post condition holds in the current state and in all states reachable by executing the loop body at least once."
 loop_unwind_dia = "This rule unwinds a loop exactly once. This is, it replaces <tt>\\&lt;a*\\&gt;F</tt> by <tt>F | \\&lt;a\\&gt;\\&lt;a*\\&gt;</tt>, meaning that either F has to already hold or it has to hold after one or more iterations of the loop."
@@ -63,11 +97,19 @@ dia_choice_right = "The rule <b>dia_choice</b> is used to split a modality with 
 
 dia_choice_left = "The rule <b>dia_choice</b> is used to split a modality with a program of the form <tt>a ++ b</tt> into two sub branches. On one branch the goal is to show that if <tt>a</tt> was chosen the post condition holds, on the other if the choice was <tt>b</tt>."
 
+box_and_right = "The <b>[]& split box conjunction</b> rule allows you to split a conjunction below a box-modality."
+
+box_and_left = "The <b>[]& split box conjunction</b> rule allows you to split a conjunction below a box-modality."
+
 all_left  =  "You selected the rule all_left. Most definitely, you will not need to enter an instantiation. Just press Apply. If you really want to provide an instantiation, you can also apply this rule via drag and drop, just drag the quantified formula on the term you want it to instantiate with."
 ex_right  =  "You selected the rule ex_right. Most definitely, you will not need to enter an instantiation. Just press Apply. If you really want to provide an instantiation, you can also apply this rule via drag and drop, just drag the quantified formula on the term you want it to instantiate with."
 
 allLeftHide = "The quantified formula has been hidden. Add it to the sequent again by applying rule 'insertHidden'. You can also apply this rule via drag and drop, just drag the quantified formula on the term you want it to instantiate with."
 exRightHide = "The quantified formula has been hidden. Add it to the sequent again by applying rule 'insertHidden'. You can also apply this rule via drag and drop, just drag the quantified formula on the term you want it to instantiate with."
+
+hide_left = "The <b>hide</b> rule allows you to remove a formula. You can add it later again if you want using the insert hidden menu created in the taclet menu."
+
+hide_right = "The <b>hide</b> rule allows you to remove a formula. You can add it later again if you want using the insert hidden menu created in the taclet menu."
 
 instAll  =  "You have instantiated a quantifier. Next time try to drag the term on the quantifier."
 instEx   =  "You have instantiated a quantifier. Next time try to drag the term on the quantifier."
