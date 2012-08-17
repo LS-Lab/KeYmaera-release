@@ -25,6 +25,7 @@ import de.uka.ilkd.key.collection.ImmutableSet;
 import de.uka.ilkd.key.dl.DLProfile;
 import de.uka.ilkd.key.dl.model.DLNonTerminalProgramElement;
 import de.uka.ilkd.key.dl.model.LogicalVariable;
+import de.uka.ilkd.key.dl.options.DLOptionBean;
 import de.uka.ilkd.key.gui.Main;
 import de.uka.ilkd.key.gui.configuration.ProofSettings;
 import de.uka.ilkd.key.java.ContextStatementBlock;
@@ -203,7 +204,9 @@ public abstract class Taclet implements Rule, Named {
     /** Integer to cache the hashcode */
     private int hashcode = 0;
 
-    private boolean onlyRigidFunctions;    
+    private boolean onlyRigidFunctions;
+
+    private String unicodeName;    
     
     /**
      * creates a Schematic Theory Specific Rule (Taclet) with the given
@@ -241,6 +244,8 @@ public abstract class Taclet implements Rule, Named {
 	this.prefixMap     = prefixMap;
         this.displayName   = attrs.displayName() == null ? 
                 name.toString() : attrs.displayName();
+        this.unicodeName   = attrs.unicodeName() == null ? 
+                displayName : attrs.unicodeName();
         this.oldNames      = attrs.oldNames();
         this.onlyRigidFunctions = onlyRigidFunctions;
 
@@ -1027,9 +1032,12 @@ public abstract class Taclet implements Rule, Named {
      *  the canonical name
      */
     public String displayName() {
-	return displayName;
+        if(Main.isUnicodeView()) {
+            return unicodeName;
+        } else {
+        	return displayName;
+        }
     }
-    
     
     /** returns the list of old names of the taclet
      */

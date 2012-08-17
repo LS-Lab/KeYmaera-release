@@ -24,6 +24,8 @@ public class TacletAttributes {
     private ImmutableList<Name> oldNames;
     private String helpText;
 
+    private String unicodeName;
+
 
    public TacletAttributes() {
 	this.noninteractive = false;	
@@ -41,6 +43,10 @@ public class TacletAttributes {
     
     public String displayName() {
        return displayName;
+    }
+    
+    public String unicodeName() {
+        return unicodeName;
     }
     
     public ImmutableList<Name> oldNames() {
@@ -73,6 +79,14 @@ public class TacletAttributes {
      */
     public void setNoninteractive(boolean ni) {
 	noninteractive = ni;
+    }
+
+
+    /**
+     * @param s
+     */
+    public void setUnicodeName(String s) {
+       this.unicodeName = s; 
     }
     
     
