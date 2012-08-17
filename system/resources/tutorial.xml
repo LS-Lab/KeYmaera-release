@@ -495,6 +495,33 @@
 					</p>
 					]]>
 				</description>
+				<hints>
+					<hint id="8.1">
+					<![CDATA[
+						Proving this is similar to proving that x &lt; 0 -&lt; \[x'=-x\] x &lt; 0
+					]]>
+					</hint>
+					<hint id="8.2">
+					<![CDATA[
+						For proving x &lt; 0 -&lt; \[x'=-x\] x &lt; 0, the DA rule is mendatory.
+					]]>
+					</hint>
+					<hint id="8.3">
+					<![CDATA[
+						Adding squares sometimes has more information than ground terms.
+					]]>
+					</hint>
+					<hint id="8.4">
+					<![CDATA[
+					For proving x &lt; 0 -&gt; \[x'=-x\] x &lt; 0, DA was used to introduce y'=y/2 and x*y^2=1. 
+					]]>
+					</hint>
+					<hint id="8.5">
+					<![CDATA[
+						You need (x-10) were you need x in the previous hints.
+					]]>
+					</hint>
+				</hints>
 				<resources>
 					<img>/examples/hybrid/heater/diffcut.png</img>
 				</resources>
@@ -516,6 +543,21 @@
 					</p>
 					]]>
 				</description>
+				<hints>
+					<hint id=9.1>
+						Try to find a formula that is similar to the formula introduced in the previous example with the rule DA.
+					</hint>
+					<hint id=9.2>
+					<![CDATA[
+						What is equivalent to x &lt; 40 and contains y^2?
+					]]>
+					</hint>
+					<hint id=9.3>
+					<![CDATA[
+						Try using x*y^2=-1.
+					]]>
+					</hint>
+				</hints>
 				<resources>
 					<img>/examples/hybrid/heater/diffcut2.png</img>
 				</resources>
