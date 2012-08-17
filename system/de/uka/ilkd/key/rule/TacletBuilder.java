@@ -108,6 +108,12 @@ public abstract class TacletBuilder {
     public void setDisplayName(String s) {
        attrs.setDisplayName(s);
     }
+    
+    /** sets an optional display name (presented to the user)
+     */
+    public void setUnicodeName(String s) {
+       attrs.setUnicodeName(s);
+    }
 
     /** adds an old name to the list of old names
      */

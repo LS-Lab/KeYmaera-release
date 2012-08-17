@@ -142,6 +142,7 @@ tokens {
         HEURISTICSDECL = "\\heuristicsDecl";
 	NONINTERACTIVE = "\\noninteractive";
         DISPLAYNAME = "\\displayname";
+        UNICODENAME = "\\unicodename";
         OLDNAME = "\\oldname";
         HELPTEXT = "\\helptext";
         REPLACEWITH = "\\replacewith";
