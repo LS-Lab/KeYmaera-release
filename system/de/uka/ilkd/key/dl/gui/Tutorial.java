@@ -34,7 +34,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -124,7 +123,7 @@ public class Tutorial extends JFrame {
         private String url;
 
         private String description;
-        
+
         private List<String> hints;
 
         private List<Image> resources;
@@ -204,7 +203,7 @@ public class Tutorial extends JFrame {
         public List<Image> getResources() {
             return resources;
         }
-        
+
         /**
          * @return the hints
          */
@@ -417,6 +416,7 @@ public class Tutorial extends JFrame {
     private JComponent createTextPanel(String text) {
         return createTextPanel(text, ProjectManager.getHyperlinkListener());
     }
+
     private JComponent createTextPanel(String text, HyperlinkListener l) {
         JTextPane textArea = new JTextPane();
         textArea.setContentType("text/html");
@@ -452,81 +452,120 @@ public class Tutorial extends JFrame {
         f.fill = GridBagConstraints.BOTH;
         f.weighty = 0.5;
 
-        JPanel imgPanel = new JPanel(new BorderLayout());
         String description = p.getDescription();
         description += "<p>";
-        for(int i = 0; i < p.getHints().size(); i++) {
-            description += " <a href=\"http://hint?" + i + "\">Hint " + (i+1) + "</a>"; 
+        for (int i = 0; i < p.getHints().size(); i++) {
+            description += " <a href=\"http://hint?" + i + "\">Hint " + (i + 1)
+                    + "</a>";
         }
         description += "</p>";
-        JComponent textArea = createTextPanel(description, new HyperlinkListener() {
-            
-            @Override
-            public void hyperlinkUpdate(HyperlinkEvent arg0) {
-                if(arg0.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
-                    try {
-                        int i = Integer.parseInt(arg0.getURL().getQuery());
-                        Main.getInstance().getProofAssistantController().displayText(p.getHints().get(i));
-                        ProofSettings.DEFAULT_SETTINGS.getHintLog().addUsedHint(p.getHintId(i));
-                    } catch(NumberFormatException e) {
-                        // ignore
+        JComponent textArea = createTextPanel(description,
+                new HyperlinkListener() {
+
+                    @Override
+                    public void hyperlinkUpdate(HyperlinkEvent arg0) {
+                        if (arg0.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
+                            try {
+                                int i = Integer.parseInt(arg0.getURL()
+                                        .getQuery());
+                                Main.getInstance()
+                                        .getProofAssistantController()
+                                        .displayText(p.getHints().get(i));
+                                ProofSettings.DEFAULT_SETTINGS.getHintLog()
+                                        .addUsedHint(p.getHintId(i));
+                            } catch (NumberFormatException e) {
+                                // ignore
+                            }
+                        }
                     }
+                });
+
+        final JPanel iPanel = new JPanel() {
+            final Dimension zero = new Dimension(0, 0);
+
+            int count = 0;
+
+            /*
+             * (non-Javadoc)
+             * 
+             * @see javax.swing.JComponent#getMinimumSize()
+             */
+            @Override
+            public Dimension getMinimumSize() {
+                if (count > 3) {
+                    return zero;
                 }
+                count++;
+                return super.getMinimumSize();
             }
-        });
-        
-        
-
-        imgPanel.add(textArea, BorderLayout.CENTER);
-
-        JPanel iPanel = new JPanel();
+        };
         iPanel.setLayout(new BoxLayout(iPanel, BoxLayout.Y_AXIS));
         for (Image i : p.getResources()) {
             final Image org = i;
-            if(i.getWidth(null) > 300) {
+            if (i.getWidth(null) > 300) {
                 i = i.getScaledInstance(300, -1, Image.SCALE_SMOOTH);
-                // draw the original image as tool tip
-                final JLabel jLabel = new JLabel(new ImageIcon(i)) {
-                    /* (non-Javadoc)
-                     * @see javax.swing.JComponent#createToolTip()
-                     */
-                    @Override
-                    public JToolTip createToolTip() {
-                        JToolTip tip = new JToolTip() {
-                            /* (non-Javadoc)
-                             * @see javax.swing.JComponent#paint(java.awt.Graphics)
-                             */
-                            @Override
-                            public void paint(Graphics g) {
-                                Graphics2D g2d = (Graphics2D) g;
-                                g2d.drawImage(org, 0, 0, null);
-                            }
-                            
-                            /* (non-Javadoc)
-                             * @see javax.swing.JComponent#getPreferredSize()
-                             */
-                            @Override
-                            public Dimension getPreferredSize() {
-                                return new Dimension(org.getWidth(null), org.getHeight(null));
-                            }
-                        };
-                        return tip;
-                    }
-                };
-                jLabel.setToolTipText("moep");
-                iPanel.add(jLabel);
-            } else {
-                final JLabel jLabel = new JLabel(new ImageIcon(i)); 
-                iPanel.add(jLabel);
             }
+            // draw the original image as tool tip
+            final JLabel jLabel = new JLabel(new ImageIcon(i)) {
+                
+                private int oldWidth;
+                /*
+                 * (non-Javadoc)
+                 * 
+                 * @see javax.swing.JComponent#createToolTip()
+                 */
+                @Override
+                public JToolTip createToolTip() {
+                    JToolTip tip = new JToolTip() {
+                        /*
+                         * (non-Javadoc)
+                         * 
+                         * @see javax.swing.JComponent#paint(java.awt.Graphics)
+                         */
+                        @Override
+                        public void paint(Graphics g) {
+                            Graphics2D g2d = (Graphics2D) g;
+                            g2d.drawImage(org, 0, 0, null);
+                        }
+
+                        /*
+                         * (non-Javadoc)
+                         * 
+                         * @see javax.swing.JComponent#getPreferredSize()
+                         */
+                        @Override
+                        public Dimension getPreferredSize() {
+                            return new Dimension(org.getWidth(null),
+                                    org.getHeight(null));
+                        }
+                    };
+                    return tip;
+                }
+
+                /*
+                 * (non-Javadoc)
+                 * 
+                 * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
+                 */
+                @Override
+                protected void paintComponent(Graphics g) {
+                    if(Math.abs(iPanel.getWidth() - oldWidth) > 10) {
+                        setIcon(new ImageIcon(org.getScaledInstance(
+                                iPanel.getWidth(), -1, Image.SCALE_SMOOTH)));
+                        oldWidth = iPanel.getWidth();
+                    }
+                    super.paintComponent(g);
+                }
+
+            };
+            jLabel.setToolTipText("moep");
+            iPanel.add(jLabel);
         }
-        imgPanel.add(iPanel, BorderLayout.EAST);
 
-        // JPanel dummy = new JPanel(new GridBagLayout());
-        // dummy.add(new JLabel("Exercise:"), l);
-        // dummy.add(imgPanel, r);
-
-        return imgPanel;
+        JSplitPane pane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, textArea, iPanel);
+        pane.setDividerSize(2);
+        pane.setResizeWeight(1);
+        return pane;
     }
 
     /**
@@ -606,14 +645,14 @@ public class Tutorial extends JFrame {
                 XPathConstants.STRING);
         NodeList resourceList = (NodeList) xpath.evaluate("resources/img",
                 node, XPathConstants.NODESET);
-        NodeList hintList = (NodeList) xpath.evaluate("hints/hint",
-                node, XPathConstants.NODESET);
+        NodeList hintList = (NodeList) xpath.evaluate("hints/hint", node,
+                XPathConstants.NODESET);
 
         List<String> resources = new ArrayList<String>();
         for (int i = 0; i < resourceList.getLength(); i++) {
             resources.add(resourceList.item(i).getTextContent());
         }
-        
+
         List<String> hints = new ArrayList<String>();
         List<String> hintIds = new ArrayList<String>();
         for (int i = 0; i < hintList.getLength(); i++) {
@@ -659,16 +698,18 @@ public class Tutorial extends JFrame {
         return (NodeList) xpath.evaluate(expression, document,
                 XPathConstants.NODESET);
     }
-    
-	private void setFont(JComponent comp) {
-		Font myFont = UIManager.getFont(Config.KEY_FONT_CURRENT_GOAL_VIEW);
-		if (myFont != null) {
-		  if(comp != null) {
-			  comp.putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, Boolean.TRUE);  // Allow font to changed in JEditorPane when set to "text/html"
-			  comp.setFont(myFont);
-		  }
-		} else {
-		  Debug.out("KEY_FONT_CURRENT_GOAL_VIEW not available. Use standard font.");
-		}        
-	}
+
+    private void setFont(JComponent comp) {
+        Font myFont = UIManager.getFont(Config.KEY_FONT_CURRENT_GOAL_VIEW);
+        if (myFont != null) {
+            if (comp != null) {
+                comp.putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES,
+                        Boolean.TRUE); // Allow font to changed in JEditorPane
+                                       // when set to "text/html"
+                comp.setFont(myFont);
+            }
+        } else {
+            Debug.out("KEY_FONT_CURRENT_GOAL_VIEW not available. Use standard font.");
+        }
+    }
 }
