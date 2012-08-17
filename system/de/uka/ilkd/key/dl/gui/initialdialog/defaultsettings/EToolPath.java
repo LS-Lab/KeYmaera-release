@@ -33,7 +33,7 @@ public enum EToolPath {
             FileType.TARGZ,
             "http://research.microsoft.com/projects/z3/z3-4.1.tar.gz",
             FileType.TARGZ,
-            "http://research.microsoft.com/en-us/um/redmond/projects/z3/z3-osx-4.1.tar.gz",
+            "http://research.microsoft.com/en-us/um/redmond/projects/z3/z3-osx-4.1-x64.tar.gz",
             FileType.TARGZ),
 
     CSDP(
