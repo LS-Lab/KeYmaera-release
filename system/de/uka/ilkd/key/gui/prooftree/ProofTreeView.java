@@ -626,7 +626,17 @@ public class ProofTreeView extends JPanel {
 		return this;
 	    }
 	    Node node = ((GUIProofTreeNode)value).getNode();
-	    String nodeText = node.serialNr()+":"+node.name();
+	    String name = node.name();
+	    String nodeText;
+	    boolean html = false;
+        if(name.contains("<html>")) {
+	        name = name.replaceAll("<html>", "");
+	        name = name.replaceAll("</html>", "");
+    	    nodeText = "<html>" + node.serialNr()+":"+name;
+    	    html = true;
+	    } else {
+    	    nodeText = node.serialNr()+":"+name;
+	    }
 	    boolean isBranch = false;
 
 	    {
@@ -637,6 +647,9 @@ public class ProofTreeView extends JPanel {
                     isBranch = true;
                 }
             }
+	    if(html) {
+	        nodeText += "</html>";
+	    }
 
 	    DefaultTreeCellRenderer tree_cell =  
 		(DefaultTreeCellRenderer) super.getTreeCellRendererComponent
