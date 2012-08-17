@@ -44,6 +44,10 @@ public class ViewSettings implements Settings {
     private static final String ADDITIONAL_HIGHLIGHT_COLOR = "[View]AdditionalHighlightColor";
 
     private static final String UPDATE_HIGHLIGHT_COLOR = "[View]UpdateHighlightColor";
+    
+    private static final String SHOW_NON_INTERACTIVE_RULES = "[View]ShowNonInteractiveRules";
+    
+    private static final String UNICODE_VIEW = "UnicodeView";
 
     public static final Color DEFAULT_DEFAULT_HIGHTLIGHT_COLOR = Color.YELLOW;
     
@@ -56,6 +60,11 @@ public class ViewSettings implements Settings {
     private Color additionalHighlightColor = DEFAULT_ADDITIONAL_HIGHLIGHT_COLOR;
 
     private Color updateHighlightColor = DEFAULT_UPDATE_HIGHTLIGHT_COLOR;
+    
+    // this will be initialized in the main class
+    private Boolean unicode = null;
+    
+    private boolean showNonInteractiveRules = false;
 
     /** default max number of displayed tooltip lines is 40 */
     private int maxTooltipLines = 40;
@@ -192,6 +201,8 @@ public class ViewSettings implements Settings {
         String val3 = props.getProperty(SHOW_WHOLE_TACLET);
         String val4 = props.getProperty(HIDE_INTERMEDIATE_PROOFSTEPS);
         String val5 = props.getProperty(HIDE_CLOSED_SUBTREES);
+        String val6 = props.getProperty(SHOW_NON_INTERACTIVE_RULES);
+        String val7 = props.getProperty(UNICODE_VIEW);
         if (val1 != null) {
             maxTooltipLines = Integer.valueOf(val1).intValue();
         }
@@ -206,6 +217,12 @@ public class ViewSettings implements Settings {
         }
         if (val5 != null) {
             hideClosedSubtrees = Boolean.valueOf(val5).booleanValue();
+        }
+        if (val6 != null) {
+            showNonInteractiveRules = Boolean.valueOf(val6).booleanValue();
+        }
+        if (val7 != null) {
+            unicode = Boolean.valueOf(val7).booleanValue();
         }
         String property = props.getProperty(DEFAULT_HIGHLIGHT_COLOR);
         if (property != null) {
@@ -251,6 +268,8 @@ public class ViewSettings implements Settings {
             props.setProperty(HIDE_INTERMEDIATE_PROOFSTEPS, ""
                     + hideIntermediateProofsteps);
             props.setProperty(HIDE_CLOSED_SUBTREES, "" + hideClosedSubtrees);
+            props.setProperty(SHOW_NON_INTERACTIVE_RULES, "" + showNonInteractiveRules);
+            props.setProperty(UNICODE_VIEW, "" + unicode);
             props.setProperty(DEFAULT_HIGHLIGHT_COLOR,
                     defaultHighlightColor.getRed() + ","
                             + defaultHighlightColor.getGreen() + ","
@@ -339,5 +358,36 @@ public class ViewSettings implements Settings {
             this.updateHighlightColor = updateHighlightColor;
             fireSettingsChanged();
         }
+    }
+    
+    /**
+     * @return the showNonInteractiveRules
+     */
+    public boolean isShowNonInteractiveRules() {
+        return showNonInteractiveRules;
+    }
+    
+    /**
+     * @param showNonInteractiveRules the showNonInteractiveRules to set
+     */
+    public void setShowNonInteractiveRules(boolean showNonInteractiveRules) {
+        if(this.showNonInteractiveRules == showNonInteractiveRules) {
+            this.showNonInteractiveRules = showNonInteractiveRules;
+            fireSettingsChanged();
+        }
+    }
+    
+    /**
+     * @return the unicode
+     */
+    public Boolean isUnicode() {
+        return unicode;
+    }
+    
+    /**
+     * @param unicode the unicode to set
+     */
+    public void setUnicode(boolean unicode) {
+        this.unicode = unicode;
     }
 }

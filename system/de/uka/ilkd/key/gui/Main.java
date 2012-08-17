@@ -160,11 +160,8 @@ public class Main extends JFrame implements IMain {
         PresentationFeatures.ENABLED = true;
     }
 
-    // @xxx preliminary: better store along with other settings.
-    private static boolean unicodeView = false;
-
     public static boolean isUnicodeView() {
-	    return unicodeView;
+	    return ProofSettings.DEFAULT_SETTINGS.getViewSettings().isUnicode();
     }
 
     /** the tab bar at the left */
@@ -1413,38 +1410,40 @@ public class Main extends JFrame implements IMain {
 	
         JMenuItem unicode = new JCheckBoxMenuItem("Use unicode syntax");
         unicode.setToolTipText("If ticked, unicode characters are used.");
-		try {
-		    Font f = sequentView != null ? sequentView.getFont() : getFont();
-		    boolean unicodefont = f != null
-                && f.canDisplay('\u2200')
-                && f.canDisplay('\u2203')
-                && f.canDisplay('\u2227')
-                && f.canDisplay('\u2228')
-                && f.canDisplay('\u222A')
-                && f.canDisplay('\u00AC')
-                && f.canDisplay('\u2264')
-                && f.canDisplay('\u2265')
-                && f.canDisplay('\u22C5')
-                && f.canDisplay('\u2212')
-                && f.canDisplay('\u2022');   
-            System.out.println("Unicode font " + (unicodefont ? "supported" : "not supported"));
-            unicodeView = unicodefont;
-			Properties p = new Properties();
-		    p.load(new FileInputStream(PathConfig.VIEW_SETTINGS_STORAGE));
-		    unicodeView = Boolean.parseBoolean(p.getProperty("UnicodeView", unicodefont ? "true" : "false"));	
-		} catch (IOException ex) {}
-        unicode.setSelected(unicodeView);
-	unicode.addActionListener(new ActionListener() {
-		public void actionPerformed(ActionEvent e) {
-		    unicodeView=((JCheckBoxMenuItem)e.getSource()).isSelected();
-				Properties p = new Properties();
-				p.setProperty("UnicodeView", unicodeView +"");
-				try {
-			        p.store(new java.io.FileOutputStream(PathConfig.VIEW_SETTINGS_STORAGE), "KeYmaera View settings");
-			    } catch (IOException ex) {}
-		    makePrettyView();
-		}});
+        if (ProofSettings.DEFAULT_SETTINGS.getViewSettings().isUnicode() == null) {
+            Font f = sequentView != null ? sequentView.getFont() : getFont();
+            boolean unicodefont = f != null && f.canDisplay('\u2200')
+                    && f.canDisplay('\u2203') && f.canDisplay('\u2227')
+                    && f.canDisplay('\u2228') && f.canDisplay('\u222A')
+                    && f.canDisplay('\u00AC') && f.canDisplay('\u2264')
+                    && f.canDisplay('\u2265') && f.canDisplay('\u22C5')
+                    && f.canDisplay('\u2212') && f.canDisplay('\u2022');
+            ProofSettings.DEFAULT_SETTINGS.getViewSettings().setUnicode(
+                    unicodefont);
+            System.out.println("Unicode font "
+                    + (unicodefont ? "supported" : "not supported"));
+        }
+        unicode.setSelected(ProofSettings.DEFAULT_SETTINGS.getViewSettings().isUnicode());
+    	unicode.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                ProofSettings.DEFAULT_SETTINGS.getViewSettings().setUnicode(((JCheckBoxMenuItem) e.getSource()).isSelected());
+                ProofSettings.DEFAULT_SETTINGS.saveSettings();
+                makePrettyView();
+            }
+        });
 		registerAtMenu(view, unicode);
+		
+        JMenuItem noninteractiveRules = new JCheckBoxMenuItem("Show non-interactive rules");
+        noninteractiveRules.setSelected(ProofSettings.DEFAULT_SETTINGS.getViewSettings().isShowNonInteractiveRules());
+    	noninteractiveRules.addActionListener(new ActionListener() {
+		public void actionPerformed(ActionEvent e) {
+                ProofSettings.DEFAULT_SETTINGS.getViewSettings()
+                        .setShowNonInteractiveRules(
+                                ((JCheckBoxMenuItem) e.getSource())
+                                        .isSelected());
+                ProofSettings.DEFAULT_SETTINGS.saveSettings();
+		}});
+    	registerAtMenu(view, noninteractiveRules);
 
 	addSeparator(view);
 		

@@ -44,6 +44,7 @@ import de.uka.ilkd.key.gui.assistant.AIAction;
 import de.uka.ilkd.key.gui.assistant.BuiltInRuleSelectedInput;
 import de.uka.ilkd.key.gui.assistant.ProofAssistantController;
 import de.uka.ilkd.key.gui.assistant.RuleEventInput;
+import de.uka.ilkd.key.gui.configuration.ProofSettings;
 import de.uka.ilkd.key.java.ProgramElement;
 import de.uka.ilkd.key.logic.JavaBlock;
 import de.uka.ilkd.key.logic.NameCreationInfo;
@@ -131,13 +132,17 @@ class TacletMenu extends JMenu {
      */
     private ImmutableList<TacletApp> removeNonInteractives(
             ImmutableList<TacletApp> prepend) {
-    	ImmutableList<TacletApp> result = ImmutableSLList.<TacletApp>nil();
-        for(final TacletApp ta: prepend) {
-            if(!ta.taclet().noninteractive()) {
-                result = result.append(ta);
+        if(ProofSettings.DEFAULT_SETTINGS.getViewSettings().isShowNonInteractiveRules()) {
+            return prepend;
+        } else {
+        	ImmutableList<TacletApp> result = ImmutableSLList.<TacletApp>nil();
+            for(final TacletApp ta: prepend) {
+                if(!ta.taclet().noninteractive()) {
+                    result = result.append(ta);
+                }
             }
+            return result;
         }
-        return result;
     }
 
 
