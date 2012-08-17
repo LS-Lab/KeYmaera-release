@@ -1632,9 +1632,6 @@ Contributed by: Solofomampionona Fortunat Rajaona</description>
     	<example>
     		<name>Factory Automation Robot [brake only]</name>
     		<path>/examples/hybrid/dDGL/robot-brake-only.key</path>
-			<proofs>
-				<proof name="Mathematica" href="/examples/hybrid/dDGL/robot-brake-only.key.proof"/>
-			</proofs>
 			<authors>
 				<author>quesel</author>
 				<author>platzer</author>

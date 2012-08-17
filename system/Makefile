@@ -20,7 +20,7 @@ BINARYPATH=binary/
 export GENERATED_SRC_PATH=genSrc/
 
 #the path where the resources are put (images etc.)
-RESOURCEPATH=./resources/
+RESOURCEPATH=resources/
 
 #include configuration information
 sinclude ./Makefile.mk
@@ -217,21 +217,18 @@ dist-keymaera:	branding all
 	@cp -r $(BINARYPATH)/* dist/key/
 	@cp -r $(RESOURCEPATH)/* dist/key/
 #copy example file
-	@for i in `grep -R \<path\> $(RESOURCEPATH)/description.xml $(RESOURCEPATH)/tutorial.xml | sed s/'<path>\/'// | sed s/'<\/path>'// | sed 's/^[ \t]*//'`; do \
-		mkdir -p dist/key/$$i;\
-		rmdir dist/key/$$i;\
+	@for i in `grep --no-filename "\<path\>" $(RESOURCEPATH)description.xml $(RESOURCEPATH)tutorial.xml | sed s/'<path>\/'// | sed s/'<\/path>'// | sed 's/^[ \t]*//'`; do \
+		mkdir -p dist/key/`dirname $$i`;\
 		cp -RH ../$$i dist/key/$$i;\
 		done
 #copy example proof files
-	@for i in `grep -R 'href=.*.proof' $(RESOURCEPATH)/description.xml $(RESOURCEPATH)/tutorial.xml | sed s/'.*href=\"\/'// | sed s/'\".*'// | sed 's/^[ \t]*//'`; do \
-		mkdir -p dist/key/$$i;\
-		rmdir dist/key/$$i;\
+	@for i in `grep --no-filename 'href=.*.proof' $(RESOURCEPATH)description.xml $(RESOURCEPATH)tutorial.xml | sed s/'.*href=\"\/'// | sed s/'\".*'// | sed 's/^[ \t]*//'`; do \
+		mkdir -p dist/key/`dirname $$i`;\
 		cp -RH ../$$i dist/key/$$i;\
 		done
 #copy images
-	@for i in `grep -R \<img\> $(RESOURCEPATH)/description.xml $(RESOURCEPATH)/tutorial.xml | sed s/'<img>\/'// | sed s/'<\/img>'// | sed 's/^[ \t]*//'`; do \
-		mkdir -p dist/key/$$i;\
-		rmdir dist/key/$$i;\
+	@for i in `grep --no-filename '\<img>' $(RESOURCEPATH)description.xml $(RESOURCEPATH)tutorial.xml | sed s/'<img>\/'// | sed s/'<\/img>'// | sed 's/^[ \t]*//'`; do \
+		mkdir -p dist/key/`dirname $$i`;\
 		cp -RH ../$$i dist/key/$$i;\
 		done
 # for setup.jar
