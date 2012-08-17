@@ -700,7 +700,7 @@ public class Tutorial extends JFrame {
     }
 
     private void setFont(JComponent comp) {
-        Font myFont = UIManager.getFont(Config.KEY_FONT_CURRENT_GOAL_VIEW);
+        Font myFont = UIManager.getFont(Config.KEY_FONT_TUTORIAL);
         if (myFont != null) {
             if (comp != null) {
                 comp.putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES,

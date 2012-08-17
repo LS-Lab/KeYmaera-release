@@ -11,11 +11,18 @@
 package de.uka.ilkd.key.gui.configuration;
 
 import java.awt.Font;
+import java.awt.GraphicsEnvironment;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.swing.UIManager;
+
+import scala.actors.threadpool.Arrays;
 
 import de.uka.ilkd.key.gui.MethodCallInfo;
 
@@ -38,13 +45,19 @@ public class Config {
 	= "KEY_FONT_GOAL_LIST_VIEW";
     public static final String KEY_FONT_PROOF_LIST_VIEW 
 	= "KEY_FONT_PROOF_LIST_VIEW";
+    public static final String KEY_FONT_PROOF_ASSISTANT 
+    = "KEY_FONT_PROOF_ASSISTANT";
+    public static final String KEY_FONT_TUTORIAL 
+    = "KEY_FONT_TUTORIAL";
 
     /** An array of font sizes for the goal view */
     private static final int[] sizes=new int[]{10,12,14,17,20,24};
     
     /** The index of the current size */
     private int sizeIndex = ProofSettings.DEFAULT_SETTINGS.getViewSettings().sizeIndex();
-
+    
+    private Map<String, String> fonts = new LinkedHashMap<String, String>();
+    
     /** cached ConfigChange event */
     private ConfigChangeEvent configChangeEvent = 
 	new ConfigChangeEvent(this);
@@ -54,6 +67,20 @@ public class Config {
         new ArrayList<ConfigChangeListener>(5);
 
     private Config() {
+        GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        String[] fontFamilyNames = env.getAvailableFontFamilyNames();
+        HashSet<String> set = new HashSet<String>(Arrays.asList(fontFamilyNames));
+        final String dejaVuSansMono = "DejaVu Sans Mono";
+        if(set.contains(dejaVuSansMono)) {
+        	fonts.put(KEY_FONT_CURRENT_GOAL_VIEW, dejaVuSansMono);
+        	fonts.put(KEY_FONT_INNER_NODE_VIEW, dejaVuSansMono);
+        } else {
+        	fonts.put(KEY_FONT_CURRENT_GOAL_VIEW, "Monospaced");
+        	fonts.put(KEY_FONT_INNER_NODE_VIEW, "Monospaced");
+        }
+    	fonts.put(KEY_FONT_PROOF_ASSISTANT, "Default");
+    	fonts.put(KEY_FONT_TUTORIAL, "Default");
+
     }
 
     public void larger() {
@@ -86,13 +113,17 @@ public class Config {
 	UIManager.put(KEY_FONT_PROOF_TREE, 
 		      new Font("Default", Font.PLAIN, sizes[sizeIndex]));
 	UIManager.put(KEY_FONT_CURRENT_GOAL_VIEW, 
-		      new Font("Monospaced", Font.PLAIN, sizes[sizeIndex]));
+		      new Font(fonts.get(KEY_FONT_CURRENT_GOAL_VIEW), Font.PLAIN, sizes[sizeIndex]));
 	UIManager.put(KEY_FONT_INNER_NODE_VIEW, 
-		      new Font("Monospaced", Font.ITALIC, sizes[sizeIndex]));
+		      new Font(fonts.get(KEY_FONT_INNER_NODE_VIEW), Font.ITALIC, sizes[sizeIndex]));
 	UIManager.put(KEY_FONT_GOAL_LIST_VIEW, 
 		      new Font("Default", Font.PLAIN, sizes[2]));
 	UIManager.put(KEY_FONT_PROOF_LIST_VIEW, 
 		      new Font("Default", Font.PLAIN, sizes[2]));
+	UIManager.put(KEY_FONT_PROOF_ASSISTANT, 
+		      new Font(fonts.get(KEY_FONT_PROOF_ASSISTANT), Font.PLAIN, sizes[sizeIndex]));
+	UIManager.put(KEY_FONT_TUTORIAL, 
+		      new Font(fonts.get(KEY_FONT_TUTORIAL), Font.PLAIN, sizes[sizeIndex]));
     }
 
 

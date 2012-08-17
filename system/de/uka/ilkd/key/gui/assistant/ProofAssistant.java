@@ -126,7 +126,7 @@ public class ProofAssistant extends JPanel {
     }
 
 	private void setFont() {
-		Font myFont = UIManager.getFont(Config.KEY_FONT_CURRENT_GOAL_VIEW);
+		Font myFont = UIManager.getFont(Config.KEY_FONT_PROOF_ASSISTANT);
 		if (myFont != null) {
 		  if(textPane != null) {
 			  textPane.putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, Boolean.TRUE);  // Allow font to changed in JEditorPane when set to "text/html"
