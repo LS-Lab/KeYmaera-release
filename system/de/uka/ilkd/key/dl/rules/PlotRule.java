@@ -46,6 +46,7 @@ import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
 import de.uka.ilkd.key.dl.arithmetics.impl.mathematica.Mathematica;
 import de.uka.ilkd.key.dl.model.DLNonTerminalProgramElement;
+import de.uka.ilkd.key.dl.model.DLStatementBlock;
 import de.uka.ilkd.key.dl.model.DiffSystem;
 import de.uka.ilkd.key.dl.model.FreeFunction;
 import de.uka.ilkd.key.dl.model.LogicalVariable;
@@ -84,9 +85,14 @@ public class PlotRule implements BuiltInRule, RuleFilter {
      */
     public boolean isApplicable(Goal goal, PosInOccurrence pio,
             Constraint userConstraint) {
-        if (pio != null) {
+        if (pio != null
+                && pio.subTerm().javaBlock() != null
+                && pio.subTerm().javaBlock().program() != null
+                && pio.subTerm().javaBlock().program() instanceof DLStatementBlock) {
             return ProgramSVSort.DL_SIMPLE_ORDINARY_DIFF_SYSTEM_SORT_INSTANCE
-                    .canStandFor(pio.constrainedFormula().formula());
+                    .canStandFor(((DLStatementBlock) pio.subTerm().javaBlock()
+                            .program()).getChildAt(0), null, goal.proof()
+                            .getServices());
         }
         return false;
     }
