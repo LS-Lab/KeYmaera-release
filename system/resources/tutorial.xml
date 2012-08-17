@@ -376,6 +376,19 @@
 					</ul>
 				]]>
 				</description>
+				<hints>
+					<hint id="5.1">
+						The invariant necessary in this example characterizes the region where the car is still controllable.
+					</hint>
+					<hint id="5.2">
+						The invariant relates v, b, m, and x.
+					</hint>
+					<hint id="5.3">
+						<![CDATA[
+						The invariant is v<sup>2</sup> &lt;= 2*b*(m-z)
+						]]>
+					</hint>
+				</hints>
 				<path>/examples/hybrid/verifiedsoft/time-safe-relative.key</path>
 			</exercise>
 			<exercise>
@@ -436,6 +449,33 @@
 					</p>
 				]]>
 				</description>
+				<hints>
+					<hint id="7.1">
+						The invariant is similar to the non-parametric invariant.
+					</hint>
+					<hint id="7.2">
+						The invariant needs to talk about what holds in each mode.
+					</hint>
+					<hint id="7.3">
+						Check the initial region for helpful constraints.
+					</hint>
+					<hint id="7.4">
+					<![CDATA[
+						The invariant is:<br/>
+						(st = 0 | st = 1 | st = 2 | st =3)<br/>
+						&amp;<br/>
+						x &gt;= 0 &amp; x &lt;= max_com<br/>
+						&amp;<br/>
+						(st =0 -&gt; (y &gt;= min_fill &amp; y &lt;= max_fill - f*max_com))<br/>
+						&amp;<br/>
+						(st = 1 -&gt; (y &gt;= min_fill+d*max_com &amp; y &lt;= max_fill - f*(max_com - x)))<br/>
+						&amp;<br/>
+						(st =2 -&gt; (y &gt;= min_fill+d*max_com &amp; y &lt;= max_fill))<br/>
+						&amp;<br/>
+						(st = 3 -&gt; (y &gt;= min_fill + d*(max_com-x) &amp; y &lt;= max_fill - f*max_com)))
+					]]>
+					</hint>
+				</hints>
 				<resources>
 					<img>/examples/hybrid/water_tank/fig-water-tank.png</img>
 				</resources>
