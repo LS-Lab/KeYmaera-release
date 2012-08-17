@@ -4047,9 +4047,7 @@ modifiers[TacletBuilder b]
                b.addRuleSet((RuleSet)it.next());
          }
         | NONINTERACTIVE { 
-                //      b.setNoninteractive(true);  
-                // "noninteractive" (as it is now) is confusing
-                // dropped this completely until a better solution (->Uwe)
+                      b.setNoninteractive(true);  
             }       
         | DISPLAYNAME dname = string_literal 
             {b.setDisplayName(dname);}

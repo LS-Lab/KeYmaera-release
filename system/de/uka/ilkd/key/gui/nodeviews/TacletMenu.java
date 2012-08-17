@@ -120,11 +120,27 @@ class TacletMenu extends JMenu {
  	this.selectedGoal = selectedGoal;
 	// delete RewriteTaclet from findList because they will be in
 	// the rewrite list and concatenate both lists
-	createTacletMenu(removeRewrites(findList).prepend(rewriteList),
+	createTacletMenu(removeNonInteractives(removeRewrites(findList).prepend(rewriteList)),
 			 noFindList, builtInList, new MenuControl());
     }
 
     
+    /**
+     * @param prepend
+     * @return
+     */
+    private ImmutableList<TacletApp> removeNonInteractives(
+            ImmutableList<TacletApp> prepend) {
+    	ImmutableList<TacletApp> result = ImmutableSLList.<TacletApp>nil();
+        for(final TacletApp ta: prepend) {
+            if(!ta.taclet().noninteractive()) {
+                result = result.append(ta);
+            }
+        }
+        return result;
+    }
+
+
     /** removes RewriteTaclet from list
      * @param list the IList<Taclet> from where the RewriteTaclet are
      * removed
