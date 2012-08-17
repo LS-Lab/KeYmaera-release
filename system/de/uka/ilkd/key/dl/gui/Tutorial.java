@@ -471,6 +471,7 @@ public class Tutorial extends JFrame {
                                 Main.getInstance()
                                         .getProofAssistantController()
                                         .displayText(p.getHints().get(i));
+                                Main.getInstance().getProofAssistantController().enable();
                                 ProofSettings.DEFAULT_SETTINGS.getHintLog()
                                         .addUsedHint(p.getHintId(i));
                             } catch (NumberFormatException e) {

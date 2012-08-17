@@ -109,7 +109,7 @@ public class ReduceRule extends RuleOperatingOnWholeSequence implements
      * @see de.uka.ilkd.key.rule.Rule#displayName()
      */
     public String displayName() {
-        return "Eliminate Universal Quantifiers";
+        return "Quantifier Elimination";
     }
 
     /*
@@ -118,7 +118,7 @@ public class ReduceRule extends RuleOperatingOnWholeSequence implements
      * @see de.uka.ilkd.key.rule.Rule#name()
      */
     public Name name() {
-        return new Name("Eliminate Universal Quantifiers");
+        return new Name("Quantifier Elimination");
     }
 
     /*
