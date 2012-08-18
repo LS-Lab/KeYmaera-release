@@ -77,6 +77,9 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
+import de.uka.ilkd.key.dl.gui.download.DownloadManager;
+import de.uka.ilkd.key.dl.gui.download.FileInfo;
+import de.uka.ilkd.key.dl.gui.download.IDownloadListener;
 import de.uka.ilkd.key.dl.utils.XMLReader;
 import de.uka.ilkd.key.gui.Main;
 
@@ -488,7 +491,7 @@ public class ProjectManager extends JFrame {
         textArea.setEditable(false);
         textArea.setAutoscrolls(false);
         textArea.addHyperlinkListener(hyperlinkListener);
-        
+
         imgPanel.add(textArea, BorderLayout.CENTER);
 
         requirementsArea = new JTextArea();
@@ -649,7 +652,8 @@ public class ProjectManager extends JFrame {
                             }
                         }
                         if (info.getProofAuthors().isEmpty()) {
-                            proofAuthorsArea.add(new JLabel("No authors given."));
+                            proofAuthorsArea
+                                    .add(new JLabel("No authors given."));
                         } else {
                             for (String a : info.getProofAuthors()) {
                                 JTextPane aPane = createAuthorPane(a);
@@ -702,16 +706,14 @@ public class ProjectManager extends JFrame {
                 if (authorInfos.keySet().contains(a)) {
                     AuthorInfo aInfo = authorInfos.get(a);
                     if (aInfo.getUrl() != null) {
-                        aPane.setText("<a href=\""
-                                + aInfo.getUrl() + "\">"
+                        aPane.setText("<a href=\"" + aInfo.getUrl() + "\">"
                                 + aInfo.getName() + "</a>");
                     } else {
                         aPane.setText(aInfo.getName());
                     }
                     if (aInfo.getImgurl() != null) {
                         aPane.setToolTipText("<html><img src=\""
-                                + aInfo.getImgurl()
-                                + "\"/></html>");
+                                + aInfo.getImgurl() + "\"/></html>");
                     }
                 } else {
                     aPane.setText(a);
@@ -841,8 +843,9 @@ public class ProjectManager extends JFrame {
             authorInfos.put(shorts.item(0).getNodeValue(), new AuthorInfo(names
                     .item(0).getNodeValue(), url, imgurl));
         }
-        NodeList publications = (NodeList) xpath.evaluate("publications/publication",
-                allExamples.item(0), XPathConstants.NODESET);
+        NodeList publications = (NodeList) xpath.evaluate(
+                "publications/publication", allExamples.item(0),
+                XPathConstants.NODESET);
         publicationInfos = new HashMap<String, PublicationInfo>();
         for (int l = 0; l < publications.getLength(); l++) {
             NodeList shorts = (NodeList) xpath.evaluate("short/text()",
@@ -1036,41 +1039,97 @@ public class ProjectManager extends JFrame {
         if (file.exists()) {
             return file;
         }
-        InputStream resourceAsStream = ProjectManager.class
-                .getResourceAsStream(url);
-        if (resourceAsStream == null) {
+        if (url.startsWith("http")) {
             try {
-                resourceAsStream = new FileInputStream(url.substring(1));
-            } catch (FileNotFoundException e) {
+                File tempFile = File.createTempFile(
+                        url.substring(url.lastIndexOf(separator) + 1,
+                                url.lastIndexOf('.')), ".key");
+                FileInfo[] infos = new FileInfo[] { new FileInfo(url, tempFile.getName(), false) };
+                final DownloadManager downloadManager = new DownloadManager();
+                downloadManager.addListener(new IDownloadListener() {
+                    
+                    @Override
+                    public void onEndDownload(FileInfo file) {
+                        synchronized (downloadManager) {
+                            System.out.println("Now notifying");
+                            downloadManager.notifyAll();
+                        }
+                    }
+                    
+                    @Override
+                    public void onDownload(FileInfo file, int bytesRecieved, int fileSize) {
+                    }
+                    
+                    @Override
+                    public void onConnect(FileInfo file) {
+                    }
+                    
+                    @Override
+                    public void onBeginDownload(FileInfo file) {
+                    }
+                    
+                    @Override
+                    public void onAbortDownload(FileInfo file, String message) {
+                        synchronized (downloadManager) {
+                            downloadManager.notifyAll();
+                        }
+                    }
+                });
+                downloadManager.downloadAll(infos, 10000, tempFile.getParent(), true);
+                synchronized (downloadManager) {
+                    try {
+                        // wait until the download is finished
+                        if(!downloadManager.isFinished()) {
+                            System.out.println("Now waiting");
+                            downloadManager.wait();
+                        }
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+                return tempFile;
+            } catch(IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        } else {
+            InputStream resourceAsStream = ProjectManager.class
+                    .getResourceAsStream(url);
+            if (resourceAsStream == null) {
                 try {
-                    resourceAsStream = new FileInputStream(".." + url);
-                } catch (FileNotFoundException e2) {
+                    resourceAsStream = new FileInputStream(url.substring(1));
+                } catch (FileNotFoundException e) {
+                    try {
+                        resourceAsStream = new FileInputStream(".." + url);
+                    } catch (FileNotFoundException e2) {
+                    }
                 }
             }
-        }
-        if (resourceAsStream == null) {
-            System.err.println("Could not find resource " + url
-                    + " from working directory "
-                    + System.getProperty("user.dir") + " or JAR archive");
-            return null;
-        }
-        try {
-            File tempFile = File.createTempFile(
-                    url.substring(url.lastIndexOf(separator) + 1,
-                            url.lastIndexOf('.')), ".key");
-            tempFile.deleteOnExit();
-            System.out.println(tempFile.getCanonicalPath());
-            FileOutputStream fileOutputStream = new FileOutputStream(tempFile);
-            int i;
-            while ((i = resourceAsStream.read()) != -1) {
-                fileOutputStream.write((char) i);
+            if (resourceAsStream == null) {
+                System.err.println("Could not find resource " + url
+                        + " from working directory "
+                        + System.getProperty("user.dir") + " or JAR archive");
+                return null;
             }
-            resourceAsStream.close();
-            fileOutputStream.close();
-            return tempFile;
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            try {
+                File tempFile = File.createTempFile(
+                        url.substring(url.lastIndexOf(separator) + 1,
+                                url.lastIndexOf('.')), ".key");
+                tempFile.deleteOnExit();
+                System.out.println(tempFile.getCanonicalPath());
+                FileOutputStream fileOutputStream = new FileOutputStream(
+                        tempFile);
+                int i;
+                while ((i = resourceAsStream.read()) != -1) {
+                    fileOutputStream.write((char) i);
+                }
+                resourceAsStream.close();
+                fileOutputStream.close();
+                return tempFile;
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
         }
         return null;
     }

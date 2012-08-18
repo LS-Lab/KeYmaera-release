@@ -7,6 +7,7 @@ import java.util.ArrayList;
 public final class DownloadManager {
 	
 	private ArrayList<IDownloadListener> listeners = new ArrayList<IDownloadListener>();
+    private boolean finished;
 	
 	public DownloadManager() {
 		
@@ -71,6 +72,10 @@ public final class DownloadManager {
 					FileOutputStream fos = new FileOutputStream( destFileLocationString );
 					downloader.download( fos );
 				} 	
+				synchronized (this) {
+                    finished = true;
+                    this.notifyAll();
+                }
 			} catch( Exception ex ) {
 				ex.printStackTrace();
 			}
@@ -80,4 +85,11 @@ public final class DownloadManager {
 	public void addListener( IDownloadListener listener ) {
 		listeners.add(listener);
 	}
+
+    /**
+     * @return
+     */
+    public boolean isFinished() {
+        return finished;
+    }
 }

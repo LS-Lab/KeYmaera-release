@@ -1632,6 +1632,9 @@ Contributed by: Solofomampionona Fortunat Rajaona</description>
     	<example>
     		<name>Factory Automation Robot [brake only]</name>
     		<path>/examples/hybrid/dDGL/robot-brake-only.key</path>
+			<proofs>
+				<proof name="Mathematica (downloaded)" href="http://csd.informatik.uni-oldenburg.de/keymaera/ddgl-ijcar-2012/proposition1.key.proof"/>
+			</proofs>
 			<authors>
 				<author>quesel</author>
 				<author>platzer</author>
@@ -1650,6 +1653,9 @@ Contributed by: Solofomampionona Fortunat Rajaona</description>
     	<example>
     		<name>Factory Automation Robot [1D]</name>
     		<path>/examples/hybrid/dDGL/robot-1d.key</path>
+			<proofs>
+				<proof name="Mathematica (downloaded)" href="http://csd.informatik.uni-oldenburg.de/keymaera/ddgl-ijcar-2012/proposition2.key.proof"/>
+			</proofs>
 			<authors>
 				<author>quesel</author>
 				<author>platzer</author>
