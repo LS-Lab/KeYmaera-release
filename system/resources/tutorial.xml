@@ -19,9 +19,9 @@
 					and the correctness property that you want to verify.
 					The verification problem is specified in a block called <kbd><span class="keyword">\problem</span> {...}</kbd> that contains the problem description as a <a href="#sec:dL">formula</a>.
 					This block contains a single formula of <a href="../logic/dL.html" title="Differential Dynamic Logic for Hybrid Systems">differential dynamic logic&nbsp;(dL)</a>.
-					For instance, this formula can characterise the initial state of the system using implications,
+					For instance, this formula can characterize the initial state of the system using implications,
 					the operational system specification using hybrid programs,
-					and the safety/liveness/reactivity/controllability properties to show using modalities.
+					and the safety/liveness/reactivity/controllability/... properties to show using modalities.
 					</p>
 
 					<p>

@@ -392,9 +392,11 @@ public class Tutorial extends JFrame {
         JButton load = new JButton();
         load.setEnabled(false);
         load.setAction(loadAction);
+        load.setDefaultCapable(true);
         buttonPanel.add(load);
+        getRootPane().setDefaultButton(load);
         JButton cancel = new JButton("Close");
-        cancel.addActionListener(new ActionListener() {
+        ActionListener canceller = new ActionListener() {
 
             /* @Override */
             public void actionPerformed(ActionEvent e) {
@@ -402,9 +404,12 @@ public class Tutorial extends JFrame {
                 dispose();
             }
 
-        });
-
+        };
+        cancel.addActionListener(canceller);
         buttonPanel.add(cancel);
+        getRootPane().registerKeyboardAction(canceller, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
+                JComponent.WHEN_IN_FOCUSED_WINDOW);
+
         pagePanel = new JPanel(new BorderLayout());
         pagePanel.add(createTextPanel(welcomeText));
         buttonTextPanel.add(pagePanel, BorderLayout.CENTER);

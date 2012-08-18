@@ -75,6 +75,8 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import orbital.awt.UIUtilities;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -1106,6 +1108,7 @@ public class ProjectManager extends JFrame {
                         dialog.getContentPane().add(bar);
                         dialog.pack();
                         dialog.setTitle("Downloading...");
+                        UIUtilities.setCenter(dialog, Main.getInstance());
                         dialog.setVisible(true);
                     }
 
