@@ -356,7 +356,7 @@
                 		]]>
                 	</hint>
                 </hints>
-				<path>/examples/hybrid/verifiedsoft/time-triggered-car.key</path>
+				<path>/examples/hybrid/verifiedsoft/event-triggered-car.key</path>
 			</exercise>
 			<exercise>
 				<title>Ex. 5 Time-triggered car</title>
