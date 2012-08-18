@@ -440,6 +440,8 @@ public class Tutorial extends JFrame {
 
         textArea.setText(text);
         setFont(textArea);
+        textArea.setSelectionStart(0);
+        textArea.setSelectionEnd(0); 
         return new JScrollPane(textArea);
     }
 
