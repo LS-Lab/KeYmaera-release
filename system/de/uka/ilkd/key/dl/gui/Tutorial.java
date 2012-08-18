@@ -577,7 +577,7 @@ public class Tutorial extends JFrame {
                 }
 
             };
-            //jLabel.setToolTipText("moep");
+            jLabel.setToolTipText("moep");
             iPanel.add(jLabel);
         }
 
