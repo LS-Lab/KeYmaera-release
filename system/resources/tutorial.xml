@@ -356,7 +356,7 @@
                 		]]>
                 	</hint>
                 </hints>
-				<path>/examples/hybrid/tutorial/lics3a-event-forward.key</path>
+				<path>/examples/hybrid/verifiedsoft/time-triggered-car.key</path>
 			</exercise>
 			<exercise>
 				<title>Ex. 5 Time-triggered car</title>
@@ -426,6 +426,10 @@
 					</p>
 					<p>
 					The modes st = 1 and st = 3 model the delays while switching between modes 0 and 2.
+					<ul>
+					<li> st = 1: is the mode where water is still flowing into the tank with a constant rate of 1 for another <b>2 time units</b> before switching to mode st = 2.</li>
+					<li> st = 3: is the mode where water is still draining from the tank with a constant rate of -2 for another <b>2 time units</b> beofre switching to mode st = 0</li>
+					</ul>
 					</p>
 					<p>
 						<b>Exercise:</b>
@@ -461,6 +465,10 @@
 					</p>
 					<p>
 					The modes st = 1 and st = 3 model the delays while switching between modes 0 and 2.
+					<ul>
+					<li> st = 1: is the mode where water is still flowing into the tank with a constant rate of f for <i>at most</i> <b>max_com time units</b> before switching to mode st = 2.</li>
+					<li> st = 3: is the mode where water is still draining from the tank with a constant rate of -d for <i>at most</i> <b>max_com time units</b> beofre switching to mode st = 0</li>
+					</ul>
 					</p>
 					<p>
 						<b>Exercise:</b> Load the example and prove that the input is a tautology. Note that in contrast to the previous exercise the loop invariant is not given.
