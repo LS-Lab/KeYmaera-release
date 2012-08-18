@@ -153,6 +153,10 @@
 						</tr>
 
 						</table>
+
+						Enriching this syntax for QdL:
+
+						You can add a single quantifier in front of assignments, random assignments, and differential equation systems. Instead of variables you may use non-rigid function symbols with parameters.
 						]]>
 					</description>
 			</exercise>
@@ -218,6 +222,12 @@
 					<tr>
 					<td></td><td><a href="#predicate">pred</a></td> <td><a href="#predicate">Real arithmetic predicate expression</a></td>
 					</tr>
+				</table>
+
+					<ul>
+						<li>Enriching this syntax for QdL: You may use different sorts instead of R that have been defined in the input file. </li>
+						<li>Enriching this syntax for dDGL: You have another modality \( \), the game modality. Inside this modality you may write other modalities, sequences of modalities, choices between modalities (++) or (+-+), and repetions (^[*]) and (^&lt;*&gt;).</li>
+					</ul>
 						]]>
 					</description>
 			</exercise>
@@ -267,8 +277,6 @@
 					</tr>
 
 					</table>
-					</table>
-
 					]]>
 				</description>
 			</exercise>
