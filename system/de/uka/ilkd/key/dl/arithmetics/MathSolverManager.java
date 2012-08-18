@@ -173,10 +173,8 @@ public abstract class MathSolverManager {
 	}
 
 	public static void rehash() {
-		System.out.println("rehash");// XXX
 		Set<String> remove = new HashSet<String>();
 		for (String m : UNCONFIGURED.keySet()) {
-			System.out.println("Testing " + m);// XXX
 			IMathSolver solver = UNCONFIGURED.get(m);
 			if (solver.isConfigured()) {
 				System.out.println("Is now configured " + m);// XXX

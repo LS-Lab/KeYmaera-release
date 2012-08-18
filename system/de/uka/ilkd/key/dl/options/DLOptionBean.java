@@ -725,6 +725,10 @@ public class DLOptionBean implements Settings {
 		if(property != null) {
 		    solveODE = Boolean.valueOf(property);
 		}
+
+		try {
+			de.uka.ilkd.key.dl.DLInitializer.updateCustomizers();
+		} catch(Exception e) {}
 	}
 
 	/*
