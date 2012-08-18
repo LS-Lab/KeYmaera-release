@@ -70,6 +70,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import de.uka.ilkd.key.dl.gui.ProjectManager.OnFileExecutor;
 import de.uka.ilkd.key.dl.utils.XMLReader;
 import de.uka.ilkd.key.gui.Main;
 import de.uka.ilkd.key.gui.configuration.Config;
@@ -291,13 +292,21 @@ public class Tutorial extends JFrame {
          */
         @Override
         public void actionPerformed(ActionEvent e) {
-            File tmpfile = ProjectManager.createTmpFileToLoad(url);
-            if (tmpfile == null) {
-                JOptionPane.showMessageDialog(Tutorial.this,
-                        "Could not find project resource " + url,
-                        "Resource Not Found", JOptionPane.ERROR_MESSAGE);
-            }
-            Main.getInstance().loadProblem(tmpfile);
+            ProjectManager.executeOnTmpFile(url, new OnFileExecutor() {
+
+                @Override
+                public void execute(File tmpfile) {
+                    if (tmpfile == null) {
+                        JOptionPane
+                                .showMessageDialog(Tutorial.this,
+                                        "Could not find project resource "
+                                                + url, "Resource Not Found",
+                                        JOptionPane.ERROR_MESSAGE);
+                    } else {
+                        Main.getInstance().loadProblem(tmpfile);
+                    }
+                }
+            });
         }
 
         /*
@@ -471,7 +480,8 @@ public class Tutorial extends JFrame {
                                 Main.getInstance()
                                         .getProofAssistantController()
                                         .displayText(p.getHints().get(i));
-                                Main.getInstance().getProofAssistantController().enable();
+                                Main.getInstance()
+                                        .getProofAssistantController().enable();
                                 ProofSettings.DEFAULT_SETTINGS.getHintLog()
                                         .addUsedHint(p.getHintId(i));
                             } catch (NumberFormatException e) {
@@ -508,8 +518,9 @@ public class Tutorial extends JFrame {
             }
             // draw the original image as tool tip
             final JLabel jLabel = new JLabel(new ImageIcon(i)) {
-                
+
                 private int oldWidth;
+
                 /*
                  * (non-Javadoc)
                  * 
@@ -550,7 +561,7 @@ public class Tutorial extends JFrame {
                  */
                 @Override
                 protected void paintComponent(Graphics g) {
-                    if(Math.abs(iPanel.getWidth() - oldWidth) > 10) {
+                    if (Math.abs(iPanel.getWidth() - oldWidth) > 10) {
                         setIcon(new ImageIcon(org.getScaledInstance(
                                 iPanel.getWidth(), -1, Image.SCALE_SMOOTH)));
                         oldWidth = iPanel.getWidth();
@@ -563,7 +574,8 @@ public class Tutorial extends JFrame {
             iPanel.add(jLabel);
         }
 
-        JSplitPane pane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, textArea, iPanel);
+        JSplitPane pane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, textArea,
+                iPanel);
         pane.setDividerSize(2);
         pane.setResizeWeight(1);
         return pane;

@@ -47,20 +47,24 @@ import java.util.Set;
 
 import javax.swing.AbstractAction;
 import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextPane;
 import javax.swing.JTree;
 import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 import javax.swing.event.TreeSelectionEvent;
@@ -409,26 +413,35 @@ public class ProjectManager extends JFrame {
                 if (lastSelectedPathComponent != null) {
                     Object nodeInfo = lastSelectedPathComponent.getUserObject();
                     if (lastSelectedPathComponent.isLeaf()) {
-                        ExampleInfo info = (ExampleInfo) nodeInfo;
-                        File tmpfile = createTmpFileToLoad(info.getUrl());
-                        if (tmpfile == null) {
-                            JOptionPane.showMessageDialog(ProjectManager.this,
-                                    "Could not find project " + info.getName()
-                                            + "\nat resource " + info.getUrl(),
-                                    "Project Not Found",
-                                    JOptionPane.ERROR_MESSAGE);
-                        }
-                        if (!requirementsMet[0]) {
-                            JOptionPane
-                                    .showMessageDialog(
+                        final ExampleInfo info = (ExampleInfo) nodeInfo;
+                        executeOnTmpFile(info.getUrl(), new OnFileExecutor() {
+
+                            @Override
+                            public void execute(File tmpfile) {
+                                if (tmpfile == null) {
+                                    JOptionPane.showMessageDialog(
                                             ProjectManager.this,
-                                            "You will probably not be able to prove the validity of this example because you are missing some required solver.",
-                                            "Missing Solver",
-                                            JOptionPane.WARNING_MESSAGE);
-                        }
-                        Main.getInstance().loadProblem(tmpfile);
-                        setVisible(false);
-                        dispose();
+                                            "Could not find project "
+                                                    + info.getName()
+                                                    + "\nat resource "
+                                                    + info.getUrl(),
+                                            "Project Not Found",
+                                            JOptionPane.ERROR_MESSAGE);
+                                } else {
+                                    if (!requirementsMet[0]) {
+                                        JOptionPane
+                                                .showMessageDialog(
+                                                        ProjectManager.this,
+                                                        "You will probably not be able to prove the validity of this example because you are missing some required solver.",
+                                                        "Missing Solver",
+                                                        JOptionPane.WARNING_MESSAGE);
+                                    }
+                                    Main.getInstance().loadProblem(tmpfile);
+                                    setVisible(false);
+                                    dispose();
+                                }
+                            }
+                        });
                     }
                 }
             }
@@ -453,27 +466,36 @@ public class ProjectManager extends JFrame {
                 if (lastSelectedPathComponent != null) {
                     Object nodeInfo = lastSelectedPathComponent.getUserObject();
                     if (lastSelectedPathComponent.isLeaf()) {
-                        ExampleInfo info = (ExampleInfo) nodeInfo;
-                        File tmpfile = createTmpFileToLoad(info
-                                .getProofUrl((String) proofs.getSelectedItem()));
-                        if (tmpfile == null) {
-                            JOptionPane.showMessageDialog(ProjectManager.this,
-                                    "Could not find project " + info.getName()
-                                            + "\nat resource " + info.getUrl(),
-                                    "Project Not Found",
-                                    JOptionPane.ERROR_MESSAGE);
-                        }
-                        if (!requirementsMet[0]) {
-                            JOptionPane
-                                    .showMessageDialog(
+                        final ExampleInfo info = (ExampleInfo) nodeInfo;
+                        executeOnTmpFile(info.getProofUrl((String) proofs
+                                .getSelectedItem()), new OnFileExecutor() {
+
+                            @Override
+                            public void execute(File tmpfile) {
+                                if (tmpfile == null) {
+                                    JOptionPane.showMessageDialog(
                                             ProjectManager.this,
-                                            "You will probably not be able to prove the validity of this example because you are missing some required solver.",
-                                            "Missing Solver",
-                                            JOptionPane.WARNING_MESSAGE);
-                        }
-                        Main.getInstance().loadProblem(tmpfile);
-                        setVisible(false);
-                        dispose();
+                                            "Could not find project "
+                                                    + info.getName()
+                                                    + "\nat resource "
+                                                    + info.getUrl(),
+                                            "Project Not Found",
+                                            JOptionPane.ERROR_MESSAGE);
+                                } else {
+                                    if (!requirementsMet[0]) {
+                                        JOptionPane
+                                                .showMessageDialog(
+                                                        ProjectManager.this,
+                                                        "You will probably not be able to prove the validity of this example because you are missing some required solver.",
+                                                        "Missing Solver",
+                                                        JOptionPane.WARNING_MESSAGE);
+                                    }
+                                    Main.getInstance().loadProblem(tmpfile);
+                                    setVisible(false);
+                                    dispose();
+                                }
+                            }
+                        });
                     }
                 }
             }
@@ -1025,7 +1047,11 @@ public class ProjectManager extends JFrame {
                 XPathConstants.NODESET);
     }
 
-    public static File createTmpFileToLoad(String url) {
+    public static interface OnFileExecutor {
+        public void execute(File f);
+    }
+
+    public static void executeOnTmpFile(String url, final OnFileExecutor executor) {
         final String separator = "/"; // File.separator;
         System.out.println("Trying to open resource " + url);// XXX
         // if (File.separator.length() != 1) {
@@ -1037,58 +1063,67 @@ public class ProjectManager extends JFrame {
         // url.replace('/', File.separator.charAt(0));
         File file = new File(url.substring(1));
         if (file.exists()) {
-            return file;
-        }
-        if (url.startsWith("http")) {
+            executor.execute(file);
+        } else if (url.startsWith("http")) {
             try {
-                File tempFile = File.createTempFile(
+                final File tempFile = File.createTempFile(
                         url.substring(url.lastIndexOf(separator) + 1,
                                 url.lastIndexOf('.')), ".key");
-                FileInfo[] infos = new FileInfo[] { new FileInfo(url, tempFile.getName(), false) };
+                tempFile.deleteOnExit();
+                final FileInfo[] infos = new FileInfo[] { new FileInfo(url,
+                        tempFile.getName(), false) };
                 final DownloadManager downloadManager = new DownloadManager();
                 downloadManager.addListener(new IDownloadListener() {
+
+                    JDialog dialog = new JDialog();
+                    JProgressBar bar = new JProgressBar(0, 100);
                     
                     @Override
                     public void onEndDownload(FileInfo file) {
-                        synchronized (downloadManager) {
-                            System.out.println("Now notifying");
-                            downloadManager.notifyAll();
-                        }
+                        dialog.setVisible(false);
+                        executor.execute(tempFile);
                     }
-                    
+
                     @Override
-                    public void onDownload(FileInfo file, int bytesRecieved, int fileSize) {
+                    public void onDownload(FileInfo file, int bytesRecieved,
+                            int fileSize) {
+                        bar.setMaximum(fileSize);
+                        bar.setValue(bytesRecieved);
+                        bar.setString("" + bytesRecieved + "/" + fileSize);
+                        bar.setToolTipText("Downloading " + bytesRecieved + "/" + fileSize);
                     }
-                    
+
                     @Override
                     public void onConnect(FileInfo file) {
                     }
-                    
+
                     @Override
                     public void onBeginDownload(FileInfo file) {
+                        bar.setStringPainted(true);
+                        dialog.getContentPane().setLayout(new BoxLayout(dialog.getContentPane(), BoxLayout.Y_AXIS));
+                        dialog.getContentPane().add(new JLabel("Now downloading " + file.getSrcFilename()
+                                        + ". This might take a while."));
+                        dialog.getContentPane().add(bar);
+                        dialog.pack();
+                        dialog.setTitle("Downloading...");
+                        dialog.setVisible(true);
                     }
-                    
+
                     @Override
                     public void onAbortDownload(FileInfo file, String message) {
-                        synchronized (downloadManager) {
-                            downloadManager.notifyAll();
-                        }
                     }
                 });
-                downloadManager.downloadAll(infos, 10000, tempFile.getParent(), true);
-                synchronized (downloadManager) {
-                    try {
-                        // wait until the download is finished
-                        if(!downloadManager.isFinished()) {
-                            System.out.println("Now waiting");
-                            downloadManager.wait();
-                        }
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
+                
+                new Thread(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        downloadManager.downloadAll(infos, 10000, tempFile.getParent(),
+                        true);
                     }
-                }
-                return tempFile;
-            } catch(IOException e) {
+                    
+                }).start();
+            } catch (IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
@@ -1109,27 +1144,80 @@ public class ProjectManager extends JFrame {
                 System.err.println("Could not find resource " + url
                         + " from working directory "
                         + System.getProperty("user.dir") + " or JAR archive");
-                return null;
-            }
-            try {
-                File tempFile = File.createTempFile(
-                        url.substring(url.lastIndexOf(separator) + 1,
-                                url.lastIndexOf('.')), ".key");
-                tempFile.deleteOnExit();
-                System.out.println(tempFile.getCanonicalPath());
-                FileOutputStream fileOutputStream = new FileOutputStream(
-                        tempFile);
-                int i;
-                while ((i = resourceAsStream.read()) != -1) {
-                    fileOutputStream.write((char) i);
+                executor.execute(null);
+            } else {
+                try {
+                    File tempFile = File.createTempFile(
+                            url.substring(url.lastIndexOf(separator) + 1,
+                                    url.lastIndexOf('.')), ".key");
+                    tempFile.deleteOnExit();
+                    System.out.println(tempFile.getCanonicalPath());
+                    FileOutputStream fileOutputStream = new FileOutputStream(
+                            tempFile);
+                    int i;
+                    while ((i = resourceAsStream.read()) != -1) {
+                        fileOutputStream.write((char) i);
+                    }
+                    resourceAsStream.close();
+                    fileOutputStream.close();
+                    executor.execute(tempFile);
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
                 }
-                resourceAsStream.close();
-                fileOutputStream.close();
-                return tempFile;
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
             }
+        }
+    }
+    
+    public static File createTmpFileToLoad(String url) {
+        final String separator = "/"; // File.separator;
+        System.out.println("Trying to open resource " + url);// XXX
+        // if (File.separator.length() != 1) {
+        // throw new
+        // UnsupportedOperationException("The file separator should be one characther "
+        // + File.separator);
+        // }
+        // @TODO bad decision, because it doesn't work for windows url =
+        // url.replace('/', File.separator.charAt(0));
+        File file = new File(url.substring(1));
+        if (file.exists()) {
+            return file;
+        }
+        InputStream resourceAsStream = ProjectManager.class
+                .getResourceAsStream(url);
+        if (resourceAsStream == null) {
+            try {
+                resourceAsStream = new FileInputStream(url.substring(1));
+            } catch (FileNotFoundException e) {
+                try {
+                    resourceAsStream = new FileInputStream(".." + url);
+                } catch (FileNotFoundException e2) {
+                }
+            }
+        }
+        if (resourceAsStream == null) {
+            System.err.println("Could not find resource " + url
+                    + " from working directory "
+                    + System.getProperty("user.dir") + " or JAR archive");
+            return null;
+        }
+        try {
+            File tempFile = File.createTempFile(
+                    url.substring(url.lastIndexOf(separator) + 1,
+                            url.lastIndexOf('.')), ".key");
+            tempFile.deleteOnExit();
+            System.out.println(tempFile.getCanonicalPath());
+            FileOutputStream fileOutputStream = new FileOutputStream(tempFile);
+            int i;
+            while ((i = resourceAsStream.read()) != -1) {
+                fileOutputStream.write((char) i);
+            }
+            resourceAsStream.close();
+            fileOutputStream.close();
+            return tempFile;
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
         }
         return null;
     }
