@@ -288,29 +288,29 @@
 					<h3>Modeling a safety property of a continuous system</h3>
 					<p>
 					This is a simple system in which a car starts at some velocity v and accelerates at constant rate A along a straight lane.
-					The requirement we want to prove is that the car may never travel backward, i.e. for all time, in all scenarios v is greater than or equal to zero.
+					The requirement we want to prove is that the car may never travel backward, i.e. the velocity v is always greater than or equal to zero.
 					</p>
 					<b>Exercise:</b> 
-					Load the example and press play. The automatic strategy is able to prove this example.
+					Load the exercise and press play. The automatic strategy is able to prove this example. Look at the proof and try to understand its structure.
 				]]>
 				</description>
 				<path>/examples/hybrid/tutorial/lics1-continuous-forward.key</path>
 			</exercise>
 			<exercise>
-				<title>Ex. 3 Safety of a simple car model</title>
+				<title>Ex. 3 Safety of simple car control</title>
 				<description>
 				<![CDATA[
 					<h3>Modeling a safety property of a hybrid system</h3>
 					<p>
 					In this example, we introduce a discrete controller into the
-					model of the continuous system in Example 1. The controller has
-					only two options: it may cause the car to accelerate with rate
-					A or brake with rate -b.
+					model of the continuous car system in Example 2. The controller has
+					only two options: it may either cause the car to accelerate with rate
+					A&gt;0 or to brake with rate -b&lt;0.
 					</p>
 					<b>Exercise:</b>
 					<ul>
-						<li>Load the example and press play. The automatic strategy is able to prove this example.</li>
-						<li>Investigate the resulting proof. Which loop invariant did the strategy use?</li>
+						<li>Load the exercise and press play. The automatic strategy is able to prove this example.</li>
+						<li>Investigate the resulting proof. Which loop invariant did the strategy use? Why?</li>
 					</ul>
 				]]>
 				</description>
@@ -322,9 +322,11 @@
 				<![CDATA[
 					<p>
 					While the car is driving down the lane, the controller must
-					choose when to begin decelerating so that it stops at or
-					before a stop sign.  We add an additional constraint to the
-					evolution domain to model an event triggered system.  In
+					choose when to begin decelerating so that it always stops
+					before the stop sign m.  In order to make sure that the car
+					controller does not miss the event when it is time to start
+					braking, we add an additional constraint to the
+					evolution domain of the differential equation. This models an event triggered system.  In
 					this case, the event-trigger is when the distance between
 					the car and the stop sign equals the stopping distance of
 					the car. This example shows that the system still can never
@@ -332,12 +334,28 @@
 					</p>
 					<b>Exercise:</b>
 					<ul>
-						<li>Load the example.</li>
-						<li>Go to your <tt>Hybrid Strategy</tt> tab and turn <tt>Differential Saturation</tt> to <b>off</b> 
-						<li>Prove that the car is safe.</li>
+						<li>Load the exercise in KeYmaera.</li>
+						<li>Go to your <tt>Hybrid Strategy</tt> tab and make sure that <tt>Differential Saturation</tt> is turned <b>off</b> (this disables some of KeYmaera's automation).</li> 
+						<li>Use KeYmaera to prove that the car is safe.</li>
 					</ul>
 				]]>
 				</description>
+                <hints>
+                	<hint id="4.1">
+                		You need to provide a loop invariant interactively, because KeYmaera's <tt>Differential Saturation</tt> is turned off.
+                	</hint>
+                	<hint id="4.2">
+                		Apply the <tt>ind loop invariant</tt> rule and type your invariant into the field for <tt>inv</tt>.
+                	</hint>
+                	<hint id="4.3">
+                		In order to find a good invariant, think about what you want to prove and what will always remain true about the car.
+                	</hint>
+                	<hint id="4.4">
+                		<![CDATA[
+                		The invariant is v &ge; 0
+                		]]>
+                	</hint>
+                </hints>
 				<path>/examples/hybrid/tutorial/lics3a-event-forward.key</path>
 			</exercise>
 			<exercise>
@@ -347,10 +365,10 @@
 					<h3>Time-triggered safe if braking safe</h3>
 					<p>
 					In a realistic system, the sensors on the car would take periodic measurements
-					of position and velocity and the controller would execute each time those
+					of position x and velocity v and the controller would only execute each time those
 					sensor updates are taken. We continue with the single car travelling toward a
-					stop sign, receiving periodic updates about its position and velocity.  The
-					time between sensor updates is bounded by ep. Proves that the car controller
+					stop sign. This time we change the model so that it only receives periodic updates about its position and velocity.  The
+					time t between sensor updates is bounded by ep. Prove that the car controller
 					will always make the car stay before the traffic light if braking would.
 					</p>
 					<p>
@@ -370,9 +388,9 @@
 					</p>
 					<b>Exercise:</b>
 					<ul>
-						<li>Load the example.</li>
-						<li>Go to your <tt>Hybrid Strategy</tt> tab and turn <tt>Differential Saturation</tt> to <b>off</b> 
-						<li>Prove that the car is safe.</li>
+						<li>Load the exercise.</li>
+						<li>Go to your <tt>Hybrid Strategy</tt> tab and make sure that <tt>Differential Saturation</tt> is turned <b>off</b> (this disables some of KeYmaera's automation).</li> 
+						<li>Use KeYmaera to prove that the car is safe.</li>
 					</ul>
 				]]>
 				</description>
@@ -396,7 +414,7 @@
 				<description>
 				<![CDATA[
 					<p>
-					The given input file models a water tank. The water level (named y) is supposed to be between 1 and 12. Another variable x is used as clock to model delays while switching modes.
+					This example models a water tank. The water level (named y) is supposed to be between 1 and 12. Another variable x is used as a clock to model delays while switching modes, because it takes time until the pump activates.
 					</p>
 
 					<p>
@@ -413,8 +431,8 @@
 						<b>Exercise:</b>
 						<ul>
 							<li>Load the example.</li>
-							<li>Go to your <tt>Hybrid Strategy</tt> tab and turn <tt>Differential Saturation</tt> to <b>auto</b> </li>
-							<li>Press play. The automatic strategy is able to prove this example using the annotated loop invariant in the input file.</li>
+    						<li>Go to your <tt>Hybrid Strategy</tt> tab and make sure that <tt>Differential Saturation</tt> is turned <b>off</b> (this disables some of KeYmaera's automation).</li> 
+							<li>Press play. The automatic strategy is able to prove this example using the annotated loop @invariant(...) in the input file. Inspect the proof structure.</li>
 					</p>
 				
 				]]>
@@ -430,8 +448,8 @@
 				<description>
 					<![CDATA[
 					<p>
-					The given input file again models a water tank. Now, the water level (named y) is supposed to be between min_fill and max_fill. Another variable x is used as clock to model delays while switching modes. The delay is bounded by a constant max_com.
-					The water level is now increased with constant rate <b>f</b> instead of 1 and decreased with constant rate <b>-d</b> instead of -2.
+					This example models a parametric version of the water tank. Now, the water level (named y) is supposed to be between min_fill and max_fill. Another variable x is used as a clock to model delays while switching modes. The delay is bounded by a constant max_com.
+					The water level is now increased with constant rate <b>f</b>&gt;0 instead of 1 and decreased with constant rate <b>-d</b>&lt;<0 instead of -2.
 					</p>
 
 					<p>
@@ -451,13 +469,13 @@
 				</description>
 				<hints>
 					<hint id="7.1">
-						The invariant is similar to the non-parametric invariant.
+						The invariant you need to provide is similar to the non-parametric invariant.
 					</hint>
 					<hint id="7.2">
 						The invariant needs to talk about what holds in each mode.
 					</hint>
 					<hint id="7.3">
-						Check the initial region for helpful constraints.
+						Check the initial region for helpful constraints that could be part of the invariant.
 					</hint>
 					<hint id="7.4">
 					<![CDATA[
@@ -498,12 +516,12 @@
 				<hints>
 					<hint id="8.1">
 					<![CDATA[
-						Proving this is similar to proving that x &lt; 0 -&lt; \[x'=-x\] x &lt; 0
+						Proving this is similar to proving that<br> x &lt; 0 -&gt; \[x'=-x\] x &lt; 0
 					]]>
 					</hint>
 					<hint id="8.2">
 					<![CDATA[
-						For proving x &lt; 0 -&lt; \[x'=-x\] x &lt; 0, the DA rule is mendatory.
+						Proofs of x &lt; 0 -&gt; \[x'=-x\] x &lt; 0 need a DA differential auxiliary.
 					]]>
 					</hint>
 					<hint id="8.3">
@@ -513,12 +531,12 @@
 					</hint>
 					<hint id="8.4">
 					<![CDATA[
-					For proving x &lt; 0 -&gt; \[x'=-x\] x &lt; 0, DA was used to introduce y'=y/2 and x*y^2=1. 
+					Proofs of x &lt; 0 -&gt; \[x'=-x\] x &lt; 0 need the DA differential auxiliary y'=y/2 with x*y^2=1. 
 					]]>
 					</hint>
 					<hint id="8.5">
 					<![CDATA[
-						You need (x-10) were you need x in the previous hints.
+						Consider (x-10) in place of x in the previous hints.
 					]]>
 					</hint>
 				</hints>
@@ -532,20 +550,21 @@
 				<description>
 					<![CDATA[
 					<p>
-					Now our heater from the previous exercise gets a heater
-					which constantly increases the temperature in the room.
-					Further, we add some isolation to room to slow down
-					temperature exchange a bit. This is modelled by the
-					differential equation <b>x' = 15 + 1/2*(10-x)</b>.
+					Now we put a heater into the room from the previous exercise.
+					The heater constantly increases the temperature in the room.
+					Further, we add some isolation to the room to slow down
+					temperature exchange. This is modelled by the
+					differential equation<br>
+					<b>x' = 15 + 1/2*(10-x)</b>.
 					</p>
 					<p>
-						<b>Exercise:</b> Prove that if this system is started with an inital value less than 40 it always stays less than 40.
+						<b>Exercise:</b> Prove that if this system is started with an inital temperatur less than 40, then it always stays less than 40.
 					</p>
 					]]>
 				</description>
 				<hints>
 					<hint id="9.1">
-						Try to find a formula that is similar to the formula introduced in the previous example with the rule DA.
+						Try to find a formula for DA differential auxiliaries that is similar to the DA formula used in the cooling example.
 					</hint>
 					<hint id="9.2">
 					<![CDATA[
@@ -564,18 +583,18 @@
 				<path>/examples/hybrid/heater/diffcut2.key</path>
 			</exercise>
 			<exercise>
-				<title>Ex. 10 At least not cooling down</title>
+				<title>Ex. 10 Not too cold</title>
 				<description>
 					<![CDATA[
 					<p>
 					In the previous exercise we have shown that there is an
-					upper bound for the temperature. Now we want to show that
+					upper bound for the temperature when heating. Now we want to show that
 					of course there is a lower bound as well.
 					</p>
 					Reminder: The system is still modelled by the differential equation <b>x' = 15 + 1/2*(10-x)</b>.
 					</p>
 					<p>
-						<b>Exercise:</b> Prove that if this system is started with an inital value between 20 and 30 it always stays above 15.
+						<b>Exercise:</b> Prove that if this system is started with an inital temperature between 20 and 30, then it always stays above 15.
 					</p>
 					]]>
 				</description>
@@ -585,7 +604,7 @@
 				<path>/examples/hybrid/heater/diffcut3.key</path>
 			</exercise>
 			<exercise>
-				<title>Ex. 11 Behavior in hot cases</title>
+				<title>Ex. 11 Temperature in hot cases</title>
 				<description>
 					<![CDATA[
 					<p>
@@ -596,7 +615,7 @@
 					Reminder: The system is still modelled by the differential equation <b>x' = 15 + 1/2*(10-x)</b>.
 					</p>
 					<p>
-						<b>Exercise:</b> Prove that if this system is started with an inital value greater than 15 it always stays above 15.
+						<b>Exercise:</b> Prove that if this system is started with an inital temperature greater than 15 it always stays above 15.
 					</p>
 					]]>
 				</description>
@@ -614,7 +633,7 @@
 					<p>
 					The differential equations considered in the previous execises are the modes of a heater system. The outside temperature is assumed to be 10 degrees.
 					The goal of the heating system is to guarantee an inside temperature of <b>at least 15 degrees</b>. The control strategy for the heater is underspecified. 
-					However, it might only be turned off when the current temperature is <b>at least 20 degrees</b>. Due to mechanical restrictions might then be turned off for at most <b>1/2 time units</b>.
+					However, it might only be turned off when the current temperature is <b>at least 20 degrees</b>. Due to mechanical restrictions can stay turned off for at most <b>1/2 time units</b>.
 					</p>
 					<p>
 						<b>Exercise:</b> Prove that if the current temperature is above 20 degrees, the temperature does not fall below 15 degrees within the next 1/2 time units when the heater is switched off.</b> 
@@ -638,7 +657,7 @@
 					<p>
 					The differential equations considered in the previous execises are the modes of a heater system. The outside temperature is assumed to be 10 degrees.
 					The goal of the heating system is to guarantee an inside temperature of <b>at least 15 degrees</b>. The control strategy for the heater is underspecified. 
-					However, it might only be turned off when the current temperature is <b>at least 20 degrees</b>. Due to mechanical restrictions might then be turned off for at most <b>1/2 time units</b>.
+					However, it might only be turned off when the current temperature is <b>at least 20 degrees</b>. Due to mechanical restrictions can stay turned off for at most <b>1/2 time units</b>.
 					</p>
 					<p>
 						<b>Exercise:</b> Prove that if the current temperature is above 15 degrees, the temperature rises above 20 degrees within 1/2 time units while heating.</b> 
@@ -673,10 +692,10 @@
 				<description>
 					<![CDATA[
 					<ul>
-						<li>Model an instance of the heater example with 4 rooms, 2 heaters, and a strategy for distributing them and prove that satisfies a given safety property.</li>
-						<li>Prove a diamond property for the heater example</li>
+						<li>Model an instance of the heater example with 4 rooms, 2 heaters, and a strategy for moving the heaters from room to room. Prove that your model satisfies an interesting safety property about the temperature in each room.</li>
+						<li>Prove a diamond property for the heater example.</li>
 						<li>Make the heater example with two rooms parametric w.r.t. to outside temperature, isolation, temperature exchange ratio, etc. and find suitable constraints such that it remains safe.</li>
-						<li>Model the heater example with QdL and prove that it is safe for arbitrary many rooms and arbitrary many heaters (less than rooms).</li>
+						<li>Model the heater example with QdL and prove that it is safe for arbitrarily many rooms and arbitrarily many heaters (less than rooms).</li>
 					</ul>
 					]]>
 				</description>
