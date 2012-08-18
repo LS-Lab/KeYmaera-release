@@ -287,7 +287,7 @@ public class Main extends JFrame implements IMain {
     /** for locking of threads waiting for the prover to exit */
     public Object monitor = new Object();
     
-    private static final String TACLET_OPTIONS_MENU_STRING = "ToolTip options ";
+    private static final String TACLET_OPTIONS_MENU_STRING = "ToolTip options...";
     
     private Action createUnitTestAction = null;
     
@@ -1472,6 +1472,8 @@ public class Main extends JFrame implements IMain {
     });
 	registerAtMenu(view, colors);
 	
+	addSeparator(view);
+	
 	JMenuItem serverConsole = new JMenuItem("Server Console...");
 	serverConsole.addActionListener(new ActionListener() {
 		
@@ -1519,7 +1521,7 @@ public class Main extends JFrame implements IMain {
             }});
         registerAtMenu(proof, methodContractsItem);
         }
-        final JMenuItem statisticsInfo = new JMenuItem("Show Proof Statistics");
+        final JMenuItem statisticsInfo = new JMenuItem("Show Proof Statistics...");
         if (ProofSettings.DEFAULT_SETTINGS.getProfile() instanceof DLProfile) {
             statisticsInfo
                             .addActionListener(new DLInitializer.StatisticGenerator(

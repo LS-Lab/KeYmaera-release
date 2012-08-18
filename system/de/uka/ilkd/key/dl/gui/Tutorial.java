@@ -577,7 +577,7 @@ public class Tutorial extends JFrame {
                 }
 
             };
-            jLabel.setToolTipText("moep");
+            jLabel.setToolTipText("moep"); // leave this text in order to show custom tooltip
             iPanel.add(jLabel);
         }
 
