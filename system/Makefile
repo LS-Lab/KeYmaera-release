@@ -217,17 +217,17 @@ dist-keymaera:	branding all
 	@cp -r $(BINARYPATH)/* dist/key/
 	@cp -r $(RESOURCEPATH)/* dist/key/
 #copy example file
-	@for i in `grep --no-filename "\<path\>" $(RESOURCEPATH)description.xml $(RESOURCEPATH)tutorial.xml | sed s/'<path>\/'// | sed s/'<\/path>'// | sed 's/^[ \t]*//'`; do \
+	@for i in `grep --no-filename "\<path\>" $(RESOURCEPATH)description.xml $(RESOURCEPATH)tutorial.xml | grep -v 'http://' | sed s/'<path>\/'// | sed s/'<\/path>'// | sed 's/^[ \t]*//'`; do \
 		mkdir -p dist/key/`dirname $$i`;\
 		cp -RH ../$$i dist/key/$$i;\
 		done
 #copy example proof files
-	@for i in `grep --no-filename 'href=.*.proof' $(RESOURCEPATH)description.xml $(RESOURCEPATH)tutorial.xml | sed s/'.*href=\"\/'// | sed s/'\".*'// | sed 's/^[ \t]*//'`; do \
+	@for i in `grep --no-filename 'href=.*.proof' $(RESOURCEPATH)description.xml $(RESOURCEPATH)tutorial.xml | grep -v 'http://' | sed s/'.*href=\"\/'// | sed s/'\".*'// | sed 's/^[ \t]*//'`; do \
 		mkdir -p dist/key/`dirname $$i`;\
 		cp -RH ../$$i dist/key/$$i;\
 		done
 #copy images
-	@for i in `grep --no-filename '\<img>' $(RESOURCEPATH)description.xml $(RESOURCEPATH)tutorial.xml | sed s/'<img>\/'// | sed s/'<\/img>'// | sed 's/^[ \t]*//'`; do \
+	@for i in `grep --no-filename '\<img>' $(RESOURCEPATH)description.xml $(RESOURCEPATH)tutorial.xml | grep -v 'http://' | sed s/'<img>\/'// | sed s/'<\/img>'// | sed 's/^[ \t]*//'`; do \
 		mkdir -p dist/key/`dirname $$i`;\
 		cp -RH ../$$i dist/key/$$i;\
 		done
