@@ -101,11 +101,11 @@
 						</tr>
 							
 						<tr>
-						<td></td><td><kbd><span class="keyword">if</span>(H)&nbsp;<span class="keyword">then</span>&nbsp;&alpha;&nbsp;<span class="keyword">fi</span></kbd> </td><td><em>If-then</em> statement, performs <kbd>&alpha;</kbd> if formula/condition <kbd>H</kbd> holds at current state and does nothing otherwise</td>
+						<td></td><td nowrap="nowrap"><kbd><span class="keyword">if</span>(H)&nbsp;<span class="keyword">then</span>&nbsp;&alpha;&nbsp;<span class="keyword">fi</span></kbd> </td><td><em>If-then</em> statement, performs <kbd>&alpha;</kbd> if formula/condition <kbd>H</kbd> holds at current state and does nothing otherwise</td>
 						</tr>
 							
 						<tr>
-						<td></td><td><kbd><span class="keyword">if</span>(H)&nbsp;<span class="keyword">then</span>&nbsp;&alpha;&nbsp;<span class="keyword">else</span>&nbsp;&beta;&nbsp;<span class="keyword">fi</span></kbd></td><td><em>If-then-else</em> statement, performs <kbd>&alpha;</kbd> if <kbd>H</kbd> holds at current state and performs <kbd>&beta;</kbd> otherwise</td>
+						<td></td><td nowrap="nowrap"><kbd><span class="keyword">if</span>(H)&nbsp;<span class="keyword">then</span>&nbsp;&alpha;&nbsp;<span class="keyword">else</span>&nbsp;&beta;&nbsp;<span class="keyword">fi</span></kbd></td><td><em>If-then-else</em> statement, performs <kbd>&alpha;</kbd> if <kbd>H</kbd> holds at current state and performs <kbd>&beta;</kbd> otherwise</td>
 						</tr>
 							
 						<tr>
@@ -126,7 +126,7 @@
 						</tr>
 							
 						<tr>
-						<td></td><td><kbd>{x'=t,y'=s,&nbsp;H}</kbd> </td><td><em>Continuous evolution</em> along <em>differential equation system</em> with terms <kbd>t,s</kbd>, optionally with <em>evolution domain constraint</em> <kbd>H</kbd>.
+						<td></td><td nowrap="nowrap"><kbd>{x'=t,y'=s,&nbsp;H}</kbd> </td><td><em>Continuous evolution</em> along <em>differential equation system</em> with terms <kbd>t,s</kbd>, optionally with <em>evolution domain constraint</em> <kbd>H</kbd>.
 							This domain constraint <kbd>H</kbd> needs to be true <em>at every time</em> during the evolution, otherwise the system needs to stop following this continuous mode and move on.
 							You can use systems of differential equations, differential-algebraic equations, differential inequalities, and differential equations with disturbances.</td>
 						</tr>
@@ -172,7 +172,7 @@
 					  
 					<tr>
 					<td></td> 
-						<td>
+						<td nowrap="nowrap">
 						<kbd><span class="keyword">\forall</span>&nbsp;R&nbsp;x;&nbsp;&phi;</kbd>
 						</td>
 						<td><em>Universal quantifier</em>: for all real values for variable <kbd>x</kbd>, formula <kbd>&phi;</kbd> holds</td>
@@ -182,7 +182,7 @@
 					<tr>
 						
 					<td></td>
-						<td><kbd><span class="keyword">\exists</span>&nbsp;R&nbsp;x;&nbsp;&phi;</kbd></td>
+						<td nowrap="nowrap"><kbd><span class="keyword">\exists</span>&nbsp;R&nbsp;x;&nbsp;&phi;</kbd></td>
 						<td><em>Existential quantifier</em>: for some real value for variable <kbd>x</kbd>, formula <kbd>&phi;</kbd> holds</td>
 						
 					</tr>
