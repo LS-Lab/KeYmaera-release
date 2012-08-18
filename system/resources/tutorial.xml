@@ -322,6 +322,11 @@
 					</ul>
 				]]>
 				</description>
+				<resources>
+					<img>/examples/hybrid/tutorial/fig-car-stuck-accel-accel.png</img>
+					<img>/examples/hybrid/tutorial/fig-car-stuck-accel-vel.png</img>
+					<img>/examples/hybrid/tutorial/fig-car-stuck-accel-pos.png</img>
+				</resources>
 				<path>/examples/hybrid/tutorial/lics2-hybrid-forward.key</path>
 			</exercise>
 			<exercise>
@@ -364,6 +369,11 @@
                 		]]>
                 	</hint>
                 </hints>
+				<resources>
+					<img>/examples/hybrid/tutorial/fig-car-accel-brake-accel.png</img>
+					<img>/examples/hybrid/tutorial/fig-car-accel-brake-vel.png</img>
+					<img>/examples/hybrid/tutorial/fig-car-accel-brake-pos.png</img>
+				</resources>
 				<path>/examples/hybrid/verifiedsoft/event-triggered-car.key</path>
 			</exercise>
 			<exercise>
@@ -415,6 +425,11 @@
 						]]>
 					</hint>
 				</hints>
+				<resources>
+					<img>/examples/hybrid/tutorial/fig-car-too-fast-accel.png</img>
+					<img>/examples/hybrid/tutorial/fig-car-too-fast-vel.png</img>
+					<img>/examples/hybrid/tutorial/fig-car-too-fast-pos.png</img>
+				</resources>
 				<path>/examples/hybrid/verifiedsoft/time-safe-relative.key</path>
 			</exercise>
 			<exercise>

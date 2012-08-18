@@ -345,7 +345,7 @@ public class Tutorial extends JFrame {
 
         tree = new JTree(top);
         JScrollPane treeView = new JScrollPane(tree);
-        treeView.setPreferredSize(new Dimension(320, 400));
+        treeView.setPreferredSize(new Dimension(320, 480));
         getRootPane().registerKeyboardAction(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 setVisible(false);
