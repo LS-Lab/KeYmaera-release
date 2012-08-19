@@ -75,18 +75,22 @@ diff_aux = "The <b>DA differential auxiliaries</b> rule allows to introduce auxi
 
 diff_aux_fresh = "The <b>DA differential auxiliaries (drop context)</b> rule allows to introduce auxiliary variables into differential equation systems. This is sometimes necessary for proves by differential induction. In the <b>drop context</b> variant of this rule the auxiliary formula has to be equivalent in all possible contexts."
 
-Eliminate_Universal_Quantifiers = "<p>Eliminate universal quantifiers performs quantifier elimination arithmetic and returns an equivalent formula. This rule assumes <b>all</b> variables in the sequent to be universally quantified and thus checks whether the current sequent is a universal sentence and the goal can be closed.</p><p>Further note, that this rule ignores all formulas in the sequent that do still contain modalities, updates, or substitutions.</p>"
+Eliminate_Universal_Quantifiers = "Use quantifier elimination to reduce arithmetic to an equivalent formula. Assumes <b>all</b> variables in the sequent to be universally quantified. This is always sound, but if it does not work, you may have to eliminate existential quantifiers instead.<br>This rule ignores all formulas in the sequent that do still contain modalities, updates, or substitutions."
 
-Find_Counterexample = "<p>If you assume that the current goal is not a universal sentence, you can use this rule to try to find a <b>numeric counter example</b></p><p>Such a counter example might make it easier to get an idea of what is actually going on in your system.</p>"
+Find_Counterexample = "Try to try to find a <b>numeric counter example</b> to disprove this sequent and understand what may be wrong in your system."
 
-Groeber_Basis = "<p>The <b>Gr&ouml;bner Basis</b> rule checks whether the current sequent has a constant Gr&ouml;bner basis and is thus a universal sentence.</p><p>The goal of this rule are thus similar to that of the Eliminate Universal Quantifiers rule, but the methods used are different."
+Groebner_Basis = "<b>Gr&ouml;bner Basis</b> checks whether the current sequent has a constant Gr&ouml;bner basis and is thus a universal sentence. The goal of this rule are thus similar to that of the Eliminate Universal Quantifiers rule, but the methods used are different."
 
-Eliminate_Existential_Quantifiers = "<p>The <b>Eliminate Existential Quantifiers</b> rule reintroduces the existential quantifiers that where replaced by <tt>MetaVariables</tt> by the all_left or ex_right rules and merges, in the progress, all branches where these variables occur into a single formula. Afterwards a quantifier elimination procedure is applied to determine whether the resulting formula is valid. You should simplify and/or close as many goals as you can before you use this rule.</p>"
+Eliminate_Existential_Quantifiers = "<b>Eliminate Existential Quantifiers</b> reintroduces the existential quantifiers that where replaced by <tt>MetaVariables</tt> by the all_left or ex_right rules and merges, in the progress, all branches where these variables occur into a single formula. Afterwards a quantifier elimination procedure is applied to determine whether the resulting formula is valid. You should simplify and/or close as many goals as you can before you use this rule."
 
-Sum_of_Squares = "<p>The <b>Sum of Squares</b> rule tries to prove that the current sequent is a universal sentence using Stengle's Positivstellensatz based on an encoding provided by Parrilo in 2003.</p>" 
+Sum_of_Squares = "<b>Sum of Squares</b> tries to prove the sequent to be valid universal arithmetic using Stengle's Positivstellensatz based on an encoding provided by Parrilo in 2003."
 
-loop_unwind_box = "This rule unwinds a loop exactly once. It replaces <tt>\\[a*\\]F</tt> by <tt>F & \\[a\\]\\[a*\\]F</tt>, meaning that the post condition holds in the current state and in all states reachable by executing the loop body at least once."
-loop_unwind_dia = "This rule unwinds a loop exactly once. It replaces <tt>\\&lt;a*\\&gt;F</tt> by <tt>F | \\&lt;a\\&gt;\\&lt;a*\\&gt;</tt>, meaning that either F has to already hold or it has to hold after one or more iterations of the loop."
+Visualization_rule = "Show a view of the transition system of the hybrid program (using dotty)"
+
+IterativeReduce = "Iteratively reduce arithmetic using quantifier elimination"
+
+loop_unwind_box = "Unwind a loop once. It replaces <tt>\\[a*\\]F</tt> by <tt>F & \\[a\\]\\[a*\\]F</tt>, i.e., the post condition holds in the current state and in all states reachable by executing the loop body at least once."
+loop_unwind_dia = "Unwinds a loop once. It replaces <tt>\\&lt;a*\\&gt;F</tt> by <tt>F | \\&lt;a\\&gt;\\&lt;a*\\&gt;</tt>, i.e., F holds in the current state or holds after one or more iterations of the loop."
 
 box_choice_right = "This rule splits a modality with a nondeterministic choice <tt>a ++ b</tt> into two sub branches. On one branch the goal is to show the postcondition if <tt>a</tt> was chosen, on the other if the choice was <tt>b</tt>."
 
@@ -100,8 +104,8 @@ box_and_right = "The <b>[]& split box conjunction</b> rule allows you to split a
 
 box_and_left = "The <b>[]& split box conjunction</b> rule allows you to split a conjunction below a box-modality."
 
-all_left  =  "For the all left rule, you will not need to enter an instantiation. Just press Apply. If you really want to provide an instantiation, you can also apply this rule via drag and drop, just drag the quantified formula on the term you want it to instantiate with."
-ex_right  =  "For the some right rule, you will not need to enter an instantiation. Just press Apply. If you really want to provide an instantiation, you can also apply this rule via drag and drop, just drag the quantified formula on the term you want it to instantiate with."
+all_left  =  "The all left rule asks you for an instantiation. Just press Apply. If you really want to provide an instantiation, you can also apply this rule via drag and drop, just drag the quantified formula on the term you want it to instantiate with."
+ex_right  =  "The some right rule asks you for an instantiation. Just press Apply. If you really want to provide an instantiation, you can also apply this rule via drag and drop, just drag the quantified formula on the term you want it to instantiate with."
 
 allLeftHide = "The quantified formula has been hidden. Add it to the sequent again by applying rule 'insertHidden'. You can also apply this rule via drag and drop, just drag the quantified formula on the term you want it to instantiate with."
 exRightHide = "The quantified formula has been hidden. Add it to the sequent again by applying rule 'insertHidden'. You can also apply this rule via drag and drop, just drag the quantified formula on the term you want it to instantiate with."

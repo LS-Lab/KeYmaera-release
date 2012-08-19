@@ -48,6 +48,8 @@
                 				<publication>DBLP:conf/lics/Platzer12a</publication> 
                 <description>LICS Tutorial Example 2: Modeling a safety property of a hybrid system. In this example, we introduce a discrete controller into the model of the continuous system in Example 1. The controller has only two options: it may cause the car to accelerate with rate A or brake with rate -b.
     </description>
+	<!-- <img 
+		href="/examples/hybrid/tutorial/fig-car-stuck-accel-pos.png"/ -->
                 <source href="http://symbolaris.com/info/KeYmaera-tutorial.html"/>
                 <requirements>
                      <some>
