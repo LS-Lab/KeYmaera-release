@@ -33,6 +33,8 @@ public class RuleTreeModel extends DefaultTreeModel {
     = new DefaultMutableTreeNode("Built-In");
     protected MutableTreeNode axiomTacletRoot 
     = new DefaultMutableTreeNode("Taclet Base");
+    protected MutableTreeNode nonInteractiveTacletsRoot 
+    = new DefaultMutableTreeNode("Non-Interactive Taclets");
     protected MutableTreeNode proveableTacletsRoot 
     = new DefaultMutableTreeNode("Lemmas");
     
@@ -41,6 +43,7 @@ public class RuleTreeModel extends DefaultTreeModel {
         this.goal = g;
         insertAsLast(builtInRoot, (MutableTreeNode) getRoot());
         insertAsLast(axiomTacletRoot, (MutableTreeNode) getRoot());
+        insertAsLast(nonInteractiveTacletsRoot, (MutableTreeNode) getRoot());
         insertAsLast(proveableTacletsRoot, (MutableTreeNode) getRoot());
         if (g!=null) rulesForGoal(g);
     }
@@ -92,7 +95,10 @@ public class RuleTreeModel extends DefaultTreeModel {
         for (final NoPosTacletApp app : apps) {
             RuleJustification just = mgt().getJustification(app);
             if (just==null) continue; // do not break system because of this
-            if (just.isAxiomJustification()) {
+            if(app.taclet().noninteractive()) {
+                insertAndGroup(new DefaultMutableTreeNode(app.taclet()), 
+                               nonInteractiveTacletsRoot);
+            } else if (just.isAxiomJustification()) {
                 insertAndGroup(new DefaultMutableTreeNode(app.taclet()), 
                                axiomTacletRoot);
             } else {
