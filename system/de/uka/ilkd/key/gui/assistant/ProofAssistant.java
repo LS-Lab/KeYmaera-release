@@ -69,7 +69,7 @@ public class ProofAssistant extends JPanel {
     public ProofAssistant() {
 	layoutAssistant();
 
-	setText("Hi!<br>I am <strong>KiKi</strong> your " +
+	setText("Hi! I am <strong>KiKi</strong> your " +
 		"personal proof assistant. <br>If you close me I won't bother you again.<br>"+
 		"However, I provide useful explainations about KeYmaera rules, when you highlight them in the context menu.<br>" +
 		"If you should ever close me by accident, you can reopen me in the <tt>Options</tt> menu.<br>" +

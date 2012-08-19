@@ -120,7 +120,9 @@ public class DLDefined extends AbstractDLMetaOperator {
         }
     }
 
-    /**
+    /** 
+     * Construct the set/list of all formulas t!=0 for which a division by t occurs in expr.
+     * Divisions include proper /t or things like t^-4.
      * @param expr
      * @return
      */
