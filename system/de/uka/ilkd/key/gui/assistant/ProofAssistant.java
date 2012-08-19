@@ -57,6 +57,7 @@ public class ProofAssistant extends JPanel {
     private JEditorPane textPane;
     private JFrame frame;
 
+    //@todo why not "<html><body>" instead?
     private static final String PREFIX = "<html>";
 	//"<html><body style=\"font-family:" +
 	//"'Times New Roman',Times,sans serif;font-size: 12pt;\">";
@@ -70,11 +71,12 @@ public class ProofAssistant extends JPanel {
 	layoutAssistant();
 
 	setText("Hi! I am <strong>KiKi</strong> your " +
-		"personal proof assistant. <br>If you close me I won't bother you again.<br>"+
-		"However, I provide useful explainations about KeYmaera rules, when you highlight them in the context menu.<br>" +
+		"personal proof assistant. "+
+		"I provide useful explanations about KeYmaera rules, when you highlight them in the context menu.<br>" +
+		"If you close me I won't bother you again.<br>" +
 		"If you should ever close me by accident, you can reopen me in the <tt>Options</tt> menu.<br>" +
 		"If you are new to KeYmaera, you should walk through the steps in <i>File-&gt;Start Tutorial</i>.<br>" +
-		"It is also helpful to inspect the projects in <i>File-&gt;Load Project</i>.");
+		"You should also inspect the projects in <i>File-&gt;Load Project</i>.");
 
 	// create the frame
 	frame = new JFrame("Proof Assistant");
