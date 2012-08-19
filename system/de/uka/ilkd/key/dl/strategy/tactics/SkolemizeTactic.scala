@@ -54,19 +54,12 @@ class SkolemizeTactic {
     val trm = ta.instantiations().lookupValue(new Name("trm"))
     s.getNamespaces().functions().add(skC.asInstanceOf[Term].op())
     // apply the skolemize rule
-    ta.execute(g, s);
-    var skip = -1;
-    for (i <- 0 until g.sequent().antecedent().size())
-      if (g.sequent().antecedent().get(i).formula().op() == Op.EQUALS) {
-        if (g.sequent().antecedent().get(i).formula().sub(0).op() == skC.asInstanceOf[Term].op()) {
-          skip = i
-        }
-      }
-    assert(skip != -1)
+    ta.execute(g, s)
+    var skip = -1
     // we need to ignore formula skip as that is the equation we want to apply
     var r: PosInOccurrence = null
     do {
-      var skip = -1;
+      skip = -1;
       for (i <- 0 until g.sequent().antecedent().size())
         if (g.sequent().antecedent().get(i).formula().op() == Op.EQUALS) {
           if (g.sequent().antecedent().get(i).formula().sub(0).op() == skC.asInstanceOf[Term].op()
