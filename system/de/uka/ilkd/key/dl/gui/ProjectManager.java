@@ -24,6 +24,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Image;
@@ -56,6 +57,7 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
+import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -68,6 +70,7 @@ import javax.swing.JTextPane;
 import javax.swing.JTree;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 import javax.swing.event.TreeSelectionEvent;
@@ -91,6 +94,8 @@ import de.uka.ilkd.key.dl.gui.download.FileInfo;
 import de.uka.ilkd.key.dl.gui.download.IDownloadListener;
 import de.uka.ilkd.key.dl.utils.XMLReader;
 import de.uka.ilkd.key.gui.Main;
+import de.uka.ilkd.key.gui.configuration.Config;
+import de.uka.ilkd.key.util.Debug;
 
 /**
  * @author jdq
@@ -557,6 +562,9 @@ public class ProjectManager extends JFrame {
                 textArea.setEditable(false);
                 textArea.setAutoscrolls(false);
                 textArea.addHyperlinkListener(hyperlinkListener);
+                setFont(textArea);
+                textArea.setSelectionStart(0);
+                textArea.setSelectionEnd(0); 
 
                 JTextArea requirementsArea = new JTextArea();
                 requirementsArea.setLineWrap(true);
@@ -653,6 +661,7 @@ public class ProjectManager extends JFrame {
                 } else {
                     proofLoadButton.setEnabled(true);
                 }
+                setFont(requirementsArea);
                 if (info.requirements.isEmpty()) {
                     requirementsArea.setText("No special requirements");
                     requirementsArea.setForeground(Color.BLACK);
@@ -692,7 +701,7 @@ public class ProjectManager extends JFrame {
                         proofAuthorsArea.add(aPane);
                     }
                 }
-
+                setFont(publicationArea);
                 if (info.getPublication() == null
                         || info.getPublication().equals("")) {
                     publicationArea.setText("No publication given.");
@@ -729,6 +738,7 @@ public class ProjectManager extends JFrame {
                 aPane.setContentType("text/html");
                 aPane.setEditable(false);
                 aPane.setAutoscrolls(false);
+                setFont(aPane);
                 aPane.addHyperlinkListener(getHyperlinkListener());
 
                 if (authorInfos.keySet().contains(a)) {
@@ -778,6 +788,19 @@ public class ProjectManager extends JFrame {
         splitPane.setResizeWeight(0.1);
         this.add(splitPane);
         pack();
+    }
+    private void setFont(JComponent comp) {
+        Font myFont = UIManager.getFont(Config.KEY_FONT_TUTORIAL);
+        if (myFont != null) {
+            if (comp != null) {
+                comp.putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES,
+                        Boolean.TRUE); // Allow font to changed in JEditorPane
+                                       // when set to "text/html"
+                comp.setFont(myFont);
+            }
+        } else {
+            Debug.out("KEY_FONT_CURRENT_GOAL_VIEW not available. Use standard font.");
+        }
     }
 
     public static HyperlinkListener getHyperlinkListener() {
