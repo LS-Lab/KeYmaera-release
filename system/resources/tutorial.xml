@@ -531,6 +531,13 @@
 				 <path>/examples/hybrid/verifiedsoft/general_water_tank.key</path>
 			</exercise>
 			<exercise>
+				<title>Demo x'=-x</title>
+				<description>
+					This demo proves the following property: For an initial value greater than zero, a continuous evolution along x'=-x will never have a zero-crossing.
+				</description>
+				<path>/examples/hybrid/dynamical/negexp.key.proof</path>
+			</exercise>
+			<exercise>
 				<title>Ex. 8 Cooling down</title>
 				<description>
 					<![CDATA[
@@ -700,6 +707,20 @@
 					<img>/examples/hybrid/heater/diffcut4.png</img>
 				</resources>
 				<path>/examples/hybrid/verifiedsoft/heater-switchdelay-extract2.key</path>
+			</exercise>
+			<exercise>
+				<title>Demo Two cars</title>
+				<description>
+					<![CDATA[
+					<p>
+					Consider the following example of two cars. 
+					</p>
+					]]>
+				</description>
+				<resources>
+					<img>/examples/hybrid/car/fig-car-control2.png</img>
+				</resources>
+				<path>/examples/hybrid/verifiedsoft/twocars.key.proof</path>
 			</exercise>
 			<exercise>
 				<title>Ex. 14 Distributed cars</title>

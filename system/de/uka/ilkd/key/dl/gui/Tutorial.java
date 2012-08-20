@@ -278,7 +278,7 @@ public class Tutorial extends JFrame {
          * 
          */
         public LoadAction() {
-            putValue(NAME, "Load exercise file");
+            putValue(NAME, "Load linked file");
             putValue(SHORT_DESCRIPTION,
                     "Load the file corresponding to the current exercise.");
         }
