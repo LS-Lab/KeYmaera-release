@@ -133,7 +133,7 @@ make_insert_eq_nonrigid = "Alternatively, you can click on the term where you wa
 cut_direct_r = "The rule <b>cut_direct_r</b> is rather useless. You may looking for rule <tt>cut</tt> which can be found by clicking on the sequent arrow."
 cut_direct_l = "The rule <b>cut_direct_l</b> is rather useless. You may looking for rule <tt>cut</tt> which can be found by clicking on the sequent arrow."
 
-Skolemize_Non_Rigids_Tactic = "The <b>skolemize non-rigids</b> tactic applies a sequence of rules to abbreviate all non-rigid functions with parameters with constant rigid functions. This allows for the application of quantifier elimination in the afterwards."
+Skolemize_Non_Rigids_Tactic = "<b>skolemize</b> abbreviates all <b>non-rigids</b> functions  by fresh constant symbols. Eliminate Universal Quantifiers is then applicable afterwards."
 
 methodCall = "You have executed a method call. The if cascade is used to resolve the dynamical binding of methods."
 methodCallWithAssignment = "You have executed a method call. The if-cascade is used to resolve the dynamical binding of methods."

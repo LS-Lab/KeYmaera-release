@@ -150,6 +150,8 @@ public abstract class RuleOperatingOnWholeSequence extends Visitor implements
 			throw new IllegalStateException(e.getMessage(), e);
 		}
 		resultFormula = resultTerm;
+		if (resultFormula == null)
+			throw new NullPointerException("Rule did not return a result, possibly aborted.");
 
 		// if we are not in test mode, we want to apply the resulting changes
 		if (!testModeActive) {
