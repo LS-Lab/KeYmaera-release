@@ -311,6 +311,11 @@
 					Load the exercise and press play. The automatic strategy is able to prove this example. Look at the proof and try to understand its structure.
 				]]>
 				</description>
+             	<resources>
+             		<img>/examples/hybrid/tutorial/fig-car-accel-accel.png</img>
+                    <img>/examples/hybrid/tutorial/fig-car-accel-vel.png</img>
+                    <img>/examples/hybrid/tutorial/fig-car-accel-pos.png</img>
+             	</resources>
 				<path>/examples/hybrid/tutorial/lics1-continuous-forward.key</path>
 			</exercise>
 			<exercise>
@@ -561,7 +566,7 @@
 				 <path>/examples/hybrid/verifiedsoft/general_water_tank.key</path>
 			</exercise>
 			<exercise>
-				<title>Ex. 9 Car control with disturbance</title>
+				<title>Ex. 9 Safety of car with disturbance</title>
 				<description>
 					<![CDATA[
 					Let's go back to the car setting. Assume there are some external disturbance influences on the car dynamics such that the velocity does not evolve with exactly the differential equation v'=a but instead with the differential inequality a-l &lt;= v' &lt;= a+u, where l and u are the lower and upper bounds on the disturbance, respectively. You need to show that the car controller works despite the disturbance, even in the worst case. 
