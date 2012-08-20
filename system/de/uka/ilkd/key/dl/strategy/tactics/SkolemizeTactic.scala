@@ -46,7 +46,7 @@ object SkolemizeTactic {
     val papp = skolemize.setPosInOccurrence(p)
     // there should only be one schema variable left that needs instantiation
     val sv = papp.uninstantiatedVars().iterator().next()
-    val indices = (x : Term) => if(x.arity > 0) "_" + (for(i <- 0 until x.arity) yield x.sub(i).op.name.toString).reduce((a,b) => a + "_" + b) else ""
+    val indices = (x: Term) => if (x.arity > 0) "_" + (for (i <- 0 until x.arity) yield x.sub(i).op.name.toString).reduce((a, b) => a + "_" + b) else ""
     // important: the instantiation has to marked as interesting to get saved with the proofs
     val tacomplete = papp.createSkolemConstant(s.getNamespaces.getUniqueName(p.subTerm.op.name.toString + indices(p.subTerm)), sv, true, s)
     var ta = tacomplete.instantiateWithMV(g)
@@ -57,61 +57,17 @@ object SkolemizeTactic {
     // apply the skolemize rule
     ta.execute(g, s)
     var skip = -1
-    // we need to ignore formula skip as that is the equation we want to apply
-    var r: PosInOccurrence = null
-    do {
-      skip = -1;
-      for (i <- 0 until g.sequent().antecedent().size())
-        if (g.sequent().antecedent().get(i).formula().op() == Op.EQUALS) {
-          if (g.sequent().antecedent().get(i).formula().sub(0).op() == skC.asInstanceOf[Term].op()
-              && g.sequent().antecedent().get(i).formula().sub(1).op() == trm.asInstanceOf[Term].op()) {
-            skip = i
-          }
-        }
-      assert(skip != -1)
-
-      r = null
-      for (i <- 0 until g.sequent.antecedent.size) {
-        if (i != skip) {
-          val res = findNonRigidFunction(new PosInOccurrence(g.sequent.antecedent.get(i), PosInTerm.TOP_LEVEL, true))
-          res get p.subTerm().toString() match {
-            case Some(l) => r = l
-            case _ =>
-          }
+    for (i <- 0 until g.sequent().antecedent().size())
+      if (g.sequent().antecedent().get(i).formula().op() == Op.EQUALS) {
+        if (g.sequent().antecedent().get(i).formula().sub(0).op() == skC.asInstanceOf[Term].op()
+          && g.sequent().antecedent().get(i).formula().sub(1).op() == trm.asInstanceOf[Term].op()) {
+          skip = i
         }
       }
-      if (r == null) {
-        for (i <- 0 until g.sequent.succedent.size) {
-          val res = findNonRigidFunction(new PosInOccurrence(g.sequent.succedent.get(i), PosInTerm.TOP_LEVEL, false))
-          res get p.subTerm().toString() match {
-            case Some(l) => r = l
-            case _ =>
-          }
-        }
-      }
-      if (r != null) {
-        var apply_eq = g.ruleAppIndex.tacletIndex.lookup("applyEq_sym")
-        apply_eq = apply_eq.matchFind(r, Constraint.BOTTOM, s, Constraint.BOTTOM)
-        val papp = apply_eq.setPosInOccurrence(r)
-        var ra = papp.addInstantiation(papp.uninstantiatedVars().iterator().next(), g.sequent().antecedent().get(skip).formula().sub(0), true)
-        val lst: ImmutableList[IfFormulaInstantiation] = ImmutableSLList.nil.asInstanceOf[ImmutableList[IfFormulaInstantiation]]
-        val ifInstList = lst.append(new IfFormulaInstSeq(g.sequent, true, g.sequent.antecedent.get(skip)))
-        ra = ra.setIfFormulaInstantiations(ifInstList, s, Constraint.BOTTOM)
-        ra = ra.instantiateWithMV(g)
-        ra = ra.createSkolemFunctions(s.getNamespaces().functions(), s)
-        // apply rule
-        ra.execute(g, s);
-      }
-    } while (r != null)
-    // afterwards hide the introduced equality
-    var hide = g.ruleAppIndex().tacletIndex().lookup("hide_left")
-    val pos0 = new PosInOccurrence(g.sequent().antecedent().get(skip), PosInTerm.TOP_LEVEL, true)
-    hide = hide.matchFind(pos0, Constraint.BOTTOM, s, Constraint.BOTTOM)
-    val pHide = hide.setPosInOccurrence(pos0)
-    var ra = pHide.instantiateWithMV(g)
-    ra = ra.createSkolemFunctions(s.getNamespaces().functions(), s)
-    // apply rule
-    ra.execute(g, s);
+    assert(skip != -1)
+    // Apply the resulting equality on everywhere
+    ApplyEquationTactic.apply(g, new PosInOccurrence(g.sequent().antecedent().get(skip), PosInTerm.TOP_LEVEL, true), false, s)
+    // if there are still non rigid functions around, go on
     if (!findNonRigidFunction(g.sequent()).isEmpty)
       apply(g, s)
   }
