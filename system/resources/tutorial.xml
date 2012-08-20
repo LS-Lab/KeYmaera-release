@@ -531,6 +531,18 @@
 				 <path>/examples/hybrid/verifiedsoft/general_water_tank.key</path>
 			</exercise>
 			<exercise>
+				<title>Ex. 8 Distrubances</title>
+				<description>
+					<![CDATA[
+					Let's go back to the car setting. Assume there are some external influences on the car dynamics such that the velocity does not evolve with exactly v'=a but instead a-l &lt;= v' &lt;= a+u. 
+					<p>
+						<b>Exercise:</b> Prove that the modified car controller is able to control the car safely in this scenario.
+					</p>
+					]]>
+				</description>
+				<path>/examples/hybrid/verifiedsoft/disturbed-car.key</path>
+			</exercise>
+			<exercise>
 				<title>Demo x'=-x</title>
 				<description>
 					This demo proves the following property: For an initial value greater than zero, a continuous evolution along x'=-x will never have a zero-crossing.
@@ -538,7 +550,7 @@
 				<path>/examples/hybrid/dynamical/negexp.key.proof</path>
 			</exercise>
 			<exercise>
-				<title>Ex. 8 Cooling down</title>
+				<title>Ex. 9 Cooling down</title>
 				<description>
 					<![CDATA[
 					<p>
@@ -584,7 +596,7 @@
 				<path>/examples/hybrid/heater/diffcut.key</path>
 			</exercise>
 			<exercise>
-				<title>Ex. 9 Heating up</title>
+				<title>Ex. 10 Heating up</title>
 				<description>
 					<![CDATA[
 					<p>
@@ -621,7 +633,7 @@
 				<path>/examples/hybrid/heater/diffcut2.key</path>
 			</exercise>
 			<exercise>
-				<title>Ex. 10 Not too cold</title>
+				<title>Ex. 11 Not too cold</title>
 				<description>
 					<![CDATA[
 					<p>
@@ -642,7 +654,7 @@
 				<path>/examples/hybrid/heater/diffcut3.key</path>
 			</exercise>
 			<exercise>
-				<title>Ex. 11 Temperature in hot cases</title>
+				<title>Ex. 12 Temperature in hot cases</title>
 				<description>
 					<![CDATA[
 					<p>
@@ -665,7 +677,7 @@
 				<path>/examples/hybrid/heater/diffcut4.key</path>
 			</exercise>
 			<exercise>
-				<title>Ex. 12 Heater (extract)</title>
+				<title>Ex. 13 Heater (extract)</title>
 				<description>
 					<![CDATA[
 					<p>
@@ -689,7 +701,7 @@
 				<path>/examples/hybrid/verifiedsoft/heater-switchdelay-extract.key</path>
 			</exercise>
 			<exercise>
-				<title>Ex. 13 Heater (extract 2)</title>
+				<title>Ex. 14 Heater (extract 2)</title>
 				<description>
 					<![CDATA[
 					<p>
@@ -723,7 +735,7 @@
 				<path>/examples/hybrid/verifiedsoft/twocars.key.proof</path>
 			</exercise>
 			<exercise>
-				<title>Ex. 14 Distributed cars</title>
+				<title>Ex. 15 Distributed cars</title>
 				<description>
 					<![CDATA[
 					<p>
