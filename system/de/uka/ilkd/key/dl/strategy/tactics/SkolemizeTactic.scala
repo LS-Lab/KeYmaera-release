@@ -47,7 +47,8 @@ class SkolemizeTactic {
     // there should only be one schema variable left that needs instantiation
     val sv = papp.uninstantiatedVars().iterator().next()
     val indices = (x : Term) => if(x.arity > 0) "_" + (for(i <- 0 until x.arity) yield x.sub(i).op.name.toString).reduce((a,b) => a + "_" + b) else ""
-    val tacomplete = papp.createSkolemConstant(s.getNamespaces.getUniqueName(p.subTerm.op.name.toString + indices(p.subTerm)), sv, false, s)
+    // important: the instantiation has to marked as interesting to get saved with the proofs
+    val tacomplete = papp.createSkolemConstant(s.getNamespaces.getUniqueName(p.subTerm.op.name.toString + indices(p.subTerm)), sv, true, s)
     var ta = tacomplete.instantiateWithMV(g)
     ta = ta.createSkolemFunctions(s.getNamespaces().functions(), s)
     val skC = ta.instantiations().lookupValue(new Name("sk"))
@@ -92,7 +93,7 @@ class SkolemizeTactic {
         var apply_eq = g.ruleAppIndex.tacletIndex.lookup("applyEq_sym")
         apply_eq = apply_eq.matchFind(r, Constraint.BOTTOM, s, Constraint.BOTTOM)
         val papp = apply_eq.setPosInOccurrence(r)
-        var ra = papp.addInstantiation(papp.uninstantiatedVars().iterator().next(), g.sequent().antecedent().get(skip).formula().sub(0), false)
+        var ra = papp.addInstantiation(papp.uninstantiatedVars().iterator().next(), g.sequent().antecedent().get(skip).formula().sub(0), true)
         val lst: ImmutableList[IfFormulaInstantiation] = ImmutableSLList.nil.asInstanceOf[ImmutableList[IfFormulaInstantiation]]
         val ifInstList = lst.append(new IfFormulaInstSeq(g.sequent, true, g.sequent.antecedent.get(skip)))
         ra = ra.setIfFormulaInstantiations(ifInstList, s, Constraint.BOTTOM)
