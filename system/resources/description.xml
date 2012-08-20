@@ -1610,6 +1610,32 @@ Contributed by: Solofomampionona Fortunat Rajaona</description>
     			</some>
     		</requirements>
     	</example>
+    	<example>
+    		<name>Exponential Decay</name>
+    		<path>/examples/hybrid/dynamical/exp-.key</path>
+    		<proofs>
+    		    <proof name="Mathematica" href="/examples/hybrid/dynamical/exp-.key.proof"/>
+    		    <proof name="Reduce" href="/examples/hybrid/dynamical/exp-.key.redlog.proof"/>
+    		    <proof name="CohenHormander" href="/examples/hybrid/dynamical/exp-.key.cohenhormander.proof"/>
+    		</proofs>
+			<authors>
+				<author>platzer</author>
+			</authors>
+			<proofauthors>
+				<author>platzer</author>
+			</proofauthors>
+			<publication>DBLP:journals/lmcs/Platzer12</publication>
+    		<description>Exponential decay dynamics x'=-x</description>
+    		<requirements>
+    			<some>
+         		 	<quantifiereliminator>CohenHormander</quantifiereliminator>
+         		 	<!-- ><quantifiereliminator>SMT</quantifiereliminator> -->
+         		 	<quantifiereliminator>Mathematica</quantifiereliminator>
+         		 	<!-- ><quantifiereliminator>QepCad</quantifiereliminator> -->
+         		 	<quantifiereliminator>Reduce</quantifiereliminator>
+    			</some>
+    		</requirements>
+    	</example>
     </group>
 	<group name="QdL Distributed Hybrid Systems">
 		<example>
@@ -1776,12 +1802,21 @@ Contributed by: Solofomampionona Fortunat Rajaona</description>
 		<additional>Journal of Logic and Computation, 20(1), pages 309-352, 2010. DOI: 10.1093/logcom/exn070</additional>
 	</publication>
 	<publication>
+		<short>DBLP:journals/lmcs/Platzer12</short>
+		<title>The structure of differential invariants and differential cut elimination.</title>
+		<authors>
+			<author>platzer</author>
+		</authors>
+		<url>http://arxiv.org/pdf/1104.1987.pdf</url>
+		<additional>Logical Methods in Computer Science, 2012.</additional>
+	</publication>
+	<publication>
 		<short>DBLP:journals/lmcs/Platzer12b</short>
 		<title>A complete axiomatization of quantified differential dynamic logic for distributed hybrid systems.</title>
 		<authors>
 			<author>platzer</author>
 		</authors>
-		<url>http://arxiv.org/abs/1206.3357</url>
+		<url>http://arxiv.org/pdf/1206.3357.pdf</url>
 		<additional>Logical Methods in Computer Science, 2012.</additional>
 	</publication>
 	<publication>

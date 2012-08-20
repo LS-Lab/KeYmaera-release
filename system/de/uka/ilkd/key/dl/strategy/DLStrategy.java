@@ -781,6 +781,7 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 						opSub(tf.pow, any(), tf.intLiteral), op(tf.neg), or(tf.literal,
 								DecimalLiteralFeature.INSTANCE)))));
 
+		//@todo change so that eval_literals is only done if enough concrete number literals occur so that it may affect
 		bindRuleSet(d, "eval_literals", add(applyTF(FocusProjection.create(0),
 				add(not(tf.literal), or(literalTerm, opSub(tf.eq, literalTerm,
 						literalTerm), or(

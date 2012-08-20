@@ -61,6 +61,6 @@ public class ChopImpl extends CompoundDLProgramImpl implements Chop {
     /*@Override*/
     public String toString() {
     	// for the proof view
-    	return "compose;";
+    	return ";compose";
     }
 }

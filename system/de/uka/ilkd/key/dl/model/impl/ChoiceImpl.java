@@ -61,6 +61,6 @@ public class ChoiceImpl extends CompoundDLProgramImpl implements Choice {
     /*@Override*/
     public String toString() {
     	// for proof view
-    	return "Choice";
+    	return "choice";
     }
 }
