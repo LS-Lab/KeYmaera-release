@@ -84,7 +84,7 @@
 						<table class="syntax">
 						  
 						<tr>
-						<td colspan="3" id="HP"><b>Hybrid programs</b>, with typical names <kbd>&alpha;</kbd> and <kbd>&beta;</kbd>, are defined by the following syntax:</td>
+						<td colspan="3" id="HP"><b>Hybrid programs</b> are a program notation for hybrid dynamical systems with interacting discrete and continuous dynamics. With typical names <kbd>&alpha;</kbd> and <kbd>&beta;</kbd>, hybrid programs are defined by the following syntax:</td>
 						</tr>
 							
 						<tr>
@@ -101,24 +101,11 @@
 						</tr>
 							
 						<tr>
-						<td></td><td nowrap="nowrap"><kbd><span class="keyword">if</span>(H)&nbsp;<span class="keyword">then</span>&nbsp;&alpha;&nbsp;<span class="keyword">fi</span></kbd> </td><td><em>If-then</em> statement, performs <kbd>&alpha;</kbd> if formula/condition <kbd>H</kbd> holds at current state and does nothing otherwise</td>
-						</tr>
-							
-						<tr>
-						<td></td><td nowrap="nowrap"><kbd><span class="keyword">if</span>(H)&nbsp;<span class="keyword">then</span>&nbsp;&alpha;&nbsp;<span class="keyword">else</span>&nbsp;&beta;&nbsp;<span class="keyword">fi</span></kbd></td><td><em>If-then-else</em> statement, performs <kbd>&alpha;</kbd> if <kbd>H</kbd> holds at current state and performs <kbd>&beta;</kbd> otherwise</td>
-						</tr>
-							
-						<tr>
 						<td></td><td><kbd>?H</kbd> </td><td><em>State assertion</em> testing whether formula <kbd>H</kbd> is true in current state (otherwise abort)</td>
 						</tr>
 							
 						<tr>
 						<td></td><td><kbd>&alpha; ++ &beta;</kbd></td><td><em>Non-deterministic choice</em> following either alternative   <kbd>&alpha;</kbd> or <kbd>&beta;</kbd></td>
-						</tr>
-							
-						<tr>
-						<td></td><td><kbd><span class="keyword">while</span>(H)&nbsp;&alpha;&nbsp;<span class="keyword">end</span></kbd></td><td><em>While loop</em>, repeats <kbd>&alpha;</kbd> as long as <kbd>H</kbd> holds, stops before doing <kbd>&alpha;</kbd> only if <kbd>H</kbd> is false
-							 (<kbd>&alpha;</kbd> will not be stopped in the middle just because <kbd>H</kbd> becomes false at some intermediate state during <kbd>&alpha;</kbd>).</td>
 						</tr>
 							
 						<tr>
@@ -140,6 +127,19 @@
 						</tr>
 							
 						<tr>
+						<td></td><td nowrap="nowrap"><kbd><span class="keyword">if</span>(H)&nbsp;<span class="keyword">then</span>&nbsp;&alpha;&nbsp;<span class="keyword">fi</span></kbd> </td><td><em>If-then</em> statement, performs <kbd>&alpha;</kbd> if formula/condition <kbd>H</kbd> holds at current state and does nothing otherwise</td>
+						</tr>
+							
+						<tr>
+						<td></td><td nowrap="nowrap"><kbd><span class="keyword">if</span>(H)&nbsp;<span class="keyword">then</span>&nbsp;&alpha;&nbsp;<span class="keyword">else</span>&nbsp;&beta;&nbsp;<span class="keyword">fi</span></kbd></td><td><em>If-then-else</em> statement, performs <kbd>&alpha;</kbd> if <kbd>H</kbd> holds at current state and performs <kbd>&beta;</kbd> otherwise</td>
+						</tr>
+							
+						<tr>
+						<td></td><td><kbd><span class="keyword">while</span>(H)&nbsp;&alpha;&nbsp;<span class="keyword">end</span></kbd></td><td><em>While loop</em>, repeats <kbd>&alpha;</kbd> as long as <kbd>H</kbd> holds, stops before doing <kbd>&alpha;</kbd> only if <kbd>H</kbd> is false
+							 (<kbd>&alpha;</kbd> will not be stopped in the middle just because <kbd>H</kbd> becomes false at some intermediate state during <kbd>&alpha;</kbd>).</td>
+						</tr>
+							
+						<tr>
 						<td></td><td id="vardecl"><kbd><span class="X:primitiveType">R</span> x</kbd> </td><td><em>Variable declaration</em>, declaring <kbd>x</kbd> as a real variable (either a state variable or auxiliary variable).
 							<!-- We recommend that variable names start with lowercase letters. --></td>
 						</tr>
@@ -151,12 +151,18 @@
 						<tr>
 						<td colspan="3">where <kbd>H</kbd> is a formula of (possibly non-linear) real arithmetic (possibly including quantifiers, but no modalities).</td>
 						</tr>
+						
+						<tr></tr>
+                        <tr><td colspan="3" id="QHP"><b>Quantified hybrid programs</b>, with typical names <kbd>&#945;</kbd> and <kbd>&#946;</kbd>, are a program notation for <webnavref ref="logic/QdL">distributed hybrid systems</webnavref> and are defined by the extending the above syntax for hybrid programs with the following cases</td></tr>
+                    	<tr><td/><td><kbd><span class="keyword">\forall</span>&#160;C&#160;i&#160;<span class="keyword">.</span>&#160;x(i):=t(i)</kbd> </td><td><em>Quantified discrete assignment</em> assigning the values of the terms <kbd>t(i)</kbd> to the <kbd>x(i)</kbd> for all <kbd>i</kbd> of type <kbd>C</kbd>.</td></tr>
+                    	<tr><td/><td><kbd><span class="keyword">\forall</span>&#160;C&#160;i&#160;<span class="keyword">.</span>&#160;x(i):=*</kbd> </td><td><em>Quantified random assignment</em> assigning any value to the <kbd>x(i)</kbd> for all <kbd>i</kbd> of type <kbd>C</kbd>.
+                    	The values are chosen nondeterministically and independently for each <kbd>i</kbd>.</td></tr>
+                    	<tr><td/><td><kbd><span class="keyword">\forall</span> C i <span class="keyword">.</span> {x(i)'=t(i), y(i)'=s(i), H(i)}</kbd> </td><td><em>Continuous evolution</em> along <em>quantified differential equation system</em> evolving <kbd>x(i)</kbd> and <kbd>y(i)</kbd> simultaneously with rates described by terms <kbd>t(i),s(i)</kbd> for all <kbd>i</kbd> of type <kbd>C</kbd>, optionally with <em>evolution domain constraint</em> <kbd>H(i)</kbd>.
+                    	This domain constraint <kbd>H(i)</kbd> needs to be true for all <kbd>i</kbd> <em>at every time</em> during the evolution, otherwise the system needs to stop following this continuous mode and move on.</td></tr>
 
 						</table>
 
-						Enriching this syntax for QdL:
-
-						You can add a single quantifier in front of assignments, random assignments, and differential equation systems. Instead of variables you may use non-rigid function symbols with parameters.
+					   Instead of variables you may use non-rigid function symbols with parameters in quantified hybrid programs and QdL.
 						]]>
 					</description>
 			</exercise>
@@ -167,7 +173,7 @@
 					<table class="syntax">
 					  
 					<tr>
-					<td colspan="3" id="syntax"><b>Formulas of <a href="../logic/dL.html" title="Differential Dynamic Logic for Hybrid Systems">dL</a></b>, with typical names <kbd>&phi;</kbd> and <kbd>&psi;</kbd>, are defined by the following syntax</td>
+					<td colspan="3" id="syntax"><b>Formulas of <a href="http://symbolaris.com/logic/dL.html" title="Differential Dynamic Logic for Hybrid Systems">differential dynamic logic dL</a></b>, with typical names <kbd>&phi;</kbd> and <kbd>&psi;</kbd>, are defined by the following syntax</td>
 					</tr>
 					  
 					<tr>
@@ -222,10 +228,13 @@
 					<tr>
 					<td></td><td><a href="#predicate">pred</a></td> <td><a href="#predicate">Real arithmetic predicate expression</a></td>
 					</tr>
+
+                	<tr></tr>
+
+                    <tr><td colspan="3" id="QdL"><b>Formulas of <a href="http://symbolaris.com/logic/disthysys.html">quantified differential dynamic logic QdL</a></b>, with typical names <kbd>&#966;</kbd> and <kbd>&#968;</kbd>, are defined by the same syntax as <a href="#syntax">dL</a> except that <kbd>&#945;</kbd> can be a <a href="#QHP">quantified hybrid program</a> in the modalities and that multiple sorts other than the reals <kbd><span class="primiteType">R</span></kbd> can be used.</td></tr>
 				</table>
 
 					<ul>
-						<li>Enriching this syntax for QdL: You may use different sorts instead of R that have been defined in the input file. </li>
 						<li>Enriching this syntax for dDGL: You have another modality \( \), the game modality. Inside this modality you may write other modalities, sequences of modalities, choices between modalities (++) or (+-+), and repetions (^[*]) and (^&lt;*&gt;).</li>
 					</ul>
 						]]>
@@ -433,7 +442,7 @@
 				<path>/examples/hybrid/verifiedsoft/time-safe-relative.key</path>
 			</exercise>
 			<exercise>
-				<title>Ex. 6 Water Tank</title>
+				<title>Ex. 6 Water tank</title>
 				<description>
 				<![CDATA[
 					<p>
@@ -492,7 +501,7 @@
 				</hints>
 			</exercise>
 			<exercise>
-				<title>Ex. 8 Parametric Water Tank</title>
+				<title>Ex. 8 Parametric water tank</title>
 				<description>
 					<![CDATA[
 					<p>
@@ -552,12 +561,12 @@
 				 <path>/examples/hybrid/verifiedsoft/general_water_tank.key</path>
 			</exercise>
 			<exercise>
-				<title>Ex. 9 Distrubances</title>
+				<title>Ex. 9 Car control with disturbance</title>
 				<description>
 					<![CDATA[
-					Let's go back to the car setting. Assume there are some external influences on the car dynamics such that the velocity does not evolve with exactly v'=a but instead a-l &lt;= v' &lt;= a+u. 
+					Let's go back to the car setting. Assume there are some external disturbance influences on the car dynamics such that the velocity does not evolve with exactly the differential equation v'=a but instead with the differential inequality a-l &lt;= v' &lt;= a+u, where l and u are the lower and upper bounds on the disturbance, respectively. You need to show that the car controller works despite the disturbance, even in the worst case. 
 					<p>
-						<b>Exercise:</b> Prove that the modified car controller is able to control the car safely in this scenario.
+						<b>Exercise:</b> Prove that the modified car controller is still able to control the car safely in this scenario, despite the disturbance.
 					</p>
 					]]>
 				</description>
