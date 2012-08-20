@@ -20,7 +20,12 @@
                 				<publication>DBLP:conf/lics/Platzer12a</publication> 
                 <description>LICS Tutorial Example 1: Modeling a safety property of a continuous system. This is a simple system in which a car starts at some velocity v and accelerates at constant rate A along a straight lane.  The requirement we want to prove is that the car may never travel backward, i.e. for all time, in all scenarios v is greater than or equal to zero. 
      </description>
-                <source href="http://symbolaris.com/info/KeYmaera-tutorial.html"/>
+ 	<resources>
+ 		<img>/examples/hybrid/tutorial/fig-car-accel-pos.png</img>
+ 		<img>/examples/hybrid/tutorial/fig-car-accel-vel.png</img>
+ 		<img>/examples/hybrid/tutorial/fig-car-accel-accel.png</img>
+ 	</resources>
+                <source href="http://symbolaris.com/pub/lds-slides.pdf"/>
                 <requirements>
                      <some>
              		 	<quantifiereliminator>CohenHormander</quantifiereliminator>
@@ -50,8 +55,10 @@
     </description>
 	<resources>
 		<img>/examples/hybrid/tutorial/fig-car-stuck-accel-pos.png</img>
+		<img>/examples/hybrid/tutorial/fig-car-stuck-accel-vel.png</img>
+		<img>/examples/hybrid/tutorial/fig-car-stuck-accel-accel.png</img>
 	</resources>
-                <source href="http://symbolaris.com/info/KeYmaera-tutorial.html"/>
+    <source href="http://symbolaris.com/pub/lds-slides.pdf"/>
                 <requirements>
                      <some>
              		 	<quantifiereliminator>CohenHormander</quantifiereliminator>
@@ -77,7 +84,12 @@
                 				<publication>DBLP:conf/lics/Platzer12a</publication> 
                 <description>LICS Tutorial Example 3a: While the car is driving down the lane, the controller must choose when to begin decelerating so that it stops at or before a stop sign.  We add an additional constraint to the evolution domain to model an event triggered system.  In this case, the event-trigger is when the distance between the car and the stop sign equals the stopping distance of the car. This example shows that the system still can never travel backwards.
     </description>
-                <source href="http://symbolaris.com/info/KeYmaera-tutorial.html"/>
+ 	<resources>
+ 		<img>/examples/hybrid/tutorial/fig-car-stuck-accel-pos.png</img>
+ 		<img>/examples/hybrid/tutorial/fig-car-stuck-accel-vel.png</img>
+ 		<img>/examples/hybrid/tutorial/fig-car-stuck-accel-accel.png</img>
+ 	</resources>
+    <source href="http://symbolaris.com/pub/lds-slides.pdf"/>
                 <requirements>
                      <some>
                 		 	<quantifiereliminator>Mathematica</quantifiereliminator>
@@ -101,7 +113,12 @@
                         				<publication>DBLP:conf/lics/Platzer12a</publication> 
                         <description>LICS Tutorial Example 3c: While the car is driving down the lane, the controller must choose when to begin decelerating so that it stops at or before a stop sign.  We add an additional constraint to the evolution domain to model an event triggered system.  In this case, the event-trigger is when the distance between the car and the stop sign equals the stopping distance of the car.  Because of the evolution domain constraint, this system might get stuck, however.
             </description>
-                        <source href="http://symbolaris.com/info/KeYmaera-tutorial.html"/>
+         	<resources>
+         		<img>/examples/hybrid/tutorial/fig-car-stuck-accel-suspended-pos.png</img>
+         		<img>/examples/hybrid/tutorial/fig-car-stuck-accel-suspended-vel.png</img>
+         		<img>/examples/hybrid/tutorial/fig-car-stuck-accel-suspended-accel.png</img>
+         	</resources>
+            <source href="http://symbolaris.com/pub/lds-slides.pdf"/>
                         <requirements>
                              <some>
                         		 	<quantifiereliminator>Mathematica</quantifiereliminator>
@@ -124,7 +141,12 @@
                 				</proofauthors>
                 				<publication>DBLP:conf/lics/Platzer12a</publication> 
                 <description>LICS Tutorial Example 4a: In a realistic system, the sensors on the car would take periodic measurements of position and velocity and the controller would execute each time those sensor updates are taken. We continue with the single car travelling toward a stop sign, receiving periodic updates about its position and velocity.  The time between sensor updates is bounded by ep.</description>
-                <source href="http://symbolaris.com/info/KeYmaera-tutorial.html"/>
+				<resources>
+					<img>/examples/hybrid/tutorial/fig-car-too-fast-accel.png</img>
+					<img>/examples/hybrid/tutorial/fig-car-too-fast-vel.png</img>
+					<img>/examples/hybrid/tutorial/fig-car-too-fast-pos.png</img>
+				</resources>
+                <source href="http://symbolaris.com/pub/lds-slides.pdf"/>
                 <requirements>
                      <some>
                 		 	<quantifiereliminator>Mathematica</quantifiereliminator>
@@ -148,7 +170,12 @@
                 				<publication>DBLP:conf/lics/Platzer12a</publication> 
                 <description>LICS Tutorial Example 4c: In a realistic system, the sensors on the car would take periodic measurements of position and velocity and the controller would execute each time those sensor updates are taken. We continue with the single car travelling toward a stop sign, receiving periodic updates about its position and velocity.  The time between sensor updates is bounded by ep. Proves that the car controller will always make the car stay before the traffic light if braking would.
 To prove quickly, instantiate the time quantifier in the antecedent by the time variable of the succedent (e.g. t5_0).</description>
-                <source href="http://symbolaris.com/info/KeYmaera-tutorial.html"/>
+				<resources>
+					<img>/examples/hybrid/tutorial/fig-car-too-fast-accel.png</img>
+					<img>/examples/hybrid/tutorial/fig-car-too-fast-vel.png</img>
+					<img>/examples/hybrid/tutorial/fig-car-too-fast-pos.png</img>
+				</resources>
+                <source href="http://symbolaris.com/pub/lds-slides.pdf"/>
                 <requirements>
                      <some>
                 		 	<quantifiereliminator>Mathematica</quantifiereliminator>
@@ -171,7 +198,7 @@ To prove quickly, instantiate the time quantifier in the antecedent by the time 
                             				</proofauthors>
                             				<publication>DBLP:conf/lics/Platzer12a</publication> 
                             <description>LICS Tutorial Example 5: Proves that the controllability constraint is equivalent to braking being safe for all future. That is, a car can brake safely and can always stay in front of traffic light m if and only if the arithmetic constraint v^2&lt;=2b(m-x) holds currently.</description>
-                            <source href="http://symbolaris.com/info/KeYmaera-tutorial.html"/>
+                            <source href="http://symbolaris.com/pub/lds-slides.pdf"/>
                             <requirements>
                                  <some>
                             		 	<quantifiereliminator>Mathematica</quantifiereliminator>
@@ -193,7 +220,7 @@ To prove quickly, instantiate the time quantifier in the antecedent by the time 
                             				</proofauthors>
                             				<publication>DBLP:conf/lics/Platzer12a</publication> 
                             <description>LICS Tutorial Example 6: Proves that the acceleration constraint is equivalent to braking being safe after accelerating for at most ep time units. That is, a car can accelerate for up to ep time units and then brake safely and will always stay in front of traffic light m if and only if the arithmetic constraint on acceleration holds currently.</description>
-                            <source href="http://symbolaris.com/info/KeYmaera-tutorial.html"/>
+                            <source href="http://symbolaris.com/pub/lds-slides.pdf"/>
                             <requirements>
                                  <some>
                             		 	<quantifiereliminator>Mathematica</quantifiereliminator>
@@ -216,7 +243,12 @@ To prove quickly, instantiate the time quantifier in the antecedent by the time 
                             				<publication>DBLP:conf/lics/Platzer12a</publication> 
                             <description>LICS Tutorial Example 7: Model-predictive control version of time-triggered car control. We continue with the single car travelling toward a stop sign, receiving periodic updates about its position and velocity.  The time between sensor updates is bounded by ep. Proves that the car controller will always make the car stay before the traffic light if braking would, with a model-predictive control choice for the acceleration / braking decision.
 For an easy proof, before solving differential equations in the acceleration case (Case 1), drag the succedent to the first differential equation in the antecedent to differentially refine the antecedent of the acceleration case to be as in the conclusion, i.e., including v>=0.</description>
-                            <source href="http://symbolaris.com/info/KeYmaera-tutorial.html"/>
+            				<resources>
+            					<img>/examples/hybrid/tutorial/fig-car-too-fast-accel.png</img>
+            					<img>/examples/hybrid/tutorial/fig-car-too-fast-vel.png</img>
+            					<img>/examples/hybrid/tutorial/fig-car-too-fast-pos.png</img>
+            				</resources>
+                            <source href="http://symbolaris.com/pub/lds-slides.pdf"/>
                             <requirements>
                                  <some>
                          		 	<quantifiereliminator>Mathematica</quantifiereliminator>

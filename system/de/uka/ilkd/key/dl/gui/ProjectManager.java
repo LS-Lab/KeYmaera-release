@@ -397,7 +397,7 @@ public class ProjectManager extends JFrame {
 
         tree = new JTree(top);
         JScrollPane treeView = new JScrollPane(tree);
-        treeView.setPreferredSize(new Dimension(320, 400));
+        treeView.setPreferredSize(new Dimension(320, 480));
         // setLayout(new BorderLayout());
         // this.add(treeView, BorderLayout.WEST);
         final JButton button = new JButton("Load");
