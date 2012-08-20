@@ -526,6 +526,7 @@ public class ProjectManager extends JFrame {
                     Object nodeInfo = lastSelectedPathComponent.getUserObject();
                     if (nodeInfo instanceof ExampleInfo) {
                         ExampleInfo info = (ExampleInfo) nodeInfo;
+                        proofs.setEnabled(true);
                         buttonTextPanel.remove(textPanel);
                         buttonTextPanel.repaint();
                         textPanel = createExampleView(info);
@@ -535,7 +536,14 @@ public class ProjectManager extends JFrame {
                             button.setEnabled(false);
                         }
                     } else { // XXX
+                        buttonTextPanel.remove(textPanel);
+                        buttonTextPanel.repaint();
+                        textPanel = new JPanel();
+                        buttonTextPanel.add(textPanel);
+                        // TODO show some description for the selected group
                         button.setEnabled(false);
+                        proofs.setEnabled(false);
+                        proofLoadButton.setEnabled(false);
                     }
 
                 }
