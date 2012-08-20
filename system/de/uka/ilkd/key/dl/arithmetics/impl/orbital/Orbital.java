@@ -484,7 +484,106 @@ public class Orbital implements IODESolver {
 	public List<ODESolverUpdate> odeUpdate(DiffSystem form, LogicVariable t,
 			Services services, long timeout) throws RemoteException,
 			SolverException {
-		throw new UnsupportedOperationException("ODEUpdate method for findTransition rule is not implemented for Orbital.");
+		try {
+			List<String> vars = new ArrayList<String>();
+
+			collectDottedProgramVariables(form, vars, t);
+			Term invariant = form.getInvariant(services);
+			List<ProgramElement> equations = form
+					.getDifferentialEquations(services.getNamespaces());
+
+			// create matrix
+            MatrixForm matrixForm;
+            try {
+                matrixForm = DL2MatrixFormConverter.INSTANCE
+                        .convertToMatrixForm(vars, equations,
+                                services.getNamespaces());
+            } catch (IllegalArgumentException e) {
+                throw new UnsolveableException("Could not convert ode ", e);
+            }
+			System.out.println("Solving ODE x'(t) ==\n" + matrixForm.matrix
+					+ "*x(t) + " + matrixForm.b + "\n" + "  " + matrixForm.eta
+					+ "'(t) == " + matrixForm.matrix.multiply(matrixForm.eta)
+					+ " + " + matrixForm.b + "\n" + "\nwith initial value  "
+					+ matrixForm.eta + " at 0");// XXX
+			Function solve = AlgebraicAlgorithms.dSolve(matrixForm.matrix,
+					matrixForm.b, Values.getDefault().ZERO(), matrixForm.eta);
+			System.out.println("yields " + solve); // XXX
+			final Symbol tSym = Values.getDefault().symbol("t");
+			System.out.println("  solution at " + tSym + " is "
+					+ solve.apply(tSym));// XXX
+			// Arithmetic apply = (Arithmetic) solve.apply(tSym);
+			final UnivariatePolynomial[] componentPolynomials = AlgebraicAlgorithms
+					.componentPolynomials((UnivariatePolynomial) solve);
+			System.out.println(Arrays.toString(componentPolynomials));// XXX
+			final Sort sortR = RealLDT.getRealSort();
+			final Term zero = TermBuilder.DF.func(NumberCache.getNumber(
+					new BigDecimal("0"), sortR));
+			int j = 0;
+			List<ODESolverUpdate> updates = new ArrayList<ODESolverUpdate>();
+			for (UnivariatePolynomial poly : componentPolynomials) {
+
+				ListIterator<?> iterator = poly.iterator();
+				Term value = zero;
+				int i = 0;
+				while (iterator.hasNext()) {
+					Object next = iterator.next();
+					Term n = convertOrbitalToTerm(sortR, zero, services
+							.getNamespaces(), next);
+
+					if (n != null) {
+						if (i == 0) {
+							value = n;
+						} else if (i == 1) {
+							value = TermBuilder.DF.func((TermSymbol) services
+									.getNamespaces().functions().lookup(
+											new Name("add")), value,
+									TermBuilder.DF.func((TermSymbol) services
+											.getNamespaces().functions()
+											.lookup(new Name("mul")), n,
+											TermBuilder.DF.var(t)));
+						} else {
+							Term tTerm = TermBuilder.DF.var(t);
+							tTerm = TermBuilder.DF.func((TermSymbol) services
+									.getNamespaces().functions().lookup(
+											new Name("exp")), tTerm,
+									TermBuilder.DF.func(NumberCache.getNumber(
+											new BigDecimal(i), sortR)));
+							value = TermBuilder.DF
+									.func(
+											(TermSymbol) services
+													.getNamespaces()
+													.functions().lookup(
+															new Name("add")),
+											value,
+											TermBuilder.DF
+													.func(
+															(TermSymbol) services
+																	.getNamespaces()
+																	.functions()
+																	.lookup(
+																			new Name(
+																					"mul")),
+															n, tTerm));
+						}
+					}
+					i++;
+				}
+				System.out.println("Solution for " + matrixForm.eta.get(j)
+						+ " is " + value);// XXX
+				de.uka.ilkd.key.logic.op.ProgramVariable lookup = (de.uka.ilkd.key.logic.op.ProgramVariable) services
+						.getNamespaces().programVariables().lookup(
+								new Name(((Symbol) matrixForm.eta.get(j)).getSignifier()));
+				final ODESolverUpdate odeSolverUpdate = new ODESolverUpdate();
+				odeSolverUpdate.location = TermBuilder.DF.var(lookup);
+				odeSolverUpdate.expr = value;
+                updates.add(odeSolverUpdate);
+				j++;
+			}
+			return updates;
+		} catch (UnsupportedOperationException e) {
+			throw new FailedComputationException(e.getMessage(), e);
+		}
 	}
 
 }
