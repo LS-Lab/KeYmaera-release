@@ -3378,7 +3378,10 @@ public class PrettyPrinter {
                 write(",");
                 write(" ");
             }
-
+            // make a line break after 20 characters
+            if(column > 20) {
+                writeIndentation(1, getTotalIndentation());
+            }
             writeElement(p.getChildAt(i));
         }
 
