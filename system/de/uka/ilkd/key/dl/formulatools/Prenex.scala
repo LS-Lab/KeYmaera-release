@@ -91,6 +91,8 @@ object Prenex {
     val neg = collectAndConvert(_: Term, nss, !negated)
     val pos = collectAndConvert(_: Term, nss, negated)
     t match {
+      case a@True() => (Nil,a)
+      case a@False() => (Nil,a)
       case All(a, v) =>
         handleQ(QT.All, v, a, nss, negated)
       case Ex(a, v) =>
