@@ -48,8 +48,9 @@
                 				<publication>DBLP:conf/lics/Platzer12a</publication> 
                 <description>LICS Tutorial Example 2: Modeling a safety property of a hybrid system. In this example, we introduce a discrete controller into the model of the continuous system in Example 1. The controller has only two options: it may cause the car to accelerate with rate A or brake with rate -b.
     </description>
-	<!-- <img 
-		href="/examples/hybrid/tutorial/fig-car-stuck-accel-pos.png"/ -->
+	<resources>
+		<img>/examples/hybrid/tutorial/fig-car-stuck-accel-pos.png</img>
+	</resources>
                 <source href="http://symbolaris.com/info/KeYmaera-tutorial.html"/>
                 <requirements>
                      <some>
@@ -346,8 +347,9 @@ For an easy proof, before solving differential equations in the acceleration cas
 				<publication>Platzer10</publication>
 				<description>Essentials of the ETCS train control protocol. This example proves that a train never leaves its movement authority (MA=m) and, thus, cannot crash into other trains. Please note, that this is the simplest possible version of the safety requirement for the ETCS. The verification of the ETCS system itself requires a much more advanced model.
 Proves equation (2.19)</description>
-				<img 
-					href="http://symbolaris.com/info/ETCS-MAProtocol-c.gif"/>
+				<resources>
+					<img>/examples/hybrid/ETCS/ETCS-MAProtocol-c.gif</img>
+				</resources>
 				<source href="http://symbolaris.com/lahs/"/>
 				<requirements>
 					<some>
@@ -373,8 +375,9 @@ Proves equation (2.19)</description>
 				</proofauthors>
 				<publication>DBLP:journals/jar/Platzer08</publication> 
 				<description>Essentials of the ETCS train control protocol. This example proves that a train never leaves its movement authority (MA=m) and, thus, cannot crash into other trains. Please note, that this is the simplest possible version of the safety requirement for the ETCS. The verification of the ETCS system itself requires a much more advanced model.</description>
-				<img 
-					href="http://symbolaris.com/info/ETCS-MAProtocol-c.gif"/>
+				<resources>
+					<img>/examples/hybrid/ETCS/ETCS-MAProtocol-c.gif</img>
+				</resources>
     			<source href="http://symbolaris.com/lahs/"/>
 				<requirements>
 					<some>
@@ -400,8 +403,9 @@ Proves equation (2.19)</description>
         				</proofauthors>
         				<publication>DBLP:conf/cav/Platzer11</publication> 
           				<description>Essentials of the ETCS train control protocol. This example proves that a train never leaves its movement authority (MA=m) and, thus, cannot crash into other trains. Please note, that this is the simplest possible version of the safety requirement for the ETCS. The verification of the ETCS system itself requires a much more advanced model.</description>
-          				<img 
-          					href="http://symbolaris.com/info/ETCS-MAProtocol-c.gif"/>
+						<resources>
+							<img>/examples/hybrid/ETCS/ETCS-MAProtocol-c.gif</img>
+						</resources>
           				<source href="http://symbolaris.com/info/KeYmaera-guide.html"/>
           				<requirements>
           					<some>
@@ -428,8 +432,9 @@ Proves equation (2.19)</description>
                     				<publication>Platzer10</publication> 
                     				<description>Essentials of the ETCS train control protocol with temporal throughout modality [][]. This example proves that a train never leaves its movement authority (MA=m) and, thus, cannot crash into other trains. Please note, that this is the simplest possible version of the safety requirement for the ETCS. The verification of the ETCS system itself requires a much more advanced model.
 Proves dTL variant of equation (2.19) with [][] instead of []</description>
-                    				<img 
-                    					href="http://symbolaris.com/info/ETCS-MAProtocol-c.gif"/>
+									<resources>
+										<img>/examples/hybrid/ETCS/ETCS-MAProtocol-c.gif</img>
+									</resources>
                     				<source href="http://symbolaris.com/lahs/"/>
                     				<requirements>
                     					<some>
@@ -458,8 +463,9 @@ Proves dTL variant of equation (2.19) with [][] instead of []</description>
 				<description>Proves safety of the ETCS train control protocol case study. This example proves that the train is always controllable safely by some control choice. 
 Proves Proposition 7.1
 			</description>
-				<img 
-					href="http://symbolaris.com/info/ETCS-MAProtocol-c.gif"/>
+				<resources>
+					<img>/examples/hybrid/ETCS/ETCS-MAProtocol-c.gif</img>
+				</resources>
 				<source href="http://symbolaris.com/info/ETCS.html"/>
 				<requirements>
 					<some>
@@ -489,8 +495,9 @@ Proves Proposition 7.1
 Proves Proposition 7.5
 			</description>
 				<source href="http://symbolaris.com/info/ETCS.html"/>
-				<img 
-					href="http://symbolaris.com/info/ETCS-MAProtocol-c.gif"/>
+				<resources>
+					<img>/examples/hybrid/ETCS/ETCS-MAProtocol-c.gif</img>
+				</resources>
 				<requirements>
 					<some>
 						<quantifiereliminator>Mathematica</quantifiereliminator>
@@ -505,8 +512,9 @@ Proves Proposition 7.5
     				<description>A buggy version of the essentials of the ETCS train control protocol. This example (incorrectly) claims that a train in a buggy system never leaves its movement authority (MA=m) and, thus, cannot crash into other trains.
 Bug 1: the precondition of the initial state of the system is not strong enough and should be v^2&amp;lt;2*b*(m-z).
 Bug 2: The constraint for acceleration is too lax and should be m-z>SB. The bugs can be found during the search with invariants v^2&amp;lt;=2*b*(m-z) and v^2&amp;lt;2*b*(m-z), respectively.</description>
-    				<img 
-    					href="http://symbolaris.com/info/ETCS-MAProtocol-c.gif"/>
+				<resources>
+					<img>/examples/hybrid/ETCS/ETCS-MAProtocol-c.gif</img>
+				</resources>
         			<source href="http://symbolaris.com/lahs/"/>
     				<requirements>
     					<some>
@@ -526,8 +534,9 @@ Bug 2: The constraint for acceleration is too lax and should be m-z>SB. The bugs
 Proves equation (2.20) from book (see book for hints how to prove or Load Proof)
             </description>
             	<source href="http://symbolaris.com/info/ETCS.html"/>
-            	<img 
-            		href="http://symbolaris.com/info/ETCS-MAProtocol-c.gif"/>
+				<resources>
+					<img>/examples/hybrid/ETCS/ETCS-MAProtocol-c.gif</img>
+				</resources>
             	<requirements>
             		<some>
             			<quantifiereliminator>Mathematica</quantifiereliminator>
@@ -554,8 +563,9 @@ Proves equation (2.20) from book (see book for hints how to prove or Load Proof)
 Proves Proposition 7.6 (see book for hints how to prove or Load Proof)
 			</description>
 				<source href="http://symbolaris.com/info/ETCS.html"/>
-				<img 
-					href="http://symbolaris.com/info/ETCS-MAProtocol-c.gif"/>
+				<resources>
+					<img>/examples/hybrid/ETCS/ETCS-MAProtocol-c.gif</img>
+				</resources>
 				<requirements>
 					<some>
 						<quantifiereliminator>Mathematica</quantifiereliminator>
@@ -582,8 +592,9 @@ Proves Proposition 7.6 (see book for hints how to prove or Load Proof)
 Proves Proposition 7.6 (see book for hints how to prove or Load Proof)
 			</description>
 				<source href="http://symbolaris.com/info/ETCS.html"/>
-				<img 
-					href="http://symbolaris.com/info/ETCS-MAProtocol-c.gif"/>
+				<resources>
+					<img>/examples/hybrid/ETCS/ETCS-MAProtocol-c.gif</img>
+				</resources>
 				<requirements>
 					<some>
 						<quantifiereliminator>Mathematica</quantifiereliminator>
@@ -607,8 +618,9 @@ Proves Proposition 7.6 (see book for hints how to prove or Load Proof)
 Proves Proposition 7.4 (see book for how to prove)
 			</description>
 				<source href="http://symbolaris.com/info/ETCS.html"/>
-				<img 
-					href="http://symbolaris.com/info/ETCS-MAProtocol-c.gif"/>
+				<resources>
+					<img>/examples/hybrid/ETCS/ETCS-MAProtocol-c.gif</img>
+				</resources>
 				<requirements>
 					<some>
 						<quantifiereliminator>Mathematica</quantifiereliminator>
@@ -635,8 +647,9 @@ Proves Proposition 7.7.
 Depending on your settings, use Update Simplification and Eliminate Universal Quantifiers.
 			</description>
 				<source href="http://symbolaris.com/info/ETCS.html"/>
-				<img 
-					href="http://symbolaris.com/info/ETCS-MAProtocol-c.gif"/>
+				<resources>
+					<img>/examples/hybrid/ETCS/ETCS-MAProtocol-c.gif</img>
+				</resources>
 				<requirements>
 					<some>
 						<quantifiereliminator>Mathematica</quantifiereliminator>
@@ -662,8 +675,9 @@ Depending on your settings, use Update Simplification and Eliminate Universal Qu
 Proves Proposition 7.8 (see book for hints how to prove or Load Proof)
 			</description>
 				<source href="http://symbolaris.com/info/ETCS.html"/>
-				<img 
-					href="http://symbolaris.com/info/ETCS-MAProtocol-c.gif"/>
+				<resources>
+					<img>/examples/hybrid/ETCS/ETCS-MAProtocol-c.gif</img>
+				</resources>
 				<requirements>
 					<some>
 						<quantifiereliminator>Mathematica</quantifiereliminator>
@@ -689,8 +703,9 @@ Proves Proposition 7.8 (see book for hints how to prove or Load Proof)
 Proves Proposition 7.9 (see book for how to prove)
 			</description>
 				<source href="http://symbolaris.com/info/ETCS.html"/>
-				<img 
-					href="http://symbolaris.com/info/ETCS-MAProtocol-c.gif"/>
+				<resources>
+					<img>/examples/hybrid/ETCS/ETCS-MAProtocol-c.gif</img>
+				</resources>
 				<requirements>
 					<some>
 						<quantifiereliminator>Mathematica</quantifiereliminator>
@@ -712,8 +727,9 @@ Proves Proposition 7.9 (see book for how to prove)
 				<publication>DBLP:journals/logcom/Platzer10</publication> 
 				<description>Essentials of the tangential roundabout maneuver (TRM) for collision avoidance in air traffic control. This example proves that TRM always separates aircraft by at least the protected zone. Please note, that this is the simplest possible version of the safety requirement for the TRM. The verification of the TRM system itself requires a much more advanced model.
 Proves Theorem 3.4</description>
-				<img 
-					href="http://symbolaris.com/info/fig-tangential-roundabout.png"/>
+				<resources>
+					<img>/examples/hybrid/ATC/fig-tangential-roundabout.png</img>
+				</resources>
   				<source href="http://symbolaris.com/lahs/"/>
 				<requirements>
 					<some>
@@ -734,8 +750,9 @@ Proves Theorem 3.4</description>
 				<publication>DBLP:journals/logcom/Platzer10</publication> 
 				<description>Essentials of the tangential roundabout maneuver (TRM) for collision avoidance in air traffic control. This example proves that TRM always separates aircraft by at least the protected zone. Please note, that this is the simplest possible version of the safety requirement for the TRM. The verification of the TRM system itself requires a much more advanced model.
 Proves Theorem 3.4</description>
-				<img 
-					href="http://symbolaris.com/info/fig-tangential-roundabout.png"/>
+				<resources>
+					<img>/examples/hybrid/ATC/fig-tangential-roundabout.png</img>
+				</resources>
   				<source href="http://symbolaris.com/lahs/"/>
 				<requirements>
 					<some>
@@ -757,8 +774,9 @@ Proves Theorem 3.4</description>
 				<description>Essentials of the tangential roundabout maneuver (TRM) for collision avoidance in air traffic control with 3 aircraft. This example proves that TRM always separates aircraft by at least the protected zone. Please note, that this is the simplest possible version of the safety requirement for the TRM. The verification of the TRM system itself requires a much more advanced model.
 Proves Section 8.2.4</description>
 				<source href="http://symbolaris.com/info/RCAS.html"/>
-				<img 
-					href="http://symbolaris.com/info/fig-tangential-roundabout.png"/>
+				<resources>
+					<img>/examples/hybrid/ATC/fig-tangential-roundabout.png</img>
+				</resources>
 				<requirements>
 					<some>
 						<quantifiereliminator>Mathematica</quantifiereliminator>
@@ -778,8 +796,9 @@ Proves Section 8.2.4</description>
 				<description>Essentials of the tangential roundabout maneuver (TRM) for collision avoidance in air traffic control with 4 aircraft. This example proves that TRM always separates aircraft by at least the protected zone. Please note, that this is the simplest possible version of the safety requirement for the TRM. The verification of the TRM system itself requires a much more advanced model.
 Proves Figure 8.9</description>
 				<source href="http://symbolaris.com/info/RCAS.html"/>
-				<img 
-					href="http://symbolaris.com/info/fig-tangential-roundabout.png"/>
+				<resources>
+					<img>/examples/hybrid/ATC/fig-tangential-roundabout.png</img>
+				</resources>
 				<requirements>
 					<some>
 						<quantifiereliminator>Mathematica</quantifiereliminator>
@@ -800,7 +819,9 @@ Proves Figure 8.9</description>
 				<description>Shows that the control parameters for the aircraft can be chosen such that resulting speed vectors are in a bounded range meeting external speed requirements of the aircraft.
 Proves equation (3.14)</description>
 				<source href="http://symbolaris.com/info/RCAS.html"/>
-				<img href="http://symbolaris.com/info/fig-flyable-tangential-roundabout.png"/>
+				<resources>
+					<img>/examples/hybrid/ATC/fig-flyable-tangential-roundabout.png</img>
+				</resources>
 				<requirements>
 					<some>
 						<quantifiereliminator>Mathematica</quantifiereliminator>
@@ -821,7 +842,9 @@ Proves equation (3.14)</description>
 				<description>Shows that the speed v of the aircraft is maintained even when it changes its angular velocity om nondeterministically during the flight (free flight).
 Proves Example 3.16</description>
 				<source href="http://symbolaris.com/info/RCAS.html"/>
-				<img href="http://symbolaris.com/info/fig-flyable-tangential-roundabout.png"/>
+				<resources>
+					<img>/examples/hybrid/ATC/fig-flyable-tangential-roundabout.png</img>
+				</resources>
 				<requirements>
 					<some>
 						<quantifiereliminator>Mathematica</quantifiereliminator>
@@ -842,7 +865,9 @@ Proves Example 3.16</description>
 				<description>Shows that the safe tangential configuration is reached by a flyable curve.
 Proves equation (8.3)</description>
 				<source href="http://symbolaris.com/info/RCAS.html"/>
-				<img href="http://symbolaris.com/info/fig-flyable-tangential-roundabout.png"/>
+				<resources>
+					<img>/examples/hybrid/ATC/fig-flyable-tangential-roundabout.png</img>
+				</resources>
 				<requirements>
 					<some>
 						<quantifiereliminator>Mathematica</quantifiereliminator>
@@ -863,7 +888,9 @@ Proves equation (8.3)</description>
 				<description>Shows that the safe tangential configuration is feasible.
 Proves equation (8.4)</description>
 				<source href="http://symbolaris.com/info/RCAS.html"/>
-				<img href="http://symbolaris.com/info/fig-flyable-tangential-roundabout.png"/>
+				<resources>
+					<img>/examples/hybrid/ATC/fig-flyable-tangential-roundabout.png</img>
+				</resources>
 				<requirements>
 					<some>
 						<quantifiereliminator>Mathematica</quantifiereliminator>
@@ -884,7 +911,9 @@ Proves equation (8.4)</description>
 				<description>Shows that the flyable entry is circular.
 Proves equation (8.6)</description>
 				<source href="http://symbolaris.com/info/RCAS.html"/>
-				<img href="http://symbolaris.com/info/fig-flyable-tangential-roundabout.png"/>
+				<resources>
+					<img>/examples/hybrid/ATC/fig-flyable-tangential-roundabout.png</img>
+				</resources>
 				<requirements>
 					<some>
 						<quantifiereliminator>Mathematica</quantifiereliminator>
@@ -925,7 +954,9 @@ Proves Example 3.24</description>
 				<description>Shows that, regardless of the angular velocities, the aircraft only make limited progress in bounded time when starting with bounded speeds.
 Proves equation (8.9)</description>
 				<source href="http://symbolaris.com/info/RCAS.html"/>
-				<img href="http://symbolaris.com/info/fig-flyable-tangential-roundabout.png"/>
+				<resources>
+					<img>/examples/hybrid/ATC/fig-flyable-tangential-roundabout.png</img>
+				</resources>
 				<requirements>
 					<some>
 						<quantifiereliminator>Mathematica</quantifiereliminator>
@@ -946,7 +977,9 @@ Proves equation (8.9)</description>
 				<description>Shows that there always is a choice of center, radius, and common angular velocity which is feasible.
 Proves equation (8.17)</description>
 				<source href="http://symbolaris.com/info/RCAS.html"/>
-				<img href="http://symbolaris.com/info/fig-flyable-tangential-roundabout.png"/>
+				<resources>
+					<img>/examples/hybrid/ATC/fig-flyable-tangential-roundabout.png</img>
+				</resources>
 				<requirements>
 					<some>
 						<quantifiereliminator>Mathematica</quantifiereliminator>
@@ -967,7 +1000,9 @@ Proves equation (8.17)</description>
 				<description>Shows that the negotiation is successful.
 Proves equation (8.18)</description>
 				<source href="http://symbolaris.com/info/RCAS.html"/>
-				<img href="http://symbolaris.com/info/fig-flyable-tangential-roundabout.png"/>
+				<resources>
+					<img>/examples/hybrid/ATC/fig-flyable-tangential-roundabout.png</img>
+				</resources>
 				<requirements>
 					<some>
 						<quantifiereliminator>Mathematica</quantifiereliminator>
@@ -988,7 +1023,9 @@ Proves equation (8.18)</description>
 				<description>Shows that the mutual negotiation is successful.
 Proves equation (8.19)</description>
 				<source href="http://symbolaris.com/info/RCAS.html"/>
-				<img href="http://symbolaris.com/info/fig-flyable-tangential-roundabout.png"/>
+				<resources>
+					<img>/examples/hybrid/ATC/fig-flyable-tangential-roundabout.png</img>
+				</resources>
 				<requirements>
 					<some>
 						<quantifiereliminator>Mathematica</quantifiereliminator>
@@ -1009,7 +1046,9 @@ Proves equation (8.19)</description>
 				<description>Shows that the mutual negotiation is feasible.
 Proves equation (8.21)</description>
 				<source href="http://symbolaris.com/info/RCAS.html"/>
-				<img href="http://symbolaris.com/info/fig-flyable-tangential-roundabout.png"/>
+				<resources>
+					<img>/examples/hybrid/ATC/fig-flyable-tangential-roundabout.png</img>
+				</resources>
 				<requirements>
 					<some>
 						<quantifiereliminator>Mathematica</quantifiereliminator>
@@ -1030,7 +1069,9 @@ Proves equation (8.21)</description>
 				<description>Shows that the aircraft stay safely separated during the exit maneuver.
 Proves equation (8.27)</description>
 				<source href="http://symbolaris.com/info/RCAS.html"/>
-				<img href="http://symbolaris.com/info/fig-flyable-tangential-roundabout.png"/>
+				<resources>
+					<img>/examples/hybrid/ATC/fig-flyable-tangential-roundabout.png</img>
+				</resources>
 				<requirements>
 					<some>
 						<quantifiereliminator>Mathematica</quantifiereliminator>
@@ -1051,7 +1092,9 @@ Proves equation (8.27)</description>
 				<description>Shows that the aircraft will exit in different directions during the exit maneuver.
 Proves equation (8.29)</description>
 				<source href="http://symbolaris.com/info/RCAS.html"/>
-				<img href="http://symbolaris.com/info/fig-flyable-tangential-roundabout.png"/>
+				<resources>
+					<img>/examples/hybrid/ATC/fig-flyable-tangential-roundabout.png</img>
+				</resources>
 				<requirements>
 					<some>
 						<quantifiereliminator>Mathematica</quantifiereliminator>
@@ -1093,7 +1136,9 @@ Authors: David Henriques, Sarah Loos, Joao Martins</description>
 					<proof name="SMT" href="/examples/hybrid/car/DCCS/dccs-example-simple.key.z3.proof"/>
 				</proofs>
         		<description>A very simple version of car control with a single leader and a single follower car drive on a lane and the follower car directly follows the leader. The follower car maintains velocity less than or equal to the lead car. See the FM'11 paper for significantly more complicated car control verification, up to and including an arbitrary number of cars on an arbitrary number of lanes with lane switching and cars entering and leaving the highway.</description>
-        		<img href="http://symbolaris.com/info/fig-car-control2.png"/>
+				<resources>
+					<img>/examples/hybrid/car/fig-car-control2.png</img>
+				</resources>
         	    <source href="http://symbolaris.com/info/DCCS.html"/>
         		<requirements>
         			<some>
@@ -1110,7 +1155,9 @@ Authors: David Henriques, Sarah Loos, Joao Martins</description>
 					<proof name="SMT" href="/examples/hybrid/car/DCCS/dccs-example.key.z3.proof"/>
 				</proofs>
         		<description>A very simplified version of car control. Here only one single leader and a single follower car drive on a lane. In this simplified version, however, the leader car is stuck at a traffic light. See the FM'11 paper for significantly more complicated car control verification, up to and including an arbitrary number of cars on an arbitrary number of lanes with lane switching and cars entering and leaving the highway.</description>
-        		<img href="http://symbolaris.com/info/fig-car-control2.png"/>
+				<resources>
+					<img>/examples/hybrid/car/fig-car-control2.png</img>
+				</resources>
         	    <source href="http://symbolaris.com/info/DCCS.html"/>
         		<requirements>
         			<some>
@@ -1128,7 +1175,9 @@ Authors: David Henriques, Sarah Loos, Joao Martins</description>
 						</proofs>
                         <description>A very simple intersection of two lanes, with one car moving on each lane. The safety property applies only to the traffic light controller - verifying that it is always red on at least one of the two lanes.  The cars accelerate only if the traffic light is green, or they have already gone through the intersection. See the ITSC'11 paper on safe intersections for a verification of the safety of the cars, as well as the traffic light.
 Proof hints: Be sure to set the Max Rule Application under Proof Search Strategy to maximum.</description>
-                        <img href="http://symbolaris.com/info/stoplight.png"/>
+				<resources>
+					<img>/examples/hybrid/car/intersection/stoplight.png</img>
+				</resources>
                     <source href="http://symbolaris.com/info/DCCS.html"/>
                         <requirements>
                                 <some>
@@ -1144,7 +1193,9 @@ Proof hints: Be sure to set the Max Rule Application under Proof Search Strategy
 						</proofs>
                         <description>A very simple intersection of two lanes, with one car moving on one lane.  The car accelerates only if the traffic light is green, or it has already gone through the intersection. See the ITSC'11 paper on safe intersections for a verification of the safety of the cars, as well as the traffic light.
 Proof requires user interactions.</description>
-                        <img href="http://symbolaris.com/info/onelane.png"/>
+				<resources>
+					<img>/examples/hybrid/car/onelane.png</img>
+				</resources>
                     <source href="http://symbolaris.com/info/DCCS.html"/>
                         <requirements>
                                 <some>
@@ -1162,7 +1213,9 @@ Proof requires user interactions.</description>
 						<description>Proves safety of variable speed limits issued by traffic centers. This example proves that the variable speed limit car controller always complies with a speed limit that the traffic center issued for a certain position on a road. See ICCPS'12 paper for more details.
 					</description>
 						<source href="http://symbolaris.com/info/DCCS.html"/>
-						<img href="http://symbolaris.com/info/vsl.png"/>
+				<resources>
+					<img>/examples/hybrid/car/vsl/vsl.png</img>
+				</resources>
 						<requirements>
 							<some>
 								<quantifiereliminator>Mathematica</quantifiereliminator>
@@ -1178,7 +1231,9 @@ Proof requires user interactions.</description>
 						<description>Proves safety of variable speed limits issued by traffic centers. This example proves that the (advanced) variable speed limit controller car always complies with a speed limit that the traffic center issues for a certain position on a road. An incident on the road defines an area that must contain a speed limit. This incident may possibly move towards cars. Outside the area defined by the incident, the traffic center may issue additional speed limits at will. See ICCPS'12 paper for more details.
 						</description>
 						<source href="http://symbolaris.com/info/DCCS.html"/>
-						<img href="http://symbolaris.com/info/vsli.png"/>
+				<resources>
+					<img>/examples/hybrid/car/vsl/vsli.png</img>
+				</resources>
 						<requirements>
 							<some>
 								<quantifiereliminator>Mathematica</quantifiereliminator>
@@ -1194,7 +1249,9 @@ Proof requires user interactions.</description>
 						<description>Proves safety of variable speed limits issued by traffic centers. This example proves that the variable speed limit car controller always complies with a speed limit that the traffic center issues for a certain position on a road. An incident on the road defines an area that must contain a speed limit. This incident may move towards cars. Outside the area defined by the incident, the traffic center may issue speed limits at will. Additionally, the traffic center ensures to only issue speed limits once per car within the area defined by the incident to avoid Zeno-style updating. See ICCPS'12 paper for more details.
 					</description>
 						<source href="http://symbolaris.com/info/DCCS.html"/>
-						<img href="http://symbolaris.com/info/vsli-alert.png"/>
+				<resources>
+					<img>/examples/hybrid/car/vsl/vsli-alert.png</img>
+				</resources>
 						<requirements>
 							<some>
 								<quantifiereliminator>Mathematica</quantifiereliminator>
@@ -1212,7 +1269,9 @@ Proof requires user interactions.</description>
 							</proofs>
             				<description>A fully parametric version of the bouncing ball that jumps up and down but is bounced back from the ground. This version has a fixed bouncing constant c.
 Proves if-variation of Figure 2.20</description>
-            				<img href="http://symbolaris.com/info/fig-bouncing-ball.png"/>
+				<resources>
+					<img>/examples/hybrid/bouncing-ball/fig-bouncing-ball.png</img>
+				</resources>
             			    <source href="http://symbolaris.com/lahs/"/>
             				<requirements>
             					<some>
@@ -1228,7 +1287,9 @@ Proves if-variation of Figure 2.20</description>
 				<path>/examples/hybrid/bouncing-ball/bouncing-ball-simplest.key</path>
 				<description>A fully parametric version of the bouncing ball that jumps up and down but is bounced back from the ground. This version has a fixed bouncing constant c.
 Proves Figure 2.20</description>
-				<img href="http://symbolaris.com/info/fig-bouncing-ball.png"/>
+				<resources>
+					<img>/examples/hybrid/bouncing-ball/fig-bouncing-ball.png</img>
+				</resources>
 			    <source href="http://symbolaris.com/lahs/"/>
 				<requirements>
 					<some>
@@ -1242,7 +1303,9 @@ Proves Figure 2.20</description>
 				<name>Bouncing Ball [dynamic]</name>
 				<path>/examples/hybrid/publish/bouncing-ball-random-H.key</path>
 				<description>A fully parametric version of the bouncing ball that jumps up and down but is bounced back from the ground. This version has a bouncing coefficient c that can changer over time by a nondeterministic assignment c:=* </description>
-				<img href="http://symbolaris.com/info/fig-bouncing-ball.png"/>
+				<resources>
+					<img>/examples/hybrid/bouncing-ball/fig-bouncing-ball.png</img>
+				</resources>
 			    <source href="http://symbolaris.com/lahs/"/>
 				<requirements>
 					<some>
@@ -1256,7 +1319,9 @@ Proves Figure 2.20</description>
 				<name>Bouncing Ball [aerodynamic]</name>
 				<path>/examples/hybrid/bouncing-ball/bouncing-ball-aero2.key</path>
 				<description>A fully parametric version of the aerodynamic bouncing ball that jumps up and down but is bounced back from the ground. This version follows aerodynamic principles of wind resistance.</description>
-				<img href="http://symbolaris.com/info/fig-bouncing-ball.png"/>
+				<resources>
+					<img>/examples/hybrid/bouncing-ball/fig-bouncing-ball.png</img>
+				</resources>
 				<requirements>
 					<some>
 						<quantifiereliminator>Mathematica</quantifiereliminator>
@@ -1270,7 +1335,9 @@ Proves Figure 2.20</description>
 								<proof name="SMT" href="/examples/hybrid/bouncing-ball/bouncing-ball-H0-tout.key.z3.proof"/>
 							</proofs>
             				<description>A temporal version of a fully parametric version of the bouncing ball that jumps up and down but is bounced back from the ground. To specify that the property holds throughout, this example uses the dTL [][] modality instead of [].</description>
-            				<img href="http://symbolaris.com/info/fig-bouncing-ball.png"/>
+				<resources>
+					<img>/examples/hybrid/bouncing-ball/fig-bouncing-ball.png</img>
+				</resources>
             			    <source href="http://symbolaris.com/lahs/"/>
             				<requirements>
             					<some>
@@ -1286,7 +1353,9 @@ Proves Figure 2.20</description>
                                     				<path>/examples/hybrid/bouncing-ball/bouncing-ball-tout.key</path>
                                     				<description>A temporal version of a fully parametric version of the bouncing ball that jumps up and down but is bounced back from the ground. To specify that the property holds throughout, this example uses the dTL [][] modality instead of [].
 Proves equation (4.4)</description>
-                                    				<img href="http://symbolaris.com/info/fig-bouncing-ball.png"/>
+				<resources>
+					<img>/examples/hybrid/bouncing-ball/fig-bouncing-ball.png</img>
+				</resources>
                                     			    <source href="http://symbolaris.com/lahs/"/>
                                     				<requirements>
                                     					<some>
@@ -1348,7 +1417,9 @@ Proves equation (4.4)</description>
 				</proofauthors>
 				<description>Standard water tank model, which regulates water level y between 1 and 12 by filling or emptying the water tank. Changing valves has a delayed effect in this example.
 Proves Example C.1</description>
-				<img href="http://symbolaris.com/info/fig-water-tank.png"/>
+				<resources>
+					<img>/examples/hybrid/water-tank/fig-water-tank.png</img>
+				</resources>
 			    <source href="http://symbolaris.com/lahs/"/>
 				<requirements>
 					<some>
@@ -1372,7 +1443,9 @@ Proves Example C.1</description>
         				<publication>Platzer10</publication> 
         				<description>Damped oscillator.
 Proves Example 3.21</description>
-        				<img href="http://symbolaris.com/info/fig-damposc-evo2t-eye.png"/>
+				<resources>
+					<img>/examples/hybrid/dynamical/fig-damposc-evo2t-eye.png</img>
+				</resources>
         			    <source href="http://symbolaris.com/lahs/"/>
         				<requirements>
         					<some>
@@ -1395,7 +1468,9 @@ Proves Example 3.21</description>
 <description>Switched damped oscillator switching between two modes of damped oscillators at some diagonals. Identifies the assumptions on the switching surface taht are required for safety.
 Proof hints: The automatic proof pauses at some point. Then use diffweaken and resume automatic proof. Or use Load Proof.
 Proves Figure 3.19</description>
-        				<img href="http://symbolaris.com/info/fig-switchstab-evo-late-eye.png"/>
+					<resources>
+						<img>/examples/hybrid/dynamical/fig-switchstab-evo-late-eye.png</img>
+					</resources>
         			    <source href="http://symbolaris.com/lahs/"/>
         				<requirements>
         					<some>
@@ -1417,8 +1492,9 @@ Proves Figure 3.19</description>
                     		<description>Basic model of a realistic distributed elevator with multiple hybrid dynamics. This is a simplified model with a simple dispatcher algorithm and basic passenger behaviors. The model is for 4 floors includes 1 hallway and a simple door reversal mechanism. This case study illustrates how complicated systems can be modeled and verified formally. This example proves requirement
 R2.1: the elevator car is at a landing if the doors are open.
 Contributed by Aaron Kane</description>
-                    		<img 
-                    			href="http://symbolaris.com/info/elevator.gif"/>
+							<resources>
+								<img>/examples/hybrid/Elevator/elevator.gif</img>
+							</resources>
                     		<source href="http://www.ece.cmu.edu/~ece649/project/portfolio/portfolio_template/portfolio.html"/>
                     		<requirements>
                     			<some>
@@ -1441,8 +1517,9 @@ Contributed by Aaron Kane</description>
                     		<description>Basic model of a realistic distributed elevator with multiple hybrid dynamics. This is a simplified model with a simple dispatcher algorithm and basic passenger behaviors. The model is for 4 floors includes 1 hallway and a simple door reversal mechanism. This case study illustrates how complicated systems can be modeled and verified formally. This example proves requirement
 R2.1: the elevator car is at a landing if the doors are open.
 Contributed by Aaron Kane</description>
-                    		<img 
-                    			href="http://symbolaris.com/info/elevator.gif"/>
+							<resources>
+								<img>/examples/hybrid/Elevator/elevator.gif</img>
+							</resources>
                     		<source href="http://www.ece.cmu.edu/~ece649/project/portfolio/portfolio_template/portfolio.html"/>
                     		<requirements>
                     			<some>
@@ -1467,8 +1544,9 @@ Contributed by Aaron Kane</description>
                     		<description>Basic model of a realistic distributed elevator with multiple hybrid dynamics. This is a simplified model with a simple dispatcher algorithm and basic passenger behaviors. The model is for 4 floors includes 1 hallway and a simple door reversal mechanism. This case study illustrates how complicated systems can be modeled and verified formally. This example proves requirement
 R2.3: the elevator car is stopped if the doors are open.
 Contributed by Aaron Kane</description>
-                    		<img 
-                    			href="http://symbolaris.com/info/elevator.gif"/>
+							<resources>
+								<img>/examples/hybrid/Elevator/elevator.gif</img>
+							</resources>
                     		<source href="http://www.ece.cmu.edu/~ece649/project/portfolio/portfolio_template/portfolio.html"/>
                     		<requirements>
                     			<some>
@@ -1489,8 +1567,9 @@ Contributed by Aaron Kane</description>
                     		<description>Basic model of a realistic distributed elevator with multiple hybrid dynamics. This is a simplified model with a simple dispatcher algorithm and basic passenger behaviors. The model is for 4 floors includes 1 hallway and a simple door reversal mechanism. This case study illustrates how complicated systems can be modeled and verified formally. This example proves requirement
 R2.5: the elevator car never passes the hoistway limit (goes too far).
 Contributed by Aaron Kane</description>
-                    		<img 
-                    			href="http://symbolaris.com/info/elevator.gif"/>
+							<resources>
+								<img>/examples/hybrid/Elevator/elevator.gif</img>
+							</resources>
                     		<source href="http://www.ece.cmu.edu/~ece649/project/portfolio/portfolio_template/portfolio.html"/>
                     		<requirements>
                     			<some>
@@ -1512,8 +1591,9 @@ Contributed by Aaron Kane</description>
                     		<description>Basic model of a realistic distributed elevator with multiple hybrid dynamics. This is a simplified model with a simple dispatcher algorithm and basic passenger behaviors. The model is for 4 floors includes 1 hallway and a simple door reversal mechanism. This case study illustrates how complicated systems can be modeled and verified formally. This example proves that the passenger model correctly integrates with the dispatcher model
 X1: car does not leave a hall until it has serviced the passengers at that hallway.
 Contributed by Aaron Kane</description>
-                    		<img 
-                    			href="http://symbolaris.com/info/elevator.gif"/>
+							<resources>
+								<img>/examples/hybrid/Elevator/elevator.gif</img>
+							</resources>
                     		<source href="http://www.ece.cmu.edu/~ece649/project/portfolio/portfolio_template/portfolio.html"/>
                     		<requirements>
                     			<some>
@@ -1535,8 +1615,9 @@ Contributed by Aaron Kane</description>
                     		<description>Basic model of a realistic distributed elevator with multiple hybrid dynamics. This is a simplified model with a simple dispatcher algorithm and basic passenger behaviors. The model is for 4 floors includes 1 hallway and a simple door reversal mechanism. This case study illustrates how complicated systems can be modeled and verified formally. This example proves that the passenger model correctly integrates with the dispatcher model
 X2: car does not leave a hall until it has serviced the passengers at that hallway.
 Contributed by Aaron Kane</description>
-                    		<img 
-                    			href="http://symbolaris.com/info/elevator.gif"/>
+							<resources>
+								<img>/examples/hybrid/Elevator/elevator.gif</img>
+							</resources>
                     		<source href="http://www.ece.cmu.edu/~ece649/project/portfolio/portfolio_template/portfolio.html"/>
                     		<requirements>
                     			<some>
@@ -1650,7 +1731,9 @@ Contributed by: Solofomampionona Fortunat Rajaona</description>
 		    </proofauthors>
         			<publication>DBLP:journals/lmcs/Platzer12b</publication>
         			<source href="http://symbolaris.com/logic/disthysys.html"/>
-        			<img href="http://symbolaris.com/info/fig-distributed-car-control.png"/>
+					<resources>
+						<img>/examples/hybrid/qdl/fig-distributed-car-control.png</img>
+					</resources>
         			<proofs>
         				<proof name="Mathematica" href="/examples/hybrid/qdl/creation.key.proof"/>
         			</proofs>

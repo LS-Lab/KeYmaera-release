@@ -497,7 +497,21 @@ public class Tutorial extends JFrame {
                         }
                     }
                 });
+        final List<Image> resources = p.getResources();
+        final JPanel iPanel = createImagePanel(resources);
 
+        JSplitPane pane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, textArea,
+                iPanel);
+        pane.setDividerSize(2);
+        pane.setResizeWeight(1);
+        return pane;
+    }
+
+    /**
+     * @param resources
+     * @return
+     */
+    public static JPanel createImagePanel(final List<Image> resources) {
         final JPanel iPanel = new JPanel() {
             final Dimension zero = new Dimension(0, 0);
 
@@ -518,7 +532,7 @@ public class Tutorial extends JFrame {
             }
         };
         iPanel.setLayout(new BoxLayout(iPanel, BoxLayout.Y_AXIS));
-        for (Image i : p.getResources()) {
+        for (Image i : resources) {
             final Image org = i;
             if (i.getWidth(null) > 300) {
                 i = i.getScaledInstance(300, -1, Image.SCALE_SMOOTH);
@@ -580,12 +594,7 @@ public class Tutorial extends JFrame {
             jLabel.setToolTipText("moep"); // leave this text in order to show custom tooltip
             iPanel.add(jLabel);
         }
-
-        JSplitPane pane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, textArea,
-                iPanel);
-        pane.setDividerSize(2);
-        pane.setResizeWeight(1);
-        return pane;
+        return iPanel;
     }
 
     /**

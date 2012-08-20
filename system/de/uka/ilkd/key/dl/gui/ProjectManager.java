@@ -21,10 +21,12 @@ package de.uka.ilkd.key.dl.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Image;
 import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -45,6 +47,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -224,7 +227,7 @@ public class ProjectManager extends JFrame {
 
         private String source;
 
-        private String img;
+        private List<Image> resources;
 
         private boolean isEmtpy = false;
 
@@ -236,19 +239,37 @@ public class ProjectManager extends JFrame {
         public ExampleInfo(String name, String url,
                 Map<String, String> proofUrls, String description,
                 List<String> authors, List<String> proofAuthors,
-                String publication, String img, Set<String> requirements,
-                String source) {
+                String publication, List<String> resources,
+                Set<String> requirements, String source) {
             super();
             this.name = name;
             this.url = url;
             this.proofUrls = proofUrls;
             this.description = description;
-            this.img = img;
             this.source = source;
             this.requirements = requirements;
             this.authors = authors;
             this.proofAuthors = proofAuthors;
             this.publication = publication;
+
+            this.resources = new ArrayList<Image>();
+            for (String r : resources) {
+                try {
+                    InputStream in = getClass().getResourceAsStream(r);
+                    this.resources.add(ImageIO.read(in));
+                } catch (Exception e) {
+                    File file = new File(r.substring(1));
+                    if (file.exists()) {
+                        InputStream in;
+                        try {
+                            in = new FileInputStream(file);
+                            this.resources.add(ImageIO.read(in));
+                        } catch (Exception e1) {
+                            e1.printStackTrace();
+                        }
+                    }
+                }
+            }
         }
 
         public ExampleInfo(Boolean isEmpty, String name) {
@@ -257,7 +278,7 @@ public class ProjectManager extends JFrame {
             this.isEmtpy = isEmpty;
             this.url = "";
             this.description = "There is no example available.";
-            this.img = "";
+            this.resources = new ArrayList<Image>();
             this.source = "";
             this.requirements = new LinkedHashSet<String>();
 
@@ -306,8 +327,8 @@ public class ProjectManager extends JFrame {
         /**
          * @return the img
          */
-        public String getImg() {
-            return img;
+        public List<Image> getResources() {
+            return resources;
         }
 
         public Map<String, String> getProofUrls() {
@@ -355,25 +376,11 @@ public class ProjectManager extends JFrame {
 
     private JTree tree;
 
-    private JTextPane textArea;
-
-    private JTextArea fileName;
-
-    private JTextArea requirementsArea;
-
-    private JPanel authorsArea;
-
-    private JPanel proofAuthorsArea;
-
-    private JTextPane publicationArea;
-
-    private JTextPane img;
-
-    private JTextPane source;
-
     private HashMap<String, AuthorInfo> authorInfos;
 
     private HashMap<String, PublicationInfo> publicationInfos;
+
+    private Component textPanel;
 
     /**
 	 * 
@@ -505,103 +512,8 @@ public class ProjectManager extends JFrame {
         });
         proofLoadButton.setEnabled(false);
 
-        JPanel buttonTextPanel = new JPanel(new BorderLayout());
-        JPanel textPanel = new JPanel(new BorderLayout());
-        JPanel imgPanel = new JPanel(new BorderLayout());
-        HyperlinkListener hyperlinkListener = getHyperlinkListener();
-
-        textArea = new JTextPane();
-        textArea.setContentType("text/html");
-        textArea.setEditable(false);
-        textArea.setAutoscrolls(false);
-        textArea.addHyperlinkListener(hyperlinkListener);
-
-        imgPanel.add(textArea, BorderLayout.CENTER);
-
-        requirementsArea = new JTextArea();
-        requirementsArea.setLineWrap(true);
-        requirementsArea.setAutoscrolls(true);
-        requirementsArea.setColumns(50);
-        requirementsArea.setEditable(false);
-        requirementsArea.setWrapStyleWord(true);
-
-        authorsArea = new JPanel();
-        authorsArea.setLayout(new FlowLayout(FlowLayout.LEFT));
-
-        proofAuthorsArea = new JPanel();
-        proofAuthorsArea.setLayout(new FlowLayout(FlowLayout.LEFT));
-
-        publicationArea = new JTextPane();
-        publicationArea.setContentType("text/html");
-        publicationArea.setEditable(false);
-        publicationArea.setAutoscrolls(false);
-        publicationArea.addHyperlinkListener(hyperlinkListener);
-
-        fileName = new JTextArea();
-        fileName.setLineWrap(true);
-        fileName.setAutoscrolls(true);
-        fileName.setColumns(50);
-        fileName.setEditable(false);
-
-        source = new JTextPane();
-        source.setContentType("text/html");
-        source.setEditable(false);
-        source.setAutoscrolls(false);
-        source.addHyperlinkListener(hyperlinkListener);
-
-        img = new JTextPane();
-        img.setContentType("text/html");
-        img.setAutoscrolls(true);
-        img.setEditable(false);
-        imgPanel.add(img, BorderLayout.EAST);
-        // textPanel.add(new JLabel("Description: "), BorderLayout.NORTH);
-        // textPanel.add(imgPanel, BorderLayout.CENTER);
-
-        // left labels
-        GridBagConstraints l = new GridBagConstraints();
-        l.anchor = GridBagConstraints.NORTHWEST;
-        l.insets = new Insets(0, 0, 0, 12);
-        // right components
-        GridBagConstraints r = new GridBagConstraints();
-        r.gridwidth = GridBagConstraints.REMAINDER;
-        r.anchor = GridBagConstraints.NORTHWEST;
-        r.fill = GridBagConstraints.BOTH;
-        r.weightx = 1;
-        // vertical spacing
-        GridBagConstraints v = new GridBagConstraints();
-        v.gridwidth = GridBagConstraints.REMAINDER;
-        v.anchor = GridBagConstraints.NORTH;
-        v.fill = GridBagConstraints.BOTH;
-        // vertical filler
-        GridBagConstraints f = new GridBagConstraints();
-        f.gridwidth = GridBagConstraints.REMAINDER;
-        f.anchor = GridBagConstraints.NORTH;
-        f.fill = GridBagConstraints.BOTH;
-        f.weighty = 0.5;
-
-        JPanel dummy = new JPanel(new GridBagLayout());
-        dummy.add(new JLabel("Problem:"), l);
-        dummy.add(imgPanel, r);
-        dummy.add(Box.createVerticalStrut(5), v);
-        dummy.add(new JLabel("Author(s):"), l);
-        dummy.add(authorsArea, r);
-        dummy.add(Box.createVerticalStrut(5), v);
-        dummy.add(new JLabel("Publication:"), l);
-        dummy.add(publicationArea, r);
-        dummy.add(Box.createVerticalStrut(5), v);
-        dummy.add(new JLabel("Adaptation by:"), l);
-        dummy.add(proofAuthorsArea, r);
-        dummy.add(Box.createVerticalStrut(5), v);
-        dummy.add(new JLabel("File:"), l);
-        dummy.add(fileName, r);
-        dummy.add(Box.createVerticalStrut(5), v);
-        dummy.add(new JLabel("Requires:"), l);
-        dummy.add(requirementsArea, r);
-        dummy.add(Box.createVerticalStrut(5), v);
-        dummy.add(new JLabel("Source:"), l);
-        dummy.add(source, r);
-
-        textPanel.add(dummy, BorderLayout.NORTH);
+        final JPanel buttonTextPanel = new JPanel(new BorderLayout());
+        textPanel = new JPanel(new BorderLayout());
         buttonTextPanel.add(textPanel, BorderLayout.CENTER);
 
         tree.addTreeSelectionListener(new TreeSelectionListener() {
@@ -610,102 +522,15 @@ public class ProjectManager extends JFrame {
             public void valueChanged(TreeSelectionEvent e) {
                 DefaultMutableTreeNode lastSelectedPathComponent = (DefaultMutableTreeNode) tree
                         .getLastSelectedPathComponent();
-                authorsArea.removeAll();
-                proofAuthorsArea.removeAll();
                 if (lastSelectedPathComponent != null) {
                     Object nodeInfo = lastSelectedPathComponent.getUserObject();
-                    if (lastSelectedPathComponent.isLeaf()) {
+                    if (nodeInfo instanceof ExampleInfo) {
                         ExampleInfo info = (ExampleInfo) nodeInfo;
-                        fileName.setText(info.getUrl());
-                        textArea.setText(info.getDescription());
-                        if (info.img.trim().equals("")) {
-                            img.setText("");
-                        } else {
-                            img.setText("<html><body><img src=\""
-                                    + info.getImg() + "\"/></body></html>");
-                        }
-                        if (info.getSource().trim().equals("")) {
-                            source.setText("");
-                        } else {
-                            source.setText("<html><body><a href=\""
-                                    + info.getSource().trim() + "\">"
-                                    + info.getSource().trim()
-                                    + "</a></body></html>");
-                            // source.setText("<html><body>" +
-                            // info.getSource().trim() + "</body></html>");
-                        }
-                        String or = "";
-                        proofs.setModel(new ProofComboBoxModel(info
-                                .getProofUrls()));
-                        if (info.getProofUrls() == null
-                                || info.getProofUrls().isEmpty()) {
-                            proofLoadButton.setEnabled(false);
-                        } else {
-                            proofLoadButton.setEnabled(true);
-                        }
-                        if (info.requirements.isEmpty()) {
-                            requirementsArea.setText("No special requirements");
-                            requirementsArea.setForeground(Color.BLACK);
-                            button.setEnabled(true);
-                            getRootPane().setDefaultButton(button);
-                        } else {
-                            requirementsArea.setText("You need ");
-                            requirementsMet[0] = false;
-                            // button.setEnabled(false);
-                            requirementsArea.setForeground(Color.RED);
-                            for (String s : info.getRequirements()) {
-                                requirementsArea.append(or + s);
-                                if (MathSolverManager
-                                        .getQuantifierEliminators().contains(s)) {
-                                    requirementsArea.setForeground(Color.BLACK);
-                                    requirementsMet[0] = true;
-                                    button.setEnabled(true);
-                                    getRootPane().setDefaultButton(button);
-                                }
-                                or = " or ";
-                            }
-                            requirementsArea
-                                    .append(" as real arithmetic solver");
-                        }
-                        if (info.getAuthors().isEmpty()) {
-                            authorsArea.add(new JLabel("No authors given."));
-                        } else {
-                            for (String a : info.getAuthors()) {
-                                JTextPane aPane = createAuthorPane(a);
-                                authorsArea.add(aPane);
-                            }
-                        }
-                        if (info.getProofAuthors().isEmpty()) {
-                            proofAuthorsArea
-                                    .add(new JLabel("No authors given."));
-                        } else {
-                            for (String a : info.getProofAuthors()) {
-                                JTextPane aPane = createAuthorPane(a);
-                                proofAuthorsArea.add(aPane);
-                            }
-                        }
-
-                        if (info.getPublication() == null
-                                || info.getPublication().equals("")) {
-                            publicationArea.setText("No publication given.");
-                        } else {
-                            if (publicationInfos.containsKey(info
-                                    .getPublication())) {
-                                PublicationInfo pInfo = publicationInfos
-                                        .get(info.getPublication());
-                                if (pInfo.getUrl() != null) {
-                                    publicationArea.setText("<a href=\""
-                                            + pInfo.getUrl() + "\">"
-                                            + pInfo.getTitle() + "</a>" + " "
-                                            + pInfo.getAdditional());
-                                } else {
-                                    publicationArea.setText(pInfo.getTitle()
-                                            + " " + pInfo.getAdditional());
-                                }
-                            } else {
-                                publicationArea.setText(info.getPublication());
-                            }
-                        }
+                        buttonTextPanel.remove(textPanel);
+                        buttonTextPanel.repaint();
+                        textPanel = createExampleView(info);
+                        buttonTextPanel.add(textPanel, BorderLayout.CENTER);
+                        textPanel.repaint();
                         if (info.isEmpty()) {
                             button.setEnabled(false);
                         }
@@ -714,6 +539,177 @@ public class ProjectManager extends JFrame {
                     }
 
                 }
+            }
+
+            private Component createExampleView(ExampleInfo info) {
+                HyperlinkListener hyperlinkListener = getHyperlinkListener();
+
+                JTextPane textArea = new JTextPane();
+                textArea.setContentType("text/html");
+                textArea.setEditable(false);
+                textArea.setAutoscrolls(false);
+                textArea.addHyperlinkListener(hyperlinkListener);
+
+                JTextArea requirementsArea = new JTextArea();
+                requirementsArea.setLineWrap(true);
+                requirementsArea.setAutoscrolls(true);
+                requirementsArea.setColumns(50);
+                requirementsArea.setEditable(false);
+                requirementsArea.setWrapStyleWord(true);
+
+                JPanel authorsArea = new JPanel();
+                authorsArea.setLayout(new FlowLayout(FlowLayout.LEFT));
+
+                JPanel proofAuthorsArea = new JPanel();
+                proofAuthorsArea.setLayout(new FlowLayout(FlowLayout.LEFT));
+
+                JTextPane publicationArea = new JTextPane();
+                publicationArea.setContentType("text/html");
+                publicationArea.setEditable(false);
+                publicationArea.setAutoscrolls(false);
+                publicationArea.addHyperlinkListener(hyperlinkListener);
+
+                JTextArea fileName = new JTextArea();
+                fileName.setLineWrap(true);
+                fileName.setAutoscrolls(true);
+                fileName.setColumns(50);
+                fileName.setEditable(false);
+
+                JTextPane source = new JTextPane();
+                source.setContentType("text/html");
+                source.setEditable(false);
+                source.setAutoscrolls(false);
+                source.addHyperlinkListener(hyperlinkListener);
+
+                // left labels
+                GridBagConstraints l = new GridBagConstraints();
+                l.anchor = GridBagConstraints.NORTHWEST;
+                l.insets = new Insets(0, 0, 0, 12);
+                // right components
+                GridBagConstraints r = new GridBagConstraints();
+                r.gridwidth = GridBagConstraints.REMAINDER;
+                r.anchor = GridBagConstraints.NORTHWEST;
+                r.fill = GridBagConstraints.BOTH;
+                r.weightx = 1;
+                // vertical spacing
+                GridBagConstraints v = new GridBagConstraints();
+                v.gridwidth = GridBagConstraints.REMAINDER;
+                v.anchor = GridBagConstraints.NORTH;
+                v.fill = GridBagConstraints.BOTH;
+                // vertical filler
+                GridBagConstraints f = new GridBagConstraints();
+                f.gridwidth = GridBagConstraints.REMAINDER;
+                f.anchor = GridBagConstraints.NORTH;
+                f.fill = GridBagConstraints.BOTH;
+                f.weighty = 0.5;
+
+                JPanel dummy = new JPanel(new GridBagLayout());
+                dummy.add(new JLabel("Problem:"), l);
+                dummy.add(textArea, r);
+                dummy.add(Box.createVerticalStrut(5), v);
+                dummy.add(new JLabel("Author(s):"), l);
+                dummy.add(authorsArea, r);
+                dummy.add(Box.createVerticalStrut(5), v);
+                dummy.add(new JLabel("Publication:"), l);
+                dummy.add(publicationArea, r);
+                dummy.add(Box.createVerticalStrut(5), v);
+                dummy.add(new JLabel("Adaptation by:"), l);
+                dummy.add(proofAuthorsArea, r);
+                dummy.add(Box.createVerticalStrut(5), v);
+                dummy.add(new JLabel("File:"), l);
+                dummy.add(fileName, r);
+                dummy.add(Box.createVerticalStrut(5), v);
+                dummy.add(new JLabel("Requires:"), l);
+                dummy.add(requirementsArea, r);
+                dummy.add(Box.createVerticalStrut(5), v);
+                dummy.add(new JLabel("Source:"), l);
+                dummy.add(source, r);
+                dummy.add(new JPanel(), f);
+
+                fileName.setText(info.getUrl());
+                textArea.setText(info.getDescription());
+                if (info.getSource().trim().equals("")) {
+                    source.setText("");
+                } else {
+                    source.setText("<html><body><a href=\""
+                            + info.getSource().trim() + "\">"
+                            + info.getSource().trim() + "</a></body></html>");
+                    // source.setText("<html><body>" +
+                    // info.getSource().trim() + "</body></html>");
+                }
+                String or = "";
+                proofs.setModel(new ProofComboBoxModel(info.getProofUrls()));
+                if (info.getProofUrls() == null
+                        || info.getProofUrls().isEmpty()) {
+                    proofLoadButton.setEnabled(false);
+                } else {
+                    proofLoadButton.setEnabled(true);
+                }
+                if (info.requirements.isEmpty()) {
+                    requirementsArea.setText("No special requirements");
+                    requirementsArea.setForeground(Color.BLACK);
+                    button.setEnabled(true);
+                    getRootPane().setDefaultButton(button);
+                } else {
+                    requirementsArea.setText("You need ");
+                    requirementsMet[0] = false;
+                    // button.setEnabled(false);
+                    requirementsArea.setForeground(Color.RED);
+                    for (String s : info.getRequirements()) {
+                        requirementsArea.append(or + s);
+                        if (MathSolverManager.getQuantifierEliminators()
+                                .contains(s)) {
+                            requirementsArea.setForeground(Color.BLACK);
+                            requirementsMet[0] = true;
+                            button.setEnabled(true);
+                            getRootPane().setDefaultButton(button);
+                        }
+                        or = " or ";
+                    }
+                    requirementsArea.append(" as real arithmetic solver");
+                }
+                if (info.getAuthors().isEmpty()) {
+                    authorsArea.add(new JLabel("No authors given."));
+                } else {
+                    for (String a : info.getAuthors()) {
+                        JTextPane aPane = createAuthorPane(a);
+                        authorsArea.add(aPane);
+                    }
+                }
+                if (info.getProofAuthors().isEmpty()) {
+                    proofAuthorsArea.add(new JLabel("No authors given."));
+                } else {
+                    for (String a : info.getProofAuthors()) {
+                        JTextPane aPane = createAuthorPane(a);
+                        proofAuthorsArea.add(aPane);
+                    }
+                }
+
+                if (info.getPublication() == null
+                        || info.getPublication().equals("")) {
+                    publicationArea.setText("No publication given.");
+                } else {
+                    if (publicationInfos.containsKey(info.getPublication())) {
+                        PublicationInfo pInfo = publicationInfos.get(info
+                                .getPublication());
+                        if (pInfo.getUrl() != null) {
+                            publicationArea.setText("<a href=\""
+                                    + pInfo.getUrl() + "\">" + pInfo.getTitle()
+                                    + "</a>" + " " + pInfo.getAdditional());
+                        } else {
+                            publicationArea.setText(pInfo.getTitle() + " "
+                                    + pInfo.getAdditional());
+                        }
+                    } else {
+                        publicationArea.setText(info.getPublication());
+                    }
+                }
+                dummy.setMinimumSize(new Dimension(0, 0));
+                JSplitPane pane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, dummy,
+                        Tutorial.createImagePanel(info.getResources()));
+                pane.setDividerSize(2);
+                pane.setResizeWeight(1);
+                return pane;
             }
 
             /**
@@ -993,11 +989,13 @@ public class ProjectManager extends JFrame {
         for (int l = 0; l < nodes.getLength(); l++) {
             proofAuthors.add(nodes.item(l).getNodeValue());
         }
-        Node img = (Node) xpath.evaluate("img", node, XPathConstants.NODE);
-        String im = "";
-        if (img != null) {
-            im = img.getAttributes().getNamedItem("href").getNodeValue();
+        NodeList resourceList = (NodeList) xpath.evaluate("resources/img",
+                node, XPathConstants.NODESET);
+        List<String> resources = new ArrayList<String>();
+        for (int i = 0; i < resourceList.getLength(); i++) {
+            resources.add(resourceList.item(i).getTextContent());
         }
+
         Node src = (Node) xpath.evaluate("source", node, XPathConstants.NODE);
         String sr = "";
         if (src != null) {
@@ -1005,8 +1003,8 @@ public class ProjectManager extends JFrame {
         }
 
         tNode = new DefaultMutableTreeNode(new ExampleInfo(name, path,
-                proofUrls, description, authors, proofAuthors, publication, im,
-                requirements, sr));
+                proofUrls, description, authors, proofAuthors, publication,
+                resources, requirements, sr));
 
         return tNode;
     }
@@ -1053,7 +1051,8 @@ public class ProjectManager extends JFrame {
         public void execute(File f);
     }
 
-    public static void executeOnTmpFile(String url, final OnFileExecutor executor) {
+    public static void executeOnTmpFile(String url,
+            final OnFileExecutor executor) {
         final String separator = "/"; // File.separator;
         System.out.println("Trying to open resource " + url);// XXX
         // if (File.separator.length() != 1) {
@@ -1078,8 +1077,9 @@ public class ProjectManager extends JFrame {
                 downloadManager.addListener(new IDownloadListener() {
 
                     JDialog dialog = new JDialog();
+
                     JProgressBar bar = new JProgressBar(0, 100);
-                    
+
                     @Override
                     public void onEndDownload(FileInfo file) {
                         dialog.setVisible(false);
@@ -1092,7 +1092,8 @@ public class ProjectManager extends JFrame {
                         bar.setMaximum(fileSize);
                         bar.setValue(bytesRecieved);
                         bar.setString("" + bytesRecieved + "/" + fileSize);
-                        bar.setToolTipText("Downloading " + bytesRecieved + "/" + fileSize);
+                        bar.setToolTipText("Downloading " + bytesRecieved + "/"
+                                + fileSize);
                     }
 
                     @Override
@@ -1102,8 +1103,12 @@ public class ProjectManager extends JFrame {
                     @Override
                     public void onBeginDownload(FileInfo file) {
                         bar.setStringPainted(true);
-                        dialog.getContentPane().setLayout(new BoxLayout(dialog.getContentPane(), BoxLayout.Y_AXIS));
-                        dialog.getContentPane().add(new JLabel("Now downloading " + file.getSrcFilename()
+                        dialog.getContentPane().setLayout(
+                                new BoxLayout(dialog.getContentPane(),
+                                        BoxLayout.Y_AXIS));
+                        dialog.getContentPane().add(
+                                new JLabel("Now downloading "
+                                        + file.getSrcFilename()
                                         + ". This might take a while."));
                         dialog.getContentPane().add(bar);
                         dialog.pack();
@@ -1116,15 +1121,15 @@ public class ProjectManager extends JFrame {
                     public void onAbortDownload(FileInfo file, String message) {
                     }
                 });
-                
+
                 new Thread(new Runnable() {
 
                     @Override
                     public void run() {
-                        downloadManager.downloadAll(infos, 10000, tempFile.getParent(),
-                        true);
+                        downloadManager.downloadAll(infos, 10000,
+                                tempFile.getParent(), true);
                     }
-                    
+
                 }).start();
             } catch (IOException e) {
                 // TODO Auto-generated catch block
@@ -1171,7 +1176,7 @@ public class ProjectManager extends JFrame {
             }
         }
     }
-    
+
     public static File createTmpFileToLoad(String url) {
         final String separator = "/"; // File.separator;
         System.out.println("Trying to open resource " + url);// XXX
