@@ -62,17 +62,15 @@ object ApplyEquationTactic {
       
       r = null
       for (i <- 0 until g.sequent.antecedent.size) {
-        if (i != skip) {
-          val res = findSymbol(new PosInOccurrence(g.sequent.antecedent.get(i), PosInTerm.TOP_LEVEL, true), defSymbol, s)
-          if(!res.isEmpty)
-            r = res.head
+        if (i != skip && r == null) {
+            r = findSymbol(new PosInOccurrence(g.sequent.antecedent.get(i), PosInTerm.TOP_LEVEL, true), defSymbol, s)
         }
       }
       if (r == null) {
         for (i <- 0 until g.sequent.succedent.size) {
-          val res = findSymbol(new PosInOccurrence(g.sequent.succedent.get(i), PosInTerm.TOP_LEVEL, false), defSymbol, s)
-          if(!res.isEmpty)
-            r = res.head
+          if(r == null) {
+              r = findSymbol(new PosInOccurrence(g.sequent.succedent.get(i), PosInTerm.TOP_LEVEL, false), defSymbol, s)
+          }
         }
       }
       if (r != null) {
@@ -100,17 +98,19 @@ object ApplyEquationTactic {
     ra.execute(g, s);
   }
   
-  def findSymbol(p: PosInOccurrence, t: Term, s: Services): List[PosInOccurrence] = {
-    var result : List[PosInOccurrence] = Nil
+  // finds the first occurrence of a term
+  def findSymbol(p: PosInOccurrence, t: Term, s: Services): PosInOccurrence = {
     if(!p.subTerm.op.isInstanceOf[Modality] && !p.subTerm.op.isInstanceOf[SubstOp]) {
         if(new EqualityConstraint().unify(p.subTerm(), t, s).isSatisfiable()) {
-          result = result :+ p
+          return p
         }
         for (i <- 0 until p.subTerm.arity) {
-          result ++= findSymbol(p.down(i), t, s)
+          val sym = findSymbol(p.down(i), t, s)
+          if(sym != null)
+            return sym
         }
     }
-    result
+    return null
   }
 
 }
