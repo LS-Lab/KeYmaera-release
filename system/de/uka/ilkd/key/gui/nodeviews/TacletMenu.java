@@ -36,6 +36,7 @@ import de.uka.ilkd.key.collection.ImmutableSLList;
 import de.uka.ilkd.key.dl.rules.EliminateExistentialQuantifierRule;
 import de.uka.ilkd.key.dl.rules.ReduceRule;
 import de.uka.ilkd.key.dl.rules.ReduceRuleApp;
+import de.uka.ilkd.key.dl.strategy.tactics.ApplyEquationTactic;
 import de.uka.ilkd.key.dl.strategy.tactics.SkolemizeTactic;
 import de.uka.ilkd.key.gui.KeYMediator;
 import de.uka.ilkd.key.gui.Main;
@@ -180,6 +181,8 @@ class TacletMenu extends JMenu {
 	createBuiltInRuleMenu(builtInList, control);
         
 	addSkolemizeTactic(control);
+	
+	addApplyEqTactics(control);
 	
 	createFocussedAutoModeMenu ( control );
     
@@ -347,7 +350,7 @@ class TacletMenu extends JMenu {
         
         @Override
         public void actionPerformed(ActionEvent arg0) {
-            new SkolemizeTactic().apply(selectedGoal, mediator.getServices());
+            SkolemizeTactic.apply(selectedGoal, mediator.getServices());
             mediator.goalChosen(selectedGoal);
         }
     });
@@ -372,6 +375,72 @@ class TacletMenu extends JMenu {
     });
 	
 	add(item);
+    }
+    
+    private void addApplyEqTactics(MenuControl control) {
+        if(ApplyEquationTactic.isApplicable(pos.getPosInOccurrence())) {
+            final JMenuItem item = new JMenuItem("Apply Eq Recursive Left");
+            item.addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(ActionEvent arg0) {
+                    ApplyEquationTactic.apply(selectedGoal, pos.getPosInOccurrence(), true, mediator.getServices());
+                    mediator.goalChosen(selectedGoal);
+                }
+            });
+            item.addChangeListener(new ChangeListener() {
+
+                @Override
+                public void stateChanged(ChangeEvent e) {
+                    MenuElement[] selectedPath = MenuSelectionManager
+                            .defaultManager().getSelectedPath();
+                    if (selectedPath.length > 0
+                            && selectedPath[selectedPath.length - 1] == item) {
+                        ProofAssistantController proofAssistantController = Main
+                                .getInstance().getProofAssistantController();
+                        AIAction analyze = proofAssistantController
+                                .getAssistantAI().analyze(
+                                        new BuiltInRuleSelectedInput(
+                                                "applyEq"));
+                        if (analyze != null) {
+                            analyze.execute(proofAssistantController);
+                        }
+                    }
+                }
+            });
+            add(item);
+            final JMenuItem item2 = new JMenuItem("Apply Eq Recursive Right");
+            item2.addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(ActionEvent arg0) {
+                    ApplyEquationTactic.apply(selectedGoal, pos.getPosInOccurrence(), false, mediator.getServices());
+                    mediator.goalChosen(selectedGoal);
+                }
+            });
+            item2.addChangeListener(new ChangeListener() {
+
+                @Override
+                public void stateChanged(ChangeEvent e) {
+                    MenuElement[] selectedPath = MenuSelectionManager
+                            .defaultManager().getSelectedPath();
+                    if (selectedPath.length > 0
+                            && selectedPath[selectedPath.length - 1] == item2) {
+                        ProofAssistantController proofAssistantController = Main
+                                .getInstance().getProofAssistantController();
+                        AIAction analyze = proofAssistantController
+                                .getAssistantAI().analyze(
+                                        new BuiltInRuleSelectedInput(
+                                                "applyEq_sym"));
+                        if (analyze != null) {
+                            analyze.execute(proofAssistantController);
+                        }
+                    }
+                }
+            });
+
+            add(item2);
+        }
     }
     
     private void addClipboardItem(MenuControl control) {
@@ -429,7 +498,7 @@ class TacletMenu extends JMenu {
                     mediator.getNotationInfo(), mediator.getServices());
        
         
-        for (int i = 0; it.hasNext(); i++) {
+        while(it.hasNext()) {
             final TacletApp app = it.next();
            
             final Taclet taclet = app.taclet();

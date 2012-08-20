@@ -34,7 +34,7 @@ import de.uka.ilkd.key.collection.ImmutableSLList
  * @author jdq
  *
  */
-class SkolemizeTactic {
+object SkolemizeTactic {
 
   def apply(g: Goal, s: Services): Unit = {
     val positions = findNonRigidFunction(g.sequent)
