@@ -471,7 +471,28 @@
 			    <path>/examples/hybrid/publish/water_tank.key</path>
 			</exercise>
 			<exercise>
-				<title>Ex. 7 Parametric Water Tank</title>
+				<title>Ex. 7 Progress</title>
+				<description>
+					<![CDATA[
+					<p>
+					So far, we have only considered the box-modality in our examples and exercises. However there is a diamond-modality in dL as well. Assume a very simple car model. The car is initially driving with some positive speed and accelerating with constant acceleration of 1. 
+					</p>
+					<p>
+						<b>Exercise:</b>
+							Prove that the car can reach every position towards larger values of x.
+					</p>
+					]]>
+				</description>
+				<path>/examples/hybrid/verifiedsoft/diamond.key</path>
+				<hints>
+					<hint id="7.1">You will have to provide a loop variant. What is the least progress towards the goal x > p?</hint>
+					<hint id="7.2">Try talking about the initial velocity in the loop variant.</hint>
+					<hint id="7.3">Maybe you could introduce a fresh variable vo using the auxilaries rule and initialize it with v.</hint>
+					<hint id="7.4">A possible loop variant is x+n*ep*vo > p_0. Assuming vo is the initial velocity. And p_0 is the point we want to reach.</hint>
+				</hints>
+			</exercise>
+			<exercise>
+				<title>Ex. 8 Parametric Water Tank</title>
 				<description>
 					<![CDATA[
 					<p>
@@ -531,7 +552,7 @@
 				 <path>/examples/hybrid/verifiedsoft/general_water_tank.key</path>
 			</exercise>
 			<exercise>
-				<title>Ex. 8 Distrubances</title>
+				<title>Ex. 9 Distrubances</title>
 				<description>
 					<![CDATA[
 					Let's go back to the car setting. Assume there are some external influences on the car dynamics such that the velocity does not evolve with exactly v'=a but instead a-l &lt;= v' &lt;= a+u. 
@@ -550,7 +571,7 @@
 				<path>/examples/hybrid/dynamical/negexp.key.proof</path>
 			</exercise>
 			<exercise>
-				<title>Ex. 9 Cooling down</title>
+				<title>Ex. 10 Cooling down</title>
 				<description>
 					<![CDATA[
 					<p>
@@ -596,7 +617,7 @@
 				<path>/examples/hybrid/heater/diffcut.key</path>
 			</exercise>
 			<exercise>
-				<title>Ex. 10 Heating up</title>
+				<title>Ex. 11 Heating up</title>
 				<description>
 					<![CDATA[
 					<p>
@@ -633,7 +654,7 @@
 				<path>/examples/hybrid/heater/diffcut2.key</path>
 			</exercise>
 			<exercise>
-				<title>Ex. 11 Not too cold</title>
+				<title>Ex. 12 Not too cold</title>
 				<description>
 					<![CDATA[
 					<p>
@@ -654,7 +675,7 @@
 				<path>/examples/hybrid/heater/diffcut3.key</path>
 			</exercise>
 			<exercise>
-				<title>Ex. 12 Temperature in hot cases</title>
+				<title>Ex. 13 Temperature in hot cases</title>
 				<description>
 					<![CDATA[
 					<p>
@@ -677,7 +698,7 @@
 				<path>/examples/hybrid/heater/diffcut4.key</path>
 			</exercise>
 			<exercise>
-				<title>Ex. 13 Heater (extract)</title>
+				<title>Ex. 14 Heater (extract)</title>
 				<description>
 					<![CDATA[
 					<p>
@@ -701,7 +722,7 @@
 				<path>/examples/hybrid/verifiedsoft/heater-switchdelay-extract.key</path>
 			</exercise>
 			<exercise>
-				<title>Ex. 14 Heater (extract 2)</title>
+				<title>Ex. 15 Heater (extract 2)</title>
 				<description>
 					<![CDATA[
 					<p>
@@ -735,7 +756,7 @@
 				<path>/examples/hybrid/verifiedsoft/twocars.key.proof</path>
 			</exercise>
 			<exercise>
-				<title>Ex. 15 Distributed cars</title>
+				<title>Ex. 16 Distributed cars</title>
 				<description>
 					<![CDATA[
 					<p>
