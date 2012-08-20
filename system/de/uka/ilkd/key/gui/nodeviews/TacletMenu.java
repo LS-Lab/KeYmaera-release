@@ -342,7 +342,7 @@ class TacletMenu extends JMenu {
 
     private void addSkolemizeTactic(MenuControl control) {
 	addSeparator();
-	JMenuItem item = new JMenuItem(SKOLEMIZE_NON_RIGIDS);
+	final JMenuItem item = new JMenuItem(SKOLEMIZE_NON_RIGIDS);
 	item.addActionListener(new ActionListener() {
         
         @Override
@@ -351,6 +351,26 @@ class TacletMenu extends JMenu {
             mediator.goalChosen(selectedGoal);
         }
     });
+    item.addChangeListener(new ChangeListener() {
+
+        @Override
+        public void stateChanged(ChangeEvent e) {
+            MenuElement[] selectedPath = MenuSelectionManager
+                    .defaultManager().getSelectedPath();
+            if (selectedPath.length > 0
+                    && selectedPath[selectedPath.length - 1] == item) {
+                ProofAssistantController proofAssistantController = Main
+                        .getInstance().getProofAssistantController();
+                AIAction analyze = proofAssistantController
+                        .getAssistantAI().analyze(
+                                new BuiltInRuleSelectedInput("Skolemize_Non_Rigids_Tactic"));
+                if (analyze != null) {
+                    analyze.execute(proofAssistantController);
+                }
+            }
+        }
+    });
+	
 	add(item);
     }
     
