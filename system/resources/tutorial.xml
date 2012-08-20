@@ -567,8 +567,9 @@
 				<title>Demo x'=-x</title>
 				<description>
 					This demo proves the following property: For an initial value greater than zero, a continuous evolution along x'=-x will never have a zero-crossing.
+					The proof needs differential auxiliaries.
 				</description>
-				<path>/examples/hybrid/dynamical/negexp.key.proof</path>
+				<path>/examples/hybrid/dynamical/exp-.key.proof</path>
 			</exercise>
 			<exercise>
 				<title>Ex. 10 Cooling down</title>
