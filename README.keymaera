@@ -22,6 +22,7 @@ Requirements
 - ANTLR 3.4
 - JLink from Mathematica
 - scala 2.9+ from http://www.scala-lang.org/
+- jmathplot
 
 Required key-ext-jars libraries
 -------------------------------
@@ -36,6 +37,7 @@ key-ext-jars/orbital-core.jar from http://symbolaris.com/orbital/
 key-ext-jars/orbital-ext.jar from http://symbolaris.com/orbital/
 key-ext-jars/recoderKey.jar
 key-ext-jars/scala-library.jar from http://www.scala-lang.org/
+key-ext-jars/jmathplot.jar from http://code.google.com/p/jmathplot/
 
 In the above list "->" indicates a symlink. Paths may need to be adjusted depending on your operating system and platform.
 
