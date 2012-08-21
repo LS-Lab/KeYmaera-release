@@ -370,6 +370,7 @@ public class DLOptionBean implements Settings {
 		useSOS = false;
 		csdpBinary = new File("/usr/bin/csdp");
 		csdpForceInternal = false;
+		useODEIndFinMethods = false;
 
 		cexFinder = CexFinder.ITER_DEEP;
 		tracerStat = TracerStat.OFF;
