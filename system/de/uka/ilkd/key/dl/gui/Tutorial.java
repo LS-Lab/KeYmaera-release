@@ -469,12 +469,15 @@ public class Tutorial extends JFrame {
         f.weighty = 0.5;
 
         String description = p.getDescription();
-        description += "<p>";
-        for (int i = 0; i < p.getHints().size(); i++) {
-            description += " <a href=\"http://hint?" + i + "\">Hint " + (i + 1)
-                    + "</a>";
+        if (p.getHints().size() > 0) {
+            description += "<p> Ask <i>KiKi</i> to show a hint:</p>";
+            description += "<p>";
+            for (int i = 0; i < p.getHints().size(); i++) {
+                description += " <a href=\"http://hint?" + i + "\">Hint "
+                        + (i + 1) + "</a>";
+            }
+            description += "</p>";
         }
-        description += "</p>";
         JComponent textArea = createTextPanel(description,
                 new HyperlinkListener() {
 

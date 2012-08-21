@@ -485,11 +485,23 @@
 			    <path>/examples/hybrid/publish/water_tank.key</path>
 			</exercise>
 			<exercise>
+				<title>Demo Progress</title>
+				<description>
+					<![CDATA[
+					<p>
+						So far, we have only considered the box-modality in our examples and exercises. However there is a diamond-modality in dL as well. Assume a very simple car model. The car is initially driving with speed v and constant acceleration of a (with a &gt; 0). 
+						In this demo, we show that due to its constant positive acceleration it is able to exceed every velocity bound eventually.
+					</p>
+					]]>
+				</description>
+				<path>/examples/hybrid/verifiedsoft/diamond-simple.key.proof</path>
+			</exercise>
+			<exercise>
 				<title>Ex. 7 Progress</title>
 				<description>
 					<![CDATA[
 					<p>
-					So far, we have only considered the box-modality in our examples and exercises. However there is a diamond-modality in dL as well. Assume a very simple car model. The car is initially driving with some positive speed and accelerating with constant acceleration of 1. 
+					So far, we have only considered the box-modality in our examples and exercises. However there is a diamond-modality in dL as well. Assume a very simple car model. The car is initially driving with some positive speed and constant acceleration of a (with a &gt;=0). 
 					</p>
 					<p>
 						<b>Exercise:</b>
