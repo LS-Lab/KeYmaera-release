@@ -4,10 +4,19 @@
 package de.uka.ilkd.key.dl.rules.metaconstruct;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.TreeSet;
 
 import de.uka.ilkd.key.dl.formulatools.Prog2LogicConverter;
+import de.uka.ilkd.key.dl.model.DLNonTerminalProgramElement;
 import de.uka.ilkd.key.dl.model.DiffSystem;
+import de.uka.ilkd.key.dl.model.Dot;
 import de.uka.ilkd.key.dl.model.Formula;
+import de.uka.ilkd.key.dl.model.FunctionTerm;
+import de.uka.ilkd.key.dl.model.NonRigidFunction;
+import de.uka.ilkd.key.dl.model.ProgramVariable;
 import de.uka.ilkd.key.dl.model.TermFactory;
 import de.uka.ilkd.key.dl.model.impl.TermFactoryImpl;
 import de.uka.ilkd.key.java.ProgramElement;
@@ -15,8 +24,10 @@ import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.java.StatementBlock;
 import de.uka.ilkd.key.logic.Name;
 import de.uka.ilkd.key.logic.Term;
+import de.uka.ilkd.key.logic.TermBuilder;
 import de.uka.ilkd.key.logic.sort.Sort;
 import de.uka.ilkd.key.rule.inst.SVInstantiations;
+import de.uka.ilkd.key.strategy.termProjection.TermBuffer;
 
 /**
  * @author jdq
@@ -70,22 +81,31 @@ public class ImplicationIntroductor extends AbstractDLMetaOperator {
 		try {
 			TermFactory tf = TermFactory.getTermFactory(TermFactoryImpl.class, services.getNamespaces());
 			Formula rOne = null;
-			for(ProgramElement p: one) {
-				if(rOne == null) {
-					rOne = (Formula) p;
-				} else {
-					rOne = tf.createAnd(rOne, (Formula) p);
-				}
+			Set<ProgramElement> changedVars1 = collectChangedVars(one);
+			Set<ProgramElement> changedVars2 = collectChangedVars(two);
+			if(changedVars1.containsAll(changedVars2) && changedVars2.containsAll(changedVars1)) {
+    			for(ProgramElement p: one) {
+    				if(rOne == null) {
+    					rOne = (Formula) p;
+    				} else {
+    					rOne = tf.createAnd(rOne, (Formula) p);
+    				}
+    			}
+    			Formula rTwo = null;
+    			for(ProgramElement p: two) {
+    				if(rTwo == null) {
+    					rTwo = (Formula) p;
+    				} else {
+    					rTwo = tf.createAnd(rTwo, (Formula) p);
+    				}
+    			}
+    			return Prog2LogicConverter.convert(tf.createImpl(rOne, rTwo), services);
+			} else {
+			    // the change sets where different therefore we return false
+			    System.out.println("Changeset 1: " + changedVars1);
+			    System.out.println("Changeset 2: " + changedVars2);
+			    return TermBuilder.DF.ff();
 			}
-			Formula rTwo = null;
-			for(ProgramElement p: two) {
-				if(rTwo == null) {
-					rTwo = (Formula) p;
-				} else {
-					rTwo = tf.createAnd(rTwo, (Formula) p);
-				}
-			}
-			return Prog2LogicConverter.convert(tf.createImpl(rOne, rTwo), services);
 		} catch (InvocationTargetException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -101,5 +121,37 @@ public class ImplicationIntroductor extends AbstractDLMetaOperator {
 		}
 		return null;
 	}
+	
+    private Set<ProgramElement> collectChangedVars(ProgramElement p) {
+        // use a treeset as we want to get rid of equal elements
+        TreeSet<ProgramElement> result = new TreeSet<ProgramElement>(
+                new Comparator<ProgramElement>() {
+
+                    @Override
+                    public int compare(ProgramElement o1, ProgramElement o2) {
+                        if (o1.equals(o2)) {
+                            return 0;
+                        } else {
+                            return 1;
+                        }
+                    }
+                });
+        if (p instanceof DLNonTerminalProgramElement) {
+            for (ProgramElement c : (DLNonTerminalProgramElement) p) {
+                result.addAll(collectChangedVars(c));
+            }
+        }
+        if(p instanceof Dot) {
+            final ProgramElement childAt = ((Dot) p).getChildAt(0);
+            if (childAt instanceof FunctionTerm) {
+                if (((FunctionTerm) childAt).getChildAt(0) instanceof NonRigidFunction) {
+                    result.add(childAt);
+                }
+            } else if (childAt instanceof ProgramVariable) {
+                result.add(childAt);
+            }
+        }
+        return result;
+    }
 
 }
