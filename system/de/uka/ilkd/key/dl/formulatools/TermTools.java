@@ -20,6 +20,8 @@ import java.util.Set;
 import de.uka.ilkd.key.collection.ImmutableList;
 import de.uka.ilkd.key.collection.ImmutableSLList;
 import de.uka.ilkd.key.dl.formulatools.TermRewriter.Match;
+import de.uka.ilkd.key.dl.model.DLNonTerminalProgramElement;
+import de.uka.ilkd.key.dl.model.NonRigidFunction;
 import de.uka.ilkd.key.java.PrettyPrinter;
 import de.uka.ilkd.key.java.ProgramElement;
 import de.uka.ilkd.key.logic.ConstrainedFormula;
@@ -411,4 +413,19 @@ public class TermTools {
 		}
 		return w.toString();
 	}
+	
+	   public static boolean containsNonRigids(ProgramElement element) {
+	        if (element instanceof NonRigidFunction) {
+	            return true;
+	        } else if (element instanceof DLNonTerminalProgramElement) {
+	            DLNonTerminalProgramElement ntpl = (DLNonTerminalProgramElement) element;
+	            for (int i = 0; i < ntpl.getChildCount(); i++) {
+	                if(containsNonRigids(ntpl.getChildAt(i))) {
+	                    return true;
+	                }
+	            }
+	        }
+	        return false;
+
+	    }
 }

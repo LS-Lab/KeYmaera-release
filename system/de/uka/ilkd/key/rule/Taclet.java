@@ -23,7 +23,9 @@ import de.uka.ilkd.key.collection.ImmutableMapEntry;
 import de.uka.ilkd.key.collection.ImmutableSLList;
 import de.uka.ilkd.key.collection.ImmutableSet;
 import de.uka.ilkd.key.dl.DLProfile;
+import de.uka.ilkd.key.dl.formulatools.TermTools;
 import de.uka.ilkd.key.dl.model.DLNonTerminalProgramElement;
+import de.uka.ilkd.key.dl.model.DLProgram;
 import de.uka.ilkd.key.dl.model.LogicalVariable;
 import de.uka.ilkd.key.dl.options.DLOptionBean;
 import de.uka.ilkd.key.gui.Main;
@@ -56,6 +58,7 @@ import de.uka.ilkd.key.logic.op.LogicVariable;
 import de.uka.ilkd.key.logic.op.Metavariable;
 import de.uka.ilkd.key.logic.op.ModalOperatorSV;
 import de.uka.ilkd.key.logic.op.Modality;
+import de.uka.ilkd.key.logic.op.NonRigidFunctionLocation;
 import de.uka.ilkd.key.logic.op.Op;
 import de.uka.ilkd.key.logic.op.Operator;
 import de.uka.ilkd.key.logic.op.ProgramVariable;
@@ -421,12 +424,31 @@ public abstract class Taclet implements Rule, Named {
 				    Constraint      userConstraint) {
 	Debug.out("taclet: Start Matching rule: ", name);
 	if(onlyRigidFunctions) {
-	    for(Named n: services.getNamespaces().functions().allElements()) {
-	        if(!(n instanceof RigidFunction)) {
-	            // return null as there is a non-rigid function symbol in the sequent
-	            // TODO: maybe we could restrict this to what we want to match
-	            return null;
-	        }
+	    // check whether there are non-rigid symbols in the term we try to match
+	    // TODO: it would be sufficient to check in the first modality for most cases,
+	    // however we would have to parameterize \onlyRigidFunctions with the modality to be
+	    // sure what the user means.
+	    final boolean[] nonRigid = new boolean[1];
+	    nonRigid[0] = false;
+	    term.execPreOrder(new Visitor() {
+
+            @Override
+            public void visit(Term visited) {
+                if(!nonRigid[0]) {
+                    if(visited.op() instanceof NonRigidFunctionLocation) {
+                        nonRigid[0] = true;
+                    } else if(visited.op() instanceof Modality) {
+                        if(TermTools.containsNonRigids((DLProgram) visited
+                                .javaBlock().program().getFirstElement())) {
+                            nonRigid[0] = true;
+                        }
+                    }
+                }
+            }
+	        
+	    });
+	    if(nonRigid[0]) {
+	        return null;
 	    }
 	}
 	matchCond = matchHelp(term, template, ignoreUpdates, matchCond, 
