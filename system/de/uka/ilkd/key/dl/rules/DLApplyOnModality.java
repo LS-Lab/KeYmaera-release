@@ -121,6 +121,8 @@ public class DLApplyOnModality extends ApplyOnModality {
      */
     private boolean applyableUpdates(Update update, Term target, Services services) {
         HashSet protectedVars = collectProgramVariables(target, services);
+        if(protectedVars.contains(PROTECT_ALL))
+            return false;
         for (int i = 0; i < update.locationCount(); i++) {
             if (!protectedVars.contains(update.location(i))) {
                 boolean found = false;
@@ -314,8 +316,7 @@ public class DLApplyOnModality extends ApplyOnModality {
         } else if (childAt instanceof Assign) {
             Assign a = (Assign) childAt;
             result = tf
-                    .createAssign((de.uka.ilkd.key.dl.model.ProgramVariable) a
-                            .getChildAt(0), (Expression) convert(a
+                    .createAssign( a.getChildAt(0), (Expression) convert(a
                             .getChildAt(1), update, protectedVars));
         } else if (childAt instanceof Dot) {
             result = (Dot) childAt;
