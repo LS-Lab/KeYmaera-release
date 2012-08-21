@@ -575,9 +575,11 @@ public class ProjectManager extends JFrame {
 
                 JPanel authorsArea = new JPanel();
                 authorsArea.setLayout(new FlowLayout(FlowLayout.LEFT));
+                authorsArea.setBackground(textArea.getBackground());
 
                 JPanel proofAuthorsArea = new JPanel();
                 proofAuthorsArea.setLayout(new FlowLayout(FlowLayout.LEFT));
+                proofAuthorsArea.setBackground(textArea.getBackground());
 
                 JTextPane publicationArea = new JTextPane();
                 publicationArea.setContentType("text/html");
@@ -686,7 +688,9 @@ public class ProjectManager extends JFrame {
                     requirementsArea.append(" as real arithmetic solver");
                 }
                 if (info.getAuthors().isEmpty()) {
-                    authorsArea.add(new JLabel("No authors given."));
+                    final JLabel comp = new JLabel("No authors given.");
+                    comp.setBackground(textArea.getBackground());
+                    authorsArea.add(comp);
                 } else {
                     for (String a : info.getAuthors()) {
                         JTextPane aPane = createAuthorPane(a);
@@ -694,7 +698,9 @@ public class ProjectManager extends JFrame {
                     }
                 }
                 if (info.getProofAuthors().isEmpty()) {
-                    proofAuthorsArea.add(new JLabel("No authors given."));
+                    final JLabel comp = new JLabel("No authors given.");
+                    comp.setBackground(textArea.getBackground());
+                    proofAuthorsArea.add(comp);
                 } else {
                     for (String a : info.getProofAuthors()) {
                         JTextPane aPane = createAuthorPane(a);
@@ -726,6 +732,7 @@ public class ProjectManager extends JFrame {
                         Tutorial.createImagePanel(info.getResources()));
                 pane.setDividerSize(2);
                 pane.setResizeWeight(1);
+                dummy.setBackground(textArea.getBackground());
                 return pane;
             }
 
