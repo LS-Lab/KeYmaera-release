@@ -95,10 +95,6 @@ public class Options implements Settings{
 
 	private Options() {
 		listeners = new LinkedList<SettingsListener>();
-		quantifierEliminationMethod = QuantifierEliminationMethod.REDUCE;
-		useEliminateList = true;
-		convertDecimalsToRationals = true;
-		eliminateFractions = false;
 		mathKernel = new File("MathKernel");
 		String libDirProp = System.getProperty(EPropertyConstant.MATHEMATICA_OPTIONS_JLINK_LIBDIR.getKey());
 		if(libDirProp != null) {
@@ -111,9 +107,21 @@ public class Options implements Settings{
 				jLinkLibDir = new File("/");
 			}
 		}
-		memoryConstraint = -1;
+		reset();
 	}
 
+	/* (non-Javadoc)
+	 * @see de.uka.ilkd.key.gui.configuration.Settings#reset()
+	 */
+	@Override
+	public void reset() {
+		quantifierEliminationMethod = QuantifierEliminationMethod.REDUCE;
+		useEliminateList = true;
+		convertDecimalsToRationals = true;
+		eliminateFractions = false;
+		memoryConstraint = -1;
+		firePropertyChanged();
+	}
 	/*
 	 * (non-Javadoc)
 	 * 

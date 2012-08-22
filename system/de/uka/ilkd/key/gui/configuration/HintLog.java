@@ -73,4 +73,13 @@ public class HintLog implements Settings {
 		listeners.add(l);
     }
 
+    /* (non-Javadoc)
+     * @see de.uka.ilkd.key.gui.configuration.Settings#reset()
+     */
+    @Override
+    public void reset() {
+        // TODO Auto-generated method stub
+        
+    }
+
 }

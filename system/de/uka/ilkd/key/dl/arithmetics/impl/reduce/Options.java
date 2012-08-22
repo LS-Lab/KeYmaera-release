@@ -165,6 +165,10 @@ public class Options implements Settings {
 		} else {
 			reduceBinary = new File(home);
 		}
+		reset();
+	}
+	
+	public void reset() {
 		qeMethod = QuantifierEliminationMethod.RLQE;
 
 		rlall = true;
@@ -220,6 +224,8 @@ public class Options implements Settings {
 		rlanuexgcdnormalize = ReduceSwitch.DEFAULT;
 
 		rlanuexsgnopt = ReduceSwitch.DEFAULT;
+
+		firePropertyChanged();
 	}
 
 	/*

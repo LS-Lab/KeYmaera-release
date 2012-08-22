@@ -212,4 +212,13 @@ public class ChoiceSettings implements Settings {
     public void addSettingsListener(SettingsListener l) {
 	listenerList.add(l);
     }
+
+    /* (non-Javadoc)
+     * @see de.uka.ilkd.key.gui.configuration.Settings#reset()
+     */
+    @Override
+    public void reset() {
+        // TODO Auto-generated method stub
+        
+    }
 }

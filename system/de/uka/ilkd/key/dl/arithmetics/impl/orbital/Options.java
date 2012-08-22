@@ -46,7 +46,16 @@ public class Options implements Settings {
 
     private Options() {
         listeners = new LinkedList<SettingsListener>();
+        reset();
+    }
+    
+    /* (non-Javadoc)
+     * @see de.uka.ilkd.key.gui.configuration.Settings#reset()
+     */
+    @Override
+    public void reset() {
         getDeferred().setSparsePolynomials(true);
+		firePropertyChanged();
     }
 
     /*

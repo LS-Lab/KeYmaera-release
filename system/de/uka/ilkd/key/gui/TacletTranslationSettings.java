@@ -211,4 +211,14 @@ public class TacletTranslationSettings implements Settings {
 	
     }
 
+
+    /* (non-Javadoc)
+     * @see de.uka.ilkd.key.gui.configuration.Settings#reset()
+     */
+    @Override
+    public void reset() {
+        // TODO Auto-generated method stub
+        
+    }
+
 }

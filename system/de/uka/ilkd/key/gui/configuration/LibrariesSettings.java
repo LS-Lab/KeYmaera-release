@@ -122,4 +122,15 @@ public class LibrariesSettings implements Settings {
     public boolean emptyProperties(){
         return emptyProperties;
     }
+
+
+
+    /* (non-Javadoc)
+     * @see de.uka.ilkd.key.gui.configuration.Settings#reset()
+     */
+    @Override
+    public void reset() {
+        // TODO Auto-generated method stub
+        
+    }
 }

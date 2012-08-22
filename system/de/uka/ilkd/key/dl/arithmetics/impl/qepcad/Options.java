@@ -75,7 +75,16 @@ public class Options implements Settings {
 		} else {
 			saclibPath = new File(spath);
 		}
+		reset();
+	}
+	
+	/* (non-Javadoc)
+	 * @see de.uka.ilkd.key.gui.configuration.Settings#reset()
+	 */
+	@Override
+	public void reset() {
 		qepcadMemoryLimit = 2000000;
+		firePropertyChanged();
 	}
 
 	/*

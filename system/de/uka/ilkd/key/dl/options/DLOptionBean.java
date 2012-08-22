@@ -328,9 +328,28 @@ public class DLOptionBean implements Settings {
     private boolean reduceOnFreshBranch;
     
     private boolean solveODE;
+    
+    private boolean init;
 
 	private DLOptionBean() {
 		subOptions = new LinkedHashSet<Settings>();
+		solveODE = true;
+		counterExampleGenerator = "";
+		odeSolver = "";
+		quantifierEliminator = "";
+		simplifier = "";
+		groebnerBasisCalculator = "";
+		sosChecker = "";
+		csdpBinary = new File("/usr/bin/csdp");
+		listeners = new HashSet<SettingsListener>();
+		
+		// init other values to their defaults
+		init = true;
+		reset();
+		init = false;
+	}
+	
+	public void reset() {
 		foStrategy = FirstOrderStrategy.LAZY;
 		initialTimeout = 2;
 		diffSatTimeout = 4;
@@ -345,12 +364,6 @@ public class DLOptionBean implements Settings {
 		simplifyAfterODESolve = false;
 		applyUpdatesToModalities = false;
 		solveODE = true;
-		counterExampleGenerator = "";
-		odeSolver = "";
-		quantifierEliminator = "";
-		simplifier = "";
-		groebnerBasisCalculator = "";
-		sosChecker = "";
 		applyGammaRules = ApplyRules.ONLY_TO_MODALITIES;
 		counterexampleTest = CounterexampleTest.ON;
 		invariantRule = InvariantRule.QUANTIFIERS;
@@ -363,19 +376,17 @@ public class DLOptionBean implements Settings {
 		applyGlobalReduce = true;
 		usePowersetIterativeReduce = true;
 		percentOfPowersetForReduce = 70;
-		//builtInArithmetic = BuiltInArithmetic.FULL;
-		//builtInArithmeticIneqs = BuiltInArithmeticIneqs.FOURIER_MOTZKIN;
 		builtInArithmetic = BuiltInArithmetic.OFF;
 		builtInArithmeticIneqs = BuiltInArithmeticIneqs.OFF;
 		useSOS = false;
-		csdpBinary = new File("/usr/bin/csdp");
 		csdpForceInternal = false;
 		useODEIndFinMethods = false;
 
 		cexFinder = CexFinder.ITER_DEEP;
 		tracerStat = TracerStat.OFF;
-
-		listeners = new HashSet<SettingsListener>();
+		if(!init) {
+		    firePropertyChanged();
+		}
 	}
 
 	public CexFinder getCexFinder() {
@@ -444,7 +455,7 @@ public class DLOptionBean implements Settings {
 	private void firePropertyChanged() {
 		// System.out.println("Property changed");//XXX
 		// TODO: iterate over all proofs
-		final KeYMediator mediator = Main.getInstance().mediator();
+		final KeYMediator mediator = Main.getInstance(false).mediator();
 		Proof proof = mediator.getProof();
 		if (proof != null) {
 			proof.setActiveStrategy(mediator.getProfile()

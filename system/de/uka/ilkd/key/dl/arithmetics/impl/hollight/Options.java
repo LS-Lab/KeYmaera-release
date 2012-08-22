@@ -62,7 +62,16 @@ public class Options implements Settings {
 		hollightPath = new File("/");
 		harrisonqePath = new File("/");
 		ocamlPath = new File("/usr/bin/ocaml");
+		reset();
+	}
+	
+	/* (non-Javadoc)
+	 * @see de.uka.ilkd.key.gui.configuration.Settings#reset()
+	 */
+	@Override
+	public void reset() {
 		method = QuantifierEliminationMethod.ProofProducing;
+		firePropertyChanged();
 	}
 
 	/*

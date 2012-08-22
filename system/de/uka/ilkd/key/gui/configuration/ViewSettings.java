@@ -390,4 +390,13 @@ public class ViewSettings implements Settings {
     public void setUnicode(boolean unicode) {
         this.unicode = unicode;
     }
+
+    /* (non-Javadoc)
+     * @see de.uka.ilkd.key.gui.configuration.Settings#reset()
+     */
+    @Override
+    public void reset() {
+        // TODO Auto-generated method stub
+        
+    }
 }

@@ -41,10 +41,13 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
@@ -308,7 +311,20 @@ public class DLInitializer {
 				Introspector.USE_ALL_BEANINFO);
 		BeanDescriptor desc = info.getBeanDescriptor();
 		JScrollPane panel = new JScrollPane();
-		panel.getViewport().add((Component) customizer);
+		JPanel p = new JPanel();
+		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+		p.add((Component) customizer);
+		final String resetString = "Reset to Default";
+        final JButton reset = new JButton(resetString);
+		reset.addActionListener(new ActionListener() {
+            
+            @Override
+            public void actionPerformed(ActionEvent arg0) {
+                DLOptionBean.INSTANCE.reset();
+            }
+        });
+		p.add(reset);
+		panel.getViewport().add(p);
 		customizerPane.addTab(desc.getDisplayName(), panel);
 		customizers.put(customizer, DLOptionBean.INSTANCE);
 		SettingsListener l = new SettingsListener() {
@@ -335,8 +351,21 @@ public class DLInitializer {
 					Introspector.USE_ALL_BEANINFO);
 			desc = info.getBeanDescriptor();
 			panel = new JScrollPane();
-			panel.getViewport().add((Component) c);
-			customizerPane.addTab(desc.getDisplayName(), panel);
+			p = new JPanel();
+			p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+			p.add((Component) c);
+			
+    		final JButton resetLocal = new JButton(resetString);
+    		resetLocal.addActionListener(new ActionListener() {
+                
+                @Override
+                public void actionPerformed(ActionEvent arg0) {
+                    s.reset();
+                }
+            });
+    		p.add(resetLocal);
+			panel.getViewport().add(p);
+    		customizerPane.addTab(desc.getDisplayName(), panel);
 		}
 	}
 
