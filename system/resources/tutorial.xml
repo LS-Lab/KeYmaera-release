@@ -46,6 +46,9 @@
 					<h3 id="keymaerafile">Structure of KeYmaera Problem Specification File</h3>
 
 					<p>
+					This tutorial contains many preloaded exercises.
+					If you want to write new problem files, simply use an editor, create a <kbd>.key</kbd> input file and use <i>File-&gt;Load</i> to open it in KeYmaera.
+					You can also use the KeYmaera plugin for Eclipse if you prefer.
 					A <kbd>.key</kbd> input file for KeYmaera specifies both the operational model of your hybrid system (using the notation of hybrid programs)
 					and the correctness property that you want to verify.
 					The verification problem is specified in a block called <kbd><span class="keyword">\problem</span> {...}</kbd> that contains the problem description as a formula.
@@ -964,6 +967,7 @@
 						<li>Model an instance of the heater example with 4 rooms, 2 heaters, and a strategy for moving the heaters from room to room. Prove that your model satisfies an interesting safety property about the temperature in each room.</li>
 						<li>Prove a diamond property for the heater example.</li>
 						<li>Make the heater example with two rooms parametric w.r.t. to outside temperature, isolation, temperature exchange ratio, etc. and find suitable constraints such that it remains safe.</li>
+						<li>Model a system with an arbitrary number of cars on a single lane and prove it in QdL</li>
 						<li>Model the heater example with QdL and prove that it is safe for arbitrarily many rooms and arbitrarily many heaters (less than rooms).</li>
 					</ul>
 					]]>
