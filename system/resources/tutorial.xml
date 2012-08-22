@@ -372,7 +372,24 @@
 			</description>
 			<exercise>
 				<title>Ex. 1 Pen&amp;Paper Modelling</title>
-				<description>Use Pen&amp;Paper to model a car.</description>
+				<description>
+				<![CDATA[
+				<p>
+				Use Pen&amp;Paper to model a simple car control system with the following properties:
+				<ul>
+					<li>System variables should be: position x, velocity v, acceleration a, clock t</li>
+					<li>The acceleration should be the first derivative of the velocity, which again should be the first derivative of the position.</li>
+					<li>The clock should have a constant rate of 1.</li>
+					<li>The acceleration should be changed at least every 3 time units to an arbitrary new value which has to be greater than 0.</li>
+				</ul>
+				</p>
+
+				<p>
+					Formulate as a dL formula: If the velocity is initially greater than 0, then after all executions of the system above, the velocity is still greater than 0.
+				</p>
+
+				]]>
+			</description>
 			</exercise>
 			<exercise>
 				<title>Ex. 2 Continuous dynamics</title>
@@ -401,7 +418,7 @@
 					<h3>Modeling a safety property of a hybrid system</h3>
 					<p>
 					In this example, we introduce a discrete controller into the
-					model of the continuous car system in Example 2. The controller has
+					model of the continuous car system in the previous exercise. The controller has
 					only two options: it may either cause the car to accelerate with rate
 					A&gt;0 or to brake with rate -b&lt;0.
 					</p>
