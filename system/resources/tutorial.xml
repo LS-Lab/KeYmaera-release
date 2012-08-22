@@ -29,7 +29,7 @@
 		        Andr&eacute; Platzer.<br />
                 <a href="http://symbolaris.com/lahs/">Logical Analysis of Hybrid Systems</a>.<br />
                 <a href="http://symbolaris.com/lahs/">Proving Theorems for Complex Dynamics</a>.<br />
-                Springer, 2010. 426 p. ISBN 978-3-642-14508-7.
+                Springer, 2010. ISBN 978-3-642-14508-7.
 	        </blockquote>
 	    </p>
 		]]>
@@ -436,7 +436,7 @@
 					The requirement we want to prove is that the car may never travel backward, i.e. the velocity v is always greater than or equal to zero.
 					</p>
 					<b>Exercise:</b> 
-					Load the exercise and press play. The automatic strategy is able to prove this example. Look at the proof and try to understand its structure.
+					Load the exercise and press <i>Proof-&gt;Start</i>. The automatic strategy is able to prove this example. Look at the proof and try to understand its structure.
 				]]>
 				</description>
              	<resources>
@@ -459,7 +459,7 @@
 					</p>
 					<b>Exercise:</b>
 					<ul>
-						<li>Load the exercise and press play. The automatic strategy is able to prove this example.</li>
+						<li>Load the exercise and press <i>Proof-&gt;Start</i>. The automatic strategy is able to prove this example.</li>
 						<li>Investigate the resulting proof. Which loop invariant did the strategy use? Why?</li>
 					</ul>
 				]]>
@@ -538,14 +538,16 @@
 					  <li> <b>x</b> position of car</li>
 					  <li> <b>v</b> velocity of car
 					  <li> <b>a</b> acceleration of car</li>
-					  <li> <b>A</b> max acceleration</li>
-					  <li> <b>b</b> max braking</li>
+					  <li> <b>A</b> maximal acceleration</li>
+					  <li> <b>b</b> maximal braking</li>
 					  <li> <b>m</b> position of Stop Sign</li>
+					  <li> <b>ep</b> maximal time between reactions to sensor updates</li>
 					</ul>
 					</p>
 					<p>
 					Hint: To prove quickly, instantiate the time quantifier in the antecedent by the time
 					variable of the succedent (e.g. t5_0).
+					This is generally a good idea when working with (') ODE Solve
 					</p>
 					<b>Exercise:</b>
 					<ul>
@@ -606,7 +608,7 @@
 						<ul>
 							<li>Load the example.</li>
     						<li>Go to your <tt>Hybrid Strategy</tt> tab and make sure that <tt>Differential Saturation</tt> is turned <b>off</b> (this disables some of KeYmaera's automation).</li> 
-							<li>Press play. The automatic strategy is able to prove this example using the annotated loop @invariant(...) in the input file. Inspect the proof structure.</li>
+							<li>Press <i>Proof-&gt;Start</i>. The automatic strategy is able to prove this example using the annotated loop @invariant(...) in the input file. Inspect the proof structure and explain why the formula is valid.</li>
 					</p>
 				
 				]]>
@@ -616,15 +618,14 @@
 					<img>/examples/hybrid/water_tank/fig-water-tank.png</img>
 				</resources>
 			    <path>/examples/hybrid/publish/water_tank.key</path>
-			    <!-- @todo hints -->
 			</exercise>
 			<exercise>
 				<title>Demo Progress</title>
 				<description>
 					<![CDATA[
-					<h3>A simple diamond property</h3>
+					<h3>A simple diamond property in Differential Dynamic Logic</h3>
 					<p>
-						So far, we have only considered the box-modality in our examples and exercises. However there is a diamond-modality in dL as well. Assume a very simple car model. The car is initially driving with speed v and constant acceleration of a (with a &gt; 0). 
+						So far, we have only considered the box-modality <kbd>\[&alpha;\]&phi;</kbd> in our examples and exercises. However there is a diamond-modality <kbd>\&lt;&alpha;\&gt;&phi;</kbd> in differential dynamic logic as well. Assume a very simple car model. The car is initially driving with speed v and constant acceleration of a (with a &gt; 0). 
 						In this demo, we show that due to its constant positive acceleration it is able to exceed every velocity bound eventually.
 					</p>
 					]]>
@@ -637,7 +638,7 @@
 					<![CDATA[
 					<h3>Diamond property do-it-yourself</h3>
 					<p>
-					So far, we have only considered the box-modality in our examples and exercises. However there is a diamond-modality in dL as well. Assume a very simple car model. The car is initially driving with some positive speed and constant acceleration of a (with a &gt;=0). 
+					So far, we have only considered the box-modality <kbd>\[&alpha;\]&phi;</kbd> in our examples and exercises. However there is a diamond-modality <kbd>\&lt;&alpha;\&gt;&phi;</kbd> in differential dynamic logic as well. Assume a very simple car model. The car is initially driving with some positive speed and constant acceleration of a (with a &gt;=0). 
 					</p>
 					<p>
 						<b>Exercise:</b>
@@ -678,7 +679,7 @@
 					</ul>
 					</p>
 					<p>
-						<b>Exercise:</b> Load the example and prove that the input is a tautology. Note that in contrast to the previous exercise about water tanks, the loop invariant is not given.
+						<b>Exercise:</b> Load the example and prove that the input is a tautology. Note that in contrast to the previous exercise about water tanks, the loop invariant is not given by an <kbd>@invariant(....)</kbd> annotation for the loop.
 					</p>
 				]]>
 				</description>
@@ -727,7 +728,33 @@
 					</p>
 					]]>
 				</description>
-				<!-- @todo hints -->
+				<hints>
+					<hint id="9.1">
+						The invariant you need characterizes the region where the car is still controllable, for all values of the disturbance.
+					</hint>
+					<hint id="9.2">
+						The invariant relates v, b, m, x, and u.
+					</hint>
+					<hint id="9.3">
+						Use differential invariants to prove differential inequalities or differential-algebraic constraints.
+					</hint>
+					<hint id="9.4">
+						<![CDATA[
+						The invariant is v^2 &lt;= 2*(b-u)*(m-x)
+						]]>
+					</hint>
+					<hint id="9.5">
+						Try to find a differential cut of a property that gets better even when accelerating.
+					</hint>
+					<hint id="9.6">
+						The differential cut is a time-variation of the test formula for the acceleration case.
+					</hint>
+					<hint id="9.7">
+						<![CDATA[
+						The differential cut is 2*(b - u)*(m - x) &gt;=  v^2 + (A + u + (b-u)) * ((A + u) * (ep-t)^2 + 2*(ep-t)*v)
+						]]>
+					</hint>
+				</hints>
 				<path>/examples/hybrid/verifiedsoft/disturbed-car.key</path>
 			</exercise>
 			<exercise>
@@ -750,7 +777,7 @@
 					<h3>Temperature control - behavior while turned off</h3>
 					<p>
 						A room with a temperature <b>x</b> of more than 10 degrees within an enviornment with constant temperature of 10 degrees is bound to cool down. 
-						We model this system by the differential equation <b>x' = 10 - x</b>. 
+						We model this system by the differential equation<br /> <b>x' = 10 - x</b>. 
 					</p>
 					
 					<p>
@@ -819,10 +846,14 @@
 					</hint>
 					<hint id="11.3">
 					<![CDATA[
-						Try using x*y^2=-1.
+						See what happens if you try x*y^2=-1.
 					]]>
 					</hint>
-					<!-- these hints are confusing -40?? -->
+					<hint id="11.4">
+					<![CDATA[
+						Use (x-40)*y^2=-1.
+					]]>
+					</hint>
 				</hints>
 				<resources>
 					<img>/examples/hybrid/heater/diffcut2.png</img>
@@ -945,14 +976,60 @@
 					<![CDATA[
 					<h3>Multiple cars in Quantified Differential Dynamic Logic (QdL)</h3>
 					<p>
-					Consider the following example of two cars. It is modelled in QdL.
+					Consider the following example of two cars. It is modelled in Quantified Differential Dynamic Logic (QdL), which is the verification logic for distributed hybrid systems.
+					In QdL, the dynamics is specified for all cars at once using the notation 
+					<br><kbd>\forall C i . {x(i)'=v(i)}</kbd> in the quantified hybrid programs.
+					In this property, we consider only a follower car f and leader car l.
 					</p>
 					<p>
 						<b>Exercise:</b> Prove that the two cars do not collide
 					</p>
 					]]>
 				</description>
-				<!-- @todo hints and description -->
+				<hints>
+					<hint id="16.1">
+    					<![CDATA[
+						Use <b>ind loop invariant (global)</b> for induction.
+						In (global) rules, you need to provide all facts that are inductive, including constants.
+    					]]>
+					</hint>
+					<hint id="16.2">
+						Look at the postcondition and precondition to find a good invariant.
+					</hint>
+					<hint id="16.3">
+    					<![CDATA[
+						Solve quantified differential equations using <b>(') QODE solve</b>.
+    					]]>
+					</hint>
+					<hint id="16.4">
+    					<![CDATA[
+						<b>Skolemize non-rigids</b> helps turning function symbols into real arithmetic.
+    					]]>
+					</hint>
+					<hint id="16.5">
+    					<![CDATA[
+						If KeYmaera branches a lot, you may want to use <i>Proof-&gt;Prune Proof</i> to try something else.
+    					]]>
+					</hint>
+					<hint id="16.6">
+						The effect of quantified hybrid programs on x(f) and x(l) depends on whether f equals l or not.
+					</hint>
+					<hint id="16.7">
+						if-then-else can be split into cases.
+					</hint>
+					<hint id="16.8">
+    					<![CDATA[
+						<b>Apply Eq Recursive</b> uses an equation whereever possible in the sequent.
+    					]]>
+					</hint>
+					<hint id="16.9">
+						Remember that the arithmetic of cars can be complicated.
+					</hint>
+					<hint id="16.10">
+						Have you considered using a cut?
+					</hint>
+					<!-- cut: B * xl_0  >  B * xf_0 + 1 / 2 * ((vf_0) 2 − (vl_0) 2) + (A + B) * (1 / 2 * A * (t3) 2 + t3 * vf_0) -->
+				</hints>
 				<resources>
 					<img>/examples/hybrid/qdl/fig-distributed-car-control.png</img>
 				</resources>
