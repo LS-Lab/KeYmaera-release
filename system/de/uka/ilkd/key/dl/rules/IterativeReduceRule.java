@@ -21,7 +21,9 @@ import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
 import de.uka.ilkd.key.dl.formulatools.LexicographicalOrder;
 import de.uka.ilkd.key.dl.formulatools.TermTools;
 import de.uka.ilkd.key.dl.formulatools.TermTools.PairOfTermAndVariableList;
+import de.uka.ilkd.key.dl.logic.ldt.RealLDT;
 import de.uka.ilkd.key.dl.options.DLOptionBean;
+import de.uka.ilkd.key.dl.strategy.features.FOSequence;
 import de.uka.ilkd.key.gui.Main;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.logic.ConstrainedFormula;
@@ -377,7 +379,11 @@ public class IterativeReduceRule implements BuiltInRule, RuleFilter {
 		Set<Term> ante = new HashSet<Term>();
 		while (iterator.hasNext()) {
 			Term next = iterator.next().formula();
-			ante.add(next);
+			if (!FOSequence.isFOOperator(next.op())
+					|| FOSequence.isFunctionWithDifferentSort(next,
+							RealLDT.getRealSort())) {
+				ante.add(next);
+			}
 		}
 		return ante;
 	}
