@@ -3026,17 +3026,17 @@ public class Main extends JFrame implements IMain {
 	           	   "                    unit test generation mode that is compatible with\n"+
 	           	   "                    the normal verification mode.");
 	    System.out.println("  depthfirst      : constructs the proof tree in a depth first manner. Recommended for large proofs");
-        System.out.println("  auto	         : start prove procedure after initialisation");
+        System.out.println("  auto	          : start prove procedure after initialisation");
         System.out.println("  reload	         : reopen last opened file");
         System.out.println("  testing         : starts the prover with a simple test generation oriented user interface");
-        System.out.println("  projects        : show File->Load Projects at startup");
-        System.out.println("  tutorial        : show File->Start Tutorial at startup");
         System.out.println("  print_statistics <filename>" );
         System.out.println("                  : in auto mode, output nr. of rule applications and time spent");
         System.out.println("  fol             : use FOL profile (no program or update rules)");
         System.out.println("  timeout <time in ms>");
         System.out.println("                  : set maximal time for rule " +
                             "application in ms (-1 disables timeout)");
+        System.out.println("  projects        : show File->Load Projects at startup");
+        System.out.println("  tutorial        : show File->Start Tutorial at startup");
         System.out.println("  <filename>      : loads a .key file");
         System.exit(-1);
     }
