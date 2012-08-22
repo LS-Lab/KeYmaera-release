@@ -65,7 +65,7 @@ diamond_quest_right = "Tests are assertions on the current program state."
 
 loop_inv_box_quan = "You are facing a loop. The rule <b>invariant_loop (quantified)</b> is the default rule to handle this. Try finding a loop invariant: a first-order characterization of what the effect of the loop is."
 
-loop_inv_box_fresh = "The rule <b>invariant_loop (fresh)</b> is a variant of the quantified version. It cancels the context instead of quantifying the changed variables. This sometimes has an advantage regarding the resulting arithmetic complexity. However, the loop invariant has to carry more information about the other symbols in the sequent."
+loop_inv_box_fresh = "The rule <b>invariant_loop (global)</b> is a variant of the quantified version. It cancels the context instead of quantifying the changed variables. This sometimes has an advantage regarding the resulting arithmetic complexity. However, the loop invariant has to carry more information about the other symbols in the sequent."
 
 loop_var_dia = "You are facing a loop. Try finding a loop variant: a first-order characterization of what makes progress each time the loop is executed."
 
@@ -133,7 +133,7 @@ make_insert_eq_nonrigid = "Alternatively, you can click on the term where you wa
 cut_direct_r = "The rule <b>cut_direct_r</b> is rather useless. You may looking for rule <tt>cut</tt> which can be found by clicking on the sequent arrow."
 cut_direct_l = "The rule <b>cut_direct_l</b> is rather useless. You may looking for rule <tt>cut</tt> which can be found by clicking on the sequent arrow."
 
-Skolemize_Non_Rigids_Tactic = "<b>skolemize</b> abbreviates all <b>non-rigids</b> functions  by fresh constant symbols. Eliminate Universal Quantifiers is then applicable afterwards."
+Skolemize_Non_Rigids_Tactic = "<b>skolemize</b> abbreviates all <b>non-rigids</b> functions by fresh constant symbols. Eliminate Universal Quantifiers is then applicable afterwards."
 
 methodCall = "You have executed a method call. The if cascade is used to resolve the dynamical binding of methods."
 methodCallWithAssignment = "You have executed a method call. The if-cascade is used to resolve the dynamical binding of methods."
