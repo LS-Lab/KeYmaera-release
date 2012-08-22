@@ -316,7 +316,7 @@ public class QODESolve extends AbstractDLMetaOperator {
                         if (o1.equals(o2)) {
                             return 0;
                         } else {
-                            return 1;
+                            return o1.hashCode() - o2.hashCode();
                         }
                     }
                 });
