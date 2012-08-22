@@ -87,7 +87,7 @@ Sum_of_Squares = "<b>Sum of Squares</b> tries to prove the sequent to be valid u
 
 Visualization_rule = "Show a view of the transition system of the hybrid program (using dotty)"
 
-IterativeReduce = "Iteratively reduce arithmetic using quantifier elimination"
+IterativeReduce = "(experimental) Iteratively reduce arithmetic using quantifier elimination"
 
 loop_unwind_box = "Unwind a loop once. It replaces <tt>\\[a*\\]F</tt> by <tt>F & \\[a\\]\\[a*\\]F</tt>, i.e., the post condition holds in the current state and in all states reachable by executing the loop body at least once."
 loop_unwind_dia = "Unwinds a loop once. It replaces <tt>\\&lt;a*\\&gt;F</tt> by <tt>F | \\&lt;a\\&gt;\\&lt;a*\\&gt;</tt>, i.e., F holds in the current state or holds after one or more iterations of the loop."
