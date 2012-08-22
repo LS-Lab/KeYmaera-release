@@ -234,6 +234,24 @@ public abstract class ProgramVariable extends TermSymbol
 	return this;
     }
 
+    /* (non-Javadoc)
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if(obj instanceof ProgramVariable) {
+            ProgramVariable p = (ProgramVariable) obj;
+            return name().toString().equals(p.name().toString())
+                    && sort().name().toString()
+                            .equals(p.sort().name().toString());
+        } else if(obj instanceof de.uka.ilkd.key.dl.model.ProgramVariable) {
+            return name().toString().equals(
+                    ((de.uka.ilkd.key.dl.model.ProgramVariable) obj)
+                            .getElementName().toString());
+        }
+        return false;
+    }
+    
     /** equals modulo renaming is described in the corresponding
      * comment in class SourceElement. In this case two
      * programvariables are considered to be equal if they are

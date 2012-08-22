@@ -97,5 +97,18 @@ public class ProgramVariableImpl extends VariableImpl implements
     protected ProgramVariableImpl(Name name) {
         super(name);
     }
+    
+    /* (non-Javadoc)
+     * @see de.uka.ilkd.key.dl.model.impl.VariableImpl#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if(obj instanceof ProgramVariable) {
+            return getElementName().toString().equals(((ProgramVariable) obj).getElementName().toString());
+        } else if(obj instanceof de.uka.ilkd.key.logic.op.ProgramVariable) {
+            return getElementName().toString().equals(((de.uka.ilkd.key.logic.op.ProgramVariable) obj).name().toString());
+        }
+        return super.equals(obj);
+    }
 
 }

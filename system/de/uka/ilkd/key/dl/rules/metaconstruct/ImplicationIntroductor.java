@@ -103,7 +103,17 @@ public class ImplicationIntroductor extends AbstractDLMetaOperator {
 			} else {
 			    // the change sets where different therefore we return false
 			    System.out.println("Changeset 1: " + changedVars1);
+//			    for(ProgramElement p: changedVars1) {
+//			        System.out.println(p + " " + p.getClass() + " " + p.hashCode());
+//			        System.out.println("Contained in 2 " + changedVars2.contains(p));
+//			    }
 			    System.out.println("Changeset 2: " + changedVars2);
+//			    for(ProgramElement p: changedVars2) {
+//			        System.out.println(p + " " + p.getClass() + " " + p.hashCode());
+//			        System.out.println("Contained in 1 " + changedVars1.contains(p));
+//			    }
+//			    System.out.println(changedVars1.containsAll(changedVars2));
+//			    System.out.println(changedVars2.containsAll(changedVars1));
 			    return TermBuilder.DF.ff();
 			}
 		} catch (InvocationTargetException e) {
@@ -132,7 +142,7 @@ public class ImplicationIntroductor extends AbstractDLMetaOperator {
                         if (o1.equals(o2)) {
                             return 0;
                         } else {
-                            return 1;
+                            return o1.hashCode() - o2.hashCode();
                         }
                     }
                 });
