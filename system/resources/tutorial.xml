@@ -161,8 +161,6 @@
                     	This domain constraint <kbd>H(i)</kbd> needs to be true for all <kbd>i</kbd> <em>at every time</em> during the evolution, otherwise the system needs to stop following this continuous mode and move on.</td></tr>
 
 						</table>
-
-					   Instead of variables you may use non-rigid function symbols with parameters in quantified hybrid programs and QdL.
 						]]>
 					</description>
 			</exercise>
@@ -170,31 +168,38 @@
 				<title>Formulas</title>
 				<description>
 					<![CDATA[
+					<table border="0" class="constructive" width="100%">
+
+					<tr>
+
+					<td>
+					In KeYmaera, the safety/liveness/reactivity/controllability properties that you are interested in can be specified using formulas of differential dynamic logic.
+					In these formulas, the actual hybrid system to consider can be embedded easily as a hybrid program.
+					In <abbrv title="Extended Backus-Naur Form">
+					<a href="http://en.wikipedia.org/wiki/Extended_Backus%C3%A2%C2%80%C2%93Naur_form">EBNF</a>
+					</abbrv> the syntax for these formulas looks as follows, where <kbd><a href="#HP">&alpha;</a></kbd> can be any <a href="#HP">hybrid program</a>:
+					</td>
+						<td class="quick" width="73">
+							<a href="KeYmaera-cheat.pdf" title="KeYmaera Cheat Sheet">Cheat<br>Sheet</a>
+							and <br>
+							
+					<a href="../lahs/lahs-op.pdf" title="Logical Analysis of Hybrid Systems (Operators and Proof Rules)">Operators</a>
+							<a href="../lahs/lahs-op.pdf" title="Logical Analysis of Hybrid Systems (Operators and Proof Rules)">Rules</a>
+						</td>
+
+					</tr>
+
+					</table>
+
 					<table class="syntax">
 					  
 					<tr>
-					<td colspan="3" id="syntax"><b>Formulas of <a href="http://symbolaris.com/logic/dL.html" title="Differential Dynamic Logic for Hybrid Systems">differential dynamic logic dL</a></b>, with typical names <kbd>&phi;</kbd> and <kbd>&psi;</kbd>, are defined by the following syntax</td>
+					<td colspan="3" id="syntax"><b>Formulas of <a href="../logic/dL.html" title="Differential Dynamic Logic for Hybrid Systems">differential dynamic logic dL</a></b>, with typical names <kbd>&phi;</kbd> and <kbd>&psi;</kbd>, are defined by the following syntax</td>
 					</tr>
 					  
 					<tr>
-					<td></td> 
-						<td nowrap="nowrap">
-						<kbd><span class="keyword">\forall</span>&nbsp;R&nbsp;x;&nbsp;&phi;</kbd>
-						</td>
-						<td><em>Universal quantifier</em>: for all real values for variable <kbd>x</kbd>, formula <kbd>&phi;</kbd> holds</td>
-						
-					</tr>
-						
-					<tr>
-						
-					<td></td>
-						<td nowrap="nowrap"><kbd><span class="keyword">\exists</span>&nbsp;R&nbsp;x;&nbsp;&phi;</kbd></td>
-						<td><em>Existential quantifier</em>: for some real value for variable <kbd>x</kbd>, formula <kbd>&phi;</kbd> holds</td>
-						
-					</tr>
-						
-					<tr>
-					<td></td><td><kbd>!&phi;</kbd></td><td><em>Negation</em> (not)</td>
+					<td>&phi;&nbsp;::=</td> 
+						<td><kbd>!&phi;</kbd></td><td><em>Negation</em> (not)</td>
 					</tr> 
 						
 					<tr>
@@ -214,6 +219,21 @@
 					</tr>
 						
 					<tr>
+					<td></td><td nowrap><kbd><span class="keyword">\forall</span>&nbsp;R&nbsp;x&nbsp;.&nbsp;&phi;</kbd>
+						</td>
+						<td><em>Universal quantifier</em>: for all real values for variable <kbd>x</kbd>, formula <kbd>&phi;</kbd> holds</td>
+						
+					</tr>
+						
+					<tr>
+						
+					<td></td>
+						<td nowrap><kbd><span class="keyword">\exists</span>&nbsp;R&nbsp;x&nbsp;.&nbsp;&phi;</kbd></td>
+						<td><em>Existential quantifier</em>: for some real value for variable <kbd>x</kbd>, formula <kbd>&phi;</kbd> holds</td>
+						
+					</tr>
+						
+					<tr>
 					<td></td><td><kbd>\[<a href="#HP">&alpha;</a>\] &phi;</kbd></td><td><em>Box-modality</em>: After all runs of <a href="#HP">hybrid program</a> <kbd>&alpha;</kbd>, formula <kbd>&phi;</kbd> holds (safety)</td>
 					</tr>
 						
@@ -222,17 +242,73 @@
 					</tr>
 						
 					<tr>
-					<td></td><td><kbd>\[[<a href="#HP">&alpha;</a>\]] &phi;</kbd></td><td><em>Temporal-box-modality</em>: During all runs of <a href="#HP">hybrid program</a> <kbd>&alpha;</kbd>, formula <kbd>&phi;</kbd> holds (safety throughout)</td>
+					<td></td><td><kbd>\[[<a href="#HP">&alpha;a>\]] &phi;kbd></td><td><em>Temporal-box-modality</em>: During all runs of <a href="#HP">hybrid program</a> <kbd>&alpha;</kbd>, formula <kbd>&phi;</kbd> holds (safety throughout)</td>
 					</tr>
 						
 					<tr>
 					<td></td><td><a href="#predicate">pred</a></td> <td><a href="#predicate">Real arithmetic predicate expression</a></td>
 					</tr>
+						
+						
+					<tr></tr>
+						
+						
+					<tr>
+					<td colspan="3" id="QdL"><b>Formulas of <a href="../logic/disthysys.html" title="Logic for Distributed Hybrid Systems">quantified differential dynamic logic QdL</a></b>, with typical names <kbd>&phi;</kbd> and <kbd>&psi;</kbd>, are defined by the same syntax as <a href="#syntax">dL</a> except that <kbd>&alpha;</kbd> can be a <a href="#QHP">quantified hybrid program</a> in the modalities and that multiple sorts other than the reals <kbd><span class="primiteType">R</span></kbd> can be used:</td>
+					</tr>
+						
+					<tr>
+					<td></td><td nowrap><kbd><span class="keyword">\forall</span>&nbsp;C&nbsp;x&nbsp;.&nbsp;&phi;</kbd>
+						</td>
+						<td><em>Universal quantifier</em>: for all values of type <kbd>C</kbd> for variable <kbd>x</kbd>, formula <kbd>&phi;</kbd> holds</td>
+						
+					</tr>
+						
+					<tr>
+						
+					<td></td>
+						<td nowrap><kbd><span class="keyword">\exists</span>&nbsp;C&nbsp;x&nbsp;.&nbsp;&phi;</kbd></td>
+						<td><em>Existential quantifier</em>: for some value of type <kbd>C</kbd> for variable <kbd>x</kbd>, formula <kbd>&phi;</kbd> holds</td>
+						
+					</tr>
+						
+					<tr>
+					<td></td><td><kbd>\[<a href="#HP">&alpha;</a>\] &phi;</kbd></td><td><em>Box-modality</em>: After all runs of <a href="#QHP">quantified hybrid program</a> <kbd>&alpha;</kbd>, formula <kbd>&phi;</kbd> holds (safety)</td>
+					</tr>
+						
+					<tr>
+					<td></td><td><kbd>\&lt;<a href="#HP">&alpha;</a>\&gt; &phi;</kbd></td><td><em>Diamond-modality</em>: There is at least one run of <a href="#QHP">quantified hybrid program</a> <kbd>&alpha;</kbd>, after which formula <kbd>&phi;</kbd> holds (liveness)</td>
+					</tr>
 
-                	<tr></tr>
-
-                    <tr><td colspan="3" id="QdL"><b>Formulas of <a href="http://symbolaris.com/logic/disthysys.html">quantified differential dynamic logic QdL</a></b>, with typical names <kbd>&#966;</kbd> and <kbd>&#968;</kbd>, are defined by the same syntax as <a href="#syntax">dL</a> except that <kbd>&#945;</kbd> can be a <a href="#QHP">quantified hybrid program</a> in the modalities and that multiple sorts other than the reals <kbd><span class="primiteType">R</span></kbd> can be used.</td></tr>
-				</table>
+					  
+					<tr>
+					<td id="predicate" colspan="3"><b>Real arithmetic predicate expressions</b> are defined by the following syntax</td>
+					</tr>
+						
+					<tr>
+					<td>pred&nbsp;::=</td><td><kbd>t &gt; s</kbd></td><td>Greater than</td>
+					</tr>
+						
+					<tr>
+					<td></td><td><kbd>t &gt;= s</kbd></td><td>Greater equals</td>
+					</tr>
+						
+					<tr>
+					<td></td><td><kbd>t = s</kbd></td><td>Equals</td>
+					</tr>
+						
+					<tr>
+					<td></td><td><kbd>t != s</kbd></td><td>Not equal</td>
+					</tr>
+						
+					<tr>
+					<td></td><td><kbd>t &lt;= s</kbd></td><td>Less equals</td>
+					</tr>
+						
+					<tr>
+					<td></td><td><kbd>t &lt; s</kbd></td><td>Less than</td>
+					</tr>
+									</table>
 
 					<ul>
 						<li>Enriching this syntax for dDGL: You have another modality \( \), the game modality. Inside this modality you may write other modalities, sequences of modalities, choices between modalities (++) or (+-+), and repetions (^[*]) and (^&lt;*&gt;).</li>
