@@ -49,8 +49,10 @@ import de.uka.ilkd.key.dl.DLInitializer;
 import de.uka.ilkd.key.dl.DLProfile;
 import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
 import de.uka.ilkd.key.dl.gui.ProjectManager;
+import de.uka.ilkd.key.dl.gui.ProjectManager.ProjectManagerAction;
 import de.uka.ilkd.key.dl.gui.TimeStatisticGenerator;
 import de.uka.ilkd.key.dl.gui.Tutorial;
+import de.uka.ilkd.key.dl.gui.Tutorial.TutorialAction;
 import de.uka.ilkd.key.dl.gui.initialdialog.gui.InitialDialogBeans;
 import de.uka.ilkd.key.gui.DecisionProcedureSettings.RuleDescriptor;
 import de.uka.ilkd.key.gui.assistant.ProofAssistant;
@@ -133,7 +135,7 @@ import de.uka.ilkd.key.util.ProgressMonitor;
 
 public class Main extends JFrame implements IMain {
    
-    public static final String INTERNAL_VERSION = 
+	public static final String INTERNAL_VERSION = 
 	KeYResourceManager.getManager().getSHA1();
 
     private static final String VERSION = 
@@ -305,6 +307,10 @@ public class Main extends JFrame implements IMain {
     public final JMenu decProcOptions = new JMenu("Decision Procedures");
     
     public SMTResultsAndBugDetectionDialog decProcResDialog;
+
+	private TutorialAction tutorialAction;
+
+	private ProjectManagerAction projectAction;
     
     
     /**
@@ -1271,6 +1277,10 @@ public class Main extends JFrame implements IMain {
     
     private static java.awt.TextArea clipBoardTextArea;
 
+	private static boolean tutorialOnStartUp;
+
+	private static boolean projectsOnStartUp;
+
     private static TextArea getClipBoardArea() {
 	if (clipBoardTextArea == null) {
 	    clipBoardTextArea = new java.awt.TextArea(
@@ -1301,13 +1311,18 @@ public class Main extends JFrame implements IMain {
         JMenu fileMenu = new JMenu("File");
         fileMenu.setMnemonic(KeyEvent.VK_F);
         
+        JMenuItem newf = new JMenuItem();
+        newf.setAction(new NewAction());
+        
+        registerAtMenu(fileMenu, newf);
+
         JMenuItem tutorial = new JMenuItem();
-        tutorial.setAction(new Tutorial.TutorialAction());
+        tutorial.setAction(tutorialAction = new Tutorial.TutorialAction());
         
         registerAtMenu(fileMenu, tutorial);
         
         JMenuItem project = new JMenuItem();
-        project.setAction(new ProjectManager.ProjectManagerAction());
+        project.setAction(projectAction = new ProjectManager.ProjectManagerAction());
 
         registerAtMenu(fileMenu, project);
         
@@ -2864,6 +2879,10 @@ public class Main extends JFrame implements IMain {
 		    String option = opt[index].toUpperCase();		
         if (option.equals("RELOAD")) {
             reloadOnStartUp = true;
+        } else if (option.equals("TUTORIAL")) {
+            tutorialOnStartUp = true;
+        } else if (option.equals("PROJECTS")) {
+            projectsOnStartUp = true;
         } else if (option.equals("NO_DEBUG")) {
 		    de.uka.ilkd.key.util.Debug.ENABLE_DEBUG = false;
 		} else if (option.equals("DEBUG")) {
@@ -3006,9 +3025,12 @@ public class Main extends JFrame implements IMain {
         System.out.println("  unit2 [loop] [loop0|loop1|loop2|loop3|loop4]: \n"+
 	           	   "                    unit test generation mode that is compatible with\n"+
 	           	   "                    the normal verification mode.");
-	System.out.println("  depthfirst      : constructs the proof tree in a depth first manner. Recommended for large proofs");
-        System.out.println("  auto	          : start prove procedure after initialisation");
+	    System.out.println("  depthfirst      : constructs the proof tree in a depth first manner. Recommended for large proofs");
+        System.out.println("  auto	         : start prove procedure after initialisation");
+        System.out.println("  reload	         : reopen last opened file");
         System.out.println("  testing         : starts the prover with a simple test generation oriented user interface");
+        System.out.println("  projects        : show File->Load Projects at startup");
+        System.out.println("  tutorial        : show File->Start Tutorial at startup");
         System.out.println("  print_statistics <filename>" );
         System.out.println("                  : in auto mode, output nr. of rule applications and time spent");
         System.out.println("  fol             : use FOL profile (no program or update rules)");
@@ -3624,6 +3646,12 @@ public class Main extends JFrame implements IMain {
  		        }
             }
         }
+        if (projectsOnStartUp) {
+        		projectAction.actionPerformed(null);
+        }
+        if (tutorialOnStartUp) {
+        		tutorialAction.actionPerformed(null);
+        }
     }
     
     public static void main(String[] args) {
@@ -4068,6 +4096,25 @@ public class Main extends JFrame implements IMain {
     public ProofAssistantController getProofAssistantController() {
         return proofAssistantController;
     }
+
+    private class NewAction extends AbstractAction implements Action {
+	    public NewAction() {
+	    		putValue(NAME, "New");
+        	putValue(SHORT_DESCRIPTION, "Edit a new file");
+            putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_N,
+                    Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));    	    	
+	    }
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		JOptionPane.showMessageDialog(Main.this, 
+				"KeYmaera provides several predefined files in File->Load Project and File->Start Tutorial.\n" +
+				"In order to set up a different problem to prove, create this file with a text editor,\n" +
+				"and then open it in KeYmaera using File->Load",
+				"How to Create a New Problem", JOptionPane.INFORMATION_MESSAGE);
+	}
+
+}
 
    
 }
