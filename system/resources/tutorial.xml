@@ -1,7 +1,38 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <description>
 	<welcometext>
-		Welcome to the KeYmaera tutorial overview...
+		<![CDATA[
+		<h3>KeYmaera Tutorial</h3>
+		<p>
+		    Welcome to the KeYmaera Tutorial.
+		    In this tutorial, you will learn how to use KeYmaera in practice to prove more complicated properties.
+		    You should follow the lecture slides and read the background material for KeYmaera.
+		    <blockquote>
+		        Andr&eacute; Platzer.<br />
+                <a href="http://arxiv.org/pdf/1205.4788.pdf">Dynamic logics of dynamical systems</a>.<br />
+                arXiv <a href="http://arxiv.org/pdf/1205.4788.pdf">1205.4788</a>, 2012.
+	        </blockquote>
+		    The exercises in this tutorial give you a chance to check whether you have mastered the material.
+		    Click on the exercises in the folders on the left to get started.
+	    </p>
+	    <p>
+		    Most of the exercises intentionally require you to interact with KeYmaera so that you learn how proofs work by doing them.
+		    In particular, some of the exercises disable part of KeYmaera's automatic proof strategies in order to give you a chance to demonstrate your skills.
+		    You will need this skill to succeed in proving properties of very complex hybrid systems.
+		    If you want to, you are also invited to do some of the proofs fully manually and compare with what KeYmaera's automated provers would have done. Can you find a faster proof?
+	    </p>
+	    <p>
+		    More information and reading material about KeYmaera can be found at
+		    <center><a href="http://symbolaris.com/info/KeYmaera.html">http://symbolaris.com/info/KeYmaera.html</a></center>
+		    The most comprehensive description of the KeYmaera approach can be found in the following book:
+		    <blockquote>
+		        Andr&eacute; Platzer.<br />
+                <a href="http://symbolaris.com/lahs/">Logical Analysis of Hybrid Systems</a>.<br />
+                <a href="http://symbolaris.com/lahs/">Proving Theorems for Complex Dynamics</a>.<br />
+                Springer, 2010. 426 p. ISBN 978-3-642-14508-7.
+	        </blockquote>
+	    </p>
+		]]>
 	</welcometext>
 	<tutorials>
 		<tutorial name="Overview">
@@ -31,7 +62,7 @@
 
 					<pre>
 	<span class="keyword">\sorts</span> {
-	  /* declare two additional sorts C and D */
+	  /* For QdL only: declare two additional sorts C and D */
 	  <span class="primitiveType">C</span>;
 	  <span class="primitiveType">D</span>;
 	}
@@ -43,7 +74,7 @@
 	  /* declare a function as external, meaning it should be interpreted */
 	  /* by the arithmetic backends */
 	  \external R Sqrt(R);
-	  /* declare a function that might be updated with 3 parameters */
+	  /* For QdL only: declare a function that might be updated with 3 parameters */
 	  \nonRigid[Location] C f(R,R,D);
 	}
 
@@ -374,7 +405,7 @@
 				<title>Ex. 1 Pen&amp;Paper Modeling</title>
 				<description>
 				<![CDATA[
-				<h3>Modeling in dL</h3>
+				<h3>Modeling in Differential Dynamic Logic (dL)</h3>
 				<p>
 				Use Pen&amp;Paper to model a simple car control system with the following properties:
 				<ul>
@@ -396,7 +427,7 @@
 				<title>Ex. 2 Continuous dynamics</title>
 				<description>
 				<![CDATA[
-					<h3>Modeling a safety property of a continuous system</h3>
+					<h3>Proving a safety property of a continuous system</h3>
 					<p>
 					This is a simple system in which a car starts at some velocity v and accelerates at constant rate A along a straight lane.
 					The requirement we want to prove is that the car may never travel backward, i.e. the velocity v is always greater than or equal to zero.
@@ -416,7 +447,7 @@
 				<title>Ex. 3 Safety of simple car control</title>
 				<description>
 				<![CDATA[
-					<h3>Modeling a safety property of a hybrid system</h3>
+					<h3>Proving a safety property of a hybrid system</h3>
 					<p>
 					In this example, we introduce a discrete controller into the
 					model of the continuous car system in the previous exercise. The controller has
@@ -528,7 +559,10 @@
 					<hint id="5.2">
 						The invariant relates v, b, m, and x.
 					</hint>
-					<hint id="5.3">
+					<hint id="5.4">
+						The invariant needs to impose a bound on the velocity, depending on the remaining distance and brakes.
+					</hint>
+					<hint id="5.4">
 						<![CDATA[
 						The invariant is v<sup>2</sup> &lt;= 2*b*(m-z)
 						]]>
@@ -579,6 +613,7 @@
 					<img>/examples/hybrid/water_tank/fig-water-tank.png</img>
 				</resources>
 			    <path>/examples/hybrid/publish/water_tank.key</path>
+			    <!-- @todo hints -->
 			</exercise>
 			<exercise>
 				<title>Demo Progress</title>
@@ -640,13 +675,13 @@
 					</ul>
 					</p>
 					<p>
-						<b>Exercise:</b> Load the example and prove that the input is a tautology. Note that in contrast to the previous exercise the loop invariant is not given.
+						<b>Exercise:</b> Load the example and prove that the input is a tautology. Note that in contrast to the previous exercise about water tanks, the loop invariant is not given.
 					</p>
 				]]>
 				</description>
 				<hints>
 					<hint id="8.1">
-						The invariant you need to provide is similar to the non-parametric invariant.
+						The invariant you need to provide is similar to the non-parametric water tank invariant.
 					</hint>
 					<hint id="8.2">
 						The invariant needs to talk about what holds in each mode.
@@ -656,7 +691,7 @@
 					</hint>
 					<hint id="8.4">
 					<![CDATA[
-						The invariant is:<br/>
+						One invariant is:<br/>
 						(st = 0 | st = 1 | st = 2 | st =3)<br/>
 						&amp;<br/>
 						x &gt;= 0 &amp; x &lt;= max_com<br/>
@@ -677,18 +712,19 @@
 				 <path>/examples/hybrid/verifiedsoft/general_water_tank.key</path>
 			</exercise>
 			<exercise>
-				<title>Ex. 9 Safety of car with disturbance</title>
+				<title>Ex. 9* Safety of car with disturbance</title>
 				<description>
 					<![CDATA[
-					<h3>Distrubances in car dynamics</h3>
+					<h3>Disturbances in car dynamics</h3>
 					<p>
-					Let's go back to the car setting. Assume there are some external disturbance influences on the car dynamics such that the velocity does not evolve with exactly the differential equation v'=a but instead with the differential inequality a-l &lt;= v' &lt;= a+u, where l and u are the lower and upper bounds on the disturbance, respectively. You need to show that the car controller works despite the disturbance, even in the worst case. 
+					Let's go back to the car setting. Assume there are some external disturbance influences on the car dynamics such that the velocity does not evolve with exactly the differential equation <b>v'=a</b> but instead with the differential inequality <b>a-l &lt;= v' &lt;= a+u</b>, where l and u are the lower and upper bounds on the disturbance, respectively. You need to show that the car controller works despite the disturbance, even in the worst case. 
 					</p>
 					<p>
 						<b>Exercise:</b> Prove that the modified car controller is still able to control the car safely in this scenario, despite the disturbance.
 					</p>
 					]]>
 				</description>
+				<!-- @todo hints -->
 				<path>/examples/hybrid/verifiedsoft/disturbed-car.key</path>
 			</exercise>
 			<exercise>
@@ -697,7 +733,7 @@
 					<![CDATA[
 					<h3>Negative exponentials can be tricky</h3>
 					<p>
-					This demo proves the following property: For an initial value greater than zero, a continuous evolution along x'=-x will never have a zero-crossing.
+					This demo proves the following property: For an initial value greater than zero, a continuous evolution along <b>x'=-x</b> will never have a zero-crossing.
 					The proof needs differential auxiliaries.
 					</p>
 					]]>
@@ -732,7 +768,7 @@
 					</hint>
 					<hint id="10.3">
 					<![CDATA[
-						Adding squares sometimes has more information than ground terms.
+						Adding squares sometimes has more information than simple terms.
 					]]>
 					</hint>
 					<hint id="10.4">
@@ -783,6 +819,7 @@
 						Try using x*y^2=-1.
 					]]>
 					</hint>
+					<!-- these hints are confusing -40?? -->
 				</hints>
 				<resources>
 					<img>/examples/hybrid/heater/diffcut2.png</img>
@@ -810,6 +847,7 @@
 					<img>/examples/hybrid/heater/diffcut2.png</img>
 				</resources>
 				<path>/examples/hybrid/heater/diffcut3.key</path>
+				<!-- @todo hints -->
 			</exercise>
 			<exercise>
 				<title>Ex. 13 Temperature in hot cases</title>
@@ -834,9 +872,10 @@
 					<img>/examples/hybrid/heater/diffcut4.png</img>
 				</resources>
 				<path>/examples/hybrid/heater/diffcut4.key</path>
+				<!-- @todo hints -->
 			</exercise>
 			<exercise>
-				<title>Ex. 14 Heater (extract)</title>
+				<title>Ex. 14* Heater (extract)</title>
 				<description>
 					<![CDATA[
 					<h3>Temperature control with switching delays (off mode)</h3>
@@ -861,7 +900,7 @@
 				<path>/examples/hybrid/verifiedsoft/heater-switchdelay-extract.key</path>
 			</exercise>
 			<exercise>
-				<title>Ex. 15 Heater (extract 2)</title>
+				<title>Ex. 15* Heater (extract 2)</title>
 				<description>
 					<![CDATA[
 					<h3>Temperature control with switching delays (on mode)</h3>
@@ -875,6 +914,7 @@
 					</p>
 					]]>
 				</description>
+				<!-- @todo hints -->
 				<resources>
 					<img>/examples/hybrid/verifiedsoft/heating.png</img>
 					<img>/examples/hybrid/heater/diffcut4.png</img>
@@ -897,10 +937,10 @@
 				<path>/examples/hybrid/verifiedsoft/twocars.key.proof</path>
 			</exercise>
 			<exercise>
-				<title>Ex. 16 Distributed cars</title>
+				<title>Ex. 16* Distributed cars</title>
 				<description>
 					<![CDATA[
-					<h3>Multiple cars in QdL</h3>
+					<h3>Multiple cars in Quantified Differential Dynamic Logic (QdL)</h3>
 					<p>
 					Consider the following example of two cars. It is modelled in QdL.
 					</p>
@@ -909,6 +949,7 @@
 					</p>
 					]]>
 				</description>
+				<!-- @todo hints and description -->
 				<resources>
 					<img>/examples/hybrid/qdl/fig-distributed-car-control.png</img>
 				</resources>
