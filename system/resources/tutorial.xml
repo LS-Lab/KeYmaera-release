@@ -6,18 +6,19 @@
 		<p>
 		    Welcome to the KeYmaera Tutorial.
 		    In this tutorial, you will learn how to use KeYmaera in practice to prove more complicated properties.
-		    You should follow the lecture slides and read the background material for KeYmaera.
+		    This tutorial assumes that you are familiar with the lecture slides and have read at least up to Section 3.5 in the following background article:
 		    <blockquote>
 		        Andr&eacute; Platzer.<br />
                 <a href="http://arxiv.org/pdf/1205.4788.pdf">Dynamic logics of dynamical systems</a>.<br />
                 arXiv <a href="http://arxiv.org/pdf/1205.4788.pdf">1205.4788</a>, 2012.
 	        </blockquote>
+	        Later exercises assume that you have read most of the rest of that survey article.
 		    The exercises in this tutorial give you a chance to check whether you have mastered the material.
 		    Click on the exercises in the folders on the left to get started.
 	    </p>
 	    <p>
-		    Most of the exercises intentionally require you to interact with KeYmaera so that you learn how proofs work by doing them.
-		    In particular, some of the exercises disable part of KeYmaera's automatic proof strategies in order to give you a chance to demonstrate your skills.
+		    Most of the exercises intentionally <b>require you to interact with KeYmaera</b> so that you learn how proofs work by doing them.
+		    In particular, some of the exercises disable part of KeYmaera's automatic proof strategies in order to give you a chance to show your skills.
 		    You will need this skill to succeed in proving properties of very complex hybrid systems.
 		    If you want to, you are also invited to do some of the proofs fully manually and compare with what KeYmaera's automated provers would have done. Can you find a faster proof?
 	    </p>
@@ -37,7 +38,8 @@
 	<tutorials>
 		<tutorial name="Overview">
 			<description>
-				Overview over the KeYmaera input format
+				Overview of the KeYmaera input format.
+				This folder describes the <kbd>.key</kbd> input format for writing new problems and solving them with KeYmaera.
 			</description>
 			<exercise>
 				<title>Input File Format</title>
@@ -402,7 +404,7 @@
 		</tutorial>
 		<tutorial name="Verified Software Summer School 2012">
 			<description>
-				This tutorial contains the exercises used at the Verified Software Summer School 2012.
+				This tutorial contains the practical exercises used at the Verified Software Summer School 2012.
 			</description>
 			<exercise>
 				<title>Ex. 1 Pen&amp;Paper Modeling</title>
@@ -961,7 +963,11 @@
 					<![CDATA[
 					<h3>Multiple cars</h3>
 					<p>
-					Consider the following example of two cars. 
+					Consider the following example of two cars, proving that two cars are always safely separated. 
+					</p>
+					<p>
+    					<b>Exercise:</b> 
+    					Look at the proof and try to understand its structure and the ideas behind it.
 					</p>
 					]]>
 				</description>

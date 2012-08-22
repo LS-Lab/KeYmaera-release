@@ -3647,10 +3647,20 @@ public class Main extends JFrame implements IMain {
             }
         }
         if (projectsOnStartUp) {
-        		projectAction.actionPerformed(null);
+        		SwingUtilities.invokeLater(new Runnable() {
+        			@Override
+        			public void run() {
+        				projectAction.actionPerformed(null);
+        			}
+        		});
         }
         if (tutorialOnStartUp) {
-        		tutorialAction.actionPerformed(null);
+        		SwingUtilities.invokeLater(new Runnable() {
+        			@Override
+        			public void run() {
+        				tutorialAction.actionPerformed(null);
+        			}
+        		});
         }
     }
     
