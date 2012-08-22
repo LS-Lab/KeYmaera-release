@@ -17,15 +17,15 @@
 					<p>
 					A <kbd>.key</kbd> input file for KeYmaera specifies both the operational model of your hybrid system (using the notation of hybrid programs)
 					and the correctness property that you want to verify.
-					The verification problem is specified in a block called <kbd><span class="keyword">\problem</span> {...}</kbd> that contains the problem description as a <a href="#sec:dL">formula</a>.
-					This block contains a single formula of <a href="../logic/dL.html" title="Differential Dynamic Logic for Hybrid Systems">differential dynamic logic&nbsp;(dL)</a>.
+					The verification problem is specified in a block called <kbd><span class="keyword">\problem</span> {...}</kbd> that contains the problem description as a formula.
+					This block contains a single formula of differential dynamic logic&nbsp;(dL).
 					For instance, this formula can characterize the initial state of the system using implications,
 					the operational system specification using hybrid programs,
 					and the safety/liveness/reactivity/controllability/... properties to show using modalities.
 					</p>
 
 					<p>
-					The .key file format is quite flexible (there is a <a href="http://dx.doi.org/10.1007/978-3-540-69061-0_17">full description of KeY files</a> with all details except the <a href="#sec:dL">description of logical formulas in KeYmaera</a>).
+					The .key file format is quite flexible (there is a <a href="http://dx.doi.org/10.1007/978-3-540-69061-0_17">full description of KeY files</a> with all details except the description of logical formulas in KeYmaera</a>).
 					The canonical case has the following form
 					</p>
 
@@ -55,25 +55,25 @@
 	}
 
 	<span class="keyword">\problem</span> {
-		<a href="#sec:dL">AFormula</a>
+		AFormula
 	}
 					</pre>
-					Here <a href="#sec:dL">AFormula</a> is a formula in differential dynamic logic (dL) following the <a href="#sec:dL">syntax of dL formulas</a>.
+					Here AFormula is a formula in differential dynamic logic (dL) following the syntax of dL formulas.
 					This logical formula specifies the property that you are interested in.
-					It will also include the system dynamics inside modalities following the <a href="#sec:HP">syntax of hybrid programs</a>.
-					Often (but not always), the formula <a href="#sec:dL">AFormula</a> has the form
+					It will also include the system dynamics inside modalities following the syntax of hybrid programs.
+					Often (but not always), the formula AFormula has the form
 					<center>
 					<kbd>&phi; -&gt; \[&alpha;\] &psi;</kbd>
 					</center>
 					of a safety property where <kbd>&phi;</kbd> is the formula specifying the precondition for the initial state and <kbd>&alpha;</kbd> is the hybrid program describing the system behavior and <kbd>&psi;</kbd> is the formula specifying the postcondition.
 					This formula expresses that, when starting in a state satisfying <kbd>&phi;</kbd>, all behavior of <kbd>&alpha;</kbd> will lead to states satsifying formula <kbd>&psi;</kbd> (safety).
-					Another common case for <a href="#sec:dL">AFormula</a> is
+					Another common case for AFormula is
 					<center>
 					<kbd>&phi; -&gt; \&lt;&alpha;\&gt; &psi;</kbd>
 					</center>
 					This formula expresses that, when starting in a state satisfying <kbd>&phi;</kbd>, there is a behavior of system <kbd>&alpha;</kbd> that can lead to a state satsifying formula <kbd>&psi;</kbd>.
 					Several other formulas including quantifiers and nested modalities can be used.
-					See <a href="#sec:dL">syntax of formulas</a> for full details.
+					See syntax of formulas for full details.
 					]]>
 				</description>
 			</exercise>
@@ -177,14 +177,14 @@
 					In these formulas, the actual hybrid system to consider can be embedded easily as a hybrid program.
 					In <abbrv title="Extended Backus-Naur Form">
 					<a href="http://en.wikipedia.org/wiki/Extended_Backus%C3%A2%C2%80%C2%93Naur_form">EBNF</a>
-					</abbrv> the syntax for these formulas looks as follows, where <kbd><a href="#HP">&alpha;</a></kbd> can be any <a href="#HP">hybrid program</a>:
+					</abbrv> the syntax for these formulas looks as follows, where <kbd>&alpha;</kbd> can be any hybrid program:
 					</td>
 						<td class="quick" width="73">
-							<a href="KeYmaera-cheat.pdf" title="KeYmaera Cheat Sheet">Cheat<br>Sheet</a>
+							<a href="http://symbolaris.com/info/KeYmaera-cheat.pdf" title="KeYmaera Cheat Sheet">Cheat<br>Sheet</a>
 							and <br>
 							
-					<a href="../lahs/lahs-op.pdf" title="Logical Analysis of Hybrid Systems (Operators and Proof Rules)">Operators</a>
-							<a href="../lahs/lahs-op.pdf" title="Logical Analysis of Hybrid Systems (Operators and Proof Rules)">Rules</a>
+								<a href="http://symbolaris.com/lahs/lahs-op.pdf" title="Logical Analysis of Hybrid Systems (Operators and Proof Rules)">Operators</a>
+								<a href="http://symbolaris.com/lahs/lahs-op.pdf" title="Logical Analysis of Hybrid Systems (Operators and Proof Rules)">Rules</a>
 						</td>
 
 					</tr>
@@ -194,7 +194,7 @@
 					<table class="syntax">
 					  
 					<tr>
-					<td colspan="3" id="syntax"><b>Formulas of <a href="../logic/dL.html" title="Differential Dynamic Logic for Hybrid Systems">differential dynamic logic dL</a></b>, with typical names <kbd>&phi;</kbd> and <kbd>&psi;</kbd>, are defined by the following syntax</td>
+					<td colspan="3" id="syntax"><b>Formulas of differential dynamic logic dL</b>, with typical names <kbd>&phi;</kbd> and <kbd>&psi;</kbd>, are defined by the following syntax</td>
 					</tr>
 					  
 					<tr>
@@ -234,19 +234,19 @@
 					</tr>
 						
 					<tr>
-					<td></td><td><kbd>\[<a href="#HP">&alpha;</a>\] &phi;</kbd></td><td><em>Box-modality</em>: After all runs of <a href="#HP">hybrid program</a> <kbd>&alpha;</kbd>, formula <kbd>&phi;</kbd> holds (safety)</td>
+					<td></td><td><kbd>\[&alpha;\] &phi;</kbd></td><td><em>Box-modality</em>: After all runs of hybrid program <kbd>&alpha;</kbd>, formula <kbd>&phi;</kbd> holds (safety)</td>
 					</tr>
 						
 					<tr>
-					<td></td><td><kbd>\&lt;<a href="#HP">&alpha;</a>\&gt; &phi;</kbd></td><td><em>Diamond-modality</em>: There is at least one run of <a href="#HP">hybrid program</a> <kbd>&alpha;</kbd>, after which formula <kbd>&phi;</kbd> holds (liveness)</td>
+					<td></td><td><kbd>\&lt;&alpha;\&gt; &phi;</kbd></td><td><em>Diamond-modality</em>: There is at least one run of hybrid program <kbd>&alpha;</kbd>, after which formula <kbd>&phi;</kbd> holds (liveness)</td>
 					</tr>
 						
 					<tr>
-					<td></td><td><kbd>\[[<a href="#HP">&alpha;a>\]] &phi;kbd></td><td><em>Temporal-box-modality</em>: During all runs of <a href="#HP">hybrid program</a> <kbd>&alpha;</kbd>, formula <kbd>&phi;</kbd> holds (safety throughout)</td>
+					<td></td><td><kbd>\[[&alpha;\]] &phi;kbd></td><td><em>Temporal-box-modality</em>: During all runs of hybrid program <kbd>&alpha;</kbd>, formula <kbd>&phi;</kbd> holds (safety throughout)</td>
 					</tr>
 						
 					<tr>
-					<td></td><td><a href="#predicate">pred</a></td> <td><a href="#predicate">Real arithmetic predicate expression</a></td>
+					<td></td><td>pred</td> <td>Real arithmetic predicate expression</td>
 					</tr>
 						
 						
@@ -254,7 +254,7 @@
 						
 						
 					<tr>
-					<td colspan="3" id="QdL"><b>Formulas of <a href="../logic/disthysys.html" title="Logic for Distributed Hybrid Systems">quantified differential dynamic logic QdL</a></b>, with typical names <kbd>&phi;</kbd> and <kbd>&psi;</kbd>, are defined by the same syntax as <a href="#syntax">dL</a> except that <kbd>&alpha;</kbd> can be a <a href="#QHP">quantified hybrid program</a> in the modalities and that multiple sorts other than the reals <kbd><span class="primiteType">R</span></kbd> can be used:</td>
+					<td colspan="3" id="QdL"><b>Formulas of quantified differential dynamic logic QdL</b>, with typical names <kbd>&phi;</kbd> and <kbd>&psi;</kbd>, are defined by the same syntax as dL except that <kbd>&alpha;</kbd> can be a quantified hybrid program in the modalities and that multiple sorts other than the reals <kbd><span class="primiteType">R</span></kbd> can be used:</td>
 					</tr>
 						
 					<tr>
@@ -273,11 +273,11 @@
 					</tr>
 						
 					<tr>
-					<td></td><td><kbd>\[<a href="#HP">&alpha;</a>\] &phi;</kbd></td><td><em>Box-modality</em>: After all runs of <a href="#QHP">quantified hybrid program</a> <kbd>&alpha;</kbd>, formula <kbd>&phi;</kbd> holds (safety)</td>
+					<td></td><td><kbd>\[&alpha;\] &phi;</kbd></td><td><em>Box-modality</em>: After all runs of quantified hybrid program <kbd>&alpha;</kbd>, formula <kbd>&phi;</kbd> holds (safety)</td>
 					</tr>
 						
 					<tr>
-					<td></td><td><kbd>\&lt;<a href="#HP">&alpha;</a>\&gt; &phi;</kbd></td><td><em>Diamond-modality</em>: There is at least one run of <a href="#QHP">quantified hybrid program</a> <kbd>&alpha;</kbd>, after which formula <kbd>&phi;</kbd> holds (liveness)</td>
+					<td></td><td><kbd>\&lt;&alpha;\&gt; &phi;</kbd></td><td><em>Diamond-modality</em>: There is at least one run of quantified hybrid program <kbd>&alpha;</kbd>, after which formula <kbd>&phi;</kbd> holds (liveness)</td>
 					</tr>
 
 					  
@@ -354,7 +354,7 @@
 					</tr> 
 						
 					<tr>
-					<td></td><td>VARIABLE</td><td>An arbitrary variable identifier (that <a href="#vardecl">has been declared</a>)</td>
+					<td></td><td>VARIABLE</td><td>An arbitrary variable identifier (that has been declared)</td>
 					</tr> 
 						
 					<tr>
@@ -371,9 +371,10 @@
 				This tutorial contains the exercises used at the Verified Software Summer School 2012.
 			</description>
 			<exercise>
-				<title>Ex. 1 Pen&amp;Paper Modelling</title>
+				<title>Ex. 1 Pen&amp;Paper Modeling</title>
 				<description>
 				<![CDATA[
+				<h3>Modeling in dL</h3>
 				<p>
 				Use Pen&amp;Paper to model a simple car control system with the following properties:
 				<ul>
@@ -440,6 +441,7 @@
 				<title>Ex. 4 Event-triggered car</title>
 				<description>
 				<![CDATA[
+					<h3>Safety of an event-triggered car controller</h3>
 					<p>
 					While the car is driving down the lane, the controller must
 					choose when to begin decelerating so that it always stops
@@ -543,6 +545,7 @@
 				<title>Ex. 6 Water tank</title>
 				<description>
 				<![CDATA[
+					<h3>Concrete water-level controller</h3>
 					<p>
 					This example models a water tank. The water level (named y) is supposed to be between 1 and 12. Another variable x is used as a clock to model delays while switching modes, because it takes time until the pump activates.
 					</p>
@@ -581,6 +584,7 @@
 				<title>Demo Progress</title>
 				<description>
 					<![CDATA[
+					<h3>A simple diamond property</h3>
 					<p>
 						So far, we have only considered the box-modality in our examples and exercises. However there is a diamond-modality in dL as well. Assume a very simple car model. The car is initially driving with speed v and constant acceleration of a (with a &gt; 0). 
 						In this demo, we show that due to its constant positive acceleration it is able to exceed every velocity bound eventually.
@@ -593,6 +597,7 @@
 				<title>Ex. 7 Progress</title>
 				<description>
 					<![CDATA[
+					<h3>Diamond property do-it-yourself</h3>
 					<p>
 					So far, we have only considered the box-modality in our examples and exercises. However there is a diamond-modality in dL as well. Assume a very simple car model. The car is initially driving with some positive speed and constant acceleration of a (with a &gt;=0). 
 					</p>
@@ -614,6 +619,7 @@
 				<title>Ex. 8 Parametric water tank</title>
 				<description>
 					<![CDATA[
+					<h3>A parametric version of the water-level controller</h3>
 					<p>
 					This example models a parametric version of the water tank. Now, the water level (named y) is supposed to be between min_fill and max_fill. Another variable x is used as a clock to model delays while switching modes. The delay is bounded by a constant max_com.
 					The water level is now increased with constant rate <b>f</b>&gt;0 instead of 1 and decreased with constant rate <b>-d</b>&lt;<0 instead of -2.
@@ -674,7 +680,10 @@
 				<title>Ex. 9 Safety of car with disturbance</title>
 				<description>
 					<![CDATA[
+					<h3>Distrubances in car dynamics</h3>
+					<p>
 					Let's go back to the car setting. Assume there are some external disturbance influences on the car dynamics such that the velocity does not evolve with exactly the differential equation v'=a but instead with the differential inequality a-l &lt;= v' &lt;= a+u, where l and u are the lower and upper bounds on the disturbance, respectively. You need to show that the car controller works despite the disturbance, even in the worst case. 
+					</p>
 					<p>
 						<b>Exercise:</b> Prove that the modified car controller is still able to control the car safely in this scenario, despite the disturbance.
 					</p>
@@ -685,8 +694,13 @@
 			<exercise>
 				<title>Demo x'=-x</title>
 				<description>
+					<![CDATA[
+					<h3>Negative exponentials can be tricky</h3>
+					<p>
 					This demo proves the following property: For an initial value greater than zero, a continuous evolution along x'=-x will never have a zero-crossing.
 					The proof needs differential auxiliaries.
+					</p>
+					]]>
 				</description>
 				<path>/examples/hybrid/dynamical/exp-.key.proof</path>
 			</exercise>
@@ -694,6 +708,7 @@
 				<title>Ex. 10 Cooling down</title>
 				<description>
 					<![CDATA[
+					<h3>Temperature control - behavior while turned off</h3>
 					<p>
 						A room with a temperature <b>x</b> of more than 10 degrees within an enviornment with constant temperature of 10 degrees is bound to cool down. 
 						We model this system by the differential equation <b>x' = 10 - x</b>. 
@@ -740,6 +755,7 @@
 				<title>Ex. 11 Heating up</title>
 				<description>
 					<![CDATA[
+					<h3>Temperature control - behavior while turned on (upper bound)</h3>
 					<p>
 					Now we put a heater into the room from the previous exercise.
 					The heater constantly increases the temperature in the room.
@@ -777,6 +793,7 @@
 				<title>Ex. 12 Not too cold</title>
 				<description>
 					<![CDATA[
+					<h3>Temperature control - behavior while turned on (lower bound)</h3>
 					<p>
 					In the previous exercise we have shown that there is an
 					upper bound for the temperature when heating. Now we want to show that
@@ -798,6 +815,7 @@
 				<title>Ex. 13 Temperature in hot cases</title>
 				<description>
 					<![CDATA[
+					<h3>Temperature control - behavior while turned on (lower bound)</h3>
 					<p>
 					So we know that there is an upper bound for certain cases
 					and a lower bound for certain cases. What happens if we
@@ -821,6 +839,7 @@
 				<title>Ex. 14 Heater (extract)</title>
 				<description>
 					<![CDATA[
+					<h3>Temperature control with switching delays (off mode)</h3>
 					<p>
 					The differential equations considered in the previous execises are the modes of a heater system. The outside temperature is assumed to be 10 degrees.
 					The goal of the heating system is to guarantee an inside temperature of <b>at least 15 degrees</b>. The control strategy for the heater is underspecified. 
@@ -845,6 +864,7 @@
 				<title>Ex. 15 Heater (extract 2)</title>
 				<description>
 					<![CDATA[
+					<h3>Temperature control with switching delays (on mode)</h3>
 					<p>
 					The differential equations considered in the previous execises are the modes of a heater system. The outside temperature is assumed to be 10 degrees.
 					The goal of the heating system is to guarantee an inside temperature of <b>at least 15 degrees</b>. The control strategy for the heater is underspecified. 
@@ -865,6 +885,7 @@
 				<title>Demo Two cars</title>
 				<description>
 					<![CDATA[
+					<h3>Multiple cars</h3>
 					<p>
 					Consider the following example of two cars. 
 					</p>
@@ -879,6 +900,7 @@
 				<title>Ex. 16 Distributed cars</title>
 				<description>
 					<![CDATA[
+					<h3>Multiple cars in QdL</h3>
 					<p>
 					Consider the following example of two cars. It is modelled in QdL.
 					</p>
@@ -896,6 +918,7 @@
 				<title>Tutorial Challenges</title>
 				<description>
 					<![CDATA[
+					<h3>Challenges</h3>
 					<ul>
 						<li>Model an instance of the heater example with 4 rooms, 2 heaters, and a strategy for moving the heaters from room to room. Prove that your model satisfies an interesting safety property about the temperature in each room.</li>
 						<li>Prove a diamond property for the heater example.</li>
