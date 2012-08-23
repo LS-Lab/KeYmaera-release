@@ -105,12 +105,12 @@
 					<kbd>&phi; -&gt; \[&alpha;\] &psi;</kbd>
 					</center>
 					of a safety property where <kbd>&phi;</kbd> is the formula specifying the precondition for the initial state and <kbd>&alpha;</kbd> is the hybrid program describing the system behavior and <kbd>&psi;</kbd> is the formula specifying the postcondition.
-					This formula expresses that, when starting in a state satisfying <kbd>&phi;</kbd>, all behavior of <kbd>&alpha;</kbd> will lead to states satsifying formula <kbd>&psi;</kbd> (safety).
+					This formula expresses that, when starting in a state satisfying <kbd>&phi;</kbd>, all behavior of <kbd>&alpha;</kbd> will lead to states satisfying formula <kbd>&psi;</kbd> (safety).
 					Another common case for AFormula is
 					<center>
 					<kbd>&phi; -&gt; \&lt;&alpha;\&gt; &psi;</kbd>
 					</center>
-					This formula expresses that, when starting in a state satisfying <kbd>&phi;</kbd>, there is a behavior of system <kbd>&alpha;</kbd> that can lead to a state satsifying formula <kbd>&psi;</kbd>.
+					This formula expresses that, when starting in a state satisfying <kbd>&phi;</kbd>, there is a behavior of system <kbd>&alpha;</kbd> that can lead to a state satisfying formula <kbd>&psi;</kbd>.
 					Several other formulas including quantifiers and nested modalities can be used.
 					See syntax of formulas for full details.
 					]]>
@@ -218,14 +218,6 @@
 					<a href="http://en.wikipedia.org/wiki/Extended_Backus%C3%A2%C2%80%C2%93Naur_form">EBNF</a>
 					</abbrv> the syntax for these formulas looks as follows, where <kbd>&alpha;</kbd> can be any hybrid program:
 					</td>
-						<td class="quick" width="73">
-							<a href="http://symbolaris.com/info/KeYmaera-cheat.pdf" title="KeYmaera Cheat Sheet">Cheat<br>Sheet</a>
-							and <br>
-							
-								<a href="http://symbolaris.com/lahs/lahs-op.pdf" title="Logical Analysis of Hybrid Systems (Operators and Proof Rules)">Operators</a>
-								<a href="http://symbolaris.com/lahs/lahs-op.pdf" title="Logical Analysis of Hybrid Systems (Operators and Proof Rules)">Rules</a>
-						</td>
-
 					</tr>
 
 					</table>
@@ -413,6 +405,9 @@
 				This tutorial contains the practical exercises used at the Verified Software Summer School 2012 for the course <i>Logical Analysis of Hybrid Systems: The KeYmaera Approach</i>.</p>
 				
 				<p>Note that KeYmaera's <b>automation is partially turned off</b> for the purpose of these exercises in order to make sure that you have a chance to learn how proving works.</p>
+				<p>
+				   Several of the examples in this tutorial (especially heater) are taken from larger case studies and isolate exactly the difficult part of the proof for you. So we have transformed the problem into a form where only the difficult steps remain for you to do.
+			    </p>
 				]]>
 			</description>
 			<exercise>
@@ -538,7 +533,7 @@
 					<p>
 					In a realistic system, the sensors on the car would take periodic measurements
 					of position x and velocity v and the controller would only execute each time those
-					sensor updates are taken. We continue with the single car travelling toward a
+					sensor updates are taken. We continue with the single car traveling toward a
 					stop sign. This time we change the model so that it only receives periodic updates about its position and velocity.  The
 					time t between sensor updates is bounded by ep. Prove that the car controller
 					will always make the car stay before the traffic light if braking would.
@@ -582,6 +577,11 @@
 						<![CDATA[
 						The invariant is v<sup>2</sup> &lt;= 2*b*(m-x)
 						]]>
+					</hint>
+					<hint id="5.5">
+    					<![CDATA[
+						If KeYmaera branches a lot, you may want to use <i>Proof-&gt;Prune Proof</i> to try something else.
+    					]]>
 					</hint>
 				</hints>
 				<resources>
@@ -661,8 +661,9 @@
 				<hints>
 					<hint id="7.1">You will have to provide a loop variant. What is the least progress towards the goal x > p?</hint>
 					<hint id="7.2">Try talking about the initial velocity in the loop variant.</hint>
-					<hint id="7.3">Maybe you could introduce a fresh variable vo using the auxilaries rule and initialize it with v.</hint>
-					<hint id="7.4">A possible loop variant is x+n*ep*vo > p_0. Assuming vo is the initial velocity. And p_0 is the point we want to reach.</hint>
+					<hint id="7.3">Maybe you could introduce a fresh variable vo using the auxiliaries rule and initialize it with v.</hint>
+					<hint id="7.4">How much progress you make depends on how long you can evolve each time.</hint>
+					<hint id="7.5">A possible loop variant is x+n*ep*vo > p_0. Assuming vo is the initial velocity. And p_0 is the point we want to reach.</hint>
 				</hints>
 			</exercise>
 			<exercise>
@@ -686,7 +687,7 @@
 					The modes st = 1 and st = 3 model the delays while switching between modes 0 and 2.
 					<ul>
 					<li> st = 1: is the mode where water is still flowing into the tank with a constant rate of f for <i>at most</i> <b>max_com time units</b> before switching to mode st = 2.</li>
-					<li> st = 3: is the mode where water is still draining from the tank with a constant rate of -d for <i>at most</i> <b>max_com time units</b> beofre switching to mode st = 0</li>
+					<li> st = 3: is the mode where water is still draining from the tank with a constant rate of -d for <i>at most</i> <b>max_com time units</b> before switching to mode st = 0</li>
 					</ul>
 					</p>
 					<p>
@@ -699,7 +700,7 @@
 						The invariant you need to provide is similar to the non-parametric water tank invariant.
 					</hint>
 					<hint id="8.2">
-						The invariant needs to talk about what holds in each mode.
+						The invariant needs to talk (e.g., separately) about what holds in each mode.
 					</hint>
 					<hint id="8.3">
 						Check the initial region for helpful constraints that could be part of the invariant.
@@ -732,7 +733,7 @@
 					<![CDATA[
 					<h3>Disturbances in car dynamics</h3>
 					<p>
-					Let's go back to the car setting. Assume there are some external disturbance influences on the car dynamics such that the velocity does not evolve with exactly the differential equation <b>v'=a</b> but instead with the differential inequality <b>a-l &lt;= v' &lt;= a+u</b>, where l and u are the lower and upper bounds on the disturbance, respectively. You need to show that the car controller works despite the disturbance, even in the worst case. 
+					Let's go back to the car setting. Assume there are some external disturbance influences on the car dynamics such that the velocity does not evolve with exactly the differential equation <b>v'=a</b> but instead with the differential inequality <center><b>a-l &le; v' &le; a+u</b></center> where l and u are the lower and upper bounds on the disturbance, respectively. You need to show that the car controller works despite the disturbance, even in the worst case. 
 					</p>
 					<p>
 						<b>Exercise:</b> Prove that the modified car controller is still able to control the car safely in this scenario, despite the disturbance.
@@ -787,12 +788,12 @@
 					<![CDATA[
 					<h3>Temperature control - behavior while turned off</h3>
 					<p>
-						A room with a temperature <b>x</b> of more than 10 degrees within an enviornment with constant temperature of 10 degrees is bound to cool down. 
+						A room with a temperature <b>x</b> of more than 10 degrees within an environment with constant temperature of 10 degrees is bound to cool down. 
 						We model this system by the differential equation<br /> <b>x' = 10 - x</b>. 
 					</p>
 					
 					<p>
-						<b>Exercise:</b> Prove that if this system is started with an inital value greater than 10 it always stays greater than 10.
+						<b>Exercise:</b> Prove that if this system is started with an initial value greater than 10 it always stays greater than 10.
 					</p>
 					]]>
 				</description>
@@ -837,12 +838,12 @@
 					Now we put a heater into the room from the previous exercise.
 					The heater constantly increases the temperature in the room.
 					Further, we add some isolation to the room to slow down
-					temperature exchange. This is modelled by the
+					temperature exchange. This is modeled by the
 					differential equation<br>
 					<b>x' = 15 + 1/2*(10-x)</b>.
 					</p>
 					<p>
-						<b>Exercise:</b> Prove that if this system is started with an inital temperatur less than 40, then it always stays less than 40.
+						<b>Exercise:</b> Prove that if this system is started with an initial temperature less than 40, then it always stays less than 40.
 					</p>
 					]]>
 				</description>
@@ -881,10 +882,10 @@
 					upper bound for the temperature when heating. Now we want to show that
 					of course there is a lower bound as well.
 					</p>
-					Reminder: The system is still modelled by the differential equation <b>x' = 15 + 1/2*(10-x)</b>.
+					Reminder: The system is still modeled by the differential equation <b>x' = 15 + 1/2*(10-x)</b>.
 					</p>
 					<p>
-						<b>Exercise:</b> Prove that if this system is started with an inital temperature between 20 and 30, then it always stays above 15.
+						<b>Exercise:</b> Prove that if this system is started with an initial temperature between 20 and 30, then it always stays above 15.
 					</p>
 					]]>
 				</description>
@@ -904,10 +905,10 @@
 					and a lower bound for certain cases. What happens if we
 					start with an arbitrary value above 15 degrees?
 					</p>
-					Reminder: The system is still modelled by the differential equation <b>x' = 15 + 1/2*(10-x)</b>.
+					Reminder: The system is still modeled by the differential equation <b>x' = 15 + 1/2*(10-x)</b>.
 					</p>
 					<p>
-						<b>Exercise:</b> Prove that if this system is started with an inital temperature greater than 15 it always stays above 15.
+						<b>Exercise:</b> Prove that if this system is started with an initial temperature greater than 15 it always stays above 15.
 					</p>
 					]]>
 				</description>
@@ -925,7 +926,7 @@
 					<![CDATA[
 					<h3>Temperature control with switching delays (off mode)</h3>
 					<p>
-					The differential equations considered in the previous execises are the modes of a heater system. The outside temperature is assumed to be 10 degrees.
+					The differential equations considered in the previous exercises are the modes of a heater system. The outside temperature is assumed to be 10 degrees.
 					The goal of the heating system is to guarantee an inside temperature of <b>at least 15 degrees</b>. The control strategy for the heater is underspecified. 
 					However, it might only be turned off when the current temperature is <b>at least 20 degrees</b>. Due to mechanical restrictions can stay turned off for at most <b>1/2 time units</b>.
 					</p>
@@ -950,7 +951,7 @@
 					<![CDATA[
 					<h3>Temperature control with switching delays (on mode)</h3>
 					<p>
-					The differential equations considered in the previous execises are the modes of a heater system. The outside temperature is assumed to be 10 degrees.
+					The differential equations considered in the previous exercises are the modes of a heater system. The outside temperature is assumed to be 10 degrees.
 					The goal of the heating system is to guarantee an inside temperature of <b>at least 15 degrees</b>. The control strategy for the heater is underspecified. 
 					However, it might only be turned off when the current temperature is <b>at least 20 degrees</b>. Due to mechanical restrictions can stay turned off for at most <b>1/2 time units</b>.
 					</p>
@@ -991,7 +992,7 @@
 					<![CDATA[
 					<h3>Multiple cars in Quantified Differential Dynamic Logic (QdL)</h3>
 					<p>
-					Consider the following example of two cars. It is modelled in Quantified Differential Dynamic Logic (QdL), which is the verification logic for distributed hybrid systems.
+					Consider the following example of two cars. It is modeled in Quantified Differential Dynamic Logic (QdL), which is the verification logic for distributed hybrid systems.
 					In QdL, the dynamics is specified for all cars at once using the notation 
 					<br><kbd>\forall C i . {x(i)'=v(i)}</kbd> in the quantified hybrid programs.
 					In this property, we consider only a follower car f and leader car l.
@@ -1003,44 +1004,47 @@
 				</description>
 				<hints>
 					<hint id="16.1">
+						Proofs in QdL work like proofs in dL except that you also manage function symbols, quantifiers, and identities.
+					</hint>
+					<hint id="16.2">
     					<![CDATA[
 						Use <b>ind loop invariant (global)</b> for induction.
 						In (global) rules, you need to provide all facts that are inductive, including constants.
     					]]>
 					</hint>
-					<hint id="16.2">
+					<hint id="16.3">
 						Look at the postcondition and precondition to find a good invariant.
 					</hint>
-					<hint id="16.3">
+					<hint id="16.4">
     					<![CDATA[
 						Solve quantified differential equations using <b>(') QODE solve</b>.
     					]]>
 					</hint>
-					<hint id="16.4">
+					<hint id="16.5">
     					<![CDATA[
 						<b>Skolemize non-rigids</b> helps turning function symbols into real arithmetic.
     					]]>
 					</hint>
-					<hint id="16.5">
+					<hint id="16.6">
     					<![CDATA[
 						If KeYmaera branches a lot, you may want to use <i>Proof-&gt;Prune Proof</i> to try something else.
     					]]>
 					</hint>
-					<hint id="16.6">
+					<hint id="16.7">
 						The effect of quantified hybrid programs on x(f) and x(l) depends on whether f equals l or not.
 					</hint>
-					<hint id="16.7">
+					<hint id="16.8">
 						if-then-else can be split into cases.
 					</hint>
-					<hint id="16.8">
+					<hint id="16.9">
     					<![CDATA[
-						<b>Apply Eq Recursive</b> uses an equation whereever possible in the sequent.
+						<b>Apply Eq Recursive</b> uses an equation where ever possible in the sequent.
     					]]>
 					</hint>
-					<hint id="16.9">
+					<hint id="16.10">
 						Remember that the arithmetic of cars can be complicated.
 					</hint>
-					<hint id="16.10">
+					<hint id="16.11">
 						Have you considered using a cut?
 					</hint>
 					<!-- cut: B * xl_0  >  B * xf_0 + 1 / 2 * ((vf_0) 2 − (vl_0) 2) + (A + B) * (1 / 2 * A * (t3) 2 + t3 * vf_0) -->
@@ -1054,16 +1058,25 @@
 				<title>Tutorial Challenges</title>
 				<description>
 					<![CDATA[
-					<h3>Challenges</h3>
+					<h3>Tutorial Challenges</h3>
 					<ul>
 						<li>Model an instance of the heater example with 4 rooms, 2 heaters, and a strategy for moving the heaters from room to room. Prove that your model satisfies an interesting safety property about the temperature in each room.</li>
 						<li>Prove a diamond property for the heater example.</li>
 						<li>Make the heater example with two rooms parametric w.r.t. to outside temperature, isolation, temperature exchange ratio, etc. and find suitable constraints such that it remains safe.</li>
 						<li>Model a system with an arbitrary number of cars on a single lane and prove it in QdL</li>
 						<li>Model the heater example with QdL and prove that it is safe for arbitrarily many rooms and arbitrarily many heaters (less than rooms).</li>
+						<li>Model your favorite system in KeYmaera, formalize an interesting property of it and prove the resulting differential dynamic logic formula in KeYmaera.</li>
 					</ul>
 					]]>
 				</description>
+				<hints>
+					<hint id="Challenge.1">
+						Be creative!
+					</hint>
+					<hint id="Challenge.2">
+						Be smart!
+					</hint>
+				</hints>
 			</exercise>
 
 		</tutorial>
