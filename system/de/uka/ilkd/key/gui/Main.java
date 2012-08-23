@@ -4119,9 +4119,12 @@ public class Main extends JFrame implements IMain {
 	public void actionPerformed(ActionEvent e) {
 		JOptionPane.showMessageDialog(Main.this, 
 				"KeYmaera provides several predefined files in File->Load Project and File->Start Tutorial.\n" +
-				"In order to set up a different problem to prove, create this file with a text editor,\n" +
-				"and then open it in KeYmaera using File->Load",
-				"How to Create a New Problem", JOptionPane.INFORMATION_MESSAGE);
+				"In order to set up a different problem to prove, create this problem file with a text\n" +
+				"editor and then open it in KeYmaera using File->Load.\n\n" +
+				"You can use any text editor for that purpose. In addition, there is an Eclipse plugin\n" +
+				"for KeYmaera and also a KeYmaera mode for vim. Both are available on the web page\n" +
+				"    http://symbolaris.com/info/KeYmaera.html",
+				"New: How to Create a New Problem", JOptionPane.INFORMATION_MESSAGE);
 	}
 
 }
