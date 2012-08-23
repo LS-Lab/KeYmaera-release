@@ -571,7 +571,7 @@
 					</hint>
 					<hint id="5.4">
 						<![CDATA[
-						The invariant is v<sup>2</sup> &lt;= 2*b*(m-z)
+						The invariant is v<sup>2</sup> &lt;= 2*b*(m-x)
 						]]>
 					</hint>
 				</hints>

@@ -77,6 +77,8 @@ diff_aux_fresh = "The <b>DA differential auxiliaries (drop context)</b> rule all
 
 Eliminate_Universal_Quantifiers = "Use quantifier elimination to reduce arithmetic to an equivalent formula. Assumes <b>all</b> variables in the sequent to be universally quantified. This is always sound, but if it does not work, you may have to eliminate existential quantifiers instead.<br>This rule ignores all formulas in the sequent that do still contain modalities, updates, or substitutions."
 
+reduce_form = "Eliminate quantifiers locally, i.e., only in the selected formula, without taking the rest of the sequent into account."
+
 Find_Counterexample = "Try to try to find a <b>numeric counter example</b> to disprove this sequent and understand what may be wrong in your system."
 
 Groebner_Basis = "<b>Gr&ouml;bner Basis</b> checks whether the current sequent has a constant Gr&ouml;bner basis and is thus a universal sentence. The goal of this rule are thus similar to that of the Eliminate Universal Quantifiers rule, but the methods used are different."
