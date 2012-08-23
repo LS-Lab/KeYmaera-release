@@ -12,13 +12,13 @@
                 <a href="http://arxiv.org/pdf/1205.4788.pdf">Dynamic logics of dynamical systems</a>.<br />
                 arXiv <a href="http://arxiv.org/pdf/1205.4788.pdf">1205.4788</a>, 2012.
 	        </blockquote>
-	        Later exercises assume that you have read most of the rest of that survey article.
+	        Later exercises assume that you have read most of this survey article.
 		    The exercises in this tutorial give you a chance to check whether you have mastered the material.
 		    Click on the exercises in the folders on the left to get started.
 	    </p>
 	    <p>
 		    Most of the exercises intentionally <b>require you to interact with KeYmaera</b> so that you learn how proofs work by doing them.
-		    In particular, some of the exercises disable part of KeYmaera's automatic proof strategies in order to give you a chance to show your skills.
+		    They disable some of KeYmaera's automatic proof strategies in order to give you a chance to show off your skills.
 		    You will need this skill to succeed in proving properties of very complex hybrid systems.
 		    If you want to, you are also invited to do some of the proofs fully manually and compare with what KeYmaera's automated provers would have done. Can you find a faster proof?
 	    </p>
@@ -28,11 +28,14 @@
 		    The most comprehensive description of the KeYmaera approach can be found in the following book:
 		    <blockquote>
 		        Andr&eacute; Platzer.<br />
-                <a href="http://symbolaris.com/lahs/">Logical Analysis of Hybrid Systems</a>.<br />
+                <a href="http://symbolaris.com/lahs/">Logical Analysis of Hybrid Systems</a>:<br />
                 <a href="http://symbolaris.com/lahs/">Proving Theorems for Complex Dynamics</a>.<br />
                 Springer, 2010. ISBN 978-3-642-14508-7.
 	        </blockquote>
 	    </p>
+	    <p>
+	        We hope you use this opportunity to learn about hybrid systems proving and understand how it works.
+        </p>
 		]]>
 	</welcometext>
 	<tutorials>
@@ -404,7 +407,13 @@
 		</tutorial>
 		<tutorial name="Verified Software Summer School 2012">
 			<description>
-				This tutorial contains the practical exercises used at the Verified Software Summer School 2012.
+				<![CDATA[
+				<h3>Logical Analysis of Hybrid Systems<br />The KeYmaera Approach</h3>
+				<p>
+				This tutorial contains the practical exercises used at the Verified Software Summer School 2012 for the course <i>Logical Analysis of Hybrid Systems: The KeYmaera Approach</i>.</p>
+				
+				<p>Note that KeYmaera's <b>automation is partially turned off</b> for the purpose of these exercises in order to make sure that you have a chance to learn how proving works.</p>
+				]]>
 			</description>
 			<exercise>
 				<title>Ex. 1 Pen&amp;Paper Modeling</title>
