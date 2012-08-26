@@ -86,6 +86,7 @@ import de.uka.ilkd.key.logic.ProgramElementName;
 import de.uka.ilkd.key.logic.op.LocationVariable;
 import de.uka.ilkd.key.logic.op.LogicVariable;
 import de.uka.ilkd.key.logic.op.Metavariable;
+import de.uka.ilkd.key.logic.op.NonRigidFunctionLocation;
 import de.uka.ilkd.key.logic.op.RigidFunction;
 import de.uka.ilkd.key.logic.op.ProgramSV;
 import de.uka.ilkd.key.logic.op.SchemaVariable;
@@ -337,7 +338,13 @@ public class TermFactoryImpl extends TermFactory {
 	    if(args == null || args.isEmpty()) {
 	        return new DotImpl(degree, createProgramVariable(t.getText()));
 	    } else {
-	        NonRigidFunction f = NonRigidFunctionImpl.getFunction(new Name(t.getText()), null, false);
+			de.uka.ilkd.key.logic.op.NonRigidFunctionLocation fun = (NonRigidFunctionLocation) getNamespaces().functions().lookup(new Name(t.getText()));
+			String[] argSorts = new String[fun.arity()];
+			int i = 0;
+			for(Sort s: fun.argSort()) {
+			    argSorts[i++] = s.name().toString();
+			}
+	        NonRigidFunction f = NonRigidFunctionImpl.getFunction(fun.name(), argSorts, true);
 	        FunctionTerm fTerm = createFunctionTerm(f, args);
             return new DotImpl(degree, fTerm);
 	    }
@@ -737,7 +744,13 @@ public class TermFactoryImpl extends TermFactory {
 	    if(args.isEmpty()) {
 	        return new RandomAssignImpl(createProgramVariable(t.getText()));
 	    } else {
-	        NonRigidFunction f = NonRigidFunctionImpl.getFunction(new Name(t.getText()), null, false);
+			de.uka.ilkd.key.logic.op.NonRigidFunctionLocation fun = (NonRigidFunctionLocation) getNamespaces().functions().lookup(new Name(t.getText()));
+			String[] argSorts = new String[fun.arity()];
+			int i = 0;
+			for(Sort s: fun.argSort()) {
+			    argSorts[i++] = s.name().toString();
+			}
+	        NonRigidFunction f = NonRigidFunctionImpl.getFunction(fun.name(), argSorts, true);
 	        FunctionTerm fTerm = createFunctionTerm(f, args);
 	        return new RandomAssignImpl(fTerm);
 	    }

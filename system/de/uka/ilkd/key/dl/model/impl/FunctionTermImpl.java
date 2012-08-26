@@ -51,6 +51,9 @@ public class FunctionTermImpl extends DLNonTerminalProgramElementImpl implements
      *                the parameter of the function
      */
     public FunctionTermImpl(Function f, Expression... param) {
+		if(f == null) {
+			throw new IllegalArgumentException("Function cannot be null");
+		}
         addChild(f);
         for (Expression e : param) {
             if (e == null) {
