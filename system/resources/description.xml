@@ -1756,6 +1756,20 @@ Contributed by: Solofomampionona Fortunat Rajaona</description>
 	<group name="QdL Distributed Hybrid Systems">
 		<example>
 			<name>Distributed Car Control System [simple]</name>
+			<path>/examples/hybrid/qdl/lotofcars.key</path>
+			<description>
+				Models a lot of cars, but simple ones that just follow each other on a straight lane. QdL Hello World.
+			</description>
+			<authors>
+			    <author>platzer</author>
+		    </authors>
+			<publication>DBLP:conf/csl/Platzer10</publication>
+			<resources>
+				<img>/examples/hybrid/qdl/fig-distributed-car-control.png</img>
+			</resources>
+		</example>
+		<example>
+			<name>Distributed Car Control System with creation [simple]</name>
 			<path>/examples/hybrid/qdl/creation.key</path>
 			<description>Arbitrarily many cars moving with a simple controller on a straight lane with new cars appearing dynamically.</description>
 			<authors>
