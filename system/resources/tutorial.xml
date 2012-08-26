@@ -1055,6 +1055,13 @@
 				<path>/examples/hybrid/qdl/llcsimpler.key</path>
 			</exercise>
 			<exercise>
+				<title>Heater Challenge</title>
+				<description>
+					Based on the two extracts of the heater in the earlier exercises. Prove that for this model of two rooms sharing one heater that is switched between the rooms every 1/2 time units, the temperature stays always greater or equal to 15.
+				</description>
+				<path>/examples/hybrid/verifiedsoft/heater-switchdelay.key</path>
+			</exercise>
+			<exercise>
 				<title>Tutorial Challenges</title>
 				<description>
 					<![CDATA[
