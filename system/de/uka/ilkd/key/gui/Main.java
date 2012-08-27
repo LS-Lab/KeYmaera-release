@@ -2872,6 +2872,7 @@ public class Main extends JFrame implements IMain {
     public static void evaluateOptions(String[] opt) {
 	int index = 0;
 	ProofSettings.DEFAULT_SETTINGS.setProfile(new JavaProfile());
+	DLInitializer.initialize();
 	while (opt.length > index) {	    
 	    if ((new File(opt[index])).exists()) {
 		fileNameOnStartUp=opt[index];
@@ -2964,7 +2965,7 @@ public class Main extends JFrame implements IMain {
                 else if (option.equals("FOL")) {                     
                    ProofSettings.DEFAULT_SETTINGS.setProfile(new PureFOLProfile());
                 } else if (option.equals("DL")) {
-                    DLInitializer.initialize();
+					// moved up
                 } else if (option.equals("TIMEOUT")) {
                     long timeout = -1;
                     try {
