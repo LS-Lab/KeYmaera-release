@@ -592,6 +592,58 @@
 				<path>/examples/hybrid/verifiedsoft/time-safe-relative.key</path>
 			</exercise>
 			<exercise>
+				<title>Demo: Model-predictive control equivalence</title>
+				<path>/examples/hybrid/tutorial/lics6-MPC-acceleration-equivalence.key.mathematica.proof</path>
+				<description>
+					<![CDATA[
+					<h3>Model-predictive control equivalence</h3>
+					<p>
+					Proves that the acceleration constraint is equivalent to braking being safe after accelerating for at most ep time units. That is, a car can accelerate for up to ep time units and then brake safely and will always stay in front of traffic light m if and only if the arithmetic constraint on acceleration holds currently.
+					</p>
+					]]>
+				</description>
+				<resources>
+					<img>/examples/hybrid/tutorial/fig-car-too-fast-accel.png</img>
+					<img>/examples/hybrid/tutorial/fig-car-too-fast-vel.png</img>
+					<img>/examples/hybrid/tutorial/fig-car-too-fast-pos.png</img>
+				</resources>
+			</exercise>
+			<exercise>
+				<title>Demo: Model-predictive control design</title>
+				<path>/examples/hybrid/tutorial/lics7-MPC.key.proof</path>
+				<description>
+					<![CDATA[
+					<h3>Model-predictive control design</h3>
+					<p>
+					Model-predictive control version of time-triggered car control. We continue with the single car travelling toward a stop sign, receiving periodic updates about its position and velocity.  The time between sensor updates is bounded by ep. Proves that the car controller will always make the car stay before the traffic light if braking would, with a model-predictive control choice for the acceleration / braking decision.
+					</p>
+					<p>
+					For an easy proof, before solving differential equations in the acceleration case (Case 1), drag the succedent to the first differential equation in the antecedent to differentially refine the antecedent of the acceleration case to be as in the conclusion, i.e., including v>=0.
+					</p>
+					]]>
+				</description>
+				<resources>
+					<img>/examples/hybrid/tutorial/fig-car-too-fast-accel.png</img>
+					<img>/examples/hybrid/tutorial/fig-car-too-fast-vel.png</img>
+					<img>/examples/hybrid/tutorial/fig-car-too-fast-pos.png</img>
+				</resources>
+			</exercise>
+			<exercise>
+				<title>Demo: Bouncing Ball</title>
+				<path>/examples/hybrid/bouncing-ball/bouncing-ball-if.key</path>
+				<description>
+					<![CDATA[
+					<h3>Bouncing ball</h3>
+					<p>
+					A fully parametric version of the bouncing ball that jumps up and down but is bounced back from the ground. This version has a fixed bouncing constant c.
+					</p>
+					]]>
+				</description>
+				<resources>
+					<img>/examples/hybrid/bouncing-ball/fig-bouncing-ball.png</img>
+				</resources>
+			</exercise>
+			<exercise>
 				<title>Ex. 6 Water tank</title>
 				<description>
 				<![CDATA[
@@ -1057,7 +1109,10 @@
 			<exercise>
 				<title>Heater Challenge</title>
 				<description>
+					<![CDATA[
+					<h3>Hybrid heater model</h3>
 					Based on the two extracts of the heater in the earlier exercises. Prove that for this model of two rooms sharing one heater that is switched between the rooms every 1/2 time units, the temperature stays always greater or equal to 15.
+					]]>
 				</description>
 				<path>/examples/hybrid/verifiedsoft/heater-switchdelay.key</path>
 			</exercise>
