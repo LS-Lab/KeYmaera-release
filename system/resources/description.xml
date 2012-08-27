@@ -1757,12 +1757,21 @@ Contributed by: Solofomampionona Fortunat Rajaona</description>
 		<example>
 			<name>Distributed Car Control System [simple]</name>
 			<path>/examples/hybrid/qdl/lotofcars.key</path>
+			<proofs>
+				<proof name="Mathematica" href="/examples/hybrid/qdl/lotofcars.key.proof"/>
+				<proof name="Reduce" href="/examples/hybrid/qdl/lotofcars.key.redlog.proof"/>
+				<proof name="SMT" href="/examples/hybrid/qdl/lotofcars.key.smt.proof"/>
+				<proof name="CohenHormander" href="/examples/hybrid/qdl/lotofcars.key.cohenhormander.proof"/>
+			</proofs>
 			<description>
 				Models a lot of cars, but simple ones that just follow each other on a straight lane. QdL Hello World.
 			</description>
 			<authors>
 			    <author>platzer</author>
 		    </authors>
+			<proofauthors>
+				<author>platzer</author>
+			</proofauthors>
 			<publication>DBLP:conf/csl/Platzer10</publication>
 			<resources>
 				<img>/examples/hybrid/qdl/fig-distributed-car-control.png</img>
