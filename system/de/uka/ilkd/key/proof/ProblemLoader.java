@@ -755,10 +755,20 @@ public class ProblemLoader implements Runnable {
             // ignore -- already done
             result = app;
         } else if (sv.isProgramSV()) {
+            try {
 	    final ProgramElement pe = 
 	        TacletInstantiationsTableModel.getProgramElement(
 		    app, value, sv, services);
 	    result = app.addCheckedInstantiation(sv, pe, services, true);
+            } catch(IllegalStateException e) {
+                // try to just parse is as a term
+                Namespace varNS = p.getNamespaces().variables();
+        	    Namespace progNS = targetGoal.proof().getNamespaces().programVariables();
+        	    progNS.add(varNS);
+        	    final Term t = parseTerm(value, p, varNS, 
+	            targetGoal.getVariableNamespace(progNS));
+        	    result = app.addCheckedInstantiation(sv, t, services, true);
+            }
         } else if ( sv.isSkolemTermSV() ) {
 	    result = app.createSkolemConstant ( value, sv, true, services );
         } else if (sv.isListSV()) {
