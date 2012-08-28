@@ -24,8 +24,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.rmi.RemoteException;
 import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -169,7 +168,7 @@ public class QODESolve extends AbstractDLMetaOperator {
                 Namespace pvNs = services.getNamespaces().programVariables().copy();
                 Map<ProgramVariable, ProgramElement> tmpVars = createTmpVariables(
                         collectNonRigidFunctionTerms, services);
-                Map<FunctionTerm, de.uka.ilkd.key.dl.model.ProgramVariable> inverse = new HashMap<FunctionTerm, de.uka.ilkd.key.dl.model.ProgramVariable>();
+                Map<FunctionTerm, de.uka.ilkd.key.dl.model.ProgramVariable> inverse = new LinkedHashMap<FunctionTerm, de.uka.ilkd.key.dl.model.ProgramVariable>();
                 for (ProgramVariable p : tmpVars.keySet()) {
                     inverse.put((FunctionTerm) tmpVars.get(p), p);
                 }
@@ -292,7 +291,7 @@ public class QODESolve extends AbstractDLMetaOperator {
      */
     private Map<ProgramVariable, ProgramElement> createTmpVariables(
             Set<ProgramElement> collectNonRigidFunctionTerms, Services services) {
-        Map<ProgramVariable, ProgramElement> abbr = new HashMap<ProgramVariable, ProgramElement>();
+        Map<ProgramVariable, ProgramElement> abbr = new LinkedHashMap<ProgramVariable, ProgramElement>();
         String prefix = "tmp";
         for (ProgramElement p : collectNonRigidFunctionTerms) {
             LocationVariable tmp = new LocationVariable(new ProgramElementName(
@@ -316,7 +315,7 @@ public class QODESolve extends AbstractDLMetaOperator {
                         if (o1.equals(o2)) {
                             return 0;
                         } else {
-                            return o1.hashCode() - o2.hashCode();
+                            return o1.toString().compareTo(o2.toString());
                         }
                     }
                 });
