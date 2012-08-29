@@ -10,6 +10,7 @@ package de.uka.ilkd.key.gui.nodeviews;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Collection;
@@ -20,6 +21,7 @@ import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import de.uka.ilkd.key.gui.configuration.Config;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.logic.Sequent;
 import de.uka.ilkd.key.pp.LogicPrinter;
@@ -66,8 +68,17 @@ public abstract class InsertionTacletBrowserMenuItem extends JMenu
         
         menuItem.setToolTipText("Browse applicable taclets.");
         
+    	Font myFont = UIManager.getFont(Config.KEY_FONT_TUTORIAL);
+            if (myFont != null) {
+    	      menuItem.putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, Boolean.TRUE);  // Allow font to changed in JEditorPane when set to "text/html"
+    	      menuItem.setFont(myFont);
+    	} else {
+    	    Debug.out("KEY_FONT_TUTORIAL not available. Use standard font.");
+    	}        
+        
         add(menuItem);
         addSeparator();
+        
     }
 
     /**

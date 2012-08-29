@@ -7,11 +7,17 @@
 // See LICENSE.TXT for details.
 package de.uka.ilkd.key.gui.nodeviews;
 
-import javax.swing.JMenuItem;
+import java.awt.Font;
 
+import javax.swing.JEditorPane;
+import javax.swing.JMenuItem;
+import javax.swing.UIManager;
+
+import de.uka.ilkd.key.gui.configuration.Config;
 import de.uka.ilkd.key.rule.BuiltInRule;
 import de.uka.ilkd.key.smt.SMTRule;
 import de.uka.ilkd.key.smt.SMTRuleMulti;
+import de.uka.ilkd.key.util.Debug;
 
 /** 
  * equal to TacletMenuItem but for BuiltInRules
@@ -36,6 +42,13 @@ class DefaultBuiltInRuleMenuItem extends JMenuItem implements BuiltInRuleMenuIte
         	this.setEnabled(false);
             }
         }
+    	Font myFont = UIManager.getFont(Config.KEY_FONT_TUTORIAL);
+            if (myFont != null) {
+    	      putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, Boolean.TRUE);  // Allow font to changed in JEditorPane when set to "text/html"
+    	      setFont(myFont);
+    	} else {
+    	    Debug.out("KEY_FONT_TUTORIAL not available. Use standard font.");
+    	}        
     } 
 
     public BuiltInRule connectedTo() {

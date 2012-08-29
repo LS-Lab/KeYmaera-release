@@ -1,5 +1,6 @@
 package de.uka.ilkd.key.gui;
 
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -7,18 +8,21 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.UIManager;
 
-import de.uka.ilkd.key.dl.formulatools.SkolemSymbolWithMostParametersVisitor;
 import de.uka.ilkd.key.dl.rules.ReduceRuleApp;
+import de.uka.ilkd.key.gui.configuration.Config;
 import de.uka.ilkd.key.gui.nodeviews.BuiltInRuleMenuItem;
 import de.uka.ilkd.key.logic.Constraint;
 import de.uka.ilkd.key.logic.PosInOccurrence;
 import de.uka.ilkd.key.proof.Proof;
 import de.uka.ilkd.key.rule.BuiltInRule;
 import de.uka.ilkd.key.rule.RuleApp;
+import de.uka.ilkd.key.util.Debug;
 
 /**
  * This JMenuItem is used to store informations entered by the user like the
@@ -60,7 +64,13 @@ public class ReduceRulesItem extends JMenuItem implements BuiltInRuleMenuItem {
             }
 
         });
-
+    	Font myFont = UIManager.getFont(Config.KEY_FONT_TUTORIAL);
+            if (myFont != null) {
+    	      putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, Boolean.TRUE);  // Allow font to changed in JEditorPane when set to "text/html"
+    	      setFont(myFont);
+    	} else {
+    	    Debug.out("KEY_FONT_TUTORIAL not available. Use standard font.");
+    	}      
     }
 
     /**

@@ -7,16 +7,21 @@
 // See LICENSE.TXT for details.
 package de.uka.ilkd.key.gui.nodeviews;
 
+import java.awt.Font;
 import java.io.StringWriter;
 import java.io.Writer;
 
+import javax.swing.JEditorPane;
 import javax.swing.JMenuItem;
+import javax.swing.UIManager;
 
+import de.uka.ilkd.key.gui.configuration.Config;
 import de.uka.ilkd.key.gui.configuration.ProofSettings;
 import de.uka.ilkd.key.pp.LogicPrinter;
 import de.uka.ilkd.key.pp.NotationInfo;
 import de.uka.ilkd.key.pp.ProgramPrinter;
 import de.uka.ilkd.key.rule.TacletApp;
+import de.uka.ilkd.key.util.Debug;
 import de.uka.ilkd.key.util.pp.WriterBackend;
 
 /** 
@@ -78,6 +83,14 @@ class DefaultTacletMenuItem extends JMenuItem implements TacletMenuItem {
 
 
         setToolTipText(taclet_sb.toString());
+    	Font myFont = UIManager.getFont(Config.KEY_FONT_TUTORIAL);
+            if (myFont != null) {
+    	      putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, Boolean.TRUE);  // Allow font to changed in JEditorPane when set to "text/html"
+    	      setFont(myFont);
+    	} else {
+    	    Debug.out("KEY_FONT_TUTORIAL not available. Use standard font.");
+    	}        
+        
     } 
     
     /**

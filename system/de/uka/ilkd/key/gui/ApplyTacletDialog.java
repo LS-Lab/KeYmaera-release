@@ -12,19 +12,33 @@
 package de.uka.ilkd.key.gui;
 
 
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.GridLayout;
+import java.awt.Insets;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.StringWriter;
 import java.io.Writer;
 
-import javax.swing.*;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JEditorPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.ScrollPaneConstants;
+import javax.swing.UIManager;
 import javax.swing.border.TitledBorder;
 
 import org.apache.log4j.Logger;
 
 import de.uka.ilkd.key.collection.ImmutableList;
+import de.uka.ilkd.key.gui.configuration.Config;
 import de.uka.ilkd.key.gui.configuration.ProofSettings;
 import de.uka.ilkd.key.logic.Named;
 import de.uka.ilkd.key.pp.LogicPrinter;
@@ -32,6 +46,7 @@ import de.uka.ilkd.key.pp.ProgramPrinter;
 import de.uka.ilkd.key.proof.ApplyTacletDialogModel;
 import de.uka.ilkd.key.rule.Taclet;
 import de.uka.ilkd.key.rule.inst.SVInstantiations;
+import de.uka.ilkd.key.util.Debug;
 import de.uka.ilkd.key.util.pp.StringBackend;
 
 
@@ -88,6 +103,16 @@ public abstract class ApplyTacletDialog extends JDialog {
 		return i+1;
     }
     
+	public static void setFont(JTextArea t) {
+		Font myFont = UIManager.getFont(Config.KEY_FONT_TUTORIAL);
+            if (myFont != null) {
+    	      t.putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, Boolean.TRUE);  // Allow font to changed in JEditorPane when set to "text/html"
+    	      t.setFont(myFont);
+    	} else {
+    	    Debug.out("KEY_FONT_TUTORIAL not available. Use standard font.");
+    	}      
+	}
+	
     protected JPanel createInfoPanel() {
 	ImmutableList<Named> vars=model[0].programVariables().elements();
 	JPanel panel = new JPanel(new GridLayout(1,1));
@@ -99,6 +124,7 @@ public abstract class ApplyTacletDialog extends JDialog {
 	} else {
 	    text = new JTextArea("none",1,40);
 	}
+	setFont(text);
 	scroll.setViewportView(text);
 	text.setEditable(false);
 	panel.add(scroll, BorderLayout.CENTER);
@@ -138,6 +164,7 @@ public abstract class ApplyTacletDialog extends JDialog {
         if (nolines>10) nolines=11;
         //JTextArea text=new JTextArea(model[0].taclet().toString(),nolines,40);
         JTextArea text=new JTextArea(tacletSB.toString(), nolines, 68);
+        setFont(text);
         text.setEditable(false);
         scroll.setViewportView(text);
         panel.add(scroll, BorderLayout.CENTER);
@@ -156,6 +183,7 @@ public abstract class ApplyTacletDialog extends JDialog {
         statusPanel = new JPanel(new BorderLayout());
 
         statusArea = new JTextArea();
+        setFont(statusArea);
 	statusArea.setEditable(false);
 
         statusPanel.add(

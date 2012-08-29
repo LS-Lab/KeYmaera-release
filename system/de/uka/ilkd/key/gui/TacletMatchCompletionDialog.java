@@ -10,20 +10,50 @@
 
 package de.uka.ilkd.key.gui;
 
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.GridLayout;
+import java.awt.Insets;
+import java.awt.Point;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
-import java.awt.dnd.*;
+import java.awt.dnd.DnDConstants;
+import java.awt.dnd.DropTarget;
+import java.awt.dnd.DropTargetDragEvent;
+import java.awt.dnd.DropTargetDropEvent;
+import java.awt.dnd.DropTargetEvent;
+import java.awt.dnd.DropTargetListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 
-import javax.swing.*;
+import javax.swing.BoxLayout;
+import javax.swing.DefaultCellEditor;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JEditorPane;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JTable;
+import javax.swing.JTextArea;
+import javax.swing.ScrollPaneConstants;
+import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
@@ -31,10 +61,16 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 
 import de.uka.ilkd.key.dl.DLProfile;
+import de.uka.ilkd.key.gui.configuration.Config;
 import de.uka.ilkd.key.gui.configuration.PathConfig;
 import de.uka.ilkd.key.logic.Namespace;
 import de.uka.ilkd.key.logic.NamespaceSet;
-import de.uka.ilkd.key.proof.*;
+import de.uka.ilkd.key.proof.ApplyTacletDialogModel;
+import de.uka.ilkd.key.proof.Goal;
+import de.uka.ilkd.key.proof.ModelChangeListener;
+import de.uka.ilkd.key.proof.ModelEvent;
+import de.uka.ilkd.key.proof.SVInstantiationExceptionWithPosition;
+import de.uka.ilkd.key.proof.TacletInstantiationsTableModel;
 import de.uka.ilkd.key.rule.Taclet;
 import de.uka.ilkd.key.rule.TacletApp;
 import de.uka.ilkd.key.util.Debug;
@@ -546,7 +582,18 @@ public class TacletMatchCompletionDialog extends ApplyTacletDialog {
 		}
 	    }
 	}	
-
+	
+	public static void setFont(JTextArea t) {
+		Font myFont = UIManager.getFont(Config.KEY_FONT_TUTORIAL);
+            if (myFont != null) {
+    	      t.putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, Boolean.TRUE);  // Allow font to changed in JEditorPane when set to "text/html"
+    	      t.setFont(myFont);
+    	} else {
+    	    Debug.out("KEY_FONT_TUTORIAL not available. Use standard font.");
+    	}      
+	    
+	}
+	
 	class InputEditor extends DefaultCellEditor implements PositionSettable{
 
 	    JPanel editPanel;
@@ -557,6 +604,7 @@ public class TacletMatchCompletionDialog extends ApplyTacletDialog {
                                         //expects a check box, combo box,
                                         //or text field.
 		textarea=ta;
+		setFont(ta);
 		editPanel = new JPanel();
 		editPanel.setLayout(new BoxLayout(editPanel, BoxLayout.X_AXIS));
 		editPanel.add(new JScrollPane(textarea,
@@ -683,7 +731,7 @@ public class TacletMatchCompletionDialog extends ApplyTacletDialog {
 	class InputCellRenderer extends DefaultTableCellRenderer {
 	    
 	    JTextArea ta=new JTextArea("nothing");
-
+	    
 	    public Component getTableCellRendererComponent
 		(JTable table, Object obj, 
 		 boolean isSelected, boolean hasFocus,
@@ -698,6 +746,13 @@ public class TacletMatchCompletionDialog extends ApplyTacletDialog {
 		    ta.setBackground(Color.white);
 		    ta.setForeground(Color.gray);
 		}
+		Font myFont = UIManager.getFont(Config.KEY_FONT_TUTORIAL);
+        if (myFont != null) {
+	        ta.putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, Boolean.TRUE);  // Allow font to changed in JEditorPane when set to "text/html"
+	        ta.setFont(myFont);
+    	} else {
+    	    Debug.out("KEY_FONT_TUTORIAL not available. Use standard font.");
+    	}      
 		return ta;
 	    }
 	}
