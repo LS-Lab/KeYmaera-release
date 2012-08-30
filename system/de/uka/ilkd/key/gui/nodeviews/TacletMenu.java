@@ -10,6 +10,7 @@
 package de.uka.ilkd.key.gui.nodeviews;
 
 import java.awt.Component;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -19,6 +20,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -26,6 +28,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.MenuElement;
 import javax.swing.MenuSelectionManager;
+import javax.swing.UIManager;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -45,6 +48,7 @@ import de.uka.ilkd.key.gui.assistant.AIAction;
 import de.uka.ilkd.key.gui.assistant.BuiltInRuleSelectedInput;
 import de.uka.ilkd.key.gui.assistant.ProofAssistantController;
 import de.uka.ilkd.key.gui.assistant.RuleEventInput;
+import de.uka.ilkd.key.gui.configuration.Config;
 import de.uka.ilkd.key.gui.configuration.ProofSettings;
 import de.uka.ilkd.key.java.ProgramElement;
 import de.uka.ilkd.key.logic.JavaBlock;
@@ -71,6 +75,7 @@ import de.uka.ilkd.key.rule.TacletSchemaVariableCollector;
 import de.uka.ilkd.key.smt.DecProcRunner;
 import de.uka.ilkd.key.smt.SMTRule;
 import de.uka.ilkd.key.smt.SMTRuleMulti;
+import de.uka.ilkd.key.util.Debug;
 
 /**
  *  This class creates a menu with Taclets as entries. The invoker has
@@ -297,6 +302,15 @@ class TacletMenu extends JMenu {
 	}else{
 	    sc = new JMenuItem("Create abbreviation");
 	}
+	Font myFont = UIManager.getFont(Config.KEY_FONT_TUTORIAL);
+	if (myFont != null) {
+		sc.putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES,
+				Boolean.TRUE); // Allow font to changed in JEditorPane when
+							   // set to "text/html"
+		sc.setFont(myFont);
+	} else {
+		Debug.out("KEY_FONT_TUTORIAL not available. Use standard font.");
+	}
 	sc.addActionListener(control);
 	add(sc);
     }
@@ -373,7 +387,15 @@ class TacletMenu extends JMenu {
             }
         }
     });
-	
+        Font myFont = UIManager.getFont(Config.KEY_FONT_TUTORIAL);
+        if (myFont != null) {
+            item.putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES,
+                    Boolean.TRUE); // Allow font to changed in JEditorPane when
+                                   // set to "text/html"
+            item.setFont(myFont);
+        } else {
+            Debug.out("KEY_FONT_TUTORIAL not available. Use standard font.");
+        }
 	add(item);
     }
     
@@ -447,6 +469,15 @@ class TacletMenu extends JMenu {
 	addSeparator();
 	JMenuItem item = new JMenuItem(TO_CLIPBOARD);
 	item.addActionListener(control);
+    Font myFont = UIManager.getFont(Config.KEY_FONT_TUTORIAL);
+    if (myFont != null) {
+        item.putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES,
+                Boolean.TRUE); // Allow font to changed in JEditorPane when
+                               // set to "text/html"
+        item.setFont(myFont);
+    } else {
+        Debug.out("KEY_FONT_TUTORIAL not available. Use standard font.");
+    }
 	add(item);
     }
     
@@ -688,6 +719,15 @@ class TacletMenu extends JMenu {
                         "highlighted formula, term or sequent.<br> "+
                         "'Shift + left mouse click' on the highlighted " +
                         "entity does the same.</html>");
+            Font myFont = UIManager.getFont(Config.KEY_FONT_TUTORIAL);
+            if (myFont != null) {
+                putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES,
+                        Boolean.TRUE); // Allow font to changed in JEditorPane
+                                       // when set to "text/html"
+                setFont(myFont);
+            } else {
+                Debug.out("KEY_FONT_TUTORIAL not available. Use standard font.");
+            }
         }
                
     }
