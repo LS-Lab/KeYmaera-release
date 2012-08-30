@@ -70,6 +70,8 @@ public abstract class InsertionTacletBrowserMenuItem extends JMenu
         
     	Font myFont = UIManager.getFont(Config.KEY_FONT_TUTORIAL);
             if (myFont != null) {
+    	      putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, Boolean.TRUE);  // Allow font to changed in JEditorPane when set to "text/html"
+    	      setFont(myFont);
     	      menuItem.putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, Boolean.TRUE);  // Allow font to changed in JEditorPane when set to "text/html"
     	      menuItem.setFont(myFont);
     	} else {
