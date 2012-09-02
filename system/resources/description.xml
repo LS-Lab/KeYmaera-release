@@ -1783,7 +1783,7 @@ Contributed by: Solofomampionona Fortunat Rajaona</description>
     </group>
 	<group name="QdL Distributed Hybrid Systems">
 		<example>
-			<name>Distributed Car Control System [simple]</name>
+			<name>Distributed Car Control [simple]</name>
 			<path>/examples/hybrid/qdl/lotofcars.key</path>
 			<proofs>
 				<proof name="Mathematica" href="/examples/hybrid/qdl/lotofcars.key.proof"/>
@@ -1806,7 +1806,7 @@ Contributed by: Solofomampionona Fortunat Rajaona</description>
 			</resources>
 		</example>
 		<example>
-			<name>Distributed Car Control System with creation [simple]</name>
+			<name>Distributed Car Control with creation [simple]</name>
 			<path>/examples/hybrid/qdl/creation.key</path>
 			<description>Arbitrarily many cars moving with a simple controller on a straight lane with new cars appearing dynamically.</description>
 			<authors>
