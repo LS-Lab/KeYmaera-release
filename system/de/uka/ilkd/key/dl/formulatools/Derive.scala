@@ -31,7 +31,8 @@ import de.uka.ilkd.key.dl.logic.ldt.RealLDT
  * @author jdq
  *
  */
-object Derive {
+object 
+ {
   implicit def term2richterm(t: Term): RichTerm = new RichTerm(t)
   implicit def int2term(i: Int) = TermBuilder.DF.func(NumberCache.getNumber(
     new BigDecimal(i), RealLDT.getRealSort()))
@@ -72,7 +73,7 @@ object Derive {
       } catch {
         case e: Exception => {
           throw new UnsupportedOperationException(
-            "Not implemented for polynomial exponents: "
+            "Derive not implemented for nonintegral exponents: "
               + b, e);
         }
       }

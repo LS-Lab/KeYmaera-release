@@ -112,9 +112,9 @@ ex_right  =  "The some right rule asks you for an instantiation. Just press Appl
 allLeftHide = "The quantified formula has been hidden. Add it to the sequent again by applying rule 'insertHidden'. You can also apply this rule via drag and drop, just drag the quantified formula on the term you want it to instantiate with."
 exRightHide = "The quantified formula has been hidden. Add it to the sequent again by applying rule 'insertHidden'. You can also apply this rule via drag and drop, just drag the quantified formula on the term you want it to instantiate with."
 
-hide_left = "The <b>hide</b> rule allows you to remove a formula. You can add it later again if you want using the insert hidden rule in the taclet menu."
+hide_left = "The <b>hide</b> rule allows you to remove a formula. You can add it later again if you want using the <b>Insert Hidden</b> rule that you can apply to the sequent arrow."
 
-hide_right = "The <b>hide</b> rule allows you to remove a formula. You can add it later again if you want using the insert hidden rule in the taclet menu."
+hide_right = "The <b>hide</b> rule allows you to remove a formula. You can add it later again if you want using the <b>Insert Hidden</b> rule that you can apply to the sequent arrow.""
 
 instAll  =  "You have instantiated a quantifier. Next time try to drag the term on the quantifier."
 instEx   =  "You have instantiated a quantifier. Next time try to drag the term on the quantifier."
