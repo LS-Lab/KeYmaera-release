@@ -28,9 +28,13 @@ import de.uka.ilkd.key.dl.model.DLProgramElement;
 import de.uka.ilkd.key.dl.model.Expression;
 import de.uka.ilkd.key.dl.model.FunctionTerm;
 import de.uka.ilkd.key.dl.model.ProgramVariable;
+import de.uka.ilkd.key.java.NameAbstractionTable;
 import de.uka.ilkd.key.java.ProgramElement;
 import de.uka.ilkd.key.java.Services;
+import de.uka.ilkd.key.java.SourceElement;
+import de.uka.ilkd.key.java.declaration.VariableSpecification;
 import de.uka.ilkd.key.java.reference.ExecutionContext;
+import de.uka.ilkd.key.logic.Named;
 
 /**
  * The implementation of an assignment ({@link Assign})
@@ -79,6 +83,35 @@ public class AssignImpl extends DLNonTerminalProgramElementImpl implements
     public boolean printInfix() {
         return true;
     }
+
+    //@TODO check implementation!
+    /*public boolean equalsModRenaming(SourceElement se, 
+    		NameAbstractionTable nat) {
+    	if (!(se instanceof Assign)) {
+    		return false;
+    	}		 
+    	final Assign b = (Assign)se;
+    	System.out.println("checking");
+    	if (getChildAt(0) instanceof ProgramVariable && b.getChildAt(0) instanceof ProgramVariable) {
+        	//@todo check that same types and return false if different
+    	} else {
+    		//@TODO check for FunctionTerm cases
+    		return false;
+    	}
+    	System.out.println("checking still");
+    	nat.add(getChildAt(0), b.getChildAt(0));	
+    	if (b.getChildCount()!=getChildCount()) {
+    		return false;
+    	}	
+    	for (int i = 0, cc = getChildCount(); i<cc; i++) {
+    		if (!getChildAt(i).equalsModRenaming
+    				(b.getChildAt(i), nat)) {
+    			return false;
+    		}
+    	}
+    	System.out.println("checking ok");
+    	return true;	
+    }*/
 
     /*
      * (non-Javadoc)
