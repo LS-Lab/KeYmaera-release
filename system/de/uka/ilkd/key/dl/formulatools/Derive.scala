@@ -31,8 +31,7 @@ import de.uka.ilkd.key.dl.logic.ldt.RealLDT
  * @author jdq
  *
  */
-object 
- {
+object Derive {
   implicit def term2richterm(t: Term): RichTerm = new RichTerm(t)
   implicit def int2term(i: Int) = TermBuilder.DF.func(NumberCache.getNumber(
     new BigDecimal(i), RealLDT.getRealSort()))
