@@ -73,20 +73,13 @@ public class DerivativeCreator {
 			Map<String, Term> map, Services services) {
 		if (form instanceof PredicateTerm) {
 			PredicateTerm pred = (PredicateTerm) form;
-			if (pred.getChildAt(0) instanceof Equals) {
-				if (pred.getChildAt(1) instanceof Dot) {
+			// we can only handle differential equations of the form x'=f(x,y) here
+			if (pred.getChildAt(0) instanceof Equals && pred.getChildAt(1) instanceof Dot) {
 					de.uka.ilkd.key.dl.model.ProgramVariable pv = (de.uka.ilkd.key.dl.model.ProgramVariable) ((Dot) pred
 							.getChildAt(1)).getChildAt(0);
 					String pvName = pv.getElementName().toString();
 					map.put(pvName, Prog2LogicConverter.convert(
 							(DLProgramElement) pred.getChildAt(2), services));
-				} else {
-					// @todo could "a=b+5" be an equation in the diff-free
-					// evolution domain constraint? Or will this not end up
-					// here?
-					System.err.println("Don't know what to do with " + pred
-							+ " that is occurring in a diff system");
-				}
 			} else {
 			    if(containsDots(pred)) {
                     // could "a'>=b+5" be an equation in the diff-free
