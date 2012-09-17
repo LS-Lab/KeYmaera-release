@@ -85,9 +85,10 @@ public class DerivativeCreator {
                     // could "a'>=b+5" be an equation in the diff-free
                     throw new IllegalArgumentException(
                             "Don't know how to handle predicate "
-                                    + pred.getChildAt(0));
+                                    + pred.getChildAt(0) + " in " + pred);
 			    } else {
 			      // ignore evolution domain constraint  
+			        System.out.println("Ignoring " + pred);
 			    }
 			}
 		}
@@ -104,16 +105,16 @@ public class DerivativeCreator {
      * @return
      */
     private static boolean containsDots(DLProgramElement pred) {
-        if (pred instanceof DLNonTerminalProgramElement) {
+        if(pred instanceof Dot) {
+            return true;
+        } else if (pred instanceof DLNonTerminalProgramElement) {
             DLNonTerminalProgramElement dlnpe = (DLNonTerminalProgramElement) pred;
             for (ProgramElement p : dlnpe) {
-                if(p instanceof Dot) {
+                if(containsDots((DLProgramElement) p)) {
                     return true;
                 }
             }
             return false;
-        } else if(pred instanceof Dot) {
-            return true;
         }
         return false;
     }
