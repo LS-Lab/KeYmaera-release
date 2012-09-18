@@ -200,10 +200,30 @@ public class NamespaceSet {
         return null;
     }
     
+    /**
+     * Get a unique name within the _current_ namespaces
+     * 
+     * WARNING: Note that if you need multiple names, you need to add the object for
+     * which you generated the name first. Otherwise, you might get the same
+     * name twice!
+     * 
+     * @param prefix
+     * @return
+     */
     public String getUniqueName(String prefix) {
         return getUniqueName(prefix, false);
     }
     
+    /**
+     * Get a unique name within the _current_ namespaces
+     * 
+     * WARNING: Note that if you need multiple names, you need to add the object for
+     * which you generated the name first. Otherwise, you might get the same
+     * name twice!
+     * 
+     * @param prefix
+     * @return
+     */
     public String getUniqueName(String prefix, boolean increaseIndex) {
         if (prefix == null || prefix.equals("")) {
             prefix = "_var";
