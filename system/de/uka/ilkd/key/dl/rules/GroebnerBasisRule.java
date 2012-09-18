@@ -97,7 +97,7 @@ public class GroebnerBasisRule implements SequentWideBuiltInRule, RuleFilter {
 			succ.add(it.next().formula());
 		}
 		PolynomialClassification<Term> classify = SumOfSquaresChecker.classify(
-				ante, succ);
+				ante, succ, services);
 
 		if (MathSolverManager.isGroebnerBasisCalculatorSet()) {
 			IGroebnerBasisCalculator m = MathSolverManager

@@ -73,6 +73,7 @@ import de.uka.ilkd.key.dl.model.LessEquals;
 import de.uka.ilkd.key.dl.model.Minus;
 import de.uka.ilkd.key.dl.model.Unequals;
 import de.uka.ilkd.key.dl.parser.NumberCache;
+import de.uka.ilkd.key.gui.Main;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.TermBuilder;
@@ -81,6 +82,7 @@ import de.uka.ilkd.key.logic.op.Function;
 import de.uka.ilkd.key.logic.op.Op;
 import de.uka.ilkd.key.logic.op.Operator;
 import de.uka.ilkd.key.logic.op.TermSymbol;
+import de.uka.ilkd.key.pp.LogicPrinter;
 
 /**
  * @author jdq
@@ -115,6 +117,22 @@ public class SumOfSquaresChecker implements ISOSChecker {
 			this.g = g;
 			this.h = h;
 		}
+		
+		public String toString() {
+			String s = "PolynomialClassification[";
+			Services services = Main.getInstance().mediator().getServices();
+			for (T t : f) {
+				if (t instanceof Term) s += "'>' " + LogicPrinter.quickPrintTerm((Term)t, services);
+			}
+			for (T t : g) {
+				if (t instanceof Term) s += "'!=' " + LogicPrinter.quickPrintTerm((Term)t, services);
+			}
+			for (T t : h) {
+				if (t instanceof Term) s += "'='  " + LogicPrinter.quickPrintTerm((Term)t, services);
+			}
+			s += "]";
+			return s;
+		}
 	}
 
 	public SumOfSquaresChecker(Node n) {
@@ -130,10 +148,11 @@ public class SumOfSquaresChecker implements ISOSChecker {
 	 *            the antecedent of the sequent
 	 * @param succ
 	 *            the succedent of the sequent
+	 * @param services TODO
 	 * @return a classification of the given terms
 	 */
 	public static PolynomialClassification<Term> classify(Set<Term> ante,
-			Set<Term> succ) {
+			Set<Term> succ, Services services) {
 		System.out.println("Computing f, g^2 and h");// XXX
 		final Function lt = RealLDT.getFunctionFor(Less.class);
 		final Function leq = RealLDT.getFunctionFor(LessEquals.class);
@@ -146,7 +165,7 @@ public class SumOfSquaresChecker implements ISOSChecker {
 		// handle succedent
 		Set<Term> conjunction = new HashSet<Term>();
                 for (Term t : succ) {
-			System.out.println("Checking " + t);
+			System.out.println("Checking succedent part " + LogicPrinter.quickPrintTerm(t, services));
 			Term sub, sub2;
 			Operator op;
 			if (t.op().equals(Op.NOT)) {
@@ -264,7 +283,9 @@ public class SumOfSquaresChecker implements ISOSChecker {
 						"Dont know how to handle the predicate " + t.op());
 			}
 		}
-		return new PolynomialClassification<Term>(f, g, h);
+		PolynomialClassification<Term> result = new PolynomialClassification<Term>(f, g, h);
+		System.out.println(result);
+		return result;
 	}
 
 	/**
@@ -1746,7 +1767,7 @@ public class SumOfSquaresChecker implements ISOSChecker {
 	@Override
 	public boolean testForTautology(Set<Term> ante, Set<Term> succ,
 			Services services) throws RemoteException {
-		return checkCombinedSetForEmptyness(classify(ante, succ), 15); //FIXME: degree bound is hardcoded
+		return checkCombinedSetForEmptyness(classify(ante, succ, null), 15); //FIXME: degree bound is hardcoded
 	}
 
 	/* (non-Javadoc)
