@@ -26,6 +26,7 @@ import java.math.BigDecimal;
 import java.rmi.RemoteException;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Set;
@@ -46,6 +47,7 @@ import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.logic.ConstrainedFormula;
 import de.uka.ilkd.key.logic.Constraint;
 import de.uka.ilkd.key.logic.Name;
+import de.uka.ilkd.key.logic.Namespace;
 import de.uka.ilkd.key.logic.PosInOccurrence;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.TermBuilder;
@@ -53,6 +55,7 @@ import de.uka.ilkd.key.logic.Visitor;
 import de.uka.ilkd.key.logic.op.LogicVariable;
 import de.uka.ilkd.key.logic.op.Op;
 import de.uka.ilkd.key.logic.sort.Sort;
+import de.uka.ilkd.key.pp.LogicPrinter;
 import de.uka.ilkd.key.proof.Goal;
 import de.uka.ilkd.key.proof.RuleFilter;
 import de.uka.ilkd.key.rule.Rule;
@@ -122,11 +125,16 @@ public class GroebnerBasisRule implements SequentWideBuiltInRule, RuleFilter {
 							new BigDecimal(2), r));
 					de.uka.ilkd.key.logic.op.Function exp = RealLDT
 							.getFunctionFor(Exp.class);
+					Namespace vars = services.getNamespaces().variables().copy();
 					while (squares.size() < classify.f.size()) {
 						Name n = new Name(services.getNamespaces().getUniqueName(basename));
-						squares.add(TermBuilder.DF.func(exp, TermBuilder.DF
-								.var(new LogicVariable(n, r)), two));
+						final LogicVariable v = new LogicVariable(n, r);
+                        squares.add(TermBuilder.DF.func(exp, TermBuilder.DF
+								.var(v), two));
+                        services.getNamespaces().variables().add(v);
 					}
+					// reset the namespaces (we just needed to add the vars for the unique name method
+					services.getNamespaces().setVariables(vars);
 					de.uka.ilkd.key.logic.op.Function sub = RealLDT
 							.getFunctionFor(Minus.class);
 					de.uka.ilkd.key.logic.op.Function mul = RealLDT
@@ -134,8 +142,16 @@ public class GroebnerBasisRule implements SequentWideBuiltInRule, RuleFilter {
 
 					// now we add the new equations
 					for (Term t : classify.f) {
-						classify.h.add(TermBuilder.DF.equals(TermBuilder.DF
-								.func(sub, t.sub(0), squares.poll()), zero));
+						final Term equals = TermBuilder.DF.equals(TermBuilder.DF
+								.func(sub, t.sub(0), squares.poll()), zero);
+                        System.out
+                                .println("Replacing "
+                                        + LogicPrinter.quickPrintTerm(t,
+                                                services)
+                                        + " by "
+                                        + LogicPrinter.quickPrintTerm(equals,
+                                                services));
+                        classify.h.add(equals);
 						// classify.h.add(TermBuilder.DF.equals(TermBuilder.DF
 						// .func(mul, t.sub(0), squares.poll()), one));
 					}

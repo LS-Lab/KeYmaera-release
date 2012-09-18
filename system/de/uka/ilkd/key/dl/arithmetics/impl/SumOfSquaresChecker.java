@@ -100,7 +100,7 @@ public class SumOfSquaresChecker implements ISOSChecker {
 
 	public static class PolynomialClassification<T> {
 		/**
-		 * the set of polynomials with condition f > 0
+		 * the set of polynomials with condition f >= 0
 		 */
 		public Set<T> f;
 		/**
@@ -159,12 +159,12 @@ public class SumOfSquaresChecker implements ISOSChecker {
 		final Function geq = RealLDT.getFunctionFor(GreaterEquals.class);
 		final Function gt = RealLDT.getFunctionFor(Greater.class);
 		final Function neq = RealLDT.getFunctionFor(Unequals.class);
-                final Function minus = RealLDT.getFunctionFor(Minus.class);
+        final Function minus = RealLDT.getFunctionFor(Minus.class);
 		final Term zero = TermBuilder.DF.func(NumberCache.getNumber(
 				new BigDecimal(0), RealLDT.getRealSort()));
 		// handle succedent
 		Set<Term> conjunction = new HashSet<Term>();
-                for (Term t : succ) {
+        for (Term t : succ) {
 			System.out.println("Checking succedent part " + LogicPrinter.quickPrintTerm(t, services));
 			Term sub, sub2;
 			Operator op;
@@ -227,6 +227,8 @@ public class SumOfSquaresChecker implements ISOSChecker {
 				conjunction.add(TermBuilder.DF.equals(sub, sub2));
 			}
 		}
+		// now all formulas in the set conjunction can be considered as formulas in the antecedent
+		// during the previous loops the predicates where negated where necessary
 		System.out.println("Finished computing conjunction");// XXX
 		// split to f, g, h
 		Set<Term> f = new HashSet<Term>();
@@ -235,12 +237,14 @@ public class SumOfSquaresChecker implements ISOSChecker {
 		for (Term t : conjunction) {
 			if (t.op() == Equality.EQUALS) {
 				// H is the set of equalities thus we just need to add this term
+			    // This is, for "a = b" we add a - b = 0 to H
 				h.add(TermBuilder.DF
 						.equals(TermBuilder.DF.func(minus, t.sub(0), t
 								.sub(1)), zero));
 			} else if (t.op().equals(neq)) {
 				// G is the set of unequalities thus we just need to add this
 				// term
+			    // This is, for "a != b" we add a - b = 0 to G
 				g.add(TermBuilder.DF
 						.func(neq, TermBuilder.DF.func(minus, t.sub(0), t
 								.sub(1)), zero));
@@ -317,7 +321,7 @@ public class SumOfSquaresChecker implements ISOSChecker {
 	/**
 	 * Generate polynomials from the given term classification. The result
 	 * contains only the leftside polynomial of the inequalities, where for f
-	 * the omitted part is > 0, for g it is != 0 and for h it is = 0.
+	 * the omitted part is >= 0, for g it is != 0 and for h it is = 0.
 	 */
 	public static PolynomialClassification<Polynomial> classify(
 			PolynomialClassification<Term> cla) {
@@ -327,7 +331,7 @@ public class SumOfSquaresChecker implements ISOSChecker {
 	/**
 	 * Generate polynomials from the given term classification. The result
 	 * contains only the leftside polynomial of the inequalities, where for f
-	 * the omitted part is > 0, for g it is != 0 and for h it is = 0.
+	 * the omitted part is >= 0, for g it is != 0 and for h it is = 0.
 	 */
 	public static PolynomialClassification<Polynomial> classify(
 			PolynomialClassification<Term> cla, boolean addAddtionalVariable) {
