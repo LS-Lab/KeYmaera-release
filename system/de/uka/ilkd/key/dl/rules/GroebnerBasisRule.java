@@ -131,7 +131,7 @@ public class GroebnerBasisRule implements SequentWideBuiltInRule, RuleFilter {
 						final LogicVariable v = new LogicVariable(n, r);
                         squares.add(TermBuilder.DF.func(exp, TermBuilder.DF
 								.var(v), two));
-                        services.getNamespaces().variables().add(v);
+                        services.getNamespaces().variables().addSafely(v);
 					}
 					// reset the namespaces (we just needed to add the vars for the unique name method
 					services.getNamespaces().setVariables(vars);
@@ -144,13 +144,6 @@ public class GroebnerBasisRule implements SequentWideBuiltInRule, RuleFilter {
 					for (Term t : classify.f) {
 						final Term equals = TermBuilder.DF.equals(TermBuilder.DF
 								.func(sub, t.sub(0), squares.poll()), zero);
-                        System.out
-                                .println("Replacing "
-                                        + LogicPrinter.quickPrintTerm(t,
-                                                services)
-                                        + " by "
-                                        + LogicPrinter.quickPrintTerm(equals,
-                                                services));
                         classify.h.add(equals);
 						// classify.h.add(TermBuilder.DF.equals(TermBuilder.DF
 						// .func(mul, t.sub(0), squares.poll()), one));

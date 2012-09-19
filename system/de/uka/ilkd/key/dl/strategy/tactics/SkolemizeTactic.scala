@@ -53,7 +53,7 @@ object SkolemizeTactic {
     ta = ta.createSkolemFunctions(s.getNamespaces().functions(), s)
     val skC = ta.instantiations().lookupValue(new Name("sk"))
     val trm = ta.instantiations().lookupValue(new Name("trm"))
-    s.getNamespaces().functions().add(skC.asInstanceOf[Term].op())
+    s.getNamespaces().functions().addSafely(skC.asInstanceOf[Term].op())
     // apply the skolemize rule
     ta.execute(g, s)
     var skip = -1

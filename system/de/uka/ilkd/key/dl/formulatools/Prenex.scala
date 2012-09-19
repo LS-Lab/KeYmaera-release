@@ -117,7 +117,7 @@ object Prenex {
   def newVarName(v: String, s: Sort, nss: NamespaceSet): LogicVariable = {
     val n = nss.getUniqueName(v, true) 
     val sym = new LogicVariable(n, s);
-    nss.variables().add(sym);
+    nss.variables().addSafely(sym);
     sym;
   }
 }
