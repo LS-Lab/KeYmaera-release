@@ -59,6 +59,38 @@ public class WindowsOsDefaultProperties extends OsDefaultProperties {
 		return z3.getAbsolutePath();
 	}
 
+	
+	  /*
+    * (non-Javadoc)
+    * 
+    * @see
+    * de.uka.ilkd.key.dl.gui.initialdialog.defaultsettings.OsDefaultProperties
+    * #getMetitBinaryPath()
+    */
+   @Override
+   protected String getMetitBinaryPath() {
+      File metit = new File("C:" + sp + "Program Files" + sp + "metit-2.0" + sp + "metit.exe");
+      
+      if (!metit.exists())
+         metit = new File("C:" +sp + "metit-2.0" + sp + "metit.exe");
+      return metit.getAbsolutePath();
+   }
+
+   /*
+    * (non-Javadoc)
+    * 
+    * @see
+    * de.uka.ilkd.key.dl.gui.initialdialog.defaultsettings.OsDefaultProperties
+    * #getMetitAxiomPath()
+    */
+   @Override
+   protected String getMetitAxiomPath() {
+      File metitAxioms = new File("C:" + sp + "Program Files" + sp + "metit-2.0" + sp + "tptp");
+      if (!metitAxioms.exists())
+         metitAxioms = new File("C:"+ sp + "metit-2.0" + "tptp");
+      return metitAxioms.getAbsolutePath();
+   }
+   
 	/*
 	 * (non-Javadoc)
 	 * 

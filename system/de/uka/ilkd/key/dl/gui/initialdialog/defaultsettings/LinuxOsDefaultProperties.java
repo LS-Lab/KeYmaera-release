@@ -63,6 +63,37 @@ public class LinuxOsDefaultProperties extends OsDefaultProperties implements
 		return z3.getAbsolutePath();
 	}
 
+	  /*
+    * (non-Javadoc)
+    * 
+    * @see
+    * de.uka.ilkd.key.dl.gui.initialdialog.defaultsettings.OsDefaultProperties
+    * #getMetitBinaryPath()
+    */
+   @Override
+   protected String getMetitBinaryPath() {
+      File metit = new File(  "sp" + "usr" + sp + "local" + sp + "bin" + sp + "metit-2.0" +sp+ "metit");
+      if (!metit.exists())
+         metit = new File(System.getProperty("user.home") + sp + "metit-2.0" +sp+ "metit");
+      return metit.getAbsolutePath();
+   }
+
+   /*
+    * (non-Javadoc)
+    * 
+    * @see
+    * de.uka.ilkd.key.dl.gui.initialdialog.defaultsettings.OsDefaultProperties
+    * #getMetitAxiomPath()
+    */
+   @Override
+   protected String getMetitAxiomPath() {
+      File metitAxioms = new File(sp + "usr" + sp + "local" + "metit-2.0" + sp + "tptp");
+      if (!metitAxioms.exists())
+         metitAxioms = new File(System.getProperty("user.home") + sp + "metit-2.0"+ sp + "tptp");    
+      return metitAxioms.getAbsolutePath();
+   }
+	
+	
 	/*
 	 * (non-Javadoc)
 	 * 
