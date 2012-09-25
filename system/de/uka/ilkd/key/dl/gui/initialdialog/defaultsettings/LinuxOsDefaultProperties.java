@@ -75,7 +75,11 @@ public class LinuxOsDefaultProperties extends OsDefaultProperties implements
       File metit = new File(  "sp" + "usr" + sp + "local" + sp + "bin" + sp + "metit-2.0" +sp+ "metit");
       if (!metit.exists())
          metit = new File(System.getProperty("user.home") + sp + "metit-2.0" +sp+ "metit");
+      if (!metit.exists())
+         metit = new File(sp+ "opt" + sp + "metit-2.0" +sp+ "metit");
+      
       return metit.getAbsolutePath();
+      
    }
 
    /*
@@ -87,9 +91,13 @@ public class LinuxOsDefaultProperties extends OsDefaultProperties implements
     */
    @Override
    protected String getMetitAxiomPath() {
-      File metitAxioms = new File(sp + "usr" + sp + "local" + "metit-2.0" + sp + "tptp");
+      File metitAxioms = new File(sp + "usr" + sp + "local" + "metit-2.0" + sp + "tptp" +sp);
       if (!metitAxioms.exists())
-         metitAxioms = new File(System.getProperty("user.home") + sp + "metit-2.0"+ sp + "tptp");    
+         metitAxioms = new File(System.getProperty("user.home") + sp + "metit-2.0"+ sp + "tptp" +sp);    
+     
+      if (!metitAxioms.exists())
+         metitAxioms = new File(sp + "opt" + sp + "metit-2.0"+ sp + "tptp" +sp);    
+        
       return metitAxioms.getAbsolutePath();
    }
 	
