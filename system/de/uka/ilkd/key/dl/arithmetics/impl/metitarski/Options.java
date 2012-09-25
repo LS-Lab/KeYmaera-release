@@ -169,40 +169,40 @@ public class Options implements Settings{
 		property = props.getProperty(                         EPropertyConstant.  METIT_OPTIONS_CASES                       .getKey()   );
 		if (property != null) cases                       =   Long.parseLong(property);
 		
-		property = props.getProperty(                         EPropertyConstant.METIT_OPTIONS_BACKTRACKING                  .getKey()   );
+		property = props.getProperty(                         EPropertyConstant.  METIT_OPTIONS_BACKTRACKING                .getKey()   );
 		if (property != null) backtracking                =   Boolean.parseBoolean(property);
 		
-		property = props.getProperty(                         EPropertyConstant.METIT_OPTIONS_PROJ_ORD                      .getKey()   );
+		property = props.getProperty(                         EPropertyConstant.  METIT_OPTIONS_PROJ_ORD                    .getKey()   );
 		if (property != null) proj_ord                    =   Boolean.parseBoolean(property);
 		
-		property = props.getProperty(                         EPropertyConstant.METIT_OPTIONS_NSATZ_EADM                    .getKey()   );
+		property = props.getProperty(                         EPropertyConstant.  METIT_OPTIONS_NSATZ_EADM                  .getKey()   );
 		if (property != null) nsatz_eadm                  =   Boolean.parseBoolean(property);
 		
-		property = props.getProperty(                         EPropertyConstant.METIT_OPTIONS_ICP                           .getKey()   );
+		property = props.getProperty(                         EPropertyConstant.  METIT_OPTIONS_ICP                         .getKey()   );
 		if (property != null) icp                         =   Boolean.parseBoolean(property);
 		
-		property = props.getProperty(                         EPropertyConstant.METIT_OPTIONS_MATHEMATICA                   .getKey()   );
+		property = props.getProperty(                         EPropertyConstant.  METIT_OPTIONS_MATHEMATICA                 .getKey()   );
 		if (property != null) mathematica                 =   Boolean.parseBoolean(property);
 		
-		property = props.getProperty(                         EPropertyConstant.METIT_OPTIONS_Z3                            .getKey()   );
+		property = props.getProperty(                         EPropertyConstant.  METIT_OPTIONS_Z3                          .getKey()   );
 		if (property != null) z3                          =   Boolean.parseBoolean(property);
 		
-		property = props.getProperty(                         EPropertyConstant.METIT_OPTIONS_QEPCAD                        .getKey()   );
+		property = props.getProperty(                         EPropertyConstant.  METIT_OPTIONS_QEPCAD                      .getKey()   );
 		if (property != null) qepcad                      =   Boolean.parseBoolean(property);
 		
-		property = props.getProperty(                         EPropertyConstant.METIT_OPTIONS_ICP_SAT                       .getKey()   );
+		property = props.getProperty(                         EPropertyConstant.  METIT_OPTIONS_ICP_SAT                     .getKey()   );
 		if (property != null) icp_sat                     =   Boolean.parseBoolean(property);
 		
-		property = props.getProperty(                         EPropertyConstant.METIT_OPTIONS_UNIV_SAT                      .getKey()   );
+		property = props.getProperty(                         EPropertyConstant.  METIT_OPTIONS_UNIV_SAT                    .getKey()   );
 		if (property != null) univ_sat                    =   Boolean.parseBoolean(property);
 		
-		property = props.getProperty(                         EPropertyConstant.METIT_OPTIONS_STRATEGY                      .getKey()   );
+		property = props.getProperty(                         EPropertyConstant.  METIT_OPTIONS_STRATEGY                    .getKey()   );
 		if (property != null) strategy                    =   Long.parseLong(property);
 		
-		property = props.getProperty(                         EPropertyConstant.METIT_OPTIONS_UNSAFE_DIVISORS               .getKey()   );
+		property = props.getProperty(                         EPropertyConstant.  METIT_OPTIONS_UNSAFE_DIVISORS             .getKey()   );
 		if (property != null) unsafe_divisors             =   Boolean.parseBoolean(property);
 		
-		property = props.getProperty(                         EPropertyConstant.METIT_OPTIONS_FULL                          .getKey()   );
+		property = props.getProperty(                         EPropertyConstant.  METIT_OPTIONS_FULL                        .getKey()   );
 		if (property != null) full                        =   Boolean.parseBoolean(property);
 		
 	}
