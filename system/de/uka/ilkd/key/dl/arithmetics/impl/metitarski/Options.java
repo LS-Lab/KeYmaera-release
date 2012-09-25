@@ -15,7 +15,7 @@ public class Options implements Settings{
 
 	public static final Options INSTANCE = new Options();
 
-	private File metitBinary;
+	private File   metitBinary;
 	private String metitAxioms;
 
 	/* (Pertinent) MetiTarski command-line options.
@@ -54,29 +54,29 @@ public class Options implements Settings{
 
    	Possible ITEMs are {all,name,goal,clauses,size,category,proof,saturation}.  */
 
-	/* MetiTarski Options */
-	private boolean   autoInclude                =  true  ;
-	private boolean   autoIncludeExtended        =  false ;
-	private boolean   autoIncludeSuperExtended   =  false ;
-	private long      time                       =  -1    ;
-	private long      maxweight                  =  -1    ;
-	private long      maxalg                     =  -1    ;
-	private long      maxnonSOS                  =  -1    ;
-	private boolean   rerun                      =  true  ;
-	private boolean   paramodulation             =  true  ;
-	private long      cases                      =  -1    ;
-	private boolean   backtracking               =  true  ;
-	private boolean   proj_ord                   =  true  ;
-	private boolean   nsatz_eadm                 =  false ;
-	private boolean   icp                        =  false ;
-	private boolean   mathematica                =  false ;
-	private boolean   z3                         =  false ;
-	private boolean   qepcad                     =  false ;
-	private boolean   icp_sat                    =  false ;
-	private boolean   univ_sat                   =  false ;
-	private long      strategy                   =  -1    ;
-	private boolean   unsafe_divisors            =  false ;
-	private boolean   full                       =  false ;
+	/* MetiTarski options */
+	private boolean   autoInclude                ;
+	private boolean   autoIncludeExtended        ;
+	private boolean   autoIncludeSuperExtended   ;
+	private long      time                       ;
+	private long      maxweight                  ;
+	private long      maxalg                     ;
+	private long      maxnonSOS                  ;
+	private boolean   rerun                      ;
+	private boolean   paramodulation             ;
+	private long      cases                      ;
+	private boolean   backtracking               ;
+	private boolean   proj_ord                   ;
+	private boolean   nsatz_eadm                 ;
+	private boolean   icp                        ;
+	private boolean   mathematica                ;
+	private boolean   z3                         ;
+	private boolean   qepcad                     ;
+	private boolean   icp_sat                    ;
+	private boolean   univ_sat                   ;
+	private long      strategy                   ;
+	private boolean   unsafe_divisors            ;
+	private boolean   full                       ;
 
 	private List<SettingsListener> listeners;
 
@@ -86,10 +86,9 @@ public class Options implements Settings{
 		metitBinary =  new File("/opt/metit-1.9/metit");
 		metitAxioms =  "/opt/metit-2.0/tptp/Axioms";
       
-      /* Set options to default */
+      /* Set options to their default values */
       reset();
 	}
-
 
 	public void addSettingsListener(SettingsListener l) {
 		listeners.add(l);
@@ -104,7 +103,7 @@ public class Options implements Settings{
    @Override
    public void reset() {
 
-		/* MetiTarski default options*/
+		/* MetiTarski default options */
 		autoInclude                =  true  ;
 		autoIncludeExtended        =  false ;
 		autoIncludeSuperExtended   =  false ;
@@ -208,18 +207,16 @@ public class Options implements Settings{
 		
 	}
 
-
 	public void writeSettings(Properties props) {
 		if (!ProofSaver.isInSavingMode()) {
 			props.setProperty(   EPropertyConstant.METIT_OPTIONS_BINARY.getKey()    ,
 					               metitBinary.getAbsolutePath()                      );
 		}
-		props.setProperty(      EPropertyConstant.METIT_OPTIONS_BACKTRACKING.getKey()    ,
-                              "" + backtracking                                        );
-
+		props.setProperty(    EPropertyConstant.METIT_OPTIONS_BACKTRACKING.getKey() ,
+                            "" + backtracking                                     );
 	}
 
-	// Methods as elsewhere
+	/* Methods as elsewhere */
 
 	public File getMetitBinary() {
 		return metitBinary;
@@ -227,8 +224,8 @@ public class Options implements Settings{
 
 	public void setMetitBinary(File metitBinary) {
 		if (!this.metitBinary.equals(metitBinary)) {
-			this.metitBinary = metitBinary;
-			firePropertyChanged();
+			 this.metitBinary = metitBinary;
+			 firePropertyChanged();
 		}
 	}
 	
@@ -238,29 +235,23 @@ public class Options implements Settings{
 
 	public void setMetitAxioms(String metitAxioms) {
 		if (!this.metitAxioms.equals(metitAxioms)) {
-			this.metitAxioms = metitAxioms;
-			firePropertyChanged();
+			 this.metitAxioms = metitAxioms;
+			 firePropertyChanged();
 		}
 	}
+	
+	/* Option getter/setter methods (numeric options). */
 
-	
-	/* 
-	 * Option getter/setter methods.
-	 * Numeric options.
-	 */
-	
-	
 	public long getTime() {
 		return time;
 	}
 
 	public void setTime(long time) {
 		if (this.time != time) {
-			this.time = time;
-			firePropertyChanged();
+			 this.time  = time;
+			 firePropertyChanged();
 		}
 	}
-	
 	
 	public long getMaxalg() {
 		return maxalg;
@@ -268,8 +259,8 @@ public class Options implements Settings{
 
 	public void setMaxalg(long maxalg) {
 		if (this.maxalg != maxalg) {
-			this.maxalg = maxalg;
-			firePropertyChanged();
+			 this.maxalg  = maxalg;
+			 firePropertyChanged();
 		}
 	}
 	
@@ -279,11 +270,10 @@ public class Options implements Settings{
 
 	public void setMaxweight(long maxweight) {
 		if (this.maxweight != maxweight) {
-			this.maxweight = maxweight;
-			firePropertyChanged();
+			 this.maxweight  = maxweight;
+			 firePropertyChanged();
 		}
 	}
-	
 	
 	public long getMaxnonSOS() {
 		return maxnonSOS;
@@ -291,11 +281,10 @@ public class Options implements Settings{
 
 	public void setMaxnonSOS(long maxnonSOS) {
 		if (this.maxnonSOS != maxnonSOS) {
-			this.maxnonSOS = maxnonSOS;
-			firePropertyChanged();
+			 this.maxnonSOS  = maxnonSOS;
+			 firePropertyChanged();
 		}
 	}
-	
 	
 	public long getCases() {
 		return cases;
@@ -303,12 +292,12 @@ public class Options implements Settings{
 
 	public void setCases(long cases) {
 		if (this.cases != cases) {
-			this.cases = cases;
-			firePropertyChanged();
+			 this.cases  = cases;
+			 firePropertyChanged();
 		}
 	}
 	
-	//Strategy  
+	/* Strategy */
 	
 	public long getStrategy() {
 		return strategy;
@@ -316,29 +305,24 @@ public class Options implements Settings{
 
 	public void setStrategy(long strategy) {
 		if (this.strategy != strategy) {
-			this.strategy = strategy;
-			firePropertyChanged();
+			 this.strategy  = strategy;
+			 firePropertyChanged();
 		}
 	}
 	
-	/*
-	 * Boolean options
-	 */
-	
-	
-	// Autoinclude axioms
+	/* Boolean options */
 	
 	public boolean isAutoInclude() {
 		return autoInclude;
 	}
 
+	/* Include axioms automatically */
 	public void setAutoInclude(boolean autoInclude) {
 		if(this.autoInclude != autoInclude) {
-			this.autoInclude = autoInclude;
+			this.autoInclude  = autoInclude;
 			firePropertyChanged();
 		}
 	}	
-	
 	
 	public boolean isAutoIncludeExtended() {
 		return autoIncludeExtended;
@@ -346,7 +330,7 @@ public class Options implements Settings{
 
 	public void setAutoIncludeExtended(boolean autoIncludeExtended) {
 		if(this.autoIncludeExtended != autoIncludeExtended) {
-			this.autoIncludeExtended = autoIncludeExtended;
+			this.autoIncludeExtended  = autoIncludeExtended;
 			firePropertyChanged();
 		}
 	}	
@@ -357,13 +341,12 @@ public class Options implements Settings{
 
 	public void setAutoIncludeSuperExtended(boolean autoIncludeSuperExtended) {
 		if(this.autoIncludeSuperExtended != autoIncludeSuperExtended) {
-			this.autoIncludeSuperExtended = autoIncludeSuperExtended;
+			this.autoIncludeSuperExtended  = autoIncludeSuperExtended;
 			firePropertyChanged();
 		}
 	}	
 	
-	
-	//Paramodulation and rerun
+	/* Paramodulation and rerun */
 	
 	public boolean isRerun() {
 		return rerun;
@@ -371,7 +354,7 @@ public class Options implements Settings{
 
 	public void setRerun(boolean rerun) {
 		if(this.rerun != rerun) {
-			this.rerun = rerun;
+			this.rerun  = rerun;
 			firePropertyChanged();
 		}
 	}	
@@ -382,13 +365,12 @@ public class Options implements Settings{
 
 	public void setParamodulation(boolean paramodulation) {
 		if(this.paramodulation != paramodulation) {
-			this.paramodulation = paramodulation;
+			this.paramodulation  = paramodulation;
 			firePropertyChanged();
 		}
 	}	
 	
-	
-	// Projection and Backtracking 
+	/* Projection and Backtracking */
 	
 	public boolean isProj_ord() {
 		return proj_ord;
@@ -396,7 +378,7 @@ public class Options implements Settings{
 
 	public void setProj_ord(boolean proj_ord) {
 		if(this.proj_ord != proj_ord) {
-			this.proj_ord = proj_ord;
+			this.proj_ord  = proj_ord;
 			firePropertyChanged();
 		}
 	}	
@@ -407,13 +389,12 @@ public class Options implements Settings{
 
 	public void setBacktracking(boolean backtracking) {
 		if(this.backtracking != backtracking) {
-			this.backtracking = backtracking;
+			this.backtracking  = backtracking;
 			firePropertyChanged();
 		}
 	}	
 	
-	
-	// Nullstellensatz EADM 
+	/* Nullstellensatz EADM  */
 	
 	public boolean isNsatz_eadm() {
 		return nsatz_eadm;
@@ -421,11 +402,10 @@ public class Options implements Settings{
 
 	public void setNsatz_eadm(boolean nsatz_eadm) {
 		if(this.nsatz_eadm != nsatz_eadm) {
-			this.nsatz_eadm = nsatz_eadm;
+			this.nsatz_eadm  = nsatz_eadm;
 			firePropertyChanged();
 		}
 	}	
-	
 	
 	public boolean isIcp() {
 		return icp;
@@ -433,7 +413,7 @@ public class Options implements Settings{
 
 	public void setIcp(boolean icp) {
 		if(this.icp != icp) {
-			this.icp = icp;
+			this.icp  = icp;
 			firePropertyChanged();
 		}
 	}	
@@ -444,7 +424,7 @@ public class Options implements Settings{
 
 	public void setMathematica(boolean mathematica) {
 		if(this.mathematica != mathematica) {
-			this.mathematica = mathematica;
+			this.mathematica  = mathematica;
 			firePropertyChanged();
 		}
 	}
@@ -455,7 +435,7 @@ public class Options implements Settings{
 
 	public void setZ3(boolean z3) {
 		if(this.z3 != z3) {
-			this.z3 = z3;
+			this.z3  = z3;
 			firePropertyChanged();
 		}
 	}
@@ -466,7 +446,7 @@ public class Options implements Settings{
 
 	public void setQepcad(boolean qepcad) {
 		if(this.qepcad != qepcad) {
-			this.qepcad = qepcad;
+			this.qepcad  = qepcad;
 			firePropertyChanged();
 		}
 	}
@@ -477,7 +457,7 @@ public class Options implements Settings{
 
 	public void setIcp_sat(boolean icp_sat) {
 		if(this.icp_sat != icp_sat) {
-			this.icp_sat = icp_sat;
+			this.icp_sat  = icp_sat;
 			firePropertyChanged();
 		}
 	}
@@ -488,7 +468,7 @@ public class Options implements Settings{
 
 	public void setUniv_sat(boolean univ_sat) {
 		if(this.univ_sat != univ_sat) {
-			this.univ_sat = univ_sat;
+			this.univ_sat  = univ_sat;
 			firePropertyChanged();
 		}
 	}
@@ -499,7 +479,7 @@ public class Options implements Settings{
 
 	public void setUnsafe_divisors(boolean unsafe_divisors) {
 		if(this.unsafe_divisors != unsafe_divisors) {
-			this.unsafe_divisors = unsafe_divisors;
+			this.unsafe_divisors  = unsafe_divisors;
 			firePropertyChanged();
 		}
 	}	
@@ -510,7 +490,7 @@ public class Options implements Settings{
 
 	public void setFull(boolean full) {
 		if(this.full != full) {
-			this.full = full;
+			this.full  = full;
 			firePropertyChanged();
 		}
 	}	
