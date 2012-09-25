@@ -12,7 +12,6 @@ import java.util.List;
 import org.apache.log4j.*;
 import org.w3c.dom.Node;
 
-import de.uka.ilkd.key.dl.SQLLogger;
 import de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ConnectionProblemException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ServerStatusProblemException;

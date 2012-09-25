@@ -19,6 +19,10 @@
 	<class>de.uka.ilkd.key.dl.arithmetics.impl.qepcad.QepCad</class>
 	<optionbean>de.uka.ilkd.key.dl.arithmetics.impl.qepcad.Options</optionbean>
   </MathSolver>
+      <MathSolver> 
+	<class>de.uka.ilkd.key.dl.arithmetics.impl.metitarski.MetiTarski</class>
+	<optionbean>de.uka.ilkd.key.dl.arithmetics.impl.metitarski.Options</optionbean>
+  </MathSolver>
   <MathSolver> 
 	<class>de.uka.ilkd.key.dl.arithmetics.impl.ch.CohenHormander</class>
 	<optionbean>de.uka.ilkd.key.dl.arithmetics.impl.ch.Options</optionbean>
