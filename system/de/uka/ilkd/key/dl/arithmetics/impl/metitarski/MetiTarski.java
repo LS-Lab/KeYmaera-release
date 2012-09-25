@@ -1,3 +1,5 @@
+/* @author s0805753@sms.ed.ac.uk */
+
 package de.uka.ilkd.key.dl.arithmetics.impl.metitarski;
 
 import java.io.BufferedWriter;
@@ -25,35 +27,38 @@ import de.uka.ilkd.key.logic.TermBuilder;
 import de.uka.ilkd.key.dl.arithmetics.impl.mathematica.Term2ExprConverter;
 
 public class MetiTarski implements IQuantifierEliminator{
+
     private static Logger logger = Logger.getLogger("MetiTarskiLogger");
 
     public MetiTarski(Node n) {
-        logger.setLevel(Level.ALL);
+        /* Set Log4j verbosity level */
+        logger.setLevel(Level.INFO);
     }
 
     public String getName(){
         return "MetiTarski";
     }
 
-    public void abortCalculation() throws RemoteException {
+    public void abortCalculation() 
+        throws RemoteException {
         // TODO Auto-generated method stub
-
     }
 
-    public String getTimeStatistics() throws RemoteException {
+    public String getTimeStatistics() 
+        throws RemoteException {
         // TODO Auto-generated method stub
         return null;
     }
 
-    public long getTotalCalculationTime() throws RemoteException {
+    public long getTotalCalculationTime() 
+        throws RemoteException {
         // TODO Auto-generated method stub
         return 0;
     }
 
-    public long getTotalMemory() throws RemoteException,
-           ServerStatusProblemException, ConnectionProblemException {
-
-               return 0;
+    public long getTotalMemory() 
+        throws RemoteException, ServerStatusProblemException, ConnectionProblemException {
+        return 0;
     }
 
     public long getCachedAnswerCount() throws RemoteException {
@@ -68,7 +73,6 @@ public class MetiTarski implements IQuantifierEliminator{
 
     public void resetAbortState() throws RemoteException {
         // TODO Auto-generated method stub
-
     }
 
     public boolean isConfigured() {
@@ -77,250 +81,196 @@ public class MetiTarski implements IQuantifierEliminator{
     }
 
     /* Reduce procedure */
-    public Term reduce(Term form, List<String> names,
-            List<PairOfTermAndQuantifierType> quantifiers, NamespaceSet nss,
-            long timeout) throws RemoteException, SolverException {
+    public Term reduce(Term form, List<String> names, List<PairOfTermAndQuantifierType> quantifiers, NamespaceSet nss, long timeout) 
+        throws RemoteException, SolverException {
 
         long start=0;
         long end=0;
-        File tmp; // Temporary file
-        int exitStatus=1; // 1 is the exit status for unproven goals
 
-        //Converting problem
+        /* Create temporary file */
+        File tmp; 
+
+        /* Exit status 1 is used for unproven goals */
+        int exitStatus=1; 
+
+        /* Convert the problem to tptp syntax */
         String compiledProblem = termToMetitConverter.termToMetit(form, false);
 
-        try {
-
+        try 
+        {
             logger.info("MetiTarski ready...");
 
-            //Creating temporary file for MetiTarski
+            /* Creating temporary file for MetiTarski */
             tmp = File.createTempFile("keymaera-metit", ".tptp");
             FileWriter tmpWriter = new FileWriter(tmp);
             BufferedWriter bTmpWriter = new BufferedWriter(tmpWriter);
             
-            // Writing problem to temporary file &  closing writers
-            bTmpWriter.write(compiledProblem);
-            bTmpWriter.flush();
-            bTmpWriter.close();
-            tmpWriter.close();
+            /* Writing problem to temporary file &  closing writers */
+            bTmpWriter  .write(compiledProblem);
+            bTmpWriter  .flush();
+            bTmpWriter  .close();
+            tmpWriter   .close();
 
-            // Creating parameters for MetiTarski & calling
+            /* Creating parameters for MetiTarski & calling */
             ArrayList<String> commandParameters = new ArrayList<String>();
-            commandParameters.add(Options.INSTANCE
-                    .getMetitBinary().getAbsolutePath());
-            commandParameters.add("--tptp");
-            commandParameters.add(Options.INSTANCE.getMetitAxioms()+ "/" );
-            commandParameters.add("-q");
+
+            commandParameters.   add(  Options.INSTANCE.getMetitBinary().getAbsolutePath()   );
+            commandParameters.   add(  "--tptp"                                              );
+            commandParameters.   add(  Options.INSTANCE.getMetitAxioms() + "/"               ); // UNIX only
+            commandParameters.   add(  "-q"                                                  );
+
             logger.info("Using axiom directory "+  Options.INSTANCE.getMetitAxioms()+ "/");
+
             commandParameters.addAll(getParameters(tmp));
+
             logger.info("MetiTarski command arguments: "+ commandParameters.toString());
 
-            // Creating process builder with computed parameters
+            /* Creating process builder with computed parameters */
             ProcessBuilder metitBuilder = new ProcessBuilder(commandParameters);
 
-            logger.info("Sending the following problem to MetiTarski:\n"
-                    + compiledProblem +" \nCorresponding to Mma term : " +  Term2ExprConverter.convert2Expr(form).toString() );
+            logger.info(   "Sending the following problem to MetiTarski:\n"
+                           + compiledProblem +" \nCorresponding to Mma term : " 
+                           + Term2ExprConverter.convert2Expr(form).toString() 
+                           );
 
-            // Starting process
-            start=System.currentTimeMillis();
-            end=start;
+            /* Starting process */
+            start =  System.currentTimeMillis();
+            end   =  start;
             Process metit = metitBuilder.start();
-            try {
+
+            try 
+            {
                 metit.waitFor();
-                end=System.currentTimeMillis();
+                end = System.currentTimeMillis();
                 exitStatus = metit.exitValue();
-            } catch (InterruptedException e) {
+            } 
+            catch (InterruptedException e) 
+            {
                 logger.error("There was an error while communicating with MetiTarski");
                 e.printStackTrace();
             }
-            finally {
+            finally 
+            {
+                /* Kill process */
                 metit.destroy();
-                /*
-                * logger.info("Deleting temporary file " +
-                * tmp.getAbsolutePath());
-                * tmp.delete();
-                 */
-            }
+               
+                logger.info("Deleting temporary file " +
 
-        } catch (IOException e) {
+                /* Delete file */
+                tmp.getAbsolutePath());
+                tmp.delete();
+            }
+        } 
+        catch (IOException e) 
+        {
             logger.error("There was an Input/Output error while initialising the link with MetiTarski");
             e.printStackTrace();
         }
-        finally{
-        //	SQLLogger sqlLogger = SQLLogger.getInstance();
-            // If no proof available, return the original term.
-            if(exitStatus==1) {
+        finally
+        {
+            if(exitStatus==1) 
+            {   /* When no proof is found, return the original query as the result */
                 logger.info("MetiTarski could not produce a proof!");
-     //           sqlLogger.storeEntry("metitarski",form.toString(), compiledProblem , form.toString(), (end-start));
-                return form;}
-            if(exitStatus==0){
+                return form;
+            }
+            if(exitStatus==0)
+            {   /* When a proof is found, return term True as the result */
                 logger.info("MetiTarski produced a proof!");
-     //           sqlLogger.storeEntry("metitarski",form.toString(), compiledProblem , TermBuilder.DF.tt().toString(),  (end-start));
                 return TermBuilder.DF.tt();
             }
         }
-
         return form;
 
     }
 
 
     private ArrayList<String> getParameters(File tmp) {
+
         ArrayList<String> parameters = new ArrayList<String>();
-
-
-        if(Options.INSTANCE.getMaxweight()>0){
-            parameters.add("--maxweight");
-            parameters.add(""+Options.INSTANCE.getMaxweight());
-
-        }
-
-        if(Options.INSTANCE.getMaxalg()>0){
-            parameters.add("--maxalg");
-            parameters.add(""+Options.INSTANCE.getMaxalg());
-
-        }
-
-        if(Options.INSTANCE.getMaxnonSOS()>0){
-            parameters.add("--maxnonSOS");
-            parameters.add(""+Options.INSTANCE.getMaxnonSOS());
-
-        }
-
-        if(Options.INSTANCE.getCases()>0){
-            parameters.add("--cases");
-            parameters.add(""+Options.INSTANCE.getCases());
-
-        }
         
-        if(Options.INSTANCE.getTime()>0){
-            parameters.add("--time");
-            parameters.add(""+Options.INSTANCE.getTime());
+        if( Options.INSTANCE. isAutoInclude()                )   parameters.add ( "--autoInclude"                       );
+        if( Options.INSTANCE. isAutoIncludeExtended()        )   parameters.add ( "--autoIncludeExtended"               );
+        if( Options.INSTANCE. isAutoIncludeSuperExtended()   )   parameters.add ( "--autoIncludeSuperExtended"          );
+        if( Options.INSTANCE. getMaxweight() >  0            ) { parameters.add ( "--maxweight"                         );
+                                                                 parameters.add ( "" + Options.INSTANCE.getMaxweight()  ); }
+        if( Options.INSTANCE. getMaxalg()    >  0            ) { parameters.add ( "--maxalg"                            );
+                                                                 parameters.add ( "" + Options.INSTANCE.getMaxalg()     ); }
+        if( Options.INSTANCE. getMaxnonSOS() >  0            ) { parameters.add ( "--maxnonSOS"                         );
+                                                                 parameters.add ( "" + Options.INSTANCE.getMaxnonSOS()  ); }
+        if( Options.INSTANCE. getCases()     >  0            ) { parameters.add ( "--cases"                             );
+                                                                 parameters.add ( "" + Options.INSTANCE.getCases()      ); }
+        if( Options.INSTANCE. getTime()      >  0            ) { parameters.add ( "--time"                              );
+                                                                 parameters.add ( "" + Options.INSTANCE.getTime()       ); }
+        if( Options.INSTANCE. getStrategy()  >  0            ) { parameters.add ( "--strategy"                          );
+                                                                 parameters.add ( "" + Options.INSTANCE.getStrategy()   ); }
+        if(!Options.INSTANCE. isRerun()                      ) { parameters.add ( "--rerun"                             );
+                                                                 parameters.add ( "off"                                 ); }
+        if(!Options.INSTANCE. isParamodulation()             ) { parameters.add ( "--paramodulation"                    );
+                                                                 parameters.add ( "off"                                 ); }
+        if(!Options.INSTANCE. isBacktracking()               ) { parameters.add ( "--backtracking"                      );
+                                                                 parameters.add ( "off"                                 ); }
+        if(!Options.INSTANCE. isProj_ord()                   ) { parameters.add ( "--proj_ord"                          );
+                                                                 parameters.add ( "off"                                 ); }
+        if( Options.INSTANCE. isNsatz_eadm()                 )   parameters.add ( "--nsatz_eadm"                        );
+        if( Options.INSTANCE. isIcp()                        )   parameters.add ( "--icp"                               );
+        if( Options.INSTANCE. isMathematica()                )   parameters.add ( "--mathematica"                       );
+        if( Options.INSTANCE. isZ3()                         )   parameters.add ( "--z3"                                );
+        if( Options.INSTANCE. isQepcad()                     )   parameters.add ( "--qepcad"                            );
+        if( Options.INSTANCE. isIcp_sat()                    )   parameters.add ( "--icp_sat"                           );
+        if( Options.INSTANCE. isUniv_sat()                   )   parameters.add ( "--univ_sat"                          );
+        if( Options.INSTANCE. isUnsafe_divisors()            )   parameters.add ( "--unsafe_divisors"                   );
+        if( Options.INSTANCE. isFull()                       )   parameters.add ( "--full"                              );
 
-        }
-        
-        if(Options.INSTANCE.getStrategy()>0){
-            parameters.add("--strategy");
-            parameters.add(""+Options.INSTANCE.getStrategy());
+                                                                 parameters.add ( tmp.getAbsolutePath()                 );
 
-        }
-
-        // Boolean options
-        
-        if(Options.INSTANCE.isAutoInclude()){
-            parameters.add("--autoInclude");
-        }
-        
-        if(Options.INSTANCE.isAutoIncludeExtended()){
-            parameters.add("--autoIncludeExtended");
-        }
-        
-        if(Options.INSTANCE.isAutoIncludeSuperExtended()){
-            parameters.add("--autoIncludeSuperExtended");
-        }
-
-        if(!Options.INSTANCE.isRerun()){
-            parameters.add("--rerun");
-            parameters.add("off");
-        }
-        
-        if(!Options.INSTANCE.isParamodulation()){
-            parameters.add("--paramodulation");
-            parameters.add("off");
-        }
-
-        if(!Options.INSTANCE.isBacktracking()){
-            parameters.add("--backtracking");
-            parameters.add("off");
-
-        }
-
-        if(!Options.INSTANCE.isProj_ord()){
-            parameters.add("--proj_ord");
-            parameters.add("off");
-
-        }
-
-        if(Options.INSTANCE.isNsatz_eadm()){
-            parameters.add("--nsatz_eadm");
-
-        }
-
-        if(Options.INSTANCE.isIcp()){
-            parameters.add("--icp");
-
-        }
-        
-        if(Options.INSTANCE.isMathematica()){
-            parameters.add("--mathematica");
-
-        }
-        
-        if(Options.INSTANCE.isZ3()){
-            parameters.add("--z3");
-
-        }
-        
-        if(Options.INSTANCE.isQepcad()){
-            parameters.add("--qepcad");
-
-        }
-        
-        if(Options.INSTANCE.isIcp_sat()){
-            parameters.add("--icp_sat");
-
-        }
-        
-        if(Options.INSTANCE.isUniv_sat()){
-            parameters.add("--univ_sat");
-
-        }      
-        
-        if(Options.INSTANCE.isUnsafe_divisors()){
-            parameters.add("--unsafe_divisors");
-
-        }
-
-        if(Options.INSTANCE.isFull()){
-            parameters.add("--full");
-
-        }
-
-        parameters.add(tmp.getAbsolutePath());
         return parameters;
     }
 
+    /********************** Auxiliary method signatures ***********************/
 
-
-    // Auxiliary method signatures
-    public Term reduce(Term form, NamespaceSet nss) throws RemoteException,
-           SolverException {
-               return reduce(form, new ArrayList<String>(),
-                       new ArrayList<PairOfTermAndQuantifierType>(), nss, -1);
+    public Term reduce(Term form, NamespaceSet nss)
+       throws RemoteException, SolverException {
+       return reduce(   form                                         ,
+                        new ArrayList<String>()                      ,
+                        new ArrayList<PairOfTermAndQuantifierType>() , 
+                        nss                                          , 
+                        -1                                           );
     }
 
     public Term reduce(Term form, NamespaceSet nss, long timeout)
-        throws RemoteException, SolverException {
-        return reduce(form, new ArrayList<String>(),
-                new ArrayList<PairOfTermAndQuantifierType>(), nss, timeout);
+       throws RemoteException, SolverException {
+       return reduce(   form                                         ,
+                        new ArrayList<String>()                      ,
+                        new ArrayList<PairOfTermAndQuantifierType>() , 
+                        nss                                          , 
+                        timeout                                      );
     }
 
-    public Term reduce(Term form, List<String> names,
-            List<PairOfTermAndQuantifierType> quantifiers, NamespaceSet nss)
+    public Term reduce(Term form, List<String> names, List<PairOfTermAndQuantifierType> quantifiers, NamespaceSet nss)
         throws RemoteException, SolverException {
-        return reduce(form, names, quantifiers, nss, -1);
+        return reduce(  form                    , 
+                        names                   , 
+                        quantifiers             , 
+                        nss                     , 
+                        -1                      );
     }
 
-    public Term reduce(Term query,
-            List<PairOfTermAndQuantifierType> quantifiers, NamespaceSet nss)
+    public Term reduce(Term query, List<PairOfTermAndQuantifierType> quantifiers, NamespaceSet nss)
         throws RemoteException, SolverException {
-        return reduce(query, new ArrayList<String>(), quantifiers, nss, -1);
+        return reduce(  query                   ,
+                        new ArrayList<String>() , 
+                        quantifiers             , 
+                        nss                     , 
+                        -1                      );
     }
 
-    public Term reduce(Term query,
-            List<PairOfTermAndQuantifierType> quantifiers, NamespaceSet nss,
-            long timeout) throws RemoteException, SolverException {
-        return reduce(query, new ArrayList<String>(), quantifiers, nss, timeout);
+    public Term reduce(Term query, List<PairOfTermAndQuantifierType> quantifiers, NamespaceSet nss, long timeout) 
+       throws RemoteException, SolverException  {
+       return reduce(   query                   , 
+                        new ArrayList<String>() , 
+                        quantifiers             , 
+                        nss                     , 
+                        timeout                 );
     }
 
 }
