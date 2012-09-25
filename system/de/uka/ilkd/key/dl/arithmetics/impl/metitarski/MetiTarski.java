@@ -1,4 +1,19 @@
-/* @author s0805753@sms.ed.ac.uk */
+/*  MetiTarski interface for the KeYmaera theorem prover.
+    Copyright (C) 2012  s0805753@sms.ed.ac.uk
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>. 
+ */
 
 package de.uka.ilkd.key.dl.arithmetics.impl.metitarski;
 
@@ -31,7 +46,7 @@ public class MetiTarski implements IQuantifierEliminator{
     private static Logger logger = Logger.getLogger("MetiTarskiLogger");
 
     public MetiTarski(Node n) {
-        /* Set Log4j verbosity level */
+        /* Set Log4j level */
         logger.setLevel(Level.INFO);
     }
 
@@ -76,16 +91,13 @@ public class MetiTarski implements IQuantifierEliminator{
     }
 
     public boolean isConfigured() {
-        // As elsewhere
+        /* As elsewhere */
         return true;
     }
 
     /* Reduce procedure */
     public Term reduce(Term form, List<String> names, List<PairOfTermAndQuantifierType> quantifiers, NamespaceSet nss, long timeout) 
         throws RemoteException, SolverException {
-
-        long start=0;
-        long end=0;
 
         /* Create temporary file */
         File tmp; 
@@ -134,14 +146,11 @@ public class MetiTarski implements IQuantifierEliminator{
                            );
 
             /* Starting process */
-            start =  System.currentTimeMillis();
-            end   =  start;
             Process metit = metitBuilder.start();
 
             try 
             {
                 metit.waitFor();
-                end = System.currentTimeMillis();
                 exitStatus = metit.exitValue();
             } 
             catch (InterruptedException e) 
@@ -183,6 +192,14 @@ public class MetiTarski implements IQuantifierEliminator{
 
     }
 
+    /**
+     * This method compiles an array of command-line parameters for MetiTarski based on the options 
+     * selected by the user in KeYmaera under the MetiTarski options bean.
+     *
+     * @param  tmp         Newly-generated temporary file into which the TPTP problem has been written.
+     * @return parameters  An ArrayList of command line parameters for MetiTarski to solve the problem 
+     *                     in the temporary file supplied.
+     */
 
     private ArrayList<String> getParameters(File tmp) {
 
