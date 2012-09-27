@@ -44,7 +44,7 @@ public class Tree {
    Level logLevel = Level.ERROR;
    
    private String root;
-   private HashSet<String> boundVars;
+   private HashSet<String> boundVars = new HashSet<String>();
    
    /* Left and right sub-trees */
    private Tree left;
@@ -54,7 +54,6 @@ public class Tree {
    private Tree parent;
    
    public Tree(String rootValue) {
-
       logger.setLevel(logLevel);
       this.root = rootValue;
    }
