@@ -166,11 +166,9 @@ public class MetiTarski implements IQuantifierEliminator{
                 /* Kill process */
                 metit.destroy();
                
-                logger.info("Deleting temporary file " +
-
-                /* Delete file */
-                tmp.getAbsolutePath());
-                tmp.delete();
+                // Un-comment this if you don't want the temp files.
+                //logger.info("Deleting temporary file " + tmp.getAbsolutePath()   );             
+                //tmp.delete();
             }
         } 
         catch (IOException e) 
