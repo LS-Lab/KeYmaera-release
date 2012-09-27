@@ -433,6 +433,12 @@ public class Options implements Settings{
 	public void setIcp(boolean icp) {
 		if(this.icp != icp) {
 			this.icp  = icp;
+			if(isIcp()) {
+			   /* Mutually exclusive options */
+			   this  .mathematica  =  false;
+			   this  .qepcad       =  false;
+			   this  .z3           =  false;	 
+			}
 			firePropertyChanged();
 		}
 	}	
@@ -444,6 +450,12 @@ public class Options implements Settings{
 	public void setMathematica(boolean mathematica) {
 		if(this.mathematica != mathematica) {
 			this.mathematica  = mathematica;
+         if(mathematica) {
+            /* Mutually exclusive options */
+            this  .icp          =  false;
+            this  .qepcad       =  false;
+            this  .z3           =  false;  
+         }
 			firePropertyChanged();
 		}
 	}
@@ -455,6 +467,12 @@ public class Options implements Settings{
 	public void setZ3(boolean z3) {
 		if(this.z3 != z3) {
 			this.z3  = z3;
+         if(z3) {
+            /* Mutually exclusive options */
+            this  .mathematica  =  false;
+            this  .qepcad       =  false;
+            this  .icp          =  false;  
+         }
 			firePropertyChanged();
 		}
 	}
@@ -466,6 +484,12 @@ public class Options implements Settings{
 	public void setQepcad(boolean qepcad) {
 		if(this.qepcad != qepcad) {
 			this.qepcad  = qepcad;
+         if(qepcad) {
+            /* Mutually exclusive options */
+            this  .mathematica  =  false;
+            this  .icp          =  false;
+            this  .z3           =  false;  
+         }
 			firePropertyChanged();
 		}
 	}

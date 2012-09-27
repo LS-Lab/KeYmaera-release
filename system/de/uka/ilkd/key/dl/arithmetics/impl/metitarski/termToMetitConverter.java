@@ -246,6 +246,24 @@ public class termToMetitConverter {
          
          return iff;
       }
+      else {
+      Tree updated = new Tree(tree.getValue());
+      updated.addBoundVars(tree.getBoundVars());
+      switch (tree.getArity()) {
+      
+      case 0 : break;
+      
+      case 1 : 
+               updated.setLeft   ( handleEquiv  ( tree.getLeft()  )  );
+               return updated;
+               
+      case 2 : updated.setLeft   ( handleEquiv  ( tree.getLeft()  )  );
+               updated.setRight  ( handleEquiv  ( tree.getRight() )  );
+               return updated;
+      
+      default: break;
+      }
+   }
       return tree;
    }
    
@@ -285,7 +303,7 @@ public class termToMetitConverter {
          case 0 : break;
          
          case 1 : 
-                  updated.setLeft(handleMmaExponential(tree.getLeft()));
+                  updated.setLeft   ( handleMmaExponential  ( tree.getLeft()  )  );
                   return updated;
                   
          case 2 : updated.setLeft   ( handleMmaExponential  ( tree.getLeft()  )  );
@@ -297,8 +315,34 @@ public class termToMetitConverter {
       }
       return tree;
    }
+   /**
+    * Optional method for reducing the order of a tree with adjecent quantifiers
+    * of the same type. The method works by adding the bound variables of the 
+    * quantifier at the lower level to its set of bound variables and then removing 
+    * the lower quantifier from the tree, while inheriting its sub-tree, i.e.
+    * <pre>
+    *    ∀ [x]
+    *    |
+    *    ∀ [y]
+    *    |
+    *    .
+    *   ...
+    * </pre>
+    * is conveted to
+    * <pre>
+    *    ∀ [x,y]
+    *    |
+    *    .
+    *   ...
+    * </pre>
+    * N.B. This method can significantly reduce the size of the generated TPTP
+    * output if the problem is given in Prenex normal form and has a large number
+    * of explicitly quantified variables, e.g. a universal closure.
+    * @param   tree : Tree
+    * @return  tree : Tree with adjacent quantifiers collapsed.
+    */
    
-   private static Tree collapseQuantifiers(Tree tree) {
+    static Tree collapseQuantifiers(Tree tree) {
       System.out.println("Collapsing: "+ tree.toString());
       
       if (   tree.hasParent()  && 
@@ -340,7 +384,7 @@ public class termToMetitConverter {
    }
     
    /**
-    * Method for converting 1/2 in the exponent to Sqrt of the form :
+    * Method for converting 1/2 in the exponent to a <i>square root</i> of the form :
     * <pre>
     *       ^
     *      / \
@@ -358,6 +402,7 @@ public class termToMetitConverter {
     *
     * @return restructured Tree
     */
+    
    private static Tree handleSqrt(Tree tree) {
       if (tree.isLeaf())
          return tree;
@@ -386,7 +431,7 @@ public class termToMetitConverter {
    }
    
    /**
-    * Method for converting 1/3 in the exponent to Cbrt of the form :
+    * Method for converting 1/3 in the exponent to a <i>cube root</i> of the form :
     * <pre>
     *       ^
     *      / \
