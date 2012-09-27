@@ -39,8 +39,8 @@ public class OptionsBeanInfo extends SimpleBeanInfo{
 	   
 		BeanDescriptor d = new BeanDescriptor(beanClass);
 		
-		d.  setDisplayName       ( "Meti-Tarski Options"                );
-		d.  setShortDescription  ( "Set Meti-Tarski options and flags"  );
+		d.  setDisplayName       ( "MetiTarski Options"                );
+		d.  setShortDescription  ( "Set MetiTarski options and flags"  );
 
 		return d;
 	}
