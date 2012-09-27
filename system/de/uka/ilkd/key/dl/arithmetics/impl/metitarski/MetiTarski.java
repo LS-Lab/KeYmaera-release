@@ -1,19 +1,21 @@
-/*  MetiTarski interface for the KeYmaera theorem prover.
-    Copyright (C) 2012  s0805753@sms.ed.ac.uk
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>. 
- */
+/************************************************************************
+ *  KeYmaera-MetiTarski interface
+ *  Copyright (C) 2012  s0805753@sms.ed.ac.uk University of Edinburgh.
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>. 
+ *  
+ ************************************************************************/
 
 package de.uka.ilkd.key.dl.arithmetics.impl.metitarski;
 
@@ -40,6 +42,7 @@ import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.TermBuilder;
 
 import de.uka.ilkd.key.dl.arithmetics.impl.mathematica.Term2ExprConverter;
+import de.uka.ilkd.key.dl.arithmetics.impl.metitarski.termToMetitConverter;
 
 public class MetiTarski implements IQuantifierEliminator{
 
@@ -189,7 +192,6 @@ public class MetiTarski implements IQuantifierEliminator{
             }
         }
         return form;
-
     }
 
     /**
@@ -239,11 +241,10 @@ public class MetiTarski implements IQuantifierEliminator{
         if( Options.INSTANCE. isFull()                       )   parameters.add ( "--full"                              );
 
                                                                  parameters.add ( tmp.getAbsolutePath()                 );
-
         return parameters;
     }
 
-    /********************** Auxiliary method signatures ***********************/
+    /*-------------------------[ Auxiliary method signatures ]-------------------------*/
 
     public Term reduce(Term form, NamespaceSet nss)
        throws RemoteException, SolverException {
@@ -289,5 +290,4 @@ public class MetiTarski implements IQuantifierEliminator{
                         nss                     , 
                         timeout                 );
     }
-
 }
