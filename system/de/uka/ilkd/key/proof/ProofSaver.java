@@ -123,6 +123,9 @@ public class ProofSaver {
           ps.println("\\proof {");
           ps.println(writeLog(proof));
           ps.println("(autoModeTime \"" + proof.getAutoModeTime() + "\")\n");
+          ps.println("(nodes \"" + proof.countNodes() + "\")\n");
+          ps.println("(branches \"" + proof.countBranches() + "\")\n");
+          ps.println("(interactiveSteps \"" + de.uka.ilkd.key.dl.DLInitializer.computeInteractiveSteps(proof.root()) + "\")\n");
           printUserConstraints(ps);
           ps.println(node2Proof(proof.root()));
           ps.println("}");

@@ -153,18 +153,19 @@ public class DLInitializer {
 			}
 		}
 
-		private int computeInteractiveSteps(Node node) {
-			int steps = 0;
-			final Iterator<Node> it = node.childrenIterator();
-			while (it.hasNext()) {
-				steps += computeInteractiveSteps(it.next());
-			}
+	}
 
-			if (node.getNodeInfo().getInteractiveRuleApplication()) {
-				steps++;
-			}
-			return steps;
+	public static int computeInteractiveSteps(Node node) {
+		int steps = 0;
+		final Iterator<Node> it = node.childrenIterator();
+		while (it.hasNext()) {
+			steps += computeInteractiveSteps(it.next());
 		}
+
+		if (node.getNodeInfo().getInteractiveRuleApplication()) {
+			steps++;
+		}
+		return steps;
 	}
 
 	public final static String IDENTITY = "KeyMainProgram";
