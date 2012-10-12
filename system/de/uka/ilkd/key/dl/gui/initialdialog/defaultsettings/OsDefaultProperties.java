@@ -54,6 +54,8 @@ public abstract class OsDefaultProperties implements IOsDefaultProperties {
 			props.put(EPropertyConstant.HOL_OPTIONS_HOLLIGHT_PATH.getKey(), getHOLLightPath());
 			props.put(EPropertyConstant.HOL_OPTIONS_OCAML_PATH.getKey(), getOCAMLPath());
 			props.put(EPropertyConstant.Z3_OPTIONS_Z3_BINARY.getKey(), getZ3BinaryPath());
+         props.put(EPropertyConstant.METIT_OPTIONS_BINARY.getKey(), getMetitBinaryPath());
+         props.put(EPropertyConstant.METIT_OPTIONS_AXIOMS.getKey(), getMetitAxiomPath());
 			props.put("[checkBox]flag", "false");
 		}
 		return props;
@@ -129,6 +131,16 @@ public abstract class OsDefaultProperties implements IOsDefaultProperties {
 	 * Initialise z3 default value
 	 */
 	protected abstract String getZ3BinaryPath();
+	
+	  /**
+    * Initialise MetiTarski default value
+    */
+   protected abstract String getMetitBinaryPath();
+   
+   /**
+    * Initialise MetiTarski tptp axiom folder
+    */
+   protected abstract String getMetitAxiomPath();
 
 	/**
 	 * @return the mathematicaDefaultPath

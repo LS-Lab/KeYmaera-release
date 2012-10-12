@@ -67,6 +67,12 @@ public enum EPropertyConfigurations {
 	OPTIONS_H_QE_PATH(EPropertyConstant.HOL_OPTIONS_HARRISON_QE_PATH,
 			DirectoryPropertyEditor.class, FileStringConverter.class),
 			
+  OPTIONS_METIT_BINARY_PATH(EPropertyConstant.METIT_OPTIONS_BINARY,
+        FilePropertyEditor.class, FileStringConverter.class), 
+		         
+  OPTIONS_METIT_AXIOMS_PATH(EPropertyConstant.METIT_OPTIONS_AXIOMS,
+        DirectoryPropertyEditor.class, FileStringConverter.class),
+			
 	CHECKBOX_PROPERTY(EPropertyConstant.INITIAL_DIALOG_CHECKBOX, EConfigurationFiles.STARTUP_PROPERTY_FILE,CheckBoxEditor.class,
 			BooleanStringConverter.class);
 
