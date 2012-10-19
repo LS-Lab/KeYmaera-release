@@ -28,7 +28,6 @@ import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.UnsolveableException;
 import de.uka.ilkd.key.dl.arithmetics.impl.mathematica.Options;
 import de.uka.ilkd.key.dl.formulatools.DerivativeCreator;
-import de.uka.ilkd.key.dl.formulatools.FormulaUtil;
 import de.uka.ilkd.key.dl.model.DiffSystem;
 import de.uka.ilkd.key.dl.options.DLOptionBean;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DiffFin.RemoveQuantifiersResult;
@@ -99,15 +98,11 @@ public class DiffInd extends AbstractDLMetaOperator {
 				StringWriter writer = new StringWriter();
 				DiffSystem sys = r.getSys();
 				sys.prettyPrint(new PrettyPrinter(writer));
-				System.out.println(writer.toString());//XXX
 				Term diffInd;
 				if(DLOptionBean.INSTANCE.isUseODEIndFinMethods()) {
 				    diffInd = MathSolverManager.getCurrentODESolver()
 				            .diffInd(sys, post, services);
 				} else {
-					
-					sys = FormulaUtil.getAdjustedSystem(sys, r, services);
-					System.out.println("DANGER: "+sys);
 				    diffInd = DerivativeCreator.diffInd(sys, post, services);
 				    diffInd = TermBuilder.DF.imp(sys.getInvariant(services), diffInd);
 				}
@@ -116,7 +111,6 @@ public class DiffInd extends AbstractDLMetaOperator {
 				for (LogicVariable var : r.getQuantifiedVariables()) {
 					diffInd= TermBuilder.DF.all(var, diffInd);
 				}
-				System.out.println("DANGER: "+diffInd);
 				return diffInd;
 //            } catch (SolverException e) {
 //                throw e;

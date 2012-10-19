@@ -32,10 +32,8 @@ import java.util.WeakHashMap;
 
 import org.antlr.runtime.tree.CommonTree;
 
-import de.uka.ilkd.key.dl.model.impl.DotImpl;
 import de.uka.ilkd.key.java.ProgramElement;
 import de.uka.ilkd.key.logic.NamespaceSet;
-import de.uka.ilkd.key.logic.op.SchemaVariable;
 import de.uka.ilkd.key.logic.sort.Sort;
 
 /**

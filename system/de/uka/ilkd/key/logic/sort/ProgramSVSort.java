@@ -15,6 +15,7 @@ import java.util.Iterator;
 import de.uka.ilkd.key.collection.ImmutableList;
 import de.uka.ilkd.key.collection.ImmutableSLList;
 import de.uka.ilkd.key.dl.model.And;
+import de.uka.ilkd.key.dl.model.CompoundFormula;
 import de.uka.ilkd.key.dl.model.DLNonTerminalProgramElement;
 import de.uka.ilkd.key.dl.model.DLProgram;
 import de.uka.ilkd.key.dl.model.DiffSystem;
@@ -421,6 +422,8 @@ public abstract class ProgramSVSort extends PrimitiveSort {
     public static final DLDiffSystemWithInequality DL_DIFF_SYSTEM_WITH_INEQ_SORT_INSTANCE = new DLDiffSystemWithInequality();
 
     private static final DLOrdinaryDiffSystemSort DL_ORDINARY_DIFF_SYSTEM_SORT_INSTANCE = new DLOrdinaryDiffSystemSort();
+    
+    public static final DLNormalizedDiffSystemSort DL_NORMALIZED_DIFF_SYSTEM_SORT_INSTANCE = new DLNormalizedDiffSystemSort();
 
     public static final DLOrdinaryDiffSystemWithoutQuantifiersSort DL_SIMPLE_ORDINARY_DIFF_SYSTEM_SORT_INSTANCE = new DLOrdinaryDiffSystemWithoutQuantifiersSort();
     
@@ -2002,7 +2005,66 @@ public abstract class ProgramSVSort extends PrimitiveSort {
 			return false;
 		}
 	}
+	
+	/**
+	 * ProgramSVSort that can stand for an ordinary differential equation system
+	 * 
+	 * @author jdq
+	 */
+	private static class DLNormalizedDiffSystemSort extends ProgramSVSort {
+		public DLNormalizedDiffSystemSort() {
+			super(new Name("NormalizedOrdinaryDiffSystem"));
+		}
 
+		/**
+		 * @see de.uka.ilkd.key.logic.sort.ProgramSVSort#canStandFor(de.uka.ilkd.key.java.ProgramElement,
+		 *      de.uka.ilkd.key.java.Services) canStandFor
+		 */
+		public boolean canStandFor(ProgramElement pe, Services services) {
+			return (pe instanceof de.uka.ilkd.key.dl.model.DiffSystem)
+					&& isOrdinaryAndNormalized((de.uka.ilkd.key.dl.model.DiffSystem) pe);
+		}
+
+		/**
+		 * @param diffSystem
+		 * @return
+		 */
+		private boolean isOrdinaryAndNormalized(DiffSystem diffSystem) {
+			return diffSystem.getChildCount() == 1 && isOrdinaryAndNormalized(diffSystem.getChildAt(0));
+		}
+
+
+		private static boolean isOrdinaryAndNormalized(ProgramElement childAt) {
+			if (childAt instanceof And) {
+				return (isOrdinaryAndNormalized(((And) childAt).getChildAt(0)) && isOrdinaryAndNormalized(((And) childAt)
+						.getChildAt(1)));
+			} else if(childAt instanceof PredicateTerm) {
+				PredicateTerm pt = (PredicateTerm) childAt;
+				if(pt.getChildAt(0) instanceof Equals) {
+					return (pt.getChildAt(1) instanceof Dot || !containsDot(pt.getChildAt(1))) && !containsDot(pt.getChildAt(2));
+				}
+			} else if(childAt instanceof Exists || childAt instanceof Forall) {
+				return isOrdinaryAndNormalized(((CompoundFormula) childAt).getChildAt(1));
+			}
+			return !containsDot(childAt);
+		}
+		
+		private static boolean containsDot(ProgramElement p) {
+			if (p instanceof Dot) {
+				return true;
+			} else if (p instanceof DLNonTerminalProgramElement) {
+				for (ProgramElement s : (DLNonTerminalProgramElement) p) {
+					if (containsDot(s)) {
+						return true;
+					}
+				}
+			}
+			return false;
+		}
+	}
+	
+	
+	
 	/**
 	 * ProgramSVSort that can stand for an ordinary differential equation system
 	 * 
