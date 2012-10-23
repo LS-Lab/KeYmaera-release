@@ -21,6 +21,7 @@ package de.uka.ilkd.key.dl.rules.metaconstruct;
 
 import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -170,7 +171,6 @@ public class DiffNormalize extends AbstractDLMetaOperator {
 					f = tf.createAnd(f, formulas.remove(0));
 				}
 			}
-
 			if (renaming.keySet().size() > 0) {
 				for (Variable v : renaming.keySet()) {
 					List<Expression> l = new ArrayList<Expression>();
@@ -185,6 +185,8 @@ public class DiffNormalize extends AbstractDLMetaOperator {
 			}
 
 			formulas.add(f);
+			System.out.println(f);
+
 			return tf.createDiffSystem(formulas);
 		} catch (InvocationTargetException e) {
 			e.printStackTrace();
@@ -224,9 +226,6 @@ public class DiffNormalize extends AbstractDLMetaOperator {
 			result = tf.createOr((Formula) replaceDottedVariables(p.getChildAt(0), renaming, tf), (Formula) replaceDottedVariables(p.getChildAt(1), renaming, tf));
 		} else if (childAt instanceof PredicateTerm) {
 			result = normalizePredicateTerm((PredicateTerm) childAt, renaming, tf);
-			if(result == null) {
-				throw new IllegalArgumentException("NULL "+childAt);
-			}
 		} else if (childAt instanceof FunctionTerm) {
 			FunctionTerm p = (FunctionTerm) childAt;
 			de.uka.ilkd.key.dl.model.Function pred = (de.uka.ilkd.key.dl.model.Function) replaceDottedVariables(p.getChildAt(0), renaming, tf);
@@ -315,7 +314,11 @@ public class DiffNormalize extends AbstractDLMetaOperator {
 			if (d != null) {
 				PredicateTerm result = transformEquation((Expression) pTerm.getChildAt(1), (Expression) pTerm.getChildAt(2), d, tf);
 				List<Expression> children = new ArrayList<Expression>();
-				children.add((Expression) result.getChildAt(1));
+				if(result.getChildAt(1) instanceof Dot) {
+					children.add((Expression) result.getChildAt(1));
+				} else {
+					children.add((Expression) replaceDottedVariables(result.getChildAt(1), renaming, tf));
+				}
 				children.add((Expression) replaceDottedVariables(result.getChildAt(2), renaming, tf));
 				return tf.createPredicateTerm((Predicate) pTerm.getChildAt(0), children);
 			} else {
@@ -323,7 +326,11 @@ public class DiffNormalize extends AbstractDLMetaOperator {
 				if (d != null) {
 					PredicateTerm result = transformEquation((Expression) pTerm.getChildAt(2), (Expression) pTerm.getChildAt(1), d, tf);
 					List<Expression> children = new ArrayList<Expression>();
-					children.add((Expression) result.getChildAt(1));
+					if(result.getChildAt(1) instanceof Dot) {
+						children.add((Expression) result.getChildAt(1));
+					} else {
+						children.add((Expression) replaceDottedVariables(result.getChildAt(1), renaming, tf));
+					}
 					children.add((Expression) replaceDottedVariables(result.getChildAt(2), renaming, tf));
 					return tf.createPredicateTerm((Predicate) pTerm.getChildAt(0), children);
 				}
@@ -336,7 +343,7 @@ public class DiffNormalize extends AbstractDLMetaOperator {
 			return tf.createPredicateTerm((Predicate) pTerm.getChildAt(0), children);
 		}
 	}
-
+		
 	// Assumes that exp1 contains d!
 	private PredicateTerm transformEquation(Expression exp1, Expression exp2, Dot d, TermFactory tf) {
 		if (exp1 instanceof Dot) {
@@ -346,37 +353,57 @@ public class DiffNormalize extends AbstractDLMetaOperator {
 				children.add(exp2);
 				return tf.createPredicateTerm(tf.createEquals(), children);
 			} else {
-				throw new IllegalArgumentException("DOT FOUND = "+exp1+ " EXPECTED = "+d);
+				throw new IllegalArgumentException("Expected: "+d+", but found: "+exp1);
 			}
 		} else if (exp1 instanceof FunctionTerm) {
 			FunctionTerm fTerm = (FunctionTerm) exp1;
 			Expression dottedExpression = null, other = null;
-
+			boolean inverse;
 			if (containsDot((Expression) fTerm.getChildAt(1), d)) {
 				dottedExpression = (Expression) fTerm.getChildAt(1);
 				other = (Expression) fTerm.getChildAt(2);
+				inverse = false;
 			} else {
 				dottedExpression = (Expression) fTerm.getChildAt(2);
 				other = (Expression) fTerm.getChildAt(1);
+				inverse = true;
 			}
 
 			if (fTerm.getChildAt(0) instanceof Plus) {
 				exp2 = tf.createMinus(exp2, other);
 				return transformEquation(dottedExpression, exp2, d, tf);
 			} else if (fTerm.getChildAt(0) instanceof Minus) {
-				exp2 = tf.createPlus(exp2, other);
+				
+				if(inverse) {
+					exp2 = tf.createMinusSign(tf.createMinus(exp2, other));
+				} else {
+					exp2 = tf.createPlus(exp2, other);
+				}
+				
 				return transformEquation(dottedExpression, exp2, d, tf);
 			} else if (fTerm.getChildAt(0) instanceof Mult) {
-				exp2 = tf.createDiv(exp2, other);
-				return transformEquation(dottedExpression, exp2, d, tf);
+				if((other instanceof Constant && !(((Constant) other).getValue().equals(BigDecimal.ZERO))) ) {
+					return transformEquation(dottedExpression, tf.createDiv(exp2, other), d, tf);
+				}
 			} else if (fTerm.getChildAt(0) instanceof Div) {
-				exp2 = tf.createMult(exp2, other);
+				
+				if(inverse) {
+					dottedExpression = tf.createMult(dottedExpression, exp2);
+					exp2 = other;
+				} else {
+					exp2 = tf.createMult(exp2, other);
+				}
+				
 				return transformEquation(dottedExpression, exp2, d, tf);
 			} else {
-				throw new IllegalArgumentException("UNEXPECTED OPERATOR "+fTerm.getChildAt(0).getClass());
+				throw new IllegalArgumentException(exp1+" contains unsupported Operator: "+fTerm.getChildAt(0).getClass());
 			}
+			List<Expression> children = new ArrayList<Expression>();
+			children.add(exp1);
+			children.add(exp2);
+			return tf.createPredicateTerm(tf.createEquals(), children);
 		} else {
-			throw new IllegalArgumentException("WTF NOT POSSIBLE");
+			throw new IllegalArgumentException("Not supported sub-class of expression: "+exp1.getClass());
 		}
 	}
 }
