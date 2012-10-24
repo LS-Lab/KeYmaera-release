@@ -114,7 +114,7 @@ exRightHide = "The quantified formula has been hidden. Add it to the sequent aga
 
 hide_left = "The <b>hide</b> rule allows you to remove a formula. You can add it later again if you want using the <b>Insert Hidden</b> rule that you can apply to the sequent arrow."
 
-hide_right = "The <b>hide</b> rule allows you to remove a formula. You can add it later again if you want using the <b>Insert Hidden</b> rule that you can apply to the sequent arrow.""
+hide_right = "The <b>hide</b> rule allows you to remove a formula. You can add it later again if you want using the <b>Insert Hidden</b> rule that you can apply to the sequent arrow."
 
 instAll  =  "You have instantiated a quantifier. Next time try to drag the term on the quantifier."
 instEx   =  "You have instantiated a quantifier. Next time try to drag the term on the quantifier."
