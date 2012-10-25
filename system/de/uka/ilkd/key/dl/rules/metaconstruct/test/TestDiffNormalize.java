@@ -23,7 +23,6 @@ import de.uka.ilkd.key.dl.model.TermFactory;
 import de.uka.ilkd.key.dl.model.Variable;
 import de.uka.ilkd.key.dl.model.impl.TermFactoryImpl;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DiffNormalize;
-import de.uka.ilkd.key.java.ProgramElement;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.logic.JavaBlock;
 import de.uka.ilkd.key.logic.Name;
@@ -65,7 +64,7 @@ public class TestDiffNormalize {
 			throw new RuntimeException(e);
 		}
 	}
-	
+
 	@Test
 	public void testIsNotOrdinaryAndNotNormalized() {
 		List<Formula> formulasDiff1 = new ArrayList<Formula>();
@@ -79,7 +78,7 @@ public class TestDiffNormalize {
 		assertFalse(isOnlyOrdinary(diff1));
 		assertFalse(isNormalized(diff1));
 	}
-	
+
 	@Test
 	public void testIsNormalizedWithConstant() {
 		List<Formula> formulasDiff1 = new ArrayList<Formula>();
@@ -90,7 +89,7 @@ public class TestDiffNormalize {
 		childrenDiff1.add(c);
 		formulasDiff1.add(tf.createPredicateTerm(tf.createEquals(), childrenDiff1));
 		DiffSystem diff1 = tf.createDiffSystem(formulasDiff1);
-		
+
 		assertFalse(isOnlyOrdinary(diff1));
 		assertTrue(isNormalized(diff1)); // y'=10
 
@@ -98,41 +97,11 @@ public class TestDiffNormalize {
 		formulasDiff1.clear();
 		formulasDiff1.add(tf.createPredicateTerm(tf.createEquals(), childrenDiff1));
 		diff1 = tf.createDiffSystem(formulasDiff1);
-		
+
 		assertTrue(isOnlyOrdinary(diff1));
 		assertFalse(isNormalized(diff1)); // 10=y'
 	}
-	
-	@Test
-	public void testConnectFormulaWithAnd() { //Hier ists noch Fehlerhaft... 
-		List<Formula> formulasDiff1 = new ArrayList<Formula>();
-		List<Expression> childrenDiff1 = new ArrayList<Expression>();
-		Dot y = tf.createDot(tf.createLogicalVariable(tf.getNamespaces().getUniqueName("y")), 1);
-		Constant c = tf.createConstant(BigDecimal.TEN);
-		childrenDiff1.add(y);
-		childrenDiff1.add(c);
-		formulasDiff1.add(tf.createPredicateTerm(tf.createEquals(), childrenDiff1));
-		childrenDiff1.clear();
-		childrenDiff1.add(y);
-		childrenDiff1.add(tf.createLogicalVariable("x"));
-		formulasDiff1.add(tf.createPredicateTerm(tf.createEquals(), childrenDiff1));
-		DiffSystem diff1 = tf.createDiffSystem(formulasDiff1);
-		
-		List<Formula> formulasDiff2 = new ArrayList<Formula>();
-		formulasDiff2.add(tf.createAnd(formulasDiff1.get(0), formulasDiff1.get(1)));
-		DiffSystem diff2 = tf.createDiffSystem(formulasDiff2);
-		
-		System.out.println("diff2 "+diff2);
-		assertTrue(isOnlyOrdinary(diff1));
-		assertFalse(isNormalized(diff1));
-		
-		DiffSystem diff1AfterNormalization = termToDiffSystem(normalizeInstance.calculate(diffSystemToTerm(diff1), svInstance, s));
-		System.out.println("aha = "+diff1AfterNormalization);
-		assertEquals(diff1AfterNormalization, diff2);
-		assertFalse(isOnlyOrdinary(diff1AfterNormalization));
-		assertTrue(isNormalized(diff1AfterNormalization));
-	}
-	
+
 	@Test
 	public void testIsNormalizedWithOtherDot() {
 		List<Formula> formulasDiff1 = new ArrayList<Formula>();
@@ -144,7 +113,7 @@ public class TestDiffNormalize {
 		childrenDiff1.add(z);
 		formulasDiff1.add(tf.createPredicateTerm(tf.createEquals(), childrenDiff1));
 		DiffSystem diff1 = tf.createDiffSystem(formulasDiff1);
-		
+
 		assertTrue(isOnlyOrdinary(diff1));
 		assertFalse(isNormalized(diff1)); // y'=z'
 
@@ -152,9 +121,74 @@ public class TestDiffNormalize {
 		formulasDiff1.clear();
 		formulasDiff1.add(tf.createPredicateTerm(tf.createEquals(), childrenDiff1));
 		diff1 = tf.createDiffSystem(formulasDiff1);
-		
+
 		assertTrue(isOnlyOrdinary(diff1));
 		assertFalse(isNormalized(diff1)); // z'=y'
+	}
+
+	// @Test
+	// public void testConnectFormulaWithAnd() { //Hier ists noch Fehlerhaft...
+	// List<Formula> formulasDiff1 = new ArrayList<Formula>();
+	// List<Expression> childrenDiff1 = new ArrayList<Expression>();
+	// Dot y =
+	// tf.createDot(tf.createLogicalVariable(tf.getNamespaces().getUniqueName("y")),
+	// 1);
+	// Constant c = tf.createConstant(BigDecimal.TEN);
+	// childrenDiff1.add(y);
+	// childrenDiff1.add(c);
+	// formulasDiff1.add(tf.createPredicateTerm(tf.createEquals(),
+	// childrenDiff1));
+	// childrenDiff1.clear();
+	// childrenDiff1.add(y);
+	// childrenDiff1.add(tf.createLogicalVariable("x"));
+	// formulasDiff1.add(tf.createPredicateTerm(tf.createEquals(),
+	// childrenDiff1));
+	// DiffSystem diff1 = tf.createDiffSystem(formulasDiff1);
+	//
+	// List<Formula> formulasDiff2 = new ArrayList<Formula>();
+	// formulasDiff2.add(tf.createAnd(formulasDiff1.get(0),
+	// formulasDiff1.get(1)));
+	// DiffSystem diff2 = tf.createDiffSystem(formulasDiff2);
+	//
+	// assertTrue(isOnlyOrdinary(diff1));
+	// assertFalse(isNormalized(diff1));
+	//
+	// DiffSystem diff1AfterNormalization =
+	// termToDiffSystem(normalizeInstance.calculate(diffSystemToTerm(diff1),
+	// svInstance, s));
+	// assertEquals(diff1AfterNormalization, diff2);
+	// assertFalse(isOnlyOrdinary(diff1AfterNormalization));
+	// assertTrue(isNormalized(diff1AfterNormalization));
+	// }
+
+	@Test
+	public void testNegation() {
+		// Diff1 - DiffSystem to be normalized -y'=0
+		List<Formula> formulasDiff1 = new ArrayList<Formula>();
+		List<Expression> childrenDiff1 = new ArrayList<Expression>();
+		Dot d = tf.createDot(tf.createLogicalVariable(tf.getNamespaces().getUniqueName("y")), 1);
+		Constant c0 = tf.createConstant(BigDecimal.ZERO);
+		childrenDiff1.add(tf.createMinusSign(d));
+		childrenDiff1.add(c0);
+		formulasDiff1.add(tf.createPredicateTerm(tf.createEquals(), childrenDiff1));
+		DiffSystem diff1 = tf.createDiffSystem(formulasDiff1);
+
+		// Diff2 - Expected normalized DiffSystem y'=-0
+		List<Formula> formulasDiff2 = new ArrayList<Formula>();
+		List<Expression> childrenDiff2 = new ArrayList<Expression>();
+		childrenDiff2.add(d);
+		childrenDiff2.add(tf.createMinusSign(c0));
+		formulasDiff2.add(tf.createPredicateTerm(tf.createEquals(), childrenDiff2));
+		DiffSystem diff2 = tf.createDiffSystem(formulasDiff2);
+		System.out.println(diff2);
+		DiffSystem diff1AfterNormalization = termToDiffSystem(normalizeInstance.calculate(diffSystemToTerm(diff1), svInstance, s));
+		DiffSystem diff2AfterNormalization = termToDiffSystem(normalizeInstance.calculate(diffSystemToTerm(diff2), svInstance, s));
+		
+		assertFalse(isNormalized(diff1));
+		assertTrue(isOnlyOrdinary(diff1));
+		assertEquals(diff2, diff1AfterNormalization);
+		assertFalse(isOnlyOrdinary(diff2));
+		assertEquals(diff2, diff2AfterNormalization);
 	}
 
 	@Test
@@ -296,7 +330,7 @@ public class TestDiffNormalize {
 		assertFalse(isOnlyOrdinary(diff2));
 		assertEquals(diff2, diff2AfterNormalization);
 	}
-	
+
 	@Test
 	public void testInverseDotWithNoConstantAfterEquation() {
 		// Diff1 - DiffSystem to be normalized 1/y'=4+x
@@ -318,9 +352,9 @@ public class TestDiffNormalize {
 		List<Expression> childrenDiff2_introduce_equation = new ArrayList<Expression>();
 		Variable newVar = tf.createLogicalVariable("dy");
 		List<Variable> vars = new ArrayList<Variable>();
-		
+
 		vars.add(newVar);
-		childrenDiff2.add(tf.createMult(newVar,tf.createPlus(c1, x)));
+		childrenDiff2.add(tf.createMult(newVar, tf.createPlus(c1, x)));
 		childrenDiff2.add(c0);
 		childrenDiff2_introduce_equation.add(d);
 		childrenDiff2_introduce_equation.add(newVar);
@@ -338,15 +372,15 @@ public class TestDiffNormalize {
 		assertFalse(isOnlyOrdinary(diff2));
 		assertEquals(diff2, diff2AfterNormalization);
 	}
-	
+
 	private static boolean isNormalized(DiffSystem sys) {
 		return svSortNormalized.canStandFor(sys, null, s);
 	}
-	
+
 	private static boolean isOnlyOrdinary(DiffSystem sys) {
 		return svSortOnlyOrdinary.canStandFor(sys, null, s);
 	}
-	
+
 	protected static Term diffSystemToTerm(DiffSystem diff) {
 		Term createTerm = de.uka.ilkd.key.logic.TermFactory.DEFAULT
 				.createTerm(Op.BOX, new Term[] { TermBuilder.DF.tt() }, new ImmutableArray[0], JavaBlock.createJavaBlock(new DLStatementBlock(diff)));

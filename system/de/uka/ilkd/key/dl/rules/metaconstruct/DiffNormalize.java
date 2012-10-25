@@ -52,6 +52,7 @@ import de.uka.ilkd.key.dl.model.Implies;
 import de.uka.ilkd.key.dl.model.LogicalVariable;
 import de.uka.ilkd.key.dl.model.MetaVariable;
 import de.uka.ilkd.key.dl.model.Minus;
+import de.uka.ilkd.key.dl.model.MinusSign;
 import de.uka.ilkd.key.dl.model.Mult;
 import de.uka.ilkd.key.dl.model.Not;
 import de.uka.ilkd.key.dl.model.Or;
@@ -185,7 +186,6 @@ public class DiffNormalize extends AbstractDLMetaOperator {
 			}
 
 			formulas.add(f);
-			System.out.println(f);
 
 			return tf.createDiffSystem(formulas);
 		} catch (InvocationTargetException e) {
@@ -357,51 +357,55 @@ public class DiffNormalize extends AbstractDLMetaOperator {
 			}
 		} else if (exp1 instanceof FunctionTerm) {
 			FunctionTerm fTerm = (FunctionTerm) exp1;
-			Expression dottedExpression = null, other = null;
-			boolean inverse;
-			if (containsDot((Expression) fTerm.getChildAt(1), d)) {
-				dottedExpression = (Expression) fTerm.getChildAt(1);
-				other = (Expression) fTerm.getChildAt(2);
-				inverse = false;
+			if(fTerm.getChildAt(0) instanceof MinusSign) {
+				return transformEquation((Expression)fTerm.getChildAt(1), tf.createMinusSign(exp2), d, tf);
 			} else {
-				dottedExpression = (Expression) fTerm.getChildAt(2);
-				other = (Expression) fTerm.getChildAt(1);
-				inverse = true;
-			}
+				Expression dottedExpression = null, other = null;
+				boolean inverse;
+				if (containsDot((Expression) fTerm.getChildAt(1), d)) {
+					dottedExpression = (Expression) fTerm.getChildAt(1);
+					other = (Expression) fTerm.getChildAt(2);
+					inverse = false;
+				} else {
+					dottedExpression = (Expression) fTerm.getChildAt(2);
+					other = (Expression) fTerm.getChildAt(1);
+					inverse = true;
+				}
 
-			if (fTerm.getChildAt(0) instanceof Plus) {
-				exp2 = tf.createMinus(exp2, other);
-				return transformEquation(dottedExpression, exp2, d, tf);
-			} else if (fTerm.getChildAt(0) instanceof Minus) {
-				
-				if(inverse) {
-					exp2 = tf.createMinusSign(tf.createMinus(exp2, other));
+				if (fTerm.getChildAt(0) instanceof Plus) {
+					exp2 = tf.createMinus(exp2, other);
+					return transformEquation(dottedExpression, exp2, d, tf);
+				} else if (fTerm.getChildAt(0) instanceof Minus) {
+					
+					if(inverse) {
+						exp2 = tf.createMinusSign(tf.createMinus(exp2, other));
+					} else {
+						exp2 = tf.createPlus(exp2, other);
+					}
+					
+					return transformEquation(dottedExpression, exp2, d, tf);
+				} else if (fTerm.getChildAt(0) instanceof Mult) {
+					if((other instanceof Constant && !(((Constant) other).getValue().equals(BigDecimal.ZERO))) ) {
+						return transformEquation(dottedExpression, tf.createDiv(exp2, other), d, tf);
+					}
+				} else if (fTerm.getChildAt(0) instanceof Div) {
+					
+					if(inverse) {
+						dottedExpression = tf.createMult(dottedExpression, exp2);
+						exp2 = other;
+					} else {
+						exp2 = tf.createMult(exp2, other);
+					}
+					
+					return transformEquation(dottedExpression, exp2, d, tf);
 				} else {
-					exp2 = tf.createPlus(exp2, other);
+					throw new IllegalArgumentException(exp1+" contains unsupported Operator: "+fTerm.getChildAt(0).getClass());
 				}
-				
-				return transformEquation(dottedExpression, exp2, d, tf);
-			} else if (fTerm.getChildAt(0) instanceof Mult) {
-				if((other instanceof Constant && !(((Constant) other).getValue().equals(BigDecimal.ZERO))) ) {
-					return transformEquation(dottedExpression, tf.createDiv(exp2, other), d, tf);
-				}
-			} else if (fTerm.getChildAt(0) instanceof Div) {
-				
-				if(inverse) {
-					dottedExpression = tf.createMult(dottedExpression, exp2);
-					exp2 = other;
-				} else {
-					exp2 = tf.createMult(exp2, other);
-				}
-				
-				return transformEquation(dottedExpression, exp2, d, tf);
-			} else {
-				throw new IllegalArgumentException(exp1+" contains unsupported Operator: "+fTerm.getChildAt(0).getClass());
+				List<Expression> children = new ArrayList<Expression>();
+				children.add(exp1);
+				children.add(exp2);
+				return tf.createPredicateTerm(tf.createEquals(), children);
 			}
-			List<Expression> children = new ArrayList<Expression>();
-			children.add(exp1);
-			children.add(exp2);
-			return tf.createPredicateTerm(tf.createEquals(), children);
 		} else {
 			throw new IllegalArgumentException("Not supported sub-class of expression: "+exp1.getClass());
 		}
