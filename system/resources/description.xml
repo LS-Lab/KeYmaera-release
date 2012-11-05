@@ -1210,6 +1210,32 @@ Authors: David Henriques, Sarah Loos, Joao Martins</description>
         		</requirements>
         	</example>
         	<example>
+        		<name>Car Control local lane [FM'11]</name>
+        		<path>/examples/hybrid/car/DCCS/llc.key</path>
+				<proofs>
+					<proof name="Mathematica" href="/examples/hybrid/car/DCCS/llc.key.proof"/>
+				</proofs>
+        		<description>Local lane controller of a distributed car control system. Here only one single leader and a single follower car drive on a lane. This proof extends to more complicated car control verification, up to and including an arbitrary number of cars on an arbitrary number of lanes with lane switching and cars entering and leaving the highway.</description>
+				<resources>
+					<img>/examples/hybrid/car/fig-car-control2.png</img>
+				</resources>
+				<publication>DBLP:conf/fm/LoosPN11</publication> 				
+				<authors>
+					<author>sloos</author>
+					<author>lnistor</author>
+					<author>platzer</author>
+				</authors>
+				<proofauthors>
+					<author>sloos</author>
+				</proofauthors>
+        	    <source href="http://symbolaris.com/info/DCCS.html"/>
+        		<requirements>
+        			<some>
+        				<quantifiereliminator>Mathematica</quantifiereliminator>
+        			</some>
+        		</requirements>
+        	</example>
+        	<example>
         		<name>Car Control follow adaptively [simplified]</name>
         		<path>/examples/hybrid/car/DCCS/dccs-example.key</path>
 				<proofs>
@@ -1929,6 +1955,12 @@ Contributed by: Solofomampionona Fortunat Rajaona</description>
 		<name>Edmund M. Clarke</name>
 		<url>http://www.cs.cmu.edu/~emc/</url>
 		<imgurl>http://www.cs.cmu.edu/~emc/images/Ed_Clarke_color1.jpg</imgurl>
+	</author>
+	<author>
+		<short>lnistor</short>
+		<name>Ligia Nistor</name>
+		<url>http://www.cs.cmu.edu/~lnistor/</url>
+		<imgurl>http://www.cs.cmu.edu/~lnistor/ligia.jpg</imgurl>
 	</author>
 
 </authors>
