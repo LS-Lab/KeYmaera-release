@@ -1229,7 +1229,33 @@ Authors: David Henriques, Sarah Loos, Joao Martins</description>
         			</some>
         		</requirements>
         	</example>
-                <example>
+        	<example>
+        		<name>Car Control local lane [FM'11]</name>
+        		<path>/examples/hybrid/car/DCCS/llc.key</path>
+				<proofs>
+					<proof name="Mathematica" href="/examples/hybrid/car/DCCS/llc.key.proof"/>
+				</proofs>
+        		<description>Local lane controller of a distributed car control system. Here only one single leader and a single follower car drive on a lane. This proof extends to more complicated car control verification, up to and including an arbitrary number of cars on an arbitrary number of lanes with lane switching and cars entering and leaving the highway.</description>
+				<resources>
+					<img>/examples/hybrid/car/fig-car-control2.png</img>
+				</resources>
+				<publication>DBLP:conf/fm/LoosPN11</publication> 				
+				<authors>
+					<author>sloos</author>
+					<author>platzer</author>
+					<author>lnistor</author>
+				</authors>
+				<proofauthors>
+					<author>sloos</author>
+				</proofauthors>
+        	    <source href="http://symbolaris.com/info/DCCS.html"/>
+        		<requirements>
+        			<some>
+        				<quantifiereliminator>Mathematica</quantifiereliminator>
+        			</some>
+        		</requirements>
+        	</example>
+            <example>
                 <name>Car Control Intersection [stoplight]</name>
                         <path>/examples/hybrid/car/intersection/intersection-example-simple.key</path>
 						<proofs>
@@ -1930,6 +1956,12 @@ Contributed by: Solofomampionona Fortunat Rajaona</description>
 		<url>http://www.cs.cmu.edu/~emc/</url>
 		<imgurl>http://www.cs.cmu.edu/~emc/images/Ed_Clarke_color1.jpg</imgurl>
 	</author>
+	<author>
+		<short>lnistor</short>
+		<name>Ligia Nistor</name>
+		<url>http://www.cs.cmu.edu/~lnistor/</url>
+		<imgurl>http://www.cs.cmu.edu/~lnistor/ligia.jpg</imgurl>
+	</author>
 
 </authors>
 <publications>
@@ -1987,8 +2019,19 @@ Contributed by: Solofomampionona Fortunat Rajaona</description>
 		<authors>
 			<author>platzer</author>
 		</authors>
-		<url>http://arxiv.org/pdf/1206.3357.pdf</url>
-		<additional>Logical Methods in Computer Science, 2012.</additional>
+		<url>http://dx.doi.org/10.2168/LMCS-8(4:13)2012</url>
+		<additional>Logical Methods in Computer Science, 8(4:13), pages 1-44, 2012.</additional>
+	</publication>
+	<publication>
+		<short>DBLP:conf/fm/LoosPN11</short>
+		<title>Adaptive cruise control: Hybrid, distributed, and now formally verified</title>
+		<authors>
+			<author>sloos</author>
+			<author>platzer</author>
+			<author>lnistor</author>
+		</authors>
+		<url>http://dx.doi.org/10.1007/978-3-642-15205-4_36</url>
+		<additional>In Michael Butler and Wolfram Schulte, editors, 17th International Symposium on Formal Methods, FM, Limerick, Ireland, Proceedings, volume 6664 of LNCS, pages 42-56. Springer, 2011.</additional>
 	</publication>
 	<publication>
 		<short>Platzer10</short>
