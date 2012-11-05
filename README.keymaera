@@ -82,3 +82,84 @@ script. You avoid problems by starting it from the keymaera directory
 Example:
 > bin/runMathematicaServer
 
+Version Control
+---------------
+
+since it looks like a number of people here a struggling with
+git, let me give some general notes and a bunch of links that can
+help you dealing with the version control:
+
+General pardigm: Git is distributed and everything VCS related
+should be done _within_ the VCS.
+
+That is, if you want to try out some things, then:
+1. create a fresh branch: git branch maybeAGoodFeature
+2. checkout this branch: git checkout maybeAGoodFeature
+3. ... hack/code ...
+4. ... compile ...
+5. commit:
+    - git add <list of files you changed>
+	- git commit
+6. ... test ...
+7. maybe go back to 3
+
+this way everything is documented in the VCS and if at some point
+you decide that some change made it worse, you can just jump back
+a commit (see git reset, an example would be git reset --hard HEAD~1).
+
+If you want to check what is going on, on the stable branch, you
+can do so at any point _after_ step 5. That means once your
+changes are commited you could do the following:
+
+6a. git checkout keymaeraStable
+7a. git pull (this is git fetch origin && git merge origin/keymaeraStable)
+
+If something interesting happend on the master branch that you
+want on your new feature branch as well, you can do
+
+git checkout maybeAGoodFeature
+git fetch origin
+git merge origin/keymaeraStable
+
+like in any other VCS it might be that not all changes can be
+merged automatically here. If there are conflicts, unlike in svn,
+these are between already commited changesets. That means what
+every you do (if you do not start rewriting the git history) you
+will never loose your changes as you can always return to the
+HEAD of your feature branch which contains the state before you
+tried merging.
+
+Once your new feature is ready or you want to show it to other
+people you can push it to our common repository:
+
+git push origin maybeAGoodFeature:refs/heads/keymaeraGoodFeature
+
+and write a mail: "Hey, check out my cool feature. You can do
+
+git fetch origin
+git checkout -b maybeAGoodFeature origin/keymaeraGoodFeature --track
+
+to test it. Enjoy."
+
+Once, the feature is ready I will then merge it into the stable
+branch so that it becomes easily available to all users.
+
+So, to sum up git: branching is cheap and cool.
+
+A cheat sheet with a short overview about the commands:
+http://byte.kde.org/~zrusin/git/git-cheat-sheet-medium.png
+
+For users that are already familiar with SVN:
+http://git.or.cz/course/svn.html
+http://www.ibm.com/developerworks/linux/library/l-git-subversion-1/
+
+General git guides/howtos:
+http://rogerdudler.github.com/git-guide/
+http://stackoverflow.com/questions/315911/git-for-beginners-the-definitive-practical-guide
+http://git-scm.com/book
+
+If you are familiar with a different version control system,
+usually a quick google search for "git guide <vcs name>" will
+bring up a pretty good guide.
+
+Hope this helps with dealing with git.
