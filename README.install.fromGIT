@@ -1,0 +1,101 @@
+
+This README file is for users and/or developers who want to have an updated copy of the sources of KeYmaera and who will eventually contribute to the tool.
+
+1/ In order to get KeYmaera sources, you need first to share your public RSA key with either Jan-David (quesel@gmail.com) or Andre Platzer (aplatzer@cs.cmu.edu).
+Such key is usually provided in a file named *id_rsa.pub* under ~/.ssh.
+If you don't have it, you can still generate one using ssh-keygen command.
+*be careful to not share your private key* Private Key file is usually clearly titled PRIVATE KEY on the top of the file. 
+
+2/ KeYmaera version control system is GIT, there is a lot of very good online git tutorials. For instance the entire Pro GIT book by Scott Chacon can be browsed for free here (http://git-scm.com/book).
+KeYmaera stable version is a branch of the KeY git repository (master repo).
+The latest stable features of KeYmaera are committed to this working branch.
+
+To checkout (clone in GIT) the master git:
+
+> git clone git@homer.informatik.uni-oldenburg.de:karlsruhe.clone $ROOT
+
+$ROOT can be any name you want to give for your local working copy. The above command will create a directory with the same name.
+
+3/ Change your directory to the new local working copy then create and switch to the stable KeYmaera branch:
+
+> cd $ROOT; git checkout -b stable origin/keymaeraStable --track
+
+4/ Now that you have the source files, you might need to go through the following requirements before compiling your local version of KeYmaera:
+ - install scala 2.9+ if it is not there (http://www.scala-lang.org/downloads)
+ - install Ocaml (http://caml.inria.fr)
+ - fetch the following external libraries (they should be located under $ROOT/key-ext-jars):
+
+    > wget -nd -r -A jar http://csd.informatik.uni-oldenburg.de/keymaera/key-ext-jars/
+
+ - under key-ext-jars, you might need to add a symbolic link named antlr.jar to point to antlr-4.3-complete.jar (if you happen to have your own antlr version then you can use it as well)
+
+    > cd key-ext-jars; ln -snv antlr-4.3-complete.jar antlr.jar
+
+ - create JLink in key-ext-jars and move JLink.jar to key-ext-jars/JLink (for the compiler to be able to find the right library)
+
+ - compile KeYmaera:
+
+    > cd system; make all
+
+ - you should be able to execute KeYmaera using the running script bin/runKeYmaera:
+
+    > $ROOT/bin/runKeYmaera
+
+5/ Updates and commits
+
+ - to keep proper GIT logs, edit ~/.gitconfig as follows: (replacing the <...> parts as necessary)
+
+[user]
+       email = <email-address>
+       name = <full name>
+[core]
+       whitespace =
+trailing-space,space-before-tab,indent-with-non-tab,cr-at-eol
+[rerere]
+       enabled = true
+
+ - To receive updates, you can use 
+  
+      > git pull
+
+ - To commit your information LOCALLY use (remember that with GIT you have a LOCAL complete node): 
+
+   > git commit <file names>
+
+ - To commit your data to others (propagate your local commits after a LOCAL "git commit") use: "git push"
+
+
+6/ Troubleshooting
+
+ - 
+ Q: KeYmaera pops up the following error when I click on proof:
+"Could not convert Term: xxxxxx. Operator was: box". 
+ A: Quit KeYmaera, Delete ~/.key and ~/.keymaera under your home directory, then restart KeYmaera again
+ -
+
+ -
+ Q: I have a MAC OS  X and, I get the following errors in my terminal when starting KeYmaera
+****
+Running in normal mode ...
+Using assertions ...
+Aug 17 11:58:06 hamish.ls.cs.cmu.edu java[12954] <Error>: CGContextGetCTM: invalid context 0x0
+Aug 17 11:58:06 hamish.ls.cs.cmu.edu java[12954] <Error>: CGContextSetBaseCTM: invalid context 0x0
+Aug 17 11:58:06 hamish.ls.cs.cmu.edu java[12954] <Error>: CGContextGetCTM: invalid context 0x0
+Aug 17 11:58:06 hamish.ls.cs.cmu.edu java[12954] <Error>: CGContextSetBaseCTM: invalid context 0x0
+-linkmode launch -linkname '/Applications/Mathematica.app/Contents/MacOS/MathKernel -mathlink'
+With native JLink library
+com.wolfram.jlink.libdir=/Applications/Mathematica.app/SystemFiles/Links/JLink/SystemFiles/Libraries/MacOSX-x86-64
+****
+ A: The above error are related to Lion and should not affect the normal behavior of the application. The bug is known from Apple side (11264617). The new version (10.8) should fix it. 
+ -
+
+ -
+ Q: when I try to load a file, I get the following securityException:
+class "recoder.service.KeYCrossReferenceSourceInfo"'s signer information does not match signer information of other classes in the same package
+ A: Use the latest version of recorderKey.jar available here http://csd.informatik.uni-oldenburg.de/keymaera/key-ext-jars/
+ -
+
+ Q: I have a different question:
+ A: Check if you find an answer for it here
+ 
+    http://symbolaris.com/info/KeYmaera-guide.html
