@@ -1733,6 +1733,65 @@ Contributed by: Solofomampionona Fortunat Rajaona</description>
                     				</requirements>
                     			</example>
 	</group -->
+	<group name="Medical Robotics">
+    	<example>
+    		<name>Surgery 1 Fixture [simple]</name>
+    		<path>/examples/hybrid/medical-robotics/medrobot_1fix_simple.key</path>
+    		<proofs>
+    		    <proof name="Mathematica" href="/examples/hybrid/medical-robotics/medrobot_1fix_simple.key.proof"/>
+    		</proofs>
+			<proofauthors>
+				<author>ykouskoulas</author>
+			</proofauthors>
+    		<requirements>
+    			<some>
+    				<quantifiereliminator>Mathematica</quantifiereliminator>
+    			</some>
+    		</requirements>
+    		<description>2D version of the cooperative controller described in "An Integrated system for planning, navigation, and robotic assistance for skull base surgery". This problem is described in a single cartesian coordinate system.
+qx is x-position of the tool tip.
+qy is y-position of the tool tip.
+K is the scale factor between force and velocity in the admittance control law</description>
+    	</example>
+            	<example>
+            		<name>Surgery 2 Fixtures [simple]</name>
+            		<path>/examples/hybrid/medical-robotics/medrobot_2fix_simple.key</path>
+            		<proofs>
+            		    <proof name="Mathematica" href="/examples/hybrid/medical-robotics/medrobot_2fix_simple.key.proof"/>
+            		</proofs>
+        			<proofauthors>
+        				<author>ykouskoulas</author>
+        			</proofauthors>
+            		<requirements>
+            			<some>
+            				<quantifiereliminator>Mathematica</quantifiereliminator>
+            			</some>
+            		</requirements>
+            		<description>2D version of the cooperative controller described in "An Integrated system for planning, navigation, and robotic assistance for skull base surgery". This problem is described in a single cartesian coordinate system.
+qx is x-position of the tool tip.
+qy is y-position of the tool tip.
+K is the scale factor between force and velocity in the admittance control law</description>
+            	</example>
+                    	<example>
+                    		<name>Surgery 1 Fixture [lin]</name>
+                    		<path>/examples/hybrid/medical-robotics/medrobot_1fix_lin.key</path>
+                    		<proofs>
+                    		    <proof name="Mathematica" href="/examples/hybrid/medical-robotics/medrobot_1fix_lin.key.proof"/>
+                    		</proofs>
+                			<proofauthors>
+                				<author>ykouskoulas</author>
+                			</proofauthors>
+                    		<requirements>
+                    			<some>
+                    				<quantifiereliminator>Mathematica</quantifiereliminator>
+                    			</some>
+                    		</requirements>
+                    		<description>2D version of the cooperative controller described in "An Integrated system for planning, navigation, and robotic assistance for skull base surgery". This problem is described in a single cartesian coordinate system.
+qx is x-position of the tool tip.
+qy is y-position of the tool tip.
+K is the scale factor between force and velocity in the admittance control law</description>
+                    	</example>
+	</group>
 	<group name="Continuous Systems">
     	<example>
     		<name>Nonlinear Diffcut</name>
@@ -1955,6 +2014,11 @@ Contributed by: Solofomampionona Fortunat Rajaona</description>
 		<name>Edmund M. Clarke</name>
 		<url>http://www.cs.cmu.edu/~emc/</url>
 		<imgurl>http://www.cs.cmu.edu/~emc/images/Ed_Clarke_color1.jpg</imgurl>
+	</author>
+	<author>
+		<short>ykouskoulas</short>
+		<name>Yanni Kouskoulas</name>
+		<imgurl>http://www.ls.cs.cmu.edu/meta/ykouskoulas.jpg</imgurl>
 	</author>
 	<author>
 		<short>lnistor</short>
