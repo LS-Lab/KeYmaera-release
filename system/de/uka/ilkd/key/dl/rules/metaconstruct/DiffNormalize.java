@@ -339,6 +339,10 @@ public class DiffNormalize extends AbstractDLMetaOperator {
 					if(containsDot((Expression) fTerm.getChildAt(1), d) && containsDot((Expression) fTerm.getChildAt(2), d)) {
 						return false;
 					}
+				} else if(fTerm.getChildAt(0) instanceof Div) {
+					if(containsDot((Expression) fTerm.getChildAt(2), d)) {
+						return false;
+					}
 				} else if(!(fTerm.getChildAt(0) instanceof MinusSign || fTerm.getChildAt(0) instanceof Plus || fTerm.getChildAt(0) instanceof Minus) && containsDot(fTerm, d)) {
 					return false;
 				}
@@ -406,7 +410,6 @@ public class DiffNormalize extends AbstractDLMetaOperator {
 				collectSummandsSorted(tf.createMult(tf.createConstant(BigDecimal.valueOf(-1)), (Expression) fTerm.getChildAt(1)), summands, tf);
 			} else if (fTerm.getChildAt(0) instanceof Mult) {
 				Expression monom = simplifyMonom(fTerm, tf);
-				System.out.println("MONOM = " + monom);
 				if (monom instanceof Constant) {
 					summands.add(summands.size(), monom);
 				} else {
