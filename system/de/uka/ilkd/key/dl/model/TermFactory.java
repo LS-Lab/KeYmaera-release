@@ -584,6 +584,18 @@ public abstract class TermFactory implements Serializable {
             List<Expression> children);
 
     /**
+     * Creates a predicate term with the given predicate and parameters
+     * 
+     * @param pred
+     *                the operator to use
+     * @param children
+     *                the children of the predicate
+     * @return a new predicate term
+     */
+    public abstract PredicateTerm createPredicateTerm(Predicate pred,
+            Expression... children);
+    
+    /**
      * Creates an assignment between two expressions.
      * 
      * @param expression

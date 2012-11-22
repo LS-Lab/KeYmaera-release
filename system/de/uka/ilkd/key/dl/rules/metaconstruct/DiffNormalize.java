@@ -23,9 +23,12 @@ import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Set;
 
 import de.uka.ilkd.key.collection.ImmutableArray;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.FailedComputationException;
@@ -36,17 +39,17 @@ import de.uka.ilkd.key.dl.model.And;
 import de.uka.ilkd.key.dl.model.Biimplies;
 import de.uka.ilkd.key.dl.model.CompoundFormula;
 import de.uka.ilkd.key.dl.model.Constant;
-import de.uka.ilkd.key.dl.model.DLNonTerminalProgramElement;
-import de.uka.ilkd.key.dl.model.DLProgramElement;
 import de.uka.ilkd.key.dl.model.DLStatementBlock;
 import de.uka.ilkd.key.dl.model.DiffSystem;
 import de.uka.ilkd.key.dl.model.Div;
 import de.uka.ilkd.key.dl.model.Dot;
 import de.uka.ilkd.key.dl.model.Equals;
 import de.uka.ilkd.key.dl.model.Exists;
+import de.uka.ilkd.key.dl.model.Exp;
 import de.uka.ilkd.key.dl.model.Expression;
 import de.uka.ilkd.key.dl.model.Forall;
 import de.uka.ilkd.key.dl.model.Formula;
+import de.uka.ilkd.key.dl.model.Function;
 import de.uka.ilkd.key.dl.model.FunctionTerm;
 import de.uka.ilkd.key.dl.model.Implies;
 import de.uka.ilkd.key.dl.model.LogicalVariable;
@@ -143,7 +146,6 @@ public class DiffNormalize extends AbstractDLMetaOperator {
 		}
 	}
 
-	// TODO text nachbessern
 	/**
 	 * Normalizes System so that it only contains one Formula, consisting only
 	 * of Conjunctions and Quantifiers. All Differential Equations are of the
@@ -200,7 +202,7 @@ public class DiffNormalize extends AbstractDLMetaOperator {
 		return null;
 	}
 
-	private ProgramElement replaceDottedVariables(ProgramElement childAt, HashMap<Variable, LogicalVariable> renaming, TermFactory tf) {
+	public static ProgramElement replaceDottedVariables(final ProgramElement childAt, HashMap<Variable, LogicalVariable> renaming, final TermFactory tf) {
 		ProgramElement result = null;
 		if (childAt instanceof Dot) {
 			if (!renaming.containsKey(((Dot) childAt).getChildAt(0))) {
@@ -225,10 +227,24 @@ public class DiffNormalize extends AbstractDLMetaOperator {
 			CompoundFormula p = (CompoundFormula) childAt;
 			result = tf.createOr((Formula) replaceDottedVariables(p.getChildAt(0), renaming, tf), (Formula) replaceDottedVariables(p.getChildAt(1), renaming, tf));
 		} else if (childAt instanceof PredicateTerm) {
-			result = normalizePredicateTerm((PredicateTerm) childAt, renaming, tf);
+			PredicateTerm pTerm = (PredicateTerm) childAt;
+			if(isNormalizeable(pTerm, tf)) {
+				HashSet<Dot> dots = new HashSet<Dot>();
+				Expression left = (Expression) pTerm.getChildAt(1);
+				Expression right = (Expression) pTerm.getChildAt(2);
+				collectDots(left, dots);
+				collectDots(right, dots);
+				result = transformEqualsWithOneDot(left, right, dots.iterator().next(), tf);
+			} else {
+				List<Expression> children = new ArrayList<Expression>();
+				for (int i = 1; i < pTerm.getChildCount(); i++) {
+					children.add((Expression) replaceDottedVariables(pTerm.getChildAt(i), renaming, tf));
+				}
+				result = tf.createPredicateTerm((Predicate) pTerm.getChildAt(0), children);
+			}
 		} else if (childAt instanceof FunctionTerm) {
 			FunctionTerm p = (FunctionTerm) childAt;
-			de.uka.ilkd.key.dl.model.Function pred = (de.uka.ilkd.key.dl.model.Function) replaceDottedVariables(p.getChildAt(0), renaming, tf);
+			Function pred = (de.uka.ilkd.key.dl.model.Function) replaceDottedVariables(p.getChildAt(0), renaming, tf);
 			List<Expression> children = new ArrayList<Expression>();
 			for (int i = 1; i < p.getChildCount(); i++) {
 				children.add((Expression) replaceDottedVariables(p.getChildAt(i), renaming, tf));
@@ -262,44 +278,34 @@ public class DiffNormalize extends AbstractDLMetaOperator {
 		return result;
 	}
 
-	// private boolean containsDots(DLProgramElement pred) {
-	// if (pred instanceof Dot) {
-	// return true;
-	// } else if (pred instanceof DLNonTerminalProgramElement) {
-	// DLNonTerminalProgramElement dlnpe = (DLNonTerminalProgramElement) pred;
-	// for (ProgramElement p : dlnpe) {
-	// if (containsDots((DLProgramElement) p)) {
-	// return true;
-	// }
-	// }
-	// return false;
-	// }
-	// return false;
-	// }
-
-	private Dot getSomeDot(Expression exp) {
+	/**
+	 * 
+	 * @param exp Expression to be searched for Dots
+	 * @param dots Set to be filled with Dots
+	 */
+	public static void collectDots(final Expression exp, Set<Dot> dots) {
 		if (exp instanceof Dot) {
-			return (Dot) exp;
+			dots.add((Dot) exp);
 		} else if (exp instanceof FunctionTerm) {
 			FunctionTerm fTerm = (FunctionTerm) exp;
-			Dot d = null;
 			for (int i = 1; i < fTerm.getChildCount(); i++) {
-				d = getSomeDot((Expression) fTerm.getChildAt(i));
-				if (d != null) {
-					return d;
-				}
+				collectDots((Expression) fTerm.getChildAt(i), dots);
 			}
 		}
-		return null;
 	}
-
-	private boolean containsDot(Expression exp, Dot d) {
+	/**
+	 * 
+	 * @param exp Expression to be checked for Dot d
+	 * @param d The Dot
+	 * @return Expression exp contains the Dot d
+	 */
+	private static boolean containsDot(final Expression exp, final Dot d) {
 		if (exp instanceof Dot && ((Dot) exp).getChildAt(0).equals(d.getChildAt(0))) {
 			return true;
 		} else if (exp instanceof FunctionTerm) {
 			FunctionTerm fTerm = (FunctionTerm) exp;
 			for (int i = 1; i < fTerm.getChildCount(); i++) {
-				if (containsDot((Expression)((FunctionTerm) exp).getChildAt(i), d)) {
+				if (containsDot((Expression) ((FunctionTerm) exp).getChildAt(i), d)) {
 					return true;
 				}
 			}
@@ -308,106 +314,270 @@ public class DiffNormalize extends AbstractDLMetaOperator {
 		return false;
 	}
 
-	private PredicateTerm normalizePredicateTerm(PredicateTerm pTerm, HashMap<Variable, LogicalVariable> renaming, TermFactory tf) {
-		if (pTerm.getChildAt(0) instanceof Equals) {
-			Dot d = getSomeDot((Expression) pTerm.getChildAt(1));
-			if (d != null) {
-				PredicateTerm result = transformEquation((Expression) pTerm.getChildAt(1), (Expression) pTerm.getChildAt(2), d, tf);
-				List<Expression> children = new ArrayList<Expression>();
-				if(result.getChildAt(1) instanceof Dot) {
-					children.add((Expression) result.getChildAt(1));
-				} else {
-					children.add((Expression) replaceDottedVariables(result.getChildAt(1), renaming, tf));
-				}
-				children.add((Expression) replaceDottedVariables(result.getChildAt(2), renaming, tf));
-				return tf.createPredicateTerm((Predicate) pTerm.getChildAt(0), children);
-			} else {
-				d = getSomeDot((Expression) pTerm.getChildAt(2));
-				if (d != null) {
-					PredicateTerm result = transformEquation((Expression) pTerm.getChildAt(2), (Expression) pTerm.getChildAt(1), d, tf);
-					List<Expression> children = new ArrayList<Expression>();
-					if(result.getChildAt(1) instanceof Dot) {
-						children.add((Expression) result.getChildAt(1));
-					} else {
-						children.add((Expression) replaceDottedVariables(result.getChildAt(1), renaming, tf));
+	public static boolean isNormalizeable(final PredicateTerm pTerm, final TermFactory tf) {
+		HashSet<Dot> dots = new HashSet<Dot>();
+		return pTerm.getChildAt(0) instanceof Equals && isNormalizeable((Expression) pTerm.getChildAt(1), dots, tf) && isNormalizeable((Expression) pTerm.getChildAt(2), dots, tf) && dots.size() == 1;
+	}
+
+	public static boolean isNormalizeable(final Expression exp, Set<Dot> dots, final TermFactory tf) {
+		if(exp instanceof Dot) {
+			dots.add((Dot)exp);
+			if(dots.size() > 1) {
+				return false;
+			}
+		} else if(exp instanceof FunctionTerm) {
+			FunctionTerm fTerm = (FunctionTerm) exp;
+			boolean result = true;
+			for(int i = 1; i < fTerm.getChildCount(); i++) {
+				result &= isNormalizeable((Expression) fTerm.getChildAt(i), dots, tf);
+			}
+			if(dots.size() > 1) {
+				return false;
+			} else if(dots.size() == 1) {
+				Dot d = dots.iterator().next();
+				if(fTerm.getChildAt(0) instanceof Mult) {
+					if(containsDot((Expression) fTerm.getChildAt(1), d) && containsDot((Expression) fTerm.getChildAt(2), d)) {
+						return false;
 					}
-					children.add((Expression) replaceDottedVariables(result.getChildAt(2), renaming, tf));
-					return tf.createPredicateTerm((Predicate) pTerm.getChildAt(0), children);
+				} else if(!(fTerm.getChildAt(0) instanceof MinusSign || fTerm.getChildAt(0) instanceof Plus || fTerm.getChildAt(0) instanceof Minus) && containsDot(fTerm, d)) {
+					return false;
 				}
 			}
-			return pTerm;
+			return result;
+		}
+		return true;
+	}
+	
+	// expects only one kind of Dotted Variable: a*d'+f = b*d'+g <=> (a-b != 0 &
+	// d'= (g-f)/(a-b)) | (a-b=0 & g-f=0)
+	public static Formula transformEqualsWithOneDot(final Expression exp1, final Expression exp2, final Dot d, final TermFactory tf) {
+		Expression flatLeft = flatExpression(exp1, tf);
+		Expression a = getSumOfFactorsOfDot(flatLeft, d, tf);
+		Expression f = getSumOfRest(flatLeft, d, tf);
+
+		Expression flatRight = flatExpression(exp2, tf);
+		Expression b = getSumOfFactorsOfDot(flatRight, d, tf);
+		Expression g = getSumOfRest(flatRight, d, tf);
+		
+		Expression aMinusB = simplifyPolynom(flatExpression(tf.createMinus(a, b), tf), tf);
+		System.out.println("A-B = " + flatExpression(tf.createMinus(a, b), tf));
+		Expression gMinusF = simplifyPolynom(flatExpression(tf.createMinus(g, f), tf), tf);
+		System.out.println("G-F = " + flatExpression(tf.createMinus(g, f), tf));
+
+		System.out.println(flatLeft);
+		System.out.println("A =" + a + "F= " + f);
+		System.out.println(flatRight);
+		System.out.println("B =" + b + "G= " + g);
+		
+		final Constant ZERO = tf.createConstant(BigDecimal.ZERO);
+		return tf.createOr(tf.createAnd(tf.createPredicateTerm(tf.createUnequals(), aMinusB, ZERO), tf.createPredicateTerm(tf.createEquals(), d, tf.createDiv(gMinusF, aMinusB))),
+				tf.createAnd(tf.createPredicateTerm(tf.createEquals(), aMinusB, ZERO), tf.createPredicateTerm(tf.createEquals(), gMinusF, ZERO)));
+	}
+
+	// to be applied on polynoms without dots only
+	public static Expression simplifyPolynom(Expression exp, TermFactory tf) {
+		List<Expression> summands = new ArrayList<Expression>();
+		collectSummandsSorted(exp, summands, tf);
+		System.out.println("Summands" + Arrays.toString(summands.toArray(new Expression[0])));
+		Constant constantSummand = tf.createConstant(BigDecimal.ZERO);
+		int index = summands.size() - 1;
+		while (index >= 0 && summands.get(index) instanceof Constant) {
+			constantSummand = tf.createConstant(constantSummand.getValue().add(((Constant) summands.get(index)).getValue()));
+			index--;
+		}
+		Expression result;
+		if(constantSummand.getValue().equals(BigDecimal.ZERO) && index >= 0) { 
+			result = summands.get(index);
+			index--;
 		} else {
-			List<Expression> children = new ArrayList<Expression>();
-			children.add((Expression) replaceDottedVariables(pTerm.getChildAt(1), renaming, tf));
-			children.add((Expression) replaceDottedVariables(pTerm.getChildAt(2), renaming, tf));
-			return tf.createPredicateTerm((Predicate) pTerm.getChildAt(0), children);
+			result = constantSummand;
+		}
+		while (index >= 0) {
+			result = tf.createPlus(summands.get(index), result);
+			index--;
+		}
+		return result;
+	}
+
+	public static void collectSummandsSorted(Expression exp, List<Expression> summands, TermFactory tf) {
+		if (exp instanceof FunctionTerm) {
+			FunctionTerm fTerm = (FunctionTerm) exp;
+			if (fTerm.getChildAt(0) instanceof MinusSign) {
+				collectSummandsSorted(tf.createMult(tf.createConstant(BigDecimal.valueOf(-1)), (Expression) fTerm.getChildAt(1)), summands, tf);
+			} else if (fTerm.getChildAt(0) instanceof Mult) {
+				Expression monom = simplifyMonom(fTerm, tf);
+				System.out.println("MONOM = " + monom);
+				if (monom instanceof Constant) {
+					summands.add(summands.size(), monom);
+				} else {
+					summands.add(0, monom);
+				}
+			} else if (fTerm.getChildAt(0) instanceof Plus) {
+				collectSummandsSorted((Expression) fTerm.getChildAt(1), summands, tf);
+				collectSummandsSorted((Expression) fTerm.getChildAt(2), summands, tf);
+			} else if (fTerm.getChildAt(0) instanceof Minus) {
+				collectSummandsSorted((Expression) fTerm.getChildAt(1), summands, tf);
+				collectSummandsSorted(tf.createMinusSign((Expression) fTerm.getChildAt(2)), summands, tf);
+			} else if (fTerm.getChildAt(0) instanceof Exp) {
+				collectSummandsSorted(tf.createMult(tf.createConstant(BigDecimal.ONE), fTerm), summands, tf);
+			} else {
+				throw new IllegalArgumentException("Expected a polynom, but found " + exp);
+			}
+		} else if (exp instanceof Constant) {
+			summands.add(summands.size(), exp);
+		} else if (exp instanceof Variable) {
+			summands.add(0, exp);
+		} else {
+			throw new IllegalArgumentException("Expected a polynom, but found " + exp);
 		}
 	}
-		
-	// Assumes that exp1 contains d!
-	private PredicateTerm transformEquation(Expression exp1, Expression exp2, Dot d, TermFactory tf) {
-		if (exp1 instanceof Dot) {
-			if (((Dot) exp1).getChildAt(0).equals(d.getChildAt(0))) {
-				List<Expression> children = new ArrayList<Expression>();
-				children.add(exp1);
-				children.add(exp2);
-				return tf.createPredicateTerm(tf.createEquals(), children);
-			} else {
-				throw new IllegalArgumentException("Expected: "+d+", but found: "+exp1);
-			}
-		} else if (exp1 instanceof FunctionTerm) {
-			FunctionTerm fTerm = (FunctionTerm) exp1;
-			if(fTerm.getChildAt(0) instanceof MinusSign) {
-				return transformEquation((Expression)fTerm.getChildAt(1), tf.createMinusSign(exp2), d, tf);
-			} else {
-				Expression dottedExpression = null, other = null;
-				boolean inverse;
-				if (containsDot((Expression) fTerm.getChildAt(1), d)) {
-					dottedExpression = (Expression) fTerm.getChildAt(1);
-					other = (Expression) fTerm.getChildAt(2);
-					inverse = false;
-				} else {
-					dottedExpression = (Expression) fTerm.getChildAt(2);
-					other = (Expression) fTerm.getChildAt(1);
-					inverse = true;
-				}
 
-				if (fTerm.getChildAt(0) instanceof Plus) {
-					exp2 = tf.createMinus(exp2, other);
-					return transformEquation(dottedExpression, exp2, d, tf);
-				} else if (fTerm.getChildAt(0) instanceof Minus) {
-					
-					if(inverse) {
-						exp2 = tf.createMinusSign(tf.createMinus(exp2, other));
-					} else {
-						exp2 = tf.createPlus(exp2, other);
-					}
-					
-					return transformEquation(dottedExpression, exp2, d, tf);
-				} else if (fTerm.getChildAt(0) instanceof Mult) {
-					if((other instanceof Constant && !(((Constant) other).getValue().equals(BigDecimal.ZERO))) ) {
-						return transformEquation(dottedExpression, tf.createDiv(exp2, other), d, tf);
-					}
-				} else if (fTerm.getChildAt(0) instanceof Div) {
-					
-					if(inverse) {
-						dottedExpression = tf.createMult(dottedExpression, exp2);
-						exp2 = other;
-					} else {
-						exp2 = tf.createMult(exp2, other);
-					}
-					
-					return transformEquation(dottedExpression, exp2, d, tf);
-				} else {
-					throw new IllegalArgumentException(exp1+" contains unsupported Operator: "+fTerm.getChildAt(0).getClass());
-				}
-				List<Expression> children = new ArrayList<Expression>();
-				children.add(exp1);
-				children.add(exp2);
-				return tf.createPredicateTerm(tf.createEquals(), children);
-			}
-		} else {
-			throw new IllegalArgumentException("Not supported sub-class of expression: "+exp1.getClass());
+	// to be applied on monoms without dots only
+	public static Expression simplifyMonom(final Expression exp, final TermFactory tf) {
+		List<Expression> factors = new ArrayList<Expression>();
+		collectFactorsSorted(exp, factors);
+		//System.out.println("FAC " + exp + " => " + Arrays.toString(factors.toArray(new Expression[0])));
+		int index = 0;
+		Constant constantFactor = tf.createConstant(BigDecimal.ONE);
+		while (index < factors.size() && factors.get(index) instanceof Constant) {
+			constantFactor = tf.createConstant(constantFactor.getValue().multiply(((Constant) factors.get(index)).getValue()));
+			index++;
 		}
+		Expression result = constantFactor;
+		while (index < factors.size()) {
+			result = tf.createMult(result, factors.get(index));
+			index++;
+		}
+		return result;
+	}
+
+	// to be applied on monoms without dots only
+	public static void collectFactorsSorted(final Expression exp, final List<Expression> factors) {
+		if (exp instanceof FunctionTerm) {
+			FunctionTerm fTerm = (FunctionTerm) exp;
+			if (fTerm.getChildAt(0) instanceof Mult) {
+				collectFactorsSorted((Expression) fTerm.getChildAt(1), factors);
+				collectFactorsSorted((Expression) fTerm.getChildAt(2), factors);
+			} else if (fTerm.getChildAt(0) instanceof Exp) {
+				for (int i = factors.size() - 1; i >= 0; i--) {
+					factors.add(factors.size(), fTerm);
+				}
+			} else {
+				throw new IllegalArgumentException("Expected a monom, but found " + exp);
+			}
+		} else if (exp instanceof Constant) {
+			int position = 0;
+			for (int i = factors.size() - 1; i >= 0; i--) {
+				if (factors.get(i) instanceof Exp && (((Constant) ((FunctionTerm) factors.get(i)).getChildAt(2)).getValue().compareTo(BigDecimal.ONE) < 0)) {
+					position = i;
+					break;
+				}
+			}
+			factors.add(position, exp);
+		} else if (exp instanceof Variable) {
+			factors.add(factors.size(), exp);
+		} else {
+			throw new IllegalArgumentException("Expected a monom, but found " + exp);
+		}
+	}
+
+	public static Expression flatExpression(final Expression exp, final TermFactory tf) {
+		if (exp instanceof FunctionTerm) {
+			FunctionTerm fTerm = (FunctionTerm) exp;
+			if (fTerm.getChildAt(0) instanceof MinusSign) {
+				return flatExpression(tf.createMult(tf.createConstant(BigDecimal.valueOf(-1)), (Expression) fTerm.getChildAt(1)), tf);
+			}
+			Expression left = flatExpression((Expression) fTerm.getChildAt(1), tf);
+			Expression right = flatExpression((Expression) fTerm.getChildAt(2), tf);
+			if (fTerm.getChildAt(0) instanceof Plus) {
+				return tf.createPlus(left, right);
+			} else if (fTerm.getChildAt(0) instanceof Minus) {
+				return flatExpression(tf.createPlus(left, tf.createMult(tf.createConstant(BigDecimal.valueOf(-1)), right)), tf);
+			} else if (fTerm.getChildAt(0) instanceof Mult) {
+				if (left instanceof FunctionTerm) {
+					FunctionTerm leftTerm = (FunctionTerm) left;
+					if (leftTerm.getChildAt(0) instanceof Plus) {
+						return flatExpression(tf.createPlus(tf.createMult((Expression) leftTerm.getChildAt(1), right), tf.createMult((Expression) leftTerm.getChildAt(2), right)), tf);
+					} else if (leftTerm.getChildAt(0) instanceof Minus) {
+						return flatExpression(tf.createMinus(tf.createMult((Expression) leftTerm.getChildAt(1), right), tf.createMult((Expression) leftTerm.getChildAt(2), right)), tf);
+					}
+				}
+				if (right instanceof FunctionTerm) {
+					FunctionTerm rightTerm = (FunctionTerm) right;
+					if (rightTerm.getChildAt(0) instanceof Plus) {
+						return flatExpression(tf.createPlus(tf.createMult(left, (Expression) rightTerm.getChildAt(1)), tf.createMult(left, (Expression) rightTerm.getChildAt(2))), tf);
+					} else if (rightTerm.getChildAt(0) instanceof Minus) {
+						return flatExpression(tf.createMinus(tf.createMult(left, (Expression) rightTerm.getChildAt(1)), tf.createMult(left, (Expression) rightTerm.getChildAt(2))), tf);
+					}
+				}
+				return tf.createMult(left, right);
+			} else if (fTerm.getChildAt(0) instanceof Div) {
+				return flatExpression(tf.createMult(left, tf.createExp(right, tf.createConstant(BigDecimal.valueOf(-1)))), tf);
+			}
+		}
+		return exp;
+	}
+
+	public static Expression getSumOfFactorsOfDot(final Expression polynom, final Dot d, final TermFactory tf) {
+		if (polynom instanceof FunctionTerm) {
+			FunctionTerm fTerm = (FunctionTerm) polynom;
+			if (fTerm.getChildAt(0) instanceof Plus) {
+				Expression left = getSumOfFactorsOfDot((Expression) fTerm.getChildAt(1), d, tf);
+				Expression right = getSumOfFactorsOfDot((Expression) fTerm.getChildAt(2), d, tf);
+				return tf.createPlus(left, right);
+			} else if (fTerm.getChildAt(0) instanceof Mult) {
+				if (containsDot(fTerm, d)) {
+					return collectFactors(fTerm, tf);
+				} else {
+					// skip summands without the dotted variable
+					return tf.createConstant(BigDecimal.ZERO);
+				}
+			}
+		} else if (polynom == d) {
+			return tf.createConstant(BigDecimal.ONE);
+		} else if (polynom instanceof Variable || polynom instanceof Constant) {
+			return tf.createConstant(BigDecimal.ZERO);
+		}
+		throw new IllegalArgumentException("Expecting polynomial, found " + polynom);
+
+	}
+
+	public static Expression getSumOfRest(final Expression exp, final Dot d, final TermFactory tf) {
+		if (exp instanceof FunctionTerm) {
+			FunctionTerm fTerm = (FunctionTerm) exp;
+			if (fTerm.getChildAt(0) instanceof Plus) {
+				Expression left = getSumOfRest((Expression) fTerm.getChildAt(1), d, tf);
+				Expression right = getSumOfRest((Expression) fTerm.getChildAt(2), d, tf);
+				return tf.createPlus(left, right);
+			} else if (fTerm.getChildAt(0) instanceof Mult) {
+				if (!containsDot(fTerm, d)) {
+					return collectFactors(fTerm, tf);
+				}
+			}
+		} else if (exp instanceof Variable || exp instanceof Constant) {
+			return exp;
+		}
+		return tf.createConstant(BigDecimal.ZERO);
+	}
+
+	public static Expression collectFactors(final Expression monom, final TermFactory tf) {
+		if (monom instanceof FunctionTerm) {
+			FunctionTerm fTerm = (FunctionTerm) monom;
+			if (fTerm.getChildAt(0) instanceof Mult) {
+				Expression left = collectFactors((Expression) fTerm.getChildAt(1), tf);
+				Expression right = collectFactors((Expression) fTerm.getChildAt(2), tf);
+				return tf.createMult(left, right);
+			} else if(fTerm.getChildAt(0) instanceof Exp) {
+				return monom;
+			} else {
+				throw new IllegalArgumentException("Monoms cannot contain operators other than multiplication! Found: " + monom);
+			}
+		} else if (monom instanceof Variable || monom instanceof Constant) {
+			return monom;
+		} else if (monom instanceof Dot) {
+			// ignore derivatives
+			return tf.createConstant(BigDecimal.ONE);
+		}
+		throw new IllegalArgumentException("Unknown operator in " + monom);
 	}
 }
