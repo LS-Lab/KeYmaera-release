@@ -605,8 +605,11 @@ public class ProblemLoader implements Runnable {
                children = currNode.childrenIterator();
                currNode = null;
             } catch(Exception e) {
-                throw new RuntimeException("Error loading proof. Line "+
-                    linenr+" rule: "+currTacletName,e);
+                //throw new RuntimeException("Error loading proof. Line "+
+                //    linenr+" rule: "+currTacletName,e);
+				// ignore the exception
+				System.err.println("Ignoring rule application in line " + linenr + " rule " + currTacletName);
+				e.printStacktrace();
             }
             break;
         case 'n' :
@@ -615,8 +618,11 @@ public class ProblemLoader implements Runnable {
                 children = currNode.childrenIterator();
                 currNode = null;
             } catch (BuiltInConstructionException e) {
-                throw new RuntimeException("Error loading proof. Line "+
-                    linenr+" rule: "+currTacletName,e);
+                //throw new RuntimeException("Error loading proof. Line "+
+                //    linenr+" rule: "+currTacletName,e);
+				// ignore the exception
+				System.err.println("Ignoring rule application in line " + linenr + " rule " + currTacletName);
+				e.printStacktrace();
             }
             break;
         }
