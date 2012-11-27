@@ -609,7 +609,7 @@ public class ProblemLoader implements Runnable {
                 //    linenr+" rule: "+currTacletName,e);
 				// ignore the exception
 				System.err.println("Ignoring rule application in line " + linenr + " rule " + currTacletName);
-				e.printStacktrace();
+				e.printStackTrace();
             }
             break;
         case 'n' :
@@ -622,7 +622,7 @@ public class ProblemLoader implements Runnable {
                 //    linenr+" rule: "+currTacletName,e);
 				// ignore the exception
 				System.err.println("Ignoring rule application in line " + linenr + " rule " + currTacletName);
-				e.printStacktrace();
+				e.printStackTrace();
             }
             break;
         }
