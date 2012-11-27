@@ -3616,7 +3616,7 @@ public class Main extends JFrame implements IMain {
             if (recentFiles != null && recentFiles.getMostRecent() != null) {
                     final String recentFile = recentFiles.getMostRecent()
                                     .getAbsolutePath();
-                    if (recentFile != null && recentFile.endsWith(".key")) {
+                    if (recentFile != null && (recentFile.endsWith(".key") || recentFile.endsWith(".proof"))) {
                             loadProblem(new File(recentFile));
                     }
             }
