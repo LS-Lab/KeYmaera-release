@@ -23,6 +23,7 @@ import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -373,9 +374,8 @@ public class DiffNormalize extends AbstractDLMetaOperator {
 		Expression flatRight = flatExpression(exp2, tf);
 		Expression b = getSumOfFactorsOfDot(flatRight, d, tf);
 		Expression g = getSumOfRest(flatRight, d, tf);
-		
-		Expression aMinusB = simplifyPolynom(flatExpression(tf.createMinus(a, b), tf), tf);
 		//XXX
+		Expression aMinusB = simplifyPolynom(flatExpression(tf.createMinus(a, b), tf), tf);
 		System.out.println("A-B = " + flatExpression(tf.createMinus(a, b), tf));
 		Expression gMinusF = simplifyPolynom(flatExpression(tf.createMinus(g, f), tf), tf);
 		System.out.println("G-F = " + flatExpression(tf.createMinus(g, f), tf));
@@ -394,7 +394,8 @@ public class DiffNormalize extends AbstractDLMetaOperator {
 	private static Expression simplifyPolynom(Expression exp, TermFactory tf) {
 		List<Expression> summands = new ArrayList<Expression>();
 		collectSummandsSorted(exp, summands, tf);
-		//XXX System.out.println("Summands" + Arrays.toString(summands.toArray(new Expression[0])));
+		//XXX
+		System.out.println("Summands" + Arrays.toString(summands.toArray(new Expression[0])));
 		Constant constantSummand = tf.createConstant(BigDecimal.ZERO);
 		int index = summands.size() - 1;
 		while (index >= 0 && summands.get(index) instanceof Constant) {
@@ -451,7 +452,6 @@ public class DiffNormalize extends AbstractDLMetaOperator {
 	private static Expression simplifyMonom(final Expression exp, final TermFactory tf) {
 		List<Expression> factors = new ArrayList<Expression>();
 		collectFactorsSorted(exp, factors);
-		//System.out.println("FAC " + exp + " => " + Arrays.toString(factors.toArray(new Expression[0])));
 		int index = 0;
 		Constant constantFactor = tf.createConstant(BigDecimal.ONE);
 		while (index < factors.size() && factors.get(index) instanceof Constant) {
