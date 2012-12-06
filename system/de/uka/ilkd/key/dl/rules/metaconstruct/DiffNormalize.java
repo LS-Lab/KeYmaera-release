@@ -1,6 +1,6 @@
 /***************************************************************************
  *   Copyright (C) 2007 by Andre Platzer                                   *
- *   @informatik.uni-oldenburg.de                                          *
+ *   @informatik.uni-oldenburg.de                                        *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -23,7 +23,6 @@ import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -201,8 +200,14 @@ public class DiffNormalize extends AbstractDLMetaOperator {
 		}
 		return null;
 	}
-
-	public static ProgramElement replaceDottedVariables(final ProgramElement childAt, HashMap<Variable, LogicalVariable> renaming, final TermFactory tf) {
+	/**
+	 * 
+	 * @param childAt
+	 * @param renaming map for replacements of dotted variables
+	 * @param tf
+	 * @return programelement where all equations only contain up to one dotted variable
+	 */
+	private static ProgramElement replaceDottedVariables(final ProgramElement childAt, HashMap<Variable, LogicalVariable> renaming, final TermFactory tf) {
 		ProgramElement result = null;
 		if (childAt instanceof Dot) {
 			if (!renaming.containsKey(((Dot) childAt).getChildAt(0))) {
@@ -283,7 +288,7 @@ public class DiffNormalize extends AbstractDLMetaOperator {
 	 * @param exp Expression to be searched for Dots
 	 * @param dots Set to be filled with Dots
 	 */
-	public static void collectDots(final Expression exp, Set<Dot> dots) {
+	private static void collectDots(final Expression exp, Set<Dot> dots) {
 		if (exp instanceof Dot) {
 			dots.add((Dot) exp);
 		} else if (exp instanceof FunctionTerm) {
@@ -314,12 +319,18 @@ public class DiffNormalize extends AbstractDLMetaOperator {
 		return false;
 	}
 
-	public static boolean isNormalizeable(final PredicateTerm pTerm, final TermFactory tf) {
+	/**
+	 * 
+	 * @param pTerm A Predicate Term
+	 * @param tf A Termfactory
+	 * @return checks whether the predicate can be normalized
+	 */
+	private static boolean isNormalizeable(final PredicateTerm pTerm, final TermFactory tf) {
 		HashSet<Dot> dots = new HashSet<Dot>();
 		return pTerm.getChildAt(0) instanceof Equals && isNormalizeable((Expression) pTerm.getChildAt(1), dots, tf) && isNormalizeable((Expression) pTerm.getChildAt(2), dots, tf) && dots.size() == 1;
 	}
 
-	public static boolean isNormalizeable(final Expression exp, Set<Dot> dots, final TermFactory tf) {
+	private static boolean isNormalizeable(final Expression exp, Set<Dot> dots, final TermFactory tf) {
 		if(exp instanceof Dot) {
 			dots.add((Dot)exp);
 			if(dots.size() > 1) {
@@ -354,7 +365,7 @@ public class DiffNormalize extends AbstractDLMetaOperator {
 	
 	// expects only one kind of Dotted Variable: a*d'+f = b*d'+g <=> (a-b != 0 &
 	// d'= (g-f)/(a-b)) | (a-b=0 & g-f=0)
-	public static Formula transformEqualsWithOneDot(final Expression exp1, final Expression exp2, final Dot d, final TermFactory tf) {
+	private static Formula transformEqualsWithOneDot(final Expression exp1, final Expression exp2, final Dot d, final TermFactory tf) {
 		Expression flatLeft = flatExpression(exp1, tf);
 		Expression a = getSumOfFactorsOfDot(flatLeft, d, tf);
 		Expression f = getSumOfRest(flatLeft, d, tf);
@@ -364,6 +375,7 @@ public class DiffNormalize extends AbstractDLMetaOperator {
 		Expression g = getSumOfRest(flatRight, d, tf);
 		
 		Expression aMinusB = simplifyPolynom(flatExpression(tf.createMinus(a, b), tf), tf);
+		//XXX
 		System.out.println("A-B = " + flatExpression(tf.createMinus(a, b), tf));
 		Expression gMinusF = simplifyPolynom(flatExpression(tf.createMinus(g, f), tf), tf);
 		System.out.println("G-F = " + flatExpression(tf.createMinus(g, f), tf));
@@ -379,10 +391,10 @@ public class DiffNormalize extends AbstractDLMetaOperator {
 	}
 
 	// to be applied on polynoms without dots only
-	public static Expression simplifyPolynom(Expression exp, TermFactory tf) {
+	private static Expression simplifyPolynom(Expression exp, TermFactory tf) {
 		List<Expression> summands = new ArrayList<Expression>();
 		collectSummandsSorted(exp, summands, tf);
-		System.out.println("Summands" + Arrays.toString(summands.toArray(new Expression[0])));
+		//XXX System.out.println("Summands" + Arrays.toString(summands.toArray(new Expression[0])));
 		Constant constantSummand = tf.createConstant(BigDecimal.ZERO);
 		int index = summands.size() - 1;
 		while (index >= 0 && summands.get(index) instanceof Constant) {
@@ -403,7 +415,7 @@ public class DiffNormalize extends AbstractDLMetaOperator {
 		return result;
 	}
 
-	public static void collectSummandsSorted(Expression exp, List<Expression> summands, TermFactory tf) {
+	private static void collectSummandsSorted(Expression exp, List<Expression> summands, TermFactory tf) {
 		if (exp instanceof FunctionTerm) {
 			FunctionTerm fTerm = (FunctionTerm) exp;
 			if (fTerm.getChildAt(0) instanceof MinusSign) {
@@ -436,7 +448,7 @@ public class DiffNormalize extends AbstractDLMetaOperator {
 	}
 
 	// to be applied on monoms without dots only
-	public static Expression simplifyMonom(final Expression exp, final TermFactory tf) {
+	private static Expression simplifyMonom(final Expression exp, final TermFactory tf) {
 		List<Expression> factors = new ArrayList<Expression>();
 		collectFactorsSorted(exp, factors);
 		//System.out.println("FAC " + exp + " => " + Arrays.toString(factors.toArray(new Expression[0])));
@@ -455,7 +467,7 @@ public class DiffNormalize extends AbstractDLMetaOperator {
 	}
 
 	// to be applied on monoms without dots only
-	public static void collectFactorsSorted(final Expression exp, final List<Expression> factors) {
+	private static void collectFactorsSorted(final Expression exp, final List<Expression> factors) {
 		if (exp instanceof FunctionTerm) {
 			FunctionTerm fTerm = (FunctionTerm) exp;
 			if (fTerm.getChildAt(0) instanceof Mult) {
@@ -484,7 +496,7 @@ public class DiffNormalize extends AbstractDLMetaOperator {
 		}
 	}
 
-	public static Expression flatExpression(final Expression exp, final TermFactory tf) {
+	private static Expression flatExpression(final Expression exp, final TermFactory tf) {
 		if (exp instanceof FunctionTerm) {
 			FunctionTerm fTerm = (FunctionTerm) exp;
 			if (fTerm.getChildAt(0) instanceof MinusSign) {
@@ -521,7 +533,7 @@ public class DiffNormalize extends AbstractDLMetaOperator {
 		return exp;
 	}
 
-	public static Expression getSumOfFactorsOfDot(final Expression polynom, final Dot d, final TermFactory tf) {
+	private static Expression getSumOfFactorsOfDot(final Expression polynom, final Dot d, final TermFactory tf) {
 		if (polynom instanceof FunctionTerm) {
 			FunctionTerm fTerm = (FunctionTerm) polynom;
 			if (fTerm.getChildAt(0) instanceof Plus) {
@@ -545,7 +557,7 @@ public class DiffNormalize extends AbstractDLMetaOperator {
 
 	}
 
-	public static Expression getSumOfRest(final Expression exp, final Dot d, final TermFactory tf) {
+	private static Expression getSumOfRest(final Expression exp, final Dot d, final TermFactory tf) {
 		if (exp instanceof FunctionTerm) {
 			FunctionTerm fTerm = (FunctionTerm) exp;
 			if (fTerm.getChildAt(0) instanceof Plus) {
@@ -563,7 +575,7 @@ public class DiffNormalize extends AbstractDLMetaOperator {
 		return tf.createConstant(BigDecimal.ZERO);
 	}
 
-	public static Expression collectFactors(final Expression monom, final TermFactory tf) {
+	private static Expression collectFactors(final Expression monom, final TermFactory tf) {
 		if (monom instanceof FunctionTerm) {
 			FunctionTerm fTerm = (FunctionTerm) monom;
 			if (fTerm.getChildAt(0) instanceof Mult) {
