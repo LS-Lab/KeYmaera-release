@@ -69,6 +69,8 @@ import de.uka.ilkd.key.gui.Main;
 import de.uka.ilkd.key.gui.configuration.ProofSettings;
 import de.uka.ilkd.key.gui.configuration.Settings;
 import de.uka.ilkd.key.gui.configuration.SettingsListener;
+import de.uka.ilkd.key.proof.Goal;
+
 import de.uka.ilkd.key.proof.Node;
 import de.uka.ilkd.key.proof.Proof;
 import de.uka.ilkd.key.proof.ProofEvent;
@@ -196,6 +198,22 @@ public class DLInitializer {
 			ProofSettings.DEFAULT_SETTINGS.setProfile(new DLProfile());
 			// call something in the MathSolverManager to force initialization
 			MathSolverManager.getQuantifierEliminators();
+			DLOptionBean.INSTANCE.addSettingsListener(new SettingsListener() {
+				public void settingsChanged(GUIEvent e) {
+					// TODO: iterate over all proofs
+					final KeYMediator mediator = Main.getInstance(false).mediator();
+					Proof proof = mediator.getProof();
+					if (proof != null) {
+						proof.setActiveStrategy(mediator.getProfile()
+								.getDefaultStrategyFactory().create(proof, null));
+						 Iterator<Goal> iterator = proof.openGoals().iterator();
+						while (iterator.hasNext()) {
+							Goal next = iterator.next();
+							next.clearAndDetachRuleAppIndex();
+						}
+					}
+				}
+			});
 
 			try {
 				customizerPane = new JTabbedPane(JTabbedPane.BOTTOM);

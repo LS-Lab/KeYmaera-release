@@ -454,18 +454,6 @@ public class DLOptionBean implements Settings {
 
 	private void firePropertyChanged() {
 		// System.out.println("Property changed");//XXX
-		// TODO: iterate over all proofs
-		final KeYMediator mediator = Main.getInstance(false).mediator();
-		Proof proof = mediator.getProof();
-		if (proof != null) {
-			proof.setActiveStrategy(mediator.getProfile()
-					.getDefaultStrategyFactory().create(proof, null));
-			 Iterator<Goal> iterator = proof.openGoals().iterator();
-			while (iterator.hasNext()) {
-				Goal next = iterator.next();
-				next.clearAndDetachRuleAppIndex();
-			}
-		}
 		for (SettingsListener l : listeners) {
 			l.settingsChanged(new GUIEvent(this));
 		}
