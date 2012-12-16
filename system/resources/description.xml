@@ -211,6 +211,7 @@ To prove quickly, instantiate the time quantifier in the antecedent by the time 
                             				<path>/examples/hybrid/tutorial/lics6-MPC-acceleration-equivalence.key</path>
                             				<proofs>
                 								<proof name="Mathematica" href="/examples/hybrid/tutorial/lics6-MPC-acceleration-equivalence.key.mathematica.proof"/>
+                								<proof name="Redlog" href="/examples/hybrid/tutorial/lics6-MPC-acceleration-equivalence.key.redlog.proof"/>
                 							</proofs>
                             				<authors>
                             					<author>platzer</author>
