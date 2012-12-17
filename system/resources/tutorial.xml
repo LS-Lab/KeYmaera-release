@@ -832,6 +832,9 @@
 					</p>
 					]]>
 				</description>
+				<resources>
+					<img>/examples/hybrid/dynamical/fig-exp-.png</img>
+				</resources>
 				<path>/examples/hybrid/dynamical/exp-.key.proof</path>
 			</exercise>
 			<exercise>
