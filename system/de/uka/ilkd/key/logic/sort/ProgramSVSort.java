@@ -31,6 +31,7 @@ import de.uka.ilkd.key.dl.model.Or;
 import de.uka.ilkd.key.dl.model.PredicateTerm;
 import de.uka.ilkd.key.dl.model.Quantified;
 import de.uka.ilkd.key.dl.model.impl.QuantifiedImpl;
+import de.uka.ilkd.key.dl.rules.metaconstruct.DiffNormalize;
 import de.uka.ilkd.key.java.Expression;
 import de.uka.ilkd.key.java.Label;
 import de.uka.ilkd.key.java.NamedProgramElement;
@@ -1810,48 +1811,9 @@ public abstract class ProgramSVSort extends PrimitiveSort {
 		 *      de.uka.ilkd.key.java.Services) canStandFor
 		 */
 		public boolean canStandFor(ProgramElement pe, Services services) {
-			return (pe instanceof de.uka.ilkd.key.dl.model.DiffSystem) && isOrdinaryAndNormalized((de.uka.ilkd.key.dl.model.DiffSystem) pe);
+			return (pe instanceof de.uka.ilkd.key.dl.model.DiffSystem) && DiffNormalize.isNormalized((de.uka.ilkd.key.dl.model.DiffSystem) pe);
 		}
 
-		/**
-		 * @param diffSystem
-		 * @return
-		 */
-		private boolean isOrdinaryAndNormalized(DiffSystem diffSystem) {
-			for (ProgramElement p : diffSystem) {
-				if(!isOrdinaryAndNormalized(p)) {
-					return false;
-				}
-			}
-			return true;
-		}
-
-		private static boolean isOrdinaryAndNormalized(ProgramElement childAt) {
-			if (childAt instanceof And) {
-				return (isOrdinaryAndNormalized(((And) childAt).getChildAt(0)) && isOrdinaryAndNormalized(((And) childAt).getChildAt(1)));
-			} else if (childAt instanceof PredicateTerm) {
-				PredicateTerm pt = (PredicateTerm) childAt;
-				if (pt.getChildAt(0) instanceof Equals) {
-					return (pt.getChildAt(1) instanceof Dot || !containsDot(pt.getChildAt(1))) && !containsDot(pt.getChildAt(2));
-				}
-			} else if (childAt instanceof Exists || childAt instanceof Forall) {
-				return isOrdinaryAndNormalized(((CompoundFormula) childAt).getChildAt(1));
-			}
-			return !containsDot(childAt);
-		}
-
-		private static boolean containsDot(ProgramElement p) {
-			if (p instanceof Dot) {
-				return true;
-			} else if (p instanceof DLNonTerminalProgramElement) {
-				for (ProgramElement s : (DLNonTerminalProgramElement) p) {
-					if (containsDot(s)) {
-						return true;
-					}
-				}
-			}
-			return false;
-		}
 	}
 
 	/**

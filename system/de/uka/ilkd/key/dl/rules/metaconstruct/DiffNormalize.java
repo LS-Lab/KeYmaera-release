@@ -39,6 +39,7 @@ import de.uka.ilkd.key.dl.model.And;
 import de.uka.ilkd.key.dl.model.Biimplies;
 import de.uka.ilkd.key.dl.model.CompoundFormula;
 import de.uka.ilkd.key.dl.model.Constant;
+import de.uka.ilkd.key.dl.model.DLNonTerminalProgramElement;
 import de.uka.ilkd.key.dl.model.DLStatementBlock;
 import de.uka.ilkd.key.dl.model.DiffSystem;
 import de.uka.ilkd.key.dl.model.Div;
@@ -123,7 +124,7 @@ public class DiffNormalize extends AbstractDLMetaOperator {
 	}
 
 	@SuppressWarnings("unchecked")
-	private Term diffNormalize(Term term, Services services) throws SolverException {
+	private static Term diffNormalize(Term term, Services services) throws SolverException {
 		final DiffSystem system = (DiffSystem) ((StatementBlock) term.javaBlock().program()).getChildAt(0);
 		Term post = term.sub(0);
 		if (term.op() == Modality.BOX || term.op() == Modality.TOUT) {
@@ -158,7 +159,7 @@ public class DiffNormalize extends AbstractDLMetaOperator {
 	 *            Services
 	 * @return Normalized System
 	 */
-	private DiffSystem getNormalizedSystem(DiffSystem sys, Services s) {
+	private static DiffSystem getNormalizedSystem(DiffSystem sys, Services s) {
 		try {
 			TermFactory tf = TermFactory.getTermFactory(TermFactory.class, s.getNamespaces());
 			LinkedHashMap<Variable, LogicalVariable> renaming = new LinkedHashMap<Variable, LogicalVariable>();
@@ -202,6 +203,8 @@ public class DiffNormalize extends AbstractDLMetaOperator {
 		return null;
 	}
 	/**
+	 * Transforms a Programelement so that all Equations only contain up to one Dotted Variable.
+	 * Multiple Dotted Variables in one Equation get replaced by ordinary Variables and Quantifier and additional Equations are added.
 	 * 
 	 * @param childAt
 	 * @param renaming map for replacements of dotted variables
@@ -234,7 +237,9 @@ public class DiffNormalize extends AbstractDLMetaOperator {
 			result = tf.createOr((Formula) replaceDottedVariables(p.getChildAt(0), renaming, tf), (Formula) replaceDottedVariables(p.getChildAt(1), renaming, tf));
 		} else if (childAt instanceof PredicateTerm) {
 			PredicateTerm pTerm = (PredicateTerm) childAt;
-			if(isNormalizeable(pTerm, tf)) {
+			if(isNormalized(pTerm)) {
+				result = childAt;
+			} else if(isNormalizeable(pTerm)) {
 				HashSet<Dot> dots = new HashSet<Dot>();
 				Expression left = (Expression) pTerm.getChildAt(1);
 				Expression right = (Expression) pTerm.getChildAt(2);
@@ -285,6 +290,7 @@ public class DiffNormalize extends AbstractDLMetaOperator {
 	}
 
 	/**
+	 * Fills the Set with all different Dots found in the Expression
 	 * 
 	 * @param exp Expression to be searched for Dots
 	 * @param dots Set to be filled with Dots
@@ -299,7 +305,9 @@ public class DiffNormalize extends AbstractDLMetaOperator {
 			}
 		}
 	}
+	
 	/**
+	 * Checks whether the Expression has the specified Dot d.
 	 * 
 	 * @param exp Expression to be checked for Dot d
 	 * @param d The Dot
@@ -319,19 +327,39 @@ public class DiffNormalize extends AbstractDLMetaOperator {
 		}
 		return false;
 	}
-
+	
 	/**
+	 * Checks whether the ProgramElement has at least one Dot.
+	 * 
+	 * @param p
+	 * @return
+	 */
+	private static boolean containsDots(ProgramElement p) {
+		if (p instanceof Dot) {
+			return true;
+		} else if (p instanceof DLNonTerminalProgramElement) {
+			for (ProgramElement s : (DLNonTerminalProgramElement) p) {
+				if (containsDots(s)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	/**
+	 * Checks whether the PredicateTerm can be normalized
 	 * 
 	 * @param pTerm A Predicate Term
 	 * @param tf A Termfactory
 	 * @return checks whether the predicate can be normalized
 	 */
-	private static boolean isNormalizeable(final PredicateTerm pTerm, final TermFactory tf) {
+	private static boolean isNormalizeable(final PredicateTerm pTerm) {
 		HashSet<Dot> dots = new HashSet<Dot>();
-		return pTerm.getChildAt(0) instanceof Equals && isNormalizeable((Expression) pTerm.getChildAt(1), dots, tf) && isNormalizeable((Expression) pTerm.getChildAt(2), dots, tf) && dots.size() == 1;
+		return pTerm.getChildAt(0) instanceof Equals && isNormalizeable((Expression) pTerm.getChildAt(1), dots) && isNormalizeable((Expression) pTerm.getChildAt(2), dots) && dots.size() == 1;
 	}
 
-	private static boolean isNormalizeable(final Expression exp, Set<Dot> dots, final TermFactory tf) {
+	private static boolean isNormalizeable(final Expression exp, Set<Dot> dots) {
 		if(exp instanceof Dot) {
 			dots.add((Dot)exp);
 			if(dots.size() > 1) {
@@ -341,7 +369,7 @@ public class DiffNormalize extends AbstractDLMetaOperator {
 			FunctionTerm fTerm = (FunctionTerm) exp;
 			boolean result = true;
 			for(int i = 1; i < fTerm.getChildCount(); i++) {
-				result &= isNormalizeable((Expression) fTerm.getChildAt(i), dots, tf);
+				result &= isNormalizeable((Expression) fTerm.getChildAt(i), dots);
 			}
 			if(dots.size() > 1) {
 				return false;
@@ -364,8 +392,17 @@ public class DiffNormalize extends AbstractDLMetaOperator {
 		return true;
 	}
 	
-	// expects only one kind of Dotted Variable: a*d'+f = b*d'+g <=> (a-b != 0 &
-	// d'= (g-f)/(a-b)) | (a-b=0 & g-f=0)
+	/**
+	 * Transforms an Equation with only one Dot. 
+	 * The Equation is normalized to the Form a*d'+f = b*d'+g, where d' is the Dotted Variable.
+	 * Then this Formula is the result (a-b != 0 & d'= (g-f)/(a-b)) | (a-b=0 & g-f=0)
+	 * 
+	 * @param exp1
+	 * @param exp2
+	 * @param d
+	 * @param tf
+	 * @return
+	 */
 	private static Formula transformEqualsWithOneDot(final Expression exp1, final Expression exp2, final Dot d, final TermFactory tf) {
 		Expression flatLeft = flatExpression(exp1, tf);
 		Expression a = getSumOfFactorsOfDot(flatLeft, d, tf);
@@ -447,7 +484,15 @@ public class DiffNormalize extends AbstractDLMetaOperator {
 			throw new IllegalArgumentException("Expected a polynom, but found " + exp);
 		}
 	}
-
+	
+	/**
+	 * Under the assumption that the Expression is a Monom without Dots, it sums up all Constants to one leading Constant
+	 * multiplied by the variables.
+	 * 
+	 * @param exp
+	 * @param tf
+	 * @return
+	 */
 	// to be applied on monoms without dots only
 	private static Expression simplifyMonom(final Expression exp, final TermFactory tf) {
 		List<Expression> factors = new ArrayList<Expression>();
@@ -594,5 +639,35 @@ public class DiffNormalize extends AbstractDLMetaOperator {
 			return tf.createConstant(BigDecimal.ONE);
 		}
 		throw new IllegalArgumentException("Unknown operator in " + monom);
+	}
+	
+	/**
+	 * Checks whether the DiffSystem is normalized, meaning that only Equations may contain Dots 
+	 * and each Equation may only contain up to one Dot.
+	 * 
+	 * @param diffSystem
+	 * @return
+	 */
+	public static boolean isNormalized(DiffSystem diffSystem) {
+		for (ProgramElement p : diffSystem) {
+			if(!isNormalized(p)) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	private static boolean isNormalized(ProgramElement childAt) {
+		if (childAt instanceof And || childAt instanceof Or) {
+			return (isNormalized(((CompoundFormula) childAt).getChildAt(0)) && isNormalized(((CompoundFormula) childAt).getChildAt(1)));
+		} else if (childAt instanceof PredicateTerm) {
+			PredicateTerm pt = (PredicateTerm) childAt;
+			if (pt.getChildAt(0) instanceof Equals) {
+				return (pt.getChildAt(1) instanceof Dot || !containsDots(pt.getChildAt(1))) && !containsDots(pt.getChildAt(2));
+			}
+		} else if (childAt instanceof Exists || childAt instanceof Forall) {
+			return isNormalized(((CompoundFormula) childAt).getChildAt(1));
+		}
+		return !containsDots(childAt);
 	}
 }
