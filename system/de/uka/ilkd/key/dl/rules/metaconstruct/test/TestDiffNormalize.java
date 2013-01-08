@@ -319,9 +319,8 @@ public class TestDiffNormalize {
 		formulasDiff1.add(tf.createAnd(tf.createPredicateTerm(tf.createEquals(), x, tf.createPlus(d, c0)), tf.createExists(tf.createVariableDeclaration(RealLDT.getRealSort(), vars), tf.createPredicateTerm(tf.createEquals(), d, tf.createMinus(y, c1)))));
 		DiffSystem diff1 = tf.createDiffSystem(formulasDiff1);
 		
-		// Diff2 - E R dd: x=dd+4 & E R y: d'=y-3 & d'=dd
-		
-		
+		// Diff2 - (-1!=0 & d'=(-1*x+4)/-1 | -1=0 & (-1*x+4)=0) & E R y: d'=y-3
+			
 		List<Formula> formulasDiff2 = new ArrayList<Formula>();
 		formulasDiff2.add(tf.createAnd(transform(tf.createConstant(BigDecimal.valueOf(-1)), tf.createPlus(tf.createMult(tf.createConstant(BigDecimal.valueOf(-1)), x), c0), d), tf.createExists(tf.createVariableDeclaration(RealLDT.getRealSort(), vars), tf.createPredicateTerm(tf.createEquals(), d, tf.createMinus(y, c1)))));
 		DiffSystem diff2 = tf.createDiffSystem(formulasDiff2);
@@ -330,10 +329,9 @@ public class TestDiffNormalize {
 		DiffSystem diff2AfterNormalization = termToDiffSystem(normalizeInstance.calculate(diffSystemToTerm(diff2), svInstance, s));
 		
 		assertFalse(isNormalized(diff1));
-		//assertTrue(isOnlyOrdinary(diff1));
 		assertEquals(diff2, diff1AfterNormalization);
 		assertTrue(isNormalized(diff2));
-		//assertFalse(isOnlyOrdinary(diff2));
+		assertFalse(isOnlyOrdinary(diff2));
 		assertEquals(diff2, diff2AfterNormalization);
 	}
 
