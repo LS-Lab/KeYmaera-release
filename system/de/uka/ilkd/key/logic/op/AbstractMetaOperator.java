@@ -27,6 +27,7 @@ import de.uka.ilkd.key.dl.rules.metaconstruct.DLUniversalClosureOp;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DNFTransformer;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DiffFin;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DiffInd;
+import de.uka.ilkd.key.dl.rules.metaconstruct.DiffNormalize;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DivideLCRMonomialsReals;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DivideMonomialsReals;
 import de.uka.ilkd.key.dl.rules.metaconstruct.Evaluate;
@@ -224,6 +225,7 @@ public abstract class AbstractMetaOperator extends Op implements MetaOperator {
 	
         public static final ODESolve ODE_SOLVE = new ODESolve();
         public static final QODESolve QODE_SOLVE = new QODESolve();
+        public static final DiffNormalize DIFFNORMALIZE = new DiffNormalize();
         public static final DiffInd DIFFIND = new DiffInd();
         public static final AbstractMetaOperator DIFFFIN = new DiffFin();
         public static final AbstractMetaOperator DIFFADJOIN= new DLDiffAdjoin();

@@ -32,10 +32,8 @@ import java.util.WeakHashMap;
 
 import org.antlr.runtime.tree.CommonTree;
 
-import de.uka.ilkd.key.dl.model.impl.DotImpl;
 import de.uka.ilkd.key.java.ProgramElement;
 import de.uka.ilkd.key.logic.NamespaceSet;
-import de.uka.ilkd.key.logic.op.SchemaVariable;
 import de.uka.ilkd.key.logic.sort.Sort;
 
 /**
@@ -585,6 +583,18 @@ public abstract class TermFactory implements Serializable {
     public abstract PredicateTerm createPredicateTerm(Predicate pred,
             List<Expression> children);
 
+    /**
+     * Creates a predicate term with the given predicate and parameters
+     * 
+     * @param pred
+     *                the operator to use
+     * @param children
+     *                the children of the predicate
+     * @return a new predicate term
+     */
+    public abstract PredicateTerm createPredicateTerm(Predicate pred,
+            Expression... children);
+    
     /**
      * Creates an assignment between two expressions.
      * 

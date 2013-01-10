@@ -691,6 +691,11 @@ public class TermFactoryImpl extends TermFactory {
 			List<Expression> children) {
 		return new PredicateTermImpl(pred, children.toArray(new Expression[0]));
 	}
+	
+	@Override
+	public PredicateTerm createPredicateTerm(Predicate pred, Expression... children) {
+		return new PredicateTermImpl(pred, children);
+	}
 
 	/*
 	 * (non-Javadoc)
