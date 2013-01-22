@@ -1,0 +1,133 @@
+   KEYMAERA-METITARSKI INTERFACE README
+
+§1 GENERAL INFORMATION
+
+   MetiTarski is a theorem prover developed at the University of Cambridge which
+   is specifically "designed to prove theorems involving real-valued special 
+   functions such as log, exp, sin, cos and sqrt. In particular, it is designed
+   to prove universally quantified inequalities involving such functions". 
+   For more details, see 
+
+         http://www.cl.cam.ac.uk/~lp15/papers/Arith/ 
+
+   KeYmaera provides an interface to MetiTarski, much as it does for other 
+   back-end solvers such as QEPCAD and Reduce.
+
+§2 INSTALLATION
+
+   For information about installing MetiTarski on your system, please see 
+
+         http://www.cl.cam.ac.uk/~lp15/papers/Arith/download.html
+
+   In order to use KeYmaera with MetiTarski, it is required that the path for 
+   both the MetiTarski binary and the Axioms directory be set in KeYmaera tool 
+   paths, e.g. 
+                           Binary: /opt/metit-2.0/metit
+                           Axioms: /opt/metit-2.0/tptp
+§3 USAGE
+
+   The primary use case is the handling of solutions to ordinary differential 
+   equations.  After calling ODESolve on the system dynamics in KeYmaera, the 
+   system produces a closed form solution (if one can be obtained) which will 
+   frequently feature transcendental terms. 
+
+   MetiTarski can be used as a solver for non-polynomial real arithmetic, i.e. 
+   it will *attempt* to determine whether a given first-order sentence involving
+   transcendental terms is true or not, and if so - it will close the proof 
+   branch, otherwise it will leave the query intact.
+
+   N.B.  Unlike CAD-based methods employed for polynomials, MetiTarski  cannot 
+         be used directly to synthesize constraints on system parameters. It 
+         will treat free variable occurrences as implicitly *universally* 
+         quantified and will either produce a proof that a given sentence is a 
+         theorem, or will fail to find any proof (which does *not* mean that the
+         sentence is false).
+
+   Other use cases include transcendental terms in the system dynamics or 
+   constraints to state/parameter space.
+
+   N.B.  It is often prudent to use a simplifier shipped with a computer algebra
+         system (e.g. Mathematica) before calling MetiTarski on the problem, as
+         this will tend to eliminate some unnecessary complexities, albeit at 
+         the expense of soundness guarantees.
+
+   Any .key file which is intended to be used with MetiTarski has to include a 
+   functions block declaring *all* the special function symbols that will occur 
+   during the proof.  Below are some examples:
+
+                   TRIGONOMETRIC
+
+                        \functions {
+                           \external R E;
+                           \external R Exp(R);
+                           \external R Sin(R);
+                           \external R Cos(R);
+                           \external R Tan(R);
+                        }
+
+                   INVERSE TRIGONOMETRIC
+
+                        \functions{
+                           \external R ArcTan(R);
+                           \external R ArcCos(R);
+                           \external R ArcSin(R);
+                           \external R Sin(R);
+                           \external R Cos(R);
+                           \external R Tan(R);
+                           \external R Exp(R);
+                           \external R Log(R);
+                           \external R E;
+                        }
+
+                    HYPERBOLIC
+
+                        \functions{ 
+                           \external R E;
+                           \external R Exp(R);
+                           \external R Cosh(R);
+                           \external R Sinh(R);
+                           \external R Tanh(R);
+                           \external R Log(R); 
+                        }
+
+   The KeYmaera interface gives access to all the command-line options offered 
+   by MetiTarski. To change the default settings, navigate to the MetiTarski 
+   options pane (as for other solvers) and select the options manually.
+
+   N.B.  A copy of the problems sent to MetiTarski will be stored under a unique
+         .tptp file in the default temporary storage directory. These can be 
+         accessed and inspected/run manually from the command line.
+
+§4 EXAMPLES
+
+   An example of a .key problem with transcendental dynamics
+
+                     \functions {
+                        \external R E;
+                        \external R Exp(R);
+                        \external R Sin(R);
+                        \external R Cos(R);
+                        \external R Tan(R);
+                        R a;
+                     }
+
+                     \programVariables {
+                        R x1, x2;
+                     }
+                     \problem {
+                        ((x1^2 +x1*x2 +4*(x2^2))<=a) & a>=0 & a < 0.69929971 -> 
+                        \[ {  
+                              x1' = x2, 
+                              x2' = -Sin(x1) + (81/100)*Cos(x1)*Sin(x1)-(x2/5)& 
+                              ((x1^2 +x1*x2 +4*(x2^2)) <= 0.69929971)
+                        } \] 
+                        ((x1^2 +x1*x2 +4*(x2^2)) <= a ) 
+                     }
+
+   Further examples and proofs using MetiTarski are provided with KeYmaera's
+   examples in examples/hybrid/transcendental.
+
+§5 BUGS
+
+   Please contact the interface maintainer < s0805753 -át- sms.ed.ac.uk > 
+   in the event of software malfunction or to request changes/features.
