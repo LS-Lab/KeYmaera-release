@@ -90,6 +90,14 @@
                            \external R Log(R); 
                         }
 
+   The KeYmaera interface gives access to all the command-line options offered 
+   by MetiTarski. To change the default settings, navigate to the MetiTarski 
+   options pane (as for other solvers) and select the options manually.
+
+   N.B.  A copy of the problems sent to MetiTarski will be stored under a unique
+         .tptp file in the default temporary storage directory. These can be 
+         accessed and inspected/run manually from the command line.
+
 §4 EXAMPLES
 
    An example of a .key problem with transcendental dynamics
