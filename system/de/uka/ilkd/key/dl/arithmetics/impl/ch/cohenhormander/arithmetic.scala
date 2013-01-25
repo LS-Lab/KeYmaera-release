@@ -250,7 +250,7 @@ final object AM {
     
 
   def setifiedp[A <% Ordered[A]](lst: List[A]): Boolean = lst match {
-    case x::(rest@(y::_)) => x < y && setifiedp(rest)
+    case x::(rest@(y::_)) => x < y && setifiedp[A](rest)
     case _ => true
   }
 
@@ -959,7 +959,7 @@ final object AM {
       val (p_1,swf) = monic(p);
       swap(swf,assoc(p_1,sgns))
     } catch {
-      case e => throw new FindSignFailure()
+      case e : Throwable => throw new FindSignFailure()
     }
 
   def assertsign(sgns: List[(CHTerm,Sign)], pr: (CHTerm,Sign)): List[(CHTerm,Sign)]
@@ -971,7 +971,7 @@ final object AM {
     else {
     val (p_1,swf) = monic(p);
     val s_1 = swap(swf,s);
-    val s_0 = try { assoc(p_1,sgns) } catch { case e => s_1};
+    val s_0 = try { assoc(p_1,sgns) } catch { case e : Throwable => s_1};
     if(s_1 == s_0 || (s_0 == Nonzero() && (s_1==Positive() || s_1==Negative())))
       (p_1,s_1)::(sgns.filterNot(List((p_1,s_0)) contains))
     else throw new Error("assertsign 1")
@@ -1155,7 +1155,7 @@ final object AM {
       if(CV.keepGoing == false) throw new CHAbort();
     }
 
-    if(pols == Nil) try { cont(List(Nil)) } catch {case e => False()} else {
+    if(pols == Nil) try { cont(List(Nil)) } catch {case e : Throwable => False()} else {
     /* find the polynomial of highest degree */
     val (p,_) = pols.foldLeft[(CHTerm,Int)](zero,-1)(
       (bst:(CHTerm,Int),ths:CHTerm) => {val (p_1,n_1) = bst; 
