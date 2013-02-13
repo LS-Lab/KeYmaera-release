@@ -19,6 +19,13 @@
 
          http://www.cl.cam.ac.uk/~lp15/papers/Arith/download.html
 
+   An alternative way to obrain the latest source code is Google Code:
+
+         https://code.google.com/p/metitarski/
+
+   N.B. In case of compatibility issues in the release version, it is advisable 
+        to checkout the latest snapshot from Google Code.
+
    In order to use KeYmaera with MetiTarski, it is required that the path for 
    both the MetiTarski binary and the Axioms directory be set in KeYmaera tool 
    paths, e.g. 
@@ -53,7 +60,7 @@
 
    Any .key file which is intended to be used with MetiTarski has to include a 
    functions block declaring *all* the special function symbols that will occur 
-   during the proof.  Below are some examples:
+   during the proof; below are some examples:
 
                    TRIGONOMETRIC
 
@@ -97,6 +104,15 @@
    N.B.  A copy of the problems sent to MetiTarski will be stored under a unique
          .tptp file in the default temporary storage directory. These can be 
          accessed and inspected/run manually from the command line.
+   
+   When choosing variable names for your KeYmaera problems, please assume that
+   variable identifiers are equal modulo their case as MetiTarski is *not* case
+   sensitive. It is generally safer to be explicit, e.g. using variable names
+   't'  and 'tau', rather than 't' and 'T'.
+
+   WARNING: Please make sure that none of the variable identifiers is 'E', as 
+            this symbol is reserved as a Mathematica shortcut for Exp[], the
+            exponential function.
 
 §4 EXAMPLES
 
