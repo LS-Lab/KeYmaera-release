@@ -34,6 +34,7 @@ public class DerivativeCreator {
 	 * note that the @sys must not contain any evolution domain
 	 */
 	public static final Term diffInd(DiffSystem sys, Term post, Services s) {
+		// neue Methode
 		HashMap<String, Term> replacements = new HashMap<String, Term>();
 		collectDiffReplacements(sys, replacements, s);
 		System.out.println("Replacements are: " + replacements);
@@ -49,8 +50,7 @@ public class DerivativeCreator {
 	 * 
 	 * note that the @sys must not contain any evolution domain
 	 */
-	public static final Term diffFin(DiffSystem sys, Term post, Term epsilon,
-			Services s) {
+	public static final Term diffFin(DiffSystem sys, Term post, Term epsilon, Services s) {
 		HashMap<String, Term> replacements = new HashMap<String, Term>();
 		collectDiffReplacements(sys, replacements, s);
 		System.out.println("Replacements are: " + replacements);
@@ -69,27 +69,23 @@ public class DerivativeCreator {
 	 * @param map
 	 *            the Map used for storing the result
 	 */
-	public static final void collectDiffReplacements(ProgramElement form,
-			Map<String, Term> map, Services services) {
+	public static final void collectDiffReplacements(ProgramElement form, Map<String, Term> map, Services services) {
 		if (form instanceof PredicateTerm) {
 			PredicateTerm pred = (PredicateTerm) form;
-			// we can only handle differential equations of the form x'=f(x,y) here
+			// we can only handle differential equations of the form x'=f(x,y)
+			// here
 			if (pred.getChildAt(0) instanceof Equals && pred.getChildAt(1) instanceof Dot) {
-					de.uka.ilkd.key.dl.model.ProgramVariable pv = (de.uka.ilkd.key.dl.model.ProgramVariable) ((Dot) pred
-							.getChildAt(1)).getChildAt(0);
-					String pvName = pv.getElementName().toString();
-					map.put(pvName, Prog2LogicConverter.convert(
-							(DLProgramElement) pred.getChildAt(2), services));
+				de.uka.ilkd.key.dl.model.ProgramVariable pv = (de.uka.ilkd.key.dl.model.ProgramVariable) ((Dot) pred.getChildAt(1)).getChildAt(0);
+				String pvName = pv.getElementName().toString();
+				map.put(pvName, Prog2LogicConverter.convert((DLProgramElement) pred.getChildAt(2), services));
 			} else {
-			    if(containsDots(pred)) {
-                    // could "a'>=b+5" be an equation in the diff-free
-                    throw new IllegalArgumentException(
-                            "Don't know how to handle predicate "
-                                    + pred.getChildAt(0) + " in " + pred);
-			    } else {
-			      // ignore evolution domain constraint  
-			        System.out.println("Ignoring " + pred);
-			    }
+				if (containsDots(pred)) {
+					// could "a'>=b+5" be an equation in the diff-free
+					throw new IllegalArgumentException("Don't know how to handle predicate " + pred.getChildAt(0) + " in " + pred);
+				} else {
+					// ignore evolution domain constraint
+					System.out.println("Ignoring " + pred);
+				}
 			}
 		}
 		if (form instanceof DLNonTerminalProgramElement) {
@@ -101,21 +97,21 @@ public class DerivativeCreator {
 	}
 
 	/**
-     * @param pred
-     * @return
-     */
-    private static boolean containsDots(DLProgramElement pred) {
-        if(pred instanceof Dot) {
-            return true;
-        } else if (pred instanceof DLNonTerminalProgramElement) {
-            DLNonTerminalProgramElement dlnpe = (DLNonTerminalProgramElement) pred;
-            for (ProgramElement p : dlnpe) {
-                if(containsDots((DLProgramElement) p)) {
-                    return true;
-                }
-            }
-            return false;
-        }
-        return false;
-    }
+	 * @param pred
+	 * @return
+	 */
+	private static boolean containsDots(DLProgramElement pred) {
+		if (pred instanceof Dot) {
+			return true;
+		} else if (pred instanceof DLNonTerminalProgramElement) {
+			DLNonTerminalProgramElement dlnpe = (DLNonTerminalProgramElement) pred;
+			for (ProgramElement p : dlnpe) {
+				if (containsDots((DLProgramElement) p)) {
+					return true;
+				}
+			}
+			return false;
+		}
+		return false;
+	}
 }

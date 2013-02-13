@@ -13,6 +13,7 @@ package de.uka.ilkd.key.gui.configuration;
 import java.awt.Font;
 import java.awt.GraphicsEnvironment;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -22,7 +23,6 @@ import java.util.Set;
 
 import javax.swing.UIManager;
 
-import scala.actors.threadpool.Arrays;
 
 import de.uka.ilkd.key.gui.MethodCallInfo;
 

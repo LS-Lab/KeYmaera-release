@@ -96,15 +96,15 @@ public class DiffInd extends AbstractDLMetaOperator {
 				RemoveQuantifiersResult r = new RemoveQuantifiersResult(system);
 				r = DiffFin.removeQuantifiers(nss, r);
 				StringWriter writer = new StringWriter();
-				r.getSys().prettyPrint(new PrettyPrinter(writer));
-				System.out.println(writer.toString());//XXX
+				DiffSystem sys = r.getSys();
+				sys.prettyPrint(new PrettyPrinter(writer));
 				Term diffInd;
 				if(DLOptionBean.INSTANCE.isUseODEIndFinMethods()) {
 				    diffInd = MathSolverManager.getCurrentODESolver()
-				            .diffInd(r.getSys(), post, services);
+				            .diffInd(sys, post, services);
 				} else {
-				    diffInd = DerivativeCreator.diffInd(r.getSys(), post, services);
-				    diffInd = TermBuilder.DF.imp(r.getSys().getInvariant(services), diffInd);
+				    diffInd = DerivativeCreator.diffInd(sys, post, services);
+				    diffInd = TermBuilder.DF.imp(sys.getInvariant(services), diffInd);
 				}
 				// reintroduce the quantifiers
 				Collections.reverse(r.getQuantifiedVariables());

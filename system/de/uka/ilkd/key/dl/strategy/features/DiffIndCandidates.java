@@ -21,6 +21,7 @@ package de.uka.ilkd.key.dl.strategy.features;
 
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -37,7 +38,6 @@ import java.util.LinkedHashSet;
 
 import orbital.util.SequenceIterator;
 import orbital.util.Setops;
-import scala.actors.threadpool.Arrays;
 import de.uka.ilkd.key.collection.ImmutableArray;
 import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;

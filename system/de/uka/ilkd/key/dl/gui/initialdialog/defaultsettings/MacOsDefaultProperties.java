@@ -167,7 +167,7 @@ public class MacOsDefaultProperties extends LinuxOsDefaultProperties implements
   protected String getMetitBinaryPath() {
      File metit = new File(  "sp" + "usr" + sp + "local" + sp + "bin" + sp + "metit-2.0" +sp+ "metit");
      if (!metit.exists())
-        metit = new File(System.getProperty("user.home") + sp + "metit-2.0" +sp+ "metit");
+        metit = new File(System.getProperty("user.home") + sp + "Workspace" + sp + "metit-2.0" +sp+ "metit");
      return metit.getAbsolutePath();
   }
 
@@ -182,7 +182,7 @@ public class MacOsDefaultProperties extends LinuxOsDefaultProperties implements
   protected String getMetitAxiomPath() {
      File metitAxioms = new File(sp + "usr" + sp + "local" + "metit-2.0" + sp + "tptp");
      if (!metitAxioms.exists())
-        metitAxioms = new File(System.getProperty("user.home") + sp + "metit-2.0"+ sp + "tptp");    
+        metitAxioms = new File(System.getProperty("user.home") + sp + "Workspace" + sp + "metit-2.0"+ sp + "tptp");    
      return metitAxioms.getAbsolutePath();
   }
   
