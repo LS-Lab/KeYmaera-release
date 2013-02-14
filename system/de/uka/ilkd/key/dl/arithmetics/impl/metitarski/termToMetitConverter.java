@@ -407,7 +407,7 @@ public class termToMetitConverter {
       if (tree.isLeaf())
          return tree;
       if (tree.isSquareRoot()) {
-          tree.setValue("SQRT");
+          tree.setValue("Sqrt");
           tree.pruneRight(); // remove rational number in the exponent
       } 
       
@@ -453,7 +453,7 @@ public class termToMetitConverter {
       if (tree.isLeaf())
          return tree;
       if (tree.isCubeRoot()) {
-          tree.setValue("CBRT");
+          tree.setValue("Cbrt");
           tree.pruneRight(); 
       } 
       
