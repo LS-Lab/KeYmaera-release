@@ -66,6 +66,7 @@ import de.uka.ilkd.key.gui.AutoModeListener;
 import de.uka.ilkd.key.gui.GUIEvent;
 import de.uka.ilkd.key.gui.KeYMediator;
 import de.uka.ilkd.key.gui.Main;
+import de.uka.ilkd.key.util.KeYResourceManager;
 import de.uka.ilkd.key.gui.configuration.ProofSettings;
 import de.uka.ilkd.key.gui.configuration.Settings;
 import de.uka.ilkd.key.gui.configuration.SettingsListener;
@@ -294,6 +295,7 @@ public class DLInitializer {
 					JOptionPane
 							.showMessageDialog(
 									main,
+									"KeYmaera Version " + KeYResourceManager.getManager().getVersion() + "\n" +
 									"Information and documentation on using KeYmaera,\nthe syntax of its specification language, and\nits verification features, is available on the web:\n"
 											+ "see KeYmaera Tutorial at\n\n    http://symbolaris.com/info/KeYmaera-guide.html\n\n"
 											+ "Full details on the verification approach can be found\nin the book\n"
