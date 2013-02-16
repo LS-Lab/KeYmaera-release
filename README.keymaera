@@ -163,3 +163,17 @@ usually a quick google search for "git guide <vcs name>" will
 bring up a pretty good guide.
 
 Hope this helps with dealing with git.
+
+
+Adding additional Backends
+--------------------------
+What do I need to do to get listed on this startup prompt? Here is what I have done: 
+1. Created appropriate entries in system/de/uka/ilkd/key/dl/options/EPropertyConstant.java 
+2. Made system-specific default functions like everybody else in system/de/uka/ilkd/key/dl/gui/initialdialog/defaultsettings/[LinuxOs,WindowsOs,MacOs]DefaultProperties.java 
+3. Made an entry in system/de/uka/ilkd/key/dl/gui/initialdialog/defaultsettings/OsDefaultProperties.java, in getDefaultPropertyList, I added props.put(EPropertyConstant.MATLAB_OPTIONS_BINARY etc.. 
+4. In this same file, made a call to getMatlabBinaryPath() in the same style as everybody else, which in my understanding should make the appropriate call depending on the OS 
+
+you need a bean to read the information (see
+de.uka.ilkd.key.dl.arithmetics.impl.redlog.Options for example) and
+configure that it is used in system/resources/hybridkey.xml.
+further, add an entry to de.uka.ilkd.key.dl.gui.initialdialog.propertyconfigurations.EPropertyConfigurations
