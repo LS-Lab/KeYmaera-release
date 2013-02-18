@@ -161,22 +161,26 @@ public interface IODESolver extends IMathSolver {
 
     
     /**
-     * DiffInd for the given differential equation system.
+     * <i>Differential invariants</i> check for the given differential equation system and postcondition.
+     * Basically implements differential invariance rule.
      * 
      * @param form
      *                the differential equation system
      * @param post
      *                the formula to be sustained.
      * @param nss
-     *                the current namespace sets
+     *                the current namespace sets 
+     * @return formula whose validity would imply differential invariance of post along form.
      * @throws RemoteException
      *                 if there is any problem
+     * @see "Andre Platzer. Differential-algebraic dynamic logic for differential-algebraic programs. Journal of Logic and Computation, 20(1), pages 309-352, 2010."
      */
     public abstract Term diffInd(DiffSystem form, Term post, Services services)
             throws RemoteException, SolverException;
 
     /**
-     * DiffFin for the given differential equation system.
+    * <i>Differential variants</i> check for the given differential equation system and postcondition.
+    * Basically implements differential variance rule.
      * 
      * @param form
      *                the differential equation system
@@ -186,12 +190,14 @@ public interface IODESolver extends IMathSolver {
      *                progress
      * @param nss
      *                the current namespace sets
+     * @return formula whose validity would imply differential variance of post along form.
      * @throws RemoteException
      *                 if there is any problem
      * @throws UnsolveableException
      * @throws ConnectionProblemException
      * @throws ServerStatusProblemException
      * @throws UnableToConvertInputException
+     * @see "Andre Platzer. Differential-algebraic dynamic logic for differential-algebraic programs. Journal of Logic and Computation, 20(1), pages 309-352, 2010."
      */
     public abstract Term diffFin(DiffSystem form, Term post, Term ep, Services services)
             throws RemoteException, SolverException;
