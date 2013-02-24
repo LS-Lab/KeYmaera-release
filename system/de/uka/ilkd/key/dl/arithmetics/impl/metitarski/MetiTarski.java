@@ -133,7 +133,7 @@ public class MetiTarski implements IQuantifierEliminator{
             commandParameters.   add(  Options.INSTANCE.getMetitAxioms().getAbsolutePath()   );
             commandParameters.   add(  "-q"                                                  );
 
-            logger.info("Using axiom directory "+  Options.INSTANCE.getMetitAxioms());
+            logger.info("Using axiom directory "+  Options.INSTANCE.getMetitAxioms().getAbsolutePath());
 
             commandParameters.addAll(getParameters(tmp));
 
