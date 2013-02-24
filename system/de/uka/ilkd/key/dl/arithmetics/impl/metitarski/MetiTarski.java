@@ -36,7 +36,6 @@ import de.uka.ilkd.key.dl.arithmetics.exceptions.ConnectionProblemException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ServerStatusProblemException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
 
-import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.logic.NamespaceSet;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.TermBuilder;
@@ -131,10 +130,10 @@ public class MetiTarski implements IQuantifierEliminator{
 
             commandParameters.   add(  Options.INSTANCE.getMetitBinary().getAbsolutePath()   );
             commandParameters.   add(  "--tptp"                                              );
-            commandParameters.   add(  Options.INSTANCE.getMetitAxioms() + "/"               ); // UNIX only
+            commandParameters.   add(  Options.INSTANCE.getMetitAxioms().getAbsolutePath()   );
             commandParameters.   add(  "-q"                                                  );
 
-            logger.info("Using axiom directory "+  Options.INSTANCE.getMetitAxioms()+ "/");
+            logger.info("Using axiom directory "+  Options.INSTANCE.getMetitAxioms());
 
             commandParameters.addAll(getParameters(tmp));
 
