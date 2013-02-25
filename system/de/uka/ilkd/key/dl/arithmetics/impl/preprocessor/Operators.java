@@ -74,8 +74,8 @@ public enum Operators {
    VERUM    (  "true"   ,  "⊤"      ,  "VERUM"  ,  "$true"  )  ,
    FALSUM   (  "false"  ,  "⊥"      ,  "FALSUM" ,  "$false" )  ,
    
-   SQRT     (  "Sqrt"   ,  "√"      ,  "sqrt"   ,  "sqrt"   )  ,
-   CBRT     (  "Cbrt"   ,  "∛"      ,  "cbrt"   ,  "cbrt"   )  ;
+   Sqrt     (  "Sqrt"   ,  "√"      ,  "sqrt"   ,  "sqrt"   )  ,
+   Cbrt     (  "Cbrt"   ,  "∛"      ,  "cbrt"   ,  "cbrt"   )  ;
 
    public String KeY, utf, Rahd, Tptp;
 

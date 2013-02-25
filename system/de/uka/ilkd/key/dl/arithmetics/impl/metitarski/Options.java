@@ -35,7 +35,7 @@ public class Options implements Settings{
 	public static final Options INSTANCE = new Options();
 
 	private File   metitBinary;
-	private String metitAxioms;
+	private File   metitAxioms;
 
 	/* (Pertinent) MetiTarski command-line options.
 	  --autoInclude ...................... Automatically select axiom files to include
@@ -102,8 +102,8 @@ public class Options implements Settings{
 	private Options() {
 
 		listeners   =  new LinkedList<SettingsListener>();
-		metitBinary =  new File("/opt/metit-1.9/metit");
-		metitAxioms =  "/opt/metit-2.0/tptp/Axioms";
+		metitBinary =  new File("/opt/metit-2.0/metit");
+		metitAxioms =  new File("/opt/metit-2.0/tptp");
       
       /* Set options to their default values */
       reset();
@@ -151,12 +151,11 @@ public class Options implements Settings{
 	 
 	public void readSettings(Properties props){
       String property;
-		
-      property = props.getProperty(                         EPropertyConstant.  METIT_OPTIONS_BINARY                      .getKey()   );
+      	property = props.getProperty(                         EPropertyConstant.  METIT_OPTIONS_BINARY                      .getKey()   );
 		if (property != null) metitBinary                 =   new File(property);
 		
 		property = props.getProperty(                         EPropertyConstant.  METIT_OPTIONS_AXIOMS                      .getKey()   );
-		if (property != null) metitAxioms                 =   property;
+		if (property != null) metitAxioms                 =   new File(property);
 		
 		property = props.getProperty(                         EPropertyConstant.  METIT_OPTIONS_AUTOINCLUDE                 .getKey()   );
 		if (property != null) autoInclude                 =   Boolean.parseBoolean(property);
@@ -228,11 +227,15 @@ public class Options implements Settings{
 
 	public void writeSettings(Properties props) {
 		if (!ProofSaver.isInSavingMode()) {
-			props.setProperty(   EPropertyConstant.METIT_OPTIONS_BINARY.getKey()    ,
-					               metitBinary.getAbsolutePath()                      );
+			props.setProperty(
+					EPropertyConstant.METIT_OPTIONS_BINARY.getKey(),
+					metitBinary.getAbsolutePath()
+					);
 		}
-		props.setProperty(    EPropertyConstant.METIT_OPTIONS_BACKTRACKING.getKey() ,
-                            "" + backtracking                                     );
+		props.setProperty(
+				EPropertyConstant.METIT_OPTIONS_BACKTRACKING.getKey(),
+				"" + backtracking
+				);
 	}
 
 	/* Methods as elsewhere */
@@ -248,11 +251,11 @@ public class Options implements Settings{
 		}
 	}
 	
-	public String getMetitAxioms() {
+	public File getMetitAxioms() {
 		return metitAxioms;
 	}
 
-	public void setMetitAxioms(String metitAxioms) {
+	public void setMetitAxioms(File metitAxioms) {
 		if (!this.metitAxioms.equals(metitAxioms)) {
 			 this.metitAxioms = metitAxioms;
 			 firePropertyChanged();
