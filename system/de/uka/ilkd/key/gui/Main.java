@@ -2872,7 +2872,7 @@ public class Main extends JFrame implements IMain {
     public static void evaluateOptions(String[] opt) {
 	int index = 0;
 	ProofSettings.DEFAULT_SETTINGS.setProfile(new JavaProfile());
-	DLInitializer.initialize();
+	DLInitializer.initialize(opt);
 	while (opt.length > index) {	    
 	    if ((new File(opt[index])).exists()) {
 		fileNameOnStartUp=opt[index];

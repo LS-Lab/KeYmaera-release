@@ -191,8 +191,9 @@ public class DLInitializer {
 	 * the current arithmetic solver and disables the stop button, as we use the
 	 * one provided by the {@link ServerConsole}</li>
 	 * </ul>
+	 * @param opt 
 	 */
-	public static void initialize() {
+	public static void initialize(String[] opt) {
 		locks = new LinkedHashSet<Object>();
 		if (!initialized) {
 			initialized = true;
@@ -257,22 +258,30 @@ public class DLInitializer {
 			}
 
 			// taken from Mathematica ctor
-			Main.getInstance().mediator().addAutoModeListener(
-					new AutomodeListener());
-			Main.getInstance().mediator().addAutoModeListener(
-					new AutoModeListener() {
+			boolean GUI = true;
+			for(String s: opt) {
+			    if(s.equalsIgnoreCase("AUTO")) {
+			        GUI = false;
+			    }
+			}
+			if(GUI) {
+                Main.getInstance().mediator()
+                        .addAutoModeListener(new AutomodeListener());
+                Main.getInstance().mediator()
+                        .addAutoModeListener(new AutoModeListener() {
 
-						public void autoModeStarted(ProofEvent e) {
-							//Main.autoModeAction.setEnabled(false);
-						}
+                            public void autoModeStarted(ProofEvent e) {
+                                // Main.autoModeAction.setEnabled(false);
+                            }
 
-						public void autoModeStopped(ProofEvent e) {
-							MathSolverManager.resetAbortState();
+                            public void autoModeStopped(ProofEvent e) {
+                                MathSolverManager.resetAbortState();
 
-							//Main.autoModeAction.enable();
-						}
+                                // Main.autoModeAction.enable();
+                            }
 
-					});
+                        });
+			}
 		}
 
 	}
