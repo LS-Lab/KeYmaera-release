@@ -259,17 +259,22 @@ public class Reduce implements IQuantifierEliminator {
 			result += Options.INSTANCE.getRlsimpl().name().toLowerCase()
 					+ " rlsimpl; ";
 		}
-		
-		if (Options.INSTANCE.isGroebnerBasisSimplification()) {
-		    result += "redlog_phi := rlgsn redlog_phi; ";
-		}
 
-		return result + "redlog_phi := "
-				+ ((Options.INSTANCE.isRlall()) ? "rlall(" : "(") + input + ");"
-				+ "off nat; "
-				+ "redlog_psi_out := " + Options.INSTANCE.getQeMethod().getMethod()
-				+ " redlog_phi; out \"" + tmp.getAbsolutePath() + "\"; redlog_psi_out; shut \"" 
-				+ tmp.getAbsolutePath() + "\"; quit;\n";
+
+        result += "redlog_phi := "
+                + ((Options.INSTANCE.isRlall()) ? "rlall(" : "(") + input
+                + ");";
+
+        if (Options.INSTANCE.isGroebnerBasisSimplification()) {
+            // compute prenex form, dfn or cnf, and apply groebner basis simplification
+            result += "redlog_phi := rlgsn redlog_phi; ";
+        }
+        
+        return  result + "off nat; " + "redlog_psi_out := "
+                + Options.INSTANCE.getQeMethod().getMethod()
+                + " redlog_phi; out \"" + tmp.getAbsolutePath()
+                + "\"; redlog_psi_out; shut \"" + tmp.getAbsolutePath()
+                + "\"; quit;\n";
 	}
 
 	public Term reduce(Term query,
