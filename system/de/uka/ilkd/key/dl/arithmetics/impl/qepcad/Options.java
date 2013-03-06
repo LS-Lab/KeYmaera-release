@@ -47,6 +47,7 @@ public class Options implements Settings {
 
 	private File qepcadPath;
 	private File saclibPath;	
+	private File singularPath;	
 	private int qepcadMemoryLimit;
 
 	private List<SettingsListener> listeners;
@@ -75,6 +76,17 @@ public class Options implements Settings {
 		} else {
 			saclibPath = new File(spath);
 		}
+		spath = System.getenv("SINGULAR");
+        if (spath == null) {
+            spath = System.getProperty("user.home");
+            if(spath == null) {
+                singularPath = new File("/");
+            } else {
+                singularPath = new File(qpath);
+            }
+        } else {
+            singularPath = new File(spath);
+        }
 		reset();
 	}
 	
@@ -118,6 +130,10 @@ public class Options implements Settings {
 		if (property != null) {
 			saclibPath = new File(property);
 		}
+		property = props.getProperty(EPropertyConstant.QEPCAD_OPTIONS_SINGULAR_PATH.getKey());
+		if (property != null) {
+		    singularPath = new File(property);
+		}
 		property = props.getProperty(EPropertyConstant.QEPCAD_OPTIONS_QEPCAD_MEMORYLIMIT.getKey());
 		if (property != null) {
 			qepcadMemoryLimit = Integer.parseInt(property);
@@ -134,6 +150,7 @@ public class Options implements Settings {
 			// we don't want to save user specific pathes when saving proofs
 			props.setProperty(EPropertyConstant.QEPCAD_OPTIONS_QEPCAD_PATH.getKey(), qepcadPath.getAbsolutePath());
 			props.setProperty(EPropertyConstant.QEPCAD_OPTIONS_SACLIB_PATH.getKey(), saclibPath.getAbsolutePath());
+			props.setProperty(EPropertyConstant.QEPCAD_OPTIONS_SINGULAR_PATH.getKey(), singularPath.getAbsolutePath());
 		}
 		props.setProperty(EPropertyConstant.QEPCAD_OPTIONS_QEPCAD_MEMORYLIMIT.getKey(), "" + qepcadMemoryLimit);
 	}
@@ -200,5 +217,16 @@ public class Options implements Settings {
 			firePropertyChanged();
 		}
 	}
+
+    public File getSingularPath() {
+        return singularPath;
+    }
+
+    public void setSingularPath(File singularPath) {
+        if(this.singularPath != singularPath) {
+            this.singularPath = singularPath;
+            firePropertyChanged();
+        }
+    }
 
 }

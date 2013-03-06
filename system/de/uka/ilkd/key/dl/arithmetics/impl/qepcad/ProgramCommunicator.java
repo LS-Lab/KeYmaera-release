@@ -71,6 +71,10 @@ public class ProgramCommunicator {
 					.getAbsolutePath());
 			environment.put("saclib", Options.INSTANCE.getSaclibPath()
 					.getAbsolutePath());
+			environment.put("singular", Options.INSTANCE.getSingularPath()
+			        .getAbsolutePath());
+			environment.put("SINGULAR", Options.INSTANCE.getSingularPath()
+			        .getAbsolutePath());
 
 			Process process = pb.start();
 			stopper.setP(process);

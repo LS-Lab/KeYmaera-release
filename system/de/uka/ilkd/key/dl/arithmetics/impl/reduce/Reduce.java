@@ -95,6 +95,10 @@ public class Reduce implements IQuantifierEliminator {
 				.getAbsolutePath());
 		environment.put("saclib", de.uka.ilkd.key.dl.arithmetics.impl.qepcad.Options.INSTANCE.getSaclibPath()
 				.getAbsolutePath());
+        environment.put("singular", de.uka.ilkd.key.dl.arithmetics.impl.qepcad.Options.INSTANCE.getSingularPath()
+                .getAbsolutePath());
+        environment.put("SINGULAR", de.uka.ilkd.key.dl.arithmetics.impl.qepcad.Options.INSTANCE.getSingularPath()
+                .getAbsolutePath());
 		
 		Process process = null;
 		try {
@@ -254,6 +258,10 @@ public class Reduce implements IQuantifierEliminator {
 		if (Options.INSTANCE.getRlsimpl() != ReduceSwitch.DEFAULT) {
 			result += Options.INSTANCE.getRlsimpl().name().toLowerCase()
 					+ " rlsimpl; ";
+		}
+		
+		if (Options.INSTANCE.isGroebnerBasisSimplification()) {
+		    result += "redlog_phi := rlgsn redlog_phi; ";
 		}
 
 		return result + "redlog_phi := "

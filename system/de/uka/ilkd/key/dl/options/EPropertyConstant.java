@@ -88,12 +88,14 @@ public enum EPropertyConstant {
 
        QEPCAD_OPTIONS_QEPCAD_PATH("[QepcadOptions]qepcadPath", "Qepcad Path", "The path to the qepcad installation needed to setup the correct environment for the tool (it must contain bin/qepcad binary)","Qepcad Properties"),
        QEPCAD_OPTIONS_SACLIB_PATH("[QepcadOptions]saclibPath", "Saclib Path", "The path to the saclib installation needed to setup the correct environment for Qepcad","Qepcad Properties"),
+       QEPCAD_OPTIONS_SINGULAR_PATH("[QepcadOptions]singularPath", "Singular Path", "The path to the singular installation used by QepCad for simplifications","Qepcad Properties"),
        QEPCAD_OPTIONS_QEPCAD_MEMORYLIMIT("[QepcadOptions]qepcadMemoryLimit", "memory limit", "The number of kilobytes qepcad may use for its computation. (set to -1 for default value)","Qepcad Properties"),
        
        COHENHORMANDER_OPTIONS_MODE("[CohenhormanderOptions]eliminatorMode", "elimination mode", "Enable or disable disjunctive normal form conversion","CohenHormander Properties"),
 
        OPTIONS_REDUCE_BINARY("[ReduceOptions]reduceBinary", "Reduce Binary", "<html>The path to the Redlog/Reduce binary installation needed<br>"
-                              + "to setup the correct environment for the tool</html>","Redlog Properties"), 
+                              + "to setup the correct environment for the tool</html>","Redlog Properties"),
+       OPTIONS_REDUCE_GROEBNER_BASIS("[ReduceOptions]groebnerBasis", "Use Groebner Basis", "<html>Compute Groebner Basis inside Reduce in order to simplify the problem before invoking other methods for quantifier elimination.</html>","Redlog Properties"),
        OPTIONS_REDUCE_QUANTIFIER_ELIMINATION_METHOD("[ReduceOptions]quantifierEliminationMethod", "quantifier elimination", "<html>The method to use for quantifier elimination<br>"
                                  + "(virtual substitution (rlqe), Cylindrical algebraic<br>"
                                  + "decomposition (rlcad)...)</html>","Redlog Properties"), 

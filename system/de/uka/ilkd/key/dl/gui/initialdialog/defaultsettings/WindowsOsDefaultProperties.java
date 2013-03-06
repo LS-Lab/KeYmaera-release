@@ -198,4 +198,16 @@ public class WindowsOsDefaultProperties extends OsDefaultProperties {
 	public String getSaclibDefault() {
 		return "C:" + sp + "Program Files" + sp + "qepcad" + sp + "saclib";
 	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.uka.ilkd.key.dl.gui.initialdialog.defaultsettings.OsDefaultProperties
+	 * #getSaclibDefault()
+	 */
+	@Override
+	public String getSingularDefault() {
+	    return "C:" + sp + "Program Files" + sp + "singular";
+	}
 }

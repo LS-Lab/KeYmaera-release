@@ -238,6 +238,22 @@ public class LinuxOsDefaultProperties extends OsDefaultProperties implements
 	 * 
 	 * @see
 	 * de.uka.ilkd.key.dl.gui.initialdialog.defaultsettings.OsDefaultProperties
+	 * #getSaclibDefault()
+	 */
+	@Override
+	public String getSingularDefault() {
+	    String spath = System.getenv("saclib");
+	    if (spath == null) {
+	        spath = "/usr/bin";
+	    }
+	    return spath;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.uka.ilkd.key.dl.gui.initialdialog.defaultsettings.OsDefaultProperties
 	 * #getMathematicaCompletePath(java.lang.String)
 	 */
 	@Override

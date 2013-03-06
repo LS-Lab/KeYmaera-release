@@ -66,6 +66,9 @@ public class OptionsBeanInfo extends SimpleBeanInfo {
 					createDescriptor(
 							"rlall",EPropertyConstant.OPTIONS_REDUCE_RLALL,
 							false, false),
+                    createDescriptor("groebnerBasisSimplification",
+                            EPropertyConstant.OPTIONS_REDUCE_GROEBNER_BASIS,
+                            false, false),
 					createDescriptor(
 							"rlsimpl", EPropertyConstant.OPTIONS_REDUCE_RLSIMPL,
 							false, false, ReduceSwitchPropertyEditor.class),

@@ -70,6 +70,9 @@ public class OptionsBeanInfo extends SimpleBeanInfo {
 					createDescriptor(
 							"saclibPath",EPropertyConstant.QEPCAD_OPTIONS_SACLIB_PATH,
 							true, false, true, DirectoryPropertyEditor.class),
+                    createDescriptor("singularPath",
+                            EPropertyConstant.QEPCAD_OPTIONS_SINGULAR_PATH,
+                            true, false, true, DirectoryPropertyEditor.class),
 
 			};
 			return pds;

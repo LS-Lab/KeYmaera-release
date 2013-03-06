@@ -48,6 +48,7 @@ public abstract class OsDefaultProperties implements IOsDefaultProperties {
 			props.put(EPropertyConstant.MATHEMATICA_OPTIONS_JLINK_LIBDIR.getKey(), getJLinkDefault());
 			props.put(EPropertyConstant.QEPCAD_OPTIONS_QEPCAD_PATH.getKey(), getQepCadDefault());
 			props.put(EPropertyConstant.QEPCAD_OPTIONS_SACLIB_PATH.getKey(), getSaclibDefault());
+			props.put(EPropertyConstant.QEPCAD_OPTIONS_SINGULAR_PATH.getKey(), getSingularDefault());
 			props.put(EPropertyConstant.OPTIONS_REDUCE_BINARY.getKey(), getReduceBinaryDefault());
 			props.put(EPropertyConstant.DLOPTIONS_CSDP_PATH.getKey(), getCSDPPathDefault());
 			props.put(EPropertyConstant.HOL_OPTIONS_HARRISON_QE_PATH.getKey(), getHarrisionQEPath());
@@ -101,6 +102,12 @@ public abstract class OsDefaultProperties implements IOsDefaultProperties {
 	 */
 
 	public abstract String getSaclibDefault();
+
+	/**
+	 * Initialise singular default path
+	 */
+	
+	public abstract String getSingularDefault();
 
 	/**
 	 * Initialise reduce binary default value

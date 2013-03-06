@@ -105,6 +105,8 @@ public class Options implements Settings {
 
 	private boolean rlall;
 	
+	private boolean groebnerBasisSimplification;
+	
 	private ReduceSwitch rlnzden;
 
 	private ReduceSwitch rlposden;
@@ -174,6 +176,8 @@ public class Options implements Settings {
 		rlall = true;
 		
 		eliminateFractions = false;
+		
+		groebnerBasisSimplification = false;
 
 		rlnzden = ReduceSwitch.ON;
 
@@ -259,6 +263,11 @@ public class Options implements Settings {
 				.getProperty(EPropertyConstant.OPTIONS_REDUCE_QUANTIFIER_ELIMINATION_METHOD.getKey());
 		if (property != null) {
 			qeMethod = QuantifierEliminationMethod.valueOf(property);
+		}
+		property = props
+		        .getProperty(EPropertyConstant.OPTIONS_REDUCE_GROEBNER_BASIS.getKey());
+		if (property != null) {
+		    groebnerBasisSimplification = Boolean.valueOf(property);
 		}
 		property = props.getProperty(EPropertyConstant.OPTIONS_REDUCE_ELIMINATE_FRACTIONS.getKey());
 		if (property != null) {
@@ -385,6 +394,7 @@ public class Options implements Settings {
 		props.setProperty(EPropertyConstant.OPTIONS_REDUCE_QUANTIFIER_ELIMINATION_METHOD.getKey(),
 				qeMethod.name());
 		props.setProperty(EPropertyConstant.OPTIONS_REDUCE_ELIMINATE_FRACTIONS.getKey(), Boolean.toString(eliminateFractions));
+		props.setProperty(EPropertyConstant.OPTIONS_REDUCE_GROEBNER_BASIS.getKey(), Boolean.toString(groebnerBasisSimplification));
 		props.setProperty(EPropertyConstant.OPTIONS_REDUCE_RLALL.getKey(), Boolean.toString(rlall));
 		props.setProperty(EPropertyConstant.OPTIONS_REDUCE_rlanuexsgnopt.getKey(), rlanuexsgnopt.name());
 		props.setProperty(EPropertyConstant.OPTIONS_REDUCE_rlanuexgcdnormalize.getKey(),
@@ -940,5 +950,16 @@ public class Options implements Settings {
 			firePropertyChanged();
 		}
 	}
+
+    public boolean isGroebnerBasisSimplification() {
+        return groebnerBasisSimplification;
+    }
+
+    public void setGroebnerBasisSimplification(boolean groebnerBasisSimplification) {
+        if(this.groebnerBasisSimplification != groebnerBasisSimplification) {
+            this.groebnerBasisSimplification = groebnerBasisSimplification;
+            firePropertyChanged();
+        }
+    }
 
 }
