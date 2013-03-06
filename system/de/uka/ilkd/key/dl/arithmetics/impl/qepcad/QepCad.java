@@ -18,6 +18,7 @@ import java.util.List;
 import org.w3c.dom.Node;
 
 import scala.Tuple2;
+import de.uka.ilkd.key.collection.ImmutableArray;
 import de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ConnectionProblemException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ServerStatusProblemException;
@@ -29,6 +30,7 @@ import de.uka.ilkd.key.logic.NamespaceSet;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.TermBuilder;
 import de.uka.ilkd.key.logic.op.QuantifiableVariable;
+import de.uka.ilkd.key.logic.op.Quantifier;
 
 /**
  * Implements the QuantifierElimintor with an external program called qebcad.
@@ -72,8 +74,13 @@ public class QepCad implements IQuantifierEliminator {
 		// System.out.println("START  : Reduce called");
 		Tuple2<Term, List<QuantifiableVariable>> result = Prenex.transform(form, nss);
 
-		QepCadInput input = Term2QepCadConverter.convert(result._1,
-				result._2);
+		ArrayList<QuantifiableVariable> vars  = new ArrayList<QuantifiableVariable>();
+		vars.addAll(result._2);
+		Term in = removeUnusedQuantifiers(result._1, vars);
+		System.out.println("Variables are: " + vars);
+		
+		QepCadInput input = Term2QepCadConverter.convert(in, vars);
+		
 		if (input.getVariableList().equals("()")) {
 			if (OrbitalSimplifier.testForSimpleTautology(String2TermConverter
 					.convert(input.getFormula(), nss))) {
@@ -98,6 +105,33 @@ public class QepCad implements IQuantifierEliminator {
 		// Term2QepCadConverter.convert(parsedTerm).getFormula()); // DEBUG
 
 		return parsedTerm;
+	}
+	
+	public Term removeUnusedQuantifiers(Term t, List<QuantifiableVariable> vars) {
+	    if(t.op() instanceof Quantifier) {
+	        ImmutableArray<QuantifiableVariable> varsBoundHere = t.varsBoundHere(0);
+	        Term sub = removeUnusedQuantifiers(t.sub(0), vars);
+	        for(int i = varsBoundHere.size() - 1; i >= 0; i--) {
+	            QuantifiableVariable v = varsBoundHere.get(i);
+	            if(sub.freeVars().contains(v)) {
+	                System.out.println("Variable " + v + " occurs in " + sub);
+	                if(t.op() == Quantifier.ALL) {
+	                    sub = TermBuilder.DF.all(v, sub);
+	                } else if(t.op() == Quantifier.EX) {
+	                    sub = TermBuilder.DF.ex(v, sub);
+	                } else {
+	                    throw new IllegalArgumentException("Don't know how to handle quantifier in " + t);
+	                }
+	            } else {
+	                System.out.println("Removing " + v);
+	                vars.remove(v);
+	                System.out.println("New List " + vars);
+	            }
+	        }
+	        return sub;
+	    }
+	    System.out.println("No quantifier in " + t);
+	    return t;
 	}
 
 	public Term reduce(Term query,

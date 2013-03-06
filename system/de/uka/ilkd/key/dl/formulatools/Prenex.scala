@@ -47,11 +47,19 @@ object Prenex {
     for ((qt, v) <- qs) {
       qt match {
         case QT.All =>
+          val org = res
           res = All(res, v)
-          vars = vars :+ v
+          if(org != res) {
+            // the quantifier did quantify a free variable
+            vars = vars :+ v
+          }
         case QT.Ex =>
+          val org = res
           res = Ex(res, v)
-          vars = vars :+ v
+          if(org != res) {
+            // the quantifier did quantify a free variable
+            vars = vars :+ v
+          }
         case a => throw new IllegalArgumentException("Unknown quantifier " + a)
       }
     }
