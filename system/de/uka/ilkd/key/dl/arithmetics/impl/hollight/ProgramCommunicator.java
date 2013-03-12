@@ -117,9 +117,7 @@ public class ProgramCommunicator {
 						.getInputStream()));
 				stdin = new BufferedWriter(new OutputStreamWriter(process
 						.getOutputStream()));
-				if(Options.INSTANCE.isUseSnapshots()) {
-				    readUntil(stdout, "Backgrounding...", null);
-				} else {
+				if(!Options.INSTANCE.isUseSnapshots()) {
     				switch (Options.INSTANCE.getMethod()) {
     				case ProofProducing:
     					readUntil(stdout, "#", null);

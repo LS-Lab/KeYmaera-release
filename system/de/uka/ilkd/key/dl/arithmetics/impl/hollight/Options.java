@@ -27,13 +27,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 
-import com.sun.xml.internal.bind.v2.runtime.unmarshaller.LocatorEx.Snapshot;
-
+import de.uka.ilkd.key.dl.options.EPropertyConstant;
 import de.uka.ilkd.key.gui.GUIEvent;
 import de.uka.ilkd.key.gui.configuration.Settings;
 import de.uka.ilkd.key.gui.configuration.SettingsListener;
 import de.uka.ilkd.key.proof.ProofSaver;
-import  de.uka.ilkd.key.dl.options.EPropertyConstant;
 /**
  * This class serves options specific for the HOL Light interface
  * 

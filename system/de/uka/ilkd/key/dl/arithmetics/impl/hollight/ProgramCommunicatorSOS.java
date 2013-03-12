@@ -75,9 +75,7 @@ public class ProgramCommunicatorSOS {
 						.getInputStream()));
 				stdin = new BufferedWriter(new OutputStreamWriter(process
 						.getOutputStream()));
-				if(Options.INSTANCE.isUseSnapshots()) {
-				    readUntil(stdout, "Backgrounding...", null);
-				} else {
+				if(!Options.INSTANCE.isUseSnapshots()) {
     				readUntil(stdout, "#", null);
     				writeText(stdin, "#use \"hol.ml\";;");
     
