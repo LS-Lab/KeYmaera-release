@@ -72,6 +72,7 @@ public enum EPropertyConstant {
        HOL_OPTIONS_OCAML_PATH("[HOLLightOptions]ocamlPath", "Ocaml Path", "The ocaml binary", "HOL Light Properties"),
        HOL_OPTIONS_HARRISON_QE_PATH("[HOLLightOptions]harrisonqePath", "Harrison QE Path", "The path to harrisons implementation of quantifier elimination", "HOL Light Properties"),  
        HOL_OPTIONS_QUANTIFIER_ELIMINATION_METHOD("[HOLLightOptions]qeMethod", "quantifier elimination", "The quantifier elimination method to use","HOL Light Properties"),   
+       HOL_OPTIONS_USE_SNAPSHOTS("[HOLLightOptions]useSnapshots", "use snapshots", "Use Snapshots of HOL produced for example by dmtcp, scripts with names hol_sos, hol_proofproducing, and hol_ch are assumed to exist.","HOL Light Properties"),   
       
        MATHEMATICA_OPTIONS_MATHEMATICA_PATH("[MathematicaOptions]mathematicaPath", "Mathematica Path","The path where Mathematica is installed.","Mathematica Properties"), 
        MATHEMATICA_OPTIONS_MATHKERNEL("[MathematicaOptions]mathKernel", "MathKernel path", "the path to the MathKernel binary","Mathematica Properties"),

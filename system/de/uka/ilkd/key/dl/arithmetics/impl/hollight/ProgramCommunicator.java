@@ -72,12 +72,24 @@ public class ProgramCommunicator {
 				tmpFile.createNewFile();
 				tmpFile.setExecutable(true);
 				FileWriter writer = new FileWriter(tmpFile);
+				String program = Options.INSTANCE.getOcamlPath().getAbsolutePath();
+				if(Options.INSTANCE.isUseSnapshots()) {
+				    switch (Options.INSTANCE.getMethod()) {
+				    case ProofProducing:
+				        program = Options.INSTANCE.getHollightPath() + File.separator + "hol_proofproducing";
+				        break;
+				    case Harrison:
+				        program = Options.INSTANCE.getHarrisonqePath() + File.separator + "hol_ch";
+				        break;
+				    }
+				    
+				}
 				writer.write("#!/bin/bash\n"
 						+ "FIFO=/tmp/keymara-ocaml-$$.fifo\n"
 						+ "OUTPUT=/tmp/keymara-ocaml-output-$$.fifo\n"
 						+ "mkfifo $FIFO\n"
 						+ "mkfifo $OUTPUT\n"
-						+ Options.INSTANCE.getOcamlPath().getAbsolutePath()
+						+ program
 						+ " < $FIFO > $OUTPUT & pid=$!\n" + "cat $OUTPUT &\n"
 						+ "trap \"rm -f $FIFO $OUTPUT; kill -9 $pid\" 0\n"
 						+ "(while read BLUB\n" + "do\n"
@@ -105,21 +117,25 @@ public class ProgramCommunicator {
 						.getInputStream()));
 				stdin = new BufferedWriter(new OutputStreamWriter(process
 						.getOutputStream()));
-				switch (Options.INSTANCE.getMethod()) {
-				case ProofProducing:
-					readUntil(stdout, "#", null);
-					writeText(stdin, "#use \"hol.ml\";;");
-
-					readUntil(stdout, "#", null);
-					writeText(stdin, "#use \"Rqe/make.ml\";;");
-					readUntil(stdout, "#", null);
-					break;
-				case Harrison:
-					readUntil(stdout, "#", null);
-					writeText(stdin, "#use \"init.ml\";;");
-
-					readUntil(stdout, "#", null);
-					break;
+				if(Options.INSTANCE.isUseSnapshots()) {
+				    readUntil(stdout, "Backgrounding...", null);
+				} else {
+    				switch (Options.INSTANCE.getMethod()) {
+    				case ProofProducing:
+    					readUntil(stdout, "#", null);
+    					writeText(stdin, "#use \"hol.ml\";;");
+    
+    					readUntil(stdout, "#", null);
+    					writeText(stdin, "#use \"Rqe/make.ml\";;");
+    					readUntil(stdout, "#", null);
+    					break;
+    				case Harrison:
+    					readUntil(stdout, "#", null);
+    					writeText(stdin, "#use \"init.ml\";;");
+    
+    					readUntil(stdout, "#", null);
+    					break;
+    				}
 				}
 //			} else {
 //				OutputStreamWriter outputStreamWriter = new OutputStreamWriter(process.getOutputStream());
