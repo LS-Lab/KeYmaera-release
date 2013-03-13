@@ -214,11 +214,10 @@ public class ProofSaver {
       if (appliedRuleApp == null && (proof.getGoal(node)!=null)) { // open goal
          tree.append(prefix); 
          tree.append("(opengoal \"");
-         LogicPrinter logicPrinter = 
-	     createLogicPrinter(proof.getServices(), false);
+         LogicPrinter logicPrinter = createLogicPrinter(proof.getServices(), false);
 
          logicPrinter.printSequent(node.sequent());
-         tree.append(escapeCharacters(printer.result().toString().replace('\n',' ')));
+         tree.append(escapeCharacters(logicPrinter.result().toString().replace('\n',' ')));
          tree.append("\")\n");
          return;
       }
