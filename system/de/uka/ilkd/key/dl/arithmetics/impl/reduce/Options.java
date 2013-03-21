@@ -156,6 +156,8 @@ public class Options implements Settings {
 	private ReduceSwitch rlanuexgcdnormalize;
 
 	private ReduceSwitch rlanuexsgnopt;
+	
+	private boolean qepcadFallback;
 
 	private List<SettingsListener> listeners;
 
@@ -174,6 +176,8 @@ public class Options implements Settings {
 		qeMethod = QuantifierEliminationMethod.RLQE;
 
 		rlall = true;
+		
+		qepcadFallback = false;
 		
 		eliminateFractions = false;
 		
@@ -269,6 +273,11 @@ public class Options implements Settings {
 		if (property != null) {
 		    groebnerBasisSimplification = Boolean.valueOf(property);
 		}
+		property = props
+                .getProperty(EPropertyConstant.OPTIONS_REDUCE_QEPCAD_FALLBACK.getKey());
+        if (property != null) {
+            qepcadFallback = Boolean.valueOf(property);
+        }
 		property = props.getProperty(EPropertyConstant.OPTIONS_REDUCE_ELIMINATE_FRACTIONS.getKey());
 		if (property != null) {
 			eliminateFractions = Boolean.valueOf(property);
@@ -395,6 +404,7 @@ public class Options implements Settings {
 				qeMethod.name());
 		props.setProperty(EPropertyConstant.OPTIONS_REDUCE_ELIMINATE_FRACTIONS.getKey(), Boolean.toString(eliminateFractions));
 		props.setProperty(EPropertyConstant.OPTIONS_REDUCE_GROEBNER_BASIS.getKey(), Boolean.toString(groebnerBasisSimplification));
+		props.setProperty(EPropertyConstant.OPTIONS_REDUCE_QEPCAD_FALLBACK.getKey(), Boolean.toString(qepcadFallback));
 		props.setProperty(EPropertyConstant.OPTIONS_REDUCE_RLALL.getKey(), Boolean.toString(rlall));
 		props.setProperty(EPropertyConstant.OPTIONS_REDUCE_rlanuexsgnopt.getKey(), rlanuexsgnopt.name());
 		props.setProperty(EPropertyConstant.OPTIONS_REDUCE_rlanuexgcdnormalize.getKey(),
@@ -958,6 +968,17 @@ public class Options implements Settings {
     public void setGroebnerBasisSimplification(boolean groebnerBasisSimplification) {
         if(this.groebnerBasisSimplification != groebnerBasisSimplification) {
             this.groebnerBasisSimplification = groebnerBasisSimplification;
+            firePropertyChanged();
+        }
+    }
+
+    public boolean isQepcadFallback() {
+        return qepcadFallback;
+    }
+
+    public void setQepcadFallback(boolean qepcadFallback) {
+        if(this.qepcadFallback != qepcadFallback) {
+            this.qepcadFallback = qepcadFallback;
             firePropertyChanged();
         }
     }

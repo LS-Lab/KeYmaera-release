@@ -107,6 +107,8 @@ public class DLDefined extends AbstractDLMetaOperator {
                 // we have no denominators
                 return TermBuilder.DF.tt();
             } else {
+				System.out.println("term was: " + term);
+				System.out.println("output is: " + result);
                 return services.getTypeConverter().convertToLogicElement(result);
             }
         } catch (InvocationTargetException e) {
@@ -145,7 +147,7 @@ public class DLDefined extends AbstractDLMetaOperator {
                 children.add(zero);
                 List<Expression> children2 = new ArrayList<Expression>();
                 children2.add((Expression) ft.getChildAt(1));
-                children.add(zero);
+                children2.add(zero);
                 result.add(tf.createImpl(
                         tf.createPredicateTerm(tf.createLess(), children),
                         tf.createPredicateTerm(tf.createUnequals(), children2)));

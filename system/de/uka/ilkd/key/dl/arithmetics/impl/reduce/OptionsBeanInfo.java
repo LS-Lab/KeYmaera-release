@@ -69,6 +69,9 @@ public class OptionsBeanInfo extends SimpleBeanInfo {
                     createDescriptor("groebnerBasisSimplification",
                             EPropertyConstant.OPTIONS_REDUCE_GROEBNER_BASIS,
                             false, false),
+                    createDescriptor("qepcadFallback",
+                            EPropertyConstant.OPTIONS_REDUCE_QEPCAD_FALLBACK,
+                            false, false),
 					createDescriptor(
 							"rlsimpl", EPropertyConstant.OPTIONS_REDUCE_RLSIMPL,
 							false, false, ReduceSwitchPropertyEditor.class),

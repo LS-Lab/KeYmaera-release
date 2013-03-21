@@ -147,7 +147,8 @@ public class Reduce implements IQuantifierEliminator {
 		// TODO: use all those options
 		String result = "load_package redlog; off rlverbose; rlset R; ";
 		
-		if(Options.INSTANCE.getQeMethod() == Options.QuantifierEliminationMethod.RLQEPCAD) {
+        if (Options.INSTANCE.getQeMethod() == Options.QuantifierEliminationMethod.RLQEPCAD
+                | Options.INSTANCE.isQepcadFallback()) {
 			result += "load_package qepcad; on rlqefbqepcad; rlqepcadn(100*10^6); rlqepcadl(200*10^3);";
 		}
 

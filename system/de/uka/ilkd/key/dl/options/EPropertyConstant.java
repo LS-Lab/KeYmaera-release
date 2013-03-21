@@ -97,6 +97,7 @@ public enum EPropertyConstant {
        OPTIONS_REDUCE_BINARY("[ReduceOptions]reduceBinary", "Reduce Binary", "<html>The path to the Redlog/Reduce binary installation needed<br>"
                               + "to setup the correct environment for the tool</html>","Redlog Properties"),
        OPTIONS_REDUCE_GROEBNER_BASIS("[ReduceOptions]groebnerBasis", "Use Groebner Basis", "<html>Compute Groebner Basis inside Reduce in order to simplify the problem before invoking other methods for quantifier elimination.</html>","Redlog Properties"),
+       OPTIONS_REDUCE_QEPCAD_FALLBACK("[ReduceOptions]qepcadFallback", "Use QEPCAD as fallback", "<html>Use QEPCAD B as fallback procedure when virtual substitution exceeds its degree bounds.</html>","Redlog Properties"),
        OPTIONS_REDUCE_QUANTIFIER_ELIMINATION_METHOD("[ReduceOptions]quantifierEliminationMethod", "quantifier elimination", "<html>The method to use for quantifier elimination<br>"
                                  + "(virtual substitution (rlqe), Cylindrical algebraic<br>"
                                  + "decomposition (rlcad)...)</html>","Redlog Properties"), 
