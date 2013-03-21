@@ -29,7 +29,10 @@ sealed abstract class Term {
 /** A number literal n. */
 case class Num(n: Exact.Num) extends Term
 /** A variable of name s. */
-case class Var(s: String) extends Term
+case class Var(s: String) extends Term {
+  def :=(that: Term): HybridProgram = Assign(this, that)
+  def :=* : HybridProgram = AssignAny(this)
+}
 /** Interpreted arithmetic function with operator op applied to arguments ps. */
 case class Arithmetic(op: ArithmeticOp, ps: Term*) extends Term {
   op.applicable(ps:_*)
@@ -112,6 +115,9 @@ sealed abstract class Formula {
   def ->(that: Formula): Formula = Prop(Imp, this, that)
   def <->(that: Formula): Formula = Prop(Iff, this, that)
   def unary_! : Formula = Prop(Not, this)
+}
+object Formula {
+  def check(that: Formula): HybridProgram = Check(that)
 }
 case object True extends Formula
 case object False extends Formula

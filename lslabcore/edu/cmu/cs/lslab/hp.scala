@@ -1,0 +1,88 @@
+package edu.cmu.cs.lslab
+
+import scala.annotation.elidable
+import scala.annotation.elidable._
+
+/** Hybrid programs */
+sealed abstract class HybridProgram {
+  def seq(that: HybridProgram): HybridProgram = ComposedHP(Sequence, this, that)
+  def ++(that: HybridProgram): HybridProgram = ComposedHP(Choice, this, that)
+}
+object HybridProgram {
+  def loop(that: HybridProgram): HybridProgram = ComposedHP(Star, that)
+}
+/** Assign term t to variable v */
+case class Assign(v: Var, t: Term) extends HybridProgram
+/** Assign an arbitrary value to variable v */
+case class AssignAny(v: Var) extends HybridProgram
+/** Check formula h */
+case class Check(h: Formula) extends HybridProgram
+/** Evolve along differential equations var'=term with evolution domain h */
+case class Evolve(h: Formula, primes: (Var,Term)*) extends HybridProgram {
+  applicable(primes:_*)
+  @elidable(ASSERTION) def applicable(primes: (Var,Term)*) {
+    require(primes.length > 0)
+  }
+}
+/** Compose hybrid programs ps by operator op */
+case class ComposedHP(op: HybridOperator, ps: HybridProgram*) extends HybridProgram {
+ op.applicable(ps:_*)
+}
+
+/** Base class for hybrid program operators */
+sealed abstract class HybridOperator {
+  @elidable(ASSERTION) def applicable(ps: HybridProgram*)
+}
+/** Base class for unary hybrid program operators */
+sealed abstract class UnaryHybridOperator extends HybridOperator {
+  def unapply(p: HybridProgram): Option[HybridProgram] = p match {
+    case ComposedHP(op, ps @ _*) => applicable(ps:_*); if (op == this) Some(ps.toList.head) else None
+	case _ => None
+  }
+  @elidable(ASSERTION) final def applicable(ps: HybridProgram*) {
+	require(ps.length == 1, "one hybrid program expected")
+  }
+}
+
+/** Base class for binary hybrid program operators */
+sealed abstract class BinaryHybridOperator(strict: Boolean = false) extends HybridOperator {
+  def unapply(p: HybridProgram): Option[(HybridProgram, HybridProgram)] = p match {
+    case ComposedHP(op, ps @ _*) =>
+      	applicable(ps:_*)
+	    if (op == this) {
+	      if (ps.length == 2) {
+	        Some((ps.head, ps.tail.head))
+	      } else {
+	        val rps = ps.reverse
+	        Some(rps.head, ComposedHP(this, rps.tail.reverse:_*))
+	      }
+	    } else {
+	      None
+	    }
+    case _ => None
+  }
+  @elidable(ASSERTION) final def applicable(ps: HybridProgram*) {
+	require(if (strict) ps.length == 2 else ps.length >= 2, 
+	    if (strict) "two hybrid programs expected" else "two or more hybrid programs expected")
+	if (strict) require(ps match {
+		case Seq(p1: ComposedHP, _) => p1.op != this
+	  	case Seq(_, p2: ComposedHP) => p2.op != this
+	    case _ => true
+	}, "same consecutive operators of strictly binary form not allowed")
+  }
+}
+/** Repeat hybrid programs arbitrariliy often (0..) */
+case object Star extends UnaryHybridOperator {
+  def apply(p: HybridProgram): HybridProgram 
+  	= ComposedHP(Star, p)
+}
+/** Execute hybrid programs in a sequence */
+case object Sequence extends BinaryHybridOperator {
+  def apply(p1: HybridProgram, p2: HybridProgram, ps: HybridProgram*): HybridProgram 
+  	= ComposedHP(Sequence, List.concat(List(p1, p2), ps):_*) 
+}
+/** Non-deterministically choose between hybrid programs */
+case object Choice extends BinaryHybridOperator {
+  def apply(p1: HybridProgram, p2: HybridProgram, ps: HybridProgram*): HybridProgram 
+  	= ComposedHP(Choice, List.concat(List(p1, p2), ps):_*)
+}
