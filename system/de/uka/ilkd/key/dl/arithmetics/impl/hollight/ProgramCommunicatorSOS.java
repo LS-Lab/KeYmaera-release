@@ -44,14 +44,18 @@ public class ProgramCommunicatorSOS {
 				tmpFile.createNewFile();
 				tmpFile.setExecutable(true);
 				FileWriter writer = new FileWriter(tmpFile);
+				String program = Options.INSTANCE.getOcamlPath()
+                        .getAbsolutePath();
+				if(Options.INSTANCE.isUseSnapshots()) {
+				    program = Options.INSTANCE.getHollightPath() + File.separator + "hol_sos";
+				}
 				writer
 						.write("#!/bin/bash\n"
 								+ "FIFO=/tmp/keymara-ocaml-$$.fifo\n"
 								+ "OUTPUT=/tmp/keymara-ocaml-output-$$.fifo\n"
 								+ "mkfifo $FIFO\n"
 								+ "mkfifo $OUTPUT\n"
-								+ Options.INSTANCE.getOcamlPath()
-										.getAbsolutePath()
+								+ program
 								+ " < $FIFO > $OUTPUT & pid=$!\n"
 								+ "cat $OUTPUT &\n"
 								+ "trap \"rm -f $FIFO $OUTPUT; kill -9 $pid\" 0\n"
@@ -71,12 +75,14 @@ public class ProgramCommunicatorSOS {
 						.getInputStream()));
 				stdin = new BufferedWriter(new OutputStreamWriter(process
 						.getOutputStream()));
-				readUntil(stdout, "#", null);
-				writeText(stdin, "#use \"hol.ml\";;");
-
-				readUntil(stdout, "#", null);
-				writeText(stdin, "#use \"Examples/sos.ml\";;");
-				readUntil(stdout, "#", null);
+				if(!Options.INSTANCE.isUseSnapshots()) {
+    				readUntil(stdout, "#", null);
+    				writeText(stdin, "#use \"hol.ml\";;");
+    
+    				readUntil(stdout, "#", null);
+    				writeText(stdin, "#use \"Examples/sos.ml\";;");
+    				readUntil(stdout, "#", null);
+				}
 			}
 			stopper.setP(process);
 

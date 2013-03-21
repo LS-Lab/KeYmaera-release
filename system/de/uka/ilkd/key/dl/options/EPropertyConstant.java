@@ -72,6 +72,7 @@ public enum EPropertyConstant {
        HOL_OPTIONS_OCAML_PATH("[HOLLightOptions]ocamlPath", "Ocaml Path", "The ocaml binary", "HOL Light Properties"),
        HOL_OPTIONS_HARRISON_QE_PATH("[HOLLightOptions]harrisonqePath", "Harrison QE Path", "The path to harrisons implementation of quantifier elimination", "HOL Light Properties"),  
        HOL_OPTIONS_QUANTIFIER_ELIMINATION_METHOD("[HOLLightOptions]qeMethod", "quantifier elimination", "The quantifier elimination method to use","HOL Light Properties"),   
+       HOL_OPTIONS_USE_SNAPSHOTS("[HOLLightOptions]useSnapshots", "use snapshots", "Use Snapshots of HOL produced for example by dmtcp, scripts with names hol_sos, hol_proofproducing, and hol_ch are assumed to exist.","HOL Light Properties"),   
       
        MATHEMATICA_OPTIONS_MATHEMATICA_PATH("[MathematicaOptions]mathematicaPath", "Mathematica Path","The path where Mathematica is installed.","Mathematica Properties"), 
        MATHEMATICA_OPTIONS_MATHKERNEL("[MathematicaOptions]mathKernel", "MathKernel path", "the path to the MathKernel binary","Mathematica Properties"),
@@ -96,6 +97,7 @@ public enum EPropertyConstant {
        OPTIONS_REDUCE_BINARY("[ReduceOptions]reduceBinary", "Reduce Binary", "<html>The path to the Redlog/Reduce binary installation needed<br>"
                               + "to setup the correct environment for the tool</html>","Redlog Properties"),
        OPTIONS_REDUCE_GROEBNER_BASIS("[ReduceOptions]groebnerBasis", "Use Groebner Basis", "<html>Compute Groebner Basis inside Reduce in order to simplify the problem before invoking other methods for quantifier elimination.</html>","Redlog Properties"),
+       OPTIONS_REDUCE_QEPCAD_FALLBACK("[ReduceOptions]qepcadFallback", "Use QEPCAD as fallback", "<html>Use QEPCAD B as fallback procedure when virtual substitution exceeds its degree bounds.</html>","Redlog Properties"),
        OPTIONS_REDUCE_QUANTIFIER_ELIMINATION_METHOD("[ReduceOptions]quantifierEliminationMethod", "quantifier elimination", "<html>The method to use for quantifier elimination<br>"
                                  + "(virtual substitution (rlqe), Cylindrical algebraic<br>"
                                  + "decomposition (rlcad)...)</html>","Redlog Properties"), 

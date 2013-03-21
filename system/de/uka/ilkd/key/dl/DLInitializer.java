@@ -217,46 +217,6 @@ public class DLInitializer {
 				}
 			});
 
-			try {
-				customizerPane = new JTabbedPane(JTabbedPane.BOTTOM);
-				customizerPane
-						.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
-				// customizerPane.add((Component) customizer);
-				createOptionTabs();
-
-				SwingUtilities.invokeAndWait(new Runnable() {
-
-					/* @Override */
-					public void run() {
-						Main.getInstance().addTab("Hybrid Strategy",
-								customizerPane,
-								DLOptionBeanBeanInfo.DESCRIPTION, 1);
-					}
-
-				});
-			} catch (IntrospectionException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (InvocationTargetException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (SecurityException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (NoSuchFieldException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IllegalArgumentException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IllegalAccessException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-
 			// taken from Mathematica ctor
 			boolean GUI = true;
 			for(String s: opt) {
@@ -265,6 +225,46 @@ public class DLInitializer {
 			    }
 			}
 			if(GUI) {
+				try {
+					customizerPane = new JTabbedPane(JTabbedPane.BOTTOM);
+					customizerPane
+							.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
+					// customizerPane.add((Component) customizer);
+					createOptionTabs();
+
+					SwingUtilities.invokeAndWait(new Runnable() {
+
+						/* @Override */
+						public void run() {
+							Main.getInstance().addTab("Hybrid Strategy",
+									customizerPane,
+									DLOptionBeanBeanInfo.DESCRIPTION, 1);
+						}
+
+					});
+				} catch (IntrospectionException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (InvocationTargetException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (SecurityException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (NoSuchFieldException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IllegalArgumentException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IllegalAccessException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
                 Main.getInstance().mediator()
                         .addAutoModeListener(new AutomodeListener());
                 Main.getInstance().mediator()

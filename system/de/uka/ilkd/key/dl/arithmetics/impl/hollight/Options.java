@@ -27,11 +27,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 
+import de.uka.ilkd.key.dl.options.EPropertyConstant;
 import de.uka.ilkd.key.gui.GUIEvent;
 import de.uka.ilkd.key.gui.configuration.Settings;
 import de.uka.ilkd.key.gui.configuration.SettingsListener;
 import de.uka.ilkd.key.proof.ProofSaver;
-import  de.uka.ilkd.key.dl.options.EPropertyConstant;
 /**
  * This class serves options specific for the HOL Light interface
  * 
@@ -54,6 +54,8 @@ public class Options implements Settings {
 	private File harrisonqePath;
 
 	private QuantifierEliminationMethod method;
+	
+	private boolean useSnapshots;
 
 	private List<SettingsListener> listeners;
 
@@ -71,6 +73,7 @@ public class Options implements Settings {
 	@Override
 	public void reset() {
 		method = QuantifierEliminationMethod.ProofProducing;
+		useSnapshots = false;
 		firePropertyChanged();
 	}
 
@@ -113,6 +116,10 @@ public class Options implements Settings {
 		if (property != null) {
 			method = QuantifierEliminationMethod.valueOf(property);
 		}
+		property = props.getProperty(EPropertyConstant.HOL_OPTIONS_USE_SNAPSHOTS.getKey());
+		if (property != null) {
+		    useSnapshots = Boolean.valueOf(property);
+		}
 	}
 
 	/*
@@ -131,6 +138,7 @@ public class Options implements Settings {
 					.getAbsolutePath());
 		}
 		props.setProperty(EPropertyConstant.HOL_OPTIONS_QUANTIFIER_ELIMINATION_METHOD.getKey(), method.name());
+		props.setProperty(EPropertyConstant.HOL_OPTIONS_USE_SNAPSHOTS.getKey(), "" + useSnapshots);
 	}
 
 	/**
@@ -206,5 +214,16 @@ public class Options implements Settings {
 			firePropertyChanged();
 		}
 	}
+
+    public boolean isUseSnapshots() {
+        return useSnapshots;
+    }
+
+    public void setUseSnapshots(boolean useSnapshots) {
+        if(this.useSnapshots != useSnapshots) {
+            this.useSnapshots = useSnapshots;
+            firePropertyChanged();
+        }
+    }
 
 }

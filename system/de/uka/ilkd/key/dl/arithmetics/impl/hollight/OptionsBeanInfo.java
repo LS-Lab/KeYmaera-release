@@ -76,6 +76,8 @@ public class OptionsBeanInfo extends SimpleBeanInfo{
 							DirectoryPropertyEditor.class),
 					createDescriptor("method", EPropertyConstant.HOL_OPTIONS_QUANTIFIER_ELIMINATION_METHOD,
 							 false,false,QuantifierEliminationMethodPropertyEditor.class),
+				    createDescriptor("useSnapshots", EPropertyConstant.HOL_OPTIONS_USE_SNAPSHOTS,
+							         true,false),
 			};
 			return pds;
 		} catch (IntrospectionException ex) {
