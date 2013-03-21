@@ -35,6 +35,7 @@ import de.uka.ilkd.key.logic.op.*;
 import de.uka.ilkd.key.logic.op.oclop.OclOp;
 import de.uka.ilkd.key.logic.sort.ObjectSort;
 import de.uka.ilkd.key.logic.sort.Sort;
+import de.uka.ilkd.key.proof.ProofSaver;
 import de.uka.ilkd.key.rule.*;
 import de.uka.ilkd.key.rule.inst.SVInstantiations;
 import de.uka.ilkd.key.util.Debug;
@@ -2130,7 +2131,8 @@ public class LogicPrinter {
 	    t = (Term) instantiations.getInstantiation((SchemaVariable)t.op());
 	}
 	    
-	if (notationInfo.getNotation(t.op(), services).getPriority() < ass){	    
+	
+	if (ProofSaver.isInSavingMode() || notationInfo.getNotation(t.op(), services).getPriority() < ass){	    
 	    markStartSub();
 	    layouter.print("(");   
 	    printTerm(t);	   
