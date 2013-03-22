@@ -3094,7 +3094,7 @@ accessterm returns [Term result = null]
        semanticError("There is no power operator for formulas");
      }
       	}
-      |
+      /*|
       (LPAREN any_sortId_check[false] RPAREN term110)=> 
         LPAREN s = any_sortId_check[true] RPAREN result=term110 {
          if(s==null) {
@@ -3106,7 +3106,7 @@ accessterm returns [Term result = null]
                     ". Casts between primitive and reference types are not allowed. ");
          }
          result = tf.createFunctionTerm(((AbstractSort)s).getCastSymbol(), result);
-	  } |
+	  }*/ |
       ( {isStaticQuery()}? // look for package1.package2.Class.query(
         result = static_query
       | 
