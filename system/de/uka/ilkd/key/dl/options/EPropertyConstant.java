@@ -243,7 +243,11 @@ public enum EPropertyConstant {
             "Instead handling of continuous flows then relies on differential invariants. " +
             "In either case differential invariants will be used if the solution is not polynomial.",
             "DL Properties"),
+       DLOPTIONS_IBC_ONLY_TO_FO(
+            "[DLOptions]ibcOnlyToFO", "apply IBC procedure only to FO", "",
+            "DL Properties"),
        ;
+
 
        private String groupName;
        private String key;
