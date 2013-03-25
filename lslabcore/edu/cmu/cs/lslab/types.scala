@@ -1,4 +1,4 @@
-package edu.cmu.cs.lslab
+package edu.cmu.cs.ls
 
 import scala.annotation.elidable
 import scala.annotation.elidable._
@@ -30,8 +30,8 @@ sealed abstract class Term {
 case class Num(n: Exact.Num) extends Term
 /** A variable of name s. */
 case class Var(s: String) extends Term {
-  def :=(that: Term): HybridProgram = Assign(this, that)
-  def :=* : HybridProgram = AssignAny(this)
+  def :=(that: Term): HP = Assign(this, that)
+  def :=* : HP = AssignAny(this)
 }
 /** Interpreted arithmetic function with operator op applied to arguments ps. */
 case class Arithmetic(op: ArithmeticOp, ps: Term*) extends Term {
@@ -116,8 +116,8 @@ sealed abstract class Formula {
   def <->(that: Formula): Formula = Prop(Iff, this, that)
   def unary_! : Formula = Prop(Not, this)
 }
-object Formula {
-  def check(that: Formula): HybridProgram = Check(that)
+object Formula extends Formula {
+  def ?(that: Formula): HP = Check(that)
 }
 case object True extends Formula
 case object False extends Formula
@@ -135,6 +135,8 @@ case class Prop(c : Connective, fs: Formula*) extends Formula {
 /** Quantifier of kind k over variable v of sort c applied to formula f. */
 case class Quantifier(k : QuantifierKind, v : String,
                       c: Sort, f: Formula) extends Formula
+/** Modality operation that satisfies formula f */
+case class Modality(m: ModalityOperator, hp: HP, f: Formula) extends Formula
 
 /** Interpreted arithmetic comparison operators. */
 sealed abstract class Comparison(strict: Boolean = false) {
@@ -244,3 +246,9 @@ case object Not extends UnaryConnective {
 sealed abstract class QuantifierKind
 case object Forall extends QuantifierKind
 case object Exists extends QuantifierKind
+
+/** Modality operators */
+sealed abstract class ModalityOperator
+case object BoxModality extends ModalityOperator
+case object DiamondModality extends ModalityOperator
+case object TemporalBoxModality extends ModalityOperator

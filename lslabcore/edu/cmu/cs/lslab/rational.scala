@@ -1,4 +1,4 @@
-package edu.cmu.cs.lslab
+package edu.cmu.cs.ls
 
 import scala.math.BigInt.int2bigInt
 import scala.annotation.elidable
