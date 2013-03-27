@@ -52,6 +52,6 @@ package edu.cmu.cs
  * [[edu.cmu.cs.lslab.Connective]], and [[edu.cmu.cs.lslab.QuantifierKind]],
  * respectively.  
  */
-package object lslab {
+package object ls {
 
 }
