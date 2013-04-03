@@ -130,6 +130,9 @@ class FormulaTree(term:Term) {
       if (form.op().isInstanceOf[QuantifiableVariable]){
         vars += processSymbol( opString(form) ) 
       }  
+      else{
+        println(opString(form) + " is not a QuantifianleVariable")
+      }
        Node( processSymbol( opString(form) ) )
      }
     
