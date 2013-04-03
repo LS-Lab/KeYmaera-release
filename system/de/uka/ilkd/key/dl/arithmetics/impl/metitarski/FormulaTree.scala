@@ -128,9 +128,9 @@ class FormulaTree(term:Term) {
     
     case 0 => { 
       if (form.op().isInstanceOf[QuantifiableVariable]){
-        vars += processSymbol( form.op().toString() ) 
+        vars += processSymbol( opString(form) ) 
       }  
-       Node( processSymbol( form.op().toString() ) )
+       Node( processSymbol( opString(form) ) )
      }
     
     case 1 if 
