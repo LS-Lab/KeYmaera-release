@@ -97,8 +97,13 @@ public class MetiTarski implements IQuantifierEliminator{
     }
 
     /* Reduce procedure */
-    public Term reduce(Term form, List<String> names, List<PairOfTermAndQuantifierType> quantifiers, NamespaceSet nss, long timeout) 
-        throws RemoteException, SolverException {
+    public Term reduce(
+    		Term                              form, 
+    		List<String>                      names, 
+    		List<PairOfTermAndQuantifierType> quantifiers, 
+    		NamespaceSet                      nss, 
+    		long                              timeout
+    		) throws RemoteException, SolverException {
 
         /* Create temporary file */
         File tmp; 
@@ -107,7 +112,8 @@ public class MetiTarski implements IQuantifierEliminator{
         int exitStatus=1; 
 
         /* Convert the problem to infix TPTP syntax */
-        String compiledProblem = new FormulaTree(form).formatMetitProblem();
+        FormulaTree tree = new FormulaTree(form);
+        String compiledProblem = tree.formatMetitProblem();
 
         try 
         {
@@ -132,11 +138,13 @@ public class MetiTarski implements IQuantifierEliminator{
             commandParameters.   add(  Options.INSTANCE.getMetitAxioms().getAbsolutePath()   );
             commandParameters.   add(  "-q"                                                  );
 
-            logger.info("Using axiom directory "+  Options.INSTANCE.getMetitAxioms().getAbsolutePath());
+            logger.info("Using axiom directory "+  
+                        Options.INSTANCE.getMetitAxioms().getAbsolutePath());
 
             commandParameters.addAll(getParameters(tmp));
 
-            logger.info("MetiTarski command arguments: "+ commandParameters.toString());
+            logger.info("MetiTarski command arguments: "+ 
+                        commandParameters.toString());
 
             /* Creating process builder with computed parameters */
             ProcessBuilder metitBuilder = new ProcessBuilder(commandParameters);
@@ -163,7 +171,7 @@ public class MetiTarski implements IQuantifierEliminator{
                 metit.destroy();
                
                 // Un-comment this if you don't want the temp files.
-                //logger.info("Deleting temporary file " + tmp.getAbsolutePath()   );             
+                //logger.info("Deleting temporary file " + tmp.getAbsolutePath());             
                 //tmp.delete();
             }
         } 
@@ -175,7 +183,7 @@ public class MetiTarski implements IQuantifierEliminator{
         finally
         {
             if(exitStatus==1) 
-            {   /* When no proof is found, return the original query as the result */
+            {   /* When no proof is found, return the original query */
                 logger.info("MetiTarski could not produce a proof!");
                 return form;
             }
@@ -189,12 +197,16 @@ public class MetiTarski implements IQuantifierEliminator{
     }
 
     /**
-     * This method compiles an array of command-line parameters for MetiTarski based on the options 
-     * selected by the user in KeYmaera under the MetiTarski options bean.
+     * This method compiles an array of command-line parameters for MetiTarski 
+     * based on the options selected by the user in KeYmaera under the 
+     * MetiTarski options bean.
      *
-     * @param  tmp         Newly-generated temporary file into which the TPTP problem has been written.
-     * @return parameters  An ArrayList of command line parameters for MetiTarski to solve the problem 
-     *                     in the temporary file supplied.
+     * @param  tmp         Newly-generated temporary file into which the TPTP 
+     *                     problem has been written.
+     *                     
+     * @return parameters  An ArrayList of command line parameters for 
+     *                     MetiTarski to solve the problem in the temporary 
+     *                     file supplied.
      */
 
     private ArrayList<String> getParameters(File tmp) {
