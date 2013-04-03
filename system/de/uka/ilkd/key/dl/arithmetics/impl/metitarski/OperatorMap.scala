@@ -3,15 +3,7 @@ package de.uka.ilkd.key.dl.arithmetics.impl.metitarski
 object OperatorMap {
 
   val (utf8, metit, qepcad, smt) = (0,1,2,3)
-  
-  val mapOps = ( logicalConstant	++ 
-		  		 logicalConnective	++ 
-		  		 quantifier			++
-		  		 relationalSymbol	++ 
-		  		 arithmeticOperator	++
-		  		 specialFunction	
-		  		 )
-    
+
       /* Term	->       UTF-8      , MetiTarski,    QEPCAD,    SMTLIB */
     
   val logicalConstant: Map[String, List[String]] = Map(      
@@ -76,6 +68,15 @@ object OperatorMap {
       "CubeRoot"-> 	List( "∛"		, "cbrt"	, 	"cbrt"	),
       "Abs" 	-> 	List( "Abs"		, "abs"	    , 	"abs"	)
   )
+   
+  val mapOps = ( logicalConstant	++ 
+		  		 logicalConnective	++ 
+		  		 quantifier			++
+		  		 relationalSymbol	++ 
+		  		 arithmeticOperator	++
+		  		 specialFunction	
+		  		 )
+    
 
   def isLogicalConst(x: String) = 
     OperatorMap.logicalConstant.get(x) match {
@@ -112,5 +113,4 @@ object OperatorMap {
     case None => false
     case Some(s) => true
   }    
-  
 }

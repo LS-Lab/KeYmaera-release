@@ -84,7 +84,8 @@ case class BinaryOp(
  *  provides methods for restructuring the AST in order to make it 
  *  conform to certain MetiTarski conventions.</p> 
  *  <p>N.B. The <i>only</i> 
- */    
+ */  
+    
 class FormulaTree(term:Term) {
   
   /* Keeping track of variables and their binding in the formula */
