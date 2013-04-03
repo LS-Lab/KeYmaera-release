@@ -17,18 +17,25 @@
  *  
  ************************************************************************/
 package de.uka.ilkd.key.dl.arithmetics.impl.metitarski
+
 import de.uka.ilkd.key.logic.Term
 import de.uka.ilkd.key.logic.op.Op
 import de.uka.ilkd.key.logic.op.QuantifiableVariable
 import de.uka.ilkd.key.logic.op.Quantifier
+import de.uka.ilkd.key.logic.op.LogicVariable
+import de.uka.ilkd.key.logic.op.Metavariable
+import de.uka.ilkd.key.logic.op.ProgramVariable
+import de.uka.ilkd.key.logic.op.Function
 
 /**
- * Immutable tree implementation using case classes.
- * 
+ * Immutable AST tree implementation using case classes.
+ * An ImmutableTree is built from a KeY Term, which can then
+ * be re-structured and converted into a String representation
+ * of some back-end solver syntax (e.g. MetiTarski).
  */
 sealed abstract trait ImmutableTree{ 
  
- /* MetiTarski TPTP translation */
+ /* MetiTarski TPTP translation methods */
     
   def opMap(x:String) = OperatorMap.mapOps.get(x) match {
     case None => x
@@ -79,13 +86,15 @@ case class BinaryOp(
     )   extends ImmutableTree
   
 /**
- *  <p> A FormulaTree object is constructed from a KeY Term; 
+ *  <p>
+ *  A FormulaTree object is constructed from a KeY Term; 
  *  this builds an ImmutableTree representing the original Term and 
  *  provides methods for restructuring the AST in order to make it 
- *  conform to certain MetiTarski conventions.</p> 
- *  <p>N.B. The <i>only</i> 
+ *  conform to MetiTarski conventions.
+ *  </p> 
+ *  <p>N.B. The <i>only</i> publicly visible method in this class is  
+ *  {@link #formatMetitProblem()}.</p>
  */  
-    
 class FormulaTree(term:Term) {
   
   /* Keeping track of variables and their binding in the formula */
@@ -111,27 +120,45 @@ class FormulaTree(term:Term) {
    
     val numberOfVars = vars.size
     
-    "% Auto-generated MetiTarski problem\n"
-    "% Number of variables: " + numberOfVars + "\n"+ 
+    "% Auto-generated MetiTarski problem.\n" +
+    "% Number of variables: "   + numberOfVars + "\n"+ 
     "fof(KeYmaera,conjecture, " + metitProblem + ").\n"
   }
   
   /**
-   * Creates an ImmutableTree representation of the original KeY
-   * Term. 
+   * Creates an ImmutableTree representation of the original KeY Term.
+   * <i>N.B. Variable lists are populated when this method is called.</i> 
+   * @param    form    :Term
+   * @return   tree    :ImmutableTree
    */
   private def termToTree(form:Term):ImmutableTree = {
     
+    /* Obtain a String representation of the Term's Operator. */
     def opString(term:Term): String = term.op().name().toString()
+    
+    /* Determine whether the Term is a variable */
+    // TODO: This is ugly. Could implement with just a regexp & arity check.
+    def isVariable(term:Term): Boolean = {    
+      if( form.op().isInstanceOf[ LogicVariable   ] ||
+          form.op().isInstanceOf[ ProgramVariable ] ||
+          form.op().isInstanceOf[ Metavariable    ] ||
+          /* Constants must be treated as real-valued variables */
+          ( form.op().isInstanceOf[ Function ] && 
+              form.arity()==0 &&
+              !opString(form).matches("-?\\d.*"))
+      ) true
+      else 
+        false
+    }
     
     form.arity() match {
     
     case 0 => { 
-      if (form.op().isInstanceOf[QuantifiableVariable]){
+      if (isVariable(form)){
         vars += processSymbol( opString(form) ) 
       }  
       else{
-        println(opString(form) + " is not a QuantifianleVariable")
+        println(opString(form) + " is not a QuantifiableVariable")
       }
        Node( processSymbol( opString(form) ) )
      }
@@ -164,7 +191,7 @@ class FormulaTree(term:Term) {
  /** Check for variables bound by the quantifier */
  private def checkBoundVars(form:Term, i:Int):Set[String] = {
       var boundVars:Set[String] = Set()
-      for( j <- 0 to form.varsBoundHere(i).size()) {
+      for( j <- 0 until form.varsBoundHere(i).size()) {
          boundVars +=
          ( processSymbol( (form.varsBoundHere(i).get(j).name().toString()) ) )
       }

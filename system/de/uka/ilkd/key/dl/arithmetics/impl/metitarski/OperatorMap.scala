@@ -14,10 +14,10 @@ object OperatorMap {
       
   val logicalConnective: Map[String, List[String]] = Map(         
       /* Boolean operators */
-      "not" 	-> 	List( " ¬ "		, "~"		,	"~"		),
-      "and"		->	List( " ∧ "		, "&"		,	"/\\"	),
-      "or" 		-> 	List( " ∨ "		, "|"		,	"\\/"	),
-      "imp"		->	List( " → "		, "=>"		,	"==>"	),
+      "not" 	-> 	List( " ¬ "		, " ~"		,	"~"		),
+      "and"		->	List( " ∧ "		, " & "		,	"/\\"	),
+      "or" 		-> 	List( " ∨ "		, " | "		,	"\\/"	),
+      "imp"		->	List( " → "		, " => "	,	"==>"	),
       "equiv"	->	List( " ↔ "		, "equiv"	,	"<==>"	)
       )
       
@@ -77,7 +77,6 @@ object OperatorMap {
 		  		 specialFunction	
 		  		 )
     
-
   def isLogicalConst(x: String) = 
     OperatorMap.logicalConstant.get(x) match {
     case None => false
