@@ -24,7 +24,7 @@ import java.util.HashSet;
 import org.apache.log4j.Logger;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.op.Op;
-import de.uka.ilkd.key.dl.arithmetics.impl.preprocessor.FormulaTree;
+import de.uka.ilkd.key.dl.arithmetics.impl.preprocessor.*;
 
 /**
  * This class provides functionality to transform a KeYmaera Term into a mutable binary tree

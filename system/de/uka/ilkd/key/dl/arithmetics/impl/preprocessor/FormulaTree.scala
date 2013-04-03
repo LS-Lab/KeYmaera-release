@@ -16,7 +16,6 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  *  
  ************************************************************************/
-
 package de.uka.ilkd.key.dl.arithmetics.impl.preprocessor
 
 import java.math.BigInteger

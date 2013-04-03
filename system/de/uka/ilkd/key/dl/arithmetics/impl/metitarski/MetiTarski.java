@@ -143,9 +143,7 @@ public class MetiTarski implements IQuantifierEliminator{
             ProcessBuilder metitBuilder = new ProcessBuilder(commandParameters);
 
             logger.info(   "Sending the following problem to MetiTarski:\n"
-                           + compiledProblem +" \nCorresponding to Mma term : " 
-                           + Term2ExprConverter.convert2Expr(form).toString() 
-                           );
+                           + compiledProblem );
 
             /* Starting process */
             Process metit = metitBuilder.start();
