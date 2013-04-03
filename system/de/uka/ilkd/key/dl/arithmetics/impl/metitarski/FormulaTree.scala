@@ -120,11 +120,14 @@ class FormulaTree(term:Term) {
    * Creates an ImmutableTree representation of the original KeY
    * Term. 
    */
-  private def termToTree(form:Term):ImmutableTree = 
-    form.arity() match{
+  private def termToTree(form:Term):ImmutableTree = {
+    
+    def opString(term:Term): String = term.op().name().toString()
+    
+    form.arity() match {
     
     case 0 => { 
-      if (form.isInstanceOf[QuantifiableVariable]){
+      if (form.op().isInstanceOf[QuantifiableVariable]){
         vars += processSymbol( form.op().toString() ) 
       }  
        Node( processSymbol( form.op().toString() ) )
@@ -134,26 +137,27 @@ class FormulaTree(term:Term) {
     (form.op().isInstanceOf[Quantifier]) => {
       for (v <- checkBoundVars(form,0) ){ quantifiedVars += v }
       Quant(
-        form.op().toString(),
+        opString(form),
         checkBoundVars(form,0),
         termToTree(form.sub(0))
         ) 
     }
     
     case 1 => UnaryOp(
-        form.op().toString(), 
+        opString(form), 
         termToTree(form.sub(0))
         )
     
     case 2 => BinaryOp(
-        form.op().toString(), 
+        opString(form), 
         termToTree(form.sub(0)), 
         termToTree(form.sub(1))
         ) 
     
     case _ => Node("ERROR! Unsupported Operator.")
-  }
+    }
   
+  }
  /** Check for variables bound by the quantifier */
  private def checkBoundVars(form:Term, i:Int):Set[String] = {
       var boundVars:Set[String] = Set()
