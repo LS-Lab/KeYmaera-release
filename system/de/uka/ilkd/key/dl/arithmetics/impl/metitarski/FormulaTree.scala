@@ -16,17 +16,8 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  *  
  ************************************************************************/
-package de.uka.ilkd.key.dl.arithmetics.impl.preprocessor
-
-import java.math.BigInteger
-import de.uka.ilkd.key.dl.arithmetics.impl.qepcad.QepCadInput
-import de.uka.ilkd.key.dl.arithmetics.impl.orbital.PolynomTool
-import de.uka.ilkd.key.logic.NamespaceSet
+package de.uka.ilkd.key.dl.arithmetics.impl.metitarski
 import de.uka.ilkd.key.logic.Term
-import de.uka.ilkd.key.logic.op.Function
-import de.uka.ilkd.key.logic.op.Junctor
-import de.uka.ilkd.key.logic.op.LogicVariable
-import de.uka.ilkd.key.logic.op.Metavariable
 import de.uka.ilkd.key.logic.op.Op
 import de.uka.ilkd.key.logic.op.QuantifiableVariable
 import de.uka.ilkd.key.logic.op.Quantifier
@@ -62,8 +53,6 @@ sealed abstract trait ImmutableTree{
     }
     
   }
-  
-
 }
 
 /* Case classes for building the formula AST */

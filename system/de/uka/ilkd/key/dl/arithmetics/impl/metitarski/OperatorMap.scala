@@ -1,4 +1,4 @@
-package de.uka.ilkd.key.dl.arithmetics.impl.preprocessor
+package de.uka.ilkd.key.dl.arithmetics.impl.metitarski
 
 object OperatorMap {
 

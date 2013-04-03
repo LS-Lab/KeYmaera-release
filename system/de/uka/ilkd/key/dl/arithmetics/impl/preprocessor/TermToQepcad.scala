@@ -11,8 +11,9 @@ import de.uka.ilkd.key.logic.op.LogicVariable
 import de.uka.ilkd.key.logic.op.Metavariable
 import de.uka.ilkd.key.logic.op.Op
 import de.uka.ilkd.key.logic.op.QuantifiableVariable
-import de.uka.ilkd.key.logic.op.Quantifier;
+import de.uka.ilkd.key.logic.op.Quantifier
 import java.util.ArrayList
+import de.uka.ilkd.key.dl.arithmetics.impl.metitarski.OperatorMap
 
 object TermToQepcad{
   

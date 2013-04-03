@@ -41,7 +41,6 @@ import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.TermBuilder;
 
 import de.uka.ilkd.key.dl.arithmetics.impl.mathematica.Term2ExprConverter;
-import de.uka.ilkd.key.dl.arithmetics.impl.preprocessor.*;
 
 public class MetiTarski implements IQuantifierEliminator{
 
