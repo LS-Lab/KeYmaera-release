@@ -42,6 +42,7 @@ import de.uka.ilkd.key.logic.TermBuilder;
 
 import de.uka.ilkd.key.dl.arithmetics.impl.mathematica.Term2ExprConverter;
 import de.uka.ilkd.key.dl.arithmetics.impl.metitarski.termToMetitConverter;
+import de.uka.ilkd.key.dl.arithmetics.impl.preprocessor.FormulaTree;
 
 public class MetiTarski implements IQuantifierEliminator{
 
@@ -108,7 +109,7 @@ public class MetiTarski implements IQuantifierEliminator{
         int exitStatus=1; 
 
         /* Convert the problem to tptp syntax */
-        String compiledProblem = termToMetitConverter.termToMetit(form, false);
+        String compiledProblem = new FormulaTree(form).formatMetitProblem();
 
         try 
         {

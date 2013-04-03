@@ -62,6 +62,8 @@ sealed abstract trait ImmutableTree{
     }
     
   }
+  
+
 }
 
 /* Case classes for building the formula AST */
@@ -105,19 +107,24 @@ class FormulaTree(term:Term) {
   
   private val tree = termToTree(term)
   
-  val metitSyntax = {
+  def formatMetitProblem(): String = {
     
-    universalClosure(
+    val metitProblem = {
+     universalClosure(
         collapseQuantifiers(
             expandEquivalence(
                 convertCubeRoot(
                     convertSqrt(
                         convertMathematicaExp(tree)
                         ) ) ) ) ).toMetitFormula
+     }
+   
+    val numberOfVars = vars.size
+    
+    "% Auto-generated MetiTarski problem\n"
+    "% Number of variables: " + numberOfVars + "\n"+ 
+    "fof(KeYmaera,conjecture, " + metitProblem + ").\n"
   }
-  
-  /* Publicly visible number of variables; makes sure ...*/
-  def numberOfVars = vars.size
   
   /**
    * Creates an ImmutableTree representation of the original KeY
