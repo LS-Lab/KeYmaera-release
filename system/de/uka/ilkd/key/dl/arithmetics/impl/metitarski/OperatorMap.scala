@@ -1,6 +1,6 @@
 /************************************************************************
- *  KeYmaera-MeitTarski interface 
- *  Copyright (C) 2013  s0805753@sms.ed.ac.uk, University of Edinburgh
+ *  KeYmaera-MeitTarski interface.
+ *  Copyright (C) 2013  s0805753@sms.ed.ac.uk, University of Edinburgh.
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -22,6 +22,9 @@ package de.uka.ilkd.key.dl.arithmetics.impl.metitarski
 /**
  * Singleton class holding the mappings of Operator names
  * to their corresponding solver syntax.
+ *
+ * @author  s0805753@sms.ed.ac.uk
+ * @since   03/04/2013
  */
 
 object OperatorMap {
@@ -94,10 +97,10 @@ object OperatorMap {
   )
    
   val mapOps = ( logicalConstant  ++ 
-           logicalConnective  ++ 
-           quantifier     ++
-           relationalSymbol ++ 
-           arithmeticOperator ++
+           logicalConnective      ++ 
+           quantifier             ++
+           relationalSymbol       ++ 
+           arithmeticOperator     ++
            specialFunction  
            )
     

@@ -1,5 +1,5 @@
 /************************************************************************
- *  KeYmaera-MetiTarski interface. 
+ *  KeYmaera-MetiTarski interface.
  *  Copyright (C) 2013  s0805753@sms.ed.ac.uk, University of Edinburgh.
  *
  *  This program is free software: you can redistribute it and/or modify
@@ -33,6 +33,9 @@ import de.uka.ilkd.key.logic.op.Function
  * An ImmutableTree is built from a KeY Term, which can then
  * be re-structured and converted into a String representation
  * of some back-end solver syntax (e.g. MetiTarski).
+ *
+ * @author  s0805753@sms.ed.ac.uk
+ * @since   03/04/2013
  */
 sealed abstract trait ImmutableTree{ 
  
