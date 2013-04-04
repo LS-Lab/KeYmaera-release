@@ -1,6 +1,6 @@
 /************************************************************************
- *  Formula processing for the KeYmaera-MetiTarski interface. 
- *  Copyright (C) 2013  s0805753@sms.ed.ac.uk
+ *  KeYmaera-MetiTarski interface. 
+ *  Copyright (C) 2013  s0805753@sms.ed.ac.uk, University of Edinburgh.
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -16,6 +16,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  *  
  ************************************************************************/
+
 package de.uka.ilkd.key.dl.arithmetics.impl.metitarski
 
 import de.uka.ilkd.key.logic.Term
@@ -236,7 +237,12 @@ class FormulaTree(term:Term) {
     * @return restructured  : ImmutableTree
     */ 
    def universalClosure(original: ImmutableTree): ImmutableTree = {
+    
+    if(freeVars.isEmpty) 
+      original
+    else 
       Quant(ALL, freeVars, original)
+      
   }  
   
    /**
@@ -263,19 +269,19 @@ class FormulaTree(term:Term) {
     case BinaryOp(EQUIV, a, b) =>
       BinaryOp(
           AND, 
-          BinaryOp(IMP, a, b ), 
-          BinaryOp(IMP, b, a )
+          BinaryOp(IMP, expandEquivalence(a), expandEquivalence(b) ), 
+          BinaryOp(IMP, expandEquivalence(b), expandEquivalence(a) )
           )  
-      
-      case Quant(quant, vars, subTree) => 
-        Quant(quant, vars, expandEquivalence(subTree))
-                 
+                       
       case BinaryOp(op,left,right) => 
         BinaryOp( op, expandEquivalence(left), expandEquivalence(right) )
         
+      case Quant(quant, vars, subTree) => 
+        Quant(quant, vars, expandEquivalence(subTree))
+
       case UnaryOp(op,subTree) => UnaryOp( op, expandEquivalence(subTree) )
       
-      case x => x
+      case Node(x) => Node(x)
       
   }
    
@@ -302,18 +308,18 @@ class FormulaTree(term:Term) {
   def convertMathematicaExp(original:ImmutableTree): ImmutableTree =
     original match{
     
-    case BinaryOp(POW, Node(E), expr) => 
-      UnaryOp(EXP, convertMathematicaExp(expr))
+      case BinaryOp(POW, Node(E), expr) => 
+        UnaryOp(EXP, convertMathematicaExp(expr))
       
+      case BinaryOp(op,left,right) => 
+        BinaryOp(op, convertMathematicaExp(left), convertMathematicaExp(right))      
+     
       case Quant(quant, vars, subTree) => 
         Quant(quant, vars, convertMathematicaExp(subTree))
-                 
-      case BinaryOp(op,left,right) => 
-        BinaryOp( op, convertMathematicaExp(left), convertMathematicaExp(right) )
-        
+
       case UnaryOp(op,subTree) => UnaryOp( op, convertMathematicaExp(subTree) )
       
-      case x => x
+      case Node(x) => Node(x)    
       
   }
   
@@ -349,15 +355,18 @@ class FormulaTree(term:Term) {
     
       case Quant(quant1, vars1, Quant(quant2, vars2, subTree) ) 
            if (quant1 == quant2) => { 
-         Quant( quant1, vars1.union(vars2), collapseQuantifiers(subTree) ) 
+         collapseQuantifiers(Quant( quant1, vars1.union(vars2), subTree) ) 
          }
+
+      case Quant(quant, vars, subTree) => 
+        Quant(quant,vars, collapseQuantifiers(subTree))
            
       case BinaryOp(op,left,right) => 
         BinaryOp( op, collapseQuantifiers(left), collapseQuantifiers(right) )
         
       case UnaryOp(op,subTree) => UnaryOp( op, collapseQuantifiers(subTree) )
       
-      case x => x
+      case Node(x) => Node(x)
       
     }
   
@@ -384,16 +393,16 @@ class FormulaTree(term:Term) {
   def convertSqrt(original:ImmutableTree): ImmutableTree = {
     original match {
       case BinaryOp(POW,a,HALF) => UnaryOp(SQRT, convertSqrt(a))
+                           
+      case BinaryOp(op,left,right) => 
+        BinaryOp( op, convertSqrt(left), convertSqrt(right) )
       
       case Quant(quant, vars, subTree) => 
         Quant(quant, vars, convertSqrt(subTree))
-                 
-      case BinaryOp(op,left,right) => 
-        BinaryOp( op, convertSqrt(left), convertSqrt(right) )
-        
+       
       case UnaryOp(op,subTree) => UnaryOp( op, convertSqrt(subTree) )
       
-      case x => x
+      case Node(x) => Node(x)
     }
   }
 
@@ -421,15 +430,15 @@ class FormulaTree(term:Term) {
     original match {
     
       case BinaryOp(POW,a,THIRD) => UnaryOp(CBRT, convertCubeRoot(a))
-      
-      case Quant(quant, vars, subTree) => 
-        Quant(quant, vars, convertCubeRoot(subTree))
                  
       case BinaryOp(op,left,right) => 
         BinaryOp( op, convertCubeRoot(left), convertCubeRoot(right) )
         
+      case Quant(quant, vars, subTree) => 
+        Quant(quant, vars, convertCubeRoot(subTree))
+     
       case UnaryOp(op,subTree) => UnaryOp( op, convertCubeRoot(subTree) )
       
-      case x => x
+      case Node(x) => Node(x)
     }
 }
