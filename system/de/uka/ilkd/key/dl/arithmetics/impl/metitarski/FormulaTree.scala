@@ -41,11 +41,18 @@ sealed abstract trait ImmutableTree{
  
  /* MetiTarski TPTP translation methods */
     
+  /**
+   * Shortcut for translating the KeY operator into the solver's
+   * syntax. The mappings are stored in @see OperatorMap
+   */
   def opMap(x:String) = OperatorMap.mapOps.get(x) match {
     case None => x
     case Some(s:List[String]) => s(OperatorMap.metit)
   }
    
+  /**
+   * Convert the AST into infix TPTP for MetiTarski.
+   */
   def toMetitFormula(): String = this match{
     
     case Node(op) => op
@@ -56,7 +63,7 @@ sealed abstract trait ImmutableTree{
     }
     
     case UnaryOp(op, subTree) => {
-      opMap(op) + "(" + subTree.toMetitFormula() + ")"
+      opMap(op) + subTree.toMetitFormula() 
     }
     
     case BinaryOp(op, left, right) => {
@@ -70,7 +77,7 @@ sealed abstract trait ImmutableTree{
 
 case class Node(
     name    :String
-    )   extends ImmutableTree
+    ) extends ImmutableTree
 
 case class Quant(
     name    :String, 
@@ -81,23 +88,22 @@ case class Quant(
 case class UnaryOp(
     name    :String, 
     subTree :ImmutableTree
-    )   extends ImmutableTree
+    ) extends ImmutableTree
 
 case class BinaryOp(
     name    :String, 
     left    :ImmutableTree, 
     right   :ImmutableTree
-    )   extends ImmutableTree
+    ) extends ImmutableTree
   
 /**
- *  <p>
- *  A FormulaTree object is constructed from a KeY Term; 
+ *  <p>A FormulaTree object is constructed from a KeY Term; 
  *  this builds an ImmutableTree representing the original Term and 
  *  provides methods for restructuring the AST in order to make it 
  *  conform to MetiTarski conventions.
  *  </p> 
  *  <p>N.B. The <i>only</i> publicly visible method in this class is  
- *  {@link #formatMetitProblem()}.</p>
+ *  @see #formatMetitProblem().</p>
  */  
 class FormulaTree(term:Term) {
   
@@ -207,7 +213,7 @@ class FormulaTree(term:Term) {
                   .replaceAll ( "_"    ,  "USCORE"    )
    }
 
- /* Tree re-structuring methods ---------------------------------------------*/
+ /* Tree re-structuring methods */
 
  /* Constants for pattern matching convenience */
 
