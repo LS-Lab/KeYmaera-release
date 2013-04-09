@@ -162,7 +162,9 @@ class FormulaTree(term:Term) {
           /* Constants must be treated as real-valued variables */
           ( form.op().isInstanceOf[ Function ] && 
               form.arity()==0 &&
-              !opString(form).matches("-?\\d.*"))
+              !opString(form).matches("-?\\d.*") &&
+              /* Mathematica exponentials are not variables */
+              !opString(form).equals("E"))
       ) true
       else 
         false
