@@ -62,8 +62,15 @@ sealed abstract trait ImmutableTree{
       subTree.toMetitFormula()
     }
     
-    case UnaryOp(op, subTree) => {
+    /* Clearer MetiTarski syntax */  
+    case UnaryOp(op, subTree) if (
+         OperatorMap.isArithmeticOperator( op ) ||
+         OperatorMap.isLogicalConnective(  op ) )=> {
       opMap(op) + subTree.toMetitFormula() 
+    }
+    
+    case UnaryOp(op, subTree) => {
+      opMap(op) +"("+ subTree.toMetitFormula() +")"
     }
     
     case BinaryOp(op, left, right) => {
@@ -155,7 +162,9 @@ class FormulaTree(term:Term) {
           /* Constants must be treated as real-valued variables */
           ( form.op().isInstanceOf[ Function ] && 
               form.arity()==0 &&
-              !opString(form).matches("-?\\d.*"))
+              !opString(form).matches("-?\\d.*") &&
+              /* Mathematica exponentials are not variables */
+              !opString(form).equals("E"))
       ) true
       else 
         false
@@ -213,7 +222,9 @@ class FormulaTree(term:Term) {
                   .replaceAll ( "_"    ,  "USCORE"    )
    }
 
- /* Tree re-structuring methods */
+/***************************************************************************/
+/*                        Tree re-structuring methods                      */
+/***************************************************************************/
 
  /* Constants for pattern matching convenience */
 

@@ -1,5 +1,5 @@
 /************************************************************************
- *  KeYmaera-MeitTarski interface.
+ *  KeYmaera-MetiTarski interface.
  *  Copyright (C) 2013  s0805753@sms.ed.ac.uk, University of Edinburgh.
  *
  *  This program is free software: you can redistribute it and/or modify
