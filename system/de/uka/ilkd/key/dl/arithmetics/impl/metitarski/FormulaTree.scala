@@ -55,7 +55,7 @@ sealed abstract trait ImmutableTree{
    */
   def toMetitFormula(): String = this match{
     
-    case Node(op) => op
+    case Node(op) => opMap(op)
     
     case Quant(quant, boundVars, subTree) => {
       opMap(quant) + "[" + boundVars.mkString(",") + "] : " + 
@@ -73,6 +73,12 @@ sealed abstract trait ImmutableTree{
       opMap(op) +"("+ subTree.toMetitFormula() +")"
     }
     
+    /* Min/Max functions */
+    case BinaryOp(op, left, right) if (
+        OperatorMap.isMinMax( op ))=> {
+        opMap(op) + "(" + left.toMetitFormula +","+ right.toMetitFormula + ")"
+    }
+        
     case BinaryOp(op, left, right) => {
       "(" + left.toMetitFormula + opMap(op) + right.toMetitFormula + ")"
     }
@@ -131,8 +137,9 @@ class FormulaTree(term:Term) {
             expandEquivalence(
                 convertCubeRoot(
                     convertSqrt(
-                        convertMathematicaExp(tree)
-                        ) ) ) ) ).toMetitFormula
+                        convertInverseHyperbolics(
+                            convertMathematicaExp(tree)
+                            ) ) ) ) ) ).toMetitFormula
      }
    
     val numberOfVars = vars.size
@@ -163,8 +170,10 @@ class FormulaTree(term:Term) {
           ( form.op().isInstanceOf[ Function ] && 
               form.arity()==0 &&
               !opString(form).matches("-?\\d.*") &&
-              /* Mathematica exponentials are not variables */
-              !opString(form).equals("E"))
+              /* Mathematica constants are not variables */
+              !opString(form).equals("E") &&
+              !opString(form).equals("Pi")   
+          )
       ) true
       else 
         false
@@ -215,11 +224,15 @@ class FormulaTree(term:Term) {
    }
 
  /** Replace illegal characters */
- private def processSymbol(symb:String):String = {
-      /* MetiTarski requirements : variables must be upper-case. */
-      symb .toUpperCase()   
+ private def processSymbol(symb:String):String = symb match { 
+   
+   /* Leave Pi unchanged */
+   case "Pi" => "Pi"
+     
+   /* MetiTarski requirements : variables must be upper-case. */
+   case name =>  {name.toUpperCase()   
                   .replaceAll ( "\\$"  ,  "DOLLAR"    )
-                  .replaceAll ( "_"    ,  "USCORE"    )
+                  .replaceAll ( "_"    ,  "USCORE"    )}
    }
 
 /***************************************************************************/
@@ -241,6 +254,14 @@ class FormulaTree(term:Term) {
   private val EXP   = "Exp"
   private val SQRT  = "Sqrt"
   private val CBRT  = "CubeRoot"
+   
+  private val ACOSH  = "ArcCosh"
+  private val ASINH  = "ArcSinh"
+  private val ATANH  = "ArcTanh"
+    
+  private val COSH  = "Cosh"
+  private val SINH  = "Sinh"
+  private val TANH  = "Tanh"
     
   private val HALF  = BinaryOp(DIV,Node("1"),Node("2"))
   private val THIRD = BinaryOp(DIV,Node("1"),Node("3"))
@@ -458,6 +479,61 @@ class FormulaTree(term:Term) {
         Quant(quant, vars, convertCubeRoot(subTree))
      
       case UnaryOp(op,subTree) => UnaryOp( op, convertCubeRoot(subTree) )
+      
+      case Node(x) => Node(x)
+    }
+
+   /**
+    * Method for converting inverse <i>Mathematica™</i> hyperbolic functions. 
+    * of the form, e.g. :
+    * <pre>
+    *       ArcCosh
+    *         |
+    *         a
+    * </pre>
+    * <p>
+    * to :  
+    * <pre>
+    *         ÷
+    *        / \
+    *       1  Cosh
+    *            |
+    *            a
+    * </pre>
+    * @param  tree          : ImmutableTree
+    * @return restructured  : ImmutableTree
+    */
+  def convertInverseHyperbolics(original: ImmutableTree): ImmutableTree = 
+    original match {
+                 
+      case BinaryOp(op,left,right) => BinaryOp( 
+            op, 
+            convertInverseHyperbolics(left), 
+            convertInverseHyperbolics(right) 
+            )
+        
+      case Quant(quant, vars, subTree) => 
+        Quant(quant, vars, convertInverseHyperbolics(subTree))
+        
+      case UnaryOp(ASINH ,subTree) => BinaryOp(
+                      DIV, 
+          Node("1"),        UnaryOp( SINH, convertInverseHyperbolics(subTree) )
+          )
+          
+      case UnaryOp(ACOSH ,subTree) => BinaryOp(
+                      DIV, 
+          Node("1"),        UnaryOp( COSH, convertInverseHyperbolics(subTree) )
+          )
+          
+      case UnaryOp(ATANH ,subTree) => BinaryOp(
+                      DIV, 
+          Node("1"),        UnaryOp( TANH, convertInverseHyperbolics(subTree) )
+          )
+     
+      case UnaryOp(op,subTree) => UnaryOp(
+                        op, 
+          convertInverseHyperbolics(subTree) 
+          )
       
       case Node(x) => Node(x)
     }

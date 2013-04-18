@@ -83,9 +83,9 @@ object OperatorMap {
       "Cos"   ->  List( "Cos"   , "cos"   ,  "cos"      ),
       "Tan"   ->  List( "Tan"   , "tan"   ,  "tan"      ),
       
-      "ArcSin"->  List( "ArcSin"  , "asin"  ,   "asin"  ),
-      "ArcCos"->  List( "ArcCos"  , "acos"  ,   "acos"  ),
-      "ArcTan"->  List( "ArcTan"  , "atan"  ,   "atan"  ),
+      "ArcSin"->  List( "ArcSin"  , "arcsin"  ,   "arcsin"  ),
+      "ArcCos"->  List( "ArcCos"  , "arccos"  ,   "arccos"  ),
+      "ArcTan"->  List( "ArcTan"  , "arctan"  ,   "arctan"  ),
       
       "Sinh"  ->  List( "Sinh"  , "sinh"  ,   "sinh"  ),
       "Cosh"  ->  List( "Cosh"  , "cosh"  ,   "cosh"  ),
@@ -93,10 +93,16 @@ object OperatorMap {
       
       "Sqrt"    ->  List( "√"   , "sqrt"  ,   "sqrt"  ),
       "CubeRoot"->  List( "∛"   , "cbrt"  ,   "cbrt"  ),
-      "Abs"     ->  List( "Abs" , "abs"   ,   "abs"   )
+      
+      "Abs"     ->  List( "Abs" , "abs"   ,   "abs"   ),
+      "Min"     ->  List( "Min" , "min"   ,   "min"   ),
+      "Max"     ->  List( "Max" , "max"   ,   "max"   ),
+      
+      "Pi"     	->  List( "π" 	, "pi"    ,   "pi"    )
   )
    
-  val mapOps = ( logicalConstant  ++ 
+  val mapOps = ( 
+           logicalConstant        ++ 
            logicalConnective      ++ 
            quantifier             ++
            relationalSymbol       ++ 
@@ -139,4 +145,10 @@ object OperatorMap {
     case None     => false
     case Some(s)  => true
   }    
+  
+  def isMinMax(x: String) = x match{
+    case "Min" => true
+    case "Max" => true
+    case  _    => false
+  }
 }
