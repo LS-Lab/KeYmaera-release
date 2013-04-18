@@ -55,7 +55,7 @@ sealed abstract trait ImmutableTree{
    */
   def toMetitFormula(): String = this match{
     
-    case Node(op) => op
+    case Node(op) => opMap(op)
     
     case Quant(quant, boundVars, subTree) => {
       opMap(quant) + "[" + boundVars.mkString(",") + "] : " + 
@@ -73,6 +73,12 @@ sealed abstract trait ImmutableTree{
       opMap(op) +"("+ subTree.toMetitFormula() +")"
     }
     
+    /* Min/Max functions */
+    case BinaryOp(op, left, right) if (
+        OperatorMap.isMinMax( op ))=> {
+        opMap(op) + "(" + left.toMetitFormula +","+ right.toMetitFormula + ")"
+    }
+        
     case BinaryOp(op, left, right) => {
       "(" + left.toMetitFormula + opMap(op) + right.toMetitFormula + ")"
     }
@@ -163,8 +169,10 @@ class FormulaTree(term:Term) {
           ( form.op().isInstanceOf[ Function ] && 
               form.arity()==0 &&
               !opString(form).matches("-?\\d.*") &&
-              /* Mathematica exponentials are not variables */
-              !opString(form).equals("E"))
+              /* Mathematica constants are not variables */
+              !opString(form).equals("E") &&
+              !opString(form).equals("Pi")   
+          )
       ) true
       else 
         false
@@ -215,11 +223,15 @@ class FormulaTree(term:Term) {
    }
 
  /** Replace illegal characters */
- private def processSymbol(symb:String):String = {
-      /* MetiTarski requirements : variables must be upper-case. */
-      symb .toUpperCase()   
+ private def processSymbol(symb:String):String = symb match { 
+   
+   /* Leave Pi unchanged */
+   case "Pi" => "Pi"
+     
+   /* MetiTarski requirements : variables must be upper-case. */
+   case name =>  {name.toUpperCase()   
                   .replaceAll ( "\\$"  ,  "DOLLAR"    )
-                  .replaceAll ( "_"    ,  "USCORE"    )
+                  .replaceAll ( "_"    ,  "USCORE"    )}
    }
 
 /***************************************************************************/

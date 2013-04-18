@@ -97,6 +97,19 @@
                            \external R Log(R); 
                         }
 
+                    MIN, MAX, ABS
+
+                        \functions{ 
+                           \external R Min(R,R);
+                           \external R Max(R,R);
+                           \external R Abs(R);
+                        }
+
+                   PI
+                        \functions{ 
+                           \external Pi;
+                        }
+
    The KeYmaera interface gives access to all the command-line options offered 
    by MetiTarski. To change the default settings, navigate to the MetiTarski 
    options pane (as for other solvers) and select the options manually.
