@@ -487,9 +487,9 @@ class FormulaTree(term:Term) {
     * Method for converting inverse <i>Mathematica™</i> hyperbolic functions. 
     * of the form, e.g. :
     * <pre>
-    *    ArcCosh
-	*       |
-	*       a
+    *       ArcCosh
+    *         |
+    *         a
     * </pre>
     * <p>
     * to :  
@@ -516,22 +516,22 @@ class FormulaTree(term:Term) {
         Quant(quant, vars, convertInverseHyperbolics(subTree))
         
       case UnaryOp(ASINH ,subTree) => BinaryOp(
-    		  		 DIV, 
-          Node("1"),      UnaryOp( SINH, convertInverseHyperbolics(subTree) )
+                      DIV, 
+          Node("1"),        UnaryOp( SINH, convertInverseHyperbolics(subTree) )
           )
           
       case UnaryOp(ACOSH ,subTree) => BinaryOp(
-    		  		 DIV, 
-          Node("1"),      UnaryOp( COSH, convertInverseHyperbolics(subTree) )
+                      DIV, 
+          Node("1"),        UnaryOp( COSH, convertInverseHyperbolics(subTree) )
           )
           
       case UnaryOp(ATANH ,subTree) => BinaryOp(
-    		  		 DIV, 
-          Node("1"),      UnaryOp( TANH, convertInverseHyperbolics(subTree) )
+                      DIV, 
+          Node("1"),        UnaryOp( TANH, convertInverseHyperbolics(subTree) )
           )
      
       case UnaryOp(op,subTree) => UnaryOp(
-                      op, 
+                        op, 
           convertInverseHyperbolics(subTree) 
           )
       

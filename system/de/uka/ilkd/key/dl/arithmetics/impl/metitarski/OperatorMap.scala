@@ -149,6 +149,6 @@ object OperatorMap {
   def isMinMax(x: String) = x match{
     case "Min" => true
     case "Max" => true
-    case _ => false
+    case  _    => false
   }
 }
