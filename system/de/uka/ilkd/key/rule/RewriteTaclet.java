@@ -164,7 +164,7 @@ public class RewriteTaclet extends FindTaclet{
 		    
 		}
 		else if ( op instanceof Modality ||
-			  op instanceof ModalOperatorSV)
+			  op instanceof ModalOperatorSV || op instanceof Game)
 		    return null;
 	    }
 	}
