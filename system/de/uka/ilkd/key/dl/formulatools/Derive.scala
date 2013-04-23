@@ -26,6 +26,7 @@ import de.uka.ilkd.key.logic.TermBuilder
 import de.uka.ilkd.key.dl.parser.NumberCache
 import java.math.BigDecimal
 import de.uka.ilkd.key.dl.logic.ldt.RealLDT
+import de.uka.ilkd.key.java.Services
 
 /**
  * @author jdq
@@ -36,8 +37,8 @@ object Derive {
   implicit def int2term(i: Int) = TermBuilder.DF.func(NumberCache.getNumber(
     new BigDecimal(i), RealLDT.getRealSort()))
 
-  def apply(t: Term, vars: java.util.Map[String, Term], eps: Term): Term = {
-    val d = Derive(_: Term, vars, eps)
+  def apply(t: Term, vars: java.util.Map[String, Term], eps: Term, services: Services): Term = {
+    val d = Derive(_: Term, vars, eps, services)
     t match {
       case True() | False() => t 
       case All(_, _) | Ex(_, _) | Eqv(_, _) | Imp(_, _) | Box(_, _) | Dia(_, _) =>
@@ -75,6 +76,22 @@ object Derive {
             "Derive not implemented for nonintegral exponents: "
               + b, e);
         }
+      }
+      case MathFun(f, args) => f match {
+        /* Trigonometric functions */
+        case "Sin" => MathFun("Cos", args, services)
+        case "Cos" => - MathFun("Sin", args, services)
+        case "Tan" => MathFun("Sin", args, services) ^ 2
+        case "Csc" => (-t)*MathFun("Cot", args, services)
+        case "Sec" => t*MathFun("Tan", args, services)
+        case "Cot" => - (MathFun("Csc", args, services) ^ 2)
+        /* Hyperbolic functions */
+        case "Sinh" => MathFun("Cosh", args, services)
+        case "Csch" => - MathFun("Coth", args, services) * t
+        case "Cosh" => MathFun("Sinh", args, services)
+        case "Sech" => - MathFun("Tanh", args, services) * t
+        case "Tanh" => int2term(1) - (t^2)
+        case "Coth" => int2term(1) - (t^2)
       }
       case Equals(a, b) => if (eps == null) (d(t.sub(0)) equal d(t.sub(1))) else {
         throw new IllegalArgumentException(
