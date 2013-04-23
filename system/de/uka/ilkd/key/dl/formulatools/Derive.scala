@@ -61,6 +61,8 @@ object Derive {
       case Exp(_, b) if (b == 0) => 0
       case Exp(a, _) if (a == 1) => 0 // term is constant and thus derived to 0
       case Exp(a, b) if (b == 1) => d(a)
+      // derivative of E^f(x) is f'(x) * E^f(x)
+      case Exp(MathFun("E", args), b) if args.length == 0 => d(b)*t
       case Exp(a, b) => try {
         b match {
           case MinusSign(e) => d((1: Term) / (a ^ e))
@@ -77,7 +79,14 @@ object Derive {
               + b, e);
         }
       }
+      case MathFun("E", args) if args.length == 0 => 0
+      case MathFun("Pi", args) if args.length == 0 => 0
       case MathFun(f, args) if args.length == 1 =>  f match {
+        /* Roots */
+        case "Sqrt" => int2term(1) / (int2term(2)*t)
+        case "CubeRoot" => int2term(1) / (int2term(3)*(t^2))
+        /* Exp function */
+        case "Exp" => d(args.head)*t
         /* Logarithm */
         case "Log" => int2term(1) / args.head
         /* Trigonometric functions */
