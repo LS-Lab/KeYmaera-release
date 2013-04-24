@@ -116,9 +116,6 @@ sealed abstract class Formula {
   def <->(that: Formula): Formula = Prop(Iff, this, that)
   def unary_! : Formula = Prop(Not, this)
 }
-object Formula extends Formula {
-  def ?(that: Formula): HP = Check(that)
-}
 case object True extends Formula
 case object False extends Formula
 case class Atom(t: Term) extends Formula

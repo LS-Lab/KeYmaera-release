@@ -10,6 +10,7 @@ sealed abstract class HP {
 }
 object HP extends HP {
   def loop(that: HP): HP = ComposedHP(Star, that)
+  def ?(that: Formula): HP = Check(that)
 }
 /** Assign term t to variable v */
 case class Assign(v: Var, t: Term) extends HP
@@ -27,11 +28,13 @@ case class Evolve(h: Formula, primes: (Var,Term)*) extends HP {
 /** Compose hybrid programs ps by operator op */
 case class ComposedHP(op: HybridOperator, ps: HP*) extends HP {
  op.applicable(ps:_*)
+ def flatten = ComposedHP(op, op.flatten(this):_*)
 }
 
 /** Base class for hybrid program operators */
 sealed abstract class HybridOperator {
   @elidable(ASSERTION) def applicable(ps: HP*)
+  def flatten(p: HP): Seq[HP] = Seq(p)
 }
 /** Base class for unary hybrid program operators */
 sealed abstract class UnaryHybridOperator extends HybridOperator {
@@ -60,6 +63,15 @@ sealed abstract class BinaryHybridOperator(strict: Boolean = false) extends Hybr
 	      None
 	    }
     case _ => None
+  }
+  override def flatten(p: HP): Seq[HP] = p match {
+    case ComposedHP(op, ps @ _*) => 
+      if (op == this) {
+    	  flatten(ps.head) ++ ps.tail.map(p => flatten(p)).flatten
+      } else {
+    	  Seq(p)
+      }
+    case _ => Seq(p)  
   }
   @elidable(ASSERTION) final def applicable(ps: HP*) {
 	require(if (strict) ps.length == 2 else ps.length >= 2, 
