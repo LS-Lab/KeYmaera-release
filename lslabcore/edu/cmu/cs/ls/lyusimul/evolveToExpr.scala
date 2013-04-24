@@ -54,7 +54,7 @@ object EvolveToExpr {
       exprsListToCsvStri(hpToOdesList(x)) +
       ", x[Evaluate[Last[global`tends]]] == Evaluate[x[Evaluate[Last[global`tends]]] /. Last[global`sol]][[1]], y[Evaluate[Last[global`tends]]] == Evaluate[y[Evaluate[Last[global`tends]]] /. Last[global`sol]][[1]], v[Evaluate[Last[global`tends]]] == Evaluate[v[Evaluate[Last[global`tends]]] /. Last[global`sol]][[1]], r[Evaluate[Last[global`tends]]] == Evaluate[r[Evaluate[Last[global`tends]]] /. Last[global`sol]][[1]], om[Evaluate[Last[global`tends]]] == Evaluate[om[Evaluate[Last[global`tends]]] /. Last[global`sol]][[1]], dx[Evaluate[Last[global`tends]]] == Evaluate[dx[Evaluate[Last[global`tends]]] /. Last[global`sol]][[1]], dy[Evaluate[Last[global`tends]]] == Evaluate[dy[Evaluate[Last[global`tends]]] /. Last[global`sol]][[1]], ac[Evaluate[Last[global`tends]]] == Evaluate[ac[Evaluate[Last[global`tends]]] /. Last[global`sol]][[1]], dummT[Evaluate[Last[global`tends]]] == 0," +
       exprsListToCsvStri(hpToWhenEvents(x, 10)) + 
-      ", {x, y, v, ac, om, dx, dy, r, dummT}, {t, Evaluate[Last[global`tends]], global`tendLimi}]]];"
+      "}, {x, y, v, ac, om, dx, dy, r, dummT}, {t, Evaluate[Last[global`tends]], global`tendLimi}]]];"
       ) :: evolsListToSetsStriList(xs)
   }
   
@@ -83,13 +83,10 @@ object EvolveToExpr {
     case _ => throw new Exception("not implemented yet")
   }
   
-  def seqToEvolsList(seq : HP) : List[Evolve] = seq match {
-    
-    case ComposedHP(Sequence, hps @ _ *) => hps._1 match {
-      case a seq b => (seqToEvolsList(a)) :: (seqToEvolsList(b)) :: seqToEvolsList(rest:_*)
-      case _ => Nil
-    }
-    case 
+  def seqToEvolsList(hp : HP) : List[Evolve] = hp match {
+    case ComposedHP(Sequence, hps @ _ *) => 
+      seqToEvolsList(hps.head) ++ hps.tail.map(hp => seqToEvolsList(hp)).flatten    
+    case Evolve(_, _ @ _*) => (hp.asInstanceOf[Evolve] :: Nil)
     case _ => throw new Exception("not implemented yet")
   }
   
@@ -115,8 +112,9 @@ object EvolveToExpr {
     bin_fun("WhenEvent",
         //bin_fun("Or", un_fun("Not", formulaToExpr(h)), bin_fun("Greater", math_sym("t"), new Expr(tMax))),
         un_fun("Not", formulaToExpr(h)),
-        bin_fun("CompountExpression", bin_fun("Set", math_sym("global`tend"), math_sym("t")), new Expr("StopIntegration"))) :: Nil
-  }  
+        //bin_fun("CompoundExpression", bin_fun("Set", math_sym("global`tend"), math_sym("t")), new Expr("StopIntegration"))) :: Nil
+        bin_fun("CompoundExpression", bin_fun("Set", math_sym("global`tends"), bin_fun("Append", math_sym("global`tends"), math_sym("t"))), new Expr("StopIntegration"))) :: Nil
+  }
 
     // deboArreglar: don't use mmtToExpr and termToMmt in this function
   def termToExpr(myTerm: Term) : Expr = {
