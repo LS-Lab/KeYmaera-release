@@ -29,12 +29,35 @@ object EvolveToExpr {
   }
   
   // deboHacer: Change name to exprToCsvStri
-  def odesListToCsvStri(x : List[Expr]) : String = x match {
+  def exprsListToCsvStri(x : List[Expr]) : String = x match {
     case Nil => ""
     case x :: Nil => x.toString();
-    case x :: xs => x.toString() + ", " + odesListToCsvStri(xs)
+    case x :: xs => x.toString() + ", " + exprsListToCsvStri(xs)
   } 
-    
+  
+  def setsStriListToNlsvStri(x : List[String]) : String = x match {
+    case Nil => ""
+    case x :: Nil => x;
+    case x :: xs => x + ";\n" + setsStriListToNlsvStri(xs)
+  }
+  
+  def exprsListToNlsvStri(x : List[Expr]) : String = x match {
+    case Nil => ""
+    case x :: Nil => x.toString();
+    case x :: xs => x.toString() + "\n" + exprsListToNlsvStri(xs)
+  }
+  
+  def evolsListToSetsStriList(evolves: List[Evolve]) : List[String] = evolves match {
+    case Nil => Nil
+    case x :: xs => (
+      "Set[global`sol, Append[global`sol, NDSolve[{" +
+      exprsListToCsvStri(hpToOdesList(x)) +
+      ", x[Evaluate[Last[global`tends]]] == Evaluate[x[Evaluate[Last[global`tends]]] /. Last[global`sol]][[1]], y[Evaluate[Last[global`tends]]] == Evaluate[y[Evaluate[Last[global`tends]]] /. Last[global`sol]][[1]], v[Evaluate[Last[global`tends]]] == Evaluate[v[Evaluate[Last[global`tends]]] /. Last[global`sol]][[1]], r[Evaluate[Last[global`tends]]] == Evaluate[r[Evaluate[Last[global`tends]]] /. Last[global`sol]][[1]], om[Evaluate[Last[global`tends]]] == Evaluate[om[Evaluate[Last[global`tends]]] /. Last[global`sol]][[1]], dx[Evaluate[Last[global`tends]]] == Evaluate[dx[Evaluate[Last[global`tends]]] /. Last[global`sol]][[1]], dy[Evaluate[Last[global`tends]]] == Evaluate[dy[Evaluate[Last[global`tends]]] /. Last[global`sol]][[1]], ac[Evaluate[Last[global`tends]]] == Evaluate[ac[Evaluate[Last[global`tends]]] /. Last[global`sol]][[1]], dummT[Evaluate[Last[global`tends]]] == 0," +
+      exprsListToCsvStri(hpToWhenEvents(x, 10)) + 
+      ", {x, y, v, ac, om, dx, dy, r, dummT}, {t, Evaluate[Last[global`tends]], global`tendLimi}]]];"
+      ) :: evolsListToSetsStriList(xs)
+  }
+  
   def hpToOdesList(hp: HP): List[Expr] = hp match {
     case Evolve(h, primes @ _ *) => primsToOdesList(primes)
 
@@ -60,6 +83,17 @@ object EvolveToExpr {
     case _ => throw new Exception("not implemented yet")
   }
   
+  def seqToEvolsList(seq : HP) : List[Evolve] = seq match {
+    
+    case ComposedHP(Sequence, hps @ _ *) => hps._1 match {
+      case a seq b => (seqToEvolsList(a)) :: (seqToEvolsList(b)) :: seqToEvolsList(rest:_*)
+      case _ => Nil
+    }
+    case 
+    case _ => throw new Exception("not implemented yet")
+  }
+  
+  
   def primsToVarisList(primes : (Var, Term)*) : List[Expr] = primes match {
     case Seq((myVar, myTerm), rest @ _ *) => myVar match {
       case Var(s) => math_sym(s) ::primsToVarisList(rest:_*)
@@ -79,7 +113,8 @@ object EvolveToExpr {
   
   def hToWhenEvents(h: Formula, tMax: Double) : List[Expr] = {
     bin_fun("WhenEvent",
-        bin_fun("Or", un_fun("Not", formulaToExpr(h)), bin_fun("Greater", math_sym("t"), new Expr(tMax))),
+        //bin_fun("Or", un_fun("Not", formulaToExpr(h)), bin_fun("Greater", math_sym("t"), new Expr(tMax))),
+        un_fun("Not", formulaToExpr(h)),
         bin_fun("CompountExpression", bin_fun("Set", math_sym("global`tend"), math_sym("t")), new Expr("StopIntegration"))) :: Nil
   }  
 
@@ -126,5 +161,9 @@ object EvolveToExpr {
 //      }
     case _ => throw new Exception("not implemented... varargs")
   }
+  
+  def tendLimiToSetExpr(tendLimi: Int) : Expr =
+    bin_fun("Set", math_sym("global`tendLimi"), new Expr(tendLimi))
     
+  
 }
