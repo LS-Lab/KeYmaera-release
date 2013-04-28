@@ -1996,6 +1996,175 @@ K is the scale factor between force and velocity in the admittance control law</
     		</requirements>
     	</example>
 	</group>
+	<group name="Autonomous Robotics">
+		<example>
+    		<name>Safety of arc-shaped trajectories [stationary obstacles]</name>
+    		<path>/examples/hybrid/robix/DWA_StationaryObstacles_ArcTraj.key</path>
+    		<proofs>
+    		    <proof name="Mathematica" href="/examples/hybrid/robix/DWA_StationaryObstacles_ArcTraj.key.proof"/>
+    		</proofs>
+			<publication>DBLP:conf/rss/MitschGP13</publication> 				
+			<authors>
+				<author>smitsch</author>
+				<author>kghorbal</author>
+				<author>platzer</author>
+			</authors>
+			<proofauthors>
+				<author>smitsch</author>
+			</proofauthors>
+    		<requirements>
+    			<some>
+    				<quantifiereliminator>Mathematica</quantifiereliminator>
+    			</some>
+    		</requirements>
+    		<description>Robot follows the Dynamic Window Approach to navigate in a 2D plane. It drives a trajectory of a sequence of arc-shaped curves. The robot avoids collisions with stationary obstacles.
+    		</description>
+    		<resources>
+				<img>/examples/hybrid/robix/DWA_StationaryObstacles_ArcTraj.png</img>
+			</resources>
+    	</example>
+    	<example>
+    		<name>Passive safety of arc-shaped trajectories [moving obstacles]</name>
+    		<path>/examples/hybrid/robix/Theorem1_DWA_PassiveSafety_ArcTraj.key</path>
+    		<proofs>
+    		    <proof name="Mathematica" href="/examples/hybrid/robix/Theorem1_DWA_PassiveSafety_ArcTraj.key.proof"/>
+    		</proofs>
+			<publication>DBLP:conf/rss/MitschGP13</publication> 				
+			<authors>
+				<author>smitsch</author>
+				<author>kghorbal</author>
+				<author>platzer</author>
+			</authors>
+			<proofauthors>
+				<author>smitsch</author>
+			</proofauthors>
+    		<requirements>
+    			<some>
+    				<quantifiereliminator>Mathematica</quantifiereliminator>
+    			</some>
+    		</requirements>
+    		<description>Robot follows the Dynamic Window Approach to navigate in a 2D plane. It drives a trajectory of a sequence of arc-shaped curves. The robot avoids collisions with stationary obstacles and ensures passive safety in the presence of moving obstacles. Passive safety allows the robot to come to a full stop before a collision occurs.
+    		</description>
+    		<resources>
+				<img>/examples/hybrid/robix/Theorem1_DWA_PassiveSafety_ArcTraj.png</img>
+			</resources>
+    	</example>
+    	<example>
+    		<name>Passive safety of arc-shaped trajectories and spinning on the spot [moving obstacles]</name>
+    		<path>/examples/hybrid/robix/Theorem1_DWA_PassiveSafety_ArcTraj_Spinning.key</path>
+    		<proofs>
+    		    <proof name="Mathematica" href="/examples/hybrid/robix/Theorem1_DWA_PassiveSafety_ArcTraj_Spinning.key.proof"/>
+    		</proofs>
+			<publication>DBLP:conf/rss/MitschGP13</publication> 				
+			<authors>
+				<author>smitsch</author>
+				<author>kghorbal</author>
+				<author>platzer</author>
+			</authors>
+			<proofauthors>
+				<author>smitsch</author>
+			</proofauthors>
+    		<requirements>
+    			<some>
+    				<quantifiereliminator>Mathematica</quantifiereliminator>
+    			</some>
+    		</requirements>
+    		<description>Robot follows the Dynamic Window Approach to navigate in a 2D plane. It drives a trajectory of a sequence of arc-shaped curves. The robot may additionally spin on the spot when it is stopped. The robot avoids collisions with stationary obstacles and ensures passive safety in the presence of moving obstacles. Passive safety allows the robot to come to a full stop before a collision occurs.
+    		</description>
+    	</example>
+    	<example>
+    		<name>Passive safety of arc-shaped trajectories and location uncertainty [moving obstacles]</name>
+    		<path>/examples/hybrid/robix/Theorem1_DWA_PassiveSafety_ArcTraj_LocationUncertainty.key</path>
+    		<proofs>
+    		    <proof name="Mathematica" href="/examples/hybrid/robix/Theorem1_DWA_PassiveSafety_ArcTraj_LocationUncertainty.key.proof"/>
+    		</proofs>
+			<publication>DBLP:conf/rss/MitschGP13</publication> 				
+			<authors>
+				<author>smitsch</author>
+				<author>kghorbal</author>
+				<author>platzer</author>
+			</authors>
+			<proofauthors>
+				<author>smitsch</author>
+			</proofauthors>
+    		<requirements>
+    			<some>
+    				<quantifiereliminator>Mathematica</quantifiereliminator>
+    			</some>
+    		</requirements>
+    		<description>Robot follows the Dynamic Window Approach to navigate in a 2D plane. It drives a trajectory of a sequence of arc-shaped curves. The robot measures its location with a sensor (e.g., GPS). The uncertainty of the location measurement is within known bounds. The robot avoids collisions with stationary obstacles and ensures passive safety in the presence of moving obstacles. Passive safety allows the robot to come to a full stop before a collision occurs.
+    		</description>
+    	</example>
+    	<example>
+    		<name>Passive safety of arc-shaped trajectories and actuator uncertainty [moving obstacles]</name>
+    		<path>/examples/hybrid/robix/Theorem1_DWA_PassiveSafety_ArcTraj_ActuatorUncertainty.key</path>
+    		<proofs>
+    		    <proof name="Mathematica" href="/examples/hybrid/robix/Theorem1_DWA_PassiveSafety_ArcTraj_ActuatorUncertainty.key.proof"/>
+    		</proofs>
+			<publication>DBLP:conf/rss/MitschGP13</publication> 				
+			<authors>
+				<author>smitsch</author>
+				<author>kghorbal</author>
+				<author>platzer</author>
+			</authors>
+			<proofauthors>
+				<author>smitsch</author>
+			</proofauthors>
+    		<requirements>
+    			<some>
+    				<quantifiereliminator>Mathematica</quantifiereliminator>
+    			</some>
+    		</requirements>
+    		<description>Robot follows the Dynamic Window Approach to navigate in a 2D plane. It drives a trajectory of a sequence of arc-shaped curves. The actuators of the robot may not exactly deliver the effect intended by the controller. The actuation uncertainty is within known bounds. The robot avoids collisions with stationary obstacles and ensures passive safety in the presence of moving obstacles. Passive safety allows the robot to come to a full stop before a collision occurs.
+    		</description>
+    	</example>
+    	<example>
+    		<name>Passive safety of spiral-shaped trajectories [moving obstacles]</name>
+    		<path>/examples/hybrid/robix/Theorem1_DWA_PassiveSafety_SpiralTraj.key</path>
+    		<proofs>
+    		    <proof name="Mathematica" href="/examples/hybrid/robix/Theorem1_DWA_PassiveSafety_SpiralTraj.key.proof"/>
+    		</proofs>
+			<publication>DBLP:conf/rss/MitschGP13</publication> 				
+			<authors>
+				<author>smitsch</author>
+				<author>kghorbal</author>
+				<author>platzer</author>
+			</authors>
+			<proofauthors>
+				<author>smitsch</author>
+			</proofauthors>
+    		<requirements>
+    			<some>
+    				<quantifiereliminator>Mathematica</quantifiereliminator>
+    			</some>
+    		</requirements>
+    		<description>Robot follows the Dynamic Window Approach to navigate in a 2D plane. It drives a trajectory of a sequence of spiral-shaped curves. The robot avoids collisions with stationary obstacles and ensures passive safety in the presence of moving obstacles. Passive safety allows the robot to come to a full stop before a collision occurs.
+    		</description>
+    	</example>
+    	<example>
+    		<name>Passive friendly safety of arc-shaped trajectories [moving obstacles]</name>
+    		<path>/examples/hybrid/robix/Theorem2_DWA_PassiveFriendlySafety_ArcTraj.key</path>
+    		<proofs>
+    		    <proof name="Mathematica" href="/examples/hybrid/robix/Theorem2_DWA_PassiveFriendlySafety_ArcTraj.key.proof"/>
+    		</proofs>
+			<publication>DBLP:conf/rss/MitschGP13</publication> 				
+			<authors>
+				<author>smitsch</author>
+				<author>kghorbal</author>
+				<author>platzer</author>
+			</authors>
+			<proofauthors>
+				<author>smitsch</author>
+			</proofauthors>
+    		<requirements>
+    			<some>
+    				<quantifiereliminator>Mathematica</quantifiereliminator>
+    			</some>
+    		</requirements>
+    		<description>Robot follows the Dynamic Window Approach to navigate in a 2D plane. It drives a trajectory of a sequence of arc-shaped curves. The robot avoids collisions with stationary obstacles and ensures passive friendly safety in the presence of moving obstacles. Passive friendly safety not only allows the robot to come to a full stop before a collision occurs, but also leaves sufficient space for the obstacle to avoid a collision.
+    		</description>
+    	</example>  	
+	</group>
 </examples>
 <authors>
 	<author>
@@ -2084,9 +2253,26 @@ K is the scale factor between force and velocity in the admittance control law</
 		<url>http://www.cs.cmu.edu/~lnistor/</url>
 		<imgurl>http://www.cs.cmu.edu/~lnistor/ligia.jpg</imgurl>
 	</author>
+	<author>
+		<short>kghorbal</short>
+		<name>Khalil Ghorbal</name>
+		<url>http://www.lix.polytechnique.fr/~ghorbal/</url>
+		<imgurl>http://www.ls.cs.cmu.edu/meta/kghorbal.jpg</imgurl>
+	</author>
 
 </authors>
 <publications>
+	<publication>
+		<short>DBLP:conf/rss/MitschGP13</short>
+		<title>On Provably Safe Obstacle Avoidance for Autonomous Robotic Ground Vehicles</title>
+		<authors>
+			<author>smitsch</author>
+			<author>kghorbal</author>
+			<author>platzer</author>
+		</authors>
+		<url>http://symbolaris.com/pub/robix.pdf</url>
+		<additional>In Robotics: Science and Systems IX, Technical University of Berlin, Berlin, Germany, June 24-28, 2013</additional>
+	</publication>
 	<publication>
 		<short>DBLP:conf/hybrid/KouskoulasRPK13</short>
 		<title>Certifying the safe design of a virtual fixture control algorithm for a surgical robot.</title>
