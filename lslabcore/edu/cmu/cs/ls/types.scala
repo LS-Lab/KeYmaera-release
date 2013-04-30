@@ -246,6 +246,6 @@ case object Exists extends QuantifierKind
 
 /** Modality operators */
 sealed abstract class ModalityOperator
-case object BoxModality extends ModalityOperator
-case object DiamondModality extends ModalityOperator
-case object TemporalBoxModality extends ModalityOperator
+case object Box extends ModalityOperator
+case object Diamond extends ModalityOperator
+case object TemporalBox extends ModalityOperator
