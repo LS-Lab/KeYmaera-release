@@ -2021,6 +2021,8 @@ K is the scale factor between force and velocity in the admittance control law</
     		</description>
     		<resources>
 				<img>/examples/hybrid/robix/DWA_StationaryObstacles_ArcTraj.png</img>
+				<img>/examples/hybrid/robix/DWA_StationaryObstacles_ArcTraj_accel.png</img>
+				<img>/examples/hybrid/robix/DWA_StationaryObstacles_ArcTraj_pos.png</img>
 			</resources>
     	</example>
     	<example>
@@ -2043,11 +2045,14 @@ K is the scale factor between force and velocity in the admittance control law</
     				<quantifiereliminator>Mathematica</quantifiereliminator>
     			</some>
     		</requirements>
-    		<description>Robot follows the Dynamic Window Approach to navigate in a 2D plane. It drives a trajectory of a sequence of arc-shaped curves. The robot avoids collisions with stationary obstacles and ensures passive safety in the presence of moving obstacles. Passive safety allows the robot to come to a full stop before a collision occurs.
+    		<description>Robot follows the Dynamic Window Approach to navigate in a 2D plane. It drives a trajectory of a sequence of arc-shaped curves. The robot avoids collisions with stationary obstacles and ensures passive safety in the presence of moving obstacles. Passive safety allows the robot to come to a full stop before a collision occurs (Robotics, Science and Systems: Theorem 1).
     		</description>
     		<resources>
 				<img>/examples/hybrid/robix/Theorem1_DWA_PassiveSafety_ArcTraj.png</img>
+				<img>/examples/hybrid/robix/Theorem1_DWA_PassiveSafety_ArcTraj_accel.png</img>
+				<img>/examples/hybrid/robix/Theorem1_DWA_PassiveSafety_ArcTraj_pos.png</img>
 			</resources>
+			<source href="http://symbolaris.com/pub/robix.pdf"/>
     	</example>
     	<example>
     		<name>Passive safety of arc-shaped trajectories and spinning on the spot [moving obstacles]</name>
@@ -2069,8 +2074,12 @@ K is the scale factor between force and velocity in the admittance control law</
     				<quantifiereliminator>Mathematica</quantifiereliminator>
     			</some>
     		</requirements>
-    		<description>Robot follows the Dynamic Window Approach to navigate in a 2D plane. It drives a trajectory of a sequence of arc-shaped curves. The robot may additionally spin on the spot when it is stopped. The robot avoids collisions with stationary obstacles and ensures passive safety in the presence of moving obstacles. Passive safety allows the robot to come to a full stop before a collision occurs.
+    		<description>Robot follows the Dynamic Window Approach to navigate in a 2D plane. It drives a trajectory of a sequence of arc-shaped curves. The robot may additionally spin on the spot when it is stopped. The robot avoids collisions with stationary obstacles and ensures passive safety in the presence of moving obstacles. Passive safety allows the robot to come to a full stop before a collision occurs (Robotics, Science and Systems: Theorem 1).
     		</description>
+    		<resources>
+				<img>/examples/hybrid/robix/Theorem1_DWA_PassiveSafety_ArcTraj.png</img>
+			</resources>
+			<source href="http://symbolaris.com/pub/robix.pdf"/>
     	</example>
     	<example>
     		<name>Passive safety of arc-shaped trajectories and location uncertainty [moving obstacles]</name>
@@ -2092,8 +2101,12 @@ K is the scale factor between force and velocity in the admittance control law</
     				<quantifiereliminator>Mathematica</quantifiereliminator>
     			</some>
     		</requirements>
-    		<description>Robot follows the Dynamic Window Approach to navigate in a 2D plane. It drives a trajectory of a sequence of arc-shaped curves. The robot measures its location with a sensor (e.g., GPS). The uncertainty of the location measurement is within known bounds. The robot avoids collisions with stationary obstacles and ensures passive safety in the presence of moving obstacles. Passive safety allows the robot to come to a full stop before a collision occurs.
+    		<description>Robot follows the Dynamic Window Approach to navigate in a 2D plane. It drives a trajectory of a sequence of arc-shaped curves. The robot measures its location with a sensor (e.g., GPS). The uncertainty of the location measurement is within known bounds. The robot avoids collisions with stationary obstacles and ensures passive safety in the presence of moving obstacles. Passive safety allows the robot to come to a full stop before a collision occurs (Robotics, Science and Systems: Theorem 1 with Model 4).
     		</description>
+    		<resources>
+				<img>/examples/hybrid/robix/Theorem1_DWA_PassiveSafety_ArcTraj_LocationUncertainty.png</img>
+			</resources>
+			<source href="http://symbolaris.com/pub/robix.pdf"/>
     	</example>
     	<example>
     		<name>Passive safety of arc-shaped trajectories and actuator uncertainty [moving obstacles]</name>
@@ -2115,8 +2128,14 @@ K is the scale factor between force and velocity in the admittance control law</
     				<quantifiereliminator>Mathematica</quantifiereliminator>
     			</some>
     		</requirements>
-    		<description>Robot follows the Dynamic Window Approach to navigate in a 2D plane. It drives a trajectory of a sequence of arc-shaped curves. The actuators of the robot may not exactly deliver the effect intended by the controller. The actuation uncertainty is within known bounds. The robot avoids collisions with stationary obstacles and ensures passive safety in the presence of moving obstacles. Passive safety allows the robot to come to a full stop before a collision occurs.
+    		<description>Robot follows the Dynamic Window Approach to navigate in a 2D plane. It drives a trajectory of a sequence of arc-shaped curves. The actuators of the robot may not exactly deliver the effect intended by the controller. The actuation uncertainty is within known bounds. The robot avoids collisions with stationary obstacles and ensures passive safety in the presence of moving obstacles. Passive safety allows the robot to come to a full stop before a collision occurs (Robotics, Science and Systems: Theorem 1 with Model 5).
     		</description>
+    		<resources>
+				<img>/examples/hybrid/robix/Theorem1_DWA_PassiveSafety_ArcTraj_ActuatorUncertainty_accel.png</img>
+				<img>/examples/hybrid/robix/Theorem1_DWA_PassiveSafety_ArcTraj_ActuatorUncertainty_vel.png</img>
+				<img>/examples/hybrid/robix/Theorem1_DWA_PassiveSafety_ArcTraj_ActuatorUncertainty_pos.png</img>
+			</resources>
+			<source href="http://symbolaris.com/pub/robix.pdf"/>
     	</example>
     	<example>
     		<name>Passive safety of spiral-shaped trajectories [moving obstacles]</name>
@@ -2138,8 +2157,13 @@ K is the scale factor between force and velocity in the admittance control law</
     				<quantifiereliminator>Mathematica</quantifiereliminator>
     			</some>
     		</requirements>
-    		<description>Robot follows the Dynamic Window Approach to navigate in a 2D plane. It drives a trajectory of a sequence of spiral-shaped curves. The robot avoids collisions with stationary obstacles and ensures passive safety in the presence of moving obstacles. Passive safety allows the robot to come to a full stop before a collision occurs.
+    		<description>Robot follows the Dynamic Window Approach to navigate in a 2D plane. It drives a trajectory of a sequence of spiral-shaped curves. The robot avoids collisions with stationary obstacles and ensures passive safety in the presence of moving obstacles. Passive safety allows the robot to come to a full stop before a collision occurs (Robotics, Science and Systems: Theorem 1).
     		</description>
+    		<resources>
+				<img>/examples/hybrid/robix/Theorem1_DWA_PassiveSafety_SpiralTraj.png</img>
+				<img>/examples/hybrid/robix/Theorem1_DWA_PassiveSafety_SpiralTraj_vals.png</img>
+			</resources>
+			<source href="http://symbolaris.com/pub/robix.pdf"/>
     	</example>
     	<example>
     		<name>Passive friendly safety of arc-shaped trajectories [moving obstacles]</name>
@@ -2161,8 +2185,12 @@ K is the scale factor between force and velocity in the admittance control law</
     				<quantifiereliminator>Mathematica</quantifiereliminator>
     			</some>
     		</requirements>
-    		<description>Robot follows the Dynamic Window Approach to navigate in a 2D plane. It drives a trajectory of a sequence of arc-shaped curves. The robot avoids collisions with stationary obstacles and ensures passive friendly safety in the presence of moving obstacles. Passive friendly safety not only allows the robot to come to a full stop before a collision occurs, but also leaves sufficient space for the obstacle to avoid a collision.
+    		<description>Robot follows the Dynamic Window Approach to navigate in a 2D plane. It drives a trajectory of a sequence of arc-shaped curves. The robot avoids collisions with stationary obstacles and ensures passive friendly safety in the presence of moving obstacles. Passive friendly safety not only allows the robot to come to a full stop before a collision occurs, but also leaves sufficient space for the obstacle to avoid a collision (Robotics, Science and Systems: Theorem 2).
     		</description>
+    		<resources>
+				<img>/examples/hybrid/robix/Theorem2_DWA_PassiveFriendlySafety_ArcTraj.png</img>
+			</resources>
+			<source href="http://symbolaris.com/pub/robix.pdf"/>
     	</example>  	
 	</group>
 </examples>
