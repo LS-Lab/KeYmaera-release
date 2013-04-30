@@ -6,7 +6,7 @@ import edu.cmu.cs.ls.lyusimul._
 
 object EvolveToExpr {
   
-    def math_sym(s: String): Expr =
+  def math_sym(s: String): Expr =
     new Expr(Expr.SYMBOL, s)
 
   def math_int(s: String): Expr =
@@ -50,11 +50,11 @@ object EvolveToExpr {
   def evolsListToSetsStriList(evolves: List[Evolve]) : List[String] = evolves match {
     case Nil => Nil
     case x :: xs => (
-      "Set[global`sol, Append[global`sol, NDSolve[{" +
+      "Set[glob`sol, Append[glob`sol, NDSolve[{" +
       exprsListToCsvStri(hpToOdesList(x)) +
-      ", x[Evaluate[Last[global`tends]]] == Evaluate[x[Evaluate[Last[global`tends]]] /. Last[global`sol]][[1]], y[Evaluate[Last[global`tends]]] == Evaluate[y[Evaluate[Last[global`tends]]] /. Last[global`sol]][[1]], v[Evaluate[Last[global`tends]]] == Evaluate[v[Evaluate[Last[global`tends]]] /. Last[global`sol]][[1]], r[Evaluate[Last[global`tends]]] == Evaluate[r[Evaluate[Last[global`tends]]] /. Last[global`sol]][[1]], om[Evaluate[Last[global`tends]]] == Evaluate[om[Evaluate[Last[global`tends]]] /. Last[global`sol]][[1]], dx[Evaluate[Last[global`tends]]] == Evaluate[dx[Evaluate[Last[global`tends]]] /. Last[global`sol]][[1]], dy[Evaluate[Last[global`tends]]] == Evaluate[dy[Evaluate[Last[global`tends]]] /. Last[global`sol]][[1]], ac[Evaluate[Last[global`tends]]] == Evaluate[ac[Evaluate[Last[global`tends]]] /. Last[global`sol]][[1]], dummT[Evaluate[Last[global`tends]]] == 0," +
+      ", x[Evaluate[Last[glob`tends]]] == Evaluate[x[Evaluate[Last[glob`tends]]] /. Last[glob`sol]][[1]], y[Evaluate[Last[glob`tends]]] == Evaluate[y[Evaluate[Last[glob`tends]]] /. Last[glob`sol]][[1]], v[Evaluate[Last[glob`tends]]] == Evaluate[v[Evaluate[Last[glob`tends]]] /. Last[glob`sol]][[1]], r[Evaluate[Last[glob`tends]]] == Evaluate[r[Evaluate[Last[glob`tends]]] /. Last[glob`sol]][[1]], om[Evaluate[Last[glob`tends]]] == Evaluate[om[Evaluate[Last[glob`tends]]] /. Last[glob`sol]][[1]], dx[Evaluate[Last[glob`tends]]] == Evaluate[dx[Evaluate[Last[glob`tends]]] /. Last[glob`sol]][[1]], dy[Evaluate[Last[glob`tends]]] == Evaluate[dy[Evaluate[Last[glob`tends]]] /. Last[glob`sol]][[1]], ac[Evaluate[Last[glob`tends]]] == Evaluate[ac[Evaluate[Last[glob`tends]]] /. Last[glob`sol]][[1]], dummT[Evaluate[Last[glob`tends]]] == 0," +
       exprsListToCsvStri(hpToWhenEvents(x, 10)) + 
-      "}, {x, y, v, ac, om, dx, dy, r, dummT}, {t, Evaluate[Last[global`tends]], global`tendLimi}]]];"
+      "}, {x, y, v, ac, om, dx, dy, r, dummT}, {t, Evaluate[Last[glob`tends]], glob`tendLimi}]]];"
       ) :: evolsListToSetsStriList(xs)
   }
   
@@ -70,7 +70,7 @@ object EvolveToExpr {
           new Expr(new Expr(new Expr(math_sym("Derivative"),
           List(new Expr(1L)).toArray),
           List(math_sym(s)).toArray),
-          List(math_sym("t")).toArray),
+          List(math_sym("loca`t")).toArray),
           MmtManipulation.mmtToExpr(MmtManipulation.termToMmt(first._2)) ) :: primsToOdesList(rest)
       // deboArreglar: don't use mmtToExpr and termToMmt.
       case _ => throw new Exception("Internal Error")
@@ -85,7 +85,9 @@ object EvolveToExpr {
   
   def seqToEvolsList(hp : HP) : List[Evolve] = hp match {
     case ComposedHP(Sequence, hps @ _ *) => 
-      seqToEvolsList(hps.head) ++ hps.tail.map(hp => seqToEvolsList(hp)).flatten    
+      seqToEvolsList(hps.head) ++ hps.tail.map(hp => seqToEvolsList(hp)).flatten 
+      // Sequence.flatten(hp)
+      // hp.asInstanceOf[ComposedHP].flatten
     case Evolve(_, _ @ _*) => (hp.asInstanceOf[Evolve] :: Nil)
     case _ => throw new Exception("not implemented yet")
   }
@@ -112,8 +114,8 @@ object EvolveToExpr {
     bin_fun("WhenEvent",
         //bin_fun("Or", un_fun("Not", formulaToExpr(h)), bin_fun("Greater", math_sym("t"), new Expr(tMax))),
         un_fun("Not", formulaToExpr(h)),
-        //bin_fun("CompoundExpression", bin_fun("Set", math_sym("global`tend"), math_sym("t")), new Expr("StopIntegration"))) :: Nil
-        bin_fun("CompoundExpression", bin_fun("Set", math_sym("global`tends"), bin_fun("Append", math_sym("global`tends"), math_sym("t"))), new Expr("StopIntegration"))) :: Nil
+        //bin_fun("CompoundExpression", bin_fun("Set", math_sym("glob`tend"), math_sym("t")), new Expr("StopIntegration"))) :: Nil
+        bin_fun("CompoundExpression", bin_fun("Set", math_sym("glob`tends"), bin_fun("Append", math_sym("glob`tends"), math_sym("loca`t"))), new Expr("StopIntegration"))) :: Nil
   }
 
     // deboArreglar: don't use mmtToExpr and termToMmt in this function
@@ -161,7 +163,7 @@ object EvolveToExpr {
   }
   
   def tendLimiToSetExpr(tendLimi: Int) : Expr =
-    bin_fun("Set", math_sym("global`tendLimi"), new Expr(tendLimi))
+    bin_fun("Set", math_sym("glob`tendLimi"), new Expr(tendLimi))
     
   
 }

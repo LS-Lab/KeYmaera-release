@@ -1,30 +1,104 @@
 package edu.cmu.cs.ls.lyusimul
 
-/*
+import edu.cmu.cs.ls._
+import edu.cmu.cs.ls.lyusimul._
+import edu.cmu.cs.ls.HP._
+import scala.math.BigInt.int2bigInt
+import com.wolfram.jlink.Expr
+
+
 object Main {
   def main(args: Array[String]) {
-    // explicitly instantiate Arithmetic
-    println("a+b+c: " + Arithmetic(Plus, Var("a"), Var("b"), Var("c")))
     
-    // use operators
-    println("a+b+c" + Var("a") + Var("b") + Var("c"))
+//y := 0;
+//v := 0;
+//ac := 0;
+//(
+//	?v < 50;
+//	(
+//		(ac := 1; dummT := 0; {y' = v, v' = ac, ac' = 0, dummT' = 1, dummT <= 5} )
+//		++ (ac := *; ?5 < ac < 10; dummT := 0; {y' = v, v' = ac, ac' = 0, dummT' = 1, dummT <= 5})
+//	)
+//)*
     
-    // use apply/unapply
-    val t3 = Plus(Var("a"), Var("b"), Var("c"))
-    println("a+b+c" + t3)
-    println("unapply +: " + Plus.unapply(t3))
     
-    // operator precedence inherited from scala
-    println((Var("a") + Var("b")) * Var("c") ^ Var("d"))
+//    val hp = (Var("y") := Num(Exact.Integer(0))) seq
+//    	(Var("v") := Num(Exact.Integer(0))) seq
+//    	(Var("ac") := Num(Exact.Integer(0))) seq
+//    	loop (
+//    	    ? (Var("v") < Num(Exact.Integer(50))) seq
+//    	    (
+//    	        (
+//    	            (Var("ac") := Num(Exact.Integer(1))) seq 
+//    	            (Var("dummT") := Num(Exact.Integer(0))) seq
+//    	            (Evolve(Var("dummT") <= Num(Exact.Integer(5)), (Var("y"), Var("v")), (Var("v"), Var("ac")), (Var("dummT"), Num(Exact.Integer(1)))))
+//    	        ) ++
+//    	        (
+//    	            (Var("ac") :=* ) seq 
+//    	            (? ((Var("ac") > Num(Exact.Integer(5))) & (Var("ac") < Num(Exact.Integer(10))))) seq
+//    	            (Var("dummT") := Num(Exact.Integer(0))) seq
+//    	            (Evolve(Var("dummT") <= Num(Exact.Integer(5)), (Var("y"), Var("v")), (Var("v"), Var("ac")), (Var("dummT"), Num(Exact.Integer(1)))))
+//    	    	)
+//    	    )
+//    	)
     
-    // explicitly right-associative
-    println("explicitly right-associative: " + (Var("a") ^ (Var("b") ^ Var("c"))))
+     val hp = (Var("y") := Num(Exact.Integer(0))) seq
+    	(Var("v") := Num(Exact.Integer(0))) seq
+    	(Var("ac") := Num(Exact.Integer(0))) seq
+    	loop (
+    	    (
+    	        (
+    	            (Var("ac") := Num(Exact.Integer(1))) seq 
+    	            (Var("dummT") := Num(Exact.Integer(0))) seq
+    	            (Evolve(Var("dummT") <= Num(Exact.Integer(5)), (Var("y"), Var("v")), (Var("v"), Var("ac")), (Var("ac"), Num(Exact.Integer(0))), (Var("dummT"), Num(Exact.Integer(1)))))
+    	        ) ++
+    	        (
+    	            (Var("ac") :=* ) seq 
+    	            (Var("dummT") := Num(Exact.Integer(0))) seq
+    	            (Evolve(Var("dummT") <= Num(Exact.Integer(5)), (Var("y"), Var("v")), (Var("v"), Var("ac")), (Var("ac"), Num(Exact.Integer(0))), (Var("dummT"), Num(Exact.Integer(1)))))
+    	    	)
+    	    )
+    	)
+
     
-    // operator unclear
-    println("should fail: " + (Var("a") ^ Var("b") ^ Var("c")))
+    val mdlt = Modality(BoxModality, hp, (Var("v") < Num(Exact.Integer(50))))
     
-    // operator unclear
-    println("should fail: " + Arithmetic(Power, Var("a"), Var("b"), Var("c")))
+    
+    // println(hpToExpr.varisToDispToPlotComms(List("v")).toString())
+    
+    // hayqueHacer: plot it
+        
+//    val plotStri1 = vaniEvolToPlotStri(evolve1, 100);
+//    println(plotStri1)    
+//    val ddd = new MathematicaPlot(plotStri1)
+
+    
+    // HP.loop((Var("a"):=*) seq (Var("s") := Num(Exact.Integer(0))) seq evolve1)    
+    
+    
+//        val myFrml = ((Var("y")>Var("x")) & (Var("x") > Num(Exact.Integer(8))))
+//    val myMmt = MmtManipulation.formulaToMmt(myFrml)
+//    val myExpr = MmtManipulation.mmtToExpr(myMmt)
+//    val safeCondStri = ExprToPlottableString.exprToPlottableString(myExpr)
+//    
+//    val evolve1 = Evolve(Var("dummT") < Num(Exact.Integer(11)), (Var("x"), Var("v") * Var("dx")), (Var("y"), Var("v") * Var("dy")), (Var("v"), Var("ac")),
+//        (Var("ac"), Num(Exact.Integer(0))), (Var("r"), Num(Exact.Integer(0))), (Var("om"), Var("ac") / Var("r")),
+//        (Var("dx"), (Arithmetic(Negate, Var("om"))) * Var("dy")), (Var("dy"), Var("om") * Var("dx")), (Var("dummT"), Num(Exact.Integer(1))))
+//
+//    
+//    val evolve2 = Evolve(Var("dummT") < Num(Exact.Integer(7)), (Var("x"), Var("v") * Var("dx")), (Var("y"), Var("v") * Var("dy")), (Var("v"), Var("ac")),
+//        (Var("ac"), Num(Exact.Integer(3))), (Var("r"), Num(Exact.Integer(0))), (Var("om"), Var("ac") / Var("r")),
+//        (Var("dx"), (Arithmetic(Negate, Var("om"))) * Var("dy")), (Var("dy"), Var("om") * Var("dx")), (Var("dummT"), Num(Exact.Integer(1))))
+//
+//  
+//        
+//    val plotStri1 = seqEvolRootToPlotStri(evolve1 seq evolve2 seq evolve1, 100);
+//    println(plotStri1)    
+//    val ddd = new MathematicaPlot(plotStri1)
+    
+    val execStri = hpToExpr.modaToExpr(mdlt, List("ac"), 100.0, 20, 4.0, 11.0).toString() 
+    println(execStri)
+    val a = new MathematicaPlot(execStri)
+    
   }
 }
-*/

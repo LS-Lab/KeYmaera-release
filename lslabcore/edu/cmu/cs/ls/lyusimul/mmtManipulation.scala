@@ -24,7 +24,7 @@ object MmtManipulation {
   def mmtToExpr(mmt: Mmt): Expr = mmt match {
     // Note: variable x is treated as a function x with argument t
     // i.e. x => x[t]
-    case MmtVar(x) => un_fun(x, math_sym("t"))
+    case MmtVar(x) => un_fun(x, math_sym("loca`t"))
 
     case MmtNum(Exact.Integer(n)) => math_int(n.toString)
     case MmtNum(Exact.Rational(p,q)) => bin_fun("Divide",
