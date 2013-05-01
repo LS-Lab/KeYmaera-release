@@ -21,10 +21,10 @@ object MmtManipulation {
              List(arg1,arg2).toArray)
   }
 
-  def mmtToExpr(mmt: Mmt): Expr = mmt match {
+    def mmtToExpr(mmt: Mmt, tranMode : Int): Expr = mmt match {
     // Note: variable x is treated as a function x with argument t
     // i.e. x => x[t]
-    case MmtVar(x) => un_fun(x, math_sym("loca`t"))
+    case MmtVar(x) => mmtVarToExpr(x, tranMode)
 
     case MmtNum(Exact.Integer(n)) => math_int(n.toString)
     case MmtNum(Exact.Rational(p,q)) => bin_fun("Divide",
@@ -34,28 +34,37 @@ object MmtManipulation {
     case MmtNegInfty() => throw new Exception ("not implemented yet")
 
     case MmtArithmetic(op: MmtArithmeticOp, mmt1: Mmt) => op match {
-      case MmtNegate => un_fun("Minus", mmtToExpr(mmt1))
+      case MmtNegate => un_fun("Minus", mmtToExpr(mmt1, tranMode))
       case _ => throw new Error ("either has varargs")
     }
 
     case MmtArithmetic(op: MmtArithmeticOp, mmt1: Mmt, mmt2 : Mmt) => op match {
-      case MmtPlus => bin_fun("Plus", mmtToExpr(mmt1), mmtToExpr(mmt2))
-      case MmtSubtract => bin_fun("Subtract", mmtToExpr(mmt1), mmtToExpr(mmt2))
-      case MmtMultiply => bin_fun("Times", mmtToExpr(mmt1), mmtToExpr(mmt2))
-      case MmtDivide => bin_fun("Divide", mmtToExpr(mmt1), mmtToExpr(mmt2))
-      case MmtPower => bin_fun("Power", mmtToExpr(mmt1), mmtToExpr(mmt2))
+      case MmtPlus => bin_fun("Plus", mmtToExpr(mmt1, tranMode), mmtToExpr(mmt2, tranMode))
+      case MmtSubtract => bin_fun("Subtract", mmtToExpr(mmt1, tranMode), mmtToExpr(mmt2, tranMode))
+      case MmtMultiply => bin_fun("Times", mmtToExpr(mmt1, tranMode), mmtToExpr(mmt2, tranMode))
+      case MmtDivide => bin_fun("Divide", mmtToExpr(mmt1, tranMode), mmtToExpr(mmt2, tranMode))
+      case MmtPower => bin_fun("Power", mmtToExpr(mmt1, tranMode), mmtToExpr(mmt2, tranMode))
       case MmtModulo => throw new Exception("not implemented yet");
       case _ => throw new Error ("either has varargs")
     }
 
     case MmtPredFn(f: MmtPredFnOp, mmt1 : Mmt, mmt2 : Mmt) => f match {
-      case MmtMax => bin_fun("Max", mmtToExpr(mmt1), mmtToExpr(mmt2))
-      case MmtMin => bin_fun("Min", mmtToExpr(mmt1), mmtToExpr(mmt2))
+      case MmtMax => bin_fun("Max", mmtToExpr(mmt1, tranMode), mmtToExpr(mmt2, tranMode))
+      case MmtMin => bin_fun("Min", mmtToExpr(mmt1, tranMode), mmtToExpr(mmt2, tranMode))
     }
 
     case _ => throw new Error ("either has varargs")
   }
-
+  
+  def mmtVarToExpr(x : String, tranMode : Int) : Expr = {
+    if (EvolveToExpr.CURR_BACKTICK == tranMode) {
+      return math_sym("curr`" + x)
+    } else if (EvolveToExpr.LOCA_T == tranMode) {
+      return un_fun(x, math_sym("loca`t"))
+    } else {
+      throw new Exception("mmtVarToExpr: Impossible case")
+    }
+  }
   def termsToMmts(terms: Term*) : Seq[Mmt] = {
     var result = Seq[Mmt]()
     for (t <- terms) {

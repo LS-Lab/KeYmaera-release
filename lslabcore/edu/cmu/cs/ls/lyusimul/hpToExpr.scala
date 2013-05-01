@@ -78,9 +78,9 @@ object hpToExpr {
           math_sym("glob`sol"),
           mul_arg_fun("NDSolve", List(
             scalListToListExpr(
-              EvolveToExpr.hpToOdesList(hp) ++
+              EvolveToExpr.hpToOdesList(hp, EvolveToExpr.LOCA_T) ++
               varisStrisListToCurrsFetcsList(varisStrisListFromHp) ++
-              EvolveToExpr.hToWhenEvents(h, 10)
+              EvolveToExpr.hToWhenEvents(h, 10, EvolveToExpr.LOCA_T)
             ),  
             scalListToListExpr(
               strisListToExprsList(varisStrisListFromHp)
@@ -94,7 +94,7 @@ object hpToExpr {
         )
       )) ++ varisStrisListToUpdaCurrStats(varisStrisListFromHp)
     
-    case Assign(v, t) => List(bin_fun("Set", math_sym("curr`" + v.s), EvolveToExpr.termToExpr(t)))
+    case Assign(v, t) => List(bin_fun("Set", math_sym("curr`" + v.s), EvolveToExpr.termToExpr(t, EvolveToExpr.CURR_BACKTICK)))
     case AssignAny(v) =>
       List(bin_fun("Set",
         math_sym("curr`" + v.s),
@@ -166,7 +166,7 @@ object hpToExpr {
   def hpsListToStatsList(hpsList: List[HP], varisStrisListFromHp : List[String], tendLimi : Double, nUnroLoop : Int, randMin : Double, randMax : Double) : List[Expr] = hpsList match {
     case x :: xs => x match {
       case Check(h) => List(mul_arg_fun("If", List(
-        EvolveToExpr.formulaToExpr(h),
+        EvolveToExpr.formulaToExpr(h, EvolveToExpr.CURR_BACKTICK),
         mul_arg_fun("CompoundExpression", hpsListToStatsList(xs, varisStrisListFromHp : List[String], tendLimi : Double, nUnroLoop : Int, randMin : Double, randMax : Double)),
         bin_fun("Set", math_sym("loca`nop"), new Expr(0))
       )))

@@ -28,41 +28,42 @@ object FormulaToPlot {
              List(arg1,arg2).toArray)
   }
 
-  def vaniEvolToPlotStri(evolve: Evolve, tendLimi: Int) : String = {
-	val dummStri1 = "Set[s, NDSolve[{"
-    val dummStri2 = ", x[0] == 0, y[0] == 0, v[0] == 0, r[0] == 1, om[0] == v[0]/r[0], dx[0] == 1, dy[0] == 0, ac[0] == 1, dummT[0] == 0,"
-    val dummStri3 = "}, {x, y, v, ac, om, dx, dy, r, dummT}, {t, 0, global`tendLimi}]]; \n Plot[Evaluate[x[t] /. s], {t, 0, global`tend}]"
-      
-    val tendLimiMathStri = EvolveToExpr.tendLimiToSetExpr(tendLimi).toString() + ";\n"
-        
-    val odesListFromEvolve = EvolveToExpr.hpToOdesList(evolve)
-    val whenEventsFromEvolve = EvolveToExpr.hpToWhenEvents(evolve, 9.0)
-    
-    val odesListStri = EvolveToExpr.exprsListToCsvStri(odesListFromEvolve)
-    val whenEvensStri = EvolveToExpr.exprsListToCsvStri(whenEventsFromEvolve)
-    
-    val plotStri = tendLimiMathStri + dummStri1 + odesListStri + dummStri2 + whenEvensStri + dummStri3 
-    return plotStri
-  } 
-  
-  def seqEvolRootToPlotStri(evolve: HP, tendLimi: Int) : String = {
-    val dummStri1 = "Set[global`tends, {0}]; \n Set[global`sol, {}]; \n"
-    val dummStri2_1 = "Set[global`sol, Append[global`sol, NDSolve[{"
-    // hayQuePreguntar: ok to use t > 0.00001?
-    val dummStri2_2 = ", x[Evaluate[Last[global`tends]]] == 0, y[Evaluate[Last[global`tends]]] == 0, v[Evaluate[Last[global`tends]]] == 1, r[Evaluate[Last[global`tends]]] == 1, om[Evaluate[Last[global`tends]]] == v[Evaluate[Last[global`tends]]]/r[Evaluate[Last[global`tends]]], dx[Evaluate[Last[global`tends]]] == 1, dy[Evaluate[Last[global`tends]]] == 0, ac[Evaluate[Last[global`tends]]] == 0, dummT[0] == 0, WhenEvent[GreaterEqual[t, 0.00001], CompoundExpression[Set[global`tends, Append[global`tends, t]], \"StopIntegration\"]]}, {x, y, v, ac, om, dx, dy, r, dummT}, {t, 0, 1}]]];\n"
-    val dummStri3 = "Plot[Piecewise[Table[{Evaluate[x[t] /. global`sol[[i]]],  And[t >= global`tends[[i]], t < global`tends[[i + 1]]]}, {i, 1, Length[global`tends] - 1}]], {t, Evaluate[First[global`tends]], Evaluate[Last[global`tends]]}]"
-    
-    val tendLimiMathStri = EvolveToExpr.tendLimiToSetExpr(tendLimi).toString() + ";\n"
-    
-    // hayQueHacer: gotta do something like (evolToOdesList(getFirstEvolve)) instead of hardcoding
-    val odesListStriForFirsEvol = "Equal[Derivative[1][x][t], Times[v[t], dx[t]]], Equal[ Derivative[1][y][t], Times[v[t], dy[t]]], Equal[Derivative[1][v][t], ac[t]], Equal[Derivative[1][ac][t], 0], Equal[ Derivative[1][r][t], 0], Equal[Derivative[1][om][t], Divide[ac[t], r[t]]], Equal[Derivative[1][dx][t], Times[Minus[om[t]], dy[t]]], Equal[Derivative[1][dy][t], Times[om[t], dx[t]]], Equal[Derivative[1][dummT][t], 1]"
-    
-    val evolsList = EvolveToExpr.seqToEvolsList(evolve)
-    val setsStriList = EvolveToExpr.evolsListToSetsStriList(evolsList)
-    val setsStri = EvolveToExpr.setsStriListToNlsvStri(setsStriList)
-      
-    return tendLimiMathStri + dummStri1 + dummStri2_1 + odesListStriForFirsEvol + dummStri2_2 + setsStri + dummStri3
-  }
+  // Deprecated for use of string
+//  def vaniEvolToPlotStri(evolve: Evolve, tendLimi: Int) : String = {
+//	val dummStri1 = "Set[s, NDSolve[{"
+//    val dummStri2 = ", x[0] == 0, y[0] == 0, v[0] == 0, r[0] == 1, om[0] == v[0]/r[0], dx[0] == 1, dy[0] == 0, ac[0] == 1, dummT[0] == 0,"
+//    val dummStri3 = "}, {x, y, v, ac, om, dx, dy, r, dummT}, {t, 0, global`tendLimi}]]; \n Plot[Evaluate[x[t] /. s], {t, 0, global`tend}]"
+//      
+//    val tendLimiMathStri = EvolveToExpr.tendLimiToSetExpr(tendLimi).toString() + ";\n"
+//        
+//    val odesListFromEvolve = EvolveToExpr.hpToOdesList(evolve)
+//    val whenEventsFromEvolve = EvolveToExpr.hpToWhenEvents(evolve, 9.0)
+//    
+//    val odesListStri = EvolveToExpr.exprsListToCsvStri(odesListFromEvolve)
+//    val whenEvensStri = EvolveToExpr.exprsListToCsvStri(whenEventsFromEvolve)
+//    
+//    val plotStri = tendLimiMathStri + dummStri1 + odesListStri + dummStri2 + whenEvensStri + dummStri3 
+//    return plotStri
+//  } 
+//  
+//  def seqEvolRootToPlotStri(evolve: HP, tendLimi: Int) : String = {
+//    val dummStri1 = "Set[global`tends, {0}]; \n Set[global`sol, {}]; \n"
+//    val dummStri2_1 = "Set[global`sol, Append[global`sol, NDSolve[{"
+//    // hayQuePreguntar: ok to use t > 0.00001?
+//    val dummStri2_2 = ", x[Evaluate[Last[global`tends]]] == 0, y[Evaluate[Last[global`tends]]] == 0, v[Evaluate[Last[global`tends]]] == 1, r[Evaluate[Last[global`tends]]] == 1, om[Evaluate[Last[global`tends]]] == v[Evaluate[Last[global`tends]]]/r[Evaluate[Last[global`tends]]], dx[Evaluate[Last[global`tends]]] == 1, dy[Evaluate[Last[global`tends]]] == 0, ac[Evaluate[Last[global`tends]]] == 0, dummT[0] == 0, WhenEvent[GreaterEqual[t, 0.00001], CompoundExpression[Set[global`tends, Append[global`tends, t]], \"StopIntegration\"]]}, {x, y, v, ac, om, dx, dy, r, dummT}, {t, 0, 1}]]];\n"
+//    val dummStri3 = "Plot[Piecewise[Table[{Evaluate[x[t] /. global`sol[[i]]],  And[t >= global`tends[[i]], t < global`tends[[i + 1]]]}, {i, 1, Length[global`tends] - 1}]], {t, Evaluate[First[global`tends]], Evaluate[Last[global`tends]]}]"
+//    
+//    val tendLimiMathStri = EvolveToExpr.tendLimiToSetExpr(tendLimi).toString() + ";\n"
+//    
+//    // hayQueHacer: gotta do something like (evolToOdesList(getFirstEvolve)) instead of hardcoding
+//    val odesListStriForFirsEvol = "Equal[Derivative[1][x][t], Times[v[t], dx[t]]], Equal[ Derivative[1][y][t], Times[v[t], dy[t]]], Equal[Derivative[1][v][t], ac[t]], Equal[Derivative[1][ac][t], 0], Equal[ Derivative[1][r][t], 0], Equal[Derivative[1][om][t], Divide[ac[t], r[t]]], Equal[Derivative[1][dx][t], Times[Minus[om[t]], dy[t]]], Equal[Derivative[1][dy][t], Times[om[t], dx[t]]], Equal[Derivative[1][dummT][t], 1]"
+//    
+//    val evolsList = EvolveToExpr.seqToEvolsList(evolve)
+//    val setsStriList = EvolveToExpr.evolsListToSetsStriList(evolsList)
+//    val setsStri = EvolveToExpr.setsStriListToNlsvStri(setsStriList)
+//      
+//    return tendLimiMathStri + dummStri1 + dummStri2_1 + odesListStriForFirsEvol + dummStri2_2 + setsStri + dummStri3
+//  }
   
 //  def loopToPlotStri(loop: HP.loop, tendLimi: Int) : String = {
 //    val dummStri1 = "s4 = NDSolve[{"

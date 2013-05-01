@@ -22,43 +22,43 @@ object Main {
 //)*
     
     
-//    val hp = (Var("y") := Num(Exact.Integer(0))) seq
-//    	(Var("v") := Num(Exact.Integer(0))) seq
-//    	(Var("ac") := Num(Exact.Integer(0))) seq
-//    	loop (
-//    	    ? (Var("v") < Num(Exact.Integer(50))) seq
-//    	    (
-//    	        (
-//    	            (Var("ac") := Num(Exact.Integer(1))) seq 
-//    	            (Var("dummT") := Num(Exact.Integer(0))) seq
-//    	            (Evolve(Var("dummT") <= Num(Exact.Integer(5)), (Var("y"), Var("v")), (Var("v"), Var("ac")), (Var("dummT"), Num(Exact.Integer(1)))))
-//    	        ) ++
-//    	        (
-//    	            (Var("ac") :=* ) seq 
-//    	            (? ((Var("ac") > Num(Exact.Integer(5))) & (Var("ac") < Num(Exact.Integer(10))))) seq
-//    	            (Var("dummT") := Num(Exact.Integer(0))) seq
-//    	            (Evolve(Var("dummT") <= Num(Exact.Integer(5)), (Var("y"), Var("v")), (Var("v"), Var("ac")), (Var("dummT"), Num(Exact.Integer(1)))))
-//    	    	)
-//    	    )
-//    	)
-    
-     val hp = (Var("y") := Num(Exact.Integer(0))) seq
+    val hp = (Var("y") := Num(Exact.Integer(0))) seq
     	(Var("v") := Num(Exact.Integer(0))) seq
     	(Var("ac") := Num(Exact.Integer(0))) seq
     	loop (
+    	    ? (Var("v") < Num(Exact.Integer(200))) seq
     	    (
     	        (
     	            (Var("ac") := Num(Exact.Integer(1))) seq 
     	            (Var("dummT") := Num(Exact.Integer(0))) seq
-    	            (Evolve(Var("dummT") <= Num(Exact.Integer(5)), (Var("y"), Var("v")), (Var("v"), Var("ac")), (Var("ac"), Num(Exact.Integer(0))), (Var("dummT"), Num(Exact.Integer(1)))))
+    	            (Evolve(Var("dummT") <= Num(Exact.Integer(5)), (Var("y"), Var("v")), (Var("v"), Var("ac")), (Var("ac"), Num(Exact.Integer(0))),  (Var("dummT"), Num(Exact.Integer(1)))))
     	        ) ++
     	        (
     	            (Var("ac") :=* ) seq 
+    	            (? ((Var("ac") > Num(Exact.Integer(5))) & (Var("ac") < Num(Exact.Integer(10))))) seq
     	            (Var("dummT") := Num(Exact.Integer(0))) seq
     	            (Evolve(Var("dummT") <= Num(Exact.Integer(5)), (Var("y"), Var("v")), (Var("v"), Var("ac")), (Var("ac"), Num(Exact.Integer(0))), (Var("dummT"), Num(Exact.Integer(1)))))
     	    	)
     	    )
     	)
+    
+//     val hp = (Var("y") := Num(Exact.Integer(0))) seq
+//    	(Var("v") := Num(Exact.Integer(0))) seq
+//    	(Var("ac") := Num(Exact.Integer(0))) seq
+//    	loop (
+//    	    (
+//    	        (
+//    	            (Var("ac") := Num(Exact.Integer(1))) seq 
+//    	            (Var("dummT") := Num(Exact.Integer(0))) seq
+//    	            (Evolve(Var("dummT") <= Num(Exact.Integer(5)), (Var("y"), Var("v")), (Var("v"), Var("ac")), (Var("ac"), Num(Exact.Integer(0))), (Var("dummT"), Num(Exact.Integer(1)))))
+//    	        ) ++
+//    	        (
+//    	            (Var("ac") :=* ) seq 
+//    	            (Var("dummT") := Num(Exact.Integer(0))) seq
+//    	            (Evolve(Var("dummT") <= Num(Exact.Integer(5)), (Var("y"), Var("v")), (Var("v"), Var("ac")), (Var("ac"), Num(Exact.Integer(0))), (Var("dummT"), Num(Exact.Integer(1)))))
+//    	    	)
+//    	    )
+//    	)
 
     
     val mdlt = Modality(BoxModality, hp, (Var("v") < Num(Exact.Integer(50))))
@@ -96,7 +96,7 @@ object Main {
 //    println(plotStri1)    
 //    val ddd = new MathematicaPlot(plotStri1)
     
-    val execStri = hpToExpr.modaToExpr(mdlt, List("ac"), 100.0, 20, 4.0, 11.0).toString() 
+    val execStri = hpToExpr.modaToExpr(mdlt, List("v"), 1000.0, 90, 4.0, 11.0).toString() 
     println(execStri)
     val a = new MathematicaPlot(execStri)
     

@@ -6,6 +6,9 @@ import edu.cmu.cs.ls.lyusimul._
 
 object EvolveToExpr {
   
+  def CURR_BACKTICK : Int = 0
+  def LOCA_T : Int = 1
+  
   def math_sym(s: String): Expr =
     new Expr(Expr.SYMBOL, s)
 
@@ -22,8 +25,8 @@ object EvolveToExpr {
              List(arg1,arg2).toArray)
   }
   
-  def hpToOdesListExpr(hp : HP) : Expr = hp match {
-    case Evolve(h, primes @ _ *) => new Expr(math_sym("List"), primsToOdesList(primes).toArray)
+  def hpToOdesListExpr(hp : HP, tranMode : Int) : Expr = hp match {
+    case Evolve(h, primes @ _ *) => new Expr(math_sym("List"), primsToOdesList(primes, tranMode : Int).toArray)
 
     case _ => throw new Exception("not implemented yet")    
   }
@@ -47,31 +50,32 @@ object EvolveToExpr {
     case x :: xs => x.toString() + "\n" + exprsListToNlsvStri(xs)
   }
   
-  def evolsListToSetsStriList(evolves: List[Evolve]) : List[String] = evolves match {
-    case Nil => Nil
-    case x :: xs => (
-      "Set[glob`sol, Append[glob`sol, NDSolve[{" +
-      exprsListToCsvStri(hpToOdesList(x)) +
-      ", x[Evaluate[Last[glob`tends]]] == Evaluate[x[Evaluate[Last[glob`tends]]] /. Last[glob`sol]][[1]], y[Evaluate[Last[glob`tends]]] == Evaluate[y[Evaluate[Last[glob`tends]]] /. Last[glob`sol]][[1]], v[Evaluate[Last[glob`tends]]] == Evaluate[v[Evaluate[Last[glob`tends]]] /. Last[glob`sol]][[1]], r[Evaluate[Last[glob`tends]]] == Evaluate[r[Evaluate[Last[glob`tends]]] /. Last[glob`sol]][[1]], om[Evaluate[Last[glob`tends]]] == Evaluate[om[Evaluate[Last[glob`tends]]] /. Last[glob`sol]][[1]], dx[Evaluate[Last[glob`tends]]] == Evaluate[dx[Evaluate[Last[glob`tends]]] /. Last[glob`sol]][[1]], dy[Evaluate[Last[glob`tends]]] == Evaluate[dy[Evaluate[Last[glob`tends]]] /. Last[glob`sol]][[1]], ac[Evaluate[Last[glob`tends]]] == Evaluate[ac[Evaluate[Last[glob`tends]]] /. Last[glob`sol]][[1]], dummT[Evaluate[Last[glob`tends]]] == 0," +
-      exprsListToCsvStri(hpToWhenEvents(x, 10)) + 
-      "}, {x, y, v, ac, om, dx, dy, r, dummT}, {t, Evaluate[Last[glob`tends]], glob`tendLimi}]]];"
-      ) :: evolsListToSetsStriList(xs)
-  }
+  // Deprecated for use of string
+//  def evolsListToSetsStriList(evolves: List[Evolve]) : List[String] = evolves match {
+//    case Nil => Nil
+//    case x :: xs => (
+//      "Set[glob`sol, Append[glob`sol, NDSolve[{" +
+//      exprsListToCsvStri(hpToOdesList(x, tranMode : Int)) +
+//      ", x[Evaluate[Last[glob`tends]]] == Evaluate[x[Evaluate[Last[glob`tends]]] /. Last[glob`sol]][[1]], y[Evaluate[Last[glob`tends]]] == Evaluate[y[Evaluate[Last[glob`tends]]] /. Last[glob`sol]][[1]], v[Evaluate[Last[glob`tends]]] == Evaluate[v[Evaluate[Last[glob`tends]]] /. Last[glob`sol]][[1]], r[Evaluate[Last[glob`tends]]] == Evaluate[r[Evaluate[Last[glob`tends]]] /. Last[glob`sol]][[1]], om[Evaluate[Last[glob`tends]]] == Evaluate[om[Evaluate[Last[glob`tends]]] /. Last[glob`sol]][[1]], dx[Evaluate[Last[glob`tends]]] == Evaluate[dx[Evaluate[Last[glob`tends]]] /. Last[glob`sol]][[1]], dy[Evaluate[Last[glob`tends]]] == Evaluate[dy[Evaluate[Last[glob`tends]]] /. Last[glob`sol]][[1]], ac[Evaluate[Last[glob`tends]]] == Evaluate[ac[Evaluate[Last[glob`tends]]] /. Last[glob`sol]][[1]], dummT[Evaluate[Last[glob`tends]]] == 0," +
+//      exprsListToCsvStri(hpToWhenEvents(x, 10)) + 
+//      "}, {x, y, v, ac, om, dx, dy, r, dummT}, {t, Evaluate[Last[glob`tends]], glob`tendLimi}]]];"
+//      ) :: evolsListToSetsStriList(xs)
+//  }
   
-  def hpToOdesList(hp: HP): List[Expr] = hp match {
-    case Evolve(h, primes @ _ *) => primsToOdesList(primes)
+  def hpToOdesList(hp: HP, tranMode : Int): List[Expr] = hp match {
+    case Evolve(h, primes @ _ *) => primsToOdesList(primes, tranMode : Int)
 
     case _ => throw new Exception("not implemented yet")
   }
   
-  def primsToOdesList(primes: Seq[(Var,Term)]) : List[Expr] = primes match {
+  def primsToOdesList(primes: Seq[(Var,Term)], tranMode : Int) : List[Expr] = primes match {
     case Seq(first: (Var, Term), rest @ _ *) => first._1 match {
       case Var(s) => bin_fun("Equal",
           new Expr(new Expr(new Expr(math_sym("Derivative"),
           List(new Expr(1L)).toArray),
           List(math_sym(s)).toArray),
           List(math_sym("loca`t")).toArray),
-          MmtManipulation.mmtToExpr(MmtManipulation.termToMmt(first._2)) ) :: primsToOdesList(rest)
+          MmtManipulation.mmtToExpr(MmtManipulation.termToMmt(first._2), tranMode) ) :: primsToOdesList(rest, tranMode : Int)
       // deboArreglar: don't use mmtToExpr and termToMmt.
       case _ => throw new Exception("Internal Error")
     }
@@ -103,38 +107,38 @@ object EvolveToExpr {
     }
   } 
   
-  def hpToWhenEvents(hp: HP, tMax : Double): List[Expr] = hp match {
-    case Evolve(h, primes @ _ *) => hToWhenEvents(h, tMax)
+  def hpToWhenEvents(hp: HP, tMax : Double, tranMode : Int): List[Expr] = hp match {
+    case Evolve(h, primes @ _ *) => hToWhenEvents(h, tMax, tranMode : Int)
 
     case _ => throw new Exception("not implemented yet")
   }
   
   
-  def hToWhenEvents(h: Formula, tMax: Double) : List[Expr] = {
+  def hToWhenEvents(h: Formula, tMax: Double, tranMode : Int) : List[Expr] = {
     bin_fun("WhenEvent",
         //bin_fun("Or", un_fun("Not", formulaToExpr(h)), bin_fun("Greater", math_sym("t"), new Expr(tMax))),
-        un_fun("Not", formulaToExpr(h)),
+        un_fun("Not", formulaToExpr(h, tranMode : Int)),
         //bin_fun("CompoundExpression", bin_fun("Set", math_sym("glob`tend"), math_sym("t")), new Expr("StopIntegration"))) :: Nil
         bin_fun("CompoundExpression", bin_fun("Set", math_sym("glob`tends"), bin_fun("Append", math_sym("glob`tends"), math_sym("loca`t"))), new Expr("StopIntegration"))) :: Nil
   }
 
     // deboArreglar: don't use mmtToExpr and termToMmt in this function
-  def termToExpr(myTerm: Term) : Expr = {
-    MmtManipulation.mmtToExpr(MmtManipulation.termToMmt(myTerm))
+  def termToExpr(myTerm: Term, tranMode : Int) : Expr = {
+    MmtManipulation.mmtToExpr(MmtManipulation.termToMmt(myTerm), tranMode)
   }
   
 
-  def formulaToExpr(frml: Formula) : Expr = frml match {
+  def formulaToExpr(frml: Formula, tranMode : Int) : Expr = frml match {
     case True => math_sym("True")
     case False => math_sym("False")
-    case Atom(t: Term) => termToExpr(t)
+    case Atom(t: Term) => termToExpr(t, tranMode)
     case ArithmeticPred(op : Comparison, term1 : Term, term2 : Term) => op match {
-      case Equals => bin_fun("Equal", termToExpr(term1), termToExpr(term2)) 
-      case NotEquals => bin_fun("Unequal", termToExpr(term1), termToExpr(term2))
-      case Less => bin_fun("Less", termToExpr(term1), termToExpr(term2))
-      case LessEquals => bin_fun("LessEqual", termToExpr(term1), termToExpr(term2))
-      case Greater => bin_fun("Greater", termToExpr(term1), termToExpr(term2))
-      case GreaterEquals => bin_fun("GreaterEqual", termToExpr(term1), termToExpr(term2))
+      case Equals => bin_fun("Equal", termToExpr(term1, tranMode), termToExpr(term2, tranMode)) 
+      case NotEquals => bin_fun("Unequal", termToExpr(term1, tranMode), termToExpr(term2, tranMode))
+      case Less => bin_fun("Less", termToExpr(term1, tranMode), termToExpr(term2, tranMode))
+      case LessEquals => bin_fun("LessEqual", termToExpr(term1, tranMode), termToExpr(term2, tranMode))
+      case Greater => bin_fun("Greater", termToExpr(term1, tranMode), termToExpr(term2, tranMode))
+      case GreaterEquals => bin_fun("GreaterEqual", termToExpr(term1, tranMode), termToExpr(term2, tranMode))
       /* deboPreguntar: OK to handle less and lessequals in the same way? */
       case _ => throw new Exception("not implemented... varargs")
     }
@@ -143,15 +147,15 @@ object EvolveToExpr {
     case Pred(_, _) => throw new Exception ("not implemented")
 
     case Prop(c : Connective, f1 : Formula) => c match {
-      case Not => un_fun("Not", formulaToExpr(f1))
+      case Not => un_fun("Not", formulaToExpr(f1, tranMode : Int))
       case _ => throw new Exception("not implemented yet... varargs")
     }
 
     case Prop(c : Connective, f1 : Formula, f2 : Formula) => c match {
-      case And => bin_fun("And", formulaToExpr(f1), formulaToExpr(f2))
-      case Or => bin_fun("Or", formulaToExpr(f1), formulaToExpr(f2))
-      case Imp => bin_fun("Implies", formulaToExpr(f1), formulaToExpr(f2))
-      case Iff => bin_fun("Equivalent", formulaToExpr(f1), formulaToExpr(f2))
+      case And => bin_fun("And", formulaToExpr(f1, tranMode : Int), formulaToExpr(f2, tranMode : Int))
+      case Or => bin_fun("Or", formulaToExpr(f1, tranMode : Int), formulaToExpr(f2, tranMode : Int))
+      case Imp => bin_fun("Implies", formulaToExpr(f1, tranMode : Int), formulaToExpr(f2, tranMode : Int))
+      case Iff => bin_fun("Equivalent", formulaToExpr(f1, tranMode : Int), formulaToExpr(f2, tranMode : Int))
       case _ => throw new Exception("not implemented yet... varargs")
     }
 
@@ -167,3 +171,4 @@ object EvolveToExpr {
     
   
 }
+
