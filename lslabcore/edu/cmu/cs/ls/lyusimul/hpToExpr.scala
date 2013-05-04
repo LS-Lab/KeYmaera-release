@@ -16,6 +16,9 @@ object hpToExpr {
 
   def math_int(s: String): Expr =
     new Expr(Expr.INTEGER, s)
+  
+  def math_str(s: String): Expr =
+    new Expr(Expr.STRING, s)
 
   def un_fun(f: String, arg: Expr): Expr = {
     new Expr(math_sym(f),
@@ -42,27 +45,132 @@ object hpToExpr {
   }
   
 
-  def modaToExpr (mdlt : Modality, varisToDisp: List[String], tendLimi : Double, nUnroLoop : Int, randMin : Double, randMax : Double) : Expr = {
+  def modaToExpr (mdlt : Modality, varisToDisp: List[String], nGrapsPerRow: Int, tendLimi : Double, nUnroLoop : Int, randMin : Double, randMax : Double) : Expr = {
     applicable(mdlt)
     
-    val varisStrisListFromHp = hpToVarisStrisList(mdlt.hp)
-    val varisExprsListFromHp = strisListToExprsList(varisStrisListFromHp)
+    // hayquePreguntar: Is it OK to extract variables only from evolve?
+    val varisStrisListForEvol = hpToVarisStrisListWoDuplsForEvol(mdlt.hp)
+    val varisExprsListForEvol = strisListToExprsList(varisStrisListForEvol)
     var statsList = List(bin_fun("Set", math_sym("glob`tendLimi"), new Expr(tendLimi)))
     statsList = statsList ++ List(bin_fun("Set", math_sym("glob`tends"), un_fun("List", new Expr(0))))
     // Following line may be buggy.
     statsList = statsList ++ List(bin_fun("Set", math_sym("glob`sol"), mul_arg_fun("List", List())))
     
-    statsList = statsList ++ hpToStatsList(mdlt.hp, varisStrisListFromHp, tendLimi, nUnroLoop, randMin, randMax)
+    statsList = statsList ++ hpToStatsList(mdlt.hp, varisStrisListForEvol, tendLimi, nUnroLoop, randMin, randMax)
+    
+    val safetyExpr = MmtManipulation.mmtToExpr(MmtManipulation.formulaToMmt(mdlt.f), EvolveToExpr.LOCA_T)
+    statsList = statsList ++ List(bin_fun("Set", un_fun("glob`safety", math_sym("loca`t_")), safetyExpr))
 
-    statsList = statsList ++ varisToDispToPlotComms(varisToDisp) 
+    statsList = statsList ++ varisToDispToPlotComms(varisToDisp, nGrapsPerRow) 
     val compExpr = mul_arg_fun("CompoundExpression", statsList)
-    return bin_fun("Module", scalListToListExpr(varisExprsListFromHp), compExpr) 
+    return bin_fun("Module", scalListToListExpr(varisExprsListForEvol), compExpr) 
   }
   
-  // hayqueHacer: make it not hardcoded
-  def hpToVarisStrisList (hp: HP) : List[String] = {
-    return List("y","v","ac","dummT")
+  def hpToVarisStrisListWoDuplsForEvol (hp: HP) : List[String] = {
+    return hpToVarisStrisListWithDuplsForEvol(hp).distinct
   }
+  
+  def hpsListToVarisStrisListWithDuplsForEvol(hpsList : List[HP]) : List[String] = hpsList match {
+    case Nil => Nil
+    case x::xs => hpToVarisStrisListWithDuplsForEvol(x) ++ hpsListToVarisStrisListWithDuplsForEvol(xs)
+  }
+  
+  def evolToVarisStrisList(hp: HP): List[String] = hp match {
+    case Evolve(h, primes @ _ *) => primsListToVarisList(evolToPrimsList(hp))
+    case _ => throw new Exception("evolToVarisStrisList: hp is not of type Evolve")
+  }
+   
+  def hpToVarisStrisListWithDuplsForEvol(hp: HP) : List[String] = hp match {
+    case ComposedHP(Sequence, hps @ _ *) => hpsListToVarisStrisListWithDuplsForEvol(seqToHpsList(hp))
+    case ComposedHP(Star, hps @ _ *) => hpsListToVarisStrisListWithDuplsForEvol(starToHpsList(hp, 1))
+    case ComposedHP(Choice, hps @ _ *) => hpsListToVarisStrisListWithDuplsForEvol(choiToHpsList(hp))
+    case Evolve(h, primes @ _*) => evolToVarisStrisList(hp)
+    case Assign(v, t) => Nil
+    case AssignAny(v) => Nil
+    case Check(h) => Nil
+    case _ => throw new Exception("not implemented yet")
+  }
+  
+//  def hpToVarisStrisListWithDuplsForEvol(hp: HP) : List[String] = hp match {
+//    case ComposedHP(Sequence, hps @ _ *) => (Sequence.flatten(hp).toList) match {
+//      case hpsList => hpsListToVarisStrisListWithDuplsForEvol(hpsList)
+//    }
+//    case ComposedHP(Star, hps @ _ *) => (Star.flatten(hp).toList) match {
+//      case hpsList => hpsListToVarisStrisListWithDuplsForEvol(hpsList)
+//    }
+//    case ComposedHP(Choice, hps @ _ *) => (Choice.flatten(hp).toList) match {
+//      case hpsList => hpsListToVarisStrisListWithDuplsForEvol(hpsList)
+//    }
+//    case Evolve(h, primes @ _*) => primsToVarisStrisList(primes:_*)    
+//    case Assign(v, t) => Nil
+//    case AssignAny(v) => Nil
+//    case Check(h) => Nil
+//    case _ => throw new Exception("not implemented yet")
+//  }
+  
+//  def seqToHpsList(hp : HP) : List[HP] = hp match {
+//    case ComposedHP(Sequence, hps @ _ *) => 
+//      seqToHpsList(hps.head) ++ hps.tail.map(hp => seqToHpsList(hp)).flatten 
+//      // Sequence.flatten(hp)
+//      // hp.asInstanceOf[ComposedHP].flatten
+//    case x => List(x)
+//  }
+  
+//  def seqToHpsList(hp : HP) : List[HP] = hp match {
+//    case ComposedHP(Sequence, hps @ _ *) => 
+//      seqToHpsList(hps.head) ++ hps.tail.map(hp => seqToHpsList(hp)).flatten 
+//      // Sequence.flatten(hp)
+//      // hp.asInstanceOf[ComposedHP].flatten
+//    case x => List(x)
+//  }
+  
+  def evolToPrimsList(evolve: HP) : List[(Var, Term)] = evolve match {
+    case Evolve(h, primes @ _*) => primes.toList
+//    case Evolve(h, primes @ _*) => primes.head match {
+//      case (myVar : Var, myTerm : Term) => primes.head :: primes.tail.toList 
+//      case _ => Nil
+//    }
+    case _ => throw new Exception("evolToPrimsList: input parameter is not of type Evolve")
+      
+  }
+  
+  def primsListToVarisList(primes : List[(Var, Term)]) : List[String] = primes match {
+    case Nil => Nil
+    // hayquePreguntar: Include what is in the "term" part?
+    case (myVar, myTerm) :: xs => myVar match {
+      case Var(s) => s :: primsListToVarisList(xs)
+    }
+//      
+//      case (myVar, myTerm) => myVar match {
+//    	case Var(s) => s :: primsToVarisStrisList(rest:_*)
+//        // hayquePreguntar: Include what is in the "term" part?
+//
+//        case _ => throw new Exception("myVar is not of form Var(s)")
+//      }
+//      case _ => Nil
+//
+//    }
+  }
+    
+//  def primsToVarisStrisList(primes : (Var, Term)*) : List[String] = primes match {
+//    case Seq(varTermPair, rest @ _ *) => varTermPair match {
+//      case (myVar, myTerm) => myVar match {
+//    	case Var(s) => s :: primsToVarisStrisList(rest:_*)
+//        // hayquePreguntar: Include what is in the "term" part?
+//
+//        case _ => throw new Exception("myVar is not of form Var(s)")
+//      }
+//      case _ => Nil
+//
+//    }
+//    
+//    case Seq((myVar, myTerm), rest @ _ *) => myVar match {
+//      case Var(s) => s :: primsToVarisStrisList(rest:_*)
+//      // hayquePreguntar: Include what is in the "term" part?
+//
+//      case _ => Nil
+//    }
+//  } 
   
   def hpToStatsList (hp : HP, varisStrisListFromHp : List[String], tendLimi : Double, nUnroLoop : Int, randMin : Double, randMax : Double) : List[Expr] = hp match {
     case ComposedHP(Sequence, hps @ _ *) => hpsListToStatsList(seqToHpsList(hp), varisStrisListFromHp : List[String], tendLimi, nUnroLoop, randMin, randMax)
@@ -163,6 +271,14 @@ object hpToExpr {
     
   }
   
+  def choiToHpsList(hp : HP) : List[HP] = hp match {
+    case ComposedHP(Choice, hps @ _ *) => 
+      choiToHpsList(hps.head) ++ hps.tail.map(hp => choiToHpsList(hp)).flatten 
+      // Sequence.flatten(hp)
+      // hp.asInstanceOf[ComposedHP].flatten
+    case x => List(x)
+  }
+  
   def hpsListToStatsList(hpsList: List[HP], varisStrisListFromHp : List[String], tendLimi : Double, nUnroLoop : Int, randMin : Double, randMax : Double) : List[Expr] = hpsList match {
     case x :: xs => x match {
       case Check(h) => List(mul_arg_fun("If", List(
@@ -182,11 +298,23 @@ object hpToExpr {
     else aList(index)
   }
 
-  // hayqueHacer: drop the assumption that varisToDisp has only one element in it
-  def varisToDispToPlotComms(varisToDisp: List[String]) : List[Expr] = varisToDisp match {
+  def varisToDispToPlotComms(varisToDisp: List[String], nGrapsPerRow : Int) : List[Expr] = {    
+    return List(un_fun("GraphicsGrid", scalListListToListListExpr(
+        List() :: // If you don't append List() to the beginning, the axis labels of the uppermost plots are sometimes not visible  
+        varisToDispToPlotCommsScalListList(varisToDisp: List[String], nGrapsPerRow : Int))))
+  }
+    
+  def varisToDispToPlotCommsScalListList(varisToDisp: List[String], nGrapsPerRow : Int) : List[List[Expr]] = varisToDisp match {
+	    case Nil => List(List())
+	    case x::xs =>
+	      return varisToDispToPlotCommScalList(varisToDisp.take(nGrapsPerRow)) ::
+	          varisToDispToPlotCommsScalListList(varisToDisp.drop(nGrapsPerRow), nGrapsPerRow)
+  }
+  
+  def varisToDispToPlotCommScalList (varisToDisp: List[String]) : List[Expr] = varisToDisp match {
     case Nil => Nil
     case x::xs =>
-      bin_fun("Plot",
+      mul_arg_fun("Plot", List(
         un_fun("Piecewise",
           bin_fun("Table",
             mul_arg_fun("List", List(
@@ -228,10 +356,24 @@ object hpToExpr {
           math_sym("loca`t"),
           un_fun("Evaluate", un_fun("First", math_sym("glob`tends"))),
           un_fun("Evaluate", un_fun("Last", math_sym("glob`tends")))
-        ))
-      ) :: varisToDispToPlotComms(xs)
+        )),
+        bin_fun("Rule",
+          math_sym("AxesLabel"),
+          scalListToListExpr(List(
+            bin_fun("Style", math_sym("t"), math_int("20")),
+            bin_fun("Style", math_str(x), math_int("20"))
+          ))
+        )
+      )) :: varisToDispToPlotCommScalList(xs)
   }
-
-
+    
+  def scalListListToListListExpr(scalListList : List[List[Expr]]) : Expr = {
+    return scalListToListExpr(scalListListToScalListOfListExpr(scalListList))
+  } 
   
+  def scalListListToScalListOfListExpr(scalListList : List[List[Expr]]) : List[Expr] = scalListList match {
+    case Nil => Nil
+    case x :: xs => scalListToListExpr(x) :: scalListListToScalListOfListExpr(xs)
+  }
+ 
 }

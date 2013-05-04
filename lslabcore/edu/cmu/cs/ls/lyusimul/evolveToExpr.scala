@@ -82,7 +82,7 @@ object EvolveToExpr {
     case _ => Nil
   }
   
-  def hpToVarisList(hp: HP): List[Expr] = hp match {
+  def evolToVarisList(hp: HP): List[Expr] = hp match {
     case Evolve(h, primes @ _ *) => primsToVarisList(primes:_*)
     case _ => throw new Exception("not implemented yet")
   }

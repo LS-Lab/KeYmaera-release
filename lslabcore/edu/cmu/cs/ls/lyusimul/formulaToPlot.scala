@@ -170,9 +170,9 @@ object FormulaToPlot {
 //    println(plotStri1)    
 //    val ddd = new MathematicaPlot(plotStri1)
     
-    val execStri = hpToExpr.modaToExpr(mdlt, List("y"), 100.0, 20, 4.0, 11.0).toString() 
-    println(execStri)
-    val a = new MathematicaPlot(execStri)
-    
+//    val execStri = hpToExpr.modaToExpr(mdlt, List("y"), 100.0, 20, 4.0, 11.0).toString() 
+//    println(execStri)
+//    val a = new MathematicaPlot(execStri)
+//    
   }
 }
