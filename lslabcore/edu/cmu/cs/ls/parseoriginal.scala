@@ -7,14 +7,14 @@ import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.io.InputStream
 import java.io.FileInputStream
-
 import scala.util.parsing.combinator.lexical._
 import scala.util.parsing.combinator.syntactical._
 import scala.util.parsing.combinator._
+import java.io.FileReader
 
 class DLOriginalParser(ins : String) extends StdTokenParsers {
   type Tokens = StdLexical 
-  val lexical = new DLLexical
+  override val lexical = new DLLexical
   lexical.delimiters ++= List(",", ";",":", "(", ")", "\\[", "\\]", 
 		  					  "\\<", "\\>", "{", "}",
                               "=", "!=", "<", ">", ">=", "<=",
@@ -25,7 +25,8 @@ class DLOriginalParser(ins : String) extends StdTokenParsers {
 
   lexical.reserved ++= List("forall", "exists",
                              "true", "false",
-                             "invariant", "variant"
+                             "invariant", "variant",
+                             "if", "fi", "then", "else"
                            ).iterator
 
    def this(in : InputStream) = {
@@ -53,7 +54,7 @@ class DLOriginalParser(ins : String) extends StdTokenParsers {
      "-" ~> prod ^^ { x: Term => -x}
 
    def factor: Parser[Term] =
-      atomicTerm~"^"~atomicTerm ^^ {case x~"^"~y => x^y} |
+      atomicTerm~"^"~numericLit ^^ {case x~"^"~y => x^Num(Exact.Integer(Integer.parseInt(y)))} |
       atomicTerm
 
    def function : Parser [Fn] =
@@ -111,8 +112,10 @@ class DLOriginalParser(ins : String) extends StdTokenParsers {
      (ident <~ ":=")~term ^^ {case x~t => Assign(Var(x), t)} |     
      "?" ~> formula0 ^^ { x => Check(x)}  |
      ("if" ~> "(" ~> formula0 <~ ")" <~ "then")~hp~
-     	opt("else" ~> hp) <~ "fi" ^^ 
-     	{case f~thenhp~elsehp => (Check(f) seq thenhp) ++ (elsehp map (hp => Check(!f) seq hp) getOrElse Check(!f))}
+     	("else" ~> hp <~ "fi") ^^ 
+     	{case f~thenhp~elsehp => (Check(f) seq thenhp) ++ (Check(!f) seq elsehp)} |
+     ("if" ~> "(" ~> formula0 <~ ")" <~ "then")~hp <~ "fi" ^^ 
+     	{case f~thenhp => (Check(f) seq thenhp) ++ Check(!f)} |	
      ("{" ~> rep1sep(diffeq, ",") <~ ",")~(formula0 <~ "}")~opt(annotation("invariant")) ^^
         {case dvs~f~invs => Evolve(f, dvs:_*)}
 
@@ -160,11 +163,21 @@ object OP {
   }
 
   def parseFormula(f: String) : Formula = {
-    val dlp = new DLParser(f)
+    val dlp = new DLOriginalParser(f)
     dlp.fm_result match {
       case Some(fm) => fm
       case None =>
         println("could not read a formula from " + f)
+        False
+    }
+  }
+  
+  def parseFormula(i: InputStream) : Formula = {
+    val dlp = new DLOriginalParser(i)
+    dlp.fm_result match {
+      case Some(fm) => fm
+      case None =>
+        println("could not read a formula from " + i)
         False
     }
   }
