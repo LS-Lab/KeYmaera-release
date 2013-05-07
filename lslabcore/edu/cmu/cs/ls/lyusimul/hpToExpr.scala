@@ -126,12 +126,12 @@ object hpToExpr {
   
   def evolToPrimsList(evolve: HP) : List[(Var, Term)] = evolve match {
     case Evolve(h, primes @ _*) => primes.toList
+    
 //    case Evolve(h, primes @ _*) => primes.head match {
 //      case (myVar : Var, myTerm : Term) => primes.head :: primes.tail.toList 
 //      case _ => Nil
 //    }
     case _ => throw new Exception("evolToPrimsList: input parameter is not of type Evolve")
-      
   }
   
   def primsListToVarisList(primes : List[(Var, Term)]) : List[String] = primes match {
