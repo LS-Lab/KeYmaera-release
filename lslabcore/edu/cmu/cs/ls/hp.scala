@@ -25,6 +25,7 @@ case class Evolve(h: Formula, primes: (Var,Term)*) extends HP {
     require(primes.length > 0)
   }
 }
+case object EmptyHP extends HP
 /** Compose hybrid programs ps by operator op */
 case class ComposedHP(op: HybridOperator, ps: HP*) extends HP {
  op.applicable(ps:_*)
