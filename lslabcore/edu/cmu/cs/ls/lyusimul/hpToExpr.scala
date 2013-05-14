@@ -41,7 +41,7 @@ object hpToExpr {
   }
   
   @elidable(ASSERTION) def applicable(mdlt: Modality) {
-    require(mdlt.m == BoxModality)
+    require(mdlt.m == Box)
   }
   
 
@@ -188,7 +188,13 @@ object hpToExpr {
             scalListToListExpr(
               EvolveToExpr.hpToOdesList(hp, EvolveToExpr.LOCA_T) ++
               varisStrisListToCurrsFetcsList(varisStrisListFromHp) ++
-              EvolveToExpr.hToWhenEvents(h, 10, EvolveToExpr.LOCA_T)
+              EvolveToExpr.hToWhenEvents(h, 10, EvolveToExpr.LOCA_T) ++
+              
+              
+              // hayqueCambiar: tendLimi minus a predefined constant, not minus a magic number
+              (bin_fun("WhenEvent",
+                bin_fun("GreaterEqual", math_sym("loca`t"), bin_fun("Plus", math_sym("glob`tendLimi"), new Expr(-1))),
+                bin_fun("CompoundExpression", bin_fun("Set", math_sym("glob`tends"), bin_fun("Append", math_sym("glob`tends"), math_sym("loca`t"))), new Expr("StopIntegration"))) :: Nil)        
             ),  
             scalListToListExpr(
               strisListToExprsList(varisStrisListFromHp)
@@ -360,7 +366,7 @@ object hpToExpr {
         bin_fun("Rule",
           math_sym("AxesLabel"),
           scalListToListExpr(List(
-            bin_fun("Style", math_sym("t"), math_int("20")),
+            bin_fun("Style", math_str("t"), math_int("20")),
             bin_fun("Style", math_str(x), math_int("20"))
           ))
         )
@@ -374,6 +380,17 @@ object hpToExpr {
   def scalListListToScalListOfListExpr(scalListList : List[List[Expr]]) : List[Expr] = scalListList match {
     case Nil => Nil
     case x :: xs => scalListToListExpr(x) :: scalListListToScalListOfListExpr(xs)
+  }
+  
+  def extractModality(f: Formula) : Modality = f match {
+    case Prop(c, nf @ _*) => c match {
+      // HACK: applies only to the very special case of the sent formulas
+      // nf.first is a Formula. nf.last is a Formula, too.
+      case Imp => extractModality(nf.last)
+      case _ => throw new NotImplementedError
+    }
+    case Modality(dumm, hp, safe) => Modality(dumm, hp, safe)
+    case a => throw new NotImplementedError(a.toString())
   }
  
 }

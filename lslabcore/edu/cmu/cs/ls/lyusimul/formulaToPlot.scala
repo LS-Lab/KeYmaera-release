@@ -135,7 +135,7 @@ object FormulaToPlot {
     	)
 
     
-    val mdlt = Modality(BoxModality, hp, (Var("v") < Num(Exact.Integer(50))))
+    val mdlt = Modality(Box, hp, (Var("v") < Num(Exact.Integer(50))))
     
     
     // println(hpToExpr.varisToDispToPlotComms(List("v")).toString())

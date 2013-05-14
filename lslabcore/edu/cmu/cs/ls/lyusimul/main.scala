@@ -64,9 +64,11 @@ object Main {
     	    	)
     	    )
     	)
-    val mdlt = Modality(BoxModality, hp, (Var("v") < Num(Exact.Integer(50))) & (Var("y") < Num(Exact.Integer(3000))))
+    var mdlt = Modality(Box, hp, (Var("v") < Num(Exact.Integer(50))) & (Var("y") < Num(Exact.Integer(3000))))
     
-    val execStri = hpToExpr.modaToExpr(mdlt, List("glob`safety", "y", "v", "ac"), 3, 1000.0, 90, 4.0, 11.0).toString() 
+    mdlt = hpToExpr.extractModality(OP.parseFormula(OP.openFile("/MyDocus/Temp/hps/1drobot-modified.key")))
+    
+    val execStri = hpToExpr.modaToExpr(mdlt, List("glob`safety", "xr", "vr", "ar", "or"), 3, 10000.0, 90, -10.0, 10.0).toString() 
     println(execStri)
     val a = new MathematicaPlot(execStri)
 
