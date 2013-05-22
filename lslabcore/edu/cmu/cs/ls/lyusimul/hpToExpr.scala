@@ -2,6 +2,7 @@ package edu.cmu.cs.ls.lyusimul
 
 import com.wolfram.jlink.Expr
 import edu.cmu.cs.ls._
+import edu.cmu.cs.ls.HP._
 import edu.cmu.cs.ls.lyusimul._
 import scala.annotation.elidable
 import scala.annotation.elidable._
@@ -75,8 +76,8 @@ object hpToExpr {
     case x::xs => hpToVarisStrisListWithDuplsForEvol(x) ++ hpsListToVarisStrisListWithDuplsForEvol(xs)
   }
   
-  def evolToVarisStrisList(hp: HP): List[String] = hp match {
-    case Evolve(h, primes @ _ *) => primsListToVarisList(evolToPrimsList(hp))
+  def evolToVarisStrisListOnLhs(hp: HP): List[String] = hp match {
+    case Evolve(h, primes @ _ *) => primsListToVarisListOnLhs(evolToPrimsList(hp))
     case _ => throw new Exception("evolToVarisStrisList: hp is not of type Evolve")
   }
    
@@ -84,7 +85,7 @@ object hpToExpr {
     case ComposedHP(Sequence, hps @ _ *) => hpsListToVarisStrisListWithDuplsForEvol(seqToHpsList(hp))
     case ComposedHP(Star, hps @ _ *) => hpsListToVarisStrisListWithDuplsForEvol(starToHpsList(hp, 1))
     case ComposedHP(Choice, hps @ _ *) => hpsListToVarisStrisListWithDuplsForEvol(choiToHpsList(hp))
-    case Evolve(h, primes @ _*) => evolToVarisStrisList(hp)
+    case Evolve(h, primes @ _*) => evolToVarisStrisListOnLhs(hp)
     case Assign(v, t) => Nil
     case AssignAny(v) => Nil
     case Check(h) => Nil
@@ -134,11 +135,11 @@ object hpToExpr {
     case _ => throw new Exception("evolToPrimsList: input parameter is not of type Evolve")
   }
   
-  def primsListToVarisList(primes : List[(Var, Term)]) : List[String] = primes match {
+  def primsListToVarisListOnLhs(primes : List[(Var, Term)]) : List[String] = primes match {
     case Nil => Nil
     // hayquePreguntar: Include what is in the "term" part?
     case (myVar, myTerm) :: xs => myVar match {
-      case Var(s) => s :: primsListToVarisList(xs)
+      case Var(s) => s :: primsListToVarisListOnLhs(xs)
     }
 //      
 //      case (myVar, myTerm) => myVar match {
@@ -150,6 +151,13 @@ object hpToExpr {
 //      case _ => Nil
 //
 //    }
+  }
+  
+  def primsListToVarisStrisListOnBothSides(primes : List[(Var, Term)]) : List[String] = primes match {
+    case Nil => Nil
+    // hayquePreguntar: Include what is in the "term" part?
+    case (Var(s), myTerm) :: xs =>
+      s :: (termToVarisStrisList(myTerm) ++ primsListToVarisStrisListOnBothSides(xs))
   }
     
 //  def primsToVarisStrisList(primes : (Var, Term)*) : List[String] = primes match {
@@ -386,11 +394,93 @@ object hpToExpr {
     case Prop(c, nf @ _*) => c match {
       // HACK: applies only to the very special case of the sent formulas
       // nf.first is a Formula. nf.last is a Formula, too.
-      case Imp => extractModality(nf.last)
+      // case Imp => extractModality(nf.last) 
+      case Imp => nf.last match {
+        // hayqueHacer: add assignany before these.
+        case Modality(Box, hp, safe) => {
+          var varisStrisList : List[String] = (formToVarisStrisListInAll(f)).distinct
+          var assiAnys : HP = varisStrisListToAssiAnysSeq(varisStrisList)
+          return Modality(Box, (assiAnys seq (? (nf.toList.head)) seq hp), safe)          
+        }
+        case _ => throw new NotImplementedError
+        
+        
+//        println("nf's first")
+//        println(nf.toList.head.toString())
+//        println("nf.last")
+//        println(nf.last.toString())
+//        println()
+        
+//        return extractModality(nf.last)
+      }
+        
       case _ => throw new NotImplementedError
     }
     case Modality(dumm, hp, safe) => Modality(dumm, hp, safe)
     case a => throw new NotImplementedError(a.toString())
   }
+  
+//  def extractModality(f: Formula) : Modality = f match {
+//    case Prop(c, nf @ _*) => c match {
+//      // HACK: applies only to the very special case of the sent formulas
+//      // nf.first is a Formula. nf.last is a Formula, too.
+//      case Imp => extractModality(nf.last)
+//      case _ => throw new NotImplementedError
+//    }
+//    case Modality(dumm, hp, safe) => Modality(dumm, hp, safe)
+//    case a => throw new NotImplementedError(a.toString())
+//  }
+  
+  def formToVarisStrisListInAll(f: Formula) : List[String] = f match {
+    case True => Nil
+    case False => Nil
+    case Atom(t: Term) => termToVarisStrisList(t)
+    case ArithmeticPred(op: Comparison, ps @ _ *) => termsListToVarisStrisList(ps.toList)
+    case Pred(p: String, ps @ _ *) => termsListToVarisStrisList(ps.toList)
+    case Prop(c : Connective, fs @ _ *) => formsListToVarisStrisList(fs.toList)
+    case Quantifier(k : QuantifierKind, v : String, c: Sort, frml: Formula) => v :: formToVarisStrisListInAll(frml)
+    case Modality(m: ModalityOperator, hp: HP, frml: Formula) => hpToVarisStrisList(hp) ++ formToVarisStrisListInAll(frml)
+  }
+  
+  def formsListToVarisStrisList(fs: List[Formula]) : List[String] = fs match {
+    case Nil => Nil
+    case x::xs => formToVarisStrisListInAll(x) ++ formsListToVarisStrisList(xs)
+  }
+  
+  def termToVarisStrisList(t: Term) : List[String] = t match {
+	case Num(n: Exact.Num) => Nil
+	case Var(s: String) => List(s)
+	case Arithmetic(op: ArithmeticOp, ps @ _ *) => termsListToVarisStrisList(ps.toList)  
+	case Fn(f: String, ps @ _ *) => termsListToVarisStrisList(ps.toList)
+  }
+  
+  def termsListToVarisStrisList(ts: List[Term]) : List[String] = ts match {
+    case Nil => Nil
+    case x::xs => termToVarisStrisList(x) ++ termsListToVarisStrisList(xs)
+  }
+  
+  def hpToVarisStrisList(hp: HP) : List[String] = hp match {
+    case ComposedHP(Sequence, hps @ _ *) => hpsListToVarisStrisList(hps.toList)
+    case ComposedHP(Star, hps @ _ *) => hpsListToVarisStrisList(hps.toList)
+    case ComposedHP(Choice, hps @ _ *) => hpsListToVarisStrisList(hps.toList)
+    case Evolve(h, primes @ _*) => formToVarisStrisListInAll(h) ++ primsListToVarisStrisListOnBothSides(primes.toList)
+    case Assign(Var(s), t) => s :: termToVarisStrisList(t) 
+    case AssignAny(Var(s)) => s :: Nil 
+    case Check(h) => formToVarisStrisListInAll(h)
+    case _ => throw new Exception("not implemented yet")
+  }
  
+  def hpsListToVarisStrisList(hps: List[HP]) : List[String] = hps match {
+    case Nil => Nil
+    case x::xs => hpToVarisStrisList(x) ++ hpsListToVarisStrisList(xs)
+  }
+  
+  def varisStrisListToAssiAnysSeq(varis: List[String]) : HP = varis match {
+    case Nil => {
+      println("[INTERNAL WARNING] varisStrisListToAssiAnysSeq: case Nil")
+      return EmptyHP
+    }
+    case x0::Nil => AssignAny(Var(x0))
+    case x::xs => AssignAny(Var(x)) seq varisStrisListToAssiAnysSeq(xs)
+  }
 }
