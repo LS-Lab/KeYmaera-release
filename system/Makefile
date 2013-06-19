@@ -181,7 +181,7 @@ doc: argfile
 
 
 
-## create distribution package
+## create KeY distribution package
 .PHONY: dist
 dist:	branding all
 	@echo "[creating distribution directory structure]"
@@ -210,6 +210,7 @@ dist:	branding all
 
 OPTIONS:=${OPTIONS} -target 1.5
 
+## create KeYmaera distribution package
 dist-keymaera:	branding all
 	@echo "[creating distribution directory structure]"
 	@mkdir -p ../dist
@@ -246,6 +247,7 @@ dist-keymaera:	branding all
 	@jar cfm setup.jar resources/de/uka/ilkd/key/util/install/MANIFEST.MF -C dist/setup/ .
 	@tar -czvf ../dist/KeY-$(KEY_VERSION_LONG).tgz keymaera.jar setup.jar -C ../ LICENSE.TXT
 	@cp ../README.install.bytecode ../dist/README-$(KEY_VERSION_LONG).txt
+	@echo "[distribution files created in dist/KeY-$(KEY_VERSION_LONG).tgz]"
 	@echo "[deleting distribution directory structure]"
 	@rm -rf dist
 
