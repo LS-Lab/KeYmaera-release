@@ -1,0 +1,8 @@
+#!/bin/sh
+rm dist/KeY-*.tgz
+BRANDING=y make -C system/ realclean dist-keymaera
+cd dist
+tar xvf KeY-3.2.tgz
+echo signing jar
+jarsigner -tsa https://timestamp.geotrust.com/tsa  keymaera.jar CMU
+jarsigner -verify keymaera.jar
