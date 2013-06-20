@@ -8,6 +8,7 @@ object EvolveToExpr {
   
   def CURR_BACKTICK : Int = 0
   def LOCA_T : Int = 1
+  def NOTHING : Int = 2
   
   def math_sym(s: String): Expr =
     new Expr(Expr.SYMBOL, s)

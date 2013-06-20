@@ -295,6 +295,19 @@ object hpToExpr {
   
   def hpsListToStatsList(hpsList: List[HP], varisStrisListFromHp : List[String], tendLimi : Double, nUnroLoop : Int, randMin : Double, randMax : Double) : List[Expr] = hpsList match {
     case x :: xs => x match {
+      case AssignAny(v: Var) => {
+        if (hasChecAfteAssiAnys(hpsList)) {
+          var remaAssiAnys = hpsListToRemaAssiAnys(hpsList)
+          var setWithFindInst = hpsListToSetWithFindInst(hpsList)
+          var hpsAfteFindInsts = hpsListToHpsAfteFindInsts(hpsList)
+          return hpsListToStatsList(remaAssiAnys, varisStrisListFromHp : List[String], tendLimi : Double, nUnroLoop : Int, randMin : Double, randMax : Double) ++
+              List(setWithFindInst) ++
+              hpsListToStatsList(hpsAfteFindInsts, varisStrisListFromHp : List[String], tendLimi : Double, nUnroLoop : Int, randMin : Double, randMax : Double)
+        } else {
+          return hpToStatsList(x, varisStrisListFromHp : List[String], tendLimi : Double, nUnroLoop : Int, randMin : Double, randMax : Double) ++
+              hpsListToStatsList(xs, varisStrisListFromHp : List[String], tendLimi : Double, nUnroLoop : Int, randMin : Double, randMax : Double)
+        }
+      }
       case Check(h) => List(mul_arg_fun("If", List(
         EvolveToExpr.formulaToExpr(h, EvolveToExpr.CURR_BACKTICK),
         mul_arg_fun("CompoundExpression", hpsListToStatsList(xs, varisStrisListFromHp : List[String], tendLimi : Double, nUnroLoop : Int, randMin : Double, randMax : Double)),
@@ -305,6 +318,190 @@ object hpToExpr {
     }
         
     case Nil => Nil
+  }
+  
+  def hpsListToRemaAssiAnys(hpsList: List[HP]) : List[HP] = {
+    var firsConsAssiAnys = hpsListToFirsConsAssiAnys(hpsList)
+    var firsConsChecs = hpsListToFirsConsChecs(hpsList)
+    
+    var variStrisListOfConsAssiAnys = consAssiAnysToVariStrisList(firsConsAssiAnys).distinct
+    var variStrisListOfConsChecs = consChecsToVariStrisList(firsConsChecs).distinct
+    
+    var varisInAssiAnysMinuChecs = setMinuOfStrisLists(variStrisListOfConsAssiAnys, variStrisListOfConsChecs).distinct
+    
+    return varisStrisListToAssiAnysList(varisInAssiAnysMinuChecs)
+  } 
+  
+  def varisStrisListToAssiAnysList(varisList: List[String]) : List[HP] = varisList match {
+    case Nil => Nil
+    case x::xs => AssignAny(Var(x)) :: varisStrisListToAssiAnysList(xs)
+  } 
+  
+  def hasChecAfteAssiAnys(hpsList: List[HP]) : Boolean = hpsList match {
+    case Nil => false
+    case x::xs => x match {
+      case AssignAny(v: Var) => hasChecAfteAssiAnys(xs)
+      case Check(h) => true
+      case _ => false
+    }
+  }
+  
+  // Assumes the initial call is given an HP list that starts with the valid pattern of assiAnys followed by
+  // checks
+  def hpsListToHpsAfteFindInsts(hpsList: List[HP]) : List[HP] = hpsList match {
+    case Nil => Nil
+    case x::xs => x match {
+      case AssignAny(v) => hpsListToHpsAfteFindInsts(xs)
+      case Check(h) => hpsListToHpsAfteFindInsts(xs)
+      case _ => hpsList
+    }
+  }
+  
+  // Assumes the initial call is given an HP list that starts with the valid pattern of assiAnys followed by
+  // checks
+  def hpsListToSetWithFindInst(hpsList: List[HP]) : Expr = {
+    var firsConsAssiAnys = hpsListToFirsConsAssiAnys(hpsList)
+    var firsConsChecs = hpsListToFirsConsChecs(hpsList)
+    
+    var variStrisListOfConsAssiAnys = consAssiAnysToVariStrisList(firsConsAssiAnys).distinct
+    var variStrisListOfConsChecs = consChecsToVariStrisList(firsConsChecs).distinct
+    
+    var varisInBothAssiAnysAndChecs = (variStrisListOfConsAssiAnys.intersect(variStrisListOfConsChecs)).distinct
+    var varisInChecsMinuAssiAnys = setMinuOfStrisLists(variStrisListOfConsChecs, variStrisListOfConsAssiAnys).distinct
+    
+    var varisToBeSetWithCurrBacktick = varisInBothAssiAnysAndChecs.map(((x : String) => "curr`" + x))
+    
+    var consChecsWithCurrBackticksAtApprVaris = addCurrBacktickToSpecVarisInConsChecs(firsConsChecs, varisInChecsMinuAssiAnys)
+    var ands = consChecsToAnds(consChecsWithCurrBackticksAtApprVaris)
+    
+    var varisExprsInBothAssiAnysAndChecs = varisInBothAssiAnysAndChecs.map(math_sym)
+    var varisExprsToBeSetWithCurrBacktick = varisToBeSetWithCurrBacktick.map(math_sym)
+    
+    return bin_fun("Set",
+      scalListToListExpr(varisExprsToBeSetWithCurrBacktick),
+      bin_fun("ReplaceAll",
+        scalListToListExpr(varisExprsInBothAssiAnysAndChecs),
+        bin_fun("Part",
+          mul_arg_fun("FindInstance", List(
+            ands,
+            scalListToListExpr(varisExprsInBothAssiAnysAndChecs),
+            math_sym("Reals")
+          )),
+          math_int("1")
+        )
+        
+      )
+    )
+    
+  }
+  
+  def consChecsToAnds(consChecs: List[HP]) : Expr = consChecs match {
+    case Nil => throw new Exception("consChecsToAnds: Nil case")  
+    case x::Nil => x match {
+      case Check(f) => EvolveToExpr.formulaToExpr(f, EvolveToExpr.NOTHING)
+      case _ => throw new Exception("consChecsToAnds: not check")
+    }
+    case x::xs => x match {
+      case Check(f) => bin_fun("And", EvolveToExpr.formulaToExpr(f, EvolveToExpr.NOTHING), consChecsToAnds(xs))
+      case _ => throw new Exception("consChecsToAnds: not check")
+    }    
+  }
+  
+  def addCurrBacktickToSpecVarisInConsChecs(consChecs: List[HP], specVaris: List[String]) : List[HP] = consChecs match {
+    case Nil => Nil
+    case x::xs => x match {
+      case Check(f) => Check(addCurrBacktickToSpecVarisInForm(f, specVaris)) :: addCurrBacktickToSpecVarisInConsChecs(xs, specVaris)
+      case _ => throw new Exception("putCurrBacktickToSpecVarisInConsChecs: list contains something that is not Check")
+    }
+  }
+  
+  def addCurrBacktickToSpecVarisInForm(f: Formula, specVaris: List[String]) : Formula = f match {
+    case True => True
+    case False => False
+    case Atom(t: Term) => Atom(addCurrBacktickToSpecVarisInTerm(t, specVaris))
+    case ArithmeticPred(op: Comparison, ps @ _ *) => ArithmeticPred(op, addCurrBacktickToSpecVarisInTermsList(ps.toList, specVaris) : _*)
+    case Pred(p: String, ps @ _ *) => Pred(p, addCurrBacktickToSpecVarisInTermsList(ps.toList, specVaris) : _*)
+    case Prop(c : Connective, fs @ _ *) => Prop(c, addCurrBacktickToSpecVarisInFormsList(fs.toList, specVaris) : _ *)
+    case Quantifier(k : QuantifierKind, v : String, c: Sort, frml: Formula) => Quantifier(k : QuantifierKind, v : String, c: Sort, addCurrBacktickToSpecVarisInForm(frml, specVaris)) 
+    case Modality(m: ModalityOperator, hp: HP, frml: Formula) => throw new Exception("Not Implemented Yet")
+    case _ => throw new Exception("impossible case")
+  }
+  
+  def addCurrBacktickToSpecVarisInTerm(t: Term, specVaris: List[String]) : Term = t match {
+    case Num(n: Exact.Num) => t
+	case Var(s: String) => {
+	  if (specVaris.contains(s)) {
+	    return Var("curr`" + s)
+	  } else {
+	    return Var(s)
+	  }
+	}
+	case Arithmetic(op: ArithmeticOp, ps @ _ *) => Arithmetic(op, addCurrBacktickToSpecVarisInTermsList(ps.toList, specVaris) : _*)  
+	case Fn(f: String, ps @ _ *) => Fn(f, addCurrBacktickToSpecVarisInTermsList(ps.toList, specVaris) : _*)
+  }
+  
+  def addCurrBacktickToSpecVarisInTermsList(ts: List[Term], specVaris: List[String]) : List[Term] = ts match {
+    case Nil => Nil
+    case x::xs => addCurrBacktickToSpecVarisInTerm(x, specVaris) :: addCurrBacktickToSpecVarisInTermsList(xs, specVaris)
+  }
+  
+  def addCurrBacktickToSpecVarisInFormsList(fs: List[Formula], specVaris: List[String]) : List[Formula] = fs match {
+    case Nil => Nil
+    case x::xs => addCurrBacktickToSpecVarisInForm(x, specVaris) :: addCurrBacktickToSpecVarisInFormsList(xs, specVaris)
+  }
+  
+  def consAssiAnysToVariStrisList(hpsList: List[HP]) : List[String] = hpsList match {
+    case Nil => Nil
+    case x::xs => x match {
+      case AssignAny(Var(s)) => s :: consAssiAnysToVariStrisList(xs)
+      case _ => throw new Exception("consAssiAnysToVariStrisList: list contains something that is not AssignAny")
+    }
+  }
+  
+  def consChecsToVariStrisList(hpsList: List[HP]) : List[String] = hpsList match {
+    case Nil => Nil
+    case x::xs => x match {
+      case Check(f) => formToVarisStrisListInAll(f) ++ consChecsToVariStrisList(xs)
+      case _ => throw new Exception("consChecsToVariStrisList: list contains something that is not Check")
+    }
+  }
+  
+  def setMinuOfStrisLists(strisList0: List[String], strisList1: List[String]) : List[String] = strisList0 match {
+    case Nil => Nil
+    case x::xs => strisList1.contains(x) match {
+      case true => setMinuOfStrisLists(xs, strisList1)
+      case false => x :: setMinuOfStrisLists(xs, strisList1)
+      case _ => throw new Exception("setMinuOfStrisLists: Impossible case")
+    }
+  }
+  
+  def hpsListToFirsConsAssiAnys(hpsList : List[HP]) : List[HP] = hpsList match {
+    case Nil => Nil
+    case x::xs => x match {
+      case AssignAny(v) => x::hpsListToFirsConsAssiAnys(xs)
+      case _ => Nil
+    }
+  }
+  
+  def hpsListToFirsConsChecs(hpsList : List[HP]) : List[HP] = {
+    var hpsListWoConsAssiAnysInBegi = remoConsAssiAnysInBegi(hpsList)
+    return hpsListWoConsAssiAnysInBegiToFirsConsChecs(hpsListWoConsAssiAnysInBegi)
+  }
+  
+  def remoConsAssiAnysInBegi(hpsList : List[HP]) : List[HP] = hpsList match {
+    case Nil => Nil
+    case x::xs => x match {
+      case AssignAny(v) => remoConsAssiAnysInBegi(xs)
+      case _ => hpsList
+    }
+  }
+  
+  def hpsListWoConsAssiAnysInBegiToFirsConsChecs(hpsList : List[HP]) : List[HP] = hpsList match {
+    case Nil => Nil
+    case x::xs => x match {
+      case Check(h) => x :: hpsListWoConsAssiAnysInBegiToFirsConsChecs(xs)
+      case _ => Nil
+    }
   }
   
   def nth(index: Int, aList: List[Int]) = {
@@ -440,6 +637,7 @@ object hpToExpr {
     case Prop(c : Connective, fs @ _ *) => formsListToVarisStrisList(fs.toList)
     case Quantifier(k : QuantifierKind, v : String, c: Sort, frml: Formula) => v :: formToVarisStrisListInAll(frml)
     case Modality(m: ModalityOperator, hp: HP, frml: Formula) => hpToVarisStrisList(hp) ++ formToVarisStrisListInAll(frml)
+    case _ => throw new Exception("impossible case")
   }
   
   def formsListToVarisStrisList(fs: List[Formula]) : List[String] = fs match {

@@ -61,6 +61,8 @@ object MmtManipulation {
       return math_sym("curr`" + x)
     } else if (EvolveToExpr.LOCA_T == tranMode) {
       return un_fun(x, math_sym("loca`t"))
+    } else if (EvolveToExpr.NOTHING == tranMode) {
+      return math_sym(x)
     } else {
       throw new Exception("mmtVarToExpr: Impossible case")
     }
