@@ -45,30 +45,42 @@ object Main {
 //	)
 //)*
     
-    val hp = (Var("y") := Num(Exact.Integer(0))) seq
-    	(Var("v") := Num(Exact.Integer(0))) seq
-    	(Var("ac") := Num(Exact.Integer(0))) seq
-    	loop (
-    	    ? (Var("v") < Num(Exact.Integer(200))) seq
-    	    (
-    	        (
-    	            (Var("ac") := Num(Exact.Integer(1))) seq 
-    	            (Var("dummT") := Num(Exact.Integer(0))) seq
-    	            (Evolve(Var("dummT") <= Num(Exact.Integer(5)), (Var("y"), Var("v")), (Var("v"), Var("ac")), (Var("ac"), Num(Exact.Integer(0))),  (Var("dummT"), Num(Exact.Integer(1)))))
-    	        ) ++
-    	        (
-    	            (Var("ac") :=* ) seq 
-    	            (? ((Var("ac") > Num(Exact.Integer(5))) & (Var("ac") < Num(Exact.Integer(10))))) seq
-    	            (Var("dummT") := Num(Exact.Integer(0))) seq
-    	            (Evolve(Var("dummT") <= Num(Exact.Integer(5)), (Var("y"), Var("v")), (Var("v"), Var("ac")), (Var("ac"), Num(Exact.Integer(0))), (Var("dummT"), Num(Exact.Integer(1)))))
-    	    	)
-    	    )
-    	)
-    var mdlt = Modality(Box, hp, (Var("v") < Num(Exact.Integer(50))) & (Var("y") < Num(Exact.Integer(3000))))
     
-    mdlt = hpToExpr.extractModality(OP.parseFormula(OP.openFile("/MyDocus/CMU 2013 Spring/Research - Andre Platzer/hps/1drobot.key")))
     
-    val execStri = hpToExpr.modaToExpr(mdlt, List("glob`safety", "xr", "vr", "ar", "or"), 3, 10000.0, 90, -10.0, 10.0).toString()
+//    val hp = (Var("x") :=*) seq
+//        (Var("y") :=*) seq
+//        (Var("a") :=*) seq
+//        (? ((Var("x") * Var("x") + Var("y") * Var("y") + Var("z") * Var("z") <= Num(Exact.Integer(1))))) seq
+//        (?( Num(Exact.Integer(9)) * (Var("z") * (Var("z") * Var("z"))) eq Num(Exact.Integer(2)) * Var("x") - Num(Exact.Integer(5)) * Var("y") - Num(Exact.Integer(7)) ))
+        
+    
+//    val hp = (Var("y") := Num(Exact.Integer(0))) seq
+//    	(Var("v") := Num(Exact.Integer(0))) seq
+//    	(Var("ac") := Num(Exact.Integer(0))) seq
+//    	loop (
+//    	    ? (Var("v") < Num(Exact.Integer(200))) seq
+//    	    (
+//    	        (
+//    	            (Var("ac") := Num(Exact.Integer(1))) seq 
+//    	            (Var("dummT") := Num(Exact.Integer(0))) seq
+//    	            (Evolve(Var("dummT") <= Num(Exact.Integer(5)), (Var("y"), Var("v")), (Var("v"), Var("ac")), (Var("ac"), Num(Exact.Integer(0))),  (Var("dummT"), Num(Exact.Integer(1)))))
+//    	        ) ++
+//    	        (
+//    	            (Var("ac") :=* ) seq 
+//    	            (? ((Var("ac") > Num(Exact.Integer(5))) & (Var("ac") < Num(Exact.Integer(10))))) seq
+//    	            (Var("dummT") := Num(Exact.Integer(0))) seq
+//    	            (Evolve(Var("dummT") <= Num(Exact.Integer(5)), (Var("y"), Var("v")), (Var("v"), Var("ac")), (Var("ac"), Num(Exact.Integer(0))), (Var("dummT"), Num(Exact.Integer(1)))))
+//    	    	)
+//    	    )
+//    	)
+    
+//    var mdlt = Modality(Box, hp, (Var("v") < Num(Exact.Integer(50))) & (Var("y") < Num(Exact.Integer(3000))))
+//    val execStri = hpToExpr.modaToExpr(mdlt, List("glob`safety", "v", "y", "ac"), 3, 10000.0, 10, -10.0, 10.0).toString()
+    
+    
+    var mdlt = hpToExpr.extractModality(OP.parseFormula(OP.openFile("/MyDocus/CMU 2013 Spring/Research - Andre Platzer/hps/1drobot.key")))
+    val execStri = hpToExpr.modaToExpr(mdlt, List("glob`safety", "xr", "vr", "ar", "or"), 3, 10000.0, 10, -10.0, 10.0).toString()
+    
     println(execStri)
     val a = new MathematicaPlot(execStri)
 
