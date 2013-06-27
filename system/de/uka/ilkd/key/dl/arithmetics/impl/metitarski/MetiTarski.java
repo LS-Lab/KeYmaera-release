@@ -93,7 +93,7 @@ public class MetiTarski implements IQuantifierEliminator{
 
     public boolean isConfigured() {
         /* As elsewhere */
-        return true;
+        return Options.INSTANCE.getMetitBinary().exists();
     }
 
     /* Reduce procedure */
