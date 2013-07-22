@@ -76,10 +76,11 @@ object Main {
     
 //    var mdlt = Modality(Box, hp, (Var("v") < Num(Exact.Integer(50))) & (Var("y") < Num(Exact.Integer(3000))))
 //    val execStri = hpToExpr.modaToExpr(mdlt, List("glob`safety", "v", "y", "ac"), 3, 10000.0, 10, -10.0, 10.0).toString()
+       
     
-    
-    var mdlt = hpToExpr.extractModality(OP.parseFormula(OP.openFile("/MyDocus/CMU 2013 Spring/Research - Andre Platzer/hps/1drobot.key")))
-    val execStri = hpToExpr.modaToExpr(mdlt, List("glob`safety", "xr", "vr", "ar", "or"), 3, 10000.0, 10, -10.0, 10.0).toString()
+    var mdlt = hpToExpr.extractModality(OP.parseFormula(OP.openFile("/MyDocus/CMU 2013 Spring/Research - Andre Platzer/hps/2drobot_distancesensor.key")))
+    val execStri = hpToExpr.modaToExpr(mdlt, List("glob`safety", "x", "y", "d", "dx", "dy", "v", "Ohm"), 3, 10000.0, 10, -10.0, 10.0).toString()
+
     
     println(execStri)
     val a = new MathematicaPlot(execStri)

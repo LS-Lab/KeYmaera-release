@@ -49,23 +49,58 @@ object hpToExpr {
   def modaToExpr (mdlt : Modality, varisToDisp: List[String], nGrapsPerRow: Int, tendLimi : Double, nUnroLoop : Int, randMin : Double, randMax : Double) : Expr = {
     applicable(mdlt)
     
+    //var prepModa = mdlt
+    var prepModa = preprocessModality(mdlt)
+    
     // hayquePreguntar: Is it OK to extract variables only from evolve?
-    val varisStrisListForEvol = hpToVarisStrisListWoDuplsForEvol(mdlt.hp)
+    val varisStrisListForEvol = hpToVarisStrisListWoDuplsForEvol(prepModa.hp)
     val varisExprsListForEvol = strisListToExprsList(varisStrisListForEvol)
     var statsList = List(bin_fun("Set", math_sym("glob`tendLimi"), new Expr(tendLimi)))
     statsList = statsList ++ List(bin_fun("Set", math_sym("glob`tends"), un_fun("List", new Expr(0))))
     // Following line may be buggy.
     statsList = statsList ++ List(bin_fun("Set", math_sym("glob`sol"), mul_arg_fun("List", List())))
     
-    statsList = statsList ++ hpToStatsList(mdlt.hp, varisStrisListForEvol, tendLimi, nUnroLoop, randMin, randMax)
+    statsList = statsList ++ hpToStatsList(prepModa.hp, varisStrisListForEvol, tendLimi, nUnroLoop, randMin, randMax)
     
-    val safetyExpr = MmtManipulation.mmtToExpr(MmtManipulation.formulaToMmt(mdlt.f), EvolveToExpr.LOCA_T)
+    val safetyExpr = MmtManipulation.mmtToExpr(MmtManipulation.formulaToMmt(prepModa.f), EvolveToExpr.LOCA_T)
     statsList = statsList ++ List(bin_fun("Set", un_fun("glob`safety", math_sym("loca`t_")), safetyExpr))
 
     statsList = statsList ++ varisToDispToPlotComms(varisToDisp, nGrapsPerRow) 
     val compExpr = mul_arg_fun("CompoundExpression", statsList)
     return bin_fun("Module", scalListToListExpr(varisExprsListForEvol), compExpr) 
+
   }
+  
+  def preprocessModality (mdlt: Modality) : Modality = {
+    val allVarisStrisList = formToVarisStrisListInAll(mdlt)
+    
+    var retuValu : Modality = Modality(mdlt.m, addDeriEquaZerosToEvol(mdlt.hp, allVarisStrisList), mdlt.f)
+    return retuValu
+  }
+  
+  def addDeriEquaZerosToEvol (hp: HP, allVarisStrisList: List[String]) : HP = hp match {
+    case ComposedHP(Sequence, hps @ _ *) => ComposedHP(Sequence, ((hps.toList.map((hp: HP) => addDeriEquaZerosToEvol(hp, allVarisStrisList))): _*))
+    case ComposedHP(Star, hps @ _ *) => ComposedHP(Star, ((hps.toList.map((hp: HP) => addDeriEquaZerosToEvol(hp, allVarisStrisList))): _*))
+    case ComposedHP(Choice, hps @ _ *) => ComposedHP(Choice, ((hps.toList.map((hp : HP) => addDeriEquaZerosToEvol(hp, allVarisStrisList))): _*))
+    case Evolve(h, primes @ _*) => {
+      var varisStrisListOnLhs = evolToVarisStrisListOnLhs(hp)
+      var missVarisStrisListForLhs = setMinuOfStrisLists(allVarisStrisList, varisStrisListOnLhs).distinct
+      var missPrimEquaZerosList = varisStrisListToPrimEquaZerosList(missVarisStrisListForLhs)
+      return Evolve(h, (primes.toList ++ missPrimEquaZerosList):_*)
+    }
+    // `deboPregntar: is it OK to return hp without recursive function call?
+    case Assign(Var(s), t) => hp 
+    case AssignAny(Var(s)) => hp 
+    case Check(h) => hp
+    // `END: deboPregntar: is it OK to return hp without recursive function call?
+    case _ => throw new Exception("not implemented yet")
+  }
+  
+  def varisStrisListToPrimEquaZerosList(varisStrisList: List[String]): List[(Var,Term)] = varisStrisList match {
+    case Nil => Nil
+    case x::xs => (Var(x), Num(Exact.zero)) :: varisStrisListToPrimEquaZerosList(xs)
+  }
+    
   
   def hpToVarisStrisListWoDuplsForEvol (hp: HP) : List[String] = {
     return hpToVarisStrisListWithDuplsForEvol(hp).distinct
@@ -466,6 +501,7 @@ object hpToExpr {
     }
   }
   
+  // setminus = relative complement (set-theoretic difference)
   def setMinuOfStrisLists(strisList0: List[String], strisList1: List[String]) : List[String] = strisList0 match {
     case Nil => Nil
     case x::xs => strisList1.contains(x) match {
