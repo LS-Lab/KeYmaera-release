@@ -251,7 +251,7 @@ object hpToExpr {
         )
       )) ++ varisStrisListToUpdaCurrStats(varisStrisListFromHp)
     
-    case Assign(v, t) => List(bin_fun("Set", math_sym("curr`" + v.s), EvolveToExpr.termToExpr(t, EvolveToExpr.CURR_BACKTICK)))
+    case Assign(v, t) => List(bin_fun("Set", math_sym("curr`" + v.s), MmtManipulation.termToExpr(t, EvolveToExpr.CURR_BACKTICK)))
     case AssignAny(v) =>
       List(bin_fun("Set",
         math_sym("curr`" + v.s),

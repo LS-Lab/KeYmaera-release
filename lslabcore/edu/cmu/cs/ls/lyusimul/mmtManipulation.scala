@@ -20,8 +20,50 @@ object MmtManipulation {
     new Expr(math_sym(f),
              List(arg1,arg2).toArray)
   }
+  
+  def mul_arg_fun(f: String, lst: List[Expr]) : Expr = {
+    new Expr(math_sym(f),
+             lst.toArray)
+  }
+  
+  // This function does not technically belong in this file, but I put it in this file
+  // because it is closely related to the functions termToMmt() and mmtToExpr().
+  def termToExpr(myTerm: Term, tranMode : Int) : Expr = myTerm match {
+    case Num(Exact.Integer(n)) => math_int(n.toString)
+    case Num(Exact.Rational(p,q)) => bin_fun("Divide",
+                                     math_int(p.toString),
+                                     math_int(q.toString))
+                                     
+    // deboAcordarme: I am not 100% comfortable with using mmtVarToExpr here
+    case Var(s: String) => mmtVarToExpr(s, tranMode)
+    case Arithmetic(op, terms @ _*) => op match {
+      
+      case Negate => un_fun("Minus", termToExpr(terms.head, tranMode))
+      case Plus => mul_arg_fun("Plus", terms.toList.map((t: Term) => termToExpr(t, tranMode)))
+      case Subtract => mul_arg_fun("Subtract", terms.toList.map((t: Term) => termToExpr(t, tranMode)))
+      case Multiply => mul_arg_fun("Times", terms.toList.map((t: Term) => termToExpr(t, tranMode)))
+      case Divide => mul_arg_fun("Divide", terms.toList.map((t: Term) => termToExpr(t, tranMode)))
+      case Power => mul_arg_fun("Power", terms.toList.map((t: Term) => termToExpr(t, tranMode)))
+      case Modulo => mul_arg_fun("Mod", terms.toList.map((t: Term) => termToExpr(t, tranMode)))
+      
+      case _ => throw new Exception(op.toString() + " not implemented... varargs")
+    }
 
-    def mmtToExpr(mmt: Mmt, tranMode : Int): Expr = mmt match {
+    // deboPreguntar: how to handle varargs???
+    case Arithmetic(_, _) => throw new Exception("not implemented... varargs")
+    /* deboPreguntar: function name by Fn may be different from function name in
+     Mathematica. How to handle this? */
+    case Fn(f: String, ps @ _*) => {
+      if (f.equals("Abs")) {
+        return mul_arg_fun("Abs", ps.toList.map((t: Term) => termToExpr(t, tranMode)))
+      } else {
+    	throw new Exception("Not implemented: Fn(\"" + f + "\", ***)")        
+      }
+    }
+
+  }
+
+  def mmtToExpr(mmt: Mmt, tranMode : Int): Expr = mmt match {
     // Note: variable x is treated as a function x with argument t
     // i.e. x => x[t]
     case MmtVar(x) => mmtVarToExpr(x, tranMode)
@@ -44,7 +86,7 @@ object MmtManipulation {
       case MmtMultiply => bin_fun("Times", mmtToExpr(mmt1, tranMode), mmtToExpr(mmt2, tranMode))
       case MmtDivide => bin_fun("Divide", mmtToExpr(mmt1, tranMode), mmtToExpr(mmt2, tranMode))
       case MmtPower => bin_fun("Power", mmtToExpr(mmt1, tranMode), mmtToExpr(mmt2, tranMode))
-      case MmtModulo => throw new Exception("not implemented yet");
+      case MmtModulo => bin_fun("Mod", mmtToExpr(mmt1, tranMode), mmtToExpr(mmt2, tranMode))
       case _ => throw new Error ("either has varargs")
     }
 

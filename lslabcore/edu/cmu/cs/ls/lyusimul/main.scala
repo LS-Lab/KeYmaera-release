@@ -78,8 +78,8 @@ object Main {
 //    val execStri = hpToExpr.modaToExpr(mdlt, List("glob`safety", "v", "y", "ac"), 3, 10000.0, 10, -10.0, 10.0).toString()
        
     
-    var mdlt = hpToExpr.extractModality(OP.parseFormula(OP.openFile("/MyDocus/CMU 2013 Spring/Research - Andre Platzer/hps/2drobot_distancesensor.key")))
-    val execStri = hpToExpr.modaToExpr(mdlt, List("glob`safety", "x", "y", "d", "dx", "dy", "v", "Ohm"), 3, 10000.0, 10, -10.0, 10.0).toString()
+    var mdlt = hpToExpr.extractModality(OP.parseFormula(OP.openFile("/MyDocus/CMU 2013 Spring/Research - Andre Platzer/hps/2drobotcircular_passivesafety.key")))
+    val execStri = hpToExpr.modaToExpr(mdlt, List("glob`safety", "xr", "yr", "vr", "y", "d", "dx", "dy", "v", "Ohm"), 3, 10000.0, 10, -10.0, 10.0).toString()
 
     
     println(execStri)

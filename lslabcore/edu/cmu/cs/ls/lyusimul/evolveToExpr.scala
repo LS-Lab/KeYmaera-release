@@ -26,6 +26,11 @@ object EvolveToExpr {
              List(arg1,arg2).toArray)
   }
   
+  def mul_arg_fun(f: String, lst: List[Expr]) : Expr = {
+    new Expr(math_sym(f),
+             lst.toArray)
+  }
+  
   def hpToOdesListExpr(hp : HP, tranMode : Int) : Expr = hp match {
     case Evolve(h, primes @ _ *) => new Expr(math_sym("List"), primsToOdesList(primes, tranMode : Int).toArray)
 
@@ -123,23 +128,20 @@ object EvolveToExpr {
         bin_fun("CompoundExpression", bin_fun("Set", math_sym("glob`tends"), bin_fun("Append", math_sym("glob`tends"), math_sym("loca`t"))), new Expr("StopIntegration"))) :: Nil
   }
 
-    // deboArreglar: don't use mmtToExpr and termToMmt in this function
-  def termToExpr(myTerm: Term, tranMode : Int) : Expr = {
-    MmtManipulation.mmtToExpr(MmtManipulation.termToMmt(myTerm), tranMode)
-  }
+
   
 
   def formulaToExpr(frml: Formula, tranMode : Int) : Expr = frml match {
     case True => math_sym("True")
     case False => math_sym("False")
-    case Atom(t: Term) => termToExpr(t, tranMode)
+    case Atom(t: Term) => MmtManipulation.termToExpr(t, tranMode)
     case ArithmeticPred(op : Comparison, term1 : Term, term2 : Term) => op match {
-      case Equals => bin_fun("Equal", termToExpr(term1, tranMode), termToExpr(term2, tranMode)) 
-      case NotEquals => bin_fun("Unequal", termToExpr(term1, tranMode), termToExpr(term2, tranMode))
-      case Less => bin_fun("Less", termToExpr(term1, tranMode), termToExpr(term2, tranMode))
-      case LessEquals => bin_fun("LessEqual", termToExpr(term1, tranMode), termToExpr(term2, tranMode))
-      case Greater => bin_fun("Greater", termToExpr(term1, tranMode), termToExpr(term2, tranMode))
-      case GreaterEquals => bin_fun("GreaterEqual", termToExpr(term1, tranMode), termToExpr(term2, tranMode))
+      case Equals => bin_fun("Equal", MmtManipulation.termToExpr(term1, tranMode), MmtManipulation.termToExpr(term2, tranMode)) 
+      case NotEquals => bin_fun("Unequal", MmtManipulation.termToExpr(term1, tranMode), MmtManipulation.termToExpr(term2, tranMode))
+      case Less => bin_fun("Less", MmtManipulation.termToExpr(term1, tranMode), MmtManipulation.termToExpr(term2, tranMode))
+      case LessEquals => bin_fun("LessEqual", MmtManipulation.termToExpr(term1, tranMode), MmtManipulation.termToExpr(term2, tranMode))
+      case Greater => bin_fun("Greater", MmtManipulation.termToExpr(term1, tranMode), MmtManipulation.termToExpr(term2, tranMode))
+      case GreaterEquals => bin_fun("GreaterEqual", MmtManipulation.termToExpr(term1, tranMode), MmtManipulation.termToExpr(term2, tranMode))
       /* deboPreguntar: OK to handle less and lessequals in the same way? */
       case _ => throw new Exception("not implemented... varargs")
     }
