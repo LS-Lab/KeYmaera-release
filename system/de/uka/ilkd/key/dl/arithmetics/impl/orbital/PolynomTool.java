@@ -517,8 +517,9 @@ public abstract class PolynomTool {
 			result.numerator = numerator;
 			result.denominator = denominator;
 			assert new BigDecimal(result.getNumerator()).divide(
-					new BigDecimal(result.getDenominator())).equals(
-					new BigDecimal(numberAsString));
+					new BigDecimal(result.getDenominator())).stripTrailingZeros().equals(
+					new BigDecimal(numberAsString).stripTrailingZeros()) : "Numbers should be the same: " + new BigDecimal(result.getNumerator()).divide(
+							new BigDecimal(result.getDenominator())).stripTrailingZeros() + " != " + new BigDecimal(numberAsString).stripTrailingZeros();
 		    } catch (ArithmeticException e2) {
 			throw (InternalError) new InternalError("Do not know how to convert string to fraction: " + numberAsString + "\nrewritten as " + d + "\nbecause of " + e2).initCause(e2);
 		    }
