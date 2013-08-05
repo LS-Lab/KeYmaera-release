@@ -236,7 +236,7 @@ object hpToExpr {
               
               // hayqueCambiar: tendLimi minus a predefined constant, not minus a magic number
               (bin_fun("WhenEvent",
-                bin_fun("GreaterEqual", math_sym("loca`t"), bin_fun("Plus", math_sym("glob`tendLimi"), new Expr(-1))),
+                bin_fun("GreaterEqual", math_sym("loca`t"), mul_arg_fun("Plus", List(un_fun("Evaluate", un_fun("Last", math_sym("glob`tends"))), math_sym("glob`tendLimi"), new Expr(-1)))),
                 bin_fun("CompoundExpression", bin_fun("Set", math_sym("glob`tends"), bin_fun("Append", math_sym("glob`tends"), math_sym("loca`t"))), new Expr("StopIntegration"))) :: Nil)        
             ),  
             scalListToListExpr(
@@ -245,7 +245,7 @@ object hpToExpr {
             scalListToListExpr(List(
               math_sym("loca`t"),
               un_fun("Evaluate", un_fun("Last", math_sym("glob`tends"))),
-              math_sym("glob`tendLimi")
+              bin_fun("Plus", un_fun("Evaluate", un_fun("Last", math_sym("glob`tends"))), math_sym("glob`tendLimi"))
             ))
           ))         
         )
