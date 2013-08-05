@@ -172,7 +172,11 @@ public class DragNDropInstantiator extends DropTargetAdapter {
                 getAllApplicableApps(sourcePos, 
                         PosInSequent.createCfmaPos(targetPos.getPosInOccurrence().up()), 
                         services);
-        } 
+        }
+        if (applicableApps.isEmpty() && !targetPos.isSequent()) {
+        	// reverse the direction
+        	applicableApps = getAllApplicableApps(targetPos, sourcePos, services);
+        }
 
         // in case of an equal source and target position the selection list is shown 
         // even if only one rule is applicable in order to avoid an accidently 
