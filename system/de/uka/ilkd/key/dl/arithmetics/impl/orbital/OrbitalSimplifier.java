@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.ArrayList;
 
 import org.w3c.dom.Node;
 
@@ -84,6 +85,35 @@ public class OrbitalSimplifier implements ISimplifier {
 			SolverException {
 		return simplify(form, new HashSet<Term>(), nss);
 	}
+
+	/*
+	 * Parity decomposition ensures that atomic terms in the formula are 
+	 * square-free.
+	 */
+	public Term parityNF(Term form, NamespaceSet nss) throws 
+		RemoteException,
+		SolverException 
+		{ 
+			return form;
+		}
+	
+	/*
+	 * Boundary of a semi-algebraic set.
+	 */
+	public Term getBoundary(Term form, NamespaceSet nss) throws 
+		RemoteException,
+		SolverException 
+		{ 
+			return form;
+		}
+	
+	/*
+	 * Condition ensuring the gradient is non-zero.
+	 */
+    public  Term nonZeroGrad(Term form, ArrayList<String> vars, NamespaceSet nss)
+            throws RemoteException, SolverException{
+    	return form;
+    }
 
 	/*
 	 * (non-Javadoc)

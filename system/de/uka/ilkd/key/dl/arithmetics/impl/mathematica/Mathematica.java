@@ -142,7 +142,33 @@ public class Mathematica implements ICounterExampleGenerator, IODESolver,
 				   throws RemoteException, SolverException {
 		   return bridge.findMultiNumInstance(form, ninst, timeout);
    }
-
+	/*
+	 * Parity decomposition ensures that atomic terms in the formula are 
+	 * square-free.
+	 */
+	public Term parityNF(Term form, NamespaceSet nss) throws RemoteException,
+			SolverException {
+		return bridge.parityNF(form, nss);
+	}
+  
+	/*
+	 * Compute the boundary of the closed invariant candidate, provided that 
+	 * it is given by a square-free polynomial (in)equality.
+	 */
+	public Term getBoundary(Term form, NamespaceSet nss) throws RemoteException,
+			SolverException {
+		return bridge.getBoundary(form, nss);
+	}
+	
+	/*
+	 * Compute the boundary of the closed invariant candidate, provided that 
+	 * it is given by a square-free polynomial (in)equality.
+	 */
+	public Term nonZeroGrad(Term form, ArrayList<String> vars, NamespaceSet nss) throws RemoteException,
+			SolverException {
+		return bridge.nonZeroGrad(form, vars, nss);
+	}
+  
 
 	/*
 	 * (non-Javadoc)

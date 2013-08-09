@@ -14,6 +14,7 @@ package de.uka.ilkd.key.dl.formulatools;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.ArrayList;
 
 import de.uka.ilkd.key.dl.model.DLNonTerminalProgramElement;
 import de.uka.ilkd.key.dl.model.DLProgramElement;
@@ -44,6 +45,24 @@ public class DerivativeCreator {
 		return Derive.apply(createNFF, replacements, null, s);
 	}
 
+	/**
+	 * @author s0805753@sms.ed.ac.uk
+	 * The function calculates variables in the state vector from by @sys
+	 * 
+	 */
+	public static final ArrayList<String> stateVector(DiffSystem sys, Services s) {
+
+		ArrayList<String> stateVec = new ArrayList<String>();
+		
+		HashMap<String, Term> replacements = new HashMap<String, Term>();
+		collectDiffReplacements(sys, replacements, s);
+		
+		for(String var: replacements.keySet()){
+			stateVec.add(var);
+		}	
+		
+		return stateVec;
+	}
 	/**
 	 * The function calculates the derivative (diffFin) of a term based on the
 	 * derivivates given by @sys

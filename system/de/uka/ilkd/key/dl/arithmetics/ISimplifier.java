@@ -24,6 +24,7 @@ package de.uka.ilkd.key.dl.arithmetics;
 
 import java.rmi.RemoteException;
 import java.util.Set;
+import java.util.ArrayList;
 
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ConnectionProblemException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ServerStatusProblemException;
@@ -62,6 +63,40 @@ public interface ISimplifier extends IMathSolver {
     public abstract Term simplify(Term form, Set<Term> assumptions, NamespaceSet nss)
             throws RemoteException, SolverException;
 
+    /**
+     * Computes parity decomposition of the formula and outputs an equivalent formula
+     * in which all atomic terms are square-free.
+     * 
+     */
+    public abstract Term parityNF(Term form, NamespaceSet nss)
+            throws RemoteException, SolverException;
+    
+    /**
+     * @author s0805753@sms.ed.ac.uk
+     * 
+     * Computes the boundary of a closed semi-algebraic set
+     * 
+     * N.B. presently can only handle formulas of the form p { <=, =, >= } 0
+     * where p is square-free, otherwise the method returns the set itself and
+     * the overall effect is equivalent to standard differential induction.
+     * 
+     */
+    public abstract Term getBoundary(Term form, NamespaceSet nss)
+            throws RemoteException, SolverException;
+
+    
+    /**
+     * @author s0805753@sms.ed.ac.uk
+     *      
+     * Computes the condition ensuring the gradient vector is non-zero
+     * 
+     * N.B. presently can only handle formulas of the form p { <=, =, >= } 0
+     * where p is square-free, otherwise the method returns the set itself and
+     * the overall effect is equivalent to standard differential induction.
+     * 
+     */
+    public abstract Term nonZeroGrad(Term form, ArrayList<String> vars, NamespaceSet nss)
+            throws RemoteException, SolverException;
     /**
      * Fully simplifies the given term if its a mathematical expression
      * 

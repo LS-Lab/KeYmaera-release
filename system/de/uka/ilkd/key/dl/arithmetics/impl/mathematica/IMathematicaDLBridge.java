@@ -27,6 +27,7 @@ import java.rmi.RemoteException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.ArrayList;
 
 import de.uka.ilkd.key.dl.arithmetics.IODESolver.ODESolverResult;
 import de.uka.ilkd.key.dl.arithmetics.IODESolver.ODESolverUpdate;
@@ -108,7 +109,48 @@ public interface IMathematicaDLBridge extends Remote {
      */
     public Term simplify(Term form, Set<Term> assumptions, NamespaceSet nss)
             throws RemoteException, SolverException;
+    /**
+     * Computes parity decomposition of the formula to make sure that all atoms
+     * are square-free.
+     * 
+     * @param form
+     *                the term to simplify
+     * @param assumptions
+     *                the assumptions used for simplification
+     * @return the simplified term, this may be the same as the input.
+     * @throws RemoteException
+     * @throws SolverException
+     */
+    public Term parityNF(Term form, NamespaceSet nss)
+            throws RemoteException, SolverException;
 
+    
+    /**
+     * Computes the boundary of a closed semi-algebraic set if it is defined by
+     * a square-free polynomial.
+     * 
+     * @param form
+     * @return the set boundary if the boundary is defined by a square-free 
+     * polynomial, or the set itself otherwise.
+     * @throws RemoteException
+     * @throws SolverException
+     */
+    public Term getBoundary(Term form, NamespaceSet nss)
+            throws RemoteException, SolverException;
+    
+    /**
+     * Computes the condition ensuring the gradient vector of the closed 
+     * invariant candidate if it is defined by a square-free polynomial.
+     * 
+     * @param form
+     * @return condition ensuring non-zero gradient
+     * polynomial, or the set itself otherwise.
+     * @throws RemoteException
+     * @throws SolverException
+     */
+    public  Term nonZeroGrad(Term form, ArrayList<String> vars, NamespaceSet nss)
+            throws RemoteException, SolverException;
+    
     /**
      * Simplifies the given Term if possible (using FullSimplify)
      * 

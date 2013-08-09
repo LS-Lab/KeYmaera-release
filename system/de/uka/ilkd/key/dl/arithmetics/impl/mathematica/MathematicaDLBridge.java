@@ -485,7 +485,89 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 		Term invariant = form.getInvariant(services);
 		return differentialCall(form, post, ep, services, "IDiffFin");
 	}
-
+	/**
+	 * 
+	 * @author s0805753@sms.ed.ac.uk
+	 * @param form the Term which is to be converted into Parity normal form.
+	 * 
+	 * @throws RemoteException
+	 * @throws SolverException
+	 */
+	
+	public Term parityNF(Term form, NamespaceSet nss)
+			throws RemoteException, SolverException {
+		Expr query = Term2ExprConverter.convert2Expr(form);
+		query = new Expr(new Expr(Expr.SYMBOL, "AMC`" + "ParityNF"),
+				new Expr[] { query });
+		Expr result = evaluate(query).expression;
+		Term resultTerm = convert(result, nss);
+		if (!resultTerm.equals(form)) {
+			return resultTerm;
+		}
+		return form;
+	}
+	
+	/**
+	 * Method for computing the boundary of invariant candidates given by
+	 * a square-free polynomial inequality.
+	 * 
+	 * @author s0805753@sms.ed.ac.uk
+	 * @param form the quantifier-free formula given by a square-free polynomial.
+	 * @throws RemoteException
+	 * @throws SolverException
+	 */
+	
+	public Term getBoundary(Term form, NamespaceSet nss)
+			throws RemoteException, SolverException {
+		Expr query = Term2ExprConverter.convert2Expr(form);
+		query = new Expr(new Expr(Expr.SYMBOL, "AMC`" + "GetBoundary"),
+				new Expr[] { query });
+		Expr result = evaluate(query).expression;
+		Term resultTerm = convert(result, nss);
+		if (!resultTerm.equals(form)) {
+			return resultTerm;
+		}
+		return form;
+	}
+	
+	/**
+	 * 
+	 * Method for computing the condition which ensures that the gradient vector
+	 * on the boundary of the invariant candidate is non-zero. The candidate 
+	 * needs to be given by square-free polynomial (in fact the implementation
+	 * finds this square-free description, if one exists).
+	 * 
+	 * @author s0805753@sms.ed.ac.uk
+	 * @param form the quantifier-free formula given by a square-free polynomial.
+	 * @throws RemoteException
+	 * @throws SolverException
+	 */
+	
+	public Term nonZeroGrad(Term form, ArrayList<String> vars, NamespaceSet nss)
+			throws RemoteException, SolverException {
+		Expr query = Term2ExprConverter.convert2Expr(form);
+		
+		ArrayList<Expr> varsExpr = new ArrayList<Expr>();
+		for(String var: vars){
+			varsExpr.add(new Expr(Expr.SYMBOL, NameMasker.mask(var)));
+		}
+		
+		/* Create a Mathematica List of state variables */
+		Expr stateVars = new Expr(new Expr(Expr.SYMBOL, "List"), 
+			varsExpr.toArray(new Expr[varsExpr.size()])
+			 );
+		
+		query = new Expr(new Expr(Expr.SYMBOL, "AMC`" + "NonZeroGrad"),
+				new Expr[] { query, stateVars });
+		
+		Expr result = evaluate(query).expression;
+		Term resultTerm = convert(result, nss);
+		if (!resultTerm.equals(form)) {
+			return resultTerm;
+		}
+		return form;
+	}
+	
 	/**
 	 * 
 	 * @author ap
