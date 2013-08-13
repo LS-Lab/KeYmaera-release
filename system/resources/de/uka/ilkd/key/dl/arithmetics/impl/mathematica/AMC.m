@@ -223,9 +223,9 @@ x_ :> AtomicParityNF[x]
 
 IsClosedSquareFreeAtom[formula_]:=Module[{},
 ParityNF[formula]/.{
-Equal[a_,b_]:> True,
-LessEqual[a_,b_]:> True,
-GreaterEqual[a_,b_]:> True,
+eq_Equal:> True,
+leq_LessEqual:> True,
+geq_GreaterEqual:> True,
 x_ :> False}
 ]
 
@@ -432,7 +432,9 @@ Sprocedure[a_,e_] :=
 Module[{sdata=SprocedureFormula[a,e],sparameters,sformula,voc},
 sparameters=
 
+
 \!\(\*SubscriptBox[\(sdata\), \(\(\[LeftDoubleBracket]\)\(2\)\(\[RightDoubleBracket]\)\)]\);sformula=
+
 
 \!\(\*SubscriptBox[\(sdata\), \(\(\[LeftDoubleBracket]\)\(1\)\(\[RightDoubleBracket]\)\)]\);
 voc=Vocabulary[a\[Implies]e,Heads->True];
@@ -509,10 +511,12 @@ Module[{altstate},
 (* we form sets, since, if all trajectories coincide anyway, then there's no need to mess around *) altstate =Union[Select[Through[alttrans[tp]],#=!=$TransFailed&]];Which[Length[altstate]==0, $TransFailed,
 Length[altstate]==1,
 
+
 \!\(\*SubscriptBox[\(altstate\), \(\(\[LeftDoubleBracket]\)\(1\)\(\[RightDoubleBracket]\)\)]\),
 Length[altstate]>1,Block[{},Message[Transition::nondet,CirclePlus[alternatives],alttrans];
 Print["   alternatives at time ", tp," are ", altstate];
 (* @xxx arbitrarily follow only ONE of those non-deterministic alternatives *)
+
 
 
 \!\(\*SubscriptBox[\(altstate\), \(\(\[LeftDoubleBracket]\)\(1\)\(\[RightDoubleBracket]\)\)]\)
@@ -542,7 +546,9 @@ Check[
 If[False\[And]$numericalODE,
 
 
+
 \!\(\*SubscriptBox[\(NMinimize[st, 0 \[LessEqual] st \[LessEqual] T\  \[And] cond[SComp[flow[st]]], st]\), \(\(\[LeftDoubleBracket]\)\(1\)\(\[RightDoubleBracket]\)\)]\),
+
 
 
 \!\(\*SubscriptBox[\(Minimize[st, 0 \[LessEqual] st \[LessEqual] T\  \[And] cond[SComp[flow[st]]], st]\), \(\(\[LeftDoubleBracket]\)\(1\)\(\[RightDoubleBracket]\)\)]\)
@@ -622,6 +628,7 @@ SetAttributes[test,HoldAll]
 test[e_] :=
 guard[Function[State,(e/.Table[Symbol["Global`x"<>ToString[i]]-> 
 
+
 \!\(\*SubscriptBox[\(State\), \(\(\[LeftDoubleBracket]\)\(i\)\(\[RightDoubleBracket]\)\)]\),{i,Length[State]}])]]
 
 
@@ -647,10 +654,12 @@ sysvars = Table[Symbol["Global`x"<>ToString[i]],{i,Min[Length[DE],Length[State]]
 eqns = DE\[Union]
 Table[Symbol["Global`x"<>ToString[i]][0]== 
 
+
 \!\(\*SubscriptBox[\(State\), \(\(\[LeftDoubleBracket]\)\(i\)\(\[RightDoubleBracket]\)\)]\),{i,Min[Length[DE],Length[State]]}],
 indepvar = Symbol["Global`t"],
 (* state variables not mentioned in DE remain just constant *)
 constantstatecomponents=Table[Module[{s=
+
 
 \!\(\*SubscriptBox[\(State\), \(\(\[LeftDoubleBracket]\)\(i\)\(\[RightDoubleBracket]\)\)]\)},Function[tp,s]],{i,Length[DE]+1,Length[State]}]
 },
@@ -666,6 +675,7 @@ DSolve[eqns,sysvars,indepvar]
 If[Head[dsols]==List\[And]Length[dsols]>0\[And]$verify\[And]\[Not]$numericalODE,
 Module[{verificationresults = Union[FullSimplify[eqns /. 
 
+
 \!\(\*SubscriptBox[\(dsols\), \(\(\[LeftDoubleBracket]\)\(1\)\(\[RightDoubleBracket]\)\)]\)]]},
 If[verificationresults!={True},
 Message[Transition::verifyf,eqns,dsols,verificationresults]]]
@@ -674,11 +684,13 @@ Which[
 Head[dsols]===DSolve \[Or]Head[dsols]===NDSolve\[Or]Head[dsols]=!=List\[Or]Length[dsols]==0,(Message[Transition::unsolvable,eqns];Return[$Failed]),
 Head[dsols]===List\[And]Length[dsols]==1,Componentwise[Join[sysvars /. 
 
+
 \!\(\*SubscriptBox[\(dsols\), \(\(\[LeftDoubleBracket]\)\(1\)\(\[RightDoubleBracket]\)\)]\),constantstatecomponents]](* unlike non-sequenced discrete transitions, result requires Through *),
 Head[dsols]===List\[And]Length[dsols]>1, (Message[Transition::nonunique,eqns,Length[dsols],dsols];
 Print["nonunique solution of ", eqns, " is ", dsols];
 (* arbitrary non-deterministic choice *)
 Componentwise[Join[sysvars/. 
+
 
 \!\(\*SubscriptBox[\(dsols\), \(\(\[LeftDoubleBracket]\)\(1\)\(\[RightDoubleBracket]\)\)]\),constantstatecomponents]])
 ]
@@ -706,6 +718,7 @@ UpdateStateHelper[Evstate_,State_,updates_List]:=
 Module[{staterules =
 Table[Symbol["Global`x"<>ToString[i]]-> 
 
+
 \!\(\*SubscriptBox[\(Evstate\), \(\(\[LeftDoubleBracket]\)\(i\)\(\[RightDoubleBracket]\)\)]\),{i,Length[Evstate]}],
 statecomponentrules =
 Table[Symbol["Global`x"<>ToString[i]]-> i,{i,Length[Evstate]}]
@@ -725,6 +738,7 @@ Transition[set[HoldPattern[xi_->e_]]][State_] :=Transition[set[{xi->e}]][State]
 UpdateStateHelper[Evstate_,State_,HoldPattern[xi_=e_]]:=
 Module[{staterules =
 Table[Symbol["Global`x"<>ToString[i]]-> 
+
 
 \!\(\*SubscriptBox[\(Evstate\), \(\(\[LeftDoubleBracket]\)\(i\)\(\[RightDoubleBracket]\)\)]\),{i,Length[Evstate]}],
 statecomponentrules =
@@ -837,7 +851,9 @@ maxcrit = Minimize[{solcriticality[indepvar],0<=indepvar<=TimeHorizon },
 {indepvar}];
 {
 
+
 \!\(\*SubscriptBox[\(maxcrit\), \(\(\[LeftDoubleBracket]\)\(1\)\(\[RightDoubleBracket]\)\)]\),Prepend[
+
 
 \!\(\*SubscriptBox[\(maxcrit\), \(\(\[LeftDoubleBracket]\)\(2\)\(\[RightDoubleBracket]\)\)]\),Symbol["Global`xstate"]->xinit]}
 ]
@@ -845,7 +861,9 @@ maxcrit = Minimize[{solcriticality[indepvar],0<=indepvar<=TimeHorizon },
 ];
 selectworst = Function[{c,d},If[
 
+
 \!\(\*SubscriptBox[\(c\), \(\(\[LeftDoubleBracket]\)\(1\)\(\[RightDoubleBracket]\)\)]\)<
+
 
 \!\(\*SubscriptBox[\(d\), \(\(\[LeftDoubleBracket]\)\(1\)\(\[RightDoubleBracket]\)\)]\),c,d]];
 (* could use early projection to states satisfying initialCondition by Select[...,initialCondition] *)
