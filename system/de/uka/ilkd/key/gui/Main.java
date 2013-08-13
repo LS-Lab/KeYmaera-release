@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector; 
 import java.util.Properties;
-
 import java.net.URL;
 import java.net.MalformedURLException;
 
@@ -2984,6 +2983,45 @@ public class Main extends JFrame implements IMain {
             if ( !( opt.length > index + 1 ) ) printUsageAndExit ();
             statisticsFile = opt[index + 1];
             ++index;
+        } else if (option.equals("OUTPUT")) {
+        	if ( !( opt.length > index + 1 ) ) printUsageAndExit ();
+        	File outputFile = new File(opt[index + 1]);
+        	try {
+        		if(!outputFile.exists()) {
+        			try {
+						outputFile.createNewFile();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+        		}
+				PrintStream outFile = new PrintStream(new FileOutputStream(outputFile));
+//				System.setErr(outFile);
+				System.setOut(outFile);
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+        	++index;
+        } else if (option.equals("ERROR")) {
+        	if ( !( opt.length > index + 1 ) ) printUsageAndExit ();
+        	File outputFile = new File(opt[index + 1]);
+        	try {
+        		if(!outputFile.exists()) {
+        			try {
+						outputFile.createNewFile();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+        		}
+				PrintStream outFile = new PrintStream(new FileOutputStream(outputFile));
+				System.setErr(outFile);
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+        	++index;
         } else {
 	        File tmp = ProjectManager.createTmpFileToLoad(opt[index]);
 	        if (tmp != null) {
