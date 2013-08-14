@@ -428,4 +428,10 @@ public class OrbitalSimplifier implements ISimplifier {
 		return true;
 	}
 
+	@Override
+	public Term toLessEqualConjunct(Term form, NamespaceSet nss)
+			throws RemoteException, SolverException {
+		return form;
+	}
+
 }

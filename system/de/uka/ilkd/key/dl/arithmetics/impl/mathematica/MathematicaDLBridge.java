@@ -568,6 +568,29 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 		return form;
 	}
 	
+    /**
+     * @author s0805753@sms.ed.ac.uk
+     * 
+     * Computes a conjunctive description of a quantifier-free formula in which
+     * all predicate symbols are '<=', if such a description is possible.
+     * 
+     * N.B. equations '==' are <b>not</b> converted to '<='.
+     * @throws RemoteException
+     * @throws SolverException
+     */
+    public Term toLessEqualConjunct(Term form, NamespaceSet nss)
+            throws RemoteException, SolverException {
+		Expr query = Term2ExprConverter.convert2Expr(form);
+		query = new Expr(new Expr(Expr.SYMBOL, "AMC`" + "ToLessEqualConjunct"),
+				new Expr[] { query });
+		Expr result = evaluate(query).expression;
+		Term resultTerm = convert(result, nss);
+		if (!resultTerm.equals(form)) {
+			return resultTerm;
+		}
+		return form;
+    }
+	
 	/**
 	 * 
 	 * @author ap

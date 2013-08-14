@@ -152,6 +152,19 @@ public interface IMathematicaDLBridge extends Remote {
             throws RemoteException, SolverException;
     
     /**
+     * @author s0805753@sms.ed.ac.uk
+     * 
+     * Computes a conjunctive description of a quantifier-free formula in which
+     * all predicate symbols are '<=', if such a description is possible.
+     * 
+     * N.B. equations '==' are <b>not</b> converted to '<='.
+     * @throws RemoteException
+     * @throws SolverException
+     */
+    public Term toLessEqualConjunct(Term form, NamespaceSet nss)
+            throws RemoteException, SolverException;
+    
+    /**
      * Simplifies the given Term if possible (using FullSimplify)
      * 
      * @param form
@@ -291,7 +304,7 @@ public interface IMathematicaDLBridge extends Remote {
 	public Term[] computeGroebnerBasis(Term[] polynomials, Services services) throws RemoteException, SolverException;
 
 	public Term polynomialReduce(Term poly, Term[] reductions, Services services) throws RemoteException, SolverException;
-	
+	 
 	/**
 	 * Generate plot data for the solution of the differential equation system from the given intial values
 	 * 

@@ -71,6 +71,18 @@ GetBoundary::usage="GetBoundary[expr] Computes the boundary of a closed semi-alg
 NonZeroGrad::usage="NonZeroGrad[expr,statevars] Computes condition ensuring that the gradient vector is non-zero at the boundary."
 
 
+IsConjunct::usage="IsConjunct[expr] Returns True if the expression is a conjunctive formula."
+
+
+GeqToLeq::usage="GeqToLeq[expr] Converts GreaterThan atoms into LessThan by swapping arguments and then setting the rhs to zero."
+
+
+IsListOfLeq::usage="IsListOfLeq[expr] Returns True if the expression is a List of atoms with LessEqual as their predicate symbol, returns False otherwise."
+
+
+ToLessEqualConjunct::usage="ToLessEqualConjunct[expr] Converts the expression into a conjunction of LessEqual atoms, if such a transformation is possible; otherwise, the original expression is returned."
+
+
 IDiffInd::usage ="IDiffInd[e] transforms given real arithmetic formula e to a differential inductive invariant sustaining e. The total differential Dt will be formed.
 IDiffInd[e,ODE] does the same and instantiates the derivatives in the result using the differential equations in the differential equation system ODE, in which differential equations are x'==2x+y.";
 IDiffFin::usage ="IDiffFin[e,\[Epsilon]] transforms given real arithmetic formula e to a differential inductive variant attaining e with progress \[Epsilon]. The total differential Dt will be formed.
@@ -240,6 +252,35 @@ GetBoundary[formula]/.{
 Equal[lhs_,rhs_]:> Unequal[Apply[Plus,Map[Function[x,x^2],Grad[lhs,statevars]]],0],
 else_ :> False
 }
+]
+
+
+IsConjunct[form_]:=Module[{},
+LogicalExpand[form]/.{
+a_And :> True,
+else_ :> False} ]
+
+
+GeqToLeq[atom_]:=Module[{},
+If[MatchQ[atom,_GreaterEqual],
+atom/.{GreaterEqual[lhs_,rhs_] :> ZeroRHS[LessEqual[rhs,lhs]]}, 
+atom] 
+] 
+
+
+IsListOfLeq[list_]:=Module[{},
+If[MatchQ[list,_List],
+Apply[And,Map[Function[x,MatchQ[x,_LessEqual]],list]],
+False]]
+
+
+ToLessEqualConjunct[formula_]:=Module[{
+squareFreeDNF = LogicalExpand[ParityNF[formula]],
+},
+If[IsConjunct[squareFreeDNF],
+If[IsListOfLeq[Map[GeqToLeq,Apply[List, squareFreeDNF]]],
+Map[GeqToLeq,squareFreeDNF],
+formula],formula]
 ]
 
 
@@ -433,7 +474,9 @@ Module[{sdata=SprocedureFormula[a,e],sparameters,sformula,voc},
 sparameters=
 
 
+
 \!\(\*SubscriptBox[\(sdata\), \(\(\[LeftDoubleBracket]\)\(2\)\(\[RightDoubleBracket]\)\)]\);sformula=
+
 
 
 \!\(\*SubscriptBox[\(sdata\), \(\(\[LeftDoubleBracket]\)\(1\)\(\[RightDoubleBracket]\)\)]\);
@@ -512,10 +555,12 @@ Module[{altstate},
 Length[altstate]==1,
 
 
+
 \!\(\*SubscriptBox[\(altstate\), \(\(\[LeftDoubleBracket]\)\(1\)\(\[RightDoubleBracket]\)\)]\),
 Length[altstate]>1,Block[{},Message[Transition::nondet,CirclePlus[alternatives],alttrans];
 Print["   alternatives at time ", tp," are ", altstate];
 (* @xxx arbitrarily follow only ONE of those non-deterministic alternatives *)
+
 
 
 
@@ -547,7 +592,9 @@ If[False\[And]$numericalODE,
 
 
 
+
 \!\(\*SubscriptBox[\(NMinimize[st, 0 \[LessEqual] st \[LessEqual] T\  \[And] cond[SComp[flow[st]]], st]\), \(\(\[LeftDoubleBracket]\)\(1\)\(\[RightDoubleBracket]\)\)]\),
+
 
 
 
@@ -629,6 +676,7 @@ test[e_] :=
 guard[Function[State,(e/.Table[Symbol["Global`x"<>ToString[i]]-> 
 
 
+
 \!\(\*SubscriptBox[\(State\), \(\(\[LeftDoubleBracket]\)\(i\)\(\[RightDoubleBracket]\)\)]\),{i,Length[State]}])]]
 
 
@@ -655,10 +703,12 @@ eqns = DE\[Union]
 Table[Symbol["Global`x"<>ToString[i]][0]== 
 
 
+
 \!\(\*SubscriptBox[\(State\), \(\(\[LeftDoubleBracket]\)\(i\)\(\[RightDoubleBracket]\)\)]\),{i,Min[Length[DE],Length[State]]}],
 indepvar = Symbol["Global`t"],
 (* state variables not mentioned in DE remain just constant *)
 constantstatecomponents=Table[Module[{s=
+
 
 
 \!\(\*SubscriptBox[\(State\), \(\(\[LeftDoubleBracket]\)\(i\)\(\[RightDoubleBracket]\)\)]\)},Function[tp,s]],{i,Length[DE]+1,Length[State]}]
@@ -676,6 +726,7 @@ If[Head[dsols]==List\[And]Length[dsols]>0\[And]$verify\[And]\[Not]$numericalODE,
 Module[{verificationresults = Union[FullSimplify[eqns /. 
 
 
+
 \!\(\*SubscriptBox[\(dsols\), \(\(\[LeftDoubleBracket]\)\(1\)\(\[RightDoubleBracket]\)\)]\)]]},
 If[verificationresults!={True},
 Message[Transition::verifyf,eqns,dsols,verificationresults]]]
@@ -685,11 +736,13 @@ Head[dsols]===DSolve \[Or]Head[dsols]===NDSolve\[Or]Head[dsols]=!=List\[Or]Lengt
 Head[dsols]===List\[And]Length[dsols]==1,Componentwise[Join[sysvars /. 
 
 
+
 \!\(\*SubscriptBox[\(dsols\), \(\(\[LeftDoubleBracket]\)\(1\)\(\[RightDoubleBracket]\)\)]\),constantstatecomponents]](* unlike non-sequenced discrete transitions, result requires Through *),
 Head[dsols]===List\[And]Length[dsols]>1, (Message[Transition::nonunique,eqns,Length[dsols],dsols];
 Print["nonunique solution of ", eqns, " is ", dsols];
 (* arbitrary non-deterministic choice *)
 Componentwise[Join[sysvars/. 
+
 
 
 \!\(\*SubscriptBox[\(dsols\), \(\(\[LeftDoubleBracket]\)\(1\)\(\[RightDoubleBracket]\)\)]\),constantstatecomponents]])
@@ -719,6 +772,7 @@ Module[{staterules =
 Table[Symbol["Global`x"<>ToString[i]]-> 
 
 
+
 \!\(\*SubscriptBox[\(Evstate\), \(\(\[LeftDoubleBracket]\)\(i\)\(\[RightDoubleBracket]\)\)]\),{i,Length[Evstate]}],
 statecomponentrules =
 Table[Symbol["Global`x"<>ToString[i]]-> i,{i,Length[Evstate]}]
@@ -738,6 +792,7 @@ Transition[set[HoldPattern[xi_->e_]]][State_] :=Transition[set[{xi->e}]][State]
 UpdateStateHelper[Evstate_,State_,HoldPattern[xi_=e_]]:=
 Module[{staterules =
 Table[Symbol["Global`x"<>ToString[i]]-> 
+
 
 
 \!\(\*SubscriptBox[\(Evstate\), \(\(\[LeftDoubleBracket]\)\(i\)\(\[RightDoubleBracket]\)\)]\),{i,Length[Evstate]}],
@@ -852,7 +907,9 @@ maxcrit = Minimize[{solcriticality[indepvar],0<=indepvar<=TimeHorizon },
 {
 
 
+
 \!\(\*SubscriptBox[\(maxcrit\), \(\(\[LeftDoubleBracket]\)\(1\)\(\[RightDoubleBracket]\)\)]\),Prepend[
+
 
 
 \!\(\*SubscriptBox[\(maxcrit\), \(\(\[LeftDoubleBracket]\)\(2\)\(\[RightDoubleBracket]\)\)]\),Symbol["Global`xstate"]->xinit]}
@@ -862,7 +919,9 @@ maxcrit = Minimize[{solcriticality[indepvar],0<=indepvar<=TimeHorizon },
 selectworst = Function[{c,d},If[
 
 
+
 \!\(\*SubscriptBox[\(c\), \(\(\[LeftDoubleBracket]\)\(1\)\(\[RightDoubleBracket]\)\)]\)<
+
 
 
 \!\(\*SubscriptBox[\(d\), \(\(\[LeftDoubleBracket]\)\(1\)\(\[RightDoubleBracket]\)\)]\),c,d]];

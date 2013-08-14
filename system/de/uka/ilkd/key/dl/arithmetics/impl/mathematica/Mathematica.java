@@ -146,6 +146,7 @@ public class Mathematica implements ICounterExampleGenerator, IODESolver,
 	 * Parity decomposition ensures that atomic terms in the formula are 
 	 * square-free.
 	 */
+    @Override
 	public Term parityNF(Term form, NamespaceSet nss) throws RemoteException,
 			SolverException {
 		return bridge.parityNF(form, nss);
@@ -155,21 +156,37 @@ public class Mathematica implements ICounterExampleGenerator, IODESolver,
 	 * Compute the boundary of the closed invariant candidate, provided that 
 	 * it is given by a square-free polynomial (in)equality.
 	 */
+	@Override
 	public Term getBoundary(Term form, NamespaceSet nss) throws RemoteException,
 			SolverException {
 		return bridge.getBoundary(form, nss);
 	}
-	
+	 
 	/*
 	 * Compute the boundary of the closed invariant candidate, provided that 
 	 * it is given by a square-free polynomial (in)equality.
 	 */
+	@Override
 	public Term nonZeroGrad(Term form, ArrayList<String> vars, NamespaceSet nss) throws RemoteException,
 			SolverException {
 		return bridge.nonZeroGrad(form, vars, nss);
 	}
   
-
+    /**
+     * @author s0805753@sms.ed.ac.uk
+     * 
+     * Computes a conjunctive description of a quantifier-free formula in which
+     * all predicate symbols are '<=', if such a description is possible.
+     * 
+     * N.B. equations '==' are <b>not</b> converted to '<='.
+     * 
+     */
+	@Override
+	public Term toLessEqualConjunct(Term form, NamespaceSet nss)
+			throws RemoteException, SolverException {
+		return bridge.toLessEqualConjunct(form, nss);
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * 

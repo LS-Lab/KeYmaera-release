@@ -87,6 +87,19 @@ public interface ISimplifier extends IMathSolver {
     
     /**
      * @author s0805753@sms.ed.ac.uk
+     * 
+     * Computes a conjunctive description of a quantifier-free formula in which
+     * all predicate symbols are '<=', if such a description is possible.
+     * 
+     * N.B. equations '==' are <b>not</b> converted to '<='.
+     * 
+     */
+    public abstract Term toLessEqualConjunct(Term form, NamespaceSet nss)
+            throws RemoteException, SolverException;
+    
+    
+    /**
+     * @author s0805753@sms.ed.ac.uk
      *      
      * Computes the condition ensuring the gradient vector is non-zero
      * 
