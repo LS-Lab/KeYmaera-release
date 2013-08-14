@@ -187,6 +187,21 @@ public class Mathematica implements ICounterExampleGenerator, IODESolver,
 		return bridge.toLessEqualConjunct(form, nss);
 	}
 	
+    /**
+     * @author s0805753@sms.ed.ac.uk
+     * 
+     * Checks if the formula is a conjunction of atoms where 
+     * all predicate symbols are '<='.
+     * 
+     * N.B. equations '==' are <b>not</b> converted to '<='.
+     * 
+     */
+	@Override
+	public boolean isLessEqualConjunct(Term form, NamespaceSet nss)
+			throws RemoteException, SolverException {
+		return bridge.isLessEqualConjunct(form, nss);
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * 

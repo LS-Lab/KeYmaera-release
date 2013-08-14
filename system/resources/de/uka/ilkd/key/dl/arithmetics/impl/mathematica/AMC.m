@@ -83,6 +83,9 @@ IsListOfLeq::usage="IsListOfLeq[expr] Returns True if the expression is a List o
 ToLessEqualConjunct::usage="ToLessEqualConjunct[expr] Converts the expression into a conjunction of LessEqual atoms, if such a transformation is possible; otherwise, the original expression is returned."
 
 
+IsLessEqualConjunct::usage="IsLessEqualConjunct[expr] Returns True if the expression into a conjunction of LessEqual atoms; returns False otherwise."
+
+
 IDiffInd::usage ="IDiffInd[e] transforms given real arithmetic formula e to a differential inductive invariant sustaining e. The total differential Dt will be formed.
 IDiffInd[e,ODE] does the same and instantiates the derivatives in the result using the differential equations in the differential equation system ODE, in which differential equations are x'==2x+y.";
 IDiffFin::usage ="IDiffFin[e,\[Epsilon]] transforms given real arithmetic formula e to a differential inductive variant attaining e with progress \[Epsilon]. The total differential Dt will be formed.
@@ -281,6 +284,14 @@ If[IsConjunct[squareFreeDNF],
 If[IsListOfLeq[Map[GeqToLeq,Apply[List, squareFreeDNF]]],
 Map[GeqToLeq,squareFreeDNF],
 formula],formula]
+]
+
+
+IsLessEqualConjunct[formula_]:=Module[{},
+If[IsConjunct[formula],
+If[IsListOfLeq[Apply[List, formula]],
+True,
+False],False]
 ]
 
 

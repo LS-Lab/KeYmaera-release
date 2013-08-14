@@ -590,6 +590,28 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 		}
 		return form;
     }
+    
+    /**
+     * @author s0805753@sms.ed.ac.uk
+     * 
+     * Checks if the formula is a conjunction of atoms where 
+     * all predicate symbols are '<='.
+     * 
+     * N.B. equations '==' are <b>not</b> converted to '<='.
+     * 
+     */
+    public  boolean isLessEqualConjunct(Term form, NamespaceSet nss)
+            throws RemoteException, SolverException {
+		Expr query = Term2ExprConverter.convert2Expr(form);
+		query = new Expr(new Expr(Expr.SYMBOL, "AMC`" + "IsLessEqualConjunct"),
+				new Expr[] { query });
+		Expr result = evaluate(query).expression;
+		Term resultTerm = convert(result, nss);
+		if (resultTerm.equals(TermBuilder.DF.tt())) {
+			return true;
+		}
+		return false;
+    }
 	
 	/**
 	 * 

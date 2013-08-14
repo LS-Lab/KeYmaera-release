@@ -165,6 +165,18 @@ public interface IMathematicaDLBridge extends Remote {
             throws RemoteException, SolverException;
     
     /**
+     * @author s0805753@sms.ed.ac.uk
+     * 
+     * Checks if the formula is a conjunction of atoms where 
+     * all predicate symbols are '<='.
+     * 
+     * N.B. equations '==' are <b>not</b> converted to '<='.
+     * 
+     */
+    public abstract boolean isLessEqualConjunct(Term form, NamespaceSet nss)
+            throws RemoteException, SolverException;
+    
+    /**
      * Simplifies the given Term if possible (using FullSimplify)
      * 
      * @param form
