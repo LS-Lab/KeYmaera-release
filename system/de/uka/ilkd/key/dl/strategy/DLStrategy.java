@@ -72,6 +72,7 @@ import de.uka.ilkd.key.dl.strategy.features.ReducibleMonomialsFeature;
 import de.uka.ilkd.key.dl.strategy.features.SimplifyFeature;
 import de.uka.ilkd.key.dl.strategy.features.SwitchFeature;
 import de.uka.ilkd.key.dl.strategy.features.SwitchFeature.Case;
+import de.uka.ilkd.key.dl.strategy.features.TautologyTestFeature;
 import de.uka.ilkd.key.dl.strategy.features.TimeoutTestApplicationFeature;
 import de.uka.ilkd.key.dl.strategy.features.TrivialMonomialLCRFeature;
 import de.uka.ilkd.key.dl.strategy.termProjection.Buffer;
@@ -82,6 +83,7 @@ import de.uka.ilkd.key.dl.strategy.termfeature.DecimalLiteralFeature;
 import de.uka.ilkd.key.dl.strategy.termfeature.QuasiRealLiteralFeature;
 import de.uka.ilkd.key.java.ProgramElement;
 import de.uka.ilkd.key.logic.ConstrainedFormula;
+import de.uka.ilkd.key.logic.Constraint;
 import de.uka.ilkd.key.logic.Name;
 import de.uka.ilkd.key.logic.PosInOccurrence;
 import de.uka.ilkd.key.logic.op.Function;
@@ -1445,6 +1447,11 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 		if (EliminateExistentialQuantifierRule.INSTANCE.filter(app.rule())) {
 			// TODO we should still allow, e.g., and-right to fight prohibitive
 			// complexity
+			if(DLOptionBean.INSTANCE.isEliminateExistentialOnlyToTrue()) {
+				if(EliminateExistentialQuantifierRule.INSTANCE.isApplicable(goal, pio, Constraint.BOTTOM) && new TautologyTestFeature().compute(app, pio, goal) == TopRuleAppCost.INSTANCE) {
+					return true;
+				}
+			}
 			return false;
 		}
 		if (blockAllRules) {

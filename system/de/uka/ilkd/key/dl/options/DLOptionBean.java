@@ -332,6 +332,8 @@ public class DLOptionBean implements Settings {
     private boolean init;
     
     private boolean ibcOnlyToFO;
+    
+    private boolean eliminateExistentialOnlyToTrue;
 
 	private DLOptionBean() {
 		subOptions = new LinkedHashSet<Settings>();
@@ -387,8 +389,21 @@ public class DLOptionBean implements Settings {
 
 		cexFinder = CexFinder.ITER_DEEP;
 		tracerStat = TracerStat.OFF;
+		eliminateExistentialOnlyToTrue = false;
 		if(!init) {
 		    firePropertyChanged();
+		}
+	}
+
+	public boolean isEliminateExistentialOnlyToTrue() {
+		return eliminateExistentialOnlyToTrue;
+	}
+
+	public void setEliminateExistentialOnlyToTrue(
+			boolean eliminateExistentialOnlyToTrue) {
+		if(this.eliminateExistentialOnlyToTrue != eliminateExistentialOnlyToTrue) {
+			this.eliminateExistentialOnlyToTrue = eliminateExistentialOnlyToTrue;
+			firePropertyChanged();
 		}
 	}
 
@@ -736,6 +751,10 @@ public class DLOptionBean implements Settings {
 		if(property != null) {
 		    ibcOnlyToFO = Boolean.valueOf(property);
 		}
+		property = props.getProperty(EPropertyConstant.DLOPTIONS_EXISTENTIAL_ONLY_TO_TRUE.getKey());
+		if (property != null) {
+			eliminateExistentialOnlyToTrue = Boolean.valueOf(property);
+		}
 
 		try {
 			de.uka.ilkd.key.dl.DLInitializer.updateCustomizers();
@@ -848,6 +867,7 @@ public class DLOptionBean implements Settings {
 		props.setProperty(EPropertyConstant.DLOPTIONS_REDUCE_ON_FRESH_BRANCH.getKey(), Boolean.toString(reduceOnFreshBranch));
 		props.setProperty(EPropertyConstant.DLOPTIONS_SOLVE_ODE.getKey(), Boolean.toString(solveODE));
 		props.setProperty(EPropertyConstant.DLOPTIONS_IBC_ONLY_TO_FO.getKey(), Boolean.toString(ibcOnlyToFO));
+		props.setProperty(EPropertyConstant.DLOPTIONS_EXISTENTIAL_ONLY_TO_TRUE.getKey(), Boolean.toString(eliminateExistentialOnlyToTrue));
 
 	}
 
