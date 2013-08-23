@@ -108,6 +108,7 @@ import de.uka.ilkd.key.strategy.feature.CheckApplyEqFeature;
 import de.uka.ilkd.key.strategy.feature.ConditionalFeature;
 import de.uka.ilkd.key.strategy.feature.ConstraintStrengthenFeature;
 import de.uka.ilkd.key.strategy.feature.ConstraintStrengthenFeatureUC;
+import de.uka.ilkd.key.strategy.feature.ContainsQuantifierFeature;
 import de.uka.ilkd.key.strategy.feature.CountMaxDPathFeature;
 import de.uka.ilkd.key.strategy.feature.CountPosDPathFeature;
 import de.uka.ilkd.key.strategy.feature.DiffFindAndIfFeature;
@@ -278,18 +279,7 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 						ScaleFeature.createScaled(
 								CountMaxDPathFeature.INSTANCE, 10.0) }));
 
-		/*
-		 * final TermBuffer equation = new TermBuffer(); bindRuleSet(d,
-		 * "apply_equations", add(ifZero(MatchedIfFeature.INSTANCE,
-		 * add(CheckApplyEqFeature.INSTANCE, let(equation,
-		 * AssumptionProjection.create(0), TermSmallerThanFeature
-		 * .create(sub(equation, 1), sub(equation, 0))))),
-		 * ifZero(ConstraintStrengthenFeature.INSTANCE, add(ifZero(
-		 * SimplifyBetaCandidateFeature.INSTANCE, inftyConst()),
-		 * NotBelowQuantifierFeature.INSTANCE, ifZero(
-		 * ContainsQuantifierFeature.INSTANCE, inftyConst()))),
-		 * longConst(-4000)));
-		 */
+
 		bindRuleSet(d, "order_terms", add(TermSmallerThanFeature.create(
 				instOf("commEqLeft"), instOf("commEqRight")), longConst(-8000)));
 
@@ -681,13 +671,34 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 	////////////////////////////////////////////////////////////////////////////
 
 	private void setupApplyEq(RuleSetDispatchFeature d) {
+		final TermBuffer equation = new TermBuffer();
+		final TermBuffer left = new TermBuffer(), right = new TermBuffer();
 		if (!DLOptionBean.INSTANCE.isArithmeticReduction()) {
-			bindRuleSet(d, "apply_equations", inftyConst());
+//			bindRuleSet(d, "apply_equations", inftyConst());
+			if(DLOptionBean.INSTANCE.isApplyEquations()) {
+				// simple version of equation application
+				// TODO: hide useless equations
+				// TODO: try to use it in order to eliminate variables
+				bindRuleSet(
+						d,
+						"apply_equations",
+						ifZero(MatchedIfFeature.INSTANCE,
+								add(CheckApplyEqFeature.INSTANCE,
+										let(equation,
+												AssumptionProjection.create(0),
+												let(left,
+														sub(equation, 0),
+														let(right,
+																sub(equation, 1),
+																TermSmallerThanFeature
+																		.create(right,
+																				left)))))));
+			} else {
+				bindRuleSet(d, "apply_equations", inftyConst());
+			}
 			return;
 		}
 
-		final TermBuffer equation = new TermBuffer();
-		final TermBuffer left = new TermBuffer(), right = new TermBuffer();
 
 		// applying equations less deep/less leftish in terms/formulas is
 		// preferred

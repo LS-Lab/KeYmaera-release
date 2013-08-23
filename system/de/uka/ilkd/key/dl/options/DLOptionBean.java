@@ -193,7 +193,7 @@ public class DLOptionBean implements Settings {
 	}
 
 	public static enum BuiltInArithmetic {
-		OFF("off"), NORMALISE_EQUATIONS("normalise"), REDUCTION(
+		OFF("off"), APPLY_EQUALITIES("apply equalities"), NORMALISE_EQUATIONS("normalise"), REDUCTION(
 				"normalise&reduce"), FULL("full S-polynomial");
 
 		private String string;
@@ -334,7 +334,7 @@ public class DLOptionBean implements Settings {
     private boolean ibcOnlyToFO;
     
     private boolean eliminateExistentialOnlyToTrue;
-
+    
 	private DLOptionBean() {
 		subOptions = new LinkedHashSet<Settings>();
 		solveODE = true;
@@ -394,7 +394,7 @@ public class DLOptionBean implements Settings {
 		    firePropertyChanged();
 		}
 	}
-
+	
 	public boolean isEliminateExistentialOnlyToTrue() {
 		return eliminateExistentialOnlyToTrue;
 	}
@@ -1000,6 +1000,10 @@ public class DLOptionBean implements Settings {
 
 	public boolean isFourierMotzkin() {
 		return builtInArithmeticIneqs == BuiltInArithmeticIneqs.FOURIER_MOTZKIN;
+	}
+	
+	public boolean isApplyEquations() {
+		return builtInArithmetic == BuiltInArithmetic.APPLY_EQUALITIES;
 	}
 
 	/**
