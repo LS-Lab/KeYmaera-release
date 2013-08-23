@@ -105,6 +105,7 @@ import de.uka.ilkd.key.strategy.TopRuleAppCost;
 import de.uka.ilkd.key.strategy.feature.AgeFeature;
 import de.uka.ilkd.key.strategy.feature.AutomatedRuleFeature;
 import de.uka.ilkd.key.strategy.feature.CheckApplyEqFeature;
+import de.uka.ilkd.key.strategy.feature.CheckApplyEqSymFeature;
 import de.uka.ilkd.key.strategy.feature.ConditionalFeature;
 import de.uka.ilkd.key.strategy.feature.ConstraintStrengthenFeature;
 import de.uka.ilkd.key.strategy.feature.ConstraintStrengthenFeatureUC;
@@ -693,12 +694,27 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 																TermSmallerThanFeature
 																		.create(right,
 																				left)))))));
+				bindRuleSet(
+						d,
+						"apply_equations_sym",
+						ifZero(MatchedIfFeature.INSTANCE,
+								add(CheckApplyEqSymFeature.INSTANCE,
+										let(equation,
+												AssumptionProjection.create(0),
+												let(left,
+														sub(equation, 0),
+														let(right,
+																sub(equation, 1),
+																TermSmallerThanFeature
+																.create(left,
+																		right)))))));
 			} else {
 				bindRuleSet(d, "apply_equations", inftyConst());
+				bindRuleSet(d, "apply_equations_sym", inftyConst());
 			}
 			return;
 		}
-
+		bindRuleSet(d, "apply_equations_sym", inftyConst());
 
 		// applying equations less deep/less leftish in terms/formulas is
 		// preferred
