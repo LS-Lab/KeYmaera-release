@@ -9,26 +9,108 @@ import java.io.InputStream
 import java.io.FileInputStream
 import scala.util.parsing.combinator.lexical._
 import scala.util.parsing.combinator.syntactical._
+import scala.util.parsing.input.CharArrayReader.EofCh
 import scala.util.parsing.combinator._
 import java.io.FileReader
+import scala.collection.mutable.HashSet
+
+class KeYLexical() extends StdLexical() {
+
+  case class FloatingPointLit(chars: String) extends Token {
+    override def toString = chars
+  }
+
+  override def token: Parser[Token] =
+    ( identChar ~ rep( identChar | digit )              ^^ { case first ~ rest => processIdent(first :: rest mkString "") }
+    | delim
+    | '(' ~ delim ~ ')'                                 ^^ { case '(' ~ d ~ ')' => Identifier(d.chars) }
+    | '(' ~ '0' ~ '-' ~ ')'                             ^^ { _ => Identifier("0-") }
+    | '\"' ~ rep( chrExcept('\"', '\n', EofCh) ) ~ '\"' ^^ { case '\"' ~ chars ~ '\"' => StringLit(chars mkString "") }
+    | '\"' ~> failure("unclosed string literal")
+    | floatLit                                          ^^ { case f => FloatingPointLit(f) }
+    | signedIntegerLit                                  ^^ { case i => NumericLit(i) }
+    )
+
+  // legal identifier chars other than digits
+  override def identChar = letter | elem('_') | elem('\'') | elem('#') | elem('$')
+
+  def nonZeroDigit = elem('1') | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9'
+  def integerLit =
+      ( elem('0')                 ^^ { _.toString() }
+      | rep1(nonZeroDigit, digit) ^^ { _ mkString "" }
+      )
+
+  def signedIntegerLit =
+      ( elem('-') ~ integerLit ^^ { case a ~ b => a+b }
+      | integerLit )
+  def plusMinusIntegerLit =
+      ( elem('+') ~ integerLit ^^ { case a ~ b => a+b }
+      | signedIntegerLit )
+
+  def floatLit =
+    ( signedIntegerLit ~ '.' ~ integerLit ~ (elem('e') |  elem('E')) ~ plusMinusIntegerLit ^^ { case a ~ b ~ c ~ d ~ e => a+b+c+d+e }
+    | signedIntegerLit                    ~ (elem('e') |  elem('E')) ~ plusMinusIntegerLit ^^ { case a ~ b ~ c => a+b+c }
+    | signedIntegerLit ~ '.' ~ integerLit                                                  ^^ { case a ~ b ~ c => a+b+c }
+    )
+
+
+  /** The set of reserved identifiers: these will be returned as `Keyword's */
+  override val reserved = new HashSet[String] ++ List( /* "\\",
+                              "sorts", "functions", "problem", "forall", "exists",  */
+                              "true", "false", "invariant",
+                              "solution", "strengthen", "if", "then", "fi",
+                              "generic", "extends", "oneof", "object",
+                             "schemaVariables", "modalOperator", "operator",
+                             "program", "formula", "term", "variables", "skolemTerm",
+                             "location", "function", "modifies", "varcond", "typeof",
+                             "elemTypeof", "new", "newLabel", "not", "same","compatible",
+                             "sub", "strict", "staticMethodReference", "notFreeIn", "freeLabelIn",
+                             "static", "enumConstant", "notSameLiteral", "isReferenceArray",
+                             "isArray", "isReference", "isNonImplicit", "isEnumType", "dependingOn",
+                             "dependingOnMod", "isQuery", "isNonImplicitQuery", "hasSort", "isLocalVariable",
+                             "notIsLocalVariable", "isFirstOrderFormula", "isUpdated", "sameHeapDepPred",
+                             "bind", "forall", "exists", "subst", "ifEx", "for", "if", "then", "else",
+                             "sum", "bsum", "product", "include", "includeLDTs", "classpath", "bootclasspath",
+                             "noDefaultClasses", "javaSource", "noJavaModel", "withOptions", "optionDecl",
+                             "settings", "true", "false", "sameUpdateLevel", "inSequentState", "closegoal",
+                             "heuristicsDecl", "noninteractive", "displayname", "oldname", "helptext",
+                             "replacewith", "addrules", "addprogvars", "heuristics", "find", "add", "assume",
+                             "predicates", "functions", "nonRigid", "inter", "rules", "problem", "chooseContract",
+                             "proof", "contracts", "invariants",
+                             // The first two guys are not really meta operators, treated separately
+                             "inType", "isInReachableState", "isAbstractOrInterface", "containerType",
+                             "forall", "exists", "true", "false",
+                             "solution", "invariant", "strengthen", "sorts",
+                             "if", "then", "else", "fi", "while", "do", "end",
+                             "repeat", "until", "skip", "abort"
+    )
+
+  /** The set of delimiters (ordering does not matter) */
+  override val delimiters = new HashSet[String] ++ List(
+                             "\\sorts", "\\functions", "\\programVariables",
+                             "\\problem", "\\forall", "\\exists",
+                             "{", "}", "\\[", "\\]",  "\\<", "\\>", "&",
+                               ",", ";", ":", "(", ")", "[", "]",
+                              "=", "<", ">", ">=", "<=",
+                             "!", "!=", "+", "-", "*", "/", "^",
+                             "++", ":=", "@", "?",
+                             //"&",
+                             "|", "<->", "->", "==>", "."
+                             /* "~",
+                             ";", "/", ":", "::", ":=", ".", "..",
+                             ",", "(", ")", "[", "]", "{", "}", "[]",
+                             "@", "||", "|", "&", "!", "->", "=", "!=",
+                             "==>", "^^", "~", "%", "*", "+", "^",
+                             ">", ">=", "<", "<=", "\t", "\r", "\n",
+                             "''",   "<->" */
+    )
+
+}
 
 class DLOriginalParser(ins : String) extends StdTokenParsers {
   type Tokens = StdLexical 
-  override val lexical = new DLLexical
-  lexical.delimiters ++= List(",", ";",":", "(", ")", "\\[", "\\]", 
-		  					  "\\<", "\\>", "{", "}",
-                              "=", "!=", "<", ">", ">=", "<=",
-                              "+","-","*", "/", "^",
-                              "++", ":=", "@", "?", "\'",
-                              "&", "|", "->", "<->", "!"
-                            ).iterator
-
-  lexical.reserved ++= List("forall", "exists",
-                             "true", "false",
-                             "invariant", "variant",
-                             "if", "fi", "then", "else"
-                           ).iterator
-
+  override val lexical = new KeYLexical
+   
    def this(in : InputStream) = {
      this({
 	     val br = new BufferedReader(new InputStreamReader(in))
@@ -116,13 +198,13 @@ class DLOriginalParser(ins : String) extends StdTokenParsers {
      	{case f~thenhp~elsehp => (Check(f) seq thenhp) ++ (Check(!f) seq elsehp)} |
      ("if" ~> "(" ~> formula0 <~ ")" <~ "then")~hp <~ "fi" ^^ 
      	{case f~thenhp => (Check(f) seq thenhp) ++ Check(!f)} |	
-     ("{" ~> rep1sep(diffeq, ",") <~ ",")~(formula0 <~ "}")~opt(annotation("invariant")) ^^
-        {case dvs~f~invs => Evolve(f, dvs:_*)}
+     ("{" ~> rep1sep(diffeq, ","))~(opt("," ~> rep1sep(formula0, ",")) <~ "}")~opt(annotation("invariant")) ^^
+        {case dvs~f~invs => Evolve(if (!f.isEmpty) f.get.tail.foldLeft(f.get.head)(_ & _) else True, dvs:_*)}
 
   def diffeq : Parser[(Var, Term)] =
     (ident <~ "=")~term ^?
       {case s~tm  if s.endsWith("\'") 
-        	  => (Var(s.substring(0,s.length - 1)), tm)}
+        	  => (Var(s.substring(0,s.indexOf("\'"))), tm)}
 
   def annotation(name: String) : Parser[List[Formula]] =
     "@" ~> keyword(name) ~> "(" ~> repsep(formula0, ",") <~ ")"
@@ -131,16 +213,123 @@ class DLOriginalParser(ins : String) extends StdTokenParsers {
     ident ^^ {case "R" => Real
               case s => St(s)}
 
+//  def functionsort : Parser[(String,(List[Sort],Sort))] =
+//    (ident <~ ":" <~ "(") ~ (repsep(sort,",") <~ ")" <~ "->") ~ sort ^^
+//      {case f ~ args ~ rtn => (f,(args,rtn))}
+//
+//  def functionsorts : Parser[Map[String,(List[Sort],Sort)]] =
+//    "{" ~> repsep(functionsort, ",") <~ "}" ^^
+//       {case fnsrts => scala.collection.immutable.HashMap.empty ++ fnsrts } |
+//        success(scala.collection.immutable.HashMap.empty)
+   
+  def sorts : Parser[List[Sort]] =
+    "\\sorts" ~ "{" ~> repsep(sort, ";") <~ "}"  |
+    "\\sorts" ~ "{" ~> repsep(sort, ";") <~ ";" <~ "}" |
+    success(Nil)
+    
   def functionsort : Parser[(String,(List[Sort],Sort))] =
-    (ident <~ ":" <~ "(") ~ (repsep(sort,",") <~ ")" <~ "->") ~ sort ^^
-      {case f ~ args ~ rtn => (f,(args,rtn))}
+    (sort ~ ident <~ "(") ~ (rep1sep(sort,",")) <~ "," <~ ")" ^^
+      {case rtn ~ f ~ args => (f,(args,rtn))}  |
+    (sort ~ ident <~ "(") ~ (rep1sep(sort,",")) <~ ")" ^^
+      {case rtn ~ f ~ args => (f,(args,rtn))}  |
+    (sort ~ ident) ^^
+      {case c ~ f => (f, (Nil, c))}
 
-  def functionsorts : Parser[Map[String,(List[Sort],Sort)]] =
-    "{" ~> repsep(functionsort, ",") <~ "}" ^^
-       {case fnsrts => scala.collection.immutable.HashMap.empty ++ fnsrts } |
-        success(scala.collection.immutable.HashMap.empty)
 
-   def fm_result : Option[Formula] = {
+ /*  def variablesort: Parser[(Sort, List[String])] =
+    (sort ~ repsep(ident, ",")) ^^
+      {case s ~ vargs => (s, vargs)}    */
+
+    def variablesort: Parser[List[(String,(List[Sort],Sort))]] =
+    (sort ~ rep1sep(ident, ",")) ^^
+      {case s ~ vargs => {
+      var vsrtsl : List[(String,(List[Sort],Sort))] = Nil
+      for (v <- vargs) {
+     vsrtsl =  (v, (Nil, s)) :: vsrtsl
+      }
+      vsrtsl
+      }
+      }
+
+    def functionsorts: Parser[Map[String,(List[Sort],Sort)]] =
+    "\\functions" ~> "{" ~> repsep(functionsort, ";") <~ ";" <~ "}" ^^
+        {case fnsrts => scala.collection.immutable.HashMap.empty ++ fnsrts} |
+    "\\functions" ~> "{" ~> repsep(functionsort, ";") <~ "}" ^^
+        {case fnsrts => scala.collection.immutable.HashMap.empty ++ fnsrts} |
+    success(scala.collection.immutable.HashMap.empty) 
+        
+    def programvariablesorts: Parser[Map[String,(List[Sort],Sort)]] =
+    "\\programVariables" ~> "{" ~> repsep(variablesort, ";") <~ ";" <~ "}" ^^
+       {case varsrts  => {
+           var varmap : Map[String,(List[Sort],Sort)] =  scala.collection.immutable.HashMap.empty
+           for (vsrtl <- varsrts) {
+           varmap = varmap ++ vsrtl
+            }
+            varmap
+            }
+       } |
+    "\\programVariables" ~> "{" ~> repsep(variablesort, ";") <~ "}" ^^
+       {case varsrts  => {
+           var varmap : Map[String,(List[Sort],Sort)] =  scala.collection.immutable.HashMap.empty
+           for (vsrtl <- varsrts) {
+           varmap = varmap ++ vsrtl
+            }
+            varmap
+            }
+              } |
+    success(scala.collection.immutable.HashMap.empty)
+
+       def variablesorts: Parser[Map[String,(List[Sort],Sort)]] =
+       repsep(variablesort, ";") ^^
+       {case varsrts  => {
+           var varmap : Map[String,(List[Sort],Sort)] =  scala.collection.immutable.HashMap.empty
+           for (vsrtl <- varsrts) {
+           varmap = varmap ++ vsrtl
+            }
+            varmap
+            }
+              } |
+            success(scala.collection.immutable.HashMap.empty)
+
+   def sequent : Parser[Sequent] =
+    sorts ~> functionsorts ~ repsep(formula, ",") ~ ("==>" ~> repsep(formula,",")) ^^
+        {case fnsrts ~ c ~ s => Sequent(fnsrts, c,s)}  |
+    sorts ~> functionsorts ~ ("\\problem" ~> "{" ~> formula <~ "}") ^^
+       {case fnsrts ~ s => Sequent(fnsrts, Nil, List(s))}   |
+    sorts ~> functionsorts ~ programvariablesorts ~ ("\\problem" ~> "{" ~> formula <~ "}") ^^
+       {case fnsrts ~ varsrts ~ s => Sequent(fnsrts ++ varsrts, Nil, List(s))}   |
+    sorts ~> functionsorts ~ ("\\problem" ~> "{" ~> "\\[" ~> variablesorts <~ "\\]") ~ (formula <~ "}") ^^
+        {case fnsrts ~ varsrts ~ s => Sequent(fnsrts ++ varsrts, Nil, List(s))}  |
+    sorts ~> functionsorts ~ ("\\problem" ~> "{" ~> "\\[" ~> variablesorts <~ ";" <~ "\\]") ~ (formula <~ "}") ^^
+        {case fnsrts ~ varsrts ~ s => Sequent(fnsrts ++ varsrts, Nil, List(s))}  |
+   // sorts ~> functionsorts ~ ("\\problem" ~> "{" ~> "\\[" ~> variablesorts <~ ";") ~ (repsep(hp | formula00, ";") <~ "\\]") ~ (formula00 <~ "}") ^^
+    sorts ~> functionsorts ~ ("\\problem" ~> "{" ~> "\\[" ~> variablesorts <~ ";") ~ (hp <~ "\\]") ~ (formula <~ "}") ^^
+       {case fnsrts ~ varsrts ~ a ~ s => Sequent(fnsrts ++ varsrts, Nil, List(Modality(Box,a,s)))} |
+   //     {case fnsrts ~ varsrts ~ hp ~ s => Sequent(fnsrts ++ varsrts, Nil, List(s))} |
+   // sorts ~> functionsorts ~ ("\\problem" ~> "{" ~> "\\[" ~> variablesorts <~ ";") ~ (repsep(hp | formula00, ";") <~ ";" <~ "\\]") ~ (formula00 <~ "}") ^^
+   //     {case fnsrts ~ varsrts ~ hp ~ s => Sequent(fnsrts ++ varsrts, Nil, List(s))}
+    sorts ~> functionsorts ~ ("\\problem" ~> "{" ~> "\\[" ~> variablesorts <~ ";") ~ (hp <~ ";" <~ "\\]") ~ (formula <~ "}") ^^
+       {case fnsrts ~ varsrts ~ a ~ s => Sequent(fnsrts ++ varsrts, Nil, List(Modality(Box, a, s)))}
+
+   def result : Option[Sequent] = {
+     val ls = new lexical.Scanner(ins);
+     phrase(sequent)(ls) match {
+       case Success(r,next) if next.atEnd =>
+         println("success! ")
+         println(r)
+         Some(r)
+       case Success(r,next)  =>
+         println("failure! Leftover input. only parsed: " )
+         println(r)
+         None
+       case f =>
+         println(f)
+         None
+     }
+
+   }
+
+  def fm_result : Option[Formula] = {
      // don't infer var / fn distinction
      phrase(formula0)(new lexical.Scanner(ins)) match {
        case Success(r,next) if next.atEnd =>
@@ -160,6 +349,26 @@ class DLOriginalParser(ins : String) extends StdTokenParsers {
 object OP {
   def openFile(f: String) : InputStream = {
     new FileInputStream(f)
+  }
+  
+  def parseKeYFile(f: String) : Sequent = {
+    val dlp = new DLOriginalParser(f)
+    dlp.result match {
+      case Some(fm) => fm
+      case None =>
+        println("could not read a formula from " + f)
+        null
+    }
+  }
+  
+  def parseKeYFile(i: InputStream) : Sequent = {
+    val dlp = new DLOriginalParser(i)
+    dlp.result match {
+      case Some(fm) => fm
+      case None =>
+        println("could not read a formula from " + i)
+        null
+    }
   }
 
   def parseFormula(f: String) : Formula = {

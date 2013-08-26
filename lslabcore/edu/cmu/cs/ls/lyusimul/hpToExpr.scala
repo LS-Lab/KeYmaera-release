@@ -18,9 +18,12 @@ object hpToExpr {
   def math_int(s: String): Expr =
     new Expr(Expr.INTEGER, s)
   
+  def math_real(s: String): Expr =
+    new Expr(Expr.REAL, s)
+  
   def math_str(s: String): Expr =
     new Expr(Expr.STRING, s)
-
+  
   def un_fun(f: String, arg: Expr): Expr = {
     new Expr(math_sym(f),
              List(arg).toArray)
@@ -45,6 +48,30 @@ object hpToExpr {
     require(mdlt.m == Box)
   }
   
+  def modaToDataPointExpr (mdlt : Modality, nGrapsPerRow: Int, tendLimi : Double, nUnroLoop : Int, randMin : Double, randMax : Double) : Expr = {
+    applicable(mdlt)
+    
+    //var prepModa = mdlt
+    var prepModa = preprocessModality(mdlt)
+    
+    // hayquePreguntar: Is it OK to extract variables only from evolve?
+    val varisStrisListForEvol = hpToVarisStrisListWoDuplsForEvol(prepModa.hp)
+    val varisExprsListForEvol = strisListToExprsList(varisStrisListForEvol)
+    var statsList = List(bin_fun("Set", math_sym("glob`tendLimi"), new Expr(tendLimi)))
+    statsList = statsList ++ List(bin_fun("Set", math_sym("glob`tends"), un_fun("List", new Expr(0))))
+    // Following line may be buggy.
+    statsList = statsList ++ List(bin_fun("Set", math_sym("glob`sol"), mul_arg_fun("List", List())))
+    
+    statsList = statsList ++ hpToStatsList(prepModa.hp, varisStrisListForEvol, tendLimi, nUnroLoop, randMin, randMax)
+    
+    val safetyExpr = MmtManipulation.mmtToExpr(MmtManipulation.formulaToMmt(prepModa.f), EvolveToExpr.LOCA_T)
+    statsList = statsList ++ List(bin_fun("Set", un_fun("glob`safety", math_sym("loca`t_")), safetyExpr))
+
+    statsList = statsList ++ List(mul_arg_fun("List", varisToDispToStringList(List("glob`safety") ++ varisStrisListForEvol))) 
+    val compExpr = mul_arg_fun("CompoundExpression", statsList)
+    return bin_fun("Module", scalListToListExpr(varisExprsListForEvol), compExpr) 
+
+  }
 
   def modaToExpr (mdlt : Modality, varisToDisp: List[String], nGrapsPerRow: Int, tendLimi : Double, nUnroLoop : Int, randMin : Double, randMax : Double) : Expr = {
     applicable(mdlt)
@@ -556,6 +583,73 @@ object hpToExpr {
 	    case x::xs =>
 	      return varisToDispToPlotCommScalList(varisToDisp.take(nGrapsPerRow)) ::
 	          varisToDispToPlotCommsScalListList(varisToDisp.drop(nGrapsPerRow), nGrapsPerRow)
+  }
+  
+/*
+ * Map[Function[
+  ExportString[Slot[1], "Table", Rule["FieldSeparator", "\t"], 
+   Rule["LineSeparators", " "]]], 
+ Table[{t, 
+   N[ReplaceAll[x[t], 
+     Part[glob`sol, 
+      Subtract[
+       Part[Part[
+         Position[glob`tends, 
+          PatternTest[Blank[], Function[GreaterEqual[Slot[1], t]]]], 
+         1], 1], 1]]]]}, {t, Plus[Evaluate[First[glob`tends]], 0.05], 
+   Evaluate[Last[glob`tends]], 1}]]
+ */
+  def varisToDispToStringList (varisToDisp: List[String]) : List[Expr] = varisToDisp match {
+    case Nil => Nil
+    case x::xs =>
+      bin_fun("Rule", math_str(x), 
+      bin_fun("Map", 
+          un_fun("Function", 
+              mul_arg_fun("ExportString", List(
+                  un_fun("Slot", math_int("1")),
+                  math_str("Table"),
+                  bin_fun("Rule", math_str("FieldSeparator"), math_str("\t")),
+                  bin_fun("Rule", math_str("LineSeparators"), math_str(" "))
+                  )
+              )
+          ), 
+          bin_fun("Table", 
+              mul_arg_fun("List", List(
+                  math_sym("loca`t"),
+                  un_fun("N", 
+                      bin_fun("ReplaceAll", 
+	                      un_fun(x, math_sym("loca`t")), 
+	                      bin_fun("Part", math_sym("glob`sol"), 
+	                          bin_fun("Subtract",
+		                          bin_fun("Part", 
+		                              bin_fun("Part",
+		                                  bin_fun("Position", 
+		                                      math_sym("glob`tends"), 
+		                                      bin_fun("PatternTest",
+		                                          mul_arg_fun("Blank", List()),
+		                                          un_fun("Function", bin_fun("GreaterEqual", 
+		                                              un_fun("Slot", math_int("1")),
+		                                              math_sym("loca`t")
+		                                          ))
+		                                      )
+		                                  ),
+		                                  math_int("1")
+		                              ),
+		                              math_int("1")
+		                          ),
+		                          math_int("1")
+	                          )
+	                      )
+                  ))
+              )), 
+              mul_arg_fun("List", List(
+                  math_sym("loca`t"),
+                  bin_fun("Plus", un_fun("Evaluate", un_fun("First", math_sym("glob`tends"))), math_real("0.05")),
+                  un_fun("Evaluate", un_fun("Last", math_sym("glob`tends"))),
+                  math_real("0.05")
+              ))
+          )
+      )) :: varisToDispToStringList(xs)
   }
   
   def varisToDispToPlotCommScalList (varisToDisp: List[String]) : List[Expr] = varisToDisp match {

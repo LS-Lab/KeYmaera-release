@@ -249,3 +249,8 @@ sealed abstract class ModalityOperator
 case object Box extends ModalityOperator
 case object Diamond extends ModalityOperator
 case object TemporalBox extends ModalityOperator
+
+/** goals */
+case class Sequent(fn_sorts: Map[String, (List[Sort], Sort)],
+                   ctxt: List[Formula],
+                   scdts: List[Formula])
