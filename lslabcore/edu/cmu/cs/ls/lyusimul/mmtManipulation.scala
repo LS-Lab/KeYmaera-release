@@ -2,6 +2,7 @@ package edu.cmu.cs.ls.lyusimul
 
 import edu.cmu.cs.ls._
 import com.wolfram.jlink._
+import NameMasker._
 
 object MmtManipulation {
 
@@ -100,11 +101,13 @@ object MmtManipulation {
   
   def mmtVarToExpr(x : String, tranMode : Int) : Expr = {
     if (EvolveToExpr.CURR_BACKTICK == tranMode) {
-      return math_sym("curr`" + x)
+      return math_sym(mask(x, "curr`"))
     } else if (EvolveToExpr.LOCA_T == tranMode) {
-      return un_fun(x, math_sym("loca`t"))
+      return un_fun(mask(x), math_sym("loca`t"))
+    } else if (EvolveToExpr.NEW_T == tranMode) {
+      return un_fun(mask(x), math_sym("new`t"))
     } else if (EvolveToExpr.NOTHING == tranMode) {
-      return math_sym(x)
+      return math_sym(mask(x))
     } else {
       throw new Exception("mmtVarToExpr: Impossible case")
     }

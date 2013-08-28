@@ -7,6 +7,7 @@ import edu.cmu.cs.ls.lyusimul._
 import scala.annotation.elidable
 import scala.annotation.elidable._
 import java.util.Random
+import NameMasker._
 
 object hpToExpr {
   
@@ -258,13 +259,13 @@ object hpToExpr {
             scalListToListExpr(
               EvolveToExpr.hpToOdesList(hp, EvolveToExpr.LOCA_T) ++
               varisStrisListToCurrsFetcsList(varisStrisListFromHp) ++
-              EvolveToExpr.hToWhenEvents(h, 10, EvolveToExpr.LOCA_T) ++
-              
-              
-              // hayqueCambiar: tendLimi minus a predefined constant, not minus a magic number
-              (bin_fun("WhenEvent",
-                bin_fun("GreaterEqual", math_sym("loca`t"), mul_arg_fun("Plus", List(un_fun("Evaluate", un_fun("Last", math_sym("glob`tends"))), math_sym("glob`tendLimi"), new Expr(-1)))),
-                bin_fun("CompoundExpression", bin_fun("Set", math_sym("glob`tends"), bin_fun("Append", math_sym("glob`tends"), math_sym("loca`t"))), new Expr("StopIntegration"))) :: Nil)        
+              EvolveToExpr.hToWhenEvents(h, 
+                  bin_fun("LessEqual", 
+                      math_sym("loca`t"), 
+                      mul_arg_fun("Plus", List(
+                          un_fun("Evaluate", un_fun("Last", math_sym("glob`tends"))), 
+                          math_sym("glob`tendLimi")))),
+                  10, EvolveToExpr.LOCA_T)
             ),  
             scalListToListExpr(
               strisListToExprsList(varisStrisListFromHp)
@@ -276,12 +277,12 @@ object hpToExpr {
             ))
           ))         
         )
-      )) ++ varisStrisListToUpdaCurrStats(varisStrisListFromHp)
+      )) ++ evolDomainReset(h, varisStrisListFromHp)/*varisStrisListToUpdaCurrStats(varisStrisListFromHp)*/
     
-    case Assign(v, t) => List(bin_fun("Set", math_sym("curr`" + v.s), MmtManipulation.termToExpr(t, EvolveToExpr.CURR_BACKTICK)))
+    case Assign(v, t) => List(bin_fun("Set", math_sym(mask(v.s, "curr`")), MmtManipulation.termToExpr(t, EvolveToExpr.CURR_BACKTICK)))
     case AssignAny(v) =>
       List(bin_fun("Set",
-        math_sym("curr`" + v.s),
+        math_sym(mask(v.s, "curr`")),
         un_fun("RandomReal",
           scalListToListExpr(List(
             new Expr(randMin), new Expr(randMax)
@@ -295,15 +296,74 @@ object hpToExpr {
     case _ => throw new Exception("not implemented yet")
   }
   
+  def evolDomainReset(h : Formula, varisStrisList : List[String]) : List[Expr] = {
+    List(
+        bin_fun("Set", 
+            math_sym("glob`tends"),
+        	bin_fun("ReplacePart",
+        		math_sym("glob`tends"),
+        		bin_fun("Rule",
+        			un_fun("Length", math_sym("glob`tends")),
+//        			bin_fun("Check",
+	        			bin_fun("NArgMax",
+	        				mul_arg_fun("List",List(
+	        					math_sym("new`t"),
+	        					mul_arg_fun("And",List(
+	        							un_fun("First", 
+	        							    un_fun("Evaluate",
+	        							        bin_fun("ReplaceAll",
+	        							    		EvolveToExpr.formulaToExpr(h, EvolveToExpr.NEW_T),
+	        							    		un_fun("Last", math_sym("glob`sol"))
+	        							    		)
+	        							    	)
+	        							    ),
+	        					    	bin_fun("GreaterEqual", math_sym("new`t"), math_int("0")),
+	        					    	bin_fun("LessEqual", math_sym("new`t"), un_fun("Last", math_sym("glob`tends")))
+	        					))
+	        				)),
+	        				math_sym("new`t")
+	        			)//,
+	        			// HACK duplicate value, so that the following if removes the solution
+//	        			bin_fun("CompoundExpression", un_fun("Print", math_str("NArgMax failed")), bin_fun("Part", math_sym("glob`tends"), math_int("-2")))
+	        		)
+//        		)	
+        	)
+        ),
+        mul_arg_fun("If",List(
+        	bin_fun("Equal",
+        	    bin_fun("Part", math_sym("glob`tends"), un_fun("Length", math_sym("glob`tends"))),
+        	    bin_fun("Part", math_sym("glob`tends"), bin_fun("Subtract", un_fun("Length", math_sym("glob`tends")), math_int("1")))
+        	),
+        	mul_arg_fun("CompoundExpression", List(
+        	    bin_fun("Set", 
+        	        math_sym("glob`tends"),
+        	        bin_fun("Delete", 
+        	        	math_sym("glob`tends"),
+        	        	math_int("-1")
+        	        )        	        
+        	    ),
+        	    bin_fun("Set", 
+        	        math_sym("glob`sol"),
+        	        bin_fun("Delete", 
+        	        	math_sym("glob`sol"),
+        	        	math_int("-1")
+        	        )        	        
+        	    )
+        	)),
+        	mul_arg_fun("CompoundExpression", varisStrisListToUpdaCurrStats(varisStrisList))
+        ))
+    )
+  }
+  
   def varisStrisListToUpdaCurrStats(varisStrisList : List[String]) : List[Expr] = varisStrisList match {
     case x :: xs =>
       bin_fun("Set",
-        math_sym("curr`" + x),
+        math_sym(mask(x, "curr`")),
         // First[Evaluate[
         //   ReplaceAll[y[Evaluate[Last[glob`tends]]], Last[glob`sol]]
         // ]]
         un_fun("First", un_fun("Evaluate", bin_fun("ReplaceAll",
-            un_fun(x, un_fun("Evaluate", un_fun("Last", math_sym("glob`tends")))),
+            un_fun(mask(x), un_fun("Evaluate", un_fun("Last", math_sym("glob`tends")))),
             un_fun("Last", math_sym("glob`sol"))
             )))
       ) :: varisStrisListToUpdaCurrStats(xs)
@@ -311,15 +371,15 @@ object hpToExpr {
   }
   
   def strisListToExprsList(strisList: List[String]) : List[Expr] = strisList match {
-    case x :: xs => math_sym(x) :: strisListToExprsList(xs)
+    case x :: xs => math_sym(mask(x)) :: strisListToExprsList(xs)
       case Nil => Nil
   }
   
   def varisStrisListToCurrsFetcsList(varisStrisList : List[String]) : List[Expr] = varisStrisList match {
     case x :: xs =>
       bin_fun("Equal",
-        un_fun(x, un_fun("Evaluate", un_fun("Last", math_sym("glob`tends")))),
-        math_sym("curr`" + x)
+        un_fun(mask(x), un_fun("Evaluate", un_fun("Last", math_sym("glob`tends")))),
+        math_sym(mask(x, "curr`"))
       ) :: varisStrisListToCurrsFetcsList(xs)
     case Nil => Nil
   }
@@ -431,12 +491,12 @@ object hpToExpr {
     var varisInBothAssiAnysAndChecs = (variStrisListOfConsAssiAnys.intersect(variStrisListOfConsChecs)).distinct
     var varisInChecsMinuAssiAnys = setMinuOfStrisLists(variStrisListOfConsChecs, variStrisListOfConsAssiAnys).distinct
     
-    var varisToBeSetWithCurrBacktick = varisInBothAssiAnysAndChecs.map(((x : String) => "curr`" + x))
+    var varisToBeSetWithCurrBacktick = varisInBothAssiAnysAndChecs.map(((x : String) => mask(x, "curr`")))
     
     var consChecsWithCurrBackticksAtApprVaris = addCurrBacktickToSpecVarisInConsChecs(firsConsChecs, varisInChecsMinuAssiAnys)
     var ands = consChecsToAnds(consChecsWithCurrBackticksAtApprVaris)
     
-    var varisExprsInBothAssiAnysAndChecs = varisInBothAssiAnysAndChecs.map(math_sym)
+    var varisExprsInBothAssiAnysAndChecs = varisInBothAssiAnysAndChecs.map(mask).map(math_sym)
     var varisExprsToBeSetWithCurrBacktick = varisToBeSetWithCurrBacktick.map(math_sym)
     
     return bin_fun("Set",
@@ -493,7 +553,7 @@ object hpToExpr {
     case Num(n: Exact.Num) => t
 	case Var(s: String) => {
 	  if (specVaris.contains(s)) {
-	    return Var("curr`" + s)
+	    return Var(mask(s, "curr`"))
 	  } else {
 	    return Var(s)
 	  }
@@ -534,7 +594,6 @@ object hpToExpr {
     case x::xs => strisList1.contains(x) match {
       case true => setMinuOfStrisLists(xs, strisList1)
       case false => x :: setMinuOfStrisLists(xs, strisList1)
-      case _ => throw new Exception("setMinuOfStrisLists: Impossible case")
     }
   }
   
@@ -585,20 +644,6 @@ object hpToExpr {
 	          varisToDispToPlotCommsScalListList(varisToDisp.drop(nGrapsPerRow), nGrapsPerRow)
   }
   
-/*
- * Map[Function[
-  ExportString[Slot[1], "Table", Rule["FieldSeparator", "\t"], 
-   Rule["LineSeparators", " "]]], 
- Table[{t, 
-   N[ReplaceAll[x[t], 
-     Part[glob`sol, 
-      Subtract[
-       Part[Part[
-         Position[glob`tends, 
-          PatternTest[Blank[], Function[GreaterEqual[Slot[1], t]]]], 
-         1], 1], 1]]]]}, {t, Plus[Evaluate[First[glob`tends]], 0.05], 
-   Evaluate[Last[glob`tends]], 1}]]
- */
   def varisToDispToStringList (varisToDisp: List[String]) : List[Expr] = varisToDisp match {
     case Nil => Nil
     case x::xs =>
@@ -618,7 +663,7 @@ object hpToExpr {
                   math_sym("loca`t"),
                   un_fun("N", 
                       bin_fun("ReplaceAll", 
-	                      un_fun(x, math_sym("loca`t")), 
+	                      un_fun(mask(x), math_sym("loca`t")), 
 	                      bin_fun("Part", math_sym("glob`sol"), 
 	                          bin_fun("Subtract",
 		                          bin_fun("Part", 
@@ -661,7 +706,7 @@ object hpToExpr {
             mul_arg_fun("List", List(
               un_fun("Evaluate",
                 bin_fun("ReplaceAll",
-                  un_fun(x, math_sym("loca`t")),
+                  un_fun(mask(x), math_sym("loca`t")),
                   bin_fun("Part", math_sym("glob`sol"), math_sym("loca`i"))
                 )
               ),

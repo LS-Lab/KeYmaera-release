@@ -3,12 +3,14 @@ package edu.cmu.cs.ls.lyusimul
 import com.wolfram.jlink._
 import edu.cmu.cs.ls._
 import edu.cmu.cs.ls.lyusimul._
+import NameMasker._
 
 object EvolveToExpr {
   
   def CURR_BACKTICK : Int = 0
   def LOCA_T : Int = 1
-  def NOTHING : Int = 2
+  def NEW_T : Int = 2
+  def NOTHING : Int = 3
   
   def math_sym(s: String): Expr =
     new Expr(Expr.SYMBOL, s)
@@ -79,7 +81,7 @@ object EvolveToExpr {
       case Var(s) => bin_fun("Equal",
           new Expr(new Expr(new Expr(math_sym("Derivative"),
           List(new Expr(1L)).toArray),
-          List(math_sym(s)).toArray),
+          List(math_sym(mask(s))).toArray),
           List(math_sym("loca`t")).toArray),
           MmtManipulation.mmtToExpr(MmtManipulation.termToMmt(first._2), tranMode) ) :: primsToOdesList(rest, tranMode : Int)
       // deboArreglar: don't use mmtToExpr and termToMmt.
@@ -105,7 +107,7 @@ object EvolveToExpr {
   
   def primsToVarisList(primes : (Var, Term)*) : List[Expr] = primes match {
     case Seq((myVar, myTerm), rest @ _ *) => myVar match {
-      case Var(s) => math_sym(s) ::primsToVarisList(rest:_*)
+      case Var(s) => math_sym(mask(s)) ::primsToVarisList(rest:_*)
       // deboHacer: You need to include what is in the "term" part
       // deboHacer: remove duplicates
 
@@ -113,17 +115,17 @@ object EvolveToExpr {
     }
   } 
   
-  def hpToWhenEvents(hp: HP, tMax : Double, tranMode : Int): List[Expr] = hp match {
-    case Evolve(h, primes @ _ *) => hToWhenEvents(h, tMax, tranMode : Int)
-
-    case _ => throw new Exception("not implemented yet")
-  }
+//  def hpToWhenEvents(hp: HP, tMax : Double, tranMode : Int): List[Expr] = hp match {
+//    case Evolve(h, primes @ _ *) => hToWhenEvents(h, tMax, tranMode : Int)
+//
+//    case _ => throw new Exception("not implemented yet")
+//  }
   
   
-  def hToWhenEvents(h: Formula, tMax: Double, tranMode : Int) : List[Expr] = {
+  def hToWhenEvents(h: Formula, timeEvent: Expr, tMax: Double, tranMode : Int) : List[Expr] = {
     bin_fun("WhenEvent",
         //bin_fun("Or", un_fun("Not", formulaToExpr(h)), bin_fun("Greater", math_sym("t"), new Expr(tMax))),
-        un_fun("Not", formulaToExpr(h, tranMode : Int)),
+        un_fun("Not", bin_fun("And", formulaToExpr(h, tranMode), timeEvent)),
         //bin_fun("CompoundExpression", bin_fun("Set", math_sym("glob`tend"), math_sym("t")), new Expr("StopIntegration"))) :: Nil
         bin_fun("CompoundExpression", bin_fun("Set", math_sym("glob`tends"), bin_fun("Append", math_sym("glob`tends"), math_sym("loca`t"))), new Expr("StopIntegration"))) :: Nil
   }
