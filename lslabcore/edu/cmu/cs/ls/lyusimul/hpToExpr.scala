@@ -317,7 +317,7 @@ object hpToExpr {
 	        							    		)
 	        							    	)
 	        							    ),
-	        					    	bin_fun("GreaterEqual", math_sym("new`t"), math_int("0")),
+	        					    	bin_fun("GreaterEqual", math_sym("new`t"), bin_fun("Part", math_sym("glob`tends"), math_int("-2"))),
 	        					    	bin_fun("LessEqual", math_sym("new`t"), un_fun("Last", math_sym("glob`tends")))
 	        					))
 	        				)),
