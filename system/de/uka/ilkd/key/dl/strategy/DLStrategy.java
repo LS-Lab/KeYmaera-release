@@ -72,6 +72,7 @@ import de.uka.ilkd.key.dl.strategy.features.ReducibleMonomialsFeature;
 import de.uka.ilkd.key.dl.strategy.features.SimplifyFeature;
 import de.uka.ilkd.key.dl.strategy.features.SwitchFeature;
 import de.uka.ilkd.key.dl.strategy.features.SwitchFeature.Case;
+import de.uka.ilkd.key.dl.strategy.features.TautologyTestFeature;
 import de.uka.ilkd.key.dl.strategy.features.TimeoutTestApplicationFeature;
 import de.uka.ilkd.key.dl.strategy.features.TrivialMonomialLCRFeature;
 import de.uka.ilkd.key.dl.strategy.termProjection.Buffer;
@@ -82,6 +83,7 @@ import de.uka.ilkd.key.dl.strategy.termfeature.DecimalLiteralFeature;
 import de.uka.ilkd.key.dl.strategy.termfeature.QuasiRealLiteralFeature;
 import de.uka.ilkd.key.java.ProgramElement;
 import de.uka.ilkd.key.logic.ConstrainedFormula;
+import de.uka.ilkd.key.logic.Constraint;
 import de.uka.ilkd.key.logic.Name;
 import de.uka.ilkd.key.logic.PosInOccurrence;
 import de.uka.ilkd.key.logic.op.Function;
@@ -103,9 +105,11 @@ import de.uka.ilkd.key.strategy.TopRuleAppCost;
 import de.uka.ilkd.key.strategy.feature.AgeFeature;
 import de.uka.ilkd.key.strategy.feature.AutomatedRuleFeature;
 import de.uka.ilkd.key.strategy.feature.CheckApplyEqFeature;
+import de.uka.ilkd.key.strategy.feature.CheckApplyEqSymFeature;
 import de.uka.ilkd.key.strategy.feature.ConditionalFeature;
 import de.uka.ilkd.key.strategy.feature.ConstraintStrengthenFeature;
 import de.uka.ilkd.key.strategy.feature.ConstraintStrengthenFeatureUC;
+import de.uka.ilkd.key.strategy.feature.ContainsQuantifierFeature;
 import de.uka.ilkd.key.strategy.feature.CountMaxDPathFeature;
 import de.uka.ilkd.key.strategy.feature.CountPosDPathFeature;
 import de.uka.ilkd.key.strategy.feature.DiffFindAndIfFeature;
@@ -276,18 +280,7 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 						ScaleFeature.createScaled(
 								CountMaxDPathFeature.INSTANCE, 10.0) }));
 
-		/*
-		 * final TermBuffer equation = new TermBuffer(); bindRuleSet(d,
-		 * "apply_equations", add(ifZero(MatchedIfFeature.INSTANCE,
-		 * add(CheckApplyEqFeature.INSTANCE, let(equation,
-		 * AssumptionProjection.create(0), TermSmallerThanFeature
-		 * .create(sub(equation, 1), sub(equation, 0))))),
-		 * ifZero(ConstraintStrengthenFeature.INSTANCE, add(ifZero(
-		 * SimplifyBetaCandidateFeature.INSTANCE, inftyConst()),
-		 * NotBelowQuantifierFeature.INSTANCE, ifZero(
-		 * ContainsQuantifierFeature.INSTANCE, inftyConst()))),
-		 * longConst(-4000)));
-		 */
+
 		bindRuleSet(d, "order_terms", add(TermSmallerThanFeature.create(
 				instOf("commEqLeft"), instOf("commEqRight")), longConst(-8000)));
 
@@ -679,13 +672,49 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 	////////////////////////////////////////////////////////////////////////////
 
 	private void setupApplyEq(RuleSetDispatchFeature d) {
-		if (!DLOptionBean.INSTANCE.isArithmeticReduction()) {
-			bindRuleSet(d, "apply_equations", inftyConst());
-			return;
-		}
-
 		final TermBuffer equation = new TermBuffer();
 		final TermBuffer left = new TermBuffer(), right = new TermBuffer();
+		if (!DLOptionBean.INSTANCE.isArithmeticReduction()) {
+//			bindRuleSet(d, "apply_equations", inftyConst());
+			if(DLOptionBean.INSTANCE.isApplyEquations()) {
+				// simple version of equation application
+				// TODO: hide useless equations
+				// TODO: try to use it in order to eliminate variables
+				bindRuleSet(
+						d,
+						"apply_equations",
+						ifZero(MatchedIfFeature.INSTANCE,
+								add(CheckApplyEqFeature.INSTANCE,
+										let(equation,
+												AssumptionProjection.create(0),
+												let(left,
+														sub(equation, 0),
+														let(right,
+																sub(equation, 1),
+																TermSmallerThanFeature
+																		.create(right,
+																				left)))))));
+				bindRuleSet(
+						d,
+						"apply_equations_sym",
+						ifZero(MatchedIfFeature.INSTANCE,
+								add(CheckApplyEqSymFeature.INSTANCE,
+										let(equation,
+												AssumptionProjection.create(0),
+												let(left,
+														sub(equation, 0),
+														let(right,
+																sub(equation, 1),
+																TermSmallerThanFeature
+																.create(left,
+																		right)))))));
+			} else {
+				bindRuleSet(d, "apply_equations", inftyConst());
+				bindRuleSet(d, "apply_equations_sym", inftyConst());
+			}
+			return;
+		}
+		bindRuleSet(d, "apply_equations_sym", inftyConst());
 
 		// applying equations less deep/less leftish in terms/formulas is
 		// preferred
@@ -1445,6 +1474,11 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 		if (EliminateExistentialQuantifierRule.INSTANCE.filter(app.rule())) {
 			// TODO we should still allow, e.g., and-right to fight prohibitive
 			// complexity
+			if(DLOptionBean.INSTANCE.isEliminateExistentialOnlyToTrue()) {
+				if(EliminateExistentialQuantifierRule.INSTANCE.isApplicable(goal, pio, Constraint.BOTTOM) && new TautologyTestFeature().compute(app, pio, goal) == TopRuleAppCost.INSTANCE) {
+					return true;
+				}
+			}
 			return false;
 		}
 		if (blockAllRules) {

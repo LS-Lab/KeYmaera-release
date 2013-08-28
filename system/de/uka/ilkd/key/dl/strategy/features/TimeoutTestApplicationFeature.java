@@ -192,11 +192,11 @@ public class TimeoutTestApplicationFeature implements Feature {
 		return getFirstNodeAfterBranch(node.parent());
 	}
 
-	private static enum TestResult {
+	static enum TestResult {
 		UNKNOWN, SUCCESS, FAILURE, UNSOLVABLE;
 	}
 
-	private static class TestThread extends Thread {
+	static class TestThread extends Thread {
 
 		private Goal goal;
 
