@@ -721,6 +721,12 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 		this.cache.putAll(cache);
 		log(Level.INFO, "Cache loaded");
 	}
+	
+	@Override
+	public void clearCache() throws RemoteException {
+		this.cache.clear();
+		log(Level.INFO, "Cache cleared");
+	}
 
 	/*
 	 * (non-Javadoc)

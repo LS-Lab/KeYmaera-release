@@ -109,6 +109,8 @@ public interface IKernelLinkWrapper extends Remote, Serializable {
     public void addToCache(Map<Expr, ExprAndMessages> cache)
             throws RemoteException;
 
+    public void clearCache() throws RemoteException;
+
     /**
      * Get the number of queries to the server
      * 
