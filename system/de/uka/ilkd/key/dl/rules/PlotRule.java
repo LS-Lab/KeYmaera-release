@@ -89,10 +89,11 @@ public class PlotRule implements BuiltInRule, RuleFilter {
                 && pio.subTerm().javaBlock() != null
                 && pio.subTerm().javaBlock().program() != null
                 && pio.subTerm().javaBlock().program() instanceof DLStatementBlock) {
-            return ProgramSVSort.DL_SIMPLE_ORDINARY_DIFF_SYSTEM_SORT_INSTANCE
-                    .canStandFor(((DLStatementBlock) pio.subTerm().javaBlock()
-                            .program()).getChildAt(0), null, goal.proof()
-                            .getServices());
+        	return true;
+//            return ProgramSVSort.DL_SIMPLE_ORDINARY_DIFF_SYSTEM_SORT_INSTANCE
+//                    .canStandFor(((DLStatementBlock) pio.subTerm().javaBlock()
+//                            .program()).getChildAt(0), null, goal.proof()
+//                            .getServices());
         }
         return false;
     }
@@ -104,49 +105,42 @@ public class PlotRule implements BuiltInRule, RuleFilter {
      * de.uka.ilkd.key.java.Services, de.uka.ilkd.key.rule.RuleApp)
      */
     public synchronized ImmutableList<Goal> apply(Goal goal,
-            final Services services, RuleApp ruleApp) {
+            final Services services, final RuleApp ruleApp) {
         final Mathematica math = (Mathematica) MathSolverManager
                 .getQuantifierElimantor("Mathematica");
         if (math != null) {
-            final DiffSystem sys = (DiffSystem) ruleApp.posInOccurrence()
-                    .subTerm().javaBlock().program().getFirstElement();
+//            final DiffSystem sys = (DiffSystem) ruleApp.posInOccurrence()
+//                    .subTerm().javaBlock().program().getFirstElement();
+//            Set<String> variables = new LinkedHashSet<String>();
+//            for (ProgramElement f : sys.getDifferentialEquations(services
+//                    .getNamespaces())) {
+//                collectVariables(f, variables);
+//            }
+            
             JPanel panel = new JPanel();
             panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-            Set<String> variables = new LinkedHashSet<String>();
-            for (ProgramElement f : sys.getDifferentialEquations(services
-                    .getNamespaces())) {
-                collectVariables(f, variables);
-            }
-            final JTextField min = new JTextField("0");
-            final JTextField max = new JTextField("10");
-            final JTextField sampling = new JTextField("0.1");
-            JPanel minPane = new JPanel();
-            minPane.add(new JLabel("Min for t"));
-            min.setColumns(10);
-            minPane.add(min);
-            panel.add(minPane);
-            JPanel maxPane = new JPanel();
-            maxPane.add(new JLabel("Max for t"));
-            max.setColumns(10);
-            maxPane.add(max);
-            panel.add(maxPane);
 
-            JPanel samplingPane = new JPanel();
-            samplingPane.add(new JLabel("Sampling"));
-            sampling.setColumns(10);
-            samplingPane.add(sampling);
-            panel.add(samplingPane);
+            final JTextField nGrapsPerRow = new JTextField("3");
+            addTextFieldToPanel(panel, nGrapsPerRow, "nGrapsPerRow");
+            final JTextField tendLimi = new JTextField("100");
+            addTextFieldToPanel(panel, tendLimi, "tendLimi");
+            final JTextField nUnroLoop = new JTextField("10");
+            addTextFieldToPanel(panel, nUnroLoop, "nUnroLoop");
+            final JTextField randMin = new JTextField("-10");
+            addTextFieldToPanel(panel, randMin, "randMin");
+            final JTextField randMax = new JTextField("10");
+            addTextFieldToPanel(panel, randMax, "randMax");
 
-            final Map<String, JTextField> fields = new LinkedHashMap<String, JTextField>();
-            for (String s : variables) {
-                JPanel varPane = new JPanel();
-                varPane.add(new JLabel(s));
-                JTextField sField = new JTextField("0");
-                sField.setColumns(10);
-                varPane.add(sField);
-                fields.put(s, sField);
-                panel.add(varPane);
-            }
+//            final Map<String, JTextField> fields = new LinkedHashMap<String, JTextField>();
+//            for (String s : variables) {
+//                JPanel varPane = new JPanel();
+//                varPane.add(new JLabel(s));
+//                JTextField sField = new JTextField("0");
+//                sField.setColumns(10);
+//                varPane.add(sField);
+//                fields.put(s, sField);
+//                panel.add(varPane);
+//            }
             final JDialog dialog = new JDialog();
             dialog.getContentPane().setLayout(new BorderLayout());
             dialog.setTitle("Specify initial values");
@@ -157,27 +151,43 @@ public class PlotRule implements BuiltInRule, RuleFilter {
                 @Override
                 public void actionPerformed(ActionEvent event) {
                     try {
-                        final Map<String, Double> initialValues = new LinkedHashMap<String, Double>();
-                        for (String s : fields.keySet()) {
-                            initialValues.put(s,
-                                    Double.parseDouble(fields.get(s).getText()));
-                        }
-                        Map<String, Double[][]> plotData = math.getPlotData(
-                                sys, "t$", Double.parseDouble(min.getText()),
-                                Double.parseDouble(max.getText()),
-                                Double.parseDouble(sampling.getText()),
-                                initialValues, services);
-                        JDialog sDia = new JDialog();
+//                        final Map<String, Double> initialValues = new LinkedHashMap<String, Double>();
+//                        for (String s : fields.keySet()) {
+//                            initialValues.put(s,
+//                                    Double.parseDouble(fields.get(s).getText()));
+//                        }
+//                        Map<String, Double[][]> plotData = math.getPlotData(
+//                                sys, "t$", Double.parseDouble(min.getText()),
+//                                Double.parseDouble(max.getText()),
+//                                Double.parseDouble(sampling.getText()),
+//                                initialValues, services);
+						Map<String, Double[][]> plotData = math.getPlotData(
+								ruleApp.posInOccurrence().subTerm(), services,
+								Integer.parseInt(nGrapsPerRow.getText()),
+								Double.parseDouble(tendLimi.getText()),
+								Integer.parseInt(nUnroLoop.getText()),
+								Double.parseDouble(randMin.getText()),
+								Double.parseDouble(randMax.getText()));
+						if(plotData == null) {
+	                        dialog.setVisible(false);
+	                        dialog.dispose();
+							return;
+						}
+                    	JDialog sDia = new JDialog();
                         Plot2DPanel plot = new Plot2DPanel();
                         plot.addLegend(Plot2DPanel.EAST);
                         plot.addPlotToolBar(Plot2DPanel.NORTH);
                         plot.setAxisLabels("t", "x");
                         sDia.add(plot);
-                        for (String s : fields.keySet()) {
-                            if (plotData.get(s) != null) {
+//                        for (String s : fields.keySet()) {
+//                            if (plotData.get(s) != null) {
+//                                plot.addLinePlot(s,
+//                                        cDoubletodouble(plotData.get(s)));
+//                            }
+//                        }
+                        for (String s : plotData.keySet()) {
                                 plot.addLinePlot(s,
                                         cDoubletodouble(plotData.get(s)));
-                            }
                         }
                         dialog.setVisible(false);
                         dialog.dispose();
@@ -225,6 +235,15 @@ public class PlotRule implements BuiltInRule, RuleFilter {
         }
         return null;
     }
+
+	public void addTextFieldToPanel(JPanel panel,
+			final JTextField nGrapsPerRow, String nGrapsPerRowLabel) {
+		JPanel nGrapsPerRowPane = new JPanel();
+		nGrapsPerRowPane.add(new JLabel(nGrapsPerRowLabel));
+		nGrapsPerRow.setColumns(10);
+		nGrapsPerRowPane.add(nGrapsPerRow);
+		panel.add(nGrapsPerRowPane);
+	}
 
     /**
      * @param f

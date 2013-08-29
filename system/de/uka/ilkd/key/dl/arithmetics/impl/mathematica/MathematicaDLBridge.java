@@ -23,7 +23,9 @@
 package de.uka.ilkd.key.dl.arithmetics.impl.mathematica;
 
 import java.awt.Frame;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.net.UnknownHostException;
 import java.rmi.NotBoundException;
@@ -67,6 +69,7 @@ import de.uka.ilkd.key.dl.formulatools.collector.AllCollector;
 import de.uka.ilkd.key.dl.formulatools.collector.filter.FilterVariableCollector;
 import de.uka.ilkd.key.dl.image_compute.CounterExampleFinder;
 import de.uka.ilkd.key.dl.model.DLNonTerminalProgramElement;
+import de.uka.ilkd.key.dl.model.DLProgram;
 import de.uka.ilkd.key.dl.model.DiffSystem;
 import de.uka.ilkd.key.dl.model.Dot;
 import de.uka.ilkd.key.dl.model.ProgramVariable;
@@ -80,7 +83,12 @@ import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.TermBuilder;
 import de.uka.ilkd.key.logic.op.LogicVariable;
 import de.uka.ilkd.key.logic.op.SubstOp;
+import de.uka.ilkd.key.pp.LogicPrinter;
+import de.uka.ilkd.key.proof.ProofSaver;
 import de.uka.ilkd.key.util.Debug;
+import edu.cmu.cs.ls.Formula;
+import edu.cmu.cs.ls.OP;
+import edu.cmu.cs.ls.lyusimul.hpToExpr;
 
 /**
  * The MathematicaDLBridge is the implementation of the interface between KeY
@@ -1390,6 +1398,42 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 		return result;
 	}
 
+	@Override
+	public Map<String, Double[][]> getPlotData(Term in, Services services,
+			int nGrapsPerRow, double tendLimi,
+			int nUnroLoop, double randMin, double randMax) throws RemoteException, SolverException {
+		String input = ProofSaver.printTerm(in, services, true).toString();
+		System.out.println("The input is " + input);
+		edu.cmu.cs.ls.Formula f = OP.parseFormula(input);
+		System.out.println("As formula: " + f);
+		edu.cmu.cs.ls.Modality m = hpToExpr.extractModality(f);
+		Expr modaToDataPointExpr = hpToExpr.modaToDataPointExpr(m, nGrapsPerRow, tendLimi, nUnroLoop, randMin, randMax);
+		try {
+			Expr simResult = evaluate(modaToDataPointExpr).expression;
+			if(simResult.vectorQ()) {
+				Map<String, Double[][]> result = new LinkedHashMap<String, Double[][]>();
+				for(Expr expr: simResult.args()) {
+					String seriesName = expr.args()[0].asString();
+					Expr[] values = expr.args()[1].args();
+					Double[][] vals = new Double[2][];
+					vals[0] = new Double[values.length];
+					vals[1] = new Double[values.length];
+					for (int i = 0; i < values.length; i++) {
+						Expr value = values[i];
+						String[] keyValue = value.asString().split("\\s");
+						vals[0][i] = Double.parseDouble(keyValue[0]);
+						vals[1][i] = Double.parseDouble(keyValue[1]);
+					}
+					result.put(seriesName, vals);
+				}
+				return result;
+			}
+		} catch (ExprFormatException e) {
+			throw new FailedComputationException(e);
+		}
+		return null;
+	}
+	
 	public Map<String, Double[][]> getPlotData(DiffSystem sys, String t, double minT, double maxT, double sampling, Map<String, Double> initialValues, Services services) throws SolverException, RemoteException{
 	           List<Expr> args = new ArrayList<Expr>();
         Map<String, Expr> vars = new LinkedHashMap<String, Expr>();

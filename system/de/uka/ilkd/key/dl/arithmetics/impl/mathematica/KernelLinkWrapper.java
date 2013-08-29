@@ -491,6 +491,7 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 					compute, new Expr("$Exception"), mBlist });
 			if (DEBUG)
 				System.out.println(check);// XXX
+			System.out.println("Evaluating: " + check);
 			link.evaluate(check);
 			testForError(link);
 			log(Level.FINEST, "Waiting for anwser.");
