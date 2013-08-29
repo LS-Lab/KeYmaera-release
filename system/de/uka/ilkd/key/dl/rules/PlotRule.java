@@ -122,7 +122,7 @@ public class PlotRule implements BuiltInRule, RuleFilter {
 
             final JTextField nGrapsPerRow = new JTextField("3");
             addTextFieldToPanel(panel, nGrapsPerRow, "nGrapsPerRow");
-            final JTextField tendLimi = new JTextField("100");
+            final JTextField tendLimi = new JTextField("10");
             addTextFieldToPanel(panel, tendLimi, "tendLimi");
             final JTextField nUnroLoop = new JTextField("10");
             addTextFieldToPanel(panel, nUnroLoop, "nUnroLoop");
@@ -162,7 +162,7 @@ public class PlotRule implements BuiltInRule, RuleFilter {
 //                                Double.parseDouble(sampling.getText()),
 //                                initialValues, services);
 						Map<String, Double[][]> plotData = math.getPlotData(
-								ruleApp.posInOccurrence().subTerm(), services,
+								ruleApp.posInOccurrence().topLevel().subTerm(), services,
 								Integer.parseInt(nGrapsPerRow.getText()),
 								Double.parseDouble(tendLimi.getText()),
 								Integer.parseInt(nUnroLoop.getText()),

@@ -462,17 +462,24 @@ public class ProofSaver {
 
     public static StringBuffer printTerm(Term t, Services serv, 
             boolean shortAttrNotation) {
-        StringBuffer result;
-        LogicPrinter logicPrinter = createLogicPrinter(serv, shortAttrNotation);
-        try {
-            logicPrinter.printTerm(t);
-        } catch(IOException ioe) {
-            System.err.println(ioe);
-        }
-        result = logicPrinter.result();
-        if (result.charAt(result.length()-1) == '\n')
-            result.deleteCharAt(result.length()-1);
-        return result;
+    	return printTerm(t, serv, shortAttrNotation, false);
+    }
+
+    public static StringBuffer printTerm(Term t, Services serv, 
+    		boolean shortAttrNotation, boolean saveMode) {
+    	StringBuffer result;
+    	ProofSaver.inSavingMode = true;
+    	LogicPrinter logicPrinter = createLogicPrinter(serv, shortAttrNotation);
+    	try {
+    		logicPrinter.printTerm(t);
+    	} catch(IOException ioe) {
+    		System.err.println(ioe);
+    	}
+    	result = logicPrinter.result();
+    	if (result.charAt(result.length()-1) == '\n')
+    		result.deleteCharAt(result.length()-1);
+    	ProofSaver.inSavingMode = false;
+    	return result;
     }
 
 

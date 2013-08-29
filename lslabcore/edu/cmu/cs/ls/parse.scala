@@ -59,7 +59,8 @@ class DLParser(ins : String) extends StdTokenParsers {
      "-" ~> prod ^^ { x: Term => -x}
 
    def factor: Parser[Term] =
-      atomicTerm~"^"~numericLit ^^ {case x~"^"~y => x^Num(Exact.Integer(Integer.parseInt(y)))} |
+//      atomicTerm~"^"~numericLit ^^ {case x~"^"~y => x^Num(Exact.Integer(Integer.parseInt(y)))} |
+      atomicTerm~"^"~atomicTerm ^^ {case x~"^"~y => x^y} |
       atomicTerm
 
    def function : Parser [Fn] =

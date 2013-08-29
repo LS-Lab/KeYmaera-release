@@ -83,7 +83,8 @@ public interface IKernelLinkWrapper extends Remote, Serializable {
     public ExprAndMessages evaluate(Expr expr, long timeout) throws RemoteException, ServerStatusProblemException, ConnectionProblemException, UnsolveableException;
     public ExprAndMessages evaluate(Expr expr, long timeout, long memoryconstraint) throws RemoteException, ServerStatusProblemException, ConnectionProblemException, UnsolveableException;
     public ExprAndMessages evaluate(Expr expr, long timeout, boolean allowCache) throws RemoteException, ServerStatusProblemException, ConnectionProblemException, UnsolveableException;
-
+    
+    public Expr nativeEvaluate(String expr) throws ServerStatusProblemException, RemoteException;
     /**
      * Interrupts the current calculation
      * 

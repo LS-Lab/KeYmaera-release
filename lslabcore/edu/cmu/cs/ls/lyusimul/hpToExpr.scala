@@ -58,8 +58,8 @@ object hpToExpr {
     // hayquePreguntar: Is it OK to extract variables only from evolve?
     val varisStrisListForEvol = hpToVarisStrisListWoDuplsForEvol(prepModa.hp)
     val varisExprsListForEvol = strisListToExprsList(varisStrisListForEvol)
-    var statsList = List(bin_fun("Set", math_sym("glob`tendLimi"), new Expr(tendLimi)))
-    statsList = statsList ++ List(bin_fun("Set", math_sym("glob`tends"), un_fun("List", new Expr(0))))
+    var statsList = List(bin_fun("Set", math_sym("glob`tendLimi"), math_real("" + tendLimi)))
+    statsList = statsList ++ List(bin_fun("Set", math_sym("glob`tends"), un_fun("List", math_int("0"))))
     // Following line may be buggy.
     statsList = statsList ++ List(bin_fun("Set", math_sym("glob`sol"), mul_arg_fun("List", List())))
     
@@ -83,8 +83,8 @@ object hpToExpr {
     // hayquePreguntar: Is it OK to extract variables only from evolve?
     val varisStrisListForEvol = hpToVarisStrisListWoDuplsForEvol(prepModa.hp)
     val varisExprsListForEvol = strisListToExprsList(varisStrisListForEvol)
-    var statsList = List(bin_fun("Set", math_sym("glob`tendLimi"), new Expr(tendLimi)))
-    statsList = statsList ++ List(bin_fun("Set", math_sym("glob`tends"), un_fun("List", new Expr(0))))
+    var statsList = List(bin_fun("Set", math_sym("glob`tendLimi"), math_real("" + tendLimi)))
+    statsList = statsList ++ List(bin_fun("Set", math_sym("glob`tends"), un_fun("List", math_int("0"))))
     // Following line may be buggy.
     statsList = statsList ++ List(bin_fun("Set", math_sym("glob`sol"), mul_arg_fun("List", List())))
     
@@ -285,7 +285,7 @@ object hpToExpr {
         math_sym(mask(v.s, "curr`")),
         un_fun("RandomReal",
           scalListToListExpr(List(
-            new Expr(randMin), new Expr(randMax)
+            math_real("" + randMin), math_real("" + randMax)
           ))
         )
       ))
@@ -433,7 +433,7 @@ object hpToExpr {
       case Check(h) => List(mul_arg_fun("If", List(
         EvolveToExpr.formulaToExpr(h, EvolveToExpr.CURR_BACKTICK),
         mul_arg_fun("CompoundExpression", hpsListToStatsList(xs, varisStrisListFromHp : List[String], tendLimi : Double, nUnroLoop : Int, randMin : Double, randMax : Double)),
-        bin_fun("Set", math_sym("loca`nop"), new Expr(0))
+        bin_fun("Set", math_sym("loca`nop"), math_int("0"))
       )))
       case _ => hpToStatsList(x, varisStrisListFromHp : List[String], tendLimi : Double, nUnroLoop : Int, randMin : Double, randMax : Double) ++
           hpsListToStatsList(xs, varisStrisListFromHp : List[String], tendLimi : Double, nUnroLoop : Int, randMin : Double, randMax : Double)
@@ -722,7 +722,7 @@ object hpToExpr {
                   math_sym("loca`t"),
                   bin_fun("Part", 
                     math_sym("glob`tends"),
-                    bin_fun("Plus", math_sym("loca`i"), new Expr(1))
+                    bin_fun("Plus", math_sym("loca`i"), math_int("1"))
                   )
                 )
                 
@@ -730,10 +730,10 @@ object hpToExpr {
             )),
             mul_arg_fun("List", List(
               math_sym("loca`i"),
-              new Expr(1),
+              math_int("1"),
               bin_fun("Plus",
                 un_fun("Length", math_sym("glob`tends")),
-                new Expr(-1)
+                math_int("-1")
               )
             ))
           )
@@ -788,7 +788,12 @@ object hpToExpr {
         
       case _ => throw new NotImplementedError
     }
-    case Modality(dumm, hp, safe) => Modality(dumm, hp, safe)
+    case Modality(dumm, hp, safe) => {
+          var varisStrisList : List[String] = (formToVarisStrisListInAll(f)).distinct
+          var assiAnys : HP = varisStrisListToAssiAnysSeq(varisStrisList)
+          return Modality(dumm, (assiAnys seq hp), safe)  
+//      Modality(dumm, hp, safe)
+    }
     case a => throw new NotImplementedError(a.toString())
   }
   

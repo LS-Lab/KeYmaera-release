@@ -49,6 +49,9 @@ import javax.swing.SwingUtilities;
 
 import com.wolfram.jlink.Expr;
 import com.wolfram.jlink.ExprFormatException;
+import com.wolfram.jlink.KernelLink;
+import com.wolfram.jlink.MathLinkException;
+import com.wolfram.jlink.MathLinkFactory;
 
 import de.uka.ilkd.key.dl.arithmetics.IODESolver.ODESolverResult;
 import de.uka.ilkd.key.dl.arithmetics.IODESolver.ODESolverUpdate;
@@ -1402,14 +1405,13 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 	public Map<String, Double[][]> getPlotData(Term in, Services services,
 			int nGrapsPerRow, double tendLimi,
 			int nUnroLoop, double randMin, double randMax) throws RemoteException, SolverException {
-		String input = ProofSaver.printTerm(in, services, true).toString();
-		System.out.println("The input is " + input);
+		String input = ProofSaver.printTerm(in, services, true, true).toString();
 		edu.cmu.cs.ls.Formula f = OP.parseFormula(input);
-		System.out.println("As formula: " + f);
 		edu.cmu.cs.ls.Modality m = hpToExpr.extractModality(f);
 		Expr modaToDataPointExpr = hpToExpr.modaToDataPointExpr(m, nGrapsPerRow, tendLimi, nUnroLoop, randMin, randMax);
 		try {
-			Expr simResult = evaluate(modaToDataPointExpr).expression;
+			// use toString as the Expr does only yield $Aborted as result
+			Expr simResult = kernelWrapper.nativeEvaluate(modaToDataPointExpr.toString());
 			if(simResult.vectorQ()) {
 				Map<String, Double[][]> result = new LinkedHashMap<String, Double[][]>();
 				for(Expr expr: simResult.args()) {

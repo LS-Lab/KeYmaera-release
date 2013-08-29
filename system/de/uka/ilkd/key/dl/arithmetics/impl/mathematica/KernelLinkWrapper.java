@@ -491,7 +491,6 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 					compute, new Expr("$Exception"), mBlist });
 			if (DEBUG)
 				System.out.println(check);// XXX
-			System.out.println("Evaluating: " + check);
 			link.evaluate(check);
 			testForError(link);
 			log(Level.FINEST, "Waiting for anwser.");
@@ -586,6 +585,38 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 					e);
 		}
 
+	}
+	
+	public synchronized Expr nativeEvaluate(String expr) throws ServerStatusProblemException, RemoteException {
+	try {
+		log(Level.FINEST, "Start evaluation");
+		link.evaluate(expr);
+		log(Level.FINEST, expr);
+		link.waitForAnswer();
+		Expr result = link.getExpr();
+		log(Level.FINEST, "Returning anwser...");
+		log(Level.FINEST, result.toString());
+		link.newPacket();
+		return result;
+	} catch (MathLinkException e) {
+		synchronized (mutex) {
+			eval = false;
+		}
+		if (e.getErrCode() == 11 || e.getErrCode() == 1) {
+			// error code 11 indicates that the mathkernel has died
+			try {
+				link.close();
+			} catch (Throwable t) {
+			} finally {
+				createLink();
+			}
+		}
+		e.printStackTrace();
+		link.clearError();
+		throw new ServerStatusProblemException(
+				"MathLinkException: could not evaluate expression: " + expr,
+				e);
+	}
 	}
 
 	public synchronized ExprAndMessages evaluate(Expr expr)
