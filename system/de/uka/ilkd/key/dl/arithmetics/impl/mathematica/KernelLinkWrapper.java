@@ -589,10 +589,25 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 	
 	public synchronized Expr nativeEvaluate(String expr) throws ServerStatusProblemException, RemoteException {
 	try {
-		log(Level.FINEST, "Start evaluation");
+		callCount++;
+		log(Level.FINEST, "Start evaluating: " + expr);
+		long curTime = System.currentTimeMillis();
+		log(Level.INFO, "Time: "
+				+ SimpleDateFormat.getTimeInstance().format(curTime));
 		link.evaluate(expr);
 		log(Level.FINEST, expr);
+		synchronized (mutex) {
+			if (eval) {
+				eval = false;
+				throw new RemoteException(
+						"Calculation interruped before starting " + expr);
+			}
+			eval = true;
+		}
 		link.waitForAnswer();
+		synchronized (mutex) {
+			eval = false;
+		}
 		Expr result = link.getExpr();
 		log(Level.FINEST, "Returning anwser...");
 		log(Level.FINEST, result.toString());
