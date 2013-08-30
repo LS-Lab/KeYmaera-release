@@ -67,7 +67,7 @@ public interface IMathematicaDLBridge extends Remote {
      * @param phi
      *                the formula to be updated by the solutions of the
      *                differential equations
-     * @param nss
+     * @param services
      *                the current namespace sets
      * @return a Term containing an update for the solutions of the differential
      *         equations on the term phi
@@ -115,8 +115,6 @@ public interface IMathematicaDLBridge extends Remote {
      * 
      * @param form
      *                the term to simplify
-     * @param assumptions
-     *                the assumptions used for simplification
      * @return the simplifyed term, this may be the same as the input.
      * @throws UnableToConvertInputException
      * @throws UnsolveableException
@@ -136,6 +134,9 @@ public interface IMathematicaDLBridge extends Remote {
      */
     public String findInstance(Term form, long tmeout, Services services) throws RemoteException,
 			SolverException;
+
+    public Map<String, Double> findInstanceD(Term form, long timeout, Services services) throws RemoteException,
+            SolverException;
 
 	// finds multiple instances satisfying form
 	public List<String> findMultiInstance(Term form, int ninst, long timeout)
@@ -226,10 +227,8 @@ public interface IMathematicaDLBridge extends Remote {
      * 
      * @param form
      *                the Term to reduce
-     * @param quantifiedSymbols
+     * @param quantifiers
      *                the symbols that were quantified
-     * @param type
-     *                the type of the quantifier to reintroduce before reduction
      * @return the reduced Term. (may be the same as the input)
      * @throws RemoteException
      * @throws UnsolveableException

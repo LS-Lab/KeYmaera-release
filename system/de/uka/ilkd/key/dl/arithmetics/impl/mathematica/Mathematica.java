@@ -222,6 +222,10 @@ public class Mathematica implements ICounterExampleGenerator, IODESolver,
 		return findInstance(form, -1, services);
 	}
 
+    public Map<String, Double> findInstanceD(Term form, long timeout, Services services) throws RemoteException, SolverException {
+       return bridge.findInstanceD(form, timeout, services);
+    }
+
 	/*
 	 * (non-Javadoc)
 	 * 

@@ -33,16 +33,7 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
@@ -817,14 +808,47 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
         return "";
     }
 
-	
-    /*   
-     * (non-Javadoc)
-     * 
-     * @see
-     * de.uka.ilkd.key.dl.IMathematicaDLBridge#findMultiInstance(de.uka.ilkd.key.
-     * logic.Term, int, long)
-     */
+    @Override
+    public Map<String, Double> findInstanceD(Term form, long timeout, Services services) throws RemoteException, SolverException {
+       Expr query = Term2ExprConverter.convert2Expr(form);
+        List<Expr> vars = new ArrayList<Expr>();
+        Set<String> variables = AllCollector.getItemSet(form).filter(
+                new FilterVariableCollector(null)).getVariables();
+        for (String var : variables)
+            vars.add(new Expr(Expr.SYMBOL, NameMasker.mask(var)));
+        Map<String, Double> ret = new LinkedHashMap<>();
+
+        if (vars.size() > 0) {
+            query = new Expr(new Expr(Expr.SYMBOL, "FindInstance"), new Expr[] {
+                    query, new Expr(LIST, vars.toArray(new Expr[vars.size()])),
+                    new Expr(Expr.SYMBOL, "Reals"),
+                    });
+            Expr results[] = evaluate(query, timeout).expression.args();
+            // result[0] should be a list of Rules
+            if(results[0].head().equals(LIST)) {
+                for (Expr res : results[0].args()) {
+                    if(res.head().equals(RULE)) {
+                        String n = NameMasker.unmask(res.args()[0].toString());
+                        try {
+                            Double d = res.args()[1].asDouble();
+                            ret.put(n, d);
+                        } catch (ExprFormatException e) {
+                            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                        }
+                    }
+                }
+            }
+        }
+        return ret;
+    }
+
+    /*
+         * (non-Javadoc)
+         *
+         * @see
+         * de.uka.ilkd.key.dl.IMathematicaDLBridge#findMultiInstance(de.uka.ilkd.key.
+         * logic.Term, int, long)
+         */
     public List<String> findMultiInstance(Term form, int ninst, long timeout) throws RemoteException,
             SolverException {
         Expr query = Term2ExprConverter.convert2Expr(form);
@@ -853,7 +877,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
                             + res);
                 }    
                 ret.add(res.toString());
-            }    
+            }
         }    
         return ret; 
     } 
