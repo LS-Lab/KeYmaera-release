@@ -1403,12 +1403,12 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 
 	@Override
 	public Map<String, Double[][]> getPlotData(Term in, Services services,
-			int nGrapsPerRow, double tendLimi,
+			double tendLimi,
 			int nUnroLoop, double randMin, double randMax) throws RemoteException, SolverException {
 		String input = ProofSaver.printTerm(in, services, true, true).toString();
 		edu.cmu.cs.ls.Formula f = OP.parseFormula(input);
 		edu.cmu.cs.ls.Modality m = hpToExpr.extractModality(f);
-		Expr modaToDataPointExpr = hpToExpr.modaToDataPointExpr(m, nGrapsPerRow, tendLimi, nUnroLoop, randMin, randMax);
+		Expr modaToDataPointExpr = hpToExpr.modaToDataPointExpr(m, tendLimi, nUnroLoop, randMin, randMax);
 		try {
 			// use toString as the Expr does only yield $Aborted as result
 			Expr simResult = kernelWrapper.nativeEvaluate(modaToDataPointExpr.toString());

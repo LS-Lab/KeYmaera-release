@@ -369,7 +369,7 @@ public class Mathematica implements ICounterExampleGenerator, IODESolver,
 	    return bridge.getPlotData(sys, t, minT, maxT, sampling, initialValues, services);
 	}
 	
-	public Map<String, Double[][]> getPlotData(Term in, Services services, int nGrapsPerRow, double tendLimi, int nUnroLoop, double randMin, double randMax) throws RemoteException, SolverException {
-		return bridge.getPlotData(in, services, nGrapsPerRow, tendLimi, nUnroLoop, randMin, randMax);
+	public Map<String, Double[][]> getPlotData(Term in, Services services, double tendLimi, int nUnroLoop, double randMin, double randMax) throws RemoteException, SolverException {
+		return bridge.getPlotData(in, services, tendLimi, nUnroLoop, randMin, randMax);
 	}
 }

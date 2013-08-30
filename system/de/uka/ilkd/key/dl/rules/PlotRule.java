@@ -198,16 +198,16 @@ public class PlotRule implements BuiltInRule, RuleFilter {
 				});
 			} else {
 
-				final JTextField nGrapsPerRow = new JTextField("3");
-				addTextFieldToPanel(panel, nGrapsPerRow, "nGrapsPerRow");
+//				final JTextField nGrapsPerRow = new JTextField("3");
+//				addTextFieldToPanel(panel, nGrapsPerRow, "nGrapsPerRow");
 				final JTextField tendLimi = new JTextField("10");
-				addTextFieldToPanel(panel, tendLimi, "tendLimi");
+				addTextFieldToPanel(panel, tendLimi, "Time to follow ODEs");
 				final JTextField nUnroLoop = new JTextField("10");
-				addTextFieldToPanel(panel, nUnroLoop, "nUnroLoop");
+				addTextFieldToPanel(panel, nUnroLoop, "Number of loop unrollings");
 				final JTextField randMin = new JTextField("-10");
-				addTextFieldToPanel(panel, randMin, "randMin");
+				addTextFieldToPanel(panel, randMin, "Min for random values");
 				final JTextField randMax = new JTextField("10");
-				addTextFieldToPanel(panel, randMax, "randMax");
+				addTextFieldToPanel(panel, randMax, "Max for random values");
 				// add a list of variables that should be plotted
 				Term subTerm = ruleApp.posInOccurrence().subTerm();
 				LinkedHashSet<String> vars = new LinkedHashSet<String>();
@@ -283,8 +283,6 @@ public class PlotRule implements BuiltInRule, RuleFilter {
 											.getPlotData(
 													input,
 													services,
-													Integer.parseInt(nGrapsPerRow
-															.getText()),
 													Double.parseDouble(tendLimi
 															.getText()),
 													Integer.parseInt(nUnroLoop

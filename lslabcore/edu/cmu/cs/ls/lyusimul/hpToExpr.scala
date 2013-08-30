@@ -13,7 +13,7 @@ object hpToExpr {
   
   var rndm = new Random
 
-  def math_sym(s: String): Expr =
+  def math_sym(s: String): Expr = 
     new Expr(Expr.SYMBOL, s)
 
   def math_int(s: String): Expr =
@@ -49,7 +49,7 @@ object hpToExpr {
     require(mdlt.m == Box)
   }
   
-  def modaToDataPointExpr (mdlt : Modality, nGrapsPerRow: Int, tendLimi : Double, nUnroLoop : Int, randMin : Double, randMax : Double) : Expr = {
+  def modaToDataPointExpr (mdlt : Modality, tendLimi : Double, nUnroLoop : Int, randMin : Double, randMax : Double) : Expr = {
     applicable(mdlt)
     
     //var prepModa = mdlt
