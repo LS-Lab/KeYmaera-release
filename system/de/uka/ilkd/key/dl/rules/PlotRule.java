@@ -153,6 +153,7 @@ public class PlotRule implements BuiltInRule, RuleFilter {
                     @Override
                     public void actionPerformed(ActionEvent event) {
                         try {
+
                             final Map<String, Double> initialValues = new LinkedHashMap<String, Double>();
                             for (String s : fields.keySet()) {
                                 initialValues.put(s, Double.parseDouble(fields
@@ -323,7 +324,7 @@ public class PlotRule implements BuiltInRule, RuleFilter {
                             @Override
                             public void run() {
                                 try {
-                                    Map<String, Double[][]> plotData = math
+                                    final Map<String, Double[][]> plotData = math
                                             .getPlotData(
                                                     input,
                                                     services,
@@ -334,30 +335,36 @@ public class PlotRule implements BuiltInRule, RuleFilter {
                                                     Double.parseDouble(randMin.getText()),
                                                     Double.parseDouble(randMax
                                                             .getText()));
-                                    calc.setVisible(false);
-                                    calc.dispose();
-                                    if (plotData == null) {
-                                        return;
-                                    }
-                                    JDialog sDia = new JDialog();
-                                    Plot2DPanel plot = new Plot2DPanel();
-                                    plot.addLegend(Plot2DPanel.EAST);
-                                    plot.addPlotToolBar(Plot2DPanel.NORTH);
-                                    plot.setAxisLabels("t", "x");
-                                    sDia.add(plot);
-                                    for (String s : plotData.keySet()) {
-                                        JCheckBox jCheckBox = selection.get(s);
-                                        // the checkbox might be null for the
-                                        // global safety thingy
-                                        if (jCheckBox == null
-                                                || jCheckBox.isSelected()) {
-                                            plot.addLinePlot(s,
-                                                    cDoubletodouble(plotData
-                                                            .get(s)));
+                                    SwingUtilities.invokeLater(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            calc.setVisible(false);
+                                            calc.dispose();
+                                            if (plotData == null) {
+                                                return;
+                                            }
+                                            JDialog sDia = new JDialog();
+                                            Plot2DPanel plot = new Plot2DPanel();
+                                            plot.addLegend(Plot2DPanel.EAST);
+                                            plot.addPlotToolBar(Plot2DPanel.NORTH);
+                                            plot.setAxisLabels("t", "x");
+                                            sDia.add(plot);
+                                            for (String s : plotData.keySet()) {
+                                                JCheckBox jCheckBox = selection.get(s);
+                                                // the checkbox might be null for the
+                                                // global safety thingy
+                                                if (jCheckBox == null
+                                                        || jCheckBox.isSelected()) {
+                                                    plot.addLinePlot(s,
+                                                            cDoubletodouble(plotData
+                                                                    .get(s)));
+                                                }
+                                            }
+                                            sDia.setSize(600, 400);
+                                            sDia.setVisible(true);
                                         }
-                                    }
-                                    sDia.setSize(600, 400);
-                                    sDia.setVisible(true);
+                                    });
+
                                 } catch (final RemoteException e) {
                                     Main.getInstance().notify(
                                             new ExceptionEvent(e));
