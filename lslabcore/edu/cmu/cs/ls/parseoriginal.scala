@@ -48,9 +48,10 @@ class KeYLexical() extends StdLexical() {
       | signedIntegerLit )
 
   def floatLit =
-    ( signedIntegerLit ~ '.' ~ integerLit ~ (elem('e') |  elem('E')) ~ plusMinusIntegerLit ^^ { case a ~ b ~ c ~ d ~ e => a+b+c+d+e }
+    ( signedIntegerLit ~ '.' ~ rep1(digit) ~ (elem('e') |  elem('E')) ~ plusMinusIntegerLit ^^ { case a ~ b ~ c ~ d ~ e => a+b+c+d+e }
     | signedIntegerLit                    ~ (elem('e') |  elem('E')) ~ plusMinusIntegerLit ^^ { case a ~ b ~ c => a+b+c }
-    | signedIntegerLit ~ '.' ~ integerLit                                                  ^^ { case a ~ b ~ c => a+b+c }
+    | signedIntegerLit ~ '.' ~ rep1(digit)                                                  ^^ { case a ~ b ~ c => a+b+c }
+    | '.' ~ rep1(digit)																		^^ { case a ~ b => "0"+a+b }
     )
 
 
