@@ -273,7 +273,7 @@ object hpToExpr {
             scalListToListExpr(List(
               math_sym("loca`t"),
               un_fun("Evaluate", un_fun("Last", math_sym("glob`tends"))),
-              bin_fun("Plus", un_fun("Evaluate", un_fun("Last", math_sym("glob`tends"))), math_sym("glob`tendLimi"))
+              mul_arg_fun("Plus", List(un_fun("Evaluate", un_fun("Last", math_sym("glob`tends"))), math_sym("glob`tendLimi"), math_real("0.05")))
             ))
           ))         
         )
