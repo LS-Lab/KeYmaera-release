@@ -176,36 +176,49 @@ public class DiffFin extends AbstractDLMetaOperator {
 			InstantiationException, NoSuchMethodException {
 		for (int k = 0; k < r.sys.getChildCount(); k++) {
 			Formula f = (Formula) r.sys.getChildAt(k);
+			// Check if top level operator is a quantifier
 			if (f instanceof Exists) {
 				r.changed = true;
 				Exists exists = (Exists) f;
 
-				VariableDeclaration childAt2 = (VariableDeclaration) exists
+				// Get the quantified variables
+				VariableDeclaration varDec = (VariableDeclaration) exists
 						.getChildAt(0);
 				HashMap<QuantifiableVariable, Term> map = new HashMap<QuantifiableVariable, Term>();
-				for (int i = 1; i < childAt2.getChildCount(); i++) {
-					String string = ((Variable) childAt2.getChildAt(i))
+				// Iterate through the quantified variables
+				for (int i = 1; i < varDec.getChildCount(); i++) {
+					// Retrieve the name of the variable
+					String string = ((Variable) varDec.getChildAt(i))
 							.toString();
+					// Create a new name for the substitution
 					Name n = new Name(nss.getUniqueName(string, true));
 					LogicVariable sym = new LogicVariable(n, RealLDT
 							.getRealSort());
 					nss.variables().add(sym);
+					// put the variable into our replacement map
 					map.put(new LogicVariable(new Name(string), RealLDT
 							.getRealSort()), TermBuilder.DF.var(sym));
 					r.quantifiedVariables.add(sym);
 				}
-				r.forms.add((Formula) ReplaceVisitor.convert((Formula) exists
+				// Substitute the quantified variables by fresh ones
+				Formula formulaAfterSubst = (Formula) ReplaceVisitor.convert((Formula) exists
 						.getChildAt(1), map, TermFactory.getTermFactory(
-						TermFactoryImpl.class, nss)));
+						TermFactoryImpl.class, nss));
+				r.forms.add(formulaAfterSubst);
+				
 
 			} else {
 				r.forms.add(f);
 			}
 		}
 		if (r.changed) {
+			// Replace the DGL system by the set of simplified formulas
 			r.sys = TermFactory.getTermFactory(TermFactoryImpl.class, nss)
 					.createDiffSystem(r.forms);
+			// clear the set of generated formulas as we have added them to the diff system
+			r.forms.clear();
 			r.changed = false;
+			// remove the remaining quantifiers recursively
 			r = removeQuantifiers(nss, r);
 		}
 		return r;

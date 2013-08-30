@@ -29,7 +29,7 @@ $ROOT can be any name you want to give for your local working copy. The above co
 
  - under key-ext-jars, you might need to add a symbolic link named antlr.jar to point to antlr-4.3-complete.jar (if you happen to have your own antlr version then you can use it as well)
 
-    > cd key-ext-jars; ln -snv antlr-4.3-complete.jar antlr.jar
+    > cd key-ext-jars; ln -snv antlr-3.4-complete.jar antlr.jar
 
  - create JLink in key-ext-jars and move JLink.jar to key-ext-jars/JLink (for the compiler to be able to find the right library)
 

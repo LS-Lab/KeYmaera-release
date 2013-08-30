@@ -158,6 +158,7 @@ public class ServerConsole extends JFrame {
 
 		JButton saveButton = new JButton("Save Cache");
 		JButton loadButton = new JButton("Load Cache");
+		JButton clearCache = new JButton("Clear Cache");
 
 		JToolBar toolBar = new JToolBar("Tools");
 
@@ -173,6 +174,7 @@ public class ServerConsole extends JFrame {
 		statusPanel.add(statusHeaderLabel, BorderLayout.NORTH);
 		statusPanel.add(tickerLabel, BorderLayout.CENTER);
 
+		toolBar.add(clearCache);
 		toolBar.add(loadButton);
 		toolBar.add(saveButton);
 		toolBar.addSeparator();
@@ -229,6 +231,8 @@ public class ServerConsole extends JFrame {
 		saveButton.setAction(new SaveAction(server, port));
 
 		loadButton.setAction(new LoadAction(server, port));
+
+		clearCache.setAction(new ClearCacheAction(server, port));
 
 		frame.getContentPane().setLayout(new BorderLayout());
 		frame.getContentPane().add(toolBar, BorderLayout.NORTH);
@@ -630,7 +634,7 @@ public class ServerConsole extends JFrame {
 	}
 
 	private class LoadAction extends ArgAction {
-
+		
 		protected LoadAction(String server, int port) {
 			super(server, port);
 			putValue(NAME, "Load ...");
@@ -639,7 +643,7 @@ public class ServerConsole extends JFrame {
 			putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_O,
 					ActionEvent.CTRL_MASK));
 		}
-
+		
 		/*
 		 * (non-Javadoc)
 		 * 
@@ -674,6 +678,46 @@ public class ServerConsole extends JFrame {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (ClassNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			} catch (NumberFormatException e) {
+				e.printStackTrace();
+			} catch (RemoteException e) {
+				e.printStackTrace();
+			}
+			
+		}
+	}
+
+	private class ClearCacheAction extends ArgAction {
+
+		protected ClearCacheAction(String server, int port) {
+			super(server, port);
+			putValue(NAME, "Clear Cache");
+			putValue(SMALL_ICON, IconFactory.openKeYFile(toolbarIconSize));
+			putValue(SHORT_DESCRIPTION, "Clear the server caches");
+			putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_C,
+					ActionEvent.CTRL_MASK));
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see
+		 * java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent
+		 * )
+		 */
+		public void actionPerformed(ActionEvent arg0) {
+			try {
+				Registry reg = LocateRegistry.getRegistry(server, port);
+				try {
+					IKernelLinkWrapper kernelWrapper = (IKernelLinkWrapper) reg
+							.lookup(KernelLinkWrapper.IDENTITY);
+					kernelWrapper.clearCache();
+				} catch (NotBoundException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}

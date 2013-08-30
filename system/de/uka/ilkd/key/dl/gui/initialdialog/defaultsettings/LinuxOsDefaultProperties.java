@@ -143,7 +143,7 @@ public class LinuxOsDefaultProperties extends OsDefaultProperties implements
 	public String getJLinkDefault() {
 		return getMathematicaDefaultPath() + sp + "SystemFiles" + sp + "Links"
 				+ sp + "JLink" + sp + "SystemFiles" + sp + "Libraries" + sp
-				+ "Linux-x86-64";
+				+ "Linux" + (System.getProperty("os.arch").contains("64")?"-x86-64":"");
 	}
 
 	/*

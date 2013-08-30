@@ -255,7 +255,7 @@ public class Term2SMTConverter {
 					if (frac.getDenominator().equals(BigInteger.ONE)) {
 						return printNumber(frac.getNumerator());
 					} else {
-						return "(/ " + printNumber(frac.getNumerator())
+						return "(/ " + printNumber(frac.getNumerator()) + " "
 								+ printNumber(frac.getDenominator()) + ")";
 					}
 				} catch (NumberFormatException nfe) {
