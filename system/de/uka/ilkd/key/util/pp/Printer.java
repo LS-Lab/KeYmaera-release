@@ -156,7 +156,9 @@ class Printer {
 	try {
 	    return ((Integer)marginStack.get(marginStack.size()-1)).intValue();
 	} catch (IndexOutOfBoundsException e) {
-	    throw new UnbalancedBlocksException();
+	    new UnbalancedBlocksException().printStackTrace();
+		return 0;
+	    //throw new UnbalancedBlocksException();
 	}
     }
 

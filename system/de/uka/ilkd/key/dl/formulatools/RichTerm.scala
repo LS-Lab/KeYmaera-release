@@ -12,6 +12,7 @@
  */
 package de.uka.ilkd.key.dl.formulatools
 
+import de.uka.ilkd.key.logic.Name
 import de.uka.ilkd.key.logic.TermBuilder
 import de.uka.ilkd.key.logic.Term
 import de.uka.ilkd.key.logic.TermFactory
@@ -25,6 +26,7 @@ import de.uka.ilkd.key.logic.op.Operator
 import de.uka.ilkd.key.logic.op.Op
 import de.uka.ilkd.key.logic.JavaBlock
 import de.uka.ilkd.key.logic.op.RigidFunction
+import de.uka.ilkd.key.java.Services
 
 /**
  * This class wraps the KeY Term data structures to allow advanced matching and operator overloading
@@ -116,6 +118,14 @@ object MathFun {
         Some(f.name.toString, for(i <- 0 until t.arity) yield t.sub(i)) 
       case _ => None
     }
+  }
+  def apply(f: String, args: Seq[Term], s: Services) : Term = {
+    val fun = s.getNamespaces().functions().lookup(new Name(f))
+    require(fun != null, "The function " + f + " has to be declared.");
+    require(fun.asInstanceOf[RigidFunction].isMathFunction(), "The " +
+    		"function " + f + " has to be declared as \\external.");
+    val mf = fun.asInstanceOf[RigidFunction]
+    TermBuilder.DF.func(mf, args.toArray)
   }
 }
 

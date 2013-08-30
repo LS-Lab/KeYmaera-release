@@ -41,7 +41,6 @@ import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.TermBuilder;
 
 import de.uka.ilkd.key.dl.arithmetics.impl.mathematica.Term2ExprConverter;
-import de.uka.ilkd.key.dl.arithmetics.impl.metitarski.termToMetitConverter;
 
 public class MetiTarski implements IQuantifierEliminator{
 
@@ -94,12 +93,17 @@ public class MetiTarski implements IQuantifierEliminator{
 
     public boolean isConfigured() {
         /* As elsewhere */
-        return true;
+        return Options.INSTANCE.getMetitBinary().exists();
     }
 
     /* Reduce procedure */
-    public Term reduce(Term form, List<String> names, List<PairOfTermAndQuantifierType> quantifiers, NamespaceSet nss, long timeout) 
-        throws RemoteException, SolverException {
+    public Term reduce(
+    		Term                              form, 
+    		List<String>                      names, 
+    		List<PairOfTermAndQuantifierType> quantifiers, 
+    		NamespaceSet                      nss, 
+    		long                              timeout
+    		) throws RemoteException, SolverException {
 
         /* Create temporary file */
         File tmp; 
@@ -107,8 +111,9 @@ public class MetiTarski implements IQuantifierEliminator{
         /* Exit status 1 is used for unproven goals */
         int exitStatus=1; 
 
-        /* Convert the problem to tptp syntax */
-        String compiledProblem = termToMetitConverter.termToMetit(form, false);
+        /* Convert the problem to infix TPTP syntax */
+        FormulaTree tree = new FormulaTree(form);
+        String compiledProblem = tree.formatMetitProblem();
 
         try 
         {
@@ -133,19 +138,19 @@ public class MetiTarski implements IQuantifierEliminator{
             commandParameters.   add(  Options.INSTANCE.getMetitAxioms().getAbsolutePath()   );
             commandParameters.   add(  "-q"                                                  );
 
-            logger.info("Using axiom directory "+  Options.INSTANCE.getMetitAxioms().getAbsolutePath());
+            logger.info("Using axiom directory "+  
+                        Options.INSTANCE.getMetitAxioms().getAbsolutePath());
 
             commandParameters.addAll(getParameters(tmp));
 
-            logger.info("MetiTarski command arguments: "+ commandParameters.toString());
+            logger.info("MetiTarski command arguments: "+ 
+                        commandParameters.toString());
 
             /* Creating process builder with computed parameters */
             ProcessBuilder metitBuilder = new ProcessBuilder(commandParameters);
 
             logger.info(   "Sending the following problem to MetiTarski:\n"
-                           + compiledProblem +" \nCorresponding to Mma term : " 
-                           + Term2ExprConverter.convert2Expr(form).toString() 
-                           );
+                           + compiledProblem );
 
             /* Starting process */
             Process metit = metitBuilder.start();
@@ -166,7 +171,7 @@ public class MetiTarski implements IQuantifierEliminator{
                 metit.destroy();
                
                 // Un-comment this if you don't want the temp files.
-                //logger.info("Deleting temporary file " + tmp.getAbsolutePath()   );             
+                //logger.info("Deleting temporary file " + tmp.getAbsolutePath());             
                 //tmp.delete();
             }
         } 
@@ -178,7 +183,7 @@ public class MetiTarski implements IQuantifierEliminator{
         finally
         {
             if(exitStatus==1) 
-            {   /* When no proof is found, return the original query as the result */
+            {   /* When no proof is found, return the original query */
                 logger.info("MetiTarski could not produce a proof!");
                 return form;
             }
@@ -192,12 +197,16 @@ public class MetiTarski implements IQuantifierEliminator{
     }
 
     /**
-     * This method compiles an array of command-line parameters for MetiTarski based on the options 
-     * selected by the user in KeYmaera under the MetiTarski options bean.
+     * This method compiles an array of command-line parameters for MetiTarski 
+     * based on the options selected by the user in KeYmaera under the 
+     * MetiTarski options bean.
      *
-     * @param  tmp         Newly-generated temporary file into which the TPTP problem has been written.
-     * @return parameters  An ArrayList of command line parameters for MetiTarski to solve the problem 
-     *                     in the temporary file supplied.
+     * @param  tmp         Newly-generated temporary file into which the TPTP 
+     *                     problem has been written.
+     *                     
+     * @return parameters  An ArrayList of command line parameters for 
+     *                     MetiTarski to solve the problem in the temporary 
+     *                     file supplied.
      */
 
     private ArrayList<String> getParameters(File tmp) {

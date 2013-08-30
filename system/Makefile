@@ -67,8 +67,8 @@ ifeq "$(KEY_VERSION_LONG)" ""
 KEY_VERSION_LONG=$(KEY_VERSION_SHORT)_$(SHA1)
 endif
 
-KEY_VERSION_SHORT=3.1
-KEY_VERSION_LONG=3.1
+KEY_VERSION_SHORT=3.2
+KEY_VERSION_LONG=3.2
 
 export KEY_VERSION_LONG
 export KEY_VERSION_SHORT
@@ -181,7 +181,7 @@ doc: argfile
 
 
 
-## create distribution package
+## create KeY distribution package
 .PHONY: dist
 dist:	branding all
 	@echo "[creating distribution directory structure]"
@@ -210,6 +210,7 @@ dist:	branding all
 
 OPTIONS:=${OPTIONS} -target 1.5
 
+## create KeYmaera distribution package
 dist-keymaera:	branding all
 	@echo "[creating distribution directory structure]"
 	@mkdir -p ../dist
@@ -246,6 +247,7 @@ dist-keymaera:	branding all
 	@jar cfm setup.jar resources/de/uka/ilkd/key/util/install/MANIFEST.MF -C dist/setup/ .
 	@tar -czvf ../dist/KeY-$(KEY_VERSION_LONG).tgz keymaera.jar setup.jar -C ../ LICENSE.TXT
 	@cp ../README.install.bytecode ../dist/README-$(KEY_VERSION_LONG).txt
+	@echo "[distribution files created in dist/KeY-$(KEY_VERSION_LONG).tgz]"
 	@echo "[deleting distribution directory structure]"
 	@rm -rf dist
 
@@ -590,12 +592,14 @@ SCALAC = scalac
 SCALAOPTIONS =  -deprecation -d $(BINARYPATH) -classpath $(CLASSPATH)
 
 COHENHORMANDER = $(PFX)dl/arithmetics/impl/ch/cohenhormander
+METIT = $(PFX)/dl/arithmetics/impl/metitarski
 
 SCALAFILES = $(COHENHORMANDER)/parallel.scala $(COHENHORMANDER)/parse.scala \
 	$(COHENHORMANDER)/rational.scala $(COHENHORMANDER)/arithmetic.scala \
 	$(PFX)dl/formulatools/Derive.scala $(PFX)dl/formulatools/PolynomialExtraction.scala $(PFX)dl/formulatools/NegationNormalForm.scala $(PFX)dl/formulatools/RichTerm.scala $(PFX)dl/arithmetics/impl/reduce/Term2ReduceString.scala \
 	$(PFX)dl/formulatools/Prenex.scala $(PFX)dl/arithmetics/impl/mathematica/TermExprLink.scala \
-	$(PFX)dl/strategy/tactics/SkolemizeTactic.scala $(PFX)dl/strategy/tactics/ApplyEquationTactic.scala
+	$(PFX)dl/strategy/tactics/SkolemizeTactic.scala $(PFX)dl/strategy/tactics/ApplyEquationTactic.scala \
+	$(METIT)/FormulaTree.scala $(METIT)/OperatorMap.scala
 
 
 $(COHENHORMANDERCLASS) ch : $(SCALAFILES) argfile.normal

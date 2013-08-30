@@ -366,40 +366,75 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 					 * found high costs, unaffordable if counterexample has been
 					 * found)
 					 */
-					reduceSequence = ConditionalFeature
-							.createConditional(
-									ReduceRule.INSTANCE,
-									ifZero(
-											FOSequence.INSTANCE,
-											new SwitchFeature(
-													TimeoutTestApplicationFeature.INSTANCE,
-													new Case(longConst(0),
-															longConst(-20000)),
-													new Case(
-															longConst(1),
-															DLOptionBean.INSTANCE
-																	.isUseIterativeReduceRule() ? inftyConst()
-																	: new SwitchFeature(
-																			ContainsMetaVariableFeature.INSTANCE,
-																			new Case(
-																					// we
-																					// got
-																					// a
-																					// metavar
-																					// so
-																					// the
-																					// fallback
-																					// is
-																					// existential
-																					// reduce
-																					longConst(0),
-																					inftyConst()),
-																			new Case(
-																					inftyConst(),
-																					longConst(20000)))),
-													new Case(inftyConst(),
-															inftyConst())),
-											inftyConst()));
+				    if(DLOptionBean.INSTANCE.isIbcOnlyToFO()) {
+                        reduceSequence = ConditionalFeature
+                                .createConditional(
+                                        ReduceRule.INSTANCE,
+                                        ifZero(FOSequence.INSTANCE,
+                                                new SwitchFeature(
+                                                        TimeoutTestApplicationFeature.INSTANCE,
+                                                        new Case(
+                                                                longConst(0),
+                                                                longConst(-20000)),
+                                                        new Case(
+                                                                longConst(1),
+                                                                DLOptionBean.INSTANCE
+                                                                        .isUseIterativeReduceRule() ? inftyConst()
+                                                                        : new SwitchFeature(
+                                                                                ContainsMetaVariableFeature.INSTANCE,
+                                                                                new Case(
+                                                                                        // we
+                                                                                        // got
+                                                                                        // a
+                                                                                        // metavar
+                                                                                        // so
+                                                                                        // the
+                                                                                        // fallback
+                                                                                        // is
+                                                                                        // existential
+                                                                                        // reduce
+                                                                                        longConst(0),
+                                                                                        inftyConst()),
+                                                                                new Case(
+                                                                                        inftyConst(),
+                                                                                        longConst(20000)))),
+                                                        new Case(inftyConst(),
+                                                                inftyConst())),
+                                                inftyConst()));
+				    } else {
+	                    reduceSequence = ConditionalFeature
+	                            .createConditional(
+	                                    ReduceRule.INSTANCE,
+	                                            new SwitchFeature(
+	                                                    TimeoutTestApplicationFeature.INSTANCE,
+	                                                    new Case(longConst(0),
+	                                                            longConst(-20000)),
+	                                                    new Case(
+	                                                            longConst(1),
+	                                                            DLOptionBean.INSTANCE
+	                                                                    .isUseIterativeReduceRule() ? inftyConst()
+	                                                                    : new SwitchFeature(
+	                                                                            ContainsMetaVariableFeature.INSTANCE,
+	                                                                            new Case(
+	                                                                                    // we
+	                                                                                    // got
+	                                                                                    // a
+	                                                                                    // metavar
+	                                                                                    // so
+	                                                                                    // the
+	                                                                                    // fallback
+	                                                                                    // is
+	                                                                                    // existential
+	                                                                                    // reduce
+	                                                                                    longConst(0),
+	                                                                                    inftyConst()),
+	                                                                            new Case(
+	                                                                                    inftyConst(),
+	                                                                                    longConst(20000)))),
+	                                                    new Case(inftyConst(),
+	                                                            inftyConst())),
+	                                            inftyConst());
+				    }
 					iterative = ConditionalFeature
 							.createConditional(
 									IterativeReduceRule.INSTANCE,

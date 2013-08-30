@@ -1,4 +1,4 @@
-   KEYMAERA-METITARSKI INTERFACE README
+   KeYmaera-MetiTarski interface README
 
 §1 GENERAL INFORMATION
 
@@ -95,6 +95,27 @@
                            \external R Sinh(R);
                            \external R Tanh(R);
                            \external R Log(R); 
+                        }
+
+                    INVERSE HYPERBOLIC
+
+                        \functions{ 
+                           \external R ArcCosh(R);
+                           \external R ArcSinh(R);
+                           \external R ArcTanh(R);
+                        }
+
+                    MIN, MAX, ABS
+
+                        \functions{ 
+                           \external R Min(R,R);
+                           \external R Max(R,R);
+                           \external R Abs(R);
+                        }
+
+                   PI
+                        \functions{ 
+                           \external Pi;
                         }
 
    The KeYmaera interface gives access to all the command-line options offered 

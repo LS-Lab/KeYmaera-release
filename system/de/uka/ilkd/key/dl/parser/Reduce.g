@@ -154,7 +154,7 @@ pred_func returns [ Function f ]	:	GT { f = RealLDT.getFunctionFor(Greater.class
 expression returns [ Term t ]	:	e = expr_add { t = e; }; // Lesbarkeit
 expr_add returns [Term t ]		:	e = expr_sub { t = e; } ( ADD f = expr_add { t = tb.func((Function)nss.functions().lookup( new Name("add")),e,f); } )?; 
 
-expr_sub returns [ Term t ]		:	e = expr_mul{ t = e; } ( SUB f = expr_sub {  t = tb.func((Function)nss.functions().lookup( new Name("sub")),e,f);} )?;
+expr_sub returns [ Term t ]		:	e = expr_mul{ t = e; } ( SUB f = expr_mul {  t = tb.func((Function)nss.functions().lookup( new Name("sub")),t,f);} )*;
 expr_mul returns [ Term t ]		:	e = expr_div{ t = e; } ( MUL f = expr_mul {  t = tb.func((Function)nss.functions().lookup( new Name("mul")),e,f);} )?; 
 expr_div returns [ Term t ]		:	e = expr_pow{ t = e; } ( DIV f = expr_div {  t = tb.func((Function)nss.functions().lookup( new Name("div")),e,f);} )?; 
 expr_pow returns [ Term t ]	:	e = expr_atom { t = e; } ( POW f = number { t = tb.func((Function)nss.functions().lookup( new Name("exp")), e, f);})?;

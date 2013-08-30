@@ -26,6 +26,7 @@ import de.uka.ilkd.key.logic.TermBuilder
 import de.uka.ilkd.key.dl.parser.NumberCache
 import java.math.BigDecimal
 import de.uka.ilkd.key.dl.logic.ldt.RealLDT
+import de.uka.ilkd.key.java.Services
 
 /**
  * @author jdq
@@ -36,8 +37,8 @@ object Derive {
   implicit def int2term(i: Int) = TermBuilder.DF.func(NumberCache.getNumber(
     new BigDecimal(i), RealLDT.getRealSort()))
 
-  def apply(t: Term, vars: java.util.Map[String, Term], eps: Term): Term = {
-    val d = Derive(_: Term, vars, eps)
+  def apply(t: Term, vars: java.util.Map[String, Term], eps: Term, services: Services): Term = {
+    val d = Derive(_: Term, vars, eps, services)
     t match {
       case True() | False() => t 
       case All(_, _) | Ex(_, _) | Eqv(_, _) | Imp(_, _) | Box(_, _) | Dia(_, _) =>
@@ -60,12 +61,14 @@ object Derive {
       case Exp(_, b) if (b == 0) => 0
       case Exp(a, _) if (a == 1) => 0 // term is constant and thus derived to 0
       case Exp(a, b) if (b == 1) => d(a)
+      // derivative of E^f(x) is f'(x) * E^f(x)
+      case Exp(MathFun("E", args), b) if args.length == 0 => d(b)*t
       case Exp(a, b) => try {
         b match {
           case MinusSign(e) => d((1: Term) / (a ^ e))
           case _ => {
             val frac = PolynomTool.convertStringToFraction(b.op.name.toString)
-            assert(b.arity == 0) //: "literal constants have no subterms";
+            require(b.arity == 0, "literal constants have no subterms")
             b * (a ^ (b - 1)) * d(a)
           }
         }
@@ -75,6 +78,42 @@ object Derive {
             "Derive not implemented for nonintegral exponents: "
               + b, e);
         }
+      }
+      case MathFun("E", args) if args.length == 0 => 0
+      case MathFun("Pi", args) if args.length == 0 => 0
+      case MathFun(f, args) if args.length == 1 =>  f match {
+        /* Roots */
+        case "Sqrt" => int2term(1) / (int2term(2)*t)
+        case "CubeRoot" => int2term(1) / (int2term(3)*(t^2))
+        /* Exp function */
+        case "Exp" => d(args.head)*t
+        /* Logarithm */
+        case "Log" => int2term(1) / args.head
+        /* Trigonometric functions */
+        case "Sin" => MathFun("Cos", args, services)
+        case "Cos" => - MathFun("Sin", args, services)
+        case "Tan" => MathFun("Sin", args, services) ^ 2
+        case "Csc" => (-t)*MathFun("Cot", args, services)
+        case "Sec" => t*MathFun("Tan", args, services)
+        case "Cot" => - (MathFun("Csc", args, services) ^ 2)
+        /* Inverse Trigonometirc Functions */
+        case "ArcSin" => int2term(1) / (MathFun("Sqrt", Seq(int2term(1)-(args.head^2)), services))
+        case "ArcCsc" => - int2term(1) / 
+            (MathFun("Abs", Seq(args.head), services) *
+                MathFun("Sqrt", Seq((args.head^2) - 1), services))
+        case "ArcCos" => - int2term(1) / (MathFun("Sqrt", Seq(int2term(1)-(args.head^2)), services))
+        case "ArcSec" => int2term(1) / 
+            (MathFun("Abs", Seq(args.head), services) *
+                MathFun("Sqrt", Seq((args.head^2) - 1), services))
+        case "ArcTan" => int2term(1) / (args.head^2 + 1)
+        case "ArcCot" => - int2term(1) / (args.head^2 + 1)
+        /* Hyperbolic functions */
+        case "Sinh" => MathFun("Cosh", args, services)
+        case "Csch" => - MathFun("Coth", args, services) * t
+        case "Cosh" => MathFun("Sinh", args, services)
+        case "Sech" => - MathFun("Tanh", args, services) * t
+        case "Tanh" => int2term(1) - (t^2)
+        case "Coth" => int2term(1) - (t^2)
       }
       case Equals(a, b) => if (eps == null) (d(t.sub(0)) equal d(t.sub(1))) else {
         throw new IllegalArgumentException(

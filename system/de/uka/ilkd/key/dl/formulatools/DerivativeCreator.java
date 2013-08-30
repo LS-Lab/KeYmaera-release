@@ -41,7 +41,7 @@ public class DerivativeCreator {
 		Term createNFF = NegationNormalForm.apply(post);
 		System.out.println("Formula: " + post);
 		System.out.println("NFF: " + createNFF);
-		return Derive.apply(createNFF, replacements, null);
+		return Derive.apply(createNFF, replacements, null, s);
 	}
 
 	/**
@@ -57,7 +57,7 @@ public class DerivativeCreator {
 		Term createNFF = NegationNormalForm.apply(post);
 		System.out.println("Formula: " + post);
 		System.out.println("NFF: " + createNFF);
-		return Derive.apply(createNFF, replacements, epsilon);
+		return Derive.apply(createNFF, replacements, epsilon, s);
 	}
 
 	/**

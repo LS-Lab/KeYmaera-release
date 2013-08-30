@@ -101,16 +101,18 @@ public class SMT implements IQuantifierEliminator, ICounterExampleGenerator {
 		smtIn += "(echo \"" + start + "\")\n(check-sat)\n";
 		File inputFile = null;
 		System.out.println("SMT Input: \n" + smtIn);
+		Process process = null;
+		BufferedReader b = null;
 		try {
 			inputFile = File.createTempFile("keymaerasmt", ".smt2");
 			FileWriter in = new FileWriter(inputFile);
 			in.write(smtIn);
 			in.flush();
 			in.close();
-			Process process = Runtime.getRuntime().exec(
+			process = Runtime.getRuntime().exec(
 					Options.INSTANCE.getZ3Binary().getAbsolutePath() + " "
 							+ inputFile.getAbsolutePath());
-			BufferedReader b = new BufferedReader(new InputStreamReader(process.getInputStream()));
+			b = new BufferedReader(new InputStreamReader(process.getInputStream()));
 			boolean checkSat = false;
 			String line = null;
 			while((line = b.readLine()) != null) {
@@ -139,6 +141,15 @@ public class SMT implements IQuantifierEliminator, ICounterExampleGenerator {
 				} catch(Throwable t) {
 					t.printStackTrace();
 				}
+			}
+            if(b != null) {
+                try {
+                    b.close();
+                } catch (IOException e) {
+                }
+            }
+			if(process != null) {
+			    process.destroy();
 			}
 		}
 		return null;
