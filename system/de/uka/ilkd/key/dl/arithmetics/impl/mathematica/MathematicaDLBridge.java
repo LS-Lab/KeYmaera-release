@@ -816,7 +816,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
                 new FilterVariableCollector(null)).getVariables();
         for (String var : variables)
             vars.add(new Expr(Expr.SYMBOL, NameMasker.mask(var)));
-        Map<String, Double> ret = new LinkedHashMap<>();
+        Map<String, Double> ret = new LinkedHashMap<String, Double>();
 
         if (vars.size() > 0) {
             query = new Expr(new Expr(Expr.SYMBOL, "FindInstance"), new Expr[] {

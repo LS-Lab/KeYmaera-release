@@ -207,11 +207,11 @@ public class PlotRule implements BuiltInRule, RuleFilter {
                 addTextFieldToPanel(panel, randMax, "Max for random values");
                 // add a list of variables that should be plotted
                 Term subTerm = ruleApp.posInOccurrence().subTerm();
-                final LinkedHashSet<String> vars = new LinkedHashSet<>();
+                final LinkedHashSet<String> vars = new LinkedHashSet<String>();
                 collectVariables((ProgramElement) subTerm.javaBlock().program()
                         .getFirstElement(), vars);
                 final LinkedHashMap<String, JCheckBox> selection = new LinkedHashMap<String, JCheckBox>();
-                final LinkedHashMap<String, JTextField> initialValues = new LinkedHashMap<>();
+                final LinkedHashMap<String, JTextField> initialValues = new LinkedHashMap<String, JTextField>();
                 final JPanel selectionPanel = new JPanel();
                 selectionPanel.setLayout(new BoxLayout(selectionPanel, BoxLayout.Y_AXIS));
                 selectionPanel.add(new JLabel("Variables to Plot:"));
@@ -227,7 +227,7 @@ public class PlotRule implements BuiltInRule, RuleFilter {
                                 TermBuilder.DF.not(f.formula()));
                     }
                 }
-                Map<String, Double> instances = new LinkedHashMap<>();
+                Map<String, Double> instances = new LinkedHashMap<String, Double>();
                 try {
                     instances.putAll(math.findInstanceD(t, -1, services));
                 } catch (RemoteException e) {
