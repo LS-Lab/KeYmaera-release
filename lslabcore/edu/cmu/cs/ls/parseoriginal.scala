@@ -27,7 +27,8 @@ class KeYLexical() extends StdLexical() {
     | '(' ~ '0' ~ '-' ~ ')'                             ^^ { _ => Identifier("0-") }
     | '\"' ~ rep( chrExcept('\"', '\n', EofCh) ) ~ '\"' ^^ { case '\"' ~ chars ~ '\"' => StringLit(chars mkString "") }
     | '\"' ~> failure("unclosed string literal")
-    | floatLit                                          ^^ { case f => FloatingPointLit(f) }
+   // | floatLit                                          ^^ { case f => FloatingPointLit(f) }
+    | floatLit                                          ^^ { case f => NumericLit(f) }
     | signedIntegerLit                                  ^^ { case i => NumericLit(i) }
     )
 
@@ -48,10 +49,10 @@ class KeYLexical() extends StdLexical() {
       | signedIntegerLit )
 
   def floatLit =
-    ( signedIntegerLit ~ '.' ~ rep1(digit) ~ (elem('e') |  elem('E')) ~ plusMinusIntegerLit ^^ { case a ~ b ~ c ~ d ~ e => a+b+c+d+e }
+    ( signedIntegerLit ~ '.' ~ rep1(digit) ~ (elem('e') |  elem('E')) ~ plusMinusIntegerLit ^^ { case a ~ b ~ c ~ d ~ e => a+b+(c.foldLeft("")(_ + _))+d+e }
     | signedIntegerLit                    ~ (elem('e') |  elem('E')) ~ plusMinusIntegerLit ^^ { case a ~ b ~ c => a+b+c }
-    | signedIntegerLit ~ '.' ~ rep1(digit)                                                  ^^ { case a ~ b ~ c => a+b+c }
-    | '.' ~ rep1(digit)																		^^ { case a ~ b => "0"+a+b }
+    | signedIntegerLit ~ '.' ~ rep1(digit)                                                  ^^ { case a ~ b ~ c  => a+b+(c.foldLeft("")(_ + _)) }
+    | '.' ~ rep1(digit)																		^^ { case a ~ b => "0"+a+(b.foldLeft("")(_ + _)) }
     )
 
 
@@ -145,7 +146,17 @@ class DLOriginalParser(ins : String) extends StdTokenParsers {
 
    def atomicTerm : Parser[Term] =
      "(" ~> term <~  ")" |
-     numericLit ^^ (x => Num(Exact.Integer(Integer.parseInt(x)))) |
+     //numericLit ^^ (x => Num(Exact.Integer(Integer.parseInt(x)))) |
+     numericLit ^^ (x => {
+       if(x.toString.contains(".")) {
+         val of: Int = x.toString.indexOf('.')
+         val decPlaces = BigDecimal(x.toString.length - of - 1);
+         val y = BigDecimal(x)*decPlaces;
+         Num(Exact.Rational(y.toBigInt, BigInt(10)^decPlaces.toBigInt))
+       } else {
+         Num(Exact.Integer(Integer.parseInt(x)))
+       }
+     }) |
      function |
      ident ^^ (x => Var(x))
 
@@ -390,6 +401,10 @@ object OP {
         println("could not read a formula from " + i)
         False
     }
+  }
+
+  def main(args: Array[String]) {
+    parseFormula("1.02 < 2");
   }
 }
 
