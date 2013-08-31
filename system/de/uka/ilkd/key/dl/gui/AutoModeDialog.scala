@@ -21,10 +21,18 @@ object AutoModeDialog extends Dialog {
     myCaret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE)
   }
 
+  def appendToSystemOut(text: String) = {
+    systemOut.append(text)
+  }
+
   val systemErr = new TextArea() {
     editable = false
     val myCaret = peer.getCaret.asInstanceOf[DefaultCaret]
     myCaret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE)
+  }
+
+  def appendToSystemErr(text: String) = {
+    systemErr.append(text)
   }
 
   val panel = new BoxPanel(Orientation.Vertical) {

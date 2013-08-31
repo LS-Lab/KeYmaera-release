@@ -3604,7 +3604,7 @@ public class Main extends JFrame implements IMain {
 
                         @Override
                         public void run() {
-                            AutoModeDialog.systemOut().append("" + (char)b);
+                            AutoModeDialog.appendToSystemOut("" + (char)b);
                         }
                     });
                     orgOut.write(b);
@@ -3617,7 +3617,7 @@ public class Main extends JFrame implements IMain {
 
                         @Override
                         public void run() {
-                            AutoModeDialog.systemErr().append("" + (char)b);
+                            AutoModeDialog.appendToSystemErr("" + (char)b);
                         }
                     });
                     orgErr.write(b);
