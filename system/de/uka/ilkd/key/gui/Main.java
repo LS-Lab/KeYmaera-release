@@ -41,6 +41,7 @@ import javax.swing.event.MenuListener;
 import javax.swing.event.MouseInputAdapter;
 import javax.swing.text.JTextComponent;
 
+import de.uka.ilkd.key.dl.gui.AutoModeDialog;
 import org.apache.log4j.Logger;
 
 import de.uka.ilkd.key.collection.ImmutableList;
@@ -399,7 +400,7 @@ public class Main extends JFrame implements IMain {
                 instance.setVisible(visible); // XXX: enough?
             } else {
                 SwingUtilities.invokeLater(new Runnable() {
-                    public void run() {                            
+                    public void run() {
                         if (!instance.isVisible())
                             instance.setVisible(visible);
                     }
@@ -528,6 +529,7 @@ public class Main extends JFrame implements IMain {
         setToolBar(new JToolBar("Proof Control"));
         
         autoModeAction = new AutoModeAction();
+        AutoModeDialog.setAction(autoModeAction);
         openFileAction = new OpenFile();
         saveFileAction = new SaveFile();
         createUnitTestAction = new CreateUnitTestAction();
@@ -1487,8 +1489,28 @@ public class Main extends JFrame implements IMain {
 	registerAtMenu(view, colors);
 	
 	addSeparator(view);
-	
-	JMenuItem serverConsole = new JMenuItem("Server Console...");
+
+        final JMenuItem systemOutput = new JCheckBoxMenuItem("System output in automode");
+        systemOutput.setToolTipText("If ticked, the window containing the system output will be shown while running the automatic strategy.");
+        systemOutput.setSelected(ProofSettings.DEFAULT_SETTINGS.getViewSettings().isShowConsoleOutput());
+        systemOutput.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                ProofSettings.DEFAULT_SETTINGS.getViewSettings().setShowConsoleOutput(systemOutput.isSelected());
+            }});
+
+        registerAtMenu(view, systemOutput);
+
+        JMenuItem sysOut = new JMenuItem("System output...");
+        sysOut.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                AutoModeDialog.open();
+            }
+        });
+        registerAtMenu(view, sysOut);
+
+        JMenuItem serverConsole = new JMenuItem("Server Console...");
 	serverConsole.addActionListener(new ActionListener() {
 		
 		@Override
@@ -3158,7 +3180,7 @@ public class Main extends JFrame implements IMain {
                 
                 Point     containerPoint =
                     SwingUtilities.convertPoint(glassPane,
-                            glassPanePoint, 
+                            glassPanePoint,
                             contentPane);
                 Component component      =
                     SwingUtilities.getDeepestComponentAt(contentPane,
@@ -3189,7 +3211,7 @@ public class Main extends JFrame implements IMain {
             Point glassPanePoint = e.getPoint();
             Point componentPoint =
                 SwingUtilities.convertPoint( glassPane,
-                        glassPanePoint, 
+                        glassPanePoint,
                         currentComponent );
             currentComponent.dispatchEvent(new MouseEvent(currentComponent,
                     e.getID(),
@@ -3571,9 +3593,37 @@ public class Main extends JFrame implements IMain {
             putValue(Action.SMALL_ICON, startLogo);
             putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_E,
         	    Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
-            
-            
-            associatedProof = mediator.getProof();        
+
+
+            final PrintStream orgOut = System.out;
+            final PrintStream orgErr = System.err;
+            System.setOut(new PrintStream(new BufferedOutputStream(new OutputStream() {
+                @Override
+                public void write(final int b) throws IOException {
+                    SwingUtilities.invokeLater(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            AutoModeDialog.systemOut().append("" + (char)b);
+                        }
+                    });
+                    orgOut.write(b);
+                }
+            })));
+            System.setErr(new PrintStream(new BufferedOutputStream(new OutputStream() {
+                @Override
+                public void write(final int b) throws IOException {
+                    SwingUtilities.invokeLater(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            AutoModeDialog.systemErr().append("" + (char)b);
+                        }
+                    });
+                    orgErr.write(b);
+                }
+            })));
+            associatedProof = mediator.getProof();
             
             enable();
             
@@ -3615,6 +3665,9 @@ public class Main extends JFrame implements IMain {
                     }
                     putValue(Action.NAME, "Stop");
                     putValue(Action.SMALL_ICON, stopLogo);
+                    if(ProofSettings.DEFAULT_SETTINGS.getViewSettings().isShowConsoleOutput()) {
+                        AutoModeDialog.open();
+                    }
                 }
                 
                 /**
@@ -3628,6 +3681,9 @@ public class Main extends JFrame implements IMain {
                     }
                     putValue(Action.NAME, "Start");
                     putValue(Action.SMALL_ICON, startLogo);
+                    if(ProofSettings.DEFAULT_SETTINGS.getViewSettings().isShowConsoleOutput()) {
+                        AutoModeDialog.close();
+                    }
                 }
                 
             });
