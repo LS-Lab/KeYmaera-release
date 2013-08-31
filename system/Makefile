@@ -599,7 +599,7 @@ SCALAFILES = $(COHENHORMANDER)/parallel.scala $(COHENHORMANDER)/parse.scala \
 	$(PFX)dl/formulatools/Derive.scala $(PFX)dl/formulatools/PolynomialExtraction.scala $(PFX)dl/formulatools/NegationNormalForm.scala $(PFX)dl/formulatools/RichTerm.scala $(PFX)dl/arithmetics/impl/reduce/Term2ReduceString.scala \
 	$(PFX)dl/formulatools/Prenex.scala $(PFX)dl/arithmetics/impl/mathematica/TermExprLink.scala \
 	$(PFX)dl/strategy/tactics/SkolemizeTactic.scala $(PFX)dl/strategy/tactics/ApplyEquationTactic.scala \
-	$(METIT)/FormulaTree.scala $(METIT)/OperatorMap.scala \
+	$(METIT)/FormulaTree.scala $(METIT)/OperatorMap.scala $(PFX)dl/gui/AutoModeDialog.scala \
 	../lslabcore/edu/cmu/cs/ls/hp.scala ../lslabcore/edu/cmu/cs/ls/lyusimul/evolveToExpr.scala ../lslabcore/edu/cmu/cs/ls/lyusimul/exprToPlottableString.scala ../lslabcore/edu/cmu/cs/ls/lyusimul/formulaToPlot.scala ../lslabcore/edu/cmu/cs/ls/lyusimul/hpToExpr.scala ../lslabcore/edu/cmu/cs/ls/lyusimul/main.scala ../lslabcore/edu/cmu/cs/ls/lyusimul/mathematicaPlot.scala ../lslabcore/edu/cmu/cs/ls/lyusimul/mmt.scala ../lslabcore/edu/cmu/cs/ls/lyusimul/mmtManipulation.scala ../lslabcore/edu/cmu/cs/ls/lyusimul/nameMasker.scala ../lslabcore/edu/cmu/cs/ls/package.scala ../lslabcore/edu/cmu/cs/ls/parse.scala ../lslabcore/edu/cmu/cs/ls/parseoriginal.scala ../lslabcore/edu/cmu/cs/ls/rational.scala ../lslabcore/edu/cmu/cs/ls/types.scala
 
 
