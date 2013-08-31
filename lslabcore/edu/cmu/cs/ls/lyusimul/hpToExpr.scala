@@ -289,7 +289,10 @@ object hpToExpr {
           ))
         )
       ))
-    case Check(h) => throw new Exception("Error: singleton h without nothing after it?")
+    case Check(h) => List(mul_arg_fun("If", List(
+        EvolveToExpr.formulaToExpr(h, EvolveToExpr.CURR_BACKTICK),
+        bin_fun("Set", math_sym("loca`nop"), math_int("0"))
+      )))
       
 //      seqToEvolsList(hps.head) ++ hps.tail.map(hp => seqToEvolsList(hp)).flatten    
 //    case Evolve(_, _ @ _*) => (hp.asInstanceOf[Evolve] :: Nil)
