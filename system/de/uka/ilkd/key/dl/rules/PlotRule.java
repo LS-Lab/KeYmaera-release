@@ -300,7 +300,7 @@ public class PlotRule implements BuiltInRule, RuleFilter {
                         calc.getContentPane().setLayout(new BorderLayout());
                         calc.getContentPane()
                                 .add(new JLabel(
-                                        "Mathematica is used to calculate the simulation data.\nThis might take a while."),
+                                        "<html><body>Mathematica is used to calculate the simulation data.<br>This might take a while.</body></html>"),
                                         BorderLayout.CENTER);
                         JButton abort = new JButton("Abort");
                         calc.getContentPane().add(abort, BorderLayout.SOUTH);
