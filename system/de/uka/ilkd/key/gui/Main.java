@@ -3597,7 +3597,7 @@ public class Main extends JFrame implements IMain {
 
             final PrintStream orgOut = System.out;
             final PrintStream orgErr = System.err;
-            System.setOut(new PrintStream(new BufferedOutputStream(new OutputStream() {
+            System.setOut(new PrintStream(new OutputStream() {
                 @Override
                 public void write(final int b) throws IOException {
                     SwingUtilities.invokeLater(new Runnable() {
@@ -3609,8 +3609,8 @@ public class Main extends JFrame implements IMain {
                     });
                     orgOut.write(b);
                 }
-            })));
-            System.setErr(new PrintStream(new BufferedOutputStream(new OutputStream() {
+            }));
+            System.setErr(new PrintStream(new OutputStream() {
                 @Override
                 public void write(final int b) throws IOException {
                     SwingUtilities.invokeLater(new Runnable() {
@@ -3622,7 +3622,7 @@ public class Main extends JFrame implements IMain {
                     });
                     orgErr.write(b);
                 }
-            })));
+            }));
             associatedProof = mediator.getProof();
             
             enable();
