@@ -68,9 +68,11 @@ object hpToExpr {
     val safetyExpr = MmtManipulation.mmtToExpr(MmtManipulation.formulaToMmt(prepModa.f), EvolveToExpr.LOCA_T)
     statsList = statsList ++ List(bin_fun("Set", un_fun("glob`safety", math_sym("loca`t_")), safetyExpr))
 
-    statsList = statsList ++ List(mul_arg_fun("List", varisToDispToStringList(List("glob`safety") ++ varisStrisListForEvol))) 
+//    statsList = statsList ++ List(mul_arg_fun("List", varisToDispToStringList(List("glob`safety") ++ varisStrisListForEvol)))
     val compExpr = mul_arg_fun("CompoundExpression", statsList)
-    return bin_fun("Module", scalListToListExpr(varisExprsListForEvol), compExpr) 
+    val doExpr = bin_fun("Do", compExpr, un_fun("List", math_int("1")))
+    val outerCompExpr = mul_arg_fun("CompoundExpression", List(doExpr, mul_arg_fun("List", varisToDispToStringList(List("glob`safety") ++ varisStrisListForEvol))))
+    return bin_fun("Module", scalListToListExpr(varisExprsListForEvol), outerCompExpr) 
 
   }
 
@@ -291,7 +293,7 @@ object hpToExpr {
       ))
     case Check(h) => List(mul_arg_fun("If", List(
         EvolveToExpr.formulaToExpr(h, EvolveToExpr.CURR_BACKTICK),
-        bin_fun("Set", math_sym("loca`nop"), math_int("0"))
+        mul_arg_fun("Continue", List())
       )))
       
 //      seqToEvolsList(hps.head) ++ hps.tail.map(hp => seqToEvolsList(hp)).flatten    
@@ -307,7 +309,7 @@ object hpToExpr {
         		math_sym("glob`tends"),
         		bin_fun("Rule",
         			un_fun("Length", math_sym("glob`tends")),
-//        			bin_fun("Check",
+        			bin_fun("Check",
 	        			bin_fun("NArgMax",
 	        				mul_arg_fun("List",List(
 	        					math_sym("new`t"),
@@ -325,11 +327,11 @@ object hpToExpr {
 	        					))
 	        				)),
 	        				math_sym("new`t")
-	        			)//,
+	        			),
 	        			// HACK duplicate value, so that the following if removes the solution
-//	        			bin_fun("CompoundExpression", un_fun("Print", math_str("NArgMax failed")), bin_fun("Part", math_sym("glob`tends"), math_int("-2")))
+	        			bin_fun("Part", math_sym("glob`tends"), math_int("-2"))
 	        		)
-//        		)	
+        		)	
         	)
         ),
         mul_arg_fun("If",List(
@@ -436,7 +438,7 @@ object hpToExpr {
       case Check(h) => List(mul_arg_fun("If", List(
         EvolveToExpr.formulaToExpr(h, EvolveToExpr.CURR_BACKTICK),
         mul_arg_fun("CompoundExpression", hpsListToStatsList(xs, varisStrisListFromHp : List[String], tendLimi : Double, nUnroLoop : Int, randMin : Double, randMax : Double)),
-        bin_fun("Set", math_sym("loca`nop"), math_int("0"))
+        mul_arg_fun("Continue", List())
       )))
       case _ => hpToStatsList(x, varisStrisListFromHp : List[String], tendLimi : Double, nUnroLoop : Int, randMin : Double, randMax : Double) ++
           hpsListToStatsList(xs, varisStrisListFromHp : List[String], tendLimi : Double, nUnroLoop : Int, randMin : Double, randMax : Double)
