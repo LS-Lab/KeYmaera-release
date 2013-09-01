@@ -8,37 +8,11 @@ import scala.annotation.elidable
 import scala.annotation.elidable._
 import java.util.Random
 import NameMasker._
+import exprConsts._
 
 object hpToExpr {
   
   var rndm = new Random
-
-  def math_sym(s: String): Expr = 
-    new Expr(Expr.SYMBOL, s)
-
-  def math_int(s: String): Expr =
-    new Expr(Expr.INTEGER, s)
-  
-  def math_real(s: String): Expr =
-    new Expr(Expr.REAL, s)
-  
-  def math_str(s: String): Expr =
-    new Expr(Expr.STRING, s)
-  
-  def un_fun(f: String, arg: Expr): Expr = {
-    new Expr(math_sym(f),
-             List(arg).toArray)
-  }
-
-  def bin_fun(f: String, arg1: Expr, arg2: Expr): Expr = {
-    new Expr(math_sym(f),
-             List(arg1,arg2).toArray)
-  }
-  
-  def mul_arg_fun(f: String, lst: List[Expr]) : Expr = {
-    new Expr(math_sym(f),
-             lst.toArray)
-  }
   
   def scalListToListExpr(myList: List[Expr]) : Expr = {
     new Expr(math_sym("List"),
@@ -58,24 +32,33 @@ object hpToExpr {
     // hayquePreguntar: Is it OK to extract variables only from evolve?
     val varisStrisListForEvol = hpToVarisStrisListWoDuplsForEvol(prepModa.hp)
     val varisExprsListForEvol = strisListToExprsList(varisStrisListForEvol)
-    var statsList = List(bin_fun("Set", math_sym("glob`tendLimi"), math_real("" + tendLimi)))
-    statsList = statsList ++ List(bin_fun("Set", math_sym("glob`tends"), un_fun("List", math_int("0"))))
+    var statsList = List(math_fn("Set", math_sym("glob`tendLimi"), math_real("" + tendLimi)))
+    statsList = statsList ++ List(math_fn("Set", math_sym("glob`tends"), math_list(math_int("0"))))
     // Following line may be buggy.
-    statsList = statsList ++ List(bin_fun("Set", math_sym("glob`sol"), mul_arg_fun("List", List())))
+    statsList = statsList ++ List(math_fn("Set", math_sym("glob`sol"), math_fn("List")))
+    statsList = statsList ++ List(math_fn("Set", math_sym("glob`currState"), 
+        math_fn("List", varisStrisListForEvol.map(s => math_fn("Rule", math_sym(mask(s, "curr`")), math_int("0")))
+        )))
     
     statsList = statsList ++ hpToStatsList(prepModa.hp, varisStrisListForEvol, tendLimi, nUnroLoop, randMin, randMax)
     
     val safetyExpr = MmtManipulation.mmtToExpr(MmtManipulation.formulaToMmt(prepModa.f), EvolveToExpr.LOCA_T)
-    statsList = statsList ++ List(bin_fun("Set", un_fun("glob`safety", math_sym("loca`t_")), safetyExpr))
 
-    statsList = statsList ++ List(mul_arg_fun("List", varisToDispToStringList(List("glob`safety") ++ varisStrisListForEvol))) 
-    val compExpr = mul_arg_fun("CompoundExpression", statsList)
-    return bin_fun("Module", scalListToListExpr(varisExprsListForEvol), compExpr) 
+    val compExpr = math_fn("CompoundExpression", statsList)
+    val doExpr = math_fn("Do", compExpr, math_list(math_int("1")))
+    val outerCompExpr = math_fn("CompoundExpression", 
+        doExpr,
+        math_fn("Set", math_fn("glob`safety", math_sym("loca`t_")), safetyExpr),
+        math_list(varisToDispToStringList(List("glob`safety") ++ varisStrisListForEvol))
+    )
+    return math_fn("Module", scalListToListExpr(varisExprsListForEvol), outerCompExpr) 
 
   }
 
   def modaToExpr (mdlt : Modality, varisToDisp: List[String], nGrapsPerRow: Int, tendLimi : Double, nUnroLoop : Int, randMin : Double, randMax : Double) : Expr = {
     applicable(mdlt)
+    
+    // TODO refactor to fit modaToDataPointExpr
     
     //var prepModa = mdlt
     var prepModa = preprocessModality(mdlt)
@@ -83,19 +66,19 @@ object hpToExpr {
     // hayquePreguntar: Is it OK to extract variables only from evolve?
     val varisStrisListForEvol = hpToVarisStrisListWoDuplsForEvol(prepModa.hp)
     val varisExprsListForEvol = strisListToExprsList(varisStrisListForEvol)
-    var statsList = List(bin_fun("Set", math_sym("glob`tendLimi"), math_real("" + tendLimi)))
-    statsList = statsList ++ List(bin_fun("Set", math_sym("glob`tends"), un_fun("List", math_int("0"))))
+    var statsList = List(math_fn("Set", math_sym("glob`tendLimi"), math_real("" + tendLimi)))
+    statsList = statsList ++ List(math_fn("Set", math_sym("glob`tends"), math_list(math_int("0"))))
     // Following line may be buggy.
-    statsList = statsList ++ List(bin_fun("Set", math_sym("glob`sol"), mul_arg_fun("List", List())))
+    statsList = statsList ++ List(math_fn("Set", math_sym("glob`sol"), math_list()))
     
     statsList = statsList ++ hpToStatsList(prepModa.hp, varisStrisListForEvol, tendLimi, nUnroLoop, randMin, randMax)
     
     val safetyExpr = MmtManipulation.mmtToExpr(MmtManipulation.formulaToMmt(prepModa.f), EvolveToExpr.LOCA_T)
-    statsList = statsList ++ List(bin_fun("Set", un_fun("glob`safety", math_sym("loca`t_")), safetyExpr))
+    statsList = statsList ++ List(math_fn("Set", math_fn("glob`safety", math_sym("loca`t_")), safetyExpr))
 
     statsList = statsList ++ varisToDispToPlotComms(varisToDisp, nGrapsPerRow) 
-    val compExpr = mul_arg_fun("CompoundExpression", statsList)
-    return bin_fun("Module", scalListToListExpr(varisExprsListForEvol), compExpr) 
+    val compExpr = math_fn("CompoundExpression", statsList)
+    return math_fn("Module", scalListToListExpr(varisExprsListForEvol), compExpr) 
 
   }
   
@@ -243,28 +226,68 @@ object hpToExpr {
 //    }
 //  } 
   
-  def hpToStatsList (hp : HP, varisStrisListFromHp : List[String], tendLimi : Double, nUnroLoop : Int, randMin : Double, randMax : Double) : List[Expr] = hp match {
-    case ComposedHP(Sequence, hps @ _ *) => hpsListToStatsList(seqToHpsList(hp), varisStrisListFromHp : List[String], tendLimi, nUnroLoop, randMin, randMax)
-    case ComposedHP(Star, hps @ _ *) => hpsListToStatsList(starToHpsList(hp, nUnroLoop), varisStrisListFromHp : List[String], tendLimi : Double, nUnroLoop : Int, randMin : Double, randMax : Double)
-    case ComposedHP(Choice, hps @ _ *) =>
-      hpToStatsList(Choice.flatten(hp).toList(
-        rndm.nextInt(Choice.flatten(hp).toList.size)
-      ), varisStrisListFromHp : List[String], tendLimi : Double, nUnroLoop : Int, randMin : Double, randMax : Double)
-    case Evolve(h, primes @ _*) => List(
-      bin_fun("Set",
+  def choiceToStatsList(hp : HP, varisStrisListFromHp : List[String], tendLimi : Double, nUnroLoop : Int, randMin : Double, randMax : Double) : List[Expr] = {
+    val permutations = Choice.flatten(hp).permutations.toList
+    val choices = permutations(rndm.nextInt(permutations.size)).toList
+    val success = math_sym(mask("success","loca`"))
+    val choice = math_sym(mask("choice","loca`"))
+    val currState = math_sym(mask("currState", "glob`"))
+    val currStateBackup = math_sym(mask("currStateBackup","loca`"))
+    List(math_fn("Module", 
+          math_list(success,
+              choice,
+              currStateBackup), 
+          math_fn("CompoundExpression",
+              math_fn("Set", currStateBackup, currState),
+              math_fn("Set", success, Expr.SYM_FALSE),
+              math_fn("Set", choice, Expr.INT_ZERO),
+              math_fn("While", 
+                  math_fn("And", 
+            		  	math_fn("Not", success), 
+            		  	math_fn("LessEqual", choice, new Expr(choices.size))),
+                  math_fn("CompoundExpression",                  
+	                  math_fn("Set", currState, currStateBackup)
+	                  :: math_fn("Increment", choice) 
+	                  :: choices.map(c => math_fn("If", 
+		                      	  math_fn("Equal", choice, new Expr(choices.indexOf(c) + 1)), // Mathematica 1-based indices
+			                      math_fn("CompoundExpression",
+			                          hpToStatsList(c, varisStrisListFromHp, tendLimi, nUnroLoop, randMin, randMax)
+			                          :+ math_fn("Set", success, Expr.SYM_TRUE)
+			                      )
+		                      )
+	                      )
+	              )
+              ),
+              // no valid choice found, abort simulation
+              math_fn("If", 
+                  math_fn("Greater", choice, new Expr(choices.size)),
+                  math_fn("CompoundExpression",
+                      math_fn("Print", math_str("No valid choice found, aborting simulation")),
+                      math_fn("Set", currState, currStateBackup),
+                	  math_fn("Continue")
+                  )
+              )
+          )
+      )
+      )
+  }
+  
+  def evolveToStatsList(hp : HP, h : Formula, varisStrisListFromHp : List[String], tendLimi : Double, nUnroLoop : Int, randMin : Double, randMax : Double) : List[Expr] = {
+    List(
+      math_fn("Set",
         math_sym("glob`sol"),
-        bin_fun("Append",
+        math_fn("Append",
           math_sym("glob`sol"),
-          mul_arg_fun("NDSolve", List(
+          math_fn("NDSolve",
             scalListToListExpr(
               EvolveToExpr.hpToOdesList(hp, EvolveToExpr.LOCA_T) ++
               varisStrisListToCurrsFetcsList(varisStrisListFromHp) ++
               EvolveToExpr.hToWhenEvents(h, 
-                  bin_fun("LessEqual", 
+                  math_fn("LessEqual", 
                       math_sym("loca`t"), 
-                      mul_arg_fun("Plus", List(
-                          un_fun("Evaluate", un_fun("Last", math_sym("glob`tends"))), 
-                          math_sym("glob`tendLimi")))),
+                      math_fn("Plus",
+                          math_fn("Evaluate", math_fn("Last", math_sym("glob`tends"))), 
+                          math_sym("glob`tendLimi"))),
                   10, EvolveToExpr.LOCA_T)
             ),  
             scalListToListExpr(
@@ -272,99 +295,144 @@ object hpToExpr {
             ),
             scalListToListExpr(List(
               math_sym("loca`t"),
-              un_fun("Evaluate", un_fun("Last", math_sym("glob`tends"))),
-              mul_arg_fun("Plus", List(un_fun("Evaluate", un_fun("Last", math_sym("glob`tends"))), math_sym("glob`tendLimi"), math_real("0.05")))
+              math_fn("Evaluate", math_fn("Last", math_sym("glob`tends"))),
+              math_fn("Plus", math_fn("Evaluate", math_fn("Last", math_sym("glob`tends"))), math_sym("glob`tendLimi"), math_real("0.05"))
             ))
-          ))         
+          )         
         )
       )) ++ evolDomainReset(h, varisStrisListFromHp)/*varisStrisListToUpdaCurrStats(varisStrisListFromHp)*/
-    
-    case Assign(v, t) => List(bin_fun("Set", math_sym(mask(v.s, "curr`")), MmtManipulation.termToExpr(t, EvolveToExpr.CURR_BACKTICK)))
-    case AssignAny(v) =>
-      List(bin_fun("Set",
-        math_sym(mask(v.s, "curr`")),
-        un_fun("RandomReal",
+  }
+  
+  def hpToStatsList (hp : HP, varisStrisListFromHp : List[String], tendLimi : Double, nUnroLoop : Int, randMin : Double, randMax : Double) : List[Expr] = hp match {
+    case ComposedHP(Sequence, hps @ _ *) => hpsListToStatsList(seqToHpsList(hp), varisStrisListFromHp : List[String], tendLimi, nUnroLoop, randMin, randMax)
+    case ComposedHP(Star, hps @ _ *) => hpsListToStatsList(starToHpsList(hp, nUnroLoop), varisStrisListFromHp : List[String], tendLimi : Double, nUnroLoop : Int, randMin : Double, randMax : Double)
+    case ComposedHP(Choice, hps @ _ *) => choiceToStatsList(hp, varisStrisListFromHp, tendLimi, nUnroLoop, randMin, randMax)
+//      hpToStatsList(Choice.flatten(hp).toList(
+//        rndm.nextInt(Choice.flatten(hp).toList.size)
+//      ), varisStrisListFromHp, tendLimi, nUnroLoop, randMin, randMax)
+    case Evolve(h, primes @ _*) => evolveToStatsList(hp, h, varisStrisListFromHp, tendLimi, nUnroLoop, randMin, randMax)
+    case Assign(v, t) => List(setState(v.s, MmtManipulation.termToExpr(t, EvolveToExpr.CURR_BACKTICK)))
+    case AssignAny(v) => List(setState(v.s, math_fn("RandomReal",
           scalListToListExpr(List(
             math_real("" + randMin), math_real("" + randMax)
           ))
-        )
+        )))
+    case Check(h) => List(math_fn("If",
+        EvolveToExpr.formulaToExpr(h, EvolveToExpr.CURR_BACKTICK),
+        Expr.SYM_NULL,
+        math_fn("Continue")
       ))
-    case Check(h) => throw new Exception("Error: singleton h without nothing after it?")
       
 //      seqToEvolsList(hps.head) ++ hps.tail.map(hp => seqToEvolsList(hp)).flatten    
 //    case Evolve(_, _ @ _*) => (hp.asInstanceOf[Evolve] :: Nil)
     case _ => throw new Exception("not implemented yet")
   }
   
+  def setState(v: String, e: Expr) : Expr = {
+    math_fn("Set", 
+	        math_sym(mask("currState","glob`")), 
+	        math_fn("ReplacePart", 
+	            math_sym(mask("currState","glob`")), 
+	            math_fn("Rule", 
+	                math_fn("Part",
+		                math_fn("Part",
+			                math_fn("Position",
+			                	math_sym(mask("currState","glob`")),
+			                	math_fn("Rule",
+			                	    math_sym(mask(v, "curr`")),
+			                	    math_fn("Blank")
+			                	)
+			                ),
+			                math_int("1")
+			            ),
+			            math_int("1")
+			        ),
+			        math_fn("Rule",
+			        	math_sym(mask(v, "curr`")),
+			        	e
+			        )
+	            )
+	        )
+	    )
+  }
+  
+  def readState(v: String) : Expr = {
+    math_fn("ReplaceAll",
+            math_sym(mask(v, "curr`")),
+        	math_sym(mask("currState", "glob`"))
+        )
+  }
+  
   def evolDomainReset(h : Formula, varisStrisList : List[String]) : List[Expr] = {
     List(
-        bin_fun("Set", 
+        math_fn("Set", 
             math_sym("glob`tends"),
-        	bin_fun("ReplacePart",
+        	math_fn("ReplacePart",
         		math_sym("glob`tends"),
-        		bin_fun("Rule",
-        			un_fun("Length", math_sym("glob`tends")),
-//        			bin_fun("Check",
-	        			bin_fun("NArgMax",
-	        				mul_arg_fun("List",List(
+        		math_fn("Rule",
+        			math_fn("Length", math_sym("glob`tends")),
+        			math_fn("Check",
+	        			math_fn("NArgMax",
+	        				math_list(
 	        					math_sym("new`t"),
-	        					mul_arg_fun("And",List(
-	        							un_fun("First", 
-	        							    un_fun("Evaluate",
-	        							        bin_fun("ReplaceAll",
+	        					math_fn("And",
+	        							math_fn("First", 
+	        							    math_fn("Evaluate",
+	        							        math_fn("ReplaceAll",
 	        							    		EvolveToExpr.formulaToExpr(h, EvolveToExpr.NEW_T),
-	        							    		un_fun("Last", math_sym("glob`sol"))
+	        							    		math_fn("Last", math_sym("glob`sol"))
 	        							    		)
 	        							    	)
 	        							    ),
-	        					    	bin_fun("GreaterEqual", math_sym("new`t"), bin_fun("Part", math_sym("glob`tends"), math_int("-2"))),
-	        					    	bin_fun("LessEqual", math_sym("new`t"), un_fun("Last", math_sym("glob`tends")))
-	        					))
-	        				)),
+	        					    	math_fn("GreaterEqual", math_sym("new`t"), math_fn("Part", math_sym("glob`tends"), math_int("-2"))),
+	        					    	math_fn("LessEqual", math_sym("new`t"), math_fn("Last", math_sym("glob`tends")))
+	        					)
+	        				),
 	        				math_sym("new`t")
-	        			)//,
+	        			),
 	        			// HACK duplicate value, so that the following if removes the solution
-//	        			bin_fun("CompoundExpression", un_fun("Print", math_str("NArgMax failed")), bin_fun("Part", math_sym("glob`tends"), math_int("-2")))
+	        			math_fn("Part", math_sym("glob`tends"), math_int("-2")),
+	        			// but only when NArgMax did not find a solution
+	        			math_sym_list(
+	        			    math_fn("MessageName", math_sym("NArgMax"), new Expr("nsol")),
+	        			    math_fn("MessageName", math_sym("NArgMax"), new Expr("bcons"))
+	        			    )
 	        		)
-//        		)	
+        		)	
         	)
         ),
-        mul_arg_fun("If",List(
-        	bin_fun("Equal",
-        	    bin_fun("Part", math_sym("glob`tends"), un_fun("Length", math_sym("glob`tends"))),
-        	    bin_fun("Part", math_sym("glob`tends"), bin_fun("Subtract", un_fun("Length", math_sym("glob`tends")), math_int("1")))
+        math_fn("Print", math_sym("glob`tends"), math_sym("glob`currState")),
+        math_fn("If",
+        	math_fn("Equal",
+        	    math_fn("Part", math_sym("glob`tends"), math_fn("Length", math_sym("glob`tends"))),
+        	    math_fn("Part", math_sym("glob`tends"), math_fn("Subtract", math_fn("Length", math_sym("glob`tends")), math_int("1")))
         	),
-        	mul_arg_fun("CompoundExpression", List(
-        	    bin_fun("Set", 
+        	math_fn("CompoundExpression",
+        	    math_fn("Set", 
         	        math_sym("glob`tends"),
-        	        bin_fun("Delete", 
+        	        math_fn("Delete", 
         	        	math_sym("glob`tends"),
         	        	math_int("-1")
         	        )        	        
         	    ),
-        	    bin_fun("Set", 
+        	    math_fn("Set", 
         	        math_sym("glob`sol"),
-        	        bin_fun("Delete", 
+        	        math_fn("Delete", 
         	        	math_sym("glob`sol"),
         	        	math_int("-1")
         	        )        	        
         	    )
-        	)),
-        	mul_arg_fun("CompoundExpression", varisStrisListToUpdaCurrStats(varisStrisList))
-        ))
+        	),
+        	math_fn("CompoundExpression", varisStrisListToUpdaCurrStats(varisStrisList))
+        )
     )
   }
   
   def varisStrisListToUpdaCurrStats(varisStrisList : List[String]) : List[Expr] = varisStrisList match {
-    case x :: xs =>
-      bin_fun("Set",
-        math_sym(mask(x, "curr`")),
-        // First[Evaluate[
-        //   ReplaceAll[y[Evaluate[Last[glob`tends]]], Last[glob`sol]]
-        // ]]
-        un_fun("First", un_fun("Evaluate", bin_fun("ReplaceAll",
-            un_fun(mask(x), un_fun("Evaluate", un_fun("Last", math_sym("glob`tends")))),
-            un_fun("Last", math_sym("glob`sol"))
+    case x :: xs => setState(x,
+        math_fn("First", math_fn("Evaluate", math_fn("ReplaceAll",
+            math_fn(mask(x), math_fn("Evaluate", math_fn("Last", math_sym("glob`tends")))),
+            math_fn("Last", math_sym("glob`sol"))
             )))
       ) :: varisStrisListToUpdaCurrStats(xs)
     case Nil => Nil
@@ -377,9 +445,9 @@ object hpToExpr {
   
   def varisStrisListToCurrsFetcsList(varisStrisList : List[String]) : List[Expr] = varisStrisList match {
     case x :: xs =>
-      bin_fun("Equal",
-        un_fun(mask(x), un_fun("Evaluate", un_fun("Last", math_sym("glob`tends")))),
-        math_sym(mask(x, "curr`"))
+      math_fn("Equal",
+        math_fn(mask(x), math_fn("Evaluate", math_fn("Last", math_sym("glob`tends")))),
+        readState(x)
       ) :: varisStrisListToCurrsFetcsList(xs)
     case Nil => Nil
   }
@@ -423,18 +491,18 @@ object hpToExpr {
           var setWithFindInst = hpsListToSetWithFindInst(hpsList)
           var hpsAfteFindInsts = hpsListToHpsAfteFindInsts(hpsList)
           return hpsListToStatsList(remaAssiAnys, varisStrisListFromHp : List[String], tendLimi : Double, nUnroLoop : Int, randMin : Double, randMax : Double) ++
-              List(setWithFindInst) ++
+              List(setWithFindInst) ++ 
               hpsListToStatsList(hpsAfteFindInsts, varisStrisListFromHp : List[String], tendLimi : Double, nUnroLoop : Int, randMin : Double, randMax : Double)
         } else {
           return hpToStatsList(x, varisStrisListFromHp : List[String], tendLimi : Double, nUnroLoop : Int, randMin : Double, randMax : Double) ++
               hpsListToStatsList(xs, varisStrisListFromHp : List[String], tendLimi : Double, nUnroLoop : Int, randMin : Double, randMax : Double)
         }
       }
-      case Check(h) => List(mul_arg_fun("If", List(
+      case Check(h) => List(math_fn("If",
         EvolveToExpr.formulaToExpr(h, EvolveToExpr.CURR_BACKTICK),
-        mul_arg_fun("CompoundExpression", hpsListToStatsList(xs, varisStrisListFromHp : List[String], tendLimi : Double, nUnroLoop : Int, randMin : Double, randMax : Double)),
-        bin_fun("Set", math_sym("loca`nop"), math_int("0"))
-      )))
+        math_fn("CompoundExpression", hpsListToStatsList(xs, varisStrisListFromHp : List[String], tendLimi : Double, nUnroLoop : Int, randMin : Double, randMax : Double)),
+        math_fn("Continue")
+      ))
       case _ => hpToStatsList(x, varisStrisListFromHp : List[String], tendLimi : Double, nUnroLoop : Int, randMin : Double, randMax : Double) ++
           hpsListToStatsList(xs, varisStrisListFromHp : List[String], tendLimi : Double, nUnroLoop : Int, randMin : Double, randMax : Double)
     }
@@ -499,21 +567,40 @@ object hpToExpr {
     var varisExprsInBothAssiAnysAndChecs = varisInBothAssiAnysAndChecs.map(mask).map(math_sym)
     var varisExprsToBeSetWithCurrBacktick = varisToBeSetWithCurrBacktick.map(math_sym)
     
-    return bin_fun("Set",
-      scalListToListExpr(varisExprsToBeSetWithCurrBacktick),
-      bin_fun("ReplaceAll",
-        scalListToListExpr(varisExprsInBothAssiAnysAndChecs),
-        bin_fun("Part",
-          mul_arg_fun("FindInstance", List(
-            ands,
-            scalListToListExpr(varisExprsInBothAssiAnysAndChecs),
-            math_sym("Reals")
-          )),
-          math_int("1")
+    math_fn("Module", 
+        scalListToListExpr(List(math_sym(mask("inst","loca`")))),
+        math_fn("CompoundExpression", 
+            math_fn("Set",
+                math_sym(mask("inst","loca`")),
+                math_fn("Part",
+	                math_fn("FindInstance",
+			            math_fn("ReplaceAll", ands, math_sym(mask("currState","glob`"))),
+			            scalListToListExpr(varisExprsInBothAssiAnysAndChecs),
+			            math_sym("Reals")
+			          ),
+			        math_int("1")
+			    )
+            ) ::
+            varisToBeSetWithCurrBacktick.map(s => setState(s, math_fn("ReplaceAll", math_sym(mask(unmask(s))), math_sym(mask("inst","loca`")))))
+            // TODO do we need to check here for varisInChecsMinuAssiAnys?
         )
-        
-      )
     )
+    
+//    return bin_fun("Set",
+//      scalListToListExpr(varisExprsToBeSetWithCurrBacktick),
+//      bin_fun("ReplaceAll",
+//        scalListToListExpr(varisExprsInBothAssiAnysAndChecs),
+//        bin_fun("Part",
+//          mul_arg_fun("FindInstance", List(
+//            ands,
+//            scalListToListExpr(varisExprsInBothAssiAnysAndChecs),
+//            math_sym("Reals")
+//          )),
+//          math_int("1")
+//        )
+//        
+//      )
+//    )
     
   }
   
@@ -524,7 +611,7 @@ object hpToExpr {
       case _ => throw new Exception("consChecsToAnds: not check")
     }
     case x::xs => x match {
-      case Check(f) => bin_fun("And", EvolveToExpr.formulaToExpr(f, EvolveToExpr.NOTHING), consChecsToAnds(xs))
+      case Check(f) => math_fn("And", EvolveToExpr.formulaToExpr(f, EvolveToExpr.NOTHING), consChecsToAnds(xs))
       case _ => throw new Exception("consChecsToAnds: not check")
     }    
   }
@@ -632,7 +719,7 @@ object hpToExpr {
   }
 
   def varisToDispToPlotComms(varisToDisp: List[String], nGrapsPerRow : Int) : List[Expr] = {    
-    return List(un_fun("GraphicsGrid", scalListListToListListExpr(
+    return List(math_fn("GraphicsGrid", scalListListToListListExpr(
         List() :: // If you don't append List() to the beginning, the axis labels of the uppermost plots are sometimes not visible  
         varisToDispToPlotCommsScalListList(varisToDisp: List[String], nGrapsPerRow : Int))))
   }
@@ -647,33 +734,32 @@ object hpToExpr {
   def varisToDispToStringList (varisToDisp: List[String]) : List[Expr] = varisToDisp match {
     case Nil => Nil
     case x::xs =>
-      bin_fun("Rule", math_str(x), 
-      bin_fun("Map", 
-          un_fun("Function", 
-              mul_arg_fun("ExportString", List(
-                  un_fun("Slot", math_int("1")),
+      math_fn("Rule", math_str(x), 
+      math_fn("Map", 
+          math_fn("Function", 
+              math_fn("ExportString",
+                  math_fn("Slot", math_int("1")),
                   math_str("Table"),
-                  bin_fun("Rule", math_str("FieldSeparator"), math_str("\t")),
-                  bin_fun("Rule", math_str("LineSeparators"), math_str(" "))
-                  )
+                  math_fn("Rule", math_str("FieldSeparator"), math_str("\t")),
+                  math_fn("Rule", math_str("LineSeparators"), math_str(" "))
               )
           ), 
-          bin_fun("Table", 
-              mul_arg_fun("List", List(
+          math_fn("Table", 
+              math_list(
                   math_sym("loca`t"),
-                  un_fun("N", 
-                      bin_fun("ReplaceAll", 
-	                      un_fun(mask(x), math_sym("loca`t")), 
-	                      bin_fun("Part", math_sym("glob`sol"), 
-	                          bin_fun("Subtract",
-		                          bin_fun("Part", 
-		                              bin_fun("Part",
-		                                  bin_fun("Position", 
+                  math_fn("N", 
+                      math_fn("ReplaceAll", 
+	                      math_fn(mask(x), math_sym("loca`t")), 
+	                      math_fn("Part", math_sym("glob`sol"), 
+	                          math_fn("Subtract",
+		                          math_fn("Part", 
+		                              math_fn("Part",
+		                                  math_fn("Position", 
 		                                      math_sym("glob`tends"), 
-		                                      bin_fun("PatternTest",
-		                                          mul_arg_fun("Blank", List()),
-		                                          un_fun("Function", bin_fun("GreaterEqual", 
-		                                              un_fun("Slot", math_int("1")),
+		                                      math_fn("PatternTest",
+		                                          math_fn("Blank"),
+		                                          math_fn("Function", math_fn("GreaterEqual", 
+		                                              math_fn("Slot", math_int("1")),
 		                                              math_sym("loca`t")
 		                                          ))
 		                                      )
@@ -686,13 +772,13 @@ object hpToExpr {
 	                          )
 	                      )
                   ))
-              )), 
-              mul_arg_fun("List", List(
+              ), 
+              math_list(
                   math_sym("loca`t"),
-                  bin_fun("Plus", un_fun("Evaluate", un_fun("First", math_sym("glob`tends"))), math_real("0.05")),
-                  un_fun("Evaluate", un_fun("Last", math_sym("glob`tends"))),
+                  math_fn("Plus", math_fn("Evaluate", math_fn("First", math_sym("glob`tends"))), math_real("0.05")),
+                  math_fn("Evaluate", math_fn("Last", math_sym("glob`tends"))),
                   math_real("0.05")
-              ))
+              )
           )
       )) :: varisToDispToStringList(xs)
   }
@@ -700,57 +786,57 @@ object hpToExpr {
   def varisToDispToPlotCommScalList (varisToDisp: List[String]) : List[Expr] = varisToDisp match {
     case Nil => Nil
     case x::xs =>
-      mul_arg_fun("Plot", List(
-        un_fun("Piecewise",
-          bin_fun("Table",
-            mul_arg_fun("List", List(
-              un_fun("Evaluate",
-                bin_fun("ReplaceAll",
-                  un_fun(mask(x), math_sym("loca`t")),
-                  bin_fun("Part", math_sym("glob`sol"), math_sym("loca`i"))
+      math_fn("Plot",
+        math_fn("Piecewise",
+          math_fn("Table",
+            math_list(
+              math_fn("Evaluate",
+                math_fn("ReplaceAll",
+                  math_fn(mask(x), math_sym("loca`t")),
+                  math_fn("Part", math_sym("glob`sol"), math_sym("loca`i"))
                 )
               ),
-              bin_fun("And",
-                bin_fun("GreaterEqual",
+              math_fn("And",
+                math_fn("GreaterEqual",
                   math_sym("loca`t"),
-                  bin_fun("Part",
+                  math_fn("Part",
                     math_sym("glob`tends"),
                     math_sym("loca`i")
                   )
                 ),
-                bin_fun("Less",
+                math_fn("Less",
                   math_sym("loca`t"),
-                  bin_fun("Part", 
+                  math_fn("Part", 
                     math_sym("glob`tends"),
-                    bin_fun("Plus", math_sym("loca`i"), math_int("1"))
+                    math_fn("Plus", math_sym("loca`i"), math_int("1"))
                   )
                 )
                 
               )
-            )),
-            mul_arg_fun("List", List(
+            ),
+            math_list(
               math_sym("loca`i"),
               math_int("1"),
-              bin_fun("Plus",
-                un_fun("Length", math_sym("glob`tends")),
+              math_fn("Plus",
+                math_fn("Length", math_sym("glob`tends")),
                 math_int("-1")
               )
-            ))
+            )
           )
         ),
-        mul_arg_fun("List", List(
+        math_list(
           math_sym("loca`t"),
-          un_fun("Evaluate", un_fun("First", math_sym("glob`tends"))),
-          un_fun("Evaluate", un_fun("Last", math_sym("glob`tends")))
-        )),
-        bin_fun("Rule",
+          math_fn("Evaluate", math_fn("First", math_sym("glob`tends"))),
+          math_fn("Evaluate", math_fn("Last", math_sym("glob`tends")))
+        ),
+        math_fn("Rule",
           math_sym("AxesLabel"),
           scalListToListExpr(List(
-            bin_fun("Style", math_str("t"), math_int("20")),
-            bin_fun("Style", math_str(x), math_int("20"))
+            math_fn("Style", math_str("t"), math_int("20")),
+            math_fn("Style", math_str(x), math_int("20"))
           ))
         )
-      )) :: varisToDispToPlotCommScalList(xs)
+      ) :: varisToDispToPlotCommScalList(xs)
   }
     
   def scalListListToListListExpr(scalListList : List[List[Expr]]) : Expr = {
