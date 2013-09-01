@@ -226,14 +226,54 @@ object hpToExpr {
 //    }
 //  } 
   
-  def hpToStatsList (hp : HP, varisStrisListFromHp : List[String], tendLimi : Double, nUnroLoop : Int, randMin : Double, randMax : Double) : List[Expr] = hp match {
-    case ComposedHP(Sequence, hps @ _ *) => hpsListToStatsList(seqToHpsList(hp), varisStrisListFromHp : List[String], tendLimi, nUnroLoop, randMin, randMax)
-    case ComposedHP(Star, hps @ _ *) => hpsListToStatsList(starToHpsList(hp, nUnroLoop), varisStrisListFromHp : List[String], tendLimi : Double, nUnroLoop : Int, randMin : Double, randMax : Double)
-    case ComposedHP(Choice, hps @ _ *) =>
-      hpToStatsList(Choice.flatten(hp).toList(
-        rndm.nextInt(Choice.flatten(hp).toList.size)
-      ), varisStrisListFromHp : List[String], tendLimi : Double, nUnroLoop : Int, randMin : Double, randMax : Double)
-    case Evolve(h, primes @ _*) => List(
+  def choiceToStatsList(hp : HP, varisStrisListFromHp : List[String], tendLimi : Double, nUnroLoop : Int, randMin : Double, randMax : Double) : List[Expr] = {
+    val permutations = Choice.flatten(hp).permutations.toList
+    val choices = permutations(rndm.nextInt(permutations.size)).toList
+    val success = math_sym(mask("success","loca`"))
+    val choice = math_sym(mask("choice","loca`"))
+    val currState = math_sym(mask("currState", "glob`"))
+    val currStateBackup = math_sym(mask("currStateBackup","loca`"))
+    List(math_fn("Module", 
+          math_list(success,
+              choice,
+              currStateBackup), 
+          math_fn("CompoundExpression",
+              math_fn("Set", currStateBackup, currState),
+              math_fn("Set", success, Expr.SYM_FALSE),
+              math_fn("Set", choice, Expr.INT_ZERO),
+              math_fn("While", 
+                  math_fn("And", 
+            		  	math_fn("Not", success), 
+            		  	math_fn("LessEqual", choice, new Expr(choices.size))),
+                  math_fn("CompoundExpression",                  
+	                  math_fn("Set", currState, currStateBackup)
+	                  :: math_fn("Increment", choice) 
+	                  :: choices.map(c => math_fn("If", 
+		                      	  math_fn("Equal", choice, new Expr(choices.indexOf(c) + 1)), // Mathematica 1-based indices
+			                      math_fn("CompoundExpression",
+			                          hpToStatsList(c, varisStrisListFromHp, tendLimi, nUnroLoop, randMin, randMax)
+			                          :+ math_fn("Set", success, Expr.SYM_TRUE)
+			                      )
+		                      )
+	                      )
+	              )
+              ),
+              // no valid choice found, abort simulation
+              math_fn("If", 
+                  math_fn("Greater", choice, new Expr(choices.size)),
+                  math_fn("CompoundExpression",
+                      math_fn("Print", math_str("No valid choice found, aborting simulation")),
+                      math_fn("Set", currState, currStateBackup),
+                	  math_fn("Continue")
+                  )
+              )
+          )
+      )
+      )
+  }
+  
+  def evolveToStatsList(hp : HP, h : Formula, varisStrisListFromHp : List[String], tendLimi : Double, nUnroLoop : Int, randMin : Double, randMax : Double) : List[Expr] = {
+    List(
       math_fn("Set",
         math_sym("glob`sol"),
         math_fn("Append",
@@ -261,6 +301,16 @@ object hpToExpr {
           )         
         )
       )) ++ evolDomainReset(h, varisStrisListFromHp)/*varisStrisListToUpdaCurrStats(varisStrisListFromHp)*/
+  }
+  
+  def hpToStatsList (hp : HP, varisStrisListFromHp : List[String], tendLimi : Double, nUnroLoop : Int, randMin : Double, randMax : Double) : List[Expr] = hp match {
+    case ComposedHP(Sequence, hps @ _ *) => hpsListToStatsList(seqToHpsList(hp), varisStrisListFromHp : List[String], tendLimi, nUnroLoop, randMin, randMax)
+    case ComposedHP(Star, hps @ _ *) => hpsListToStatsList(starToHpsList(hp, nUnroLoop), varisStrisListFromHp : List[String], tendLimi : Double, nUnroLoop : Int, randMin : Double, randMax : Double)
+    case ComposedHP(Choice, hps @ _ *) => choiceToStatsList(hp, varisStrisListFromHp, tendLimi, nUnroLoop, randMin, randMax)
+//      hpToStatsList(Choice.flatten(hp).toList(
+//        rndm.nextInt(Choice.flatten(hp).toList.size)
+//      ), varisStrisListFromHp, tendLimi, nUnroLoop, randMin, randMax)
+    case Evolve(h, primes @ _*) => evolveToStatsList(hp, h, varisStrisListFromHp, tendLimi, nUnroLoop, randMin, randMax)
     case Assign(v, t) => List(setState(v.s, MmtManipulation.termToExpr(t, EvolveToExpr.CURR_BACKTICK)))
     case AssignAny(v) => List(setState(v.s, math_fn("RandomReal",
           scalListToListExpr(List(
@@ -269,6 +319,7 @@ object hpToExpr {
         )))
     case Check(h) => List(math_fn("If",
         EvolveToExpr.formulaToExpr(h, EvolveToExpr.CURR_BACKTICK),
+        Expr.SYM_NULL,
         math_fn("Continue")
       ))
       
@@ -350,6 +401,7 @@ object hpToExpr {
         		)	
         	)
         ),
+        math_fn("Print", math_sym("glob`tends"), math_sym("glob`currState")),
         math_fn("If",
         	math_fn("Equal",
         	    math_fn("Part", math_sym("glob`tends"), math_fn("Length", math_sym("glob`tends"))),

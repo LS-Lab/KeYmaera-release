@@ -159,7 +159,7 @@ object MmtManipulation {
       case _ => throw new Exception("not implemented... varargs")
     }
     */
-    case Arithmetic(_, _) => throw new Exception("not implemented... varargs")
+    
     /* deboPreguntar: function name by Fn may be different from function name in
      Mathematica. How to handle this? */
     case Fn(_, _) => throw new Exception("not implemented")

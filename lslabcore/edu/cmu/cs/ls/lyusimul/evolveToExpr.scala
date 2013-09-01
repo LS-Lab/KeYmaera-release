@@ -110,15 +110,24 @@ object EvolveToExpr {
         math_fn("CompoundExpression", math_fn("Set", math_sym("glob`tends"), math_fn("Append", math_sym("glob`tends"), math_sym("loca`t"))), new Expr("StopIntegration"))) :: Nil
   }
 
-
+  def equalToExpr(term1: Term, term2: Term, tranMode: Int) : Expr = {
+    math_fn("Equal", MmtManipulation.termToExpr(term1, tranMode), MmtManipulation.termToExpr(term2, tranMode))
+  }
   
+  def equalish(term1: Term, term2: Term, tranMode: Int) : Expr = {
+    val expr1 = MmtManipulation.termToExpr(term1, tranMode)
+    val expr2 = MmtManipulation.termToExpr(term2, tranMode)
+    // TODO make configurable
+    math_fn("LessEqual", math_fn("Abs", math_fn("Subtract", expr1, expr2)), math_real("0.01"))
+  }
 
   def formulaToExpr(frml: Formula, tranMode : Int) : Expr = frml match {
     case True => math_sym("True")
     case False => math_sym("False")
     case Atom(t: Term) => MmtManipulation.termToExpr(t, tranMode)
     case ArithmeticPred(op : Comparison, term1 : Term, term2 : Term) => op match {
-      case Equals => math_fn("Equal", MmtManipulation.termToExpr(term1, tranMode), MmtManipulation.termToExpr(term2, tranMode)) 
+//      case Equals => math_fn("Equal", MmtManipulation.termToExpr(term1, tranMode), MmtManipulation.termToExpr(term2, tranMode))
+      case Equals => equalish(term1, term2, tranMode)
       case NotEquals => math_fn("Unequal", MmtManipulation.termToExpr(term1, tranMode), MmtManipulation.termToExpr(term2, tranMode))
       case Less => math_fn("Less", MmtManipulation.termToExpr(term1, tranMode), MmtManipulation.termToExpr(term2, tranMode))
       case LessEquals => math_fn("LessEqual", MmtManipulation.termToExpr(term1, tranMode), MmtManipulation.termToExpr(term2, tranMode))

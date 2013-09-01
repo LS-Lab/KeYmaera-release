@@ -36,11 +36,9 @@ object exprConsts {
     math_list(exprs:_*)
   }
   def math_list(exprs: Expr*) : Expr = {
-    new Expr(LIST, exprs.toList.toArray)
+    new Expr(Expr.SYM_LIST, exprs.toList.toArray)
   }
   
-  val FALSE = math_sym("False");
-  val TRUE = math_sym("True");
   val NOT = math_sym("Not");
   val PLUS = math_sym("Plus");
   val MINUS = math_sym("Subtract");
@@ -64,7 +62,6 @@ object exprConsts {
   val INVERSE_FUNCTION = math_sym("InverseFunction");
   val INTEGRATE = math_sym("Integrate");
   val RULE = math_sym("Rule");
-  val LIST = math_sym("List");
   val SET = math_sym("Set");
   val DO = math_sym("Do");
   val MODULE = math_sym("Module");
