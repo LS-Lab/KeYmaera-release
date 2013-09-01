@@ -3,6 +3,7 @@ package edu.cmu.cs.ls.lyusimul
 import edu.cmu.cs.ls._
 import com.wolfram.jlink._
 import NameMasker._
+import hpToExpr._
 
 object MmtManipulation {
 
@@ -101,7 +102,8 @@ object MmtManipulation {
   
   def mmtVarToExpr(x : String, tranMode : Int) : Expr = {
     if (EvolveToExpr.CURR_BACKTICK == tranMode) {
-      return math_sym(mask(x, "curr`"))
+//      return math_sym(mask(x, "curr`"))
+      return readState(mask(x, "curr`"))
     } else if (EvolveToExpr.LOCA_T == tranMode) {
       return un_fun(mask(x), math_sym("loca`t"))
     } else if (EvolveToExpr.NEW_T == tranMode) {

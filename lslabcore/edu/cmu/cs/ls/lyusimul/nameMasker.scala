@@ -13,7 +13,7 @@ object NameMasker {
   val SCOPE = "KeYmaera`"
 
   def mask(e: String): String = if (!isMasked(e)) mask(e, SCOPE) else e
-  def mask(e: String, s: String): String = s + e.replaceAll("_", USCORE_ESCAPE)
+  def mask(e: String, s: String): String = if (!isMasked(e)) s + e.replaceAll("_", USCORE_ESCAPE) else e
 
   def unmask(e: String): String = e.substring(e.indexOf('`')+1).replaceAll(USCORE_ESCAPE, "_")
 
