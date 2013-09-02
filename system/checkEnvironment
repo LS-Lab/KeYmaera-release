@@ -4,7 +4,7 @@ if [ -z "$KEY_LIB" ] ; then
    KEY_LIB="../key-ext-jars"
 fi
 
-key_ext_jars="antlr.jar log4j.jar JLink/JLink.jar orbital-core.jar orbital-ext.jar scala-library.jar recoderKey.jar commons-compress-1.4.jar jmathplot.jar"
+key_ext_jars="antlr.jar log4j.jar JLink/JLink.jar orbital-core.jar orbital-ext.jar scala-library.jar scala-swing.jar recoderKey.jar commons-compress-1.4.jar jmathplot.jar"
 
 key_dev_jars="javacc.jar junit.jar junit-4.4.jar"
 

@@ -23,7 +23,9 @@
 package de.uka.ilkd.key.dl.arithmetics.impl.mathematica;
 
 import java.awt.Frame;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.net.UnknownHostException;
 import java.rmi.NotBoundException;
@@ -31,22 +33,16 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
 import com.wolfram.jlink.Expr;
 import com.wolfram.jlink.ExprFormatException;
+import com.wolfram.jlink.KernelLink;
+import com.wolfram.jlink.MathLinkException;
+import com.wolfram.jlink.MathLinkFactory;
 
 import de.uka.ilkd.key.dl.arithmetics.IODESolver.ODESolverResult;
 import de.uka.ilkd.key.dl.arithmetics.IODESolver.ODESolverUpdate;
@@ -67,6 +63,7 @@ import de.uka.ilkd.key.dl.formulatools.collector.AllCollector;
 import de.uka.ilkd.key.dl.formulatools.collector.filter.FilterVariableCollector;
 import de.uka.ilkd.key.dl.image_compute.CounterExampleFinder;
 import de.uka.ilkd.key.dl.model.DLNonTerminalProgramElement;
+import de.uka.ilkd.key.dl.model.DLProgram;
 import de.uka.ilkd.key.dl.model.DiffSystem;
 import de.uka.ilkd.key.dl.model.Dot;
 import de.uka.ilkd.key.dl.model.ProgramVariable;
@@ -80,7 +77,12 @@ import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.TermBuilder;
 import de.uka.ilkd.key.logic.op.LogicVariable;
 import de.uka.ilkd.key.logic.op.SubstOp;
+import de.uka.ilkd.key.pp.LogicPrinter;
+import de.uka.ilkd.key.proof.ProofSaver;
 import de.uka.ilkd.key.util.Debug;
+import edu.cmu.cs.ls.Formula;
+import edu.cmu.cs.ls.OP;
+import edu.cmu.cs.ls.lyusimul.hpToExpr;
 
 /**
  * The MathematicaDLBridge is the implementation of the interface between KeY
@@ -806,14 +808,47 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
         return "";
     }
 
-	
-    /*   
-     * (non-Javadoc)
-     * 
-     * @see
-     * de.uka.ilkd.key.dl.IMathematicaDLBridge#findMultiInstance(de.uka.ilkd.key.
-     * logic.Term, int, long)
-     */
+    @Override
+    public Map<String, Double> findInstanceD(Term form, long timeout, Services services) throws RemoteException, SolverException {
+       Expr query = Term2ExprConverter.convert2Expr(form);
+        List<Expr> vars = new ArrayList<Expr>();
+        Set<String> variables = AllCollector.getItemSet(form).filter(
+                new FilterVariableCollector(null)).getVariables();
+        for (String var : variables)
+            vars.add(new Expr(Expr.SYMBOL, NameMasker.mask(var)));
+        Map<String, Double> ret = new LinkedHashMap<String, Double>();
+
+        if (vars.size() > 0) {
+            query = new Expr(new Expr(Expr.SYMBOL, "FindInstance"), new Expr[] {
+                    query, new Expr(LIST, vars.toArray(new Expr[vars.size()])),
+                    new Expr(Expr.SYMBOL, "Reals"),
+                    });
+            Expr results[] = evaluate(query, timeout).expression.args();
+            // result[0] should be a list of Rules
+            if(results[0].head().equals(LIST)) {
+                for (Expr res : results[0].args()) {
+                    if(res.head().equals(RULE)) {
+                        String n = NameMasker.unmask(res.args()[0].toString());
+                        try {
+                            Double d = res.args()[1].asDouble();
+                            ret.put(n, d);
+                        } catch (ExprFormatException e) {
+                            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                        }
+                    }
+                }
+            }
+        }
+        return ret;
+    }
+
+    /*
+         * (non-Javadoc)
+         *
+         * @see
+         * de.uka.ilkd.key.dl.IMathematicaDLBridge#findMultiInstance(de.uka.ilkd.key.
+         * logic.Term, int, long)
+         */
     public List<String> findMultiInstance(Term form, int ninst, long timeout) throws RemoteException,
             SolverException {
         Expr query = Term2ExprConverter.convert2Expr(form);
@@ -842,7 +877,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
                             + res);
                 }    
                 ret.add(res.toString());
-            }    
+            }
         }    
         return ret; 
     } 
@@ -1390,6 +1425,41 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 		return result;
 	}
 
+	@Override
+	public Map<String, Double[][]> getPlotData(Term in, Services services,
+			double tendLimi,
+			int nUnroLoop, double randMin, double randMax) throws RemoteException, SolverException {
+		String input = ProofSaver.printTerm(in, services, true, true).toString();
+		edu.cmu.cs.ls.Formula f = OP.parseFormula(input);
+		edu.cmu.cs.ls.Modality m = hpToExpr.extractModality(f);
+		Expr modaToDataPointExpr = hpToExpr.modaToDataPointExpr(m, tendLimi, nUnroLoop, randMin, randMax);
+		try {
+			// use toString as the Expr does only yield $Aborted as result
+			Expr simResult = kernelWrapper.nativeEvaluate(modaToDataPointExpr.toString());
+			if(simResult.vectorQ()) {
+				Map<String, Double[][]> result = new LinkedHashMap<String, Double[][]>();
+				for(Expr expr: simResult.args()) {
+					String seriesName = expr.args()[0].asString();
+					Expr[] values = expr.args()[1].args();
+					Double[][] vals = new Double[2][];
+					vals[0] = new Double[values.length];
+					vals[1] = new Double[values.length];
+					for (int i = 0; i < values.length; i++) {
+						Expr value = values[i];
+						String[] keyValue = value.asString().split("\\s");
+						vals[0][i] = Double.parseDouble(keyValue[0]);
+						vals[1][i] = Double.parseDouble(keyValue[1]);
+					}
+					result.put(seriesName, vals);
+				}
+				return result;
+			}
+		} catch (ExprFormatException e) {
+			throw new FailedComputationException(e);
+		}
+		return null;
+	}
+	
 	public Map<String, Double[][]> getPlotData(DiffSystem sys, String t, double minT, double maxT, double sampling, Map<String, Double> initialValues, Services services) throws SolverException, RemoteException{
 	           List<Expr> args = new ArrayList<Expr>();
         Map<String, Expr> vars = new LinkedHashMap<String, Expr>();

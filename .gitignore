@@ -44,3 +44,4 @@ system/.cache
 system/.classpath
 system/.settings/org.eclipse.jdt.core.prefs
 system/org.eclipse.jdt.core.prefs
+fontconfig/

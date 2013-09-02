@@ -67,8 +67,8 @@ ifeq "$(KEY_VERSION_LONG)" ""
 KEY_VERSION_LONG=$(KEY_VERSION_SHORT)_$(SHA1)
 endif
 
-KEY_VERSION_SHORT=3.2
-KEY_VERSION_LONG=3.2
+KEY_VERSION_SHORT=3.4
+KEY_VERSION_LONG=33
 
 export KEY_VERSION_LONG
 export KEY_VERSION_SHORT
@@ -92,7 +92,7 @@ endif
 ifeq ($(JAVAC),ajc)
   OPTIONS=$(COMMON_OPTIONS) -nowarn -classpath $(ASPECTJRTPATH):$(CLASSPATH):$(GENERATED_SRC_PATH):$(BINARYPATH):.
 else
-  OPTIONS=$(COMMON_OPTIONS) -J-Xmx512m -nowarn -source 1.5 -target 1.5 -classpath $(CLASSPATH):$(GENERATED_SRC_PATH):$(BINARYPATH):.
+  OPTIONS=$(COMMON_OPTIONS) -J-Xmx512m -nowarn -source 1.6 -target 1.6 -classpath $(CLASSPATH):$(GENERATED_SRC_PATH):$(BINARYPATH):.
 endif
 
 JAVACC_MAIN=javacc
@@ -208,7 +208,7 @@ dist:	branding all
 	@echo "[deleting distribution directory structure]"
 	@rm -rf dist
 
-OPTIONS:=${OPTIONS} -target 1.5
+OPTIONS:=${OPTIONS} -target 1.6
 
 ## create KeYmaera distribution package
 dist-keymaera:	branding all
@@ -599,7 +599,8 @@ SCALAFILES = $(COHENHORMANDER)/parallel.scala $(COHENHORMANDER)/parse.scala \
 	$(PFX)dl/formulatools/Derive.scala $(PFX)dl/formulatools/PolynomialExtraction.scala $(PFX)dl/formulatools/NegationNormalForm.scala $(PFX)dl/formulatools/RichTerm.scala $(PFX)dl/arithmetics/impl/reduce/Term2ReduceString.scala \
 	$(PFX)dl/formulatools/Prenex.scala $(PFX)dl/arithmetics/impl/mathematica/TermExprLink.scala \
 	$(PFX)dl/strategy/tactics/SkolemizeTactic.scala $(PFX)dl/strategy/tactics/ApplyEquationTactic.scala \
-	$(METIT)/FormulaTree.scala $(METIT)/OperatorMap.scala
+	$(METIT)/FormulaTree.scala $(METIT)/OperatorMap.scala $(PFX)dl/gui/AutoModeDialog.scala \
+	../lslabcore/edu/cmu/cs/ls/hp.scala ../lslabcore/edu/cmu/cs/ls/lyusimul/evolveToExpr.scala ../lslabcore/edu/cmu/cs/ls/lyusimul/exprToPlottableString.scala ../lslabcore/edu/cmu/cs/ls/lyusimul/formulaToPlot.scala ../lslabcore/edu/cmu/cs/ls/lyusimul/hpToExpr.scala ../lslabcore/edu/cmu/cs/ls/lyusimul/main.scala ../lslabcore/edu/cmu/cs/ls/lyusimul/mathematicaPlot.scala ../lslabcore/edu/cmu/cs/ls/lyusimul/mmt.scala ../lslabcore/edu/cmu/cs/ls/lyusimul/mmtManipulation.scala ../lslabcore/edu/cmu/cs/ls/lyusimul/nameMasker.scala ../lslabcore/edu/cmu/cs/ls/package.scala ../lslabcore/edu/cmu/cs/ls/parse.scala ../lslabcore/edu/cmu/cs/ls/parseoriginal.scala ../lslabcore/edu/cmu/cs/ls/rational.scala ../lslabcore/edu/cmu/cs/ls/types.scala ../lslabcore/edu/cmu/cs/ls/lyusimul/exprConsts.scala
 
 
 $(COHENHORMANDERCLASS) ch : $(SCALAFILES) argfile.normal

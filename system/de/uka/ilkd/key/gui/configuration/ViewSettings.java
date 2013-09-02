@@ -46,7 +46,9 @@ public class ViewSettings implements Settings {
     private static final String UPDATE_HIGHLIGHT_COLOR = "[View]UpdateHighlightColor";
     
     private static final String SHOW_NON_INTERACTIVE_RULES = "[View]ShowNonInteractiveRules";
-    
+
+    private static final String SHOW_CONSOLE_OUTPUT = "[View]ShowConsoleOutput";
+
     private static final String UNICODE_VIEW = "UnicodeView";
 
     public static final Color DEFAULT_DEFAULT_HIGHTLIGHT_COLOR = Color.YELLOW;
@@ -84,7 +86,21 @@ public class ViewSettings implements Settings {
     /** do not hide closed subtrees by default */
     private boolean hideClosedSubtrees = false;
 
+    /** show a window containing the console output while the strategy is running */
+    private boolean showConsoleOutput = true;
+
     private LinkedList<SettingsListener> listenerList = new LinkedList<SettingsListener>();
+
+    public boolean isShowConsoleOutput() {
+        return showConsoleOutput;
+    }
+
+    public void setShowConsoleOutput(boolean showConsoleOutput) {
+        if(this.showConsoleOutput != showConsoleOutput) {
+            this.showConsoleOutput = showConsoleOutput;
+            fireSettingsChanged();
+        }
+    }
 
     /**
      * @return the current maxTooltipLines
@@ -248,6 +264,10 @@ public class ViewSettings implements Settings {
             int blue = Integer.parseInt(colors[2]);
             updateHighlightColor = new Color(red, green, blue);
         }
+        property = props.getProperty(SHOW_CONSOLE_OUTPUT);
+        if(property != null) {
+            showConsoleOutput = Boolean.parseBoolean(property);
+        }
     }
 
     /**
@@ -283,6 +303,7 @@ public class ViewSettings implements Settings {
                     updateHighlightColor.getRed() + ","
                             + updateHighlightColor.getGreen() + ","
                             + updateHighlightColor.getBlue());
+            props.setProperty(SHOW_CONSOLE_OUTPUT, "" + showConsoleOutput);
         }
     }
 

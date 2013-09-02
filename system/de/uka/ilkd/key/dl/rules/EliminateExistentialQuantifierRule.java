@@ -36,6 +36,7 @@ import javax.swing.JOptionPane;
 
 import de.uka.ilkd.key.collection.ImmutableList;
 import de.uka.ilkd.key.collection.ImmutableMapEntry;
+import de.uka.ilkd.key.collection.ImmutableSLList;
 import de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator.PairOfTermAndQuantifierType;
 import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
@@ -83,7 +84,7 @@ import de.uka.ilkd.key.rule.inst.InstantiationEntry;
  * 
  */
 public class EliminateExistentialQuantifierRule implements BuiltInRule,
-		UnknownProgressRule, IrrevocableRule, RuleFilter {
+		UnknownProgressRule, IrrevocableRule, RuleFilter, TestableBuiltInRule {
 
 	/**
 	 * A RuleApp that is used to close a branch
@@ -143,6 +144,10 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
 
 	private boolean unsolvable;
 
+	private boolean testMode;
+
+	private Term resultTerm;
+
 	/**
 	 * 
 	 */
@@ -157,6 +162,10 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
 	 */
 	public synchronized ImmutableList<Goal> apply(Goal goal, Services services,
 			RuleApp ruleApp) {
+		final boolean testModeActive = testMode;
+		unsolvable = false;
+		testMode = false;
+
 		// Operator op = ruleApp.posInOccurrence().subTerm().op();
 		List<Metavariable> variables = new ArrayList<Metavariable>();
 		if (ruleApp instanceof ReduceRuleApp) {
@@ -200,13 +209,14 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
 			Iterator<ConstrainedFormula> it = curGoal.sequent().iterator();
 			Result result = Result.DOES_NOT_CONTAIN_VAR;
 			Set<NoPosTacletApp> toRemove = new java.util.HashSet<NoPosTacletApp>();
-            for(NoPosTacletApp ta: curGoal.ruleAppIndex().tacletIndex().allNoPosTacletApps()) {
-                checkTacletApp(variables, toRemove, ta);
-            }
-            // remove marked hidden formulas
-            for(NoPosTacletApp ta: toRemove) {
-                curGoal.ruleAppIndex().removeNoPosTacletApp(ta);
-            }
+			for (NoPosTacletApp ta : curGoal.ruleAppIndex().tacletIndex()
+					.allNoPosTacletApps()) {
+				checkTacletApp(variables, toRemove, ta);
+			}
+			// remove marked hidden formulas
+			for (NoPosTacletApp ta : toRemove) {
+				curGoal.ruleAppIndex().removeNoPosTacletApp(ta);
+			}
 			while (it.hasNext()) {
 				ConstrainedFormula next = it.next();
 				Result res = ContainsMetaVariableVisitor
@@ -227,6 +237,11 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
 				}
 			}
 			if (result == Result.CONTAINS_VAR_BUT_CANNOT_APPLY) {
+				if(testModeActive) {
+					// do not show a dialog here
+					resultTerm = null;
+					return null;
+				}
 				selectGoalAndShowDialog(curGoal);
 				throw new IllegalStateException("All branches that contain "
 						+ Arrays.toString(variables.toArray())
@@ -298,12 +313,11 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
 			for (Term s : orderedList) {
 				if (s.arity() > 0) {
 					LogicVariable logicVariable = new LogicVariable(new Name(s
-							.op().name()
-							+ "$sk"), s.op().sort(new Term[0]));
+							.op().name() + "$sk"), s.op().sort(new Term[0]));
 					commonMatches.add(new Match((RigidFunction) s.op(),
 							TermBuilder.DF.var(logicVariable)));
-						skolemSymbolsWithDependcies.add(s);
-						skolemSymbolWithDepsMap.put(s, logicVariable);
+					skolemSymbolsWithDependcies.add(s);
+					skolemSymbolWithDepsMap.put(s, logicVariable);
 				} else {
 					skolemSymbols.add(s);
 				}
@@ -319,13 +333,13 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
 			for (Term s : orderedList) {
 				if (s.arity() > 0) {
 					LogicVariable logicVariable = new LogicVariable(new Name(s
-							.op().name()
-							+ "$sk"), s.op().sort(new Term[0]));
+							.op().name() + "$sk"), s.op().sort(new Term[0]));
 					commonMatches.add(new Match((RigidFunction) s.op(),
 							TermBuilder.DF.var(logicVariable)));
-						skolemSymbolsWithDependcies.add(s);
-						skolemSymbolWithDepsMap.put(s, logicVariable);
-						commonMatches.add(new Match((RigidFunction) s.op(), TermBuilder.DF.var(logicVariable)));
+					skolemSymbolsWithDependcies.add(s);
+					skolemSymbolWithDepsMap.put(s, logicVariable);
+					commonMatches.add(new Match((RigidFunction) s.op(),
+							TermBuilder.DF.var(logicVariable)));
 				} else {
 					skolemSymbols.add(s);
 				}
@@ -335,12 +349,12 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
 			Set<Term> findSkolemSymbols = findSkolemSymbols(g.sequent()
 					.iterator());
 
-			Term antecendent = TermTools.createJunctorTermNAry(TermBuilder.DF
-					.tt(), Op.AND, g.sequent().antecedent().iterator(),
-					commonAnte, true);
-			Term succendent = TermTools.createJunctorTermNAry(TermBuilder.DF
-					.ff(), Op.OR, g.sequent().succedent().iterator(),
-					commonSucc, true);
+			Term antecendent = TermTools.createJunctorTermNAry(
+					TermBuilder.DF.tt(), Op.AND, g.sequent().antecedent()
+							.iterator(), commonAnte, true);
+			Term succendent = TermTools.createJunctorTermNAry(
+					TermBuilder.DF.ff(), Op.OR, g.sequent().succedent()
+							.iterator(), commonSucc, true);
 			Term imp = TermBuilder.DF.imp(antecendent, succendent);
 			List<Term> orderedList = SkolemfunctionTracker.INSTANCE
 					.getOrderedList(findSkolemSymbols);
@@ -350,9 +364,10 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
 						LogicVariable logicVariable = new LogicVariable(
 								new Name(sk.op().name() + "$sk"), sk.op().sort(
 										new Term[0]));
-							skolemSymbolsWithDependcies.add(sk);
-							skolemSymbolWithDepsMap.put(sk, logicVariable);
-							commonMatches.add(new Match((RigidFunction) sk.op(), TermBuilder.DF.var(logicVariable)));
+						skolemSymbolsWithDependcies.add(sk);
+						skolemSymbolWithDepsMap.put(sk, logicVariable);
+						commonMatches.add(new Match((RigidFunction) sk.op(),
+								TermBuilder.DF.var(logicVariable)));
 					} else {
 						skolemSymbols.add(sk);
 					}
@@ -382,8 +397,7 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
 		Map<Term, LogicVariable> topLevelSkolemReplacements = new LinkedHashMap<Term, LogicVariable>();
 		for (Term t : topLevelSkolems) {
 			LogicVariable logicVariable = new LogicVariable(new Name(t.op()
-					.name()
-					+ "$sk"), t.op().sort(new Term[0]));
+					.name() + "$sk"), t.op().sort(new Term[0]));
 			topLevelSkolemReplacements.put(t, logicVariable);
 			commonMatches.add(new Match((RigidFunction) t.op(), TermBuilder.DF
 					.var(logicVariable)));
@@ -397,7 +411,7 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
 		// readd the quantifiers
 		List<String> variableNames = new ArrayList<String>();
 		commonVars.putAll(skolemSymbolWithDepsMap);
-		
+
 		List<Term> orderedList = SkolemfunctionTracker.INSTANCE
 				.getOrderedList(commonVars.keySet());
 		// now we built up a reference list for metavariables
@@ -483,39 +497,47 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
 				query = MathSolverManager.getCurrentSimplifier().simplify(
 						query, services.getNamespaces());
 			}
-			Term resultTerm = MathSolverManager
+			resultTerm = MathSolverManager
 					.getCurrentQuantifierEliminator().reduce(query,
 							variableNames,
 							new ArrayList<PairOfTermAndQuantifierType>(),
 							services.getNamespaces());
-			if (DLOptionBean.INSTANCE.isSimplifyAfterReduce()) {
-				resultTerm = MathSolverManager.getCurrentSimplifier().simplify(
-						resultTerm, services.getNamespaces());
-			}
-			// if there is a result: close all goals beside this one... and
-			// progress
-			// here
-			if(resultTerm != null) {
-    			for (Goal g : goals) {
-    				if (g != goal) {
-    					g.apply(new CloseRuleApp());
-    				}
-    			}
+			if (!testModeActive) {
+				if (DLOptionBean.INSTANCE.isSimplifyAfterReduce()) {
+					resultTerm = MathSolverManager.getCurrentSimplifier()
+							.simplify(resultTerm, services.getNamespaces());
+				}
+				// if there is a result: close all goals beside this one... and
+				// progress
+				// here
+				if (resultTerm != null) {
+					for (Goal g : goals) {
+						if (g != goal) {
+							g.apply(new CloseRuleApp());
+						}
+					}
+				} else {
+					throw new UnsolveableException();
+				}
+				if (resultTerm.equals(TermBuilder.DF.tt())) {
+					return goal.split(0);
+				}
+				ImmutableList<Goal> result = goal.split(1);
+				removeAllFormulas(result.head(), goal.sequent().succedent()
+						.iterator(), false);
+				removeAllFormulas(result.head(), goal.sequent().antecedent()
+						.iterator(), true);
+				SequentChangeInfo info = result
+						.head()
+						.sequent()
+						.addFormula(new ConstrainedFormula(resultTerm), false,
+								true);
+				result.head().setSequent(info);
+				return result;
 			} else {
-			    throw new UnsolveableException();
+				// if we are in testmode we always return an empty list
+				return ImmutableSLList.nil();
 			}
-			if (resultTerm.equals(TermBuilder.DF.tt())) {
-				return goal.split(0);
-			}
-			ImmutableList<Goal> result = goal.split(1);
-			removeAllFormulas(result.head(), goal.sequent().succedent()
-					.iterator(), false);
-			removeAllFormulas(result.head(), goal.sequent().antecedent()
-					.iterator(), true);
-			SequentChangeInfo info = result.head().sequent().addFormula(
-					new ConstrainedFormula(resultTerm), false, true);
-			result.head().setSequent(info);
-			return result;
 		} catch (RemoteException e) {
 			throw new IllegalStateException("Cannot eliminate variable "
 					+ Arrays.toString(variables.toArray()), e);
@@ -527,34 +549,41 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
 			throw new IllegalStateException("Cannot eliminate variable "
 					+ Arrays.toString(variables.toArray()), e);
 		}
+
 	}
 
-    /**
-     * @param variables
-     * @param toRemove
-     * @param ta
-     */
-    private void checkTacletApp(List<Metavariable> variables,
-            Set<NoPosTacletApp> toRemove, NoPosTacletApp ta) {
-        if(ta.taclet().displayName().startsWith("insert_hidden")) {
-            Iterator<ImmutableMapEntry<SchemaVariable, InstantiationEntry>> pairIterator = ta.instantiations().pairIterator();
-            while(pairIterator.hasNext()) {
-                ImmutableMapEntry<SchemaVariable, InstantiationEntry> pair = pairIterator.next();
-                if(pair.value().getInstantiation() instanceof Term) {
-                    Term t = (Term) pair.value().getInstantiation();
-                   Result res = ContainsMetaVariableVisitor.containsMetaVariableAndIsFO(variables, t);
-                   if(res == Result.CONTAINS_VAR || res == Result.CONTAINS_VAR_BUT_CANNOT_APPLY) {
-                       toRemove.add(ta);
-                   } 
-                } else {
-                    // we are not sure, therefore better remove the taclet
-                    // TODO: find out if we really need to remove
-                   toRemove.add(ta);
-                   System.err.println("Removing hidden even though we weren't sure: " + ta);
-                }
-            }
-        }
-    }
+	/**
+	 * @param variables
+	 * @param toRemove
+	 * @param ta
+	 */
+	private void checkTacletApp(List<Metavariable> variables,
+			Set<NoPosTacletApp> toRemove, NoPosTacletApp ta) {
+		if (ta.taclet().displayName().startsWith("insert_hidden")) {
+			Iterator<ImmutableMapEntry<SchemaVariable, InstantiationEntry>> pairIterator = ta
+					.instantiations().pairIterator();
+			while (pairIterator.hasNext()) {
+				ImmutableMapEntry<SchemaVariable, InstantiationEntry> pair = pairIterator
+						.next();
+				if (pair.value().getInstantiation() instanceof Term) {
+					Term t = (Term) pair.value().getInstantiation();
+					Result res = ContainsMetaVariableVisitor
+							.containsMetaVariableAndIsFO(variables, t);
+					if (res == Result.CONTAINS_VAR
+							|| res == Result.CONTAINS_VAR_BUT_CANNOT_APPLY) {
+						toRemove.add(ta);
+					}
+				} else {
+					// we are not sure, therefore better remove the taclet
+					// TODO: find out if we really need to remove
+					toRemove.add(ta);
+					System.err
+							.println("Removing hidden even though we weren't sure: "
+									+ ta);
+				}
+			}
+		}
+	}
 
 	/**
 	 * Find skolem functions that occur in the given formulas
@@ -719,6 +748,30 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
 	/* @Override */
 	public boolean filter(Rule rule) {
 		return rule instanceof EliminateExistentialQuantifierRule;
+	}
+
+	@Override
+	public boolean test(Goal goal, Services services, RuleApp app, long timeout) {
+		testMode = true;
+		try {
+			// try to apply the rule... if no exception occurs it was successful
+		    //@todo shouldn't we pass timeout as a parameter?
+			apply(goal, services, app);
+			return true;
+		} catch (Exception e) {
+			return false;
+		}
+	}
+
+	@Override
+	public Term getInputFormula() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Term getResultFormula() {
+		return resultTerm;
 	}
 
 }

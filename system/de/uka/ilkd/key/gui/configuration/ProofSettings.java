@@ -197,7 +197,14 @@ public class ProofSettings {
 	    }
 
 	    for (int i = settings.length-1; i>=0 ;i--) { 
-	        settings[i].readSettings(props); 
+	    	try {
+	    		settings[i].readSettings(props); 
+	    	} catch (Exception e) {
+	    		// if one of the setting beans messes up loading
+	    		// for example because there was a Enum.valueOf(...) issue
+	    		// then we just go on and try to init the next bean...
+	    		e.printStackTrace();
+	    	}
 	    }
 
 	    initialized = true;

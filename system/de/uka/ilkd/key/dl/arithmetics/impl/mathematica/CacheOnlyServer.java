@@ -429,4 +429,16 @@ public class CacheOnlyServer extends UnicastRemoteObject implements Remote,
 		return evaluate(expr);
 	}
 
+	@Override
+	public Expr nativeEvaluate(String expr) throws ServerStatusProblemException,
+			RemoteException {
+		throw new UnsupportedOperationException("This method has not been implemented!");
+	}
+	
+	@Override
+	public void clearCache() throws RemoteException {
+		throw new UnsupportedOperationException("This method has not been implemented!");
+	}
+
+
 }

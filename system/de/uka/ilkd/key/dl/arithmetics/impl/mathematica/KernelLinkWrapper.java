@@ -586,6 +586,53 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 		}
 
 	}
+	
+	public synchronized Expr nativeEvaluate(String expr) throws ServerStatusProblemException, RemoteException {
+	try {
+		callCount++;
+		log(Level.FINEST, "Start evaluating: " + expr);
+		long curTime = System.currentTimeMillis();
+		log(Level.INFO, "Time: "
+				+ SimpleDateFormat.getTimeInstance().format(curTime));
+		link.evaluate(expr);
+		log(Level.FINEST, expr);
+		synchronized (mutex) {
+			if (eval) {
+				eval = false;
+				throw new RemoteException(
+						"Calculation interruped before starting " + expr);
+			}
+			eval = true;
+		}
+		link.waitForAnswer();
+		synchronized (mutex) {
+			eval = false;
+		}
+		Expr result = link.getExpr();
+		log(Level.FINEST, "Returning anwser...");
+		log(Level.FINEST, result.toString());
+		link.newPacket();
+		return result;
+	} catch (MathLinkException e) {
+		synchronized (mutex) {
+			eval = false;
+		}
+		if (e.getErrCode() == 11 || e.getErrCode() == 1) {
+			// error code 11 indicates that the mathkernel has died
+			try {
+				link.close();
+			} catch (Throwable t) {
+			} finally {
+				createLink();
+			}
+		}
+		e.printStackTrace();
+		link.clearError();
+		throw new ServerStatusProblemException(
+				"MathLinkException: could not evaluate expression: " + expr,
+				e);
+	}
+	}
 
 	public synchronized ExprAndMessages evaluate(Expr expr)
 			throws RemoteException, ServerStatusProblemException,
@@ -688,6 +735,12 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 			throws RemoteException {
 		this.cache.putAll(cache);
 		log(Level.INFO, "Cache loaded");
+	}
+	
+	@Override
+	public void clearCache() throws RemoteException {
+		this.cache.clear();
+		log(Level.INFO, "Cache cleared");
 	}
 
 	/*
