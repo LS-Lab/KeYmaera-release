@@ -1276,7 +1276,7 @@ Authors: David Henriques, Sarah Loos, Joao Martins</description>
 				<proofauthors>
 					<author>sloos</author>
 				</proofauthors>
-        	    <source href="http://symbolaris.com/pub/dccs-effiency.pdf"/>
+        	    <source href="http://symbolaris.com/pub/dccs-efficiency.pdf"/>
         		<requirements>
         			<some>
         				<quantifiereliminator>Mathematica</quantifiereliminator>
