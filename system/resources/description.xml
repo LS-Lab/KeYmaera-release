@@ -1256,6 +1256,33 @@ Authors: David Henriques, Sarah Loos, Joao Martins</description>
         			</some>
         		</requirements>
         	</example>
+        	<example>
+        		<name>Car Control Efficiency Analysis [ITSC'13]</name>
+        		<path>/examples/hybrid/car/DCCS/efficiency.key</path>
+				<proofs>
+					<proof name="Mathematica" href="/examples/hybrid/car/DCCS/efficiency.key.proof"/>
+				</proofs>
+        		<description>Local lane controller of a distributed car control system. Here only one single leader and a single follower car drive on a lane. This proof differs from the FM'11 proof, as it allows the follow car to choose any acceleration within the range of all safe accelerations, as opposed to allowing the car only to choose to accelerate when it is safe to accelerate maximally. </description>
+				<resources>
+					<img>/examples/hybrid/car/fig-car-control2.png</img>
+				</resources>
+				<publication>DBLP:conf/itsc/LoosWSP13</publication> 				
+				<authors>
+					<author>sloos</author>
+                    <author>dwitmer</author>
+					<author>platzer</author>
+					<author>Peter Steenkiste</author>
+				</authors>
+				<proofauthors>
+					<author>sloos</author>
+				</proofauthors>
+        	    <source href="http://symbolaris.com/pub/dccs-efficiency.pdf"/>
+        		<requirements>
+        			<some>
+        				<quantifiereliminator>Mathematica</quantifiereliminator>
+        			</some>
+        		</requirements>
+        	</example>            
             <example>
                 <name>Car Control Intersection [stoplight]</name>
                         <path>/examples/hybrid/car/intersection/intersection-example-simple.key</path>
@@ -2287,8 +2314,20 @@ K is the scale factor between force and velocity in the admittance control law</
 		<url>http://www.lix.polytechnique.fr/~ghorbal/</url>
 		<imgurl>http://www.ls.cs.cmu.edu/meta/kghorbal.jpg</imgurl>
 	</author>
-
+    <author>
+        <short>dwitmer</short>
+        <name>David Witmer</name>
+        <url>http://www.cs.cmu.edu/~dwitmer/</url>
+        <imgurl></imgurl>
+    </author>
+    <author>
+        <short>prs</short>
+        <name>Peter Steenkiste</name>
+        <url>http://www.cs.cmu.edu/~prs/</url>
+        <imgurl></imgurl>
+    </author>
 </authors>
+    
 <publications>
 	<publication>
 		<short>DBLP:conf/rss/MitschGP13</short>
@@ -2391,6 +2430,18 @@ K is the scale factor between force and velocity in the admittance control law</
 		</authors>
 		<url>http://dx.doi.org/10.1007/978-3-642-15205-4_36</url>
 		<additional>In Michael Butler and Wolfram Schulte, editors, 17th International Symposium on Formal Methods, FM, Limerick, Ireland, Proceedings, volume 6664 of LNCS, pages 42-56. Springer, 2011.</additional>
+	</publication>
+	<publication>
+		<short>DBLP:conf/itsc/LoosWSP13</short>
+		<title>Efficiency Analysis of Formally Verified Adaptive Cruise Controllers</title>
+		<authors>
+			<author>sloos</author>
+            <author>dwitmer</author>
+			<author>prs</author>
+			<author>platzer</author>
+		</authors>
+        <url></url>
+		<additional>In Andreas Hegyi and Bart De Schutter, editors, 16th International IEEE Conference on Intelligent Transportation Systems, ITSC'13, The Hague, Netherlands, Proceedings, 2013. </additional>
 	</publication>
 	<publication>
 		<short>Platzer10</short>
