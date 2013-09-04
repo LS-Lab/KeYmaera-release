@@ -109,7 +109,6 @@ import de.uka.ilkd.key.strategy.feature.CheckApplyEqSymFeature;
 import de.uka.ilkd.key.strategy.feature.ConditionalFeature;
 import de.uka.ilkd.key.strategy.feature.ConstraintStrengthenFeature;
 import de.uka.ilkd.key.strategy.feature.ConstraintStrengthenFeatureUC;
-import de.uka.ilkd.key.strategy.feature.ContainsQuantifierFeature;
 import de.uka.ilkd.key.strategy.feature.CountMaxDPathFeature;
 import de.uka.ilkd.key.strategy.feature.CountPosDPathFeature;
 import de.uka.ilkd.key.strategy.feature.DiffFindAndIfFeature;
@@ -1474,13 +1473,20 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 		if (EliminateExistentialQuantifierRule.INSTANCE.filter(app.rule())) {
 			// TODO we should still allow, e.g., and-right to fight prohibitive
 			// complexity
-			if(DLOptionBean.INSTANCE.isEliminateExistentialOnlyToTrue()) {
+			if(DLOptionBean.INSTANCE.isQeOnlyToTrue()) {
 				if(EliminateExistentialQuantifierRule.INSTANCE.isApplicable(goal, pio, Constraint.BOTTOM) && new TautologyTestFeature().compute(app, pio, goal) == TopRuleAppCost.INSTANCE) {
 					return true;
 				}
 			}
 			return false;
 		}
+        if (ReduceRule.INSTANCE.filter(app.rule())) {
+            if(DLOptionBean.INSTANCE.isQeOnlyToTrue()) {
+                if(ReduceRule.INSTANCE.isApplicable(goal, pio, Constraint.BOTTOM) && new TautologyTestFeature().compute(app, pio, goal) == TopRuleAppCost.INSTANCE) {
+                    return true;
+                }
+            }
+        }
 		if (blockAllRules) {
 			return true;
 		}

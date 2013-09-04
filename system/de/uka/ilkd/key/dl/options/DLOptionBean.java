@@ -24,7 +24,6 @@ package de.uka.ilkd.key.dl.options;
 
 import java.io.File;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Properties;
 import java.util.Set;
@@ -32,12 +31,8 @@ import java.util.Set;
 import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
 import de.uka.ilkd.key.dl.model.TermFactory;
 import de.uka.ilkd.key.gui.GUIEvent;
-import de.uka.ilkd.key.gui.KeYMediator;
-import de.uka.ilkd.key.gui.Main;
 import de.uka.ilkd.key.gui.configuration.Settings;
 import de.uka.ilkd.key.gui.configuration.SettingsListener;
-import de.uka.ilkd.key.proof.Goal;
-import de.uka.ilkd.key.proof.Proof;
 import de.uka.ilkd.key.proof.ProofSaver;
 
 /**
@@ -333,7 +328,7 @@ public class DLOptionBean implements Settings {
     
     private boolean ibcOnlyToFO;
     
-    private boolean eliminateExistentialOnlyToTrue;
+    private boolean qeOnlyToTrue;
     
 	private DLOptionBean() {
 		subOptions = new LinkedHashSet<Settings>();
@@ -389,20 +384,20 @@ public class DLOptionBean implements Settings {
 
 		cexFinder = CexFinder.ITER_DEEP;
 		tracerStat = TracerStat.OFF;
-		eliminateExistentialOnlyToTrue = false;
+		qeOnlyToTrue = false;
 		if(!init) {
 		    firePropertyChanged();
 		}
 	}
 	
-	public boolean isEliminateExistentialOnlyToTrue() {
-		return eliminateExistentialOnlyToTrue;
+	public boolean isQeOnlyToTrue() {
+		return qeOnlyToTrue;
 	}
 
-	public void setEliminateExistentialOnlyToTrue(
-			boolean eliminateExistentialOnlyToTrue) {
-		if(this.eliminateExistentialOnlyToTrue != eliminateExistentialOnlyToTrue) {
-			this.eliminateExistentialOnlyToTrue = eliminateExistentialOnlyToTrue;
+	public void setQeOnlyToTrue(
+            boolean qeOnlyToTrue) {
+		if(this.qeOnlyToTrue != qeOnlyToTrue) {
+			this.qeOnlyToTrue = qeOnlyToTrue;
 			firePropertyChanged();
 		}
 	}
@@ -751,9 +746,9 @@ public class DLOptionBean implements Settings {
 		if(property != null) {
 		    ibcOnlyToFO = Boolean.valueOf(property);
 		}
-		property = props.getProperty(EPropertyConstant.DLOPTIONS_EXISTENTIAL_ONLY_TO_TRUE.getKey());
+		property = props.getProperty(EPropertyConstant.DLOPTIONS_QE_ONLY_TO_TRUE.getKey());
 		if (property != null) {
-			eliminateExistentialOnlyToTrue = Boolean.valueOf(property);
+			qeOnlyToTrue = Boolean.valueOf(property);
 		}
 
 		try {
@@ -867,7 +862,7 @@ public class DLOptionBean implements Settings {
 		props.setProperty(EPropertyConstant.DLOPTIONS_REDUCE_ON_FRESH_BRANCH.getKey(), Boolean.toString(reduceOnFreshBranch));
 		props.setProperty(EPropertyConstant.DLOPTIONS_SOLVE_ODE.getKey(), Boolean.toString(solveODE));
 		props.setProperty(EPropertyConstant.DLOPTIONS_IBC_ONLY_TO_FO.getKey(), Boolean.toString(ibcOnlyToFO));
-		props.setProperty(EPropertyConstant.DLOPTIONS_EXISTENTIAL_ONLY_TO_TRUE.getKey(), Boolean.toString(eliminateExistentialOnlyToTrue));
+		props.setProperty(EPropertyConstant.DLOPTIONS_QE_ONLY_TO_TRUE.getKey(), Boolean.toString(qeOnlyToTrue));
 
 	}
 

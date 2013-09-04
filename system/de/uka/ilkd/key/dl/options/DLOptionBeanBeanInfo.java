@@ -174,7 +174,7 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
 									        true, false),
 					createDescriptor("ibcOnlyToFO", EPropertyConstant.DLOPTIONS_IBC_ONLY_TO_FO,
 									                true, false),
-					createDescriptor("eliminateExistentialOnlyToTrue", EPropertyConstant.DLOPTIONS_EXISTENTIAL_ONLY_TO_TRUE,
+					createDescriptor("qeOnlyToTrue", EPropertyConstant.DLOPTIONS_QE_ONLY_TO_TRUE,
 									                true, false),
 			// createDescriptor("invariantRule", "invariant rule",
 			// "choose which invariant rule should be used", true,
