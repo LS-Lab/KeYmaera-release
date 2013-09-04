@@ -160,7 +160,14 @@ public class Semisequent implements Iterable<ConstrainedFormula> {
 	while ( !searchList.isEmpty() ) {
 	    ++pos;
 	    cf         = searchList.head ();
-	    searchList = searchList.tail();	    
+	    searchList = searchList.tail();
+        if(cf.formula().equals(conForm.formula()) && !cf.formula().toString().equals(conForm.toString())) {
+            throw new IllegalStateException("There are two formulas that are equal as strings but not as formulas.");
+        }
+
+        if(cf.equals(conForm) && !cf.formula().toString().equals(conForm.toString())) {
+            throw new IllegalStateException("There are two formulas that are equal as strings but not as ConstraintedFormula.");
+        }
 
             // for the moment we do not remove redundancy if intersection sorts are required
             // Attention: just replacing null by new Services () slows KeY down by factor 3

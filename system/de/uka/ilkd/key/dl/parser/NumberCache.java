@@ -27,9 +27,12 @@ public class NumberCache {
 	private static final Map<Name, Function> NUMBERS = new WeakHashMap<Name, Function>();
 
 	public static Function getNumber(BigDecimal number, Sort r) {
-		Name name = new Name(number.toPlainString());
+		Name name = new Name(number.stripTrailingZeros().toPlainString());
 		Function num = NUMBERS.get(name);
 		if (num == null) {
+            if(number.compareTo(BigDecimal.ZERO) < 0) {
+                throw new IllegalArgumentException("Numbers should always be positive. Otherwise use neg(num) in order to negate it.");
+            }
 			num = new RigidFunction(name, r, new Sort[0]);
 			NUMBERS.put(name, num);
 		}

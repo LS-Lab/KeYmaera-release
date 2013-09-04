@@ -398,11 +398,11 @@ public class TermFactory {
     public Term createFunctionWithBoundVarsTerm(TermSymbol op,
 						Term[] subTerms,
 						ImmutableArray<QuantifiableVariable>[] boundVars) {
-	if (boundVars != null) {
-	   return new BoundVarsTerm(op, subTerms, boundVars).checked(); 
-	} else {
+//	if (boundVars != null) {
+//	   return new BoundVarsTerm(op, subTerms, boundVars).checked();
+//	} else {
 	    return createFunctionTerm(op, subTerms);
-	}
+//	}
      }
     
     
