@@ -43,38 +43,8 @@ import de.uka.ilkd.key.dl.rules.PlotRule;
 import de.uka.ilkd.key.dl.rules.ReduceRule;
 import de.uka.ilkd.key.dl.rules.SumOfSquaresRule;
 import de.uka.ilkd.key.dl.rules.VisualizationRule;
-import de.uka.ilkd.key.dl.strategy.features.AllRigidFeature;
-import de.uka.ilkd.key.dl.strategy.features.AnnotationList;
-import de.uka.ilkd.key.dl.strategy.features.AtomsSmallerThanFeature;
-import de.uka.ilkd.key.dl.strategy.features.ContainsInequalityFeature;
-import de.uka.ilkd.key.dl.strategy.features.ContainsMetaVariableFeature;
-import de.uka.ilkd.key.dl.strategy.features.DiffIndCandidates;
-import de.uka.ilkd.key.dl.strategy.features.DiffInvariantPresentFeature;
-import de.uka.ilkd.key.dl.strategy.features.DiffSatFeature;
-import de.uka.ilkd.key.dl.strategy.features.DiffSystemWeakenCandidates;
-import de.uka.ilkd.key.dl.strategy.features.DiffWeakenFeature;
-import de.uka.ilkd.key.dl.strategy.features.EliminateExistentialApproveFeature;
-import de.uka.ilkd.key.dl.strategy.features.FOFormula;
-import de.uka.ilkd.key.dl.strategy.features.FOSequence;
-import de.uka.ilkd.key.dl.strategy.features.FindInstanceTest;
-import de.uka.ilkd.key.dl.strategy.features.FindTransitionTest;
-import de.uka.ilkd.key.dl.strategy.features.HypotheticalProvabilityFeature;
-import de.uka.ilkd.key.dl.strategy.features.KeYBeyondFO;
-import de.uka.ilkd.key.dl.strategy.features.LoopInvariantRuleDispatchFeature;
-import de.uka.ilkd.key.dl.strategy.features.MonomialsSmallerThanFeature;
-import de.uka.ilkd.key.dl.strategy.features.ODESolvableFeature;
-import de.uka.ilkd.key.dl.strategy.features.OnlyOncePerBranchFeature;
-import de.uka.ilkd.key.dl.strategy.features.PolynomialValuesCmpFeature;
-import de.uka.ilkd.key.dl.strategy.features.PostDiffStrengthFeature;
-import de.uka.ilkd.key.dl.strategy.features.ProgramSVInstantiationCP;
-import de.uka.ilkd.key.dl.strategy.features.ReduceFeature;
-import de.uka.ilkd.key.dl.strategy.features.ReducibleMonomialsFeature;
-import de.uka.ilkd.key.dl.strategy.features.SimplifyFeature;
-import de.uka.ilkd.key.dl.strategy.features.SwitchFeature;
+import de.uka.ilkd.key.dl.strategy.features.*;
 import de.uka.ilkd.key.dl.strategy.features.SwitchFeature.Case;
-import de.uka.ilkd.key.dl.strategy.features.TautologyTestFeature;
-import de.uka.ilkd.key.dl.strategy.features.TimeoutTestApplicationFeature;
-import de.uka.ilkd.key.dl.strategy.features.TrivialMonomialLCRFeature;
 import de.uka.ilkd.key.dl.strategy.termProjection.Buffer;
 import de.uka.ilkd.key.dl.strategy.termProjection.CoeffGcdProjection;
 import de.uka.ilkd.key.dl.strategy.termProjection.Generator;
@@ -852,7 +822,7 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 								literalTerm, literalTerm), or(opSub(tf.leq,
 								literalTerm, literalTerm), opSub(tf.geq,
 								literalTerm, literalTerm)))))),
-				FindDepthFeature.INSTANCE, longConst(-8000)));
+				FindDepthFeature.INSTANCE, add(EvalLiteralsFeature.INSTANCE, longConst(-8000))));
 
 		bindRuleSet(d, "eval_literals_right", add(applyTF("calcRight0",
 				literalTerm), applyTF("calcRight1", literalTerm),
