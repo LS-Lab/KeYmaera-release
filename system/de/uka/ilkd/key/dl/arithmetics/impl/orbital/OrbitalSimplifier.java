@@ -270,9 +270,13 @@ public class OrbitalSimplifier implements ISimplifier {
 	    // TODO: generalise this so that we do not have to casesplit over
 	    // the different kinds of Arithmetic
 	    if (a instanceof Integer) {
-		final Function num = NumberCache.getNumber(new BigDecimal (a.toString()),
-			                                   RealLDT.getRealSort());
-		return TermBuilder.DF.func(num);
+            if(((Integer) a).compareTo(Values.getDefault().ZERO()) < 0) {
+                return TermBuilder.DF.func(RealLDT.getFunctionFor(MinusSign.class), arithmetic2Term(((Integer) a).multiply(Values.getDefault().MINUS_ONE())));
+            } else {
+                final Function num = NumberCache.getNumber(new BigDecimal (a.toString()),
+                                                       RealLDT.getRealSort());
+                return TermBuilder.DF.func(num);
+            }
 	    } else if (a instanceof Rational) {
 		final Rational norm = ((Rational)a).representative();
 		if (norm.denominator().isOne())
