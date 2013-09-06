@@ -26,6 +26,7 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import de.uka.ilkd.key.gui.configuration.ProofSettings;
 import de.uka.ilkd.key.parser.Location;
 import de.uka.ilkd.key.parser.ParserException;
 import de.uka.ilkd.key.proof.SVInstantiationExceptionWithPosition;
@@ -131,6 +132,12 @@ public class ExceptionDialog extends JDialog {
                                     zout.write("\n".getBytes());
                                 }
                             }
+                            zout.closeEntry();
+                            zout.putNextEntry(new ZipEntry("settings.txt"));
+                            zout.write(ProofSettings.DEFAULT_SETTINGS.settingsToString().getBytes());
+                            zout.closeEntry();
+                            zout.putNextEntry(new ZipEntry("environment.txt"));
+                            System.getProperties().store(zout, "System environment");
                             zout.closeEntry();
                             File tmp = File.createTempFile("keymaera", ".proof");
                             tmp.createNewFile();
