@@ -17,8 +17,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import java.io.*;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -41,6 +42,7 @@ public class ExceptionDialog extends JDialog {
     private Object[] exceptionArray;
     private JTextArea stTextArea;
     private boolean withList = false;
+    private JButton feedBackButton;
 
     private Location getLocation(Object exc){
 	Location location=null;
@@ -74,10 +76,12 @@ public class ExceptionDialog extends JDialog {
 
     private JPanel createButtonPanel(){
 	 this.closeButton = new JButton( "Close" );
+        this.feedBackButton = new JButton( "Send Feedback");
          JCheckBox detailsBox  = new JCheckBox("Show Details");
          detailsBox.setSelected(false);
 	 JPanel bPanel = new JPanel();
 	 bPanel.add(closeButton);
+        bPanel.add(feedBackButton);
 	 bPanel.add(detailsBox);
 
 	 ActionListener closeListener = new ActionListener() {
@@ -102,6 +106,58 @@ public class ExceptionDialog extends JDialog {
      		 }
 	 };
 	 closeButton.addActionListener(closeListener);
+        feedBackButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int i = JOptionPane.showConfirmDialog(Main.getInstance(), "KeYmaera will now generate a zip file containing the necessary\n" +
+                        "information in order to debug this issue.\n" +
+                        "Please save this zip and send it to\n" +
+                        "keymaera-bugs@symbolaris.com\n via email.", "Send Feedback?", JOptionPane.OK_CANCEL_OPTION);
+                if(i == JOptionPane.OK_OPTION) {
+                    setVisible(false);
+                    dispose();
+                    JFileChooser f = new JFileChooser("Save KeYmaera Feedback File");
+                    int r = f.showSaveDialog(Main.getInstance());
+                    if(r == JFileChooser.APPROVE_OPTION) {
+                        File out = f.getSelectedFile();
+                        try {
+                            ZipOutputStream zout = new ZipOutputStream(new FileOutputStream(out));
+                            zout.putNextEntry(new ZipEntry("trace.txt"));
+                            for(Object o: exceptionArray) {
+                                if(o instanceof Throwable) {
+                                    zout.write(((Throwable) o).getMessage().getBytes());
+                                    zout.write("\n".getBytes());
+                                    ((Throwable) o).printStackTrace(new PrintStream(zout));
+                                    zout.write("\n".getBytes());
+                                }
+                            }
+                            zout.closeEntry();
+                            File tmp = File.createTempFile("keymaera", ".proof");
+                            tmp.createNewFile();
+                            Main.getInstance().saveProof(tmp);
+                            FileInputStream in = new FileInputStream(tmp);
+                            int b;
+                            zout.putNextEntry(new ZipEntry(Main.getInstance().mediator().getProof().name().toString() + ".proof"));
+                            while((b = in.read()) != -1) {
+                                zout.write((byte)b);
+                            }
+                            zout.closeEntry();
+                            zout.flush();
+                            zout.close();
+                        } catch (FileNotFoundException e1) {
+                            e1.printStackTrace();
+                        } catch (IOException e1) {
+                            e1.printStackTrace();
+                        }
+                        JOptionPane.showMessageDialog(Main.getInstance(), "Successfully written feedback to:\n"
+                                + f.getSelectedFile().getAbsolutePath() + "\nPlease send it via email to:\n" +
+                                "keymaera-bugs@symbolaris.com\n" +
+                                "Including any remarks that could help us figure out what went wrong.");
+                    }
+                }
+
+            }
+        });
 	 detailsBox.addItemListener(detailsBoxListener);
 	 return bPanel;
     }
