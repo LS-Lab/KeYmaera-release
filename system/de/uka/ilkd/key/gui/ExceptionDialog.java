@@ -112,7 +112,7 @@ public class ExceptionDialog extends JDialog {
                 int i = JOptionPane.showConfirmDialog(Main.getInstance(), "KeYmaera will now generate a zip file containing the necessary\n" +
                         "information in order to debug this issue.\n" +
                         "Please save this zip and send it to\n" +
-                        "keymaera-bugs@symbolaris.com\n via email.", "Send Feedback?", JOptionPane.OK_CANCEL_OPTION);
+                        "keymaera-bug@symbolaris.com\n via email.", "Send Feedback?", JOptionPane.OK_CANCEL_OPTION);
                 if(i == JOptionPane.OK_OPTION) {
                     setVisible(false);
                     dispose();
@@ -151,7 +151,7 @@ public class ExceptionDialog extends JDialog {
                         }
                         JOptionPane.showMessageDialog(Main.getInstance(), "Successfully written feedback to:\n"
                                 + f.getSelectedFile().getAbsolutePath() + "\nPlease send it via email to:\n" +
-                                "keymaera-bugs@symbolaris.com\n" +
+                                "keymaera-bug@symbolaris.com\n" +
                                 "Including any remarks that could help us figure out what went wrong.");
                     }
                 }
