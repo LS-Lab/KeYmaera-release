@@ -139,16 +139,18 @@ public class ExceptionDialog extends JDialog {
                             zout.putNextEntry(new ZipEntry("environment.txt"));
                             System.getProperties().store(zout, "System environment");
                             zout.closeEntry();
-                            File tmp = File.createTempFile("keymaera", ".proof");
-                            tmp.createNewFile();
-                            Main.getInstance().saveProof(tmp);
-                            FileInputStream in = new FileInputStream(tmp);
-                            int b;
-                            zout.putNextEntry(new ZipEntry(Main.getInstance().mediator().getProof().name().toString() + ".proof"));
-                            while((b = in.read()) != -1) {
-                                zout.write((byte)b);
+                            if(Main.getInstance().mediator().getSelectedProof() != null) {
+                                File tmp = File.createTempFile("keymaera", ".proof");
+                                tmp.createNewFile();
+                                Main.getInstance().saveProof(tmp);
+                                FileInputStream in = new FileInputStream(tmp);
+                                int b;
+                                zout.putNextEntry(new ZipEntry(Main.getInstance().mediator().getProof().name().toString() + ".proof"));
+                                while((b = in.read()) != -1) {
+                                    zout.write((byte)b);
+                                }
+                                zout.closeEntry();
                             }
-                            zout.closeEntry();
                             zout.flush();
                             zout.close();
                         } catch (FileNotFoundException e1) {
