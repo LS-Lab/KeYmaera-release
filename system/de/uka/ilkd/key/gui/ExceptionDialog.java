@@ -140,16 +140,29 @@ public class ExceptionDialog extends JDialog {
                             System.getProperties().store(zout, "System environment");
                             zout.closeEntry();
                             if(Main.getInstance().mediator().getSelectedProof() != null) {
-                                File tmp = File.createTempFile("keymaera", ".proof");
-                                tmp.createNewFile();
-                                Main.getInstance().saveProof(tmp);
-                                FileInputStream in = new FileInputStream(tmp);
-                                int b;
-                                zout.putNextEntry(new ZipEntry(Main.getInstance().mediator().getProof().name().toString() + ".proof"));
-                                while((b = in.read()) != -1) {
-                                    zout.write((byte)b);
+                                // try to save the current proof
+                                try {
+                                    File tmp = File.createTempFile("keymaera", ".proof");
+                                    tmp.createNewFile();
+                                    Main.getInstance().saveProof(tmp);
+                                    String fileName = Main.getInstance().mediator().getProof().name().toString() + ".proof";
+                                    saveFileToZip(zout, tmp, fileName);
+                                } catch(IOException io) {
+                                    // ignore
+                                    io.printStackTrace();
                                 }
-                                zout.closeEntry();
+                            } else if(Main.getInstance().getRecentFiles() != null && Main.getInstance().getRecentFiles().getMostRecent() != null) {
+                                try {
+                                    // try to save the most recent file
+                                    File recent = new File(Main.getInstance().getRecentFiles().getMostRecent().getAbsolutePath());
+                                    saveFileToZip(zout, recent, Main.getInstance().getRecentFiles().getMostRecent().getFileName());
+                                } catch(FileNotFoundException fnf) {
+                                    // ignore
+                                    fnf.printStackTrace();
+                                } catch(IOException io) {
+                                    // ignore
+                                    io.printStackTrace();
+                                }
                             }
                             zout.flush();
                             zout.close();
@@ -170,7 +183,17 @@ public class ExceptionDialog extends JDialog {
 	 detailsBox.addItemListener(detailsBoxListener);
 	 return bPanel;
     }
-    
+
+    private void saveFileToZip(ZipOutputStream zout, File tmp, String fileName) throws IOException {
+        FileInputStream in = new FileInputStream(tmp);
+        int b;
+        zout.putNextEntry(new ZipEntry(fileName));
+        while((b = in.read()) != -1) {
+            zout.write((byte)b);
+        }
+        zout.closeEntry();
+    }
+
 
     private JScrollPane createJListScroll(Object[] excArray){
 	 String[] excMessages = new String[excArray.length];

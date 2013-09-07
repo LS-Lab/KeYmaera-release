@@ -1015,8 +1015,11 @@ public class Main extends JFrame implements IMain {
             this.monitor.notifyAll();
         }
     }
-    
- 
+
+    public RecentFileMenu getRecentFiles() {
+        return recentFiles;
+    }
+
     /** opens selection dialog for the maximum tooltip line number */
     protected void selectMaxTooltipLines() {
         ViewSelector vselector = new ViewSelector(this);
@@ -2248,6 +2251,7 @@ public class Main extends JFrame implements IMain {
 	    return;
 	if (recentFiles != null) {
 	    recentFiles.addRecentFile(file.getAbsolutePath());
+        recentFiles.store(PathConfig.RECENT_FILES_STORAGE);
 	}
 	if(unitKeY!=null){
 	    unitKeY.recent.addRecentFile(file.getAbsolutePath());
