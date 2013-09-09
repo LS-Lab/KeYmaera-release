@@ -375,7 +375,7 @@ public class DLOptionBean implements Settings {
 		applyGlobalReduce = true;
 		usePowersetIterativeReduce = true;
 		percentOfPowersetForReduce = 70;
-		builtInArithmetic = BuiltInArithmetic.OFF;
+		builtInArithmetic = BuiltInArithmetic.APPLY_EQUALITIES;
 		builtInArithmeticIneqs = BuiltInArithmeticIneqs.OFF;
 		useSOS = false;
 		csdpForceInternal = false;
