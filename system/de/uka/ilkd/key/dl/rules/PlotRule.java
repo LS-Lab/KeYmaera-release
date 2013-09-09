@@ -22,53 +22,37 @@
  */
 package de.uka.ilkd.key.dl.rules;
 
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.math.BigDecimal;
-import java.math.MathContext;
-import java.math.RoundingMode;
-import java.rmi.RemoteException;
-import java.util.*;
-
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-import javax.swing.SwingUtilities;
-
-import de.uka.ilkd.key.dl.logic.ldt.RealLDT;
-import de.uka.ilkd.key.dl.parser.NumberCache;
-import de.uka.ilkd.key.logic.*;
-import de.uka.ilkd.key.logic.op.LogicVariable;
-import de.uka.ilkd.key.logic.op.RigidFunction;
-import org.math.plot.Plot2DPanel;
-
 import de.uka.ilkd.key.collection.ImmutableList;
 import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
 import de.uka.ilkd.key.dl.arithmetics.impl.mathematica.Mathematica;
-import de.uka.ilkd.key.dl.model.DLNonTerminalProgramElement;
-import de.uka.ilkd.key.dl.model.DLStatementBlock;
-import de.uka.ilkd.key.dl.model.DiffSystem;
-import de.uka.ilkd.key.dl.model.FreeFunction;
-import de.uka.ilkd.key.dl.model.LogicalVariable;
-import de.uka.ilkd.key.dl.model.ProgramVariable;
-import de.uka.ilkd.key.dl.strategy.features.FOFormula;
+import de.uka.ilkd.key.dl.logic.ldt.RealLDT;
+import de.uka.ilkd.key.dl.model.*;
+import de.uka.ilkd.key.dl.parser.NumberCache;
 import de.uka.ilkd.key.dl.strategy.features.FOSequence;
 import de.uka.ilkd.key.gui.Main;
 import de.uka.ilkd.key.gui.notification.events.ExceptionEvent;
 import de.uka.ilkd.key.java.ProgramElement;
 import de.uka.ilkd.key.java.Services;
+import de.uka.ilkd.key.logic.*;
+import de.uka.ilkd.key.logic.op.LogicVariable;
+import de.uka.ilkd.key.logic.op.RigidFunction;
 import de.uka.ilkd.key.logic.sort.ProgramSVSort;
 import de.uka.ilkd.key.proof.Goal;
 import de.uka.ilkd.key.proof.RuleFilter;
 import de.uka.ilkd.key.rule.BuiltInRule;
 import de.uka.ilkd.key.rule.Rule;
 import de.uka.ilkd.key.rule.RuleApp;
+import org.math.plot.Plot2DPanel;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.rmi.RemoteException;
+import java.util.*;
 
 /**
  * This rule is used to plot trajectories of differential equation systems
@@ -93,11 +77,12 @@ public class PlotRule implements BuiltInRule, RuleFilter {
                 && pio.subTerm().javaBlock() != null
                 && pio.subTerm().javaBlock().program() != null
                 && pio.subTerm().javaBlock().program() instanceof DLStatementBlock) {
-            return pio.isTopLevel()
-                    || ProgramSVSort.DL_SIMPLE_ORDINARY_DIFF_SYSTEM_SORT_INSTANCE
-                    .canStandFor(((DLStatementBlock) pio.subTerm()
-                            .javaBlock().program()).getChildAt(0),
-                            null, goal.proof().getServices());
+//            return pio.isTopLevel()
+//                    || ProgramSVSort.DL_SIMPLE_ORDINARY_DIFF_SYSTEM_SORT_INSTANCE
+//                    .canStandFor(((DLStatementBlock) pio.subTerm()
+//                            .javaBlock().program()).getChildAt(0),
+//                            null, goal.proof().getServices());
+            return true;
         }
         return false;
     }
@@ -289,7 +274,14 @@ public class PlotRule implements BuiltInRule, RuleFilter {
                                 d = new BigDecimal(0);
                             }
                             if (var != null) {
-                                t = TermBuilder.DF.and(t, TermBuilder.DF.equals(var, TermBuilder.DF.func(NumberCache.getNumber(d, RealLDT.getRealSort()))));
+                                Term number;
+                                if (d.compareTo(BigDecimal.ZERO) < 0) {
+                                    number = TermBuilder.DF.func(RealLDT.getFunctionFor(MinusSign.class),
+                                            TermBuilder.DF.func(NumberCache.getNumber(d.negate(), RealLDT.getRealSort())));
+                                } else {
+                                    number = TermBuilder.DF.func(NumberCache.getNumber(d, RealLDT.getRealSort()));
+                                }
+                                t = TermBuilder.DF.and(t, TermBuilder.DF.equals(var, number));
                             }
                         }
                         subTerm = TermBuilder.DF.imp(t, subTerm);
