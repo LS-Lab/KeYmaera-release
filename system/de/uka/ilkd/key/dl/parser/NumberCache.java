@@ -27,7 +27,14 @@ public class NumberCache {
 	private static final Map<Name, Function> NUMBERS = new WeakHashMap<Name, Function>();
 
 	public static Function getNumber(BigDecimal number, Sort r) {
-		Name name = new Name(number.stripTrailingZeros().toPlainString());
+        String n = number.stripTrailingZeros().toPlainString();
+        // bugfix for 0.0 and so on (will be fixed in BigDecimal in Java 8
+        // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6480539
+        while(n.contains(".") && (n.endsWith("0") || n.endsWith("."))) {
+            n = n.substring(0, n.length() - 1);
+        }
+        assert new BigDecimal(n).compareTo(number) == 0 : "Stripping trailing zeros should not change the value of a number " + number + " != " + n;
+        Name name = new Name(n);
 		Function num = NUMBERS.get(name);
 		if (num == null) {
             if(number.compareTo(BigDecimal.ZERO) < 0) {
