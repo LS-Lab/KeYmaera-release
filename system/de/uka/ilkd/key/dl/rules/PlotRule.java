@@ -288,11 +288,11 @@ public class PlotRule implements BuiltInRule, RuleFilter {
                         dialog.setVisible(false);
                         dialog.dispose();
                         final JDialog calc = new JDialog();
-                        calc.setTitle("Calculating...");
+                        calc.setTitle("Simulating...");
                         calc.getContentPane().setLayout(new BorderLayout());
                         calc.getContentPane()
                                 .add(new JLabel(
-                                        "<html><body>Mathematica is used to calculate the simulation data.<br>This might take a while.</body></html>"),
+                                        "<html><body>Calculating the simulation data.<br>This might take a while.</body></html>"),
                                         BorderLayout.CENTER);
                         JButton abort = new JButton("Abort");
                         calc.getContentPane().add(abort, BorderLayout.SOUTH);
