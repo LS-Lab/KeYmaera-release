@@ -923,11 +923,19 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 				FocusProjection.create(0), let(eqLeft, sub(AssumptionProjection
 						.create(0), 0), validEqApplication))));
 
-		bindRuleSet(d, "polySimp_applyEq", add(eq_monomial_feature,
-				longConst(1)));
+        if(DLOptionBean.INSTANCE.isApplyEquations()) {
+            // our naiive implementation of apply equation must not rules these advanced rules, other it gets into an
+            // infinite loop in some examples
+            bindRuleSet(d, "polySimp_applyEq", inftyConst());
 
-		bindRuleSet(d, "polySimp_applyEqRigid", add(eq_monomial_feature,
-				longConst(2)));
+            bindRuleSet(d, "polySimp_applyEqRigid", inftyConst());
+        } else {
+            bindRuleSet(d, "polySimp_applyEq", add(eq_monomial_feature,
+                    longConst(1)));
+
+            bindRuleSet(d, "polySimp_applyEqRigid", add(eq_monomial_feature,
+                    longConst(2)));
+        }
 
 		// category "saturate"
 
