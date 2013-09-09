@@ -87,7 +87,7 @@ public class ViewSettings implements Settings {
     private boolean hideClosedSubtrees = false;
 
     /** show a window containing the console output while the strategy is running */
-    private boolean showConsoleOutput = true;
+    private boolean showConsoleOutput = false;
 
     private LinkedList<SettingsListener> listenerList = new LinkedList<SettingsListener>();
 

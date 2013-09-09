@@ -23,9 +23,7 @@
 package de.uka.ilkd.key.dl.arithmetics.impl.mathematica;
 
 import java.awt.Frame;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.math.BigInteger;
 import java.net.UnknownHostException;
 import java.rmi.NotBoundException;
@@ -40,9 +38,6 @@ import javax.swing.SwingUtilities;
 
 import com.wolfram.jlink.Expr;
 import com.wolfram.jlink.ExprFormatException;
-import com.wolfram.jlink.KernelLink;
-import com.wolfram.jlink.MathLinkException;
-import com.wolfram.jlink.MathLinkFactory;
 
 import de.uka.ilkd.key.dl.arithmetics.IODESolver.ODESolverResult;
 import de.uka.ilkd.key.dl.arithmetics.IODESolver.ODESolverUpdate;
@@ -63,7 +58,6 @@ import de.uka.ilkd.key.dl.formulatools.collector.AllCollector;
 import de.uka.ilkd.key.dl.formulatools.collector.filter.FilterVariableCollector;
 import de.uka.ilkd.key.dl.image_compute.CounterExampleFinder;
 import de.uka.ilkd.key.dl.model.DLNonTerminalProgramElement;
-import de.uka.ilkd.key.dl.model.DLProgram;
 import de.uka.ilkd.key.dl.model.DiffSystem;
 import de.uka.ilkd.key.dl.model.Dot;
 import de.uka.ilkd.key.dl.model.ProgramVariable;
@@ -77,10 +71,8 @@ import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.TermBuilder;
 import de.uka.ilkd.key.logic.op.LogicVariable;
 import de.uka.ilkd.key.logic.op.SubstOp;
-import de.uka.ilkd.key.pp.LogicPrinter;
 import de.uka.ilkd.key.proof.ProofSaver;
 import de.uka.ilkd.key.util.Debug;
-import edu.cmu.cs.ls.Formula;
 import edu.cmu.cs.ls.OP;
 import edu.cmu.cs.ls.lyusimul.hpToExpr;
 
@@ -721,8 +713,14 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 		ExprAndMessages evaluate;
 		IKernelLinkWrapper wrapper = getKernelWrapper();
 		try {
-			evaluate = wrapper.evaluate(expr, timeout, Options.INSTANCE
-					.getMemoryConstraint());
+            if(Options.INSTANCE.isUseParallelize()) {
+                Expr par = new Expr(new Expr(Expr.SYMBOL, "Parallelize"), new Expr[] { expr });
+                evaluate = wrapper.evaluate(par, timeout, Options.INSTANCE
+                        .getMemoryConstraint());
+            } else {
+                evaluate = wrapper.evaluate(expr, timeout, Options.INSTANCE
+                        .getMemoryConstraint());
+            }
 		} catch (RemoteException e) {
 			Registry reg = LocateRegistry.getRegistry(serverIP, port);
 			try {
@@ -732,8 +730,14 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 				throw new ConnectionProblemException("Problem with KernelLink",
 						f);
 			}
-			evaluate = wrapper.evaluate(expr, timeout, Options.INSTANCE
-					.getMemoryConstraint());
+            if(Options.INSTANCE.isUseParallelize()) {
+                Expr par = new Expr(new Expr(Expr.SYMBOL, "Parallelize"), new Expr[] { expr });
+                evaluate = wrapper.evaluate(par, timeout, Options.INSTANCE
+                        .getMemoryConstraint());
+            } else {
+                evaluate = wrapper.evaluate(expr, timeout, Options.INSTANCE
+                        .getMemoryConstraint());
+            }
 		}
 		if (evaluate.messages != null) {
 			if (!evaluate.messages.toString().equals("{}")) {
@@ -1435,7 +1439,26 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 		Expr modaToDataPointExpr = hpToExpr.modaToDataPointExpr(m, tendLimi, nUnroLoop, randMin, randMax);
 		try {
 			// use toString as the Expr does only yield $Aborted as result
-			Expr simResult = kernelWrapper.nativeEvaluate(modaToDataPointExpr.toString());
+//            Expr res = evaluate(modaToDataPointExpr).expression;
+//            if(res.toString().equals("$Aborted")) {
+//                try {
+//                    FileOutputStream ios = new FileOutputStream(new java.io.File("/tmp/expr.xml"));
+//                    ObjectOutputStream out = new ObjectOutputStream(ios);
+//                    out.writeObject(modaToDataPointExpr);
+//                    ios.flush();
+//                    ios.close();
+//                } catch (FileNotFoundException e) {
+//                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+//                } catch (IOException e) {
+//                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+//                }
+//            }
+            Expr simResult;
+            if(Options.INSTANCE.isUseParallelize()) {
+                simResult = kernelWrapper.nativeEvaluate("Parallelize[" + modaToDataPointExpr.toString() + "]");
+            } else {
+                simResult = kernelWrapper.nativeEvaluate(modaToDataPointExpr.toString());
+            }
 			if(simResult.vectorQ()) {
 				Map<String, Double[][]> result = new LinkedHashMap<String, Double[][]>();
 				for(Expr expr: simResult.args()) {

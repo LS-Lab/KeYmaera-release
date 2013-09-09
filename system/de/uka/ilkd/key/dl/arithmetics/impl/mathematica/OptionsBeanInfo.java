@@ -78,6 +78,9 @@ public class OptionsBeanInfo extends SimpleBeanInfo {
 					createDescriptor(
 							"memoryConstraint",EPropertyConstant.MATHEMATICA_OPTIONS_MEMORYCONSTRAINT,							
 							false, false),
+                    createDescriptor(
+                            "useParallelize",EPropertyConstant.MATHEMATICA_OPTIONS_PARALLELIZE,
+                            false, false),
 					createDescriptor(
 							"quantifierEliminationMethod",EPropertyConstant.MATHEMATICA_OPTIONS_QUANTIFIER_ELIMINATION_METHOD,
 							false, false,

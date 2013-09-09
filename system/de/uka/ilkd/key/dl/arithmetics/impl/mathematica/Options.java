@@ -93,6 +93,8 @@ public class Options implements Settings{
 	
 	private boolean eliminateFractions;
 
+    private boolean useParallelize;
+
 	private Options() {
 		listeners = new LinkedList<SettingsListener>();
 		mathKernel = new File("MathKernel");
@@ -119,6 +121,7 @@ public class Options implements Settings{
 		useEliminateList = true;
 		convertDecimalsToRationals = true;
 		eliminateFractions = false;
+        useParallelize = false;
 		memoryConstraint = -1;
 		firePropertyChanged();
 	}
@@ -168,6 +171,10 @@ public class Options implements Settings{
 		if (property != null) {
 		    eliminateFractions = Boolean.valueOf(property);
 		}
+        property = props.getProperty(EPropertyConstant.MATHEMATICA_OPTIONS_PARALLELIZE.getKey());
+        if (property != null) {
+            useParallelize = Boolean.valueOf(property);
+        }
 		File file = new File(PathConfig.KEY_CONFIG_DIR + File.separator
 				+ "webstart-math.props");
 		if (file.exists()) {
@@ -196,7 +203,8 @@ public class Options implements Settings{
 				.toString(useEliminateList));
 		props.setProperty(EPropertyConstant.MATHEMATICA_OPTIONS_MEMORYCONSTRAINT.getKey(), "" + memoryConstraint);
 		props.setProperty(EPropertyConstant.MATHEMATICA_OPTIONS_ELIMINATE_FRACTIONS.getKey(), Boolean.toString(eliminateFractions));
-		
+        props.setProperty(EPropertyConstant.MATHEMATICA_OPTIONS_PARALLELIZE.getKey(), Boolean.toString(useParallelize));
+
 		if(!ProofSaver.isInSavingMode()) {
 			// we don't want to save user specific pathes when saving proofs
 			props.setProperty(EPropertyConstant.MATHEMATICA_OPTIONS_MATHKERNEL.getKey(), mathKernel.getAbsolutePath());			
@@ -346,6 +354,15 @@ public class Options implements Settings{
             firePropertyChanged();
         }
     }
-	
 
+    public boolean isUseParallelize() {
+        return useParallelize;
+    }
+
+    public void setUseParallelize(boolean useParallelize) {
+        if(this.useParallelize != useParallelize) {
+            this.useParallelize = useParallelize;
+            firePropertyChanged();
+        }
+    }
 }
