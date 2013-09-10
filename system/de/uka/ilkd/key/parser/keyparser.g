@@ -2665,13 +2665,12 @@ unary_formula returns [Term a = null]
 term70 returns [Term a = null] 
 {
     Term a1;
-    boolean negated = false;
 }
     :
         a =  logicTermReEntry // accessterm 
         // a term like {o:=u}x=y is parsed as {o:=u}(x=y)
         (  
-	    (EQUALS | NOT_EQUALS {negated = true;}) a1 = logicTermReEntry
+	    EQUALS a1 = logicTermReEntry
             { 
                 if (a.sort() == Sort.FORMULA ||
                     a1.sort() == Sort.FORMULA) {
@@ -2690,9 +2689,6 @@ term70 returns [Term a = null]
             }
             a = tf.createEqualityTerm(a, a1);
 
-            if (negated) {
-              a = tf.createJunctorTerm(Op.NOT, a);
-            }
         })?
  ; exception
         catch [TermCreationException ex] {
@@ -2711,6 +2707,7 @@ relation_op returns [Function op = null]
  |  LESSEQUAL    { op_name = "leq"; }
  |  GREATER      { op_name = "gt"; }
  |  GREATEREQUAL { op_name = "geq"; }
+ |  NOT_EQUALS    { op_name = "neq"; }
  ) {
      op = (Function) functions().lookup(new Name(op_name)); 
      if(op == null) {
