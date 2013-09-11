@@ -32,18 +32,16 @@ public class KeYFileChooser {
                     super.approveSelection();
                 }
             };
-	fileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+	fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 	fileChooser.setFileFilter(new javax.swing.filechooser.FileFilter() {
 		public boolean accept(File f) {
-		    return 
-			    f.isDirectory() 
-			|| f.toString().endsWith(".key") 
-			|| f.toString().endsWith(".java")
+			   return
+               f.toString().endsWith(".key")
 			|| f.toString().endsWith(".proof");
 		}
 		
 		public String getDescription() {
-		    return "KeY and JML files";
+		    return "KeY and Proof files";
 		}
 	    });
     }
