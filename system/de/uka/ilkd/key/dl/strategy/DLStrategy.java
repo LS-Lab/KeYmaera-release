@@ -1280,7 +1280,7 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 					"loop_invariant_proposal",
 					ifZero(
 							isAnnotated("invariant"),
-							instantiate("inv", annotationOf("invariant", true)),
+							instantiate("inv", annotationOf("invariant", true, DLOptionBean.INSTANCE.isAddRigidFormulas())),
 							storeRuleApp(
 									buffy,
 									ifZero(

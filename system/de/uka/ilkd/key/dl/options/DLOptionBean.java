@@ -329,6 +329,8 @@ public class DLOptionBean implements Settings {
     private boolean ibcOnlyToFO;
     
     private boolean qeOnlyToTrue;
+
+    private boolean addRigidFormulas;
     
 	private DLOptionBean() {
 		subOptions = new LinkedHashSet<Settings>();
@@ -385,6 +387,7 @@ public class DLOptionBean implements Settings {
 		cexFinder = CexFinder.ITER_DEEP;
 		tracerStat = TracerStat.OFF;
 		qeOnlyToTrue = false;
+        addRigidFormulas = false;
 		if(!init) {
 		    firePropertyChanged();
 		}
@@ -750,6 +753,10 @@ public class DLOptionBean implements Settings {
 		if (property != null) {
 			qeOnlyToTrue = Boolean.valueOf(property);
 		}
+        property = props.getProperty(EPropertyConstant.DLOPTIONS_ADD_RIGID_FORMULAS.getKey());
+        if (property != null) {
+            addRigidFormulas = Boolean.valueOf(property);
+        }
 
 		try {
 			de.uka.ilkd.key.dl.DLInitializer.updateCustomizers();
@@ -863,6 +870,7 @@ public class DLOptionBean implements Settings {
 		props.setProperty(EPropertyConstant.DLOPTIONS_SOLVE_ODE.getKey(), Boolean.toString(solveODE));
 		props.setProperty(EPropertyConstant.DLOPTIONS_IBC_ONLY_TO_FO.getKey(), Boolean.toString(ibcOnlyToFO));
 		props.setProperty(EPropertyConstant.DLOPTIONS_QE_ONLY_TO_TRUE.getKey(), Boolean.toString(qeOnlyToTrue));
+        props.setProperty(EPropertyConstant.DLOPTIONS_ADD_RIGID_FORMULAS.getKey(), Boolean.toString(addRigidFormulas));
 
 	}
 
@@ -1527,5 +1535,16 @@ public class DLOptionBean implements Settings {
 
     public void setIbcOnlyToFO(boolean ibcOnlyToFO) {
         this.ibcOnlyToFO = ibcOnlyToFO;
+    }
+
+    public boolean isAddRigidFormulas() {
+        return addRigidFormulas;
+    }
+
+    public void setAddRigidFormulas(boolean addRigidFormulas) {
+        if(this.addRigidFormulas != addRigidFormulas) {
+            this.addRigidFormulas = addRigidFormulas;
+            firePropertyChanged();
+        }
     }
 }

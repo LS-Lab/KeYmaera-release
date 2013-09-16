@@ -8,12 +8,7 @@ import de.uka.ilkd.key.dl.model.DLProgramElement;
 import de.uka.ilkd.key.dl.model.Formula;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.java.StatementBlock;
-import de.uka.ilkd.key.logic.Constraint;
-import de.uka.ilkd.key.logic.JavaBlock;
-import de.uka.ilkd.key.logic.PosInOccurrence;
-import de.uka.ilkd.key.logic.Term;
-import de.uka.ilkd.key.logic.TermBuilder;
-import de.uka.ilkd.key.logic.TermFactory;
+import de.uka.ilkd.key.logic.*;
 import de.uka.ilkd.key.logic.op.Modality;
 import de.uka.ilkd.key.logic.op.QuanUpdateOperator;
 import de.uka.ilkd.key.proof.Goal;
@@ -35,21 +30,31 @@ public class AnnotationProjection implements ProjectionToTerm {
     private final String annotationKey;
     private int arg;
     private int count;
+    private boolean addRigidFormulas = false;
     
-    private AnnotationProjection(String annotationKey, boolean demandInst, int arg, int count) {
+    private AnnotationProjection(String annotationKey, boolean demandInst, int arg, int count, boolean addRigidFormulas) {
         this.annotationKey = annotationKey;
         this.demandInst = demandInst;
         this.arg = arg;
         this.count = count;
+        this.addRigidFormulas = addRigidFormulas;
     }
 
     public static AnnotationProjection create(String annotationKey, boolean demandInst) {
         return create( annotationKey, demandInst, 0, -1);
     }
-    public static AnnotationProjection create(String annotationKey, boolean demandInst, int arg, int count) {
-        return new AnnotationProjection ( annotationKey, demandInst, arg, count);
+
+    public static AnnotationProjection create(String annotationKey, boolean demandInst, boolean addRigidFormulas) {
+        return create( annotationKey, demandInst, 0, -1, addRigidFormulas);
     }
-    
+    public static AnnotationProjection create(String annotationKey, boolean demandInst, int arg, int count) {
+        return create( annotationKey, demandInst, arg, count, false);
+    }
+
+    public static AnnotationProjection create(String annotationKey, boolean demandInst, int arg, int count, boolean addRigidFormulas) {
+        return new AnnotationProjection ( annotationKey, demandInst, arg, count, addRigidFormulas);
+    }
+
     public Term toTerm(RuleApp app, PosInOccurrence pos, Goal goal) {
         Term term = pos.subTerm();
         // unbox from update prefix
@@ -89,7 +94,23 @@ public class AnnotationProjection implements ProjectionToTerm {
                                 " (taclet " + app.rule().name() + ")" );
             return null;
         }
-        final Term annotation = Prog2LogicConverter.convert((DLProgramElement)instObj, services);
+        Term annotation = Prog2LogicConverter.convert((DLProgramElement)instObj, services);
+        if(addRigidFormulas) {
+            Semisequent antecedent = goal.sequent().antecedent();
+            for(ConstrainedFormula c: antecedent) {
+                if(c.formula().isRigid()) {
+                    // add all rigid formulas from the antecedent
+                    annotation = TermBuilder.DF.and(annotation, c.formula());
+                }
+            }
+            Semisequent succ = goal.sequent().succedent();
+            for(ConstrainedFormula c: succ) {
+                if(c.formula().isRigid()) {
+                    // add the negation of all rigid formulas in the succedent
+                    annotation = TermBuilder.DF.and(annotation, TermBuilder.DF.not(c.formula()));
+                }
+            }
+        }
         if ( annotation == null) {
             Debug.assertFalse ( demandInst,
                                 "Did not find annotation "

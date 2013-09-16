@@ -300,6 +300,10 @@ public abstract class AbstractFeatureStrategy implements Strategy {
     public static ProjectionToTerm annotationOf(String annotationKey, boolean demandInst) {
         return AnnotationProjection.create(annotationKey, demandInst);
     }
+
+    public static ProjectionToTerm annotationOf(String annotationKey, boolean demandInst, boolean addRigidFormulas) {
+        return AnnotationProjection.create(annotationKey, demandInst, addRigidFormulas);
+    }
     /**
      * Projection of rule apps to the value of an annotation in its \find match modality. The
      * projection can be undefined (null) for those apps that do not

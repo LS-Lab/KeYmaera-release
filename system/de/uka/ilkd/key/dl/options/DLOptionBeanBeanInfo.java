@@ -176,9 +176,10 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
 									                true, false),
 					createDescriptor("qeOnlyToTrue", EPropertyConstant.DLOPTIONS_QE_ONLY_TO_TRUE,
 									                true, false),
-			// createDescriptor("invariantRule", "invariant rule",
-			// "choose which invariant rule should be used", true,
-			// false, InvariantRulePropertyEditor.class),
+                    createDescriptor("invariantRule", EPropertyConstant.DLOPTIONS_INVARIANT_RULE, true,
+                        false, InvariantRulePropertyEditor.class),
+                    createDescriptor("addRigidFormulas", EPropertyConstant.DLOPTIONS_ADD_RIGID_FORMULAS,
+                            true, false),
 
 			};
 			return pds;
@@ -446,9 +447,24 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
 	public static class InvariantRulePropertyEditor extends
 			TaggedPropertyEditorSupport {
 		public InvariantRulePropertyEditor() {
-			super(getNames(InvariantRule.values()), InvariantRule.values());
+			super(getNamesAndReplace(InvariantRule.values()), InvariantRule.values());
 		}
-	}
+
+        private static <E extends Enum<E>> String[] getNamesAndReplace(Enum<E> vals[]) {
+            java.util.List<String> names = new ArrayList<String>();
+            for (Enum<E> r : vals) {
+                String s = r.toString();
+                if(s.equals("loop_inv_box_quan")) {
+                    s = "local";
+                } else if(s.equals("loop_inv_box_fresh")) {
+                    s = "global";
+                }
+                names.add(s);
+            }
+            return names.toArray(new String[0]);
+        }
+
+    }
 
 	public static class FirstOrderStrategyPropertyEditor extends
 			TaggedPropertyEditorSupport {
@@ -473,7 +489,7 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
 		}
 		return names.toArray(new String[0]);
 	}
-	
+
 	      public static class CexFinderPropertyEditor extends
 	                       TaggedPropertyEditorSupport {
 	               public CexFinderPropertyEditor() {

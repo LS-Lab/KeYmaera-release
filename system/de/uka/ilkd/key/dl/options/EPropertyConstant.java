@@ -45,8 +45,9 @@ public enum EPropertyConstant {
        DLOPTIONS_SIMPLIFIER("[DLOptions]simplifier", "arithmetic simplifier", "select the simplification algorithm that should be used to simplify arithmetical expressions", "DL Properties"),
        DLOPTIONS_APPLY_GAMMA_RULES("[DLOptions]applyGammaRules", "apply gamma rules", "choose if and when gamma rules should be applied for existential quantifiers", "DL Properties"),
        DLOPTIONS_COUNTEREXAMPLE_TEST("[DLOptions]counterexampleTest", "counterexample", "whether to check for counterexamples before trying to prove exhaustively", "DL Properties"),
-       DLOPTIONS_INVARIANT_RULE("[DLOptions]invariantRule", null, null, "DL Properties"),
-       DLOPTIONS_USE_DIFF_SAT("[DLOptions]DiffSat", "Differential Saturation", "<html><body>select the desired automation degree of Differential " 
+       DLOPTIONS_INVARIANT_RULE("[DLOptions]invariantRule", "invariant rule", "whether to use the invariant rule that keeps the context or the one that throws the context away, i.e. the global version", "DL Properties"),
+       DLOPTIONS_ADD_RIGID_FORMULAS("[DLOptions]addRigidFormulas", "add rigid formulas", "Add rigid formulas occurring in the sequent to invariant candidates provided by @invariant annotations", "DL Properties"),
+       DLOPTIONS_USE_DIFF_SAT("[DLOptions]DiffSat", "Differential Saturation", "<html><body>select the desired automation degree of Differential "
                                    + "Saturation for automatic differential induction. Either <br>BLIND solving (careful check of ODE solutions advised!) or <br>OFF stopping at complex differential equations or <br>SIMPLE differential invariants or <br>DIFFAUTO differential saturation for differential equations or <br>AUTO differential saturation and loop saturation or <br>DESPARATE automatic solving with fallback to non-arithmetic solutions (careful check of ODE solutions advised!)</body></html>", "DL Properties"),
        DLOPTIONS_IGNORE_ANNOTATIONS("[DLOptions]ignoreAnnotations", "ignore @annotations", "Whether to ignore all proof skeleton @annotations, like @invariant, @candidate etc.", "DL Properties"),
        DLOPTIONS_SIMPLIFY_TIMEOUT("[DLOptions]simplifyTimeout", "simplify timeout", "the timeout used for calls to the simplifier (in seconds), <=0 means no timeout", "DL Properties"),
