@@ -30,29 +30,20 @@ public class AnnotationProjection implements ProjectionToTerm {
     private final String annotationKey;
     private int arg;
     private int count;
-    private boolean addRigidFormulas = false;
-    
-    private AnnotationProjection(String annotationKey, boolean demandInst, int arg, int count, boolean addRigidFormulas) {
+
+    private AnnotationProjection(String annotationKey, boolean demandInst, int arg, int count) {
         this.annotationKey = annotationKey;
         this.demandInst = demandInst;
         this.arg = arg;
         this.count = count;
-        this.addRigidFormulas = addRigidFormulas;
     }
 
     public static AnnotationProjection create(String annotationKey, boolean demandInst) {
         return create( annotationKey, demandInst, 0, -1);
     }
 
-    public static AnnotationProjection create(String annotationKey, boolean demandInst, boolean addRigidFormulas) {
-        return create( annotationKey, demandInst, 0, -1, addRigidFormulas);
-    }
     public static AnnotationProjection create(String annotationKey, boolean demandInst, int arg, int count) {
-        return create( annotationKey, demandInst, arg, count, false);
-    }
-
-    public static AnnotationProjection create(String annotationKey, boolean demandInst, int arg, int count, boolean addRigidFormulas) {
-        return new AnnotationProjection ( annotationKey, demandInst, arg, count, addRigidFormulas);
+        return new AnnotationProjection ( annotationKey, demandInst, arg, count);
     }
 
     public Term toTerm(RuleApp app, PosInOccurrence pos, Goal goal) {
@@ -94,23 +85,7 @@ public class AnnotationProjection implements ProjectionToTerm {
                                 " (taclet " + app.rule().name() + ")" );
             return null;
         }
-        Term annotation = Prog2LogicConverter.convert((DLProgramElement)instObj, services);
-        if(addRigidFormulas) {
-            Semisequent antecedent = goal.sequent().antecedent();
-            for(ConstrainedFormula c: antecedent) {
-                if(c.formula().isRigid()) {
-                    // add all rigid formulas from the antecedent
-                    annotation = TermBuilder.DF.and(annotation, c.formula());
-                }
-            }
-            Semisequent succ = goal.sequent().succedent();
-            for(ConstrainedFormula c: succ) {
-                if(c.formula().isRigid()) {
-                    // add the negation of all rigid formulas in the succedent
-                    annotation = TermBuilder.DF.and(annotation, TermBuilder.DF.not(c.formula()));
-                }
-            }
-        }
+        final Term annotation = Prog2LogicConverter.convert((DLProgramElement)instObj, services);
         if ( annotation == null) {
             Debug.assertFalse ( demandInst,
                                 "Did not find annotation "

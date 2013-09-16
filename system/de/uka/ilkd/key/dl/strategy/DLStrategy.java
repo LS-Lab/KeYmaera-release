@@ -45,10 +45,7 @@ import de.uka.ilkd.key.dl.rules.SumOfSquaresRule;
 import de.uka.ilkd.key.dl.rules.VisualizationRule;
 import de.uka.ilkd.key.dl.strategy.features.*;
 import de.uka.ilkd.key.dl.strategy.features.SwitchFeature.Case;
-import de.uka.ilkd.key.dl.strategy.termProjection.Buffer;
-import de.uka.ilkd.key.dl.strategy.termProjection.CoeffGcdProjection;
-import de.uka.ilkd.key.dl.strategy.termProjection.Generator;
-import de.uka.ilkd.key.dl.strategy.termProjection.UltimatePostProjection;
+import de.uka.ilkd.key.dl.strategy.termProjection.*;
 import de.uka.ilkd.key.dl.strategy.termfeature.DecimalLiteralFeature;
 import de.uka.ilkd.key.dl.strategy.termfeature.QuasiRealLiteralFeature;
 import de.uka.ilkd.key.java.ProgramElement;
@@ -1280,46 +1277,46 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 					"loop_invariant_proposal",
 					ifZero(
 							isAnnotated("invariant"),
-							instantiate("inv", annotationOf("invariant", true, DLOptionBean.INSTANCE.isAddRigidFormulas())),
+							instantiate("inv", new RigidTermConjunction(annotationOf("invariant", true))),
 							storeRuleApp(
 									buffy,
 									ifZero(
 											add(
 													instantiate(
 															"inv",
-															new UltimatePostProjection(
-																	instOf("post"))),
+															new RigidTermConjunction(new UltimatePostProjection(
+																	instOf("post")))),
 													openCurrentRuleApp(new HypotheticalProvabilityFeature(
 															DLOptionBean.INSTANCE
 																	.getLoopSatTimeout()))),
 											longConst(-2000),
 											ifZero(
-													not(sum(
-															augInst,
-															DiffIndCandidates.INSTANCE,
-															add(
-																	buffy,
-																	instantiate(
-																			"inv",
-																			augInst),
-																	not(openCurrentRuleApp(new HypotheticalProvabilityFeature(
-																			DLOptionBean.INSTANCE
-																					.getLoopSatTimeout())))))),
-													longConst(-1000),
-													inftyConst() // @todo
-											// use
-											// large
-											// constant
-											// instead
-											// to
-											// try
-											// at
-											// least
-											)))));
+                                                    not(sum(
+                                                            augInst,
+                                                            DiffIndCandidates.INSTANCE,
+                                                            add(
+                                                                    buffy,
+                                                                    instantiate(
+                                                                            "inv",
+                                                                            new RigidTermConjunction(augInst)),
+                                                                    not(openCurrentRuleApp(new HypotheticalProvabilityFeature(
+                                                                            DLOptionBean.INSTANCE
+                                                                                    .getLoopSatTimeout())))))),
+                                                    longConst(-1000),
+                                                    inftyConst() // @todo
+                                                    // use
+                                                    // large
+                                                    // constant
+                                                    // instead
+                                                    // to
+                                                    // try
+                                                    // at
+                                                    // least
+                                            )))));
 		} else {
 			bindRuleSet(d, "loop_invariant_proposal", ifZero(
-					isAnnotated("invariant"), instantiate("inv", annotationOf(
-							"invariant", true, DLOptionBean.INSTANCE.isAddRigidFormulas())), inftyConst()));
+					isAnnotated("invariant"), instantiate("inv", new RigidTermConjunction(annotationOf(
+                    "invariant", true))), inftyConst()));
 		}
 		bindRuleSet(d, "loop_variant", ifZero(
 				isAnnotated("variant"),
