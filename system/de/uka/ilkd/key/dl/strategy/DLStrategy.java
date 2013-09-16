@@ -1319,7 +1319,7 @@ public class DLStrategy extends AbstractFeatureStrategy implements
 		} else {
 			bindRuleSet(d, "loop_invariant_proposal", ifZero(
 					isAnnotated("invariant"), instantiate("inv", annotationOf(
-							"invariant", true)), inftyConst()));
+							"invariant", true, DLOptionBean.INSTANCE.isAddRigidFormulas())), inftyConst()));
 		}
 		bindRuleSet(d, "loop_variant", ifZero(
 				isAnnotated("variant"),
