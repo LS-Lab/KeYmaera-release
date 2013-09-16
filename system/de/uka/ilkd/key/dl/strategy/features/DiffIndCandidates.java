@@ -543,7 +543,6 @@ public class DiffIndCandidates implements TermGenerator {
     /**
      * Select those candidates that have a promising form.
      * 
-     * @param seq
      * @param mycluster within which cluster of modified variables to look.
      * null indicates no cluster / all choices are fine.
      * @return
@@ -622,7 +621,7 @@ public class DiffIndCandidates implements TermGenerator {
     /**
      * Determine modified variables set from dependency relation
      */
-    private Set<de.uka.ilkd.key.logic.op.ProgramVariable> getModifiedVariables(
+    public static Set<de.uka.ilkd.key.logic.op.ProgramVariable> getModifiedVariables(
             final Map<de.uka.ilkd.key.logic.op.ProgramVariable, LinkedHashSet<de.uka.ilkd.key.logic.op.ProgramVariable>> tdep) {
         // modified variables MV(system)
         Set<de.uka.ilkd.key.logic.op.ProgramVariable> modifieds = new LinkedHashSet<de.uka.ilkd.key.logic.op.ProgramVariable>();
@@ -640,7 +639,7 @@ public class DiffIndCandidates implements TermGenerator {
      */
 //    private final Map<DiffSystem, Map<de.uka.ilkd.key.logic.op.ProgramVariable, LinkedHashSet<de.uka.ilkd.key.logic.op.ProgramVariable>>> dependencyCache =
 //        new WeakHashMap<DiffSystem, Map<de.uka.ilkd.key.logic.op.ProgramVariable, LinkedHashSet<de.uka.ilkd.key.logic.op.ProgramVariable>>>();
-    private Map<de.uka.ilkd.key.logic.op.ProgramVariable, LinkedHashSet<de.uka.ilkd.key.logic.op.ProgramVariable>> computeTranstitiveDependencies(
+    public static Map<de.uka.ilkd.key.logic.op.ProgramVariable, LinkedHashSet<de.uka.ilkd.key.logic.op.ProgramVariable>> computeTranstitiveDependencies(
             final DLProgram program, Services services) {
 //        if (program instanceof DiffSystem) {
 //            Map<de.uka.ilkd.key.logic.op.ProgramVariable, LinkedHashSet<de.uka.ilkd.key.logic.op.ProgramVariable>> cached = 
@@ -674,7 +673,7 @@ public class DiffIndCandidates implements TermGenerator {
         return convertedtdep;
     }
 
-    private Map<de.uka.ilkd.key.dl.model.ProgramVariable, LinkedHashSet<de.uka.ilkd.key.dl.model.ProgramVariable>> computeDependencies(
+    public static Map<de.uka.ilkd.key.dl.model.ProgramVariable, LinkedHashSet<de.uka.ilkd.key.dl.model.ProgramVariable>> computeDependencies(
             final DLProgram program) {
         final Map<de.uka.ilkd.key.dl.model.ProgramVariable, LinkedHashSet<de.uka.ilkd.key.dl.model.ProgramVariable>> dep = DependencyStateGenerator
                 .generateDependencyMap(program).getDependencies();
