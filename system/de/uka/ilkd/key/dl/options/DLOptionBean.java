@@ -367,7 +367,7 @@ public class DLOptionBean implements Settings {
 		solveODE = true;
 		applyGammaRules = ApplyRules.ONLY_TO_MODALITIES;
 		counterexampleTest = CounterexampleTest.ON;
-		invariantRule = InvariantRule.QUANTIFIERS;
+		invariantRule = InvariantRule.FRESH;
 		diffSatStrategy = DiffSat.AUTO;
 		ignoreAnnotations = false;
 		useIterativeReduceRule = false;
@@ -387,7 +387,7 @@ public class DLOptionBean implements Settings {
 		cexFinder = CexFinder.ITER_DEEP;
 		tracerStat = TracerStat.OFF;
 		qeOnlyToTrue = false;
-        addRigidFormulas = false;
+        addRigidFormulas = true;
 		if(!init) {
 		    firePropertyChanged();
 		}
