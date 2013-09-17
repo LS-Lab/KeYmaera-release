@@ -38,6 +38,11 @@ public class RigidTermConjunction implements ProjectionToTerm {
     @Override
     public Term toTerm(RuleApp app, PosInOccurrence pos, Goal goal) {
         Term t = projection.toTerm(app, pos, goal);
+        t = constructTerm(pos, goal, t);
+        return t;
+    }
+
+    public static Term constructTerm(PosInOccurrence pos, Goal goal, Term t) {
         if (DLOptionBean.INSTANCE.isAddRigidFormulas()) {
             Term term = pos.subTerm();
             final Update update = Update.createUpdate(term);

@@ -65,12 +65,8 @@ import de.uka.ilkd.key.gui.configuration.Config;
 import de.uka.ilkd.key.gui.configuration.PathConfig;
 import de.uka.ilkd.key.logic.Namespace;
 import de.uka.ilkd.key.logic.NamespaceSet;
-import de.uka.ilkd.key.proof.ApplyTacletDialogModel;
-import de.uka.ilkd.key.proof.Goal;
-import de.uka.ilkd.key.proof.ModelChangeListener;
-import de.uka.ilkd.key.proof.ModelEvent;
-import de.uka.ilkd.key.proof.SVInstantiationExceptionWithPosition;
-import de.uka.ilkd.key.proof.TacletInstantiationsTableModel;
+import de.uka.ilkd.key.logic.Term;
+import de.uka.ilkd.key.proof.*;
 import de.uka.ilkd.key.rule.Taclet;
 import de.uka.ilkd.key.rule.TacletApp;
 import de.uka.ilkd.key.util.Debug;
@@ -721,7 +717,7 @@ public class TacletMatchCompletionDialog extends ApplyTacletDialog {
 							 int row,
 							 int column) {
 		if (value==null) value="";
-		textarea.setText(value.toString());
+        textarea.setText(value.toString());
 		textarea.setRows(getRowHeight(row)/16);
 		return editorComponent;
 	    }

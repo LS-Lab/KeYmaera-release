@@ -607,17 +607,17 @@ public abstract class TacletApp implements RuleApp {
 
         out: for (final SchemaVariable var : uninstantiatedVars()) {
             
-            if (LoopInvariantProposer.DEFAULT.inLoopInvariantRuleSet(taclet())){ 
-                Object inv = LoopInvariantProposer.DEFAULT.tryToInstantiate(this, var, services);              
-                if (inv instanceof Term){
-                    app = app.addCheckedInstantiation(var, (Term)inv, services, true);
-                } else if (inv instanceof LoopPredicateSet){
-                    app = app.addInstantiation(var, ((LoopPredicateSet)inv).toArray(), true);
-                } else if (inv instanceof LocationDescriptorSet) {
-                    app = app.addInstantiation(var, ((LocationDescriptorSet)inv).toArray(), true);
-                }   
-                if (inv != null) continue;
-            } 
+//            if (LoopInvariantProposer.DEFAULT.inLoopInvariantRuleSet(taclet())){
+//                Object inv = LoopInvariantProposer.DEFAULT.tryToInstantiate(this, var, services);
+//                if (inv instanceof Term){
+//                    app = app.addCheckedInstantiation(var, (Term)inv, services, true);
+//                } else if (inv instanceof LoopPredicateSet){
+//                    app = app.addInstantiation(var, ((LoopPredicateSet)inv).toArray(), true);
+//                } else if (inv instanceof LocationDescriptorSet) {
+//                    app = app.addInstantiation(var, ((LocationDescriptorSet)inv).toArray(), true);
+//                }
+//                if (inv != null) continue;
+//            }
             if(var instanceof SortedSchemaVariable) {
                 SortedSchemaVariable sv = (SortedSchemaVariable)var;
                 if (sv.sort() == ProgramSVSort.VARIABLE) {

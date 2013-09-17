@@ -12,28 +12,26 @@ package de.uka.ilkd.key.proof;
 
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import de.uka.ilkd.key.dl.DLProfile;
+import de.uka.ilkd.key.dl.formulatools.Prog2LogicConverter;
+import de.uka.ilkd.key.dl.model.DLProgram;
+import de.uka.ilkd.key.dl.model.Formula;
+import de.uka.ilkd.key.dl.options.DLOptionBean;
+import de.uka.ilkd.key.dl.strategy.termProjection.RigidTermConjunction;
 import de.uka.ilkd.key.gui.Main;
 import de.uka.ilkd.key.collection.ImmutableList;
-import de.uka.ilkd.key.java.ProgramElement;
-import de.uka.ilkd.key.java.Services;
-import de.uka.ilkd.key.java.SourceElement;
-import de.uka.ilkd.key.java.StatementContainer;
+import de.uka.ilkd.key.java.*;
 import de.uka.ilkd.key.java.reference.ExecutionContext;
 import de.uka.ilkd.key.java.reference.ReferencePrefix;
 import de.uka.ilkd.key.java.reference.TypeReference;
 import de.uka.ilkd.key.java.statement.LoopStatement;
 import de.uka.ilkd.key.java.statement.MethodFrame;
 import de.uka.ilkd.key.java.visitor.JavaASTVisitor;
-import de.uka.ilkd.key.logic.LocationDescriptor;
-import de.uka.ilkd.key.logic.PosInOccurrence;
-import de.uka.ilkd.key.logic.Term;
-import de.uka.ilkd.key.logic.op.Function;
-import de.uka.ilkd.key.logic.op.IUpdateOperator;
-import de.uka.ilkd.key.logic.op.Operator;
-import de.uka.ilkd.key.logic.op.SchemaVariable;
+import de.uka.ilkd.key.logic.*;
+import de.uka.ilkd.key.logic.op.*;
 import de.uka.ilkd.key.pp.LogicPrinter;
 import de.uka.ilkd.key.pp.NotationInfo;
 import de.uka.ilkd.key.pp.ProgramPrinter;
@@ -41,6 +39,7 @@ import de.uka.ilkd.key.rule.PosTacletApp;
 import de.uka.ilkd.key.rule.RuleSet;
 import de.uka.ilkd.key.rule.Taclet;
 import de.uka.ilkd.key.rule.TacletApp;
+import de.uka.ilkd.key.rule.updatesimplifier.Update;
 import de.uka.ilkd.key.speclang.LocationDescriptorSet;
 import de.uka.ilkd.key.speclang.LoopInvariant;
 import de.uka.ilkd.key.speclang.LoopPredicateSet;
@@ -170,37 +169,65 @@ public class LoopInvariantProposer implements InstantiationProposer {
     public Object tryToInstantiate(TacletApp app, 
                                    SchemaVariable var, 
                                    Services services) {
-        if(Main.getInstance().mediator().getProfile() instanceof DLProfile) {
-            return null;
-        }
+//        if(Main.getInstance().mediator().getProfile() instanceof DLProfile) {
+//            return null;
+//        }
         Object inst = null;
         if (app instanceof PosTacletApp 
             && inLoopInvariantRuleSet(app.taclet())) {
             final PosInOccurrence pos = app.posInOccurrence();
-            final LoopInvariant inv = getLoopInvariant(pos.subTerm(), services);
-            if(inv == null) {
+            Term term = pos.subTerm();
+            final Update update = Update.createUpdate(term);
+            // unbox from update prefix
+            if (term.op() instanceof QuanUpdateOperator) {
+                term = ((QuanUpdateOperator) term.op()).target(term);
+                if (term.op() instanceof QuanUpdateOperator)
+                    return null;
+            }
+            if (!(term.op() instanceof Modality && term.javaBlock() != null
+                    && term.javaBlock() != JavaBlock.EMPTY_JAVABLOCK && term
+                    .javaBlock().program() instanceof StatementBlock)) {
                 return null;
             }
-            
-            //determine instantiation
-            final Term selfTerm = getInnermostSelfTerm(pos.subTerm(), services);
-            final Map<Operator, Function> atPreFunctions = inv.getInternalAtPreFunctions();
-            final String varName = var.name().toString();
-            if (varName.equals("inv")) {
-                assert var.isFormulaSV();
-                inst = inv.getInvariant(selfTerm, atPreFunctions, services);
-            } else if(varName.equals("predicates")) {
-                assert var.isListSV();
-                assert var.matchType() == Term.class;
-                inst =inv.getPredicates(selfTerm, atPreFunctions, services);
-            } else if(varName.equals("#modifies")) {
-                assert var.isListSV();
-                assert var.matchType() == LocationDescriptor.class;
-                inst = inv.getModifies(selfTerm, atPreFunctions, services);
-            } else if(varName.equals("variant")) {
-                assert var.isTermSV();
-                inst = inv.getVariant(selfTerm, atPreFunctions, services);
+            final DLProgram program = (DLProgram) ((StatementBlock) term
+                    .javaBlock().program()).getChildAt(0);
+            List<Formula> invariants = program.getDLAnnotation("invariant");
+            Term res;
+            if(invariants.size() == 1) {
+                res = Prog2LogicConverter.convert(invariants.get(0), services);
+            } else if (invariants.size() > 1) {
+                System.err.println("Ingoring additional invariant candidates");
+                res = Prog2LogicConverter.convert(invariants.get(0), services);
+            } else {
+                res = TermBuilder.DF.tt();
             }
+            if(DLOptionBean.INSTANCE.isAddRigidFormulas()) {
+                inst = RigidTermConjunction.constructTerm(app.posInOccurrence(), Main.getInstance().mediator().getSelectedGoal(), res );
+            }
+//            final LoopInvariant inv = getLoopInvariant(pos.subTerm(), services);
+//            if(inv == null) {
+//                return null;
+//            }
+//
+//            // determine instantiation
+//            final Term selfTerm = getInnermostSelfTerm(pos.subTerm(), services);
+//            final Map<Operator, Function> atPreFunctions = inv.getInternalAtPreFunctions();
+//            final String varName = var.name().toString();
+//            if (varName.equals("inv")) {
+//                assert var.isFormulaSV();
+//                inst = inv.getInvariant(selfTerm, atPreFunctions, services);
+//            } else if(varName.equals("predicates")) {
+//                assert var.isListSV();
+//                assert var.matchType() == Term.class;
+//                inst =inv.getPredicates(selfTerm, atPreFunctions, services);
+//            } else if(varName.equals("#modifies")) {
+//                assert var.isListSV();
+//                assert var.matchType() == LocationDescriptor.class;
+//                inst = inv.getModifies(selfTerm, atPreFunctions, services);
+//            } else if(varName.equals("variant")) {
+//                assert var.isTermSV();
+//                inst = inv.getVariant(selfTerm, atPreFunctions, services);
+//            }
         }
         
         return inst;
@@ -230,8 +257,9 @@ public class LoopInvariantProposer implements InstantiationProposer {
 	String proposal;
 	try {
 	    if (inst instanceof Term){
-		lp.printTerm((Term) inst);
-		proposal = lp.toString();
+            proposal = ProofSaver.printTerm((Term)inst, services, true, false).toString();
+//		lp.printTerm((Term) inst);
+//		proposal = lp.toString();
 	    }  else if (inst instanceof LoopPredicateSet){
 		lp.printTerm(((LoopPredicateSet) inst).asSet());
 		proposal = lp.toString();

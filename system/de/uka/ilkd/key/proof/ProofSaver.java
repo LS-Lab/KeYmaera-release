@@ -462,13 +462,13 @@ public class ProofSaver {
 
     public static StringBuffer printTerm(Term t, Services serv, 
             boolean shortAttrNotation) {
-    	return printTerm(t, serv, shortAttrNotation, false);
+    	return printTerm(t, serv, shortAttrNotation, true);
     }
 
     public static StringBuffer printTerm(Term t, Services serv, 
     		boolean shortAttrNotation, boolean saveMode) {
     	StringBuffer result;
-    	ProofSaver.inSavingMode = true;
+    	ProofSaver.inSavingMode = saveMode;
     	LogicPrinter logicPrinter = createLogicPrinter(serv, shortAttrNotation);
     	try {
     		logicPrinter.printTerm(t);
