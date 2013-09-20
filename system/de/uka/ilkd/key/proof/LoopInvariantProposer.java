@@ -193,10 +193,10 @@ public class LoopInvariantProposer implements InstantiationProposer {
                     .javaBlock().program()).getChildAt(0);
             List<Formula> invariants = program.getDLAnnotation("invariant");
             Term res;
-            if(invariants.size() == 1) {
+            if(invariants != null && invariants.size() == 1) {
                 res = Prog2LogicConverter.convert(invariants.get(0), services);
-            } else if (invariants.size() > 1) {
-                System.err.println("Ingoring additional invariant candidates");
+            } else if (invariants != null && invariants.size() > 1) {
+                System.err.println("Ignoring additional invariant candidates");
                 res = Prog2LogicConverter.convert(invariants.get(0), services);
             } else {
                 res = TermBuilder.DF.tt();
