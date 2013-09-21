@@ -1493,8 +1493,8 @@ public class Main extends JFrame implements IMain {
 	
 	addSeparator(view);
 
-        final JMenuItem systemOutput = new JCheckBoxMenuItem("System output in automode");
-        systemOutput.setToolTipText("If ticked, the window containing the system output will be shown while running the automatic strategy.");
+        final JMenuItem systemOutput = new JCheckBoxMenuItem("System Output in Automode");
+        systemOutput.setToolTipText("If ticked, the window containing the system output will be shown whenever the automatic strategy runs.");
         systemOutput.setSelected(ProofSettings.DEFAULT_SETTINGS.getViewSettings().isShowConsoleOutput());
         systemOutput.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -1503,7 +1503,8 @@ public class Main extends JFrame implements IMain {
 
         registerAtMenu(view, systemOutput);
 
-        JMenuItem sysOut = new JMenuItem("System output...");
+        JMenuItem sysOut = new JMenuItem("System Output...");
+        sysOut.setToolTipText("Display the system output and log in a window");
         sysOut.addActionListener(new ActionListener() {
 
             @Override
@@ -1514,6 +1515,7 @@ public class Main extends JFrame implements IMain {
         registerAtMenu(view, sysOut);
 
         JMenuItem serverConsole = new JMenuItem("Server Console...");
+        serverConsole.setToolTipText("Display the status and communication with arithmetic backends in the Server Console");
 	serverConsole.addActionListener(new ActionListener() {
 		
 		@Override

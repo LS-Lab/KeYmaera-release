@@ -139,9 +139,9 @@ public class Expr2TermConverter implements ExprConstants {
         try {
             if (expr.toString().equalsIgnoreCase("$Aborted")
                     || expr.toString().equalsIgnoreCase("Abort[]")) {
-                throw new IncompleteEvaluationException("Calculation aborted!");
+                throw new IncompleteEvaluationException("Calculation aborted: The calculation has been aborted by the user or the automated prover.");
             } else if (expr.toString().equalsIgnoreCase("$Failed")) {
-                throw new FailedComputationException("Calculation failed!");
+                throw new FailedComputationException("Calculation failed! The calculation did not complete successfully but failed.");
             } else if (expr.head().equals(FORALL) || expr.head().equals(EXISTS)) {
                 Expr list = expr.args()[0];
                 if (list.head().equals(LIST)) { // LIST

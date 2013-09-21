@@ -232,7 +232,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 		List<ODESolverUpdate> result = new ArrayList<ODESolverUpdate>();
 		if (expr.toString().equalsIgnoreCase("$Aborted")
 				|| expr.toString().contains("Abort[]")) {
-			throw new IncompleteEvaluationException("Calculation aborted!");
+			throw new IncompleteEvaluationException("Calculation aborted: The calculation has been aborted by the user or the automated prover.");
 		}
 		if (expr.head().equals(LIST)) {
 			for (int i = 0; i < expr.args().length; i++) {
@@ -455,7 +455,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 		Expr expressions = evaluate(query).expression;
 		if (expressions.toString().equalsIgnoreCase("$Aborted")
 				|| expressions.toString().contains("Abort[]")) {
-			throw new IncompleteEvaluationException("Calculation aborted!");
+			throw new IncompleteEvaluationException("Calculation aborted: The calculation has been aborted by the user or the automated prover.");
 		}
 		if (expressions.head().equals(LIST)) {
 			List<Term> result = new LinkedList<Term>();
@@ -540,7 +540,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 		List<Update> result = new ArrayList<Update>();
 		if (expr.toString().equalsIgnoreCase("$Aborted")
 				|| expr.toString().contains("Abort[]")) {
-			throw new IncompleteEvaluationException("Calculation aborted!");
+			throw new IncompleteEvaluationException("Calculation aborted: The calculation has been aborted by the user or the automated prover.");
 		}
 		if (expr.head().equals(LIST)) {
 			for (int i = 0; i < expr.args().length; i++) {

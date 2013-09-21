@@ -29,6 +29,7 @@ import java.util.List;
 import de.uka.ilkd.key.collection.ImmutableList;
 import de.uka.ilkd.key.collection.ImmutableSLList;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
+import de.uka.ilkd.key.dl.arithmetics.exceptions.IncompleteEvaluationException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.UnsolveableException;
 import de.uka.ilkd.key.dl.strategy.RealtimeStrategy;
 import de.uka.ilkd.key.java.Services;
@@ -146,12 +147,14 @@ public abstract class RuleOperatingOnWholeSequence extends Visitor implements
 		} catch (UnsolveableException e) {
 			unsolvable = true;
 			throw new IllegalStateException(e.getMessage(), e);
+  		} catch (IncompleteEvaluationException e) {
+  			throw new IllegalStateException("Rule application has been canceled. If you pressed abort, this behavior is expected. Otherwise it indicates a problem.\n" + e.getMessage(), e);
 		} catch (SolverException e) {
 			throw new IllegalStateException(e.getMessage(), e);
 		}
 		resultFormula = resultTerm;
 		if (resultFormula == null)
-			throw new NullPointerException("Rule did not return a result, possibly aborted.");
+			throw new NullPointerException("Rule did not return a result, it was possibly aborted.");
 
 		// if we are not in test mode, we want to apply the resulting changes
 		if (!testModeActive) {
