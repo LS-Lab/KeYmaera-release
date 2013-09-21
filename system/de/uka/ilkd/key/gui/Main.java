@@ -1205,14 +1205,14 @@ public class Main extends JFrame implements IMain {
     public void showAbout() {
         String aspects = compiledAspects();
         JOptionPane pane =new JOptionPane(
-                COPYRIGHT+"\n\nWWW: http://key-project.org\n\nVersion "+
+                COPYRIGHT+"\n\nWWW: http://key-project.org\n\nWWW: http://symbolaris.com/info/KeYmaera.html\n\nVersion "+
                 VERSION
                 + ((aspects.length()==0) ? "":
                     "\nCompiled with Aspects:\n"+aspects)
                     ,
                     JOptionPane.INFORMATION_MESSAGE, JOptionPane.DEFAULT_OPTION,
                     IconFactory.keyLogo(105,60));
-        JDialog dialog = pane.createDialog(this, "The KeY Project");
+        JDialog dialog = pane.createDialog(this, "KeYmaera and the KeY Project");
         dialog.setVisible(true);
     }
     
@@ -2012,7 +2012,7 @@ public class Main extends JFrame implements IMain {
     public JMenu createHelpMenu() {
         JMenu help = new JMenu("About");
         help.setMnemonic(KeyEvent.VK_A);
-        JMenuItem about = new JMenuItem("About KeY");
+        JMenuItem about = new JMenuItem("About KeYmaera");
         about.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 showAbout();
