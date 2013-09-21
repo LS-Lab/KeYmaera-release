@@ -216,9 +216,11 @@ public class TermFactoryImpl extends TermFactory {
 				return createProgramVariable(t.getText());
 			}
 		} else {
+		  //@todo improve type of exception. This should not really just be a runtime exception. It's a semantic exception.
 			throw new RuntimeException(
-					"Variable with parameters (like a(1,2)) found. "
-							+ "This should only occur with function symbols");
+			  //@todo print round parentheses f(x,y) instead of square parentheses f[x,y] which the default list print does.
+					"Undeclared function \"" + t.getText() + "\" with parameters " + params + "\n"
+							+ "Parameters should only be passed to function symbols, not as: " + t.getText() + params);
 		}
 	}
 
