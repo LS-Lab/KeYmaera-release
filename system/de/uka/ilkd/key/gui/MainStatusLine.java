@@ -41,7 +41,7 @@ class MainStatusLine extends JPanel {
 
 	text.setIcon(IconFactory.keyLogo(35,20));
 	   
-	add ( Box.createHorizontalGlue () );
+	//add ( Box.createHorizontalGlue () );
 	add ( text );
 	add ( Box.createHorizontalGlue () );
 
