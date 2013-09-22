@@ -23,6 +23,7 @@
 package de.uka.ilkd.key.dl.rules;
 
 import java.awt.FlowLayout;
+import java.awt.event.KeyEvent;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -32,8 +33,10 @@ import java.util.List;
 import java.util.Map;
 
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JTextArea;
+import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 
 import de.uka.ilkd.key.collection.ImmutableList;
@@ -137,14 +140,18 @@ public class FindInstanceRule extends Visitor implements BuiltInRule,
                     frame.add(label2);
                     JButton button = new JButton("Ok");
                     frame.add(button);
-                    button.addActionListener(new ActionListener() {
+                    ActionListener closing = new ActionListener() {
 
                         public void actionPerformed(ActionEvent arg0) {
                             frame.setVisible(false);
 							frame.dispose();
                         }
 
-                    });
+                    };
+                    button.addActionListener(closing);
+                    frame.getRootPane().setDefaultButton(button);
+            	    	frame.getRootPane().registerKeyboardAction(closing, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
+                    frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
                     frame.pack();
                     frame.setVisible(true);
                 }
