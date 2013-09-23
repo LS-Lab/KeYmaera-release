@@ -252,7 +252,7 @@ public class PlotRule implements BuiltInRule, RuleFilter {
                     @Override
                     public void actionPerformed(ActionEvent event) {
                         if(Double.parseDouble(tendLimi.getText()) <= 0) {
-                            JOptionPane.showMessageDialog(null, "Time to follow ODEs has to be strictly positive.\nGiven input was " + tendLimi.getText(), "Input Error", JOptionPane.ERROR_MESSAGE);
+                            JOptionPane.showMessageDialog(null, "Time to follow ODEs has to be strictly positive.\nGiven input was: " + tendLimi.getText(), "Input Error", JOptionPane.ERROR_MESSAGE);
                             return;
                         }
                         Term subTerm = ruleApp.posInOccurrence().subTerm();
