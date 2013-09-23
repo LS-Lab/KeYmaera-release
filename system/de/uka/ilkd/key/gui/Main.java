@@ -1205,14 +1205,14 @@ public class Main extends JFrame implements IMain {
     public void showAbout() {
         String aspects = compiledAspects();
         JOptionPane pane =new JOptionPane(
-                COPYRIGHT+"\n\nWWW: http://key-project.org\n\nVersion "+
+                COPYRIGHT+"\n\nWWW: http://key-project.org\n\nWWW: http://symbolaris.com/info/KeYmaera.html\n\nVersion "+
                 VERSION
                 + ((aspects.length()==0) ? "":
                     "\nCompiled with Aspects:\n"+aspects)
                     ,
                     JOptionPane.INFORMATION_MESSAGE, JOptionPane.DEFAULT_OPTION,
                     IconFactory.keyLogo(105,60));
-        JDialog dialog = pane.createDialog(this, "The KeY Project");
+        JDialog dialog = pane.createDialog(this, "KeYmaera and the KeY Project");
         dialog.setVisible(true);
     }
     
@@ -1493,8 +1493,8 @@ public class Main extends JFrame implements IMain {
 	
 	addSeparator(view);
 
-        final JMenuItem systemOutput = new JCheckBoxMenuItem("System output in automode");
-        systemOutput.setToolTipText("If ticked, the window containing the system output will be shown while running the automatic strategy.");
+        final JMenuItem systemOutput = new JCheckBoxMenuItem("System Output in Automode");
+        systemOutput.setToolTipText("If ticked, the window containing the system output will be shown whenever the automatic strategy runs.");
         systemOutput.setSelected(ProofSettings.DEFAULT_SETTINGS.getViewSettings().isShowConsoleOutput());
         systemOutput.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -1503,7 +1503,8 @@ public class Main extends JFrame implements IMain {
 
         registerAtMenu(view, systemOutput);
 
-        JMenuItem sysOut = new JMenuItem("System output...");
+        JMenuItem sysOut = new JMenuItem("System Output...");
+        sysOut.setToolTipText("Display the system output and log in a window");
         sysOut.addActionListener(new ActionListener() {
 
             @Override
@@ -1514,6 +1515,7 @@ public class Main extends JFrame implements IMain {
         registerAtMenu(view, sysOut);
 
         JMenuItem serverConsole = new JMenuItem("Server Console...");
+        serverConsole.setToolTipText("Display the status and communication with arithmetic backends in the Server Console");
 	serverConsole.addActionListener(new ActionListener() {
 		
 		@Override
@@ -2010,7 +2012,7 @@ public class Main extends JFrame implements IMain {
     public JMenu createHelpMenu() {
         JMenu help = new JMenu("About");
         help.setMnemonic(KeyEvent.VK_A);
-        JMenuItem about = new JMenuItem("About KeY");
+        JMenuItem about = new JMenuItem("About KeYmaera");
         about.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 showAbout();
