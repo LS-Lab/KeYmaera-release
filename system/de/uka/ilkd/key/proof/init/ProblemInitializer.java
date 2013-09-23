@@ -447,7 +447,8 @@ public class ProblemInitializer {
 	if (main != null) {
             main.addProblem(pl);
         }
-	GlobalProofMgt.getInstance().tryReuse(pl);
+    // disable reuse
+	//GlobalProofMgt.getInstance().tryReuse(pl);
     }
 
 
