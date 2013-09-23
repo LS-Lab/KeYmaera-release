@@ -24,8 +24,10 @@ public class JavaParserException extends antlr.SemanticException {
 	this.cat      = cat;
 	this.jb =t.getText();
 	this.filename = filename;
-	this.line = (lineOffset>=0) ? t.getLine()+lineOffset : 0;	
-	this.column = (colOffset>=0) ? t.getColumn()+colOffset : 0;
+//	this.line = (lineOffset>=0) ? t.getLine()+lineOffset : 0;
+//	this.column = (colOffset>=0) ? t.getColumn()+colOffset : 0;
+        this.line = lineOffset;
+        this.column = colOffset;
     }
     
     public JavaParserException(Throwable e, Token t, String filename, 
