@@ -2141,7 +2141,8 @@ var_decl
 	            f = new LocationVariable(fct_name, retSort);
 	            addProgramVariable(f);
 	        } 
-        } (COMMA fun2_name = funcpred_name {
+        } (AT IDENT (LPAREN STRING_LITERAL RPAREN)?)?
+		(COMMA fun2_name = funcpred_name {
 	        if (!skip_functions) {
 	            ProgramElementName fct_name = new ProgramElementName(fun2_name);
 	            LocationVariable f = null;
@@ -2151,7 +2152,8 @@ var_decl
 	            f = new LocationVariable(fct_name, retSort);
 	            addProgramVariable(f);
 	        } 
-		})*
+		} (AT IDENT (LPAREN STRING_LITERAL RPAREN)?)?
+		)*
         SEMI
     ;
 
