@@ -70,10 +70,7 @@ import de.uka.ilkd.key.logic.op.SchemaVariable;
 import de.uka.ilkd.key.proof.Goal;
 import de.uka.ilkd.key.proof.Node;
 import de.uka.ilkd.key.proof.RuleFilter;
-import de.uka.ilkd.key.rule.BuiltInRule;
-import de.uka.ilkd.key.rule.NoPosTacletApp;
-import de.uka.ilkd.key.rule.Rule;
-import de.uka.ilkd.key.rule.RuleApp;
+import de.uka.ilkd.key.rule.*;
 import de.uka.ilkd.key.rule.inst.InstantiationEntry;
 
 /**
@@ -162,6 +159,9 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
 	 */
 	public synchronized ImmutableList<Goal> apply(Goal goal, Services services,
 			RuleApp ruleApp) {
+        if(ruleApp instanceof BuiltInRuleApp) {
+            ((BuiltInRuleApp) ruleApp).setQuantifierEliminator(DLOptionBean.INSTANCE.getQuantifierEliminator());
+        }
 		final boolean testModeActive = testMode;
 		unsolvable = false;
 		testMode = false;

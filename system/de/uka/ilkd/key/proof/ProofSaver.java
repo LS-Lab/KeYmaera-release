@@ -248,6 +248,10 @@ public class ProofSaver {
         tree.append(posInOccurrence2Proof(node.sequent(), 
                                           appliedRuleApp.posInOccurrence()));
         tree.append(newNames2Proof(node));
+        String quantifierEliminator = ((BuiltInRuleApp) appliedRuleApp).getQuantifierEliminator();
+        if(quantifierEliminator != null) {
+            tree.append(" (quantifierEliminator \"" + quantifierEliminator + "\")");
+        }
 
         if (appliedRuleApp.rule() instanceof UseOperationContractRule) {
             RuleJustificationBySpec ruleJusti = (RuleJustificationBySpec) 

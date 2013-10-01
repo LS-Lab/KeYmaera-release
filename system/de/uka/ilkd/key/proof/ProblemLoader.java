@@ -32,6 +32,7 @@ import java.util.Vector;
 import de.uka.ilkd.key.collection.ImmutableList;
 import de.uka.ilkd.key.collection.ImmutableSLList;
 import de.uka.ilkd.key.collection.ImmutableSet;
+import de.uka.ilkd.key.dl.options.DLOptionBean;
 import de.uka.ilkd.key.dl.rules.ReduceRuleApp;
 import de.uka.ilkd.key.gui.*;
 import de.uka.ilkd.key.gui.configuration.ProofSettings;
@@ -97,7 +98,8 @@ public class ProblemLoader implements Runnable {
     private SwingWorker worker;
     private ProgressMonitor pm;
     private ProverTaskListener ptl;
-    
+    private String quantifierEliminator;
+
     public ProblemLoader(File file, IMain main, Profile profile, 
             boolean keepProblem) {
         this.main = main;
@@ -561,6 +563,9 @@ public class ProblemLoader implements Runnable {
         		reduceVariables.add(m.trim());
         	}
         	break;
+        case 'Q':
+            quantifierEliminator = s;
+            break;
         }
     }
 
@@ -614,7 +619,12 @@ public class ProblemLoader implements Runnable {
             break;
         case 'n' :
             try {
-                currGoal.apply(constructBuiltinApp());
+                BuiltInRuleApp p_ruleApp = constructBuiltinApp();
+                if(p_ruleApp.getQuantifierEliminator() != null) {
+                    // update the current quantifier eliminator
+                    DLOptionBean.INSTANCE.setQuantifierEliminator(p_ruleApp.getQuantifierEliminator());
+                }
+                currGoal.apply(p_ruleApp);
                 children = currNode.childrenIterator();
                 currNode = null;
             } catch (BuiltInConstructionException e) {
@@ -681,6 +691,10 @@ public class ProblemLoader implements Runnable {
         	ourApp = new ReduceRuleApp((BuiltInRule) ourApp.rule(), pos,
         			Constraint.BOTTOM, reduceVariables);
         	reduceVariables = null;
+        }
+        if(quantifierEliminator != null) {
+            ourApp.setQuantifierEliminator(quantifierEliminator);
+            quantifierEliminator = null;
         }
 
         return ourApp;

@@ -27,6 +27,8 @@ public class BuiltInRuleApp implements RuleApp {
     private Constraint userConstraint;
     
     private RuleAppNumber ruleAppNumber;
+
+    private String quantifierEliminator = null;
     
 
     
@@ -104,4 +106,11 @@ public class BuiltInRuleApp implements RuleApp {
 		return ruleAppNumber.getRuleAppNumber();
 	}
 
+    public String getQuantifierEliminator() {
+        return quantifierEliminator;
+    }
+
+    public void setQuantifierEliminator(String quantifierEliminator) {
+        this.quantifierEliminator = quantifierEliminator;
+    }
 }

@@ -31,6 +31,7 @@ import de.uka.ilkd.key.collection.ImmutableSLList;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.IncompleteEvaluationException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.UnsolveableException;
+import de.uka.ilkd.key.dl.options.DLOptionBean;
 import de.uka.ilkd.key.dl.strategy.RealtimeStrategy;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.logic.ConstrainedFormula;
@@ -42,6 +43,7 @@ import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.TermBuilder;
 import de.uka.ilkd.key.logic.Visitor;
 import de.uka.ilkd.key.proof.Goal;
+import de.uka.ilkd.key.rule.BuiltInRuleApp;
 import de.uka.ilkd.key.rule.RuleApp;
 import de.uka.ilkd.key.rule.SequentWideBuiltInRule;
 
@@ -116,6 +118,9 @@ public abstract class RuleOperatingOnWholeSequence extends Visitor implements
 			RuleApp ruleApp, long timeout) {
 		// reset the testmode instantaniously to ensure that it cannot be
 		// enabled accidently
+        if(ruleApp instanceof BuiltInRuleApp) {
+            ((BuiltInRuleApp) ruleApp).setQuantifierEliminator(DLOptionBean.INSTANCE.getQuantifierEliminator());
+        }
 		boolean testModeActive = testMode;
 		unsolvable = false;
 		testMode = false;
