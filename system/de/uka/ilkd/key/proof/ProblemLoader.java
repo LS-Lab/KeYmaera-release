@@ -606,6 +606,11 @@ public class ProblemLoader implements Runnable {
             break;
         case 'r' :
             try{
+               if(quantifierEliminator != null) {
+                   // update the current quantifier eliminator
+                   DLOptionBean.INSTANCE.setQuantifierEliminator(quantifierEliminator);
+                   quantifierEliminator = null;
+               }
                currGoal.apply(constructApp());
                children = currNode.childrenIterator();
                currNode = null;

@@ -18,6 +18,7 @@ import java.util.Iterator;
 import de.uka.ilkd.key.dl.DLProfile;
 import de.uka.ilkd.key.dl.formulatools.MetaVariableLocator;
 import de.uka.ilkd.key.dl.formulatools.SkolemfunctionTracker;
+import de.uka.ilkd.key.dl.options.DLOptionBean;
 import de.uka.ilkd.key.gui.Main;
 import de.uka.ilkd.key.collection.*;
 import de.uka.ilkd.key.java.ProgramElement;
@@ -94,6 +95,8 @@ public abstract class TacletApp implements RuleApp {
     protected boolean updateContextFixed = false;
 
 	private RuleAppNumber ruleAppNumber;
+
+    private String quantifierEliminator;
 
     /**
      * constructs a TacletApp for the given taclet, with an empty instantiation
@@ -401,8 +404,9 @@ public abstract class TacletApp implements RuleApp {
 	    throw new IllegalStateException("Tried to apply rule \n"+taclet
 					    +"\nthat is not complete.");
 	}
-        goal.addAppliedRuleApp(this);	
-	return taclet().apply(goal, services, this);
+        goal.addAppliedRuleApp(this);
+        quantifierEliminator = DLOptionBean.INSTANCE.getQuantifierEliminator();
+        return taclet().apply(goal, services, this);
     }    
 
     /** applies the specified rule at the specified position 
@@ -1733,5 +1737,9 @@ public abstract class TacletApp implements RuleApp {
     
     public int getRuleAppNumber() {
     	return ruleAppNumber.getRuleAppNumber();
+    }
+
+    public String getQuantifierEliminator() {
+        return quantifierEliminator;
     }
 }

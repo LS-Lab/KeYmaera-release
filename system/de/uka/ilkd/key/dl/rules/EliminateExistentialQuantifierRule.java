@@ -108,7 +108,12 @@ public class EliminateExistentialQuantifierRule implements BuiltInRule,
 			return null;
 		}
 
-		public Rule rule() {
+        @Override
+        public String getQuantifierEliminator() {
+            return DLOptionBean.INSTANCE.getQuantifierEliminator();
+        }
+
+        public Rule rule() {
 			return new Rule() {
 
 				public ImmutableList<Goal> apply(Goal goal, Services services,

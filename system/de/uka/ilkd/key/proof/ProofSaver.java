@@ -237,6 +237,7 @@ public class ProofSaver {
          if (l != null) tree.append(ifFormulaInsts(node, l));
          tree.append("");
          userInteraction2Proof(node, tree);
+         tree.append(" (quantifierEliminator \"" + ((TacletApp) appliedRuleApp).getQuantifierEliminator() + "\")");
          tree.append(" (nodenum \"" + node.getNodeInfo().getNodeNumber() + "\"))\n");
       }      
         
