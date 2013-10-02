@@ -302,11 +302,11 @@ public class RewriteTaclet extends FindTaclet{
 			    Services        services,
 			    MatchConditions matchCond) {
 	if (posOfFind.isInAntec()) {
-	    addToAntec(add.antecedent(), goal, posOfFind, services, matchCond);
-	    addToSucc(add.succedent(), goal, null, services, matchCond);
+	    addToAntec(add.antecedent(), goal, posOfFind, services, matchCond, false);
+	    addToSucc(add.succedent(), goal, null, services, matchCond, false);
 	} else {
-	    addToAntec(add.antecedent(), goal, null, services, matchCond);	
-	    addToSucc(add.succedent(), goal, posOfFind, services, matchCond);
+	    addToAntec(add.antecedent(), goal, null, services, matchCond, false);
+	    addToSucc(add.succedent(), goal, posOfFind, services, matchCond, false);
 	}
     }
     

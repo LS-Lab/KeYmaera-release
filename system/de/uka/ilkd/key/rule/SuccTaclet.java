@@ -107,19 +107,20 @@ public class SuccTaclet extends FindTaclet{
         }
 
 	    addToAntec(replWith.antecedent(), goal, 
-		       null, services, matchCond);	   	    	    
+		       null, services, matchCond, ((AntecSuccTacletGoalTemplate) gt).isFresh());
             if ( createCopies ( goal, posOfFind, matchCond ) ) {
-                addToSucc ( replWith.succedent (),
-                            goal,
-                            posOfFind,
-                            services,
-                            matchCond );
+                System.out.println("Adding + " + replWith.succedent());
+                addToSucc(replWith.succedent(),
+                        goal,
+                        posOfFind,
+                        services,
+                        matchCond, ((AntecSuccTacletGoalTemplate) gt).isFresh());
             } else {
                 replaceAtPos ( replWith.succedent (),
                                goal,
                                posOfFind,
                                services,
-                               matchCond );
+                               matchCond, ((AntecSuccTacletGoalTemplate) gt).isFresh() );
             }
 
 	} else {
@@ -139,8 +140,8 @@ public class SuccTaclet extends FindTaclet{
 			    PosInOccurrence posOfFind,
 			    Services services,
 			    MatchConditions matchCond) {
-	addToAntec(add.antecedent(), goal, null, services, matchCond);
-	addToSucc(add.succedent(), goal, posOfFind, services, matchCond);
+	addToAntec(add.antecedent(), goal, null, services, matchCond, false);
+	addToSucc(add.succedent(), goal, posOfFind, services, matchCond, false);
     }
 
     /** toString for the find part */

@@ -1276,14 +1276,14 @@ public abstract class Taclet implements Rule, Named {
     private ConstrainedFormula 
 	instantiateReplacement(ConstrainedFormula schemaFormula,
 			       Services           services,
-			       MatchConditions    matchCond) { 
+			       MatchConditions    matchCond, boolean fresh) {
 
 	final SVInstantiations svInst = matchCond.getInstantiations ();
 	
         Term instantiatedFormula = syntacticalReplace(schemaFormula.formula(), 
                     services, matchCond);
         
-        if (!svInst.getUpdateContext().isEmpty()) {
+        if (!fresh && !svInst.getUpdateContext().isEmpty()) {
             instantiatedFormula = TermFactory.DEFAULT.
               createUpdateTerm(svInst.getUpdateContext(), instantiatedFormula);         
 	} 
@@ -1302,13 +1302,13 @@ public abstract class Taclet implements Rule, Named {
      * @return the instanted formulas of the semisquent as list
      */
     private ImmutableList<ConstrainedFormula> instantiateSemisequent(Semisequent semi, Services services, 
-            MatchConditions matchCond) {       
+            MatchConditions matchCond, boolean fresh) {
         
         ImmutableList<ConstrainedFormula> replacements = ImmutableSLList.<ConstrainedFormula>nil();
 
         for (Object aSemi : semi) {
             replacements = replacements.append
-                    (instantiateReplacement((ConstrainedFormula) aSemi, services, matchCond));
+                    (instantiateReplacement((ConstrainedFormula) aSemi, services, matchCond, fresh));
         }
         return replacements;
     }
@@ -1329,8 +1329,8 @@ public abstract class Taclet implements Rule, Named {
 				Goal goal,
 				PosInOccurrence pos,
 				Services services, 
-				MatchConditions matchCond) {
-	goal.changeFormula(instantiateSemisequent(semi, services, matchCond),
+				MatchConditions matchCond, boolean fresh) {
+	goal.changeFormula(instantiateSemisequent(semi, services, matchCond, fresh),
                 pos);
     }
 
@@ -1354,9 +1354,9 @@ public abstract class Taclet implements Rule, Named {
 			    PosInOccurrence pos,
 			    boolean antec,
 			    Services services, 
-			    MatchConditions matchCond ) {
+			    MatchConditions matchCond, boolean fresh ) {
 	final ImmutableList<ConstrainedFormula> replacements = 
-            instantiateSemisequent(semi, services, matchCond);
+            instantiateSemisequent(semi, services, matchCond, fresh);
 	
 	if (pos != null) {
 	    goal.addFormula(replacements, pos);
@@ -1383,8 +1383,8 @@ public abstract class Taclet implements Rule, Named {
 			      Goal goal,
 			      PosInOccurrence pos,
 			      Services services, 
-			      MatchConditions matchCond) { 
-	addToPos(semi, goal, pos, true, services, matchCond);
+			      MatchConditions matchCond, boolean fresh) {
+	addToPos(semi, goal, pos, true, services, matchCond, fresh);
     }
 
     /**
@@ -1405,8 +1405,8 @@ public abstract class Taclet implements Rule, Named {
 			     Goal goal,
 			     PosInOccurrence pos,
 			     Services services, 
-			     MatchConditions matchCond) {
-	addToPos(semi, goal, pos, false, services, matchCond);
+			     MatchConditions matchCond, boolean fresh) {
+	addToPos(semi, goal, pos, false, services, matchCond, fresh);
     }
 
     protected abstract Taclet setName(String s);
