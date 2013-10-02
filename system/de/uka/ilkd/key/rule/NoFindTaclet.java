@@ -66,8 +66,8 @@ public class NoFindTaclet extends Taclet {
     protected void applyAdd(Sequent add, Goal goal, 
 			    Services services,
 			    MatchConditions matchCond) {
-	addToAntec(add.antecedent(), goal, null, services, matchCond);
-	addToSucc (add.succedent(),  goal, null, services, matchCond);
+	addToAntec(add.antecedent(), goal, null, services, matchCond, false);
+	addToSucc (add.succedent(),  goal, null, services, matchCond, false);
     }
     
 
