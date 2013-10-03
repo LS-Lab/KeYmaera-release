@@ -469,9 +469,12 @@ public class Expr2TermConverter implements ExprConstants {
             }
         } catch (ExprFormatException e) {
             throw new UnableToConvertInputException("Error converting Expr "
-                    + expr + " to Formula, because " + e, e);
+                    + expr + " to Formula, because " + e + "\nThis is typically caused by having the mathkernel being" +
+                    " stopped in a bad state. A common solution is to (1) save the proof progress, (2) stop all " +
+                    "instances of KeYmaera, (3) kill all remaining MathKernels, and (4) restart KeYmaera and reload the" +
+                    " proof file.", e);
         }
-        throw new UnableToConvertInputException("Dont know how to convert "
+        throw new UnableToConvertInputException("Don't know how to convert "
                 + expr);
     }
 
