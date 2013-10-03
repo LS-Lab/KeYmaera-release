@@ -21,7 +21,7 @@ $ROOT can be any name you want to give for your local working copy. The above co
 > cd $ROOT; git checkout -b stable origin/keymaeraStable --track
 
 4/ Now that you have the source files, you might need to go through the following requirements before compiling your local version of KeYmaera:
- - install scala 2.9+ if it is not there (http://www.scala-lang.org/downloads)
+ - install scala 2.10+ if it is not there (http://www.scala-lang.org/downloads)
  - install Ocaml (http://caml.inria.fr)
  - fetch the following external libraries (they should be located under $ROOT/key-ext-jars):
 
