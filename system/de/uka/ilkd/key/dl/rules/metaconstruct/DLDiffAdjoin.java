@@ -24,10 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.uka.ilkd.key.dl.formulatools.ReplaceVisitor;
-import de.uka.ilkd.key.dl.model.DLStatementBlock;
-import de.uka.ilkd.key.dl.model.DiffSystem;
-import de.uka.ilkd.key.dl.model.Formula;
-import de.uka.ilkd.key.dl.model.TermFactory;
+import de.uka.ilkd.key.dl.model.*;
 import de.uka.ilkd.key.dl.options.DLOptionBean;
 import de.uka.ilkd.key.java.ProgramElement;
 import de.uka.ilkd.key.java.Services;
@@ -70,8 +67,15 @@ public class DLDiffAdjoin extends AbstractDLMetaOperator {
      */
     public Term calculate(Term term, SVInstantiations svInst, Services services) {
         // \[#diffsystem\]post,psi
-        DiffSystem system = (DiffSystem) ((StatementBlock) term.sub(0)
+        ProgramElement stat = ((StatementBlock) term.sub(0)
                 .javaBlock().program()).getChildAt(0);
+        VariableDeclaration decl = null;
+        if(stat instanceof Quantified) {
+            Quantified q = (Quantified) stat;
+            decl = (VariableDeclaration) q.getChildAt(0);
+            stat = q.getChildAt(1);
+        }
+        DiffSystem system = (DiffSystem) stat;
         Term post = term.sub(0).sub(0);
         Term psi = term.sub(1);
         try {
@@ -89,8 +93,12 @@ public class DLDiffAdjoin extends AbstractDLMetaOperator {
             }
             augmented.add(ReplaceVisitor.convertFormulaToProgram(psi, tf));
             // \[#diffsystem&psi\]post
-            DiffSystem augmentedSystem = tf.createDiffSystem(augmented);
+            DLProgram augmentedSystem = tf.createDiffSystem(augmented);
             augmentedSystem.setDLAnnotations(system.getDLAnnotations());
+            if(decl != null) {
+                // reintroduce quantifiers
+                augmentedSystem = tf.createQuantified(decl, augmentedSystem);
+            }
             return de.uka.ilkd.key.logic.TermFactory.DEFAULT.createProgramTerm(
                     term.sub(0).op(), JavaBlock
                             .createJavaBlock(new DLStatementBlock(augmentedSystem)), post);

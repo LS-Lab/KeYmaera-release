@@ -41,17 +41,23 @@ object Derive {
     val d = Derive(_: Term, vars, eps, services)
     t match {
       case True() | False() => t 
-      case All(_, _) | Ex(_, _) | Eqv(_, _) | Imp(_, _) | Box(_, _) | Dia(_, _) =>
+      case Eqv(_, _) | Imp(_, _) | Box(_, _) | Dia(_, _) =>
         throw new UnsupportedOperationException(
           "not yet implemented for operator " + t.op + " in " + t);
       case Not(_) =>
         throw new IllegalArgumentException("please transform the " + t
           + " into negation normal form");
+      case All(a, x) => All(d(a), x)
+      case Ex(a, x) => Ex(d(a), x)
       case Or(a, b) => d(a) & d(b)
       case And(a, b) => d(a) & d(b)
       case Constant(n) => vars.toMap.get(n) match {
         case Some(t) => t
         case _ => 0
+      }
+      case nrf@NonRigidFunction(f, args) => vars.toMap.get(nrf.toString) match {
+        case Some(t) => t
+        case _ => println(nrf.toString + " not found!"); 0
       }
       case MinusSign(a) => -d(a)
       case Plus(a, b) => d(a) + d(b)

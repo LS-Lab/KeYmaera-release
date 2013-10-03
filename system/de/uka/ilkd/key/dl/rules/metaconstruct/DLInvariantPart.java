@@ -20,6 +20,9 @@
 package de.uka.ilkd.key.dl.rules.metaconstruct;
 
 import de.uka.ilkd.key.dl.model.DiffSystem;
+import de.uka.ilkd.key.dl.model.Quantified;
+import de.uka.ilkd.key.dl.model.VariableDeclaration;
+import de.uka.ilkd.key.java.ProgramElement;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.java.StatementBlock;
 import de.uka.ilkd.key.logic.Name;
@@ -56,8 +59,15 @@ public class DLInvariantPart extends AbstractDLMetaOperator {
      *      de.uka.ilkd.key.java.Services)
      */
     public Term calculate(Term term, SVInstantiations svInst, Services services) {
-        DiffSystem system = (DiffSystem) ((StatementBlock) term.sub(0)
+        ProgramElement stat = ((StatementBlock) term.sub(0)
                 .javaBlock().program()).getChildAt(0);
+        VariableDeclaration decl = null;
+        if(stat instanceof Quantified) {
+            Quantified q = (Quantified) stat;
+            decl = (VariableDeclaration) q.getChildAt(0);
+            stat = q.getChildAt(1);
+        }
+        DiffSystem system = (DiffSystem) stat;
         Term post = term.sub(0).sub(0);
         Term inv = system.getInvariant(services);
         return inv;

@@ -20,6 +20,7 @@
 package de.uka.ilkd.key.dl.rules.metaconstruct;
 
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.Collections;
 
 import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
@@ -28,10 +29,11 @@ import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.UnsolveableException;
 import de.uka.ilkd.key.dl.arithmetics.impl.mathematica.Options;
 import de.uka.ilkd.key.dl.formulatools.DerivativeCreator;
-import de.uka.ilkd.key.dl.model.DiffSystem;
+import de.uka.ilkd.key.dl.model.*;
 import de.uka.ilkd.key.dl.options.DLOptionBean;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DiffFin.RemoveQuantifiersResult;
 import de.uka.ilkd.key.java.PrettyPrinter;
+import de.uka.ilkd.key.java.ProgramElement;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.java.StatementBlock;
 import de.uka.ilkd.key.logic.Name;
@@ -40,6 +42,7 @@ import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.TermBuilder;
 import de.uka.ilkd.key.logic.op.LogicVariable;
 import de.uka.ilkd.key.logic.op.Modality;
+import de.uka.ilkd.key.logic.op.QuantifiableVariable;
 import de.uka.ilkd.key.logic.sort.Sort;
 import de.uka.ilkd.key.rule.inst.SVInstantiations;
 
@@ -86,8 +89,15 @@ public class DiffInd extends AbstractDLMetaOperator {
     }
 
     public Term diffInd(Term term, Services services) throws SolverException {
-        DiffSystem system = (DiffSystem) ((StatementBlock) term
+        ProgramElement stat = ((StatementBlock) term
                 .javaBlock().program()).getChildAt(0);
+        VariableDeclaration decl = null;
+        if(stat instanceof Quantified) {
+            Quantified q = (Quantified) stat;
+            decl = (VariableDeclaration) q.getChildAt(0);
+            stat = q.getChildAt(1);
+        }
+        DiffSystem system = (DiffSystem) stat;
         Term post = term.sub(0);
         final NamespaceSet nss = services.getNamespaces();
         if (term.op() == Modality.BOX
@@ -104,12 +114,27 @@ public class DiffInd extends AbstractDLMetaOperator {
 				            .diffInd(sys, post, services);
 				} else {
 				    diffInd = DerivativeCreator.diffInd(sys, post, services);
+                    if(decl != null) {
+                        // lookup variables
+                        ArrayList<QuantifiableVariable> vars = new ArrayList<QuantifiableVariable>();
+                        for(int i = 1; i < decl.getChildCount(); i++) {
+                            LogicalVariable v = (LogicalVariable) decl.getChildAt(i);
+                            LogicVariable vn = (LogicVariable) services.getNamespaces().variables().lookup(new Name(v.getElementName().toString()));
+                            assert vn != null : "We assume the quantified variable " + v + " to be in the namespace at this point";
+                            vars.add(vn);
+                        }
+                        Collections.reverse(vars);
+                        // introduce quantifiers
+                        for (QuantifiableVariable var : vars) {
+                            diffInd = TermBuilder.DF.all(var, diffInd);
+                        }
+                    }
 				    diffInd = TermBuilder.DF.imp(sys.getInvariant(services), diffInd);
 				}
 				// reintroduce the quantifiers
 				Collections.reverse(r.getQuantifiedVariables());
 				for (LogicVariable var : r.getQuantifiedVariables()) {
-					diffInd= TermBuilder.DF.all(var, diffInd);
+					diffInd = TermBuilder.DF.all(var, diffInd);
 				}
 				return diffInd;
 //            } catch (SolverException e) {

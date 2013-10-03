@@ -12,6 +12,8 @@
  */
 package de.uka.ilkd.key.dl.formulatools;
 
+import java.io.IOException;
+import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,6 +23,7 @@ import de.uka.ilkd.key.dl.model.DiffSystem;
 import de.uka.ilkd.key.dl.model.Dot;
 import de.uka.ilkd.key.dl.model.Equals;
 import de.uka.ilkd.key.dl.model.PredicateTerm;
+import de.uka.ilkd.key.java.PrettyPrinter;
 import de.uka.ilkd.key.java.ProgramElement;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.logic.Term;
@@ -75,8 +78,21 @@ public class DerivativeCreator {
 			// we can only handle differential equations of the form x'=f(x,y)
 			// here
 			if (pred.getChildAt(0) instanceof Equals && pred.getChildAt(1) instanceof Dot) {
-				de.uka.ilkd.key.dl.model.ProgramVariable pv = (de.uka.ilkd.key.dl.model.ProgramVariable) ((Dot) pred.getChildAt(1)).getChildAt(0);
-				String pvName = pv.getElementName().toString();
+                String pvName;
+                if(((Dot) pred.getChildAt(1)).getChildAt(0) instanceof de.uka.ilkd.key.dl.model.ProgramVariable) {
+                    de.uka.ilkd.key.dl.model.ProgramVariable pv = (de.uka.ilkd.key.dl.model.ProgramVariable) ((Dot) pred.getChildAt(1)).getChildAt(0);
+                    pvName = pv.getElementName().toString();
+                } else {
+                    // we have a non-rigid function with parameters
+                    StringWriter w = new StringWriter();
+                    try {
+                        // FIXME: using the prettyprinter here is extremely dangerous!
+                        ((Dot) pred.getChildAt(1)).getChildAt(0).prettyPrint(new PrettyPrinter(w));
+                        pvName = w.toString();
+                    } catch (IOException e) {
+                        throw new IllegalArgumentException("Cannot prettyprint the term " + ((Dot) pred.getChildAt(1)).getChildAt(0));
+                    }
+                }
 				map.put(pvName, Prog2LogicConverter.convert((DLProgramElement) pred.getChildAt(2), services));
 			} else {
 				if (containsDots(pred)) {

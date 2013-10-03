@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import de.uka.ilkd.key.collection.ImmutableArray;
 import de.uka.ilkd.key.dl.logic.ldt.RealLDT;
 import de.uka.ilkd.key.dl.model.And;
 import de.uka.ilkd.key.dl.model.Assign;
@@ -70,13 +71,14 @@ import de.uka.ilkd.key.dl.model.impl.EqualsImpl;
 import de.uka.ilkd.key.java.ProgramElement;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.op.Equality;
-import de.uka.ilkd.key.logic.op.Function;
 import de.uka.ilkd.key.logic.op.LogicVariable;
 import de.uka.ilkd.key.logic.op.Metavariable;
 import de.uka.ilkd.key.logic.op.Op;
 import de.uka.ilkd.key.logic.op.ProgramSV;
 import de.uka.ilkd.key.logic.op.QuantifiableVariable;
+import de.uka.ilkd.key.logic.op.Quantifier;
 import de.uka.ilkd.key.logic.op.SchemaVariable;
+import de.uka.ilkd.key.logic.sort.Sort;
 import de.uka.ilkd.key.rule.inst.SVInstantiations;
 
 /**
@@ -92,8 +94,6 @@ public class ReplaceVisitor {
 	 * @param childAt
 	 * @param tf
 	 *            TODO
-	 * @param update
-	 * @param protectedVars
 	 * @return
 	 */
 	public static DLProgramElement convert(ProgramElement childAt,
@@ -305,8 +305,6 @@ public class ReplaceVisitor {
 	 * @param childAt
 	 * @param tf
 	 *            TODO
-	 * @param update
-	 * @param protectedVars
 	 * @return
 	 */
 	public static DLProgramElement convert(ProgramElement childAt,
@@ -486,8 +484,6 @@ public class ReplaceVisitor {
 	 * @param childAt
 	 * @param tf
 	 *            TODO
-	 * @param update
-	 * @param protectedVars
 	 * @return
 	 */
 	public static DLProgramElement replaceFunctionTerm(ProgramElement childAt,
@@ -642,7 +638,6 @@ public class ReplaceVisitor {
 	 * Converts a Term representing an expression into an Expression
 	 * ProgramElement
 	 * 
-	 * @param term
 	 *            a term representing an expression
 	 * @return a ProgramElement representation of the expression
 	 */
@@ -652,8 +647,8 @@ public class ReplaceVisitor {
 			argList.add(convertToProgram(form.sub(i), tf));
 		}
 		Expression[] args = argList.toArray(new Expression[0]);
-		if (form.op() instanceof Function) {
-			Function f = (Function) form.op();
+		if (form.op() instanceof de.uka.ilkd.key.logic.op.Function) {
+			de.uka.ilkd.key.logic.op.Function f = (de.uka.ilkd.key.logic.op.Function) form.op();
 			if (form.op().name().toString().equals("add")) {
 				return tf.createPlus(args[0], args[1]);
 			} else if (f.name().toString().equals("sub")) {
@@ -693,17 +688,16 @@ public class ReplaceVisitor {
 	/**
 	 * Converts a Term representing a formula into an Formula ProgramElement
 	 * 
-	 * @param term
 	 *            a term representing an formula
 	 * @return a ProgramElement representation of the formula
 	 */
 	public static Formula convertFormulaToProgram(Term form, TermFactory tf) {
 		if (form.op() == Op.AND) {
 			return tf.createAnd(convertFormulaToProgram(form.sub(0), tf),
-					convertFormulaToProgram(form.sub(1), tf));
+                    convertFormulaToProgram(form.sub(1), tf));
 		} else if (form.op() == Op.OR) {
 			return tf.createOr(convertFormulaToProgram(form.sub(0), tf),
-					convertFormulaToProgram(form.sub(1), tf));
+                    convertFormulaToProgram(form.sub(1), tf));
 		} else if (form.op() == Op.IMP) {
 			return tf.createImpl(convertFormulaToProgram(form.sub(0), tf),
 					convertFormulaToProgram(form.sub(1), tf));
@@ -712,12 +706,31 @@ public class ReplaceVisitor {
 					convertFormulaToProgram(form.sub(1), tf));
 		} else if (form.op() == Op.NOT) {
 			return tf.createNot(convertFormulaToProgram(form.sub(0), tf));
-		} else if (form.op() instanceof Function) {
+        } else if (form.op() instanceof Quantifier) {
+            ImmutableArray<QuantifiableVariable> quantifiableVariables = form.varsBoundHere(0);
+            Formula formula = convertFormulaToProgram(form.sub(0), tf);
+            if(quantifiableVariables.size() == 0) {
+                return formula;
+            } else {
+                Sort s = quantifiableVariables.get(0).sort();
+                ArrayList<Variable> vars = new ArrayList<Variable>();
+                for(QuantifiableVariable q: quantifiableVariables) {
+                    vars.add(tf.createLogicalVariable(q.name().toString()));
+                }
+                VariableDeclaration dec = tf.createVariableDeclaration(s, vars);
+                if(form.op() == Op.ALL) {
+                    return tf.createForall(dec, formula);
+                } else if(form.op() == Op.EX) {
+                    return tf.createExists(dec, formula);
+                }
+                throw new IllegalArgumentException("Don't know what to do with quantifier " + form.op() + " in " + form);
+            }
+		} else if (form.op() instanceof de.uka.ilkd.key.logic.op.Function) {
 			List<Expression> argList = new ArrayList<Expression>();
 			for (int i = 0; i < form.arity(); i++) {
 				argList.add(convertToProgram(form.sub(i), tf));
 			}
-			return tf.createPredicateTerm(RealLDT.getPredicate((Function) form
+			return tf.createPredicateTerm(RealLDT.getPredicate((de.uka.ilkd.key.logic.op.Function) form
 					.op()), argList);
 		} else if (form.op() instanceof Equality) {
 			List<Expression> argList = new ArrayList<Expression>();
