@@ -139,7 +139,7 @@ object Constant {
     else None
   }
   def unapply(t: Term): Option[String] = {
-    if(t.sort != RealLDT.getRealSort) return None
+    // if(t.sort != RealLDT.getRealSort) return None
     if (t.arity == 0) {
       Some(t.op.name.toString)
     } else {
