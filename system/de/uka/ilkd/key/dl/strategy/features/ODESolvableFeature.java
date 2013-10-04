@@ -34,6 +34,7 @@ import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.UnsolveableException;
 import de.uka.ilkd.key.dl.arithmetics.impl.mathematica.Expr2TermConverter.UnknownMathFunctionException;
 import de.uka.ilkd.key.dl.model.DiffSystem;
+import de.uka.ilkd.key.dl.model.impl.QuantifiedImpl;
 import de.uka.ilkd.key.dl.options.DLOptionBean;
 import de.uka.ilkd.key.dl.rules.metaconstruct.ODESolve;
 import de.uka.ilkd.key.java.ProgramElement;
@@ -103,8 +104,13 @@ public class ODESolvableFeature implements Feature {
 				.javaBlock().program() instanceof StatementBlock)) {
 			throw new IllegalArgumentException("inapplicable to " + pos);
 		}
-		final DiffSystem system = (DiffSystem) ((StatementBlock) term
-				.javaBlock().program()).getChildAt(0);
+        ProgramElement childAt = ((StatementBlock) term
+                .javaBlock().program()).getChildAt(0);
+        if(childAt instanceof QuantifiedImpl) {
+            //TODO: sometimes we can solve the ODE and we should test for it here
+            return TopRuleAppCost.INSTANCE;
+        }
+        final DiffSystem system = (DiffSystem) childAt;
 		if (!ProgramSVSort.DL_SIMPLE_ORDINARY_DIFF_SYSTEM_SORT_INSTANCE
 				.canStandFor(system, goal.proof().getServices())) {
 			return TopRuleAppCost.INSTANCE;

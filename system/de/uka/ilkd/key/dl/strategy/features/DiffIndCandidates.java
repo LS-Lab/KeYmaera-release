@@ -36,6 +36,7 @@ import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.LinkedHashSet;
 
+import de.uka.ilkd.key.dl.model.*;
 import de.uka.ilkd.key.dl.options.DLOptionBean;
 import de.uka.ilkd.key.logic.*;
 import edu.cmu.cs.ls.DLOriginalParser;
@@ -54,10 +55,6 @@ import de.uka.ilkd.key.dl.formulatools.Prog2LogicConverter;
 import de.uka.ilkd.key.dl.formulatools.ReplacementSubst;
 import de.uka.ilkd.key.dl.formulatools.TermTools;
 import de.uka.ilkd.key.dl.logic.ldt.RealLDT;
-import de.uka.ilkd.key.dl.model.DLProgram;
-import de.uka.ilkd.key.dl.model.DiffSystem;
-import de.uka.ilkd.key.dl.model.NamedElement;
-import de.uka.ilkd.key.dl.model.Star;
 import de.uka.ilkd.key.dl.transitionmodel.DependencyStateGenerator;
 import de.uka.ilkd.key.gui.Main;
 import de.uka.ilkd.key.java.Services;
@@ -113,6 +110,9 @@ public class DiffIndCandidates implements TermGenerator {
             currentInvariant = ((DiffSystem) program).getInvariant(goal.proof().getServices());
         } else if (program instanceof Star) {
             currentInvariant = tb.tt();
+        } else if (program instanceof Quantified) {
+            Quantified q = (Quantified) program;
+            currentInvariant = ((DiffSystem) q.getChildAt(1)).getInvariant(goal.proof().getServices());
         } else {
             throw new IllegalArgumentException("Don't know how to handle "
                     + program);

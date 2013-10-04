@@ -27,11 +27,13 @@ import java.util.WeakHashMap;
 
 import de.uka.ilkd.key.dl.formulatools.TermTools;
 import de.uka.ilkd.key.dl.model.DiffSystem;
+import de.uka.ilkd.key.dl.model.impl.QuantifiedImpl;
 import de.uka.ilkd.key.dl.options.DLOptionBean;
 import de.uka.ilkd.key.dl.rules.UnknownProgressRule;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DLUniversalClosureOp;
 import de.uka.ilkd.key.dl.strategy.RuleAppCostTimeout;
 import de.uka.ilkd.key.dl.strategy.features.HypotheticalProvabilityFeature.HypotheticalProvability;
+import de.uka.ilkd.key.java.ProgramElement;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.java.StatementBlock;
 import de.uka.ilkd.key.logic.JavaBlock;
@@ -145,8 +147,13 @@ public class DiffWeakenFeature implements Feature {
                 && term.javaBlock().program() instanceof StatementBlock)) {
             throw new IllegalArgumentException("inapplicable to " + pos);
         }
-        final DiffSystem system = (DiffSystem) ((StatementBlock) term
+        ProgramElement childAt = ((StatementBlock) term
                 .javaBlock().program()).getChildAt(0);
+        if(childAt instanceof QuantifiedImpl) {
+            //TODO: sometimes we could just weaken even with quantifiers...
+            return TopRuleAppCost.INSTANCE;
+        }
+        final DiffSystem system = (DiffSystem) childAt;
         final Term invariant = system.getInvariant(goal.proof().getServices());
         final Term post = term.sub(0);
         final Services services = goal.proof().getServices();
