@@ -35,9 +35,7 @@ public class KeYFileChooser {
 	fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 	fileChooser.setFileFilter(new javax.swing.filechooser.FileFilter() {
 		public boolean accept(File f) {
-			   return
-               f.toString().endsWith(".key")
-			|| f.toString().endsWith(".proof");
+			   return  f.isDirectory() || f.toString().endsWith(".key") || f.toString().endsWith(".proof");
 		}
 		
 		public String getDescription() {
