@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 
+import de.uka.ilkd.key.dl.formulatools.MinusSign;
 import orbital.logic.Composite;
 import orbital.logic.functor.Functor;
 import orbital.logic.functor.VoidFunction;
@@ -314,8 +315,18 @@ public class Orbital implements IODESolver {
 			next = Values.getDefault().narrow((Scalar) next);
 			if (next instanceof Integer) {
 				Integer i = (Integer) next;
-				return TermBuilder.DF.func(NumberCache.getNumber(
-						new BigDecimal(i.longValue()), sortR));
+                long il = i.longValue();
+                boolean negate = il < 0;
+                if(negate) {
+                    il = - il;
+                }
+				Term t = TermBuilder.DF.func(NumberCache.getNumber(
+						new BigDecimal(il), sortR));
+                if(negate) {
+                    return TermBuilder.DF.func(RealLDT.getFunctionFor(de.uka.ilkd.key.dl.model.MinusSign.class), t);
+                } else {
+                    return t;
+                }
 			} else if (next instanceof Rational) {
 				Rational r = (Rational) next;
 				de.uka.ilkd.key.logic.op.Function div = RealLDT
@@ -325,8 +336,18 @@ public class Orbital implements IODESolver {
 						zero, nss, r.denominator()));
 			} else if (next instanceof Real) {
 				Real r = (Real) next;
-				return TermBuilder.DF.func(NumberCache.getNumber(
-						new BigDecimal(r.floatValue()), sortR));
+                float il = r.floatValue();
+                boolean negate = il < 0;
+                if(negate) {
+                    il = - il;
+                }
+                Term t = TermBuilder.DF.func(NumberCache.getNumber(
+                        new BigDecimal(il), sortR));
+                if(negate) {
+                    return TermBuilder.DF.func(RealLDT.getFunctionFor(de.uka.ilkd.key.dl.model.MinusSign.class), t);
+                } else {
+                    return t;
+                }
 			}
 		} else if (next instanceof Composite) {
 			System.out.println("Found composite " + next);// XXX
