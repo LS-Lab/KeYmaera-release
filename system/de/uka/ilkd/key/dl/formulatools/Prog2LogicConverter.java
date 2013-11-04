@@ -65,12 +65,7 @@ import de.uka.ilkd.key.logic.ProgramElementName;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.TermBuilder;
 import de.uka.ilkd.key.logic.TermFactory;
-import de.uka.ilkd.key.logic.op.AbstractMetaOperator;
-import de.uka.ilkd.key.logic.op.LocationVariable;
-import de.uka.ilkd.key.logic.op.LogicVariable;
-import de.uka.ilkd.key.logic.op.Metavariable;
-import de.uka.ilkd.key.logic.op.NonRigidFunctionLocation;
-import de.uka.ilkd.key.logic.op.ProgramVariable;
+import de.uka.ilkd.key.logic.op.*;
 import de.uka.ilkd.key.logic.sort.Sort;
 import de.uka.ilkd.key.rule.inst.SVInstantiations;
 
@@ -292,10 +287,12 @@ public class Prog2LogicConverter extends AbstractMetaOperator {
 				vars[i - 1] = new LogicVariable(((NamedElement) decl.getChildAt(i)).getElementName(), sort);
 				services.getNamespaces().variables().add(vars[i - 1]);
 			}
-			// do not convert the formula before addind the vars
+			// do not convert the formula before adding the vars
 			Term formula = convertRecursivly(f.getChildAt(1), services,
 					dotReplacementmap);
-			return TermBuilder.DF.all(vars, formula);
+            // WARNING: do not use the TermBuilder here because it fails in case \forall R xn. [x:=xn] x > 0!
+            // return TermBuilder.DF.all(vars, formula);
+            return TermFactory.DEFAULT.createQuantifierTerm(Op.ALL, vars, formula);
 		} else if (form instanceof Exists) {
 			Exists f = (Exists) form;
 			VariableDeclaration decl = (VariableDeclaration) f.getChildAt(0);
@@ -305,10 +302,12 @@ public class Prog2LogicConverter extends AbstractMetaOperator {
 				vars[i - 1] = new LogicVariable(((NamedElement) decl.getChildAt(i)).getElementName(), sort);
 				services.getNamespaces().variables().add(vars[i - 1]);
 			}
-			// do not convert the formula before addind the vars
+			// do not convert the formula before adding the vars
 			Term formula = convertRecursivly(f.getChildAt(1), services,
 					dotReplacementmap);
-			return TermBuilder.DF.ex(vars, formula);
+            // WARNING: do not use the TermBuilder here because it fails in case \forall R xn. [x:=xn] x > 0!
+            // return TermBuilder.DF.ex(vars, formula);
+            return TermFactory.DEFAULT.createQuantifierTerm(Op.EX, vars, formula);
 		} else if (form instanceof de.uka.ilkd.key.dl.model.Box) {
 		    Box b = (Box) form;
 		    return TermBuilder.DF.box(JavaBlock.createJavaBlock(new DLStatementBlock((DLProgram)b.getChildAt(0))), convertRecursivly(b.getChildAt(1), services, dotReplacementmap));
