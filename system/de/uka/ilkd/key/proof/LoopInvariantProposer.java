@@ -202,7 +202,12 @@ public class LoopInvariantProposer implements InstantiationProposer {
                 res = TermBuilder.DF.tt();
             }
             if(DLOptionBean.INSTANCE.isAddRigidFormulas()) {
-                inst = RigidTermConjunction.constructTerm(app.posInOccurrence(), Main.getInstance().mediator().getSelectedGoal(), res );
+                try {
+                    inst = RigidTermConjunction.constructTerm(app.posInOccurrence(), Main.getInstance().mediator().getSelectedGoal(), res );
+                } catch(Exception e) {
+                    // catch exceptions because the RigidTermConjunction feature cannot deal with QdL
+                    e.printStackTrace();
+                }
             }
 //            final LoopInvariant inv = getLoopInvariant(pos.subTerm(), services);
 //            if(inv == null) {
