@@ -71,7 +71,7 @@ astat returns [ DLProgram pe ] :
 | ^(SVARDEC w = WORD sv = svar { pe = tf.schemaCreateVariableDeclaration(w, sv); } (annotation[pe])*)
 | ^(IF frm = form[false] st = stat (st2 = stat)? { pe = tf.createIf(frm, st, st2); } (annotation[pe])*)
 | ^(WHILE frm = form[false] st = stat { DLProgram star = tf.createStar(tf.createChop(tf.createQuest(frm), st)); pe = tf.createChop(star, tf.createQuest(tf.createNot(frm)));} (annotation[star])*) 
-| ^(FORALL ^(VARDEC decl = vardecl[false]) aod = asordiffsys { pe = tf.createQuantified(decl, aod); })
+| ^(FORALL ^(VARDEC decl = vardecl[false]) aod = asordiffsys { pe = tf.createQuantified(decl, aod); tf.unbind(); })
 | {schemaMode}? ^(FORALL sv = svar aod = asordiffsys { pe = tf.schemaCreateQuantified(sv, aod); })
 | {schemaMode}? sv = svar { pe = tf.schemaProgramVariable(sv); }
 ;
@@ -90,8 +90,8 @@ form[boolean diff] returns [ Formula fe ] scope { ArrayList<Expression> params; 
 | ^(LB pe = stat frm = form[diff] { fe = tf.createBox(pe, frm); })
 | ^(DIA pe = stat frm = form[diff] { fe = tf.createDiamond(pe, frm); })
 | ^(bop = brel e = expr[diff] e2 = expr[diff]) { fe = tf.createBinaryRelation(bop, e, e2); }
-| ^(FORALL ^(VARDEC decl = vardecl[false]) (CHOP|BULLET) frm = form[diff] { fe = tf.createForall(decl, frm); })
-| ^(EXISTS ^(VARDEC decl = vardecl[false]) (CHOP|BULLET) frm = form[diff] { fe = tf.createExists(decl, frm); })
+| ^(FORALL ^(VARDEC decl = vardecl[false]) (CHOP|BULLET) frm = form[diff] { fe = tf.createForall(decl, frm); tf.unbind(); })
+| ^(EXISTS ^(VARDEC decl = vardecl[false]) (CHOP|BULLET) frm = form[diff] { fe = tf.createExists(decl, frm); tf.unbind(); })
 | ^(t = WORD (e = expr[diff] { $form::params.add(e); })* { fe = tf.createPredicateTerm(t, $form::params); $form::params.clear(); })
 | t = (WORD_DOLLAR | WORD) { fe = tf.createPredicateTerm(t); }
 | {schemaMode}? sv = svar { fe = tf.schemaTermVariable(sv, diff); }

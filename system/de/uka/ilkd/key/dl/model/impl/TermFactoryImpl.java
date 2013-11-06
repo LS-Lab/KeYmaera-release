@@ -28,6 +28,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import de.uka.ilkd.key.logic.*;
 import org.antlr.runtime.tree.CommonTree;
 
 import de.uka.ilkd.key.dl.logic.ldt.RealLDT;
@@ -79,10 +80,6 @@ import de.uka.ilkd.key.dl.model.Variable;
 import de.uka.ilkd.key.dl.model.VariableDeclaration;
 import de.uka.ilkd.key.dl.model.VariableType;
 import de.uka.ilkd.key.java.ProgramElement;
-import de.uka.ilkd.key.logic.Name;
-import de.uka.ilkd.key.logic.Named;
-import de.uka.ilkd.key.logic.NamespaceSet;
-import de.uka.ilkd.key.logic.ProgramElementName;
 import de.uka.ilkd.key.logic.op.LocationVariable;
 import de.uka.ilkd.key.logic.op.LogicVariable;
 import de.uka.ilkd.key.logic.op.Metavariable;
@@ -800,10 +797,13 @@ public class TermFactoryImpl extends TermFactory {
 	 * @see de.uka.ilkd.key.dl.TermFactory#createVariableDeclaration(org.antlr.runtime.tree.CommonTree,
 	 *      org.antlr.runtime.tree.CommonTree)
 	 */
-	/*@Override*/
-	public VariableDeclaration createVariableDeclaration(CommonTree type,
+	/*@Override*/ public VariableDeclaration createVariableDeclaration(CommonTree type,
 			List<CommonTree> decls, Map<CommonTree, List<CommonTree>> argsorts, boolean programVariable) {
 		List<DLProgramElement> variables = new ArrayList<DLProgramElement>();
+        if(!programVariable) {
+            // introduce a new programVariable namespace to later fall back to the parent
+            getNamespaces().setVariables(new Namespace(getNamespaces().variables()));
+        }
 		for (CommonTree var : decls) {
 			if (programVariable) {
 			    List<CommonTree> args = argsorts.get(var); 
@@ -859,6 +859,7 @@ public class TermFactoryImpl extends TermFactory {
 				if (getNamespaces().variables().lookup(new Name(var.getText())) == null) {
 				    Sort sort = (Sort) getNamespaces().sorts().lookup(new Name(type.getText()));
 				    assert sort != null : "variable sort " + type.getText() + " should be known!";
+                    // add a new namespace here
 					getNamespaces().variables().addSafely(
 							new LogicVariable(new Name(var.getText()), sort));
 				}
@@ -1008,4 +1009,8 @@ public class TermFactoryImpl extends TermFactory {
         return new IfExprImpl(f, thenExpr, elseExpr);
     }
 
+    @Override
+    public void unbind() {
+        getNamespaces().setVariables(getNamespaces().variables().parent());
+    }
 }

@@ -695,4 +695,6 @@ public abstract class TermFactory implements Serializable {
 	public abstract VariableDeclaration schemaCreateVariableDeclaration(CommonTree type, CommonTree sv);
     public abstract IfExpr createIfExpr(Formula f, Expression thenExpr, Expression elseExpr);
 
+    // unbind the variables that were just added in the quantifier scope
+    public abstract void unbind();
 }
