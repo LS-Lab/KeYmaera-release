@@ -20,7 +20,7 @@ import de.uka.ilkd.key.parser.ParserConfig;
  * 
  */
 public interface ProgramBlockProvider {
-    public JavaBlock getProgramBlock(ParserConfig config, String programBlock,
+    public JavaBlock getProgramBlock(ParserConfig config, NamespaceSet nss, String programBlock,
             boolean schemaMode, boolean problemParser,
             boolean globalDeclTermParser);
 

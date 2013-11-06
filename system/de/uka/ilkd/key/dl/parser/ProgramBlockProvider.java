@@ -58,27 +58,28 @@ public class ProgramBlockProvider implements
      *      de.uka.ilkd.key.parser.ParserConfig, java.lang.String, boolean,
      *      boolean, boolean)
      */
-    public JavaBlock getProgramBlock(ParserConfig config, String programBlock,
+    public JavaBlock getProgramBlock(ParserConfig config, NamespaceSet nss, String programBlock,
             boolean schemaMode, boolean problemParser,
             boolean globalDeclTermParser) {
         Debug.out("ProgramBlock to parse: " + programBlock);
 
         TermFactory tf = null;
-		NamespaceSet nss = null;
         try {
 	        if (DLOptionBean.INSTANCE == null || DLOptionBean.INSTANCE.getTermFactoryClass() == null)  
 			    throw new IllegalStateException("NullPointerException while finding term factory: "
                     + DLOptionBean.INSTANCE.getTermFactoryClass());
-			if (config == null) {
-				nss = de.uka.ilkd.key.gui.Main.getInstance().mediator().namespaces();
-				//	    throw new IllegalStateException("NullPointerException no configuration while creating term factory: "
-		        //            + DLOptionBean.INSTANCE.getTermFactoryClass());
-			} else {
-				if (config.namespaces() == null)  
-											throw new IllegalStateException("NullPointerException no namespace in configuration while creating term factory: "
-												+ DLOptionBean.INSTANCE.getTermFactoryClass());
-				nss = config.namespaces();
-			}
+            if(nss == null) {
+                if (config == null) {
+                    nss = de.uka.ilkd.key.gui.Main.getInstance().mediator().namespaces();
+                    //	    throw new IllegalStateException("NullPointerException no configuration while creating term factory: "
+                    //            + DLOptionBean.INSTANCE.getTermFactoryClass());
+                } else {
+                    if (config.namespaces() == null)
+                                                throw new IllegalStateException("NullPointerException no namespace in configuration while creating term factory: "
+                                                    + DLOptionBean.INSTANCE.getTermFactoryClass());
+                    nss = config.namespaces();
+                }
+            }
             tf = TermFactory.getTermFactory(DLOptionBean.INSTANCE.getTermFactoryClass(), nss);
         } catch (IllegalStateException e) {
 	        throw e;

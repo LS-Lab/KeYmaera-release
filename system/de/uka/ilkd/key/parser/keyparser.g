@@ -1075,7 +1075,7 @@ options {
 
 	try {
 		Debug.out("Using ProgramBlockProvider: " + getServices().getProgramBlockProvider());
-           sjb.javaBlock = getServices().getProgramBlockProvider().getProgramBlock(parserConfig,
+           sjb.javaBlock = getServices().getProgramBlockProvider().getProgramBlock(parserConfig, namespaces(),
 		   s, inSchemaMode(), isProblemParser(), isGlobalDeclTermParser());
         } catch (de.uka.ilkd.key.java.PosAddConvertException e) {
             lineOffset=e.getLine()-1;

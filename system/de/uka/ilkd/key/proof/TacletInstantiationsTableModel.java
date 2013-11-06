@@ -399,7 +399,7 @@ public class TacletInstantiationsTableModel extends AbstractTableModel {
 			JavaBlock programBlock = services
 					.getProgramBlockProvider()
 					.getProgramBlock(
-							new ParserConfig(services, services.getNamespaces()),
+							new ParserConfig(services, services.getNamespaces()), null,
 							instantiation, false, true, false);
 			return ((StatementBlock) programBlock.program()).getChildAt(0);
 		} else if (svSort == ProgramSVSort.DL_VARIABLE_SORT_INSTANCE) {
@@ -422,7 +422,7 @@ public class TacletInstantiationsTableModel extends AbstractTableModel {
 			JavaBlock programBlock = services
 					.getProgramBlockProvider()
 					.getProgramBlock(
-							new ParserConfig(services, services.getNamespaces()),
+							new ParserConfig(services, services.getNamespaces()), null,
 							"?" + instantiation + " = 0", false, true, false);
 			// get the left expression under the ? and =
 			return ((de.uka.ilkd.key.dl.model.PredicateTerm)((de.uka.ilkd.key.dl.model.Quest)((StatementBlock) programBlock.program()).getChildAt(0)).getChildAt(0)).getChildAt(1);
@@ -430,7 +430,7 @@ public class TacletInstantiationsTableModel extends AbstractTableModel {
 			JavaBlock programBlock = services
 					.getProgramBlockProvider()
 					.getProgramBlock(
-							new ParserConfig(services, services.getNamespaces()),
+							new ParserConfig(services, services.getNamespaces()), null,
 							"?" + instantiation, false, true, false);
 			// get the left expression under the ?
 			return ((de.uka.ilkd.key.dl.model.Quest)((StatementBlock) programBlock.program()).getChildAt(0)).getChildAt(0);

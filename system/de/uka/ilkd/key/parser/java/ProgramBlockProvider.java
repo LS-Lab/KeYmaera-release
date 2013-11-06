@@ -36,7 +36,7 @@ public class ProgramBlockProvider implements
 	 * @see de.uka.ilkd.key.proof.init.ProgramBlockProvider#getProgramBlock(de.uka.ilkd.key.parser.ParserConfig,
 	 *      java.lang.String, boolean)
 	 */
-	public JavaBlock getProgramBlock(ParserConfig config, String programBlock,
+	public JavaBlock getProgramBlock(ParserConfig config, NamespaceSet nss, String programBlock,
 			boolean schemaMode, boolean problemParser,
 			boolean globalDeclTermParser) {
 		JavaReader jr = javaReader;
