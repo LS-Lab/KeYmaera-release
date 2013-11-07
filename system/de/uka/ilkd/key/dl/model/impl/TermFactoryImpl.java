@@ -163,7 +163,7 @@ public class TermFactoryImpl extends TermFactory {
 	 * @return a constant symbol
 	 */
 	public Constant createConstant(CommonTree t) {
-		return ConstantImpl.getConstant(new BigDecimal(t.getText()));
+		return createConstant(new BigDecimal(t.getText())));
 	}
 
 	/*
@@ -703,7 +703,14 @@ public class TermFactoryImpl extends TermFactory {
 	 */
 	/*@Override*/
 	public Constant createConstant(BigDecimal d) {
-		return ConstantImpl.getConstant(d);
+        String n = d.stripTrailingZeros().toPlainString();
+        // bugfix for 0.0 and so on (will be fixed in BigDecimal in Java 8
+        // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6480539
+        while(n.contains(".") && (n.endsWith("0") || n.endsWith("."))) {
+            n = n.substring(0, n.length() - 1);
+        }
+        assert new BigDecimal(n).compareTo(d) == 0 : "Stripping trailing zeros should not change the value of a number " + d + " != " + n;
+		return ConstantImpl.getConstant(new BigDecimal(n));
 	}
 
 	/*
