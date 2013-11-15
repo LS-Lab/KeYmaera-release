@@ -3205,7 +3205,7 @@ public class PrettyPrinter {
                             braces = false;
                         }
                     }
-                    if (braces) {
+                    if (braces || ProofSaver.isInSavingMode()) {
                         write("(");
                         changeLevel(1);
                         writeElement(child);
