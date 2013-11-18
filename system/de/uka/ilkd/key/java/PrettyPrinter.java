@@ -14,27 +14,14 @@ import java.io.Writer;
 import java.util.HashMap;
 import java.util.LinkedList;
 
+import de.uka.ilkd.key.dl.model.*;
+import de.uka.ilkd.key.dl.model.impl.AssignImpl;
 import org.apache.log4j.Logger;
 
 import de.uka.ilkd.key.collection.ImmutableArray;
 import de.uka.ilkd.key.dl.DLProfile;
 import de.uka.ilkd.key.dl.gui.PresentationInfo;
 import de.uka.ilkd.key.dl.gui.PresentationInfo.PresentationInfoEntry;
-import de.uka.ilkd.key.dl.model.Box;
-import de.uka.ilkd.key.dl.model.DLNonTerminalProgramElement;
-import de.uka.ilkd.key.dl.model.DLProgramElement;
-import de.uka.ilkd.key.dl.model.Diamond;
-import de.uka.ilkd.key.dl.model.Dot;
-import de.uka.ilkd.key.dl.model.Exists;
-import de.uka.ilkd.key.dl.model.Forall;
-import de.uka.ilkd.key.dl.model.IfExpr;
-import de.uka.ilkd.key.dl.model.FunctionTerm;
-import de.uka.ilkd.key.dl.model.IfStatement;
-import de.uka.ilkd.key.dl.model.NamedElement;
-import de.uka.ilkd.key.dl.model.NonRigidFunction;
-import de.uka.ilkd.key.dl.model.Quantified;
-import de.uka.ilkd.key.dl.model.RandomAssign;
-import de.uka.ilkd.key.dl.model.SymbolizedElement;
 import de.uka.ilkd.key.gui.Main;
 import de.uka.ilkd.key.java.abstraction.ArrayType;
 import de.uka.ilkd.key.java.abstraction.Type;
@@ -3205,7 +3192,8 @@ public class PrettyPrinter {
                             braces = false;
                         }
                     }
-                    if (braces || ProofSaver.isInSavingMode()) {
+                    if (braces || ProofSaver.isInSavingMode() && !(i == startIndex && p instanceof Assign)) {
+                        // do not write parenthesis for terms on the left of an assignment
                         write("(");
                         changeLevel(1);
                         writeElement(child);
@@ -3618,5 +3606,4 @@ public class PrettyPrinter {
         markEnd(0, p);
         printFooter(p);
     }
-
 }
