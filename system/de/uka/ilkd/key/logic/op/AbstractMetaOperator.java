@@ -28,7 +28,7 @@ import de.uka.ilkd.key.dl.rules.metaconstruct.DNFTransformer;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DiffFin;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DiffInd;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DiffIndMod;
-import de.uka.ilkd.key.dl.rules.metaconstruct.DiffIndModConjunct;
+import de.uka.ilkd.key.dl.rules.metaconstruct.DiffIndModNonSmooth;
 import de.uka.ilkd.key.dl.rules.metaconstruct.ParityNF;
 import de.uka.ilkd.key.dl.rules.metaconstruct.ToLessEqualConjunct;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DiffNormalize;
@@ -234,7 +234,7 @@ public abstract class AbstractMetaOperator extends Op implements MetaOperator {
 	public static final AbstractMetaOperator DIFFFIN = new DiffFin();
 
 	public static final DiffIndMod DIFFINDMOD = new DiffIndMod();
-	public static final DiffIndModConjunct DIFFINDMODCONJ = new DiffIndModConjunct();
+	public static final DiffIndModNonSmooth DIFFINDMODNONSMOOTH= new DiffIndModNonSmooth();
 	
 	public static final AbstractMetaOperator PARITY = new ParityNF();
 	public static final AbstractMetaOperator TO_LESS_EQUAL_CONJUNCT = new ToLessEqualConjunct();

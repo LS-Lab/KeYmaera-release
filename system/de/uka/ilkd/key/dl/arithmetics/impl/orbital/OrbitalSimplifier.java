@@ -460,6 +460,14 @@ public class OrbitalSimplifier implements ISimplifier {
 		return true;
 	}
 
+	@Override
+	public Term getVCs(Term form, ArrayList<Term> vectorField,
+			ArrayList<String> stateVars, NamespaceSet nss)
+			throws RemoteException, SolverException {
+		// TODO Auto-generated method stub
+		return form;
+	}
+
 
 
 }

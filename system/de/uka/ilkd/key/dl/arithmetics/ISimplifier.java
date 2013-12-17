@@ -122,6 +122,20 @@ public interface ISimplifier extends IMathSolver {
      */
     public abstract Term nonZeroGrad(Term form, ArrayList<String> vars, NamespaceSet nss)
             throws RemoteException, SolverException;
+    
+    
+    /**
+     * @author s0805753@sms.ed.ac.uk
+     *      
+     * Computes the verification conditions for non-smooth barrier certificates.
+     * 
+     * N.B. presently can only handle atoms of the form p { <=, >= } 0.
+     * 
+     */
+    
+    public abstract Term getVCs(Term form, ArrayList<Term> vectorField, ArrayList<String> stateVars, NamespaceSet nss)
+            throws RemoteException, SolverException;
+    
     /**
      * Fully simplifies the given term if its a mathematical expression
      * 

@@ -612,6 +612,43 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 		}
 		return false;
     }
+    
+    /**
+     * @author s0805753@sms.ed.ac.uk
+     * 
+     * Checks if the formula is a conjunction of atoms where 
+     * all predicate symbols are '<='.
+     * 
+     * N.B. equations '==' are <b>not</b> converted to '<='.
+     * 
+     */
+    public Term getVCs(Term form, ArrayList<Term> vectorField,ArrayList<String> stateVars, NamespaceSet nss)
+            throws RemoteException, SolverException {
+
+    	/* Convert a list of KeYmaera terms to a list of Mathematica expressions */
+    	ArrayList<Expr> vectorFieldMma = new ArrayList<Expr>();
+    	for(Term xdot: vectorField){
+    		vectorFieldMma.add(Term2ExprConverter.convert2Expr(xdot));
+    	}
+    	
+		/* Create a Mathematica List for the vector field */
+		Expr f = new Expr(new Expr(Expr.SYMBOL, "List"), 
+			vectorFieldMma.toArray(new Expr[vectorFieldMma.size()])
+			 );
+		
+		/* Create a Mathematica List of state variables */
+		Expr vars = new Expr(new Expr(Expr.SYMBOL, "List"), 
+			stateVars.toArray(new Expr[stateVars.size()])
+			 );
+		
+		Expr query = Term2ExprConverter.convert2Expr(form);
+		query = new Expr(new Expr(Expr.SYMBOL, "AMC`" + "VCGen"),
+				new Expr[] { query, f, vars });
+		Expr result = evaluate(query).expression;
+		Term resultTerm = convert(result, nss);
+		
+		return resultTerm;
+    }
 	
 	/**
 	 * 

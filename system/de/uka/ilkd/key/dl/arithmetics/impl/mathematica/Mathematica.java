@@ -202,6 +202,14 @@ public class Mathematica implements ICounterExampleGenerator, IODESolver,
 		return bridge.isLessEqualConjunct(form, nss);
 	}
 	
+
+	@Override
+	public Term getVCs(Term form, ArrayList<Term> vectorField,ArrayList<String> stateVars, NamespaceSet nss)
+			throws RemoteException, SolverException {
+		return bridge.getVCs(form, vectorField,stateVars, nss);
+
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -425,4 +433,5 @@ public class Mathematica implements ICounterExampleGenerator, IODESolver,
 	public Map<String, Double[][]> getPlotData(DiffSystem sys, String t, double minT, double maxT, double sampling, Map<String, Double> initialValues, Services services) throws RemoteException, SolverException {
 	    return bridge.getPlotData(sys, t, minT, maxT, sampling, initialValues, services);
 	}
+
 }

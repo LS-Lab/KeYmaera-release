@@ -47,7 +47,26 @@ public class DerivativeCreator {
 
 	/**
 	 * @author s0805753@sms.ed.ac.uk
-	 * The function calculates variables in the state vector from by @sys
+	 * This function calculates the vector field given in @sys
+	 * 
+	 */
+	public static final ArrayList<Term> vectorField(DiffSystem sys, Services s) {
+
+		ArrayList<Term> f = new ArrayList<Term>();
+		
+		HashMap<String, Term> replacements = new HashMap<String, Term>();
+		collectDiffReplacements(sys, replacements, s);
+		
+		for(String var: replacements.keySet()){
+			f.add(replacements.get(var));
+		}	
+		
+		return f;
+	}
+	
+	/**
+	 * @author s0805753@sms.ed.ac.uk
+	 * The function calculates variables in the state vector from @sys
 	 * 
 	 */
 	public static final ArrayList<String> stateVector(DiffSystem sys, Services s) {

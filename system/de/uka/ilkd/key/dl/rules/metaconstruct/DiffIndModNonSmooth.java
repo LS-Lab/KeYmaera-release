@@ -28,11 +28,11 @@ import de.uka.ilkd.key.rule.inst.SVInstantiations;
 /**
  * @author s0805753@sms.ed.ac.uk
  */
-public class DiffIndModConjunct extends AbstractDLMetaOperator {
+public class DiffIndModNonSmooth extends AbstractDLMetaOperator {
 
-    public static final Name NAME = new Name("#DiffIndModConjunct");
+    public static final Name NAME = new Name("#DiffIndModNonSmooth");
 
-    public DiffIndModConjunct() {
+    public DiffIndModNonSmooth() {
         super(NAME, 1);
     }
 
@@ -55,7 +55,7 @@ public class DiffIndModConjunct extends AbstractDLMetaOperator {
      */
     public Term calculate(Term term, SVInstantiations svInst, Services services) {
         try {
-            return diffIndModConjunct(term.sub(0), services);
+            return diffIndModNonSmooth(term.sub(0), services);
         } catch (UnsolveableException e) {
             throw new IllegalStateException(e.getMessage(), e);
         } catch (FailedComputationException e) {
@@ -90,35 +90,24 @@ public class DiffIndModConjunct extends AbstractDLMetaOperator {
 	}
 	
 	private Term getCondition( Term formula, 
-							   DiffSystem sys, 
+							   ArrayList<Term> f, 
 			                   ArrayList<String> stateVars, 
 			                   Services services ) 
 			                		   throws SolverException, RemoteException{
         
 		Term diffInd;
-		Term boundary;
-		Term nonZeroGrad;
+		//Term boundary;
+		Term VCs;
 		
-	    diffInd = DerivativeCreator.diffInd(sys, formula, services);
+	   // diffInd = DerivativeCreator.diffInd(sys, formula, services);
 	    
-	    boundary = MathSolverManager.getCurrentSimplifier().
-        		getBoundary(formula, services.getNamespaces());
+	   /* boundary = MathSolverManager.getCurrentSimplifier().
+        		getBoundary(formula, services.getNamespaces());*/
 	    
-	    nonZeroGrad = MathSolverManager.getCurrentSimplifier().
-	    		nonZeroGrad(formula, stateVars, services.getNamespaces());
-	    
-	    /* Introduce the border and evolution domain constraint into 
-	     * the hypothesis, e.g. p=0 ∧ χ ⟶ ∇p ≠ 0 ∧ ∇p·f(x)≤0 
-	     */
-	    diffInd = TermBuilder.DF.imp(
-	    				boundary,
-			    TermBuilder.DF.and(
-			    		nonZeroGrad,
-			    		diffInd
-			    		)
-	    		);
-	    
-	    return diffInd;
+	   VCs = MathSolverManager.getCurrentSimplifier().
+	    		getVCs(formula, f, stateVars, services.getNamespaces()); 
+	   
+	   return VCs;
 	}
 	
 	/**
@@ -143,7 +132,7 @@ public class DiffIndModConjunct extends AbstractDLMetaOperator {
 		else return TermBuilder.DF.tt();
 	}
 	
-    public Term diffIndModConjunct(Term term, Services services) throws SolverException {
+    public Term diffIndModNonSmooth(Term term, Services services) throws SolverException {
         DiffSystem system = (DiffSystem) ((StatementBlock) term
                 .javaBlock().program()).getChildAt(0);
         Term post = term.sub(0);
@@ -162,6 +151,9 @@ public class DiffIndModConjunct extends AbstractDLMetaOperator {
 				/* State variable vector for computing the non-zero gradient condition */
 				ArrayList<String> stateVars = DerivativeCreator.stateVector(sys, services);
 				
+				/* Vector field */
+				ArrayList<Term> f = DerivativeCreator.vectorField(sys, services);
+				
 /*				if(DLOptionBean.INSTANCE.isUseODEIndFinMethods()) {
 				    diffInd = MathSolverManager.getCurrentODESolver()
 				            .diffInd(sys, post, services);
@@ -171,53 +163,48 @@ public class DiffIndModConjunct extends AbstractDLMetaOperator {
 				 * Steps in the rule : 
 				 * 
 				 * 1) Check if the formula S is syntactically suitable, i.e. if it is
-				 *    a conjunction of ≤ atoms: S = p₁ ≤ 0 ∧ ... ∧ pₖ ≤ 0.
+				 *    a disjunction of conjunctions  of ≤ atoms.
 				 * 
 				 * 2) If not, return an unprovable goal. If yes, then
-				 *    proceed to compute an ArrayList of conjuncts p₁ ≤ 0,..., pₖ ≤ 0.
+				 *    proceed to generate VCs using the Mathematica package AMC.m
 				 *    
-				 * 3) Generate the condition
-				 *    χ ∧ S ∧ (pᵢ=0 ⟶ ∇pᵢ ≠ 0 ∧ ∇pᵢ·f(x)≤0) ∀ i ∈ {1,...,k}.
+				 * 3) Generate the condition from VCs and introduce it as a goal.
 				 *  
 				 */
-				
-				
-					/* Step 1 */
-					boolean rightForm = MathSolverManager.
-										getCurrentSimplifier().
-										isLessEqualConjunct(post, nss);
-							
-					/* Step 2 */
-					ArrayList<Term> conjuncts = new ArrayList<Term>();
-					if(!rightForm){
-						return TermBuilder.DF.ff();
-					}
-					else{
-						/* Extracting conjuncts */
-						conjuncts = getConjuncts(post, conjuncts);
-					}
-					
-					/* Step 3
-					   Turn conjuncts into conditions (pᵢ=0 ⟶ ∇pᵢ ≠ 0 ∧ ∇pᵢ·f(x)≤0). */		
-					ArrayList<Term> conditionList = new ArrayList<Term>();
-					for(Term conj : conjuncts){
-						conditionList.add(getCondition(conj, sys, stateVars, services));
-					}
-					
-					/* String the conditions into a single conjunction */
-					Term conditions = toConjunction(conditionList);
-
-				    
+//							
+//					/* Step 1 */
+//					boolean rightForm = MathSolverManager.
+//										getCurrentSimplifier().
+//										isLessEqualConjunct(post, nss);
+//							
+//					/* Step 2 */
+//					ArrayList<Term> conjuncts = new ArrayList<Term>();
+//					if(!rightForm){
+//						return TermBuilder.DF.ff();
+//					}
+//					else{
+//						/* Extracting conjuncts */
+//						conjuncts = getConjuncts(post, conjuncts);
+//					}
+//					
+//					/* Step 3
+//					   Turn conjuncts into conditions (pᵢ=0 ⟶ ∇pᵢ ≠ 0 ∧ ∇pᵢ·f(x)≤0). */		
+//					ArrayList<Term> conditionList = new ArrayList<Term>();
+//					for(Term conj : conjuncts){
+//						conditionList.add(getCondition(conj, sys, stateVars, services));
+//					}
+//					
+//					/* String the conditions into a single conjunction */
+//					Term conditions = toConjunction(conditionList);
+//
+//				    
 				    /*  Generate condition 
-				     *  χ ∧ S ∧ (pᵢ=0 ⟶ ∇pᵢ ≠ 0 ∧ ∇pᵢ·f(x)≤0) ∀ i ∈ {1,...,k}. */
+				     *  χ ⟶ min(max(p11,...,p1n(1)),...,max(pm1,...,pmn(m)))=0 ⟶ ∇min(max(p11,...,p1n(1)),...,max(pm1,...,pmn(m)))<0. */
 					
+				    Term conditions = getCondition(post, f, stateVars, services);
 				    diffInd = TermBuilder.DF.imp(
-				    		TermBuilder.DF.and(
-				    				sys.getInvariant(services),
-				    				post
-				    				), 
-				    				conditions
-
+				    		sys.getInvariant(services),
+				    		conditions
 				    		);
 				    
 			//	}
