@@ -133,7 +133,7 @@ public interface ISimplifier extends IMathSolver {
      * 
      */
     
-    public abstract Term getVCs(Term form, ArrayList<Term> vectorField, ArrayList<String> stateVars, NamespaceSet nss)
+    public abstract Term getVCs(Term form, Term chi, ArrayList<Term> vectorField, ArrayList<String> stateVars, NamespaceSet nss)
             throws RemoteException, SolverException;
     
     /**

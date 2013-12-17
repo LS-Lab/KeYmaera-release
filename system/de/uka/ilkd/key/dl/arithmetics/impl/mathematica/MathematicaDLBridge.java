@@ -622,7 +622,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
      * N.B. equations '==' are <b>not</b> converted to '<='.
      * 
      */
-    public Term getVCs(Term form, ArrayList<Term> vectorField,ArrayList<String> stateVars, NamespaceSet nss)
+    public Term getVCs(Term form, Term invariant,ArrayList<Term> vectorField,ArrayList<String> stateVars, NamespaceSet nss)
             throws RemoteException, SolverException {
 
     	/* Convert a list of KeYmaera terms to a list of Mathematica expressions */
@@ -634,7 +634,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
     	/* Convert a list of state variables to a list of Mathematica expressions */
     	ArrayList<Expr> stateVarsMma = new ArrayList<Expr>();
     	for(String x: stateVars){
-    		stateVarsMma.add(new Expr(Expr.SYMBOL, "KeYmaera`"+x));
+    		stateVarsMma.add(new Expr(Expr.SYMBOL, NameMasker.mask(x)));
     	}
     	
 		/* Create a Mathematica List for the vector field */
@@ -647,9 +647,10 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 			stateVarsMma.toArray(new Expr[stateVars.size()])
 			 );
 		
+		Expr chi = Term2ExprConverter.convert2Expr(invariant);
 		Expr query = Term2ExprConverter.convert2Expr(form);
 		query = new Expr(new Expr(Expr.SYMBOL, "AMC`" + "VCGen"),
-				new Expr[] { query, f, vars });
+				new Expr[] { query, chi, f, vars });
 		Expr result = evaluate(query).expression;
 		Term resultTerm = convert(result, nss);
 		

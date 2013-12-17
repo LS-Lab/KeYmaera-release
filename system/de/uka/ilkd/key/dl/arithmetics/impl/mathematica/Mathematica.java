@@ -204,9 +204,9 @@ public class Mathematica implements ICounterExampleGenerator, IODESolver,
 	
 
 	@Override
-	public Term getVCs(Term form, ArrayList<Term> vectorField,ArrayList<String> stateVars, NamespaceSet nss)
+	public Term getVCs(Term form, Term chi, ArrayList<Term> vectorField,ArrayList<String> stateVars, NamespaceSet nss)
 			throws RemoteException, SolverException {
-		return bridge.getVCs(form, vectorField,stateVars, nss);
+		return bridge.getVCs(form, chi,vectorField,stateVars, nss);
 
 	}
 	

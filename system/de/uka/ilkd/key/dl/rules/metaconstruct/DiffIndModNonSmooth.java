@@ -90,6 +90,7 @@ public class DiffIndModNonSmooth extends AbstractDLMetaOperator {
 	}
 	
 	private Term getCondition( Term formula, 
+							   Term chi,
 							   ArrayList<Term> f, 
 			                   ArrayList<String> stateVars, 
 			                   Services services ) 
@@ -105,7 +106,7 @@ public class DiffIndModNonSmooth extends AbstractDLMetaOperator {
         		getBoundary(formula, services.getNamespaces());*/
 	    
 	   VCs = MathSolverManager.getCurrentSimplifier().
-	    		getVCs(formula, f, stateVars, services.getNamespaces()); 
+	    		getVCs(formula, chi,f, stateVars, services.getNamespaces()); 
 	   
 	   return VCs;
 	}
@@ -201,7 +202,7 @@ public class DiffIndModNonSmooth extends AbstractDLMetaOperator {
 				    /*  Generate condition 
 				     *  χ ⟶ min(max(p11,...,p1n(1)),...,max(pm1,...,pmn(m)))=0 ⟶ ∇min(max(p11,...,p1n(1)),...,max(pm1,...,pmn(m)))<0. */
 					
-				    Term conditions = getCondition(post, f, stateVars, services);
+				    Term conditions = getCondition(post, sys.getInvariant(services), f, stateVars, services);
 				    diffInd = TermBuilder.DF.imp(
 				    		sys.getInvariant(services),
 				    		conditions

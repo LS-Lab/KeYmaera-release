@@ -461,7 +461,7 @@ public class OrbitalSimplifier implements ISimplifier {
 	}
 
 	@Override
-	public Term getVCs(Term form, ArrayList<Term> vectorField,
+	public Term getVCs(Term form, Term chi, ArrayList<Term> vectorField,
 			ArrayList<String> stateVars, NamespaceSet nss)
 			throws RemoteException, SolverException {
 		// TODO Auto-generated method stub
