@@ -631,6 +631,12 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
     		vectorFieldMma.add(Term2ExprConverter.convert2Expr(xdot));
     	}
     	
+    	/* Convert a list of state variables to a list of Mathematica expressions */
+    	ArrayList<Expr> stateVarsMma = new ArrayList<Expr>();
+    	for(String x: stateVars){
+    		stateVarsMma.add(new Expr(Expr.SYMBOL, "KeYmaera`"+x));
+    	}
+    	
 		/* Create a Mathematica List for the vector field */
 		Expr f = new Expr(new Expr(Expr.SYMBOL, "List"), 
 			vectorFieldMma.toArray(new Expr[vectorFieldMma.size()])
@@ -638,7 +644,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 		
 		/* Create a Mathematica List of state variables */
 		Expr vars = new Expr(new Expr(Expr.SYMBOL, "List"), 
-			stateVars.toArray(new Expr[stateVars.size()])
+			stateVarsMma.toArray(new Expr[stateVars.size()])
 			 );
 		
 		Expr query = Term2ExprConverter.convert2Expr(form);

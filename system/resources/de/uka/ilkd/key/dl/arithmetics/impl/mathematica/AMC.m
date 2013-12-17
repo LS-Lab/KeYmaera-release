@@ -325,7 +325,7 @@ ZeroRHS[LogicalExpand[formula]/.{GreaterEqual[a_,b_]:> LessEqual[b,a]}]/.{And :>
 
 
 VCGen[formula_, f_List,vars_List]:=Module[{minmax=toMinMaxForm[formula]},
-Implies[minmax==0/.{max :> Max, min:> Min},Lf[minmax,f,vars]/.{max :> Max, min:> Min}]
+Reduce[Implies[minmax==0/.{max :>Max, min:> Min},Lf[minmax,f,vars]/.{max :> Max, min:> Min}],vars,Reals]
 ]
 
 
@@ -526,7 +526,9 @@ sparameters=
 
 
 
+
 \!\(\*SubscriptBox[\(sdata\), \(\(\[LeftDoubleBracket]\)\(2\)\(\[RightDoubleBracket]\)\)]\);sformula=
+
 
 
 
@@ -619,10 +621,12 @@ Length[altstate]==1,
 
 
 
+
 \!\(\*SubscriptBox[\(altstate\), \(\(\[LeftDoubleBracket]\)\(1\)\(\[RightDoubleBracket]\)\)]\),
 Length[altstate]>1,Block[{},Message[Transition::nondet,CirclePlus[alternatives],alttrans];
 Print["   alternatives at time ", tp," are ", altstate];
 (* @xxx arbitrarily follow only ONE of those non-deterministic alternatives *)
+
 
 
 
@@ -668,7 +672,9 @@ If[False\[And]$numericalODE,
 
 
 
+
 \!\(\*SubscriptBox[\(NMinimize[st, 0 \[LessEqual] st \[LessEqual] T\  \[And] cond[SComp[flow[st]]], st]\), \(\(\[LeftDoubleBracket]\)\(1\)\(\[RightDoubleBracket]\)\)]\),
+
 
 
 
@@ -764,6 +770,7 @@ guard[Function[State,(e/.Table[Symbol["Global`x"<>ToString[i]]->
 
 
 
+
 \!\(\*SubscriptBox[\(State\), \(\(\[LeftDoubleBracket]\)\(i\)\(\[RightDoubleBracket]\)\)]\),{i,Length[State]}])]]
 
 
@@ -797,10 +804,12 @@ Table[Symbol["Global`x"<>ToString[i]][0]==
 
 
 
+
 \!\(\*SubscriptBox[\(State\), \(\(\[LeftDoubleBracket]\)\(i\)\(\[RightDoubleBracket]\)\)]\),{i,Min[Length[DE],Length[State]]}],
 indepvar = Symbol["Global`t"],
 (* state variables not mentioned in DE remain just constant *)
 constantstatecomponents=Table[Module[{s=
+
 
 
 
@@ -832,6 +841,7 @@ Module[{verificationresults = Union[FullSimplify[eqns /.
 
 
 
+
 \!\(\*SubscriptBox[\(dsols\), \(\(\[LeftDoubleBracket]\)\(1\)\(\[RightDoubleBracket]\)\)]\)]]},
 If[verificationresults!={True},
 Message[Transition::verifyf,eqns,dsols,verificationresults]]]
@@ -848,11 +858,13 @@ Head[dsols]===List\[And]Length[dsols]==1,Componentwise[Join[sysvars /.
 
 
 
+
 \!\(\*SubscriptBox[\(dsols\), \(\(\[LeftDoubleBracket]\)\(1\)\(\[RightDoubleBracket]\)\)]\),constantstatecomponents]](* unlike non-sequenced discrete transitions, result requires Through *),
 Head[dsols]===List\[And]Length[dsols]>1, (Message[Transition::nonunique,eqns,Length[dsols],dsols];
 Print["nonunique solution of ", eqns, " is ", dsols];
 (* arbitrary non-deterministic choice *)
 Componentwise[Join[sysvars/. 
+
 
 
 
@@ -896,6 +908,7 @@ Table[Symbol["Global`x"<>ToString[i]]->
 
 
 
+
 \!\(\*SubscriptBox[\(Evstate\), \(\(\[LeftDoubleBracket]\)\(i\)\(\[RightDoubleBracket]\)\)]\),{i,Length[Evstate]}],
 statecomponentrules =
 Table[Symbol["Global`x"<>ToString[i]]-> i,{i,Length[Evstate]}]
@@ -915,6 +928,7 @@ Transition[set[HoldPattern[xi_->e_]]][State_] :=Transition[set[{xi->e}]][State]
 UpdateStateHelper[Evstate_,State_,HoldPattern[xi_=e_]]:=
 Module[{staterules =
 Table[Symbol["Global`x"<>ToString[i]]-> 
+
 
 
 
@@ -1043,7 +1057,9 @@ maxcrit = Minimize[{solcriticality[indepvar],0<=indepvar<=TimeHorizon },
 
 
 
+
 \!\(\*SubscriptBox[\(maxcrit\), \(\(\[LeftDoubleBracket]\)\(1\)\(\[RightDoubleBracket]\)\)]\),Prepend[
+
 
 
 
@@ -1067,7 +1083,9 @@ selectworst = Function[{c,d},If[
 
 
 
+
 \!\(\*SubscriptBox[\(c\), \(\(\[LeftDoubleBracket]\)\(1\)\(\[RightDoubleBracket]\)\)]\)<
+
 
 
 
