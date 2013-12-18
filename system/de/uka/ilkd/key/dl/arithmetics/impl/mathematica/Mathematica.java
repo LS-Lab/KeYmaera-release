@@ -143,8 +143,74 @@ public class Mathematica implements ICounterExampleGenerator, IODESolver,
 				   throws RemoteException, SolverException {
 		   return bridge.findMultiNumInstance(form, ninst, timeout);
    }
+	/*
+	 * Parity decomposition ensures that atomic terms in the formula are 
+	 * square-free.
+	 */
+    @Override
+	public Term parityNF(Term form, NamespaceSet nss) throws RemoteException,
+			SolverException {
+		return bridge.parityNF(form, nss);
+	}
+  
+	/*
+	 * Compute the boundary of the closed invariant candidate, provided that 
+	 * it is given by a square-free polynomial (in)equality.
+	 */
+	@Override
+	public Term getBoundary(Term form, NamespaceSet nss) throws RemoteException,
+			SolverException {
+		return bridge.getBoundary(form, nss);
+	}
+	 
+	/*
+	 * Compute the boundary of the closed invariant candidate, provided that 
+	 * it is given by a square-free polynomial (in)equality.
+	 */
+	@Override
+	public Term nonZeroGrad(Term form, ArrayList<String> vars, NamespaceSet nss) throws RemoteException,
+			SolverException {
+		return bridge.nonZeroGrad(form, vars, nss);
+	}
+  
+    /**
+     * @author s0805753@sms.ed.ac.uk
+     * 
+     * Computes a conjunctive description of a quantifier-free formula in which
+     * all predicate symbols are '<=', if such a description is possible.
+     * 
+     * N.B. equations '==' are <b>not</b> converted to '<='.
+     * 
+     */
+	@Override
+	public Term toLessEqualConjunct(Term form, NamespaceSet nss)
+			throws RemoteException, SolverException {
+		return bridge.toLessEqualConjunct(form, nss);
+	}
+	
+    /**
+     * @author s0805753@sms.ed.ac.uk
+     * 
+     * Checks if the formula is a conjunction of atoms where 
+     * all predicate symbols are '<='.
+     * 
+     * N.B. equations '==' are <b>not</b> converted to '<='.
+     * 
+     */
+	@Override
+	public boolean isLessEqualConjunct(Term form, NamespaceSet nss)
+			throws RemoteException, SolverException {
+		return bridge.isLessEqualConjunct(form, nss);
+	}
+	
 
+	@Override
+	public Term getVCs(Term form, Term chi, ArrayList<Term> vectorField,ArrayList<String> stateVars, NamespaceSet nss)
+			throws RemoteException, SolverException {
+		return bridge.getVCs(form, chi,vectorField,stateVars, nss);
 
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * 

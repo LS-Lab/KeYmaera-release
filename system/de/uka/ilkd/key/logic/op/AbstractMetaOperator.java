@@ -27,6 +27,10 @@ import de.uka.ilkd.key.dl.rules.metaconstruct.DLUniversalClosureOp;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DNFTransformer;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DiffFin;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DiffInd;
+import de.uka.ilkd.key.dl.rules.metaconstruct.DiffIndMod;
+import de.uka.ilkd.key.dl.rules.metaconstruct.DiffIndModNonSmooth;
+import de.uka.ilkd.key.dl.rules.metaconstruct.ParityNF;
+import de.uka.ilkd.key.dl.rules.metaconstruct.ToLessEqualConjunct;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DiffNormalize;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DivideLCRMonomialsReals;
 import de.uka.ilkd.key.dl.rules.metaconstruct.DivideMonomialsReals;
@@ -222,15 +226,22 @@ public abstract class AbstractMetaOperator extends Op implements MetaOperator {
 
 	/** metaconstructs for DL */
 	public static final AbstractMetaOperator PROG_2_LOGIC_CONVERTER = new Prog2LogicConverter();
+
+	public static final ODESolve ODE_SOLVE = new ODESolve();
+	public static final QODESolve QODE_SOLVE = new QODESolve();
+	public static final DiffNormalize DIFFNORMALIZE = new DiffNormalize();
+	public static final DiffInd DIFFIND = new DiffInd();
+	public static final AbstractMetaOperator DIFFFIN = new DiffFin();
+
+	public static final DiffIndMod DIFFINDMOD = new DiffIndMod();
+	public static final DiffIndModNonSmooth DIFFINDMODNONSMOOTH= new DiffIndModNonSmooth();
 	
-        public static final ODESolve ODE_SOLVE = new ODESolve();
-        public static final QODESolve QODE_SOLVE = new QODESolve();
-        public static final DiffNormalize DIFFNORMALIZE = new DiffNormalize();
-        public static final DiffInd DIFFIND = new DiffInd();
-        public static final AbstractMetaOperator DIFFFIN = new DiffFin();
-        public static final AbstractMetaOperator DIFFADJOIN= new DLDiffAdjoin();
-        public static final AbstractMetaOperator DIFFADD= new DLDiffAdd();
-        public static final AbstractMetaOperator INVARIANTPART = new DLInvariantPart();
+	public static final AbstractMetaOperator PARITY = new ParityNF();
+	public static final AbstractMetaOperator TO_LESS_EQUAL_CONJUNCT = new ToLessEqualConjunct();
+
+	public static final AbstractMetaOperator DIFFADJOIN = new DLDiffAdjoin();
+	public static final AbstractMetaOperator DIFFADD = new DLDiffAdd();
+	public static final AbstractMetaOperator INVARIANTPART = new DLInvariantPart();
 	public static final AbstractMetaOperator SIMPLIFY = new Simplify();
 	public static final AbstractMetaOperator FULL_SIMPLIFY = new FullSimplify();
 	public static final AbstractMetaOperator REDUCE = new Reduce();

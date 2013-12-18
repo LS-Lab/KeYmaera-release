@@ -44,6 +44,54 @@ SymbolicInitialValues::usage="Make a list of equations x[0]==x0 for all differen
 IDSolve::usage="IDSolve[eqn,x] is an improved version of DSolve that solves the symbolic initial value problem belonging to an ordinary differential equation set eqn with independent variable x.";
 
 
+ParityDecomposition::usage="ParityDecomposition[expr] Performs parity decomposition of a given polynomial."
+
+
+PO::usage="PO[expr] Fetches facotrs of odd multiplicity from the parity decomposition."
+
+
+PE::usage="PE[expr] Fetches facotrs of even multiplicity from the parity decomposition."
+
+
+ZeroRHS::usage="ZeroRHS[expr] turns a quantifier-free formula into one where the right hand side is zero."
+
+
+AtomicParityNF::usage="AtomicParityNF[expr] turns a quantifier-free atomic formula into one where each atom is square-free.";
+
+
+ParityNF::usage="ParityNF[expr] turns a quantifier-free formula into one where each atom is square-free."
+
+
+IsClosedSquareFreeAtom::usage="IsClosedSquareFreeAtom[expr] returns True if the term is definedable by a square-free polynomial"
+
+
+GetBoundary::usage="GetBoundary[expr] Computes the boundary of a closed semi-algebraic set."
+
+
+NonZeroGrad::usage="NonZeroGrad[expr,statevars] Computes condition ensuring that the gradient vector is non-zero at the boundary."
+
+
+IsConjunct::usage="IsConjunct[expr] Returns True if the expression is a conjunctive formula."
+
+
+GeqToLeq::usage="GeqToLeq[expr] Converts GreaterThan atoms into LessThan by swapping arguments and then setting the rhs to zero."
+
+
+IsListOfLeq::usage="IsListOfLeq[expr] Returns True if the expression is a List of atoms with LessEqual as their predicate symbol, returns False otherwise."
+
+
+ToLessEqualConjunct::usage="ToLessEqualConjunct[expr] Converts the expression into a conjunction of LessEqual atoms, if such a transformation is possible; otherwise, the original expression is returned."
+
+
+IsLessEqualConjunct::usage="IsLessEqualConjunct[expr] Returns True if the expression into a conjunction of LessEqual atoms; returns False otherwise."
+
+
+Lf::usage="Checks for membership of the vector field inside the contingent cone of a set given by Min[Max[g1,...,gn]...]."
+
+
+VCGen::usage="Generates verification conditions for non-smooth barrier certificates of the form Min[Max[g1,...,gn]...]."
+
+
 IDiffInd::usage ="IDiffInd[e] transforms given real arithmetic formula e to a differential inductive invariant sustaining e. The total differential Dt will be formed.
 IDiffInd[e,ODE] does the same and instantiates the derivatives in the result using the differential equations in the differential equation system ODE, in which differential equations are x'==2x+y.";
 IDiffFin::usage ="IDiffFin[e,\[Epsilon]] transforms given real arithmetic formula e to a differential inductive variant attaining e with progress \[Epsilon]. The total differential Dt will be formed.
@@ -137,6 +185,151 @@ IFindTransition[initial,update,eqns,t,inv,goal] quickly tries to check if there 
 
 
 Begin["`Private`"]
+
+
+(* Compute parity decomposition of a given polynomial *)
+ParityDecomposition[p_?PolynomialQ]:=Module[
+{
+pOdd=Apply[Times,
+Map[Function[x, If[OddQ[Part[x,2]],Part[x,1],1]],
+FactorSquareFreeList[p]]],
+
+pEven=Apply[Times,
+Map[Function[x, If[EvenQ[Part[x,2]],Part[x,1],1]],
+FactorSquareFreeList[p]]]
+},
+List[pOdd,pEven]
+]
+
+
+(* Convenience functions *)
+PO[q_?PolynomialQ]:=Module[{},ParityDecomposition[q][[1]]]
+
+
+PE[q_?PolynomialQ]:=Module[{},ParityDecomposition[q][[2]]]
+
+
+(* Set righ-hand side of terms to zero *)
+ZeroRHS[atom_] := Module[{},atom/.{
+Equal[a_,b_] :>  Equal[a-b,0],
+Unequal[a_,b_] :>  Unequal[a-b,0],
+Greater[a_,b_] :>  Greater[a-b,0],
+GreaterEqual[a_,b_] :>  GreaterEqual[a-b,0],
+Less[a_,b_] :> Less[a-b,0], 
+LessEqual[a_,b_] :>  LessEqual[a-b,0]
+}]
+
+
+(* Dolzmann equivalences for polynomial atoms *)
+AtomicParityNF[atom_]:=Module[{},ZeroRHS[atom]/.{
+Equal[p_?PolynomialQ,0] :>  Equal[PO[p]*PE[p],0],
+Unequal[p_,0] :>  And[Unequal[PO[p],0],Unequal[PE[p],0]],
+Greater[p_,0] :>  And[Greater[PO[p],0],Unequal[PE[p],0]],
+GreaterEqual[p_,0]  :> Or[GreaterEqual[PO[p],0],Equal[PE[p],0]],
+Less[p_,0] :>  And[Less[PO[p],0],Unequal[PE[p],0]],
+LessEqual[p_,0] :>  Or[LessEqual[PO[p],0],Equal[PE[p],0]]
+}]
+
+
+(* Dolzmann equivalences for arbitrary formulas *)
+ParityNF[formula_]:=Module[{},formula/.{
+And[a_,b_] :>  And[ParityNF[a],ParityNF[b]],
+Or[a_,b_] :>  Or[ParityNF[a],ParityNF[b]],
+Implies[a_,b_] :>  Implies[ParityNF[a],ParityNF[b]],
+Equivalent[a_,b_] :>  Equivalent[ParityNF[a],ParityNF[b]],
+Not[a_] :>  Not[ParityNF[a]],
+x_ :> AtomicParityNF[x]
+}]
+
+
+IsClosedSquareFreeAtom[formula_]:=Module[{},
+ParityNF[formula]/.{
+eq_Equal:> True,
+leq_LessEqual:> True,
+geq_GreaterEqual:> True,
+x_ :> False}
+]
+
+
+GetBoundary[formula_]:=Module[{sfatom=ParityNF[formula]},
+If[IsClosedSquareFreeAtom[sfatom],Apply[Equal,sfatom],formula]
+]
+
+
+NonZeroGrad[formula_,statevars_]:=Module[{},
+GetBoundary[formula]/.{
+Equal[lhs_,rhs_]:> Unequal[Apply[Plus,Map[Function[x,x^2],Grad[lhs,statevars]]],0],
+else_ :> False
+}
+]
+
+
+IsConjunct[form_]:=Module[{},
+LogicalExpand[form]/.{
+a_And :> True,
+else_ :> False} ]
+
+
+GeqToLeq[atom_]:=Module[{},
+atom/.{GreaterEqual[lhs_,rhs_] :> ZeroRHS[LessEqual[rhs,lhs]]}
+] 
+
+
+IsListOfLeq[list_]:=Module[{},
+If[MatchQ[list,_List],
+Apply[And,Map[Function[x,MatchQ[x,_LessEqual]],list]],
+False]]
+
+
+ToLessEqualConjunct[formula_]:=Module[{
+squareFreeDNF = LogicalExpand[ParityNF[formula]],
+},
+If[IsConjunct[squareFreeDNF],
+If[IsListOfLeq[Map[GeqToLeq,Apply[List, squareFreeDNF]]],
+Map[GeqToLeq,squareFreeDNF],
+formula],formula]
+]
+
+
+IsLessEqualConjunct[formula_]:=Module[{},
+If[IsConjunct[formula],
+If[IsListOfLeq[Apply[List, formula]],
+True,
+False],False]
+]
+
+
+(* Differentiable case *)
+Lf[p_, f_List, vars_List]:=Grad[p,vars].f<0
+
+
+(* Conjunctive case - max functions *)
+Lf[max[p_], f_List, vars_List]:=Lf[p,f,vars]
+
+Lf[max[p1_,pn__], f_List, vars_List]:=And[
+Implies[p1>max[pn],Lf[p1,f,vars]],
+Implies[max[pn]>p1,Lf[max[pn],f,vars]],
+Implies[p1==max[pn],And[Lf[p1,f,vars],Lf[max[pn],f,vars]]]
+]
+
+
+(* Disjunctive case - min functions *)
+Lf[min[p_], f_List, vars_List]:=Lf[p,f,vars]
+
+Lf[min[p1_,pn__], f_List, vars_List]:=And[
+Implies[p1<min[pn],Lf[p1,f,vars]],
+Implies[min[pn]<p1,Lf[min[pn],f,vars]],
+Implies[p1==min[pn],Or[Lf[p1,f,vars],Lf[min[pn],f,vars]]]
+]
+
+
+toMinMaxForm[formula_]:=Module[{},
+ZeroRHS[LogicalExpand[formula]/.{GreaterEqual[a_,b_]:> LessEqual[b,a]}]/.{And :> max, Or:>  min}/.{LessEqual[a_,0]:> a}]
+
+
+VCGen[formula_, chi_, f_List,vars_List]:=Module[{minmax=toMinMaxForm[formula]},
+Reduce[Implies[chi && minmax==0/.{max :>Max, min:> Min},Lf[minmax,f,vars]/.{max :> Max, min:> Min}],vars,Reals]
+]
 
 
 Options[Vocabulary]={};
@@ -327,10 +520,32 @@ sparameters}
 Sprocedure[a_,e_] :=
 Module[{sdata=SprocedureFormula[a,e],sparameters,sformula,voc},
 sparameters=
-\!\(\*SubscriptBox["sdata", 
-RowBox[{"\[LeftDoubleBracket]", "2", "\[RightDoubleBracket]"}]]\);sformula=
-\!\(\*SubscriptBox["sdata", 
-RowBox[{"\[LeftDoubleBracket]", "1", "\[RightDoubleBracket]"}]]\);
+
+
+
+
+
+
+
+
+
+
+
+
+\!\(\*SubscriptBox[\(sdata\), \(\(\[LeftDoubleBracket]\)\(2\)\(\[RightDoubleBracket]\)\)]\);sformula=
+
+
+
+
+
+
+
+
+
+
+
+
+\!\(\*SubscriptBox[\(sdata\), \(\(\[LeftDoubleBracket]\)\(1\)\(\[RightDoubleBracket]\)\)]\);
 voc=Vocabulary[a\[Implies]e,Heads->True];
 If[voc\[Intersection]sparameters!={},Message[Sprocedure::assert]];
 If[sformula===True,
@@ -404,14 +619,36 @@ Function[tp,
 Module[{altstate},
 (* we form sets, since, if all trajectories coincide anyway, then there's no need to mess around *) altstate =Union[Select[Through[alttrans[tp]],#=!=$TransFailed&]];Which[Length[altstate]==0, $TransFailed,
 Length[altstate]==1,
-\!\(\*SubscriptBox["altstate", 
-RowBox[{"\[LeftDoubleBracket]", "1", "\[RightDoubleBracket]"}]]\),
+
+
+
+
+
+
+
+
+
+
+
+
+\!\(\*SubscriptBox[\(altstate\), \(\(\[LeftDoubleBracket]\)\(1\)\(\[RightDoubleBracket]\)\)]\),
 Length[altstate]>1,Block[{},Message[Transition::nondet,CirclePlus[alternatives],alttrans];
 Print["   alternatives at time ", tp," are ", altstate];
 (* @xxx arbitrarily follow only ONE of those non-deterministic alternatives *)
 
-\!\(\*SubscriptBox["altstate", 
-RowBox[{"\[LeftDoubleBracket]", "1", "\[RightDoubleBracket]"}]]\)
+
+
+
+
+
+
+
+
+
+
+
+
+\!\(\*SubscriptBox[\(altstate\), \(\(\[LeftDoubleBracket]\)\(1\)\(\[RightDoubleBracket]\)\)]\)
 ]
 ]
 ]
@@ -437,25 +674,33 @@ Check[
 Check[
 If[False\[And]$numericalODE,
 
-\!\(\*SubscriptBox[
-RowBox[{"NMinimize", "[", 
-RowBox[{"st", ",", 
-RowBox[{
-RowBox[{"0", "\[LessEqual]", "st", "\[LessEqual]", "T"}], " ", "\[And]", 
-RowBox[{"cond", "[", 
-RowBox[{"SComp", "[", 
-RowBox[{"flow", "[", "st", "]"}], "]"}], "]"}]}], ",", "st"}], "]"}], 
-RowBox[{"\[LeftDoubleBracket]", "1", "\[RightDoubleBracket]"}]]\),
 
-\!\(\*SubscriptBox[
-RowBox[{"Minimize", "[", 
-RowBox[{"st", ",", 
-RowBox[{
-RowBox[{"0", "\[LessEqual]", "st", "\[LessEqual]", "T"}], " ", "\[And]", 
-RowBox[{"cond", "[", 
-RowBox[{"SComp", "[", 
-RowBox[{"flow", "[", "st", "]"}], "]"}], "]"}]}], ",", "st"}], "]"}], 
-RowBox[{"\[LeftDoubleBracket]", "1", "\[RightDoubleBracket]"}]]\)
+
+
+
+
+
+
+
+
+
+
+
+\!\(\*SubscriptBox[\(NMinimize[st, 0 \[LessEqual] st \[LessEqual] T\  \[And] cond[SComp[flow[st]]], st]\), \(\(\[LeftDoubleBracket]\)\(1\)\(\[RightDoubleBracket]\)\)]\),
+
+
+
+
+
+
+
+
+
+
+
+
+
+\!\(\*SubscriptBox[\(Minimize[st, 0 \[LessEqual] st \[LessEqual] T\  \[And] cond[SComp[flow[st]]], st]\), \(\(\[LeftDoubleBracket]\)\(1\)\(\[RightDoubleBracket]\)\)]\)
 ],
 Print[" bad guard ",0<=st<=T \[And]cond[SComp[flow[st]]], " for ", evo, " from ", State ];$Failed,
 {Minimize::bcons,NMinimize::bcons}
@@ -531,8 +776,19 @@ Transition[{rest}][jump[0]]
 SetAttributes[test,HoldAll]
 test[e_] :=
 guard[Function[State,(e/.Table[Symbol["Global`x"<>ToString[i]]-> 
-\!\(\*SubscriptBox["State", 
-RowBox[{"\[LeftDoubleBracket]", "i", "\[RightDoubleBracket]"}]]\),{i,Length[State]}])]]
+
+
+
+
+
+
+
+
+
+
+
+
+\!\(\*SubscriptBox[\(State\), \(\(\[LeftDoubleBracket]\)\(i\)\(\[RightDoubleBracket]\)\)]\),{i,Length[State]}])]]
 
 
 (* instant guard test actions *)
@@ -556,13 +812,35 @@ Module[{dsols,
 sysvars = Table[Symbol["Global`x"<>ToString[i]],{i,Min[Length[DE],Length[State]]}],
 eqns = DE\[Union]
 Table[Symbol["Global`x"<>ToString[i]][0]== 
-\!\(\*SubscriptBox["State", 
-RowBox[{"\[LeftDoubleBracket]", "i", "\[RightDoubleBracket]"}]]\),{i,Min[Length[DE],Length[State]]}],
+
+
+
+
+
+
+
+
+
+
+
+
+\!\(\*SubscriptBox[\(State\), \(\(\[LeftDoubleBracket]\)\(i\)\(\[RightDoubleBracket]\)\)]\),{i,Min[Length[DE],Length[State]]}],
 indepvar = Symbol["Global`t"],
 (* state variables not mentioned in DE remain just constant *)
 constantstatecomponents=Table[Module[{s=
-\!\(\*SubscriptBox["State", 
-RowBox[{"\[LeftDoubleBracket]", "i", "\[RightDoubleBracket]"}]]\)},Function[tp,s]],{i,Length[DE]+1,Length[State]}]
+
+
+
+
+
+
+
+
+
+
+
+
+\!\(\*SubscriptBox[\(State\), \(\(\[LeftDoubleBracket]\)\(i\)\(\[RightDoubleBracket]\)\)]\)},Function[tp,s]],{i,Length[DE]+1,Length[State]}]
 },
 If[Length[DE]<Length[State],Message[Transition::idimension,DE,State,eqns]];
 If[Length[DE]>Length[State],Message[Transition::dimension,DE,State,eqns];Return[$Failed]];
@@ -575,22 +853,55 @@ DSolve[eqns,sysvars,indepvar]
 ];
 If[Head[dsols]==List\[And]Length[dsols]>0\[And]$verify\[And]\[Not]$numericalODE,
 Module[{verificationresults = Union[FullSimplify[eqns /. 
-\!\(\*SubscriptBox["dsols", 
-RowBox[{"\[LeftDoubleBracket]", "1", "\[RightDoubleBracket]"}]]\)]]},
+
+
+
+
+
+
+
+
+
+
+
+
+\!\(\*SubscriptBox[\(dsols\), \(\(\[LeftDoubleBracket]\)\(1\)\(\[RightDoubleBracket]\)\)]\)]]},
 If[verificationresults!={True},
 Message[Transition::verifyf,eqns,dsols,verificationresults]]]
 ];
 Which[
 Head[dsols]===DSolve \[Or]Head[dsols]===NDSolve\[Or]Head[dsols]=!=List\[Or]Length[dsols]==0,(Message[Transition::unsolvable,eqns];Return[$Failed]),
 Head[dsols]===List\[And]Length[dsols]==1,Componentwise[Join[sysvars /. 
-\!\(\*SubscriptBox["dsols", 
-RowBox[{"\[LeftDoubleBracket]", "1", "\[RightDoubleBracket]"}]]\),constantstatecomponents]](* unlike non-sequenced discrete transitions, result requires Through *),
+
+
+
+
+
+
+
+
+
+
+
+
+\!\(\*SubscriptBox[\(dsols\), \(\(\[LeftDoubleBracket]\)\(1\)\(\[RightDoubleBracket]\)\)]\),constantstatecomponents]](* unlike non-sequenced discrete transitions, result requires Through *),
 Head[dsols]===List\[And]Length[dsols]>1, (Message[Transition::nonunique,eqns,Length[dsols],dsols];
 Print["nonunique solution of ", eqns, " is ", dsols];
 (* arbitrary non-deterministic choice *)
 Componentwise[Join[sysvars/. 
-\!\(\*SubscriptBox["dsols", 
-RowBox[{"\[LeftDoubleBracket]", "1", "\[RightDoubleBracket]"}]]\),constantstatecomponents]])
+
+
+
+
+
+
+
+
+
+
+
+
+\!\(\*SubscriptBox[\(dsols\), \(\(\[LeftDoubleBracket]\)\(1\)\(\[RightDoubleBracket]\)\)]\),constantstatecomponents]])
 ]
 ]
 
@@ -615,8 +926,19 @@ UpdateMerge[Update_List,{}] := Update
 UpdateStateHelper[Evstate_,State_,updates_List]:=
 Module[{staterules =
 Table[Symbol["Global`x"<>ToString[i]]-> 
-\!\(\*SubscriptBox["Evstate", 
-RowBox[{"\[LeftDoubleBracket]", "i", "\[RightDoubleBracket]"}]]\),{i,Length[Evstate]}],
+
+
+
+
+
+
+
+
+
+
+
+
+\!\(\*SubscriptBox[\(Evstate\), \(\(\[LeftDoubleBracket]\)\(i\)\(\[RightDoubleBracket]\)\)]\),{i,Length[Evstate]}],
 statecomponentrules =
 Table[Symbol["Global`x"<>ToString[i]]-> i,{i,Length[Evstate]}]
 },
@@ -635,8 +957,19 @@ Transition[set[HoldPattern[xi_->e_]]][State_] :=Transition[set[{xi->e}]][State]
 UpdateStateHelper[Evstate_,State_,HoldPattern[xi_=e_]]:=
 Module[{staterules =
 Table[Symbol["Global`x"<>ToString[i]]-> 
-\!\(\*SubscriptBox["Evstate", 
-RowBox[{"\[LeftDoubleBracket]", "i", "\[RightDoubleBracket]"}]]\),{i,Length[Evstate]}],
+
+
+
+
+
+
+
+
+
+
+
+
+\!\(\*SubscriptBox[\(Evstate\), \(\(\[LeftDoubleBracket]\)\(i\)\(\[RightDoubleBracket]\)\)]\),{i,Length[Evstate]}],
 statecomponentrules =
 Table[Symbol["Global`x"<>ToString[i]]-> i,{i,Length[Evstate]}]
 },
@@ -746,18 +1079,62 @@ solcriticality[indepvar_] = criticality[sol]  // FullSimplify;
 maxcrit = Minimize[{solcriticality[indepvar],0<=indepvar<=TimeHorizon },
 {indepvar}];
 {
-\!\(\*SubscriptBox["maxcrit", 
-RowBox[{"\[LeftDoubleBracket]", "1", "\[RightDoubleBracket]"}]]\),Prepend[
-\!\(\*SubscriptBox["maxcrit", 
-RowBox[{"\[LeftDoubleBracket]", "2", "\[RightDoubleBracket]"}]]\),Symbol["Global`xstate"]->xinit]}
+
+
+
+
+
+
+
+
+
+
+
+
+\!\(\*SubscriptBox[\(maxcrit\), \(\(\[LeftDoubleBracket]\)\(1\)\(\[RightDoubleBracket]\)\)]\),Prepend[
+
+
+
+
+
+
+
+
+
+
+
+
+\!\(\*SubscriptBox[\(maxcrit\), \(\(\[LeftDoubleBracket]\)\(2\)\(\[RightDoubleBracket]\)\)]\),Symbol["Global`xstate"]->xinit]}
 ]
 ]
 ];
 selectworst = Function[{c,d},If[
-\!\(\*SubscriptBox["c", 
-RowBox[{"\[LeftDoubleBracket]", "1", "\[RightDoubleBracket]"}]]\)<
-\!\(\*SubscriptBox["d", 
-RowBox[{"\[LeftDoubleBracket]", "1", "\[RightDoubleBracket]"}]]\),c,d]];
+
+
+
+
+
+
+
+
+
+
+
+
+\!\(\*SubscriptBox[\(c\), \(\(\[LeftDoubleBracket]\)\(1\)\(\[RightDoubleBracket]\)\)]\)<
+
+
+
+
+
+
+
+
+
+
+
+
+\!\(\*SubscriptBox[\(d\), \(\(\[LeftDoubleBracket]\)\(1\)\(\[RightDoubleBracket]\)\)]\),c,d]];
 (* could use early projection to states satisfying initialCondition by Select[...,initialCondition] *)
 Fold[selectworst,{\[Infinity],{}},Map[analysetrajectory,Discretize[\[Delta],initialRange]]]
 ]

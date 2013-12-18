@@ -1,0 +1,4269 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 9.0' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       157,          7]
+NotebookDataLength[    156388,       4259]
+NotebookOptionsPosition[    151339,       4126]
+NotebookOutlinePosition[    151676,       4141]
+CellTagsIndexPosition[    151633,       4138]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+  "(*", "***********************************************************************)"}\
+], "\n", 
+  RowBox[{"(*", " ", 
+   RowBox[{
+   "This", " ", "file", " ", "was", " ", "generated", " ", "automatically", 
+    " ", "by", " ", "the", " ", "Mathematica", " ", "front", " ", 
+    RowBox[{"end", "."}]}], "  ", "*)"}], "\n", 
+  RowBox[{"(*", " ", 
+   RowBox[{
+    RowBox[{
+    "It", " ", "contains", " ", "Initialization", " ", "cells", " ", "from", 
+     " ", "a", " ", "Notebook", " ", "file"}], ",", " ", "which"}], 
+   "         ", "*)"}], "\n", 
+  RowBox[{"(*", " ", 
+   RowBox[{
+   "typically", " ", "will", " ", "have", " ", "the", " ", "same", " ", 
+    "name", " ", "as", " ", "this", " ", "file", " ", "except", " ", "ending",
+     " ", "in"}], "      ", "*)"}], "\n", 
+  RowBox[{"(*", " ", 
+   RowBox[{"\"\<.nb\>\"", " ", "instead", " ", "of", " ", 
+    RowBox[{"\"\<.m\>\"", "."}]}], 
+   "                                               ", "*)"}], "\n", 
+  RowBox[{
+  "(*", "                                                                     \
+ ", "*)"}], "\n", 
+  RowBox[{"(*", " ", 
+   RowBox[{
+   "This", " ", "file", " ", "is", " ", "intended", " ", "to", " ", "be", " ",
+     "loaded", " ", "into", " ", "the", " ", "Mathematica", " ", "kernel", 
+    " ", "using"}], " ", "*)"}], "\n", 
+  RowBox[{"(*", " ", 
+   RowBox[{
+   "the", " ", "package", " ", "loading", " ", "commands", " ", "Get", " ", 
+    "or", " ", 
+    RowBox[{"Needs", ".", "  ", "Doing"}], " ", "so", " ", "is", " ", 
+    "equivalent"}], "   ", "*)"}], "\n", 
+  RowBox[{"(*", " ", 
+   RowBox[{
+   "to", " ", "using", " ", "the", " ", "Evaluate", " ", "Initialization", 
+    " ", "Cells", " ", "menu", " ", "command", " ", "in", " ", "the", " ", 
+    "front"}], " ", "*)"}], "\n", 
+  RowBox[{"(*", " ", 
+   RowBox[{"end", "."}], 
+   "                                                                 ", 
+   "*)"}], "\n", 
+  RowBox[{
+  "(*", "                                                                     \
+ ", "*)"}], "\n", 
+  RowBox[{"(*", " ", 
+   RowBox[{"DO", " ", "NOT", " ", "EDIT", " ", "THIS", " ", 
+    RowBox[{"FILE", ".", "  ", "This"}], " ", "entire", " ", "file", " ", 
+    "is", " ", "regenerated"}], "              ", "*)"}], "\n", 
+  RowBox[{"(*", " ", 
+   RowBox[{
+   "automatically", " ", "each", " ", "time", " ", "the", " ", "parent", " ", 
+    "Notebook", " ", "file", " ", "is", " ", "saved", " ", "in", " ", "the"}],
+    "     ", "*)"}], "\n", 
+  RowBox[{"(*", " ", 
+   RowBox[{"Mathematica", " ", "front", " ", 
+    RowBox[{"end", ".", "  ", "Any"}], " ", "changes", " ", "you", " ", 
+    "make", " ", "to", " ", "this", " ", "file", " ", "will", " ", "be"}], 
+   "    ", "*)"}], "\n", 
+  RowBox[{"(*", " ", 
+   RowBox[{"overwritten", "."}], 
+   "                                                         ", "*)"}], "\n", 
+  
+  RowBox[{
+  "(*", "***********************************************************************)"}\
+], "\n"}]], "Code"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"BeginPackage", "[", "\"\<AMC`\>\"", "]"}], ";"}]], "Code"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"(*", " ", 
+   RowBox[{"implicit", " ", "global", " ", "parameter"}], " ", "*)"}], "\n", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"$SymbolicName", "::", "usage"}], "=", 
+    "\"\<The function $SymbolicName[n] is supposed to return a sufficiently \
+fresh name for a symbol possibly with number n.\>\""}], ";"}]}]], "Code"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+   RowBox[{"Vocabulary", "::", "usage"}], "=", 
+   "\"\<Vocabulary[e] gives the list of all atomic symbols occurring in e, \
+except built-ins and numbers.\>\""}], ";", 
+  RowBox[{
+   RowBox[{"Atomize", "::", "usage"}], "=", 
+   "\"\<Atomize[list] makes all elements of list atomic. That is, it returns \
+{atomizer,deatomizer} where atomizer is a list of rules that replace the \
+elements of list by new unique atomic symbols, and deatomizer undoes the same \
+renaming.\>\""}], ";"}]], "Code"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{
+   RowBox[{"InEqualify", "::", "usage"}], "=", 
+   "\"\<Turns the given equation or inequations into equivalent \
+\[GreaterEqual]-inequations or >-inequations\>\""}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"InEqualifyNormalize", "::", "usage"}], "=", 
+   "\"\<Equivalently normalises given equations into equivalent form t\
+\[GreaterEqual]0 or t>0.\>\""}], ";"}]}], "Code"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+   RowBox[{"IFindInstance", "::", "usage"}], "=", 
+   "\"\<IFindInstance[expr] finds a real instance satisfying expr with \
+respect to all free Vocabulary[expr] using FindInstance.\n\
+IFindInstance[expr,dom,n] finds n instances over domain\>\""}], ";"}]], "Code"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+   RowBox[{"DifferentialSymbols", "::", "usage"}], " ", "=", " ", 
+   "\"\<Extracts all variables x from an expression that occur in the form x' \
+or x'[t]\>\""}], ";"}]], "Code"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{
+   RowBox[{"SymbolicInitialValues", "::", "usage"}], "=", 
+   "\"\<Make a list of equations x[0]==x0 for all differential variables that \
+occur in eqn.\>\""}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"IDSolve", "::", "usage"}], "=", 
+   "\"\<IDSolve[eqn,x] is an improved version of DSolve that solves the \
+symbolic initial value problem belonging to an ordinary differential equation \
+set eqn with independent variable x.\>\""}], ";"}]}], "Code"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"ParityDecomposition", "::", "usage"}], "=", 
+  "\"\<ParityDecomposition[expr] Performs parity decomposition of a given \
+polynomial.\>\""}]], "Code"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"PO", "::", "usage"}], "=", 
+  "\"\<PO[expr] Fetches facotrs of odd multiplicity from the parity \
+decomposition.\>\""}]], "Code"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"PE", "::", "usage"}], "=", 
+  "\"\<PE[expr] Fetches facotrs of even multiplicity from the parity \
+decomposition.\>\""}]], "Code"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"ZeroRHS", "::", "usage"}], "=", 
+  "\"\<ZeroRHS[expr] turns a quantifier-free formula into one where the right \
+hand side is zero.\>\""}]], "Code"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+   RowBox[{"AtomicParityNF", "::", "usage"}], "=", 
+   "\"\<AtomicParityNF[expr] turns a quantifier-free atomic formula into one \
+where each atom is square-free.\>\""}], ";"}]], "Code"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"ParityNF", "::", "usage"}], "=", 
+  "\"\<ParityNF[expr] turns a quantifier-free formula into one where each \
+atom is square-free.\>\""}]], "Code"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"IsClosedSquareFreeAtom", "::", "usage"}], "=", 
+  "\"\<IsClosedSquareFreeAtom[expr] returns True if the term is definedable \
+by a square-free polynomial\>\""}]], "Code"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"GetBoundary", "::", "usage"}], "=", 
+  "\"\<GetBoundary[expr] Computes the boundary of a closed semi-algebraic \
+set.\>\""}]], "Code"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"NonZeroGrad", "::", "usage"}], "=", 
+  "\"\<NonZeroGrad[expr,statevars] Computes condition ensuring that the \
+gradient vector is non-zero at the boundary.\>\""}]], "Code"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"IsConjunct", "::", "usage"}], "=", 
+  "\"\<IsConjunct[expr] Returns True if the expression is a conjunctive \
+formula.\>\""}]], "Code"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"GeqToLeq", "::", "usage"}], "=", 
+  "\"\<GeqToLeq[expr] Converts GreaterThan atoms into LessThan by swapping \
+arguments and then setting the rhs to zero.\>\""}]], "Code"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"IsListOfLeq", "::", "usage"}], "=", 
+  "\"\<IsListOfLeq[expr] Returns True if the expression is a List of atoms \
+with LessEqual as their predicate symbol, returns False otherwise.\>\""}]], \
+"Code"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"ToLessEqualConjunct", "::", "usage"}], "=", 
+  "\"\<ToLessEqualConjunct[expr] Converts the expression into a conjunction \
+of LessEqual atoms, if such a transformation is possible; otherwise, the \
+original expression is returned.\>\""}]], "Code"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"IsLessEqualConjunct", "::", "usage"}], "=", 
+  "\"\<IsLessEqualConjunct[expr] Returns True if the expression into a \
+conjunction of LessEqual atoms; returns False otherwise.\>\""}]], "Code"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"Lf", "::", "usage"}], "=", 
+  "\"\<Checks for membership of the vector field inside the contingent cone \
+of a set given by Min[Max[g1,...,gn]...].\>\""}]], "Code"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{
+   RowBox[{"IDiffInd", "::", "usage"}], " ", "=", 
+   "\"\<IDiffInd[e] transforms given real arithmetic formula e to a \
+differential inductive invariant sustaining e. The total differential Dt will \
+be formed.\nIDiffInd[e,ODE] does the same and instantiates the derivatives in \
+the result using the differential equations in the differential equation \
+system ODE, in which differential equations are x'==2x+y.\>\""}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"IDiffFin", "::", "usage"}], " ", "=", 
+   "\"\<IDiffFin[e,\[Epsilon]] transforms given real arithmetic formula e to \
+a differential inductive variant attaining e with progress \[Epsilon]. The \
+total differential Dt will be formed.\nIDiffFin[e,\[Epsilon],ODE] does the \
+same and instantiates the derivatives in the result using the differential \
+equations in the differential equation system ODE, in which differential \
+equations are x'==2x+y.\>\""}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"DiffInd", "::", "usage"}], " ", "=", 
+   "\"\<DiffInd[e,t] transforms given real arithmetic formula e to a \
+differential inductive invariant sustaining it. The differential will be \
+formed with respect to d/dt.\nDiffInd[e,t,ODE] does the same and instantiates \
+the derivatives in the result using the differential equations in the \
+differential equation system ODE, in which differential equations are \
+x'[t]==2x[t]+y.\>\""}], ";"}]}], "Code"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+   RowBox[{"Sprocedure", "::", "usage"}], "=", 
+   "\"\<SprocedureFormula[a,e] uses the S-procedure trick to transform a\
+\[Implies]e into a single equation with additional existential variables. \
+Both assumptions a and conclusion e are assumed to be purely conjunctively.\>\
+\""}], ";", 
+  RowBox[{
+   RowBox[{"SprocedureFormula", "::", "usage"}], "=", 
+   "\"\<SprocedureFormula[a,e] uses the S-procedure trick to transform a\
+\[Implies]e into a single equation with additional existential variables. \
+Both assumptions a and conclusion e are assumed to be purely conjunctively. \
+Unlike Sprocedure, this helper only returns the unquantified kernel.\>\""}], 
+  ";"}]], "Code"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+   RowBox[{"FormalPolynomial", "::", "usage"}], "=", 
+   "\"\<FormalPolynomial[{{x,3},{y,2}}] gives {p,l} where p is a formal \
+polynomial with all monomials \[Lambda]*x^i*y^j with i<=3 and j<=2 and \
+\[Lambda] being a parameter from the list l. Likewise for larger sets with \
+more variables.\nAdding an integer parameter n specifies that the total \
+degree of each monomial is <=n. Adding parameter {n} specifies that the \
+polynomial is to be homogeneous of total degree =n for each monomial.\n\
+FormalPolynomial[{x,y,z},3] is a shorthand for a formal polynomial of total \
+degree 3 in variables x,y,z (each, consequently with degree <=3). A formal \
+polynomial of degree d in n variables has Binomial[n+d,d] parameters.\>\""}], 
+  ";"}]], "Code"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"Transition", "::", "usage"}], "=", 
+    "\"\<Transition[action][State][t]\n    is the state reachable by \
+performing the given action from initial state State after duration t.\n@see \
+Actions include\n - evolve[ODE] yields a continuous transition along \
+differential equation ODE with current state as IVP.\n - guard[X]\n - \
+set[x1->x2-x3] discrete assignment to State.\n - transform[X] discrete \
+transition X.\n - act1\[CirclePlus]act2\[CirclePlus]act3 nondeterministically \
+choose between acti.\n - {act1,act2,act3} sequentially performs the given \
+list of actions. Switching between the actions occurs\n    - instantly for \
+discrete actions\n    - non-deterministically at first occurrence of \
+subsequent guard for evolve.\n    Inductively performs\n    \
+Transition[act2][(Transition[act1][State][switchtime1])][t-switchtime1]\n\
+@param $numericalODE implicit global parameter determining whether to use \
+symbolic (False) or numerical tools (True) for solving IVPs.\n@param \
+$TimeHorizon implicit global parameter determining time bound for solving \
+ODEs.\n@param $verify implicit global parameter determining whether to verify \
+symbolic solutions of ODEs.\n@see \
+SComp[(Transition[action][State])[t]]\>\""}], ";"}], "\n", "\n", 
+  RowBox[{"(*", " ", 
+   RowBox[{
+   "implicit", " ", "global", " ", "parameters", " ", "for", " ", 
+    "Transition"}], " ", "*)"}]}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"$Transition", "::", "usage"}], "=", 
+   "\"\<The function $Transition[action][State][tp] can be defined to have \
+additional user-defined actions available for use in Transition.\>\""}], 
+  ";"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"$numericalODE", "::", "usage"}], "=", 
+   "\"\<implicit global parameter determining whether to use symbolic (False) \
+or numerical tools (True) for solving IVPs.\>\""}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"$TimeHorizon", "::", "usage"}], "=", 
+   "\"\<implicit global parameter determining time bound for solving \
+ODEs.\>\""}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"$verify", "::", "usage"}], "=", 
+    "\"\<implicit global parameter determining whether to verify symbolic \
+solutions of ODEs.\>\""}], ";"}], "\n"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"$TransFailed", "::", "usage"}], " ", "=", " ", 
+   "\"\<Special symbol that denotes the result of a failed transition (due to \
+failed guard conditions).\>\""}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"$Unknown", "::", "usage"}], " ", "=", " ", 
+   "\"\<Special symbol that denotes an unkown state that is reached, e.g., \
+after performing a discrete transition longer than 0 seconds.\>\""}], 
+  ";"}]}], "Code"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{
+   RowBox[{"evolve", "::", "usage"}], "=", 
+   "\"\<Transition action evolve[ODE] yields a continuous transition along \
+differential equation system ODE with the current state as IVP.\n   The \
+differential equations in ODE must be formulated with variables with the \
+precise names x1, x2, x3, and so on in Global context. And these ODE must \
+depend on the variable with the precise name t like in {x1'[t]==5}\>\""}], 
+  ";"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"test", "::", "usage"}], " ", "=", " ", 
+   "\"\<Transition action test[x2>x1-2] tests whether the given condition is \
+satisfied for the respective state components xi as a shortcut for \
+guard.\>\""}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"guard", "::", "usage"}], " ", "=", " ", 
+   "\"\<Transition action guard[X] tests whether condition X is satisfied for \
+the current state. Nothing happens if condition X is true but further \
+evolution is blocked if X is false.\>\""}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"set", "::", "usage"}], " ", "=", " ", 
+   "\"\<Transition action set[x2->x1-x3+1] performs a discrete assignment to \
+the respective state components xi. Likewise, lists of updates like \
+set[{x2->x1-x3+1,x1->5}]can be handled with simultaneous effect. As a \
+shortcut for transform. As a deprecated notation, assignments can be used as \
+in set[x1=x3+1], which is discouraged.\>\""}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"transform", "::", "usage"}], "=", 
+   "\"\<Transition action transform[X] yields a discrete transition. It \
+performs the discrete jump or projection by applying the given transformation \
+X to the state.\>\""}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"CirclePlus", "::", "usage"}], " ", "=", " ", 
+   "\"\<Transition action act1\[CirclePlus]act2\[CirclePlus]act3 \
+nondeterministically choose between the respective actions acti.\>\""}], 
+  ";"}], "\n", 
+ RowBox[{" ", 
+  RowBox[{"(*", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"List", "::", "usage"}], " ", "=", " ", 
+     "\"\<Transition action {act1,act2,act3} sequentially performs the given \
+list of actions. Switching between the actions occurs\n    - instantly for \
+discrete actions\n    - non-deterministically at first occurrence of \
+subsequent guard for evolve.\n    Inductively performs\n    \
+Transition[act2][(Transition[act1][State][switchtime1])][t-switchtime1]\>\""}]\
+, ";"}], " ", "*)"}]}]}], "Code"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+   RowBox[{"UpdateMerge", "::", "usage"}], "=", 
+   "\"\<UpdateMerge[U1,U2] gives the merged update with U1 applied to U2, \
+i.e., U2 after U1\>\""}], ";"}]], "Code"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+   RowBox[{"SComp", "::", "usage"}], " ", "=", " ", 
+   "\"\<unpacks the state components (originating from a \
+Transition[...][...][...])\>\""}], ";"}]], "Code"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{
+   RowBox[{"AMC", "::", "usage"}], "=", 
+   "\"\<Refinement-based approximate bounded model checking\nwith \
+time-horizon TimeHorizon and minimum grid-size fraction cutoff.\n   @param \
+dynamics an operational model whose generated transition system describes the \
+system dynamics.\n   @param initialRange range of intervals {Interval[{0,2\
+\[Pi]}],Interval[{0,10}]} that is possibly used for initial states.\n   \
+@param criticality is a function to determine the criticality of states, \
+i.e., the remaining safety distance (an estimate for the distance to the \
+border of the bad states). The usual meaning is that states with \
+criticality>0 are safe, whereas states with criticality<0 are unsafe. But \
+this is not enforced by AMC. However, minimum criticality values are returned \
+preferably, that is, most dangerous and critical.\n    Returns \
+{\[Infinity],{}} when unreachable.\n    Returns {c,{cex}} when cex is a \
+reachable (counter)example with criticality c=criticality[cex], which seems \
+minimal among all counterexamples, that is, most critical.\>\""}], 
+  ";"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"AMCphase", "::", "usage"}], "=", 
+   "\"\<Model checking on \[Delta]-grid with time-horizon TimeHorizon.\n   \
+@return Returns {\[Infinity],{}} when unreachable. Returns {c,cex} otherwise, \
+where c is criticality[cex] of the counterexample\>\""}], ";"}]}], "Code"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+   RowBox[{"Options", "[", "PlotTrace", "]"}], "=", 
+   RowBox[{"Join", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"TimeHorizon", ":>", "$TimeHorizon"}], ",", 
+       RowBox[{"PlotState", "->", "Automatic"}], ",", 
+       RowBox[{"Animate", "->", "True"}], ",", 
+       RowBox[{"AnimationRunning", "->", "False"}], ",", 
+       RowBox[{"AspectRatio", "->", "Automatic"}]}], "}"}], ",", "\n", 
+     RowBox[{"Options", "[", "ParametricPlot", "]"}], ",", 
+     RowBox[{"Options", "[", "Animate", "]"}], ",", 
+     RowBox[{"Options", "[", "Graphics", "]"}]}], "\n", "]"}]}], 
+  ";"}]], "Code"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{
+   RowBox[{"PlotTrace", "::", "usage"}], "=", 
+   "\"\<PlotTrace[a,x0,coords] plots and animates full dynamics of \
+transistion system with actions a starting in state x0 with given coordinates \
+displayed.\>\""}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"PlotState", "::", "usage"}], "=", 
+   "\"\<Option for PlotTrace specifying the function used for plotting a \
+state configuration.\>\""}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"Animate", "::", "usage"}], "=", 
+   "\"\<Option for PlotTrace specifying whether animations should be produced \
+or only traces.\>\""}], ";"}]}], "Code"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"Options", "[", "IFindTransition", "]"}], "=", 
+  RowBox[{"{", 
+   RowBox[{
+    RowBox[{"TimeHorizon", ":>", "$TimeHorizon"}], ",", 
+    RowBox[{"Sampling", "->", "100"}], ",", 
+    RowBox[{"Instances", "->", "20"}]}], "}"}]}]], "Code"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+   RowBox[{"IFindTransition", "::", "usage"}], "=", 
+   "\"\<IFindTransition[prestate,eqns,t,inv,goal] quickly tries to check if \
+there is a transition from given prestate along the differential equations \
+eqns to a state satisfying goal, without ever leaving inv in between.\n\
+IFindTransition[initial,update,eqns,t,inv,goal] quickly tries to check if \
+there is a transition along update;eqns&inv from a state satisfying the \
+formula initial to a state satisfying goal\>\""}], ";"}]], "Code"],
+
+Cell[BoxData[
+ RowBox[{"Begin", "[", "\"\<`Private`\>\"", "]"}]], "Code"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"(*", " ", 
+   RowBox[{
+   "Compute", " ", "parity", " ", "decomposition", " ", "of", " ", "a", " ", 
+    "given", " ", "polynomial"}], " ", "*)"}], "\n", 
+  RowBox[{
+   RowBox[{"ParityDecomposition", "[", 
+    RowBox[{"p_", "?", "PolynomialQ"}], "]"}], ":=", 
+   RowBox[{"Module", "[", "\n", 
+    RowBox[{
+     RowBox[{"{", "\n", 
+      RowBox[{
+       RowBox[{"pOdd", "=", 
+        RowBox[{"Apply", "[", 
+         RowBox[{"Times", ",", "\n", 
+          RowBox[{"Map", "[", 
+           RowBox[{
+            RowBox[{"Function", "[", 
+             RowBox[{"x", ",", " ", 
+              RowBox[{"If", "[", 
+               RowBox[{
+                RowBox[{"OddQ", "[", 
+                 RowBox[{"Part", "[", 
+                  RowBox[{"x", ",", "2"}], "]"}], "]"}], ",", 
+                RowBox[{"Part", "[", 
+                 RowBox[{"x", ",", "1"}], "]"}], ",", "1"}], "]"}]}], "]"}], 
+            ",", "\n", 
+            RowBox[{"FactorSquareFreeList", "[", "p", "]"}]}], "]"}]}], 
+         "]"}]}], ",", "\n", "\n", 
+       RowBox[{"pEven", "=", 
+        RowBox[{"Apply", "[", 
+         RowBox[{"Times", ",", "\n", 
+          RowBox[{"Map", "[", 
+           RowBox[{
+            RowBox[{"Function", "[", 
+             RowBox[{"x", ",", " ", 
+              RowBox[{"If", "[", 
+               RowBox[{
+                RowBox[{"EvenQ", "[", 
+                 RowBox[{"Part", "[", 
+                  RowBox[{"x", ",", "2"}], "]"}], "]"}], ",", 
+                RowBox[{"Part", "[", 
+                 RowBox[{"x", ",", "1"}], "]"}], ",", "1"}], "]"}]}], "]"}], 
+            ",", "\n", 
+            RowBox[{"FactorSquareFreeList", "[", "p", "]"}]}], "]"}]}], 
+         "]"}]}]}], "\n", "}"}], ",", "\n", 
+     RowBox[{"List", "[", 
+      RowBox[{"pOdd", ",", "pEven"}], "]"}]}], "\n", "]"}]}]}]], "Code"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"(*", " ", 
+   RowBox[{"Convenience", " ", "functions"}], " ", "*)"}], "\n", 
+  RowBox[{
+   RowBox[{"PO", "[", 
+    RowBox[{"q_", "?", "PolynomialQ"}], "]"}], ":=", 
+   RowBox[{"Module", "[", 
+    RowBox[{
+     RowBox[{"{", "}"}], ",", 
+     RowBox[{
+      RowBox[{"ParityDecomposition", "[", "q", "]"}], "[", 
+      RowBox[{"[", "1", "]"}], "]"}]}], "]"}]}]}]], "Code"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"PE", "[", 
+   RowBox[{"q_", "?", "PolynomialQ"}], "]"}], ":=", 
+  RowBox[{"Module", "[", 
+   RowBox[{
+    RowBox[{"{", "}"}], ",", 
+    RowBox[{
+     RowBox[{"ParityDecomposition", "[", "q", "]"}], "[", 
+     RowBox[{"[", "2", "]"}], "]"}]}], "]"}]}]], "Code"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"(*", " ", 
+   RowBox[{
+    RowBox[{"Set", " ", "righ"}], "-", 
+    RowBox[{
+    "hand", " ", "side", " ", "of", " ", "terms", " ", "to", " ", "zero"}]}], 
+   " ", "*)"}], "\n", 
+  RowBox[{
+   RowBox[{"ZeroRHS", "[", "atom_", "]"}], " ", ":=", " ", 
+   RowBox[{"Module", "[", 
+    RowBox[{
+     RowBox[{"{", "}"}], ",", 
+     RowBox[{"atom", "/.", 
+      RowBox[{"{", "\n", 
+       RowBox[{
+        RowBox[{
+         RowBox[{"Equal", "[", 
+          RowBox[{"a_", ",", "b_"}], "]"}], " ", ":>", "  ", 
+         RowBox[{"Equal", "[", 
+          RowBox[{
+           RowBox[{"a", "-", "b"}], ",", "0"}], "]"}]}], ",", "\n", 
+        RowBox[{
+         RowBox[{"Unequal", "[", 
+          RowBox[{"a_", ",", "b_"}], "]"}], " ", ":>", "  ", 
+         RowBox[{"Unequal", "[", 
+          RowBox[{
+           RowBox[{"a", "-", "b"}], ",", "0"}], "]"}]}], ",", "\n", 
+        RowBox[{
+         RowBox[{"Greater", "[", 
+          RowBox[{"a_", ",", "b_"}], "]"}], " ", ":>", "  ", 
+         RowBox[{"Greater", "[", 
+          RowBox[{
+           RowBox[{"a", "-", "b"}], ",", "0"}], "]"}]}], ",", "\n", 
+        RowBox[{
+         RowBox[{"GreaterEqual", "[", 
+          RowBox[{"a_", ",", "b_"}], "]"}], " ", ":>", "  ", 
+         RowBox[{"GreaterEqual", "[", 
+          RowBox[{
+           RowBox[{"a", "-", "b"}], ",", "0"}], "]"}]}], ",", "\n", 
+        RowBox[{
+         RowBox[{"Less", "[", 
+          RowBox[{"a_", ",", "b_"}], "]"}], " ", ":>", " ", 
+         RowBox[{"Less", "[", 
+          RowBox[{
+           RowBox[{"a", "-", "b"}], ",", "0"}], "]"}]}], ",", " ", "\n", 
+        RowBox[{
+         RowBox[{"LessEqual", "[", 
+          RowBox[{"a_", ",", "b_"}], "]"}], " ", ":>", "  ", 
+         RowBox[{"LessEqual", "[", 
+          RowBox[{
+           RowBox[{"a", "-", "b"}], ",", "0"}], "]"}]}]}], "\n", "}"}]}]}], 
+    "]"}]}]}]], "Code"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"(*", " ", 
+   RowBox[{
+   "Dolzmann", " ", "equivalences", " ", "for", " ", "polynomial", " ", 
+    "atoms"}], " ", "*)"}], "\n", 
+  RowBox[{
+   RowBox[{"AtomicParityNF", "[", "atom_", "]"}], ":=", 
+   RowBox[{"Module", "[", 
+    RowBox[{
+     RowBox[{"{", "}"}], ",", 
+     RowBox[{
+      RowBox[{"ZeroRHS", "[", "atom", "]"}], "/.", 
+      RowBox[{"{", "\n", 
+       RowBox[{
+        RowBox[{
+         RowBox[{"Equal", "[", 
+          RowBox[{
+           RowBox[{"p_", "?", "PolynomialQ"}], ",", "0"}], "]"}], " ", ":>", 
+         "  ", 
+         RowBox[{"Equal", "[", 
+          RowBox[{
+           RowBox[{
+            RowBox[{"PO", "[", "p", "]"}], "*", 
+            RowBox[{"PE", "[", "p", "]"}]}], ",", "0"}], "]"}]}], ",", "\n", 
+        RowBox[{
+         RowBox[{"Unequal", "[", 
+          RowBox[{"p_", ",", "0"}], "]"}], " ", ":>", "  ", 
+         RowBox[{"And", "[", 
+          RowBox[{
+           RowBox[{"Unequal", "[", 
+            RowBox[{
+             RowBox[{"PO", "[", "p", "]"}], ",", "0"}], "]"}], ",", 
+           RowBox[{"Unequal", "[", 
+            RowBox[{
+             RowBox[{"PE", "[", "p", "]"}], ",", "0"}], "]"}]}], "]"}]}], ",",
+         "\n", 
+        RowBox[{
+         RowBox[{"Greater", "[", 
+          RowBox[{"p_", ",", "0"}], "]"}], " ", ":>", "  ", 
+         RowBox[{"And", "[", 
+          RowBox[{
+           RowBox[{"Greater", "[", 
+            RowBox[{
+             RowBox[{"PO", "[", "p", "]"}], ",", "0"}], "]"}], ",", 
+           RowBox[{"Unequal", "[", 
+            RowBox[{
+             RowBox[{"PE", "[", "p", "]"}], ",", "0"}], "]"}]}], "]"}]}], ",",
+         "\n", 
+        RowBox[{
+         RowBox[{"GreaterEqual", "[", 
+          RowBox[{"p_", ",", "0"}], "]"}], "  ", ":>", " ", 
+         RowBox[{"Or", "[", 
+          RowBox[{
+           RowBox[{"GreaterEqual", "[", 
+            RowBox[{
+             RowBox[{"PO", "[", "p", "]"}], ",", "0"}], "]"}], ",", 
+           RowBox[{"Equal", "[", 
+            RowBox[{
+             RowBox[{"PE", "[", "p", "]"}], ",", "0"}], "]"}]}], "]"}]}], ",",
+         "\n", 
+        RowBox[{
+         RowBox[{"Less", "[", 
+          RowBox[{"p_", ",", "0"}], "]"}], " ", ":>", "  ", 
+         RowBox[{"And", "[", 
+          RowBox[{
+           RowBox[{"Less", "[", 
+            RowBox[{
+             RowBox[{"PO", "[", "p", "]"}], ",", "0"}], "]"}], ",", 
+           RowBox[{"Unequal", "[", 
+            RowBox[{
+             RowBox[{"PE", "[", "p", "]"}], ",", "0"}], "]"}]}], "]"}]}], ",",
+         "\n", 
+        RowBox[{
+         RowBox[{"LessEqual", "[", 
+          RowBox[{"p_", ",", "0"}], "]"}], " ", ":>", "  ", 
+         RowBox[{"Or", "[", 
+          RowBox[{
+           RowBox[{"LessEqual", "[", 
+            RowBox[{
+             RowBox[{"PO", "[", "p", "]"}], ",", "0"}], "]"}], ",", 
+           RowBox[{"Equal", "[", 
+            RowBox[{
+             RowBox[{"PE", "[", "p", "]"}], ",", "0"}], "]"}]}], "]"}]}]}], 
+       "\n", "}"}]}]}], "]"}]}]}]], "Code"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"(*", " ", 
+   RowBox[{
+   "Dolzmann", " ", "equivalences", " ", "for", " ", "arbitrary", " ", 
+    "formulas"}], " ", "*)"}], "\n", 
+  RowBox[{
+   RowBox[{"ParityNF", "[", "formula_", "]"}], ":=", 
+   RowBox[{"Module", "[", 
+    RowBox[{
+     RowBox[{"{", "}"}], ",", 
+     RowBox[{"formula", "/.", 
+      RowBox[{"{", "\n", 
+       RowBox[{
+        RowBox[{
+         RowBox[{"And", "[", 
+          RowBox[{"a_", ",", "b_"}], "]"}], " ", ":>", "  ", 
+         RowBox[{"And", "[", 
+          RowBox[{
+           RowBox[{"ParityNF", "[", "a", "]"}], ",", 
+           RowBox[{"ParityNF", "[", "b", "]"}]}], "]"}]}], ",", "\n", 
+        RowBox[{
+         RowBox[{"Or", "[", 
+          RowBox[{"a_", ",", "b_"}], "]"}], " ", ":>", "  ", 
+         RowBox[{"Or", "[", 
+          RowBox[{
+           RowBox[{"ParityNF", "[", "a", "]"}], ",", 
+           RowBox[{"ParityNF", "[", "b", "]"}]}], "]"}]}], ",", "\n", 
+        RowBox[{
+         RowBox[{"Implies", "[", 
+          RowBox[{"a_", ",", "b_"}], "]"}], " ", ":>", "  ", 
+         RowBox[{"Implies", "[", 
+          RowBox[{
+           RowBox[{"ParityNF", "[", "a", "]"}], ",", 
+           RowBox[{"ParityNF", "[", "b", "]"}]}], "]"}]}], ",", "\n", 
+        RowBox[{
+         RowBox[{"Equivalent", "[", 
+          RowBox[{"a_", ",", "b_"}], "]"}], " ", ":>", "  ", 
+         RowBox[{"Equivalent", "[", 
+          RowBox[{
+           RowBox[{"ParityNF", "[", "a", "]"}], ",", 
+           RowBox[{"ParityNF", "[", "b", "]"}]}], "]"}]}], ",", "\n", 
+        RowBox[{
+         RowBox[{"Not", "[", "a_", "]"}], " ", ":>", "  ", 
+         RowBox[{"Not", "[", 
+          RowBox[{"ParityNF", "[", "a", "]"}], "]"}]}], ",", "\n", 
+        RowBox[{"x_", " ", ":>", " ", 
+         RowBox[{"AtomicParityNF", "[", "x", "]"}]}]}], "\n", "}"}]}]}], 
+    "]"}]}]}]], "Code"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"IsClosedSquareFreeAtom", "[", "formula_", "]"}], ":=", 
+  RowBox[{"Module", "[", 
+   RowBox[{
+    RowBox[{"{", "}"}], ",", "\n", 
+    RowBox[{
+     RowBox[{"ParityNF", "[", "formula", "]"}], "/.", 
+     RowBox[{"{", "\n", 
+      RowBox[{
+       RowBox[{"eq_Equal", ":>", " ", "True"}], ",", "\n", 
+       RowBox[{"leq_LessEqual", ":>", " ", "True"}], ",", "\n", 
+       RowBox[{"geq_GreaterEqual", ":>", " ", "True"}], ",", "\n", 
+       RowBox[{"x_", " ", ":>", " ", "False"}]}], "}"}]}]}], "\n", 
+   "]"}]}]], "Code"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"GetBoundary", "[", "formula_", "]"}], ":=", 
+  RowBox[{"Module", "[", 
+   RowBox[{
+    RowBox[{"{", 
+     RowBox[{"sfatom", "=", 
+      RowBox[{"ParityNF", "[", "formula", "]"}]}], "}"}], ",", "\n", 
+    RowBox[{"If", "[", 
+     RowBox[{
+      RowBox[{"IsClosedSquareFreeAtom", "[", "sfatom", "]"}], ",", 
+      RowBox[{"Apply", "[", 
+       RowBox[{"Equal", ",", "sfatom"}], "]"}], ",", "formula"}], "]"}]}], 
+   "\n", "]"}]}]], "Code"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"NonZeroGrad", "[", 
+   RowBox[{"formula_", ",", "statevars_"}], "]"}], ":=", 
+  RowBox[{"Module", "[", 
+   RowBox[{
+    RowBox[{"{", "}"}], ",", "\n", 
+    RowBox[{
+     RowBox[{"GetBoundary", "[", "formula", "]"}], "/.", 
+     RowBox[{"{", "\n", 
+      RowBox[{
+       RowBox[{
+        RowBox[{"Equal", "[", 
+         RowBox[{"lhs_", ",", "rhs_"}], "]"}], ":>", " ", 
+        RowBox[{"Unequal", "[", 
+         RowBox[{
+          RowBox[{"Apply", "[", 
+           RowBox[{"Plus", ",", 
+            RowBox[{"Map", "[", 
+             RowBox[{
+              RowBox[{"Function", "[", 
+               RowBox[{"x", ",", 
+                RowBox[{"x", "^", "2"}]}], "]"}], ",", 
+              RowBox[{"Grad", "[", 
+               RowBox[{"lhs", ",", "statevars"}], "]"}]}], "]"}]}], "]"}], 
+          ",", "0"}], "]"}]}], ",", "\n", 
+       RowBox[{"else_", " ", ":>", " ", "False"}]}], "\n", "}"}]}]}], "\n", 
+   "]"}]}]], "Code"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"IsConjunct", "[", "form_", "]"}], ":=", 
+  RowBox[{"Module", "[", 
+   RowBox[{
+    RowBox[{"{", "}"}], ",", "\n", 
+    RowBox[{
+     RowBox[{"LogicalExpand", "[", "form", "]"}], "/.", 
+     RowBox[{"{", "\n", 
+      RowBox[{
+       RowBox[{"a_And", " ", ":>", " ", "True"}], ",", "\n", 
+       RowBox[{"else_", " ", ":>", " ", "False"}]}], "}"}]}]}], " ", 
+   "]"}]}]], "Code"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"GeqToLeq", "[", "atom_", "]"}], ":=", 
+  RowBox[{"Module", "[", 
+   RowBox[{
+    RowBox[{"{", "}"}], ",", "\n", 
+    RowBox[{"atom", "/.", 
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"GreaterEqual", "[", 
+        RowBox[{"lhs_", ",", "rhs_"}], "]"}], " ", ":>", " ", 
+       RowBox[{"ZeroRHS", "[", 
+        RowBox[{"LessEqual", "[", 
+         RowBox[{"rhs", ",", "lhs"}], "]"}], "]"}]}], "}"}]}]}], "\n", "]"}], 
+  " "}]], "Code"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"IsListOfLeq", "[", "list_", "]"}], ":=", 
+  RowBox[{"Module", "[", 
+   RowBox[{
+    RowBox[{"{", "}"}], ",", "\n", 
+    RowBox[{"If", "[", 
+     RowBox[{
+      RowBox[{"MatchQ", "[", 
+       RowBox[{"list", ",", "_List"}], "]"}], ",", "\n", 
+      RowBox[{"Apply", "[", 
+       RowBox[{"And", ",", 
+        RowBox[{"Map", "[", 
+         RowBox[{
+          RowBox[{"Function", "[", 
+           RowBox[{"x", ",", 
+            RowBox[{"MatchQ", "[", 
+             RowBox[{"x", ",", "_LessEqual"}], "]"}]}], "]"}], ",", "list"}], 
+         "]"}]}], "]"}], ",", "\n", "False"}], "]"}]}], "]"}]}]], "Code"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"ToLessEqualConjunct", "[", "formula_", "]"}], ":=", 
+  RowBox[{"Module", "[", 
+   RowBox[{
+    RowBox[{"{", "\n", 
+     RowBox[{
+      RowBox[{"squareFreeDNF", " ", "=", " ", 
+       RowBox[{"LogicalExpand", "[", 
+        RowBox[{"ParityNF", "[", "formula", "]"}], "]"}]}], ","}], "\n", 
+     "}"}], ",", "\n", 
+    RowBox[{"If", "[", 
+     RowBox[{
+      RowBox[{"IsConjunct", "[", "squareFreeDNF", "]"}], ",", "\n", 
+      RowBox[{"If", "[", 
+       RowBox[{
+        RowBox[{"IsListOfLeq", "[", 
+         RowBox[{"Map", "[", 
+          RowBox[{"GeqToLeq", ",", 
+           RowBox[{"Apply", "[", 
+            RowBox[{"List", ",", " ", "squareFreeDNF"}], "]"}]}], "]"}], 
+         "]"}], ",", "\n", 
+        RowBox[{"Map", "[", 
+         RowBox[{"GeqToLeq", ",", "squareFreeDNF"}], "]"}], ",", "\n", 
+        "formula"}], "]"}], ",", "formula"}], "]"}]}], "\n", "]"}]}]], "Code"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"IsLessEqualConjunct", "[", "formula_", "]"}], ":=", 
+  RowBox[{"Module", "[", 
+   RowBox[{
+    RowBox[{"{", "}"}], ",", "\n", 
+    RowBox[{"If", "[", 
+     RowBox[{
+      RowBox[{"IsConjunct", "[", "formula", "]"}], ",", "\n", 
+      RowBox[{"If", "[", 
+       RowBox[{
+        RowBox[{"IsListOfLeq", "[", 
+         RowBox[{"Apply", "[", 
+          RowBox[{"List", ",", " ", "formula"}], "]"}], "]"}], ",", "\n", 
+        "True", ",", "\n", "False"}], "]"}], ",", "False"}], "]"}]}], "\n", 
+   "]"}]}]], "Code"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"(*", " ", 
+   RowBox[{"Differentiable", " ", "case"}], " ", "*)"}], "\n", 
+  RowBox[{
+   RowBox[{"Lf", "[", 
+    RowBox[{"p_", ",", " ", "f_List", ",", " ", "vars_List"}], "]"}], ":=", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"Grad", "[", 
+      RowBox[{"p", ",", "vars"}], "]"}], ".", "f"}], "<", "0"}]}]}]], "Code"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"(*", " ", 
+   RowBox[{
+    RowBox[{"Conjunctive", " ", "case"}], " ", "-", " ", 
+    RowBox[{"max", " ", "functions"}]}], " ", "*)"}], "\n", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"Lf", "[", 
+     RowBox[{
+      RowBox[{"max", "[", "p_", "]"}], ",", " ", "f_List", ",", " ", 
+      "vars_List"}], "]"}], ":=", 
+    RowBox[{"Lf", "[", 
+     RowBox[{"p", ",", "f", ",", "vars"}], "]"}]}], "\n", "\n", 
+   RowBox[{
+    RowBox[{"Lf", "[", 
+     RowBox[{
+      RowBox[{"max", "[", 
+       RowBox[{"p1_", ",", "pn__"}], "]"}], ",", " ", "f_List", ",", " ", 
+      "vars_List"}], "]"}], ":=", 
+    RowBox[{"And", "[", "\n", 
+     RowBox[{
+      RowBox[{"Implies", "[", 
+       RowBox[{
+        RowBox[{"p1", ">", 
+         RowBox[{"max", "[", "pn", "]"}]}], ",", 
+        RowBox[{"Lf", "[", 
+         RowBox[{"p1", ",", "f", ",", "vars"}], "]"}]}], "]"}], ",", "\n", 
+      RowBox[{"Implies", "[", 
+       RowBox[{
+        RowBox[{
+         RowBox[{"max", "[", "pn", "]"}], ">", "p1"}], ",", 
+        RowBox[{"Lf", "[", 
+         RowBox[{
+          RowBox[{"max", "[", "pn", "]"}], ",", "f", ",", "vars"}], "]"}]}], 
+       "]"}], ",", "\n", 
+      RowBox[{"Implies", "[", 
+       RowBox[{
+        RowBox[{"p1", "==", 
+         RowBox[{"max", "[", "pn", "]"}]}], ",", 
+        RowBox[{"And", "[", 
+         RowBox[{
+          RowBox[{"Lf", "[", 
+           RowBox[{"p1", ",", "f", ",", "vars"}], "]"}], ",", 
+          RowBox[{"Lf", "[", 
+           RowBox[{
+            RowBox[{"max", "[", "pn", "]"}], ",", "f", ",", "vars"}], "]"}]}],
+          "]"}]}], "]"}]}], "\n", "]"}]}]}]}]], "Code"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"(*", " ", 
+   RowBox[{
+    RowBox[{"Disjunctive", " ", "case"}], " ", "-", " ", 
+    RowBox[{"min", " ", "functions"}]}], " ", "*)"}], "\n", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"Lf", "[", 
+     RowBox[{
+      RowBox[{"min", "[", "p_", "]"}], ",", " ", "f_List", ",", " ", 
+      "vars_List"}], "]"}], ":=", 
+    RowBox[{"Lf", "[", 
+     RowBox[{"p", ",", "f", ",", "vars"}], "]"}]}], "\n", "\n", 
+   RowBox[{
+    RowBox[{"Lf", "[", 
+     RowBox[{
+      RowBox[{"min", "[", 
+       RowBox[{"p1_", ",", "pn__"}], "]"}], ",", " ", "f_List", ",", " ", 
+      "vars_List"}], "]"}], ":=", 
+    RowBox[{"And", "[", "\n", 
+     RowBox[{
+      RowBox[{"Implies", "[", 
+       RowBox[{
+        RowBox[{"p1", "<", 
+         RowBox[{"min", "[", "pn", "]"}]}], ",", 
+        RowBox[{"Lf", "[", 
+         RowBox[{"p1", ",", "f", ",", "vars"}], "]"}]}], "]"}], ",", "\n", 
+      RowBox[{"Implies", "[", 
+       RowBox[{
+        RowBox[{
+         RowBox[{"min", "[", "pn", "]"}], "<", "p1"}], ",", 
+        RowBox[{"Lf", "[", 
+         RowBox[{
+          RowBox[{"min", "[", "pn", "]"}], ",", "f", ",", "vars"}], "]"}]}], 
+       "]"}], ",", "\n", 
+      RowBox[{"Implies", "[", 
+       RowBox[{
+        RowBox[{"p1", "==", 
+         RowBox[{"min", "[", "pn", "]"}]}], ",", 
+        RowBox[{"Or", "[", 
+         RowBox[{
+          RowBox[{"Lf", "[", 
+           RowBox[{"p1", ",", "f", ",", "vars"}], "]"}], ",", 
+          RowBox[{"Lf", "[", 
+           RowBox[{
+            RowBox[{"min", "[", "pn", "]"}], ",", "f", ",", "vars"}], "]"}]}],
+          "]"}]}], "]"}]}], "\n", "]"}]}]}]}]], "Code"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"toMinMaxForm", "[", "formula_", "]"}], ":=", 
+  RowBox[{"Module", "[", 
+   RowBox[{
+    RowBox[{"{", "}"}], ",", "\n", 
+    RowBox[{
+     RowBox[{
+      RowBox[{"ZeroRHS", "[", 
+       RowBox[{
+        RowBox[{"LogicalExpand", "[", "formula", "]"}], "/.", 
+        RowBox[{"{", 
+         RowBox[{
+          RowBox[{"GreaterEqual", "[", 
+           RowBox[{"a_", ",", "b_"}], "]"}], ":>", " ", 
+          RowBox[{"LessEqual", "[", 
+           RowBox[{"b", ",", "a"}], "]"}]}], "}"}]}], "]"}], "/.", 
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"And", " ", ":>", " ", "max"}], ",", " ", 
+        RowBox[{"Or", ":>", "  ", "min"}]}], "}"}]}], "/.", 
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"LessEqual", "[", 
+        RowBox[{"a_", ",", "0"}], "]"}], ":>", " ", "a"}], "}"}]}]}], 
+   "]"}]}]], "Code"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"VCGen", "[", 
+   RowBox[{"formula_", ",", " ", "f_List", ",", "vars_List"}], "]"}], ":=", 
+  RowBox[{"Module", "[", 
+   RowBox[{
+    RowBox[{"{", 
+     RowBox[{"minmax", "=", 
+      RowBox[{"toMinMaxForm", "[", "formula", "]"}]}], "}"}], ",", "\n", 
+    RowBox[{"Reduce", "[", 
+     RowBox[{
+      RowBox[{"Implies", "[", 
+       RowBox[{
+        RowBox[{
+         RowBox[{"minmax", "==", "0"}], "/.", 
+         RowBox[{"{", 
+          RowBox[{
+           RowBox[{"max", " ", "->", " ", "Max"}], ",", " ", 
+           RowBox[{"min", "->", " ", "Min"}]}], "}"}]}], ",", 
+        RowBox[{
+         RowBox[{"Lf", "[", 
+          RowBox[{"minmax", ",", "f", ",", "vars"}], "]"}], "/.", 
+         RowBox[{"{", 
+          RowBox[{
+           RowBox[{"max", " ", ":>", " ", "Max"}], ",", " ", 
+           RowBox[{"min", ":>", " ", "Min"}]}], "}"}]}]}], "]"}], ",", "vars",
+       ",", "Reals"}], "]"}]}], "\n", "]"}]}]], "Code"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{
+   RowBox[{"Options", "[", "Vocabulary", "]"}], "=", 
+   RowBox[{"{", "}"}]}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"Vocabulary", "[", 
+    RowBox[{"expr_", ",", "options___"}], "]"}], " ", ":=", " ", 
+   RowBox[{"Union", "[", 
+    RowBox[{"Cases", "[", 
+     RowBox[{"expr", ",", 
+      RowBox[{"(", 
+       RowBox[{"x_Symbol", " ", ":>", " ", 
+        RowBox[{"x", " ", "/;", " ", 
+         RowBox[{
+          RowBox[{"AtomQ", "[", "x", "]"}], " ", "\[And]", 
+          RowBox[{"\[Not]", 
+           RowBox[{"NumberQ", "[", "x", "]"}]}], "\[And]", 
+          RowBox[{"\[Not]", 
+           RowBox[{"MemberQ", "[", 
+            RowBox[{
+             RowBox[{"Attributes", "[", "x", "]"}], ",", "Protected"}], 
+            "]"}]}]}]}]}], ")"}], ",", 
+      RowBox[{"{", 
+       RowBox[{"0", ",", "\[Infinity]"}], "}"}], ",", "\n", 
+      RowBox[{"Join", "[", 
+       RowBox[{
+        RowBox[{"{", "options", "}"}], ",", 
+        RowBox[{"Options", "[", "Vocabulary", "]"}]}], "]"}]}], "]"}], 
+    "]"}]}], "\n", 
+  RowBox[{"(*", " ", 
+   RowBox[{"official", " ", 
+    RowBox[{"solution", ":", " ", 
+     RowBox[{"Module", "[", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{"cond", "=", 
+         RowBox[{
+          RowBox[{"Not", "[", 
+           RowBox[{"MemberQ", "[", 
+            RowBox[{
+             RowBox[{"Attributes", "[", "#", "]"}], ",", "Protected"}], "]"}],
+            "]"}], "&"}]}], "}"}], ",", 
+       RowBox[{"Union", "[", 
+        RowBox[{"Cases", "[", 
+         RowBox[{"expr", ",", 
+          RowBox[{
+           RowBox[{
+            RowBox[{"_Symbol", "?", "cond"}], "[", "_", "]"}], "|", 
+           RowBox[{"_Symbol", "?", "cond"}]}], ",", "\[Infinity]"}], "]"}], 
+        "]"}]}], "]"}]}]}], " ", "*)"}]}], "\n", 
+ RowBox[{"SetAttributes", "[", 
+  RowBox[{"Vocabulary", ",", 
+   RowBox[{"{", 
+    RowBox[{"Protected", ",", "ReadProtected", ",", "Locked"}], "}"}]}], 
+  "]"}]}], "Code"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"Atomize", "[", "list_List", "]"}], " ", ":=", 
+  RowBox[{"Module", "[", 
+   RowBox[{
+    RowBox[{"{", 
+     RowBox[{"atomizer", ",", "deatomizer"}], "}"}], ",", "\n", 
+    RowBox[{
+     RowBox[{"deatomizer", "=", 
+      RowBox[{"Map", "[", 
+       RowBox[{
+        RowBox[{"Function", "[", 
+         RowBox[{"t", ",", "\n", 
+          RowBox[{
+           RowBox[{"Unique", "[", 
+            RowBox[{"\"\<$atomized$\>\"", ",", "Temporary"}], "]"}], "->", 
+           "t"}]}], "\n", "]"}], ",", "list"}], "]"}]}], ";", "\n", 
+     RowBox[{"atomizer", "=", 
+      RowBox[{"Cases", "[", 
+       RowBox[{"deatomizer", ",", 
+        RowBox[{
+         RowBox[{"dar", ":", 
+          RowBox[{"(", 
+           RowBox[{"atom_", "->", "term_"}], ")"}]}], " ", "->", 
+         RowBox[{"(", 
+          RowBox[{"term", "->", "atom"}], ")"}]}]}], "]"}]}], ";", "\n", 
+     RowBox[{"{", 
+      RowBox[{"atomizer", ",", "deatomizer"}], "}"}]}]}], "]"}]}], "\n", 
+ RowBox[{"SetAttributes", "[", 
+  RowBox[{"Atomize", ",", 
+   RowBox[{"{", 
+    RowBox[{"Protected", ",", "ReadProtected", ",", "Locked"}], "}"}]}], 
+  "]"}], "\n"}], "Code"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"InEqualify", "[", 
+   RowBox[{"e1_", ">=", "e2_"}], "]"}], " ", ":=", " ", 
+  RowBox[{"e1", ">=", "e2"}]}], "\n", 
+ RowBox[{
+  RowBox[{"InEqualify", "[", 
+   RowBox[{"e1_", "==", "e2_"}], "]"}], " ", ":=", " ", 
+  RowBox[{
+   RowBox[{"e1", ">=", "e2"}], " ", "\[And]", " ", 
+   RowBox[{"e2", ">=", "e1"}]}]}], "\n", 
+ RowBox[{
+  RowBox[{"InEqualify", "[", 
+   RowBox[{"e1_", "<=", "e2_"}], "]"}], " ", ":=", " ", 
+  RowBox[{"e2", ">=", "e1"}]}], "\n", 
+ RowBox[{
+  RowBox[{"InEqualify", "[", 
+   RowBox[{"e1_", ">", "e2_"}], "]"}], " ", ":=", " ", 
+  RowBox[{"e1", ">", "e2"}]}], "\n", 
+ RowBox[{
+  RowBox[{"InEqualify", "[", 
+   RowBox[{"e1_", "!=", "e2_"}], "]"}], " ", ":=", " ", 
+  RowBox[{"Message", "[", 
+   RowBox[{
+    RowBox[{"InEqualify", "::", "form"}], ",", 
+    "\"\<unsupported inequation\>\"", ",", 
+    RowBox[{"e1", "!=", "e2"}]}], "]"}]}], "\n", 
+ RowBox[{
+  RowBox[{"InEqualify", "[", 
+   RowBox[{"e1_", "<", "e2_"}], "]"}], " ", ":=", " ", 
+  RowBox[{"e2", ">", "e1"}]}], "\n", 
+ RowBox[{
+  RowBox[{"InEqualify", "[", "e_And", "]"}], " ", ":=", " ", 
+  RowBox[{"Flatten", "[", 
+   RowBox[{"Map", "[", 
+    RowBox[{"InEqualify", ",", 
+     RowBox[{"Flatten", "[", 
+      RowBox[{"e", ",", "1", ",", "And"}], "]"}]}], "]"}], "]"}]}], "\n", 
+ RowBox[{
+  RowBox[{"InEqualify", "[", "e_Or", "]"}], " ", ":=", " ", 
+  RowBox[{"Flatten", "[", 
+   RowBox[{"Map", "[", 
+    RowBox[{"InEqualify", ",", 
+     RowBox[{"Flatten", "[", 
+      RowBox[{"e", ",", "1", ",", "Or"}], "]"}]}], "]"}], "]"}]}]}], "Code"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"InEqualifyNormalize", "[", 
+   RowBox[{"e1_", ">=", "e2_"}], "]"}], " ", ":=", " ", 
+  RowBox[{
+   RowBox[{"e1", "-", "e2"}], ">=", "0"}]}], "\n", 
+ RowBox[{
+  RowBox[{"InEqualifyNormalize", "[", 
+   RowBox[{"e1_", "==", "e2_"}], "]"}], " ", ":=", " ", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"e1", "-", "e2"}], ">=", "0"}], " ", "\[And]", " ", 
+   RowBox[{
+    RowBox[{"e2", "-", "e1"}], ">=", "0"}]}]}], "\n", 
+ RowBox[{
+  RowBox[{"InEqualifyNormalize", "[", 
+   RowBox[{"e1_", "<=", "e2_"}], "]"}], " ", ":=", " ", 
+  RowBox[{
+   RowBox[{"e2", "-", "e1"}], ">=", "0"}]}], "\n", 
+ RowBox[{
+  RowBox[{"InEqualifyNormalize", "[", 
+   RowBox[{"e1_", ">", "e2_"}], "]"}], " ", ":=", " ", 
+  RowBox[{
+   RowBox[{"e1", "-", "e2"}], ">", "0"}]}], "\n", 
+ RowBox[{
+  RowBox[{"InEqualifyNormalize", "[", 
+   RowBox[{"e1_", "!=", "e2_"}], "]"}], " ", ":=", " ", 
+  RowBox[{"Message", "[", 
+   RowBox[{
+    RowBox[{"InEqualify", "::", "form"}], ",", 
+    "\"\<unsupported inequation\>\"", ",", 
+    RowBox[{"e1", "!=", "e2"}]}], "]"}]}], "\n", 
+ RowBox[{
+  RowBox[{"InEqualifyNormalize", "[", 
+   RowBox[{"e1_", "<", "e2_"}], "]"}], " ", ":=", " ", 
+  RowBox[{
+   RowBox[{"e2", "-", "e1"}], ">", "0"}]}], "\n", 
+ RowBox[{
+  RowBox[{"InEqualifyNormalize", "[", "e_And", "]"}], " ", ":=", " ", 
+  RowBox[{"Flatten", "[", 
+   RowBox[{"Map", "[", 
+    RowBox[{"InEqualifyNormalize", ",", 
+     RowBox[{"Flatten", "[", 
+      RowBox[{"e", ",", "1", ",", "And"}], "]"}]}], "]"}], "]"}]}], "\n", 
+ RowBox[{
+  RowBox[{"InEqualifyNormalize", "[", "e_Or", "]"}], " ", ":=", " ", 
+  RowBox[{"Flatten", "[", 
+   RowBox[{"Map", "[", 
+    RowBox[{"InEqualifyNormalize", ",", 
+     RowBox[{"Flatten", "[", 
+      RowBox[{"e", ",", "1", ",", "Or"}], "]"}]}], "]"}], "]"}]}]}], "Code"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+   RowBox[{"InEqualify", "::", "form"}], "=", 
+   "\"\<Unexpected form `1` in `2`.\>\""}], ";"}]], "Code"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"IFindInstance", "[", "False", "]"}], ":=", 
+  RowBox[{"{", "}"}]}], "\n", 
+ RowBox[{
+  RowBox[{"IFindInstance", "[", "expr_", "]"}], " ", ":=", " ", 
+  RowBox[{"FindInstance", "[", 
+   RowBox[{"expr", ",", 
+    RowBox[{"Vocabulary", "[", "expr", "]"}], ",", "Reals"}], "]"}]}], "\n", 
+ RowBox[{
+  RowBox[{"IFindInstance", "[", 
+   RowBox[{"False", ",", "dom_", ",", "n_"}], "]"}], ":=", 
+  RowBox[{"{", "}"}]}], "\n", 
+ RowBox[{
+  RowBox[{"IFindInstance", "[", 
+   RowBox[{"expr_", ",", "dom_", ",", "n_"}], "]"}], " ", ":=", " ", 
+  RowBox[{"FindInstance", "[", 
+   RowBox[{"expr", ",", 
+    RowBox[{"Vocabulary", "[", "expr", "]"}], ",", "dom", ",", "n"}], 
+   "]"}]}]}], "Code"],
+
+Cell[BoxData[
+ RowBox[{"SetAttributes", "[", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{
+    "InEqualify", ",", "InEqualifyNormalize", ",", "FindInstance", ",", 
+     "IFindInstance"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"Protected", ",", "ReadProtected", ",", "Locked"}], "}"}]}], 
+  "]"}]], "Code"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"DifferentialSymbols", "[", "expr_", "]"}], ":=", 
+  RowBox[{"Cases", "[", 
+   RowBox[{"expr", ",", 
+    RowBox[{
+     RowBox[{"(", 
+      RowBox[{
+       RowBox[{
+        RowBox[{
+         RowBox[{"Derivative", "[", "n_", "]"}], "[", "x_", "]"}], "[", "t_", 
+        "]"}], "|", 
+       RowBox[{
+        RowBox[{"Derivative", "[", "n_", "]"}], "[", "x_", "]"}]}], ")"}], ":>",
+      "x"}], ",", 
+    RowBox[{"{", 
+     RowBox[{"0", ",", "\[Infinity]"}], "}"}]}], "]"}]}]], "Code"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"SymbolicInitialValues", "[", 
+   RowBox[{"eqn_", ",", 
+    RowBox[{"initial_:", "0"}], ",", 
+    RowBox[{"suffix_:", 
+     RowBox[{"ToString", "[", "initial", "]"}]}]}], "]"}], " ", ":=", " ", 
+  RowBox[{"Map", "[", 
+   RowBox[{
+    RowBox[{"Function", "[", 
+     RowBox[{"x", ",", 
+      RowBox[{
+       RowBox[{"x", "[", "initial", "]"}], "==", 
+       RowBox[{"Symbol", "[", 
+        RowBox[{
+         RowBox[{"ToString", "[", "x", "]"}], "<>", "suffix"}], "]"}]}]}], 
+     "]"}], ",", 
+    RowBox[{"DifferentialSymbols", "[", "eqn", "]"}]}], "]"}]}]], "Code"],
+
+Cell[BoxData[
+ RowBox[{"(*", 
+  RowBox[{
+   RowBox[{"IDSolve", "[", 
+    RowBox[{"eqn_", ",", "x_"}], "]"}], " ", ":=", 
+   RowBox[{"Module", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+      "depvars", ",", "symbolicinitialvalues", ",", "atomize", ",", 
+       "deatomize"}], "}"}], ",", "\n", 
+     RowBox[{
+      RowBox[{"depvars", "=", 
+       RowBox[{"DifferentialSymbols", "[", "eqn", "]"}]}], ";", "\n", 
+      RowBox[{"(*", " ", 
+       RowBox[{
+       "add", " ", "some", " ", "symbolic", " ", "name", " ", "for", " ", 
+        RowBox[{"x", "[", "0", "]"}], " ", "and", " ", "replace", " ", "this",
+         " ", "name", " ", "back", " ", "to", " ", 
+        RowBox[{"x", "[", "0", "]"}], " ", "in", " ", "the", " ", "result"}], 
+       " ", "*)"}], "\n", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{"atomize", ",", "deatomize"}], "}"}], "=", 
+       RowBox[{"Atomize", "[", 
+        RowBox[{"Map", "[", 
+         RowBox[{
+          RowBox[{
+           RowBox[{"#", "[", "0", "]"}], "&"}], ",", "depvars"}], "]"}], 
+        "]"}]}], ";", "\n", 
+      RowBox[{"ymbolicinitialvalues", "=", 
+       RowBox[{"ReplaceAll", "[", 
+        RowBox[{"atomize", ",", 
+         RowBox[{"Rule", "->", "Equal"}]}], "]"}]}], ";", "\n", 
+      RowBox[{
+       RowBox[{"DSolve", "[", 
+        RowBox[{
+         RowBox[{"Join", "[", 
+          RowBox[{"eqn", ",", "symbolicinitialvalues"}], "]"}], ",", "\n", 
+         RowBox[{"Map", "[", 
+          RowBox[{
+           RowBox[{
+            RowBox[{"#", "[", "x", "]"}], "&"}], ",", "depvars"}], "]"}], ",",
+          "\n", "x"}], "]"}], " ", "/.", " ", "deatomize"}]}]}], "\n", 
+    "]"}]}], "*)"}]], "Code"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"IDSolve", "[", 
+   RowBox[{"eqn_", ",", "x_"}], "]"}], " ", ":=", 
+  RowBox[{"Module", "[", 
+   RowBox[{
+    RowBox[{"{", 
+     RowBox[{
+     "depvars", ",", "initialreductionrules", ",", "symbolicinitialvalues"}], 
+     "}"}], ",", "\n", 
+    RowBox[{
+     RowBox[{"depvars", "=", 
+      RowBox[{"DifferentialSymbols", "[", "eqn", "]"}]}], ";", "\n", 
+     RowBox[{"(*", " ", 
+      RowBox[{
+      "add", " ", "some", " ", "symbolic", " ", "name", " ", "for", " ", 
+       RowBox[{"x", "[", "0", "]"}], " ", "and", " ", "replace", " ", "this", 
+       " ", "name", " ", "back", " ", "to", " ", 
+       RowBox[{"x", "[", "0", "]"}], " ", "in", " ", "the", " ", "result"}], 
+      " ", "*)"}], "\n", 
+     RowBox[{"initialreductionrules", "=", 
+      RowBox[{"Map", "[", 
+       RowBox[{
+        RowBox[{
+         RowBox[{
+          RowBox[{"Unique", "[", 
+           RowBox[{
+            RowBox[{
+             RowBox[{"ToString", "[", "#", "]"}], "<>", "\"\<$init$\>\""}], 
+            ",", "Temporary"}], "]"}], "->", 
+          RowBox[{"#", "[", "0", "]"}]}], "&"}], ",", "depvars"}], "]"}]}], 
+     ";", "\n", 
+     RowBox[{"symbolicinitialvalues", "=", 
+      RowBox[{"Cases", "[", 
+       RowBox[{"initialreductionrules", ",", 
+        RowBox[{
+         RowBox[{"irr", ":", 
+          RowBox[{"(", 
+           RowBox[{"ivn_", "->", 
+            RowBox[{"iv_", "[", "0", "]"}]}], ")"}]}], " ", "->", 
+         RowBox[{"(", 
+          RowBox[{
+           RowBox[{"iv", "[", "0", "]"}], "==", "ivn"}], ")"}]}]}], "]"}]}], 
+     ";", "\n", 
+     RowBox[{
+      RowBox[{"DSolve", "[", 
+       RowBox[{
+        RowBox[{"Join", "[", 
+         RowBox[{"eqn", ",", "symbolicinitialvalues"}], "]"}], ",", "\n", 
+        RowBox[{"Map", "[", 
+         RowBox[{
+          RowBox[{
+           RowBox[{"#", "[", "x", "]"}], "&"}], ",", "depvars"}], "]"}], ",", 
+        "\n", "x"}], "]"}], " ", "/.", " ", "initialreductionrules"}]}]}], 
+   "\n", "]"}]}]], "Code"],
+
+Cell[BoxData[
+ RowBox[{"SetAttributes", "[", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{
+    "SymbolicInitialValues", ",", "DifferentialSymbols", ",", "IDSolve"}], 
+    "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"Protected", ",", "ReadProtected", ",", "Locked"}], "}"}]}], 
+  "]"}]], "Code"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"DiffInd", "[", 
+   RowBox[{"e_", ",", "t_"}], "]"}], " ", ":=", "\n", " ", 
+  RowBox[{"Module", "[", 
+   RowBox[{
+    RowBox[{"{", "fml", "}"}], ",", "\n", 
+    RowBox[{
+     RowBox[{"fml", " ", "=", " ", 
+      RowBox[{"LogicalExpand", "[", "e", "]"}]}], ";", "\n", 
+     RowBox[{"If", "[", 
+      RowBox[{
+       RowBox[{"FreeQ", "[", 
+        RowBox[{"fml", ",", 
+         RowBox[{"_Not", "|", "_ForAll", "|", "_Some"}]}], "]"}], ",", "\n", 
+       RowBox[{"(*", " ", 
+        RowBox[{
+         RowBox[{"during", " ", "differential", " ", "induction"}], ",", " ", 
+         
+         RowBox[{
+         "all", " ", "literals", " ", "need", " ", "to", " ", "be", " ", 
+          "sustained", " ", "differentially"}], ",", " ", 
+         RowBox[{
+          RowBox[{"hence", " ", "replace"}], " ", "\[Or]", " ", 
+          RowBox[{"by", " ", "\[And]", " ", 
+           RowBox[{"right", " ", "away"}]}]}]}], " ", "*)"}], "\n", 
+       RowBox[{"(", 
+        RowBox[{
+         RowBox[{"fml", " ", "=", " ", 
+          RowBox[{"fml", " ", "/.", 
+           RowBox[{"Or", "->", "And"}]}]}], ";", "\n", 
+         RowBox[{"If", "[", 
+          RowBox[{
+           RowBox[{"FreeQ", "[", 
+            RowBox[{"fml", ",", 
+             RowBox[{
+              RowBox[{"Not", "[", "_", "]"}], "|", "_Or"}]}], "]"}], ",", 
+           "\n", 
+           RowBox[{
+            RowBox[{"(", 
+             RowBox[{"fml", "/.", "\n", 
+              RowBox[{"(*", " ", 
+               RowBox[{
+               "weaken", " ", ">", " ", "to", " ", ">=", " ", "and", " ", "<",
+                 " ", "to", " ", "<=", " ", 
+                RowBox[{"during", " ", "DiffInd"}]}], " ", "*)"}], "\n", 
+              RowBox[{"{", 
+               RowBox[{
+                RowBox[{"eq_Greater", " ", ":>", 
+                 RowBox[{"GreaterEqual", "@@", "eq"}]}], ",", 
+                RowBox[{"eq_Less", " ", ":>", 
+                 RowBox[{"LessEqual", "@@", "eq"}]}]}], "}"}]}], ")"}], "\n", 
+            "/.", " ", 
+            RowBox[{"(*", " ", 
+             RowBox[{
+             "map", " ", "D", " ", "over", " ", "left", " ", "and", " ", 
+              "right", " ", "part", " ", "of", " ", 
+              RowBox[{"(", "in", ")"}], "equalities"}], " ", "*)"}], 
+            RowBox[{"{", 
+             RowBox[{
+              RowBox[{
+               RowBox[{
+               "eq_Equal", "|", "eq_GreaterEqual", "|", "eq_LessEqual", "|", 
+                "eq_Greater", "|", "eq_Less"}], " ", ":>", 
+               RowBox[{"Map", "[", 
+                RowBox[{
+                 RowBox[{
+                  RowBox[{"D", "[", 
+                   RowBox[{"#", ",", "t"}], "]"}], "&"}], ",", "eq"}], 
+                "]"}]}], ",", "\n", 
+              RowBox[{"eq_Unequal", " ", ":>", " ", 
+               RowBox[{"(", 
+                RowBox[{
+                 RowBox[{"Message", "[", 
+                  RowBox[{
+                   RowBox[{"DiffInd", "::", "illegal"}], ",", "eq"}], "]"}], 
+                 ";", " ", "$Failed"}], ")"}]}]}], "\n", "}"}]}], ",", "\n", 
+           RowBox[{"(*", " ", 
+            RowBox[{"Or", " ", "not", " ", "yet", " ", 
+             RowBox[{"implemented", ".", " ", "Not"}], " ", "is", " ", 
+             "rejected"}], " ", "*)"}], "\n", 
+           RowBox[{"(", 
+            RowBox[{
+             RowBox[{"Message", "[", 
+              RowBox[{
+               RowBox[{"DiffInd", "::", "illegal"}], ",", "fml"}], "]"}], ";",
+              "$Failed"}], ")"}]}], "\n", "]"}]}], ")"}], ",", "\n", 
+       RowBox[{"(*", " ", 
+        RowBox[{"Or", " ", "not", " ", "yet", " ", 
+         RowBox[{"implemented", ".", " ", "Not"}], " ", "is", " ", 
+         "rejected"}], " ", "*)"}], "\n", 
+       RowBox[{"(", 
+        RowBox[{
+         RowBox[{"Message", "[", 
+          RowBox[{
+           RowBox[{"DiffInd", "::", "illegal"}], ",", "fml"}], "]"}], ";", 
+         "$Failed"}], ")"}]}], "\n", "]"}]}]}], "\n", "]"}]}], "\n", 
+ RowBox[{
+  RowBox[{"DiffInd", "[", 
+   RowBox[{"e_", ",", "t_", ",", "ODE_"}], "]"}], ":=", " ", 
+  RowBox[{"(", 
+   RowBox[{
+    RowBox[{"DiffInd", "[", 
+     RowBox[{"e", ",", "t"}], "]"}], "/.", 
+    RowBox[{"Flatten", "[", 
+     RowBox[{"Map", "[", 
+      RowBox[{"ToRules", ",", "ODE"}], "]"}], "]"}]}], ")"}]}]}], "Code"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"IDiffInd", "[", "e_", "]"}], " ", ":=", "\n", " ", 
+  RowBox[{"Module", "[", 
+   RowBox[{
+    RowBox[{"{", "fml", "}"}], ",", "\n", 
+    RowBox[{
+     RowBox[{"fml", " ", "=", " ", 
+      RowBox[{"LogicalExpand", "[", "e", "]"}]}], " ", ";", "\n", 
+     RowBox[{"If", "[", 
+      RowBox[{
+       RowBox[{"FreeQ", "[", 
+        RowBox[{"fml", ",", 
+         RowBox[{"_Not", "|", "_ForAll", "|", "_Some"}]}], "]"}], ",", "\n", 
+       RowBox[{"(*", " ", 
+        RowBox[{
+         RowBox[{"during", " ", "differential", " ", "induction"}], ",", " ", 
+         
+         RowBox[{
+         "all", " ", "literals", " ", "need", " ", "to", " ", "be", " ", 
+          "sustained", " ", "differentially"}], ",", " ", 
+         RowBox[{
+          RowBox[{"hence", " ", "replace"}], " ", "\[Or]", " ", 
+          RowBox[{"by", " ", "\[And]", " ", 
+           RowBox[{"right", " ", "away"}]}]}]}], " ", "*)"}], "\n", 
+       RowBox[{"(", 
+        RowBox[{
+         RowBox[{"fml", "=", 
+          RowBox[{"fml", "/.", 
+           RowBox[{"Or", "->", "And"}]}]}], ";", "\n", 
+         RowBox[{"If", "[", 
+          RowBox[{
+           RowBox[{"FreeQ", "[", 
+            RowBox[{"fml", ",", 
+             RowBox[{
+              RowBox[{"Not", "[", "_", "]"}], "|", "_Or"}]}], "]"}], ",", 
+           "\n", 
+           RowBox[{
+            RowBox[{"(", 
+             RowBox[{"fml", "/.", "\n", 
+              RowBox[{"(*", " ", 
+               RowBox[{
+               "weaken", " ", ">", " ", "to", " ", ">=", " ", "and", " ", "<",
+                 " ", "to", " ", "<=", " ", 
+                RowBox[{"during", " ", "DiffInd"}]}], " ", "*)"}], "\n", 
+              RowBox[{"{", 
+               RowBox[{
+                RowBox[{"eq_Greater", " ", ":>", 
+                 RowBox[{"GreaterEqual", "@@", "eq"}]}], ",", 
+                RowBox[{"eq_Less", " ", ":>", 
+                 RowBox[{"LessEqual", "@@", "eq"}]}]}], "}"}]}], ")"}], "\n", 
+            "/.", " ", 
+            RowBox[{"(*", " ", 
+             RowBox[{
+             "map", " ", "Dt", " ", "over", " ", "left", " ", "and", " ", 
+              "right", " ", "part", " ", "of", " ", 
+              RowBox[{"(", "in", ")"}], "equalities"}], " ", "*)"}], 
+            RowBox[{"{", 
+             RowBox[{
+              RowBox[{
+               RowBox[{
+               "eq_Equal", "|", "eq_GreaterEqual", "|", "eq_LessEqual", "|", 
+                "eq_Greater", "|", "eq_Less"}], " ", ":>", 
+               RowBox[{"Map", "[", 
+                RowBox[{
+                 RowBox[{
+                  RowBox[{"Dt", "[", "#", "]"}], "&"}], ",", "eq"}], "]"}]}], 
+              ",", "\n", 
+              RowBox[{"eq_Unequal", " ", ":>", " ", 
+               RowBox[{"(", 
+                RowBox[{
+                 RowBox[{"Message", "[", 
+                  RowBox[{
+                   RowBox[{"IDiffInd", "::", "illegal"}], ",", "eq"}], "]"}], 
+                 ";", " ", "$Failed"}], ")"}]}]}], "\n", "}"}]}], ",", "\n", 
+           RowBox[{"(*", " ", 
+            RowBox[{"Or", " ", "not", " ", "yet", " ", 
+             RowBox[{"implemented", ".", " ", "Not"}], " ", "is", " ", 
+             "rejected"}], " ", "*)"}], "\n", 
+           RowBox[{"(", 
+            RowBox[{
+             RowBox[{"Message", "[", 
+              RowBox[{
+               RowBox[{"IDiffInd", "::", "illegal"}], ",", "fml"}], "]"}], 
+             ";", "$Failed"}], ")"}]}], "\n", "]"}]}], "\n", ")"}], ",", "\n", 
+       RowBox[{"(*", " ", 
+        RowBox[{"Or", " ", "not", " ", "yet", " ", 
+         RowBox[{"implemented", ".", " ", "Not"}], " ", "is", " ", 
+         "rejected"}], " ", "*)"}], "\n", 
+       RowBox[{"(", 
+        RowBox[{
+         RowBox[{"Message", "[", 
+          RowBox[{
+           RowBox[{"IDiffInd", "::", "illegal"}], ",", "fml"}], "]"}], ";", 
+         "$Failed"}], ")"}]}], "\n", "]"}]}]}], "\n", "]"}]}], "\n", 
+ RowBox[{
+  RowBox[{"IDiffInd", "[", 
+   RowBox[{"e_", ",", "ODE_"}], "]"}], ":=", " ", 
+  RowBox[{"(", 
+   RowBox[{
+    RowBox[{"(", 
+     RowBox[{
+      RowBox[{"IDiffInd", "[", "e", "]"}], "/.", 
+      RowBox[{"Flatten", "[", 
+       RowBox[{"Map", "[", 
+        RowBox[{"ToRules", ",", 
+         RowBox[{"ODE", "/.", 
+          RowBox[{
+           RowBox[{
+            RowBox[{"Derivative", "[", "1", "]"}], "[", "x_", "]"}], ":>", 
+           RowBox[{"Dt", "[", "x", "]"}]}]}]}], "]"}], "]"}]}], ")"}], " ", 
+    RowBox[{"(*", " ", 
+     RowBox[{
+     "any", " ", "remaining", " ", "differentials", " ", "are", " ", "0", " ",
+       "as", " ", "not", " ", "in", " ", "ODE"}], " ", "*)"}], "/.", 
+    RowBox[{"_Dt", "->", "0"}]}], ")"}]}]}], "Code"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{
+   RowBox[{"IDiffInd", "::", "illegal"}], "=", 
+   "\"\<Illegal operator in formula `1`, which is not supported by \
+IDiffInd.\>\""}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"DiffFin", "::", "illegal"}], "=", 
+   "\"\<Illegal operator in formula `1`, which is not supported by \
+IDiffFin.\>\""}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"DiffInd", "::", "illegal"}], "=", 
+   RowBox[{"IDiffInd", "::", "illegal"}]}], ";"}]}], "Code"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"IDiffFin", "[", 
+   RowBox[{"e_", ",", "\[Epsilon]_"}], "]"}], " ", ":=", "\n", " ", 
+  RowBox[{"Module", "[", 
+   RowBox[{
+    RowBox[{"{", "fml", "}"}], ",", "\n", 
+    RowBox[{
+     RowBox[{"fml", " ", "=", " ", 
+      RowBox[{"LogicalExpand", "[", "e", "]"}]}], ";", "\n", 
+     RowBox[{"If", "[", 
+      RowBox[{
+       RowBox[{"FreeQ", "[", 
+        RowBox[{"fml", ",", 
+         RowBox[{"_Not", "|", "_ForAll", "|", "_Some"}]}], "]"}], ",", "\n", 
+       RowBox[{"(*", " ", 
+        RowBox[{
+         RowBox[{"during", " ", "differential", " ", "induction"}], ",", " ", 
+         
+         RowBox[{
+         "all", " ", "literals", " ", "need", " ", "to", " ", "be", " ", 
+          "attained", " ", "differentially"}], ",", " ", 
+         RowBox[{
+          RowBox[{"hence", " ", "replace"}], " ", "\[Or]", " ", 
+          RowBox[{"by", " ", "\[And]", " ", 
+           RowBox[{"right", " ", "away"}]}]}]}], " ", "*)"}], "\n", 
+       RowBox[{"(", 
+        RowBox[{
+         RowBox[{"fml", " ", "=", " ", 
+          RowBox[{
+           RowBox[{"LogicalExpand", "[", "e", "]"}], " ", "/.", 
+           RowBox[{"Or", "->", "And"}]}]}], ";", "\n", 
+         RowBox[{"If", "[", 
+          RowBox[{
+           RowBox[{"FreeQ", "[", 
+            RowBox[{"fml", ",", 
+             RowBox[{
+              RowBox[{"Not", "[", "_", "]"}], "|", "_Or"}]}], "]"}], ",", 
+           "\n", 
+           RowBox[{
+            RowBox[{"(", 
+             RowBox[{"fml", "/.", "\n", 
+              RowBox[{"(*", " ", 
+               RowBox[{
+               "weaken", " ", ">", " ", "to", " ", ">=", " ", "and", " ", "<",
+                 " ", "to", " ", "<=", " ", 
+                RowBox[{"during", " ", "DiffInd"}]}], " ", "*)"}], "\n", 
+              RowBox[{"{", 
+               RowBox[{
+                RowBox[{"eq_Greater", " ", ":>", 
+                 RowBox[{"GreaterEqual", "@@", "eq"}]}], ",", 
+                RowBox[{"eq_Less", " ", ":>", 
+                 RowBox[{"LessEqual", "@@", "eq"}]}]}], "}"}]}], ")"}], "\n", 
+            "/.", " ", 
+            RowBox[{"(*", " ", 
+             RowBox[{
+             "map", " ", "Dt", " ", "over", " ", "left", " ", "and", " ", 
+              "right", " ", "part", " ", "of", " ", "inequalities", " ", 
+              "and", " ", "add", " ", "\[Epsilon]", " ", "or", " ", "any", 
+              " ", "other", " ", "positive", " ", "constant"}], " ", "*)"}], 
+            "\n", 
+            RowBox[{"{", 
+             RowBox[{
+              RowBox[{
+               RowBox[{"a_", ">=", "b_"}], ":>", 
+               RowBox[{
+                RowBox[{"Dt", "[", "a", "]"}], ">=", 
+                RowBox[{
+                 RowBox[{"Dt", "[", "b", "]"}], "+", "\[Epsilon]"}]}]}], ",", 
+              
+              RowBox[{
+               RowBox[{"a_", "<=", "b_"}], ":>", 
+               RowBox[{
+                RowBox[{"Dt", "[", "a", "]"}], "<=", 
+                RowBox[{
+                 RowBox[{"Dt", "[", "b", "]"}], "-", "\[Epsilon]"}]}]}], ",", 
+              "\n", 
+              RowBox[{
+               RowBox[{"eq_Equal", "|", "eq_Unequal"}], " ", ":>", " ", 
+               RowBox[{"(", 
+                RowBox[{
+                 RowBox[{"Message", "[", 
+                  RowBox[{
+                   RowBox[{"IDiffFin", "::", "illegal"}], ",", "eq"}], "]"}], 
+                 ";", " ", "$Failed"}], ")"}]}]}], "\n", "}"}]}], ",", "\n", 
+           RowBox[{"(*", " ", 
+            RowBox[{"Or", " ", "not", " ", "yet", " ", 
+             RowBox[{"implemented", ".", " ", "Not"}], " ", "is", " ", 
+             "rejected"}], " ", "*)"}], "\n", 
+           RowBox[{"(", 
+            RowBox[{
+             RowBox[{"Message", "[", 
+              RowBox[{
+               RowBox[{"IDiffFin", "::", "illegal"}], ",", "fml"}], "]"}], 
+             ";", "$Failed"}], ")"}]}], "\n", "]"}]}], "\n", ")"}], ",", "\n", 
+       RowBox[{"(*", " ", 
+        RowBox[{"Or", " ", "not", " ", "yet", " ", 
+         RowBox[{"implemented", ".", " ", "Not"}], " ", "is", " ", 
+         "rejected"}], " ", "*)"}], "\n", 
+       RowBox[{"(", 
+        RowBox[{
+         RowBox[{"Message", "[", 
+          RowBox[{
+           RowBox[{"IDiffFin", "::", "illegal"}], ",", "fml"}], "]"}], ";", 
+         "$Failed"}], ")"}]}], "\n", "]"}]}]}], "\n", "]"}]}], "\n", 
+ RowBox[{
+  RowBox[{"IDiffFin", "[", 
+   RowBox[{"e_", ",", "\[Epsilon]_", ",", "ODE_"}], "]"}], ":=", " ", 
+  RowBox[{"(", 
+   RowBox[{
+    RowBox[{"(", 
+     RowBox[{
+      RowBox[{"IDiffFin", "[", 
+       RowBox[{"e", ",", "\[Epsilon]"}], "]"}], "/.", 
+      RowBox[{"Flatten", "[", 
+       RowBox[{"Map", "[", 
+        RowBox[{"ToRules", ",", 
+         RowBox[{"ODE", "/.", 
+          RowBox[{
+           RowBox[{
+            RowBox[{"Derivative", "[", "1", "]"}], "[", "x_", "]"}], ":>", 
+           RowBox[{"Dt", "[", "x", "]"}]}]}]}], "]"}], "]"}]}], ")"}], " ", 
+    RowBox[{"(*", " ", 
+     RowBox[{
+     "any", " ", "remaining", " ", "differentials", " ", "are", " ", "0", " ",
+       "as", " ", "not", " ", "in", " ", "ODE"}], " ", "*)"}], "/.", 
+    RowBox[{"_Dt", "->", "0"}]}], ")"}]}]}], "Code"],
+
+Cell[BoxData[
+ RowBox[{"SetAttributes", "[", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{"DiffInd", ",", "IDiffInd", ",", "DiffFin", ",", "IDiffFin"}], 
+    "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"Protected", ",", "ReadProtected", ",", "Locked"}], "}"}]}], 
+  "]"}]], "Code"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"SymbolicName", "[", "n_", "]"}], ":=", 
+  RowBox[{
+   RowBox[{"$SymbolicName", "[", "n", "]"}], " ", 
+   RowBox[{"(*", 
+    RowBox[{
+     RowBox[{"Unique", "[", "\[Lambda]", "]"}], "&"}], "*)"}], "/;", 
+   RowBox[{"ValueQ", "[", 
+    RowBox[{"$SymbolicName", "[", "n", "]"}], "]"}]}]}], "\n", 
+ RowBox[{
+  RowBox[{"SymbolicName", "[", "n_", "]"}], ":=", 
+  RowBox[{
+   RowBox[{"Symbol", "[", 
+    RowBox[{"\"\<\[Lambda]\>\"", "<>", 
+     RowBox[{"ToString", "[", "n", "]"}]}], "]"}], " ", "/;", 
+   RowBox[{"\[Not]", 
+    RowBox[{"ValueQ", "[", 
+     RowBox[{"$SymbolicName", "[", "n", "]"}], "]"}]}]}]}]}], "Code"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{
+   RowBox[{"SymbolicVector", "::", "usage"}], "=", 
+   "\"\<Gives a vector of dimension n with fully symbolic names as entries.\>\
+\""}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{"SymbolicVector", "[", "n_", "]"}], ":=", 
+  RowBox[{"Array", "[", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"SymbolicName", "[", "#", "]"}], "&"}], ",", "n"}], 
+   "]"}]}]}], "Code"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"SprocedureFormula", "[", 
+   RowBox[{"a_", ",", "e_"}], "]"}], " ", ":=", "\n", 
+  RowBox[{"Module", "[", 
+   RowBox[{
+    RowBox[{"{", "\n", 
+     RowBox[{"(*", " ", 
+      RowBox[{
+       RowBox[{"all", " ", "terms", " ", "of", " ", "assumptions"}], ",", " ", 
+       RowBox[{
+        RowBox[{"normalized", " ", "to", " ", "t"}], ">=", "0"}]}], " ", 
+      "*)"}], "\n", 
+     RowBox[{
+     "sadditions", ",", "sparameters", ",", "saddon", ",", "targets", ",", 
+      "normalizedInEqualifyTermsIn"}], "}"}], ",", "\n", 
+    RowBox[{
+    "(*", " ", 
+     "\"\<gets left-hand side terms of atomic formulas in fml normalized to \
+t>=0 or t>0 regardless of propositional form of fml and regardless of whether \
+>= or > has been used).\>\"", " ", "*)"}], "\n", 
+    RowBox[{
+     RowBox[{"normalizedInEqualifyTermsIn", " ", "=", " ", 
+      RowBox[{"Function", "[", 
+       RowBox[{
+        RowBox[{"{", "fml", "}"}], ",", 
+        RowBox[{"Cases", "[", 
+         RowBox[{
+          RowBox[{"InEqualifyNormalize", "[", "fml", "]"}], ",", 
+          RowBox[{"(", 
+           RowBox[{
+            RowBox[{
+             RowBox[{"x_", ">=", "0"}], "|", 
+             RowBox[{"x_", ">", "0"}]}], ":>", "x"}], ")"}], ",", 
+          RowBox[{"{", 
+           RowBox[{"0", ",", "\[Infinity]"}], "}"}]}], "]"}]}], "]"}]}], ";", 
+     "\n", 
+     RowBox[{"(*", " ", 
+      RowBox[{
+       RowBox[{"all", " ", "terms", " ", "of", " ", "assumptions"}], ",", " ", 
+       RowBox[{
+        RowBox[{"normalized", " ", "to", " ", "t"}], ">=", "0"}]}], " ", 
+      "*)"}], "\n", 
+     RowBox[{"sadditions", "=", 
+      RowBox[{"normalizedInEqualifyTermsIn", "[", "a", "]"}]}], ";", "\n", 
+     RowBox[{"sparameters", "=", 
+      RowBox[{"SymbolicVector", "[", 
+       RowBox[{"Length", "[", "sadditions", "]"}], "]"}]}], ";", "\n", 
+     RowBox[{"If", "[", 
+      RowBox[{
+       RowBox[{
+        RowBox[{
+         RowBox[{"Head", "[", "sadditions", "]"}], "=!=", " ", "List"}], " ", 
+        "\[Or]", 
+        RowBox[{
+         RowBox[{"Head", "[", "sparameters", "]"}], "=!=", "List"}], " ", 
+        "\[Or]", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"Length", "[", "sadditions", "]"}], "!"}], "+", 
+         RowBox[{"Length", "[", "sparameters", "]"}]}]}], ",", 
+       RowBox[{"Message", "[", "unknown", "]"}]}], "]"}], ";", "\n", 
+     RowBox[{"saddon", "=", 
+      RowBox[{"sparameters", ".", "sadditions"}]}], ";", "\n", 
+     RowBox[{"targets", "=", 
+      RowBox[{"normalizedInEqualifyTermsIn", "[", "e", "]"}]}], ";", "\n", 
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"And", "@@", 
+        RowBox[{"Map", "[", 
+         RowBox[{
+          RowBox[{"Function", "[", 
+           RowBox[{
+            RowBox[{"{", "targeteq", "}"}], ",", 
+            RowBox[{
+             RowBox[{"targeteq", " ", "-", " ", "saddon"}], ">=", "0"}]}], 
+           "]"}], ",", "targets"}], "]"}]}], ",", "\n", "sparameters"}], 
+      "}"}]}]}], "\n", "]"}]}]], "Code"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"Sprocedure", "[", 
+   RowBox[{"a_", ",", "e_"}], "]"}], " ", ":=", "\n", 
+  RowBox[{"Module", "[", 
+   RowBox[{
+    RowBox[{"{", 
+     RowBox[{
+      RowBox[{"sdata", "=", 
+       RowBox[{"SprocedureFormula", "[", 
+        RowBox[{"a", ",", "e"}], "]"}]}], ",", "sparameters", ",", "sformula",
+       ",", "voc"}], "}"}], ",", "\n", 
+    RowBox[{
+     RowBox[{
+     "sparameters", "=", "\n", "\n", "\n", "\n", "\n", "\n", "\n", "\n", "\n",
+       "\n", 
+      SubscriptBox["sdata", 
+       RowBox[{"\[LeftDoubleBracket]", "2", "\[RightDoubleBracket]"}]]}], ";", 
+     RowBox[{
+     "sformula", "=", "\n", "\n", "\n", "\n", "\n", "\n", "\n", "\n", "\n", 
+      "\n", 
+      SubscriptBox["sdata", 
+       RowBox[{"\[LeftDoubleBracket]", "1", "\[RightDoubleBracket]"}]]}], ";",
+      "\n", 
+     RowBox[{"voc", "=", 
+      RowBox[{"Vocabulary", "[", 
+       RowBox[{
+        RowBox[{"a", "\[Implies]", "e"}], ",", 
+        RowBox[{"Heads", "->", "True"}]}], "]"}]}], ";", "\n", 
+     RowBox[{"If", "[", 
+      RowBox[{
+       RowBox[{
+        RowBox[{"voc", "\[Intersection]", "sparameters"}], "!=", 
+        RowBox[{"{", "}"}]}], ",", 
+       RowBox[{"Message", "[", 
+        RowBox[{"Sprocedure", "::", "assert"}], "]"}]}], "]"}], ";", "\n", 
+     RowBox[{"If", "[", 
+      RowBox[{
+       RowBox[{"sformula", "===", "True"}], ",", "\n", "True", ",", "\n", 
+       RowBox[{"Exists", "[", 
+        RowBox[{
+         RowBox[{"Evaluate", "[", "sparameters", "]"}], ",", 
+         RowBox[{"Evaluate", "[", 
+          RowBox[{"And", "@@", 
+           RowBox[{"(", 
+            RowBox[{
+             RowBox[{
+              RowBox[{"#", ">=", "0"}], "&"}], "/@", "sparameters"}], ")"}]}],
+           "]"}], ",", "\n", 
+         RowBox[{"ForAll", "[", 
+          RowBox[{
+           RowBox[{"Evaluate", "[", "voc", "]"}], ",", "sformula"}], "]"}]}], 
+        "]"}]}], " ", "\n", "]"}]}]}], "\n", "]"}]}]], "Code"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"FormalPolynomialList", "[", "vars_List", "]"}], " ", ":=", " ", 
+  RowBox[{
+   RowBox[{"Map", "[", 
+    RowBox[{
+     RowBox[{
+      RowBox[{"Times", "[", 
+       RowBox[{"Sequence", "@@", "#"}], "]"}], "&"}], ",", 
+     RowBox[{"Tuples", "[", 
+      RowBox[{"Map", "[", 
+       RowBox[{
+        RowBox[{"Function", "[", 
+         RowBox[{"varspec", ",", 
+          RowBox[{"Module", "[", 
+           RowBox[{
+            RowBox[{"{", 
+             RowBox[{"v", ",", "d"}], "}"}], ",", 
+            RowBox[{
+             RowBox[{
+              RowBox[{"{", 
+               RowBox[{"v", ",", "d"}], "}"}], "=", "varspec"}], ";", "\n", 
+             RowBox[{"Table", "[", 
+              RowBox[{
+               RowBox[{"v", "^", "n"}], ",", 
+               RowBox[{"{", 
+                RowBox[{"n", ",", "0", ",", "d"}], "}"}]}], "]"}]}]}], "\n", 
+           "]"}]}], "]"}], ",", "vars"}], "]"}], "]"}]}], "\n", "]"}], "/;", 
+   RowBox[{
+    RowBox[{"MatrixQ", "[", "vars", "]"}], "\[And]", 
+    RowBox[{
+     RowBox[{
+      RowBox[{"Dimensions", "[", "vars", "]"}], "[", 
+      RowBox[{"[", "2", "]"}], "]"}], "==", "2"}]}]}]}], "\n", 
+ RowBox[{
+  RowBox[{"FormalPolynomialList", "[", 
+   RowBox[{"vars_List", ",", "deg_Integer"}], "]"}], " ", ":=", " ", 
+  RowBox[{
+   RowBox[{"Select", "[", 
+    RowBox[{
+     RowBox[{"FormalPolynomialList", "[", "vars", "]"}], ",", "\n", 
+     RowBox[{"(*", " ", 
+      RowBox[{
+      "this", " ", "selection", " ", "may", " ", "be", " ", "slightly", " ", 
+       "inefficient", " ", "but", " ", "it", " ", "works"}], " ", "*)"}], 
+     "\n", 
+     RowBox[{"(*", " ", 
+      RowBox[{
+       RowBox[{
+       "select", " ", "only", " ", "those", " ", "with", " ", "total", " ", 
+        "degree"}], " ", "<=", " ", "deg"}], " ", "*)"}], "\n", 
+     RowBox[{
+      RowBox[{
+       RowBox[{"Plus", "@@", 
+        RowBox[{"Exponent", "[", 
+         RowBox[{"#", ",", 
+          RowBox[{"Variables", "[", "#", "]"}]}], "]"}]}], "<=", "deg"}], 
+      "&"}]}], "\n", "]"}], "/;", 
+   RowBox[{
+    RowBox[{"MatrixQ", "[", "vars", "]"}], "\[And]", 
+    RowBox[{
+     RowBox[{
+      RowBox[{"Dimensions", "[", "vars", "]"}], "[", 
+      RowBox[{"[", "2", "]"}], "]"}], "==", "2"}]}]}]}], "\n", 
+ RowBox[{
+  RowBox[{"FormalPolynomialList", "[", 
+   RowBox[{"vars_List", ",", 
+    RowBox[{"{", "deg_Integer", "}"}]}], "]"}], " ", ":=", " ", 
+  RowBox[{
+   RowBox[{"Select", "[", 
+    RowBox[{
+     RowBox[{"FormalPolynomialList", "[", "vars", "]"}], ",", "\n", 
+     RowBox[{"(*", " ", 
+      RowBox[{
+      "this", " ", "selection", " ", "may", " ", "be", " ", "slightly", " ", 
+       "inefficient", " ", "but", " ", "it", " ", "works"}], " ", "*)"}], 
+     "\n", 
+     RowBox[{"(*", " ", 
+      RowBox[{
+       RowBox[{
+       "select", " ", "only", " ", "those", " ", "with", " ", "total", " ", 
+        "degree"}], " ", "==", " ", "deg"}], " ", "*)"}], "\n", 
+     RowBox[{
+      RowBox[{
+       RowBox[{"Plus", "@@", 
+        RowBox[{"Exponent", "[", 
+         RowBox[{"#", ",", 
+          RowBox[{"Variables", "[", "#", "]"}]}], "]"}]}], "==", "deg"}], 
+      "&"}]}], "\n", "]"}], "/;", 
+   RowBox[{
+    RowBox[{"MatrixQ", "[", "vars", "]"}], "\[And]", 
+    RowBox[{
+     RowBox[{
+      RowBox[{"Dimensions", "[", "vars", "]"}], "[", 
+      RowBox[{"[", "2", "]"}], "]"}], "==", "2"}]}]}]}]}], "Code"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"FormalPolynomial", "[", 
+   RowBox[{"vars_List", ",", "deg_Integer"}], "]"}], " ", ":=", 
+  RowBox[{
+   RowBox[{"FormalPolynomial", "[", 
+    RowBox[{
+     RowBox[{"Map", "[", 
+      RowBox[{
+       RowBox[{
+        RowBox[{"{", 
+         RowBox[{"#", ",", "deg"}], "}"}], "&"}], ",", "vars"}], "]"}], ",", 
+     "deg"}], "]"}], "  ", "/;", 
+   RowBox[{"VectorQ", "[", "vars", "]"}]}]}], "\n", 
+ RowBox[{
+  RowBox[{"FormalPolynomial", "[", 
+   RowBox[{"vars_List", ",", 
+    RowBox[{"{", "deg_Integer", "}"}]}], "]"}], " ", ":=", 
+  RowBox[{
+   RowBox[{"FormalPolynomial", "[", 
+    RowBox[{
+     RowBox[{"Map", "[", 
+      RowBox[{
+       RowBox[{
+        RowBox[{"{", 
+         RowBox[{"#", ",", "deg"}], "}"}], "&"}], ",", "vars"}], "]"}], ",", 
+     RowBox[{"{", "deg", "}"}]}], "]"}], "  ", "/;", 
+   RowBox[{"VectorQ", "[", "vars", "]"}]}]}], "\n", 
+ RowBox[{
+  RowBox[{"FormalPolynomial", "[", 
+   RowBox[{"vars_List", ",", "deg_"}], "]"}], " ", ":=", " ", 
+  RowBox[{
+   RowBox[{"Module", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"polylist", ",", "sparas"}], "}"}], ",", "\n", 
+     RowBox[{
+      RowBox[{"polylist", "=", 
+       RowBox[{"FormalPolynomialList", "[", 
+        RowBox[{"vars", ",", "deg"}], "]"}]}], ";", "\n", 
+      RowBox[{"sparas", "=", 
+       RowBox[{"SymbolicVector", "[", 
+        RowBox[{"Length", "[", "polylist", "]"}], "]"}]}], ";", "\n", 
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"sparas", ".", "polylist"}], ",", "sparas"}], "}"}]}]}], "\n",
+     "]"}], " ", "/;", 
+   RowBox[{
+    RowBox[{"MatrixQ", "[", "vars", "]"}], "\[And]", 
+    RowBox[{
+     RowBox[{
+      RowBox[{"Dimensions", "[", "vars", "]"}], "[", 
+      RowBox[{"[", "2", "]"}], "]"}], "==", "2"}]}]}]}], "\n", 
+ RowBox[{
+  RowBox[{"FormalPolynomial", "[", "vars_List", "]"}], " ", ":=", " ", 
+  RowBox[{
+   RowBox[{"Module", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"polylist", ",", "sparas"}], "}"}], ",", "\n", 
+     RowBox[{
+      RowBox[{"polylist", "=", 
+       RowBox[{"FormalPolynomialList", "[", "vars", "]"}]}], ";", "\n", 
+      RowBox[{"sparas", "=", 
+       RowBox[{"SymbolicVector", "[", 
+        RowBox[{"Length", "[", "polylist", "]"}], "]"}]}], ";", "\n", 
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"sparas", ".", "polylist"}], ",", "sparas"}], "}"}]}]}], "\n",
+     "]"}], " ", "/;", 
+   RowBox[{
+    RowBox[{"MatrixQ", "[", "vars", "]"}], "\[And]", 
+    RowBox[{
+     RowBox[{
+      RowBox[{"Dimensions", "[", "vars", "]"}], "[", 
+      RowBox[{"[", "2", "]"}], "]"}], "==", "2"}]}]}]}]}], "Code"],
+
+Cell[BoxData[
+ RowBox[{"SetAttributes", "[", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{
+    "Sprocedure", ",", "SprocedureFormula", ",", "FormalPolynomial", ",", 
+     "FormalPolynomialList"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"Protected", ",", "ReadProtected", ",", "Locked"}], "}"}]}], 
+  "]"}]], "Code"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"$numericalODE", "=", "False"}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{"$TimeHorizon", "=", "\[Infinity]"}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{"$verify", "=", "True"}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{"CirclePlus", "=", "Global`CirclePlus"}], ";"}]}], "Code"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"$TransFailed", "[", "_", "]"}], " ", ":=", " ", 
+  "$TransFailed"}], "\n", 
+ RowBox[{"SetAttributes", "[", 
+  RowBox[{"$TransFailed", ",", " ", "HoldAll"}], "]"}]}], "Code"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"(*", " ", 
+   RowBox[{
+   "failing", " ", "trajectories", " ", "cannot", " ", "be", " ", "cured", 
+    " ", "by", " ", "going", " ", "any", " ", "further"}], " ", "*)"}], "\n", 
+  
+  RowBox[{
+   RowBox[{
+    RowBox[{"Transition", "[", "_", "]"}], "[", "$TransFailed", "]"}], " ", ":=",
+    " ", "$TransFailed"}]}]], "Code"],
+
+Cell[BoxData[
+ RowBox[{"SetAttributes", "[", 
+  RowBox[{"$Unknown", ",", " ", "HoldAll"}], "]"}]], "Code"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"(*", " ", 
+   RowBox[{
+   "unknown", " ", "trajectories", " ", "cannot", " ", "be", " ", "cured", 
+    " ", "by", " ", "going", " ", "any", " ", "further"}], " ", "*)"}], "\n", 
+  
+  RowBox[{
+   RowBox[{
+    RowBox[{"Transition", "[", "_", "]"}], "[", "$Unknown", "]"}], " ", ":=", 
+   " ", "$Unknown"}]}]], "Code"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"(*", " ", 
+   RowBox[{
+   "nondeterministic", " ", "choice", " ", "action", " ", "amongst", " ", 
+    "alternatives"}], " ", "*)"}], "\n", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"Transition", "[", 
+     RowBox[{"CirclePlus", "[", "alternatives__", "]"}], "]"}], "[", "State_",
+     "]"}], " ", ":=", 
+   RowBox[{"Module", "[", 
+    RowBox[{
+     RowBox[{"{", "alttrans", "}"}], ",", "\n", 
+     RowBox[{"(*", " ", 
+      RowBox[{
+      "in", " ", "parallel", " ", "follow", " ", "all", " ", "alternative", 
+       " ", "transitions", " ", "from", " ", "State", " ", "that", " ", "do", 
+       " ", "not", " ", "fail"}], " ", "*)"}], 
+     RowBox[{"(*", " ", 
+      RowBox[{"minor", " ", 
+       RowBox[{"optimization", ":", " ", 
+        RowBox[{
+        "already", " ", "perform", " ", "alttrans", " ", "before", " ", 
+         "knowing", " ", "tp"}]}]}], " ", "*)"}], "\n", 
+     RowBox[{
+      RowBox[{"alttrans", " ", "=", " ", 
+       RowBox[{"Union", "[", 
+        RowBox[{"Select", "[", 
+         RowBox[{
+          RowBox[{"Map", "[", 
+           RowBox[{
+            RowBox[{
+             RowBox[{
+              RowBox[{"Transition", "[", "#", "]"}], "[", "State", "]"}], 
+             "&"}], ",", 
+            RowBox[{"{", "alternatives", "}"}]}], "]"}], ",", 
+          RowBox[{
+           RowBox[{"#", "=!=", "$TransFailed"}], "&"}]}], "]"}], "]"}]}], ";",
+       "\n", 
+      RowBox[{"(*", " ", 
+       RowBox[{
+        RowBox[{"Print", "[", 
+         RowBox[{
+         "\"\<  alternatives \>\"", ",", " ", "alternatives", ",", " ", 
+          "\"\< are \>\"", ",", "alttrans"}], "]"}], ";"}], " ", "*)"}], "\n", 
+      RowBox[{"Function", "[", 
+       RowBox[{"tp", ",", "\n", 
+        RowBox[{"Module", "[", 
+         RowBox[{
+          RowBox[{"{", "altstate", "}"}], ",", "\n", 
+          RowBox[{"(*", " ", 
+           RowBox[{
+            RowBox[{"we", " ", "form", " ", "sets"}], ",", " ", "since", ",", 
+            " ", 
+            RowBox[{
+            "if", " ", "all", " ", "trajectories", " ", "coincide", " ", 
+             "anyway"}], ",", " ", 
+            RowBox[{"then", " ", 
+             RowBox[{"there", "'"}], "s", " ", "no", " ", "need", " ", "to", 
+             " ", "mess", " ", "around"}]}], " ", "*)"}], " ", 
+          RowBox[{
+           RowBox[{"altstate", " ", "=", 
+            RowBox[{"Union", "[", 
+             RowBox[{"Select", "[", 
+              RowBox[{
+               RowBox[{"Through", "[", 
+                RowBox[{"alttrans", "[", "tp", "]"}], "]"}], ",", 
+               RowBox[{
+                RowBox[{"#", "=!=", "$TransFailed"}], "&"}]}], "]"}], "]"}]}],
+            ";", 
+           RowBox[{"Which", "[", 
+            RowBox[{
+             RowBox[{
+              RowBox[{"Length", "[", "altstate", "]"}], "==", "0"}], ",", " ",
+              "$TransFailed", ",", "\n", 
+             RowBox[{
+              RowBox[{"Length", "[", "altstate", "]"}], "==", "1"}], ",", 
+             "\n", "\n", "\n", "\n", "\n", "\n", "\n", "\n", "\n", "\n", 
+             SubscriptBox["altstate", 
+              RowBox[{"\[LeftDoubleBracket]", "1", "\[RightDoubleBracket]"}]],
+              ",", "\n", 
+             RowBox[{
+              RowBox[{"Length", "[", "altstate", "]"}], ">", "1"}], ",", 
+             RowBox[{"Block", "[", 
+              RowBox[{
+               RowBox[{"{", "}"}], ",", 
+               RowBox[{
+                RowBox[{"Message", "[", 
+                 RowBox[{
+                  RowBox[{"Transition", "::", "nondet"}], ",", 
+                  RowBox[{"CirclePlus", "[", "alternatives", "]"}], ",", 
+                  "alttrans"}], "]"}], ";", "\n", 
+                RowBox[{"Print", "[", 
+                 RowBox[{
+                 "\"\<   alternatives at time \>\"", ",", " ", "tp", ",", 
+                  "\"\< are \>\"", ",", " ", "altstate"}], "]"}], ";", "\n", 
+                RowBox[{"(*", " ", 
+                 RowBox[{
+                  RowBox[{
+                   RowBox[{"@", "xxx"}], " ", "arbitrarily", " ", "follow", 
+                   " ", "only", " ", "ONE", " ", "of", " ", "those", " ", 
+                   "non"}], "-", 
+                  RowBox[{"deterministic", " ", "alternatives"}]}], " ", 
+                 "*)"}], "\n", "\n", "\n", "\n", "\n", "\n", "\n", "\n", "\n",
+                 "\n", "\n", 
+                SubscriptBox["altstate", 
+                 RowBox[{
+                 "\[LeftDoubleBracket]", "1", "\[RightDoubleBracket]"}]]}]}], 
+              "\n", "]"}]}], "\n", "]"}]}]}], "\n", "]"}]}], "\n", "]"}]}]}], 
+    "\n", "]"}]}]}]], "Code"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"(*", " ", 
+   RowBox[{"empty", " ", "sequence", " ", "action"}], " ", "*)"}], "\n", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"Transition", "[", 
+     RowBox[{"{", "}"}], "]"}], "[", "State_", "]"}], " ", ":=", "\n", 
+   RowBox[{"Function", "[", 
+    RowBox[{"tp", ",", "\n", 
+     RowBox[{"If", "[", 
+      RowBox[{
+       RowBox[{"TrueQ", "[", 
+        RowBox[{"tp", "!=", "0"}], "]"}], ",", "\n", 
+       RowBox[{
+        RowBox[{"Message", "[", 
+         RowBox[{
+          RowBox[{"Transition", "::", "nonzerodiscrete"}], ",", " ", 
+          RowBox[{"{", "}"}], ",", " ", "tp"}], "]"}], ";", "$Unknown"}], ",",
+        "\n", "State"}], "]"}]}], "\n", "]"}]}]}]], "Code"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"(*", " ", 
+   RowBox[{"guarded", " ", "continuous", " ", "evolutions"}], " ", "*)"}], 
+  "\n", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"Transition", "[", 
+     RowBox[{"{", 
+      RowBox[{"evo_evolve", ",", 
+       RowBox[{"guard", "[", "cond_", "]"}], ",", "rest___"}], "}"}], "]"}], 
+    "[", "State_", "]"}], " ", ":=", "\n", 
+   RowBox[{"Module", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"flow", " ", "=", " ", 
+        RowBox[{
+         RowBox[{"Transition", "[", "evo", "]"}], "[", "State", "]"}]}], ",", 
+       "msw", ",", "st", ",", 
+       RowBox[{"T", "=", "$TimeHorizon"}]}], "}"}], ",", "\n", 
+     RowBox[{"(*", " ", 
+      RowBox[{"ASSUME", ":", " ", 
+       RowBox[{
+       "eager", " ", "early", " ", "mode", " ", "switches", " ", "ASAP", " ", 
+        "to", " ", "determinize"}]}], " ", "*)"}], "\n", 
+     RowBox[{
+      RowBox[{"msw", " ", "=", " ", 
+       RowBox[{"Quiet", "[", "\n", 
+        RowBox[{
+         RowBox[{"Check", "[", "\n", 
+          RowBox[{
+           RowBox[{"Check", "[", "\n", 
+            RowBox[{
+             RowBox[{"If", "[", 
+              RowBox[{
+               RowBox[{"False", "\[And]", "$numericalODE"}], ",", "\n", "\n", 
+               "\n", "\n", "\n", "\n", "\n", "\n", "\n", "\n", "\n", 
+               SubscriptBox[
+                RowBox[{"NMinimize", "[", 
+                 RowBox[{"st", ",", 
+                  RowBox[{
+                   RowBox[{"0", "\[LessEqual]", "st", "\[LessEqual]", "T"}], 
+                   " ", "\[And]", 
+                   RowBox[{"cond", "[", 
+                    RowBox[{"SComp", "[", 
+                    RowBox[{"flow", "[", "st", "]"}], "]"}], "]"}]}], ",", 
+                  "st"}], "]"}], 
+                RowBox[{
+                "\[LeftDoubleBracket]", "1", "\[RightDoubleBracket]"}]], ",", 
+               "\n", "\n", "\n", "\n", "\n", "\n", "\n", "\n", "\n", "\n", 
+               "\n", 
+               SubscriptBox[
+                RowBox[{"Minimize", "[", 
+                 RowBox[{"st", ",", 
+                  RowBox[{
+                   RowBox[{"0", "\[LessEqual]", "st", "\[LessEqual]", "T"}], 
+                   " ", "\[And]", 
+                   RowBox[{"cond", "[", 
+                    RowBox[{"SComp", "[", 
+                    RowBox[{"flow", "[", "st", "]"}], "]"}], "]"}]}], ",", 
+                  "st"}], "]"}], 
+                RowBox[{
+                "\[LeftDoubleBracket]", "1", "\[RightDoubleBracket]"}]]}], 
+              "\n", "]"}], ",", "\n", 
+             RowBox[{
+              RowBox[{"Print", "[", 
+               RowBox[{"\"\< bad guard \>\"", ",", 
+                RowBox[{
+                 RowBox[{"0", "<=", "st", "<=", "T"}], " ", "\[And]", 
+                 RowBox[{"cond", "[", 
+                  RowBox[{"SComp", "[", 
+                   RowBox[{"flow", "[", "st", "]"}], "]"}], "]"}]}], ",", 
+                " ", "\"\< for \>\"", ",", " ", "evo", ",", " ", 
+                "\"\< from \>\"", ",", " ", "State"}], " ", "]"}], ";", 
+              "$Failed"}], ",", "\n", 
+             RowBox[{"{", 
+              RowBox[{
+               RowBox[{"Minimize", "::", "bcons"}], ",", 
+               RowBox[{"NMinimize", "::", "bcons"}]}], "}"}]}], "\n", "]"}], 
+           ",", "\n", 
+           RowBox[{"(*", " ", 
+            RowBox[{
+            "warn", " ", "if", " ", "no", " ", "solution", " ", "found", " ", 
+             "but", " ", "continue", " ", "without", " ", "mode", " ", 
+             "switch"}], " ", "*)"}], "\n", 
+           RowBox[{
+            RowBox[{"If", "[", 
+             RowBox[{"$verify", ",", 
+              RowBox[{"Message", "[", 
+               RowBox[{
+                RowBox[{"Transition", "::", "verifyf"}], ",", 
+                RowBox[{"guard", "[", "cond", "]"}], ",", "evo", ",", 
+                "\"\<warning NMinimize::nosat\>\""}], "]"}]}], "]"}], ";", 
+            "\[Infinity]"}], ",", "\n", 
+           RowBox[{"{", 
+            RowBox[{
+             RowBox[{"Minimize", "::", "infeas"}], ",", 
+             RowBox[{"NMinimize", "::", "infeas"}], ",", 
+             RowBox[{"Minimize", "::", "nosat"}], ",", 
+             RowBox[{"NMinimize", "::", "nosat"}]}], "}"}]}], "\n", "]"}], 
+         ",", "\n", 
+         RowBox[{"{", 
+          RowBox[{
+           RowBox[{"Minimize", "::", "infeas"}], ",", 
+           RowBox[{"NMinimize", "::", "infeas"}], ",", 
+           RowBox[{"Minimize", "::", "nosat"}], ",", 
+           RowBox[{"NMinimize", "::", "nosat"}]}], "}"}]}], "\n", "]"}]}], 
+      ";", "\n", 
+      RowBox[{"If", "[", 
+       RowBox[{
+        RowBox[{
+         RowBox[{"msw", "=!=", "\[Infinity]"}], "\[And]", 
+         RowBox[{
+          RowBox[{"Head", "[", "msw", "]"}], "=!=", "DirectedInfinity"}], 
+         "\[And]", "$verify", "\[And]", 
+         RowBox[{"\[Not]", 
+          RowBox[{"cond", "[", 
+           RowBox[{"SComp", "[", 
+            RowBox[{"flow", "[", "msw", "]"}], "]"}], "]"}]}]}], ",", "\n", 
+        RowBox[{"(*", 
+         RowBox[{
+          RowBox[{"Print", "[", 
+           RowBox[{
+            RowBox[{"Transition", "::", "guardf"}], ",", 
+            RowBox[{"guard", "[", "cond", "]"}], ",", "evo", ",", "flow", ",",
+             "msw", ",", 
+            RowBox[{"SComp", "[", 
+             RowBox[{"flow", "[", "msw", "]"}], "]"}]}], "]"}], ";"}], "*)"}],
+         "\n", 
+        RowBox[{"Message", "[", 
+         RowBox[{
+          RowBox[{"Transition", "::", "guardf"}], ",", 
+          RowBox[{"guard", "[", "cond", "]"}], ",", "evo", ",", "flow", ",", 
+          "msw", ",", 
+          RowBox[{"SComp", "[", 
+           RowBox[{"flow", "[", "msw", "]"}], "]"}]}], "]"}]}], "]"}], ";", 
+      "\n", 
+      RowBox[{"Which", "[", 
+       RowBox[{
+        RowBox[{"TrueQ", "[", 
+         RowBox[{
+          RowBox[{"msw", "==", "\[Infinity]"}], "\[Or]", 
+          RowBox[{
+           RowBox[{"Head", "[", "msw", "]"}], "==", "DirectedInfinity"}]}], 
+         "]"}], ",", "\n", 
+        RowBox[{"(*", " ", 
+         RowBox[{
+         "no", " ", "mode", " ", "switch", " ", "ever", " ", "occurs", " ", 
+          "hence", " ", "remain", " ", "in", " ", "flow"}], " ", "*)"}], "\n",
+         "flow", ",", "\n", 
+        RowBox[{"TrueQ", "[", 
+         RowBox[{"msw", "==", "0"}], "]"}], ",", "\n", 
+        RowBox[{"(*", " ", 
+         RowBox[{
+          RowBox[{
+          "immediate", " ", "mode", " ", "switch", " ", "at", " ", "time", 
+           " ", "msw"}], "==", "0"}], " ", "*)"}], "\n", 
+        RowBox[{"(*", " ", 
+         RowBox[{
+         "minor", " ", "optimization", " ", "for", " ", "instant", " ", 
+          "mode", " ", "switch"}], " ", "*)"}], "\n", 
+        RowBox[{"Function", "[", 
+         RowBox[{"tp", ",", 
+          RowBox[{
+           RowBox[{
+            RowBox[{"Transition", "[", 
+             RowBox[{"{", "rest", "}"}], "]"}], "[", 
+            RowBox[{"(", 
+             RowBox[{"SComp", "[", 
+              RowBox[{"flow", "[", "msw", "]"}], "]"}], ")"}], "]"}], "[", 
+           RowBox[{"tp", "-", "msw"}], "]"}]}], "]"}], "\n", ",", "\n", 
+        "True", ",", "\n", 
+        RowBox[{"(*", " ", 
+         RowBox[{"mode", " ", "switch", " ", "at", " ", "time", " ", "msw"}], 
+         " ", "*)"}], "\n", 
+        RowBox[{"Function", "[", 
+         RowBox[{"tp", ",", "\n", 
+          RowBox[{"\[Piecewise]", 
+           RowBox[{"{", "\n", " ", 
+            RowBox[{
+             RowBox[{"{", 
+              RowBox[{"(*", "SComp", "*)"}], 
+              RowBox[{
+               RowBox[{"flow", "[", "tp", "]"}], ",", " ", 
+               RowBox[{"tp", "<", "msw"}]}], "}"}], ",", "\n", " ", 
+             RowBox[{"{", 
+              RowBox[{
+               RowBox[{
+                RowBox[{
+                 RowBox[{"Transition", "[", 
+                  RowBox[{"{", "rest", "}"}], "]"}], "[", 
+                 RowBox[{"(", 
+                  RowBox[{"SComp", "[", 
+                   RowBox[{"flow", "[", "msw", "]"}], "]"}], ")"}], "]"}], 
+                "[", 
+                RowBox[{"tp", "-", "msw"}], "]"}], ",", " ", "True"}], 
+              "}"}]}], "\n", "}"}]}]}], "\n", "]"}]}], "\n", "]"}]}]}], "\n", 
+    "]"}]}]}]], "Code"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"(*", " ", 
+   RowBox[{"guarded", " ", "continuous", " ", "evolutions"}], " ", "*)"}], 
+  "\n", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"Transition", "[", 
+     RowBox[{"{", 
+      RowBox[{"evo_evolve", ",", "testcond_", ",", "rest___"}], "}"}], "]"}], 
+    "[", "State_", "]"}], " ", ":=", 
+   RowBox[{
+    RowBox[{"Module", "[", 
+     RowBox[{
+      RowBox[{"{", "}"}], ",", "\n", 
+      RowBox[{
+       RowBox[{"Message", "[", 
+        RowBox[{
+         RowBox[{"Transition", "::", "guardf"}], ",", "testcond", ",", "evo", 
+         ",", "\"\<guard discovery failed for an occurrence of test\>\"", ",",
+          "$Unknown", ",", "State"}], "]"}], ";", "\n", "$Unknown"}]}], "\n", 
+     "]"}], " ", "/;", "  ", 
+    RowBox[{
+     RowBox[{"Head", "[", "testcond", "]"}], "===", "test"}]}]}]}]], "Code"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"(*", " ", 
+   RowBox[{"unguarded", " ", "continuous", " ", "evolutions"}], " ", "*)"}], 
+  "\n", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"Transition", "[", 
+     RowBox[{"{", 
+      RowBox[{"evo_evolve", ",", "rest___"}], "}"}], "]"}], "[", "State_", 
+    "]"}], " ", ":=", "\n", 
+   RowBox[{
+    RowBox[{"Module", "[", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{"flow", " ", "=", " ", 
+        RowBox[{
+         RowBox[{"Transition", "[", "evo", "]"}], "[", "State", "]"}]}], 
+       "}"}], ",", "\n", 
+      RowBox[{"(*", " ", 
+       RowBox[{"non", "-", 
+        RowBox[{"guarded", " ", "continuous", " ", "evolutions"}]}], " ", 
+       "*)"}], "\n", 
+      RowBox[{"(*", " ", 
+       RowBox[{
+       "no", " ", "mode", " ", "switch", " ", "ever", " ", "occurs", " ", 
+        "then", " ", "indefinitely", " ", "remain", " ", "in", " ", "flow", 
+        " ", 
+        RowBox[{"(", 
+         RowBox[{
+          RowBox[{"as", " ", "a", " ", "non"}], "-", 
+          RowBox[{"det", " ", "choice"}]}], ")"}]}], " ", "*)"}], "\n", 
+      RowBox[{
+       RowBox[{"If", "[", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"{", "rest", "}"}], " ", "!=", 
+          RowBox[{"{", "}"}]}], ",", 
+         RowBox[{"Message", "[", 
+          RowBox[{
+           RowBox[{"Transition", "::", "unguarded"}], ",", " ", "evo", ",", 
+           RowBox[{"{", "rest", "}"}]}], "]"}]}], "]"}], ";", "\n", 
+       "flow"}]}], "\n", "]"}], " ", "/;", 
+    RowBox[{
+     RowBox[{
+      RowBox[{"Length", "[", "rest", "]"}], "==", "0"}], "\[Or]", 
+     RowBox[{"(", 
+      RowBox[{
+       RowBox[{
+        RowBox[{"Head", "[", 
+         RowBox[{"First", "[", "rest", "]"}], "]"}], "=!=", "guard"}], " ", 
+       "\[And]", " ", 
+       RowBox[{
+        RowBox[{"Head", "[", 
+         RowBox[{"First", "[", "rest", "]"}], "]"}], "=!=", "test"}]}], 
+      ")"}]}]}]}]}]], "Code"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"(*", " ", 
+   RowBox[{"block", " ", "normalisation"}], " ", "*)"}], "\n", 
+  RowBox[{
+   RowBox[{"Transition", "[", 
+    RowBox[{"{", "singleton_", "}"}], "]"}], " ", ":=", " ", 
+   RowBox[{"Transition", "[", "singleton", "]"}]}]}]], "Code"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"(*", " ", 
+   RowBox[{"block", " ", "normalisation"}], " ", "*)"}], "\n", 
+  RowBox[{
+   RowBox[{"Transition", "[", 
+    RowBox[{"{", 
+     RowBox[{"seq_List", ",", "rest__"}], "}"}], "]"}], " ", ":=", " ", 
+   RowBox[{"Transition", "[", 
+    RowBox[{"Join", "[", 
+     RowBox[{"seq", ",", 
+      RowBox[{"{", "rest", "}"}]}], "]"}], "]"}]}]}]], "Code"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"(*", " ", 
+   RowBox[{"distribute", " ", "alternatives"}], " ", "*)"}], "\n", 
+  RowBox[{
+   RowBox[{"Transition", "[", 
+    RowBox[{"{", 
+     RowBox[{
+      RowBox[{"CirclePlus", "[", "alternatives__", "]"}], ",", "rest__"}], 
+     "}"}], "]"}], " ", ":=", " ", "\n", 
+   RowBox[{"Module", "[", 
+    RowBox[{
+     RowBox[{"{", "}"}], ",", "\n", 
+     RowBox[{"Transition", "[", 
+      RowBox[{"Apply", "[", 
+       RowBox[{"CirclePlus", ",", 
+        RowBox[{"Map", "[", 
+         RowBox[{
+          RowBox[{
+           RowBox[{"{", 
+            RowBox[{"#", ",", "rest"}], "}"}], "&"}], ",", 
+          RowBox[{"{", "alternatives", "}"}]}], "]"}]}], "]"}], "]"}]}], "\n",
+     "]"}]}]}]], "Code"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"(*", " ", 
+   RowBox[{"discrete", " ", "sequence", " ", "action"}], " ", "*)"}], "\n", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"Transition", "[", 
+     RowBox[{"{", 
+      RowBox[{"discrete_", ",", "rest___"}], "}"}], "]"}], "[", "State_", 
+    "]"}], " ", ":=", "\n", 
+   RowBox[{
+    RowBox[{"Module", "[", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{"jump", " ", "=", " ", 
+        RowBox[{
+         RowBox[{"Transition", "[", "discrete", "]"}], "[", "State", "]"}]}], 
+       "}"}], ",", "\n", 
+      RowBox[{
+       RowBox[{"Transition", "[", 
+        RowBox[{"{", "rest", "}"}], "]"}], "[", 
+       RowBox[{"jump", "[", "0", "]"}], "]"}]}], "\n", "]"}], " ", "/;", " ", 
+    
+    RowBox[{
+     RowBox[{
+      RowBox[{"Head", "[", "discrete", "]"}], "=!=", "CirclePlus"}], " ", 
+     "\[And]", " ", 
+     RowBox[{
+      RowBox[{"Head", "[", "discrete", "]"}], "=!=", "List"}], "\[And]", " ", 
+     
+     RowBox[{
+      RowBox[{"Head", "[", "discrete", "]"}], "=!=", 
+      "evolve"}]}]}]}]}]], "Code"],
+
+Cell[BoxData[{
+ RowBox[{"SetAttributes", "[", 
+  RowBox[{"test", ",", "HoldAll"}], "]"}], "\n", 
+ RowBox[{
+  RowBox[{"test", "[", "e_", "]"}], " ", ":=", "\n", 
+  RowBox[{"guard", "[", 
+   RowBox[{"Function", "[", 
+    RowBox[{"State", ",", 
+     RowBox[{"(", 
+      RowBox[{"e", "/.", 
+       RowBox[{"Table", "[", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"Symbol", "[", 
+           RowBox[{"\"\<Global`x\>\"", "<>", 
+            RowBox[{"ToString", "[", "i", "]"}]}], "]"}], "->", " ", "\n", 
+          "\n", "\n", "\n", "\n", "\n", "\n", "\n", "\n", "\n", 
+          SubscriptBox["State", 
+           RowBox[{"\[LeftDoubleBracket]", "i", "\[RightDoubleBracket]"}]]}], 
+         ",", 
+         RowBox[{"{", 
+          RowBox[{"i", ",", 
+           RowBox[{"Length", "[", "State", "]"}]}], "}"}]}], "]"}]}], ")"}]}],
+     "]"}], "]"}]}]}], "Code"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"(*", " ", 
+   RowBox[{"instant", " ", "guard", " ", "test", " ", "actions"}], " ", 
+   "*)"}], "\n", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"Transition", "[", 
+     RowBox[{"guard", "[", "cond_", "]"}], "]"}], "[", "State_", "]"}], " ", ":=",
+    "\n", 
+   RowBox[{"Function", "[", 
+    RowBox[{"tp", ",", "\n", 
+     RowBox[{"If", "[", 
+      RowBox[{
+       RowBox[{"TrueQ", "[", 
+        RowBox[{"tp", "!=", "0"}], "]"}], ",", 
+       RowBox[{"Message", "[", 
+        RowBox[{
+         RowBox[{"Transition", "::", "nonzerodiscrete"}], ",", " ", 
+         RowBox[{"guard", "[", "cond", "]"}], ",", " ", "tp"}], "]"}], ",", 
+       "\n", 
+       RowBox[{"\[Piecewise]", 
+        RowBox[{"{", "\n", " ", 
+         RowBox[{
+          RowBox[{"{", 
+           RowBox[{"State", ",", " ", 
+            RowBox[{"cond", "[", "State", "]"}]}], "}"}], ",", "\n", " ", 
+          RowBox[{"{", 
+           RowBox[{"$TransFailed", ",", " ", "True"}], "}"}]}], "\n", 
+         "}"}]}]}], "\n", "]"}]}], "\n", "]"}]}]}]], "Code"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"Transition", "[", 
+   RowBox[{"evolve", "[", "DE_Equal", "]"}], "]"}], " ", ":=", " ", 
+  RowBox[{"Transition", "[", 
+   RowBox[{"evolve", "[", 
+    RowBox[{"{", "DE", "}"}], "]"}], "]"}]}]], "Code"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"(*", " ", 
+   RowBox[{
+   "continuous", " ", "transition", " ", "along", " ", "differential", " ", 
+    "equation", " ", "DE"}], " ", "*)"}], "\n", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"Transition", "[", 
+     RowBox[{"evolve", "[", "DE_List", "]"}], "]"}], "[", "State_", "]"}], 
+   " ", ":=", "\n", 
+   RowBox[{"Module", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"dsols", ",", "\n", 
+       RowBox[{"sysvars", " ", "=", " ", 
+        RowBox[{"Table", "[", 
+         RowBox[{
+          RowBox[{"Symbol", "[", 
+           RowBox[{"\"\<Global`x\>\"", "<>", 
+            RowBox[{"ToString", "[", "i", "]"}]}], "]"}], ",", 
+          RowBox[{"{", 
+           RowBox[{"i", ",", 
+            RowBox[{"Min", "[", 
+             RowBox[{
+              RowBox[{"Length", "[", "DE", "]"}], ",", 
+              RowBox[{"Length", "[", "State", "]"}]}], "]"}]}], "}"}]}], 
+         "]"}]}], ",", "\n", 
+       RowBox[{"eqns", " ", "=", " ", 
+        RowBox[{"DE", "\[Union]", "\n", 
+         RowBox[{"Table", "[", 
+          RowBox[{
+           RowBox[{
+            RowBox[{
+             RowBox[{"Symbol", "[", 
+              RowBox[{"\"\<Global`x\>\"", "<>", 
+               RowBox[{"ToString", "[", "i", "]"}]}], "]"}], "[", "0", "]"}], 
+            "==", " ", "\n", "\n", "\n", "\n", "\n", "\n", "\n", "\n", "\n", 
+            "\n", 
+            SubscriptBox["State", 
+             RowBox[{
+             "\[LeftDoubleBracket]", "i", "\[RightDoubleBracket]"}]]}], ",", 
+           RowBox[{"{", 
+            RowBox[{"i", ",", 
+             RowBox[{"Min", "[", 
+              RowBox[{
+               RowBox[{"Length", "[", "DE", "]"}], ",", 
+               RowBox[{"Length", "[", "State", "]"}]}], "]"}]}], "}"}]}], 
+          "]"}]}]}], ",", "\n", 
+       RowBox[{"indepvar", " ", "=", " ", 
+        RowBox[{"Symbol", "[", "\"\<Global`t\>\"", "]"}]}], ",", "\n", 
+       RowBox[{"(*", " ", 
+        RowBox[{
+        "state", " ", "variables", " ", "not", " ", "mentioned", " ", "in", 
+         " ", "DE", " ", "remain", " ", "just", " ", "constant"}], " ", 
+        "*)"}], "\n", 
+       RowBox[{"constantstatecomponents", "=", 
+        RowBox[{"Table", "[", 
+         RowBox[{
+          RowBox[{"Module", "[", 
+           RowBox[{
+            RowBox[{"{", 
+             RowBox[{
+             "s", "=", "\n", "\n", "\n", "\n", "\n", "\n", "\n", "\n", "\n", 
+              "\n", 
+              SubscriptBox["State", 
+               RowBox[{
+               "\[LeftDoubleBracket]", "i", "\[RightDoubleBracket]"}]]}], 
+             "}"}], ",", 
+            RowBox[{"Function", "[", 
+             RowBox[{"tp", ",", "s"}], "]"}]}], "]"}], ",", 
+          RowBox[{"{", 
+           RowBox[{"i", ",", 
+            RowBox[{
+             RowBox[{"Length", "[", "DE", "]"}], "+", "1"}], ",", 
+            RowBox[{"Length", "[", "State", "]"}]}], "}"}]}], "]"}]}]}], "\n",
+       "}"}], ",", "\n", 
+     RowBox[{
+      RowBox[{"If", "[", 
+       RowBox[{
+        RowBox[{
+         RowBox[{"Length", "[", "DE", "]"}], "<", 
+         RowBox[{"Length", "[", "State", "]"}]}], ",", 
+        RowBox[{"Message", "[", 
+         RowBox[{
+          RowBox[{"Transition", "::", "idimension"}], ",", "DE", ",", "State",
+           ",", "eqns"}], "]"}]}], "]"}], ";", "\n", 
+      RowBox[{"If", "[", 
+       RowBox[{
+        RowBox[{
+         RowBox[{"Length", "[", "DE", "]"}], ">", 
+         RowBox[{"Length", "[", "State", "]"}]}], ",", 
+        RowBox[{
+         RowBox[{"Message", "[", 
+          RowBox[{
+           RowBox[{"Transition", "::", "dimension"}], ",", "DE", ",", "State",
+            ",", "eqns"}], "]"}], ";", 
+         RowBox[{"Return", "[", "$Failed", "]"}]}]}], "]"}], ";", "\n", 
+      RowBox[{"(*", 
+       RowBox[{
+        RowBox[{"Print", "[", 
+         RowBox[{
+         "\"\<eqns \>\"", ",", " ", "eqns", ",", " ", "\"\< sysvars \>\"", 
+          ",", " ", "sysvars", ",", " ", "\"\< at \>\"", ",", " ", "State"}], 
+         "]"}], ";"}], "*)"}], "\n", 
+      RowBox[{"dsols", " ", "=", " ", "\n", 
+       RowBox[{"If", "[", 
+        RowBox[{"$numericalODE", ",", "\n", 
+         RowBox[{"(*", " ", 
+          RowBox[{
+           RowBox[{
+           "could", " ", "slightly", " ", "optimize", " ", "by", " ", 
+            "reducing", " ", "$TimeHorizon", " ", "if", " ", "inside", " ", 
+            RowBox[{"sequence", ".", " ", "But"}], " ", "this", " ", "is", 
+            " ", "less", " ", 
+            RowBox[{"important", ".", " ", "The"}]}], " ", "+", 
+           RowBox[{
+           "1", " ", "is", " ", "to", " ", "give", " ", "a", " ", "right"}], 
+           "-", 
+           RowBox[{"open", " ", "interval"}]}], " ", "*)"}], "\n", 
+         RowBox[{"NDSolve", "[", 
+          RowBox[{"eqns", ",", "sysvars", ",", 
+           RowBox[{"{", 
+            RowBox[{"indepvar", ",", "0", ",", 
+             RowBox[{"$TimeHorizon", "+", "1"}]}], "}"}]}], "]"}], ",", "\n", 
+         
+         RowBox[{"DSolve", "[", 
+          RowBox[{"eqns", ",", "sysvars", ",", "indepvar"}], "]"}]}], "\n", 
+        "]"}]}], ";", "\n", 
+      RowBox[{"If", "[", 
+       RowBox[{
+        RowBox[{
+         RowBox[{
+          RowBox[{"Head", "[", "dsols", "]"}], "==", "List"}], "\[And]", 
+         RowBox[{
+          RowBox[{"Length", "[", "dsols", "]"}], ">", "0"}], "\[And]", 
+         "$verify", "\[And]", 
+         RowBox[{"\[Not]", "$numericalODE"}]}], ",", "\n", 
+        RowBox[{"Module", "[", 
+         RowBox[{
+          RowBox[{"{", 
+           RowBox[{"verificationresults", " ", "=", " ", 
+            RowBox[{"Union", "[", 
+             RowBox[{"FullSimplify", "[", 
+              RowBox[{
+              "eqns", " ", "/.", " ", "\n", "\n", "\n", "\n", "\n", "\n", 
+               "\n", "\n", "\n", "\n", 
+               SubscriptBox["dsols", 
+                RowBox[{
+                "\[LeftDoubleBracket]", "1", "\[RightDoubleBracket]"}]]}], 
+              "]"}], "]"}]}], "}"}], ",", "\n", 
+          RowBox[{"If", "[", 
+           RowBox[{
+            RowBox[{"verificationresults", "!=", 
+             RowBox[{"{", "True", "}"}]}], ",", "\n", 
+            RowBox[{"Message", "[", 
+             RowBox[{
+              RowBox[{"Transition", "::", "verifyf"}], ",", "eqns", ",", 
+              "dsols", ",", "verificationresults"}], "]"}]}], "]"}]}], 
+         "]"}]}], "\n", "]"}], ";", "\n", 
+      RowBox[{"Which", "[", "\n", 
+       RowBox[{
+        RowBox[{
+         RowBox[{
+          RowBox[{"Head", "[", "dsols", "]"}], "===", "DSolve"}], " ", 
+         "\[Or]", 
+         RowBox[{
+          RowBox[{"Head", "[", "dsols", "]"}], "===", "NDSolve"}], "\[Or]", 
+         RowBox[{
+          RowBox[{"Head", "[", "dsols", "]"}], "=!=", "List"}], "\[Or]", 
+         RowBox[{
+          RowBox[{"Length", "[", "dsols", "]"}], "==", "0"}]}], ",", 
+        RowBox[{"(", 
+         RowBox[{
+          RowBox[{"Message", "[", 
+           RowBox[{
+            RowBox[{"Transition", "::", "unsolvable"}], ",", "eqns"}], "]"}], 
+          ";", 
+          RowBox[{"Return", "[", "$Failed", "]"}]}], ")"}], ",", "\n", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"Head", "[", "dsols", "]"}], "===", "List"}], "\[And]", 
+         RowBox[{
+          RowBox[{"Length", "[", "dsols", "]"}], "==", "1"}]}], ",", 
+        RowBox[{"Componentwise", "[", 
+         RowBox[{"Join", "[", 
+          RowBox[{
+           RowBox[{
+           "sysvars", " ", "/.", " ", "\n", "\n", "\n", "\n", "\n", "\n", 
+            "\n", "\n", "\n", "\n", 
+            SubscriptBox["dsols", 
+             RowBox[{
+             "\[LeftDoubleBracket]", "1", "\[RightDoubleBracket]"}]]}], ",", 
+           "constantstatecomponents"}], "]"}], "]"}], 
+        RowBox[{"(*", " ", 
+         RowBox[{
+          RowBox[{
+           RowBox[{"unlike", " ", "non"}], "-", 
+           RowBox[{"sequenced", " ", "discrete", " ", "transitions"}]}], ",", 
+          " ", 
+          RowBox[{"result", " ", "requires", " ", "Through"}]}], " ", "*)"}], 
+        ",", "\n", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"Head", "[", "dsols", "]"}], "===", "List"}], "\[And]", 
+         RowBox[{
+          RowBox[{"Length", "[", "dsols", "]"}], ">", "1"}]}], ",", " ", 
+        RowBox[{"(", 
+         RowBox[{
+          RowBox[{"Message", "[", 
+           RowBox[{
+            RowBox[{"Transition", "::", "nonunique"}], ",", "eqns", ",", 
+            RowBox[{"Length", "[", "dsols", "]"}], ",", "dsols"}], "]"}], ";",
+           "\n", 
+          RowBox[{"Print", "[", 
+           RowBox[{
+           "\"\<nonunique solution of \>\"", ",", " ", "eqns", ",", " ", 
+            "\"\< is \>\"", ",", " ", "dsols"}], "]"}], ";", "\n", 
+          RowBox[{"(*", " ", 
+           RowBox[{
+            RowBox[{"arbitrary", " ", "non"}], "-", 
+            RowBox[{"deterministic", " ", "choice"}]}], " ", "*)"}], "\n", 
+          RowBox[{"Componentwise", "[", 
+           RowBox[{"Join", "[", 
+            RowBox[{
+             RowBox[{
+             "sysvars", "/.", " ", "\n", "\n", "\n", "\n", "\n", "\n", "\n", 
+              "\n", "\n", "\n", 
+              SubscriptBox["dsols", 
+               RowBox[{
+               "\[LeftDoubleBracket]", "1", "\[RightDoubleBracket]"}]]}], ",",
+              "constantstatecomponents"}], "]"}], "]"}]}], ")"}]}], "\n", 
+       "]"}]}]}], "\n", "]"}]}]}]], "Code"],
+
+Cell[BoxData[{
+ RowBox[{"SetAttributes", "[", 
+  RowBox[{"UpdateStateHelper", ",", "HoldAll"}], "]"}], "\n", 
+ RowBox[{"SetAttributes", "[", 
+  RowBox[{"set", ",", "HoldAll"}], "]"}]}], "Code"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{
+   RowBox[{"UpdateMerge", "[", 
+    RowBox[{"Update1_List", ",", "Update2_List"}], "]"}], " ", ":=", "\n", 
+   RowBox[{"(*", " ", 
+    RowBox[{
+     RowBox[{"@", "todo"}], " ", "filter", " ", "duplicates"}], " ", "*)"}], 
+   "\n", 
+   RowBox[{"Join", "[", 
+    RowBox[{"(*", " ", 
+     RowBox[{
+      RowBox[{"first", "-", 
+       RowBox[{"win", " ", "semantics"}]}], ",", " ", 
+      RowBox[{"hence", " ", "new", " ", "U2", " ", "first"}]}], " ", "*)"}], 
+    "\n", 
+    RowBox[{
+     RowBox[{"Replace", "[", 
+      RowBox[{"Update2", ",", "\n", 
+       RowBox[{
+        RowBox[{"HoldPattern", "[", 
+         RowBox[{"xi_", "->", "e_"}], "]"}], ":>", " ", 
+        RowBox[{"(", 
+         RowBox[{"xi", "->", 
+          RowBox[{"(", 
+           RowBox[{"e", "/.", "Update1"}], ")"}]}], ")"}]}], ",", 
+       RowBox[{"{", "1", "}"}]}], "]"}], ",", "\n", "Update1"}], "\n", 
+    "]"}]}], "\n", 
+  RowBox[{"(*", " ", "optimizations", " ", "*)"}]}], "\n", 
+ RowBox[{
+  RowBox[{"UpdateMerge", "[", 
+   RowBox[{
+    RowBox[{"{", "}"}], ",", "Update_List"}], "]"}], " ", ":=", " ", 
+  "Update"}], "\n", 
+ RowBox[{
+  RowBox[{"UpdateMerge", "[", 
+   RowBox[{"Update_List", ",", 
+    RowBox[{"{", "}"}]}], "]"}], " ", ":=", " ", "Update"}]}], "Code"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"(*", " ", 
+   RowBox[{"Mathematica", " ", "6", " ", "version"}], " ", "*)"}], "\n", 
+  RowBox[{
+   RowBox[{"UpdateStateHelper", "[", 
+    RowBox[{"Evstate_", ",", "State_", ",", "updates_List"}], "]"}], ":=", 
+   "\n", 
+   RowBox[{"Module", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"staterules", " ", "=", "\n", 
+        RowBox[{"Table", "[", 
+         RowBox[{
+          RowBox[{
+           RowBox[{"Symbol", "[", 
+            RowBox[{"\"\<Global`x\>\"", "<>", 
+             RowBox[{"ToString", "[", "i", "]"}]}], "]"}], "->", " ", "\n", 
+           "\n", "\n", "\n", "\n", "\n", "\n", "\n", "\n", "\n", 
+           SubscriptBox["Evstate", 
+            RowBox[{"\[LeftDoubleBracket]", "i", "\[RightDoubleBracket]"}]]}],
+           ",", 
+          RowBox[{"{", 
+           RowBox[{"i", ",", 
+            RowBox[{"Length", "[", "Evstate", "]"}]}], "}"}]}], "]"}]}], ",", 
+       "\n", 
+       RowBox[{"statecomponentrules", " ", "=", "\n", 
+        RowBox[{"Table", "[", 
+         RowBox[{
+          RowBox[{
+           RowBox[{"Symbol", "[", 
+            RowBox[{"\"\<Global`x\>\"", "<>", 
+             RowBox[{"ToString", "[", "i", "]"}]}], "]"}], "->", " ", "i"}], 
+          ",", 
+          RowBox[{"{", 
+           RowBox[{"i", ",", 
+            RowBox[{"Length", "[", "Evstate", "]"}]}], "}"}]}], "]"}]}]}], 
+      "\n", "}"}], ",", "\n", 
+     RowBox[{"ReplacePart", "[", 
+      RowBox[{"State", ",", "\n", 
+       RowBox[{"Replace", "[", 
+        RowBox[{"updates", ",", "\n", 
+         RowBox[{
+          RowBox[{"HoldPattern", "[", 
+           RowBox[{"xi_", "->", "e_"}], "]"}], ":>", " ", 
+          RowBox[{
+           RowBox[{"(", 
+            RowBox[{"xi", "/.", "statecomponentrules"}], ")"}], "->", 
+           RowBox[{"(", 
+            RowBox[{"e", "/.", "staterules"}], ")"}]}]}], ",", "\n", "1"}], 
+        "]"}]}], "\n", "]"}]}], "\n", "]"}]}]}]], "Code"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+   RowBox[{"Transition", "[", 
+    RowBox[{"set", "[", 
+     RowBox[{"HoldPattern", "[", 
+      RowBox[{"xi_", "->", "e_"}], "]"}], "]"}], "]"}], "[", "State_", "]"}], 
+  " ", ":=", 
+  RowBox[{
+   RowBox[{"Transition", "[", 
+    RowBox[{"set", "[", 
+     RowBox[{"{", 
+      RowBox[{"xi", "->", "e"}], "}"}], "]"}], "]"}], "[", "State", 
+   "]"}]}]], "Code"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"(*", " ", 
+   RowBox[{"Mathematica", " ", "5", " ", "version"}], " ", "*)"}], "\n", 
+  RowBox[{
+   RowBox[{"UpdateStateHelper", "[", 
+    RowBox[{"Evstate_", ",", "State_", ",", 
+     RowBox[{"HoldPattern", "[", 
+      RowBox[{"xi_", "=", "e_"}], "]"}]}], "]"}], ":=", "\n", 
+   RowBox[{"Module", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"staterules", " ", "=", "\n", 
+        RowBox[{"Table", "[", 
+         RowBox[{
+          RowBox[{
+           RowBox[{"Symbol", "[", 
+            RowBox[{"\"\<Global`x\>\"", "<>", 
+             RowBox[{"ToString", "[", "i", "]"}]}], "]"}], "->", " ", "\n", 
+           "\n", "\n", "\n", "\n", "\n", "\n", "\n", "\n", "\n", 
+           SubscriptBox["Evstate", 
+            RowBox[{"\[LeftDoubleBracket]", "i", "\[RightDoubleBracket]"}]]}],
+           ",", 
+          RowBox[{"{", 
+           RowBox[{"i", ",", 
+            RowBox[{"Length", "[", "Evstate", "]"}]}], "}"}]}], "]"}]}], ",", 
+       "\n", 
+       RowBox[{"statecomponentrules", " ", "=", "\n", 
+        RowBox[{"Table", "[", 
+         RowBox[{
+          RowBox[{
+           RowBox[{"Symbol", "[", 
+            RowBox[{"\"\<Global`x\>\"", "<>", 
+             RowBox[{"ToString", "[", "i", "]"}]}], "]"}], "->", " ", "i"}], 
+          ",", 
+          RowBox[{"{", 
+           RowBox[{"i", ",", 
+            RowBox[{"Length", "[", "Evstate", "]"}]}], "}"}]}], "]"}]}]}], 
+      "\n", "}"}], ",", "\n", 
+     RowBox[{"ReplacePart", "[", 
+      RowBox[{"State", ",", 
+       RowBox[{"(", 
+        RowBox[{"e", "/.", "staterules"}], ")"}], ",", 
+       RowBox[{"(", 
+        RowBox[{"xi", "/.", "statecomponentrules"}], ")"}]}], "]"}]}], "\n", 
+    "]"}]}]}]], "Code"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+   RowBox[{"Transition", "[", 
+    RowBox[{"set", "[", 
+     RowBox[{"HoldPattern", "[", 
+      RowBox[{"xi_", "=", "e_"}], "]"}], "]"}], "]"}], "[", "State_", "]"}], 
+  " ", ":=", 
+  RowBox[{"Function", "[", 
+   RowBox[{"tp", ",", "\n", 
+    RowBox[{"If", "[", 
+     RowBox[{
+      RowBox[{"TrueQ", "[", 
+       RowBox[{"tp", "!=", "0"}], "]"}], ",", 
+      RowBox[{"Message", "[", 
+       RowBox[{
+        RowBox[{"Transition", "::", "nonzerodiscrete"}], ",", " ", "a", ",", 
+        " ", "tp"}], "]"}], ",", "\n", 
+      RowBox[{"UpdateStateHelper", "[", 
+       RowBox[{"State", ",", "State", ",", 
+        RowBox[{"xi", "=", "e"}]}], "]"}]}], "\n", "]"}]}], "\n", 
+   "]"}]}]], "Code"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"(*", " ", 
+   RowBox[{
+   "discrete", " ", "jump", " ", "or", " ", "projection", " ", "by", " ", 
+    "performing", " ", "the", " ", "given", " ", "assignment", " ", "on", " ",
+     "the", " ", "state"}], " ", "*)"}], "\n", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"Transition", "[", 
+     RowBox[{"a", ":", 
+      RowBox[{"set", "[", 
+       RowBox[{"HoldPattern", "[", "updates_List", "]"}], "]"}]}], "]"}], "[",
+     "State_", "]"}], " ", ":=", "\n", 
+   RowBox[{"Function", "[", 
+    RowBox[{"tp", ",", "\n", 
+     RowBox[{"If", "[", 
+      RowBox[{
+       RowBox[{"TrueQ", "[", 
+        RowBox[{"tp", "!=", "0"}], "]"}], ",", 
+       RowBox[{"Message", "[", 
+        RowBox[{
+         RowBox[{"Transition", "::", "nonzerodiscrete"}], ",", " ", "a", ",", 
+         " ", "tp"}], "]"}], ",", "\n", 
+       RowBox[{"UpdateStateHelper", "[", 
+        RowBox[{"State", ",", "State", ",", "updates"}], "]"}]}], "\n", 
+      "]"}]}], "\n", "]"}]}]}]], "Code"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"(*", " ", 
+   RowBox[{"concrete", " ", "discrete", " ", "transitions"}], " ", "*)"}], 
+  "\n", 
+  RowBox[{"(*", " ", 
+   RowBox[{
+   "discrete", " ", "jump", " ", "or", " ", "projection", " ", "by", " ", 
+    "performing", " ", "the", " ", "given", " ", "transformation", " ", "p", 
+    " ", "on", " ", "the", " ", "State"}], " ", "*)"}], "\n", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"Transition", "[", 
+     RowBox[{"transform", "[", "p_", "]"}], "]"}], "[", "State_", "]"}], " ", 
+   ":=", "\n", 
+   RowBox[{"Function", "[", 
+    RowBox[{"tp", ",", "\n", 
+     RowBox[{"If", "[", 
+      RowBox[{
+       RowBox[{"TrueQ", "[", 
+        RowBox[{"tp", "!=", "0"}], "]"}], ",", 
+       RowBox[{"Message", "[", 
+        RowBox[{
+         RowBox[{"Transition", "::", "nonzerodiscrete"}], ",", " ", 
+         RowBox[{"transform", "[", "p", "]"}], ",", " ", "tp"}], "]"}], ",", 
+       "\n", 
+       RowBox[{"p", "[", "State", "]"}]}], "\n", "]"}]}], "\n", 
+    "]"}]}]}]], "Code"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"(*", " ", 
+   RowBox[{
+    RowBox[{"delegate", " ", "other", " ", "user"}], "-", 
+    RowBox[{
+    "defined", " ", "action", " ", "descriptions", " ", "to", " ", 
+     "$Transition"}]}], " ", "*)"}], "\n", 
+  RowBox[{
+   RowBox[{
+    RowBox[{
+     RowBox[{"Transition", "[", "otherwise_", "]"}], "[", "State_", "]"}], 
+    "[", "tp_", "]"}], " ", ":=", "\n", 
+   RowBox[{
+    RowBox[{
+     RowBox[{
+      RowBox[{"$Transition", "[", "otherwise", "]"}], "[", "State", "]"}], 
+     "[", "tp", "]"}], "/;", " ", 
+    RowBox[{"ValueQ", "[", 
+     RowBox[{
+      RowBox[{
+       RowBox[{"$Transition", "[", "otherwise", "]"}], "[", "State", "]"}], 
+      "[", "tp", "]"}], "]"}]}]}]}]], "Code"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"(*", " ", 
+   RowBox[{
+   "catch", " ", "unknown", " ", "action", " ", "descriptions", " ", "as", 
+    " ", "a", " ", "last", " ", "resort"}], " ", "*)"}], "\n", 
+  RowBox[{
+   RowBox[{
+    RowBox[{
+     RowBox[{"Transition", "[", "unknown_", "]"}], "[", "State_", "]"}], "[", 
+    "tp_", "]"}], " ", ":=", "\n", 
+   RowBox[{
+    RowBox[{"Module", "[", 
+     RowBox[{
+      RowBox[{"{", "}"}], ",", "\n", 
+      RowBox[{
+       RowBox[{"Message", "[", 
+        RowBox[{
+         RowBox[{"Transition", "::", "unknownaction"}], ",", "unknown"}], 
+        "]"}], ";", "\n", "$Unknown"}]}], "\n", "]"}], " ", "/;", " ", 
+    RowBox[{"\[Not]", 
+     RowBox[{"ValueQ", "[", 
+      RowBox[{
+       RowBox[{
+        RowBox[{"$Transition", "[", "unknown", "]"}], "[", "State", "]"}], 
+       "[", "tp", "]"}], "]"}]}]}]}]}]], "Code"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{
+   RowBox[{"Transition", "::", "unsolvable"}], " ", "=", " ", 
+   "\"\<The trajectory for `1` cannot be computed or does not exist.\>\""}], 
+  ";"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"Transition", "::", "nonunique"}], " ", "=", " ", 
+   "\"\<The trajectory for `1` is not unique. Found `2` solutions `3`.\>\""}],
+   ";"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"Transition", "::", "idimension"}], "=", " ", 
+   "\"\<Notice: some state variables implicitly remain constant as there is a \
+dimensional discrepancy of `1` and `2` yielding `3`.\>\""}], ";", 
+  RowBox[{
+   RowBox[{"Transition", "::", "dimension"}], "=", " ", 
+   "\"\<Error: \[WarningSign] there is a dimensional discrepancy of `1` and \
+`2` yielding `3`.\>\""}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"Transition", "::", "nondet"}], " ", "=", "\n", 
+   "\"\<The choices `1` remain non-determinstic `2`. Parallel exploration not \
+currently supported.\>\""}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"Transition", "::", "nonzerodiscrete"}], " ", "=", "\n", 
+   "\"\<Discrete transition `1` takes time zero rather than `2`.\>\""}], 
+  ";"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"Transition", "::", "verifyf"}], " ", "=", " ", 
+   "\"\<Verifying solution `2` of `1` failed with `3`.\>\""}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"Transition", "::", "guardf"}], " ", "=", " ", 
+   "\"\<Verifying `1` of `2` with flow `3` at time `4` in `5` failed.\>\""}], 
+  ";"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"Transition", "::", "unguarded"}], " ", "=", " ", 
+   "\"\<Warning: Unguarded flow `1` followed by (ignored) actions `2` rather \
+than guard.\>\""}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"Transition", "::", "unknownaction"}], " ", "=", "\n", 
+   "\"\<Unknown transition action `1`.\>\""}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"Transition", "::", "unsupported"}], " ", "=", " ", 
+   "\"\<Unsupported transition `1`. Not yet implemented.\>\""}], 
+  ";"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"Transition", "::", "incompatible"}], " ", "=", " ", 
+   "\"\<Incompatible transition `1` at `2` with duration `3`\>\""}], 
+  ";"}]}], "Code"],
+
+Cell[BoxData[
+ RowBox[{"SetAttributes", "[", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{"Transition", ",", "UpdateMerge", ",", "UpdateStateHelper"}], 
+    "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"Protected", ",", "ReadProtected", ",", "Locked"}], "}"}]}], 
+  "]"}]], "Code"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"(*", " ", 
+   RowBox[{
+   "unpacks", " ", "the", " ", "state", " ", "by", " ", "unwrapping", " ", 
+    "e", " ", 
+    RowBox[{"(", 
+     RowBox[{"as", " ", "originating", " ", "from", " ", "a", " ", 
+      RowBox[{
+       RowBox[{
+        RowBox[{"Transition", "[", "...", "]"}], "[", "...", "]"}], "[", "...",
+        "]"}]}], ")"}]}], " ", "*)"}], "\n", 
+  RowBox[{"(*", 
+   RowBox[{
+    RowBox[{"SComp", "[", 
+     RowBox[{
+      RowBox[{"{", "e__", "}"}], "[", "z_", "]"}], "]"}], " ", ":=", " ", 
+    RowBox[{
+     RowBox[{
+      RowBox[{"Through", "[", 
+       RowBox[{
+        RowBox[{"{", "e", "}"}], "[", "z", "]"}], "]"}], "\n", 
+      RowBox[{"SComp", "[", "e_Piecewise", "]"}]}], " ", ":=", " ", 
+     RowBox[{
+      RowBox[{
+       RowBox[{
+        RowBox[{"Head", "[", "e", "]"}], "[", 
+        RowBox[{"Map", "[", 
+         RowBox[{"SComp", ",", 
+          RowBox[{"Apply", "[", 
+           RowBox[{"List", ",", "e"}], "]"}]}], "]"}], "]"}], "\n", 
+       RowBox[{"SComp", "[", "e_", "]"}]}], " ", ":=", " ", "e"}]}]}], "*)"}],
+   "\n", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"SComp", "[", "e_", "]"}], " ", ":=", " ", "e"}], "\n", 
+   RowBox[{"(*", " ", 
+    RowBox[{
+    "turns", " ", "list", " ", "of", " ", "component", " ", "functions", " ", 
+     "into", " ", "a", " ", "single", " ", "componentwise", " ", "function"}],
+     " ", "*)"}], "\n", 
+   RowBox[{
+    RowBox[{"Componentwise", "[", "components_List", "]"}], " ", ":=", "\n", 
+    RowBox[{"Function", "[", 
+     RowBox[{"z", ",", " ", 
+      RowBox[{"Through", "[", 
+       RowBox[{"components", "[", "z", "]"}], "]"}]}], "]"}]}]}]}]], "Code"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"(*", " ", 
+   RowBox[{"disable", " ", "logging"}], " ", "*)"}], "\n", 
+  RowBox[{
+   RowBox[{"PrintLog", "[", "a__", "]"}], " ", ":=", " ", 
+   RowBox[{"Print", "[", "a", "]"}]}]}]], "Code"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{
+   RowBox[{"AMC", "[", 
+    RowBox[{
+    "cutoff_", ",", "TimeHorizon_", ",", "dynamics_", ",", "\n", 
+     "initialRange_", ",", 
+     RowBox[{"criticality_:", 
+      RowBox[{"(", 
+       RowBox[{"0", "&"}], ")"}]}]}], "]"}], " ", ":=", "\n", 
+   RowBox[{"Module", "[", 
+    RowBox[{
+     RowBox[{"{", "}"}], ",", "\n", 
+     RowBox[{
+      RowBox[{
+      "PrintLog", "[", 
+       "\"\<Approximation Refinement Model Checking (AMC)\>\"", "]"}], ";", 
+      "\n", 
+      RowBox[{"For", "[", 
+       RowBox[{
+        RowBox[{"\[Delta]", "=", "1"}], ",", 
+        RowBox[{"\[Delta]", ">", "cutoff"}], ",", 
+        RowBox[{"\[Delta]", "=", 
+         RowBox[{"\[Delta]", "/", "2"}]}], ",", "\n", 
+        RowBox[{"Module", "[", 
+         RowBox[{
+          RowBox[{"{", "res", "}"}], ",", "\n", 
+          RowBox[{
+           RowBox[{"Print", "[", 
+            RowBox[{
+            "\"\<AMC at \>\"", ",", "\[Delta]", ",", "\"\<-grid\>\""}], "]"}],
+            ";", "\n", 
+           RowBox[{
+            RowBox[{"{", 
+             RowBox[{"time", ",", "res"}], "}"}], " ", "=", " ", 
+            RowBox[{"Timing", "[", 
+             RowBox[{"AMCphase", "[", 
+              RowBox[{
+              "\[Delta]", ",", "TimeHorizon", ",", "dynamics", ",", "\n", 
+               "initialRange", ",", "criticality"}], "]"}], "]"}]}], ";", 
+           "\n", 
+           RowBox[{"(*", 
+            RowBox[{
+             RowBox[{"If", "[", 
+              RowBox[{
+               RowBox[{
+                RowBox[{"Subscript", "[", 
+                 RowBox[{"res", ",", " ", 
+                  RowBox[{"[", 
+                   RowBox[{"[", "1", "]"}], "]"}]}], "]"}], "<", "0"}], ",", 
+               RowBox[{
+                RowBox[{
+                "PrintLog", "[", 
+                 "\"\<\[WarningSign] unsafe concrete counterexample\>\"", 
+                 "]"}], ";"}]}], "]"}], ";"}], "*)"}], "\n", 
+           RowBox[{"PrintLog", "[", 
+            RowBox[{
+            "\"\<Result after \>\"", ",", " ", "time", ",", " ", 
+             "\"\< at \>\"", ",", " ", "\[Delta]", ",", " ", 
+             "\"\<-grid is \>\"", ",", " ", "res"}], "]"}], ";"}]}], "\n", 
+         "]"}]}], "\n", "]"}]}]}], "\n", "]"}]}], "\n"}], "\n", 
+ RowBox[{
+  RowBox[{"AMCphase", "[", 
+   RowBox[{
+   "\[Delta]_", ",", "TimeHorizon_", ",", "dynamics_", ",", "initialRange_", 
+    ",", "criticality_"}], "]"}], " ", ":=", " ", "\n", 
+  RowBox[{"Module", "[", 
+   RowBox[{
+    RowBox[{"{", 
+     RowBox[{"analysetrajectory", ",", "useparameters", ",", "selectworst"}], 
+     "}"}], ",", "\n", 
+    RowBox[{"(*", " ", 
+     RowBox[{
+      RowBox[{"Print", "[", 
+       RowBox[{"\"\<investigate initials \>\"", ",", " ", 
+        RowBox[{"Discretize", "[", "\[Delta]", "]"}]}], "]"}], ";"}], " ", 
+     "*)"}], "\n", 
+    RowBox[{
+     RowBox[{"analysetrajectory", " ", "=", " ", 
+      RowBox[{"Function", "[", 
+       RowBox[{"xinitial", ",", "\n", 
+        RowBox[{"Module", "[", 
+         RowBox[{
+          RowBox[{"{", "\n", 
+           RowBox[{
+            RowBox[{"indepvar", " ", "=", " ", 
+             RowBox[{"Symbol", "[", "\"\<Global`t\>\"", "]"}]}], ",", "\n", 
+            "sol", ",", "solcriticality", ",", "maxcrit", ",", 
+            RowBox[{"xinit", "=", "xinitial"}]}], "}"}], ",", "\n", 
+          RowBox[{
+           RowBox[{"sol", " ", "=", " ", 
+            RowBox[{"SComp", "[", 
+             RowBox[{
+              RowBox[{
+               RowBox[{"Transition", "[", "dynamics", "]"}], "[", "xinit", 
+               "]"}], "[", "indepvar", "]"}], "]"}]}], ";", "\n", 
+           RowBox[{"If", "[", 
+            RowBox[{
+             RowBox[{"sol", "===", "$TransFailed"}], ",", "\n", 
+             RowBox[{"{", 
+              RowBox[{"\[Infinity]", ",", 
+               RowBox[{"{", "}"}]}], "}"}], "\n", ",", "\n", 
+             RowBox[{
+              RowBox[{
+               RowBox[{"solcriticality", "[", "indepvar_", "]"}], " ", "=", 
+               " ", 
+               RowBox[{
+                RowBox[{"criticality", "[", "sol", "]"}], "  ", "//", " ", 
+                "FullSimplify"}]}], ";", "\n", 
+              RowBox[{"maxcrit", " ", "=", " ", 
+               RowBox[{"Minimize", "[", 
+                RowBox[{
+                 RowBox[{"{", 
+                  RowBox[{
+                   RowBox[{"solcriticality", "[", "indepvar", "]"}], ",", 
+                   RowBox[{"0", "<=", "indepvar", "<=", "TimeHorizon"}]}], 
+                  " ", "}"}], ",", "\n", 
+                 RowBox[{"{", "indepvar", "}"}]}], "]"}]}], ";", "\n", 
+              RowBox[{
+              "{", "\n", "\n", "\n", "\n", "\n", "\n", "\n", "\n", "\n", "\n", 
+               RowBox[{
+                SubscriptBox["maxcrit", 
+                 RowBox[{
+                 "\[LeftDoubleBracket]", "1", "\[RightDoubleBracket]"}]], ",", 
+                RowBox[{
+                "Prepend", "[", "\n", "\n", "\n", "\n", "\n", "\n", "\n", 
+                 "\n", "\n", "\n", 
+                 RowBox[{
+                  SubscriptBox["maxcrit", 
+                   RowBox[{
+                   "\[LeftDoubleBracket]", "2", "\[RightDoubleBracket]"}]], 
+                  ",", 
+                  RowBox[{
+                   RowBox[{"Symbol", "[", "\"\<Global`xstate\>\"", "]"}], "->",
+                    "xinit"}]}], "]"}]}], "}"}]}]}], "\n", "]"}]}]}], "\n", 
+         "]"}]}], "\n", "]"}]}], ";", "\n", 
+     RowBox[{"selectworst", " ", "=", " ", 
+      RowBox[{"Function", "[", 
+       RowBox[{
+        RowBox[{"{", 
+         RowBox[{"c", ",", "d"}], "}"}], ",", 
+        RowBox[{
+        "If", "[", "\n", "\n", "\n", "\n", "\n", "\n", "\n", "\n", "\n", "\n", 
+         RowBox[{
+          RowBox[{
+           SubscriptBox["c", 
+            RowBox[{"\[LeftDoubleBracket]", "1", "\[RightDoubleBracket]"}]], 
+           "<", "\n", "\n", "\n", "\n", "\n", "\n", "\n", "\n", "\n", "\n", 
+           SubscriptBox["d", 
+            RowBox[{"\[LeftDoubleBracket]", "1", "\[RightDoubleBracket]"}]]}],
+           ",", "c", ",", "d"}], "]"}]}], "]"}]}], ";", "\n", 
+     RowBox[{"(*", " ", 
+      RowBox[{
+      "could", " ", "use", " ", "early", " ", "projection", " ", "to", " ", 
+       "states", " ", "satisfying", " ", "initialCondition", " ", "by", " ", 
+       RowBox[{"Select", "[", 
+        RowBox[{"...", ",", "initialCondition"}], "]"}]}], " ", "*)"}], "\n", 
+     
+     RowBox[{"Fold", "[", 
+      RowBox[{"selectworst", ",", 
+       RowBox[{"{", 
+        RowBox[{"\[Infinity]", ",", 
+         RowBox[{"{", "}"}]}], "}"}], ",", 
+       RowBox[{"Map", "[", 
+        RowBox[{"analysetrajectory", ",", 
+         RowBox[{"Discretize", "[", 
+          RowBox[{"\[Delta]", ",", "initialRange"}], "]"}]}], "]"}]}], 
+      "]"}]}]}], "\n", "]"}]}]}], "Code"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{
+   RowBox[{"Discretize", "::", "usage"}], "=", 
+   "\"\<discrete \[Delta]-grid of points in given range\>\""}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{"Discretize", "[", 
+   RowBox[{"\[Delta]_", ",", "range_"}], "]"}], " ", ":=", "\n", 
+  RowBox[{"Block", "[", 
+   RowBox[{
+    RowBox[{"{", 
+     RowBox[{"iranges", ",", "relmesh", ",", "scaledmesh"}], "}"}], ",", "\n", 
+    RowBox[{
+     RowBox[{"relmesh", " ", "=", " ", 
+      RowBox[{"Range", "[", 
+       RowBox[{"0", ",", "1", ",", "\[Delta]"}], "]"}]}], ";", "\n", 
+     RowBox[{
+      RowBox[{"scaledmesh", "[", 
+       RowBox[{"point_", ",", "point_"}], "]"}], ":=", 
+      RowBox[{"{", "point", "}"}]}], ";", "\n", 
+     RowBox[{
+      RowBox[{"scaledmesh", "[", 
+       RowBox[{"min_", ",", "max_"}], "]"}], ":=", " ", 
+      RowBox[{"Map", "[", 
+       RowBox[{
+        RowBox[{
+         RowBox[{"Rescale", "[", 
+          RowBox[{"#", ",", 
+           RowBox[{"{", 
+            RowBox[{"0", ",", "1"}], "}"}], ",", 
+           RowBox[{"{", 
+            RowBox[{"min", ",", "max"}], "}"}]}], "]"}], "&"}], ",", " ", 
+        "relmesh"}], "]"}]}], ";", "\n", 
+     RowBox[{"(*", " ", 
+      RowBox[{
+       RowBox[{
+        RowBox[{"@", "todo"}], " ", 
+        RowBox[{"optimize", ":", " ", 
+         RowBox[{
+         "reorder", " ", "such", " ", "that", " ", "only", " ", "x"}]}]}], 
+       ",", 
+       RowBox[{
+       "y", " ", "points", " ", "are", " ", "generated", " ", "that", " ", 
+        "already", " ", "satisfy", " ", "initialCondition"}]}], "*)"}], "\n", 
+     
+     RowBox[{"iranges", " ", "=", " ", 
+      RowBox[{"Map", "[", 
+       RowBox[{
+        RowBox[{
+         RowBox[{"scaledmesh", "[", 
+          RowBox[{
+           RowBox[{"Min", "[", "#", "]"}], ",", 
+           RowBox[{"Max", "[", "#", "]"}]}], "]"}], "&"}], ",", "range"}], 
+       "]"}]}], ";", "\n", 
+     RowBox[{"Union", "[", 
+      RowBox[{"Flatten", "[", 
+       RowBox[{
+        RowBox[{"Apply", "[", 
+         RowBox[{"Outer", ",", " ", 
+          RowBox[{"Prepend", "[", 
+           RowBox[{"iranges", ",", " ", "List"}], "]"}]}], "]"}], ",", " ", 
+        RowBox[{
+         RowBox[{"Length", "[", "range", "]"}], "-", "1"}]}], "]"}], 
+      "]"}]}]}], "\n", "]"}]}]}], "Code"],
+
+Cell[BoxData[
+ RowBox[{"SetAttributes", "[", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{"AMC", ",", "AMCphase", ",", "Discretize"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"Protected", ",", "ReadProtected", ",", "Locked"}], "}"}]}], 
+  "]"}]], "Code"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"(*", " ", 
+   RowBox[{
+   "add", " ", "Snapshot", " ", "and", " ", "Animation", " ", "export", " ", 
+    "options"}], " ", "*)"}], "\n", 
+  RowBox[{
+   RowBox[{"PlotTrace", "[", 
+    RowBox[{"actions_", ",", "x0_", ",", "coordinates_List", ",", 
+     RowBox[{"opts", ":", 
+      RowBox[{"OptionsPattern", "[", "]"}]}]}], "]"}], ":=", "\n", 
+   RowBox[{"Module", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"T", "=", 
+        RowBox[{"OptionValue", "[", "TimeHorizon", "]"}]}], ",", "sol", ",", 
+       "plottrace", ",", "anim", ",", 
+       RowBox[{"plotState", "=", 
+        RowBox[{"OptionValue", "[", "PlotState", "]"}]}], ",", 
+       RowBox[{"coords", "=", 
+        RowBox[{"If", "[", 
+         RowBox[{
+          RowBox[{
+           RowBox[{"Length", "[", 
+            RowBox[{"Dimensions", "[", "coordinates", "]"}], "]"}], "===", 
+           "1"}], ",", "\n", 
+          RowBox[{"(*", " ", 
+           RowBox[{
+           "turn", " ", "coordinates", " ", "into", " ", "a", " ", "List", 
+            " ", "of", " ", "Lists"}], " ", "*)"}], "\n", 
+          RowBox[{"{", "coordinates", "}"}], ",", "\n", "coordinates"}], 
+         "]"}]}]}], "}"}], ",", "\n", 
+     RowBox[{
+      RowBox[{"If", "[", 
+       RowBox[{
+        RowBox[{"TrueQ", "[", 
+         RowBox[{
+          RowBox[{"OptionValue", "[", "PlotState", "]"}], "==", "Automatic"}],
+          "]"}], ",", 
+        RowBox[{"plotState", "=", 
+         RowBox[{"Function", "[", 
+          RowBox[{
+           RowBox[{"{", "State", "}"}], ",", 
+           RowBox[{"Graphics", "[", 
+            RowBox[{"Map", "[", 
+             RowBox[{
+              RowBox[{
+               RowBox[{"Point", "[", 
+                RowBox[{"State", "[", 
+                 RowBox[{"[", "#", "]"}], "]"}], "]"}], "&"}], ",", 
+              "coords"}], "]"}], "]"}]}], "]"}]}]}], "]"}], ";", "\n", 
+      RowBox[{"sol", "=", 
+       RowBox[{"SComp", "[", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"Transition", "[", "actions", "]"}], "[", "x0", "]"}], "[", 
+         "t", "]"}], "]"}]}], ";", "\n", 
+      RowBox[{"plottrace", "=", 
+       RowBox[{"ParametricPlot", "[", 
+        RowBox[{
+         RowBox[{"Map", "[", 
+          RowBox[{
+           RowBox[{
+            RowBox[{"sol", "[", 
+             RowBox[{"[", "#", "]"}], "]"}], "&"}], ",", "coords"}], "]"}], 
+         ",", 
+         RowBox[{"{", 
+          RowBox[{"t", ",", "0", ",", "T"}], "}"}], ",", "\n", 
+         RowBox[{"Evaluate", "[", 
+          RowBox[{"Sequence", "@@", 
+           RowBox[{"FilterRules", "[", 
+            RowBox[{
+             RowBox[{"{", "opts", "}"}], ",", 
+             RowBox[{"Options", "[", "ParametricPlot", "]"}]}], "]"}]}], 
+          "]"}]}], "]"}]}], ";", "\n", 
+      RowBox[{"If", "[", 
+       RowBox[{
+        RowBox[{"TrueQ", "[", 
+         RowBox[{"OptionValue", "[", "Animate", "]"}], "]"}], ",", "\n", 
+        RowBox[{"anim", "=", 
+         RowBox[{"Animate", "[", "\n", 
+          RowBox[{
+           RowBox[{"Evaluate", "[", 
+            RowBox[{"Show", "[", 
+             RowBox[{
+              RowBox[{"Evaluate", "[", 
+               RowBox[{"plotState", "[", "sol", "]"}], "]"}], ",", 
+              "plottrace", ",", 
+              RowBox[{"Evaluate", "[", 
+               RowBox[{"Sequence", "@@", 
+                RowBox[{"FilterRules", "[", 
+                 RowBox[{
+                  RowBox[{"{", "opts", "}"}], ",", 
+                  RowBox[{"Options", "[", "Graphics", "]"}]}], "]"}]}], 
+               "]"}]}], "\n", "]"}], "]"}], ",", "\n", 
+           RowBox[{"{", 
+            RowBox[{"t", ",", "0", ",", "T"}], "}"}], ",", "\n", 
+           RowBox[{"Evaluate", "[", 
+            RowBox[{"Sequence", "@@", 
+             RowBox[{"FilterRules", "[", 
+              RowBox[{
+               RowBox[{"{", "opts", "}"}], 
+               RowBox[{"(*", 
+                RowBox[{"Join", "[", 
+                 RowBox[{
+                  RowBox[{"{", "opts", "}"}], ",", 
+                  RowBox[{"{", 
+                   RowBox[{"AnimationRunning", "->", "False"}], "}"}]}], 
+                 "]"}], "*)"}], ",", 
+               RowBox[{"Options", "[", "Animate", "]"}]}], "]"}]}], "]"}]}], 
+          "\n", "]"}]}], ",", "\n", "plottrace"}], "\n", "]"}]}]}], "\n", 
+    "]"}]}]}]], "Code"],
+
+Cell[BoxData[
+ RowBox[{"SetAttributes", "[", 
+  RowBox[{"PlotTrace", ",", 
+   RowBox[{"{", 
+    RowBox[{"Protected", ",", "ReadProtected", ",", "Locked"}], "}"}]}], 
+  "]"}]], "Code"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"(*", " ", 
+   RowBox[{"findinstance", " ", "based"}], " ", "*)"}], "\n", 
+  RowBox[{
+   RowBox[{"IFindTransition", "[", 
+    RowBox[{
+    "prestate_List", ",", "eqns_List", ",", "t_", ",", "inv_", ",", "goal_", 
+     ",", 
+     RowBox[{"opts", ":", 
+      RowBox[{"OptionsPattern", "[", "]"}]}]}], "]"}], ":=", "\n", 
+   RowBox[{"Module", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"dsols", ",", 
+       RowBox[{"indepvar", "=", "t"}], ",", "\n", 
+       RowBox[{"depvars", "=", 
+        RowBox[{"DifferentialSymbols", "[", "eqns", "]"}]}], ",", "dsol", ",",
+        "msw", ",", "cex", ",", 
+       RowBox[{"st", "=", "t"}], ",", "cext", ",", "\n", "prestate0", ",", 
+       "invt", ",", "goalt", ",", "invts", ",", "goalts", ",", "\n", 
+       RowBox[{"T", "=", 
+        RowBox[{"OptionValue", "[", "TimeHorizon", "]"}]}], ",", "sampling", 
+       ",", "sample", ",", "reachedstate"}], "}"}], ",", "\n", 
+     RowBox[{
+      RowBox[{"invt", "=", 
+       RowBox[{"ExprAt", "[", 
+        RowBox[{"inv", ",", "depvars", ",", "indepvar"}], "]"}]}], ";", "\n", 
+      
+      RowBox[{"goalt", "=", 
+       RowBox[{"ExprAt", "[", 
+        RowBox[{"goal", ",", "depvars", ",", "indepvar"}], "]"}]}], ";", "\n", 
+      RowBox[{"prestate0", "=", 
+       RowBox[{"prestate", "/.", 
+        RowBox[{
+         RowBox[{"(", 
+          RowBox[{"x_", "->", "a_"}], ")"}], "->", 
+         RowBox[{"(", 
+          RowBox[{
+           RowBox[{"x", "[", "0", "]"}], "->", "a"}], ")"}]}]}]}], ";", "\n", 
+      
+      RowBox[{"(*", " ", 
+       RowBox[{
+        RowBox[{"@", "todo"}], " ", "could", " ", "already", " ", "use", " ", 
+        "known", " ", "initial", " ", "values", " ", "rather", " ", "than", 
+        " ", "symbolic", " ", "initial", " ", "values", " ", "and", " ", 
+        "replacements"}], " ", "*)"}], "\n", 
+      RowBox[{"dsols", "=", 
+       RowBox[{
+        RowBox[{"IDSolve", "[", 
+         RowBox[{"eqns", ",", "indepvar"}], "]"}], "/.", 
+        RowBox[{
+         RowBox[{"x_", "[", "0", "]"}], ":>", "x"}]}]}], ";", "\n", 
+      RowBox[{"Which", "[", "\n", 
+       RowBox[{
+        RowBox[{
+         RowBox[{
+          RowBox[{"Head", "[", "dsols", "]"}], "===", "DSolve"}], " ", 
+         "\[Or]", 
+         RowBox[{
+          RowBox[{"Head", "[", "dsols", "]"}], "===", "NDSolve"}], "\[Or]", 
+         RowBox[{
+          RowBox[{"Head", "[", "dsols", "]"}], "=!=", "List"}], "\[Or]", 
+         RowBox[{
+          RowBox[{"Length", "[", "dsols", "]"}], "==", "0"}]}], ",", 
+        RowBox[{"(", 
+         RowBox[{
+          RowBox[{"Message", "[", 
+           RowBox[{
+            RowBox[{"Transition", "::", "unsolvable"}], ",", "eqns"}], "]"}], 
+          ";", 
+          RowBox[{"Return", "[", "$Failed", "]"}]}], ")"}], ",", "\n", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"Head", "[", "dsols", "]"}], "===", "List"}], "\[And]", 
+         RowBox[{
+          RowBox[{"Length", "[", "dsols", "]"}], "==", "1"}]}], ",", "\n", 
+        RowBox[{"dsol", "=", 
+         RowBox[{"dsols", "[", 
+          RowBox[{"[", "1", "]"}], "]"}]}], ",", "\n", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"Head", "[", "dsols", "]"}], "===", "List"}], "\[And]", 
+         RowBox[{
+          RowBox[{"Length", "[", "dsols", "]"}], ">", "1"}]}], ",", " ", 
+        RowBox[{"(", 
+         RowBox[{
+          RowBox[{"Message", "[", 
+           RowBox[{
+            RowBox[{"Transition", "::", "nonunique"}], ",", "eqns", ",", 
+            RowBox[{"Length", "[", "dsols", "]"}], ",", "dsols"}], "]"}], ";",
+           "\n", 
+          RowBox[{"dsol", "=", 
+           RowBox[{"dsols", "[", 
+            RowBox[{"[", "1", "]"}], "]"}]}]}], ")"}]}], "\n", "]"}], ";", 
+      "\n", 
+      RowBox[{"invts", "=", 
+       RowBox[{
+        RowBox[{"invt", "/.", "dsol"}], "/.", "prestate"}]}], ";", "\n", 
+      RowBox[{"goalts", "=", 
+       RowBox[{
+        RowBox[{"goalt", "/.", "dsol"}], "/.", "prestate"}]}], ";", "\n", 
+      RowBox[{"Print", "[", 
+       RowBox[{
+       "\"\<looking at \>\"", ",", "goalts", ",", " ", "\"\< in \>\"", ",", 
+        "invts", ",", " ", "\"\< with \>\"", " ", ",", "st", ",", 
+        "\"\< giving \>\"", ",", 
+        RowBox[{
+         RowBox[{"0", "<=", "st"}], "\[And]", "invts", "\[And]", "goalts"}]}],
+        "]"}], ";", "\n", 
+      RowBox[{"(*", " ", 
+       RowBox[{"can", " ", "we", " ", "reach", " ", 
+        RowBox[{"goal", "?"}]}], " ", "*)"}], "\n", 
+      RowBox[{"cex", " ", "=", 
+       RowBox[{"IFindInstance", "[", 
+        RowBox[{
+         RowBox[{"0", "<=", "st"}], "\[And]", "invts", "\[And]", "goalts"}], 
+        "]"}]}], ";", "\n", 
+      RowBox[{"If", "[", 
+       RowBox[{
+        RowBox[{"cex", "==", 
+         RowBox[{"{", "}"}]}], ",", "\n", 
+        RowBox[{"(*", " ", 
+         RowBox[{
+         "did", " ", "not", " ", "find", " ", "reaching", " ", "goal"}], " ", 
+         "*)"}], 
+        RowBox[{"{", "}"}], ",", "\n", 
+        RowBox[{
+         RowBox[{"Print", "[", 
+          RowBox[{"\"\<possible cex \>\"", ",", " ", "cex"}], "]"}], ";", 
+         "\n", 
+         RowBox[{"cext", "=", 
+          RowBox[{"(", 
+           RowBox[{"indepvar", "/.", 
+            RowBox[{"cex", "[", 
+             RowBox[{"[", "1", "]"}], "]"}]}], ")"}]}], ";", "\n", 
+         RowBox[{"reachedstate", "=", 
+          RowBox[{"Join", "[", "\n", 
+           RowBox[{
+            RowBox[{"cex", "[", 
+             RowBox[{"[", "1", "]"}], "]"}], ",", "\n", "prestate", ",", "\n", 
+            RowBox[{"(*", " ", 
+             RowBox[{"diff", " ", "post", " ", "state", " ", "table"}], " ", 
+             "*)"}], "\n", 
+            RowBox[{"Map", "[", 
+             RowBox[{
+              RowBox[{
+               RowBox[{"(", 
+                RowBox[{"#", "->", 
+                 RowBox[{"(", 
+                  RowBox[{
+                   RowBox[{
+                    RowBox[{
+                    RowBox[{"ExprAt", "[", 
+                    RowBox[{"#", ",", "depvars", ",", "indepvar"}], "]"}], 
+                    "\n", "/.", "dsol"}], "/.", "prestate"}], "/.", 
+                   RowBox[{"indepvar", "->", "cext"}]}], ")"}]}], ")"}], 
+               "&"}], ",", 
+              RowBox[{"DifferentialSymbols", "[", "eqns", "]"}]}], "]"}]}], 
+           "\n", "]"}]}], ";", "\n", 
+         RowBox[{"(*", " ", 
+          RowBox[{"did", " ", "we", " ", "leave", " ", "inv", " ", 
+           RowBox[{"before", "?"}]}], " ", "*)"}], "\n", 
+         RowBox[{"Quiet", "[", 
+          RowBox[{
+           RowBox[{"Check", "[", "\n", 
+            RowBox[{
+             RowBox[{"If", "[", 
+              RowBox[{
+               RowBox[{
+                RowBox[{"IFindInstance", "[", 
+                 RowBox[{
+                  RowBox[{"0", "<=", "st", "<=", "cext"}], " ", "\[And]", 
+                  RowBox[{"\[Not]", "invts"}]}], "]"}], "==", 
+                RowBox[{"{", "}"}]}], ",", "\n", "reachedstate", ",", "\n", 
+               RowBox[{"(*", " ", 
+                RowBox[{
+                "violated", " ", "inv", " ", "before", " ", "reaching", " ", 
+                 "goal"}], " ", "*)"}], "\n", 
+               RowBox[{"{", "}"}]}], "\n", "]"}], "\n", ",", "\n", 
+             RowBox[{"(*", " ", 
+              RowBox[{
+               RowBox[{"doubtful", " ", "as", " ", "inv"}], "-", 
+               RowBox[{
+               "violation", " ", "check", " ", "did", " ", "not", " ", 
+                "work"}]}], " ", "*)"}], "\n", 
+             RowBox[{
+              RowBox[{"Print", "[", 
+               RowBox[{"\"\<case of doubt \>\"", ",", 
+                RowBox[{
+                 RowBox[{"0", "<=", "st", "<=", "cext"}], " ", "\[And]", 
+                 RowBox[{"\[Not]", "invts"}]}]}], "]"}], ";", "\n", 
+              "reachedstate"}], "\n", ",", "\n", 
+             RowBox[{"FindInstance", "::", "nsmet"}]}], "]"}], ",", 
+           RowBox[{"FindInstance", "::", "nsmetTODO"}]}], "]"}]}]}], "\n", 
+       "]"}]}]}], "\n", "]"}]}]}]], "Code"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"IFindTransition", "[", 
+   RowBox[{
+   "initial_", ",", "initialUpdate_List", ",", "eqns_List", ",", "t_", ",", 
+    "inv_", ",", "goal_", ",", 
+    RowBox[{"opts", ":", 
+     RowBox[{"OptionsPattern", "[", "]"}]}]}], "]"}], " ", ":=", "\n", 
+  RowBox[{"Module", "[", 
+   RowBox[{
+    RowBox[{"{", 
+     RowBox[{"cexs", ",", "fullvocab"}], "}"}], ",", "\n", 
+    RowBox[{
+     RowBox[{"fullvocab", "=", 
+      RowBox[{"Complement", "[", 
+       RowBox[{
+        RowBox[{"Join", "[", 
+         RowBox[{
+          RowBox[{"Vocabulary", "[", 
+           RowBox[{"initial", "\[And]", 
+            RowBox[{"(", 
+             RowBox[{"inv", "/.", "initialUpdate"}], ")"}]}], "]"}], ",", 
+          RowBox[{"Vocabulary", "[", "eqns", "]"}]}], "]"}], ",", "\n", 
+        RowBox[{"{", "t", "}"}]}], "\n", "]"}]}], ";", "\n", 
+     RowBox[{"Catch", "[", "\n", 
+      RowBox[{
+       RowBox[{
+        RowBox[{"Function", "[", 
+         RowBox[{"initialstate", ",", "\n", 
+          RowBox[{"Module", "[", 
+           RowBox[{
+            RowBox[{"{", 
+             RowBox[{"state", ",", "res"}], "}"}], ",", "\n", 
+            RowBox[{
+             RowBox[{"state", "=", 
+              RowBox[{"UpdateMerge", "[", 
+               RowBox[{"initialstate", ",", "initialUpdate"}], "]"}]}], ";", 
+             "\n", 
+             RowBox[{"Print", "[", 
+              RowBox[{"\"\<examine \>\"", ",", "state"}], "]"}], ";", "\n", 
+             RowBox[{"res", "=", 
+              RowBox[{"IFindTransition", "[", 
+               RowBox[{
+               "state", ",", "eqns", ",", "t", ",", "inv", ",", "goal", ",", 
+                "opts"}], "]"}]}], ";", "\n", 
+             RowBox[{"If", "[", 
+              RowBox[{
+               RowBox[{
+                RowBox[{
+                 RowBox[{"Head", "[", "res", "]"}], "==", "List"}], "\[And]", 
+                
+                RowBox[{
+                 RowBox[{"Length", "[", "res", "]"}], ">", "0"}]}], ",", "\n", 
+               RowBox[{"Throw", "[", "res", "]"}], ",", "res"}], "]"}]}]}], 
+           "\n", "]"}]}], "\n", "]"}], "/@", 
+        RowBox[{"FindInstance", "[", 
+         RowBox[{
+          RowBox[{"initial", "\[And]", 
+           RowBox[{"(", 
+            RowBox[{"inv", "/.", "initialUpdate"}], ")"}]}], ",", "fullvocab",
+           ",", "\n", "Reals", ",", 
+          RowBox[{"OptionValue", "[", "Instances", "]"}]}], "]"}]}], ";", 
+       "\n", 
+       RowBox[{"{", "}"}]}], "\n", "]"}]}]}], "\n", "]"}]}]], "Code"],
+
+Cell[BoxData[
+ RowBox[{"SetAttributes", "[", 
+  RowBox[{"IFindInstance", ",", 
+   RowBox[{"{", 
+    RowBox[{"Protected", ",", "ReadProtected", ",", "Locked"}], "}"}]}], 
+  "]"}]], "Code"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{
+   RowBox[{"ExprAt", "::", "usage"}], "=", 
+   "\"\<ExprAt[expr,vars,t] adds parameter t to all occurrences of vars in \
+expr.\>\""}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{"ExprAt", "[", 
+   RowBox[{"expr_", ",", "vars_", ",", "t_"}], "]"}], " ", ":=", " ", 
+  RowBox[{"expr", "/.", 
+   RowBox[{"Map", "[", 
+    RowBox[{
+     RowBox[{
+      RowBox[{"(", 
+       RowBox[{"#", "->", 
+        RowBox[{"#", "[", "t", "]"}]}], ")"}], "&"}], ",", "vars"}], 
+    "]"}]}]}]}], "Code"],
+
+Cell[BoxData[{
+ RowBox[{"End", "[", "]"}], "\n", 
+ RowBox[{"EndPackage", "[", "]"}]}], "Code"]
+},
+WindowSize->{740, 608},
+WindowMargins->{{180, Automatic}, {Automatic, 59}},
+FrontEndVersion->"9.0 for Linux x86 (64-bit) (February 7, 2013)",
+StyleDefinitions->"Default.nb"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[557, 20, 2985, 71, 356, "Code"],
+Cell[3545, 93, 93, 2, 51, "Code"],
+Cell[3641, 97, 350, 8, 71, "Code"],
+Cell[3994, 107, 527, 11, 51, "Code"],
+Cell[4524, 120, 416, 10, 71, "Code"],
+Cell[4943, 132, 298, 6, 71, "Code"],
+Cell[5244, 140, 214, 5, 51, "Code"],
+Cell[5461, 147, 492, 11, 71, "Code"],
+Cell[5956, 160, 184, 4, 51, "Code"],
+Cell[6143, 166, 164, 4, 51, "Code"],
+Cell[6310, 172, 165, 4, 51, "Code"],
+Cell[6478, 178, 183, 4, 51, "Code"],
+Cell[6664, 184, 221, 5, 51, "Code"],
+Cell[6888, 191, 182, 4, 51, "Code"],
+Cell[7073, 197, 205, 4, 51, "Code"],
+Cell[7281, 203, 169, 4, 51, "Code"],
+Cell[7453, 209, 207, 4, 51, "Code"],
+Cell[7663, 215, 170, 4, 51, "Code"],
+Cell[7836, 221, 206, 4, 51, "Code"],
+Cell[8045, 227, 234, 5, 51, "Code"],
+Cell[8282, 234, 282, 5, 51, "Code"],
+Cell[8567, 241, 226, 4, 51, "Code"],
+Cell[8796, 247, 199, 4, 51, "Code"],
+Cell[8998, 253, 1456, 26, 147, "Code"],
+Cell[10457, 281, 714, 14, 51, "Code"],
+Cell[11174, 297, 785, 13, 90, "Code"],
+Cell[11962, 312, 2733, 58, 527, "Code"],
+Cell[14698, 372, 2450, 52, 261, "Code"],
+Cell[17151, 426, 201, 5, 51, "Code"],
+Cell[17355, 433, 197, 5, 51, "Code"],
+Cell[17555, 440, 1424, 24, 204, "Code"],
+Cell[18982, 466, 649, 16, 94, "Code"],
+Cell[19634, 484, 637, 16, 90, "Code"],
+Cell[20274, 502, 270, 7, 54, "Code"],
+Cell[20547, 511, 532, 9, 71, "Code"],
+Cell[21082, 522, 73, 1, 51, "Code"],
+Cell[21158, 525, 1833, 48, 280, "Code"],
+Cell[22994, 575, 404, 12, 71, "Code"],
+Cell[23401, 589, 295, 9, 51, "Code"],
+Cell[23699, 600, 1874, 52, 204, "Code"],
+Cell[25576, 654, 2995, 84, 204, "Code"],
+Cell[28574, 740, 1840, 48, 204, "Code"],
+Cell[30417, 790, 554, 14, 166, "Code"],
+Cell[30974, 806, 472, 13, 90, "Code"],
+Cell[31449, 821, 958, 27, 147, "Code"],
+Cell[32410, 850, 412, 12, 109, "Code"],
+Cell[32825, 864, 472, 14, 90, "Code"],
+Cell[33300, 880, 635, 18, 109, "Code"],
+Cell[33938, 900, 914, 24, 185, "Code"],
+Cell[34855, 926, 546, 15, 147, "Code"],
+Cell[35404, 943, 350, 10, 71, "Code"],
+Cell[35757, 955, 1618, 47, 185, "Code"],
+Cell[37378, 1004, 1617, 47, 185, "Code"],
+Cell[38998, 1053, 849, 25, 71, "Code"],
+Cell[39850, 1080, 956, 26, 90, "Code"],
+Cell[40809, 1108, 1962, 56, 130, "Code"],
+Cell[42774, 1166, 1156, 32, 198, "Code"],
+Cell[43933, 1200, 1555, 44, 185, "Code"],
+Cell[45491, 1246, 1791, 50, 185, "Code"],
+Cell[47285, 1298, 141, 4, 51, "Code"],
+Cell[47429, 1304, 717, 19, 109, "Code"],
+Cell[48149, 1325, 305, 9, 51, "Code"],
+Cell[48457, 1336, 515, 16, 54, "Code"],
+Cell[48975, 1354, 598, 17, 51, "Code"],
+Cell[49576, 1373, 1668, 44, 204, "Code"],
+Cell[51247, 1419, 1989, 54, 210, "Code"],
+Cell[53239, 1475, 288, 9, 51, "Code"],
+Cell[53530, 1486, 4287, 106, 462, "Code"],
+Cell[57820, 1594, 4647, 115, 484, "Code"],
+Cell[62470, 1711, 482, 14, 90, "Code"],
+Cell[62955, 1727, 5130, 126, 503, "Code"],
+Cell[68088, 1855, 275, 8, 51, "Code"],
+Cell[68366, 1865, 651, 18, 76, "Code"],
+Cell[69020, 1885, 388, 12, 71, "Code"],
+Cell[69411, 1899, 2990, 77, 318, "Code"],
+Cell[72404, 1978, 1939, 52, 630, "Code"],
+Cell[74346, 2032, 3369, 94, 299, "Code"],
+Cell[77718, 2128, 2598, 75, 261, "Code"],
+Cell[80319, 2205, 314, 9, 51, "Code"],
+Cell[80636, 2216, 292, 8, 109, "Code"],
+Cell[80931, 2226, 209, 5, 73, "Code"],
+Cell[81143, 2233, 358, 10, 73, "Code"],
+Cell[81504, 2245, 106, 2, 54, "Code"],
+Cell[81613, 2249, 350, 10, 73, "Code"],
+Cell[81966, 2261, 4586, 110, 789, "Code"],
+Cell[86555, 2373, 705, 19, 176, "Code"],
+Cell[87263, 2394, 8160, 198, 1285, "Code"],
+Cell[95426, 2594, 834, 23, 135, "Code"],
+Cell[96263, 2619, 1898, 55, 185, "Code"],
+Cell[98164, 2676, 276, 7, 71, "Code"],
+Cell[98443, 2685, 388, 11, 71, "Code"],
+Cell[98834, 2698, 734, 22, 128, "Code"],
+Cell[99571, 2722, 1043, 32, 128, "Code"],
+Cell[100617, 2756, 861, 23, 284, "Code"],
+Cell[101481, 2781, 1048, 29, 272, "Code"],
+Cell[102532, 2812, 234, 6, 51, "Code"],
+Cell[102769, 2820, 9291, 232, 1668, "Code"],
+Cell[112063, 3054, 193, 4, 71, "Code"],
+Cell[112259, 3060, 1276, 37, 223, "Code"],
+Cell[113538, 3099, 1937, 51, 481, "Code"],
+Cell[115478, 3152, 393, 13, 51, "Code"],
+Cell[115874, 3167, 1725, 46, 405, "Code"],
+Cell[117602, 3215, 725, 21, 128, "Code"],
+Cell[118330, 3238, 986, 26, 166, "Code"],
+Cell[119319, 3266, 1006, 27, 185, "Code"],
+Cell[120328, 3295, 724, 22, 92, "Code"],
+Cell[121055, 3319, 859, 25, 151, "Code"],
+Cell[121917, 3346, 2187, 57, 299, "Code"],
+Cell[124107, 3405, 274, 8, 51, "Code"],
+Cell[124384, 3415, 1655, 46, 185, "Code"],
+Cell[126042, 3463, 225, 6, 71, "Code"],
+Cell[126270, 3471, 6759, 167, 1529, "Code"],
+Cell[133032, 3640, 2261, 63, 223, "Code"],
+Cell[135296, 3705, 252, 7, 51, "Code"],
+Cell[135551, 3714, 4324, 112, 413, "Code"],
+Cell[139878, 3828, 183, 5, 51, "Code"],
+Cell[140064, 3835, 7965, 195, 975, "Code"],
+Cell[148032, 4032, 2504, 63, 394, "Code"],
+Cell[150539, 4097, 187, 5, 51, "Code"],
+Cell[150729, 4104, 509, 16, 71, "Code"],
+Cell[151241, 4122, 94, 2, 71, "Code"]
+}
+]
+*)
+
+(* End of internal cache information *)
+

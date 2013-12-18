@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.ArrayList;
 
 import de.uka.ilkd.key.dl.model.DLNonTerminalProgramElement;
 import de.uka.ilkd.key.dl.model.DLProgramElement;
@@ -47,6 +48,43 @@ public class DerivativeCreator {
 		return Derive.apply(createNFF, replacements, null, s);
 	}
 
+	/**
+	 * @author s0805753@sms.ed.ac.uk
+	 * This function calculates the vector field given in @sys
+	 * 
+	 */
+	public static final ArrayList<Term> vectorField(DiffSystem sys, Services s) {
+
+		ArrayList<Term> f = new ArrayList<Term>();
+		
+		HashMap<String, Term> replacements = new HashMap<String, Term>();
+		collectDiffReplacements(sys, replacements, s);
+		
+		for(String var: replacements.keySet()){
+			f.add(replacements.get(var));
+		}	
+		
+		return f;
+	}
+	
+	/**
+	 * @author s0805753@sms.ed.ac.uk
+	 * The function calculates variables in the state vector from @sys
+	 * 
+	 */
+	public static final ArrayList<String> stateVector(DiffSystem sys, Services s) {
+
+		ArrayList<String> stateVec = new ArrayList<String>();
+		
+		HashMap<String, Term> replacements = new HashMap<String, Term>();
+		collectDiffReplacements(sys, replacements, s);
+		
+		for(String var: replacements.keySet()){
+			stateVec.add(var);
+		}	
+		
+		return stateVec;
+	}
 	/**
 	 * The function calculates the derivative (diffFin) of a term based on the
 	 * derivivates given by @sys

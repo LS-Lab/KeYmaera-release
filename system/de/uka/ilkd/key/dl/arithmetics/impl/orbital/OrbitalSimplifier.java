@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.ArrayList;
 
 import org.w3c.dom.Node;
 
@@ -85,6 +86,67 @@ public class OrbitalSimplifier implements ISimplifier {
 		return simplify(form, new HashSet<Term>(), nss);
 	}
 
+	/*
+	 * Parity decomposition ensures that atomic terms in the formula are 
+	 * square-free.
+	 */
+	public Term parityNF(Term form, NamespaceSet nss) throws 
+		RemoteException,
+		SolverException 
+		{ 
+			return form;
+		}
+	
+	/*
+	 * Boundary of a semi-algebraic set.
+	 */
+	@Override
+	public Term getBoundary(Term form, NamespaceSet nss) throws 
+		RemoteException,
+		SolverException 
+		{ 
+			return form;
+		}
+	
+	/*
+	 * Condition ensuring the gradient is non-zero.
+	 */
+	@Override
+    public  Term nonZeroGrad(Term form, ArrayList<String> vars, NamespaceSet nss)
+            throws RemoteException, SolverException{
+    	return form;
+    }
+
+    /**
+     * @author s0805753@sms.ed.ac.uk
+     * 
+     * Computes a conjunctive description of a quantifier-free formula in which
+     * all predicate symbols are '<=', if such a description is possible.
+     * 
+     * N.B. equations '==' are <b>not</b> converted to '<='.
+     * 
+     */
+	@Override
+	public Term toLessEqualConjunct(Term form, NamespaceSet nss)
+			throws RemoteException, SolverException {
+		return form;
+	}
+	
+    /**
+     * @author s0805753@sms.ed.ac.uk
+     * 
+     * Checks if the formula is a conjunction of atoms where 
+     * all predicate symbols are '<='.
+     * 
+     * N.B. equations '==' are <b>not</b> converted to '<='.
+     * 
+     */
+	@Override
+	public boolean isLessEqualConjunct(Term form, NamespaceSet nss)
+			throws RemoteException, SolverException {
+		return false;
+	}
+    
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -401,5 +463,15 @@ public class OrbitalSimplifier implements ISimplifier {
 	public boolean isConfigured() {
 		return true;
 	}
+
+	@Override
+	public Term getVCs(Term form, Term chi, ArrayList<Term> vectorField,
+			ArrayList<String> stateVars, NamespaceSet nss)
+			throws RemoteException, SolverException {
+		// TODO Auto-generated method stub
+		return form;
+	}
+
+
 
 }

@@ -27,6 +27,7 @@ import java.rmi.RemoteException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.ArrayList;
 
 import de.uka.ilkd.key.dl.arithmetics.IODESolver.ODESolverResult;
 import de.uka.ilkd.key.dl.arithmetics.IODESolver.ODESolverUpdate;
@@ -109,7 +110,73 @@ public interface IMathematicaDLBridge extends Remote {
      */
     public Term simplify(Term form, Set<Term> assumptions, NamespaceSet nss)
             throws RemoteException, SolverException;
+    /**
+     * Computes parity decomposition of the formula to make sure that all atoms
+     * are square-free.
+     * 
+     * @param form
+     *                the term to simplify
+     * @param assumptions
+     *                the assumptions used for simplification
+     * @return the simplified term, this may be the same as the input.
+     * @throws RemoteException
+     * @throws SolverException
+     */
+    public Term parityNF(Term form, NamespaceSet nss)
+            throws RemoteException, SolverException;
 
+    
+    /**
+     * Computes the boundary of a closed semi-algebraic set if it is defined by
+     * a square-free polynomial.
+     * 
+     * @param form
+     * @return the set boundary if the boundary is defined by a square-free 
+     * polynomial, or the set itself otherwise.
+     * @throws RemoteException
+     * @throws SolverException
+     */
+    public Term getBoundary(Term form, NamespaceSet nss)
+            throws RemoteException, SolverException;
+    
+    /**
+     * Computes the condition ensuring the gradient vector of the closed 
+     * invariant candidate if it is defined by a square-free polynomial.
+     * 
+     * @param form
+     * @return condition ensuring non-zero gradient
+     * polynomial, or the set itself otherwise.
+     * @throws RemoteException
+     * @throws SolverException
+     */
+    public  Term nonZeroGrad(Term form, ArrayList<String> vars, NamespaceSet nss)
+            throws RemoteException, SolverException;
+    
+    /**
+     * @author s0805753@sms.ed.ac.uk
+     * 
+     * Computes a conjunctive description of a quantifier-free formula in which
+     * all predicate symbols are '<=', if such a description is possible.
+     * 
+     * N.B. equations '==' are <b>not</b> converted to '<='.
+     * @throws RemoteException
+     * @throws SolverException
+     */
+    public Term toLessEqualConjunct(Term form, NamespaceSet nss)
+            throws RemoteException, SolverException;
+    
+    /**
+     * @author s0805753@sms.ed.ac.uk
+     * 
+     * Checks if the formula is a conjunction of atoms where 
+     * all predicate symbols are '<='.
+     * 
+     * N.B. equations '==' are <b>not</b> converted to '<='.
+     * 
+     */
+    public abstract boolean isLessEqualConjunct(Term form, NamespaceSet nss)
+            throws RemoteException, SolverException;
+    
     /**
      * Simplifies the given Term if possible (using FullSimplify)
      * 
@@ -249,7 +316,7 @@ public interface IMathematicaDLBridge extends Remote {
 	public Term[] computeGroebnerBasis(Term[] polynomials, Services services) throws RemoteException, SolverException;
 
 	public Term polynomialReduce(Term poly, Term[] reductions, Services services) throws RemoteException, SolverException;
-	
+	 
 	/**
 	 * Generate plot data for the solution of the differential equation system from the given intial values
 	 * 
@@ -268,5 +335,8 @@ public interface IMathematicaDLBridge extends Remote {
 	public Map<String, Double[][]> getPlotData(Term in, Services services,
 			double tendLimi,
 			int nUnroLoop, double randMin, double randMax) throws RemoteException, SolverException;
+
+	public Term getVCs(Term form, Term chi, ArrayList<Term> vectorField,
+			ArrayList<String> stateVars, NamespaceSet nss) throws RemoteException, SolverException ;
 
 }

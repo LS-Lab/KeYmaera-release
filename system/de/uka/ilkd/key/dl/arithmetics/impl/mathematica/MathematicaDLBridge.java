@@ -479,7 +479,178 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 		Term invariant = form.getInvariant(services);
 		return differentialCall(form, post, ep, services, "IDiffFin");
 	}
+	/**
+	 * 
+	 * @author s0805753@sms.ed.ac.uk
+	 * @param form the Term which is to be converted into Parity normal form.
+	 * 
+	 * @throws RemoteException
+	 * @throws SolverException
+	 */
+	
+	public Term parityNF(Term form, NamespaceSet nss)
+			throws RemoteException, SolverException {
+		Expr query = Term2ExprConverter.convert2Expr(form);
+		query = new Expr(new Expr(Expr.SYMBOL, "AMC`" + "ParityNF"),
+				new Expr[] { query });
+		Expr result = evaluate(query).expression;
+		Term resultTerm = convert(result, nss);
+		if (!resultTerm.equals(form)) {
+			return resultTerm;
+		}
+		return form;
+	}
+	
+	/**
+	 * Method for computing the boundary of invariant candidates given by
+	 * a square-free polynomial inequality.
+	 * 
+	 * @author s0805753@sms.ed.ac.uk
+	 * @param form the quantifier-free formula given by a square-free polynomial.
+	 * @throws RemoteException
+	 * @throws SolverException
+	 */
+	
+	public Term getBoundary(Term form, NamespaceSet nss)
+			throws RemoteException, SolverException {
+		Expr query = Term2ExprConverter.convert2Expr(form);
+		query = new Expr(new Expr(Expr.SYMBOL, "AMC`" + "GetBoundary"),
+				new Expr[] { query });
+		Expr result = evaluate(query).expression;
+		Term resultTerm = convert(result, nss);
+		if (!resultTerm.equals(form)) {
+			return resultTerm;
+		}
+		return form;
+	}
+	
+	/**
+	 * 
+	 * Method for computing the condition which ensures that the gradient vector
+	 * on the boundary of the invariant candidate is non-zero. The candidate 
+	 * needs to be given by square-free polynomial (in fact the implementation
+	 * finds this square-free description, if one exists).
+	 * 
+	 * @author s0805753@sms.ed.ac.uk
+	 * @param form the quantifier-free formula given by a square-free polynomial.
+	 * @throws RemoteException
+	 * @throws SolverException
+	 */
+	
+	public Term nonZeroGrad(Term form, ArrayList<String> vars, NamespaceSet nss)
+			throws RemoteException, SolverException {
+		Expr query = Term2ExprConverter.convert2Expr(form);
+		
+		ArrayList<Expr> varsExpr = new ArrayList<Expr>();
+		for(String var: vars){
+			varsExpr.add(new Expr(Expr.SYMBOL, NameMasker.mask(var)));
+		}
+		
+		/* Create a Mathematica List of state variables */
+		Expr stateVars = new Expr(new Expr(Expr.SYMBOL, "List"), 
+			varsExpr.toArray(new Expr[varsExpr.size()])
+			 );
+		
+		query = new Expr(new Expr(Expr.SYMBOL, "AMC`" + "NonZeroGrad"),
+				new Expr[] { query, stateVars });
+		
+		Expr result = evaluate(query).expression;
+		Term resultTerm = convert(result, nss);
+		if (!resultTerm.equals(form)) {
+			return resultTerm;
+		}
+		return form;
+	}
+	
+    /**
+     * @author s0805753@sms.ed.ac.uk
+     * 
+     * Computes a conjunctive description of a quantifier-free formula in which
+     * all predicate symbols are '<=', if such a description is possible.
+     * 
+     * N.B. equations '==' are <b>not</b> converted to '<='.
+     * @throws RemoteException
+     * @throws SolverException
+     */
+    public Term toLessEqualConjunct(Term form, NamespaceSet nss)
+            throws RemoteException, SolverException {
+		Expr query = Term2ExprConverter.convert2Expr(form);
+		query = new Expr(new Expr(Expr.SYMBOL, "AMC`" + "ToLessEqualConjunct"),
+				new Expr[] { query });
+		Expr result = evaluate(query).expression;
+		Term resultTerm = convert(result, nss);
+		if (!resultTerm.equals(form)) {
+			return resultTerm;
+		}
+		return form;
+    }
+    
+    /**
+     * @author s0805753@sms.ed.ac.uk
+     * 
+     * Checks if the formula is a conjunction of atoms where 
+     * all predicate symbols are '<='.
+     * 
+     * N.B. equations '==' are <b>not</b> converted to '<='.
+     * 
+     */
+    public  boolean isLessEqualConjunct(Term form, NamespaceSet nss)
+            throws RemoteException, SolverException {
+		Expr query = Term2ExprConverter.convert2Expr(form);
+		query = new Expr(new Expr(Expr.SYMBOL, "AMC`" + "IsLessEqualConjunct"),
+				new Expr[] { query });
+		Expr result = evaluate(query).expression;
+		Term resultTerm = convert(result, nss);
+		if (resultTerm.equals(TermBuilder.DF.tt())) {
+			return true;
+		}
+		return false;
+    }
+    
+    /**
+     * @author s0805753@sms.ed.ac.uk
+     * 
+     * Checks if the formula is a conjunction of atoms where 
+     * all predicate symbols are '<='.
+     * 
+     * N.B. equations '==' are <b>not</b> converted to '<='.
+     * 
+     */
+    public Term getVCs(Term form, Term invariant,ArrayList<Term> vectorField,ArrayList<String> stateVars, NamespaceSet nss)
+            throws RemoteException, SolverException {
 
+    	/* Convert a list of KeYmaera terms to a list of Mathematica expressions */
+    	ArrayList<Expr> vectorFieldMma = new ArrayList<Expr>();
+    	for(Term xdot: vectorField){
+    		vectorFieldMma.add(Term2ExprConverter.convert2Expr(xdot));
+    	}
+    	
+    	/* Convert a list of state variables to a list of Mathematica expressions */
+    	ArrayList<Expr> stateVarsMma = new ArrayList<Expr>();
+    	for(String x: stateVars){
+    		stateVarsMma.add(new Expr(Expr.SYMBOL, NameMasker.mask(x)));
+    	}
+    	
+		/* Create a Mathematica List for the vector field */
+		Expr f = new Expr(new Expr(Expr.SYMBOL, "List"), 
+			vectorFieldMma.toArray(new Expr[vectorFieldMma.size()])
+			 );
+		
+		/* Create a Mathematica List of state variables */
+		Expr vars = new Expr(new Expr(Expr.SYMBOL, "List"), 
+			stateVarsMma.toArray(new Expr[stateVars.size()])
+			 );
+		
+		Expr chi = Term2ExprConverter.convert2Expr(invariant);
+		Expr query = Term2ExprConverter.convert2Expr(form);
+		query = new Expr(new Expr(Expr.SYMBOL, "AMC`" + "VCGen"),
+				new Expr[] { query, chi, f, vars });
+		Expr result = evaluate(query).expression;
+		Term resultTerm = convert(result, nss);
+		
+		return resultTerm;
+    }
+	
 	/**
 	 * 
 	 * @author ap
