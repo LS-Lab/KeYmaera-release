@@ -211,7 +211,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 
         collectDottedProgramVariables(form, vars, t);
         for (ProgramElement el : form.getDifferentialEquations(services.getNamespaces()))
-            args.add(DL2Expr.apply(el, t, vars, services));
+            args.add(DL2Expr.apply(el, t, vars, services, EQUALS));
         for (String name : vars.keySet())
             args.add(new Expr(EQUALS, new Expr[] {
                         new Expr(new Expr(Expr.SYMBOL, name), new Expr[] { new Expr(0) }),
@@ -292,7 +292,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 		final Map<String, Expr> EMPTY = new LinkedHashMap<String, Expr>();
 		for (ProgramElement el : form.getDifferentialEquations(services
 				.getNamespaces())) {
-			args.add(DL2Expr.apply(el, t, vars, services));
+			args.add(DL2Expr.apply(el, t, vars, services, EQUALS));
 		}
 		for (String name : vars.keySet()) {
 			args.add(new Expr(EQUALS, new Expr[] {
@@ -476,9 +476,38 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 
 	public Term diffFin(DiffSystem form, Term post, Term ep, Services services)
 			throws RemoteException, SolverException {
-		Term invariant = form.getInvariant(services);
 		return differentialCall(form, post, ep, services, "IDiffFin");
 	}
+
+   	public Term diffRI(DiffSystem form, Term h, Services services, String diffOperator) throws RemoteException,
+			SolverException {
+		List<Expr> args = new ArrayList<Expr>();
+
+        Map<String, Expr> vars = new LinkedHashMap<String, Expr>();
+
+        collectDottedProgramVariables(form, vars, (String) null);
+		// use implicit differential symbols
+		Term invariant = form.getInvariant(services);
+		final Map<String, Expr> EMPTY = new LinkedHashMap<String, Expr>();
+		for (ProgramElement el : form.getDifferentialEquations(services
+				.getNamespaces())) {
+			args.add(DL2Expr.apply(el, null, EMPTY, services, RULE));
+		}
+		Expr diffCall = new Expr(new Expr(Expr.SYMBOL, "Invariants`" + diffOperator),
+					new Expr[] {
+							new Expr(MINUS, new Expr[] { Term2ExprConverter.convert2Expr(h.sub(0)), Term2ExprConverter.convert2Expr(h.sub(1)) }),
+							// new Expr(Expr.SYMBOL, t.name().toString()),
+							new Expr(new Expr(Expr.SYMBOL, "List"), args
+									.toArray(new Expr[args.size()])),
+                            new Expr(new Expr(Expr.SYMBOL, "List"), vars.values()
+                                    .toArray(new Expr[vars.size()])), }
+        );
+		Expr diffIndExpression = evaluate(diffCall).expression;
+
+		return TermBuilder.DF.imp(h, convert(diffIndExpression,
+				services.getNamespaces()));
+	}
+
 	/**
 	 * 
 	 * @author s0805753@sms.ed.ac.uk
@@ -672,7 +701,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 		final Map<String, Expr> EMPTY = new LinkedHashMap<String, Expr>();
 		for (ProgramElement el : form.getDifferentialEquations(services
 				.getNamespaces())) {
-			args.add(DL2Expr.apply(el, t, EMPTY, services));
+			args.add(DL2Expr.apply(el, t, EMPTY, services, EQUALS));
 		}
 		if (Debug.ENABLE_DEBUG) {
 			System.out.println(diffOperator
@@ -791,8 +820,12 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 			ProgramVariable pv = (ProgramVariable) ((Dot) form).getChildAt(0);
 			String pvName = pv.getElementName().toString();
 			pvName = NameMasker.mask(pvName);
-			vars.put(pvName, new Expr(new Expr(Expr.SYMBOL, pvName),
-					new Expr[] { new Expr(Expr.SYMBOL, NameMasker.mask(name)) }));
+            if(name != null) {
+                vars.put(pvName, new Expr(new Expr(Expr.SYMBOL, pvName),
+                        new Expr[] { new Expr(Expr.SYMBOL, NameMasker.mask(name)) }));
+            } else {
+                vars.put(pvName, new Expr(Expr.SYMBOL, pvName));
+            }
 		}
 		if (form instanceof DLNonTerminalProgramElement) {
 			DLNonTerminalProgramElement dlnpe = (DLNonTerminalProgramElement) form;
@@ -1667,7 +1700,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
         }
         
         for (ProgramElement el : sys.getDifferentialEquations(services.getNamespaces()))
-            args.add(DL2Expr.apply(el, t, vars, init, services));
+            args.add(DL2Expr.apply(el, t, vars, init, services, EQUALS));
         for (String name : vars.keySet()) {
             final Double initial = initialValues.get(NameMasker.unmask(name));
             final Expr equals = new Expr(EQUALS, new Expr[] {

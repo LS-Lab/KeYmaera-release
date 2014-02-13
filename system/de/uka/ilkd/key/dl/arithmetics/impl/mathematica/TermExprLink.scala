@@ -168,11 +168,11 @@ object Expr2Term extends ExpressionConstants {
 object DL2Expr extends ExpressionConstants {
   import de.uka.ilkd.key.dl.model._
 
-  def apply(p: ProgramElement, t: Named, vars: java.util.Map[String, Expr], s: Services): Expr = {
-    DL2Expr(p, if(t == null) null else t.name.toString, vars, new java.util.HashMap[String, Expr], s)
+  def apply(p: ProgramElement, t: Named, vars: java.util.Map[String, Expr], s: Services, equalsOp: Expr = EQUALS): Expr = {
+    DL2Expr(p, if(t == null) null else t.name.toString, vars, new java.util.HashMap[String, Expr], s, equalsOp)
   }
-  def apply(p: ProgramElement, t: String, vars: java.util.Map[String, Expr], repl: java.util.Map[String, Expr], s: Services): Expr = {
-    val conv = this(_: ProgramElement, t, vars, repl, s)
+  def apply(p: ProgramElement, t: String, vars: java.util.Map[String, Expr], repl: java.util.Map[String, Expr], s: Services, equalsOp: Expr): Expr = {
+    val conv = this(_: ProgramElement, t, vars, repl, s, equalsOp)
     def isMathFunction(n: String, s: Services) : Boolean = s.getNamespaces.functions.lookup(new Name(n)) match {
         case null => false
         case rf : RigidFunction => rf.isMathFunction
@@ -187,7 +187,7 @@ object DL2Expr extends ExpressionConstants {
         new Expr(Expr.SYMBOL, NameMasker.mask(op.getElementName.toString))
       case ComposedTerm(op, args) if (args.size > 0) =>
         new Expr(conv(op), args.map(conv).toArray)
-      case _: Equals => EQUALS
+      case _: Equals => equalsOp
       case _: MinusSign => MINUSSIGN
       case _: Plus => PLUS
       case _: Minus => MINUS
@@ -204,7 +204,7 @@ object DL2Expr extends ExpressionConstants {
         }
       case DLVariable(n) =>
         val v = new Expr(Expr.SYMBOL, n)
-        if (vars.containsKey(n)) ofT(v) else if(repl.containsKey(NameMasker.unmask(n))) repl.get(NameMasker.unmask(n)) else v
+        if (t != null && vars.containsKey(n)) ofT(v) else if(repl.containsKey(NameMasker.unmask(n))) repl.get(NameMasker.unmask(n)) else v
       case Dot(n, o) =>
         val v = new Expr(Expr.SYMBOL, n)
         val diffSymbol = new Expr(new Expr(new Expr(Expr.SYMBOL, "Derivative"),

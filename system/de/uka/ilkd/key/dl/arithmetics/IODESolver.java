@@ -201,4 +201,7 @@ public interface IODESolver extends IMathSolver {
      */
     public abstract Term diffFin(DiffSystem form, Term post, Term ep, Services services)
             throws RemoteException, SolverException;
+
+    public abstract Term diffRI(DiffSystem form, Term post, Services services, String op)
+            throws RemoteException, SolverException;
 }

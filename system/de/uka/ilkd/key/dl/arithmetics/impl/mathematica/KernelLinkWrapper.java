@@ -150,9 +150,9 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 
 	private boolean abort;
 
-	private File amc;
+    private HashMap<String,File> files;
 
-	/**
+    /**
 	 * Creates a new KernelLinkWrapper for the given port
 	 * 
 	 * @param port
@@ -286,20 +286,22 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 			testForError(link);
 
 			try {
-				File amc = createResources();
-				if (amc == null) {
+				Map<String, File> files = createResources();
+				if (files == null) {
 					log(Level.WARNING, "No initialization of AMC present");
 				} else {
-					link.newPacket();
-					testForError(link);
-					link
-							.evaluate(new Expr(new Expr(Expr.SYMBOL, "Needs"),
-									new Expr[] {
-											new Expr(Expr.STRING, "AMC`"),
-											new Expr(Expr.STRING, amc
-													.getAbsolutePath()) }));
-					link.discardAnswer();
-					testForError(link);
+                    for(String s: files.keySet()) {
+                        link.newPacket();
+                        testForError(link);
+                        link
+                                .evaluate(new Expr(new Expr(Expr.SYMBOL, "Needs"),
+                                        new Expr[] {
+                                                new Expr(Expr.STRING, s + "`"),
+                                                new Expr(Expr.STRING, files.get(s)
+                                                        .getAbsolutePath()) }));
+                        link.discardAnswer();
+                        testForError(link);
+                    }
 				}
 			} catch (IOException dump) {
 				log(Level.WARNING, "Could not initialize AMC because of "
@@ -314,10 +316,11 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 		}
 	}
 
-	private File createResources() throws IOException {
-		if (amc != null) {
-			return amc;
+	private Map<String, File> createResources() throws IOException {
+		if (files != null) {
+			return files;
 		}
+        files = new HashMap<String, File>();
 		InputStream amcresource = null;
 		OutputStream amcdump = null;
 		try {
@@ -326,14 +329,15 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 			if (amcresource == null) {
 				return null;
 			}
-			this.amc = File.createTempFile("AMCdump", ".m");
+			File amc = File.createTempFile("AMCdump", ".m");
 			amc.deleteOnExit();
+            files.put("AMC", amc);
 			amcdump = new BufferedOutputStream(new FileOutputStream(amc));
 			final byte[] buffer = new byte[4096];
 			while (true) {
 				int len = amcresource.read(buffer);
 				if (len < 0) {
-					return amc;
+                    break;
 				} else {
 					amcdump.write(buffer, 0, len);
 				}
@@ -346,6 +350,34 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 				amcdump.close();
 			}
 		}
+        try {
+            amcresource = new BufferedInputStream(getClass()
+                    .getResourceAsStream(RESOURCES + "Invariants.m"));
+            if (amcresource == null) {
+                return null;
+            }
+            File inv = File.createTempFile("InvariantsDump", ".m");
+            inv.deleteOnExit();
+            files.put("Invariants", inv);
+            amcdump = new BufferedOutputStream(new FileOutputStream(inv));
+            final byte[] buffer = new byte[4096];
+            while (true) {
+                int len = amcresource.read(buffer);
+                if (len < 0) {
+                    break;
+                } else {
+                    amcdump.write(buffer, 0, len);
+                }
+            }
+        } finally {
+            if (amcresource != null) {
+                amcresource.close();
+            }
+            if (amcdump != null) {
+                amcdump.close();
+            }
+        }
+        return files;
 	}
 
 	/**

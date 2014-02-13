@@ -122,6 +122,11 @@ public class Mathematica implements ICounterExampleGenerator, IODESolver,
 		return bridge.diffFin(form, post, ep, services);
 	}
 
+    @Override
+    public Term diffRI(DiffSystem form, Term post, Services services, String op) throws RemoteException, SolverException {
+        return bridge.diffRI(form, post, services, op);
+    }
+
     public List<ODESolverUpdate> odeUpdate(DiffSystem form, LogicVariable t,
                        Services services, long timeout)
                        throws RemoteException, SolverException {
