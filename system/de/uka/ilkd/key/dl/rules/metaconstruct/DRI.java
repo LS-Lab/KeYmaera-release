@@ -54,7 +54,7 @@ public class DRI extends AbstractDLMetaOperator {
     public static final Name NAME = new Name("#DRI");
 
     public DRI() {
-        super(NAME, 1);
+        super(NAME, 2);
     }
 
     /*
@@ -76,7 +76,7 @@ public class DRI extends AbstractDLMetaOperator {
      */
     public Term calculate(Term term, SVInstantiations svInst, Services services) {
         try {
-            return dri(term.sub(0), services);
+            return dri(term.sub(0), services, term.sub(1).toString().replaceAll("\"",""));
         } catch (UnsolveableException e) {
             throw new IllegalStateException(e.getMessage(), e);
         } catch (FailedComputationException e) {
@@ -88,7 +88,7 @@ public class DRI extends AbstractDLMetaOperator {
         }
     }
 
-    public Term dri(Term term, Services services) throws SolverException {
+    public Term dri(Term term, Services services, String op) throws SolverException {
         ProgramElement stat = ((StatementBlock) term
                 .javaBlock().program()).getChildAt(0);
         VariableDeclaration decl = null;
@@ -110,7 +110,7 @@ public class DRI extends AbstractDLMetaOperator {
 				sys.prettyPrint(new PrettyPrinter(writer));
 				Term diffInd;
                 diffInd = MathSolverManager.getCurrentODESolver()
-                        .diffRI(sys, post, services, "DRI");
+                        .diffRI(sys, post, services, op);
 
 				// reintroduce the quantifiers
 				Collections.reverse(r.getQuantifiedVariables());
