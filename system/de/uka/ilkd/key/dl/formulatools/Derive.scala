@@ -89,8 +89,8 @@ object Derive {
       case MathFun("Pi", args) if args.length == 0 => 0
       case MathFun(f, args) if args.length == 1 =>  f match {
         /* Roots */
-        case "Sqrt" => int2term(1) / (int2term(2)*t)
-        case "CubeRoot" => int2term(1) / (int2term(3)*(t^2))
+        case "Sqrt" => (int2term(1) / (int2term(2)*t)) * d(args.head)
+        case "CubeRoot" => (int2term(1) / (int2term(3)*(t^2))) * d(args.head)
         /* Exp function */
         case "Exp" => d(args.head)*t
         /* Logarithm */
