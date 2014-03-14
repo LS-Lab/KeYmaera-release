@@ -87,39 +87,40 @@ object Derive {
       }
       case MathFun("E", args) if args.length == 0 => 0
       case MathFun("Pi", args) if args.length == 0 => 0
-      case MathFun(f, args) if args.length == 1 =>  f match {
+      case MathFun(f, args) if args.length == 1 => val x = args.head; f match {
+        // computing: d(f(x)) = f'(x)*d(x)
         /* Roots */
-        case "Sqrt" => (int2term(1) / (int2term(2)*t)) * d(args.head)
-        case "CubeRoot" => (int2term(1) / (int2term(3)*(t^2))) * d(args.head)
+        case "Sqrt" => (int2term(1) / (int2term(2)*t)) * d(x)
+        case "CubeRoot" => (int2term(1) / (int2term(3)*(t^2))) * d(x)
         /* Exp function */
-        case "Exp" => d(args.head)*t
+        case "Exp" => d(x)*t
         /* Logarithm */
-        case "Log" => int2term(1) / args.head
+        case "Log" => (int2term(1) / x) * d(x)
         /* Trigonometric functions */
-        case "Sin" => MathFun("Cos", args, services)
-        case "Cos" => - MathFun("Sin", args, services)
-        case "Tan" => MathFun("Sin", args, services) ^ 2
-        case "Csc" => (-t)*MathFun("Cot", args, services)
-        case "Sec" => t*MathFun("Tan", args, services)
-        case "Cot" => - (MathFun("Csc", args, services) ^ 2)
+        case "Sin" => (MathFun("Cos", args, services)) * d(x)
+        case "Cos" => (- MathFun("Sin", args, services)) * d(x)
+        case "Tan" => (MathFun("Sin", args, services) ^ 2) * d(x)
+        case "Csc" => ((-t)*MathFun("Cot", args, services)) * d(x)
+        case "Sec" => (t*MathFun("Tan", args, services)) * d(x)
+        case "Cot" => (- (MathFun("Csc", args, services) ^ 2)) * d(x)
         /* Inverse Trigonometirc Functions */
-        case "ArcSin" => int2term(1) / (MathFun("Sqrt", Seq(int2term(1)-(args.head^2)), services))
-        case "ArcCsc" => - int2term(1) / 
-            (MathFun("Abs", Seq(args.head), services) *
-                MathFun("Sqrt", Seq((args.head^2) - 1), services))
-        case "ArcCos" => - int2term(1) / (MathFun("Sqrt", Seq(int2term(1)-(args.head^2)), services))
-        case "ArcSec" => int2term(1) / 
-            (MathFun("Abs", Seq(args.head), services) *
-                MathFun("Sqrt", Seq((args.head^2) - 1), services))
-        case "ArcTan" => int2term(1) / (args.head^2 + 1)
-        case "ArcCot" => - int2term(1) / (args.head^2 + 1)
+        case "ArcSin" => (int2term(1) / (MathFun("Sqrt", Seq(int2term(1)-(x^2)), services))) * d(x)
+        case "ArcCsc" => (- int2term(1) /
+            (MathFun("Abs", Seq(x), services) *
+                MathFun("Sqrt", Seq((x^2) - 1), services))) * d(x)
+        case "ArcCos" => (- int2term(1) / (MathFun("Sqrt", Seq(int2term(1)-(x^2)), services))) * d(x)
+        case "ArcSec" => (int2term(1) /
+            (MathFun("Abs", Seq(x), services) *
+                MathFun("Sqrt", Seq((x^2) - 1), services))) * d(x)
+        case "ArcTan" => (int2term(1) / (x^2 + 1)) * d(x)
+        case "ArcCot" => (- int2term(1) / (x^2 + 1)) * d(x)
         /* Hyperbolic functions */
-        case "Sinh" => MathFun("Cosh", args, services)
-        case "Csch" => - MathFun("Coth", args, services) * t
-        case "Cosh" => MathFun("Sinh", args, services)
-        case "Sech" => - MathFun("Tanh", args, services) * t
-        case "Tanh" => int2term(1) - (t^2)
-        case "Coth" => int2term(1) - (t^2)
+        case "Sinh" => (MathFun("Cosh", args, services)) * d(x)
+        case "Csch" => (- MathFun("Coth", args, services) * t) * d(x)
+        case "Cosh" => (MathFun("Sinh", args, services)) * d(x)
+        case "Sech" => (- MathFun("Tanh", args, services) * t) * d(x)
+        case "Tanh" => (int2term(1) - (t^2)) * d(x)
+        case "Coth" => (int2term(1) - (t^2)) * d(x)
       }
       case Equals(a, b) => if (eps == null) (d(t.sub(0)) equal d(t.sub(1))) else {
         throw new IllegalArgumentException(
