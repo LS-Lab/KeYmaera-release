@@ -26,6 +26,7 @@ import java.util.ArrayList;
 
 import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
 import de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator.PairOfTermAndQuantifierType;
+import de.uka.ilkd.key.dl.arithmetics.impl.reduce.Options;
 import de.uka.ilkd.key.java.Services;
 import de.uka.ilkd.key.logic.Name;
 import de.uka.ilkd.key.logic.Term;
@@ -58,7 +59,10 @@ public class Reduce extends AbstractDLMetaOperator {
      *      de.uka.ilkd.key.java.Services)
      */
     public Term calculate(Term term, SVInstantiations svInst, Services services) {
+        // for soundness make sure that redlog does not use universal closure
+        boolean rlall = Options.INSTANCE.isRlall();
         try {
+            Options.INSTANCE.setRlall(false);
             // TODO add timeout
             return MathSolverManager.getCurrentQuantifierEliminator().reduce(
                     term.sub(0), new ArrayList<PairOfTermAndQuantifierType>(),
@@ -71,6 +75,8 @@ public class Reduce extends AbstractDLMetaOperator {
             throw new IllegalArgumentException(
                     "Exception occurred while trying to eliminate a quantifier",
                     e);
+        } finally {
+            Options.INSTANCE.setRlall(rlall);
         }
         // return term.sub(0);
     }
