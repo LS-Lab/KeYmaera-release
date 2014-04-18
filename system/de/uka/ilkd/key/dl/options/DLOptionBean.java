@@ -41,7 +41,7 @@ import de.uka.ilkd.key.proof.ProofSaver;
  */
 public class DLOptionBean implements Settings {
 
-	public static enum CexFinder {
+    public static enum CexFinder {
 		DFS("Depth first search"), BFS("Breadth first search"), ITER_DEEP(
 				"Iterative deepening"), ITER_DEEP_ASTAR(
 					"Iterative deepening A*"),  ITER_EXP("Iterative expansion"), ASTAR(
@@ -331,7 +331,9 @@ public class DLOptionBean implements Settings {
     private boolean qeOnlyToTrue;
 
     private boolean addRigidFormulas;
-    
+
+    private boolean pretendWhileLoadingQE;
+
 	private DLOptionBean() {
 		subOptions = new LinkedHashSet<Settings>();
 		solveODE = true;
@@ -388,6 +390,7 @@ public class DLOptionBean implements Settings {
 		tracerStat = TracerStat.OFF;
 		qeOnlyToTrue = false;
         addRigidFormulas = true;
+        pretendWhileLoadingQE = false;
 		if(!init) {
 		    firePropertyChanged();
 		}
@@ -757,6 +760,10 @@ public class DLOptionBean implements Settings {
         if (property != null) {
             addRigidFormulas = Boolean.valueOf(property);
         }
+        property = props.getProperty(EPropertyConstant.DLOPTIONS_PRETEND_QE_TRUE_WHILE_LOADING.getKey());
+        if (property != null) {
+            pretendWhileLoadingQE = Boolean.valueOf(property);
+        }
 
 		try {
 			de.uka.ilkd.key.dl.DLInitializer.updateCustomizers();
@@ -859,7 +866,9 @@ public class DLOptionBean implements Settings {
 
 		if(!ProofSaver.isInSavingMode()) {
 			// we don't want to save user specific pathes when saving proofs
-			props.setProperty(EPropertyConstant.DLOPTIONS_CSDP_PATH.getKey(), csdpBinary.getAbsolutePath());	
+			props.setProperty(EPropertyConstant.DLOPTIONS_CSDP_PATH.getKey(), csdpBinary.getAbsolutePath());
+            // we don't want to save the pretend property
+            props.setProperty(EPropertyConstant.DLOPTIONS_PRETEND_QE_TRUE_WHILE_LOADING.getKey(), Boolean.toString(pretendWhileLoadingQE));
 		}
 		props.setProperty(EPropertyConstant.DLOPTIONS_CEX_FINDER.getKey(),
 				cexFinder.name());
@@ -1547,4 +1556,17 @@ public class DLOptionBean implements Settings {
             firePropertyChanged();
         }
     }
+
+    public boolean isPretendWhileLoadingQE() {
+        return pretendWhileLoadingQE;
+    }
+
+    public void setPretendWhileLoadingQE(boolean pretendWhileLoadingQE) {
+        if(this.pretendWhileLoadingQE != pretendWhileLoadingQE) {
+            this.pretendWhileLoadingQE = pretendWhileLoadingQE;
+            firePropertyChanged();
+        }
+    }
+
+
 }
