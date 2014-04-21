@@ -130,6 +130,8 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 
 	private long cachedAnwsers;
 
+    private volatile int sequenceNumber = 0;
+
 	/**
 	 * 
 	 */
@@ -508,9 +510,12 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 				log(Level.FINEST, exprAndMessages.expression.toString());
 				return exprAndMessages;
 			}
+            // create a list with a sequence number and the actual query
+            final int seq = ++sequenceNumber;
+            Expr sequenedExpr = new Expr(Expr.SYM_LIST, new Expr[] { new Expr(seq), expr } );
 			// wrap inside time constraints
-			final Expr memconstrainted = memoryconstraint <= 0 ? expr
-					: new Expr(MEMORYCONSTRAINTED, new Expr[] { expr,
+			final Expr memconstrainted = memoryconstraint <= 0 ? sequenedExpr
+					: new Expr(MEMORYCONSTRAINTED, new Expr[] { sequenedExpr,
 							new Expr(memoryconstraint) });
 			final Expr compute = timeout <= 0 ? memconstrainted : new Expr(
 					TIMECONSTRAINED, new Expr[] { memconstrainted,
@@ -548,7 +553,7 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 						+ compute.toString() + "\nbecause message " + msg
 						+ " of the messages in "
 						+ Arrays.deepToString(messageBlacklist) + " occured");
-			} else if (result.toString().equals(expr.toString())) {
+			} else if (result.toString().equals(sequenedExpr.toString())) {
 				throw new UnsolveableException(
 						"Mathematica returned the identity of the query: "
 								+ result);
@@ -583,8 +588,31 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 			calcTimes.append(time + "\n");
 			log(Level.SEVERE, "Overall Time: " + addTime);
 			log(Level.FINEST, result.toString());
-			ExprAndMessages exprAndMessages = new ExprAndMessages(result, msg);
-			if (cache.size() > MAX_CACHE_SIZE) {
+            // the result should be a list with [seq, actResult]
+            ExprAndMessages exprAndMessages;
+            try {
+                if(result.head() == Expr.SYM_LIST && result.args().length == 2 && result.args()[0].asInt() == seq) {
+                    exprAndMessages = new ExprAndMessages(result.args()[1], msg);
+                } else {
+                    try {
+                        link.close();
+                    } catch (Throwable t) {
+                    } finally {
+                        createLink();
+                    }
+                    throw new ServerStatusProblemException("The mathkernel returned an old answer " + result.toString() + " expected was answer with number " + seq + ". The MathKernel has been restarted. Please try again.");
+                }
+            } catch (ExprFormatException e) {
+               try {
+                    link.close();
+               } catch (Throwable t) {
+               } finally {
+                  createLink();
+               }
+                throw new ServerStatusProblemException("The mathkernel returned an old answer " + result.toString() + " expected was answer with number " + seq + ". The MathKernel has been restarted. Please try again.", e);
+            }
+
+            if (cache.size() > MAX_CACHE_SIZE) {
 				cache.clear();
 			}
 			if (!"$Aborted".equalsIgnoreCase(result.toString())
