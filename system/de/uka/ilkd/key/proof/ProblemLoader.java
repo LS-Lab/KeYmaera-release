@@ -710,7 +710,7 @@ public class ProblemLoader implements Runnable {
             } else {
                return new BuiltInRuleApp(PRETENDRULE, pos, Constraint.BOTTOM);
            }
-        } else if(!DLOptionBean.INSTANCE.isPretendWhileLoadingQE()) {
+        } else if(!DLOptionBean.INSTANCE.isPretendWhileLoadingQE() && currTacletName.equals(PRETEND)) {
             currTacletName = ReduceRule.INSTANCE.name().toString();
         }
 
