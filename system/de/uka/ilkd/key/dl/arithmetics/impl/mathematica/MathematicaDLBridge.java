@@ -1637,7 +1637,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 	public Map<String, Double[][]> getPlotData(Term in, Services services,
 			double tendLimi,
 			int nUnroLoop, double randMin, double randMax) throws RemoteException, SolverException {
-		String input = ProofSaver.printTerm(in, services, true, true).toString();
+		String input = ProofSaver.printTerm(in, services, true, false).toString();
 		edu.cmu.cs.ls.Formula f = OP.parseFormula(input);
 		edu.cmu.cs.ls.Modality m = hpToExpr.extractModality(f);
 		Expr modaToDataPointExpr = hpToExpr.modaToDataPointExpr(m, tendLimi, nUnroLoop, randMin, randMax);
