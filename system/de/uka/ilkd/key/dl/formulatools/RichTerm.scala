@@ -185,13 +185,11 @@ object NonRigidFunction {
 
 object Ex {
 
-  def apply(t: Term, v: LogicVariable): Term = {
-    TermBuilder.DF.ex(Array[QuantifiableVariable](v), t)
-  }
+  def apply(t: Term, v: LogicVariable): Term = TermBuilder.DF.ex(Array[QuantifiableVariable](v), t)
 
   def apply(t: Term, orgvars: ImmutableArray[QuantifiableVariable]): Term = {
-    var vars: Array[QuantifiableVariable] = new Array[QuantifiableVariable](orgvars.size);
-    for (i <- 0 until t.varsBoundHere(0).size()) {
+    val vars = new Array[QuantifiableVariable](orgvars.size);
+    for (i <- 0 until orgvars.size()) {
       vars(i) = orgvars.get(i)
     }
     TermBuilder.DF.ex(vars, t)
@@ -206,13 +204,11 @@ object Ex {
 
 object All {
 
-  def apply(t: Term, v: LogicVariable): Term = {
-    TermBuilder.DF.all(Array[QuantifiableVariable](v), t)
-  }
+  def apply(t: Term, v: LogicVariable): Term = TermBuilder.DF.all(v, t)
 
   def apply(t: Term, orgvars: ImmutableArray[QuantifiableVariable]): Term = {
-    var vars: Array[QuantifiableVariable] = new Array[QuantifiableVariable](orgvars.size);
-    for (i <- 0 until t.varsBoundHere(0).size()) {
+    val vars: Array[QuantifiableVariable] = new Array[QuantifiableVariable](orgvars.size);
+    for (i <- 0 until orgvars.size()) {
       vars(i) = orgvars.get(i)
     }
     TermBuilder.DF.all(vars, t)
