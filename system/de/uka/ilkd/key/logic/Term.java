@@ -71,7 +71,7 @@ public abstract class Term implements SVSubstitute {
     private final Sort sort;
     
     /** caches the hashcode of the term */
-    private int hashcode;
+    private int hashcode = 0;
     
     /** true iff this term is rigid */
     private boolean rigid;
@@ -113,6 +113,7 @@ public abstract class Term implements SVSubstitute {
 	   hashValue = hashValue*17 + sub(i).hashCode();
 	}
 	hashValue = hashValue*17 + javaBlock().hashCode();
+	// never return 0 because that would cause hashCode() to compute calculateHash() again every time, which would waste time even if correct.
         if (hashValue == 0) return 1;
 	
         return hashValue;
