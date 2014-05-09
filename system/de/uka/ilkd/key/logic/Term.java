@@ -80,7 +80,7 @@ public abstract class Term implements SVSubstitute {
     /** 
      * caches the free variables of this term  
      */
-    private ImmutableSet<QuantifiableVariable> freeVars = null; 
+    private ImmutableSet<QuantifiableVariable> freeVars = null;
 
     /** caches the meta variables of this term */
     private ImmutableSet<Metavariable> metaVars = null;
@@ -150,7 +150,7 @@ public abstract class Term implements SVSubstitute {
             myFreeVars = myFreeVars.add((QuantifiableVariable) op);
         } else if (op instanceof Modality) {
             // FIXME: we need to check the modalities as well
-            System.err.println("Failing to determine free vars of " + this);
+            //System.err.println("Failing to determine free vars of " + this);
         }
         for (int i = 0, ar = arity(); i < ar; i++) {
             if (sub(i) == null) {
@@ -325,12 +325,12 @@ public abstract class Term implements SVSubstitute {
      * @return the SetOf<Free> 
      */
     public ImmutableSet<QuantifiableVariable> freeVars() {
-        ImmutableSet<QuantifiableVariable> oldFreeVars = freeVars;
-        freeVars = null; //XXX
+        //ImmutableSet<QuantifiableVariable> oldFreeVars = freeVars;
+        //freeVars = null;
         if (freeVars == null) {
             freeVars = determineFreeVars();
         }
-        assert oldFreeVars == null || (oldFreeVars.subset(freeVars) && freeVars.subset(oldFreeVars)) : "Old Free Vars " + oldFreeVars + " new free vars " + freeVars;
+        //assert oldFreeVars == null || (oldFreeVars.subset(freeVars) && freeVars.subset(oldFreeVars)) : "Old Free Vars " + oldFreeVars + " new free vars " + freeVars;
         return freeVars;
     }
 
