@@ -71,7 +71,7 @@ public abstract class Term implements SVSubstitute {
     private final Sort sort;
     
     /** caches the hashcode of the term */
-    private int hashcode;
+    private int hashcode = 0;
     
     /** true iff this term is rigid */
     private boolean rigid;
@@ -80,7 +80,7 @@ public abstract class Term implements SVSubstitute {
     /** 
      * caches the free variables of this term  
      */
-    private ImmutableSet<QuantifiableVariable> freeVars = null; 
+    private ImmutableSet<QuantifiableVariable> freeVars = null;
 
     /** caches the meta variables of this term */
     private ImmutableSet<Metavariable> metaVars = null;
@@ -113,6 +113,7 @@ public abstract class Term implements SVSubstitute {
 	   hashValue = hashValue*17 + sub(i).hashCode();
 	}
 	hashValue = hashValue*17 + javaBlock().hashCode();
+	// never return 0 because that would cause hashCode() to compute calculateHash() again every time, which would waste time even if correct.
         if (hashValue == 0) return 1;
 	
         return hashValue;
@@ -143,12 +144,13 @@ public abstract class Term implements SVSubstitute {
      * arity of the term. The method then can determine the free vars of the
      * term and put them in a cache.
      */
-    private void determineFreeVars() {
-        freeVars = DefaultImmutableSet.<QuantifiableVariable> nil();
+    private ImmutableSet<QuantifiableVariable> determineFreeVars() {
+        ImmutableSet<QuantifiableVariable> myFreeVars = DefaultImmutableSet.nil();
         if (op instanceof QuantifiableVariable) {
-            freeVars = freeVars.add((QuantifiableVariable) op);
+            myFreeVars = myFreeVars.add((QuantifiableVariable) op);
         } else if (op instanceof Modality) {
             // FIXME: we need to check the modalities as well
+            //System.err.println("Failing to determine free vars of " + this);
         }
         for (int i = 0, ar = arity(); i < ar; i++) {
             if (sub(i) == null) {
@@ -158,8 +160,9 @@ public abstract class Term implements SVSubstitute {
             for (int j = 0, sz = varsBoundHere(i).size(); j < sz; j++) {
                 subFreeVars = subFreeVars.remove(varsBoundHere(i).get(j));
             }
-            freeVars = freeVars.union(subFreeVars);
+            myFreeVars = myFreeVars.union(subFreeVars);
         }
+        return myFreeVars;
     }
     
     /**
@@ -169,7 +172,6 @@ public abstract class Term implements SVSubstitute {
      */
     private boolean determineMetaVars() {
         boolean result = true;
-        freeVars = DefaultImmutableSet.<QuantifiableVariable> nil();
         metaVars = DefaultImmutableSet.<Metavariable> nil();
         if (op instanceof Metavariable) {
             metaVars = metaVars.add((Metavariable) op);
@@ -323,9 +325,12 @@ public abstract class Term implements SVSubstitute {
      * @return the SetOf<Free> 
      */
     public ImmutableSet<QuantifiableVariable> freeVars() {
+        //ImmutableSet<QuantifiableVariable> oldFreeVars = freeVars;
+        //freeVars = null;
         if (freeVars == null) {
-            determineFreeVars();
+            freeVars = determineFreeVars();
         }
+        //assert oldFreeVars == null || (oldFreeVars.subset(freeVars) && freeVars.subset(oldFreeVars)) : "Old Free Vars " + oldFreeVars + " new free vars " + freeVars;
         return freeVars;
     }
 

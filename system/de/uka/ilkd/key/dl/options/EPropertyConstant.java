@@ -69,7 +69,8 @@ public enum EPropertyConstant {
        DLOPTIONS_CSDP_PATH("[DLOptions]csdpPath", "csdp binary", "The path to the csdp binary file. (Used by groebnerSOS and internal sos)", "DL Properties"),
        DLOPTIONS_CSDP_FORCE_INTERNAL("[DLOptions]csdpForceInternal", "force libcsdp", "Force KeYmaera to use the library version of csdp instead of the binary. This does lead to CSDP being unusable if the natives are not available.", "DL Properties"),
        DLOPTIONS_QE_ONLY_TO_TRUE("[DLOptions]QEOnlyToTrue", "accept only true for QE", "Apply the quantifier elimination only if it yields true. Note that this may result in performing the calculution twice and there is currently a fixed timeout of 10000.", "DL Properties"),
-      
+       DLOPTIONS_PRETEND_QE_TRUE_WHILE_LOADING("[DLOptions]pretendQETrueWhileLoading", "pretend QE", "Pretend QE would always yield true while loading.", "DL Properties"),
+
        HOL_OPTIONS_HOLLIGHT_PATH("[HOLLightOptions]hollightPath", "HOL Light Path", "The path to the hol light installation needed to setup the correct environment for the tool","HOL Light Properties"),
        HOL_OPTIONS_OCAML_PATH("[HOLLightOptions]ocamlPath", "Ocaml Path", "The ocaml binary", "HOL Light Properties"),
        HOL_OPTIONS_HARRISON_QE_PATH("[HOLLightOptions]harrisonqePath", "Harrison QE Path", "The path to harrisons implementation of quantifier elimination", "HOL Light Properties"),  

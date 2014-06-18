@@ -33,6 +33,7 @@ import de.uka.ilkd.key.collection.ImmutableList;
 import de.uka.ilkd.key.collection.ImmutableSLList;
 import de.uka.ilkd.key.collection.ImmutableSet;
 import de.uka.ilkd.key.dl.options.DLOptionBean;
+import de.uka.ilkd.key.dl.rules.ReduceRule;
 import de.uka.ilkd.key.dl.rules.ReduceRuleApp;
 import de.uka.ilkd.key.gui.*;
 import de.uka.ilkd.key.gui.configuration.ProofSettings;
@@ -99,6 +100,29 @@ public class ProblemLoader implements Runnable {
     private ProgressMonitor pm;
     private ProverTaskListener ptl;
     private String quantifierEliminator;
+
+    private final static String PRETEND = "PRETEND QE YIELDS TRUE";
+    private final static BuiltInRule PRETENDRULE = new BuiltInRule() {
+                @Override
+                public boolean isApplicable(Goal goal, PosInOccurrence pio, Constraint userConstraint) {
+                    return true;
+                }
+
+                @Override
+                public ImmutableList<Goal> apply(Goal goal, Services services, RuleApp ruleApp) {
+                    return goal.split(0);
+                }
+
+                @Override
+                public Name name() {
+                    return new Name(PRETEND);
+                }
+
+                @Override
+                public String displayName() {
+                    return PRETEND;
+                }
+            };
 
     public ProblemLoader(File file, IMain main, Profile profile, 
             boolean keepProblem) {
@@ -672,6 +696,22 @@ public class ProblemLoader implements Runnable {
                                                      currContract);
             currContract=null;
             return ourApp;
+        }
+
+        if(DLOptionBean.INSTANCE.isPretendWhileLoadingQE()
+                && (currTacletName.equals(ReduceRule.INSTANCE.name().toString())
+                || currTacletName.equals(PRETEND))) {
+
+           if (reduceVariables != null) {
+                ourApp = new ReduceRuleApp(PRETENDRULE, pos,
+                    Constraint.BOTTOM, reduceVariables);
+                reduceVariables = null;
+               return ourApp;
+            } else {
+               return new BuiltInRuleApp(PRETENDRULE, pos, Constraint.BOTTOM);
+           }
+        } else if(!DLOptionBean.INSTANCE.isPretendWhileLoadingQE() && currTacletName.equals(PRETEND)) {
+            currTacletName = ReduceRule.INSTANCE.name().toString();
         }
 
         final ImmutableSet<RuleApp> ruleApps =

@@ -316,6 +316,12 @@ public class Term2SMTConverter {
 						+ convert2String(form.sub(0), nss, eliminateFractions)
 						+ ")";
 			}
+        } else if (form.op() == Op.EQV) {
+            return "(equiv "
+                    + convert2String(form.sub(0), nss, eliminateFractions)
+                    + " "
+                    + convert2String(form.sub(1), nss, eliminateFractions)
+                    + ")";
 		} else if (form.op() instanceof Quantifier) {
 
 			int varsNum = form.varsBoundHere(0).size();

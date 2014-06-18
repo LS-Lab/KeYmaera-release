@@ -68,7 +68,7 @@ KEY_VERSION_LONG=$(KEY_VERSION_SHORT)_$(SHA1)
 endif
 
 KEY_VERSION_SHORT=3.6
-KEY_VERSION_LONG=3.6.0
+KEY_VERSION_LONG=3.6.7
 
 export KEY_VERSION_LONG
 export KEY_VERSION_SHORT
@@ -371,7 +371,6 @@ endif
 argfile.normal: javaFiles
 	@echo [Collecting Java files to compile]
 	@cat javaFiles > argfile.normal
-	@echo "TestKey.java" >> argfile.normal 
 ## make gjava -> java
 
 

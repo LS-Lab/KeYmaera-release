@@ -261,7 +261,13 @@ public class Orbital implements IODESolver {
 				"This differential equation solver does not provide DiffFin. Choose a different solver from the Options menu (install and configure Mathematica).");
 	}
 
-	/**
+    @Override
+    public Term diffRI(DiffSystem form, Term post, Services services, String op) throws RemoteException, SolverException {
+        throw new FailedComputationException(
+                "This differential equation solver does not provide DRI. Choose a different solver from the Options menu (install and configure Mathematica).");
+    }
+
+    /**
 	 * Convert the result that the orbital library has returned into a KeY-Term
 	 * 
 	 * @param sortR

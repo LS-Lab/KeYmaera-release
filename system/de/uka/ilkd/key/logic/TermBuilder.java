@@ -7,12 +7,13 @@
 // See LICENSE.TXT for details.
 package de.uka.ilkd.key.logic;
 
-import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
+import de.uka.ilkd.key.collection.ImmutableArray;
 import de.uka.ilkd.key.collection.ImmutableList;
 import de.uka.ilkd.key.dl.logic.ldt.RealLDT;
 import de.uka.ilkd.key.java.Services;
-import de.uka.ilkd.key.java.expression.literal.IntLiteral;
 import de.uka.ilkd.key.logic.ldt.IntegerLDT;
 import de.uka.ilkd.key.logic.op.*;
 import de.uka.ilkd.key.logic.sort.Sort;
@@ -58,9 +59,44 @@ public class TermBuilder {
     }
     
 
-    public Term all(QuantifiableVariable qv, Term t2) {
-        if ( !t2.freeVars().contains ( qv ) ) return t2;
-        return tf.createQuantifierTerm ( Op.ALL, qv, t2 );
+    public Term all(final QuantifiableVariable qv, final Term t2) {
+        if(qv == null) {
+            throw new IllegalArgumentException("Cannot quantify over null");
+        }
+        List<QuantifiableVariable> qvs = new LinkedList<QuantifiableVariable>();
+        for(QuantifiableVariable v: t2.freeVars()) {
+            if(v.name().toString().equals(qv.name().toString())) {
+                qvs.add(v);
+            }
+        }
+        if(qvs.size() == 1 && qvs.contains(qv)) {
+            return tf.createQuantifierTerm ( Op.ALL, qv, t2 );
+        } else if(qvs.size() == 0) {
+            assert !t2.freeVars().contains(qv) && t2.freeVars() == useQV(qv, t2).freeVars();
+            return t2;
+        } else {
+            return tf.createQuantifierTerm ( Op.ALL, qv, useQV(qv, t2) );
+        }
+    }
+
+    private Term useQV(QuantifiableVariable qv, Term t) {
+        if(t.op().name().toString().equals(qv.name().toString())) {
+            System.err.println("Found the variable we wanted to replace");
+            return var((LogicVariable)qv);
+        } else {
+            for(QuantifiableVariable v: t.varsBoundHere(0)) {
+                if(v.name().toString().equals(qv.name().toString())) {
+                    return t;
+                }
+            }
+            Term[] subs = new Term[t.arity()];
+            ImmutableArray<QuantifiableVariable>[] quantifiableVariables = new ImmutableArray[t.arity()];
+            for(int i = 0; i < t.arity(); i++) {
+                subs[i] = useQV(qv, t.sub(i));
+                quantifiableVariables[i] = t.varsBoundHere(i);
+            }
+            return TermFactory.DEFAULT.createTerm(t.op(), subs, quantifiableVariables, t.javaBlock());
+        }
     }
     
     public Term all(QuantifiableVariable[] qv, Term t2) {
@@ -72,8 +108,20 @@ public class TermBuilder {
     }
     
     public Term ex(QuantifiableVariable qv, Term t2) {
-        if ( !t2.freeVars().contains ( qv ) ) return t2;
-        return tf.createQuantifierTerm(Op.EX, qv, t2);
+        List<QuantifiableVariable> qvs = new LinkedList<QuantifiableVariable>();
+        for(QuantifiableVariable v: t2.freeVars()) {
+            if(v.name().toString().equals(qv.name().toString())) {
+                qvs.add(v);
+            }
+        }
+        if(qvs.size() == 1 && qvs.contains(qv)) {
+            return tf.createQuantifierTerm ( Op.EX, qv, t2 );
+        } else if(qvs.size() == 0) {
+            assert !t2.freeVars().contains(qv);
+            return t2;
+        } else {
+            return tf.createQuantifierTerm ( Op.EX, qv, useQV(qv, t2) );
+        }
     }
     
     public Term ex(QuantifiableVariable[] qv, Term t2) {

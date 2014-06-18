@@ -180,6 +180,8 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
                         false, InvariantRulePropertyEditor.class),
                     createDescriptor("addRigidFormulas", EPropertyConstant.DLOPTIONS_ADD_RIGID_FORMULAS,
                             true, false),
+                    createDescriptor("pretendWhileLoadingQE", EPropertyConstant.DLOPTIONS_PRETEND_QE_TRUE_WHILE_LOADING,
+                            true, false),
 
 			};
 			return pds;

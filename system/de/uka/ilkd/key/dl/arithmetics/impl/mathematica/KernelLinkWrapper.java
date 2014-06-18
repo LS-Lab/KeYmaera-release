@@ -130,6 +130,8 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 
 	private long cachedAnwsers;
 
+    private volatile int sequenceNumber = 0;
+
 	/**
 	 * 
 	 */
@@ -150,9 +152,9 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 
 	private boolean abort;
 
-	private File amc;
+    private HashMap<String,File> files;
 
-	/**
+    /**
 	 * Creates a new KernelLinkWrapper for the given port
 	 * 
 	 * @param port
@@ -286,20 +288,22 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 			testForError(link);
 
 			try {
-				File amc = createResources();
-				if (amc == null) {
+				Map<String, File> files = createResources();
+				if (files == null) {
 					log(Level.WARNING, "No initialization of AMC present");
 				} else {
-					link.newPacket();
-					testForError(link);
-					link
-							.evaluate(new Expr(new Expr(Expr.SYMBOL, "Needs"),
-									new Expr[] {
-											new Expr(Expr.STRING, "AMC`"),
-											new Expr(Expr.STRING, amc
-													.getAbsolutePath()) }));
-					link.discardAnswer();
-					testForError(link);
+                    for(String s: files.keySet()) {
+                        link.newPacket();
+                        testForError(link);
+                        link
+                                .evaluate(new Expr(new Expr(Expr.SYMBOL, "Needs"),
+                                        new Expr[] {
+                                                new Expr(Expr.STRING, s + "`"),
+                                                new Expr(Expr.STRING, files.get(s)
+                                                        .getAbsolutePath()) }));
+                        link.discardAnswer();
+                        testForError(link);
+                    }
 				}
 			} catch (IOException dump) {
 				log(Level.WARNING, "Could not initialize AMC because of "
@@ -314,10 +318,11 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 		}
 	}
 
-	private File createResources() throws IOException {
-		if (amc != null) {
-			return amc;
+	private Map<String, File> createResources() throws IOException {
+		if (files != null) {
+			return files;
 		}
+        files = new HashMap<String, File>();
 		InputStream amcresource = null;
 		OutputStream amcdump = null;
 		try {
@@ -326,14 +331,15 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 			if (amcresource == null) {
 				return null;
 			}
-			this.amc = File.createTempFile("AMCdump", ".m");
+			File amc = File.createTempFile("AMCdump", ".m");
 			amc.deleteOnExit();
+            files.put("AMC", amc);
 			amcdump = new BufferedOutputStream(new FileOutputStream(amc));
 			final byte[] buffer = new byte[4096];
 			while (true) {
 				int len = amcresource.read(buffer);
 				if (len < 0) {
-					return amc;
+                    break;
 				} else {
 					amcdump.write(buffer, 0, len);
 				}
@@ -346,6 +352,34 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 				amcdump.close();
 			}
 		}
+        try {
+            amcresource = new BufferedInputStream(getClass()
+                    .getResourceAsStream(RESOURCES + "Invariants.m"));
+            if (amcresource == null) {
+                return null;
+            }
+            File inv = File.createTempFile("InvariantsDump", ".m");
+            inv.deleteOnExit();
+            files.put("Invariants", inv);
+            amcdump = new BufferedOutputStream(new FileOutputStream(inv));
+            final byte[] buffer = new byte[4096];
+            while (true) {
+                int len = amcresource.read(buffer);
+                if (len < 0) {
+                    break;
+                } else {
+                    amcdump.write(buffer, 0, len);
+                }
+            }
+        } finally {
+            if (amcresource != null) {
+                amcresource.close();
+            }
+            if (amcdump != null) {
+                amcdump.close();
+            }
+        }
+        return files;
 	}
 
 	/**
@@ -476,9 +510,12 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 				log(Level.FINEST, exprAndMessages.expression.toString());
 				return exprAndMessages;
 			}
+            // create a list with a sequence number and the actual query
+            final int seq = ++sequenceNumber;
+            Expr sequenedExpr = new Expr(Expr.SYM_LIST, new Expr[] { new Expr(seq), expr } );
 			// wrap inside time constraints
-			final Expr memconstrainted = memoryconstraint <= 0 ? expr
-					: new Expr(MEMORYCONSTRAINTED, new Expr[] { expr,
+			final Expr memconstrainted = memoryconstraint <= 0 ? sequenedExpr
+					: new Expr(MEMORYCONSTRAINTED, new Expr[] { sequenedExpr,
 							new Expr(memoryconstraint) });
 			final Expr compute = timeout <= 0 ? memconstrainted : new Expr(
 					TIMECONSTRAINED, new Expr[] { memconstrainted,
@@ -516,7 +553,7 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 						+ compute.toString() + "\nbecause message " + msg
 						+ " of the messages in "
 						+ Arrays.deepToString(messageBlacklist) + " occured");
-			} else if (result.toString().equals(expr.toString())) {
+			} else if (result.toString().equals(sequenedExpr.toString())) {
 				throw new UnsolveableException(
 						"Mathematica returned the identity of the query: "
 								+ result);
@@ -551,8 +588,31 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 			calcTimes.append(time + "\n");
 			log(Level.SEVERE, "Overall Time: " + addTime);
 			log(Level.FINEST, result.toString());
-			ExprAndMessages exprAndMessages = new ExprAndMessages(result, msg);
-			if (cache.size() > MAX_CACHE_SIZE) {
+            // the result should be a list with [seq, actResult]
+            ExprAndMessages exprAndMessages;
+            try {
+                if(result.head() == Expr.SYM_LIST && result.args().length == 2 && result.args()[0].asInt() == seq) {
+                    exprAndMessages = new ExprAndMessages(result.args()[1], msg);
+                } else {
+                    try {
+                        link.close();
+                    } catch (Throwable t) {
+                    } finally {
+                        createLink();
+                    }
+                    throw new ServerStatusProblemException("The mathkernel returned an old answer " + result.toString() + " expected was answer with number " + seq + ". The MathKernel has been restarted. Please try again.");
+                }
+            } catch (ExprFormatException e) {
+               try {
+                    link.close();
+               } catch (Throwable t) {
+               } finally {
+                  createLink();
+               }
+                throw new ServerStatusProblemException("The mathkernel returned an old answer " + result.toString() + " expected was answer with number " + seq + ". The MathKernel has been restarted. Please try again.", e);
+            }
+
+            if (cache.size() > MAX_CACHE_SIZE) {
 				cache.clear();
 			}
 			if (!"$Aborted".equalsIgnoreCase(result.toString())
