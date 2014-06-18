@@ -329,6 +329,7 @@ For an easy proof, before solving differential equations in the acceleration cas
             	   </some>
              </requirements>
 		</example>
+		<example>
             <name>5: Stop sign controller (time-triggered)</name>
             				<path>/examples/hybrid/tutorial/tutorial5_controller_with_eps.key</path>
             <description>KeYmaera Tutorial Example 5: In a realistic system, the sensors on the car would take periodic measurements of position and velocity and the controller would execute each time those sensor updates are taken. We continue with the single car travelling toward a stop sign, receiving periodic updates about its position and velocity.  The time between sensor updates is bounded by eps.</description>
@@ -343,7 +344,7 @@ For an easy proof, before solving differential equations in the acceleration cas
 		</example>
 		<example>
             <name>6: Guarded nondeterministic assignment stop sign controller</name>
-            				<path>/examples/hybrid/tutorial/tutorial5-nondet_assignment.key</path>
+            				<path>/examples/hybrid/tutorial/tutorial6-nondet_assignment.key</path>
             <description>KeYmaera Tutorial Example 6: In this example, the stop sign controller is able to choose any acceleration within a range of values representing the physical limits of the system, rather than choosing from a discrete set of values.  We do this by using guarded nondeterministic assignment.</description>
             <source href="http://symbolaris.com/info/KeYmaera-tutorial.html"/>
             <requirements>
@@ -412,9 +413,9 @@ For an easy proof, before solving differential equations in the acceleration cas
 		</example>
 		<example>
             <name>11: Car controller with non-linear dynamics</name>
-            				<path>/examples/hybrid/tutorial/tutorial11-stayonlane.key</path>
+            				<path>/examples/hybrid/tutorial/tutorial11_stayonlane.key</path>
 							<proofs>
-								<proof name="Mathematica" href="/examples/hybrid/tutorial/tutorial11-stayonlane.key.proof"/>
+								<proof name="Mathematica" href="/examples/hybrid/tutorial/tutorial11_stayonlane.key.proof"/>
 							</proofs>
 
             <description>KeYmaera Tutorial Example 11</description>
