@@ -329,10 +329,9 @@ For an easy proof, before solving differential equations in the acceleration cas
             	   </some>
              </requirements>
 		</example>
-		<example>
-            <name>5: Guarded nondeterministic assignment stop sign controller</name>
-            				<path>/examples/hybrid/tutorial/tutorial5-nondet_assignment.key</path>
-            <description>KeYmaera Tutorial Example 5: In this example, the stop sign controller is able to choose any acceleration within a range of values representing the physical limits of the system, rather than choosing from a discrete set of values.  We do this by using guarded nondeterministic assignment.</description>
+            <name>5: Stop sign controller (time-triggered)</name>
+            				<path>/examples/hybrid/tutorial/tutorial5_controller_with_eps.key</path>
+            <description>KeYmaera Tutorial Example 5: In a realistic system, the sensors on the car would take periodic measurements of position and velocity and the controller would execute each time those sensor updates are taken. We continue with the single car travelling toward a stop sign, receiving periodic updates about its position and velocity.  The time between sensor updates is bounded by eps.</description>
             <source href="http://symbolaris.com/info/KeYmaera-tutorial.html"/>
             <requirements>
                  <some>
@@ -343,9 +342,82 @@ For an easy proof, before solving differential equations in the acceleration cas
              </requirements>
 		</example>
 		<example>
-            <name>6: Stop sign controller with non-deterministic braking</name>
-            				<path>/examples/hybrid/tutorial/tutorial6-nondet_braking.key</path>
-            <description>KeYmaera Tutorial Example 6: In this example, a non-deterministic braking envelope is used to overapproximate a more complicated braking envelope</description>
+            <name>6: Guarded nondeterministic assignment stop sign controller</name>
+            				<path>/examples/hybrid/tutorial/tutorial5-nondet_assignment.key</path>
+            <description>KeYmaera Tutorial Example 6: In this example, the stop sign controller is able to choose any acceleration within a range of values representing the physical limits of the system, rather than choosing from a discrete set of values.  We do this by using guarded nondeterministic assignment.</description>
+            <source href="http://symbolaris.com/info/KeYmaera-tutorial.html"/>
+            <requirements>
+                 <some>
+            		 	<quantifiereliminator>Mathematica</quantifiereliminator>
+            		 	<quantifiereliminator>QepCad</quantifiereliminator>
+            		 	<quantifiereliminator>Reduce</quantifiereliminator>
+            	   </some>
+             </requirements>
+		</example>
+		<example>
+            <name>7: Stop sign controller with non-deterministic braking</name>
+            				<path>/examples/hybrid/tutorial/tutorial7-nondet_braking.key</path>
+							<proofs>
+								<proof name="Mathematica" href="/examples/hybrid/tutorial/tutorial7-nondet_braking.key.proof"/>
+							</proofs>
+            <description>KeYmaera Tutorial Example 7: In this example, a non-deterministic braking envelope is used to overapproximate a more complicated braking envelope</description>
+            <source href="http://symbolaris.com/info/KeYmaera-tutorial.html"/>
+            <requirements>
+                 <some>
+            		 	<quantifiereliminator>Mathematica</quantifiereliminator>
+            	   </some>
+             </requirements>
+		</example>
+		<example>
+            <name>8: Stop sign controller with braking disturbance</name>
+            				<path>/examples/hybrid/tutorial/tutorial8_stop_nondetbraking_disturbed.key</path>
+							<proofs>
+								<proof name="Mathematica" href="/examples/hybrid/tutorial/tutorial8_stop_nondetbraking_disturbed.key.proof"/>
+							</proofs>
+
+            <description>KeYmaera Tutorial Example 8</description>
+            <source href="http://symbolaris.com/info/KeYmaera-tutorial.html"/>
+            <requirements>
+                 <some>
+            		 	<quantifiereliminator>Mathematica</quantifiereliminator>
+            	   </some>
+             </requirements>
+		</example>
+		<example>
+            <name>9: Energy argument</name>
+            				<path>/examples/hybrid/tutorial/tutorial9-carcruiseenergy.key</path>
+
+            <description>KeYmaera Tutorial Example 9</description>
+            <source href="http://symbolaris.com/info/KeYmaera-tutorial.html"/>
+            <requirements>
+                 <some>
+            		 	<quantifiereliminator>Mathematica</quantifiereliminator>
+            	   </some>
+             </requirements>
+		</example>
+		<example>
+            <name>10: Automatic-Transmission</name>
+            				<path>/examples/hybrid/tutorial/tutorial10-automatictransmission.key</path>
+							<proofs>
+								<proof name="Mathematica" href="/examples/hybrid/tutorial/tutorial10-automatictransmission.key.proof"/>
+							</proofs>
+
+            <description>KeYmaera Tutorial Example 10</description>
+            <source href="http://symbolaris.com/info/KeYmaera-tutorial.html"/>
+            <requirements>
+                 <some>
+            		 	<quantifiereliminator>Mathematica</quantifiereliminator>
+            	   </some>
+             </requirements>
+		</example>
+		<example>
+            <name>11: Car controller with non-linear dynamics</name>
+            				<path>/examples/hybrid/tutorial/tutorial11-stayonlane.key</path>
+							<proofs>
+								<proof name="Mathematica" href="/examples/hybrid/tutorial/tutorial11-stayonlane.key.proof"/>
+							</proofs>
+
+            <description>KeYmaera Tutorial Example 11</description>
             <source href="http://symbolaris.com/info/KeYmaera-tutorial.html"/>
             <requirements>
                  <some>
