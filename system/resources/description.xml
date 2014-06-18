@@ -317,9 +317,9 @@ For an easy proof, before solving differential equations in the acceleration cas
              </requirements>
 		</example>
 		<example>
-            <name>4: Time-triggered stop sign controller</name>
-            				<path>/examples/hybrid/tutorial/tutorial4-time.key</path>
-            <description>KeYmaera Tutorial Example 4: In a realistic system, the sensors on the car would take periodic measurements of position and velocity and the controller would execute each time those sensor updates are taken. We continue with the single car travelling toward a stop sign, receiving periodic updates about its position and velocity.  The time between sensor updates is bounded by eps.</description>
+            <name>4: Event triggered cruise-control</name>
+            				<path>/examples/hybrid/tutorial/tutorial4-event.key</path>
+            <description>In this example, the car begins with a velocity smaller than Vs and then accelerates to velocity Vs and maintains that speed.  The example also demonstrates the correct way to use an event trigger, in this case the event where v = Vs. </description>
             <source href="http://symbolaris.com/info/KeYmaera-tutorial.html"/>
             <requirements>
                  <some>
