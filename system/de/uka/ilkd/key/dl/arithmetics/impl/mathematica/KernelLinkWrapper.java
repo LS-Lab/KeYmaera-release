@@ -114,9 +114,10 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 			"MemoryConstrained");
 
 	private static final Expr CHECK = new Expr(Expr.SYMBOL, "Check");
+    private final PacketListener packetListener;
 
 
-	private Map<Expr, ExprAndMessages> cache;
+    private Map<Expr, ExprAndMessages> cache;
 
 	private KernelLink link;
 
@@ -164,6 +165,16 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 	protected KernelLinkWrapper(int port, Map<Expr, ExprAndMessages> cache, String call)
 			throws RemoteException {
 		super(port);
+        packetListener = new PacketListener() {
+				public boolean packetArrived(PacketArrivedEvent evt)
+						throws MathLinkException {
+					if (evt.getPktType() == MathLink.TEXTPKT) {
+						KernelLink ml = (KernelLink) evt.getSource();
+						KernelLinkWrapper.this.log(Level.WARNING, ml.getString());
+					}
+					return true;
+				}
+			};
 		this.cache = cache;
 		calcTimes = new StringBuffer();
 		mutex = new Object();
@@ -193,6 +204,7 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 		addTime = 0;
 		callCount = 0;
 		cachedAnwsers = 0;
+
 	}
 
 	/**
@@ -266,17 +278,7 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 			link.discardAnswer();
 			testForError(link);
 
-			link.addPacketListener(new PacketListener() {
-				public boolean packetArrived(PacketArrivedEvent evt)
-						throws MathLinkException {
-					if (evt.getPktType() == MathLink.TEXTPKT) {
-						KernelLink ml = (KernelLink) evt.getSource();
-						KernelLinkWrapper.this.log(Level.WARNING, link
-								.getString());
-					}
-					return true;
-				}
-			});
+			link.addPacketListener(packetListener);
 
 			// Now we redefine the run commands for security reasons.
 			link.newPacket();
@@ -317,6 +319,20 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 			throw new RemoteException("Could not initialise math link", e);
 		}
 	}
+
+    private void recreateKernel() {
+       try {
+            KernelLink l = link;
+            link = null;
+            System.out.println("Recreating link");
+            l.removePacketListener(packetListener);
+            l.terminateKernel();
+            createLink();
+            l.close();
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+    }
 
 	private Map<String, File> createResources() throws IOException {
 		if (files != null) {
@@ -594,22 +610,18 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
                 if(result.head() == Expr.SYM_LIST && result.args().length == 2 && result.args()[0].asInt() == seq) {
                     exprAndMessages = new ExprAndMessages(result.args()[1], msg);
                 } else {
-                    try {
-                        link.close();
-                    } catch (Throwable t) {
-                    } finally {
-                        createLink();
+                    if("$Aborted".equalsIgnoreCase(result.toString())) {
+                        exprAndMessages = new ExprAndMessages(result, msg);
+                    } else {
+                        String s = result.toString();
+                        recreateKernel();
+                        throw new ServerStatusProblemException("The mathkernel returned an old answer " + s + " expected was answer with number " + seq + ". The MathKernel has been restarted. Please try again.");
                     }
-                    throw new ServerStatusProblemException("The mathkernel returned an old answer " + result.toString() + " expected was answer with number " + seq + ". The MathKernel has been restarted. Please try again.");
                 }
             } catch (ExprFormatException e) {
-               try {
-                    link.close();
-               } catch (Throwable t) {
-               } finally {
-                  createLink();
-               }
-                throw new ServerStatusProblemException("The mathkernel returned an old answer " + result.toString() + " expected was answer with number " + seq + ". The MathKernel has been restarted. Please try again.", e);
+                String s = result.toString();
+                recreateKernel();
+                throw new ServerStatusProblemException("The mathkernel returned an old answer " + s + " expected was answer with number " + seq + ". The MathKernel has been restarted. Please try again.");
             }
 
             if (cache.size() > MAX_CACHE_SIZE) {
@@ -631,12 +643,7 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 			}
 			if (e.getErrCode() == 11 || e.getErrCode() == 1) {
 				// error code 11 indicates that the mathkernel has died
-				try {
-					link.close();
-				} catch (Throwable t) {
-				} finally {
-					createLink();
-				}
+                recreateKernel();
 			}
 			e.printStackTrace();
 			link.clearError();
@@ -679,12 +686,7 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 		}
 		if (e.getErrCode() == 11 || e.getErrCode() == 1) {
 			// error code 11 indicates that the mathkernel has died
-			try {
-				link.close();
-			} catch (Throwable t) {
-			} finally {
-				createLink();
-			}
+            recreateKernel();
 		}
 		e.printStackTrace();
 		link.clearError();
@@ -737,7 +739,11 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 	 * @see de.uka.ilkd.key.dl.IKernelLinkWrapper#getStatus()
 	 */
 	public int getStatus() throws RemoteException {
-		return link.error();
+        if(link != null) {
+            return link.error();
+        } else {
+            return -1;
+        }
 	}
 
 	/*
