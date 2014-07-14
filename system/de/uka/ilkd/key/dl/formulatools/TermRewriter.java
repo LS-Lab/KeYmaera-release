@@ -29,10 +29,7 @@ import java.util.Set;
 import de.uka.ilkd.key.collection.ImmutableArray;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.TermFactory;
-import de.uka.ilkd.key.logic.op.Metavariable;
-import de.uka.ilkd.key.logic.op.Operator;
-import de.uka.ilkd.key.logic.op.QuantifiableVariable;
-import de.uka.ilkd.key.logic.op.RigidFunction;
+import de.uka.ilkd.key.logic.op.*;
 
 /**
  * TODO jdq documentation since Sep 27, 2007
@@ -47,7 +44,7 @@ public class TermRewriter {
 		public Match(RigidFunction op, Term var) {
 			this.operatorToRewrite = op;
 			this.rewriteTo = var;
-			assert ((RigidFunction)operatorToRewrite).isSkolem();
+			//assert ((RigidFunction)operatorToRewrite).isSkolem();
 		}
 
 		/**
@@ -58,6 +55,11 @@ public class TermRewriter {
 			this.rewriteTo = newVar;
 			this.operatorToRewrite = var;
 		}
+
+        public Match(ProgramVariable var, Term newVar) {
+            this.rewriteTo = newVar;
+            this.operatorToRewrite = var;
+        }
 
 		Operator operatorToRewrite;
 		Term rewriteTo;

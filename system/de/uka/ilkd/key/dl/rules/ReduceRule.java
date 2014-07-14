@@ -23,11 +23,7 @@
 package de.uka.ilkd.key.dl.rules;
 
 import java.rmi.RemoteException;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import de.uka.ilkd.key.collection.ImmutableArray;
 import de.uka.ilkd.key.collection.ImmutableList;
@@ -37,19 +33,16 @@ import de.uka.ilkd.key.dl.arithmetics.exceptions.SolverException;
 import de.uka.ilkd.key.dl.formulatools.SkolemfunctionTracker;
 import de.uka.ilkd.key.dl.formulatools.TermRewriter;
 import de.uka.ilkd.key.dl.formulatools.TermRewriter.Match;
+import de.uka.ilkd.key.dl.formulatools.collector.AllCollector;
+import de.uka.ilkd.key.dl.formulatools.collector.FilterVariableSet;
+import de.uka.ilkd.key.dl.formulatools.collector.filter.FilterNotArity;
+import de.uka.ilkd.key.dl.formulatools.collector.filter.FilterNotNumber;
 import de.uka.ilkd.key.dl.logic.ldt.RealLDT;
 import de.uka.ilkd.key.dl.options.DLOptionBean;
 import de.uka.ilkd.key.dl.strategy.features.FOSequence;
 import de.uka.ilkd.key.java.Services;
-import de.uka.ilkd.key.logic.Constraint;
-import de.uka.ilkd.key.logic.Name;
-import de.uka.ilkd.key.logic.PosInOccurrence;
-import de.uka.ilkd.key.logic.Term;
-import de.uka.ilkd.key.logic.TermBuilder;
-import de.uka.ilkd.key.logic.op.LogicVariable;
-import de.uka.ilkd.key.logic.op.QuantifiableVariable;
-import de.uka.ilkd.key.logic.op.Quantifier;
-import de.uka.ilkd.key.logic.op.RigidFunction;
+import de.uka.ilkd.key.logic.*;
+import de.uka.ilkd.key.logic.op.*;
 import de.uka.ilkd.key.proof.Goal;
 import de.uka.ilkd.key.proof.RuleFilter;
 import de.uka.ilkd.key.rule.Rule;
@@ -190,7 +183,7 @@ public class ReduceRule extends RuleOperatingOnWholeSequence implements
     protected Term performQuery(Term term, long timeout)
             throws RemoteException, SolverException {
 
-        List<String> variables = getVariables();
+        final List<String> variables = getVariables();
         List<Term> skolem = new LinkedList<Term>();
 
         skolem.addAll(SkolemfunctionTracker.INSTANCE
@@ -222,6 +215,45 @@ public class ReduceRule extends RuleOperatingOnWholeSequence implements
                 matches.add(new Match((RigidFunction) sk.op(), TermBuilder.DF
                         .var(logicVariable)));
                 variables.add(logicVariable.name().toString());
+            }
+            if(DLOptionBean.INSTANCE.isUniversalClosureOnQE()) { // universal closure
+                final HashSet<Term> candidates = new HashSet<Term>();
+                term.execPreOrder(new Visitor() {
+                    @Override
+                    public void visit(Term sk) {
+                        if(sk.arity() == 0) {
+                            if (sk.op() instanceof RigidFunction && !variables.contains(sk.op().name()) && !variables.contains(sk.op().name() + "$sk")) {
+                                RigidFunction fn = (RigidFunction) sk.op();
+                                if(!fn.isMathFunction()) {
+                                    try {
+                                        Double.parseDouble(fn.name().toString());
+                                    } catch(NumberFormatException e) {
+                                        candidates.add(sk);
+                                    }
+                                }
+                            } else if (sk.op() instanceof ProgramVariable) {
+                                candidates.add(sk);
+                            }
+                        }
+                    }
+                });
+                for(Term sk: candidates) {
+                    LogicVariable logicVariable = new LogicVariable(new Name(sk
+                            .op().name() + "$closure"), sk.op().sort(new Term[0]));
+                    if(!variables.contains(logicVariable.name().toString())) {
+                        vars.add(logicVariable);
+                        if(sk.op() instanceof RigidFunction) {
+                            matches.add(new Match((RigidFunction) sk.op(), TermBuilder.DF
+                                    .var(logicVariable)));
+                        } else if(sk.op() instanceof ProgramVariable) {
+                            matches.add(new Match((ProgramVariable) sk.op(), TermBuilder.DF
+                                    .var(logicVariable)));
+                        } else {
+                            throw new IllegalStateException("Found strange object to quantify " + sk + " in " + candidates);
+                        }
+                        variables.add(logicVariable.name().toString());
+                    }
+                }
             }
             term = TermRewriter.replace(term, matches);
             for (QuantifiableVariable v : vars) {

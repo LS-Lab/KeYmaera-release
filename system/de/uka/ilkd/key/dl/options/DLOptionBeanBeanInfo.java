@@ -144,9 +144,9 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
 					createDescriptor(
 							"applyGammaRules", EPropertyConstant.DLOPTIONS_APPLY_GAMMA_RULES,
 							true, false, false, ApplyRulesPropertyEditor.class),
-					createDescriptor(
+					/*createDescriptor(
 							"applyUpdatesToModalities", EPropertyConstant.DLOPTIONS_APPLY_UPDATES_TO_MODALITIES,
-							true, false),
+							true, false),*/
 					//
 					createDescriptor(
 							"ignoreAnnotations", EPropertyConstant.DLOPTIONS_IGNORE_ANNOTATIONS,
@@ -181,6 +181,8 @@ public class DLOptionBeanBeanInfo extends SimpleBeanInfo {
                     createDescriptor("addRigidFormulas", EPropertyConstant.DLOPTIONS_ADD_RIGID_FORMULAS,
                             true, false),
                     createDescriptor("pretendWhileLoadingQE", EPropertyConstant.DLOPTIONS_PRETEND_QE_TRUE_WHILE_LOADING,
+                            true, false),
+                    createDescriptor("universalClosureOnQE", EPropertyConstant.DLOPTIONS_UNIVERSAL_CLOSURE_ON_QE,
                             true, false),
 
 			};

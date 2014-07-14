@@ -334,6 +334,8 @@ public class DLOptionBean implements Settings {
 
     private boolean pretendWhileLoadingQE;
 
+    private boolean universalClosureOnQE;
+
 	private DLOptionBean() {
 		subOptions = new LinkedHashSet<Settings>();
 		solveODE = true;
@@ -391,6 +393,7 @@ public class DLOptionBean implements Settings {
 		qeOnlyToTrue = false;
         addRigidFormulas = true;
         pretendWhileLoadingQE = false;
+        universalClosureOnQE = true;
 		if(!init) {
 		    firePropertyChanged();
 		}
@@ -765,6 +768,11 @@ public class DLOptionBean implements Settings {
             pretendWhileLoadingQE = Boolean.valueOf(property);
         }
 
+        property = props.getProperty(EPropertyConstant.DLOPTIONS_UNIVERSAL_CLOSURE_ON_QE.getKey());
+        if (property != null) {
+            universalClosureOnQE = Boolean.valueOf(property);
+        }
+
 		try {
 			de.uka.ilkd.key.dl.DLInitializer.updateCustomizers();
 		} catch(Exception e) {}
@@ -880,6 +888,7 @@ public class DLOptionBean implements Settings {
 		props.setProperty(EPropertyConstant.DLOPTIONS_IBC_ONLY_TO_FO.getKey(), Boolean.toString(ibcOnlyToFO));
 		props.setProperty(EPropertyConstant.DLOPTIONS_QE_ONLY_TO_TRUE.getKey(), Boolean.toString(qeOnlyToTrue));
         props.setProperty(EPropertyConstant.DLOPTIONS_ADD_RIGID_FORMULAS.getKey(), Boolean.toString(addRigidFormulas));
+        props.setProperty(EPropertyConstant.DLOPTIONS_UNIVERSAL_CLOSURE_ON_QE.getKey(), Boolean.toString(universalClosureOnQE));
 
 	}
 
@@ -1022,7 +1031,9 @@ public class DLOptionBean implements Settings {
 	 * @return the applyUpdatesToModalities
 	 */
 	public boolean isApplyUpdatesToModalities() {
-		return applyUpdatesToModalities;
+		// FIXME the method is unsound and therefore disabled
+		return false;
+		//return applyUpdatesToModalities;
 	}
 
 	/**
@@ -1568,5 +1579,14 @@ public class DLOptionBean implements Settings {
         }
     }
 
+    public boolean isUniversalClosureOnQE() {
+        return universalClosureOnQE;
+    }
 
+    public void setUniversalClosureOnQE(boolean universalClosureOnQE) {
+        if(this.universalClosureOnQE != universalClosureOnQE) {
+            this.universalClosureOnQE = universalClosureOnQE;
+            firePropertyChanged();
+        }
+    }
 }
