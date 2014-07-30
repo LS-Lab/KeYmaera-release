@@ -40,6 +40,7 @@ import java.util.LinkedHashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.Enumeration;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -48,6 +49,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JTextArea;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
@@ -326,6 +328,37 @@ public class DLInitializer {
 			}
 		});
 		help.add(tutorial);
+
+		JMenuItem diagnostics = new JMenuItem("KeYmaera Diagnostics");
+		diagnostics.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				{
+					String properties = "";
+					for (Enumeration i = System.getProperties().propertyNames(); i.hasMoreElements(); ) {
+						String k = (String)i.nextElement();
+						properties += k + "=" + System.getProperties().getProperty(k) + "\n";
+					}
+					JTextArea text = new JTextArea(
+						      "KeYmaera version " + KeYResourceManager.getManager().getVersion() + "\n" +
+									"KeYmaera internal " + KeYResourceManager.getManager().getSHA1() + "\n" +
+									"Java version " + System.getProperties().getProperty("java.runtime.version") + " with " + System.getProperties().getProperty("sun.arch.data.model") + " bits\n" +
+									"OS " + System.getProperties().getProperty("os.name") + " " + System.getProperties().getProperty("os.version") + "\n" +
+									"JDK home " + System.getProperties().getProperty("java.home") + "\n" + 
+									"J/Link " + System.getProperties().getProperty("com.wolfram.jlink.libdir", "(undefined)") + "\n" + 
+									"---------------------------\n" + 
+									properties,
+									20,60);
+					text.setEditable(false);
+					JOptionPane
+							.showMessageDialog(
+									main,
+									new JScrollPane(text),
+									"KeYmaera Diagnostics",
+									JOptionPane.INFORMATION_MESSAGE);
+				}
+			}
+		});
+		help.add(diagnostics);
 	}
 
 	/**
