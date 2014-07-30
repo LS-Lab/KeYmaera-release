@@ -82,6 +82,7 @@ import de.uka.ilkd.key.proof.init.Profile;
  * line parameter is set.
  * 
  * @author jdq
+ * @author aplatzer
  * @since Jul 27, 2007
  * 
  */
@@ -144,6 +145,8 @@ public class DLInitializer {
 								+ "Program Variables: "
 								+ mediator.namespaces().programVariables()
 										.elements().size();
+            stats += "\n" + "KeYmaera Version: " + KeYResourceManager.getManager().getVersion();
+
 					} catch (RemoteException e1) {
 						// if there is an exception the statistic is not
 						// displayed
@@ -305,14 +308,18 @@ public class DLInitializer {
 							.showMessageDialog(
 									main,
 									"KeYmaera Version " + KeYResourceManager.getManager().getVersion() + "\n" +
-									"Information and documentation on using KeYmaera,\nthe syntax of its specification language, and\nits verification features, is available on the web:\n"
-											+ "see KeYmaera Tutorial at\n\n    http://symbolaris.com/info/KeYmaera-guide.html\n\n"
-											+ "Full details on the verification approach can be found\nin the book\n"
+									"Information and documentation on using KeYmaera,\nthe syntax of its specification language of\n"
+                      + "differential dynamic logic for hybrid programs, and\n"
+                      + "its verification features, is available on the web:\n"
+											+ "See KeYmaera Tutorial at\n\n    http://symbolaris.com/info/KeYmaera-guide.html\n\n"
+											+ "Full details on the KeYmaera verification approach\n"
+                      + "can be found in the book\n"
 											+ "  Andr\u00e9 Platzer.\n"
-											+ "  Logical Analysis of Hybrid Systems\n" + "  Proving Theorems for Complex Dynamcis.\n"
+											+ "  Logical Analysis of Hybrid Systems:\n" + "  Proving Theorems for Complex Dynamics.\n"
 											+ "  Springer, 2010.\n"
 											+ "  ISBN 978-3-642-14508-7\n"
-											+ "http://symbolaris.com/lahs/",
+											+ "http://symbolaris.com/lahs/\n"
+                      + "Powered by Symbolaris",
 									"KeYmaera Documentation",
 									JOptionPane.INFORMATION_MESSAGE);
 				}
