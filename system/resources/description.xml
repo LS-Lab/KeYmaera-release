@@ -2098,6 +2098,28 @@ K is the scale factor between force and velocity in the admittance control law</
 	</group>
 	<group name="Autonomous Robotics">
 		<example>
+    		<name>Straight line driving, stop before certain point</name>
+    		<path>/examples/hybrid/robix/linefollower/linefollower.key</path>
+    		<proofs>
+    		    <proof name="Mathematica" href="/examples/hybrid/robix/linefollower/linefollower.key.proof"/>
+    		    <proof name="Z3" href="/examples/hybrid/robix/linefollower/linefollower_smt.key.proof"/>
+    		</proofs>
+			<authors>
+				<author>smitsch</author>
+			</authors>
+			<proofauthors>
+				<author>smitsch</author>
+			</proofauthors>
+    		<requirements>
+    			<some>
+    				<quantifiereliminator>Mathematica</quantifiereliminator>
+    				<quantifiereliminator>SMT</quantifiereliminator>
+    			</some>
+    		</requirements>
+    		<description>Robot drives straight, but never past a certain point.
+    		</description>
+    	</example>
+		<example>
     		<name>Safety of arc-shaped trajectories [stationary obstacles]</name>
     		<path>/examples/hybrid/robix/DWA_StationaryObstacles_ArcTraj.key</path>
     		<proofs>
