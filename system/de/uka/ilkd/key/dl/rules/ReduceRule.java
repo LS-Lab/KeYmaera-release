@@ -214,7 +214,9 @@ public class ReduceRule extends RuleOperatingOnWholeSequence implements
                 vars.add(logicVariable);
                 matches.add(new Match((RigidFunction) sk.op(), TermBuilder.DF
                         .var(logicVariable)));
-                variables.add(logicVariable.name().toString());
+                if(!variables.contains(logicVariable.name().toString())) {
+                	variables.add(logicVariable.name().toString());
+                }
             }
             if(DLOptionBean.INSTANCE.isUniversalClosureOnQE()) { // universal closure
                 final HashSet<Term> candidates = new HashSet<Term>();
@@ -240,17 +242,17 @@ public class ReduceRule extends RuleOperatingOnWholeSequence implements
                 for(Term sk: candidates) {
                     LogicVariable logicVariable = new LogicVariable(new Name(sk
                             .op().name() + "$closure"), sk.op().sort(new Term[0]));
+                    vars.add(logicVariable);
+                    if(sk.op() instanceof RigidFunction) {
+                        matches.add(new Match((RigidFunction) sk.op(), TermBuilder.DF
+                                .var(logicVariable)));
+                    } else if(sk.op() instanceof ProgramVariable) {
+                        matches.add(new Match((ProgramVariable) sk.op(), TermBuilder.DF
+                                .var(logicVariable)));
+                    } else {
+                        throw new IllegalStateException("Found strange object to quantify " + sk + " in " + candidates);
+                    }
                     if(!variables.contains(logicVariable.name().toString())) {
-                        vars.add(logicVariable);
-                        if(sk.op() instanceof RigidFunction) {
-                            matches.add(new Match((RigidFunction) sk.op(), TermBuilder.DF
-                                    .var(logicVariable)));
-                        } else if(sk.op() instanceof ProgramVariable) {
-                            matches.add(new Match((ProgramVariable) sk.op(), TermBuilder.DF
-                                    .var(logicVariable)));
-                        } else {
-                            throw new IllegalStateException("Found strange object to quantify " + sk + " in " + candidates);
-                        }
                         variables.add(logicVariable.name().toString());
                     }
                 }
