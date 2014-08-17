@@ -4,6 +4,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
 import de.uka.ilkd.key.dl.regressiontest.issues.issue0001.Issue0001Test;
+import de.uka.ilkd.key.dl.regressiontest.proofexamples.LicsTutorialTest;
 
 /**
  * Regression test suite.
@@ -11,6 +12,7 @@ import de.uka.ilkd.key.dl.regressiontest.issues.issue0001.Issue0001Test;
  */
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
+  LicsTutorialTest.class,
   Issue0001Test.class
 })
 public class RegressionTestSuite {

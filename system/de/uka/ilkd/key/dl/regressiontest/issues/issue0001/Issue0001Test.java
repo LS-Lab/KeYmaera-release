@@ -25,7 +25,7 @@ public class Issue0001Test extends AbstractProofRegressionTest {
 	@Parameters
 	public static Collection<Object[]> data() {
 		return Arrays.asList(new Object[][] { 
-				{ "proofExamples/hybrid/dev/issues_keymaera/issue_0001/nodelay_204.key.proof" } 
+				{ "proofExamples/hybrid/dev/issues_keymaera/issue_0001/nodelay_204.key.proof", 0 } 
 		});
 	}
 	
@@ -33,8 +33,8 @@ public class Issue0001Test extends AbstractProofRegressionTest {
 	 * Initializes a new test with the specified file under test.
 	 * @param fileName The file under test.
 	 */
-	public Issue0001Test(String fileName) {
-		super(fileName);
+	public Issue0001Test(String fileName, int expected) {
+		super(fileName, expected);
 	}
 
 }
