@@ -15,12 +15,12 @@ import org.junit.runners.Parameterized.Parameters;
 import de.uka.ilkd.key.dl.regressiontest.AbstractProofRegressionTest;
 
 /**
- * Regression test for automatically provable formulas.
+ * Regression test for invalid formulas.
  * 
  * @author smitsch
  */
 @RunWith(Parameterized.class)
-public class AutomatedProvableTest extends AbstractProofRegressionTest {
+public class NotProvableTest extends AbstractProofRegressionTest {
 	
 	/**
 	 * Provides the test parameters (one file at a time).
@@ -31,13 +31,13 @@ public class AutomatedProvableTest extends AbstractProofRegressionTest {
 		List<Object[]> data = new ArrayList<Object[]>();
 		BufferedReader r = null;
 		try {
-			r = new BufferedReader(new FileReader("proofExamples/index/automaticDL.txt"));
+			r = new BufferedReader(new FileReader("proofExamples/index/notProvableDL.txt"));
 			String testFileLine = r.readLine();
 			while (testFileLine != null) {
 				// format in automaticDL.txt: ./fileName timeout
 				String[] testFile = testFileLine.split(" ");
 				// format for JUnit tests: proofExamples/fileName expectedResult
-				data.add(new Object[] {testFile[0].replaceFirst("./", "proofExamples/"), 0});
+				data.add(new Object[] {testFile[0].replaceFirst("./", "proofExamples/"), 1});
 				testFileLine = r.readLine();
 			}
 		} catch (IOException e) {
@@ -59,7 +59,7 @@ public class AutomatedProvableTest extends AbstractProofRegressionTest {
 	 * Initializes a new test with the specified file under test.
 	 * @param fileName The file under test.
 	 */
-	public AutomatedProvableTest(String fileName, int expected) {
+	public NotProvableTest(String fileName, int expected) {
 		super(fileName, expected);
 	}
 
