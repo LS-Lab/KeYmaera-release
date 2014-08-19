@@ -53,8 +53,8 @@
 [OrbitalOptions]precision=34
 [OrbitalOptions]representation=big
 [QepcadOptions]qepcadMemoryLimit=2000000
-[QepcadOptions]qepcadPath=/home/user/jdq/space/local/zola/local/src/qepcad/qesource
-[QepcadOptions]saclibPath=/home/user/jdq/space/local/zola/local/src/qepcad/saclib2.2.0
+[QepcadOptions]qepcadPath=/Users/smitsch/KeYmaera/Qepcad/qesource
+[QepcadOptions]saclibPath=/Users/smitsch/KeYmaera/Qepcad/saclib2.2.6
 [SimultaneousUpdateSimplifier]DeleteEffectLessLocations=true
 [SimultaneousUpdateSimplifier]EagerSimplification=true
 [Strategy]ActiveStrategy=DLStrategy

@@ -14,8 +14,8 @@
 ./hybrid/tutorial/tutorial3-event.key 600
 ./hybrid/tutorial/tutorial3b-event.key 600
 ./hybrid/tutorial/tutorial4-time.key 600
-./hybrid/tutorial/tutorial5-nondet_assignment.key 600
-./hybrid/tutorial/tutorial6-nondet_braking.key 600
+./hybrid/tutorial/tutorial6-nondet_assignment.key 600
+./hybrid/tutorial/tutorial7-nondet_braking.key 600
 ./hybrid/tutorial/lics1-continuous-forward.key.mathematica.proof 600
 ./hybrid/tutorial/lics1-continuous-forward.key.proof 600
 ./hybrid/tutorial/lics1-continuous-forward.key.redlog.proof 600
@@ -40,7 +40,7 @@
 ./hybrid/tutorial/tutorial1-continuous.key.smt.proof 600
 ./hybrid/tutorial/tutorial2-hybrid.key.proof 600
 ./hybrid/tutorial/tutorial3-event.key.proof 600
-./hybrid/tutorial/tutorial6-nondet_braking.key.proof 600
+./hybrid/tutorial/tutorial7-nondet_braking.key.proof 600
 ./hybrid/bouncing-ball/bouncing-ball-if.key 600
 ./hybrid/ETCS/safety/ETCS-essentials.key 600
 ./hybrid/ATC/roundabout/TRM-essentials.key 600
@@ -140,7 +140,6 @@
 ./hybrid/ETCS/paper/rbc-controllability-characterisation.key 600
 ./hybrid/ATC/roundabout/TRM-essentials.key 600
 ./hybrid/ATC/roundabout/TRM-essentials2.key 600
-./hybrid/ATC/roundabout/TRM-essentials3.key 600
 ./hybrid/weispfennig/angle.key 600
 ./hybrid/ETCS/paper/safety-lemma.key 600
 ./hybrid/ETCS/paper/controllability-lemma.key 600
