@@ -162,5 +162,7 @@ public interface IKernelLinkWrapper extends Remote, Serializable {
      * 
      */
     public void resetAbortState() throws RemoteException;
+    
+    public void dispose() throws RemoteException;
 
 }

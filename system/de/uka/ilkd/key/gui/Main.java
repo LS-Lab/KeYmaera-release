@@ -1007,6 +1007,7 @@ public class Main extends JFrame implements IMain {
                     Debug.out("Thread has been interrupted.");
                 }
                 System.out.println("Have a nice day.");
+                MathSolverManager.dispose();
                 System.exit(-1);
             }
         }
@@ -2787,6 +2788,7 @@ public class Main extends JFrame implements IMain {
 
         if ("Error".equals ( result ) ) {
             // Error in batchMode. Terminate with status -1.
+        	MathSolverManager.dispose();
             System.exit ( -1 );
         }
 
@@ -2808,6 +2810,7 @@ public class Main extends JFrame implements IMain {
         } while (f.exists());
 
         Main.getInstance ().saveProof ( f.getAbsolutePath() );
+        MathSolverManager.dispose();
         if (proof.openGoals ().size () == 0) {
             // Says that all Proofs have succeeded
             if (proof.getBasicTask().getStatus().getProofClosedButLemmasLeft()) {
@@ -2846,11 +2849,13 @@ public class Main extends JFrame implements IMain {
                 Debug.fail ( "Control flow should not reach this point." );
             } else if (info.getSource() instanceof ProblemLoader) {
                 if (!"".equals(info.getResult())) {
-                        System.exit(-1);
+                	MathSolverManager.dispose();
+                    System.exit(-1);
                 } 
                 if(info.getProof().openGoals().size()==0) {
                     System.out.println("proof.openGoals.size=" + 
-                            info.getProof().openGoals().size());              
+                            info.getProof().openGoals().size());
+                    MathSolverManager.dispose();
                     System.exit(0);
                 }
                 mediator.startAutoMode();

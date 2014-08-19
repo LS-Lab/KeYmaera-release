@@ -440,5 +440,8 @@ public class CacheOnlyServer extends UnicastRemoteObject implements Remote,
 		throw new UnsupportedOperationException("This method has not been implemented!");
 	}
 
-
+	@Override
+	public void dispose() throws RemoteException {
+		// nothing to do here
+	}
 }

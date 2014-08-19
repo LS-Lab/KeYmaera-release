@@ -25,6 +25,7 @@ import de.uka.ilkd.key.collection.ImmutableList;
 import de.uka.ilkd.key.collection.ImmutableSLList;
 import de.uka.ilkd.key.collection.DefaultImmutableSet;
 import de.uka.ilkd.key.collection.ImmutableSet;
+import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
 import de.uka.ilkd.key.logic.Constraint;
 import de.uka.ilkd.key.logic.PIOPathIterator;
 import de.uka.ilkd.key.logic.PosInOccurrence;
@@ -237,6 +238,7 @@ public class InteractiveProver {
             if ( Main.batchMode ) {
                 // Everything is already proven.
                 // Nothing to be saved. Exit successfully.
+            	MathSolverManager.dispose();
                 System.exit ( 0 );
             } else {
                 mediator ().popupWarning ( "No enabled goals available", "Oops..." );

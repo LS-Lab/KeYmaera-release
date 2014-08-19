@@ -325,6 +325,7 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
             KernelLink l = link;
             link = null;
             System.out.println("Recreating link");
+            clearCache();
             l.removePacketListener(packetListener);
             l.terminateKernel();
             createLink();
@@ -625,7 +626,7 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
             }
 
             if (cache.size() > MAX_CACHE_SIZE) {
-				cache.clear();
+				clearCache();
 			}
 			if (!"$Aborted".equalsIgnoreCase(result.toString())
 					&& !result.toString().contains("Abort[]")) {
@@ -805,7 +806,15 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 	
 	@Override
 	public void clearCache() throws RemoteException {
-		this.cache.clear();
+		if (cache != null) {
+			for (Map.Entry<Expr, ExprAndMessages> e : cache.entrySet()) {
+				e.getKey().dispose();
+				ExprAndMessages emsg = e.getValue();
+				if (emsg != null && emsg.expression != null) emsg.expression.dispose();
+				if (emsg != null && emsg.messages != null) emsg.messages.dispose();
+			}
+			this.cache.clear();
+		}
 		log(Level.INFO, "Cache cleared");
 	}
 
@@ -834,6 +843,20 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 	 */
 	public void resetAbortState() throws RemoteException {
 		abort = false;
+	}
+	
+	@Override
+	public void dispose() throws RemoteException {
+		clearCache();
+		try {
+            KernelLink l = link;
+            link = null;
+            l.removePacketListener(packetListener);
+            l.terminateKernel();
+            l.close();
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
 	}
 
 	public class ServerSocketHandler extends Handler {

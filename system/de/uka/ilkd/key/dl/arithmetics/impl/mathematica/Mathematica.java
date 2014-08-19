@@ -38,6 +38,7 @@ import javax.xml.xpath.XPathFactory;
 import org.w3c.dom.Node;
 
 import de.uka.ilkd.key.dl.arithmetics.ICounterExampleGenerator;
+import de.uka.ilkd.key.dl.arithmetics.IDisposable;
 import de.uka.ilkd.key.dl.arithmetics.IGroebnerBasisCalculator;
 import de.uka.ilkd.key.dl.arithmetics.IODESolver;
 import de.uka.ilkd.key.dl.arithmetics.IQuantifierEliminator;
@@ -62,7 +63,7 @@ import de.uka.ilkd.key.logic.op.LogicVariable;
  * 
  */
 public class Mathematica implements ICounterExampleGenerator, IODESolver,
-		IQuantifierEliminator, ISimplifier, IGroebnerBasisCalculator {
+		IQuantifierEliminator, ISimplifier, IGroebnerBasisCalculator, IDisposable {
 
 	public static final String NAME = "Mathematica";
 
@@ -446,5 +447,12 @@ public class Mathematica implements ICounterExampleGenerator, IODESolver,
 	
 	public Map<String, Double[][]> getPlotData(Term in, Services services, double tendLimi, int nUnroLoop, double randMin, double randMax) throws RemoteException, SolverException {
 		return bridge.getPlotData(in, services, tendLimi, nUnroLoop, randMin, randMax);
+	}
+	
+	@Override
+	public void dispose() throws Exception {
+		// TODO: only if initialized already
+		bridge.abortCalculation();
+		bridge.dispose();
 	}
 }

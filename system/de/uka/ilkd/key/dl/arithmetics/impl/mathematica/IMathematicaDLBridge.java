@@ -341,4 +341,6 @@ public interface IMathematicaDLBridge extends Remote {
 
     public abstract Term diffRI(DiffSystem form, Term post, Services services, String op)
             throws RemoteException, SolverException;
+    
+    public void dispose() throws Exception;
 }

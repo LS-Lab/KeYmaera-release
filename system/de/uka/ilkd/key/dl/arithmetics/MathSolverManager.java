@@ -27,8 +27,10 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.rmi.RemoteException;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -79,7 +81,9 @@ public abstract class MathSolverManager {
 	private static Map<String, ISOSChecker> SOS_CHECKERS = new LinkedHashMap<String, ISOSChecker>();
 
 	private static Map<String, IMathSolver> UNCONFIGURED = new LinkedHashMap<String, IMathSolver>();
-
+	
+	private static Collection<IDisposable> DISPOSABLE_SOLVERS = new LinkedList<IDisposable>();
+	
 	/**
 	 * @param filename
 	 * @throws ClassNotFoundException
@@ -144,6 +148,19 @@ public abstract class MathSolverManager {
 			}
 		}
 	}
+	
+	public static void dispose() {
+		for (IDisposable s : DISPOSABLE_SOLVERS) {
+			try {
+				System.out.println("Disposing solver...");
+				s.dispose();
+				System.out.println("...done");
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
 
 	/**
 	 * @param solver
@@ -169,6 +186,9 @@ public abstract class MathSolverManager {
 		}
 		if (solver instanceof ISOSChecker) {
 			SOS_CHECKERS.put(solver.getName(), (ISOSChecker) solver);
+		}
+		if (solver instanceof IDisposable) {
+			DISPOSABLE_SOLVERS.add((IDisposable)solver);
 		}
 	}
 
