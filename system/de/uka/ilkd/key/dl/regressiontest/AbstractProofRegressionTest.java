@@ -114,6 +114,6 @@ public abstract class AbstractProofRegressionTest {
 	@Test
 	public void test() throws Exception {
 		int result = p.waitFor();
-		Assert.assertEquals(String.format("File %s should be proved", file.getName()), expected, result);
+		Assert.assertEquals(String.format("File %s", file.getName()), expected, result);
 	}
 }
