@@ -34,10 +34,10 @@ public class NotProvableTest extends AbstractProofRegressionTest {
 			r = new BufferedReader(new FileReader("proofExamples/index/notProvableDL.txt"));
 			String testFileLine = r.readLine();
 			while (testFileLine != null) {
-				// format in automaticDL.txt: ./fileName timeout
+				// format in automaticDL.txt: ./fileName timeout expectedResult
 				String[] testFile = testFileLine.split(" ");
 				// format for JUnit tests: proofExamples/fileName expectedResult
-				data.add(new Object[] {testFile[0].replaceFirst("./", "proofExamples/"), 1});
+				data.add(new Object[] {testFile[0].replaceFirst("./", "proofExamples/"), Integer.parseInt(testFile[2])});
 				testFileLine = r.readLine();
 			}
 		} catch (IOException e) {

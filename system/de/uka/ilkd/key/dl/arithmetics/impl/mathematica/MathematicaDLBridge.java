@@ -1779,6 +1779,9 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 	
 	@Override
 	public void dispose() throws Exception {
-		kernelWrapper.dispose();
+		if (kernelWrapper != null) {
+			abortCalculation();
+			kernelWrapper.dispose();
+		}
 	}
 }

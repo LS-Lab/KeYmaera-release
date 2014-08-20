@@ -1006,8 +1006,8 @@ public class Main extends JFrame implements IMain {
                 } catch(InterruptedException ie) {
                     Debug.out("Thread has been interrupted.");
                 }
-                System.out.println("Have a nice day.");
                 MathSolverManager.dispose();
+                System.out.println("Have a nice day.");
                 System.exit(-1);
             }
         }

@@ -1,17 +1,17 @@
-./hybrid/dev/nodifffin1.key 600
-./hybrid/dev/nodifffin2.key 600
-./hybrid/dev/nodifffin4.key 600
-./hybrid/dev/nodifffin4b.key 600
-./hybrid/dev/nodiffinv1.key 600
-./hybrid/dev/nodiffinv2.key 600
-./hybrid/dev/nodiffinv3.key 600
-./hybrid/dev/nodiffinv4.key 600
-./hybrid/dev/nodiffinv5.key 600
-./hybrid/dev/nodiffinv6.key 600
-./hybrid/dev/nogeneralization1.key 600
-./hybrid/dev/nogeneralization2.key 600
-./hybrid/dev/noinduction1.key 600
-./hybrid/dev/noinduction2.key 600
-./hybrid/dev/noinduction3.key 600
-./hybrid/dev/noinduction4.key 600
-./hybrid/dev/globalindissue.key 600
+./hybrid/dev/nodifffin1.key 600 1
+./hybrid/dev/nodifffin2.key 600 1
+./hybrid/dev/nodifffin4.key 600 1
+./hybrid/dev/nodifffin4b.key 600 1
+./hybrid/dev/nodiffinv1.key 600 1
+./hybrid/dev/nodiffinv2.key 600 1
+./hybrid/dev/nodiffinv3.key 600 1
+./hybrid/dev/nodiffinv4.key 600 255
+./hybrid/dev/nodiffinv5.key 600 1
+./hybrid/dev/nodiffinv6.key 600 1
+./hybrid/dev/nogeneralization1.key 600 1
+./hybrid/dev/nogeneralization2.key 600 1
+./hybrid/dev/noinduction1.key 600 1
+./hybrid/dev/noinduction2.key 600 1
+./hybrid/dev/noinduction3.key 600 1
+./hybrid/dev/noinduction4.key 600 1
+./hybrid/dev/globalindissue.key 600 1

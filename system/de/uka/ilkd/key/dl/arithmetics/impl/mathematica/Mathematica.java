@@ -451,8 +451,6 @@ public class Mathematica implements ICounterExampleGenerator, IODESolver,
 	
 	@Override
 	public void dispose() throws Exception {
-		// TODO: only if initialized already
-		bridge.abortCalculation();
 		bridge.dispose();
 	}
 }
