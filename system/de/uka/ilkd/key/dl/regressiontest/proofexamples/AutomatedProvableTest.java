@@ -21,7 +21,6 @@ import de.uka.ilkd.key.dl.regressiontest.AbstractProofRegressionTest;
  */
 @RunWith(Parameterized.class)
 public class AutomatedProvableTest extends AbstractProofRegressionTest {
-	
 	/**
 	 * Provides the test parameters (one file at a time).
 	 * @return The files under test.
@@ -34,10 +33,10 @@ public class AutomatedProvableTest extends AbstractProofRegressionTest {
 			r = new BufferedReader(new FileReader("proofExamples/index/automaticDL.txt"));
 			String testFileLine = r.readLine();
 			while (testFileLine != null) {
-				// format in automaticDL.txt: ./fileName timeout
+				// format in automaticDL.txt: ./fileName timeout expectedResult
 				String[] testFile = testFileLine.split(" ");
 				// format for JUnit tests: proofExamples/fileName expectedResult
-				data.add(new Object[] {testFile[0].replaceFirst("./", "proofExamples/"), 0});
+				data.add(new Object[] {testFile[0].replaceFirst("./", "proofExamples/"), Integer.parseInt(testFile[2])});
 				testFileLine = r.readLine();
 			}
 		} catch (IOException e) {

@@ -111,7 +111,7 @@ public abstract class AbstractProofRegressionTest {
 	 * data() parameter provider.
 	 * @throws Exception If the KeYmaera child process throws an exception 
 	 */
-	@Test
+	@Test(timeout=600000)
 	public void test() throws Exception {
 		int result = p.waitFor();
 		Assert.assertEquals(String.format("File %s", file.getName()), expected, result);
