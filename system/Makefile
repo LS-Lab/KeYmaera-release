@@ -156,6 +156,7 @@ DIFF_PARSER= \
 .PHONY: all
 all:	javahomeset branding 
 	@$(MAKE) -s all_gen
+	@echo [KeYmaera Version $(KEY_VERSION_LONG)]
 
 
 ## create javadoc
@@ -185,6 +186,7 @@ doc: argfile
 .PHONY: dist
 dist:	branding all
 	@echo "[creating distribution directory structure]"
+	@echo [KeYmaera Version $(KEY_VERSION_LONG)]
 	@mkdir -p ../dist
 	@mkdir -p dist/key/
 	@cp -r $(BINARYPATH)/* dist/key/
