@@ -334,6 +334,7 @@ public class DLInitializer {
 			public void actionPerformed(ActionEvent e) {
 				{
 					String properties = "";
+          //@TODO Could use System.getProperties().store(new StringWriter(), "System environment");
 					for (Enumeration i = System.getProperties().propertyNames(); i.hasMoreElements(); ) {
 						String k = (String)i.nextElement();
 						properties += k + "=" + System.getProperties().getProperty(k) + "\n";
