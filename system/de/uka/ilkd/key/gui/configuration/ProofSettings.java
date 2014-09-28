@@ -11,6 +11,9 @@ package de.uka.ilkd.key.gui.configuration;
 
 import java.io.*;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 
 import javax.swing.JMenuItem;
@@ -70,18 +73,18 @@ public class ProofSettings {
 
     /** create a proof settings object */
     public ProofSettings() {       	
-	settings = new Settings[] {
-            new StrategySettings(),
-	    new SimultaneousUpdateSimplifierSettings(),
-            new GeneralSettings(),
-	    new ChoiceSettings(),
-	    DecisionProcedureSettings.getInstance(),
-	    new ViewSettings(),
-            new LibrariesSettings(),
-            DLOptionBean.INSTANCE,
-            TacletTranslationSettings.getInstance(),
-            new HintLog()
-	};
+		settings = new Settings[] {
+	        new StrategySettings(),
+		    new SimultaneousUpdateSimplifierSettings(),
+	        new GeneralSettings(),
+		    new ChoiceSettings(),
+		    DecisionProcedureSettings.getInstance(),
+		    new ViewSettings(),
+	        new LibrariesSettings(),
+	        DLOptionBean.INSTANCE,
+	        TacletTranslationSettings.getInstance(),
+	        new HintLog()
+		};
         for (Settings setting : settings) {
             setting.addSettingsListener(listener);
         }
@@ -165,8 +168,32 @@ public class ProofSettings {
     }
 
     public String settingsToString() {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        settingsToStream(settings,out);
+    	return settingsToString(
+					StrategySettings.class,
+					SimultaneousUpdateSimplifierSettings.class,
+					GeneralSettings.class,
+					ChoiceSettings.class,
+					DecisionProcedureSettings.class,
+					ViewSettings.class,
+					LibrariesSettings.class,
+					DLOptionBean.class,
+					TacletTranslationSettings.class,
+					HintLog.class);
+    }
+    
+    public String settingsToString(Class<?>... which) {
+    	return settingsToString(Arrays.asList(which));
+    }
+    
+    public String settingsToString(List<? extends Class<?>> which) {
+    	List<Settings> settingsToSave = new ArrayList<Settings>();
+    	for (Settings s : settings) {
+    		if (which.contains(s.getClass())) {
+    			settingsToSave.add(s);
+    		}
+    	}
+    	ByteArrayOutputStream out = new ByteArrayOutputStream();
+        settingsToStream(settingsToSave.toArray(new Settings[settingsToSave.size()]), out);
         return new String(out.toByteArray());
     }
 

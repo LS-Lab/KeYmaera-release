@@ -13,15 +13,27 @@ package de.uka.ilkd.key.proof;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Vector;
 
 import de.uka.ilkd.key.collection.ImmutableList;
 import de.uka.ilkd.key.collection.ImmutableMapEntry;
+import de.uka.ilkd.key.dl.options.DLOptionBean;
 import de.uka.ilkd.key.dl.rules.ReduceRuleApp;
+import de.uka.ilkd.key.gui.DecisionProcedureSettings;
 import de.uka.ilkd.key.gui.IMain;
 import de.uka.ilkd.key.gui.KeYMediator;
+import de.uka.ilkd.key.gui.TacletTranslationSettings;
+import de.uka.ilkd.key.gui.configuration.ChoiceSettings;
+import de.uka.ilkd.key.gui.configuration.GeneralSettings;
+import de.uka.ilkd.key.gui.configuration.HintLog;
+import de.uka.ilkd.key.gui.configuration.LibrariesSettings;
 import de.uka.ilkd.key.gui.configuration.ProofSettings;
+import de.uka.ilkd.key.gui.configuration.SimultaneousUpdateSimplifierSettings;
+import de.uka.ilkd.key.gui.configuration.StrategySettings;
+import de.uka.ilkd.key.gui.configuration.ViewSettings;
 import de.uka.ilkd.key.gui.notification.events.GeneralFailureEvent;
 import de.uka.ilkd.key.java.ProgramElement;
 import de.uka.ilkd.key.java.Services;
@@ -95,8 +107,20 @@ public class ProofSaver {
     return logstr;
    }
 
-   public String writeSettings(ProofSettings ps){
-    	return new String ("\\settings {\n\""+escapeCharacters(ps.settingsToString())+"\"\n}\n");
+   public String writeSettings(ProofSettings ps) {
+	   return new String ("\\settings {\n\"" 
+    			+ escapeCharacters(ps.settingsToString(
+    					StrategySettings.class,
+    					SimultaneousUpdateSimplifierSettings.class,
+    					GeneralSettings.class,
+    					ChoiceSettings.class,
+    					DecisionProcedureSettings.class,
+    					ViewSettings.class,
+    					// LibrariesSettings.class, // do not save library settings
+    					DLOptionBean.class,
+    					TacletTranslationSettings.class,
+    					HintLog.class)) 
+    			+ "\"\n}\n");
    }
    public String save() {
       String errorMsg = null;

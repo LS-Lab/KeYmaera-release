@@ -37,6 +37,7 @@ public abstract class AbstractProofRegressionTest {
 		  + JARS_DIR + "orbital-ext.jar" + ":"
 		  + JARS_DIR + "scala-library.jar" + ":"
 		  + JARS_DIR + "scala-swing.jar" + ":"
+		  + JARS_DIR + "scala-parser-combinators.jar" + ":"
 		  + JARS_DIR + "recoderKey.jar" + ":"
 		  + JARS_DIR + "commons-compress-1.4.jar" + ":"
 		  + JARS_DIR + "jmathplot.jar";
