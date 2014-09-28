@@ -862,7 +862,7 @@ public class TermFactoryImpl extends TermFactory {
 			    }
 			} else {
 				assert getNamespaces().programVariables().lookup(
-						new Name(var.getText())) == null : "newly declared non-program variable " + var + " not yet in program variables namespace at " + decls;
+						new Name(var.getText())) == null : "Name clash between non-program (logical) variable " + var + " and program variable with the same name. Rename either program or logical variable " + var + " (symptom: newly declared non-program variable " + var + " not yet in program variables namespace at " + decls + ")";
 				if (getNamespaces().variables().lookup(new Name(var.getText())) == null) {
 				    Sort sort = (Sort) getNamespaces().sorts().lookup(new Name(type.getText()));
 				    assert sort != null : "variable sort " + type.getText() + " should be known!";

@@ -776,11 +776,11 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 		} catch (UnsolveableException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			throw new IllegalStateException("this is not supposed to happen: "
+			throw new IllegalStateException("Unexpected result from Mathematica: "
 					+ e);
 		} catch (ExprFormatException e) {
 			throw new IllegalStateException(
-					"this result is not supposed to happen: " + e);
+					"Unexpected result from Mathematica: " + e);
 		}
 	}
 

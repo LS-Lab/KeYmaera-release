@@ -176,7 +176,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 					e.printStackTrace();
 				}
 			} catch (NotBoundException e) {
-				throw new RemoteException("Problem with KernelLink", e);
+				throw new RemoteException("Problem with KernelLink. This can be caused by a lost network connection. Save your work and restart KeYmaera.", e);
 			}
 		}
 		return kernelWrapper;
@@ -267,7 +267,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 			throw new UnsolveableException("Blacklisted conversion from "
 					+ expr.toString() + " to updates");
 		} else {
-			throw new IllegalStateException("unknown case " + expr.head()
+			throw new IllegalStateException("Unknown case " + expr.head()
 					+ " in\n" + expr);
 		}
 		return result;
@@ -775,7 +775,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 			throw new UnsolveableException("Blacklisted conversion from "
 					+ expr.toString() + " to updates");
 		} else {
-			throw new IllegalStateException("unknown case " + expr.head()
+			throw new IllegalStateException("Unknown case " + expr.head()
 					+ " in\n" + expr);
 		}
 		return result;
@@ -931,7 +931,7 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 				wrapper = (IKernelLinkWrapper) reg
 						.lookup(KernelLinkWrapper.IDENTITY);
 			} catch (NotBoundException f) {
-				throw new ConnectionProblemException("Problem with KernelLink",
+				throw new ConnectionProblemException("Problem with KernelLink. This can be caused by a lost network connection. Save your work and restart KeYmaera.",
 						f);
 			}
             if(Options.INSTANCE.isUseParallelize()) {
