@@ -114,7 +114,7 @@ public class DLInitializer {
 					stats += "\n"
 							+ "Time: "
 							+ (((double) TimeStatisticGenerator.INSTANCE
-									.getTime()) / 1000.0d) + " seconds";
+									.getTime(proof)) / 1000.0d) + " seconds";
 
 					try {
 						long totalCaclulationTime = TimeStatisticGenerator.INSTANCE

@@ -23,6 +23,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.PrintWriter;
 import java.rmi.RemoteException;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -35,6 +37,7 @@ import de.uka.ilkd.key.dl.arithmetics.MathSolverManager;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ConnectionProblemException;
 import de.uka.ilkd.key.dl.arithmetics.exceptions.ServerStatusProblemException;
 import de.uka.ilkd.key.gui.AutoModeListener;
+import de.uka.ilkd.key.proof.Proof;
 import de.uka.ilkd.key.proof.ProofEvent;
 
 /**
@@ -45,18 +48,20 @@ import de.uka.ilkd.key.proof.ProofEvent;
  */
 public class TimeStatisticGenerator implements AutoModeListener {
 
-	private long time;
-
-	private long oldT;
-
-	private boolean start;
-
+	private static class TimeStatistics {
+		public long accumulatedTime;
+		public long startTime;
+		public boolean started;
+	}
+	
+	private Map<Proof, TimeStatistics> statistics = new HashMap<Proof, TimeStatistics>();
+	
 	private static final StatDialog statDialog = new StatDialog();
 
 	public static final TimeStatisticGenerator INSTANCE = new TimeStatisticGenerator();
 
 	private TimeStatisticGenerator() {
-		time = 0;
+		
 	}
 
 	public static void hookTimeStatisticGenerator(JMenu menu) {
@@ -86,28 +91,32 @@ public class TimeStatisticGenerator implements AutoModeListener {
 	}
 
 	public void autoModeStarted(ProofEvent e) {
-		if (!start) {
-			start = true;
-			oldT = System.currentTimeMillis();
+		if (!statistics.containsKey(e.getSource())) {
+			statistics.put(e.getSource(), new TimeStatistics());
+		}
+		TimeStatistics s = statistics.get(e.getSource());
+		if (!s.started) {
+			s.started = true;
+			s.startTime = System.currentTimeMillis();
 		}
 	}
 
 	public void autoModeStopped(ProofEvent e) {
-		if (start) {
-			time += System.currentTimeMillis() - oldT;
+		final TimeStatistics s = statistics.get(e.getSource());
+		if (s != null && s.started) {
+			s.accumulatedTime += System.currentTimeMillis() - s.startTime;
 			SwingUtilities.invokeLater(new Runnable() {
-
 				public void run() {
-					statDialog.label.setText("Time: " + INSTANCE.time);
+					statDialog.label.setText("Time: " + s.accumulatedTime);
 					statDialog.pack();
 				}
 			});
-			start = false;
+			s.started = false;
 		}
 	}
 
-	public long getTime() {
-		return time;
+	public long getTime(Proof p) {
+		return statistics.get(p).accumulatedTime;
 	}
 
 	/**
