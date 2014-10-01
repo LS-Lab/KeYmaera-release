@@ -48,18 +48,25 @@ import de.uka.ilkd.key.proof.ProofEvent;
  */
 public class TimeStatisticGenerator implements AutoModeListener {
 
-	private static class TimeStatistics {
+	private static class SolverStatistics {
 		public long accumulatedTime;
+		public long solverTime;
+		public long totalMemory;
+		public long cachedAnswers;
+		public long queries;
 		public long startTime;
 		public boolean started;
+		public boolean valid = true;
 	}
-	
-	private Map<Proof, TimeStatistics> statistics = new HashMap<Proof, TimeStatistics>();
 	
 	private static final StatDialog statDialog = new StatDialog();
 
 	public static final TimeStatisticGenerator INSTANCE = new TimeStatisticGenerator();
-
+	
+	private Proof currentProof;
+	
+	private Map<Proof, SolverStatistics> statistics = new HashMap<Proof, SolverStatistics>();
+	
 	private TimeStatisticGenerator() {
 		
 	}
@@ -91,27 +98,28 @@ public class TimeStatisticGenerator implements AutoModeListener {
 	}
 
 	public void autoModeStarted(ProofEvent e) {
-		if (!statistics.containsKey(e.getSource())) {
-			statistics.put(e.getSource(), new TimeStatistics());
-		}
-		TimeStatistics s = statistics.get(e.getSource());
-		if (!s.started) {
-			s.started = true;
-			s.startTime = System.currentTimeMillis();
+		if (currentProof == e.getSource()) {
+			SolverStatistics s = statistics.get(e.getSource());
+			if (!s.started) {
+				s.started = true;
+				s.startTime = System.currentTimeMillis();
+			}
 		}
 	}
 
 	public void autoModeStopped(ProofEvent e) {
-		final TimeStatistics s = statistics.get(e.getSource());
-		if (s != null && s.started) {
-			s.accumulatedTime += System.currentTimeMillis() - s.startTime;
-			SwingUtilities.invokeLater(new Runnable() {
-				public void run() {
-					statDialog.label.setText("Time: " + s.accumulatedTime);
-					statDialog.pack();
-				}
-			});
-			s.started = false;
+		if (currentProof == e.getSource()) {
+			final SolverStatistics s = statistics.get(e.getSource());
+			if (s != null && s.started) {
+				s.accumulatedTime += System.currentTimeMillis() - s.startTime;
+				SwingUtilities.invokeLater(new Runnable() {
+					public void run() {
+						statDialog.label.setText("Time: " + s.accumulatedTime);
+						statDialog.pack();
+					}
+				});
+				s.started = false;
+			}
 		}
 	}
 
@@ -120,6 +128,7 @@ public class TimeStatisticGenerator implements AutoModeListener {
 	}
 
 	/**
+	 * Queries the statistics from the underlying solver.
 	 * @return
 	 * @throws RemoteException
 	 */
@@ -134,7 +143,8 @@ public class TimeStatisticGenerator implements AutoModeListener {
 	}
 
 	/**
-	 * @return
+	 * Queries the statistics from the underlying solver.
+	 * @return The total calculation time.
 	 * @throws RemoteException
 	 */
 	public long getTotalCalculationTime() throws RemoteException {
@@ -145,6 +155,15 @@ public class TimeStatisticGenerator implements AutoModeListener {
 		} else {
 			return -1;
 		}
+	}
+	
+	/**
+	 * Returns the total calculation time statistics recorded for the specified proof.
+	 * @param p The proof.
+	 * @return The total calculation time.
+	 */
+	public long getTotalCalculationTime(Proof p) {
+		return statistics.get(p).solverTime;
 	}
 
 	/**
@@ -175,9 +194,19 @@ public class TimeStatisticGenerator implements AutoModeListener {
 		}
 
 	}
+	
+	/**
+	 * Returns the total memory consumption recorded for the specified proof.
+	 * @param p The proof.
+	 * @return The total memory consumption.
+	 */
+	public long getTotalMemory(Proof p) {
+		return statistics.get(p).totalMemory;
+	}
 
 	/**
-	 * @return
+	 * Queries the statistics from the underlying solver.
+	 * @return The number of cached answers.
 	 */
 	public long getCachedAnswers() throws RemoteException {
 		if (MathSolverManager.isQuantifierEliminatorSet()) {
@@ -188,9 +217,19 @@ public class TimeStatisticGenerator implements AutoModeListener {
 			return -1;
 		}
 	}
+	
+	/**
+	 * Returns the cached answer statistics recorded for the specified proof.
+	 * @param p The proof.
+	 * @return The number of cached answers.
+	 */
+	public long getCachedAnswers(Proof p) {
+		return statistics.get(p).cachedAnswers;
+	}
 
 	/**
-	 * @return
+	 * Queries the statistics from the underlying solver.
+	 * @return The number of queries.
 	 */
 	public long getQueries() throws RemoteException {
 		if (MathSolverManager.isQuantifierEliminatorSet()) {
@@ -201,17 +240,106 @@ public class TimeStatisticGenerator implements AutoModeListener {
 			return -1;
 		}
 	}
+	
+	/**
+	 * Returns the query statistics recorded for the specified proof.
+	 * @param p The proof.
+	 * @return The number of queries.
+	 */
+	public long getQueries(Proof p) {
+		return statistics.get(p).queries;
+	}
+	
+	/**
+	 * Indicates whether valid statistics are available for the specified proof.
+	 * @param p The proof.
+	 * @return True, if valid statistics are available; false otherwise.
+	 */
+	public boolean validStatisticsAvailable(Proof p) {
+		return statistics.get(p).valid;
+	}
 
 	/**
 	 * Print time statistics information into the given printer.
 	 * @param printer
 	 */
-    public void print(PrintWriter printer) {
-        try {
-            printer.print(",  " + getTotalCalculationTime() + "," + getTotalMemory());
-        } catch (RemoteException ex) {
-            ex.printStackTrace();
-            printer.print(",  na,na");
+    public void print(PrintWriter printer, Proof proof) {
+    	if (statistics.get(proof).valid) {
+            printer.print(",  " + getTotalCalculationTime(proof) + "," + getTotalMemory(proof));
+        } else {
+            printer.print(",  N/A,N/A");
         }
     }
+    
+    /**
+     * Switches statistics recording to the specified proof.
+     * @param proof The proof to record statistics for.
+     */
+    public void recordFor(final Proof proof) {
+    	// recordFor: we don't want to pollute the IMathSolvers with knowing proofs
+    	if (!statistics.containsKey(proof) && proof != null) {
+			statistics.put(proof, new SolverStatistics());
+		}
+    	
+    	if (currentProof != null) {
+    		updateStatistics(currentProof);
+    	}
+    	currentProof = proof;
+    	
+    	resetStatisticsInSolver(proof);
+    }
+    
+    /**
+     * Refreshes the statistics of the specified proof.
+     * @param proof The proof to refresh.
+     */
+    public void refreshStatistics(final Proof proof) {
+    	if (proof != null) {
+    		updateStatistics(proof);
+    		resetStatisticsInSolver(null);
+    	}
+    }
+
+    /**
+     * Resets the proof statistics in the solvers.
+     * @param proof The proof to set invalid if something goes wrong, null for none.
+     */
+	private void resetStatisticsInSolver(final Proof proof) {
+		if (MathSolverManager.isQuantifierEliminatorSet()) {
+			IMathSolver solver = MathSolverManager
+					.getCurrentQuantifierEliminator();
+			try {
+				solver.resetStatistics();
+			} catch (RemoteException e) {
+				e.printStackTrace();
+				// statistics for this proof are broken from now on
+				if (proof != null) statistics.get(proof).valid = false;
+			}
+		}
+	}
+	
+	/**
+	 * Updates the statistics for the specified proof.
+	 * @param proof The proof to update.
+	 */
+	private void updateStatistics(final Proof proof) {
+		SolverStatistics s = statistics.get(proof);
+		try {
+			long time = getTotalCalculationTime();
+			if (time != -1) s.solverTime += time;
+			else s.solverTime = -1;
+			long mem = getTotalMemory();
+			if (mem != -1) s.totalMemory = Math.max(s.totalMemory, mem);
+			else s.totalMemory = -1;
+			long answers = getCachedAnswers();
+			if (answers != -1) s.cachedAnswers += answers;
+			else s.cachedAnswers = -1;
+			long queries = getQueries();
+			if (queries != -1) s.queries += queries;
+			else s.queries = -1;
+		} catch (RemoteException e) {
+			e.printStackTrace();
+			s.valid = false;
+		}
+	}
 }

@@ -97,15 +97,15 @@ public class InteractiveProver {
     }
 
     public void addAutoModeListener(AutoModeListener p) { 
-	synchronized(listenerList) {
-	    listenerList.add(p);
-	}
+		synchronized(listenerList) {
+			if (!listenerList.contains(p)) listenerList.add(p);
+		}
     }
 
     public void removeAutoModeListener(AutoModeListener p) { 
-	synchronized(listenerList) {	
-	    listenerList.remove(p);
-	}
+		synchronized(listenerList) {	
+		    listenerList.remove(p);
+		}
     }
 
     /** fires the event that automatic execution has started */

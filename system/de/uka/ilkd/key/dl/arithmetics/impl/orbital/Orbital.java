@@ -427,6 +427,16 @@ public class Orbital implements IODESolver {
 		// TODO Auto-generated method stub
 
 	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#resetStatistics()
+	 */
+	@Override
+	public void resetStatistics() throws RemoteException {
+		// TODO Auto-generated method stub
+		
+	}
 
 	/*
 	 * (non-Javadoc)

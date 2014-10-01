@@ -239,6 +239,12 @@ public interface IMathematicaDLBridge extends Remote {
     public void abortCalculation() throws RemoteException;
 
     /**
+     * Resets the statistics recording.
+     * @throws RemoteException
+     */
+    public void resetStatistics() throws RemoteException;
+    
+    /**
      * Get the statistics about calculation time
      * 
      * @return the statistics about calculation time

@@ -32,6 +32,7 @@ import java.util.Vector;
 import de.uka.ilkd.key.collection.ImmutableList;
 import de.uka.ilkd.key.collection.ImmutableSLList;
 import de.uka.ilkd.key.collection.ImmutableSet;
+import de.uka.ilkd.key.dl.gui.TimeStatisticGenerator;
 import de.uka.ilkd.key.dl.options.DLOptionBean;
 import de.uka.ilkd.key.dl.rules.ReduceRule;
 import de.uka.ilkd.key.dl.rules.ReduceRuleApp;
@@ -204,6 +205,8 @@ public class ProblemLoader implements Runnable {
 		    }
 		}
         };
+        // HACK: inform TimeStatistics (otherwise, it will attribute time to the wrong proof)
+        TimeStatisticGenerator.INSTANCE.recordFor(null);
         mediator.stopInterface(true);
         if (ptl != null) ptl.taskStarted("Loading problem ...", 0);
         worker.start();
@@ -277,7 +280,6 @@ public class ProblemLoader implements Runnable {
         		   return "Aborted.";
         	       }
         	   }
-        	   
         	   init.startProver(initConfig, po);
                }
                proof = mediator.getSelectedProof();

@@ -2746,10 +2746,11 @@ public class Main extends JFrame implements IMain {
      * @param file the String with the filename where to write the statistic data
      * @param result the Object encapsulating informtation about the result, e.g.
      * String "Error" if an error has occurred. 
+     * @param proof the proof currently finished 
      * @param time the long giving the needed time in ms 
      * @param appliedRules the int giving the number of applied rules
      */
-    private void printStatistics(String file, Object result, 
+    private void printStatistics(String file, Object result, Proof proof,
             long time, int appliedRules) {
         try {
             final FileWriter statistics = new FileWriter ( file, true );
@@ -2765,7 +2766,7 @@ public class Main extends JFrame implements IMain {
                 statPrinter.print ( "-1, -1" );
             else
                 statPrinter.print ( "" + appliedRules + ", " + time );
-            TimeStatisticGenerator.INSTANCE.print(statPrinter);
+            TimeStatisticGenerator.INSTANCE.print(statPrinter, proof);
             statPrinter.println();
             statPrinter.close();
         } catch ( IOException e ) {}
@@ -2784,7 +2785,7 @@ public class Main extends JFrame implements IMain {
             Proof proof, long time, int appliedRules) {
 
         if ( Main.statisticsFile != null )
-            printStatistics ( Main.statisticsFile, result, time, appliedRules );
+            printStatistics ( Main.statisticsFile, result, proof, time, appliedRules );
 
         if ("Error".equals ( result ) ) {
             // Error in batchMode. Terminate with status -1.

@@ -110,21 +110,24 @@ public class DLInitializer {
 					int interactiveSteps = computeInteractiveSteps(proof.root());
 
 					stats += "Interactive Steps: " + interactiveSteps;
+					
+					TimeStatisticGenerator.INSTANCE.refreshStatistics(proof);
 
-					stats += "\n"
-							+ "Time: "
-							+ (((double) TimeStatisticGenerator.INSTANCE
-									.getTime(proof)) / 1000.0d) + " seconds";
-
-					try {
+					if (TimeStatisticGenerator.INSTANCE.validStatisticsAvailable(proof)) {
+					
+						stats += "\n"
+								+ "Time: "
+								+ (((double) TimeStatisticGenerator.INSTANCE
+										.getTime(proof)) / 1000.0d) + " seconds";
+	
 						long totalCaclulationTime = TimeStatisticGenerator.INSTANCE
-								.getTotalCalculationTime();
+								.getTotalCalculationTime(proof);
 						if (totalCaclulationTime != -1) {
 							stats += "\n" + "Arithmetic Solver: "
 									+ (((double) totalCaclulationTime) / 1000d);
 						}
 						long totalMemory = TimeStatisticGenerator.INSTANCE
-								.getTotalMemory();
+								.getTotalMemory(proof);
 						if (totalMemory != -1) {
 							StringWriter writer = new StringWriter();
 							new PrintWriter(writer).printf("%.3f Mb",
@@ -132,31 +135,32 @@ public class DLInitializer {
 							stats += "\n" + "Arithmetic Memory: "
 									+ writer.toString();
 						}
-
+	
 						long cachedAnwsers = TimeStatisticGenerator.INSTANCE
-								.getCachedAnswers();
+								.getCachedAnswers(proof);
 						if (cachedAnwsers != -1) {
 							stats += "\n"
 									+ "CachedAnswers/Queries: "
 									+ cachedAnwsers
 									+ " / "
 									+ TimeStatisticGenerator.INSTANCE
-											.getQueries();
+											.getQueries(proof);
 						}
 						stats += "\n"
 								+ "Program Variables: "
 								+ mediator.namespaces().programVariables()
 										.elements().size();
-            stats += "\n" + "KeYmaera Version: " + KeYResourceManager.getManager().getVersion();
-
-					} catch (RemoteException e1) {
-						// if there is an exception the statistic is not
-						// displayed
+						stats += "\n" + "KeYmaera Version: " + KeYResourceManager.getManager().getVersion();
+	
+						
+						JOptionPane
+								.showMessageDialog(main, stats, "Proof Statistics",
+										JOptionPane.INFORMATION_MESSAGE);
+					} else {
+						JOptionPane
+						.showMessageDialog(main, "No valid statistics recorded", "Proof Statistics",
+								JOptionPane.INFORMATION_MESSAGE);
 					}
-
-					JOptionPane
-							.showMessageDialog(main, stats, "Proof Statistics",
-									JOptionPane.INFORMATION_MESSAGE);
 				}
 			}
 		}

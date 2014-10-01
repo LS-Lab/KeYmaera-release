@@ -292,6 +292,8 @@ public class Reduce implements IQuantifierEliminator {
 
 	public void abortCalculation() throws RemoteException {
 	}
+	
+	public void resetStatistics() throws RemoteException { }
 
 	public long getCachedAnswerCount() throws RemoteException {
 		return 0;

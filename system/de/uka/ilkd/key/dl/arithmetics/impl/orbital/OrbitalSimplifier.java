@@ -399,6 +399,14 @@ public class OrbitalSimplifier implements ISimplifier {
 	public String getName() {
 		return "Orbital";
 	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#resetStatistics()
+	 */
+	public void resetStatistics() throws RemoteException {
+		// TODO Auto-generated method stub
+	}
 
 	/*
 	 * (non-Javadoc)

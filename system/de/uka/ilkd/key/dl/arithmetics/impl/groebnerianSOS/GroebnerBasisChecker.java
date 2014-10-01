@@ -1519,6 +1519,15 @@ public class GroebnerBasisChecker implements IGroebnerBasisCalculator {
 	public String getName() {
 		return "Groebnerian SOS";
 	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#resetStatistics()
+	 */
+	@Override
+	public void resetStatistics() throws RemoteException {
+		// TODO Auto-generated method stub
+	}
 
 	/*
 	 * (non-Javadoc)

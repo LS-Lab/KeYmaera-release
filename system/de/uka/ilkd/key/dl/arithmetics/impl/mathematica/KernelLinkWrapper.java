@@ -129,7 +129,7 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 
 	private long callCount;
 
-	private long cachedAnwsers;
+	private long cachedAnswers;
 
     private volatile int sequenceNumber = 0;
 
@@ -201,10 +201,7 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 //		linkCall = readLinkCall();
 		linkCall = call;
 		createLink();
-		addTime = 0;
-		callCount = 0;
-		cachedAnwsers = 0;
-
+		resetStatistics();
 	}
 
 	/**
@@ -521,7 +518,7 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 			// hier einsetzen: Timo Michelsen
 
 			if (allowCache && cache.containsKey(expr)) {
-				cachedAnwsers++;
+				cachedAnswers++;
 				log(Level.FINEST, "Returning cached anwser!");
 				ExprAndMessages exprAndMessages = cache.get(expr);
 				log(Level.FINEST, exprAndMessages.expression.toString());
@@ -746,6 +743,17 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
             return -1;
         }
 	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see de.uka.ilkd.key.dl.arithmetics.impl.mathematica.IKernelLinkWrapper#resetStatistics()
+	 */
+	@Override
+	public void resetStatistics() throws RemoteException {
+		addTime = 0;
+		cachedAnswers = 0;
+		callCount = 0;
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -771,8 +779,20 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 			ServerStatusProblemException, ConnectionProblemException {
 		// TODO assuming server hasn't been killed during the computations
 		try {
+			// backup statistics
+			long addTime = this.addTime;
+			long callCount = this.callCount;
+			long cachedAnswers = this.cachedAnswers;
+			String calcTimes = this.calcTimes.toString();
 			Expr result = evaluate(MEMORYCONSUMPTION, -1, false).expression;
-			return result.asLong();
+			// reset statistics
+			this.addTime = addTime;
+			this.callCount = callCount;
+			this.cachedAnswers = cachedAnswers;
+			this.calcTimes = new StringBuffer(calcTimes);
+			long mem = result.asLong();
+			result.dispose();
+			return mem;
 		} catch (UnsolveableException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -824,7 +844,7 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 	 * @see de.uka.ilkd.key.dl.IKernelLinkWrapper#getCachedAnwsers()
 	 */
 	public long getCachedAnswers() throws RemoteException {
-		return cachedAnwsers;
+		return cachedAnswers;
 	}
 
 	/*

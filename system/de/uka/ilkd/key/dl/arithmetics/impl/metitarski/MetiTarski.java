@@ -59,6 +59,11 @@ public class MetiTarski implements IQuantifierEliminator{
         throws RemoteException {
         // TODO Auto-generated method stub
     }
+    
+    public void resetStatistics() throws RemoteException {
+    	// TODO Auto-generated method stub
+    	
+    }
 
     public String getTimeStatistics() 
         throws RemoteException {

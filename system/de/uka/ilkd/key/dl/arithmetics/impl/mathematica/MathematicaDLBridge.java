@@ -1128,6 +1128,11 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 			cex.abortCalculation();
 		}
 	}
+	
+	@Override
+	public void resetStatistics() throws RemoteException {
+		getKernelWrapper().resetStatistics();
+	}
 
 	public String getTimeStatistics() throws RemoteException {
 		return getKernelWrapper().getTimeStatistics();

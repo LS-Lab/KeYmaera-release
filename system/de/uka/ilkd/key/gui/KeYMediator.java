@@ -375,6 +375,7 @@ public class KeYMediator {
 	}
         //TODO: refactor statistic generator
         // add the timestatistic generator
+		TimeStatisticGenerator.INSTANCE.recordFor(proof);
         this.addAutoModeListener(TimeStatisticGenerator.INSTANCE);
         keySelectionModel.setSelectedProof(proof);
     }

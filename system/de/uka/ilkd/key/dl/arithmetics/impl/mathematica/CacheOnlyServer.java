@@ -80,7 +80,7 @@ public class CacheOnlyServer extends UnicastRemoteObject implements Remote,
 
 	private long callCount;
 
-	private long cachedAnwsers;
+	private long cachedAnswers;
 
 	/**
 	 * 
@@ -129,9 +129,7 @@ public class CacheOnlyServer extends UnicastRemoteObject implements Remote,
 		logger.setUseParentHandlers(false);
 		linkCall = readLinkCall();
 		createLink();
-		addTime = 0;
-		callCount = 0;
-		cachedAnwsers = 0;
+		resetStatistics();
 	}
 
 	/**
@@ -264,7 +262,7 @@ public class CacheOnlyServer extends UnicastRemoteObject implements Remote,
 				+ SimpleDateFormat.getTimeInstance().format(curTime));
 		log(Level.FINEST, "Checking cache");
 		if (cache.containsKey(expr)) {
-			cachedAnwsers++;
+			cachedAnswers++;
 			log(Level.FINEST, "Returning cached anwser!");
 			ExprAndMessages exprAndMessages = cache.get(expr);
 			log(Level.FINEST, exprAndMessages.expression.toString());
@@ -368,6 +366,13 @@ public class CacheOnlyServer extends UnicastRemoteObject implements Remote,
 		this.cache.putAll(cache);
 		log(Level.INFO, "Cache loaded");
 	}
+	
+	@Override
+	public void resetStatistics() throws RemoteException {
+		addTime = 0;
+		callCount = 0;
+		cachedAnswers = 0;
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -375,7 +380,7 @@ public class CacheOnlyServer extends UnicastRemoteObject implements Remote,
 	 * @see de.uka.ilkd.key.dl.IKernelLinkWrapper#getCachedAnwsers()
 	 */
 	public long getCachedAnswers() throws RemoteException {
-		return cachedAnwsers;
+		return cachedAnswers;
 	}
 
 	/*

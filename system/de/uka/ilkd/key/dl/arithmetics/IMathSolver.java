@@ -47,6 +47,12 @@ public interface IMathSolver {
     public void abortCalculation() throws RemoteException;
 
     /**
+     * Reset the statistics.
+     * @throws RemoteException
+     */
+    public void resetStatistics() throws RemoteException;
+    
+    /**
      * Get the statistics about calculation time
      * 
      * @return the statistics about calculation time

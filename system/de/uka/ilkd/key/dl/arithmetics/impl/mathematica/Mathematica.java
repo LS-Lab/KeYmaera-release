@@ -305,7 +305,14 @@ public class Mathematica implements ICounterExampleGenerator, IODESolver,
 	 */
 	public void abortCalculation() throws RemoteException {
 		bridge.abortCalculation();
-
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#resetStatistics()
+	 */
+	public void resetStatistics() throws RemoteException {
+		bridge.resetStatistics();
 	}
 
 	public String getTimeStatistics() throws RemoteException {

@@ -222,6 +222,16 @@ public class HOLLight implements IQuantifierEliminator, ISOSChecker {
 	public String getName() {
 		return "HOL Light";
 	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see de.uka.ilkd.key.dl.arithmetics.IMathSolver#resetStatistics()
+	 */
+	@Override
+	public void resetStatistics() throws RemoteException {
+		// TODO Auto-generated method stub
+		
+	}
 
 	/*
 	 * (non-Javadoc)

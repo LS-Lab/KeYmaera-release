@@ -112,6 +112,12 @@ public interface IKernelLinkWrapper extends Remote, Serializable {
     public void clearCache() throws RemoteException;
 
     /**
+     * Resets the statistics recording.
+     * @throws RemoteException
+     */
+    public void resetStatistics() throws RemoteException;
+    
+    /**
      * Get the number of queries to the server
      * 
      * @return the number of queries to the server

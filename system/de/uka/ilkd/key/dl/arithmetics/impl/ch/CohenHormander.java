@@ -134,6 +134,12 @@ public class CohenHormander implements IQuantifierEliminator {
 		System.out.println("Stop signal sent!");
 		//workerThread.interrupt();
 	}
+	
+	@Override
+	public void resetStatistics() throws RemoteException {
+		// TODO Auto-generated method stub
+		
+	}
 
 	public long getCachedAnswerCount() throws RemoteException {
 		return 0;

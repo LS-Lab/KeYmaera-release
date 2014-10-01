@@ -178,6 +178,10 @@ public class SMT implements IQuantifierEliminator, ICounterExampleGenerator {
 	public String getName() {
 		return "SMT";
 	}
+	
+	public void resetStatistics() throws RemoteException {
+		// TODO Auto-generated method stub
+	}
 
 	public long getQueryCount() throws RemoteException {
 		return 0;
