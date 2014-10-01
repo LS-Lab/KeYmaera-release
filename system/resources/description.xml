@@ -385,10 +385,13 @@ For an easy proof, before solving differential equations in the acceleration cas
              </requirements>
 		</example>
 		<example>
-            <name>9: Energy argument</name>
-            				<path>/examples/hybrid/tutorial/tutorial9-carcruiseenergy.key</path>
+            <name>9a: Lyapunov Functions and PD Control</name>
+            				<path>/examples/hybrid/tutorial/tutorial9a_continuous_PD_controllerSSA.key</path>
+            				<proofs>
+								<proof name="Mathematica" href="/examples/hybrid/tutorial/tutorial9a_continuous_PD_controllerSSA.key.proof"/>
+							</proofs>
 
-            <description>KeYmaera Tutorial Example 9</description>
+            <description>KeYmaera Tutorial Example 9a</description>
             <source href="http://symbolaris.com/info/KeYmaera-tutorial.html"/>
             <requirements>
                  <some>
@@ -397,28 +400,28 @@ For an easy proof, before solving differential equations in the acceleration cas
              </requirements>
 		</example>
 		<example>
-            <name>10: Automatic-Transmission</name>
-            				<path>/examples/hybrid/tutorial/tutorial10-automatictransmission.key</path>
+            <name>9b: Trajectory Generator</name>
+            				<path>/examples/hybrid/tutorial/tutorial9b_energy_trajectory_generatorSSA.key</path>
 							<proofs>
-								<proof name="Mathematica" href="/examples/hybrid/tutorial/tutorial10-automatictransmission.key.proof"/>
+								<proof name="Mathematica" href="/examples/hybrid/tutorial/tutorial9b_energy_trajectory_generatorSSA.key.proof"/>
+							</proofs>
+
+            <description>KeYmaera Tutorial Example 9b</description>
+            <source href="http://symbolaris.com/info/KeYmaera-tutorial.html"/>
+            <requirements>
+                 <some>
+            		 	<quantifiereliminator>Mathematica</quantifiereliminator>
+            	   </some>
+             </requirements>
+		</example>
+		<example>
+            <name>10: Car controller with non-linear dynamics</name>
+            				<path>/examples/hybrid/tutorial/tutorial10_stayonlane.key</path>
+							<proofs>
+								<proof name="Mathematica" href="/examples/hybrid/tutorial/tutorial10_stayonlane.key.proof"/>
 							</proofs>
 
             <description>KeYmaera Tutorial Example 10</description>
-            <source href="http://symbolaris.com/info/KeYmaera-tutorial.html"/>
-            <requirements>
-                 <some>
-            		 	<quantifiereliminator>Mathematica</quantifiereliminator>
-            	   </some>
-             </requirements>
-		</example>
-		<example>
-            <name>11: Car controller with non-linear dynamics</name>
-            				<path>/examples/hybrid/tutorial/tutorial11_stayonlane.key</path>
-							<proofs>
-								<proof name="Mathematica" href="/examples/hybrid/tutorial/tutorial11_stayonlane.key.proof"/>
-							</proofs>
-
-            <description>KeYmaera Tutorial Example 11</description>
             <source href="http://symbolaris.com/info/KeYmaera-tutorial.html"/>
             <requirements>
                  <some>
