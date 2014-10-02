@@ -29,7 +29,7 @@ public abstract class AbstractProofRegressionTest {
 	private static final String TMP_DIR = "/tmp/keymaeratests/";
 	
 	private static final String CLASS_PATH =
-			JARS_DIR + "keymaera.jar" + ":" 
+			System.getProperty("user.dir") + "/keymaera.jar" + ":" 
 		  + JARS_DIR + "antlr-3.4-complete.jar" + ":"
 		  + JARS_DIR + "log4j.jar" + ":"
 		  + JARS_DIR + "JLink/JLink.jar" + ":"
