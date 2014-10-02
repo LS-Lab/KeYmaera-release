@@ -42,6 +42,7 @@ import javax.swing.event.MouseInputAdapter;
 import javax.swing.text.JTextComponent;
 
 import de.uka.ilkd.key.dl.gui.AutoModeDialog;
+
 import org.apache.log4j.Logger;
 
 import de.uka.ilkd.key.collection.ImmutableList;
@@ -2532,6 +2533,21 @@ public class Main extends JFrame implements IMain {
             }else{
                 exitMain();
             }
+        }
+        @Override
+        public void windowOpened(WindowEvent e) {
+        	String javaVersion = System.getProperty("java.version");
+        	if (javaVersion.startsWith("1.8")) {
+        		if (testStandalone) {
+            		Logger.getLogger("key.main").warn("Java version incompatibility: used " + javaVersion);
+            	} else {
+            		JOptionPane.showMessageDialog(
+            				e.getComponent(), 
+            				"<html>Java 1.8 not supported in conjunction with Mathematica.<br/> If you want to use Mathematica as a backend prover,<br/> please switch to Java 1.6 or Java 1.7 (click &laquo;Advanced Options&raquo;<br/> in the KeYmaera launcher and set the path to JAVA_HOME).</html>", 
+            				"Java Version Incompatibility", 
+            				JOptionPane.WARNING_MESSAGE);
+            	}
+        	}
         }
     }    
     
