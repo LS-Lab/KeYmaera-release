@@ -2281,6 +2281,7 @@ public class Main extends JFrame implements IMain {
                 //on one proof object, namely on: mediator.getProof()
                 proof.getServices().getSpecificationRepository().removeProof(proof);
                 proof.mgt().removeProofListener();
+                TimeStatisticGenerator.INSTANCE.stopRecording(proof);
             }
             ((ProofTreeView)proofView.getComponent(0)).removeProofs(rootTask.allProofs());
        }

@@ -98,9 +98,9 @@ public class TimeStatisticGenerator implements AutoModeListener {
 	}
 
 	public void autoModeStarted(ProofEvent e) {
-		if (currentProof == e.getSource()) {
-			SolverStatistics s = statistics.get(e.getSource());
-			if (!s.started) {
+		if (currentProof != null && currentProof == e.getSource()) {
+			SolverStatistics s = getStatistics(e.getSource());
+			if (s != null && !s.started) {
 				s.started = true;
 				s.startTime = System.currentTimeMillis();
 			}
@@ -108,8 +108,8 @@ public class TimeStatisticGenerator implements AutoModeListener {
 	}
 
 	public void autoModeStopped(ProofEvent e) {
-		if (currentProof == e.getSource()) {
-			final SolverStatistics s = statistics.get(e.getSource());
+		if (currentProof != null && currentProof == e.getSource()) {
+			final SolverStatistics s = getStatistics(e.getSource());
 			if (s != null && s.started) {
 				s.accumulatedTime += System.currentTimeMillis() - s.startTime;
 				SwingUtilities.invokeLater(new Runnable() {
@@ -124,7 +124,7 @@ public class TimeStatisticGenerator implements AutoModeListener {
 	}
 
 	public long getTime(Proof p) {
-		return statistics.get(p).accumulatedTime;
+		return (statistics.containsKey(p)) ? statistics.get(p).accumulatedTime : -1;
 	}
 
 	/**
@@ -163,7 +163,7 @@ public class TimeStatisticGenerator implements AutoModeListener {
 	 * @return The total calculation time.
 	 */
 	public long getTotalCalculationTime(Proof p) {
-		return statistics.get(p).solverTime;
+		return (statistics.containsKey(p)) ? statistics.get(p).solverTime : -1;
 	}
 
 	/**
@@ -201,7 +201,7 @@ public class TimeStatisticGenerator implements AutoModeListener {
 	 * @return The total memory consumption.
 	 */
 	public long getTotalMemory(Proof p) {
-		return statistics.get(p).totalMemory;
+		return (statistics.containsKey(p)) ? statistics.get(p).totalMemory : -1;
 	}
 
 	/**
@@ -224,7 +224,7 @@ public class TimeStatisticGenerator implements AutoModeListener {
 	 * @return The number of cached answers.
 	 */
 	public long getCachedAnswers(Proof p) {
-		return statistics.get(p).cachedAnswers;
+		return (statistics.containsKey(p)) ? statistics.get(p).cachedAnswers : -1;
 	}
 
 	/**
@@ -247,7 +247,7 @@ public class TimeStatisticGenerator implements AutoModeListener {
 	 * @return The number of queries.
 	 */
 	public long getQueries(Proof p) {
-		return statistics.get(p).queries;
+		return (statistics.containsKey(p)) ? statistics.get(p).queries : -1;
 	}
 	
 	/**
@@ -256,7 +256,7 @@ public class TimeStatisticGenerator implements AutoModeListener {
 	 * @return True, if valid statistics are available; false otherwise.
 	 */
 	public boolean validStatisticsAvailable(Proof p) {
-		return statistics.get(p).valid;
+		return (statistics.containsKey(p)) ? statistics.get(p).valid : false;
 	}
 
 	/**
@@ -277,9 +277,7 @@ public class TimeStatisticGenerator implements AutoModeListener {
      */
     public void recordFor(final Proof proof) {
     	// recordFor: we don't want to pollute the IMathSolvers with knowing proofs
-    	if (!statistics.containsKey(proof) && proof != null) {
-			statistics.put(proof, new SolverStatistics());
-		}
+    	createStatistics(proof);
     	
     	if (currentProof != null) {
     		updateStatistics(currentProof);
@@ -287,6 +285,17 @@ public class TimeStatisticGenerator implements AutoModeListener {
     	currentProof = proof;
     	
     	resetStatisticsInSolver(proof);
+    }
+    
+    /**
+     * Stops recording statistics for the specified proof.
+     * @param proof
+     */
+    public void stopRecording(final Proof proof) {
+    	if (proof != null && currentProof == proof) {
+    		refreshStatistics(proof);
+    		currentProof = null;
+    	}
     }
     
     /**
@@ -324,22 +333,35 @@ public class TimeStatisticGenerator implements AutoModeListener {
 	 */
 	private void updateStatistics(final Proof proof) {
 		SolverStatistics s = statistics.get(proof);
-		try {
-			long time = getTotalCalculationTime();
-			if (time != -1) s.solverTime += time;
-			else s.solverTime = -1;
-			long mem = getTotalMemory();
-			if (mem != -1) s.totalMemory = Math.max(s.totalMemory, mem);
-			else s.totalMemory = -1;
-			long answers = getCachedAnswers();
-			if (answers != -1) s.cachedAnswers += answers;
-			else s.cachedAnswers = -1;
-			long queries = getQueries();
-			if (queries != -1) s.queries += queries;
-			else s.queries = -1;
-		} catch (RemoteException e) {
-			e.printStackTrace();
-			s.valid = false;
+		if (s != null) {
+			try {
+				long time = getTotalCalculationTime();
+				if (time != -1) s.solverTime += time;
+				else s.solverTime = -1;
+				long mem = getTotalMemory();
+				if (mem != -1) s.totalMemory = Math.max(s.totalMemory, mem);
+				else s.totalMemory = -1;
+				long answers = getCachedAnswers();
+				if (answers != -1) s.cachedAnswers += answers;
+				else s.cachedAnswers = -1;
+				long queries = getQueries();
+				if (queries != -1) s.queries += queries;
+				else s.queries = -1;
+			} catch (RemoteException e) {
+				e.printStackTrace();
+				s.valid = false;
+			}
+		}
+	}
+	
+	private SolverStatistics getStatistics(Proof p) {
+		createStatistics(p);
+		return statistics.get(p);
+	}
+
+	private void createStatistics(Proof p) {
+		if (p != null && !statistics.containsKey(p)) {
+			statistics.put(p, new SolverStatistics());
 		}
 	}
 }
