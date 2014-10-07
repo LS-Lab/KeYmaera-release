@@ -154,6 +154,8 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 	private boolean abort;
 
     private HashMap<String,File> files;
+    
+    private ServerSocketHandler handler;
 
     /**
 	 * Creates a new KernelLinkWrapper for the given port
@@ -179,7 +181,6 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 		calcTimes = new StringBuffer();
 		mutex = new Object();
 		logger = Logger.getLogger("KernelLinkLogger");
-		ServerSocketHandler handler;
 		try {
 
 			handler = new ServerSocketHandler(port + 1);
@@ -441,7 +442,7 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 		    System.err.println("Could not create registry " + ex);
 		}
 		Registry registry = LocateRegistry.getRegistry(port);
-		final KernelLinkWrapper kernelLinkWrapper = new KernelLinkWrapper(port,
+		final KernelLinkWrapper kernelLinkWrapper = new KernelLinkWrapper(port + 1,
 				cache, call);
 		INSTANCE = kernelLinkWrapper;
 		registry.rebind(IDENTITY, kernelLinkWrapper);
@@ -794,8 +795,6 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 			result.dispose();
 			return mem;
 		} catch (UnsolveableException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 			throw new IllegalStateException("Unexpected result from Mathematica: "
 					+ e);
 		} catch (ExprFormatException e) {
@@ -875,8 +874,10 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
             l.terminateKernel();
             l.close();
         } catch (Throwable t) {
-            t.printStackTrace();
+            logger.log(Level.WARNING, "Error disposing KernelLinkWrapper", t);
         }
+		logger.removeHandler(handler);
+		handler.close();
 	}
 
 	public class ServerSocketHandler extends Handler {
@@ -889,6 +890,8 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 		private Map<Socket, Writer> writers = new HashMap<Socket, Writer>();
 
 		protected boolean bound;
+		
+		private Thread send;
 
 		public ServerSocketHandler(int port) throws IOException {
 			socket = new ServerSocket(port);
@@ -907,8 +910,7 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 							Socket sock = socket.accept();
 							sockets.add(sock);
 						} catch (IOException e) {
-							// TODO Auto-generated catch block
-							System.out.println(e);
+							logger.log(Level.WARNING, "Error accepting connection", e);
 						}
 					}
 				}
@@ -916,7 +918,7 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 			t.setDaemon(true);
 			t.start();
 			bound = true;
-			Thread send = new Thread("KernelLogPromoter") {
+			send = new Thread("KernelLogPromoter") {
 				/*
 				 * (non-Javadoc)
 				 * 
@@ -955,19 +957,25 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 		}
 
 		public void close() {
-			bound = false;
-			try {
-				socket.close();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			for (Socket sock : new HashSet<Socket>(writers.keySet())) {
+			if (bound) {
+				bound = false;
+				send.interrupt();
 				try {
-					sock.close();
+					send.join();
+				} catch (InterruptedException e) {
+					logger.log(Level.WARNING, "Interrupted while waiting for socket to close", e);
+				}
+				try {
+					socket.close();
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					logger.log(Level.WARNING, "Unable to close socket", e);
+				}
+				for (Socket sock : new HashSet<Socket>(writers.keySet())) {
+					try {
+						sock.close();
+					} catch (IOException e) {
+						logger.log(Level.WARNING, "Unable to close child sockets", e);
+					}
 				}
 			}
 		}

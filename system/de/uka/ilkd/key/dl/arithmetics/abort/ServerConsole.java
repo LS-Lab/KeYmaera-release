@@ -246,7 +246,7 @@ public class ServerConsole extends JFrame {
 			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		}
 		// new BlockedThread().start();
-		Socket socket = new Socket(server, port + 1);
+		Socket socket = new Socket(server, port + 2);
 		new SocketReceiver(socket).start();
 	}
 

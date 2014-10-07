@@ -106,7 +106,7 @@
 ./hybrid/weispfennig/angle2.key 600 0
 ./hybrid/weispfennig/steiner-lehmus-theorem.key 600 0
 ./hybrid/weispfennig/pedos_inequality.key 600 0
-./hybrid/accel-simple.key 600 1
+./hybrid/accel-simple.key 600 0
 ./hybrid/magnetic_field.key 600 0
 ./hybrid/ETCS/controllability/ETCS-d-braking.key 600 0
 ./hybrid/water_tank/water_tank.key 600 0
@@ -131,7 +131,7 @@
 ./hybrid/bouncing-ball/bouncing-ball.key 600 0
 ./hybrid/bouncing-ball/bouncing-ball-inv.key 600 0
 ./hybrid/bouncing-ball/bouncing-ball-simple.key 600 0
-./hybrid/bouncing-ball/bouncing-ball-if.key 600 1
+./hybrid/bouncing-ball/bouncing-ball-if.key 600 0
 ./hybrid/ETCS/safety/binary_driver-2007-10-09.key 600 0
 ./hybrid/ETCS/paper/rbc-controllability-lemma.key 600 0
 ./hybrid/ETCS/paper/rbc-controllability-characterisation.key 600 0
