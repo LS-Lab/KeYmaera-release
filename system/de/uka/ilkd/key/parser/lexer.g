@@ -91,6 +91,7 @@ tokens {
 	ISLOCALVARIABLE = "\\isLocalVariable";
 	NOTISLOCALVARIABLE = "\\notIsLocalVariable";
 	ISFIRSTORDERFORMULA = "\\isFirstOrderFormula";
+	ISFIRSTORDEREQUALITY = "\\isFirstOrderEquality";
 	ISUPDATED = "\\isUpdated";
 	SAMEHEAPDEPPRED = "\\sameHeapDepPred";
 

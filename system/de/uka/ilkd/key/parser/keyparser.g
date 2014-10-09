@@ -4147,6 +4147,7 @@ varexp[TacletBuilder b]
       | varcond_static[b,negated] 
       | varcond_typecheck[b, negated]
 	  | varcond_firstorderformula[b, negated]
+	  | varcond_firstorderequality[b, negated]
       | varcond_localvariable[b, negated]
       | varcond_freeLabelIn[b,negated] )
   )
@@ -4465,6 +4466,17 @@ varcond_firstorderformula [TacletBuilder b, boolean negated]
    ISFIRSTORDERFORMULA 
 	LPAREN x=varId RPAREN {
      	   b.addVariableCondition(new FirstOrderCondition((SchemaVariable) x, negated));
+        } 
+;
+
+varcond_firstorderequality [TacletBuilder b, boolean negated]
+{
+  ParsableVariable x = null;
+}
+:
+   ISFIRSTORDEREQUALITY 
+	LPAREN x=varId RPAREN {
+     	   b.addVariableCondition(new FirstOrderEqualityCondition((SchemaVariable) x, negated));
         } 
 ;
 
