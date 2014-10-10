@@ -547,9 +547,13 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 		});
 		List<Expr> result = new ArrayList<Expr>();
 		for (Term t : equalities) {
-			result.add(Term2ExprConverter.convert2Expr(t));
+			// bring into a = b == a - b = 0 form
+			result.add(new Expr(MINUS, new Expr[]{
+				Term2ExprConverter.convert2Expr(t.sub(0)),
+				Term2ExprConverter.convert2Expr(t.sub(1))
+			}));
 		}
-		return new Expr(new Expr(Expr.SYMBOL, "List"), result.toArray(new Expr[result.size()]));
+		return new Expr(LIST, result.toArray(new Expr[result.size()]));
 	}
 
 	/**
