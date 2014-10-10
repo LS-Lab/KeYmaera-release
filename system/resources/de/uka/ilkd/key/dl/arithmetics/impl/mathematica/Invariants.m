@@ -1,10 +1,9 @@
-(* ::Package:: *)
 
 (* Copyright (C) Andrew Sogokon and Khalil Ghorbal 2014 *)
 (* email. khalil.ghorbal@gmail.com *)
 (* This package is released under GPL license. Please read the COPYRIGHT file *)
 
-
+(* ::Package:: *)
 
 BeginPackage["Invariants`"]
 
@@ -128,10 +127,10 @@ While[True,
   MonomialOrder -> DegreeReverseLexicographic];
   Remainder = PolynomialReduce[lieD, GB, vars,MonomialOrder -> DegreeReverseLexicographic][[2]];
   ]
-  If[PossibleZeroQ[Remainder], Throw[True],
+  If[PossibleZeroQ[Remainder], Throw[{True,StringForm["(N=``)", N]}],
    AppendTo[L, lieD];
    Reduction = Reduction && TrueQ[Reduce[UniversalClosure[Implies[SFh == 0, SF[L[[-1]]] == 0], allvars], allvars, Reals]];
-   If[Reduction, N++, Throw[False]]
+   If[Reduction, N++, Throw[{False,StringForm["(N=``)", N]}]]
   ]
  ]
 ]]

@@ -87,4 +87,6 @@ public interface ExprConstants {
 	final Expr RULE = new Expr(Expr.SYMBOL, "Rule");
 
 	final Expr LIST = new Expr(Expr.SYMBOL, "List");
+	
+	final Expr STRING_FORM = new Expr(Expr.SYMBOL, "StringForm");
 }

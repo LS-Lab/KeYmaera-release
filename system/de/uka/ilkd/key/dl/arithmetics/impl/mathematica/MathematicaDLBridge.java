@@ -69,6 +69,8 @@ import de.uka.ilkd.key.logic.Named;
 import de.uka.ilkd.key.logic.NamespaceSet;
 import de.uka.ilkd.key.logic.Term;
 import de.uka.ilkd.key.logic.TermBuilder;
+import de.uka.ilkd.key.logic.Visitor;
+import de.uka.ilkd.key.logic.op.Equality;
 import de.uka.ilkd.key.logic.op.LogicVariable;
 import de.uka.ilkd.key.logic.op.SubstOp;
 import de.uka.ilkd.key.proof.ProofSaver;
@@ -493,19 +495,61 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 				.getNamespaces())) {
 			args.add(DL2Expr.apply(el, null, EMPTY, services, RULE));
 		}
+		
+		Expr invCandidate = null;
+		if (diffOperator.equals("SFLie") 
+				|| diffOperator.equals("SFLieZero")
+				|| diffOperator.equals("SFLieStar")
+				|| diffOperator.equals("DRI")) {
+			invCandidate = new Expr(MINUS, new Expr[] { Term2ExprConverter.convert2Expr(h.sub(0)), Term2ExprConverter.convert2Expr(h.sub(1)) });
+		} else if (diffOperator.equals("DRIConj")) {
+			invCandidate = getDriConjCandidate(h);
+		} else {
+			throw new IllegalArgumentException(String.format("Unexpected DRI operator '%s'", diffOperator));
+		}
+		
 		Expr diffCall = new Expr(new Expr(Expr.SYMBOL, "Invariants`" + diffOperator),
 					new Expr[] {
-							new Expr(MINUS, new Expr[] { Term2ExprConverter.convert2Expr(h.sub(0)), Term2ExprConverter.convert2Expr(h.sub(1)) }),
+							invCandidate,
 							// new Expr(Expr.SYMBOL, t.name().toString()),
 							new Expr(new Expr(Expr.SYMBOL, "List"), args
 									.toArray(new Expr[args.size()])),
                             new Expr(new Expr(Expr.SYMBOL, "List"), vars.values()
-                                    .toArray(new Expr[vars.size()])), }
+                                    .toArray(new Expr[vars.size()])) }
         );
 		Expr diffIndExpression = evaluate(diffCall).expression;
+		// ignore the performance measurement part of the DRI result
+		if (diffIndExpression.listQ() 
+				&& diffIndExpression.args().length == 2
+				&& diffIndExpression.args()[1].head().equals(STRING_FORM)) {
+			diffIndExpression = diffIndExpression.args()[0];
+		}
 
 		return TermBuilder.DF.imp(h, convert(diffIndExpression,
 				services.getNamespaces()));
+	}
+
+   	/**
+   	 * Returns a Mathematica expression of the invariant candidate h. 
+   	 * The returned expression is suitable for the DRIConj rule.
+   	 * @param h The term (a conjunction of equalities).
+   	 * @return A list of Expr, each representing one equality of specified h.
+   	 */
+	private Expr getDriConjCandidate(Term h) {
+		final List<Term> equalities = new ArrayList<Term>();
+		h.execPreOrder(new Visitor() {
+			@Override
+			public void visit(Term visited) {
+				if (visited.op() instanceof Equality) {
+					equalities.add(visited);
+				}
+			}
+		});
+		List<Expr> result = new ArrayList<Expr>();
+		for (Term t : equalities) {
+			result.add(Term2ExprConverter.convert2Expr(t));
+		}
+		return new Expr(new Expr(Expr.SYMBOL, "List"), result.toArray(new Expr[result.size()]));
 	}
 
 	/**
