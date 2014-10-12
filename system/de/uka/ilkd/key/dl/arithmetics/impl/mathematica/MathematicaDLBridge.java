@@ -32,6 +32,8 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
@@ -92,6 +94,8 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
 		IMathematicaDLBridge, ExprConstants {
 	
 	private static final boolean DEBUG = false;
+	
+	private static final Logger logger = Logger.getLogger(MathematicaDLBridge.class.getName());
 
 	public static final String[] messageBlacklist = new String[] { "nsmet" };
 
@@ -1107,7 +1111,13 @@ public class MathematicaDLBridge extends UnicastRemoteObject implements
          */
     public List<String> findMultiInstance(Term form, int ninst, long timeout) throws RemoteException,
             SolverException {
-        Expr query = Term2ExprConverter.convert2Expr(form);
+    	Expr query = null;
+    	try {
+        	query = Term2ExprConverter.convert2Expr(form);
+        } catch (IllegalArgumentException e) {
+        	logger.log(Level.WARNING, String.format("Cannot obtain instance for '%s'. Proceeding as if not satisfiable.", form), e);
+        	return Arrays.asList("");
+        }
         List<Expr> vars = new ArrayList<Expr>();
         Set<String> variables = AllCollector.getItemSet(form).filter(
                 new FilterVariableCollector(null)).getVariables();
