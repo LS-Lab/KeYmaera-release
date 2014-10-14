@@ -13,8 +13,11 @@ import de.uka.ilkd.key.dl.regressiontest.AbstractProofRegressionTest;
  * Regression test for issue #0020.
  * Issue: DRI on formulas without \assumes(f=g ==>)
  * 
+ * Rule dribis superseded by DRIConj
+ * 
  * @author smitsch
  */
+@Deprecated
 @RunWith(Parameterized.class)
 public class Issue0020Test extends AbstractProofRegressionTest {
 	

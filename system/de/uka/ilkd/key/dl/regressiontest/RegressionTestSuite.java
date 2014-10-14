@@ -4,7 +4,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
 import de.uka.ilkd.key.dl.regressiontest.issues.issue0001.Issue0001Test;
-import de.uka.ilkd.key.dl.regressiontest.issues.issue0020.Issue0020Test;
 import de.uka.ilkd.key.dl.regressiontest.issues.issue0021.Issue0021Test;
 import de.uka.ilkd.key.dl.regressiontest.issues.issue0023.Issue0023Test;
 import de.uka.ilkd.key.dl.regressiontest.proofexamples.AutomatedProvableTest;
@@ -21,7 +20,6 @@ import de.uka.ilkd.key.dl.regressiontest.proofexamples.NotProvableTest;
 	AutomatedProvableTest.class,
 	LicsTutorialTest.class,
 	Issue0001Test.class,
-	Issue0020Test.class,
 	Issue0021Test.class,
 	Issue0023Test.class
 })
