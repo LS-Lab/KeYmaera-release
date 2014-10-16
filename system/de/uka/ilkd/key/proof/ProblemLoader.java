@@ -36,6 +36,8 @@ import de.uka.ilkd.key.dl.gui.TimeStatisticGenerator;
 import de.uka.ilkd.key.dl.options.DLOptionBean;
 import de.uka.ilkd.key.dl.rules.ReduceRule;
 import de.uka.ilkd.key.dl.rules.ReduceRuleApp;
+import de.uka.ilkd.key.pp.LogicPrinter;
+import de.uka.ilkd.key.pp.ProgramPrinter;
 import de.uka.ilkd.key.gui.*;
 import de.uka.ilkd.key.gui.configuration.ProofSettings;
 import de.uka.ilkd.key.java.ProgramElement;
@@ -759,11 +761,15 @@ public class ProblemLoader implements Runnable {
             ourApp = NoPosTacletApp.createNoPosTacletApp(t);
         }
 
+        if (ourApp == null) constructAppError("Did not succeed in constructing rule application because taclet lookup failed");
+
         if (matchConstraint != Constraint.BOTTOM) {
             ourApp = ourApp.setMatchConditions(new MatchConditions(ourApp
                     .instantiations(), matchConstraint, ourApp
                     .newMetavariables(), RenameTable.EMPTY_TABLE));
         }
+
+        if (ourApp == null) constructAppError("Did not succeed in constructing rule application because constraint matching failed");
 
         Constraint userC = mediator.getUserConstraint().getConstraint();
         Services services = mediator.getServices();
@@ -784,19 +790,59 @@ public class ProblemLoader implements Runnable {
             }
             ourApp = ((NoPosTacletApp)ourApp).matchFind(pos, c, services, userC);
             ourApp = ourApp.setPosInOccurrence(pos);
-        }
 
+            if (ourApp == null) constructAppError("Did not succeed in constructing rule application");
+        }
 
         ourApp = constructInsts(ourApp, services);
 
+        if (ourApp == null) constructAppError("Did not succeed in constructing rule application because instantiation failed");
+        
         ourApp = ourApp.setIfFormulaInstantiations(ifFormulaList,
                                                    services, userC);
+
+        if (ourApp == null) constructAppError("Did not succeed in constructing rule application because \\if instantiations failed");
 
         if (!ourApp.sufficientlyComplete()) {
             ourApp = ourApp.tryToInstantiate(currGoal, proof.getServices());
         }
 
+        if (ourApp == null) constructAppError("Did not succeed in constructing rule application because completing the instantiation failed");
+
         return ourApp;
+    }
+    
+    private void constructAppError(String problem) throws AppConstructionException {
+      Services services = mediator.getServices();
+      if (currFormula != 0) { // otherwise we have no pos
+        PosInOccurrence pos = PosInOccurrence.findInSequent(currGoal.sequent(),
+                                          currFormula,
+                                          currPosInTerm);
+        String currFormulaPrint;
+        try {
+            final LogicPrinter lp = new LogicPrinter(new ProgramPrinter(null), 
+                    Main.getInstance().mediator().getNotationInfo(),
+                    services);
+            lp.printTerm(pos.constrainedFormula().formula());
+            currFormulaPrint = lp.toString();
+        }
+        catch (Exception ignore) {
+            currFormulaPrint = pos.constrainedFormula().toString();
+        }
+        String currPosInTermPrint;
+        try {
+            final LogicPrinter lp = new LogicPrinter(new ProgramPrinter(null), 
+                    Main.getInstance().mediator().getNotationInfo(),
+                    services);
+            lp.printTerm(pos.subTerm());
+            currPosInTermPrint = lp.toString();
+        }
+        catch (Exception ignore) {
+            currPosInTermPrint = pos.subTerm().toString();
+        }
+        throw new AppConstructionException(problem + " applying\ntaclet " + currTacletName + " to goal\n" + currGoal + "\nat formula " + currFormula + ":  " + currFormulaPrint + "\nat " + currPosInTerm + " :  " + currPosInTermPrint);
+      } else
+        throw new AppConstructionException(problem + " applying\ntaclet " + currTacletName + " to goal\n" + currGoal + "\nat formula " + currFormula + "\n at term    " + currPosInTerm);
     }
 
 
