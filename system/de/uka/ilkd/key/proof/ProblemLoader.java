@@ -814,6 +814,18 @@ public class ProblemLoader implements Runnable {
     
     private void constructAppError(String problem) throws AppConstructionException {
       Services services = mediator.getServices();
+      String ifFormulaPrint = "";
+      for (IfFormulaInstantiation ifFormula : ifFormulaList)
+        try {
+            final LogicPrinter lp = new LogicPrinter(new ProgramPrinter(null), 
+                    Main.getInstance().mediator().getNotationInfo(),
+                    services);
+            lp.printTerm(ifFormula.getConstrainedFormula().formula());
+            ifFormulaPrint += "assume at:     " + lp.toString();
+        }
+        catch (Exception ignore) {
+            ifFormulaPrint += "assume at:     " + ifFormula.getConstrainedFormula().toString();
+        }
       if (currFormula != 0) { // otherwise we have no pos
         PosInOccurrence pos = PosInOccurrence.findInSequent(currGoal.sequent(),
                                           currFormula,
@@ -827,7 +839,7 @@ public class ProblemLoader implements Runnable {
             currFormulaPrint = lp.toString();
         }
         catch (Exception ignore) {
-            currFormulaPrint = pos.constrainedFormula().toString();
+            currFormulaPrint = pos.constrainedFormula().formula().toString();
         }
         String currPosInTermPrint;
         try {
@@ -840,9 +852,9 @@ public class ProblemLoader implements Runnable {
         catch (Exception ignore) {
             currPosInTermPrint = pos.subTerm().toString();
         }
-        throw new AppConstructionException(problem + " applying\ntaclet " + currTacletName + " to goal\n" + currGoal + "\nat formula " + currFormula + ":  " + currFormulaPrint + "\nat " + currPosInTerm + " :  " + currPosInTermPrint);
+        throw new AppConstructionException(problem + " applying\ntaclet " + currTacletName + " to goal\n" + currGoal + "at formula " + currFormula + ":  " + currFormulaPrint + "at " + currPosInTerm + ":  " + currPosInTermPrint + ifFormulaPrint);
       } else
-        throw new AppConstructionException(problem + " applying\ntaclet " + currTacletName + " to goal\n" + currGoal + "\nat formula " + currFormula + "\n at term    " + currPosInTerm);
+        throw new AppConstructionException(problem + " applying\ntaclet " + currTacletName + " to goal\n" + currGoal + "at formula " + currFormula + "at " + currPosInTerm + ifFormulaPrint);
     }
 
 
