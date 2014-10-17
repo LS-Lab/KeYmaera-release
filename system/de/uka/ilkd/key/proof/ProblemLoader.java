@@ -814,6 +814,17 @@ public class ProblemLoader implements Runnable {
     
     private void constructAppError(String problem) throws AppConstructionException {
       Services services = mediator.getServices();
+      String currGoalPrint;
+      try {
+          final LogicPrinter lp = new LogicPrinter(new ProgramPrinter(null), 
+                  Main.getInstance().mediator().getNotationInfo(),
+                  services);
+          lp.printSequent(currGoal.sequent());
+          currGoalPrint = lp.toString();
+      }
+      catch (Exception ignore) {
+          currGoalPrint = currGoal.toString();
+      }
       String ifFormulaPrint = "";
       for (IfFormulaInstantiation ifFormula : ifFormulaList)
         try {
@@ -852,9 +863,9 @@ public class ProblemLoader implements Runnable {
         catch (Exception ignore) {
             currPosInTermPrint = pos.subTerm().toString();
         }
-        throw new AppConstructionException(problem + " applying\ntaclet " + currTacletName + " to goal\n" + currGoal + "at formula " + currFormula + ":  " + currFormulaPrint + "at " + currPosInTerm + ":  " + currPosInTermPrint + ifFormulaPrint);
+        throw new AppConstructionException(problem + " applying\ntaclet " + currTacletName + " to goal\n" + currGoalPrint + "at formula " + currFormula + ":  " + currFormulaPrint + "at " + currPosInTerm + ":  " + currPosInTermPrint + ifFormulaPrint);
       } else
-        throw new AppConstructionException(problem + " applying\ntaclet " + currTacletName + " to goal\n" + currGoal + "at formula " + currFormula + "at " + currPosInTerm + ifFormulaPrint);
+        throw new AppConstructionException(problem + " applying\ntaclet " + currTacletName + " to goal\n" + currGoalPrint + "at formula " + currFormula + "at " + currPosInTerm + ifFormulaPrint);
     }
 
 
