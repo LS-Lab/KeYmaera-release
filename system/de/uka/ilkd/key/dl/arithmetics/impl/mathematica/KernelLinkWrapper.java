@@ -275,6 +275,32 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 			testForError(link);
 			link.discardAnswer();
 			testForError(link);
+			// test license expiration
+			link.evaluate("$LicenseExpirationDate");
+			link.waitForAnswer();
+			Expr expirationDate = link.getExpr();
+			Expr[] date = null;
+			if (expirationDate.vectorQ()) {
+				// Mathematica 9: array
+				date = expirationDate.args();
+			} else {
+				// Mathematica 10: DateObject
+				date = expirationDate.args()[0].args();
+			}
+			if (date == null) {
+				throw new RemoteException("Unable to determine Mathematica expiration date.");
+			}
+			try {
+				// Month in calendar is 0-based, in Mathematica 1-based
+				Calendar expiration = GregorianCalendar.getInstance();
+				expiration.set(date[0].asInt(), date[1].asInt() - 1, date[2].asInt());
+				Date today = new Date();
+				if (expiration.getTime().before(today)) {
+					throw new RemoteException("Mathematica license is expired.\n A valid license is necessary to use Mathematica as backend of KeYmaera.\n Please renew your Mathematica license and restart KeYmaera.");
+				}
+			} catch (ExprFormatException e) {
+				throw new RemoteException("Unable to determine Mathematica expiration date.", e);
+			}
 
 			link.addPacketListener(packetListener);
 
