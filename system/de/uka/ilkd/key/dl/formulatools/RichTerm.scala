@@ -183,6 +183,8 @@ object NonRigidFunction {
   }
 }
 
+//@TODO This is stupid notation. Why should Ex(t,x) quantify over x in formula t?
+//@TODO using de.uka.ilkd.key.collection.ImmutableArray here is actually at odds with RichTerm
 object Ex {
 
   def apply(t: Term, v: LogicVariable): Term = TermBuilder.DF.ex(Array[QuantifiableVariable](v), t)

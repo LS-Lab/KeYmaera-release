@@ -27,8 +27,10 @@ import de.uka.ilkd.key.dl.parser.NumberCache
 import java.math.BigDecimal
 import de.uka.ilkd.key.dl.logic.ldt.RealLDT
 import de.uka.ilkd.key.java.Services
+import de.uka.ilkd.key.collection.ImmutableArray
 
 /**
+ * Derivative operator for differential invariants (diffind) and differential variants (difffin).
  * @author jdq
  *
  */
@@ -37,6 +39,9 @@ object Derive {
   implicit def int2term(i: Int) = TermBuilder.DF.func(NumberCache.getNumber(
     new BigDecimal(i), RealLDT.getRealSort()))
 
+    /**
+     * derivative of t with differential substitution described by vars and strict modification eps.
+     */
   def apply(t: Term, vars: java.util.Map[String, Term], eps: Term, services: Services): Term = {
     val d = Derive(_: Term, vars, eps, services)
     t match {
@@ -45,11 +50,15 @@ object Derive {
         throw new UnsupportedOperationException(
           "not yet implemented for operator " + t.op + " in " + t);
       case Not(_) =>
-        throw new IllegalArgumentException("please transform the " + t
-          + " into negation normal form");
-      case All(a, x) => All(d(a), x)
-      case Ex(a, x) => Ex(d(a), x)
-      case Or(a, b) => d(a) & d(b)
+        throw new IllegalArgumentException("Please transform the " + t
+          + " into negation normal form first");
+      case All(a, x:ImmutableArray[QuantifiableVariable]) =>
+        if (vars.keySet.forall(v => !(vars contains v.toString))) All(d(a), x)
+        else throw new IllegalArgumentException("Please rename bound quantifier for " + x + " in " + t + " so that it does not have a differential equation")
+      case Ex(a, x:ImmutableArray[QuantifiableVariable]) => 
+        if (vars.keySet.forall(v => !(vars contains v.toString))) All(d(a), x)  //@NOTE This has to be All!
+        else throw new IllegalArgumentException("Please rename bound quantifier for " + x + " in " + t + " so that it does not have a differential equation")
+      case Or(a, b) => d(a) & d(b)  //@NOTE This has to be &
       case And(a, b) => d(a) & d(b)
       case Constant(n) => vars.toMap.get(n) match {
         case Some(t) => t
