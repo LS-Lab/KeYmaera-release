@@ -1,10 +1,10 @@
-       KeY - INTEGRATED DEDUCTIVE SOFTWARE DESIGN 
+       KeYmaera - A HYBRID THEOREM PROVER FOR HYBRID SYSTEMS
 
-       Copyright (C) 2001-2012 Universitaet Karlsruhe (TH), Germany 
+       Copyright (C) 2001-2014 Universitaet Karlsruhe (TH), Germany 
                                Universitaet Koblenz-Landau, Germany
                                Chalmers University of Technology, Sweden
-							   Carl von Ossietzky Universitaet Oldenburg, Germany
-							   Carnegie Mellon University, USA
+                               Carl von Ossietzky Universitaet Oldenburg, Germany
+							                 Carnegie Mellon University, USA
 
        Universitaet Karlsruhe (TH)
        Institut fuer Theoretische Informatik
@@ -26,23 +26,27 @@
        SE-41296 Gothenburg
        Sweden
 
-	   Carl von Ossietzky Universitaet Oldenburg
-	   Department of Computing Science
-	   Correct System Design Group
-	   D-26111 Oldenburg
-	   Germany
 
-	   Carnegie Mellon University 
-	   Computer Science Department
-	   Pittsburgh, PA
-	   USA
+	     Carl von Ossietzky Universitaet Oldenburg
+	     Department of Computing Science
+	     Correct System Design Group
+	     D-26111 Oldenburg
+	     Germany
 
-       WWW: http://key-project.org
-       e-mail: key@ira.uka.de	
+
+	     Carnegie Mellon University 
+	     Computer Science Department
+	     Pittsburgh, PA
+	     USA
+
+
+       WWW: http://keymaera.org
+       e-mail: keymaera@keymaera.org
+
      
-       The KeY system is protected by the GNU General Public License.
+       The KeYmaera and KeY systems are protected by the GNU General Public License.
     
-       The KeY system is free software; you can redistribute it 
+       The KeYmaera and KeY systems are free software; you can redistribute it 
        and/or modify it under the terms of the GNU General 
        Public License as published by the Free Software 
        Foundation; either version 2 of the License, or (at your 

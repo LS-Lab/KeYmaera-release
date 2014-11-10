@@ -1,4 +1,11 @@
-This is the KeY project - Integrated Deductive Software Design 
+KeYmaera Project - A HYBRID THEOREM PROVER FOR HYBRID SYSTEMS
+Copyright (C) 2007-2014 University of Oldenburg, Germany
+                        and Carnegie Mellon University, USA
+
+The KeYmaera system is protected by the GNU General
+Public License.
+
+KeYmaera is based on the KeY project - Integrated Deductive Software Design 
 Copyright (C) 2001-2009 Universitaet Karlsruhe, Germany
                         Universitaet Koblenz-Landau, Germany
                         and Chalmers University of Technology, Sweden          
