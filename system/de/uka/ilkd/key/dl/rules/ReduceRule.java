@@ -219,7 +219,7 @@ public class ReduceRule extends RuleOperatingOnWholeSequence implements
                 }
             }
             if(DLOptionBean.INSTANCE.isUniversalClosureOnQE()) { // universal closure
-                final HashSet<Term> candidates = new HashSet<Term>();
+                final LinkedHashSet<Term> candidates = new LinkedHashSet<Term>();
                 term.execPreOrder(new Visitor() {
                     @Override
                     public void visit(Term sk) {

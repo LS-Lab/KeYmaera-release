@@ -3,6 +3,7 @@ package de.uka.ilkd.key.dl.regressiontest.issues.issue0028;
 import java.util.Arrays;
 import java.util.Collection;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -26,7 +27,7 @@ public class Issue0028NonTerminatingTest extends AbstractProofRegressionTest {
 	@Parameters
 	public static Collection<Object[]> data() {
 		return Arrays.asList(new Object[][] { 
-				{ "proofExamples/hybrid/dev/issues_keymaera/issue_0028/m4_abstract.nonterminatingqe.key.proof", 0 }
+				{ "proofExamples/hybrid/dev/issues_keymaera/issue_0028/m4_abstract.nonterminatingqe.key.proof", 1 }
 		});
 	}
 	
@@ -44,9 +45,13 @@ public class Issue0028NonTerminatingTest extends AbstractProofRegressionTest {
 	 * timeout parameter and expect timeout.
 	 * @throws Exception If the KeYmaera child process throws an exception 
 	 */
-	@Test(timeout=200000,expected=Exception.class)
+	@Ignore
+	@Test(timeout=200000)
 	@Override
 	public void test() throws Exception {
+		// if this test succeeds (meaning the QE terminates), either Mathematica made real improvement in their QE
+		// or KeYmaera figured out how to ask Mathematica in a smart manner 
+		// if this happens, remove @Ignore and celebrate ;-)
 		super.test();
 	}	
 }
