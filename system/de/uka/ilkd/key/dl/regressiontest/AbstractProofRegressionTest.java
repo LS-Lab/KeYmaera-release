@@ -70,6 +70,12 @@ public abstract class AbstractProofRegressionTest {
 	}
 	
 	/**
+	 * Returns the KeYmaera process, which runs unit tests.
+	 * @return The KeYmaera process.
+	 */
+	protected Process getProcess() { return p; }
+	
+	/**
 	 * Sets up the test.
 	 * @throws Exception
 	 */
