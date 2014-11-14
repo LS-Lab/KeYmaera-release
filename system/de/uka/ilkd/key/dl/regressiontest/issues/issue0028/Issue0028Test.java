@@ -51,11 +51,5 @@ public class Issue0028Test extends AbstractProofRegressionTest {
 	@Override
 	public void test() throws Exception {
 		super.test();
-	}
-
-	@Test(timeout=200000,expected=Exception.class)
-	public void testQeWillNotTerminate() throws Exception {
-		// the order of variables in this example will not let QE terminate
-		
-	}
+	}	
 }
