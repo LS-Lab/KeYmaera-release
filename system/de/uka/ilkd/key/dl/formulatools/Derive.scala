@@ -53,10 +53,10 @@ object Derive {
         throw new IllegalArgumentException("Please transform the " + t
           + " into negation normal form first");
       case All(a, x:ImmutableArray[QuantifiableVariable]) =>
-        if (vars.keySet.forall(v => !(vars contains v.toString))) All(d(a), x)
+        if (x.forall(qv => !vars.containsKey(qv.toString))) All(d(a), x)
         else throw new IllegalArgumentException("Please rename bound quantifier for " + x + " in " + t + " so that it does not have a differential equation")
-      case Ex(a, x:ImmutableArray[QuantifiableVariable]) => 
-        if (vars.keySet.forall(v => !(vars contains v.toString))) All(d(a), x)  //@NOTE This has to be All!
+      case Ex(a, x:ImmutableArray[QuantifiableVariable]) =>
+        if (x.forall(qv => !vars.containsKey(qv.toString))) All(d(a), x)  //@NOTE This has to be All!
         else throw new IllegalArgumentException("Please rename bound quantifier for " + x + " in " + t + " so that it does not have a differential equation")
       case Or(a, b) => d(a) & d(b)  //@NOTE This has to be &
       case And(a, b) => d(a) & d(b)
