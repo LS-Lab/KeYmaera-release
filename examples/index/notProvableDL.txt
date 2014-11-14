@@ -15,3 +15,4 @@
 ./hybrid/dev/noinduction3.key 600 1
 ./hybrid/dev/noinduction4.key 600 1
 ./hybrid/dev/globalindissue.key 600 1
+./hybrid/dev/issue0027/DIwQ.key.proof 600 1

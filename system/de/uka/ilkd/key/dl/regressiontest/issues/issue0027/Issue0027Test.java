@@ -10,8 +10,8 @@ import org.junit.runners.Parameterized.Parameters;
 import de.uka.ilkd.key.dl.regressiontest.AbstractProofRegressionTest;
 
 /**
- * Regression test for issue #0023.
- * Issue: Missing heuristics for automated application of special function rules.
+ * Regression test for issue #0027.
+ * Issue: Diff. ind. for quantifiers unsound.
  * 
  * @author smitsch
  */
@@ -25,8 +25,7 @@ public class Issue0027Test extends AbstractProofRegressionTest {
 	@Parameters
 	public static Collection<Object[]> data() {
 		return Arrays.asList(new Object[][] { 
-				{ "proofExamples/hybrid/dev/issues_keymaera/issue_0027/DlwQ.key", 0 },
-				{ "proofExamples/hybrid/dev/issues_keymaera/issue_0027/DlwQ.key.proof", 1 }
+				{ "proofExamples/hybrid/dev/issues_keymaera/issue_0027/DIwQ.key.proof", 1 }
 		});
 	}
 	
