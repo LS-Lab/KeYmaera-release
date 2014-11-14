@@ -17,7 +17,7 @@ import de.uka.ilkd.key.dl.regressiontest.AbstractProofRegressionTest;
  * @author smitsch
  */
 @RunWith(Parameterized.class)
-public class Issue0028Test extends AbstractProofRegressionTest {
+public class Issue0028NonTerminatingTest extends AbstractProofRegressionTest {
 	
 	/**
 	 * Provides the test parameters (one file at a time).
@@ -26,10 +26,7 @@ public class Issue0028Test extends AbstractProofRegressionTest {
 	@Parameters
 	public static Collection<Object[]> data() {
 		return Arrays.asList(new Object[][] { 
-				{ "proofExamples/hybrid/dev/issues_keymaera/issue_0028/vars_order_UnitTest.key", 0 },
-				{ "proofExamples/hybrid/dev/issues_keymaera/issue_0028/vars_order_UnitTest.key.proof", 0 },
-				{ "proofExamples/hybrid/dev/issues_keymaera/issue_0028/m3_abstract.key.proof", 0 },
-				{ "proofExamples/hybrid/dev/issues_keymaera/issue_0028/m4_abstract.key.proof", 0 }
+				{ "proofExamples/hybrid/dev/issues_keymaera/issue_0028/m4_abstract.nonterminatingqe.key.proof", 0 }
 		});
 	}
 	
@@ -37,25 +34,19 @@ public class Issue0028Test extends AbstractProofRegressionTest {
 	 * Initializes a new test with the specified file under test.
 	 * @param fileName The file under test.
 	 */
-	public Issue0028Test(String fileName, int expected) {
+	public Issue0028NonTerminatingTest(String fileName, int expected) {
 		super(fileName, expected);
 	}
 	
 	/**
 	 * The test method. Called once per entry in the static
 	 * data() parameter provider. Overridden to provide a different 
-	 * timeout parameter.
+	 * timeout parameter and expect timeout.
 	 * @throws Exception If the KeYmaera child process throws an exception 
 	 */
-	@Test(timeout=100000)
+	@Test(timeout=200000,expected=Exception.class)
 	@Override
 	public void test() throws Exception {
 		super.test();
-	}
-
-	@Test(timeout=200000,expected=Exception.class)
-	public void testQeWillNotTerminate() throws Exception {
-		// the order of variables in this example will not let QE terminate
-		
-	}
+	}	
 }

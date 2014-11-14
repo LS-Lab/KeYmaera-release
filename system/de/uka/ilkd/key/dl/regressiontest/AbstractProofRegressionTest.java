@@ -88,10 +88,18 @@ public abstract class AbstractProofRegressionTest {
 				FileSystems.getDefault().getPath(TMP_DIR, file.getName()), 
 				StandardCopyOption.REPLACE_EXISTING);
 		
-		ProcessBuilder pb = new ProcessBuilder("java",
-				"-ea:de.uka.ilkd.key...", "-Xms64m", "-Xmx1024m",
-				String.format("-Dcom.wolfram.jlink.libdir=%s", JLINK_NATIVE_LIB_DIR),
-				KeYmaera.class.getName(), TMP_DIR + file.getName(), "dL", "auto");
+		boolean isDebug = java.lang.management.ManagementFactory.getRuntimeMXBean().getInputArguments().toString().indexOf("jdwp") >= 0;
+		
+		ProcessBuilder pb = isDebug 
+				? new ProcessBuilder("java",
+					"-ea:de.uka.ilkd.key...", "-Xms64m", "-Xmx1024m",
+					"-agentlib:jdwp=transport=dt_socket,address=9999,server=y,suspend=y",
+					String.format("-Dcom.wolfram.jlink.libdir=%s", JLINK_NATIVE_LIB_DIR),
+					KeYmaera.class.getName(), TMP_DIR + file.getName(), "dL", "auto")
+				: new ProcessBuilder("java",
+					"-ea:de.uka.ilkd.key...", "-Xms64m", "-Xmx1024m",
+					String.format("-Dcom.wolfram.jlink.libdir=%s", JLINK_NATIVE_LIB_DIR),
+					KeYmaera.class.getName(), TMP_DIR + file.getName(), "dL", "auto");
 		pb.directory(new File(TMP_DIR));
 		pb.environment().put("CLASSPATH", CLASS_PATH);
 		pb.environment().put("JAVA_HOME", System.getProperty("java.home"));
