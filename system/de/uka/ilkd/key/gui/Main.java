@@ -1210,8 +1210,27 @@ public class Main extends JFrame implements IMain {
                 COPYRIGHT+"\n\nWWW: http://key-project.org\n\nWWW: http://symbolaris.com/info/KeYmaera.html\n\nVersion "+
                 VERSION
                 + ((aspects.length()==0) ? "":
-                    "\nCompiled with Aspects:\n"+aspects)
-                    ,
+                    "\nCompiled with Aspects:\n"+aspects));
+        label.setWrapStyleWord(true);
+        label.setLineWrap(true);
+        label.setEditable(false);
+        JPanel panel = new JPanel(new BorderLayout());
+        label.setPreferredSize(new Dimension(450, 150));
+        panel.setPreferredSize(new Dimension(550, 200));
+        panel.add(label, BorderLayout.CENTER);
+        JButton info = new JButton("Debug Information");
+        info.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                JTextArea area = new JTextArea(24, 80);
+                area.setEditable(false);
+                area.setText(DLInitializer.getDiagnostics());
+                JScrollPane pane = new JScrollPane(area);
+                JOptionPane.showMessageDialog(Main.this, pane, "Environment settings", JOptionPane.DEFAULT_OPTION);
+            }
+        });
+        panel.add(info, BorderLayout.SOUTH);
+        JOptionPane pane =new JOptionPane(panel,
                     JOptionPane.INFORMATION_MESSAGE, JOptionPane.DEFAULT_OPTION,
                     IconFactory.keyLogo(105,60));
         JDialog dialog = pane.createDialog(this, "KeYmaera and the KeY Project");

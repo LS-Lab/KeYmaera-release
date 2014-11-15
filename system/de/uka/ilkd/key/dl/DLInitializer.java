@@ -316,16 +316,17 @@ public class DLInitializer {
 									"KeYmaera Version " + KeYResourceManager.getManager().getVersion() + "\n" +
 									"Information and documentation on using KeYmaera,\nthe syntax of its specification language of\n"
                       + "differential dynamic logic for hybrid programs, and\n"
-                      + "its verification features, is available on the web:\n"
-											+ "See KeYmaera Tutorial at\n\n    http://symbolaris.com/info/KeYmaera-guide.html\n\n"
-											+ "Full details on the KeYmaera verification approach\n"
-                      + "can be found in the book\n"
+                      + "its verification features, is available on the web:\n\n" +
+"  http://symbolaris.com/info/KeYmaera-guide.html\n\n"
+											+ "Details on KeYmaera's verification approach can be\n"
+                      + "found in the book\n"
 											+ "  Andr\u00e9 Platzer.\n"
 											+ "  Logical Analysis of Hybrid Systems:\n" + "  Proving Theorems for Complex Dynamics.\n"
-											+ "  Springer, 2010.\n"
+											+ "  Springer, Heidelberg, 2010.\n"
 											+ "  ISBN 978-3-642-14508-7\n"
 											+ "http://symbolaris.com/lahs/\n"
-                      + "Powered by Symbolaris",
+                      + "Powered by Symbolaris\n"
+                      + "Based on Multidynamics technology",
 									"KeYmaera Documentation",
 									JOptionPane.INFORMATION_MESSAGE);
 				}
@@ -335,23 +336,11 @@ public class DLInitializer {
 
 		JMenuItem diagnostics = new JMenuItem("KeYmaera Diagnostics");
 		diagnostics.addActionListener(new ActionListener() {
+      @Override
 			public void actionPerformed(ActionEvent e) {
 				{
-					String properties = "";
-          //@TODO Could use System.getProperties().store(new StringWriter(), "System environment");
-					for (Enumeration i = System.getProperties().propertyNames(); i.hasMoreElements(); ) {
-						String k = (String)i.nextElement();
-						properties += k + "=" + System.getProperties().getProperty(k) + "\n";
-					}
 					JTextArea text = new JTextArea(
-						      "KeYmaera version " + KeYResourceManager.getManager().getVersion() + "\n" +
-									"KeYmaera internal " + KeYResourceManager.getManager().getSHA1() + "\n" +
-									"Java version " + System.getProperties().getProperty("java.runtime.version") + " with " + System.getProperties().getProperty("sun.arch.data.model") + " bits\n" +
-									"OS " + System.getProperties().getProperty("os.name") + " " + System.getProperties().getProperty("os.version") + "\n" +
-									"JDK home " + System.getProperties().getProperty("java.home") + "\n" + 
-									"J/Link " + System.getProperties().getProperty("com.wolfram.jlink.libdir", "(undefined)") + "\n" + 
-									"---------------------------\n" + 
-									properties,
+						      getDiagnostics(),
 									20,60);
 					text.setEditable(false);
 					JOptionPane
@@ -365,6 +354,28 @@ public class DLInitializer {
 		});
 		help.add(diagnostics);
 	}
+  
+  /**
+   * @TODO Could put into another class.
+   */
+  public static String getDiagnostics() {
+		String properties = "";
+    //@TODO Could use System.getProperties().store(new StringWriter(), "System environment");
+		for (Enumeration i = System.getProperties().propertyNames(); i.hasMoreElements(); ) {
+			String k = (String)i.nextElement();
+			properties += k + "=" + System.getProperties().getProperty(k) + "\n";
+		}
+		return
+			      "KeYmaera version " + KeYResourceManager.getManager().getVersion() + "\n" +
+						"KeYmaera internal " + KeYResourceManager.getManager().getSHA1() + "\n" +
+						"Java version " + System.getProperties().getProperty("java.runtime.version") + " with " + System.getProperties().getProperty("sun.arch.data.model") + " bits\n" +
+						"OS " + System.getProperties().getProperty("os.name") + " " + System.getProperties().getProperty("os.version") + "\n" +
+						"JDK home " + System.getProperties().getProperty("java.home") + "\n" + 
+						"J/Link " + System.getProperties().getProperty("com.wolfram.jlink.libdir", "(undefined)") + "\n" + 
+						"---------------------------\n" + 
+						properties;
+    
+  }
 
 	/**
 	 * @throws IntrospectionException
