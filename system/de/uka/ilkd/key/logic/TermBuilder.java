@@ -72,7 +72,7 @@ public class TermBuilder {
         if(qvs.size() == 1 && qvs.contains(qv)) {
             return tf.createQuantifierTerm ( Op.ALL, qv, t2 );
         } else if(qvs.size() == 0) {
-            assert !t2.freeVars().contains(qv) && t2.freeVars() == useQV(qv, t2).freeVars();
+            assert !t2.freeVars().contains(qv) && t2.freeVars() == useQV(qv, t2).freeVars() : "all(" + qv + "," + t2 + ") quantifying list " + qvs + " expected not to have quantified variable " + qv + " occurring in free variables " + t2.freeVars() + " alias " + useQV(qv, t2).freeVars() + " of " + t2; //@TODO Explain and justify
             return t2;
         } else {
             return tf.createQuantifierTerm ( Op.ALL, qv, useQV(qv, t2) );
