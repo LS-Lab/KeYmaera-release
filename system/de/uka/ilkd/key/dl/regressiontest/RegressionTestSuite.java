@@ -8,9 +8,12 @@ import de.uka.ilkd.key.dl.regressiontest.issues.issue0021.Issue0021Test;
 import de.uka.ilkd.key.dl.regressiontest.issues.issue0023.Issue0023Test;
 import de.uka.ilkd.key.dl.regressiontest.issues.issue0027.Issue0027Test;
 import de.uka.ilkd.key.dl.regressiontest.issues.issue0028.Issue0028Test;
+import de.uka.ilkd.key.dl.regressiontest.issues.issue0030.Issue0030Test;
 import de.uka.ilkd.key.dl.regressiontest.proofexamples.AutomatedProvableTest;
 import de.uka.ilkd.key.dl.regressiontest.proofexamples.LicsTutorialTest;
 import de.uka.ilkd.key.dl.regressiontest.proofexamples.NotProvableTest;
+import de.uka.ilkd.key.dl.regressiontest.proofexamples.RegressionNotProvableTest;
+import de.uka.ilkd.key.dl.regressiontest.proofexamples.RegressionProvableTest;
 
 /**
  * Regression test suite.
@@ -21,11 +24,14 @@ import de.uka.ilkd.key.dl.regressiontest.proofexamples.NotProvableTest;
 	NotProvableTest.class,
 	AutomatedProvableTest.class,
 	LicsTutorialTest.class,
+	RegressionProvableTest.class,
+	RegressionNotProvableTest.class,
 	Issue0001Test.class,
 	Issue0021Test.class,
 	Issue0023Test.class,
 	Issue0027Test.class,
-	Issue0028Test.class
+	Issue0028Test.class,
+	Issue0030Test.class
 })
 public class RegressionTestSuite {
 	// the class remains empty,
