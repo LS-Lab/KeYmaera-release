@@ -34,8 +34,9 @@ public class RegressionNotProvableTest extends AbstractProofRegressionTest {
 			String testFileLine = r.readLine();
 			while (testFileLine != null) {
 				// format in automaticDL.txt: ./fileName timeout
+				String[] testFile = testFileLine.split(" ");
 				// format for JUnit tests: proofExamples/fileName expectedResult
-				data.add(new Object[] {testFileLine.replaceFirst("./", "proofExamples/"), 1});
+				data.add(new Object[] {testFile[0].replaceFirst("./", "proofExamples/"), 1});
 				testFileLine = r.readLine();
 			}
 		} catch (IOException e) {
