@@ -44,6 +44,9 @@ import java.rmi.server.UnicastRemoteObject;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -337,7 +340,7 @@ public class KernelLinkWrapper extends UnicastRemoteObject implements Remote,
 				dump.printStackTrace();
 			}
 
-			log(Level.FINE, "Awaiting connections from other hosts...");
+			log(Level.FINE, "Awaiting connections from other hosts...");	
 		} catch (MathLinkException e) {
 			log(Level.WARNING, "Could not initialise math link", e);
 			throw new RemoteException("Could not initialise math link", e);

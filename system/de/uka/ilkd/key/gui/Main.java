@@ -1206,8 +1206,7 @@ public class Main extends JFrame implements IMain {
     
     public void showAbout() {
         String aspects = compiledAspects();
-        JOptionPane pane =new JOptionPane(
-                COPYRIGHT+"\n\nWWW: http://key-project.org\n\nWWW: http://symbolaris.com/info/KeYmaera.html\n\nVersion "+
+        JTextArea label = new JTextArea(COPYRIGHT+"\n\nWWW: http://key-project.org\n\nWWW: http://symbolaris.com/info/KeYmaera.html\n\nVersion "+
                 VERSION
                 + ((aspects.length()==0) ? "":
                     "\nCompiled with Aspects:\n"+aspects));
